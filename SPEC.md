@@ -1,0 +1,312 @@
+# Cornerstone Assessment Engine — design spec
+
+Status: approved shape (approach A), awaiting Nimish's read-through before the implementation plan.
+Scope: Grades 1–4 whole-number addition and subtraction, built first for Grade 2–3. Everything else
+in the Learning OS (voice capture, planning, reports) is out of scope here but the data model is
+the shared one, so nothing built here is thrown away when those arrive.
+
+## 1. What this is for
+
+A teacher photographs a pile of completed worksheets. By the next morning the system knows, per
+child and per skill, what is secure, what is a repeating mistake (and which one), and what to give
+next — and has drafted the next worksheet, the home practice, and the parent note. The teacher
+confirms; she never types.
+
+Five outputs, each one the test of whether the build is working:
+
+| Output | Who | Test |
+|---|---|---|
+| Print pack in handout order | coordinator | one stack, no sorting |
+| Confirm queue after capture | teacher | under 2 minutes per class |
+| Monday card per rung: secure / reteach group with the named mistake / ready to move up | teacher | she changes a Monday decision because of it |
+| Child growth: skill state over time | teacher, coordinator, later parent | four real assessments show a trend |
+| Home sheet + parent note | teacher approves, parent receives | note is plain, concrete, no alarm |
+
+## 2. The shape — one organism, not many programs
+
+```
+                 ┌──────────── n8n (nerves) ───────────┐
+                 │ triggers · waits · Drive I/O · notify │
+                 └───┬───────────────┬─────────────────┘
+                     │ HTTP          │ HTTP
+   Next.js (skin) ──►│  engine (muscle, Python)          │
+   six screens       │  generate · render · ingest       │
+   reads DB directly │  mark · graph · cli               │
+        │            └───────┬───────────────┬──────────┘
+        │                    │ SQL            │ adapters
+        ▼                    ▼                ▼
+   ┌────────────── Supabase Postgres (bloodstream) ─────────────┐   Drive · Claude vision · notify
+   │ Ring A truth  │ Ring B derived │ pii schema │ prompts · runs │
+   └────────────────────────────────────────────────────────────┘
+```
+
+Rules that keep it one organism:
+
+- **One database.** Every part reads and writes the same Postgres. "How is this child doing" is one
+  join. `tenant_id` on every table and row-level security from the first migration: a second
+  school is a row, not a rewrite.
+- **Code where correctness is needed, a model where judgment is needed.** Arithmetic, marking,
+  misconception lookup, graph rebuild: code, deterministic, tested. Reading handwriting, reading a
+  whole page for behaviour, writing a word-problem context, drafting a parent note: Claude, behind
+  one adapter, with a versioned prompt and an eval set.
+- **n8n orchestrates, never thinks.** It holds triggers, credentials, sequencing, human-approval
+  waits, Drive and notification I/O, retries. No prompt, no blueprint, no marking rule lives in a
+  node. If logic appears in a Code node, it moves to the engine.
+- **Nothing structural is hard-coded.** Bands, rungs, levels, blueprints, misconceptions, prompts,
+  thresholds are rows. Adding Grade 5 or a new rung is an insert, not a deploy.
+- **Ring B is disposable.** Derived state is rebuilt from Ring A nightly and can be truncated at any
+  time. If a rebuild changes a child's state, that is a bug in the rule or a fact in the evidence,
+  never a lost row.
+
+## 3. The skill model — three levels, no fourth taxonomy
+
+Three documents describe "what a child can do" at different grains. They are reconciled as levels
+of one model, not competing vocabularies.
+
+| Level | Source | Example | Used for |
+|---|---|---|---|
+| **Skill** | the registry (`window.CSMAP`, 244 skills, ratified by the school) | `NUM.OPS.02` Subtraction | joining to everything else in the Learning OS: report lines, activities, objectives |
+| **Rung** | the R1–R14 ladder (spec v0.1 §1) — a stage on the strand | `R6` 2-digit subtraction with exchange | levels (L−/L0/L+), blueprints, the child's position, the Monday card |
+| **Case tags** | the team's *Addition & Subtraction Assessment Skill Taxonomy* §12 matrix | `{op:SUB, d1:2, d2:2, presentation:VERTICAL, regrouping:SINGLE, regroup_columns:[ONES], zero_pattern:NONE, answer_digit_change:SAME, unknown:NONE, reasoning:DIRECT, context:BARE}` | item generation and selection; guaranteeing no case is silently missing; item statistics per case |
+
+Case tags are **derived by code from the generator's parameters**, never typed. A blueprint slot
+asks for a rung, a signal (Foundational / Conceptual / Procedural / Application / Stretch) and
+optionally tag constraints; the picker fills it. The taxonomy's §13 progression maps onto the
+rungs (stages 1–7 ≈ R1–R10, 8 ≈ R12, 9–10 ≈ R7/R13, 11 ≈ R7, 12 ≈ R8/R14, 13 ≈ X2), so the ladder
+stays the teaching sequence and the tags stay the coverage guarantee.
+
+Registry gaps the ladder exposes (3-digit and across-zero subtraction have no G3 milestone; G4 has
+no content ladder) are handled by `rung.milestone_id` being nullable and a coverage report, not by
+editing the registry from this repo. Registry changes go to Akanksha through the Skill Map Review.
+
+**Misconceptions** are one table from three sources: the prototype's answer-lookup predictors
+(`M_NOCARRY`, `M_SMALL_FROM_LARGE`, …), the Adaptive Subtraction spec's M001–M010 (conceptual),
+and the taxonomy §11 error list. Each row says how it is detectable — `answer_lookup` (a wrong
+number matches the predicted wrong number), `working` (visible in the working box), `explanation`
+(only from what the child says), `teacher`. Only `answer_lookup` rows are tagged automatically.
+
+## 4. Tables
+
+Postgres, schema `public` unless noted. Every table: `id`, `tenant_id`, `created_at`, `updated_at`;
+RLS on. Names are singular. JSON only where the shape is genuinely per-row (geometry, tags,
+responses).
+
+**Ring A — source of truth (append/approve; never edited by a batch job)**
+
+| Table | Holds | Written by |
+|---|---|---|
+| `tenant` | one row per school | migration |
+| `skill` | registry skill: id (`NUM.OPS.01`), domain, strand, name, description, source | loader from CSMAP |
+| `milestone` | registry band descriptor per skill: band, descriptor, scale | loader |
+| `rung` | ladder stage: id (`R5`), band, order, descriptor, skill_ids[], milestone_id (nullable) | seed |
+| `level_rule` | (band, level) → rung_ids[]; foundational and probe rungs | seed |
+| `blueprint` | (band, level) → ordered slots [{label, generator, args, rung, signal, tags?}] | seed; editable by coordinator |
+| `misconception` | code, op, name, description, repair_hint, detectable_by, source, external_ref | seed; grows from `unclassified` reviews |
+| `item` | one generated question: template, rung_id, skill_ids[], signal, format, stem, spec, responses[] (rid, kind, answer, cells, options, misconceptions{code→wrong}, tolerance, rubric), tags, source, status, times_used, p_correct | engine generate |
+| `sheet_template` | one assembled worksheet design: band, level, variant, week, batch_id, blueprint_id, item_ids[], key (answers + cell geometry in mm), html_path, source (`generated` \| `legacy`) | engine assemble / legacy CLI |
+| `sheet_instance` | one physical page set: id = the QR code (`CS…`), sheet_template_id, child_id (nullable until named), print_status, pdf_path, printed_at | engine render; coordinator (naming, print status) |
+| `child` | roll_no, band, section, active — **no name here** | roster loader |
+| `pii.child` | first_name, last_name, home_languages[]; separate schema, separate role, access logged | roster loader |
+| `capture` | one incoming file: drive_file_id, path, pages, qr_read, sheet_instance_id (nullable), status (`new` \| `resolved` \| `needs_rephoto` \| `processed` \| `error`), error | engine ingest |
+| `item_result` | one response on one capture: item_id, rid, raw_read, read_confidence, status (`correct` \| `wrong` \| `blank` \| `unreadable` \| `needs_teacher`), misconception_codes[], working_shown, state (`candidate` \| `confirmed` \| `rejected`), confirmed_by/at | engine mark; teacher confirm |
+| `narrative_observation` | one per capture: text, signals {self_correction, guessed, fatigue, method_pattern}, prompt_version | engine read (Channel B) |
+| `evidence_event` | the shared log: child_id, skill_id, rung_id, correct, misconception_codes[], channel (`item`), item_result_id, observed_at, stored_at, confirmed_by | engine on confirm — **append-only** |
+| `home_sheet` | child_id, week, target_skill_ids[], item_ids[], pdf_path | engine |
+| `parent_note` | child_id, week, body, prompt_version, approved_by, sent_at, channel | engine draft; teacher approve |
+| `prompt` | purpose, version, text, model, json_schema, active | seed; new version = new row |
+| `gold` | hand-marked truth for prompt evals: capture_id, item_id, rid, truth | Aseem/teacher via CLI |
+| `flow_run` | every n8n or CLI run: flow, trigger, started/finished, status, error, tokens, cost | n8n + engine |
+| `access_log` | who read which child's pii rows, when | trigger on `pii` |
+
+**Ring B — derived (TRUNCATE-able; rebuilt nightly from confirmed evidence only)**
+
+| Table | Holds |
+|---|---|
+| `child_skill_state` | child_id, skill_id, rung_id, state (`not_enough_yet` \| `patterned_error` \| `emerging` \| `practising` \| `secure` \| `stretch_ready`), n_events, n_correct, repeating_misconception, last_seen, computed_at |
+| `class_card` | (section, week, rung) → secure[], reteach{misconception→children[]}, move_up[]; the Monday card, drafted |
+| `item_stat` | item_id → n, p_correct, flagged_mislevelled |
+
+Thresholds (minimum events for a state, the 80% / 50% next-sheet rule, 21-day exposure, the
+0.2 / 0.95 item flags, auto-confirm confidence) live in a `threshold` table, not in code.
+
+## 5. Flows
+
+Eight steps, and which part does each:
+
+| # | Step | Trigger | Does the work | Human |
+|---|---|---|---|---|
+| 1 | Load registry + ladder | CLI, once and on registry publish | engine `load` | — |
+| 2 | Generate the week's matrix | n8n **F1** schedule (Sun) or button | engine `generate` → `render` | coordinator reviews library |
+| 3 | Print & name | button | Next.js writes `sheet_instance` | coordinator |
+| 4 | Capture | n8n **F2** Drive trigger | engine `ingest` | teacher drops photos |
+| 5 | Mark (A) + read (B) | F2 continues | engine `mark`, `read` | — |
+| 6 | Confirm | F2 notifies | Next.js queue → engine `commit` | teacher, < 2 min |
+| 7 | Rebuild graph + draft cards | n8n **F3** nightly | engine `graph`, `cards` | — |
+| 8 | Home sheet + parent note | F3 continues | engine `home` | teacher approves |
+
+**F1 generate-weekly** (≈6 nodes): Schedule/Form → POST `/generate {matrix}` → Drive upload print
+packs → notify coordinator with links → write `flow_run`.
+
+**F2 capture-and-mark** (≈9 nodes): Drive trigger on `/Assessments/<section>/scans/` → POST
+`/ingest {file}` → IF resolved → POST `/mark` + POST `/read` → IF review needed → notify teacher
+"N items to confirm" → (queue in the app; on confirm the app calls `/commit`) → move file to
+`processed/` → `flow_run`. Unreadable QR → `needs_rephoto`, teacher sees it in Capture.
+
+**F3 nightly** (≈4 nodes): Schedule 21:00 → POST `/graph/rebuild` → POST `/cards` → POST `/home`
+→ notify → `flow_run`.
+
+**Legacy import** (every assessment done so far, and any future non-QR paper) is an engine CLI,
+not an n8n flow: `engine legacy import assessments/G3/2026-09-03_week1_add-sub`. It reads the
+folder layout in `~/cornerstone/assessments/README.md` (one folder per paper, one PDF per child,
+`roster.csv` per grade). It is run a handful of times by a person, so it does not earn a workflow.
+
+The matrix is a row in `config`, e.g. `{bands:[G2,G3], strands:[ADD,SUB], levels:[Lm,L0,Lp],
+variants:2}` — the school edits it, not the code.
+
+## 6. How a worksheet is parsed
+
+**Generated sheet (QR + fiducials):**
+
+1. Load image; find the four black 7 mm corner squares by contour (area, aspect, fill); pick the
+   one nearest each corner.
+2. Perspective-warp to the canonical page: 8 px/mm, 1680 × 2376. Every later step works in
+   millimetres, so a phone photo and a flatbed scan are the same thing from here on.
+3. Read the QR in its known top-right window → `sheet_instance.id` → child, template, answer key,
+   cell geometry. Nothing about the child is on the page except the printed name.
+4. For every response cell in `key.geometry`, crop with a 0.6 mm inset (the printed box line is
+   excluded). Digit cells: one Claude vision call **per page** carrying all that page's crops in
+   order with a strict JSON schema `[{item, rid, k, digit: "0–9" | "", confidence}]`. Tick boxes:
+   ink ratio, no model. Working boxes: ink ratio → `none / partial / full`, no model. Text boxes:
+   ink present → `needs_teacher` with the rubric shown; no auto-mark ever.
+5. Mark by lookup, no model: join digits → compare with the key (tolerance for estimates) →
+   `correct`; else look the number up in the response's `misconceptions {code → wrong}` → codes,
+   or `unclassified`; empty → `blank`; low confidence → `unreadable`. Blank, wrong and
+   wrong-with-working stay three different signals.
+6. One whole-page Claude call (Channel B) → `narrative_observation`: self-correction, blank vs
+   guessed, fatigue across items, a method repeating. Never overrides step 5.
+7. Everything lands as `candidate`. The confirm queue shows only `unreadable`, `needs_teacher`,
+   `unclassified`, and any cell under the auto-confirm confidence threshold. Confirmed rows become
+   `evidence_event`s.
+
+**Legacy sheet (no markers — every assessment done so far):**
+
+1. The assessment paper is entered once as a `sheet_template(source=legacy)`: item number,
+   printed question, answer, and — for bare column sums — the misconception predictions computed
+   from the printed operands by the same predictor code.
+2. Each scan → one whole-page Claude call with the `legacy_extract` prompt → JSON per item
+   `{n, question_as_printed, child_answer, attempted, working_summary, self_corrected}`; matched to
+   the template by item number and by the printed question text (mismatch → queue).
+3. Steps 5–7 above, unchanged. Results carry `source=legacy` so the graph can weight them.
+
+**Olympiad paper (SOF IMO)**: MCQ; imported as one legacy template with option answers; only
+items that are addition/subtraction get skill and rung tags, the rest carry the score only.
+
+## 7. What information comes out
+
+| Grain | Fields |
+|---|---|
+| per response | status, digits read, confidence, misconception codes or `unclassified`, working shown |
+| per sheet | narrative + four signals, pages, resolution path (QR / manual / legacy) |
+| per child × rung | one of six states, n events, n correct, the repeating misconception, last seen, source mix |
+| per child over time | the trajectory: state and evidence per assessment date (the four points) |
+| per class × rung | secure list, reteach groups keyed by misconception, ready-for-L+ list |
+| per item | n used, p_correct, mis-levelled flag |
+| per prompt version | precision / recall against `gold` |
+
+## 8. Prompts
+
+Five, each a row in `prompt` with a JSON schema, fetched by purpose at runtime, never inline:
+
+| purpose | input | output |
+|---|---|---|
+| `read_cells` | page crops in order | digits + confidence |
+| `read_page` | whole page | narrative + signals |
+| `legacy_extract` | whole page + expected item count | per-item answers and working |
+| `word_context` | numbers, rung descriptor verbatim, grade word cap, forbidden words ("borrow"), approved names | stem only; numbers may not change |
+| `parent_note` | child's flagged misconception rows + repair hints | 4–6 plain sentences, Cornerstone voice |
+
+Every prompt has an eval: `gold` rows for the reading prompts (hand-marked cells and pages),
+a fixed input set with human-graded outputs for the writing prompts. A prompt version ships only
+with its eval score in `DECISIONS-LOG.md`.
+
+## 9. Interfaces
+
+Six screens, from the approved mockup, Next.js, server-rendered, reading Supabase directly; actions
+call the engine.
+
+| Screen | Shows | Actions |
+|---|---|---|
+| Skill Map | registry skills for NUM with their rungs, coverage (which rungs have items, which have evidence) | none — registry edits go through the Skill Map Review |
+| Worksheets | the library: every generated sheet with a real preview, filter by band/strand/level/week | **Generate this week's matrix**; Customize one sheet's blueprint before print lock |
+| Assessments | every `sheet_instance` and where it is | name a spare; mark printed / with teacher |
+| Capture | Drive-sync feed: what came in, what resolved, what needs a re-photo; the confirm queue | confirm / correct / reject a candidate |
+| Child Growth | one child: state per rung, trajectory across assessments, narratives | none |
+| Home Assignment | this week's home sheet and the parent note draft | approve, send |
+
+Roles from the platform doc apply: teacher sees own classes; coordinator all; parent (later) only
+confirmed, narrative outputs. Brand: Lime wash / Basalt / Terracotta; Young Serif, Atkinson
+Hyperlegible, JetBrains Mono for every id, date and number.
+
+## 10. Repo
+
+```
+assessment-engine/
+  CLAUDE.md  SPEC.md  STATE.md  HANDOFF.md  DECISIONS-LOG.md
+  docs/adr/            one file per rejected alternative
+  docs/sources/        team documents this design incorporates (taxonomy, adaptive spec text)
+  supabase/            config, migrations/, seed/ (registry json, rungs, levels, blueprints, misconceptions, prompts)
+  packages/engine/     Python 3.12 · assess/ (moved from the prototype) · api/ (FastAPI) · adapters/ (drive, vision, notify) · cli.py · tests/
+  apps/web/            Next.js · six routes · one Supabase client
+  n8n/                 docker-compose.yml · workflows/F1.json F2.json F3.json (exported, reviewed like code)
+  data/                gitignored: scans, renders, print packs
+```
+
+Languages: Python for the engine because the validated code is Python and image work belongs
+there; TypeScript for the app because Supabase's grain is TypeScript; SQL for everything
+structural. No third language.
+
+## 11. Build order and gates
+
+| Phase | Ships | Gate (machine-checkable) |
+|---|---|---|
+| 0 | repo, migrations, loaders, seeds, engine moved in with its tests green | `engine load` twice = zero diff; 37 NUM skills, 16 rungs, 14+ misconceptions, 3 prompts present |
+| 1 | legacy import of the uploaded G2/G3 assessments → confirm queue → evidence → graph v0 → Child Growth | every scan resolved to a child and an assessment; ≥ 95 % agreement with Aseem's marking on 3 sheets; a real child shows ≥ 2 points |
+| 2 | generate matrix → library with previews → per-instance QR → print pack; F1 | matrix run yields N PDFs + manifests; a new rung added by rows only changes output |
+| 3 | ingest → mark → read → confirm on new-format sheets; F2, F3 | roundtrip on real photos ≥ 95 % on closed items; confirm queue timed < 2 min per class |
+| 4 | Monday card, home sheet, parent note | teacher confirms the card changed a decision; note approved without edits twice |
+
+Phase 1 comes before generation on purpose: it produces the first real trajectory from data that
+already exists, and it is the first real test of vision reading.
+
+## 12. Verification
+
+- Engine: pytest — generators (constraints hold, no duplicate operands across variants), predictors
+  (each named wrong answer reproduces), marking rules (three signals never collapse), the
+  roundtrip as a test with a fixed seed. Coverage ≥ 80 % on changed code.
+- Loader idempotence; fake-band test (add a band and a rung by rows, generate, no code change).
+- Prompt evals against `gold`; a version is rejected below the previous score.
+- App: Playwright screenshot per screen at desktop and 400 px.
+- Every claim of "works" is a command and its output in `STATE.md`.
+
+## 13. Privacy
+
+Children's names live only in `pii.child` and on the printed page. Scans and photos stay in Drive
+and the gitignored `data/`; never in the repo, never in a prompt log. Prompts receive crops and
+pages, not names. `access_log` records every read of `pii`. Consent text for item results and
+work photos is Nimish's to obtain before the first non-founder class run (open decision 1).
+
+## 14. Open decisions — Nimish's, not technical
+
+1. Consent text and purpose register covering item results and work photos.
+2. Parent-note channel for v1: WhatsApp, email, or none until the loop is trusted.
+3. Who approves generated word-problem items before print — Aseem, Neha, or the grade teacher.
+4. Whether the SOF IMO papers count toward the trajectory or are stored for reference only.
+5. n8n hosting after the pilot: this machine (Docker) is fine to start; a Mumbai VPS keeps
+   children's photos on infrastructure the school controls.
+
+## 15. Deliberately not building now
+
+Per-child adaptive assignment (needs the graph first — v1 is three levels per class, teacher
+assigns), multiplication and fractions (blueprints only, when the ladder exists), WhatsApp inbound
+photos, the adaptive tutor engine (its misconception codes are reused, the engine is not built),
+Kreeyo integration (roster is a CSV until Kreeyo has an export), any second store.

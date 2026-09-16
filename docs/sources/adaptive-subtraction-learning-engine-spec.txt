@@ -1,0 +1,898 @@
+ADAPTIVE LEARNING ENGINE
+Subtraction: From Meaning to Mastery
+Comprehensive Product, Pedagogy, Curriculum, AI &amp; Engineering Specification
+Purpose: a build-ready specification for an original personalized learning engine inspired by publicly described mastery-learning patterns, not a copy of any proprietary school or software.
+Version 1.0 | September 2026
+1. Executive Summary
+This document specifies a narrow but complete prototype of an adaptive learning engine for subtraction. The system should take a learner from the most primitive question — “What does subtraction mean?” — through mental strategies, number relationships, place value, regrouping, multiple written methods, and accurate three-digit subtraction, while continually adapting to the learner’s demonstrated knowledge, misconceptions, pace, confidence, and preferred representations.
+The goal is not to build a chatbot that explains subtraction. The goal is to build a closed learning loop: diagnose → model the learner → choose the next best learning experience → interact → assess reasoning → update the learner model → decide what happens next. This is the central design principle.
+Core design decision:  The LLM is a component, not the educational architecture. The architecture must own the curriculum graph, mastery rules, misconception taxonomy, item selection, safety constraints, evidence collection, and progression logic.
+Why subtraction is an ideal pilot:  Subtraction exposes conceptual gaps in quantity, comparison, part-whole thinking, number line reasoning, place value, regrouping, notation, and procedural fluency. It is therefore an unusually good stress test for true personalization.
+2. Document Map
+Section
+Purpose
+3. Product thesis
+What we are trying to prove and what success means.
+4. Design principles
+Non-negotiable pedagogical and product principles.
+5. Subtraction mastery map
+Full progression from meaning to 3-digit methods.
+6. Learner model
+What the engine should know about a child.
+7. Diagnostic engine
+How the first 10–20 minutes establish a starting point.
+8. Adaptive learning loop
+How the system chooses what happens next.
+9. Experience architecture
+What each lesson/interactions should feel like.
+10. Detailed curriculum
+Concept-by-concept instructional specification.
+11. Application-driven learning
+Real-world scenarios and transfer tasks.
+12. Misconception system
+Likely error patterns and targeted responses.
+13. Mastery &amp; assessment
+Mastery thresholds, retention, transfer and readiness.
+14. AI tutor specification
+Role, prompts, constraints and tool use.
+15. Content &amp; item model
+Machine-readable representation of curriculum and questions.
+16. Product/UX specification
+Student and teacher interfaces.
+17. Data &amp; technical architecture
+Suggested system architecture and event model.
+18. MVP build plan
+What the coding engine should build first.
+19. QA &amp; evaluation
+How we determine whether the prototype genuinely works.
+20. Acceptance criteria
+Definition of done.
+21. Build prompt
+Copy/paste brief for a coding agent.
+22. Research basis &amp; caveats
+Evidence base and limits of the Alpha analogy.
+3. Product Thesis
+3.1 What we are trying to prove
+A learner can begin at an unknown point and the system can rapidly locate the highest-value missing prerequisite without forcing the child through a fixed grade-level sequence.
+The same curriculum can produce materially different learning paths for different learners because the engine uses evidence rather than age/grade as the primary determinant of next steps.
+The system can teach conceptual meaning before procedural shortcuts, then connect concepts to strategies and algorithms.
+The system can detect not just wrong answers but likely misconceptions and choose a useful repair interaction.
+The system can make learning feel purposeful by repeatedly connecting subtraction to decisions, quantities, trade-offs, measurement, money, distance and everyday situations.
+The system can verify mastery through a combination of accuracy, explanation/reasoning, transfer and delayed retrieval — not a single quiz score.
+3.2 What this prototype is not
+It is not a generic ChatGPT math tutor.
+It is not a collection of video lessons followed by worksheets.
+It is not a fixed linear course where every learner sees the same sequence.
+It is not a system that equates 90% accuracy on one screen with deep understanding.
+It is not a clone of Alpha School, TimeBack or another proprietary platform.
+4. Design Principles
+Principle
+Implication
+Meaning before mechanics
+Students first construct the idea of taking away, comparing, finding a difference, and finding an unknown part. Written procedures come later.
+Concrete → visual → symbolic
+Use manipulable quantities, visual representations and symbolic notation as connected views of the same idea.
+Multiple strategies
+Students should learn more than one sensible strategy and eventually choose an efficient method.
+Context before abstraction, then abstraction
+Application motivates and reveals the need for the mathematics; the engine then deliberately abstracts the underlying structure.
+Reasoning is observable
+The engine must collect evidence about how a child thinks, not only whether the final number is correct.
+Adaptive, not chaotic
+Personalization must remain inside a controlled curriculum graph with explicit prerequisites and validated outcomes.
+Mastery is multidimensional
+Accuracy, consistency, explanation, transfer, retention and sensible method selection all matter.
+Struggle is useful; confusion is not
+The system should challenge students, but avoid needless cognitive load, random difficulty spikes or repeated failure without diagnostic purpose.
+Technology where it adds leverage
+Use AI for adaptation, explanation, generation, simulation and analysis; preserve human guidance for motivation, relationships and judgment.
+Everything is instrumented
+Every response, hint, attempt, representation switch, confidence estimate and misconception signal should create useful learning data.
+Original content and safety
+Do not reproduce copyrighted/proprietary lessons. Generate or author original examples, visuals and wording under controlled schemas.
+5. Subtraction Mastery Map
+The curriculum is deliberately deeper than “borrowing” and is designed as a prerequisite graph. A student can enter at any point after diagnosis, but the engine should repair prerequisite gaps when needed.
+Code
+Concept cluster
+Mastery target
+S0
+Quantity &amp; cardinality
+Recognize collections; one-to-one correspondence; compare more/less/same; count reliably.
+S1
+What subtraction means
+Take away; remaining amount; start/change/result structure; subtraction as removal.
+S2
+Part-whole &amp; missing part
+Subtraction as finding an unknown part; relation to addition; compare quantities.
+S3
+Difference &amp; comparison
+“How many more/less?”; distance between numbers; number-line interpretation.
+S4
+Counting-back / counting-up
+Use sequential and flexible counting to solve small differences.
+S5
+Fact strategies
+Make-ten, near numbers, doubles/near doubles, compensation, known addition facts.
+S6
+Subtraction within 20/100
+Choose mental or visual strategies; explain why they work.
+S7
+Place value
+Ones/tens/hundreds as units; compose/decompose 10 ones = 1 ten, etc.
+S8
+Two-digit subtraction without regrouping
+Connect tens/ones structure to written representation.
+S9
+Two-digit subtraction with regrouping
+Decompose a ten into ten ones; reason about why regrouping preserves value.
+S10
+Alternative multi-digit strategies
+Break apart, compensate, add-up, constant difference, partial differences.
+S11
+Column method / standard algorithm
+Align by place value; subtract right to left; regroup accurately and explain each transformation.
+S12
+Three-digit subtraction
+No regrouping, one regroup, multiple regroup, zeros, mixed cases.
+S13
+Checking &amp; estimation
+Estimate, inverse-check with addition, reasonableness checks, detect impossible results.
+S14
+Application &amp; transfer
+Money, distance, inventory, time/measurement, change, data and multi-step problems.
+5.1 Concept graph
+Quantity sense → comparison → take-away → part-whole → difference
+↓                         ↓
+number line ← counting strategies → fact relationships
+↓                         ↓
+place value → composing/decomposing units → multi-digit reasoning
+↓
+two-digit subtraction → regrouping
+↓
+alternative written strategies → column algorithm
+↓
+three-digit subtraction → zeros / multiple regrouping
+↓
+estimation + checking + application + transfer
+6. Learner Model
+The learner model should be a structured state object, not a paragraph generated by the LLM.
+Dimension
+Example fields
+Why it matters
+Concept mastery
+mastery[concept_id] = 0.0–1.0
+Determines readiness and gaps.
+Evidence strength
+n_evidence, recency, confidence
+Distinguishes “probably knows” from “verified”.
+Misconceptions
+active_misconceptions[]
+Chooses targeted repair.
+Strategy repertoire
+count_back, count_up, compensation, decomposition, column
+Enables flexible method selection.
+Procedural fluency
+accuracy, speed, error types
+Separates concept from execution.
+Representation preference
+objects, number line, visual, symbolic, verbal
+Personalizes presentation without becoming a permanent crutch.
+Metacognition
+self_confidence, explanation quality, checking habit
+Builds self-monitoring.
+Engagement
+session persistence, abandon points, hint use
+Helps pacing and motivation.
+Context hooks
+interests, examples previously engaging
+Supports relevant application contexts.
+Retention
+delayed_recall scores
+Prevents false mastery after short-term practice.
+Transfer
+novel-context performance
+Tests understanding beyond practiced patterns.
+6.1 Example learner state
+Student: Maya
+Target: 2-digit subtraction with regrouping
+mastery:
+take_away_meaning: 0.98
+compare_difference: 0.91
+number_line: 0.88
+place_value_tens_ones: 0.84
+decompose_ten: 0.61
+two_digit_no_regroup: 0.95
+two_digit_regroup: 0.42
+column_algorithm: 0.18
+active_misconceptions:
+- regrouping_changes_total_value
+- treats_23_as_independent_digits
+strategy_repertoire:
+count_up: 1.0
+decomposition: 0.7
+compensation: 0.2
+column_algorithm: 0.1
+confidence_calibration: 0.76
+recent_error: In 42 - 17, wrote 35 after subtracting 7 from 2.
+recommended_next_action: interactive_base_ten_regrouping
+7. Diagnostic Engine
+The diagnostic should be short, branching and deliberately designed to distinguish conceptual gaps from procedural slips. It should not feel like a test; it should feel like a set of puzzles.
+7.1 Diagnostic sequence
+ID
+Probe
+Example
+Purpose
+D1
+Quantity &amp; comparison
+Show groups of objects; ask more/less/same.
+Detect basic quantity sense.
+D2
+Meaning
+Story: 8 apples, give away 3. “What are you finding?”
+Distinguish subtraction as taking away from random number manipulation.
+D3
+Part-whole
+There are 9 total, 5 are red. How many are blue?
+Detect missing-part understanding.
+D4
+Difference
+Sam has 12, Asha has 8. How many more?
+Detect comparison interpretation.
+D5
+Mental strategy
+17 − 9. Ask for answer + how you thought.
+Identify counting, make-ten, compensation.
+D6
+Place value
+Represent 43 as tens and ones. What is one ten?
+Prerequisite for regrouping.
+D7
+No regrouping
+54 − 21. Explain alignment.
+Test 2-digit symbolic structure.
+D8
+Regrouping
+42 − 17. Ask learner to choose a model and explain.
+Key diagnostic.
+D9
+Zero case
+302 − 148 or 400 − 176 depending on readiness.
+Test multi-step regrouping across zeros.
+D10
+Transfer
+Real-world problem requiring subtraction but not phrased as “subtract”.
+Detect transfer beyond worksheet pattern.
+Diagnostic rule:  When a learner answers correctly, do not automatically infer mastery. Ask a lightweight reasoning probe on selected pivotal concepts. A correct answer produced through guessing is different evidence from a correct answer with a valid representation.
+7.2 Diagnostic branching logic
+if quantity/comparison weak:
+route to quantity sense + comparison activities
+elif meaning weak but computation correct:
+route to semantic models before symbols
+elif place value weak:
+route to unitizing / base-ten activities
+elif regrouping weak:
+route to compose/decompose tens and hundreds
+elif strategy repertoire narrow but accurate:
+teach one alternative strategy and compare efficiency
+elif algorithm accurate but explanation weak:
+probe conceptual connection and checking
+else:
+enter highest unresolved mastery node
+8. Adaptive Learning Loop
+Every interaction should move through the same control loop. The “next best activity” engine should be deterministic where safety and curriculum integrity matter, and generative where wording/examples can be personalized.
+1. Observe: capture answer, path, time, hints, representation, explanation, confidence.
+2. Interpret: classify outcome + likely misconception + evidence strength.
+3. Update learner state.
+4. Identify eligible concepts from prerequisite graph.
+5. Score candidate activities.
+6. Select next action.
+7. Render the experience.
+8. Reassess pivotal knowledge.
+9. Update mastery and schedule retention checks.
+8.1 Candidate scoring
+candidate_score =
+0.30 * learning_need
++ 0.20 * prerequisite_priority
++ 0.15 * transfer_value
++ 0.10 * retention_due
++ 0.10 * confidence_mismatch
++ 0.05 * strategy_diversification
++ 0.05 * learner_interest_fit
++ 0.05 * engagement_recovery
+- penalties_for_recent_repetition
+- penalties_for_excessive_difficulty
+These weights are starting defaults, not sacred constants. The prototype should log them so they can be experimentally tuned.
+9. Experience Architecture
+A “lesson” should be a sequence of small learning moves, usually 3–12 minutes rather than 30–45 minute lecture blocks.
+Move
+What student experiences
+Engine purpose
+1. Hook
+Concrete situation or puzzle.
+Create purpose; surface prior knowledge.
+2. Elicit
+Ask student to predict/choose/explain.
+Reveal existing mental model.
+3. Act
+Manipulate quantities, number line, objects, money, blocks, etc.
+Make relationship visible.
+4. Name
+Introduce mathematical language/symbol.
+Connect experience to abstraction.
+5. Vary
+Change numbers/representation/context.
+Prevent shallow pattern matching.
+6. Coach
+Hints, questions, partial scaffolds.
+Repair thinking without taking over.
+7. Apply
+Novel situation.
+Test transfer.
+8. Reflect
+How did you know? Which method was efficient?
+Build metacognition.
+9. Verify
+One or more mastery probes.
+Decide whether to advance, reinforce or branch.
+Critical UX rule:  The system should not reveal a complete solution too early. Prefer prompts that make the child notice structure: “What could you trade?”, “How many ones are hidden inside one ten?”, “Can you solve it another way?”
+10. Detailed Curriculum Specification
+10.1 What subtraction means
+Learning objective: Understand subtraction as a relationship between quantities: taking away, finding what remains, comparing quantities, and finding an unknown part.
+Prerequisites: Counting and one-to-one correspondence.
+Experience design: Use physical/digital objects such as blocks, fruit, toys, seats or coins. The learner physically/remotely removes some objects and predicts the remainder. Then introduce “−” only after the relationship is experienced.
+Mastery evidence: Learner can explain in words what subtraction is finding and can match a story, model and expression.
+Common errors to detect: “Minus means make the number smaller” with no attention to context; reversing start and amount taken; treating subtraction as a symbol-matching exercise.
+Application opportunities: Items removed from a collection, snacks eaten, people leaving a queue, seats occupied vs. empty.
+Representative items / interactions:
+Start with 7 stars. Remove 2. “What changed? What stayed the same?”
+Show 9 counters with 4 hidden. “How many are hidden?”
+Present 8 − 3 and ask the learner to build a matching story rather than solve it first.
+10.2 Subtraction as missing part
+Learning objective: Understand that subtraction can find an unknown part of a known whole and is therefore linked to addition.
+Prerequisites: What subtraction means; part-whole representations.
+Experience design: Use 10-frame, bar model and “known whole / known part / unknown part” stories. Ask learner to decide whether to subtract or add and explain why.
+Mastery evidence: Learner can solve unknown-part problems and explain the addition/subtraction relationship.
+Common errors to detect: Confusing total with missing part; always “taking away” even when the story is comparison or missing-part.
+Application opportunities: Inventory packed vs. remaining, children on a bus, pieces completed in a project.
+Representative items / interactions:
+10 total, 6 red. How many blue?
+You need 12 cups and have 7. How many more?
+Write two related equations for the same situation.
+10.3 Difference and comparison
+Learning objective: Interpret subtraction as distance/difference between two quantities.
+Prerequisites: Part-whole understanding.
+Experience design: Use two rows of objects, horizontal bar models and a number line. Move from “how many more?” to a symbolic difference.
+Mastery evidence: Learner solves compare situations correctly and can articulate that the difference is the amount that bridges two quantities.
+Common errors to detect: Always subtract smaller from larger without interpreting the story; confusing difference with larger quantity.
+Application opportunities: Price differences, age gaps, heights, scores, distances.
+Representative items / interactions:
+Mira has 13 points and Leo has 9. How many more points?
+Which number is farther from 20: 14 or 17? Why?
+Show 18 and 11 on a number line and find the distance.
+10.4 Number line and counting strategies
+Learning objective: Use counting back, counting up, and jumps as efficient strategies for subtraction.
+Prerequisites: Difference and comparison; reliable counting.
+Experience design: Interactive number line where jumps are visible. Compare counting back from the minuend with counting up from the subtrahend. Let the learner choose the efficient route.
+Mastery evidence: Learner can solve small-subtraction problems using a meaningful counting strategy and choose between methods.
+Common errors to detect: Counting one-by-one when a larger jump is available; losing track of inclusivity; confusing direction.
+Application opportunities: Walking distance, scores, floors in a building, temperature changes.
+Representative items / interactions:
+17 − 9: count back or count up. Which feels shorter?
+Solve 32 − 29 on a number line without subtracting ones one-by-one.
+Explain why counting up works for a difference problem.
+10.5 Flexible mental strategies
+Learning objective: Develop a repertoire including compensation, decomposition, near tens, and use of known addition facts.
+Prerequisites: Counting strategies; basic number relationships.
+Experience design: Present the same problem with two or three possible strategies and ask the learner to compare efficiency. Example: 32 − 19 can become 32 − 20 + 1.
+Mastery evidence: Learner can produce at least two valid strategies for representative problems and choose a sensible one.
+Common errors to detect: Rigid dependence on one method; applying compensation in the wrong direction; losing track of the adjustment.
+Application opportunities: Quick calculations in shopping, scoring, packing, travel, budgeting.
+Representative items / interactions:
+32 − 19
+50 − 27
+71 − 38
+Ask: “Which would you rather calculate mentally, 52−49 or 52−27? Why?”
+10.6 Place value as units
+Learning objective: Understand that multi-digit numbers are composed of units: ones, tens, hundreds, and that units can be composed/decomposed while preserving total value.
+Prerequisites: Number sense; tens/ones.
+Experience design: Base-ten blocks, bundled straws, coins or digital manipulatives. Explicitly connect 1 ten = 10 ones and 1 hundred = 10 tens.
+Mastery evidence: Learner can represent, decompose and recompose numbers flexibly and explain equivalence.
+Common errors to detect: Treating digits independently; thinking “4” in 43 means four ones; believing a trade changes the number.
+Application opportunities: Money denominations, inventory bundles, packaging, distance in hundreds/tens/meters.
+Representative items / interactions:
+Build 43 in at least two ways.
+What can you trade one ten for?
+Are 43 and 30+13 equivalent? Explain.
+10.7 Two-digit subtraction without regrouping
+Learning objective: Connect place-value structure to two-digit subtraction when each place can be subtracted independently.
+Prerequisites: Place value; subtraction meaning.
+Experience design: Use a place-value mat: subtract tens from tens and ones from ones. Move between concrete, expanded and column notation.
+Mastery evidence: Accurate solution plus correct alignment/explanation of place values.
+Common errors to detect: Subtracting digits without regard to place; misalignment; incorrect ordering.
+Application opportunities: Prices, distances, scores, quantities of items.
+Representative items / interactions:
+54−21 using blocks
+54−21 using expanded form 50−20 and 4−1
+54−21 in columns; explain why the columns line up.
+10.8 Regrouping: composing and decomposing a ten
+Learning objective: Understand why a ten can be exchanged for ten ones when the ones place lacks enough units to subtract.
+Prerequisites: Place value; 1 ten = 10 ones.
+Experience design: Use explicit trade interaction: represent 42 as 4 tens and 2 ones; for 42−17, trade one ten for ten ones; observe 3 tens and 12 ones; subtract 7 ones, then 1 ten.
+Mastery evidence: Learner can perform and explain regrouping with a model and connect the trade to the symbolic notation.
+Common errors to detect: “Borrowing” as arbitrary; forgetting to reduce the tens; thinking the total value changed; subtracting 7 from 2 and recording 5.
+Application opportunities: Change-making, exchanging rupees, converting a 10-item bundle, meter-to-centimeter analogy.
+Representative items / interactions:
+42−17 with blocks
+42−17 using a drawn place-value chart
+Ask: “Why are we allowed to change 4 tens 2 ones into 3 tens 12 ones?”
+10.9 Alternative strategies for multi-digit subtraction
+Learning objective: Understand that multi-digit subtraction can be solved via decomposition, compensation, counting-up and partial differences.
+Prerequisites: Place value; regrouping; mental strategies.
+Experience design: Show multiple methods for the same problem. Ask learner to estimate which is efficient before solving.
+Mastery evidence: Learner can correctly execute at least two strategies, compare them, and recognize when a method is useful.
+Common errors to detect: Compensation adjustment errors; partial differences sign errors; inappropriate method selection.
+Application opportunities: Budget difference, distances, population changes, inventory.
+Representative items / interactions:
+83−47 by breaking 47 into 40+7.
+83−47 by adding up from 47 to 83.
+83−47 using 83−50+3.
+Compare three solution paths and rank by ease.
+10.10 Column method / standard algorithm
+Learning objective: Accurately execute the standard column algorithm and understand every symbolic transformation as a place-value operation.
+Prerequisites: Place value, regrouping concept, two-digit subtraction.
+Experience design: Introduce the compact algorithm only after the learner can do the same problem with a place-value model. Animate each written mark: “cross out 4 tens, rewrite as 3 tens; 2 ones becomes 12 ones.”
+Mastery evidence: High accuracy on mixed examples, correct regrouping sequence, ability to explain at least one regrouping step and check the answer.
+Common errors to detect: “Borrow from the next digit” without value interpretation; crossing out incorrectly; failing to propagate across zero.
+Application opportunities: Written calculation used for larger quantities, budgeting, inventory and measurement.
+Representative items / interactions:
+57−29
+64−38
+90−47
+Ask learner to debug a deliberately incorrect column solution.
+10.11 Three-digit subtraction
+Learning objective: Extend the same unitizing and regrouping logic to hundreds, tens and ones, including multiple regrouping and zero cases.
+Prerequisites: Column method; hundreds place value.
+Experience design: Use dynamic base-ten blocks and then symbolic column layout. Explicitly test 3-digit problems without regrouping, with one regroup, with several regroupings, and with zeros.
+Mastery evidence: Learner can solve a representative mixed set, explain regrouping across places, estimate before solving and check after solving.
+Common errors to detect: Failure to regroup through zeros; subtracting smaller digit from larger regardless of top/bottom; place-value drift.
+Application opportunities: Money, population, stock, travel distance, event attendance, project quantities.
+Representative items / interactions:
+583−241
+583−267
+704−286
+900−457
+1,000−368 as optional extension.
+10.12 Estimation, checking and error detection
+Learning objective: Use estimation, inverse operations and reasoning to detect implausible results.
+Prerequisites: Fluent subtraction and addition relationships.
+Experience design: Give a proposed answer and ask “Could this possibly be right?” before calculating. Then verify by addition or an alternative strategy.
+Mastery evidence: Learner regularly estimates/checks and can identify a plausible vs. implausible result.
+Common errors to detect: Assuming calculator-like exactness is always enough; checking only after being told an answer is wrong.
+Application opportunities: Shopping totals, travel distances, score changes, quantities used.
+Representative items / interactions:
+“583−267=416. Does that seem reasonable?”
+Estimate to the nearest ten before solving.
+Find and explain the error in 704−286=582.
+10.13 Transfer and multi-step problems
+Learning objective: Choose subtraction appropriately in novel situations and combine it with other reasoning without being told the operation.
+Prerequisites: Prior subtraction concepts and sufficient number fluency.
+Experience design: Present realistic scenarios with irrelevant information, missing data, multiple steps or unfamiliar representations. Require the learner to decide what the question is asking.
+Mastery evidence: Learner identifies when subtraction is needed, chooses a method, computes accurately, explains and checks.
+Common errors to detect: Keyword matching (“less” = subtract) without semantic reasoning; using every number in the prompt; premature calculation.
+Application opportunities: Receipts, schedules, journey planning, inventory, sports analytics, school events, project budgets.
+Representative items / interactions:
+A store has 240 notebooks. It sells 87 in the morning and 63 in the afternoon. How many remain?
+A trip is 318 km. You have traveled 179 km. How far remains?
+Create your own subtraction problem from a given data table.
+11. Application-Driven Learning
+Application should not be a decorative wrapper around arithmetic. The context should create a reason to subtract, force a choice about representation, or create a meaningful decision.
+Context
+Example
+Learning value
+Money &amp; change
+You have ₹500 and spend ₹287. How much is left?
+Natural regrouping across denominations; estimation.
+Shopping comparison
+Product A costs ₹749 and B costs ₹586. How much more is A?
+Difference/compare interpretation.
+Inventory
+A workshop has 640 components and uses 278.
+Multi-digit subtraction; operational meaning.
+Travel
+A route is 482 km; 267 km completed.
+Distance as difference; estimate/check.
+Sports
+Team scored 83, opponent 67.
+Difference + interpretation.
+Time
+Event runs 3h 20m, 1h 45m already elapsed.
+Extension; subtraction with non-base-10 units (later).
+Data
+A chart shows 423 students in one house, 318 in another.
+Read data + compare.
+Build/Make
+You need 300 parts and currently have 176.
+Missing-part interpretation.
+12. Misconception System
+The engine needs a controlled vocabulary of likely misconceptions. LLM guesses should be treated as signals, not ground truth, and should be verified with a targeted probe.
+ID
+Misconception
+Observed signal
+Repair probe
+M001
+Subtraction means “make smaller”
+Fails compare/missing-part situations.
+Probe with 5 total, 2 red, unknown blue.
+M002
+Digits are independent
+Treats 43 as 4 and 3 unrelated digits.
+Ask what 4 represents in 43.
+M003
+Regrouping changes total
+Thinks 42 becomes 3+12 or some altered total.
+Represent both decompositions with blocks.
+M004
+Borrowing is a mysterious rule
+Can execute rote steps but cannot explain.
+Ask what was traded and why value stayed the same.
+M005
+Always subtract smaller digit from larger
+Creates wrong answers in 42−17.
+Use symbol-free story and directed quantity comparison.
+M006
+Zero blocks regrouping
+Fails 304−128.
+Animate exchange from hundreds through tens.
+M007
+Column misalignment
+Places ones under tens.
+Visual place-value columns with snap-to-grid.
+M008
+Compensation sign error
+Does 52−29 = 52−30−1.
+Use algebraic balance visualization.
+M009
+Counts inefficiently
+Can solve but with excessive one-by-one counting.
+Ask learner to create largest sensible jumps.
+M010
+Pattern overgeneralization
+Uses subtraction because a keyword such as “left” appears.
+Give non-subtraction context containing the keyword.
+13. Mastery &amp; Assessment
+13.1 Mastery should have layers
+Layer
+Evidence
+Example threshold (starting point)
+Conceptual
+Correct interpretation + explanation
+2–3 valid explanations across varied contexts
+Representational
+Can connect model ↔ expression ↔ story
+≥ 85% across representation changes
+Procedural
+Accurate execution
+≥ 90% on mixed, non-repetitive items
+Strategic
+Can select a sensible method
+Correct method choice in ≥ 80% of choice probes
+Transfer
+Novel context/problem structure
+≥ 80% on unfamiliar applications
+Retention
+Delayed retrieval after 1–7 days
+≥ 85% with reduced scaffolding
+Prototype rule:  Use 90% as a useful progression gate for routine procedural mastery, but never let one 90% quiz score alone mark deep mastery. This reflects Alpha’s publicly described high mastery threshold while avoiding the false equivalence between repeated practice accuracy and durable understanding. Alpha publicly describes 90% mastery as a progression rule. citeturn451398search1turn451398search5
+13.2 Spaced retrieval
+Once a concept reaches provisional mastery, schedule short retrieval probes rather than immediately assuming permanence. A practical prototype schedule: same day, next day, 3 days, 7 days, then 14 days for pivotal concepts. Evidence-informed learning guidance supports spacing and retrieval practice. citeturn909795search2turn909795search7
+13.3 Error-aware assessment
+Every assessment item should capture at least: final answer, method if selected, optional explanation, hints used, time, confidence, and whether the item was novel or practiced.
+14. AI Tutor Specification
+14.1 Role
+The AI tutor is an adaptive instructional component operating inside a bounded curriculum. It should be warm, concise, curious and demanding, but should not invent curriculum facts or override the engine’s progression decisions.
+14.2 System prompt skeleton
+You are the instructional dialogue component inside an adaptive math learning engine.
+You are not the curriculum engine. You do not decide which concept is next unless the
+controller explicitly asks you to recommend a candidate.
+INPUTS YOU RECEIVE:
+- current concept
+- prerequisite status
+- student mastery estimates
+- active misconception hypotheses
+- previous attempts
+- preferred/previously successful representations
+- current activity objective
+- allowed tools/components
+YOUR JOB:
+1. Elicit thinking before explaining.
+2. Give the smallest useful hint first.
+3. Use questions that expose the student's mental model.
+4. Connect concrete/visual/symbolic representations.
+5. Never claim the student understands merely because they got an answer right.
+6. Do not skip required prerequisites.
+7. Do not reveal full solutions unless the controller requests an worked example.
+8. Keep language age-appropriate.
+9. When uncertain, ask the controller for a diagnostic probe rather than inventing.
+10. Return structured evidence tags after each response.
+14.3 Evidence tags
+{concept_evidence: strong|medium|weak,
+misconception_signal: [M001...],
+method_used: count_up|decompose|compensate|column|unknown,
+confidence: 0..1,
+needs_probe: true|false,
+next_action_hint: probe|practice|explain|challenge|advance}
+15. Content &amp; Item Model
+All curriculum content should be stored as structured data so that the engine can reason over it. Avoid burying learning logic inside prose prompts.
+15.1 Concept schema
+{
+id: "sub.regroup.two_digit",
+title: "Decomposing a ten",
+prerequisites: ["sub.place_value.tens_ones", "sub.meaning"],
+learning_objectives: [...],
+representations: ["base_ten", "place_value_chart", "number_line", "symbolic"],
+misconceptions: ["M003", "M004"],
+activity_types: ["simulation", "guided_problem", "debug", "application"],
+mastery_rules: {...},
+review_schedule: [...]
+}
+15.2 Item schema
+{
+id: "item_042_017_trade_ten",
+concept_id: "sub.regroup.two_digit",
+type: "interactive_reasoning",
+difficulty: 0.55,
+structure: "42 - 17",
+context: "inventory",
+representation: "base_ten",
+expected_methods: ["decompose_ten", "count_up"],
+misconception_signals: ["M003", "M005"],
+answer_spec: {result: 25},
+hint_ladder: ["notice", "represent", "trade", "calculate"],
+transfer_tag: "same_structure_new_context"
+}
+16. Product &amp; UX Specification
+16.1 Student home
+Today’s goal: one sentence and a visual progress ring.
+Current mission: one recommended activity, not a giant course catalog.
+Concept map: mastered / practicing / needs attention.
+Streaks/rewards may exist but should never replace learning goals.
+A “show me why” path for explanations; a “try another way” path for strategy exploration.
+16.2 Learning screen
+Large central interactive workspace.
+Minimal text at any one time.
+Persistent representation toggle: objects / drawing / number line / equations.
+Hint button with escalating support.
+Confidence check after selected pivotal items.
+No punitive red/green theater for every answer; error should trigger useful next action.
+Visible progress toward the concept, not just points earned.
+16.3 Teacher/Guide screen
+Panel
+Display
+Class overview
+Who is on track, stuck, disengaged, or due for retrieval.
+Learner profile
+Concept mastery, active misconceptions, recent evidence, recommended intervention.
+Learning replay
+Timeline of key learner decisions and errors.
+Alerts
+Persistent misconceptions, unusual guessing, repeated hints, rapid random clicking.
+Content QA
+Flag AI-generated activity for human review before broad release.
+17. Data &amp; Technical Architecture
+Frontend
+- React / Next.js
+- Interactive math components (SVG/Canvas)
+- Accessibility-first input patterns
+Backend
+- REST/GraphQL API
+- Auth + student profiles
+- Curriculum/knowledge graph service
+- Learning-state service
+- Assessment service
+- Recommendation service
+- AI orchestration service
+Data
+- Relational DB for canonical curriculum + learner state
+- Event store for interaction telemetry
+- Object storage for media/assets
+AI
+- LLM for dialog, explanation, activity variation and classification
+- Deterministic evaluators for arithmetic correctness
+- Optional vision model for hand-written work in later phase
+Observability
+- Event logging
+- Model/version IDs
+- Prompt/version IDs
+- Latency/cost
+- Learning outcome metrics
+17.1 Event model
+event:
+id
+timestamp
+student_id
+session_id
+concept_id
+activity_id
+event_type
+payload
+engine_version
+content_version
+model_version
+examples:
+activity_started
+answer_submitted
+hint_requested
+explanation_viewed
+representation_changed
+confidence_submitted
+misconception_flagged
+mastery_updated
+retention_probe_completed
+18. MVP Build Plan
+Phase
+Build
+Exit condition
+Sprint 1
+Core shell
+Student profile, concept graph, learner-state JSON, session logging.
+Sprint 2
+Subtraction foundations
+S1–S4: meaning, missing part, difference, number line.
+Sprint 3
+Adaptive loop
+Diagnostics + candidate scoring + targeted routing.
+Sprint 4
+Place value/regrouping
+S6–S9 with interactive base-ten components.
+Sprint 5
+Algorithm
+S10–S12: alternative methods + column method + 3-digit cases.
+Sprint 6
+Transfer &amp; teacher view
+Applications, replay, misconception dashboard.
+Sprint 7
+Evaluation instrumentation
+Retention probes, A/B hooks, learning efficiency metrics.
+19. QA &amp; Evaluation
+19.1 Educational QA
+Every item has a correct answer and validated reasoning path.
+Every misconception mapping has at least one diagnostic probe.
+Every progression edge is justified by prerequisites.
+AI-generated content must pass arithmetic and curriculum validators.
+The engine never advances solely because the LLM says “looks correct”.
+19.2 Product QA
+A novice learner can understand what to do without adult explanation.
+Interactive manipulatives work on laptop/tablet sizes.
+No data loss when the learner switches representation.
+Session recovery restores the correct learner state.
+Teacher dashboard explains why an intervention is recommended.
+19.3 Experimental evaluation
+Metric
+Question answered
+Time to provisional mastery per concept
+How efficiently does the engine create short-term mastery?
+Retention after 1/3/7 days
+Did the learning survive?
+Transfer accuracy on novel contexts
+Did the child understand, not memorize?
+Hint dependency
+Is scaffolding fading?
+Error recurrence after remediation
+Did we repair the misconception?
+Strategy repertoire growth
+Is the child becoming more flexible?
+Confidence calibration
+Does self-assessment improve?
+Student-reported engagement
+Is the experience motivating?
+Teacher minutes required per 10 learners
+Does the system actually create leverage?
+20. Acceptance Criteria / Definition of Done
+Two students with different diagnostic states receive different starting points and different next activities.
+The engine can correctly route a student from a regrouping error to a place-value repair activity.
+A learner can solve the same subtraction using two methods and compare them.
+The student is explicitly shown the equivalence between a concrete trade and the symbolic regrouping notation.
+The system can handle 3-digit subtraction including cases with zeros.
+The system can distinguish routine computation mastery from transfer mastery.
+The teacher dashboard can explain at least the top 3 reasons a learner is not advancing.
+Every interaction is logged with enough information to reconstruct why the engine chose the next action.
+The same underlying concept can be rendered in multiple contexts without changing the mathematics.
+The coding agent can run automated tests for arithmetic, mastery gates, prerequisite routing and state transitions.
+21. Copy/Paste Build Prompt for a Coding Agent
+The following prompt is intentionally prescriptive. Give it to a strong coding agent after providing access to the project repository and chosen stack.
+You are building an original adaptive learning engine for a school.
+Do NOT copy Alpha School, TimeBack, proprietary content, or copyrighted lesson assets.
+Use the architecture in this specification as the source of truth.
+MISSION
+Build a working prototype that teaches subtraction from conceptual meaning through
+three-digit subtraction and multiple written methods, while continuously maintaining
+a structured learner model and adapting the next activity.
+CORE LOOP
+Diagnose → learner model → select next learning action → interactive experience →
+assess reasoning → update learner model → schedule reinforcement → repeat.
+NON-NEGOTIABLES
+1. Do not build a generic chatbot.
+2. Do not hard-code a single linear lesson sequence.
+3. Do not let the LLM decide arithmetic truth.
+4. Build deterministic evaluators for numerical correctness.
+5. Store curriculum as a structured knowledge graph.
+6. Store learner state separately from generated language.
+7. Implement misconception IDs and targeted diagnostic probes.
+8. Use concrete/visual/symbolic transitions.
+9. Include multiple valid subtraction strategies.
+10. Support application-driven tasks and transfer assessment.
+11. Log every meaningful interaction.
+12. Version curriculum, prompts and model calls.
+13. Build tests before scaling content.
+FIRST MILESTONE
+Implement S1–S4:
+- what subtraction means
+- missing part
+- difference/comparison
+- number line/counting strategies
+Then implement S6–S9:
+- place value
+- 2-digit subtraction without regrouping
+- regrouping as decomposition of a ten
+Then S10–S12:
+- alternative strategies
+- column algorithm
+- 3-digit subtraction including zero cases
+UI
+Create:
+- student home
+- learning activity screen
+- progress/concept map
+- teacher dashboard
+AI
+Use the LLM for:
+- conversational coaching
+- explanation variation
+- context generation from approved templates
+- misconception classification proposals
+- reflection prompts
+But require deterministic validation before changing mastery.
+DELIVERABLES
+1. running app
+2. curriculum JSON
+3. misconception JSON
+4. learner-state schema
+5. recommendation engine
+6. item evaluator
+7. event logger
+8. teacher dashboard
+9. automated test suite
+10. README describing architecture and how to add a new concept
+DEFINITION OF DONE
+A user can start with no prior state, complete a diagnostic, receive a personalized
+path, interact with subtraction models, make mistakes, receive targeted scaffolding,
+achieve mastery on one concept, be advanced to the next eligible concept, and later
+receive a retention check. The teacher can see what the engine believes, why it
+believes it, and what it recommends next.
+22. Research Basis, Alpha Analogy &amp; Caveats
+This product concept is informed by three evidence families: (1) Alpha School’s public description of its mastery-based operating model, (2) established mathematics education guidance on conceptual understanding, representations and flexible strategies, and (3) learning-science guidance on spacing, retrieval and connecting concrete and abstract representations.
+22.1 What we can responsibly borrow from Alpha’s public model
+Alpha publicly describes personalized dashboards, individual pacing, adaptive apps and high mastery thresholds. citeturn451398search0turn451398search1
+Alpha publicly describes TimeBack as a technology operating system with real-time skill tracking, goals, motivation and adaptive tutoring. citeturn451398search5
+Alpha’s public materials emphasize that the human guide remains responsible for motivation and relationships rather than acting as a traditional lecturer. citeturn451398search4turn451398search7
+Alpha has described its current learning engine as involving diagnostic mapping, dynamic lesson generation, feedback loops, verification and mastery tracking. citeturn451398search2
+22.2 What we should not assume
+Public claims about extremely high learning compression are not themselves independent proof of causality. The prototype should measure its own outcomes.
+A high mastery threshold does not automatically equal durable learning; retention and transfer must be separately tested.
+An AI-generated explanation is not automatically better than a teacher explanation. The engine should use evidence and experimentation to find out.
+Gamification can increase engagement but can also distort incentives. Learning objectives must remain primary.
+22.3 Mathematics education basis
+The progression in this specification deliberately follows a meaning → representation → strategy → algorithm arc. NCTM’s guidance states that conceptual understanding should precede and coincide with procedural instruction and that students need a repertoire of strategies rather than being limited to one method. citeturn451398search54 The National Academies describe children moving from intuitive/concrete methods toward more abstract, problem-independent methods and note that multi-digit subtraction algorithms can be learned meaningfully when connected to appropriate experiences. citeturn909795search5turn909795search14 The U.S. What Works Clearinghouse recommends using visual representations and connecting concrete and abstract representations, as well as spacing learning over time and using retrieval practice. citeturn909795search0turn909795search2
+22.4 Reference list
+Alpha School. How do Alpha School workshops develop personalized learning and AI tutoring?. alpha.school/resources/how-do-alpha-school-workshops-develop-personalized-learning-and-ai-tutoring/
+Alpha School. Quick Start Guide: Placement Tests in TimeBack. support.alpha.school/article/133839-quick-start-guide-placement-tests-in-timeback
+Alpha School. Introducing TimeBack: The Next Evolution of Alpha’s Model. alpha.school/blog/introducing-timeback-the-next-evolution-of-alphas-model/
+Alpha School. Why Every Textbook Is Obsolete: The End of One-Size-Fits-All Learning. alpha.school/blog/why-every-textbook-is-obsolete-the-end-of-one-size-fits-all-learning/
+NCTM. Procedural Fluency Position Statement. nctm.org/uploadedFiles/Standards_and_Positions/Position_Statements/PROCEDURAL_FLUENCY.pdf
+National Academies. Adding It Up: Helping Children Learn Mathematics, Chapter 6. nationalacademies.org/read/9822/chapter/8
+National Academies. Adding It Up: Helping Children Learn Mathematics, Learning Numerical Algorithms. nationalacademies.org/read/9822/chapter/13
+What Works Clearinghouse. Improving Mathematical Problem Solving in Grades 4 Through 8. ies.ed.gov/ncee/WWC/PracticeGuide/16
+What Works Clearinghouse. Organizing Instruction and Study to Improve Student Learning. ies.ed.gov/ncee/wwc/PracticeGuide/1
+23. Final Design Position
+The first prototype should be judged by whether it can make a child’s path through subtraction genuinely different because of evidence gathered from that child — not because the AI changed the wording of the same worksheet. The strongest signal of success will be a system that notices a learner’s specific misconception, creates a targeted experience, verifies repair, and later proves retention and transfer.
+Build philosophy:  Build the learning engine first, then make the experience beautiful. A polished interface wrapped around a weak student model is an ed-tech demo. A strong learner model coupled to a controlled curriculum and thoughtful interaction loop is the beginning of a product.

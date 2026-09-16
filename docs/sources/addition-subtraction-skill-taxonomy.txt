@@ -1,0 +1,743 @@
+                                                                                   Addition & Subtraction Assessment Skill Taxonomy
+
+
+
+
+                  ADDITION & SUBTRACTION
+                             Assessment Skill Taxonomy
+      A complete case-based framework for building diagnostic and Olympiad-style assessments
+
+
+       Purpose. This document treats a skill as a distinct assessment case whenever a child can make a
+       different kind of mistake. Therefore horizontal vs vertical presentation, unequal digit lengths, number
+       order, place-value alignment, carry/borrow location, zeros, answer-size changes, and missing digits
+       are all tracked explicitly.
+
+
+Scope: whole-number addition and subtraction. The framework is not tied to a specific grade and scales from 1-digit
+to N-digit numbers.
+
+
+
+
+                            Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                         Addition & Subtraction Assessment Skill Taxonomy
+
+
+1. How to Read This Taxonomy
+Dimension                                     Typical values                                  Why it matters
+
+Operation                                     Addition / Subtraction                          Different inverse relationships and
+                                                                                              regrouping logic.
+Digits in first number                        1/2/3/4/N                                       Controls magnitude and place-value
+                                                                                              complexity.
+Digits in second number                       1/2/3/4/N                                       Unequal lengths create alignment errors.
+Order                                         Longer first / Shorter first                    For addition, commutativity does not
+                                                                                              remove the diagnostic value of order.
+Presentation                                  Vertical / Horizontal                           Horizontal questions also test conversion
+                                                                                              and place-value alignment.
+Regrouping                                    None / Single / Multiple                        Separates basic calculation from
+                                                                                              carry/borrow proficiency.
+Regroup location                              Ones / Tens / Hundreds / ...                    A child may succeed in one column but not
+                                                                                              another.
+Pattern                                       Isolated / Consecutive / Non-adjacent /         Different carry/borrow chains expose
+                                              Cascading                                       different misconceptions.
+Zeros                                         None / Internal zero / Across zero / Multiple   Zeros substantially change
+                                              zeros                                           borrowing/carrying demands.
+Answer size                                   Same digits / Fewer digits / More digits        Tests whether the learner anticipates
+                                                                                              magnitude changes.
+Unknown                                       None / Whole number / Digit / Multiple digits Separates direct computation from reverse
+                                              / Operation                                   reasoning.
+Question type                                 Direct / Word problem / Balance / Error         Measures calculation, application and
+                                              diagnosis / Estimation                          reasoning separately.
+
+
+
+ Important: one question can carry several tags. Example: 345 + 7 = ? is Addition + 3-digit/1-digit + horizontal + unequal length +
+ longer-first + no-carry (or carry, depending on digits).
+
+
+
+
+2. Addition - Direct Calculation Skills
+2.1 Single-digit + Single-digit
+ID                                            Skill / Case                                    Example
+
+A01                                           Vertical; answer remains 1 digit                3+4=7
+A02                                           Vertical; answer becomes 2 digits               7 + 8 = 15
+A03                                           Horizontal; answer remains 1 digit              3+4=?
+A04                                           Horizontal; answer becomes 2 digits             7+8=?
+A05                                           Addition involving zero; zero first or second   0 + 6; 6 + 0
+
+
+
+
+2.2 Two-digit + One-digit / One-digit + Two-digit
+ID                                            Skill / Case                                    Example / diagnostic focus
+
+A06                                           2-digit + 1-digit, vertical, no carry           43 + 5; align 5 under ones
+A07                                           2-digit + 1-digit, horizontal, no carry         43 + 5 = ?
+A08                                           1-digit + 2-digit, vertical, no carry           5 + 43; smaller number appears first
+A09                                           1-digit + 2-digit, horizontal, no carry         5 + 43 = ?
+
+
+
+                               Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                       Addition & Subtraction Assessment Skill Taxonomy
+
+
+ID                                     Skill / Case                                         Example / diagnostic focus
+
+A10                                    2-digit + 1-digit, vertical, carry; answer 2         47 + 6
+                                       digits
+A11                                    2-digit + 1-digit, horizontal, carry; answer 2       47 + 6 = ?
+                                       digits
+A12                                    1-digit + 2-digit, vertical, carry; answer 2         6 + 47
+                                       digits
+A13                                    1-digit + 2-digit, horizontal, carry; answer 2       6 + 47 = ?
+                                       digits
+A14                                    2-digit + 1-digit, vertical, carry creates 3-digit 96 + 8 = 104
+                                       answer
+A15                                    2-digit + 1-digit, horizontal, carry creates 3-      96 + 8 = ?
+                                       digit answer
+A16                                    1-digit + 2-digit, horizontal/vertical, carry        8 + 96 = ?
+                                       creates 3-digit answer
+
+
+
+
+2.3 Two-digit + Two-digit
+ID                                     Skill / Case                                         Example
+
+A17                                    Vertical, no carry                                   23 + 45
+A18                                    Horizontal, no carry                                 23 + 45 = ?
+A19                                    Vertical, carry from ones only                       27 + 36 = 63
+A20                                    Horizontal, carry from ones only                     27 + 36 = ?
+A21                                    Vertical, carry from tens only; ones do not          61 + 42 = 103
+                                       carry
+A22                                    Horizontal, carry from tens only                     61 + 42 = ?
+A23                                    Vertical, carry from ones and tens                   68 + 47 = 115
+A24                                    Horizontal, carry from ones and tens                 68 + 47 = ?
+
+
+
+
+2.4 Three-digit + One-digit / One-digit + Three-digit
+ID                                     Skill / Case                                         Example / diagnostic focus
+
+A25                                    3-digit + 1-digit, vertical, no carry                342 + 5; 5 must be under ones
+A26                                    3-digit + 1-digit, horizontal, no carry              342 + 5 = ?
+A27                                    1-digit + 3-digit, vertical, no carry                5 + 342; order changes but alignment does
+                                                                                            not
+A28                                    1-digit + 3-digit, horizontal, no carry              5 + 342 = ?
+A29                                    3-digit + 1-digit, carry from ones only,             347 + 5 = 352
+                                       vertical
+A30                                    Same, horizontal                                     347 + 5 = ?
+A31                                    1-digit first, carry from ones, vertical             5 + 347
+A32                                    1-digit first, carry from ones, horizontal           5 + 347 = ?
+A33                                    Carry cascades through one additional place          399 + 4 = 403
+A34                                    Same cascade, horizontal                             399 + 4 = ?
+A35                                    Carry cascades through multiple 9s and               999 + 7 = 1006
+                                       creates new digit
+A36                                    Same, horizontal                                     999 + 7 = ?
+
+
+
+
+                         Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                          Addition & Subtraction Assessment Skill Taxonomy
+
+
+2.5 Three-digit + Two-digit / Two-digit + Three-digit
+ID                                     Skill / Case                                            Example / focus
+A37                                    3-digit + 2-digit, vertical - No carry                  345 + 23
+
+A38                                    3-digit + 2-digit, horizontal - No carry                345 + 23 = ?
+
+A39                                    2-digit + 3-digit, vertical - No carry                  Shorter number first; preserve place alignment
+
+A40                                    2-digit + 3-digit, horizontal - No carry                Shorter number first; convert correctly if
+                                                                                               needed
+
+A41                                    3-digit + 2-digit, vertical - Carry from ones only      347 + 25
+
+A42                                    3-digit + 2-digit, horizontal - Carry from ones         347 + 25 = ?
+                                       only
+
+A43                                    2-digit + 3-digit, vertical - Carry from ones only      Shorter number first; preserve place alignment
+
+A44                                    2-digit + 3-digit, horizontal - Carry from ones         Shorter number first; convert correctly if
+                                       only                                                    needed
+
+A45                                    3-digit + 2-digit, vertical - Carry from tens only      361 + 42 = 403
+
+A46                                    3-digit + 2-digit, horizontal - Carry from tens         361 + 42 = 403 = ?
+                                       only
+
+A47                                    2-digit + 3-digit, vertical - Carry from tens only      Shorter number first; preserve place alignment
+
+A48                                    2-digit + 3-digit, horizontal - Carry from tens         Shorter number first; convert correctly if
+                                       only                                                    needed
+
+A49                                    3-digit + 2-digit, vertical - Carry from ones and       378 + 47 = 425
+                                       tens
+
+A50                                    3-digit + 2-digit, horizontal - Carry from ones         378 + 47 = 425 = ?
+                                       and tens
+
+A51                                    2-digit + 3-digit, vertical - Carry from ones and       Shorter number first; preserve place alignment
+                                       tens
+
+A52                                    2-digit + 3-digit, horizontal - Carry from ones         Shorter number first; convert correctly if
+                                       and tens                                                needed
+
+A53                                    3-digit + 2-digit, vertical - Carry creates 4-digit     985 + 27 = 1012
+                                       answer
+
+A54                                    3-digit + 2-digit, horizontal - Carry creates 4-        985 + 27 = 1012 = ?
+                                       digit answer
+
+A55                                    2-digit + 3-digit, vertical - Carry creates 4-digit     Shorter number first; preserve place alignment
+                                       answer
+
+A56                                    2-digit + 3-digit, horizontal - Carry creates 4-        Shorter number first; convert correctly if
+                                       digit answer                                            needed
+
+
+
+
+2.6 Three-digit + Three-digit - carry pattern matrix
+ID                                     Carry pattern                                           Presentation
+
+A57-A58                                No carry                                                Vertical + Horizontal
+A59-A60                                Carry from ones only                                    Vertical + Horizontal
+A61-A62                                Carry from tens only                                    Vertical + Horizontal
+A63-A64                                Carry from hundreds only; answer gains a                Vertical + Horizontal
+                                       digit
+A65-A66                                Carry from ones + tens                                  Vertical + Horizontal
+A67-A68                                Carry from ones + hundreds; non-adjacent                Vertical + Horizontal
+                                       carry
+A69-A70                                Carry from tens + hundreds                              Vertical + Horizontal
+A71-A72                                Carry from ones + tens + hundreds                       Vertical + Horizontal
+
+
+
+
+                         Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                           Addition & Subtraction Assessment Skill Taxonomy
+
+
+2.7 Addition involving zeros
+Skill                                           Example                                         Distinct risk
+
+Add zero to a number                            456 + 0                                         Identity property / unnecessary
+                                                                                                manipulation
+Zero first                                      0 + 456                                         Same concept with reversed order
+Internal zero in one addend                     405 + 32                                        Correct place alignment
+Internal zeros in both addends                  405 + 302                                       Column interpretation
+Carry into a zero                               208 + 96                                        Carry must be added to zero column
+Carry through 9s ending at zero                 1099 + 8                                        Cascade across places
+Multiple zeros in large number                  2005 + 304                                      Alignment and skipped places
+Answer contains zeros                           495 + 505 = 1000                                Do not drop placeholder zeros
+
+
+
+
+2.8 Addition of three or more numbers
+Skill / Case                                                           Example / focus
+
+Three 1-digit addends                                                  8 + 7 + 9; carry can be greater than 1
+Three 2-digit addends, no carry                                        21 + 34 + 12
+Three 2-digit addends, with carry                                      78 + 67 + 89
+Three 3-digit addends                                                  245 + 378 + 126
+Unequal digit lengths, vertical                                        345 + 27 + 6; align all by ones place
+Unequal digit lengths, horizontal                                      345 + 27 + 6 = ?
+Four or more addends                                                   25 + 38 + 47 + 16
+Column sum produces carry 2 or more                                    9 + 8 + 7 + 6 = 30 in one column
+
+
+
+
+2.9 N-digit addition - scalable cases
+Case family                                                            Assess separately
+
+Digit-length combinations                                              N+1, N+2, ..., N+N; also shorter number first vs longer first
+Presentation                                                           Vertical vs horizontal
+Place-value alignment                                                  Equal lengths vs unequal lengths
+Carry count                                                            None / one / multiple
+Carry pattern                                                          Isolated / consecutive / non-adjacent / cascading through 9s
+Answer size                                                            Same number of digits vs one additional digit
+Zeros                                                                  Internal zeros / multiple zeros / carry into zero / answer zeros
+
+
+
+
+3. Subtraction - Direct Calculation Skills
+3.1 Single-digit - Single-digit
+Skill / Case                                                           Example
+
+Vertical; positive answer                                              8-3
+Horizontal; positive answer                                            8-3=?
+Answer is zero                                                         7-7=0
+Subtract zero                                                          7-0=7
+
+
+
+
+                                  Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                       Addition & Subtraction Assessment Skill Taxonomy
+
+
+ For a whole-number assessment, cases where the result would be negative should normally be excluded or treated as a separate
+ integer-extension skill.
+
+
+
+3.2 Two-digit - One-digit
+Skill / Case                                                         Example / focus
+
+Vertical, no borrowing                                               47 - 5
+Horizontal, no borrowing                                             47 - 5 = ?
+Vertical, borrowing; answer 2 digits                                 42 - 7 = 35
+Horizontal, borrowing; answer 2 digits                               42 - 7 = ?
+Vertical, borrowing; answer becomes 1 digit                          13 - 7 = 6
+Horizontal, borrowing; answer becomes 1 digit                        13 - 7 = ?
+
+
+
+
+3.3 Two-digit - Two-digit
+Skill / Case                                                         Example
+
+Vertical, no borrowing; answer 2 digits                              76 - 23 = 53
+Horizontal, no borrowing; answer 2 digits                            76 - 23 = ?
+No borrowing; answer becomes 1 digit                                 32 - 30 = 2
+No borrowing; answer zero                                            44 - 44 = 0
+Vertical, borrow from tens; answer 2 digits                          72 - 38 = 34
+Horizontal, borrow from tens; answer 2 digits                        72 - 38 = ?
+Borrow from tens; answer becomes 1 digit                             43 - 38 = 5
+
+
+
+
+3.4 Three-digit - One-digit
+Skill / Case                                                         Example / focus
+
+Vertical, no borrowing                                               347 - 5; 5 under ones
+Horizontal, no borrowing                                             347 - 5 = ?
+Borrow from tens                                                     342 - 7
+Borrow across a zero                                                 302 - 7
+Borrow through multiple zeros                                        1000 - 7
+Answer loses a digit                                                 100 - 7 = 93
+
+
+
+
+                                Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                        Addition & Subtraction Assessment Skill Taxonomy
+
+
+3.5 Three-digit - Two-digit
+Skill / Case                                                         Example / focus
+
+Vertical, no borrowing                                               345 - 23; align 23 under tens/ones
+Horizontal, no borrowing                                             345 - 23 = ?
+Borrow in ones column only                                           354 - 27
+Borrow in tens column only                                           352 - 170
+Borrow in both columns                                               352 - 178
+Borrow across zero                                                   302 - 18
+Borrow through multiple zeros                                        1000 - 28
+Answer remains 3 digits                                              456 - 23 = 433
+Answer becomes 2 digits                                              105 - 23 = 82
+Answer becomes 1 digit                                               105 - 97 = 8
+
+
+
+
+3.6 Three-digit - Three-digit - borrow pattern matrix
+Borrow pattern                                                       Presentation / answer cases
+
+No borrowing                                                         Vertical + horizontal; answer may keep or lose digits
+Borrow from tens only                                                Vertical + horizontal
+Borrow from hundreds only                                            Vertical + horizontal
+Borrow in ones and tens                                              Vertical + horizontal
+Consecutive borrowing                                                Borrow required in adjacent columns
+Borrow across one zero                                               e.g., 402 - 185
+Borrow across multiple zeros                                         e.g., 1000 - 476
+Internal zero in subtrahend                                          e.g., 764 - 203
+
+
+
+
+3.7 Subtraction involving zeros
+Skill / Case                                  Example                                        Distinct risk
+
+Number - 0                                    456 - 0                                        Identity property
+Number - itself                               456 - 456                                      Answer zero
+Zero inside minuend                           504 - 203                                      Borrow and place-value interpretation
+Zero inside subtrahend                        764 - 203                                      Do not treat zero as missing
+Borrow through one zero                       402 - 185                                      Regroup across an empty place
+Borrow through multiple zeros                 1000 - 476                                     Long borrow chain
+Answer contains zero                          705 - 201 = 504                                Retain internal placeholder zero
+Answer ends in zero                           650 - 120 = 530                                Retain trailing zero
+Answer loses multiple digits                  1000 - 999 = 1                                 Magnitude change
+
+
+
+
+                                Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                           Addition & Subtraction Assessment Skill Taxonomy
+
+
+3.8 N-digit subtraction - scalable cases
+Case family                                                             Assess separately
+
+Digit-length combinations                                               N-digit minus 1/2/.../N-digit; align by ones place
+Presentation                                                            Vertical vs horizontal
+Borrow count                                                            None / one / multiple
+Borrow pattern                                                          Isolated / consecutive / across one zero / across multiple zeros
+Answer size                                                             Same digits / one fewer digit / several fewer digits / zero
+Zeros                                                                   Internal zeros in minuend or subtrahend; answer zeros
+
+
+
+
+4. Place-Value Alignment & Horizontal-to-Vertical Conversion
+ These are independent diagnostic skills. A learner can know the arithmetic but still fail because the shorter number is placed
+ under the wrong column.
+
+
+Skill                                           Addition example                                 Subtraction example
+
+Align 1-digit under ones of 2-digit number      43 + 5                                           43 - 5
+Align 1-digit under ones of 3-digit number      342 + 5                                          342 - 5
+Align 2-digit under tens/ones of 3-digit        345 + 23                                         345 - 23
+number
+Align 1-digit under ones of 4+ digit number     4,382 + 7                                        4,382 - 7
+Shorter number written first                    7 + 342                                          Not applicable in ordinary whole-number
+                                                                                                 subtraction unless result stays non-negative
+Convert horizontal to vertical correctly        345 + 27 = ?                                     345 - 27 = ?
+Preserve placeholder zeros while aligning       4,005 + 73                                       4,005 - 73
+
+
+
+
+5. Regrouping Pattern Skills
+5.1 Carry patterns in addition
+Pattern                                         What to assess                                   Example type
+
+No carry                                        Independent column addition                      243 + 514
+Single carry                                    One column generates a carry                     247 + 315
+Multiple independent carries                    More than one column carries                     286 + 157
+Consecutive carries                             Carry in adjacent columns                        678 + 457
+Non-adjacent carries                            Carry in separated columns                       Select digits so ones and hundreds carry but
+                                                                                                 tens does not
+Cascading carry                                 A carry triggers another carry because of 9s     399 + 4; 1,999 + 6
+Carry creates new leading digit                 Highest place carries                            678 + 457 = 1,135
+Carry greater than 1                            Three or more addends in same column             8 + 7 + 9 = 24
+
+
+
+
+                                  Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                            Addition & Subtraction Assessment Skill Taxonomy
+
+
+5.2 Borrow patterns in subtraction
+Pattern                                         What to assess                                   Example type
+
+No borrowing                                    Independent column subtraction                   764 - 231
+Single borrow                                   Borrow in one column                             742 - 318
+Multiple borrows                                Borrow in more than one column                   653 - 278
+Consecutive borrowing                           Adjacent columns both require borrowing          352 - 178
+Borrow across one zero                          Immediate left place is zero                     402 - 185
+Borrow across multiple zeros                    Several zeros must be traversed                  1000 - 476
+Borrow changes another later decision           After borrowing, reduced digit may itself        Typical multi-column regrouping
+                                                need to borrow
+Highest-place reduction                         Borrowing reduces leading digit and answer       105 - 97 = 8
+                                                may lose a digit
+
+
+
+
+6. Missing Number & Missing Digit Skills
+6.1 Addition - whole addend missing
+Skill                                                                  Example
+
+Missing second addend, 1 digit                                         5 + □ = 12
+Missing first addend, 1 digit                                          □ + 5 = 12
+Missing 2-digit addend, no carry structure                             23 + □ = 58
+Missing 2-digit addend, carry structure                                47 + □ = 83
+Missing 3-digit addend                                                 245 + □ = 613
+Missing addend in 3+ addend expression                                 35 + □ + 18 = 80
+
+
+
+
+6.2 Addition - digit(s) missing inside numbers
+Skill                                                                  Example
+
+One missing digit, no carry                                            2□ + 34 = 59
+One missing digit, carry required                                      4□ + 38 = 85
+Missing tens digit                                                     □7 + 25 = 62
+Missing ones digit                                                     4□ + 27 = 72
+Missing hundreds digit                                                 □24 + 352 = 876
+Missing digit in answer                                                37 + 46 = 8□
+Two missing digits across addends                                      4□ + □3 = 78
+Missing digits in addends and answer                                   □4□ + 2□5 = 6□9
+Same symbol means same digit                                           A5 + 2A = 88
+Find all possible digits under inequality constraint                   3□ + 27 < 70
+
+
+
+
+6.3 Subtraction - whole number missing
+Unknown position                                Example                                          Reasoning demand
+
+Difference missing                              15 - 7 = □                                       Direct calculation
+Subtrahend missing                              15 - □ = 7                                       Reverse reasoning
+Minuend missing                                 □-7=8                                            Reverse reasoning / inverse operation
+
+
+                                 Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                          Addition & Subtraction Assessment Skill Taxonomy
+
+
+Unknown position                              Example                                           Reasoning demand
+
+2-digit subtrahend missing                    58 - □ = 24                                       Whole-number unknown
+3-digit minuend missing                       □ - 275 = 418                                     Inverse reasoning at larger magnitude
+
+
+
+
+6.4 Subtraction - digit(s) missing
+Skill                                                                Example
+
+One missing digit without borrowing                                  5□ - 23 = 34
+One missing digit requiring borrowing                                6□ - 28 = 35
+Missing digit in minuend                                             □7 - 29 = 38
+Missing digit in subtrahend                                          64 - 2□ = 37
+Missing digit in answer                                              74 - 28 = 4□
+Missing digit with zero/borrow chain                                 4□2 - 185 = 217
+Multiple missing digits                                              □5 - 2□ = 17
+Same symbol means same digit                                         A5 - 2A = 27
+All possible solutions under constraint                              7□ - 25 > 50
+
+
+
+
+7. Missing Operation, Equality & Inverse Relationship
+Skill family                                                         Cases / examples
+
+Missing operation                                                    7 □ 3 = 10; 15 □ 8 = 7; choose + or -
+Multiple missing operations                                          12 □ 5 □ 3 = 10
+Fact family from addition                                            7 + 5 = 12 -> 5 + 7 = 12; 12 - 7 = 5; 12 - 5 = 7
+Related addition fact from subtraction                               Given 14 - 6 = 8, write 8 + 6 = 14
+Check addition using subtraction                                     If 347 + 258 = 605, verify 605 - 258 = 347
+Check subtraction using addition                                     If 605 - 258 = 347, verify 347 + 258 = 605
+Balanced equation - one blank                                        12 + 8 = 15 + □
+Balanced equation - different operations                             43 - 7 = □ + 11
+Blank on both sides                                                  25 + □ = 40 - □
+True / false equality                                                35 + 17 = 40 + 12?
+Compare without calculating fully                                    198 + 47 vs 200 + 45
+
+
+
+
+8. Efficient / Mental Addition & Subtraction
+ This section measures strategy choice, not only whether the final answer is correct.
+
+
+Skill                                                                Example / strategy
+
+Add/subtract 10, 100, 1000                                           347 + 100; 812 - 100
+Make 10                                                              8 + 7 -> 8 + 2 + 5
+Make 100 / 1000                                                      68 + 32; 650 + 350
+Compensation for addition                                            56 + 29 -> 56 + 30 - 1
+Compensation for subtraction                                         83 - 39 -> 83 - 40 + 1
+Near hundred / thousand                                              298 + 154; 1002 - 398
+
+
+                                Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                           Addition & Subtraction Assessment Skill Taxonomy
+
+
+Reorder using commutativity                                             27 + 36 + 13 -> (27+13)+36
+Group convenient pairs                                                  25 + 37 + 75 -> (25+75)+37
+Break apart by place value                                              347 + 25 -> 347 + 20 + 5
+Count on for small difference                                           503 - 498 by counting from 498 to 503
+Use inverse operation                                                   Find □ in 47 + □ = 83 via 83 - 47
+Choose efficient method                                                 199 + 47 vs standard column algorithm
+
+
+
+
+9. Estimation, Reasonableness & Checking
+Skill                                                                   Example / purpose
+
+Estimate a sum by rounding                                              398 + 207 ≈ 400 + 200
+Estimate a difference by rounding                                       802 - 396 ≈ 800 - 400
+Choose closest estimate                                                 Which is closest to 487 + 216?
+Detect impossible answer by magnitude                                   487 + 216 cannot be 6,903
+Check final digit / parity clue                                         Even + odd must be odd; useful as a reasonableness check
+Use inverse to verify                                                   Addition checked by subtraction; subtraction checked by addition
+Compare exact answer with estimate                                      Does 704 make sense for 398 + 307?
+
+
+
+
+10. Addition & Subtraction Word-Problem Skills
+10.1 One-step structures
+Structure                                       Addition/Subtraction role                          Example prompt pattern
+Result unknown - join                           Addition                                           Had 24, got 13 more. How many now?
+
+Change unknown - join                           Addition/subtraction inverse                       Had 24, now 37. How many were added?
+
+Start unknown - join                            Subtraction/inverse                                Had some, got 13, now 37. How many initially?
+
+Result unknown - separate                       Subtraction                                        Had 37, gave away 13. How many left?
+
+Change unknown - separate                       Subtraction/inverse                                Had 37, now 24. How many were given away?
+
+Start unknown - separate                        Addition/inverse                                   Had some, gave away 13, now 24. How many
+                                                                                                   initially?
+
+Part-part-whole - whole unknown                 Addition                                           24 boys and 18 girls. Total?
+
+Part-part-whole - part unknown                  Subtraction                                        42 total, 24 boys. Girls?
+
+Compare - difference unknown                    Subtraction                                        Riya has 42; Aman has 35. How many more?
+
+Compare - larger unknown                        Addition                                           Aman has 35; Riya has 7 more. How many Riya?
+
+Compare - smaller unknown                       Subtraction                                        Riya has 42; Aman has 7 fewer. How many
+                                                                                                   Aman?
+
+
+
+
+10.2 Language and representation variations
+Skill                                                                   Examples / notes
+
+Recognise addition language                                             total, altogether, in all, combined, increased by, more added
+Recognise subtraction language                                          left, remaining, difference, fewer, how many more, decreased by
+Solve without relying on keywords                                       Operation must be inferred from situation, not one word
+Translate story into number sentence                                    Write 48 - 19 = ? before solving
+
+
+
+                                  Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                          Addition & Subtraction Assessment Skill Taxonomy
+
+
+Skill                                                                  Examples / notes
+
+Use irrelevant information correctly                                   Ignore data not needed to answer
+Interpret tables/charts/simple data                                    Add or subtract values read from a representation
+Missing start / change / result                                        Unknown can appear in any position
+Same context, different question                                       Ask total vs difference vs missing part using same numbers
+
+
+
+
+10.3 Multi-step word problems
+Skill                                                                  Structure
+
+Addition then addition                                                 Two increases / combine three quantities
+Subtraction then subtraction                                           Two decreases
+Addition then subtraction                                              Quantity increases, then decreases
+Subtraction then addition                                              Quantity decreases, then increases
+Choose order of operations                                             Correct sequence matters
+Intermediate result required                                           Second step depends on first
+Unknown in first step                                                  Work backwards
+Unknown in second step                                                 Forward then reverse reasoning
+Extra information included                                             Select relevant facts
+Olympiad-style constraint story                                        Several conditions; may require trying possibilities or inverse
+                                                                       reasoning
+
+
+
+
+11. Error-Diagnosis Skills
+Error type to test                                                     Typical learner error
+
+Place-value misalignment                                               Writes 5 under tens in 342 + 5
+Horizontal-to-vertical conversion error                                Shifts a shorter number left
+Forgotten carry                                                        Adds column but does not transfer carry
+Carry placed in wrong column                                           Writes carry above wrong place
+Carry not included                                                     Records carry but forgets to add it
+Assumes carry is always 1                                              Fails when 3+ addends create carry 2 or more
+Drops zero placeholder                                                 Writes 495 + 505 as 100 instead of 1000
+Subtracts smaller digit from larger regardless of position             In 52 - 38, computes 8-2 instead of regrouping
+Forgotten borrow                                                       Attempts 2-8 directly without regrouping
+Does not reduce donor digit                                            Borrows 10 but leaves original tens unchanged
+Borrow from wrong place                                                Incorrect regrouping source
+Borrow across zero incorrectly                                         Fails on 402 - 185 or 1000 - 476
+Drops leading/trailing/internal zero in answer                         Place-value representation error
+Reverses subtraction                                                   Treats subtraction as commutative
+Incorrect missing-digit logic                                          Finds a digit that works locally but not across carries/borrows
+Equality misconception                                                 Treats = as “the answer comes next” rather than balance
+
+
+
+
+                                  Assessment design reference | Whole-number operations | Not grade-specific
+                                                                                              Addition & Subtraction Assessment Skill Taxonomy
+
+
+12. Master Tagging Matrix for an Assessment Bank
+Tag                                                                      Allowed values / examples
+
+operation                                                                ADD / SUB
+operand_1_digits                                                         1, 2, 3, 4, ..., N
+operand_2_digits                                                         1, 2, 3, 4, ..., N
+operand_order                                                            LONGER_FIRST / SHORTER_FIRST / EQUAL_LENGTH
+presentation                                                             VERTICAL / HORIZONTAL / STORY / EQUATION_BALANCE
+alignment_required                                                       YES / NO
+regrouping                                                               NONE / SINGLE / MULTIPLE
+regroup_columns                                                          ONES / TENS / HUNDREDS / ...
+regroup_pattern                                                          ISOLATED / CONSECUTIVE / NON_ADJACENT / CASCADING /
+                                                                         ACROSS_ZERO
+zero_pattern                                                             NONE / INTERNAL / MULTIPLE / ANSWER_ZERO
+answer_digit_change                                                      SAME / +1 / -1 / -MULTIPLE / ZERO
+num_operands                                                             2 / 3 / 4+
+unknown_type                                                             NONE / WHOLE_NUMBER / DIGIT / MULTIPLE_DIGITS / OPERATION
+unknown_position                                                         FIRST_OPERAND / SECOND_OPERAND / RESULT / MULTIPLE
+reasoning_type                                                           DIRECT / INVERSE / BALANCE / CONSTRAINT / ERROR_DIAGNOSIS
+strategy                                                                 STANDARD / MENTAL / COMPENSATION / ESTIMATION
+context                                                                  BARE_NUMBER / WORD_PROBLEM / TABLE_OR_CHART
+
+
+
+Recommended database rule: do not encode every possible combination as a separate hard-coded topic name. Store these
+dimensions as tags, then generate or select question sets by combinations of tags. This prevents cases such as “3-digit + 1-digit,
+horizontal, carry” from being accidentally omitted.
+
+
+
+
+13. Suggested Assessment Progression
+Stage                                                                    What it should establish
+
+1. Direct, no regrouping                                                 Basic operation and place-value understanding
+2. Horizontal vs vertical                                                Representation flexibility and correct alignment
+3. Unequal digit lengths                                                 Alignment of ones/tens/hundreds
+4. Single regrouping                                                     Carry/borrow mechanism
+5. Multiple/cascading regrouping                                         Robust column procedure
+6. Zeros                                                                 Regrouping through empty places / placeholder understanding
+7. Answer-size changes                                                   Magnitude awareness
+8. Three or more addends                                                 Higher column totals and carry >1
+9. Missing number / missing digit                                        Reverse reasoning and Olympiad-style constraints
+10. Equality / inverse / checking                                        Structural understanding of operations
+11. Efficient mental strategies                                          Fluency beyond standard algorithm
+12. Word problems                                                        Application and operation selection
+13. Error diagnosis                                                      Ability to detect and explain misconceptions
+
+
+                                                              End of taxonomy
+
+
+
+                                    Assessment design reference | Whole-number operations | Not grade-specific
+

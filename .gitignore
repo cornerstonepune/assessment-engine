@@ -1,0 +1,34 @@
+# children's work, renders, print packs — never in git
+data/
+*.jpg
+*.jpeg
+*.png
+*.pdf
+!docs/sources/*.pdf
+
+# secrets
+.env
+.env.*
+!.env.example
+supabase/.temp/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# node
+node_modules/
+.next/
+apps/web/.env*.local
+
+# n8n runtime
+n8n/.n8n/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
