@@ -33,3 +33,6 @@ n8n/.n8n/
 .idea/
 .vscode/
 .tokensave
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

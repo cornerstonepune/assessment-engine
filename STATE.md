@@ -160,9 +160,45 @@ table (`child`, `item`, `sheet_*`, `capture`, `item_result`, `evidence_event`, `
 `home_sheet`, `parent_note`, the three Ring B tables). `tenant` and the registry, ladder,
 misconception and prompt tables are filled by `engine load`.
 
+## Phase 0 — seeds and loader (complete 2026-09-17)
+
+`engine load --check` fills the hosted project from `supabase/seed/`, checks every code
+resolves, then loads again and fails if any count moved.
+Check: `cd packages/engine && uv run engine load --check` →
+```
+  tenant               1
+  skill               37
+  milestone          162
+  rung                16
+  level_rule          12
+  misconception       27
+  case_dimension      18
+  coverage_target     46
+  prompt               5
+  threshold           10
+  every code referenced resolves
+  unchanged on a second run
+```
+
+Test suite: 53 tests, all passing, including the live loader tests against Supabase.
+Check: `cd packages/engine && uv run pytest -q` → `53 passed`
+
+Three misconceptions were seeded as `answer_lookup` — a promise that the engine can compute
+the number the mistake produces — with no predictor behind them. `test_every_seeded_answer_lookup_code_has_a_predictor`
+caught it. Now written: `align_left` (342 + 5 with the 5 under the 3 → 842, the error the
+unequal-length blueprint slots exist to catch), `zero_dropped` (495 + 505 → 100), and
+`carry_always_one`, which needed its own `MULTI_PREDICTORS` registry because it takes a list of
+addends — two operands can never make a column total of 20, so the error is invisible until a
+sheet asks for three. Verified live: `7489 + 8845 + 3539 = 19873`, a child always carrying 1
+writes `19863`.
+
 ## Code
 
-- None yet beyond the moved prototype. Phase 0 loader and seeds in progress.
+- `engine/db.py` — the only module that opens a connection.
+- `engine/loaders.py` — seed JSON to tables, upsert on the natural code, plus `orphans()` for the
+  referential checks the schema cannot express (codes live in arrays).
+- `engine/cli.py` — `engine load`, `engine load --check`.
+- `engine/assess/tags.py` — taxonomy §12 case tags derived from generator parameters.
 - macOS python.org build has no CA bundle; the engine venv must include `certifi`.
 
 ## Environment

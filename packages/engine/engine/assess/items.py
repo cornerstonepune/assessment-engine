@@ -384,6 +384,7 @@ def multi_add(rng, rung, signal, n_addends=3, digits_each=4):
         xs = [rng.randint(lo, hi) for _ in range(n_addends)]
     ans = sum(xs)
     mis = {"M_DROP_CARRYOUT": ans % (10 ** digits_each), "M_FACT_PM10": ans + 10, "M_FACT_PM100": ans - 100}
+    mis |= M.predict_multi(xs)
     mis = {k: v for k, v in mis.items() if v != ans}
     r = Response("ans", "digits", str(ans), cells=len(str(ans)) + 1, misconceptions=mis)
     return _item(f"ADD.MULTI{n_addends}", rung, signal, "column_grid", "", dict(addends=xs, op="+", layout="column"), [r], working_lines=0)

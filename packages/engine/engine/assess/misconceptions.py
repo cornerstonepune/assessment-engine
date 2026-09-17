@@ -140,6 +140,55 @@ def wrong_operation_add(a, b):
 def wrong_operation_sub(a, b):
     return abs(a - b)
 
+def align_left(op, a, b):
+    """Unequal lengths aligned from the left instead of the ones column.
+
+    342 + 5 written with the 5 under the 3 is read by the child as 342 + 500 -> 842.
+    Only possible when the operands differ in length, which is why the blueprints have
+    to generate that case at all. Returns None when both operands are the same length.
+    """
+    d1, d2 = len(str(a)), len(str(b))
+    if d1 == d2:
+        return None
+    shifted = b * 10 ** (d1 - d2) if d1 > d2 else b
+    if d1 < d2:                       # a is the shorter one; it slides left instead
+        a, shifted = a * 10 ** (d2 - d1), b
+    r = a + shifted if op == "+" else a - shifted
+    correct = (a + b) if op == "+" else (a - b)
+    return r if r != correct and r >= 0 else None
+
+def zero_dropped(result):
+    """A placeholder zero is left out when the answer is written. 495 + 505 -> 100, not 1000.
+
+    The leading digit is never the one dropped, so the scan starts at index 1.
+    """
+    s = str(result)
+    for i, ch in enumerate(s):
+        if ch == "0" and i > 0:
+            out = s[:i] + s[i + 1:]
+            return int(out) if out else None
+    return None
+
+def carry_always_one(addends):
+    """Three or more addends can make a column total of 20 or more, and the carry is then 2.
+
+    A child who has only ever seen a carry of 1 writes the right ones digit and carries 1
+    regardless. Two-operand columns can never exceed 19, so this error is invisible until
+    a sheet asks for three addends — which is the whole reason R12 exists.
+    """
+    w = max(len(str(x)) for x in addends)
+    digs = [digits(x, w) for x in addends]
+    out, carry = [], 0
+    for i in range(w):
+        s = sum(d[i] for d in digs) + carry
+        out.append(s % 10)
+        carry = 1 if s >= 10 else 0      # the mistake: always 1, never s // 10
+    while carry:
+        out.append(carry % 10)
+        carry //= 10
+    r = from_digits(out)
+    return r if r != sum(addends) else None
+
 # ---------------- registry ----------------
 
 ADD_PREDICTORS = {
@@ -150,6 +199,8 @@ ADD_PREDICTORS = {
     "M_FACT_PM1":      (lambda a, b: off_by(a + b, 1), "Fact off by one", "Number bonds; ten-frame fluency"),
     "M_FACT_PM10":     (lambda a, b: off_by(a + b, 10), "Tens miscounted", "Count in tens on a 100-square"),
     "M_WRONG_OP":      (wrong_operation_sub, "Subtracted instead of adding", "Read the question aloud; identify the operation word"),
+    "M_ALIGN_LEFT":    (lambda a, b: align_left("+", a, b), "Aligns unequal-length operands from the left, not the ones", "Place-value columns; write the ones digit first and build leftwards"),
+    "M_ZERO_DROPPED":  (lambda a, b: zero_dropped(a + b), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value: 'one thousand' has three zeros"),
 }
 SUB_PREDICTORS = {
     "M_SMALL_FROM_LARGE": (sub_smaller_from_larger, "Subtracts the smaller digit from the larger regardless of row ('neeche wala number')", "Rods: show that the top number is the whole; act out the exchange"),
@@ -159,7 +210,27 @@ SUB_PREDICTORS = {
     "M_FACT_PM1":         (lambda a, b: off_by(a - b, -1), "Fact off by one", "Number bonds; count-up on a number line"),
     "M_FACT_PM10":        (lambda a, b: off_by(a - b, 10), "Tens miscounted", "Count back in tens on a 100-square"),
     "M_WRONG_OP":         (wrong_operation_add, "Added instead of subtracting", "Read the question aloud; identify the operation word"),
+    "M_ALIGN_LEFT":       (lambda a, b: align_left("-", a, b), "Aligns unequal-length operands from the left, not the ones", "Place-value columns; write the ones digit first and build leftwards"),
+    "M_ZERO_DROPPED":     (lambda a, b: zero_dropped(a - b), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value; check the column count"),
 }
+
+MULTI_PREDICTORS = {
+    "M_CARRY_ALWAYS_1": (carry_always_one, "Carries 1 when the column total is 20 or more", "Three-addend columns with rods; count the tens being exchanged, not the act of exchanging"),
+    "M_ZERO_DROPPED":   (lambda xs: zero_dropped(sum(xs)), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value before writing it"),
+}
+
+def predict_multi(addends):
+    """Errors that only become visible with three or more addends, so they need the whole list."""
+    correct = sum(addends)
+    out = {}
+    for code, (fn, _, _) in MULTI_PREDICTORS.items():
+        try:
+            v = fn(addends)
+        except Exception:
+            v = None
+        if v is not None and v != correct and v >= 0:
+            out[code] = v
+    return out
 
 def predict(op, a, b):
     """Return {code: wrong_answer} for every misconception that can occur on these operands."""
@@ -177,7 +248,9 @@ def predict(op, a, b):
 
 def catalogue():
     rows = []
-    for op, table in (("+", ADD_PREDICTORS), ("-", SUB_PREDICTORS)):
+    for op, table in (("+", ADD_PREDICTORS), ("-", SUB_PREDICTORS), ("+", MULTI_PREDICTORS)):
         for code, (_, name, repair) in table.items():
+            if any(r["code"] == code and r["op"] == op for r in rows):
+                continue
             rows.append(dict(code=code, op=op, name=name, repair=repair))
     return rows
