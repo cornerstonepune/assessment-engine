@@ -19,6 +19,8 @@ One Postgres. Four rings. Every file belongs to exactly one.
 
 Code where correctness is needed (arithmetic, marking, lookup, graph). A model where judgment is
 needed (reading handwriting, reading a page, writing a context or a note). Never the reverse.
+A model may *generate* what code then *verifies* — that is how the question bank is made
+(ADR 0005) — but a number is never a model's last word.
 
 ## Structure
 

@@ -210,6 +210,32 @@ pipeline rather than only for digit reading.
 Not covered: Aseem's second finding, `56 × 3 = 1518` (partial products written side by side), is
 multiplication. Off the ladder, no predictor — the `M_MULT_CONCAT` the Kabir POC proposed.
 
+## Prompt-driven item generation — first measurement (2026-09-17)
+
+The bank generated the way the founder specified: the skill-set spec as plain text (topic,
+objective, skill, Hard rule in words, philosophy lines, formats, the eleven seeded subtraction
+misconceptions with descriptions), one prompt, no per-topic code; then every number checked by
+code. Full reading in `research/2026-09-17-prompt-generation-spike.md`; decision in ADR 0005.
+Check: `cd packages/engine && uv run python ../../research/spike_prompt_gen.py 20` →
+```
+model used: gemini-3.6-flash
+model returned 20 items (asked 20)
+answers correct:        17/20
+constraint met:         20/20  (3-digit, no zero on top, exactly one exchange)
+duplicate (a,b) pairs:  0
+misconception claims:   89; with a code predictor: 89; matched predictor: 77
+formats: {'column': 7, 'missing_number': 7, 'word_1step': 6}
+```
+The three rejected items were `582 − □ = 236`-shaped: the model wrote the shown difference into
+both `b` and `answer`. Its distractors for that item (244, 246, 235, 928) equal the predictors'
+output for 582 − 346, so the arithmetic was right on all twenty and the verifier caught the field
+error. 77/77 distractors on the seventeen accepted items matched code. A 40-item request timed
+out at 120 s on the free tier — batch at ~20. `gemini-3.5-flash` returned 503 then a spurious
+404 on this run; the ordered fallback served.
+
+**Status: one call, one topic, one difficulty.** Enough to choose the architecture, not a quality
+measurement. The seventeen accepted items seed the `item_generate` eval set.
+
 ## Real assessment data received (2026-09-17)
 
 16 children in `~/cornerstone/assessments/` — 11 in G2, 5 in G3, of whom Rudraksh is confirmed

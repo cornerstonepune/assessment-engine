@@ -320,28 +320,34 @@ which spare to hand a child who finishes early.
 She hands them out top to bottom. She never matches a child to a level, never marks, and never
 sees a difficulty label in front of a child.
 
-### 5.6 The three flows
+### 5.6 The four workflows
 
-**F1 build-the-bank** (on template change; nightly top-up when a pool runs low): generators
-produce items, the model writes only the sentence around numbers the generator already chose, the
-validator recomputes everything, rows land `approved`. No human in the loop — the template was
-approved once, upstream.
+**W1 build-the-bank** (on a new or changed skill-set spec; nightly top-up when a pool runs low):
+the spec — topic, learning objective, skill, difficulty rule in words, philosophy lines, formats,
+misconceptions — is rows. The `item_generate` prompt turns it into candidate items with answers
+and misconception distractors; the verifier recomputes every number and rejects what fails; rows
+land `approved`. No human gate before printing — the template was trusted upstream. After the
+fact, any staff member can flag any item from the library; it is retired and the flag joins the
+prompt's eval set. Design: `ARCHITECTURE.md` §7, ADR 0005.
 
-**F2 assemble-and-print** (Thu 7am and Fri 7am, after the declaration): read prescriptions →
-assemble per child from unexposed approved items → render → pack in handout order with spares and
-the key → WhatsApp to the teacher → she taps approve or replies with an edit in words, which
-re-runs that child and comes back. Open: is silence approval? Proposed yes for practice, no for
-assessment.
+**W2 assemble-and-print** (Thu 7am and Fri 7am, after the declaration): read prescriptions →
+assemble per child from unexposed approved items → render with QR → pack in handout order with
+spares and the key → WhatsApp to the teacher → she taps approve or replies with an edit in words,
+which re-runs that child and comes back. Open: is silence approval? Proposed yes for practice, no
+for assessment.
 
-**F3 read-and-respond** (the loop that closes): Drive trigger on the capture folder → POST
-`/ingest` → QR resolves the sheet to a child → `/mark` and `/read` in parallel → anything
-uncertain to the confirm queue → teacher confirms → `evidence_event` rows. Then nightly:
-`/graph/rebuild` → `/prescribe` → `/cards` → `/home`, which produces next week's three outputs
-per child, each chosen from that child's own graph: **the worksheet** (practice at their level),
-**the assessment** (what to test next), and **the home sheet** (extra reps on exactly the pattern
-that keeps recurring, with the parent note). Unreadable QR → `needs_rephoto`, visible in Capture.
+**W3 read-and-graph**: Drive trigger on the capture folder → POST `/ingest` → QR resolves the
+sheet to a child → `/mark` and `/read` in parallel → anything uncertain to the confirm queue →
+teacher confirms → `evidence_event` rows → `/graph/rebuild` → the child's six-state skill graph.
+Unreadable QR → `needs_rephoto`, visible in Capture.
 
-F3 is where the loop closes: its output is the prescription F2 reads next week.
+**W4 close-the-loop** (Friday evening, then nightly): `/prescribe` → `/cards` → `/home`, which
+produces next week's three outputs per child, each chosen from that child's own graph: **the
+worksheet** (practice at their level), **the assessment** (what to test next), and **the home
+sheet** (extra reps on exactly the pattern that keeps recurring, with the parent note).
+
+W4 is where the loop closes: its output is the prescription W2 reads next week. The whole point
+is that a child spends next week on their own weak pattern, not on the class average.
 
 **Legacy import** (every assessment done so far, and any future non-QR paper) is an engine CLI,
 not an n8n flow: `engine legacy import assessments/G3/2026-09-03_week1_add-sub`. It reads the

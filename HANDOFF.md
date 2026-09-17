@@ -1,41 +1,42 @@
 # HANDOFF — current session
 
-Session: design and repo creation, 2026-09-16.
+Session: 2026-09-17 — Phase 0 complete, real data received, item generation settled.
 
-## Done
+## Done this session
 
-- Read the whole Cornerstone project (design/, research/, ops/, brain) and the prototype code.
-- Reconciled three conflicting architecture documents; Nimish chose to build the assessment
-  module first, in full, rather than follow the Learning OS phase order.
-- Approach A approved; `SPEC.md`, `CLAUDE.md`, ADRs 0001–0003 written.
-- Confirmed the thirteen existing scans need the legacy path (no QR / fiducials).
-- Repo created under `cornerstonepune/assessment-engine`.
+- Phase 0: schema live (30 tables, RLS forced), `engine load --check` green, prototype moved into
+  `packages/engine/engine/assess/`, 53 tests. All verified in `STATE.md`.
+- Difficulty vocabulary corrected to the school's Easy/Medium/Hard/Advance; template-as-unit-of-
+  trust restored from the workflow (no per-item review). `ARCHITECTURE.md` written: n8n boundary,
+  node-by-node table, engine surface.
+- `M_SMALL_FROM_LARGE` reproduces Aseem's hand diagnosis exactly (5147 for 8500 − 3647).
+- Real papers inventoried: 16 children, 37 papers, 7 Olympiad booklets in `~/cornerstone/assessments/`
+  (`manifest.md` there). Kiyaan's Week 1 paper is missing.
+- **Item generation re-decided (ADR 0005).** Nimish: a prompt, given topic/objective/skill/philosophy,
+  creates the bank — no code per topic. Spike proved it: arithmetic 20/20, distractors 77/77 vs
+  predictors, verifier caught 3 malformed items. ARCHITECTURE §6.1 and §7, SPEC §5.6 rewritten
+  around his four workflows W1–W4. Samplers demoted to fallback/eval, not deleted.
 
 ## Next
 
-1. Nimish reads `SPEC.md`; changes if any.
-2. `writing-plans` skill → implementation plan for Phase 0 and Phase 1 with chunk criteria.
-3. Phase 0: migrations, loaders, seeds, move `assess/` in with tests green.
-4. Phase 1: legacy import of the G2/G3 assessments Nimish uploads to `~/cornerstone/assessments/`
-   (layout in its README) → first real trajectory on Child Growth. The Downloads scans are
-   reference only.
+1. **W1 as an endpoint**: `item_generate` prompt row + eval set from the spike's 17 items;
+   `POST /bank/fill` = generate → verify → tag → `approved`; adapter with retry, ordered
+   fallback, batches of ~20. Schema fix from the spike: a field per format role (`shown`/`blank`).
+2. `item_feedback` migration + the flag on the library screen (step 6 of §7.1 has no table).
+3. N3 legacy import: 37 papers + WhatsApp images + Olympiad booklets → candidates for
+   Achal/Aseem → starting graph; compare against the five G3 reports (gold).
+4. Rungs/skill sets/blueprints out of `ladder.py`/`blueprints.py` into rows (rule-1 debt, open).
 
-## Spec change 2026-09-17
+## Open for Nimish
 
-Per-child adaptive assignment is in scope (SPEC §5 "The next-sheet rule", `prescription`
-table, Phase 2 gate). Nimish: with four data points per child the graph exists, so the next
-set of assignments must come from it.
-
-## Open for Nimish (from SPEC §14)
-
-Consent text · parent-note channel · who approves word-problem items · whether IMO papers count ·
-n8n hosting after pilot.
+Consent text · parent-note channel · whether IMO papers count · Kiyaan's missing W1 ·
+"silence = approval?" (proposed yes for practice, no for assessment) · when to reset the DB
+password (came through chat; alphanumeric only, then update `.env`).
 
 ## Watch
 
-- The registry G2/G3 milestone for `NUM.OPS.02` is identical text; rungs R9/R10 have no
-  milestone row — coverage report, not a registry edit from here.
-- Handwriting reading: first real page read correctly by `gemini-3.5-flash` (STATE.md). One page
-  is a signal, not a measurement — Phase 1 still measures against Aseem's marking on a gold set
-  before anything is built on top of it.
-- Supabase, Gemini and the Mumbai pooler all verified connected on 2026-09-17.
+- Free Gemini tier: 503, spurious 404, and a 120 s timeout on 40 items in one session. Never a
+  single pinned id; never the `-latest` alias.
+- Phase 0 plan doc (`docs/superpowers/plans/2026-09-17-phase-0-foundations.md`) still says
+  claude-opus-5 prompts and 24 misconceptions — both superseded; reconcile or annotate.
+- `.aislop/session.jsonl` files show as modified after every scan; do not sweep them into commits.

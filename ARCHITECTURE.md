@@ -114,97 +114,80 @@ Monthly   n8n ──> /reports ──> coordinator approves per child
 
 The loop closes at Friday evening: N11's output is what N5 reads next Thursday.
 
-## 7. The item generation engine
+### 6.1 The same twelve nodes as four workflows
 
-The point of N2 is that it works for **any** topic. Give it a skill set and a difficulty and it
-produces a question list — addition today, multiplication and fractions next, without anyone
-editing Python to add a topic. Three things multiply together to make that true.
+This is the shape Nimish holds the system in, and it is the shape n8n will show:
 
-### 7.1 Three layers, and which is code
-
-| Layer | What it is | Code or data | Who writes it |
+| Workflow | Nodes | In | Out |
 |---|---|---|---|
-| **Operation family** | the arithmetic of one operation: how to sample operands under a constraint, and what number each mistake produces | **code**, ~120 lines per family | engineer, once per family |
-| **Format** | the shape a question takes on paper — column sum, horizontal, missing number, balance scale, number line, number wall, partition scaffold, find-the-mistake, word problem, explain, sort-into-table… | **code**, 17 exist and are topic-agnostic | engineer, reused forever |
-| **Skill-set spec** | which sets exist, their operand rules at Easy/Medium/Hard/Advance, which formats apply, which misconceptions | **data** — rows, authored | Neha and Achal (N1), Aseem ratifies |
+| **W1 build the bank** | N1–N2 | topic, objective, skill, philosophy, difficulty rule — as rows | verified items, `approved`; a staff flag retires one |
+| **W2 assemble and print** | N5–N7 | each child's prescription | per-child sheets with QR, spares, teacher key; teacher approves |
+| **W3 read and graph** | N8–N10 | photos | evidence, the child's skill graph in six states |
+| **W4 close the loop** | N11–N12 → N5 | the graph | next practice sheet, next assessment, home sheet, parent note — each pointed at what that child got wrong |
 
-A format is not tied to an operation. "Missing number" is `□ + 7 = 12` and `□ × 7 = 42` and
-`□ + ¼ = ¾` — the same shape asking a different question. That reuse is what makes a new topic
-cheap.
+W4's output is W2's input the following week. The whole engine exists so a child spends the next
+week on the pattern that keeps recurring, not on the class average.
 
-### 7.2 What a skill set looks like as data
+## 7. The item generation engine (W1)
 
-Multiplication, the topic Aseem's own reports keep flagging. Nothing here is code:
+The requirement, in Nimish's words: *given a topic, a learning objective, a skill and the
+philosophy of the assessment — through a prompt — an agent creates the bank. No code is written
+to make questions or to attach them to the skill map. Any staff member can give feedback on what
+came out.* That is what is built. Decision and evidence: ADR 0005.
 
-```yaml
-skill_set: MUL.4
-  name:        2-digit × 1-digit with carrying
-  skill_code:  NUM.OPS.03
-  can_do:      "multiplies a 2-digit number by a single digit, carrying between partial products"
-  formats:     [column_grid, bare_sum, missing_number, find_mistake, word_1step]
-  difficulty:
-    Easy:    { a: {digits: 2, tens: 1..4}, b: {range: 2..3}, carries: 0 }
-    Medium:  { a: {digits: 2},             b: {range: 2..5}, carries: 1 }
-    Hard:    { a: {digits: 2},             b: {range: 6..9}, carries: 1..2 }
-    Advance: { a: {digits: 3},             b: {range: 6..9}, carries: 2..3 }
-  misconceptions: [M_MULT_CONCAT, M_PARTIAL_NOT_ADDED, M_CARRY_ADDED_BEFORE_MULT, M_TABLE_FACT]
-```
+### 7.1 A prompt generates, code verifies, staff retire
 
-`M_MULT_CONCAT` is the error Aseem diagnosed by hand: partial products computed correctly, then
-written side by side instead of added — `56 × 3 = 1518` rather than 168. As a predictor it is four
-lines of arithmetic, and once written, every multiplication item can be marked against it.
+| Step | Who | What |
+|---|---|---|
+| 1 | **data** | the skill-set spec, authored in a form by Neha and Achal: topic · learning objective · registry skill · the difficulty rule in words at Easy/Medium/Hard/Advance · the philosophy lines ("say exchange, never borrow", "one idea per item", "contexts a Pune 7-year-old knows") · allowed formats · the misconception list with descriptions |
+| 2 | **prompt** | `item_generate`, a versioned `prompt` row, receives the spec and returns N items as JSON: operands, answer, stem, and for every listed misconception the exact wrong answer that mistake produces |
+| 3 | **code** | the verifier: recompute the answer · check the rule (digit counts, regroup count, zeros, sign) · compare each misconception claim to a predictor where one exists · reject duplicates and forbidden words |
+| 4 | **code** | derive the taxonomy §12 case tags from operands and format |
+| 5 | **data** | passing items land `approved` — the template was trusted upstream, per the workflow. Failures are discarded and counted in `flow_run`; a rising failure rate is the signal to re-version the prompt |
+| 6 | **human** | any staff member, from the library screen: thumbs-down and one line. The item is retired and never printed again; the flag joins the prompt's eval set (rule 7) |
 
-### 7.3 The generation run, step by step
+The model is the author. Code is the examiner. Neither does the other's job, and the answer key
+is never a model's last word.
 
-This is N2 as a workflow, which is how you have been describing it. Each step is one thing:
+### 7.2 Measured
 
-```
-  1  read the skill-set spec                      data      (Postgres)
-  2  for each difficulty × format slot:
-  3    sample operands under the rules            Python    exact, constraint-checked
-  4    compute the correct answer                 Python    never a model
-  5    compute what each misconception produces   Python    the diagnostic table
-  6    if the format needs a sentence:            prompt    word problem, find-the-mistake framing
-         the model receives the numbers and       ← numbers are an input, never an output
-         may not change them
-  7    validate                                   Python    recompute the arithmetic independently,
-                                                            confirm the item exercises the rule it
-                                                            claims, reject duplicates, check reading
-                                                            load and forbidden vocabulary
-  8    derive the case tags                       Python    taxonomy §12, from the parameters
-  9    store as approved                          data      the template was trusted upstream
-```
+One run, 2026-09-17, Hard subtraction, twenty items, everything in step 1 given as plain text
+(`research/2026-09-17-prompt-generation-spike.md`): the rule was met on 20/20, arithmetic was
+right on all twenty, 77/77 misconception distractors matched the code predictors, and the three
+items the verifier rejected were a JSON field filled wrongly on missing-number items — caught,
+not printed. The word problems read like a teacher wrote them.
 
-Step 6 is the only place a model appears, and it is boxed in from both sides: the numbers are
-chosen before it runs, and step 7 re-checks everything after. A model that hallucinates writes a
-bad *sentence*, which a validator catches — it can never produce a wrong *answer*.
+### 7.3 What stays code, and why
+
+| Code | Why it cannot be a prompt |
+|---|---|
+| the verifier | it is the guarantee. A generic arithmetic check is a few lines and works for any operation; a rule check (regroup count) is ~10 lines per operation, written once |
+| the 27 misconception predictors | they make the diagnostic table *exact*. Without one, the model's claim is accepted and checked later at marking: a child's wrong answer that matches nothing goes to the confirm queue the teacher already works |
+| the 17 formats and the renderer | paper shapes, topic-agnostic; a new shape (area model, fraction bar) is one function, then every topic has it |
+| `items.py` / `blueprints.py` samplers | **demoted, not deleted.** They are the fallback when the model is unavailable and the oracle the prompt is evaluated against. They are no longer how a topic is added |
 
 ### 7.4 What it costs to add a topic
 
 | Adding… | Costs |
 |---|---|
-| a new skill set inside an existing operation (another addition set) | **rows only** |
-| a new difficulty band, or re-tuning operand rules | **rows only** |
-| a new format (say, an area model) | one Python function, then available to every topic |
-| a new operation family (multiplication, fractions) | one sampler + its predictors, ~120 lines, once |
-
-Fractions will also need a renderer that can draw a fraction — that is format work, not topic work.
+| a skill set, any topic, any difficulty | **rows**, in a form |
+| a misconception | **a row** with a description; the model computes its wrong answer. A predictor is optional and makes it exact |
+| a difficulty rule the verifier cannot check yet ("exactly one carry" for ×) | ~10 lines in the verifier, once per operation |
+| a format | one renderer function, once |
 
 ### 7.5 Where this stands today
 
-Honest position: **the formats are general, the topic layer is not.** `items.py` holds 17 formats
-that already work across operations. But `ladder.py` and `blueprints.py` are Python dictionaries
-covering addition and subtraction only, so a new topic today means editing code — which rule 1
-forbids.
+The prompt path is a spike, not an endpoint. `ladder.py` and `blueprints.py` are still Python
+dictionaries (a rule-1 violation, unchanged). The work:
 
-The work to close it:
-1. Move rungs, skill sets, difficulty bands and blueprints out of Python into seeded rows.
-2. Make the sampler read operand rules from those rows instead of from a function signature.
-3. Add the multiplication family — sampler and predictors, `M_MULT_CONCAT` first.
+1. `item_generate` as a `prompt` row, its eval set seeded from the spike's 17 accepted items.
+2. `POST /bank/fill` runs steps 1–5; batches of ~20 with retry and fallback in the adapter.
+3. `item_feedback` table and the flag on the library screen — step 6 has no home in the schema yet.
+4. Rungs, skill sets and blueprints out of Python into rows, so the form has somewhere to write.
 
-Until step 1 lands, "adding a topic is data" is a design claim, not a fact. The test that proves
-it: **add a multiplication skill set using only rows and the editing screen, and get printable
-questions out.** If any Python changes, the design failed.
+The proof: **Neha adds a multiplication skill set through the form and printable questions come
+out, every answer verified by code.** Python may change only inside the verifier, only to add a
+rule check; if anything else changes, the design failed.
 
 ## 8. Built, and not
 
