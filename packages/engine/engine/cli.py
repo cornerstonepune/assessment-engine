@@ -29,9 +29,8 @@ def bank_fill(
 ) -> None:
     """Generate, verify and store items for one skill set at one difficulty."""
     with db.connect() as conn:
-        counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run)
-        if not dry_run:
-            conn.commit()
+        counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run,
+                                       after_batch=None if dry_run else conn.commit)
     _echo_counts(counts, reasons)
 
 
