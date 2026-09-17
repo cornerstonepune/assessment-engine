@@ -20,6 +20,7 @@ Five outputs, each one the test of whether the build is working:
 | Confirm queue after capture | teacher | under 2 minutes per class |
 | Monday card per rung: secure / reteach group with the named mistake / ready to move up | teacher | she changes a Monday decision because of it |
 | Child growth: skill state over time | teacher, coordinator, later parent | four real assessments show a trend |
+| Next worksheet per child, chosen from the graph, with the reason | teacher hands out; may override | every child with enough evidence gets a sheet and a stated rule; overrides are rare and recorded |
 | Home sheet + parent note | teacher approves, parent receives | note is plain, concrete, no alarm |
 
 ## 2. The shape — one organism, not many programs
@@ -105,6 +106,7 @@ responses).
 | `item` | one generated question: template, rung_id, skill_ids[], signal, format, stem, spec, responses[] (rid, kind, answer, cells, options, misconceptions{code→wrong}, tolerance, rubric), tags, source, status, times_used, p_correct | engine generate |
 | `sheet_template` | one assembled worksheet design: band, level, variant, week, batch_id, blueprint_id, item_ids[], key (answers + cell geometry in mm), html_path, source (`generated` \| `legacy`) | engine assemble / legacy CLI |
 | `sheet_instance` | one physical page set: id = the QR code (`CS…`), sheet_template_id, child_id (nullable until named), print_status, pdf_path, printed_at | engine render; coordinator (naming, print status) |
+| `prescription` | why this child gets this sheet this week: child_id, week, strand, level, rung_ids[], rule_fired, misconception_targets[], sheet_instance_id, override_by, override_reason | engine prescribe; teacher override |
 | `child` | roll_no, band, section, active — **no name here** | roster loader |
 | `pii.child` | first_name, last_name, home_languages[]; separate schema, separate role, access logged | roster loader |
 | `capture` | one incoming file: drive_file_id, path, pages, qr_read, sheet_instance_id (nullable), status (`new` \| `resolved` \| `needs_rephoto` \| `processed` \| `error`), error | engine ingest |
@@ -136,24 +138,44 @@ Eight steps, and which part does each:
 | # | Step | Trigger | Does the work | Human |
 |---|---|---|---|---|
 | 1 | Load registry + ladder | CLI, once and on registry publish | engine `load` | — |
-| 2 | Generate the week's matrix | n8n **F1** schedule (Sun) or button | engine `generate` → `render` | coordinator reviews library |
+| 2 | Generate the week's sheets — one per child from its prescription; the class matrix only for children still at `not_enough_yet` | n8n **F1** schedule (Sun) or button | engine `generate` → `render` | coordinator reviews library |
 | 3 | Print & name | button | Next.js writes `sheet_instance` | coordinator |
 | 4 | Capture | n8n **F2** Drive trigger | engine `ingest` | teacher drops photos |
 | 5 | Mark (A) + read (B) | F2 continues | engine `mark`, `read` | — |
 | 6 | Confirm | F2 notifies | Next.js queue → engine `commit` | teacher, < 2 min |
-| 7 | Rebuild graph + draft cards | n8n **F3** nightly | engine `graph`, `cards` | — |
-| 8 | Home sheet + parent note | F3 continues | engine `home` | teacher approves |
+| 7 | Rebuild graph → prescribe next sheet per child → draft cards | n8n **F3** nightly | engine `graph`, `prescribe`, `cards` | — |
+| 8 | Home sheet + parent note from the same prescription | F3 continues | engine `home` | teacher approves |
 
-**F1 generate-weekly** (≈6 nodes): Schedule/Form → POST `/generate {matrix}` → Drive upload print
-packs → notify coordinator with links → write `flow_run`.
+**The next-sheet rule** (every number is a `threshold` row, not code). For each child and strand,
+after the nightly rebuild:
+
+- at-band rung ≥ 80 % correct across the last two sheets and no misconception repeated → next
+  sheet is **L+**;
+- < 50 %, or the same misconception on two sheets → next sheet is **L−**, and the blueprint's
+  procedural slots are swapped for a targeted mini-set (3–4 items) on that misconception's rung;
+- otherwise → **stay at L0**;
+- any rung still `not_enough_yet` → the band's default level, never a guess.
+
+The picker fills the prescribed blueprint with items this child has not seen in 21 days. The
+result is one `prescription` row per child per week, naming the rule that fired, and one
+`sheet_instance` with its own QR. A teacher override is a new `prescription` row with a reason
+and an `evidence_event` on channel `teacher_override`, so the graph learns from it.
+
+With four assessments per child, the rungs those papers covered will carry 4–12 events each —
+enough for a state and a prescription on day one. Rungs no paper touched stay `not_enough_yet`
+and get the default; the first generated sheets close that gap.
+
+**F1 generate-weekly** (≈6 nodes): Schedule/Form → POST `/generate {week}` (reads that week's
+prescriptions; falls back to the class matrix for children without one) → Drive upload print
+packs in roll order → notify coordinator with links → write `flow_run`.
 
 **F2 capture-and-mark** (≈9 nodes): Drive trigger on `/Assessments/<section>/scans/` → POST
 `/ingest {file}` → IF resolved → POST `/mark` + POST `/read` → IF review needed → notify teacher
 "N items to confirm" → (queue in the app; on confirm the app calls `/commit`) → move file to
 `processed/` → `flow_run`. Unreadable QR → `needs_rephoto`, teacher sees it in Capture.
 
-**F3 nightly** (≈4 nodes): Schedule 21:00 → POST `/graph/rebuild` → POST `/cards` → POST `/home`
-→ notify → `flow_run`.
+**F3 nightly** (≈5 nodes): Schedule 21:00 → POST `/graph/rebuild` → POST `/prescribe` → POST
+`/cards` → POST `/home` → notify → `flow_run`.
 
 **Legacy import** (every assessment done so far, and any future non-QR paper) is an engine CLI,
 not an n8n flow: `engine legacy import assessments/G3/2026-09-03_week1_add-sub`. It reads the
@@ -191,8 +213,10 @@ variants:2}` — the school edits it, not the code.
 **Legacy sheet (no markers — every assessment done so far):**
 
 1. The assessment paper is entered once as a `sheet_template(source=legacy)`: item number,
-   printed question, answer, and — for bare column sums — the misconception predictions computed
-   from the printed operands by the same predictor code.
+   printed question, answer, **rung** (the CLI suggests one from the question's shape; the person
+   entering confirms), and — for bare column sums — the misconception predictions computed from
+   the printed operands by the same predictor code. The rung is what lets a legacy result feed
+   the graph and the next-sheet rule exactly like a generated one.
 2. Each scan → one whole-page Claude call with the `legacy_extract` prompt → JSON per item
    `{n, question_as_printed, child_answer, attempted, working_summary, self_corrected}`; matched to
    the template by item number and by the printed question text (mismatch → queue).
@@ -209,6 +233,7 @@ items that are addition/subtraction get skill and rung tags, the rest carry the 
 | per sheet | narrative + four signals, pages, resolution path (QR / manual / legacy) |
 | per child × rung | one of six states, n events, n correct, the repeating misconception, last seen, source mix |
 | per child over time | the trajectory: state and evidence per assessment date (the four points) |
+| per child, next week | the prescribed sheet (level, rungs, targeted misconception) and the rule that chose it |
 | per class × rung | secure list, reteach groups keyed by misconception, ready-for-L+ list |
 | per item | n used, p_correct, mis-levelled flag |
 | per prompt version | precision / recall against `gold` |
@@ -237,10 +262,10 @@ call the engine.
 | Screen | Shows | Actions |
 |---|---|---|
 | Skill Map | registry skills for NUM with their rungs, coverage (which rungs have items, which have evidence) | none — registry edits go through the Skill Map Review |
-| Worksheets | the library: every generated sheet with a real preview, filter by band/strand/level/week | **Generate this week's matrix**; Customize one sheet's blueprint before print lock |
+| Worksheets | this week's prescribed sheet per child, grouped by section, each with its reason; the class sets beneath; every sheet with a real preview; filter by band/strand/level/week | **Prescribe & generate this week**; Customize one sheet's blueprint before print lock; Override a child's prescription (reason required) |
 | Assessments | every `sheet_instance` and where it is | name a spare; mark printed / with teacher |
 | Capture | Drive-sync feed: what came in, what resolved, what needs a re-photo; the confirm queue | confirm / correct / reject a candidate |
-| Child Growth | one child: state per rung, trajectory across assessments, narratives | none |
+| Child Growth | one child: state per rung, trajectory across assessments, narratives, and the next prescribed sheet with why | none |
 | Home Assignment | this week's home sheet and the parent note draft | approve, send |
 
 Roles from the platform doc apply: teacher sees own classes; coordinator all; parent (later) only
@@ -271,7 +296,7 @@ structural. No third language.
 |---|---|---|
 | 0 | repo, migrations, loaders, seeds, engine moved in with its tests green | `engine load` twice = zero diff; 37 NUM skills, 16 rungs, 14+ misconceptions, 3 prompts present |
 | 1 | legacy import of the uploaded G2/G3 assessments → confirm queue → evidence → graph v0 → Child Growth | every scan resolved to a child and an assessment; ≥ 95 % agreement with Aseem's marking on 3 sheets; a real child shows ≥ 2 points |
-| 2 | generate matrix → library with previews → per-instance QR → print pack; F1 | matrix run yields N PDFs + manifests; a new rung added by rows only changes output |
+| 2 | prescribe per child from the Phase 1 graph → generate → library with previews → per-instance QR → print pack in roll order; F1 | every G2/G3 child with ≥ 2 confirmed assessments has a prescription naming its rule; children below the evidence threshold get the band default; a new rung added by rows only changes output |
 | 3 | ingest → mark → read → confirm on new-format sheets; F2, F3 | roundtrip on real photos ≥ 95 % on closed items; confirm queue timed < 2 min per class |
 | 4 | Monday card, home sheet, parent note | teacher confirms the card changed a decision; note approved without edits twice |
 
@@ -306,7 +331,8 @@ work photos is Nimish's to obtain before the first non-founder class run (open d
 
 ## 15. Deliberately not building now
 
-Per-child adaptive assignment (needs the graph first — v1 is three levels per class, teacher
-assigns), multiplication and fractions (blueprints only, when the ladder exists), WhatsApp inbound
+Guessing for a child without evidence (a child whose rungs are all `not_enough_yet` gets the band
+default, not an inferred level), multiplication and fractions (blueprints only, when the ladder
+exists), WhatsApp inbound
 photos, the adaptive tutor engine (its misconception codes are reused, the engine is not built),
 Kreeyo integration (roster is a CSV until Kreeyo has an export), any second store.

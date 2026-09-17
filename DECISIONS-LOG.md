@@ -4,6 +4,7 @@ Newest first. One line per decision: date, decision, why, source. Rejected alter
 
 | Date | Decision | Why | Source |
 |---|---|---|---|
+| 2026-09-17 | Per-child adaptive assignment is in scope from Phase 2: the nightly rebuild prescribes each child's next sheet (rule in SPEC §5, thresholds as rows); the class matrix is only the fallback for children without enough evidence. Reverses SPEC §15's earlier exclusion. | Four assessments per child give the graph enough evidence on day one; a class-level sheet would waste it. | nimish (chat) |
 | 2026-09-16 | Build the assessment module in full now; the rest of the Learning OS follows step by step. | Four real assessments per child already exist; a real trajectory is the fastest proof. | nimish (chat) |
 | 2026-09-16 | Stack: Python engine + Supabase Postgres + self-hosted n8n + Next.js (ADR 0001). | Reuse validated code; one database; requested orchestrator. | nimish delegated: "you are the technical founder" |
 | 2026-09-16 | Skill model: registry skill → rung → case tags (ADR 0002). Team taxonomy §12 adopted as the tag matrix. | No fourth taxonomy; coverage guaranteed by tags. | team taxonomy PDF; spec v0.1 §0 |

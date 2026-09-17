@@ -20,6 +20,12 @@ Session: design and repo creation, 2026-09-16.
    (layout in its README) → first real trajectory on Child Growth. The Downloads scans are
    reference only.
 
+## Spec change 2026-09-17
+
+Per-child adaptive assignment is in scope (SPEC §5 "The next-sheet rule", `prescription`
+table, Phase 2 gate). Nimish: with four data points per child the graph exists, so the next
+set of assignments must come from it.
+
 ## Open for Nimish (from SPEC §14)
 
 Consent text · parent-note channel · who approves word-problem items · whether IMO papers count ·
