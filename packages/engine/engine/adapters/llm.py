@@ -17,10 +17,11 @@ import jsonschema
 
 from engine import db
 
-RETRIES = 3
+WAITS = (5, 10, 20, 40, 60)  # seconds between attempts on one model; a fill is a background job, patience is free
+RETRIES = len(WAITS)
 TRANSIENT = (404, 429, 503)  # 404 is returned spuriously by this API under load (STATE.md)
 TIMEOUT_S = 180
-RATE_LIMIT_WAIT_S = 30  # a 429 without Retry-After: the free tier's limits are per minute
+RATE_LIMIT_WAIT_S = 60  # a 429 without Retry-After: the free tier's limits are per minute
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 
@@ -72,24 +73,23 @@ def _fill(text, variables):
 
 def _call(models, body, key):
     ctx = ssl.create_default_context(cafile=certifi.where())
-    last = ""
+    errors = []
     for model in models:
-        for attempt in range(RETRIES):
+        for wait in WAITS:
             req = urllib.request.Request(ENDPOINT.format(model=model), data=body,
                                          headers={"Content-Type": "application/json", "x-goog-api-key": key})
-            wait = 2 * (attempt + 1)
             try:
                 with urllib.request.urlopen(req, context=ctx, timeout=TIMEOUT_S) as r:
                     return json.load(r)
             except urllib.error.HTTPError as e:
-                detail = e.read().decode(errors="replace")[:200]
+                detail = " ".join(e.read().decode(errors="replace").split())[:160]
                 if e.code not in TRANSIENT:
                     raise LLMError(f"{model} returned HTTP {e.code}: {detail}") from e
-                last = f"{model} HTTP {e.code}: {detail}"
+                errors.append(f"{model} HTTP {e.code}: {detail}")
                 retry_after = e.headers.get("Retry-After") if e.headers else None
                 if e.code == 429:
-                    wait = int(retry_after) if retry_after and retry_after.isdigit() else RATE_LIMIT_WAIT_S
+                    wait = int(retry_after) if retry_after and retry_after.isdigit() else max(wait, RATE_LIMIT_WAIT_S)
             except (TimeoutError, urllib.error.URLError) as e:
-                last = f"{model} {type(e).__name__}"
+                errors.append(f"{model} {type(e).__name__}")
             time.sleep(wait)
-    raise LLMError(f"all models unavailable: {', '.join(models)}; last: {last}")
+    raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors[-len(models):]))
