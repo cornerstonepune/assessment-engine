@@ -177,7 +177,7 @@ responses).
 | `blueprint` | (band, level) → ordered slots [{label, generator, args, rung, signal, tags?}] | seed; editable by coordinator |
 | `misconception` | code, op, name, description, repair_hint, detectable_by, source, external_ref | seed; grows from `unclassified` reviews |
 | `item` | one generated question: template, rung_id, skill_ids[], signal, format, stem, spec, responses[] (rid, kind, answer, cells, options, misconceptions{code→wrong}, tolerance, rubric), tags, source, status, times_used, p_correct | engine generate |
-| `sheet_template` | one assembled worksheet design: band, level, variant, week, batch_id, blueprint_id, item_ids[], key (answers + cell geometry in mm), html_path, source (`generated` \| `legacy`) | engine assemble / legacy CLI |
+| `sheet_template` | one assembled worksheet design: band, level, child_id (the seed — sheets are per child, not per class), week, batch_id, blueprint_id, item_ids[], key (answers + cell geometry in mm), html_path, source (`generated` \| `legacy`) | engine assemble / legacy CLI |
 | `sheet_instance` | one physical page set: id = the QR code (`CS…`), sheet_template_id, child_id (nullable until named), print_status, pdf_path, printed_at | engine render; coordinator (naming, print status) |
 | `prescription` | why this child gets this sheet this week: child_id, week, strand, level, rung_ids[], rule_fired, misconception_targets[], sheet_instance_id, override_by, override_reason | engine prescribe; teacher override |
 | `child` | roll_no, band, section, active — **no name here** | roster loader |
@@ -211,7 +211,8 @@ Eight steps, and which part does each:
 | # | Step | Trigger | Does the work | Human |
 |---|---|---|---|---|
 | 1 | Load registry + ladder | CLI, once and on registry publish | engine `load` | — |
-| 2 | Generate the week's sheets — one per child from its prescription; the class matrix only for children still at `not_enough_yet` | n8n **F1** schedule (Sun) or button | engine `generate` → `render` | coordinator reviews library |
+| 1b | Fill the item bank for a rung; a named reviewer approves before anything can print | n8n **F1**, on demand per rung | engine `generate` → `validate` | **reviewer approves each item, once** |
+| 2 | Assemble one sheet per child from approved items only, seeded by the child so no two are alike | n8n **F2** schedule or button | engine `assemble` → `render` | coordinator reviews the library |
 | 3 | Print & name | button | Next.js writes `sheet_instance` | coordinator |
 | 4 | Capture | n8n **F2** Drive trigger | engine `ingest` | teacher drops photos |
 | 5 | Mark (A) + read (B) | F2 continues | engine `mark`, `read` | — |
@@ -238,17 +239,57 @@ With four assessments per child, the rungs those papers covered will carry 4–1
 enough for a state and a prescription on day one. Rungs no paper touched stay `not_enough_yet`
 and get the default; the first generated sheets close that gap.
 
-**F1 generate-weekly** (≈6 nodes): Schedule/Form → POST `/generate {week}` (reads that week's
-prescriptions; falls back to the class matrix for children without one) → Drive upload print
-packs in roll order → notify coordinator with links → write `flow_run`.
+### 5.1 The item bank — nothing prints unreviewed
 
-**F2 capture-and-mark** (≈9 nodes): Drive trigger on `/Assessments/<section>/scans/` → POST
-`/ingest {file}` → IF resolved → POST `/mark` + POST `/read` → IF review needed → notify teacher
-"N items to confirm" → (queue in the app; on confirm the app calls `/commit`) → move file to
-`processed/` → `flow_run`. Unreadable QR → `needs_rephoto`, teacher sees it in Capture.
+Generators do not feed worksheets directly. They fill a bank, a human approves it, and only
+approved items can be assembled onto a sheet. The cost of review is then paid once per item
+instead of once per sheet, which is the difference between a reviewer looking at forty questions
+and a reviewer looking at forty questions every week forever.
 
-**F3 nightly** (≈5 nodes): Schedule 21:00 → POST `/graph/rebuild` → POST `/prescribe` → POST
-`/cards` → POST `/home` → notify → `flow_run`.
+An item moves `draft → approved` (or `rejected`, with a reason) by a named person — one per
+subject, their throughput is the real rate limit, not generation. Rejected items never return.
+Approved items accumulate statistics: after roughly thirty results, anything answered correctly
+by under 20% or over 95% of children at its own rung is flagged as mis-levelled.
+
+Target bank size is 40–60 approved items per rung across the signal mix. Procedural items are
+effectively unlimited from the generator; the bottleneck is only the items a model writes —
+word-problem contexts, explain-items, find-the-mistake.
+
+### 5.2 Every child gets different questions at the same level
+
+A sheet is assembled per child, not per class. The blueprint fixes what the sheet *is* — which
+rungs, which signals, how many of each — and the picker fills each slot from approved items using
+a seed derived from the child. Ten children at Level A get ten different papers of identical
+difficulty. Copying from a neighbour gains nothing; the teacher holds one key that covers the lot.
+
+Two constraints on the picker, both of which need the bank to exist:
+- **Within a class**, draw without replacement where the bank allows, so no two children in the
+  same room get the same question.
+- **Across weeks**, exclude any item that child has seen in the last 21 days.
+
+### 5.3 The three flows
+
+**F1 build-the-bank** (per rung, on demand — not on a schedule): Form asks for a rung and target
+counts per signal → engine `/generate` runs the parameterised generators → the model writes only
+the word-problem contexts and find-the-mistake framings → validator recomputes every answer and
+checks the item actually exercises the rung → rows land as `draft` → the reviewer is notified.
+**The flow ends there.** Nothing at `draft` can be printed. Approval is a human changing a status,
+and n8n has no part in it.
+
+**F2 assemble-and-print** (weekly, or on demand): Schedule/Form → read this week's prescriptions →
+POST `/assemble` per child, drawing only from `approved` items → `/render` → Drive upload, one
+merged pack in roll order so the teacher gets a single stack rather than three piles → notify the
+coordinator with the pack and the key → write `flow_run`.
+
+**F3 read-and-respond** (the loop that closes): Drive trigger on the capture folder → POST
+`/ingest` → QR resolves the sheet to a child → `/mark` and `/read` in parallel → anything
+uncertain to the confirm queue → teacher confirms → `evidence_event` rows. Then nightly:
+`/graph/rebuild` → `/prescribe` → `/cards` → `/home`, which produces next week's three outputs
+per child, each chosen from that child's own graph: **the worksheet** (practice at their level),
+**the assessment** (what to test next), and **the home sheet** (extra reps on exactly the pattern
+that keeps recurring, with the parent note). Unreadable QR → `needs_rephoto`, visible in Capture.
+
+F3 is where the loop closes: its output is the prescription F2 reads next week.
 
 **Legacy import** (every assessment done so far, and any future non-QR paper) is an engine CLI,
 not an n8n flow: `engine legacy import assessments/G3/2026-09-03_week1_add-sub`. It reads the
