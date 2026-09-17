@@ -35,5 +35,7 @@ n8n hosting after pilot.
 
 - The registry G2/G3 milestone for `NUM.OPS.02` is identical text; rungs R9/R10 have no
   milestone row — coverage report, not a registry edit from here.
-- Handwriting reading accuracy is the one unmeasured risk; Phase 1 measures it on real scans
-  against Aseem's marking before anything else is built on it.
+- Handwriting reading: first real page read correctly by `gemini-3.5-flash` (STATE.md). One page
+  is a signal, not a measurement — Phase 1 still measures against Aseem's marking on a gold set
+  before anything is built on top of it.
+- Supabase, Gemini and the Mumbai pooler all verified connected on 2026-09-17.
