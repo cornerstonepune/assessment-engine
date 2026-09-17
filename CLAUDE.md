@@ -1,6 +1,9 @@
 # assessment-engine — how this repository is built
 
-Read `SPEC.md` first. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
+Read `ARCHITECTURE.md` first — it settles what runs what, and where n8n is. Then `SPEC.md`.
+Both implement `docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with
+Aseem and Achal. **When any of them disagree, the workflow wins** — its decisions were taken
+with the school and are not to be re-derived. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
 session left). This file is the constitution; `SPEC.md` is the design; `docs/adr/` is why.
 
 ## The organism
