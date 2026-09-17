@@ -6,6 +6,7 @@ surface much later, as a skill state that quietly disagrees with the evidence be
 
 These tests hit the real Supabase project, so they skip when no DATABASE_URL is configured.
 """
+import json
 import os
 
 import pytest
@@ -15,6 +16,29 @@ from engine import db, loaders
 pytestmark = pytest.mark.skipif(
     not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"
 )
+
+def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
+    """Neha edits a set in the app; the next `engine load` must leave her words alone. An upsert
+    here silently discarded her work, and she would have had no way to know."""
+    with db.connect() as conn:
+        before = conn.execute(
+            "select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()["difficulty"]
+        edited = {**before, "Easy": {"words": "edited in the app", "check": before["Easy"]["check"]}}
+        conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'",
+                     (json.dumps(edited),))
+        conn.commit()
+    try:
+        loaders.load_all()
+        with db.connect() as conn:
+            after = conn.execute(
+                "select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()["difficulty"]
+        assert after["Easy"]["words"] == "edited in the app"
+    finally:
+        with db.connect() as conn:
+            conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'",
+                         (json.dumps(before),))
+            conn.commit()
+
 
 EXPECTED = {
     "tenant": 1,
@@ -26,7 +50,7 @@ EXPECTED = {
     "coverage_target": 46,
     "prompt": 6,
     "threshold": 10,
-    "config": 2,
+    "config": 3,
     "skill_set": 4,
 }
 

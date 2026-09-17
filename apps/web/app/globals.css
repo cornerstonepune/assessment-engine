@@ -1,0 +1,252 @@
+@import "tailwindcss";
+
+/* The material library — Cornerstone Brand Book, Edition 02 (design-system/PRINCIPLES.md).
+   Lime wash 70 % · basalt 20 % · everything else 10 %. */
+:root {
+  color-scheme: light;
+  --lime: #f3eee4;
+  --basalt: #26241f;
+  --terracotta: #b8562f;
+  --neem: #5f6b45;
+  --bamboo: #c9a96a;
+  --mud: #7a5a3e;
+  --monsoon: #6f7f8c;
+  --chalk: #fffdf8;
+  --ink-62: rgba(38, 36, 31, 0.62);
+  --ink-55: rgba(38, 36, 31, 0.55);
+  --ink-30: rgba(38, 36, 31, 0.3);
+  --ink-16: rgba(38, 36, 31, 0.16);
+  --ink-14: rgba(38, 36, 31, 0.14);
+  --ink-12: rgba(38, 36, 31, 0.12);
+  --ink-09: rgba(38, 36, 31, 0.09);
+  --ink-03: rgba(38, 36, 31, 0.03);
+}
+
+@theme inline {
+  --color-lime: var(--lime);
+  --color-basalt: var(--basalt);
+  --color-terracotta: var(--terracotta);
+  --color-neem: var(--neem);
+  --color-bamboo: var(--bamboo);
+  --color-mud: var(--mud);
+  --color-monsoon: var(--monsoon);
+  --color-chalk: var(--chalk);
+  --font-body: var(--font-atkinson), "Atkinson Hyperlegible", sans-serif;
+  --font-heading: var(--font-young-serif), "Young Serif", Georgia, serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --radius: 0;
+}
+
+html {
+  background: var(--lime);
+}
+
+body {
+  background: var(--lime);
+  color: var(--basalt);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* The teacher's voice: one weight, never all-caps, never below 21 px. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  margin: 0;
+}
+
+a {
+  color: var(--terracotta);
+}
+a:hover {
+  color: var(--basalt);
+}
+
+/* The space's voice: labels and facts in mono. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+}
+.fact {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panels: chalk on lime, hairline basalt, nothing decorative. */
+.panel {
+  background: var(--chalk);
+  border: 1px solid var(--ink-14);
+}
+.panel-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ink-12);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-body {
+  padding: 18px;
+}
+
+table.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.grid th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--ink-16);
+  background: var(--ink-03);
+}
+table.grid td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--ink-09);
+  vertical-align: top;
+}
+table.grid td.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pills carry a material, never a red or a green. */
+.pill {
+  display: inline-block;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pill-neem {
+  background: rgba(95, 107, 69, 0.14);
+  color: var(--neem);
+  border-color: rgba(95, 107, 69, 0.3);
+}
+.pill-bamboo {
+  background: rgba(201, 169, 106, 0.22);
+  color: var(--mud);
+  border-color: rgba(201, 169, 106, 0.45);
+}
+.pill-terracotta {
+  background: rgba(184, 86, 47, 0.13);
+  color: var(--terracotta);
+  border-color: rgba(184, 86, 47, 0.3);
+}
+.pill-monsoon {
+  background: rgba(111, 127, 140, 0.15);
+  color: var(--monsoon);
+  border-color: rgba(111, 127, 140, 0.35);
+}
+
+.chip {
+  display: inline-block;
+  padding: 7px 13px;
+  border: 1px solid var(--ink-30);
+  font-size: 13px;
+  background: var(--chalk);
+  color: var(--basalt);
+  text-decoration: none;
+}
+.chip:hover {
+  color: var(--basalt);
+  border-color: var(--basalt);
+}
+.chip.on {
+  background: var(--basalt);
+  color: var(--lime);
+  border-color: var(--basalt);
+}
+
+/* The one loud colour: one primary action per screen. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--terracotta);
+  color: var(--chalk);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+.btn:hover {
+  background: var(--basalt);
+}
+.btn.secondary {
+  background: transparent;
+  color: var(--basalt);
+  border: 1px solid var(--ink-30);
+  font-weight: 400;
+}
+.btn.secondary:hover {
+  border-color: var(--basalt);
+  background: transparent;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.input,
+.select,
+.textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--ink-30);
+  background: var(--chalk);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--basalt);
+  width: 100%;
+}
+.textarea {
+  min-height: 72px;
+  line-height: 1.5;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 1px;
+}
+
+/* The chalk line: one hand-made stroke per surface. */
+.chalkline {
+  width: 64px;
+  height: 2px;
+  background: var(--basalt);
+  opacity: 0.25;
+  margin-top: 10px;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--ink-55);
+  line-height: 1.5;
+}

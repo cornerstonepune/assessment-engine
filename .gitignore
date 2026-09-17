@@ -36,3 +36,9 @@ n8n/.n8n/
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# web app
+apps/web/node_modules/
+apps/web/.next/
+apps/web/test-results/
+apps/web/.design-approved.json

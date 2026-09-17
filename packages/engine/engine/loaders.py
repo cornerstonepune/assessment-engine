@@ -171,18 +171,15 @@ def _config(conn, t):
 
 
 def _skill_sets(conn, t):
-    """Status and ratified_by are deliberately not overwritten: Aseem's ratification lives in
-    the row, and a reload of the seed must not undo it."""
+    """Insert only. The seed is the first draft of a set; after that the row belongs to Neha and
+    Achal, who edit it in the app. An upsert here would silently overwrite their words and rules
+    on the next `engine load` — and they would have no way to know."""
     for s in _seed("skill_sets.json", "skill_sets"):
         conn.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
             " philosophy, formats, misconception_codes, difficulty)"
             " values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, code) do update set rung_code=excluded.rung_code,"
-            " name=excluded.name, learning_objective=excluded.learning_objective,"
-            " philosophy=excluded.philosophy, formats=excluded.formats,"
-            " misconception_codes=excluded.misconception_codes, difficulty=excluded.difficulty,"
-            " updated_at=now()",
+            " on conflict (tenant_id, code) do nothing",
             (t, s["code"], s["rung_code"], s["name"], s["learning_objective"], s["philosophy"],
              s["formats"], s["misconception_codes"], json.dumps(s["difficulty"])),
         )
