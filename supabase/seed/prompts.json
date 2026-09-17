@@ -140,7 +140,7 @@
               "required": ["format", "op", "a", "b", "answer", "stem", "missing", "misconceptions"],
               "properties": {
                 "format": {"type": "string"},
-                "op": {"type": "string", "enum": ["+", "-", "×"]},
+                "op": {"type": "string", "minLength": 1, "maxLength": 1},
                 "a": {"type": "integer"},
                 "b": {"type": "integer"},
                 "answer": {"type": "integer"},

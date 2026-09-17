@@ -60,6 +60,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None):
         counts["asked"] += ask
         for c in out["items"]:
             counts["returned"] += 1
+            c = verify.normalise(c)
             key = (c.get("op"), c.get("a"), c.get("b"), c.get("format"))
             if key in seen:
                 counts["duplicate"] += 1

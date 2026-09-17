@@ -119,6 +119,13 @@ def test_accepted_claims_without_a_predictor_are_kept_on_the_item():
     assert it.responses[0].misconceptions == {"M_MULT_CONCAT": 1518}
 
 
+@pytest.mark.parametrize("written,meant", [("−", "-"), ("–", "-"), ("x", "×"), ("*", "×"), ("+", "+")])
+def test_the_models_symbol_for_an_operation_is_folded_to_ours(written, meant):
+    # The first real run died on U+2212: the model wrote a typographic minus and the whole batch was refused.
+    assert verify.normalise(cand(op=written))["op"] == meant
+    assert verify.problems(verify.normalise(cand(op="−")), HARD_SUB) == []
+
+
 def test_compute_covers_multiplication_and_predict_is_empty_for_it():
     assert M.compute("×", 56, 3) == 168
     assert M.predict("×", 56, 3) == {}

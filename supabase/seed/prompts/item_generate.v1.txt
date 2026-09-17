@@ -6,7 +6,7 @@ SPECIFICATION
 Write exactly {{n}} items and return them as one JSON object: {"items": [ ... ]}. Each item is an object with these fields:
 
 - "format": one of the specification's formats.
-- "op": the operation symbol from the specification.
+- "op": the operation symbol from the specification, as a single character: "+", "-" or "×".
 - "a" and "b": the two operands as integers, a first. For subtraction, a is the number subtracted from.
 - "answer": the correct result of a op b, as an integer.
 - "stem": for "word_1step", one plain sentence a child reads, containing both numbers and ending in one question. For "missing_number", the equation with □ in place of the hidden number, for example "582 − □ = 236". For "column_grid" and "bare_sum", an empty string.

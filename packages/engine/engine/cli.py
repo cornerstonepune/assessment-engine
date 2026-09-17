@@ -2,6 +2,7 @@
 import typer
 
 from engine import bank, db, loaders
+from engine.adapters.llm import LLMError
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
@@ -29,8 +30,13 @@ def bank_fill(
 ) -> None:
     """Generate, verify and store items for one skill set at one difficulty."""
     with db.connect() as conn:
-        counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run,
-                                       after_batch=None if dry_run else conn.commit)
+        try:
+            counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run,
+                                           after_batch=None if dry_run else conn.commit)
+        except LLMError as e:
+            conn.commit()  # keep the flow_run row that records the failure
+            typer.echo(f"MODEL  {e}", err=True)
+            raise typer.Exit(1)
     _echo_counts(counts, reasons)
 
 

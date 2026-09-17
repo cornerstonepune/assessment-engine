@@ -17,6 +17,12 @@ FORMATS = {
     "word_1step":     ("Application", 3, True),
 }
 REGROUPS = {"+": _regroup_count_add, "-": _regroup_count_sub}
+OPS = {"−": "-", "–": "-", "x": "×", "X": "×", "*": "×"}  # symbols a model writes for the same operation
+
+
+def normalise(c):
+    """The model's symbol for an operation, folded to the one the rules use. Nothing else changes."""
+    return c | {"op": OPS.get(c.get("op"), c.get("op"))}
 
 
 def problems(c, check):

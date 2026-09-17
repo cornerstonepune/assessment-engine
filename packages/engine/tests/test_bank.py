@@ -67,6 +67,13 @@ def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
     assert row["tags"]["operation"] == "SUB" and row["tags"]["regrouping"] == "SINGLE"
 
 
+def test_fill_accepts_the_typographic_minus_the_model_actually_writes(conn, monkeypatch):
+    batch = [dict(c, op="−") for c in candidates(2, seed=11)]
+    monkeypatch.setattr(bank.llm, "generate", fake_model(batch))
+    counts, _, accepted = bank.fill(conn, SET, DIFF, 2)
+    assert counts["accepted"] == 2 and accepted[0].spec["op"] == "-"
+
+
 def test_filling_again_with_the_same_numbers_adds_nothing(conn, monkeypatch):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3)))
     bank.fill(conn, SET, DIFF, 3)
