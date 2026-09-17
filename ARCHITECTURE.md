@@ -177,23 +177,26 @@ not printed. The word problems read like a teacher wrote them.
 
 ### 7.5 Where this stands today
 
-The prompt path is a spike, not an endpoint. `ladder.py` and `blueprints.py` are still Python
-dictionaries (a rule-1 violation, unchanged). The work:
+Steps 1–6 exist as engine code behind a CLI (`engine bank fill | recheck | flag | sheet`,
+`engine eval item_generate`); the HTTP wrapper and the library screen do not. The skill-set spec
+is a `skill_set` row (four seeded as drafts for Neha and Achal), the school philosophy is a
+`config` row, the prompt is a `prompt` row, and a staff flag is an `item_feedback` row whose
+trigger retires the item. `ladder.py` and `blueprints.py` are still Python dictionaries for the
+deterministic generators (a rule-1 violation, unchanged) — the prompt path does not read them.
 
-1. `item_generate` as a `prompt` row, its eval set seeded from the spike's 17 accepted items.
-2. `POST /bank/fill` runs steps 1–5; batches of ~20 with retry and fallback in the adapter.
-3. `item_feedback` table and the flag on the library screen — step 6 has no home in the schema yet.
-4. Rungs, skill sets and blueprints out of Python into rows, so the form has somewhere to write.
+Measured on the first real fill (STATE.md): every item the model returned had correct numbers;
+what stopped the run was the free tier's rate limit, not the engine. The verifier's first version
+was too strict in two ways and stored nothing — both are now regression tests.
 
-The proof: **Neha adds a multiplication skill set through the form and printable questions come
-out, every answer verified by code.** Python may change only inside the verifier, only to add a
-rule check; if anything else changes, the design failed.
+The proof still to run: **Neha adds a multiplication skill set through the form and printable
+questions come out, every answer verified by code.** Python may change only inside the verifier,
+only to add a rule check; if anything else changes, the design failed.
 
 ## 8. Built, and not
 
 | | |
 |---|---|
-| **Built** | the database (30 tables, RLS); `engine load`; item generation, blueprints, rendering with QR and cell geometry; the misconception predictors; case tagging; 53 tests |
+| **Built** | the database (32 tables, RLS); `engine load`; **W1 as engine code** — skill-set rows, the `item_generate` prompt, the Gemini adapter, the verifier, `engine bank fill/recheck/flag/sheet`; the deterministic generators and blueprints; rendering with QR and cell geometry; the misconception predictors; case tagging; 98 tests |
 | **Next** | N3 — import the 37 real papers as candidates for confirmation, producing each child's starting graph |
 | **Then** | N8/N9 on real photos, measured against Aseem's marking; the six-state graph; N5 prescription |
 | **n8n arrives at** | N7 — the first point where something must wait for a person. Before that, a CLI run by a person is the honest tool, and n8n would be overhead |
