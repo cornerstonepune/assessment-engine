@@ -15,7 +15,7 @@ One Postgres. Four rings. Every file belongs to exactly one.
 | A — truth | registry, ladder, blueprints, items, sheets, captures, results, evidence, prompts | `supabase/migrations`, written by engine and app | append or approve; a batch job never edits it |
 | B — derived | child_skill_state, class_card, item_stat | rebuilt by `engine graph` | TRUNCATE-able at any time; pure function of A |
 | C — adapters | Drive, Claude vision, notify | `packages/engine/adapters/` one file each | the only place an external service is named |
-| D — flows | F1 generate-weekly, F2 capture-and-mark, F3 nightly | `n8n/workflows/*.json` | trigger + sequence + wait + notify; nothing else |
+| D — flows | the wiring for nodes N2–N12 | `n8n/workflows/*.json` | trigger + sequence + wait + notify; nothing else. See `ARCHITECTURE.md` §2 for which node n8n touches and how |
 
 Code where correctness is needed (arithmetic, marking, lookup, graph). A model where judgment is
 needed (reading handwriting, reading a page, writing a context or a note). Never the reverse.
@@ -67,10 +67,11 @@ docs/sources/                team documents this design incorporates
 Python 3.12 (engine), TypeScript (app), SQL (schema). No fourth language. Table names singular
 (`item`, not `items`). Ids: registry skill ids as issued (`NUM.OPS.01`); rungs `R1`–`R14`, `X1`,
 `X2`; sheet instance ids are the QR string (`CS` + 6 hex). Misconception codes `M_…` (procedural)
-and `M0nn` external refs kept in `misconception.external_ref`. Bands `G1`–`G4`; levels `Lm`,
-`L0`, `Lp`. Signals: Foundational, Conceptual, Procedural, Application, Stretch. The school's
-vocabulary wins: "exchange / regroup", never "borrow"; "educator", never "teacher", in anything
-a parent sees.
+and `M0nn` external refs kept in `misconception.external_ref`. Bands `G1`–`G4`. Difficulty is
+`Easy` / `Medium` / `Hard` / `Advance`, the school's own vocabulary — never `L−/L0/L+` or
+`Level A/B`, both retired. Signals: Foundational, Conceptual, Procedural, Application, Stretch.
+The school's words win elsewhere too: "exchange / regroup", never "borrow"; "educator", never
+"teacher", in anything a parent sees.
 
 ## Working rhythm
 
