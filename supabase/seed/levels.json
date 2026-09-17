@@ -1,0 +1,125 @@
+{
+  "levels": [
+    {
+      "band": "G1",
+      "level": "Lm",
+      "rung_codes": [
+        "R1"
+      ],
+      "foundational_rung_code": "R1",
+      "probe_rung_code": "R4"
+    },
+    {
+      "band": "G1",
+      "level": "L0",
+      "rung_codes": [
+        "R2",
+        "R3"
+      ],
+      "foundational_rung_code": "R1",
+      "probe_rung_code": "R4"
+    },
+    {
+      "band": "G1",
+      "level": "Lp",
+      "rung_codes": [
+        "R4"
+      ],
+      "foundational_rung_code": "R1",
+      "probe_rung_code": "R4"
+    },
+    {
+      "band": "G2",
+      "level": "Lm",
+      "rung_codes": [
+        "R3",
+        "R4"
+      ],
+      "foundational_rung_code": "R3",
+      "probe_rung_code": "R9"
+    },
+    {
+      "band": "G2",
+      "level": "L0",
+      "rung_codes": [
+        "R5",
+        "R6",
+        "R7"
+      ],
+      "foundational_rung_code": "R3",
+      "probe_rung_code": "R9"
+    },
+    {
+      "band": "G2",
+      "level": "Lp",
+      "rung_codes": [
+        "R9"
+      ],
+      "foundational_rung_code": "R3",
+      "probe_rung_code": "R9"
+    },
+    {
+      "band": "G3",
+      "level": "Lm",
+      "rung_codes": [
+        "R5",
+        "R6",
+        "R7"
+      ],
+      "foundational_rung_code": "R5",
+      "probe_rung_code": "R12"
+    },
+    {
+      "band": "G3",
+      "level": "L0",
+      "rung_codes": [
+        "R9",
+        "R10",
+        "R11"
+      ],
+      "foundational_rung_code": "R5",
+      "probe_rung_code": "R12"
+    },
+    {
+      "band": "G3",
+      "level": "Lp",
+      "rung_codes": [
+        "R12",
+        "R13"
+      ],
+      "foundational_rung_code": "R5",
+      "probe_rung_code": "R12"
+    },
+    {
+      "band": "G4",
+      "level": "Lm",
+      "rung_codes": [
+        "R9",
+        "R10",
+        "R11"
+      ],
+      "foundational_rung_code": "R9",
+      "probe_rung_code": "R13"
+    },
+    {
+      "band": "G4",
+      "level": "L0",
+      "rung_codes": [
+        "R12",
+        "R13",
+        "R14"
+      ],
+      "foundational_rung_code": "R9",
+      "probe_rung_code": "R13"
+    },
+    {
+      "band": "G4",
+      "level": "Lp",
+      "rung_codes": [
+        "R13"
+      ],
+      "foundational_rung_code": "R9",
+      "probe_rung_code": "R13"
+    }
+  ]
+}

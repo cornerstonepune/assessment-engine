@@ -32,3 +32,4 @@ n8n/.n8n/
 .DS_Store
 .idea/
 .vscode/
+.tokensave
