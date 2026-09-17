@@ -313,6 +313,11 @@ Plan: `docs/superpowers/plans/2026-09-17-w1-bank.md`. Design: ARCHITECTURE §7, 
   Turning thinking off (`thinkingBudget: 0`) is rejected with 400 on these models; the
   reasoning is what makes the exchange count hold, so it stays on.
 
+- Fifth fill, with quota skipping: the two exhausted models were passed over at once, the third
+  was tried through all five waits and returned 503 "high demand" every time; the run ended in
+  226 s with one reason per model. Check: the `flow_run` row at 12:48:23 UTC. **The bank stands
+  at 40 verified items until the daily quota resets** (midnight Pacific, about 12:30 IST).
+
 - Not yet run: `engine eval item_generate` across all four sets × four bands — it needs sixteen
   calls the free tier will not grant in one sitting. The 40 stored items are the first eval seed.
 
