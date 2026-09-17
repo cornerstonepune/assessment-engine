@@ -72,9 +72,82 @@ of one model, not competing vocabularies.
 
 Case tags are **derived by code from the generator's parameters**, never typed. A blueprint slot
 asks for a rung, a signal (Foundational / Conceptual / Procedural / Application / Stretch) and
-optionally tag constraints; the picker fills it. The taxonomy's §13 progression maps onto the
-rungs (stages 1–7 ≈ R1–R10, 8 ≈ R12, 9–10 ≈ R7/R13, 11 ≈ R7, 12 ≈ R8/R14, 13 ≈ X2), so the ladder
-stays the teaching sequence and the tags stay the coverage guarantee.
+optionally tag constraints; the picker fills it.
+
+### 3.1 Why three layers and not two
+
+The rung ladder and the taxonomy answer different questions, and collapsing them loses one of the
+answers. A rung says **where a child is on the journey** — it is the unit a teacher reasons in,
+the unit of L−/L0/L+, and the unit of the Monday card. A case tag says **which exact case was
+tested** — and the taxonomy's own definition is that a case is distinct "whenever a child can make
+a different kind of mistake".
+
+Checking the taxonomy's §13 progression against the ladder confirms the split rather than
+contradicting it:
+
+| §13 stage | Lands on |
+|---|---|
+| 1 direct, no regrouping · 4 single regrouping · 5 multiple/cascading · 6 zeros | R1–R4 · R5/R6 · R9 · R10 — **rungs** |
+| 8 three or more addends · 11 efficient mental · 12 word problems · 13 error diagnosis | R12 · R7/R13 · R8/R14 · X2 — **rungs** |
+| 2 horizontal vs vertical · 3 unequal digit lengths · 7 answer-size changes | **not stages at all — dimensions**, which is why they are tags |
+| 9 missing number/digit · 10 equality/inverse/checking | split: whole-number unknowns sit at R7, missing *digits* at R13 |
+
+Stages 2, 3 and 7 are the proof. They are not places on a journey — a child meets horizontal
+presentation at every rung — so a two-layer model has nowhere to put them, and they disappear.
+They are precisely the cases the coverage audit found missing.
+
+### 3.2 What the taxonomy adds that the ladder alone missed
+
+Run against today's blueprints, the dimensions immediately surfaced two holes:
+
+- **Presentation.** R5, R6, R9, R10 and R12 are generated in columns only. The same arithmetic
+  written horizontally is never assessed above Grade 1, so horizontal-to-vertical conversion —
+  a documented error type (§11) with its own misconception (`M007` column misalignment) — cannot
+  be detected at any rung where it matters.
+- **Operand length.** R4, R5, R6, R10 and R12 use equal-length operands only. `342 + 5`, where
+  the 5 must be aligned under the ones, is never assessed outside R9.
+
+Neither needs new generator code: `sample_add` / `sample_sub` already take separate digit counts
+per operand, and `col()` / `bare()` already choose layout. The blueprints simply never asked.
+Both are fixed by adding slots, which is a seed change, not a code change — the test of §4's rule.
+
+The taxonomy also adds a word-problem dimension the ladder flattens. R8 says "one- and two-step
+word problems"; §10.1 distinguishes eleven structures (result / change / start unknown × join /
+separate, part-part-whole whole or part unknown, compare difference / larger / smaller unknown).
+"Had some, gave away 13, now 24" is far harder than "had 37, gave away 13" on identical numbers.
+That becomes the `word_structure` dimension, not eleven new rungs.
+
+### 3.3 The dimensions
+
+Eighteen: the seventeen from the taxonomy's §12 master tagging matrix, plus `word_structure`.
+Each is a row in `case_dimension` with its allowed values. The taxonomy's own instruction is
+followed exactly — *"do not encode every possible combination as a separate hard-coded topic
+name; store these dimensions as tags, then generate or select question sets by combinations of
+tags"* — so the named case codes (A01–A72 and the rest) are **not** imported as rows. They are
+combinations, and combinations are derived.
+
+What *is* stored is the target: `coverage_target` holds, per rung, which dimension values must
+appear before that rung counts as assessed. The coverage report is then one query — for each
+rung, which targets have no approved item, and which have items but no evidence. That is the
+answer to "what do we claim to teach but never actually check", and it is the reason the
+dimensions are a table and not a JSON blob.
+
+### 3.4 Misconceptions the taxonomy adds
+
+§11's error list maps mostly onto predictors that already exist (`M_NOCARRY`, `M_CARRY_SKIP`,
+`M_SMALL_FROM_LARGE`, `M_NO_DECREMENT`, `M_ZERO_LENDER`, `M_ZERO_NOT_NINE`,
+`M_EQUALS_MEANS_ANSWER`). Five are genuinely new and are seeded with their detectability:
+
+| Code | Error | Detectable by |
+|---|---|---|
+| `M_H2V_SHIFT` | Horizontal-to-vertical conversion shifts the shorter number left | `working` |
+| `M_ALIGN_LEFT` | Aligns unequal-length operands from the left, not the ones | `answer_lookup` |
+| `M_CARRY_ALWAYS_1` | Assumes a carry is always 1; fails when three addends make a column sum ≥ 20 | `answer_lookup` |
+| `M_ZERO_DROPPED` | Drops a leading, trailing or internal zero when writing the answer | `answer_lookup` |
+| `M_MISSING_DIGIT_LOCAL` | Finds a missing digit that works in its own column but not across the carry | `working` |
+
+`M_ALIGN_LEFT`, `M_CARRY_ALWAYS_1` and `M_ZERO_DROPPED` are computable from the operands, so they
+join the predictor table and are tagged automatically like the rest.
 
 Registry gaps the ladder exposes (3-digit and across-zero subtraction have no G3 milestone; G4 has
 no content ladder) are handled by `rung.milestone_id` being nullable and a coverage report, not by
