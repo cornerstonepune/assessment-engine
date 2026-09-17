@@ -192,6 +192,37 @@ addends — two operands can never make a column total of 20, so the error is in
 sheet asks for three. Verified live: `7489 + 8845 + 3539 = 19873`, a child always carrying 1
 writes `19863`.
 
+## The misconception vocabulary matches an expert's independent diagnosis (2026-09-17)
+
+Aseem's written report on a real Grade 3 child names the error — "subtracts the smaller digit
+from the larger digit in each column" — and gives the example `8500 − 3647 = 5147`. The report
+was written by hand, months before this engine existed.
+
+`M_SMALL_FROM_LARGE` given those operands returns **5147**. The six other subtraction predictors
+return 4852, 4863, 4953, 4863, 5963 and 12147 — so the match is unambiguous, not a coincidence
+of a crowded answer space.
+Check: `cd packages/engine && uv run python -c "from engine.assess import misconceptions as M; print(M.predict('-', 8500, 3647))"`
+
+This is the strongest evidence so far that marking by lookup produces the same diagnosis a good
+teacher reaches, and it is why the five Grade 3 reports become the `gold` set for the whole
+pipeline rather than only for digit reading.
+
+Not covered: Aseem's second finding, `56 × 3 = 1518` (partial products written side by side), is
+multiplication. Off the ladder, no predictor — the `M_MULT_CONCAT` the Kabir POC proposed.
+
+## Real assessment data received (2026-09-17)
+
+16 children in `~/cornerstone/assessments/` — 11 in G2, 5 in G3, of whom Rudraksh is confirmed
+Grade 4 and the only one. 37 usable papers plus 7 Olympiad booklets. Twelve scans carried no name
+in the filename and were attributed by reading their printed headers; the manifest records who
+each belongs to. Nothing was moved.
+
+Two filename assumptions were wrong and were corrected by looking: in G3 the PDF is Aseem's
+report and the WhatsApp images are the papers; in G2 the PDF is the paper and the WhatsApp images
+are further pages in a different format. Both directions matter for the importer.
+
+Confirmed by Nimish: Level B is above Level A, so B maps to L+ and A to L0.
+
 ## Code
 
 - `engine/db.py` — the only module that opens a connection.
