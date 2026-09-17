@@ -114,7 +114,99 @@ Monthly   n8n ──> /reports ──> coordinator approves per child
 
 The loop closes at Friday evening: N11's output is what N5 reads next Thursday.
 
-## 7. Built, and not
+## 7. The item generation engine
+
+The point of N2 is that it works for **any** topic. Give it a skill set and a difficulty and it
+produces a question list — addition today, multiplication and fractions next, without anyone
+editing Python to add a topic. Three things multiply together to make that true.
+
+### 7.1 Three layers, and which is code
+
+| Layer | What it is | Code or data | Who writes it |
+|---|---|---|---|
+| **Operation family** | the arithmetic of one operation: how to sample operands under a constraint, and what number each mistake produces | **code**, ~120 lines per family | engineer, once per family |
+| **Format** | the shape a question takes on paper — column sum, horizontal, missing number, balance scale, number line, number wall, partition scaffold, find-the-mistake, word problem, explain, sort-into-table… | **code**, 17 exist and are topic-agnostic | engineer, reused forever |
+| **Skill-set spec** | which sets exist, their operand rules at Easy/Medium/Hard/Advance, which formats apply, which misconceptions | **data** — rows, authored | Neha and Achal (N1), Aseem ratifies |
+
+A format is not tied to an operation. "Missing number" is `□ + 7 = 12` and `□ × 7 = 42` and
+`□ + ¼ = ¾` — the same shape asking a different question. That reuse is what makes a new topic
+cheap.
+
+### 7.2 What a skill set looks like as data
+
+Multiplication, the topic Aseem's own reports keep flagging. Nothing here is code:
+
+```yaml
+skill_set: MUL.4
+  name:        2-digit × 1-digit with carrying
+  skill_code:  NUM.OPS.03
+  can_do:      "multiplies a 2-digit number by a single digit, carrying between partial products"
+  formats:     [column_grid, bare_sum, missing_number, find_mistake, word_1step]
+  difficulty:
+    Easy:    { a: {digits: 2, tens: 1..4}, b: {range: 2..3}, carries: 0 }
+    Medium:  { a: {digits: 2},             b: {range: 2..5}, carries: 1 }
+    Hard:    { a: {digits: 2},             b: {range: 6..9}, carries: 1..2 }
+    Advance: { a: {digits: 3},             b: {range: 6..9}, carries: 2..3 }
+  misconceptions: [M_MULT_CONCAT, M_PARTIAL_NOT_ADDED, M_CARRY_ADDED_BEFORE_MULT, M_TABLE_FACT]
+```
+
+`M_MULT_CONCAT` is the error Aseem diagnosed by hand: partial products computed correctly, then
+written side by side instead of added — `56 × 3 = 1518` rather than 168. As a predictor it is four
+lines of arithmetic, and once written, every multiplication item can be marked against it.
+
+### 7.3 The generation run, step by step
+
+This is N2 as a workflow, which is how you have been describing it. Each step is one thing:
+
+```
+  1  read the skill-set spec                      data      (Postgres)
+  2  for each difficulty × format slot:
+  3    sample operands under the rules            Python    exact, constraint-checked
+  4    compute the correct answer                 Python    never a model
+  5    compute what each misconception produces   Python    the diagnostic table
+  6    if the format needs a sentence:            prompt    word problem, find-the-mistake framing
+         the model receives the numbers and       ← numbers are an input, never an output
+         may not change them
+  7    validate                                   Python    recompute the arithmetic independently,
+                                                            confirm the item exercises the rule it
+                                                            claims, reject duplicates, check reading
+                                                            load and forbidden vocabulary
+  8    derive the case tags                       Python    taxonomy §12, from the parameters
+  9    store as approved                          data      the template was trusted upstream
+```
+
+Step 6 is the only place a model appears, and it is boxed in from both sides: the numbers are
+chosen before it runs, and step 7 re-checks everything after. A model that hallucinates writes a
+bad *sentence*, which a validator catches — it can never produce a wrong *answer*.
+
+### 7.4 What it costs to add a topic
+
+| Adding… | Costs |
+|---|---|
+| a new skill set inside an existing operation (another addition set) | **rows only** |
+| a new difficulty band, or re-tuning operand rules | **rows only** |
+| a new format (say, an area model) | one Python function, then available to every topic |
+| a new operation family (multiplication, fractions) | one sampler + its predictors, ~120 lines, once |
+
+Fractions will also need a renderer that can draw a fraction — that is format work, not topic work.
+
+### 7.5 Where this stands today
+
+Honest position: **the formats are general, the topic layer is not.** `items.py` holds 17 formats
+that already work across operations. But `ladder.py` and `blueprints.py` are Python dictionaries
+covering addition and subtraction only, so a new topic today means editing code — which rule 1
+forbids.
+
+The work to close it:
+1. Move rungs, skill sets, difficulty bands and blueprints out of Python into seeded rows.
+2. Make the sampler read operand rules from those rows instead of from a function signature.
+3. Add the multiplication family — sampler and predictors, `M_MULT_CONCAT` first.
+
+Until step 1 lands, "adding a topic is data" is a design claim, not a fact. The test that proves
+it: **add a multiplication skill set using only rows and the editing screen, and get printable
+questions out.** If any Python changes, the design failed.
+
+## 8. Built, and not
 
 | | |
 |---|---|
