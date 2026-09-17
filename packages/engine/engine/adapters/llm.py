@@ -65,6 +65,20 @@ def generate(conn, purpose, variables, images=()):
     return out
 
 
+def _quota(body):
+    """Google's 429 says which limit was hit. Returns (daily_limit_hit, seconds_to_wait_or_None).
+    The free tier's binding limit is requests per day per model (20 at the time of writing)."""
+    try:
+        details = json.loads(body)["error"].get("details", [])
+    except (ValueError, KeyError, TypeError):
+        return False, None
+    daily = any("PerDay" in v.get("quotaId", "")
+                for d in details for v in d.get("violations", []))
+    retry = next((d["retryDelay"] for d in details if "retryDelay" in d), "")
+    seconds = int(retry.rstrip("s")) if retry.rstrip("s").isdigit() else None
+    return daily, seconds
+
+
 def _fill(text, variables):
     for k, v in variables.items():
         text = text.replace("{{" + k + "}}", v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2))
@@ -73,7 +87,7 @@ def _fill(text, variables):
 
 def _call(models, body, key):
     ctx = ssl.create_default_context(cafile=certifi.where())
-    errors = []
+    errors = {}  # model -> its last error, so the message shows one line per model
     for model in models:
         for wait in WAITS:
             req = urllib.request.Request(ENDPOINT.format(model=model), data=body,
@@ -82,14 +96,18 @@ def _call(models, body, key):
                 with urllib.request.urlopen(req, context=ctx, timeout=TIMEOUT_S) as r:
                     return json.load(r)
             except urllib.error.HTTPError as e:
-                detail = " ".join(e.read().decode(errors="replace").split())[:160]
+                reply = e.read().decode(errors="replace")
+                detail = " ".join(reply.split())[:160]
                 if e.code not in TRANSIENT:
                     raise LLMError(f"{model} returned HTTP {e.code}: {detail}") from e
-                errors.append(f"{model} HTTP {e.code}: {detail}")
-                retry_after = e.headers.get("Retry-After") if e.headers else None
+                errors[model] = f"{model} HTTP {e.code}: {detail}"
                 if e.code == 429:
-                    wait = int(retry_after) if retry_after and retry_after.isdigit() else max(wait, RATE_LIMIT_WAIT_S)
+                    daily, retry_s = _quota(reply)
+                    if daily:
+                        errors[model] = f"{model} daily free-tier quota used up"
+                        break  # no wait brings it back today; the next model might serve
+                    wait = retry_s or max(wait, RATE_LIMIT_WAIT_S)
             except (TimeoutError, urllib.error.URLError) as e:
-                errors.append(f"{model} {type(e).__name__}")
+                errors[model] = f"{model} {type(e).__name__}"
             time.sleep(wait)
-    raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors[-len(models):]))
+    raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors.values()))

@@ -296,6 +296,23 @@ Plan: `docs/superpowers/plans/2026-09-17-w1-bank.md`. Design: ARCHITECTURE §7, 
   users (404 with that message). The adapter now waits 5/10/20/40/60 s per model and 60 s on a
   429; a 200-item fill is a background job of ten to fifteen minutes.
 
+- A fourth fill with the patient policy got **no call through in 886 s**: every attempt on all
+  three models returned 503 "This model is currently experiencing high demand". That is
+  Google's capacity for free-tier traffic at that hour, not our quota. Check: the `flow_run`
+  row at 12:27:53 UTC, status `error`, 886 s.
+
+- **The binding limit is 20 requests per day per model** on the free tier
+  (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`, quotaValue 20, read from the 429 body).
+  Tokens are not the constraint; requests are. The adapter now skips a model whose daily quota
+  is gone instead of waiting on it. The lever is more items per request, to be measured when
+  the quota resets.
+
+- `gemini-3.5-flash-lite` is not a usable fallback: one real call at n=20 returned 20 items and
+  the verifier accepted **0** — every item had two exchanges where the rule asks one, and its
+  distractor arithmetic was wrong. The verifier earned its keep; the model is out of the list.
+  Turning thinking off (`thinkingBudget: 0`) is rejected with 400 on these models; the
+  reasoning is what makes the exchange count hold, so it stays on.
+
 - Not yet run: `engine eval item_generate` across all four sets × four bands — it needs sixteen
   calls the free tier will not grant in one sitting. The 40 stored items are the first eval seed.
 

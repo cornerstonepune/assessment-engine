@@ -41,8 +41,35 @@ def response(payload, tokens=42):
     return io.BytesIO(body)
 
 
-def http_error(code):
-    return urllib.error.HTTPError("u", code, "err", {}, io.BytesIO(b""))
+def http_error(code, body=b""):
+    return urllib.error.HTTPError("u", code, "err", {}, io.BytesIO(body))
+
+
+DAILY_QUOTA_429 = json.dumps({"error": {"code": 429, "details": [
+    {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+     "violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]},
+    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "38s"}]}}).encode()
+
+MINUTE_QUOTA_429 = json.dumps({"error": {"code": 429, "details": [
+    {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+     "violations": [{"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}]},
+    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "7s"}]}}).encode()
+
+
+def test_a_model_whose_daily_quota_is_gone_is_skipped_without_waiting(calls, monkeypatch):
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    log = calls([http_error(429, DAILY_QUOTA_429), response({"items": []})])
+    llm.generate(Conn(), "item_generate", {})
+    assert [u.split("/")[-1].split(":")[0] for u, _ in log] == ["m1", "m2"]
+
+
+def test_a_per_minute_limit_waits_the_seconds_google_asks_for(calls, monkeypatch):
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    waited = []
+    calls([http_error(429, MINUTE_QUOTA_429), response({"items": []})])
+    monkeypatch.setattr(llm.time, "sleep", waited.append)
+    llm.generate(Conn(), "item_generate", {})
+    assert waited == [7]
 
 
 @pytest.fixture
@@ -73,9 +100,11 @@ def test_fills_placeholders_and_returns_the_parsed_json(calls, monkeypatch):
 @pytest.mark.parametrize("code", [503, 429, 404])
 def test_retries_the_same_model_on_a_transient_error(calls, monkeypatch, code):
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
-    log = calls([http_error(code), response({"items": []})])
+    log = calls([http_error(code, b'{"error": {"message": "busy"}}'), response({"items": []})])
     assert llm.generate(Conn(), "item_generate", {}) == {"items": []}
     assert [u.split("/")[-1].split(":")[0] for u, _ in log] == ["m1", "m1"]
+    # the retry must send the same request, never the previous error's text
+    assert log[0][1] == log[1][1] and "contents" in log[1][1]
 
 
 def test_falls_through_the_ordered_model_list_when_retries_are_exhausted(calls, monkeypatch):

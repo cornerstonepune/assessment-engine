@@ -103,5 +103,7 @@ def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path
     key = bank.sheet(conn, SET, DIFF, 12, tmp_path)
     assert (tmp_path / f"{key['sheet_id']}.pdf").exists() and key["pages"] >= 1
     assert accepted[0].item_id not in {i["item_id"] for i in key["items"]}
-    with pytest.raises(ValueError, match="only 12"):
-        bank.sheet(conn, SET, DIFF, 13, tmp_path)
+    have = conn.execute("select count(*) as n from item where status = 'active' and skill_set_code = %s"
+                        " and difficulty = %s", (SET, DIFF)).fetchone()["n"]  # the real bank plus this test's
+    with pytest.raises(ValueError, match=f"only {have}"):
+        bank.sheet(conn, SET, DIFF, have + 1, tmp_path)
