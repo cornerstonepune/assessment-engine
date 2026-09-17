@@ -1,0 +1,132 @@
+{
+  "case_dimensions": [
+    {
+      "name": "operation",
+      "allowed": ["ADD", "SUB"],
+      "why": "Different inverse relationships and regrouping logic.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "operand_1_digits",
+      "allowed": [1, 2, 3, 4],
+      "why": "Controls magnitude and place-value complexity.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "Open-ended: the taxonomy writes the values as '1, 2, 3, 4, ..., N'. Any positive integer is legal; 1 to 4 is what the ladder reaches today."
+    },
+    {
+      "name": "operand_2_digits",
+      "allowed": [1, 2, 3, 4],
+      "why": "Unequal lengths create alignment errors.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "Open-ended, as for operand_1_digits."
+    },
+    {
+      "name": "operand_order",
+      "allowed": ["LONGER_FIRST", "SHORTER_FIRST", "EQUAL_LENGTH"],
+      "why": "For addition, commutativity does not remove the diagnostic value of order.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "presentation",
+      "allowed": ["VERTICAL", "HORIZONTAL", "STORY", "EQUATION_BALANCE"],
+      "why": "Horizontal questions also test conversion and place-value alignment.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "assess/tags.py derives only VERTICAL and HORIZONTAL today. STORY and EQUATION_BALANCE are legal values with no generator behind them yet, so no coverage target uses them."
+    },
+    {
+      "name": "alignment_required",
+      "allowed": ["YES", "NO"],
+      "why": "A learner can know the arithmetic but still fail because the shorter number is placed under the wrong column.",
+      "source": "taxonomy section 12; why from section 4"
+    },
+    {
+      "name": "regrouping",
+      "allowed": ["NONE", "SINGLE", "MULTIPLE"],
+      "why": "Separates basic calculation from carry/borrow proficiency.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "regroup_columns",
+      "allowed": ["ONES", "TENS", "HUNDREDS", "THOUSANDS"],
+      "why": "A child may succeed in one column but not another.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "Open-ended, and the one dimension whose stored shape differs from its allowed values: assess/tags.py emits a list of column indices counting from 0 at the ones. No coverage target uses this dimension until the report agrees on one representation."
+    },
+    {
+      "name": "regroup_pattern",
+      "allowed": ["ISOLATED", "CONSECUTIVE", "NON_ADJACENT", "CASCADING", "ACROSS_ZERO"],
+      "why": "Different carry/borrow chains expose different misconceptions.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "assess/tags.py also emits NONE when no column regroups; that case is carried by regrouping = NONE."
+    },
+    {
+      "name": "zero_pattern",
+      "allowed": ["NONE", "INTERNAL", "MULTIPLE", "ANSWER_ZERO"],
+      "why": "Zeros substantially change borrowing/carrying demands.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "answer_digit_change",
+      "allowed": ["SAME", "+1", "-1", "-MULTIPLE", "ZERO"],
+      "why": "Tests whether the learner anticipates magnitude changes.",
+      "source": "taxonomy section 12; why from section 1",
+      "note": "assess/tags.py derives SAME, +1 and -1 today; -MULTIPLE and ZERO are legal and unreachable from the current generators, so no coverage target uses them."
+    },
+    {
+      "name": "num_operands",
+      "allowed": [2, 3, "4+"],
+      "why": "Three or more addends in the same column can produce a carry greater than 1.",
+      "source": "taxonomy section 12; why from sections 2.8 and 5.1",
+      "note": "assess/tags.py emits the integer count, so a four-addend item reads 4, not '4+'."
+    },
+    {
+      "name": "unknown_type",
+      "allowed": ["NONE", "WHOLE_NUMBER", "DIGIT", "MULTIPLE_DIGITS", "OPERATION"],
+      "why": "Separates direct computation from reverse reasoning.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "unknown_position",
+      "allowed": ["FIRST_OPERAND", "SECOND_OPERAND", "RESULT", "MULTIPLE"],
+      "why": "Where the blank sits changes the reasoning demand: a missing difference is direct calculation, a missing subtrahend or minuend is inverse reasoning.",
+      "source": "taxonomy section 12; why from section 6.3"
+    },
+    {
+      "name": "reasoning_type",
+      "allowed": ["DIRECT", "INVERSE", "BALANCE", "CONSTRAINT", "ERROR_DIAGNOSIS"],
+      "why": "Measures calculation, application and reasoning separately.",
+      "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "strategy",
+      "allowed": ["STANDARD", "MENTAL", "COMPENSATION", "ESTIMATION"],
+      "why": "Measures strategy choice, not only whether the final answer is correct.",
+      "source": "taxonomy section 12; why from section 8"
+    },
+    {
+      "name": "context",
+      "allowed": ["BARE_NUMBER", "WORD_PROBLEM", "TABLE_OR_CHART"],
+      "why": "Application and operation selection: the operation must be inferred from the situation, not from one keyword.",
+      "source": "taxonomy section 12; why from sections 10 and 10.2"
+    },
+    {
+      "name": "word_structure",
+      "allowed": [
+        "RESULT_UNKNOWN_JOIN",
+        "CHANGE_UNKNOWN_JOIN",
+        "START_UNKNOWN_JOIN",
+        "RESULT_UNKNOWN_SEPARATE",
+        "CHANGE_UNKNOWN_SEPARATE",
+        "START_UNKNOWN_SEPARATE",
+        "PART_PART_WHOLE_WHOLE_UNKNOWN",
+        "PART_PART_WHOLE_PART_UNKNOWN",
+        "COMPARE_DIFFERENCE_UNKNOWN",
+        "COMPARE_LARGER_UNKNOWN",
+        "COMPARE_SMALLER_UNKNOWN"
+      ],
+      "why": "The eleven one-step structures of section 10.1. On identical numbers, 'had some, gave away 13, now 24' is far harder than 'had 37, gave away 13', so the structure is the case, not the arithmetic.",
+      "source": "taxonomy section 10.1; added by SPEC section 3.2 as the eighteenth dimension",
+      "note": "The only dimension no generator tags yet: word_1step and word_2step emit no structure, so no coverage target uses it. The first target belongs at R8 once the word generators carry it."
+    }
+  ]
+}

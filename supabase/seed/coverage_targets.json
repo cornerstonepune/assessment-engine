@@ -1,0 +1,280 @@
+{
+  "coverage_targets": [
+    {
+      "rung_code": "R1",
+      "dimension": "operation",
+      "values": ["ADD"],
+      "note": "The descriptor is 'Adds within 10'. The G1 Lm blueprint also puts take-away items on R1, but the rung is not defined by them, so requiring SUB here would fail a bank that is faithful to the descriptor."
+    },
+    {
+      "rung_code": "R1",
+      "dimension": "regrouping",
+      "values": ["NONE"],
+      "note": "Taxonomy progression stage 1, direct with no regrouping. Sums within 10 cannot regroup, so this target is met by every conforming item and fails loudly if an over-hard item is filed under R1."
+    },
+    {
+      "rung_code": "R2",
+      "dimension": "operation",
+      "values": ["ADD"],
+      "note": "Descriptor: 'Adds within 20 (crossing 10)'."
+    },
+    {
+      "rung_code": "R2",
+      "dimension": "regrouping",
+      "values": ["SINGLE"],
+      "note": "Crossing 10 is stage 4, the single-regrouping mechanism, in its smallest form. Guaranteed by the generator, which is asked for exactly one regrouping column."
+    },
+    {
+      "rung_code": "R2",
+      "dimension": "answer_digit_change",
+      "values": ["+1"],
+      "note": "Stage 7, answer-size change. A 1-digit + 1-digit sum that crosses 10 always gains a digit, so the value is structurally guaranteed rather than hoped for."
+    },
+    {
+      "rung_code": "R3",
+      "dimension": "operation",
+      "values": ["SUB"],
+      "note": "Descriptor: 'Subtracts within 20'."
+    },
+    {
+      "rung_code": "R3",
+      "dimension": "regrouping",
+      "values": ["SINGLE"],
+      "note": "Taking a 1-digit number back across ten is the subtraction half of stage 4."
+    },
+    {
+      "rung_code": "R3",
+      "dimension": "answer_digit_change",
+      "values": ["-1"],
+      "note": "Stage 7 again: a 2-digit minus 1-digit within 20 that needs the exchange always lands below ten, so the answer loses its digit. Guaranteed, not incidental."
+    },
+    {
+      "rung_code": "R4",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "The descriptor names both: '2-digit ± without regrouping'."
+    },
+    {
+      "rung_code": "R4",
+      "dimension": "regrouping",
+      "values": ["NONE"],
+      "note": "'without regrouping' is the whole descriptor. An item with a carry filed under R4 is mislevelled, and this target is what says so."
+    },
+    {
+      "rung_code": "R4",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2, horizontal versus vertical. SPEC section 3.2 names column-only generation as one of the two holes the taxonomy exposed; the G2 Lm blueprint now carries both, so the target is meetable today."
+    },
+    {
+      "rung_code": "R4",
+      "dimension": "operand_order",
+      "values": ["EQUAL_LENGTH", "LONGER_FIRST"],
+      "note": "Stage 3, unequal digit lengths, the second hole in SPEC section 3.2. The 2d+1d and 2d-1d alignment slots supply LONGER_FIRST. SHORTER_FIRST is left out: no blueprint generates it, and a target nobody can meet is worse than no target."
+    },
+    {
+      "rung_code": "R5",
+      "dimension": "operation",
+      "values": ["ADD"],
+      "note": "Descriptor: '2-digit addition with one regrouping'."
+    },
+    {
+      "rung_code": "R5",
+      "dimension": "regrouping",
+      "values": ["SINGLE"],
+      "note": "'one regrouping', stage 4."
+    },
+    {
+      "rung_code": "R5",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2. R5 was column-only until the blueprint gained its horizontal slot; without this target the hole can reopen silently."
+    },
+    {
+      "rung_code": "R5",
+      "dimension": "operand_order",
+      "values": ["EQUAL_LENGTH", "LONGER_FIRST"],
+      "note": "Stage 3. The 2d+1d alignment slot supplies LONGER_FIRST."
+    },
+    {
+      "rung_code": "R6",
+      "dimension": "operation",
+      "values": ["SUB"],
+      "note": "Descriptor: '2-digit subtraction with exchange'."
+    },
+    {
+      "rung_code": "R6",
+      "dimension": "regrouping",
+      "values": ["SINGLE"],
+      "note": "One exchange, stage 4."
+    },
+    {
+      "rung_code": "R6",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2, and the rung where the horizontal-to-vertical error M_H2V_SHIFT is most likely to show."
+    },
+    {
+      "rung_code": "R6",
+      "dimension": "operand_order",
+      "values": ["EQUAL_LENGTH", "LONGER_FIRST"],
+      "note": "Stage 3. The 2d-1d alignment slot supplies LONGER_FIRST."
+    },
+    {
+      "rung_code": "R7",
+      "dimension": "strategy",
+      "values": ["MENTAL"],
+      "note": "Stage 11, efficient mental strategies. assess/tags.py assigns MENTAL to every R7 item by rung, so this target is met whenever any R7 item exists; it is here to stop a future generator quietly filing standard column work under R7."
+    },
+    {
+      "rung_code": "R7",
+      "dimension": "unknown_type",
+      "values": ["WHOLE_NUMBER"],
+      "note": "Stage 9, missing number. The descriptor names 'missing numbers'; the missing_number generator supplies it. Missing digits are stage 9's other half and sit at R13, per SPEC section 3.1."
+    },
+    {
+      "rung_code": "R7",
+      "dimension": "reasoning_type",
+      "values": ["INVERSE", "BALANCE"],
+      "note": "Stage 10, equality and inverse. The descriptor names both 'missing numbers' (INVERSE) and 'equality' (BALANCE), and the missing_number and balance_scale generators supply one each."
+    },
+    {
+      "rung_code": "R8",
+      "dimension": "context",
+      "values": ["WORD_PROBLEM"],
+      "note": "Stage 12. This is the only word-problem target that can be checked today: word_structure, the dimension that actually separates 'had some, gave away 13, now 24' from 'had 37, gave away 13', is not yet emitted by word_1step or word_2step. The first word_structure target belongs here the day the generator tags it."
+    },
+    {
+      "rung_code": "R8",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "Stage 12 tests operation selection, which is untested if every word problem on the rung runs the same way."
+    },
+    {
+      "rung_code": "R9",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "Descriptor: '3-digit ± with one or two regroupings'."
+    },
+    {
+      "rung_code": "R9",
+      "dimension": "regrouping",
+      "values": ["SINGLE", "MULTIPLE"],
+      "note": "'one or two regroupings' is stages 4 and 5 on one rung, so both values are required rather than either."
+    },
+    {
+      "rung_code": "R9",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2. Named in SPEC section 3.2 as one of the rungs generated in columns only until the blueprint was fixed."
+    },
+    {
+      "rung_code": "R9",
+      "dimension": "operand_order",
+      "values": ["EQUAL_LENGTH", "LONGER_FIRST"],
+      "note": "Stage 3. The 3d+2d slot supplies LONGER_FIRST; this is the '342 + 5' case the taxonomy singles out in section 4."
+    },
+    {
+      "rung_code": "R10",
+      "dimension": "operation",
+      "values": ["SUB"],
+      "note": "Descriptor: 'Subtraction across zero'."
+    },
+    {
+      "rung_code": "R10",
+      "dimension": "regroup_pattern",
+      "values": ["ACROSS_ZERO"],
+      "note": "Stage 6, zeros. This is the rung's definition and the only value required here. zero_pattern is deliberately left untargeted: the generator produces INTERNAL or MULTIPLE depending on how many zeros the second operand happens to contribute, so pinning either one would make the target a coin toss."
+    },
+    {
+      "rung_code": "R10",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2, and the G3 L0 blueprint carries an explicit horizontal across-zero slot."
+    },
+    {
+      "rung_code": "R11",
+      "dimension": "strategy",
+      "values": ["ESTIMATION"],
+      "note": "Descriptor: 'Estimate first (round to 10), judge reasonableness'. assess/tags.py assigns ESTIMATION to every R11 item by rung."
+    },
+    {
+      "rung_code": "R11",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "Rounding a sum and rounding a difference fail differently: estimating 802 - 396 invites rounding both ends the same way. Both appear across the G3 and G4 blueprints."
+    },
+    {
+      "rung_code": "R12",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "The descriptor names both halves: '4-digit addition with multiple addends; 4-digit subtraction across zeros'."
+    },
+    {
+      "rung_code": "R12",
+      "dimension": "num_operands",
+      "values": [3],
+      "note": "Stage 8, three or more addends, which is where a column total can exceed 20 and M_CARRY_ALWAYS_1 becomes visible. Three is required rather than four because multi_add(3) is in every R12 blueprint while four addends appear only in the G4 sheets."
+    },
+    {
+      "rung_code": "R12",
+      "dimension": "regroup_pattern",
+      "values": ["ACROSS_ZERO"],
+      "note": "Stage 6 at four digits. 'subtraction across zeros' is half the descriptor, and the across-zero slots supply it."
+    },
+    {
+      "rung_code": "R12",
+      "dimension": "presentation",
+      "values": ["VERTICAL", "HORIZONTAL"],
+      "note": "Stage 2. The G4 L0 blueprint carries the horizontal 4d-2d slot."
+    },
+    {
+      "rung_code": "R12",
+      "dimension": "operand_order",
+      "values": ["EQUAL_LENGTH", "LONGER_FIRST"],
+      "note": "Stage 3 at four digits: aligning a 2-digit number under a 4-digit one is the taxonomy's '4,382 - 7' case."
+    },
+    {
+      "rung_code": "R13",
+      "dimension": "unknown_type",
+      "values": ["DIGIT"],
+      "note": "Stage 9's missing-digit half, which SPEC section 3.1 places at R13 rather than R7."
+    },
+    {
+      "rung_code": "R13",
+      "dimension": "reasoning_type",
+      "values": ["CONSTRAINT"],
+      "note": "Descriptor: 'place-value reasoning under constraint'. The missing_digit generator carries it."
+    },
+    {
+      "rung_code": "R13",
+      "dimension": "strategy",
+      "values": ["COMPENSATION"],
+      "note": "Descriptor: 'Chooses an efficient strategy', stage 11. assess/tags.py assigns COMPENSATION to every R13 item by rung."
+    },
+    {
+      "rung_code": "R14",
+      "dimension": "context",
+      "values": ["WORD_PROBLEM"],
+      "note": "The only checkable target on this rung. word_2step and word_budget carry no single operand pair, so assess/tags.py derives none of the arithmetic dimensions for them; a multi-step budget target needs either a num_steps dimension or word_structure, and neither exists yet."
+    },
+    {
+      "rung_code": "X1",
+      "dimension": "reasoning_type",
+      "values": ["ERROR_DIAGNOSIS"],
+      "note": "Stage 13. X1 is 'Explains the procedure / judges a claim' and sits off the ladder, so it has no band position and no arithmetic target; what makes an item X1 is that it asks for a judgement."
+    },
+    {
+      "rung_code": "X2",
+      "dimension": "reasoning_type",
+      "values": ["ERROR_DIAGNOSIS"],
+      "note": "Stage 13, 'Finds the mistake in a worked example'."
+    },
+    {
+      "rung_code": "X2",
+      "dimension": "operation",
+      "values": ["ADD", "SUB"],
+      "note": "A child who can spot a forgotten carry may not spot a missing exchange; the two are different diagnoses, and the find_mistake generator is asked for each."
+    }
+  ]
+}

@@ -1,0 +1,274 @@
+{
+  "misconceptions": [
+    {
+      "code": "M_NOCARRY",
+      "op": "+",
+      "name": "Forgets to carry",
+      "description": "Writes each column sum mod 10 and never carries: 47 + 38 written as 75.",
+      "repair_hint": "Place-value chart; exchange 10 ones for a ten with rods before recording",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_CARRY_SKIP",
+      "op": "+",
+      "name": "Carry placed one column too far left",
+      "description": "The carry is added two columns left instead of one: 47 + 38 written as 175.",
+      "repair_hint": "Column chart with the carry written above the correct column; two worked examples",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_CONCAT",
+      "op": "+",
+      "name": "Writes the whole column sum instead of regrouping",
+      "description": "Writes the full column sums side by side: 47 + 38 written as 715.",
+      "repair_hint": "Ten-frame / rods: 'only one digit fits in a column'",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DROP_CARRYOUT",
+      "op": "+",
+      "name": "Drops the final carry-out (76+54 -> 30)",
+      "description": "Drops the carry out of the last column: 76 + 54 written as 30.",
+      "repair_hint": "Estimate first; 'can the answer be smaller than the bigger number?'",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_FACT_PM1",
+      "op": "+",
+      "name": "Fact off by one",
+      "description": "The answer is one more than the correct total: 47 + 38 written as 86.",
+      "repair_hint": "Number bonds; ten-frame fluency",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_FACT_PM10",
+      "op": "+",
+      "name": "Tens miscounted",
+      "description": "The answer is ten more than the correct total: 47 + 38 written as 95.",
+      "repair_hint": "Count in tens on a 100-square",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_WRONG_OP",
+      "op": "+",
+      "name": "Subtracted instead of adding",
+      "description": "Writes the difference where the sum was asked: 47 + 38 written as 9.",
+      "repair_hint": "Read the question aloud; identify the operation word",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_SMALL_FROM_LARGE",
+      "op": "-",
+      "name": "Subtracts the smaller digit from the larger regardless of row ('neeche wala number')",
+      "description": "Takes the smaller digit from the larger in every column, whichever row it sits in: 62 - 27 written as 45.",
+      "repair_hint": "Rods: show that the top number is the whole; act out the exchange",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": "M005"
+    },
+    {
+      "code": "M_NO_DECREMENT",
+      "op": "-",
+      "name": "Exchanges but does not reduce the lender column",
+      "description": "Adds ten to the column but leaves the lender column unchanged: 62 - 27 written as 45.",
+      "repair_hint": "Cross out and rewrite the lender digit before subtracting",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_ZERO_LENDER",
+      "op": "-",
+      "name": "Across zero: zero lends but the column to its left is not reduced",
+      "description": "The zero becomes 9 and lends, but the column left of it keeps its value: 302 - 178 written as 224.",
+      "repair_hint": "Three-column rods; exchange a hundred for ten tens first",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": "M006"
+    },
+    {
+      "code": "M_ZERO_NOT_NINE",
+      "op": "-",
+      "name": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "description": "Takes from the left column correctly but leaves the zero as 10: 302 - 178 written as 134.",
+      "repair_hint": "Number line count-up as a check",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_FACT_PM1",
+      "op": "-",
+      "name": "Fact off by one",
+      "description": "The answer is one less than the correct difference: 62 - 27 written as 34.",
+      "repair_hint": "Number bonds; count-up on a number line",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_FACT_PM10",
+      "op": "-",
+      "name": "Tens miscounted",
+      "description": "The answer is ten more than the correct difference: 62 - 27 written as 45.",
+      "repair_hint": "Count back in tens on a 100-square",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_WRONG_OP",
+      "op": "-",
+      "name": "Added instead of subtracting",
+      "description": "Writes the sum where the difference was asked: 62 - 27 written as 89.",
+      "repair_hint": "Read the question aloud; identify the operation word",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MAKE_SMALLER",
+      "op": "-",
+      "name": "Subtraction means make smaller",
+      "description": "Fails compare and missing-part situations, where the answer is found by counting up.",
+      "repair_hint": "Probe with 5 total, 2 red, unknown blue.",
+      "detectable_by": "explanation",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M001"
+    },
+    {
+      "code": "M_DIGITS_INDEPENDENT",
+      "op": "any",
+      "name": "Digits are independent",
+      "description": "Treats 43 as a 4 and a 3 with no relation between them.",
+      "repair_hint": "Ask what the 4 represents in 43.",
+      "detectable_by": "explanation",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M002"
+    },
+    {
+      "code": "M_REGROUP_CHANGES_TOTAL",
+      "op": "-",
+      "name": "Regrouping changes the total",
+      "description": "Thinks 42 becomes 3 + 12, or some other altered total, once it is regrouped.",
+      "repair_hint": "Represent both decompositions with blocks.",
+      "detectable_by": "explanation",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M003"
+    },
+    {
+      "code": "M_EXCHANGE_UNEXPLAINED",
+      "op": "-",
+      "name": "Exchange is a rule without meaning",
+      "description": "Can execute the rote steps of an exchange but cannot say what was traded or why the total is unchanged.",
+      "repair_hint": "Ask what was traded and why the value stayed the same.",
+      "detectable_by": "explanation",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M004"
+    },
+    {
+      "code": "M_MISALIGNED_COLUMNS",
+      "op": "any",
+      "name": "Column misalignment",
+      "description": "Places ones under tens when writing the numbers into columns.",
+      "repair_hint": "Visual place-value columns with snap-to-grid.",
+      "detectable_by": "working",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M007"
+    },
+    {
+      "code": "M_COMPENSATION_SIGN",
+      "op": "-",
+      "name": "Compensation sign error",
+      "description": "Adjusts in the wrong direction, doing 52 - 29 as 52 - 30 - 1.",
+      "repair_hint": "Use an algebraic balance visualisation.",
+      "detectable_by": "working",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M008"
+    },
+    {
+      "code": "M_COUNTS_ONE_BY_ONE",
+      "op": "any",
+      "name": "Counts inefficiently",
+      "description": "Can solve, but with excessive one-by-one counting marks.",
+      "repair_hint": "Ask the learner to create the largest sensible jumps.",
+      "detectable_by": "working",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M009"
+    },
+    {
+      "code": "M_KEYWORD_OVERGENERALISED",
+      "op": "any",
+      "name": "Pattern overgeneralisation",
+      "description": "Chooses subtraction because a keyword such as 'left' appears in the question.",
+      "repair_hint": "Give a non-subtraction context containing the keyword.",
+      "detectable_by": "teacher",
+      "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
+      "external_ref": "M010"
+    },
+    {
+      "code": "M_H2V_SHIFT",
+      "op": "any",
+      "name": "Horizontal-to-vertical conversion shifts the shorter number left",
+      "description": "Rewrites 342 + 5 into columns with the 5 under the tens or the hundreds; the arithmetic that follows is correct for what was written down.",
+      "repair_hint": "Rewrite three horizontal questions into a printed place-value grid before calculating anything.",
+      "detectable_by": "working",
+      "source": "SPEC.md section 3.4 (taxonomy section 11 error list); visible only in the working box",
+      "external_ref": null
+    },
+    {
+      "code": "M_ALIGN_LEFT",
+      "op": "any",
+      "name": "Aligns unequal-length operands from the left, not the ones",
+      "description": "Lines the two numbers up at their leftmost digit, so 342 + 5 is computed as 342 + 500.",
+      "repair_hint": "Read both numbers into a place-value chart ones-first, then check the ones column before starting.",
+      "detectable_by": "answer_lookup",
+      "source": "SPEC.md section 3.4 (taxonomy section 11 error list); computable from the operands, but the predictor is not yet in assess/misconceptions.py",
+      "external_ref": null
+    },
+    {
+      "code": "M_CARRY_ALWAYS_1",
+      "op": "+",
+      "name": "Assumes a carry is always 1",
+      "description": "Carries 1 when the column total is 20 or more, so 9 + 8 + 7 in the ones column carries 1 instead of 2.",
+      "repair_hint": "Three-addend columns with rods: count how many complete tens the column made before writing the carry.",
+      "detectable_by": "answer_lookup",
+      "source": "SPEC.md section 3.4 (taxonomy section 11 error list); computable from the operands, but the predictor is not yet in assess/misconceptions.py",
+      "external_ref": null
+    },
+    {
+      "code": "M_ZERO_DROPPED",
+      "op": "any",
+      "name": "Drops a leading, trailing or internal zero when writing the answer",
+      "description": "Records 495 + 505 as 100 rather than 1000, or 705 - 201 as 54 rather than 504.",
+      "repair_hint": "Write the answer into a place-value grid and say the value of every column, including the empty ones.",
+      "detectable_by": "answer_lookup",
+      "source": "SPEC.md section 3.4 (taxonomy section 11 error list); computable from the operands, but the predictor is not yet in assess/misconceptions.py",
+      "external_ref": null
+    },
+    {
+      "code": "M_MISSING_DIGIT_LOCAL",
+      "op": "any",
+      "name": "Finds a missing digit that works in its own column but not across the carry",
+      "description": "Solves the column in isolation and ignores what the exchange sends into the next column, so 4□2 - 185 = 217 is answered from the ones column alone.",
+      "repair_hint": "Substitute the chosen digit back and work the whole question through, column by column.",
+      "detectable_by": "working",
+      "source": "SPEC.md section 3.4 (taxonomy section 11 error list); visible only in the working box",
+      "external_ref": null
+    }
+  ]
+}
