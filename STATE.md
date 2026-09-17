@@ -321,6 +321,46 @@ Plan: `docs/superpowers/plans/2026-09-17-w1-bank.md`. Design: ARCHITECTURE §7, 
 - Not yet run: `engine eval item_generate` across all four sets × four bands — it needs sixteen
   calls the free tier will not grant in one sitting. The 40 stored items are the first eval seed.
 
+## The web app — shell and the W1 screens (2026-09-18)
+
+Plan: `docs/superpowers/plans/2026-09-18-web-shell-and-w1-screens.md`. Brand:
+`apps/web/design-system/PRINCIPLES.md`, from the Cornerstone Brand Book Edition 02 (it overrides
+the Atlas house language for this product, and says why). Screens published for review:
+claude.ai/artifact/D1zoM7ZZX8nSfWswvH2mQR
+
+- Builds clean, no type errors, nine routes.
+  Check: `cd apps/web && npm run build` → `✓ Compiled successfully`, routes `/ /auth/callback
+  /capture /growth /home /library /login /skill-sets/[code] /worksheets` + Proxy.
+
+- Every screen renders its heading, scrolls sideways nowhere, and logs no console error, at
+  1440 px and at 400 px. Check: `cd apps/web && AUTH_DEV_BYPASS=1 npx playwright test` →
+  `16 passed (5.4s)`.
+
+- The Skill Map shows the real per-difficulty counts: `SUB.2D.EXCH` reads 80 at Hard and 0
+  elsewhere, matching `select count(*) from item where skill_set_code='SUB.2D.EXCH'`.
+
+- **Editing a difficulty in the app writes to the database, through plain fields — no JSON.**
+  Verified end to end in the browser: changed the Easy band's words and ticked a second exchange,
+  pressed Save, then
+  `psql "$DATABASE_URL" -Atc "select difficulty->'Easy' from skill_set where code='SUB.2D.EXCH'"` →
+  ```
+  {"check": {"op": "-", "digits": [2, 1], "regroups": [1, 2]}, "words": "… EDITED BY TEST."}
+  ```
+  and `updated_at` moved. The test edit was then restored to the seeded values.
+
+- **Bug found and fixed by that test:** `engine load` used to upsert `skill_set`, so the next
+  load would silently overwrite whatever Neha and Achal had authored in the app. The loader is
+  now insert-only for that table, with `test_load_does_not_overwrite_a_skill_set_edited_in_the_app`
+  as the regression. Engine suite: 101 passing.
+
+- Sign-in is Supabase magic link with a staff allowlist in `config.app.staff`; every route in the
+  app group is behind it and both server actions check again on their own. A development bypass
+  exists, is refused outside development, and shows a "dev bypass" pill in the sidebar when on.
+
+- Not built: the Generate form (needs W2), paper previews (the Python renderer owns those), and
+  Capture, Child Growth and Home Assignments beyond their honest empty states, which name the
+  workflow that fills them and show the real table counts.
+
 ## Real assessment data received (2026-09-17)
 
 16 children in `~/cornerstone/assessments/` — 11 in G2, 5 in G3, of whom Rudraksh is confirmed
