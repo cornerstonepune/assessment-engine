@@ -236,6 +236,69 @@ out at 120 s on the free tier — batch at ~20. `gemini-3.5-flash` returned 503 
 **Status: one call, one topic, one difficulty.** Enough to choose the architecture, not a quality
 measurement. The seventeen accepted items seed the `item_generate` eval set.
 
+## W1 — the question bank as engine code (2026-09-17)
+
+Plan: `docs/superpowers/plans/2026-09-17-w1-bank.md`. Design: ARCHITECTURE §7, ADR 0005.
+
+- Migration `20260917120000_skill_set_and_feedback` applied and recorded (the `supabase db push`
+  output shows a pg-delta certificate error from a Supabase helper, then finishes; the check is
+  what counts). Check: `psql "$DATABASE_URL" -Atc "select version||' '||name from supabase_migrations.schema_migrations order by version"` →
+  ```
+  20260917090000 ring_a
+  20260917090100 ring_b
+  20260917120000 skill_set_and_feedback
+  ```
+  `skill_set` and `item_feedback` exist; `item` has `skill_set_code` and `difficulty`. 32 tables.
+
+- Seeds: four skill sets at Easy/Medium/Hard/Advance (drafts for Neha and Achal), two config
+  rows (school philosophy, model fallback list), the `item_generate` prompt.
+  Check: `cd packages/engine && uv run engine load --check` → the Phase 0 counts plus
+  ```
+  prompt               6
+  config               2
+  skill_set            4
+  every code referenced resolves
+  unchanged on a second run
+  ```
+
+- Tests: 98, including live bank tests that run inside a rolled-back transaction against the
+  hosted project. Check: `cd packages/engine && uv run pytest -q` → `98 passed`.
+
+- **The real fill, three runs, each of which taught something now in a test:**
+  1. Died on the first batch: the model wrote U+2212 for minus and the schema's enum refused the
+     reply. Now `verify.normalise` folds symbols; schema takes any single character.
+  2. Eight successful calls, 162k tokens, **zero items stored**: every item carried a claim our
+     predictor cannot check ("aligns from the left" on 243 − 27 gives a negative) and an
+     off-by-one written +1 where the predictor says −1. Both were verifier strictness, not model
+     error — the six candidates inspected by hand all had correct numbers. Now: unverifiable
+     claims are dropped and the item survives; "plus-or-minus" codes accept either sign.
+  3. `uv run engine bank fill SUB.2D.EXCH Hard --n 200` → 40 items in four batches, ten per
+     format, then the free tier rate-limited every model. Check:
+     `psql "$DATABASE_URL" -c "select fmt, count(*) from item where source='generated' and status='active' and skill_set_code='SUB.2D.EXCH' group by fmt"` →
+     ```
+     bare_sum       10
+     column_grid    10
+     missing_number 10
+     word_1step     10
+     ```
+     A word problem from the bank: "Aarav saved 472 rupees for the mela and spent 38 rupees on
+     rides, how many rupees does he have left?"
+
+- Independent audit of everything stored. Check: `uv run engine bank recheck` → `0 mismatches`.
+
+- A sheet from the bank, through the existing renderer unchanged.
+  Check: `uv run engine bank sheet SUB.2D.EXCH Hard --n 12 --out data/bank` →
+  `CS289D43  2 pages  12 responses  -> data/bank/CS289D43.pdf`. Looked at both pages: QR,
+  fiducials, column grids, digit cells, working boxes, key JSON beside it.
+
+- Free-tier numbers to plan around (`flow_run` rows): ~20k tokens and ~95 s per 20-item call;
+  the limit closes after roughly four calls in a row; `gemini-2.5-flash` is retired for new
+  users (404 with that message). The adapter now waits 5/10/20/40/60 s per model and 60 s on a
+  429; a 200-item fill is a background job of ten to fifteen minutes.
+
+- Not yet run: `engine eval item_generate` across all four sets × four bands — it needs sixteen
+  calls the free tier will not grant in one sitting. The 40 stored items are the first eval seed.
+
 ## Real assessment data received (2026-09-17)
 
 16 children in `~/cornerstone/assessments/` — 11 in G2, 5 in G3, of whom Rudraksh is confirmed
