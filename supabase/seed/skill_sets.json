@@ -1,0 +1,81 @@
+{
+  "_note": "Drafts written by the engineer for Neha and Achal to edit and Aseem to ratify (N1). `words` is what the prompt reads; `check` is what the verifier enforces. Digits are [top, bottom]. regroups lists the allowed counts.",
+  "skill_sets": [
+    {
+      "code": "ADD.2D.REG",
+      "rung_code": "R5",
+      "name": "2-digit addition with regrouping",
+      "learning_objective": "Adds two numbers by columns, making a new ten (or hundred) exactly when a column total reaches ten.",
+      "philosophy": [],
+      "formats": ["column_grid", "bare_sum", "missing_number", "word_1step"],
+      "misconception_codes": ["M_NOCARRY", "M_CARRY_SKIP", "M_CONCAT", "M_DROP_CARRYOUT", "M_FACT_PM1", "M_FACT_PM10", "M_WRONG_OP", "M_ALIGN_LEFT", "M_ZERO_DROPPED"],
+      "difficulty": {
+        "Easy":    {"words": "A 2-digit number plus a 1-digit number, with one regroup in the ones. Total under 100.",
+                    "check": {"op": "+", "digits": [2, 1], "regroups": [1], "max_total": 99}},
+        "Medium":  {"words": "Two 2-digit numbers with one regroup in the ones. Total under 100.",
+                    "check": {"op": "+", "digits": [2, 2], "regroups": [1], "max_total": 99}},
+        "Hard":    {"words": "Two 2-digit numbers with two regroups, ones and tens, so the total passes 100.",
+                    "check": {"op": "+", "digits": [2, 2], "regroups": [2]}},
+        "Advance": {"words": "A 3-digit number plus a 2-digit number with one or two regroups. The child must line up the shorter number.",
+                    "check": {"op": "+", "digits": [3, 2], "regroups": [1, 2]}}
+      }
+    },
+    {
+      "code": "SUB.2D.EXCH",
+      "rung_code": "R6",
+      "name": "2-digit subtraction with exchange",
+      "learning_objective": "Subtracts by columns, exchanging one ten for ten ones exactly when the ones column needs it.",
+      "philosophy": ["The larger number is always on top. Never write a subtraction the child cannot do."],
+      "formats": ["column_grid", "bare_sum", "missing_number", "word_1step"],
+      "misconception_codes": ["M_SMALL_FROM_LARGE", "M_NO_DECREMENT", "M_FACT_PM1", "M_FACT_PM10", "M_WRONG_OP", "M_ALIGN_LEFT", "M_ZERO_DROPPED"],
+      "difficulty": {
+        "Easy":    {"words": "A 2-digit number minus a 1-digit number, with one exchange.",
+                    "check": {"op": "-", "digits": [2, 1], "regroups": [1]}},
+        "Medium":  {"words": "A 2-digit number minus a 2-digit number, with one exchange.",
+                    "check": {"op": "-", "digits": [2, 2], "regroups": [1]}},
+        "Hard":    {"words": "A 3-digit number minus a 2-digit number, with one exchange. The child must line up the shorter number.",
+                    "check": {"op": "-", "digits": [3, 2], "regroups": [1]}},
+        "Advance": {"words": "A 3-digit number minus a 3-digit number, with one or two exchanges. No zero anywhere in the top number.",
+                    "check": {"op": "-", "digits": [3, 3], "regroups": [1, 2], "no_zero_top": true}}
+      }
+    },
+    {
+      "code": "ADD.3D.REG",
+      "rung_code": "R9",
+      "name": "3-digit addition with regrouping",
+      "learning_objective": "Adds 3-digit numbers by columns with one or more regroups, carrying into the correct column each time.",
+      "philosophy": [],
+      "formats": ["column_grid", "bare_sum", "missing_number", "word_1step"],
+      "misconception_codes": ["M_NOCARRY", "M_CARRY_SKIP", "M_CONCAT", "M_DROP_CARRYOUT", "M_FACT_PM1", "M_FACT_PM10", "M_WRONG_OP", "M_ALIGN_LEFT", "M_ZERO_DROPPED"],
+      "difficulty": {
+        "Easy":    {"words": "A 3-digit number plus a 2-digit number with one regroup.",
+                    "check": {"op": "+", "digits": [3, 2], "regroups": [1]}},
+        "Medium":  {"words": "Two 3-digit numbers with one regroup.",
+                    "check": {"op": "+", "digits": [3, 3], "regroups": [1]}},
+        "Hard":    {"words": "Two 3-digit numbers with two regroups.",
+                    "check": {"op": "+", "digits": [3, 3], "regroups": [2]}},
+        "Advance": {"words": "A 4-digit number plus a 3-digit number with two or three regroups.",
+                    "check": {"op": "+", "digits": [4, 3], "regroups": [2, 3]}}
+      }
+    },
+    {
+      "code": "SUB.3D.ZERO",
+      "rung_code": "R10",
+      "name": "3-digit subtraction across zero",
+      "learning_objective": "Exchanges across a zero: takes a hundred, turns the zero into nine tens and ten ones, and keeps every column's value right.",
+      "philosophy": ["The larger number is always on top."],
+      "formats": ["column_grid", "bare_sum", "missing_number", "word_1step"],
+      "misconception_codes": ["M_SMALL_FROM_LARGE", "M_NO_DECREMENT", "M_ZERO_LENDER", "M_ZERO_NOT_NINE", "M_FACT_PM1", "M_FACT_PM10", "M_WRONG_OP", "M_ALIGN_LEFT", "M_ZERO_DROPPED"],
+      "difficulty": {
+        "Easy":    {"words": "Two 3-digit numbers with one exchange and no zero in the top number. A warm-up before zeros.",
+                    "check": {"op": "-", "digits": [3, 3], "regroups": [1], "no_zero_top": true}},
+        "Medium":  {"words": "Two 3-digit numbers where the top number has a zero in the tens, and the child must exchange across it.",
+                    "check": {"op": "-", "digits": [3, 3], "regroups": [1, 2], "across_zero": true}},
+        "Hard":    {"words": "Two 3-digit numbers across a zero, with two exchanges.",
+                    "check": {"op": "-", "digits": [3, 3], "regroups": [2], "across_zero": true}},
+        "Advance": {"words": "Two 4-digit numbers across zeros, with two or three exchanges.",
+                    "check": {"op": "-", "digits": [4, 4], "regroups": [2, 3], "across_zero": true}}
+      }
+    }
+  ]
+}

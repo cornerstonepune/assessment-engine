@@ -5,6 +5,7 @@ description = "Cornerstone assessment engine: generation, rendering, marking, gr
 requires-python = ">=3.12"
 dependencies = [
     "certifi>=2024.8",
+    "jsonschema>=4.26.0",
     "numpy>=2.0",
     "opencv-python-headless>=4.10",
     "playwright>=1.48",

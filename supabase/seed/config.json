@@ -1,0 +1,20 @@
+{
+  "config": [
+    {
+      "key": "assessment.philosophy",
+      "description": "School-wide lines every generation prompt receives. Neha and Achal own the wording.",
+      "value": [
+        "Say 'exchange' or 'regroup', never 'borrow'.",
+        "Each item tests exactly one idea. No tricks and no trap wording.",
+        "Word problems use things a child in Pune knows: mangoes, rupees, cricket runs, school steps, the mela, the bus.",
+        "One short plain sentence for a word problem, with both numbers in it and one question at the end.",
+        "A child who has the skill should finish any item in under a minute."
+      ]
+    },
+    {
+      "key": "llm.fallback_models",
+      "description": "Exact model ids tried in order after the prompt row's own model fails. Never an alias (ADR 0004).",
+      "value": ["gemini-3.6-flash", "gemini-2.5-flash"]
+    }
+  ]
+}

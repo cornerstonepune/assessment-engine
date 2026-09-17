@@ -13,6 +13,7 @@ SEED = db.REPO_ROOT / "supabase" / "seed"
 FILLED_TABLES = (
     "tenant", "skill", "milestone", "rung", "level_rule",
     "misconception", "case_dimension", "coverage_target", "prompt", "threshold",
+    "config", "skill_set",
 )
 
 THRESHOLDS = [
@@ -159,11 +160,39 @@ def _thresholds(conn, t):
         )
 
 
+def _config(conn, t):
+    for c in _seed("config.json", "config"):
+        conn.execute(
+            "insert into config (tenant_id, key, value, description) values (%s,%s,%s,%s)"
+            " on conflict (tenant_id, key) do update set value=excluded.value,"
+            " description=excluded.description, updated_at=now()",
+            (t, c["key"], json.dumps(c["value"]), c.get("description", "")),
+        )
+
+
+def _skill_sets(conn, t):
+    """Status and ratified_by are deliberately not overwritten: Aseem's ratification lives in
+    the row, and a reload of the seed must not undo it."""
+    for s in _seed("skill_sets.json", "skill_sets"):
+        conn.execute(
+            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
+            " philosophy, formats, misconception_codes, difficulty)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set rung_code=excluded.rung_code,"
+            " name=excluded.name, learning_objective=excluded.learning_objective,"
+            " philosophy=excluded.philosophy, formats=excluded.formats,"
+            " misconception_codes=excluded.misconception_codes, difficulty=excluded.difficulty,"
+            " updated_at=now()",
+            (t, s["code"], s["rung_code"], s["name"], s["learning_objective"], s["philosophy"],
+             s["formats"], s["misconception_codes"], json.dumps(s["difficulty"])),
+        )
+
+
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
         for step in (_registry, _rungs, _levels, _misconceptions,
-                     _dimensions, _coverage, _prompts, _thresholds):
+                     _dimensions, _coverage, _prompts, _thresholds, _config, _skill_sets):
             step(conn, t)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
@@ -190,4 +219,8 @@ def orphans() -> dict[str, list[str]]:
                     "select distinct dimension_code from coverage_target c"
                     " where not exists (select 1 from case_dimension d"
                     " where d.code = c.dimension_code)").fetchall()],
+            "skill_set misconception codes missing from the vocabulary": [
+                r["s"] for r in conn.execute(
+                    "select distinct s from skill_set, unnest(misconception_codes) s"
+                    " where not exists (select 1 from misconception m where m.code = s)").fetchall()],
         }

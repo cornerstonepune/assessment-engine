@@ -22,6 +22,13 @@ def tenant_slug() -> str:
     return os.getenv("TENANT_SLUG", "cornerstone-pune")
 
 
+def env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"{name} is not set — see .env.example")
+    return value
+
+
 @contextmanager
 def connect():
     with psycopg.connect(dsn(), row_factory=dict_row) as conn:

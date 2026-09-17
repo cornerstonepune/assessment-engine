@@ -1,0 +1,21 @@
+You are writing questions for a primary-school maths question bank. A teacher wrote the specification below. Follow it exactly.
+
+SPECIFICATION
+{{spec}}
+
+Write exactly {{n}} items and return them as one JSON object: {"items": [ ... ]}. Each item is an object with these fields:
+
+- "format": one of the specification's formats.
+- "op": the operation symbol from the specification.
+- "a" and "b": the two operands as integers, a first. For subtraction, a is the number subtracted from.
+- "answer": the correct result of a op b, as an integer.
+- "stem": for "word_1step", one plain sentence a child reads, containing both numbers and ending in one question. For "missing_number", the equation with □ in place of the hidden number, for example "582 − □ = 236". For "column_grid" and "bare_sum", an empty string.
+- "missing": for "missing_number" only, which of "a", "b" or "answer" is hidden; otherwise null. Whichever is hidden, a, b and answer are always the true numbers of the full equation.
+- "misconceptions": a list of {"code", "wrong_answer"} — for every misconception in the specification that can actually occur on these operands, the exact number a child making that mistake would write. Leave out the ones that cannot occur here.
+
+Rules:
+- Every item must satisfy the difficulty rule in words. Check each one before you write it.
+- Spread the formats evenly across the items.
+- No two items may share the same a and b.
+- The philosophy lines describe the school's voice. Keep to them.
+- Output only the JSON object.

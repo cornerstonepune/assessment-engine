@@ -232,11 +232,20 @@ def predict_multi(addends):
             out[code] = v
     return out
 
+TABLES = {"+": ADD_PREDICTORS, "-": SUB_PREDICTORS}
+
+
+def compute(op, a, b):
+    return {"+": a + b, "-": a - b, "×": a * b}[op]
+
+
 def predict(op, a, b):
-    """Return {code: wrong_answer} for every misconception that can occur on these operands."""
-    table = ADD_PREDICTORS if op == "+" else SUB_PREDICTORS
+    """Return {code: wrong_answer} for every misconception that can occur on these operands.
+    An operation with no predictor table yet (multiplication) returns {} — the verifier then
+    accepts a model's claims for it unchecked, by design (ADR 0005)."""
+    table = TABLES.get(op, {})
     out = {}
-    correct = a + b if op == "+" else a - b
+    correct = compute(op, a, b)
     for code, (fn, _, _) in table.items():
         try:
             v = fn(a, b)
