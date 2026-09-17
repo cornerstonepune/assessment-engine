@@ -29,10 +29,17 @@ def bank_fill(
     dry_run: bool = typer.Option(False, "--dry-run", help="Generate and verify, write nothing"),
 ) -> None:
     """Generate, verify and store items for one skill set at one difficulty."""
+    shown = []
+
+    def show_reject(c: dict, probs: list) -> None:
+        if len(shown) < 5:
+            shown.append(c)
+            typer.echo(f"  rejected  {c.get('a')} {c.get('op')} {c.get('b')} [{c.get('format')}]: {'; '.join(probs)}", err=True)
+
     with db.connect() as conn:
         try:
             counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run,
-                                           after_batch=None if dry_run else conn.commit)
+                                           after_batch=None if dry_run else conn.commit, on_reject=show_reject)
         except LLMError as e:
             conn.commit()  # keep the flow_run row that records the failure
             typer.echo(f"MODEL  {e}", err=True)

@@ -46,10 +46,20 @@ def test_misconception_claim_that_disagrees_with_the_predictor_is_rejected():
     assert any("M_SMALL_FROM_LARGE" in r for r in verify.problems(bad, HARD_SUB))
 
 
-def test_misconception_claim_that_cannot_occur_here_is_rejected():
-    # 582 - 346 has no zero on top, so the across-zero mistakes cannot happen on it
-    bad = cand(misconceptions=[{"code": "M_ZERO_LENDER", "wrong_answer": 100}])
-    assert any("M_ZERO_LENDER" in r for r in verify.problems(bad, HARD_SUB))
+def test_a_claim_the_predictor_cannot_check_is_dropped_and_the_item_survives():
+    # 582 - 346 has no zero on top, so the across-zero predictor has nothing to say; the first
+    # real fill rejected every item this way ("aligns from the left" on 243 - 27) and stored none.
+    c = cand(misconceptions=[{"code": "M_ZERO_LENDER", "wrong_answer": 100}])
+    assert verify.problems(c, HARD_SUB) == []
+    assert "M_ZERO_LENDER" not in verify.to_item(c, "R10").responses[0].misconceptions
+
+
+@pytest.mark.parametrize("delta", [1, -1])
+def test_off_by_one_is_accepted_in_either_direction(delta):
+    c = cand(misconceptions=[{"code": "M_FACT_PM1", "wrong_answer": 236 + delta}])
+    assert verify.problems(c, HARD_SUB) == []
+    assert any("M_FACT_PM1" in r for r in verify.problems(
+        cand(misconceptions=[{"code": "M_FACT_PM1", "wrong_answer": 236 + 2}]), HARD_SUB))
 
 
 def test_misconception_claim_matching_the_predictor_is_accepted():

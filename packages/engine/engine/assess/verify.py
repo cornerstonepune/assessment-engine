@@ -18,6 +18,7 @@ FORMATS = {
 }
 REGROUPS = {"+": _regroup_count_add, "-": _regroup_count_sub}
 OPS = {"−": "-", "–": "-", "x": "×", "X": "×", "*": "×"}  # symbols a model writes for the same operation
+SYMMETRIC = {"M_FACT_PM1": 1, "M_FACT_PM10": 10, "M_FACT_PM100": 100}  # "plus or minus": either direction is the mistake
 
 
 def normalise(c):
@@ -57,11 +58,11 @@ def problems(c, check):
     truth, table = M.predict(op, a, b), M.TABLES.get(op, {})
     for mc in c.get("misconceptions", []):
         code, wrong = mc.get("code"), mc.get("wrong_answer")
-        if code not in table:
-            continue  # no predictor: the claim is accepted as the model's (ADR 0005)
-        if code not in truth:
-            out.append(f"{code} cannot occur on {a} {op} {b}")
-        elif truth[code] != wrong:
+        if code not in table or code not in truth:
+            continue  # nothing to check it against: the claim is dropped by to_item, the item survives
+        delta = SYMMETRIC.get(code)
+        agrees = abs(wrong - correct) == delta if delta else truth[code] == wrong
+        if not agrees:
             out.append(f"{code} claims {wrong}, predictor says {truth[code]}")
 
     stem = (c.get("stem") or "").strip()

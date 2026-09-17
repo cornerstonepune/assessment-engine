@@ -47,9 +47,10 @@ def spec(conn, code, difficulty):
     return prompt_input, s, band["check"]
 
 
-def fill(conn, code, difficulty, n, dry_run=False, after_batch=None):
+def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=None):
     """`after_batch` is called once per model call — the CLI passes conn.commit so a long fill
-    keeps what it has and its flow_run rows are visible while it runs; tests pass nothing."""
+    keeps what it has and its flow_run rows are visible while it runs. `on_reject(candidate,
+    problems)` lets the CLI show why items fall; tests pass neither."""
     prompt_input, s, check = spec(conn, code, difficulty)
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     counts = Counter(asked=0, returned=0, accepted=0, rejected=0, duplicate=0, already_in_bank=0)
@@ -70,6 +71,8 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None):
             if probs:
                 counts["rejected"] += 1
                 reasons.update(p.split(" ")[0] for p in probs)
+                if on_reject:
+                    on_reject(c, probs)
                 continue
             it = verify.to_item(c, s["rung_code"], skills=list(s["skill_codes"]))
             if not dry_run and not _insert(conn, tenant, it, code, difficulty):
