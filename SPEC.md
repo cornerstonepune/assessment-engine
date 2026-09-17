@@ -59,15 +59,15 @@ Rules that keep it one organism:
   time. If a rebuild changes a child's state, that is a bug in the rule or a fact in the evidence,
   never a lost row.
 
-## 3. The skill model — three levels, no fourth taxonomy
+## 3. The skill model — three layers, no fourth taxonomy
 
-Three documents describe "what a child can do" at different grains. They are reconciled as levels
+Three documents describe "what a child can do" at different grains. They are reconciled as layers
 of one model, not competing vocabularies.
 
-| Level | Source | Example | Used for |
+| Layer | Source | Example | Used for |
 |---|---|---|---|
 | **Skill** | the registry (`window.CSMAP`, 244 skills, ratified by the school) | `NUM.OPS.02` Subtraction | joining to everything else in the Learning OS: report lines, activities, objectives |
-| **Rung** | the R1–R14 ladder (spec v0.1 §1) — a stage on the strand | `R6` 2-digit subtraction with exchange | levels (L−/L0/L+), blueprints, the child's position, the Monday card |
+| **Rung** | the R1–R14 ladder (spec v0.1 §1) — a stage on the strand | `R6` 2-digit subtraction with exchange | which difficulty a child is given, blueprints, the child's position, the Monday card |
 | **Case tags** | the team's *Addition & Subtraction Assessment Skill Taxonomy* §12 matrix | `{op:SUB, d1:2, d2:2, presentation:VERTICAL, regrouping:SINGLE, regroup_columns:[ONES], zero_pattern:NONE, answer_digit_change:SAME, unknown:NONE, reasoning:DIRECT, context:BARE}` | item generation and selection; guaranteeing no case is silently missing; item statistics per case |
 
 Case tags are **derived by code from the generator's parameters**, never typed. A blueprint slot
@@ -78,7 +78,7 @@ optionally tag constraints; the picker fills it.
 
 The rung ladder and the taxonomy answer different questions, and collapsing them loses one of the
 answers. A rung says **where a child is on the journey** — it is the unit a teacher reasons in,
-the unit of L−/L0/L+, and the unit of the Monday card. A case tag says **which exact case was
+the unit a difficulty is chosen within, and the unit of the Monday card. A case tag says **which exact case was
 tested** — and the taxonomy's own definition is that a case is distinct "whenever a child can make
 a different kind of mistake".
 
@@ -197,7 +197,7 @@ responses).
 
 | Table | Holds |
 |---|---|
-| `child_skill_state` | child_id, skill_id, rung_id, state (`not_enough_yet` \| `patterned_error` \| `emerging` \| `practising` \| `secure` \| `stretch_ready`), n_events, n_correct, repeating_misconception, last_seen, computed_at |
+| `child_skill_state` | child_id, skill_set, rung_id, difficulty (E/M/H/A), state (`not_enough_yet` \| `patterned` \| `emerging` \| `practising` \| `secure` \| `stretch_ready`), n_events, n_correct, repeating_misconception, last_seen, computed_at |
 | `class_card` | (section, week, rung) → secure[], reteach{misconception→children[]}, move_up[]; the Monday card, drafted |
 | `item_stat` | item_id → n, p_correct, flagged_mislevelled |
 
@@ -223,12 +223,13 @@ Eight steps, and which part does each:
 **The next-sheet rule** (every number is a `threshold` row, not code). For each child and strand,
 after the nightly rebuild:
 
-- at-band rung ≥ 80 % correct across the last two sheets and no misconception repeated → next
-  sheet is **L+**;
-- < 50 %, or the same misconception on two sheets → next sheet is **L−**, and the blueprint's
-  procedural slots are swapped for a targeted mini-set (3–4 items) on that misconception's rung;
-- otherwise → **stay at L0**;
-- any rung still `not_enough_yet` → the band's default level, never a guess.
+- at-band rung ≥ 80 % correct across the last two sheets and no misconception repeated → **step up
+  a difficulty**, or to the next rung if already at Advance;
+- < 50 %, or the same misconception on two sheets → **step down a difficulty**, and the blueprint's
+  procedural slots are swapped for a targeted repair mini-set (3–4 items) on that misconception;
+- otherwise → **hold the difficulty** and keep practising;
+- any skill set still `not_enough_yet` → the seed grouping's difficulty, never a guess, and
+  over-sample it next week.
 
 The picker fills the prescribed blueprint with items this child has not seen in 21 days. The
 result is one `prescription` row per child per week, naming the rule that fired, and one
@@ -239,23 +240,42 @@ With four assessments per child, the rungs those papers covered will carry 4–1
 enough for a state and a prescription on day one. Rungs no paper touched stay `not_enough_yet`
 and get the default; the first generated sheets close that gap.
 
-### 5.1 The item bank — nothing prints unreviewed
+### 5.1 The item bank — the template is the unit of trust
 
-Generators do not feed worksheets directly. They fill a bank, a human approves it, and only
-approved items can be assembled onto a sheet. The cost of review is then paid once per item
-instead of once per sheet, which is the difference between a reviewer looking at forty questions
-and a reviewer looking at forty questions every week forever.
+Generators do not feed worksheets directly; they fill a bank. But **items are not reviewed one by
+one — the template is.** Aseem approves a template once: its operand rules, its misconception
+table, its format. Every item the template then produces is validated by code (arithmetic
+recomputed independently, constraints actually exercised, no duplicate, reading load within the
+grade's cap, forbidden vocabulary absent) and lands as `approved`.
 
-An item moves `draft → approved` (or `rejected`, with a reason) by a named person — one per
-subject, their throughput is the real rate limit, not generation. Rejected items never return.
-Approved items accumulate statistics: after roughly thirty results, anything answered correctly
-by under 20% or over 95% of children at its own rung is flagged as mis-levelled.
+That is what makes the bank affordable. A thousand questions per cell is a parameter, not a
+person's weekend. A per-item review queue would put a human between the generator and every sheet
+forever, and there is no version of that which scales to four grades.
 
-Target bank size is 40–60 approved items per rung across the signal mix. Procedural items are
-effectively unlimited from the generator; the bottleneck is only the items a model writes —
-word-problem contexts, explain-items, find-the-mistake.
+Target is ~50 unused items per skill set × difficulty per active child — topped up nightly when a
+pool runs low. Procedural items are effectively unlimited. Items accumulate statistics: after
+roughly thirty results, anything answered correctly by under 20% or over 95% at its own rung is
+flagged as mis-levelled and retires.
 
-### 5.2 Every child gets different questions at the same level
+What a person *does* review: the template when it is new (N1/N2), the pack before it prints (N7,
+under three minutes, at pack level), and the doubtful reads after capture (N9, under two minutes).
+
+### 5.2 Difficulty: Easy / Medium / Hard / Advance
+
+The school's own vocabulary, authored by Neha and Achal per skill set, ratified by Aseem. Not
+bound to grade level — Aseem: *"push the top as far as they go; focus on those below the
+objective."*
+
+Rung and difficulty are different axes and both survive:
+
+- **Rung** — which concept stage. `R5`, two-digit addition with one regrouping.
+- **Difficulty** — how hard within that stage. E/M/H/A, set by operand rules the teachers write.
+
+A prescription therefore reads *"Kabir: R5 at Hard this week"*. The earlier `L− / L0 / L+` labels
+were a third vocabulary for the same idea and are retired; September's *Level A / Level B* was
+the same shorthand and retires with them. One name per concept.
+
+### 5.3 Every child gets different questions at the same level
 
 A sheet is assembled per child, not per class. The blueprint fixes what the sheet *is* — which
 rungs, which signals, how many of each — and the picker fills each slot from approved items using
@@ -267,19 +287,51 @@ Two constraints on the picker, both of which need the bank to exist:
   same room get the same question.
 - **Across weeks**, exclude any item that child has seen in the last 21 days.
 
-### 5.3 The three flows
+### 5.4 The week, as agreed with Aseem and Achal
 
-**F1 build-the-bank** (per rung, on demand — not on a schedule): Form asks for a rung and target
-counts per signal → engine `/generate` runs the parameterised generators → the model writes only
-the word-problem contexts and find-the-mistake framings → validator recomputes every answer and
-checks the item actually exercises the rung → rows land as `draft` → the reviewer is notified.
-**The flow ends there.** Nothing at `draft` can be printed. Approval is a human changing a status,
-and n8n has no part in it.
+The canonical description is the twelve-node workflow (`docs/sources/assessment-workflow-v1.md`,
+and the page at claude.ai/artifact/7vLHpTKuLV1jpsvEduea8e). This spec implements it; where the two
+disagree, the workflow wins.
 
-**F2 assemble-and-print** (weekly, or on demand): Schedule/Form → read this week's prescriptions →
-POST `/assemble` per child, drawing only from `approved` items → `/render` → Drive upload, one
-merged pack in roll order so the teacher gets a single stack rather than three piles → notify the
-coordinator with the pack and the key → write `flow_run`.
+| | | Node |
+|---|---|---|
+| Mon–Wed | teach; no system interaction | — |
+| **Wed evening** | **teacher declares what was taught** — a voice note or five lines. This is what starts the week; nothing runs on a clock alone. | N4 |
+| Thu 7am | prescribe per child → build the practice pack → teacher approves in under 3 min → print | N5 N6 N7 |
+| Thu | guided practice · photograph the pile · marked within minutes | N8 N9 N10 |
+| Fri 7am | prescribe again, now knowing Thursday → assessment pack → approve → print | N5 N6 N7 |
+| Fri | assessment · photograph | N8 N9 N10 |
+| **Fri evening** | class card + **home sheet**, built from what Thursday and Friday showed; teacher confirms, which releases the home sheets *and* seeds next week | N11 |
+| Monthly | parent reports in the Kabir format; revisit sets; regrouping; "not ready" flags | N12 |
+
+Two packs a week, different blueprints: Thursday is practice, Friday is assessment. The home
+sheet is built **after** both, never alongside them — it exists to repair what the week exposed.
+
+Achal's whole week: one voice note, two taps, two photo sessions, one card confirm, about ten
+minutes of queue.
+
+### 5.5 What the teacher actually carries
+
+One folder, printed from one PDF: **named sheets in roll order** (name pre-printed, QR ties sheet
+to child and to the exact items), then **three or four unnamed spares per difficulty** with no
+level printed on them, then **one teacher key page** — what each child got and why in a line, and
+which spare to hand a child who finishes early.
+
+She hands them out top to bottom. She never matches a child to a level, never marks, and never
+sees a difficulty label in front of a child.
+
+### 5.6 The three flows
+
+**F1 build-the-bank** (on template change; nightly top-up when a pool runs low): generators
+produce items, the model writes only the sentence around numbers the generator already chose, the
+validator recomputes everything, rows land `approved`. No human in the loop — the template was
+approved once, upstream.
+
+**F2 assemble-and-print** (Thu 7am and Fri 7am, after the declaration): read prescriptions →
+assemble per child from unexposed approved items → render → pack in handout order with spares and
+the key → WhatsApp to the teacher → she taps approve or replies with an edit in words, which
+re-runs that child and comes back. Open: is silence approval? Proposed yes for practice, no for
+assessment.
 
 **F3 read-and-respond** (the loop that closes): Drive trigger on the capture folder → POST
 `/ingest` → QR resolves the sheet to a child → `/mark` and `/read` in parallel → anything
@@ -296,7 +348,7 @@ not an n8n flow: `engine legacy import assessments/G3/2026-09-03_week1_add-sub`.
 folder layout in `~/cornerstone/assessments/README.md` (one folder per paper, one PDF per child,
 `roster.csv` per grade). It is run a handful of times by a person, so it does not earn a workflow.
 
-The matrix is a row in `config`, e.g. `{bands:[G2,G3], strands:[ADD,SUB], levels:[Lm,L0,Lp],
+The matrix is a row in `config`, e.g. `{bands:[G2,G3], strands:[ADD,SUB], difficulties:[E,M,H,A],
 variants:2}` — the school edits it, not the code.
 
 ## 6. How a worksheet is parsed
