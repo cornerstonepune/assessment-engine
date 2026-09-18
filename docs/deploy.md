@@ -1,0 +1,60 @@
+# Deploying the app
+
+The engine is a command line tool a person runs; only the web app is deployed. It is hosted on
+Vercel, in Mumbai (`bom1`), next to the database in `ap-south-1`.
+
+## Before the first deploy
+
+Two things must be true, and neither can be done from a script.
+
+1. **The database password has been rotated.** The current one was typed into a chat window, so it
+   is not a secret any more. Supabase → Settings → Database → Reset database password, alphanumeric
+   only, then update `.env` locally and the Vercel variable below.
+2. **Someone is logged in to Vercel**: `vercel login`, then `vercel link` from the repository root.
+
+## Environment variables
+
+Set these in Vercel → Project → Settings → Environment Variables, for Production and Preview.
+Their values are in the repository's `.env`, which is never committed.
+
+| Variable | Where it comes from | Why |
+|---|---|---|
+| `DATABASE_URL` | Supabase → Connect → **Transaction pooler**, port **6543** | Every screen reads Postgres directly. Serverless needs the transaction pooler; the session pooler on 5432 runs out of connections under load. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API | Sign-in only |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API, the publishable key | Sign-in only. Never the service-role key: that one bypasses every row-level policy and must never reach a browser. |
+| `NEXT_PUBLIC_SITE_URL` | the deployment's own URL | Where a magic link returns to |
+| `TENANT_SLUG` | `cornerstone-pune` | Which school's rows |
+
+**`AUTH_DEV_BYPASS` must never be set on Vercel.** It is refused outside development, but an
+unset variable cannot be misread.
+
+## Supabase, once
+
+Authentication → URL Configuration → Redirect URLs: add `https://<the deployment>/auth/callback`.
+A magic link to a URL that is not on that list silently fails.
+
+## Who can sign in
+
+Nobody, until their school email is in the `app.staff` config row. Add them to
+`supabase/seed/config.json` and run `engine load`, or update the row directly. Everyone else gets
+"that email is not on the staff list" — signing in to Supabase is not the same as being staff.
+
+## Deploy
+
+```bash
+vercel --prod
+```
+
+The repository root holds `vercel.json`, which builds `apps/web`. The Python engine is not built
+or deployed; it runs where a coordinator runs it.
+
+## What is exposed
+
+Every route is behind the staff gate, including the API-shaped ones. No child's name reaches the
+app at all: the web app reads roll numbers and never touches the `pii` schema, which only the
+engine reads, through an accessor that logs every read.
+
+The one thing worth saying plainly: `DATABASE_URL` gives the app full access to the database, so
+the deployment is only as safe as that variable and the staff list. That is the shape ADR 0001
+chose, and it is acceptable for a pilot behind a short allowlist. If the pilot widens beyond the
+school's own staff, move the app to the anon key and let row-level policies do the work.

@@ -19,8 +19,26 @@ if (!process.env.DATABASE_URL) {
 }
 const sql = postgres(process.env.DATABASE_URL!, { ssl: "require", max: 2, prepare: false });
 
+/** Everything these tests create carries this note, so it can always be found again. */
+const MARK = "end-to-end test";
+
+/**
+ * A per-test `finally` is not enough: a server action redirects, and its write can land after the
+ * test that triggered it has already failed and cleaned up. One run left a real question retired
+ * in the live bank that way. This sweep runs last, after every write has certainly landed.
+ */
 test.afterAll(async () => {
+  await sql`update item set status = 'active' where id in (
+    select item_id from item_feedback where note = ${MARK})`;
+  await sql`delete from item_feedback where note = ${MARK}`;
+  const [{ leaked }] = await sql<{ leaked: number }[]>`
+    select count(*)::int as leaked from item_feedback where note = ${MARK}`;
+  const [{ retired }] = await sql<{ retired: number }[]>`
+    select count(*)::int as retired from item where status = 'retired'`;
   await sql.end();
+  if (leaked || retired) {
+    throw new Error(`the tests left the database dirty: ${leaked} flags, ${retired} retired items`);
+  }
 });
 
 // ---------------------------------------------------------------- the menu
@@ -148,7 +166,7 @@ test("removing a question retires it in the database and it stops being offered"
     const row = page.getByRole("row").filter({ hasText: victim.item_key }).first();
     const target = (await row.count()) ? row : page.getByRole("table").locator("tbody tr").first();
     await target.getByText("Something wrong?").click();
-    await target.locator('input[name="note"]').fill("end-to-end test");
+    await target.locator('input[name="note"]').fill(MARK);
     await Promise.all([
       page.waitForURL(/\/library/),
       target.getByRole("button", { name: "Remove this question" }).click(),
@@ -158,20 +176,20 @@ test("removing a question retires it in the database and it stops being offered"
     await expect
       .poll(async () => {
         const [{ n }] = await sql<{ n: number }[]>`
-          select count(*)::int as n from item_feedback where note = 'end-to-end test' and verdict = 'retire'`;
+          select count(*)::int as n from item_feedback where note = ${MARK} and verdict = 'retire'`;
         return n;
       })
       .toBeGreaterThan(0);
     // … and the database trigger retires the question, so it can never print again.
     const [retired] = await sql<{ status: string; actor: string }[]>`
       select i.status, f.actor from item i join item_feedback f on f.item_id = i.id
-      where f.note = 'end-to-end test' limit 1`;
+      where f.note = ${MARK} limit 1`;
     expect(retired.status).toBe("retired");
     expect(retired.actor).toBeTruthy();
   } finally {
     await sql`update item set status = 'active' where id in (
-      select item_id from item_feedback where note = 'end-to-end test')`;
-    await sql`delete from item_feedback where note = 'end-to-end test'`;
+      select item_id from item_feedback where note = ${MARK})`;
+    await sql`delete from item_feedback where note = ${MARK}`;
   }
 });
 
