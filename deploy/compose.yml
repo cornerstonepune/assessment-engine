@@ -1,0 +1,49 @@
+# The pilot deployment (ADR 0008): the engine as a service, n8n as the orchestrator. Both read
+# the repo-root `.env` — the same file the CLI and the app already use — so there is one place
+# secrets live, not three. n8n's own workflow definitions live in n8n/workflows/*.json and are
+# imported after this is up (see n8n/README.md, chunk 4).
+#
+# Run every command from the repo root with --env-file, e.g.:
+#   docker compose -f deploy/compose.yml --env-file .env up -d
+# `env_file:` below feeds the engine container's environment either way; `--env-file` is what
+# resolves n8n's ${N8N_ENCRYPTION_KEY} (compose-file substitution reads a different, narrower
+# mechanism than env_file and does not see ../.env on its own).
+services:
+  engine:
+    build:
+      context: ../packages/engine
+    # `env_file` passes every variable in ../.env (DATABASE_URL, ENGINE_KEY, the model keys, …)
+    # into the container's environment. It is not compose-file `${...}` substitution — that only
+    # reads a `.env` beside this file — so ENGINE_KEY has no separate `environment:` line here.
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:1.117.0
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      GENERIC_TIMEZONE: Asia/Kolkata
+      N8N_RUNNERS_ENABLED: "true"
+      # Trims the JSON stored per finished run — an execution log is still made, but a payload
+      # containing a scan's path (which can carry a child's name — see IngestRequest in
+      # engine/api/models.py) is pruned rather than kept indefinitely. Chunk 4's workflow design
+      # and n8n/lint.py enforce the rest of rule 6 for what a workflow may carry at all.
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: "168" # hours = 7 days
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      engine:
+        condition: service_healthy
+
+volumes:
+  n8n_data:

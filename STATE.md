@@ -520,11 +520,70 @@ service; n8n moves to F3 now, not N7), 0009 (subject plugins). Migration
 - **Full engine suite, including everything above.** Check: `cd packages/engine && uv run pytest -q`
   → `146 passed`.
 
-- **Not yet built** (chunks 2–7 of the same plan): the FastAPI surface itself (only its future
-  routes' idempotency and cost columns exist so far); n8n is not installed; `read_correction` and
+- **Not yet built** (chunks 3–7 of the same plan): n8n is not installed; `read_correction` and
   `child_reading_profile` are empty tables, waiting on chunk 3's settle-flow write and chunk 6's
   rebuild; `engine/subjects/` does not exist yet — `subject.verifier = 'maths'` names a module chunk
-  5 has not written.
+  5 has not written; `/prescribe` `/assemble` `/render` are deliberately not built (below).
+
+## N3.2 — the spine, chunk 2: the engine as a service (2026-09-19)
+
+Plan: `docs/superpowers/plans/2026-09-18-spine.md` (chunk 2's own section there records two
+deliberate departures from its original text and everything below in more detail). ADR 0008.
+`packages/engine/engine/api/`: `app.py`, `deps.py`, `idempotency.py`, `models.py`,
+`routes/{capture,children,graph,bank,runs}.py`. Migration `20260920090000_flow_run_result.sql`
+(`flow_run.result jsonb`). `Dockerfile`, `.dockerignore`, `deploy/compose.yml`.
+
+- **Every route sits behind `X-Engine-Key`, and an unconfigured key refuses everything rather
+  than accepting anything.** Check: `cd packages/engine && uv run pytest -q tests/api/test_deps.py`
+  → `6 passed`, including the case where `ENGINE_KEY` itself is unset or empty (500, not a silent
+  401-that-could-have-been-200).
+
+- **`run_idempotent` runs a route's function at most once per (tenant, flow, key); a call still
+  `running` (a genuine concurrent duplicate) is refused, never double-run; a call that previously
+  failed is retried, not permanently stuck.** Tested against the real partial unique index
+  (`flow_run_idempotency_idx`), not a fake connection — a fake cannot reproduce
+  `ON CONFLICT … WHERE … DO NOTHING`'s actual semantics. Check: `uv run pytest -q
+  tests/api/test_idempotency.py` → `8 passed`. The `InProgress` exception is also proven to reach
+  an HTTP caller as a 409, not an unhandled 500 — a distinct claim from "the Python exception is
+  raised", caught only because both were tested (`test_capture_routes.py::…already_in_flight…`).
+
+- **Verified for real, against the deployed container and the real database, not only in
+  pytest.** `docker compose -f deploy/compose.yml build engine` → built; the running container's
+  own `/health` → `{"ok": true}`, Docker's healthcheck → `healthy`; `POST /graph/rebuild` with the
+  real `X-Engine-Key` → `{"states": 26, "already": false}` and a `flow_run` row with `flow =
+  'graph_rebuild', trigger = 'http', status = 'ok'`; the same call repeated with the same
+  `Idempotency-Key` → `{"states": 26, "already": true}`, and exactly one `flow_run` row exists for
+  that key, not two.
+
+- **A real bug this verification caught, that no unit test could have:** `db.py`'s `REPO_ROOT =
+  Path(__file__).resolve().parents[3]` assumed the monorepo's directory depth and raised
+  `IndexError` at import time inside the container, where the Dockerfile copies only `engine/`
+  (`/app/engine/db.py` has nothing four levels above it) — every route imports `engine.db`
+  transitively, so the whole process died before serving a request. Fixed (`_repo_root_for`, a
+  pure function now unit-tested — `uv run pytest -q tests/test_db.py` → `3 passed`) and only found
+  because chunk 2's own criteria insisted on a real `docker build` + a real container, not a mock.
+
+- **`bank.fill` is not naturally idempotent** (unlike `import_scan`, chunk 1) — a fresh model call
+  returns different items each time, so a retried `/bank/fill` HTTP call without the wrapper would
+  silently double-spend model tokens. Check: `uv run pytest -q tests/api/test_bank_routes.py` →
+  `5 passed`, including a test that a retried call asks the model exactly once.
+
+- **Full API and engine suites.** Check: `cd packages/engine && uv run pytest -q tests/api` →
+  `41 passed`; `uv run pytest -q` (the whole engine suite) → `182` collected, all green.
+
+- **Deferred, not built: `/prescribe`, `/assemble`, `/render`.** They need an answer to "where
+  does a rendered PDF live when the engine runs in a container" that nothing in chunks 1–4 needs
+  yet (F3 read-and-respond never calls them) — building them without that answer is how a route
+  ships with the wrong assumption baked into its shape. A later chunk states the storage answer
+  first (a volume, or served back as bytes) and builds them against it.
+
+- **Environment note, not a code defect:** this machine's Docker Desktop credential helper
+  (`credsStore: "desktop"`) hangs indefinitely on a registry pull from a non-interactive session —
+  it waits on a Keychain-mediated lookup with no UI to approve it. Worked around per-session via
+  `DOCKER_CONFIG`/`DOCKER_HOST` pointed at a credential-helper-free config and the real socket
+  (`~/.docker/run/docker.sock`); the user's own interactive terminal is unaffected. Recorded in
+  case a future session hits the same silent hang and burns time on the wrong theory (network
+  block) before checking `docker pull` directly.
 
 ## Environment
 
