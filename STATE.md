@@ -361,6 +361,54 @@ claude.ai/artifact/D1zoM7ZZX8nSfWswvH2mQR
   Capture, Child Growth and Home Assignments beyond their honest empty states, which name the
   workflow that fills them and show the real table counts.
 
+## W2 — the week's papers, and the dashboard tested end to end (2026-09-18)
+
+Migration `20260918100000_prescription_difficulty` applied: a prescription now names a skill set
+and a difficulty (the retired `level` stays, nullable), plus `item_exposure` so a child is never
+shown the same question twice. Check: `psql "$DATABASE_URL" -Atc "select version||' '||name from
+supabase_migrations.schema_migrations order by version"` → four rows ending
+`20260918100000 prescription_difficulty`.
+
+- **The real roster is loaded.** 16 children, names in `pii` only.
+  Check: `uv run engine week roster ~/cornerstone/assessments/roster.json` → `added 16`.
+
+- **The week is prescribed with a reason per child.**
+  Check: `uv run engine week prescribe G3 T2W1 --set SUB.2D.EXCH` →
+  ```
+  1   G3  Medium   not enough of their own work yet, so this is the starting level for their grade
+  …
+  5   G4  Hard     not enough of their own work yet, so this is the starting level for their grade
+  1 at Hard · 4 at Medium
+  ```
+  Rudraksh is banded G4 and is the only child at Hard, from rows, not a special case in code.
+
+- **The pack builds.** Check: `uv run engine week assemble G3 T2W1 --actor nimish` →
+  `5 named · 4 spare · 17 pages`, at `data/packs/G3-T2W1-practice/T2W1_pack.pdf`. Looked at two
+  pages: each child's own name, their own QR, Medium is 2-digit and Hard is 3-digit.
+
+- **No two children share a question.** Check:
+  `psql "$DATABASE_URL" -Atc "select count(*) from sheet_template a join sheet_template b on a.id < b.id and a.item_ids && b.item_ids where a.week='T2W1' and b.week='T2W1' and a.child_id is not null and b.child_id is not null"` → `0`
+
+- **The offline fallback works**, which is the only reason the pack exists today — the free tier's
+  20 requests per model were spent. Check: `uv run engine bank fill SUB.2D.EXCH Medium --n 120
+  --offline` → `accepted 120, rejected 0`, through the same verifier as the model path.
+
+- **Bug found and fixed:** `bank recheck` compared missing-number questions against whole-equation
+  predictors and wrongly flagged 30 of them. It now rebuilds each item through the same
+  `verify.to_item` that made it, so the audit cannot drift from generation. Two regression tests,
+  one of which edits a stored answer behind the engine's back and expects it caught.
+  Check: `uv run engine bank recheck` → `0 mismatches` over the whole live bank.
+
+- **Engine: 114 tests.** Check: `cd packages/engine && uv run pytest -q` → all pass.
+
+- **The dashboard, driven end to end in a browser against the real database: 40 tests, two passes.**
+  Check: `cd apps/web && npm run test:e2e` → `32 passed` then `8 passed`. Every action is asserted
+  in the database, not just on screen: editing a difficulty changes the stored rule; a difficulty
+  with no exchange ticked saves nothing; ratifying records who; removing a question writes the
+  flag and the trigger retires it; changing a child's level stores the reason; approving marks the
+  papers printed. The second pass runs with the sign-in bypass **off** and proves all seven routes
+  redirect to sign-in — a gate only ever tested with the bypass on is not tested.
+
 ## Real assessment data received (2026-09-17)
 
 16 children in `~/cornerstone/assessments/` — 11 in G2, 5 in G3, of whom Rudraksh is confirmed
