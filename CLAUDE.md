@@ -1,10 +1,13 @@
 # assessment-engine — how this repository is built
 
-Read `ARCHITECTURE.md` first — it settles what runs what, and where n8n is. Then `SPEC.md`.
+Read `BUILD-ORDER.md` first — it says which of the four workflows we are on, what "done" means
+for it, and forbids touching the next one before then. Say "W_, gate _" before doing anything.
+Then `ARCHITECTURE.md` — it settles what runs what, and where n8n is. Then `SPEC.md`.
 Both implement `docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with
 Aseem and Achal. **When any of them disagree, the workflow wins** — its decisions were taken
 with the school and are not to be re-derived. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
-session left). This file is the constitution; `SPEC.md` is the design; `docs/adr/` is why.
+session left). This file is the constitution; `BUILD-ORDER.md` is the sequence; `SPEC.md` is the
+design; `docs/adr/` is why.
 
 ## The organism
 
@@ -77,6 +80,9 @@ The school's words win elsewhere too: "exchange / regroup", never "borrow"; "edu
 
 ## Working rhythm
 
+- **One workflow at a time** (`BUILD-ORDER.md`). No code, prompt, migration, endpoint or screen for
+  the next workflow while any gate of the current one is unchecked. A session names the gate it
+  moved, or it did nothing.
 - Non-trivial change → plan first; a chunk starts only with 3–5 machine-checkable success criteria.
 - Tests before implementation for anything with a branch, a loop, a parser, or a money/safety path.
 - Commit boundary → update `STATE.md` and `HANDOFF.md`; a rejected alternative → an ADR.
