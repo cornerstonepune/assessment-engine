@@ -2,61 +2,79 @@
 
 Read `STATE.md` for what is verified and how. This file is what the last session left.
 
-## Where things stand, 2026-09-18, evening
+## Where things stand, 2026-09-19
 
-**Live at https://cornerstone-assessment.vercel.app** behind email + password sign-in (`scrypt`
-hashes in `config.app.staff`, an httpOnly cookie signed with `AUTH_SECRET`). Nimish is the only
-person on the staff list.
+**The architecture changed, not just the Growth screen.** Nimish pushed back hard on 2026-09-19:
+the system had been built and run entirely by hand-typed CLI commands, against
+`ARCHITECTURE.md`'s own stated design of an engine-as-a-service orchestrated by n8n. That gap is
+what produced the double import (below) — nothing could tell a command it had already run. The
+plan to close it is `docs/superpowers/plans/2026-09-18-spine.md`, seven chunks; ADRs 0007–0009
+record the decisions. **Chunk 1 shipped this session**; chunks 2–7 (the FastAPI surface, n8n
+itself, read validation, subject plugins, the reading-profile loop, CI/deploy) are next.
 
-**N3, the legacy import, ran for four Grade 2 children** (Advika, Agastya, Heian, Hridhima).
-`engine legacy paper` entered four paper definitions (`supabase/seed/papers/`); `engine legacy
-import` read the scans with the `legacy_extract` prompt on Haiku and marked by lookup; `engine
-legacy confirm` turned 218 candidate answers into evidence. The six-state graph is SQL
-(`supabase/migrations/20260918130000_graph_functions.sql`), so CLI and app run one rule.
+**Chunk 1, done:** `capture` is idempotent on content hash — `engine legacy import` of a file
+already read for that child returns the existing capture and asks the model nothing; a prior
+errored attempt retries into the same row. `engine legacy dedupe` fixed the historical mess: 28
+captures hashed, 16 superseded (nothing deleted — rule 4), live confirmed evidence dropped from
+218 to 133 real answers. The three active read prompts (`read_cells`, `read_page`,
+`legacy_extract` v2) moved from `claude-sonnet-5` to `claude-haiku-4-5` — the $10 burn's actual
+cause. `llm.generate()` now refuses a call before making it once today's spend reaches the
+`llm.daily_budget_inr` threshold row (₹150 to start), and prefers a `prompt.subject`-scoped row
+over the shared one for the same purpose (ADR 0009's seam for a second subject). PyMuPDF replaced
+the `pdftoppm` subprocess — the transient failures that left 13 of 28 captures `status='error'`
+cannot recur because there is no subprocess to fail. New tables `subject` (seeded: `NUM`),
+`read_correction`, `child_reading_profile` exist but are empty — chunks 3 and 6 write them.
 
-**Child Growth is rebuilt for a teacher.** `/growth/[id]` shows one lane per skill (Addition,
-Subtraction, Mental maths, Word problems, …), each step a marked node — tick, arrow, dot, bang,
-dashed ring — with score, bar and the school's own rung descriptor beneath. Click a step and the
-answers behind it open under the lane (`:target`, no client JS). Every name is a row —
-`rung.descriptor`, `skill.name`, `skill_set.name`, `misconception.name`; no code reaches the
-page. A rung shared by two skills (R9, 3-digit ±) sits in both lanes with its own state. Above
-the lanes: got it / practising / same mistake repeating / not seen yet / waiting for you. Below:
-the answers a person must settle, then the marked answers to confirm. Right: next papers, papers read.
+146 engine tests pass, 17 web screen tests pass, `engine load --check` is clean.
 
-## Start here — two data faults to settle before anyone reads a ladder
+## Start here — chunk 2: the engine as a service
 
-1. **Every paper was imported twice per child.** `import_scan` is not idempotent and the batch
-   ran twice, so each child has two captures per paper and every answer counts double (43
-   confirmed on a 24-question paper; "secure across two papers" is met by one paper read twice).
-   Fix: a re-read of the same scan for the same child supersedes the earlier capture (a
-   `superseded_by` on `capture`; the graph reads only live captures — rule 4 keeps the rows),
-   then `engine graph`. Nimish decides whether the accidental duplicates are voided or deleted.
-2. **13 of 28 captures errored** — `pdftoppm` returned non-zero on some WhatsApp PDFs; those
-   reads hold no results. Render with `pdftocairo` or PyMuPDF and re-run.
-
-Then: CI (`.github/workflows/ci.yml` exists, untested; the Vercel↔GitHub connection failed once —
-reconnect in the Vercel dashboard), W3 for real (photos in, QR resolves the child), and the model
-research in `research/2026-09-18-cheaper-models-glm-kimi.md`.
+Per the plan: `packages/engine/engine/api/` (FastAPI), one route per existing engine function
+(`/ingest`, `/read`, `/mark`, `/commit`, `/graph/rebuild`, `/bank/fill`, …), every route keyed by
+`X-Engine-Key` and accepting `Idempotency-Key`, a `Dockerfile`, `deploy/compose.yml` with the
+engine and n8n services. Then chunk 3 (validate the read, grow `gold`), chunk 4 (the first real
+n8n workflow — F3 read-and-respond, on a local inbox folder, not Drive yet). **n8n MCP tools
+became available mid-session** (user: "n8n mcp is connected now") but were not visible to this
+session (`ToolSearch` for `n8n` found nothing) — check again at the start of chunk 4; if still
+absent, build workflows as JSON and use `n8n import:workflow` from the CLI instead, which needs no
+login (Nimish creates the n8n owner account once, per the plan's "What Nimish provides" table).
 
 ## Blocked on Nimish
 
-- Voiding vs deleting the duplicate imports (above).
-- `AUTH_SECRET` on Vercel, if not yet set; **rotate the database password** (it was typed into a
-  chat and printed into a build log); re-copy or delete `SUPABASE_SERVICE_ROLE_KEY` (returns 401).
-- Achal's and Neha's emails for `app.staff`.
-- Consent text · parent-note channel · whether the Olympiad papers count · Kiyaan's missing Week 1.
+- **The n8n owner account**, once chunk 4 starts a container — one-time, ~1 minute, see the plan's
+  "What Nimish provides" table. Nothing else is needed to start chunk 4's local-folder trigger.
+- `AUTH_SECRET` on Vercel if not yet set; **rotate the database password** (typed into a chat
+  earlier, printed into a build log); re-copy or delete `SUPABASE_SERVICE_ROLE_KEY` (401s).
+- The two Haiku 4.5 prices in `config.llm.prices` are an estimate (₹88 in / ₹440 out per million
+  tokens) pending a verified figure at anthropic.com/pricing — the row's own `description` says
+  so; correct it there when confirmed, nothing else changes.
+- Achal's and Neha's emails for `app.staff`; consent text; parent-note channel; whether the
+  Olympiad papers count; Kiyaan's missing Week 1; the VPS decision (D8 in the plan) before any
+  teacher-facing run.
 
-## Traps this session fell into — do not repeat
+## Traps this session fell into, or found and fixed — do not repeat
 
-- **Hard-coded rung and mistake names in TypeScript were wrong** (R3 labelled "adding ones"; it is
-  subtraction within 20). Rule 1: names are rows. Read `rung.descriptor` and `misconception.name`.
-- **`import_scan` ran twice for every paper.** Check `capture` for an existing (child, paper)
-  before importing; better, make the command idempotent.
-- **Routing paper reads through Sonnet 5 burned the $10 balance in one pass.** Haiku reads pages;
-  a stronger model is for judging answers only, and only when asked.
-- **A grid track without `minmax(0, 1fr)` grows to a table's width** and the page scrolls
-  sideways on a phone even with `overflow-x-auto`. The screens test catches it.
-- **A `"use client"` file must not import from `lib/queries.ts`** — it drags the Postgres driver
-  into the browser bundle. Types only (`import type`), or a server component.
+- **A person as the orchestrator is not a stage of the architecture, it is a bug waiting to
+  happen.** Every "run this by hand" step is a step nothing can make idempotent. Chunk 2 exists
+  to remove the remaining ones; do not add a new CLI-only step without either an idempotency key
+  or a stated reason n8n doesn't own it yet.
+- **A partial unique index that guards "no two live rows share this value" also blocks a backfill
+  that would momentarily create that state.** `dedupe()`'s first draft hashed one row at a time
+  and wrote it immediately — the second of two identical files collided with the first's freshly
+  written hash before either was marked superseded. Fixed by hashing everything in Python first,
+  then writing a voided row's `file_sha256` and `superseded_by` in one statement, so it is never
+  observed live-and-duplicate. If a future migration adds another such index, check whether the
+  backfill that populates it needs the same treatment.
+- **Changing a table's unique constraint breaks every hand-written `ON CONFLICT (columns)` that
+  named the old column list** — `loaders.py`'s prompt upsert failed with "no unique or exclusion
+  constraint matching" until its `ON CONFLICT` target was rewritten to match the new index
+  exactly (`coalesce(subject, '')` included). Grep for `on conflict` against any table whose
+  unique index changes.
+- **A test that calls a tenant-wide admin function (here, `dedupe()`) against the shared live
+  database cannot assert exact counts** — ambient production rows get swept up inside the same
+  rolled-back transaction. Assert the effect on rows the test itself created; use `>=` or a
+  membership check for anything touching the whole table.
 - Never assemble a connection string with shell substitution; never run a migration while a fill
-  is writing; the e2e suite writes to the live database.
+  is writing; the e2e suite writes to the live database; `roster` has been an unused import in
+  `engine/legacy.py` since before this session — left alone rather than deleted in an unrelated
+  diff (CLAUDE.md: pre-existing dead code is mentioned, not deleted).

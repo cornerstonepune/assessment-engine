@@ -474,12 +474,57 @@ and the app run one rule. Thresholds are rows (`state.min_events` 3, `state.min_
   `AAA.BBB.CCC` token appears in the ladder and that clicking a step reveals a table with a
   *Child wrote* column. No sideways scroll at 400 px on `/growth` or a child page.
 
-- **Known faults in the data, not yet fixed** (see `HANDOFF.md`): every paper was imported twice
-  per child, so answers count double — check: `select si.child_id, t.key->>'title', count(*)
-  from capture c join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on
-  t.id = si.sheet_template_id where exists (select 1 from item_result r where r.capture_id = c.id)
-  group by 1,2 having count(*) > 1` → six rows; and 13 of 28 captures are `status = 'error'`
-  from `pdftoppm` failures and hold no results.
+- **The double-import fault above is fixed, not just described.** `engine legacy dedupe` (chunk 1
+  of `docs/superpowers/plans/2026-09-18-spine.md`) backfilled every capture's content hash and
+  superseded every live capture but the best one per (sheet, file) pair, never deleting a row
+  (rule 4). Check: `uv run engine legacy dedupe` → `28 captures given a content hash, 16
+  superseded`; then `uv run engine graph` → `26 states`; then
+  `psql -Atc "select count(*) from evidence_event e join item_result r on r.id=e.item_result_id
+  join capture c on c.id=r.capture_id where c.superseded_by is null and e.confirmed_by is not
+  null"` → `133` (was 218); and `select si.child_id, t.key->>'title', count(*) from capture c
+  join sheet_instance si on si.id=c.sheet_instance_id join sheet_template t on t.id=si.sheet_template_id
+  where c.superseded_by is null and exists (select 1 from item_result r where r.capture_id=c.id)
+  group by 1,2 having count(*)>1` → zero rows. `import_scan` is idempotent on the file's content
+  going forward (`file_sha256`, a partial unique index), so this cannot recur by re-running the
+  same command twice.
+
+## N3.1 — the spine, chunk 1: idempotent capture, Haiku reads, a budget the adapter refuses past (2026-09-19)
+
+Plan: `docs/superpowers/plans/2026-09-18-spine.md`. ADR 0007 (learning loop), 0008 (engine as a
+service; n8n moves to F3 now, not N7), 0009 (subject plugins). Migration
+`20260919090000_service_foundations`: `capture.file_sha256`/`superseded_by`, `flow_run.model`/
+`tokens_in`/`tokens_out`/`idempotency_key`/`request`, `prompt.subject`, and three new tables —
+`subject`, `read_correction`, `child_reading_profile`. `rebuild_child_skill_state` and
+`confirm_results` re-defined to read only live (non-superseded) captures.
+
+- **The three active read prompts run on Haiku, not Sonnet** — the $10 burn's cause (HANDOFF.md,
+  earlier session). Check: `psql -Atc "select purpose, model from prompt where active and purpose
+  in ('read_cells','read_page','legacy_extract')"` → all three `claude-haiku-4-5`.
+
+- **The adapter refuses a call before it is made once today's spend reaches the
+  `llm.daily_budget_inr` threshold row (₹150 default), and prefers a subject-scoped prompt row
+  over the shared one for the same purpose.** Check: `cd packages/engine && uv run pytest -q
+  tests/test_llm.py` → `20 passed`, including a budget-refusal test that asserts zero `flow_run`
+  rows are written for a refusal, and a real-database test of the subject-selection SQL itself.
+
+- **A PDF renders in-process; `pdftoppm` is gone.** The September batch's transient subprocess
+  failures (13 of 28 captures once held `status = 'error'`) cannot recur because there is no
+  subprocess. Check: `uv run pytest -q tests/test_render_pdf.py` → `2 passed`; every previously
+  `error` capture now renders and reads under `engine legacy import` (or, more precisely,
+  already-imported ones are superseded correctly by `engine legacy dedupe` above).
+
+- **`engine load` is unchanged in kind, larger by one table.** Check: `uv run engine load --check`
+  → 13 rows printed including `subject 1`, `threshold 12`, `config 7`, `every code referenced
+  resolves`, `unchanged on a second run`.
+
+- **Full engine suite, including everything above.** Check: `cd packages/engine && uv run pytest -q`
+  → `146 passed`.
+
+- **Not yet built** (chunks 2–7 of the same plan): the FastAPI surface itself (only its future
+  routes' idempotency and cost columns exist so far); n8n is not installed; `read_correction` and
+  `child_reading_profile` are empty tables, waiting on chunk 3's settle-flow write and chunk 6's
+  rebuild; `engine/subjects/` does not exist yet — `subject.verifier = 'maths'` names a module chunk
+  5 has not written.
 
 ## Environment
 

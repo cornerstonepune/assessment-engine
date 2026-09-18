@@ -13,7 +13,7 @@ SEED = db.REPO_ROOT / "supabase" / "seed"
 FILLED_TABLES = (
     "tenant", "skill", "milestone", "rung", "level_rule",
     "misconception", "case_dimension", "coverage_target", "prompt", "threshold",
-    "config", "skill_set",
+    "config", "skill_set", "subject",
 )
 
 THRESHOLDS = [
@@ -25,8 +25,12 @@ THRESHOLDS = [
     ("item.flag_low_p", 0.20, "proportion", "Below this p_correct the item may be mis-levelled"),
     ("item.flag_high_p", 0.95, "proportion", "Above this p_correct the item may be too easy"),
     ("read.auto_confirm_above", 0.90, "confidence", "Cell reads above this skip the confirm queue"),
+    ("read.route_above_overturn", 0.25, "proportion",
+     "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above"),
     ("marking.agreement_gate", 0.95, "proportion", "Agreement with teacher marking before marks are trusted"),
     ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
+    ("llm.daily_budget_inr", 150, "INR",
+     "The adapter refuses a new call once today's cost_inr for the tenant passes this. A row, not a limit in code — raise it here."),
 ]
 
 
@@ -139,13 +143,13 @@ def _prompts(conn, t):
     for p in _seed("prompts.json", "prompts"):
         text = (SEED / p["text_file"]).read_text() if p.get("text_file") else p["text"]
         conn.execute(
-            "insert into prompt (tenant_id, purpose, version, text, model, json_schema, active)"
-            " values (%s,%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, purpose, version) do update set text=excluded.text,"
+            "insert into prompt (tenant_id, purpose, version, text, model, json_schema, active, subject)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, purpose, coalesce(subject, ''), version) do update set text=excluded.text,"
             " model=excluded.model, json_schema=excluded.json_schema, active=excluded.active,"
             " updated_at=now()",
             (t, p["purpose"], p["version"], text, p["model"],
-             json.dumps(p["json_schema"]), p.get("active", False)),
+             json.dumps(p["json_schema"]), p.get("active", False), p.get("subject")),
         )
 
 
@@ -185,11 +189,21 @@ def _skill_sets(conn, t):
         )
 
 
+def _subjects(conn, t):
+    for s in _seed("subjects.json", "subjects"):
+        conn.execute(
+            "insert into subject (tenant_id, code, name, verifier, mark_mode) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set name=excluded.name,"
+            " verifier=excluded.verifier, mark_mode=excluded.mark_mode, updated_at=now()",
+            (t, s["code"], s["name"], s.get("verifier"), s.get("mark_mode", "lookup")),
+        )
+
+
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
         for step in (_registry, _rungs, _levels, _misconceptions,
-                     _dimensions, _coverage, _prompts, _thresholds, _config, _skill_sets):
+                     _dimensions, _coverage, _prompts, _thresholds, _config, _skill_sets, _subjects):
             step(conn, t)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)

@@ -1,0 +1,10 @@
+{
+  "subjects": [
+    {
+      "code": "NUM",
+      "name": "Mathematics — Number",
+      "verifier": "maths",
+      "mark_mode": "lookup"
+    }
+  ]
+}

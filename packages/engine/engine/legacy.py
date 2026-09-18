@@ -3,23 +3,21 @@ produce (SPEC §6, "Legacy sheet"). The paper is entered once as a template; eac
 whole-page model call per page; marking is by lookup against the printed operands; everything
 lands as a candidate for a person to confirm. A model transcribes, code marks — never the reverse.
 """
+import hashlib
 import json
 import re
-import subprocess
-import tempfile
 from pathlib import Path
 
 import cv2
 import numpy as np
 
-from engine import db, roster
+from engine import db, render_pdf, roster
 from engine.adapters import llm
 from engine.assess import misconceptions as M
 from engine.assess import tags
 from engine.assess.ladder import RUNGS
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
-RENDER_DPI = 150  # legible handwriting, ~1 MB a page
 _EXPR = re.compile(r"^\s*(\d+)\s*([+\-−–×x])\s*(\d+)\s*=?\s*$")
 _MINUS = str.maketrans({"−": "-", "–": "-", "x": "×"})
 _SKILL_FOR_OP = {"+": "NUM.OPS.01", "-": "NUM.OPS.02"}
@@ -150,17 +148,9 @@ def _ids(conn, template_id):
 # ---- the scan
 
 def render_pages(path, pages=None):
-    """A PDF or an image → one JPEG bytes per page. pdftoppm (poppler) does the PDF; a legacy
-    import is run a handful of times by a person, so a system binary is an acceptable dependency."""
+    """A PDF or an image → one JPEG bytes per page."""
     path = Path(path)
-    if path.suffix.lower() in (".jpg", ".jpeg", ".png"):
-        img = cv2.imread(str(path))
-        return [_jpeg(img)]
-    with tempfile.TemporaryDirectory() as tmp:
-        cmd = ["pdftoppm", "-r", str(RENDER_DPI), "-jpeg", str(path), f"{tmp}/p"]
-        subprocess.run(cmd, check=True, capture_output=True)
-        files = sorted(Path(tmp).glob("p-*.jpg"), key=lambda p: int(p.stem.split("-")[1]))
-        out = [cv2.imread(str(f)) for f in files]
+    out = [cv2.imread(str(path))] if path.suffix.lower() in (".jpg", ".jpeg", ".png") else render_pdf.render(path)
     if pages:
         out = [out[i - 1] for i in pages if 0 < i <= len(out)]
     return [_jpeg(im) for im in out]
@@ -207,23 +197,45 @@ def mark(spec, response, read):
 
 def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False):
     """One scan of one child's paper → capture, item_result rows (candidate), and optionally a
-    narrative_observation. Returns a summary a person can read before confirming."""
+    narrative_observation. Returns a summary a person can read before confirming.
+
+    Idempotent on the file's content: reading the same scan for the same child again returns the
+    existing capture rather than a second one — the September batch's double count (HANDOFF.md)
+    was two `legacy import` runs over the same file, each making its own candidates. A prior
+    attempt that errored retries into that same row instead of leaving a third."""
     template, by_key = paper_rows(conn, paper_code)
     paper = template["key"]
     tenant = template["tenant_id"]
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
-    images = render_pages(path, pages)
-    page_numbers = pages or sorted(page_specs)[: len(images)]
 
     qr = f"LEGACY-{paper_code}-{str(child_id)[:8]}"
     instance = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
         " values (%s,%s,%s,%s,'returned') on conflict (tenant_id, qr_code) do update set updated_at = now()"
         " returning id", (tenant, qr, template["id"], child_id)).fetchone()["id"]
+
+    file_sha256 = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    existing = conn.execute(
+        "select id, status, pages from capture where sheet_instance_id = %s and file_sha256 = %s"
+        " and superseded_by is null", (instance, file_sha256)).fetchone()
+    if existing and existing["status"] == "processed":
+        n = conn.execute("select count(*) as n from item_result where capture_id = %s",
+                         (existing["id"],)).fetchone()["n"]
+        return {"capture_id": existing["id"], "pages": existing["pages"], "results": [], "unmatched": [],
+               "notes": [], "already": True, "already_results": n}
+
+    images = render_pages(path, pages)
+    page_numbers = pages or sorted(page_specs)[: len(images)]
     rel = str(Path(path).resolve()).replace(str(Path.home()), "~")
-    capture = conn.execute(
-        "insert into capture (tenant_id, path, pages, sheet_instance_id, status, qr_read)"
-        " values (%s,%s,%s,%s,'new',%s) returning id", (tenant, rel, len(images), instance, qr)).fetchone()["id"]
+    if existing:  # a previous attempt on this exact file errored; retry into that row, not a new one
+        capture = existing["id"]
+        conn.execute("update capture set pages = %s, status = 'new', error = null where id = %s",
+                     (len(images), capture))
+    else:
+        capture = conn.execute(
+            "insert into capture (tenant_id, path, pages, sheet_instance_id, status, qr_read, file_sha256)"
+            " values (%s,%s,%s,%s,'new',%s,%s) returning id",
+            (tenant, rel, len(images), instance, qr, file_sha256)).fetchone()["id"]
 
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
@@ -267,6 +279,51 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
     return summary
 
 
+def dedupe(conn):
+    """Fixes the September batch's double (and triple) import: backfills file_sha256 on captures
+    that predate the column, then supersedes every live capture but the best one per (sheet, file)
+    pair. Best is processed over error, then most item_result rows, then latest — never deleted
+    (rule 4); a superseded row's answers simply stop being read (graph_functions migration).
+
+    Every row's hash is computed in Python before any write, and a voided row's file_sha256 and
+    superseded_by land in one statement — never two live rows sharing a hash across separate
+    statements, which is exactly what capture_live_content_idx forbids.
+    Returns (backfilled, voided). Safe to run again: nothing left to backfill or void is a no-op."""
+    rows = conn.execute(
+        "select c.id, c.path, c.file_sha256, c.status, c.created_at, c.sheet_instance_id,"
+        " (select count(*) from item_result where capture_id = c.id) as n"
+        " from capture c where c.superseded_by is null").fetchall()
+
+    hashed = []
+    for r in rows:
+        sha, was_missing = r["file_sha256"], r["file_sha256"] is None
+        if was_missing:
+            p = Path(r["path"]).expanduser()
+            if not p.exists():
+                continue  # can't hash what isn't there; leave it live and unmatched
+            sha = hashlib.sha256(p.read_bytes()).hexdigest()
+        hashed.append({**r, "file_sha256": sha, "was_missing": was_missing})
+
+    groups: dict[tuple, list] = {}
+    for r in hashed:
+        groups.setdefault((r["sheet_instance_id"], r["file_sha256"]), []).append(r)
+
+    backfilled = voided = 0
+    for members in groups.values():
+        members.sort(key=lambda r: (r["status"] == "processed", r["n"], r["created_at"]), reverse=True)
+        keeper, rest = members[0], members[1:]
+        if keeper["was_missing"]:
+            conn.execute("update capture set file_sha256 = %s where id = %s",
+                         (keeper["file_sha256"], keeper["id"]))
+            backfilled += 1
+        for r in rest:
+            conn.execute("update capture set file_sha256 = %s, superseded_by = %s where id = %s",
+                         (r["file_sha256"], keeper["id"], r["id"]))
+            backfilled += r["was_missing"]
+            voided += 1
+    return backfilled, voided
+
+
 def remark(conn, child_id):
     """Mark every candidate again from what was read, without asking the model again — for when
     the marking rule improves after a page was read. Returns how many rows changed."""
@@ -302,5 +359,6 @@ def child_map(conn, child_id):
     pending = conn.execute(
         "select count(*) as n from item_result r join capture c on c.id = r.capture_id"
         " join sheet_instance si on si.id = c.sheet_instance_id"
-        " where si.child_id = %s and r.state = 'candidate'", (child_id,)).fetchone()["n"]
+        " where si.child_id = %s and r.state = 'candidate' and c.superseded_by is null",
+        (child_id,)).fetchone()["n"]
     return {"states": states, "next": nxt, "pending": pending}

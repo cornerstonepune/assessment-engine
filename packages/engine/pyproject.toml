@@ -11,6 +11,7 @@ dependencies = [
     "opencv-python-headless>=4.10",
     "playwright>=1.48",
     "psycopg[binary]>=3.2",
+    "pymupdf>=1.24",
     "pydantic>=2.9",
     "python-dotenv>=1.0",
     "segno>=1.6",

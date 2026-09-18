@@ -3,7 +3,7 @@
     {
       "purpose": "read_cells",
       "version": 1,
-      "model": "claude-sonnet-5",
+      "model": "claude-haiku-4-5",
       "active": true,
       "text_file": "prompts/read_cells.v1.txt",
       "json_schema": {
@@ -56,7 +56,7 @@
     {
       "purpose": "read_page",
       "version": 1,
-      "model": "claude-sonnet-5",
+      "model": "claude-haiku-4-5",
       "active": true,
       "text_file": "prompts/read_page.v1.txt",
       "json_schema": {
@@ -317,7 +317,7 @@
     {
       "purpose": "legacy_extract",
       "version": 2,
-      "model": "claude-sonnet-5",
+      "model": "claude-haiku-4-5",
       "active": true,
       "text_file": "prompts/legacy_extract.v2.txt",
       "json_schema": {

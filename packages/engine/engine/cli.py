@@ -183,6 +183,9 @@ def legacy_import(
             typer.echo(f"  could not read: {e}", err=True)
             raise typer.Exit(1)
         conn.commit()
+    if summary.get("already"):
+        typer.echo(f"  already read as capture {summary['capture_id']} ({summary['already_results']} answers) — nothing to do")
+        return
     for r in summary["results"]:
         tail = " ".join(r["codes"]) if r["codes"] else ("working" if r["working"] != "none" else "")
         typer.echo(f"  {r['item']:<4}{r['question'][:34]:<36}read {r['read']!r:<12}{r['status']:<14}{tail}")
@@ -191,6 +194,16 @@ def legacy_import(
     for n in summary["notes"]:
         typer.echo(f"  note: {n}")
     typer.echo(f"  {len(summary['results'])} answers over {summary['pages']} page(s) → candidate")
+
+
+@legacy_app.command("dedupe")
+def legacy_dedupe() -> None:
+    """Void every live capture but the best one per (sheet, file) pair — the fix for a paper read
+    more than once. Nothing is deleted; run `engine graph` after to rebuild from what remains."""
+    with db.connect() as conn:
+        backfilled, voided = legacy.dedupe(conn)
+        conn.commit()
+    typer.echo(f"  {backfilled} captures given a content hash, {voided} superseded")
 
 
 @legacy_app.command("remark")

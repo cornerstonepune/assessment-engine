@@ -150,3 +150,68 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     conn.execute("select resolve_result(%s, 'correct', '{}', 'aseem')", (rid,))
     assert conn.execute("select state from item_result where id = %s", (rid,)).fetchone()["state"] == "confirmed"
     assert conn.execute("select n_events from child_skill_state where child_id = %s and rung_code = 'X1'", (child,)).fetchone()["n_events"] == 1
+
+
+@pytestmark_db
+def test_reimporting_the_same_file_returns_the_existing_capture(conn, child, tmp_path, monkeypatch):
+    """The September batch's double count (HANDOFF.md): the same file read for the same child a
+    second time must not create a second capture or ask the model again."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"the same bytes both times")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    asked = []
+    monkeypatch.setattr(llm, "generate", lambda conn, purpose, variables, images=(): asked.append(1) or READ)
+
+    first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    second = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+
+    assert len(asked) == 1  # the second import never called the model
+    assert second["capture_id"] == first["capture_id"]
+    assert second["already"] is True and second["already_results"] == len(first["results"])
+    n = conn.execute("select count(*) as n from capture where sheet_instance_id ="
+                     " (select sheet_instance_id from capture where id = %s)", (first["capture_id"],)).fetchone()["n"]
+    assert n == 1
+
+
+@pytestmark_db
+def test_dedupe_supersedes_every_live_capture_but_the_best_one(conn, child, tmp_path):
+    """A capture inserted twice for the same (sheet, file) — as the CLI produced before
+    import_scan was idempotent — is reduced to one live row; nothing is deleted (rule 4)."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    template = conn.execute("select id from sheet_template where batch_id = 'TEST-PAPER'").fetchone()["id"]
+    instance = conn.execute(
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
+        " values (%s,'LEGACY-DEDUPE-TEST',%s,%s,'returned') returning id",
+        (tenant, template, child)).fetchone()["id"]
+
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"dedupe me")
+    first = conn.execute(
+        "insert into capture (tenant_id, path, pages, sheet_instance_id, status) values (%s,%s,1,%s,'error')"
+        " returning id", (tenant, str(scan), instance)).fetchone()["id"]
+    second = conn.execute(
+        "insert into capture (tenant_id, path, pages, sheet_instance_id, status) values (%s,%s,1,%s,'processed')"
+        " returning id", (tenant, str(scan), instance)).fetchone()["id"]
+
+    # dedupe operates tenant-wide, so other live captures already in the shared database are
+    # swept up too (and, within this rolled-back transaction, deduped themselves) — only the
+    # effect on this test's own two rows is asserted precisely.
+    backfilled, voided = legacy.dedupe(conn)
+
+    assert backfilled >= 2 and voided >= 1
+    rows = {r["id"]: r for r in conn.execute(
+        "select id, superseded_by, file_sha256 from capture where id in (%s,%s)", (first, second)).fetchall()}
+    assert rows[first]["superseded_by"] == second   # the errored one is voided in favour of the processed one
+    assert rows[second]["superseded_by"] is None
+    assert rows[first]["file_sha256"] == rows[second]["file_sha256"]
+
+    # running it again is a no-op: nothing left to backfill or void
+    assert legacy.dedupe(conn) == (0, 0)

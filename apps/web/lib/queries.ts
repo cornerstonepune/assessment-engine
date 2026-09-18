@@ -209,12 +209,14 @@ export type ChildRow = {
 export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     select c.id, c.roll_no, c.section, c.band, p.first_name,
-           (select count(*)::int from evidence_event e where e.child_id = c.id and e.confirmed_by is not null) as n_events,
+           (select count(*)::int from evidence_event e
+              left join item_result r on r.id = e.item_result_id left join capture k on k.id = r.capture_id
+             where e.child_id = c.id and e.confirmed_by is not null and (k.id is null or k.superseded_by is null)) as n_events,
            (select count(*)::int from item_result r join capture k on k.id = r.capture_id
               join sheet_instance si on si.id = k.sheet_instance_id
-             where si.child_id = c.id and r.state = 'candidate') as n_pending,
+             where si.child_id = c.id and r.state = 'candidate' and k.superseded_by is null) as n_pending,
            (select count(*)::int from capture k join sheet_instance si on si.id = k.sheet_instance_id
-             where si.child_id = c.id) as n_papers
+             where si.child_id = c.id and k.superseded_by is null) as n_papers
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
     order by c.section, coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
@@ -293,7 +295,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
     join capture c on c.id = r.capture_id
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
-    where si.child_id = ${id}::uuid and r.state = 'candidate'
+    where si.child_id = ${id}::uuid and r.state = 'candidate' and c.superseded_by is null
     order by t.key ->> 'date', i.item_key`;
 }
 
@@ -327,7 +329,7 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
     join capture c on c.id = r.capture_id
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
-    where e.child_id = ${id}::uuid and e.confirmed_by is not null
+    where e.child_id = ${id}::uuid and e.confirmed_by is not null and c.superseded_by is null
     order by t.key ->> 'date', i.item_key`;
 }
 
@@ -342,6 +344,6 @@ export async function childPapers(id: string): Promise<Paper[]> {
     from capture c
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
-    where si.child_id = ${id}::uuid
+    where si.child_id = ${id}::uuid and c.superseded_by is null
     order by t.key ->> 'date', c.created_at`;
 }

@@ -49,9 +49,10 @@ EXPECTED = {
     "case_dimension": 18,
     "coverage_target": 46,
     "prompt": 7,
-    "threshold": 10,
-    "config": 6,
+    "threshold": 12,
+    "config": 7,
     "skill_set": 4,
+    "subject": 1,
 }
 
 
