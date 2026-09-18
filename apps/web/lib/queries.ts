@@ -182,3 +182,129 @@ export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
   return row[0]?.value ?? [];
 }
+
+// ---- Child Growth: what confirmed evidence says about one child, and what still waits for a person.
+
+export const STATE_WORDS: Record<string, { words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }> = {
+  not_enough_yet: { words: "not enough yet", tone: "monsoon" },
+  patterned_error: { words: "repeating mistake", tone: "terracotta" },
+  emerging: { words: "emerging", tone: "bamboo" },
+  practising: { words: "practising", tone: "bamboo" },
+  secure: { words: "secure", tone: "neem" },
+  stretch_ready: { words: "ready to move up", tone: "neem" },
+};
+
+export type ChildRow = {
+  id: string;
+  roll_no: string;
+  section: string;
+  band: string;
+  first_name: string;
+  n_events: number;
+  n_pending: number;
+  n_papers: number;
+};
+
+// Every name read goes through pii.read_child, which logs who asked (rule 6).
+export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
+  return sql<ChildRow[]>`
+    select c.id, c.roll_no, c.section, c.band, p.first_name,
+           (select count(*)::int from evidence_event e where e.child_id = c.id and e.confirmed_by is not null) as n_events,
+           (select count(*)::int from item_result r join capture k on k.id = r.capture_id
+              join sheet_instance si on si.id = k.sheet_instance_id
+             where si.child_id = c.id and r.state = 'candidate') as n_pending,
+           (select count(*)::int from capture k join sheet_instance si on si.id = k.sheet_instance_id
+             where si.child_id = c.id) as n_papers
+    from child c, lateral pii.read_child(c.id, ${actor}) p
+    where c.active
+    order by c.section, coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
+}
+
+export async function childHeader(id: string, actor: string): Promise<ChildRow | undefined> {
+  const rows = await childrenOnRoll(actor);
+  return rows.find((c) => c.id === id);
+}
+
+export type RungState = {
+  rung_code: string;
+  ladder_order: number | null;
+  descriptor: string;
+  skill_code: string | null;
+  state: string | null;
+  n_events: number;
+  n_correct: number;
+  repeating_misconception: string | null;
+  last_seen: string | null;
+};
+
+// The band's ladder (its three levels) plus any rung the child has evidence on; rungs no paper
+// has touched stay "not enough yet" with nothing behind them, which is the honest reading.
+export async function childMap(id: string): Promise<RungState[]> {
+  return sql<RungState[]>`
+    with ladder as (
+      select unnest(l.rung_codes) as rung_code from level_rule l join child c on c.band = l.band where c.id = ${id}::uuid
+      union select rung_code from child_skill_state where child_id = ${id}::uuid
+    )
+    select r.code as rung_code, r.ladder_order, r.descriptor, s.skill_code, s.state,
+           coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
+           s.repeating_misconception, s.last_seen
+    from ladder x
+    join rung r on r.code = x.rung_code
+    left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code
+    order by r.ladder_order nulls last, r.code`;
+}
+
+export type NextStep = { code: string; name: string; rung_code: string; difficulty: string | null; rule: string; targets: string[] };
+
+export async function childNext(id: string): Promise<NextStep[]> {
+  return sql<NextStep[]>`
+    select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
+    from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
+    order by s.code`;
+}
+
+export type PendingResult = {
+  id: string;
+  paper: string;
+  date: string | null;
+  item_key: string;
+  question: string;
+  answer: string | null;
+  read: string;
+  attempted: boolean;
+  working: string;
+  status: string;
+  misconception_codes: string[];
+};
+
+export async function pendingResults(id: string): Promise<PendingResult[]> {
+  return sql<PendingResult[]>`
+    select r.id, t.key ->> 'title' as paper, t.key ->> 'date' as date, i.item_key,
+           i.spec ->> 'question' as question, i.responses -> 0 ->> 'answer' as answer,
+           coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
+           coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
+           coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
+           r.status, r.misconception_codes
+    from item_result r
+    join item i on i.id = r.item_id
+    join capture c on c.id = r.capture_id
+    join sheet_instance si on si.id = c.sheet_instance_id
+    join sheet_template t on t.id = si.sheet_template_id
+    where si.child_id = ${id}::uuid and r.state = 'candidate'
+    order by t.key ->> 'date', i.item_key`;
+}
+
+export type Paper = { id: string; title: string; date: string | null; pages: number; status: string; narrative: string | null; n_results: number; n_confirmed: number };
+
+export async function childPapers(id: string): Promise<Paper[]> {
+  return sql<Paper[]>`
+    select c.id, t.key ->> 'title' as title, t.key ->> 'date' as date, c.pages, c.status,
+           (select text from narrative_observation n where n.capture_id = c.id order by n.created_at desc limit 1) as narrative,
+           (select count(*)::int from item_result r where r.capture_id = c.id) as n_results,
+           (select count(*)::int from item_result r where r.capture_id = c.id and r.state = 'confirmed') as n_confirmed
+    from capture c
+    join sheet_instance si on si.id = c.sheet_instance_id
+    join sheet_template t on t.id = si.sheet_template_id
+    where si.child_id = ${id}::uuid
+    order by t.key ->> 'date', c.created_at`;
+}

@@ -15,7 +15,11 @@
       "key": "app.staff",
       "description": "Who may sign in to the app, by school email. Roles: coordinator, educator, specialist.",
       "value": [
-        {"email": "nimish.shah1989@gmail.com", "name": "Nimish", "role": "coordinator"}
+        {
+          "email": "nimish.shah1989@gmail.com",
+          "name": "Nimish",
+          "role": "coordinator"
+        }
       ]
     },
     {
@@ -40,8 +44,13 @@
     },
     {
       "key": "llm.fallback_models",
-      "description": "Exact model ids tried in order after the prompt row's own model fails. Never an alias (ADR 0004).",
-      "value": ["gemini-3.6-flash", "gemini-3.7-flash"]
+      "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
+      "value": [
+        "claude-haiku-4-5",
+        "gemini-3.5-flash",
+        "gemini-3.6-flash",
+        "gemini-3.7-flash"
+      ]
     }
   ]
 }

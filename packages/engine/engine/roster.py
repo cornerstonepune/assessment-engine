@@ -51,3 +51,16 @@ def names(conn, child_ids: list[str], actor: str) -> dict[str, str]:
         if row:
             out[cid] = " ".join(x for x in (row["first_name"], row["last_name"]) if x)
     return out
+
+
+def find(conn, section: str, first_name: str, actor: str) -> str:
+    """The child id for a first name in a section, for the legacy importer's `--child`. The lookup
+    is logged like a read, because it is one."""
+    rows = conn.execute(
+        "select c.id from child c join pii.child p on p.child_id = c.id"
+        " where c.section = %s and lower(p.first_name) = lower(%s)", (section, first_name)).fetchall()
+    if len(rows) != 1:
+        raise ValueError(f"{len(rows)} children called {first_name!r} in {section}")
+    conn.execute("insert into access_log (tenant_id, actor, child_id, action)"
+                 " select tenant_id, %s, id, 'find_child' from child where id = %s", (actor, rows[0]["id"]))
+    return rows[0]["id"]

@@ -3,14 +3,17 @@ import typer
 
 from pathlib import Path
 
-from engine import assemble, bank, db, loaders, prescribe, roster
+from engine import assemble, bank, db, legacy, loaders, prescribe, roster
 from engine.adapters.llm import LLMError
+from engine.assess import graph
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
 week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
+legacy_app = typer.Typer(help="N3 — papers done before QR sheets, read into evidence", no_args_is_help=True)
 app.add_typer(bank_app, name="bank")
 app.add_typer(week_app, name="week")
+app.add_typer(legacy_app, name="legacy")
 
 
 @app.callback()
@@ -141,6 +144,104 @@ def week_assemble(
         conn.commit()
     typer.echo(f"  {summary['sheets']} named · {summary['spares']} spare · {summary['pages']} pages")
     typer.echo(f"  {summary['pack']}")
+
+
+@legacy_app.command("paper")
+def legacy_paper(path: str) -> None:
+    """Enter (or correct) a paper once: its printed questions become legacy items with a rung each."""
+    with db.connect() as conn:
+        template = legacy.load_paper(conn, path)
+        conn.commit()
+        _, items = legacy.paper_rows(conn, __import__("json").loads(Path(path).read_text())["code"])
+    typer.echo(f"  {template}  {len(items)} questions")
+    for key, it in sorted(items.items(), key=lambda kv: (int(''.join(ch for ch in kv[0] if ch.isdigit()) or 0), kv[0])):
+        sp = it["spec"]
+        typer.echo(f"  {key:<4}{sp.get('kind','bare'):<8}{sp.get('expr') or '':<14}= {str(sp.get('answer')):<6} "
+                   f"{it['responses'][0]['misconceptions'] and len(it['responses'][0]['misconceptions']) or 0:>2} predictions")
+
+
+@legacy_app.command("import")
+def legacy_import(
+    path: str,
+    paper: str = typer.Option(..., "--paper", help="The paper's code, as entered with `legacy paper`"),
+    child: str = typer.Option(..., "--child", help="The child's first name"),
+    section: str = typer.Option(..., "--section", help="G2, G3 …"),
+    pages: str = typer.Option("", "--pages", help="Only these pages of the file, e.g. 1,2"),
+    mask: str = typer.Option("", "--mask", help="Name-band fraction per page, e.g. 1=0.16,2=0"),
+    narrative: bool = typer.Option(False, "--narrative", help="Also ask for the whole-page reading (Channel B)"),
+    actor: str = typer.Option("engine-cli", "--actor"),
+) -> None:
+    """Read one scan of one child's paper: candidate results a person then confirms."""
+    page_list = [int(x) for x in pages.split(",") if x.strip()] or None
+    masks = {int(k): float(v) for k, v in (kv.split("=") for kv in mask.split(",") if kv.strip())} or None
+    with db.connect() as conn:
+        cid = roster.find(conn, section, child, actor)
+        try:
+            summary = legacy.import_scan(conn, path, paper, cid, actor, page_list, masks, narrative)
+        except LLMError as e:
+            conn.commit()
+            typer.echo(f"  could not read: {e}", err=True)
+            raise typer.Exit(1)
+        conn.commit()
+    for r in summary["results"]:
+        tail = " ".join(r["codes"]) if r["codes"] else ("working" if r["working"] != "none" else "")
+        typer.echo(f"  {r['item']:<4}{r['question'][:34]:<36}read {r['read']!r:<12}{r['status']:<14}{tail}")
+    if summary["unmatched"]:
+        typer.echo(f"  not on the paper: {', '.join(summary['unmatched'])}")
+    for n in summary["notes"]:
+        typer.echo(f"  note: {n}")
+    typer.echo(f"  {len(summary['results'])} answers over {summary['pages']} page(s) → candidate")
+
+
+@legacy_app.command("remark")
+def legacy_remark(child: str = typer.Option(..., "--child"), section: str = typer.Option(..., "--section"),
+                  actor: str = typer.Option("engine-cli", "--actor")) -> None:
+    """Mark a child's candidate results again from what was read — no model call."""
+    with db.connect() as conn:
+        cid = roster.find(conn, section, child, actor)
+        n = legacy.remark(conn, cid)
+        conn.commit()
+    typer.echo(f"  {n} results changed")
+
+
+@legacy_app.command("confirm")
+def legacy_confirm(
+    child: str = typer.Option(..., "--child"),
+    section: str = typer.Option(..., "--section"),
+    by: str = typer.Option(..., "--by", help="Who is confirming — recorded on every evidence row"),
+) -> None:
+    """A person confirms a child's candidate results; they become evidence and the map is rebuilt."""
+    with db.connect() as conn:
+        cid = roster.find(conn, section, child, by)
+        n = legacy.confirm(conn, cid, by)
+        conn.commit()
+    typer.echo(f"  {n} results confirmed")
+
+
+@legacy_app.command("show")
+def legacy_show(child: str = typer.Option(..., "--child"), section: str = typer.Option(..., "--section"),
+                actor: str = typer.Option("engine-cli", "--actor")) -> None:
+    """The child's map as the Growth screen shows it: rung, state, evidence, and the next step."""
+    with db.connect() as conn:
+        cid = roster.find(conn, section, child, actor)
+        m = legacy.child_map(conn, cid)
+        conn.commit()
+    for s in m["states"]:
+        rep = f"  repeats {s['repeating_misconception']}" if s["repeating_misconception"] else ""
+        typer.echo(f"  {s['rung_code']:<4}{s['state']:<16}{s['n_correct']:>2}/{s['n_events']:<3} {s['descriptor'][:44]}{rep}")
+    for n in m["next"]:
+        typer.echo(f"  next {n['code']:<13}{n['difficulty'] or '—':<9}{n['rule']:<13}{' '.join(n['targets'] or [])}")
+    if m["pending"]:
+        typer.echo(f"  {m['pending']} candidate results awaiting confirmation")
+
+
+@app.command("graph")
+def graph_(child_id: str = typer.Option("", "--child", help="One child id; default every child with evidence")) -> None:
+    """Rebuild Ring B — child_skill_state — from confirmed evidence."""
+    with db.connect() as conn:
+        n = graph.rebuild(conn, child_id or None)
+        conn.commit()
+    typer.echo(f"  {n} states")
 
 
 @app.command("eval")

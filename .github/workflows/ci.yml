@@ -1,0 +1,31 @@
+# What must hold before anything reaches main. Deployment itself is Vercel's Git integration:
+# a push to main builds and ships apps/web; a pull request gets a preview URL.
+# The database tests need DATABASE_URL and skip themselves without it, so CI runs the pure engine
+# suite and the web build — the two things that break silently otherwise.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: packages/engine } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - run: uv run pytest -q
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+        env: { DATABASE_URL: "postgres://ci:ci@localhost:5432/ci" }

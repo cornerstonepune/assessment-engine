@@ -93,7 +93,7 @@ def test_fills_placeholders_and_returns_the_parsed_json(calls, monkeypatch):
     log = calls([response({"items": [{"a": 1}]})])
     out = llm.generate(Conn(), "item_generate", {"n": 3, "topic": "subtraction"})
     assert out == {"items": [{"a": 1}]}
-    assert log[0][1]["contents"][0]["parts"][0]["text"] == "Make 3 things about subtraction."
+    assert log[0][1]["contents"][0]["parts"][0]["text"].startswith("Make 3 things about subtraction.")
     assert "/m1:" in log[0][0]
 
 
@@ -128,12 +128,14 @@ def test_output_that_breaks_the_schema_is_refused(calls, monkeypatch):
         llm.generate(Conn(), "item_generate", {})
 
 
-def test_a_non_transient_http_error_is_not_retried(calls, monkeypatch):
+def test_a_non_transient_http_error_is_not_retried_on_that_model(calls, monkeypatch):
+    """A 400 is not retried on the model that gave it, but the next model is still tried — a
+    vendor's 400 can mean "no credit" or "bad key", which another vendor may not share."""
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
-    log = calls([http_error(400)])
+    log = calls([http_error(400), http_error(400), http_error(400)])
     with pytest.raises(llm.LLMError, match="400"):
         llm.generate(Conn(), "item_generate", {})
-    assert len(log) == 1
+    assert [u.split("/")[-1].split(":")[0] for u, _ in log] == ["m1", "m2", "m3"]
 
 
 def test_every_call_leaves_a_flow_run_row_with_tokens_and_status(calls, monkeypatch):
@@ -147,7 +149,7 @@ def test_every_call_leaves_a_flow_run_row_with_tokens_and_status(calls, monkeypa
 
 def test_a_failure_is_recorded_on_the_flow_run_row_too(calls, monkeypatch):
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
-    calls([http_error(400)])
+    calls([http_error(400), http_error(400), http_error(400)])
     conn = Conn()
     with pytest.raises(llm.LLMError):
         llm.generate(conn, "item_generate", {})

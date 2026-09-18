@@ -1,0 +1,22 @@
+{
+  "code": "G2-SEPW2-S1",
+  "title": "Cornerstone School · September Week 2 Assessment · Set 1",
+  "band": "G2",
+  "week": "Sep W2",
+  "date": "2026-09-11",
+  "pages": [{"n": 1, "mask": 0.17}, {"n": 2, "mask": 0.17}],
+  "items": [
+    {"n": 1, "page": 1, "expr": "42 + 16", "question": "42 + 16 (column)"},
+    {"n": 2, "page": 1, "expr": "46 + 38", "question": "46 + 38 (column)"},
+    {"n": 3, "page": 1, "expr": "59 + 24", "question": "59 + 24 (column)"},
+    {"n": 4, "page": 1, "expr": "34 + 25", "question": "34 + 25 ="},
+    {"n": 5, "page": 1, "expr": "57 + 28", "question": "57 + 28 ="},
+    {"n": 6, "page": 1, "expr": "68 + 27", "question": "68 + 27 ="},
+    {"n": 7, "page": 2, "expr": "286 + 457", "question": "286 + 457 (column)"},
+    {"n": 8, "page": 2, "expr": "678 + 245", "question": "678 + 245 (column)"},
+    {"n": 9, "page": 2, "expr": "394 + 587", "question": "394 + 587 (column)"},
+    {"n": 10, "page": 2, "expr": "234 + 578", "question": "234 + 578 ="},
+    {"n": 11, "page": 2, "expr": "467 + 285", "question": "467 + 285 ="},
+    {"n": 12, "page": 2, "expr": "359 + 472", "question": "359 + 472 ="}
+  ]
+}

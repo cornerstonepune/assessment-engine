@@ -48,7 +48,7 @@ EXPECTED = {
     "misconception": 27,
     "case_dimension": 18,
     "coverage_target": 46,
-    "prompt": 6,
+    "prompt": 7,
     "threshold": 10,
     "config": 6,
     "skill_set": 4,

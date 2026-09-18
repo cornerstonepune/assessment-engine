@@ -1,0 +1,16 @@
+{
+  "code": "G2-WORD-SEP17",
+  "title": "Cornerstone School · Grade 2 · Word Problems",
+  "band": "G2",
+  "week": "Sep 17",
+  "date": "2026-09-17",
+  "pages": [{"n": 1, "mask": 0.15}],
+  "items": [
+    {"n": 1, "page": 1, "kind": "word", "rung": "R8", "expr": "24 + 19", "question": "Simran picked 24 red apples and 19 green apples from the orchard. How many apples did she pick in all?"},
+    {"n": 2, "page": 1, "kind": "word", "rung": "R8", "expr": "52 - 26", "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?"},
+    {"n": 3, "page": 1, "kind": "word", "rung": "R8", "expr": "36 + 28", "question": "There are 36 boys and 28 girls in the school playground. How many children are in the playground altogether?"},
+    {"n": 4, "page": 1, "kind": "word", "rung": "R8", "answer": 51, "question": "Priya had 45 stickers. Her mother gave her 18 more stickers. Then she gave 12 stickers to her brother. How many stickers does Priya have now?"},
+    {"n": 5, "page": 1, "kind": "word", "rung": "R8", "expr": "70 - 38", "question": "Aryan had 70 marbles. He gave 38 marbles to his friend. How many marbles does Aryan have now?"},
+    {"n": 6, "page": 1, "kind": "word", "rung": "R8", "expr": "45 + 27", "question": "A baker made 45 muffins in the morning and 27 more muffins in the afternoon. How many muffins did the baker make in all?"}
+  ]
+}

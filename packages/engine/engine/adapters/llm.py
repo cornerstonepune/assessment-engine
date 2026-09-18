@@ -1,8 +1,9 @@
 """The only module that talks to a text model.
 
-One call is: the active prompt row for a purpose → placeholders filled → Gemini generateContent
-asking for JSON → retry on the free tier's transient codes → the next model in the config list →
-the reply checked against the row's json_schema → a flow_run row either way. Callers never see a
+One call is: the active prompt row for a purpose → placeholders filled → the row's model, then
+each model in the config fallback list → the reply checked against the row's json_schema → a
+flow_run row either way. A `claude-*` model goes through the Anthropic SDK; anything else is
+Gemini's generateContent with retry on the free tier's transient codes. Callers never see a
 model id, an HTTP code, or an unvalidated reply.
 """
 import base64
@@ -12,6 +13,7 @@ import time
 import urllib.error
 import urllib.request
 
+import anthropic
 import certifi
 import jsonschema
 
@@ -42,14 +44,9 @@ def generate(conn, purpose, variables, images=()):
         " returning id", (purpose, "engine", db.tenant_slug()),
     ).fetchone()["id"]
 
-    parts = [{"text": _fill(row["text"], variables)}]
-    parts += [{"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(img).decode()}}
-              for img in images]
-    body = json.dumps({"contents": [{"parts": parts}],
-                       "generationConfig": {"response_mime_type": "application/json"}}).encode()
+    text = _fill(row["text"], variables)
     try:
-        raw = _call(models, body, db.env("GEMINI_API_KEY"))
-        out = json.loads(raw["candidates"][0]["content"]["parts"][0]["text"])
+        out, tokens = _dispatch(models, text, images, row["json_schema"])
         try:
             jsonschema.validate(out, row["json_schema"])
         except jsonschema.ValidationError as e:
@@ -58,11 +55,64 @@ def generate(conn, purpose, variables, images=()):
         conn.execute("update flow_run set finished_at = clock_timestamp(), status = %s, error = %s where id = %s",
                      ("error", str(e), run))
         raise
-    tokens = raw["usageMetadata"]["totalTokenCount"] if "usageMetadata" in raw else None
     # clock_timestamp(), not now(): now() is the transaction's start, which would make every run 0 s
     conn.execute("update flow_run set finished_at = clock_timestamp(), status = %s, tokens = %s where id = %s",
                  ("ok", tokens, run))
     return out
+
+
+def _dispatch(models, text, images, schema):
+    """Walk the model list in order, each vendor by its own transport. A model that cannot serve
+    — quota gone, no key, no credit, transient errors exhausted — hands on to the next, and the
+    final error names every model's reason, so a malformed request still reads as one."""
+    errors = []
+    # Both vendors see the schema in the prompt: asked only for "JSON", a model may return a bare
+    # list where an object was wanted, and the validation after this would refuse the whole page.
+    text = f"{text}\n\nThe JSON schema to match exactly:\n{json.dumps(schema)}"
+    for model in models:
+        try:
+            if model.startswith("claude-"):
+                return _call_anthropic(model, text, images, schema)
+            parts = [{"text": text}]
+            parts += [{"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(img).decode()}}
+                      for img in images]
+            body = json.dumps({"contents": [{"parts": parts}],
+                               "generationConfig": {"response_mime_type": "application/json"}}).encode()
+            raw = _call([model], body, db.env("GEMINI_API_KEY"))
+            tokens = raw["usageMetadata"]["totalTokenCount"] if "usageMetadata" in raw else None
+            return json.loads(raw["candidates"][0]["content"]["parts"][0]["text"]), tokens
+        except LLMError as e:
+            errors.append(str(e).split("; ", 1)[-1])  # _call's own summary line is repeated here
+        except RuntimeError as e:  # a missing key for this vendor: skip it, say so
+            errors.append(f"{model}: {e}")
+    raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors))
+
+
+def _call_anthropic(model, text, images, schema):
+    """One Messages call. The reply is validated by the caller; the SDK already retries 429s and 5xx."""
+    key = db.env("ANTHROPIC_API_KEY")
+    client = anthropic.Anthropic(api_key=key, max_retries=3, timeout=TIMEOUT_S)
+    content = [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
+                                            "data": base64.standard_b64encode(img).decode()}} for img in images]
+    content.append({"type": "text", "text": text})
+    try:
+        r = client.messages.create(model=model, max_tokens=8000, messages=[{"role": "user", "content": content}])
+    except anthropic.RateLimitError as e:
+        raise LLMError(f"{model} rate limited: {e.message}") from e
+    except anthropic.APIStatusError as e:
+        kind = "returned HTTP" if e.status_code < 500 and e.status_code != 429 else "server error HTTP"
+        raise LLMError(f"{model} {kind} {e.status_code}: {e.message}") from e
+    except anthropic.APIConnectionError as e:
+        raise LLMError(f"{model} connection error: {e}") from e
+    if r.stop_reason == "refusal":
+        raise LLMError(f"{model} refused the request")
+    reply = next((b.text for b in r.content if b.type == "text"), "")
+    reply = reply.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    try:
+        out = json.loads(reply)
+    except ValueError as e:
+        raise LLMError(f"{model} did not return JSON: {reply[:120]!r}") from e
+    return out, r.usage.input_tokens + r.usage.output_tokens
 
 
 def _quota(body):

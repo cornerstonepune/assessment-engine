@@ -43,3 +43,5 @@ apps/web/.next/
 apps/web/test-results/
 apps/web/.design-approved.json
 .design-approved.json
+.vercel
+.env*
