@@ -1,14 +1,12 @@
 import { redirect } from "next/navigation";
 import { currentStaff } from "@/lib/auth";
-import { sendMagicLink } from "@/lib/auth-actions";
-import { supabaseEnv } from "@/lib/supabase";
+import { signIn } from "@/lib/auth-actions";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 export default async function LoginPage({ searchParams }: Props) {
   if (await currentStaff()) redirect("/");
   const q = await searchParams;
-  const configured = supabaseEnv() !== null;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-5 py-10">
@@ -22,52 +20,28 @@ export default async function LoginPage({ searchParams }: Props) {
         <span className="label ml-1">assessment</span>
       </div>
       <h1 className="text-[26px] leading-tight">Sign in</h1>
-      <p className="mt-2 text-[13.5px] text-basalt/62">A link comes to your school email. No password.</p>
+      <p className="mt-2 text-[13.5px] text-basalt/62">Staff only. Ask Nimish for a password.</p>
       <div className="chalkline" />
 
-      {q.sent ? (
-        <p className="mt-6 border border-neem/30 bg-neem/10 p-3 text-[13.5px]" role="status">
-          Sent. Open the link on this device.
-        </p>
-      ) : null}
-      {q.denied ? (
+      {q.error === "denied" ? (
         <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
-          That email is signed in but is not on the staff list. Ask Nimish to add it.
+          That email and password do not match a staff member.
         </p>
-      ) : null}
-      {q.error === "email" ? <Err>That does not look like an email address.</Err> : null}
-      {q.error === "send" ? <Err>The link could not be sent. Try again in a minute.</Err> : null}
-      {q.error === "link" ? <Err>That link has expired or was already used. Ask for a new one.</Err> : null}
-      {q.error === "fragment" ? (
-        <Err>
-          That link came back in a form this site cannot read. Ask for a new one — if it happens again, the sign-in email
-          template needs to point at /auth/callback with a token_hash.
-        </Err>
-      ) : null}
-      {q.error === "config" || !configured ? (
-        <Err>
-          Sign-in is not configured on this machine yet: add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to
-          apps/web/.env.local (see env.example).
-        </Err>
       ) : null}
 
-      <form action={sendMagicLink} className="mt-6 grid gap-4">
+      <form action={signIn} className="mt-6 grid gap-4">
         <label className="field">
           <span className="label">School email</span>
-          <input className="input" type="email" name="email" autoComplete="email" required disabled={!configured} />
+          <input className="input" type="email" name="email" autoComplete="username" required />
         </label>
-        <button className="btn" type="submit" disabled={!configured}>
-          Send me a link
+        <label className="field">
+          <span className="label">Password</span>
+          <input className="input" type="password" name="password" autoComplete="current-password" required />
+        </label>
+        <button className="btn" type="submit">
+          Sign in
         </button>
       </form>
     </main>
-  );
-}
-
-function Err({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
-      {children}
-    </p>
   );
 }

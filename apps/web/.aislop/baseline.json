@@ -1,12 +1,12 @@
 {
   "schema": "aislop.baseline.v2",
   "pathFormat": "posix",
-  "updatedAt": "2026-09-18T02:51:35.371Z",
+  "updatedAt": "2026-09-18T06:32:20.889Z",
   "score": 100,
   "byEngine": {
     "code-quality": 100,
     "ai-slop": 100
   },
-  "fileCount": 27,
+  "fileCount": 24,
   "findingFingerprints": []
 }

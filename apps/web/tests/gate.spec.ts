@@ -14,15 +14,12 @@ for (const route of ROUTES) {
   });
 }
 
-test("the sign-in page says plainly when it is not configured, rather than failing silently", async ({ page }) => {
+test("a wrong password is refused and you stay on the sign-in page", async ({ page }) => {
   await page.goto("/login");
-  const email = page.getByLabel("School email");
-  await expect(email).toBeVisible();
-  // Either it is configured and the field works, or it says why it cannot. Scoped to main, because
-  // Next's own route announcer is also role="alert" and would make the match ambiguous.
-  if (await email.isDisabled()) {
-    await expect(page.getByRole("main").getByRole("alert")).toContainText("not configured");
-  } else {
-    await expect(page.getByRole("button", { name: "Send me a link" })).toBeEnabled();
-  }
+  await page.getByLabel("School email").fill("nimish.shah1989@gmail.com");
+  await page.getByLabel("Password").fill("not-the-password");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  // Scoped to main, because Next's own route announcer is also role="alert".
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("do not match");
+  await expect(page).toHaveURL(/\/login/);
 });

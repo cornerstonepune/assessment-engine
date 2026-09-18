@@ -176,7 +176,7 @@ export async function spareSheets(section: string, week: string): Promise<{ qr_c
     order by st.difficulty, si.qr_code`;
 }
 
-export type Staff = { email: string; name: string; role: string };
+export type Staff = { email: string; name: string; role: string; password?: string };
 
 export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
