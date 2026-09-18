@@ -1,12 +1,16 @@
 """engine — the operator's command line."""
 import typer
 
-from engine import bank, db, loaders
+from pathlib import Path
+
+from engine import assemble, bank, db, loaders, prescribe, roster
 from engine.adapters.llm import LLMError
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
+week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
 app.add_typer(bank_app, name="bank")
+app.add_typer(week_app, name="week")
 
 
 @app.callback()
@@ -27,6 +31,7 @@ def bank_fill(
     difficulty: str,
     n: int = typer.Option(50, "--n", help="Verified items wanted"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Generate and verify, write nothing"),
+    offline: bool = typer.Option(False, "--offline", help="Use the samplers, not the model — no sentences, but no quota either"),
 ) -> None:
     """Generate, verify and store items for one skill set at one difficulty."""
     shown = []
@@ -39,7 +44,8 @@ def bank_fill(
     with db.connect() as conn:
         try:
             counts, reasons, _ = bank.fill(conn, skill_set, difficulty, n, dry_run,
-                                           after_batch=None if dry_run else conn.commit, on_reject=show_reject)
+                                           after_batch=None if dry_run else conn.commit,
+                                           on_reject=show_reject, offline=offline)
         except LLMError as e:
             conn.commit()  # keep the flow_run row that records the failure
             typer.echo(f"MODEL  {e}", err=True)
@@ -84,6 +90,57 @@ def bank_sheet(
     with db.connect() as conn:
         key = bank.sheet(conn, skill_set, difficulty, n, db.REPO_ROOT / out, seed)
     typer.echo(f"  {key['sheet_id']}  {key['pages']} pages  {key['n_responses']} responses  -> {out}/{key['sheet_id']}.pdf")
+
+
+@week_app.command("roster")
+def week_roster(path: str) -> None:
+    """Import or update the class list. Names go to the pii schema and nowhere else."""
+    counts = roster.load(Path(path))
+    for k, v in counts.items():
+        typer.echo(f"  {k:<14}{v:>4}")
+
+
+@week_app.command("prescribe")
+def week_prescribe(
+    section: str,
+    week: str,
+    skill_set: str = typer.Option(..., "--set", help="What was taught — the teacher's declaration"),
+    kind: str = typer.Option("practice", "--kind", help="practice | assessment | home"),
+) -> None:
+    """Choose each child's difficulty for the week, and say which rule chose it."""
+    with db.connect() as conn:
+        rows = prescribe.for_class(conn, section, week, skill_set, kind)
+        conn.commit()
+    for r in rows:
+        typer.echo(f"  {r['roll_no']:<4}{r['band']:<4}{r['difficulty']:<9}{prescribe.RULES.get(r['rule'], r['rule'])}")
+    by = {}
+    for r in rows:
+        by[r["difficulty"]] = by.get(r["difficulty"], 0) + 1
+    typer.echo("  " + " · ".join(f"{n} at {d}" for d, n in sorted(by.items())))
+
+
+@week_app.command("assemble")
+def week_assemble(
+    section: str,
+    week: str,
+    kind: str = typer.Option("practice", "--kind"),
+    out: str = typer.Option("data/packs", "--out"),
+    actor: str = typer.Option("engine-cli", "--actor", help="Who is printing — recorded on every name read"),
+) -> None:
+    """Build one paper per child plus spares, render them, and merge the pack in handout order."""
+    outdir = db.REPO_ROOT / out / f"{section}-{week}-{kind}"
+    with db.connect() as conn:
+        built = assemble.for_week(conn, section, week, kind)
+        for s in built["short"]:
+            typer.echo(f"  SHORT  {s['roll_no']} at {s['difficulty']}: {s['had']} questions left, needs {s['needed']}", err=True)
+        if not built["sheets"]:
+            conn.rollback()
+            typer.echo("  nothing assembled — fill the bank first", err=True)
+            raise typer.Exit(1)
+        summary = assemble.render(conn, built, outdir, week, actor, kind)
+        conn.commit()
+    typer.echo(f"  {summary['sheets']} named · {summary['spares']} spare · {summary['pages']} pages")
+    typer.echo(f"  {summary['pack']}")
 
 
 @app.command("eval")

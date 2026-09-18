@@ -220,7 +220,7 @@ def sheet_html(sheet, week_label="Week __"):
     instr = "Work carefully and show how you found each answer. Write one digit in each box."
     if sheet.grade == "G1":
         instr = "Write one number in each box. You may draw a picture to help you."
-    head = f'''<div class="head"><div class="school">Cornerstone School</div><div class="title">{GRADE_TITLE[sheet.grade]} · Addition and subtraction</div><div class="sub">{week_label} assessment</div>
+    head = f'''<div class="head"><div class="school">Cornerstone School</div><div class="title">{GRADE_TITLE[sheet.grade]} · Addition and subtraction</div><div class="sub">{week_label}</div>
 <div class="nameline"><span>Name:</span><span class="short">Class:</span><span class="short">Date:</span></div></div><div class="instr">{instr}</div>'''
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>
 <div id="src" style="position:absolute;left:-9999px;top:0;width:178mm">{items}</div>

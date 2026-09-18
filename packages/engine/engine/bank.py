@@ -10,6 +10,7 @@ from collections import Counter
 
 from engine import db
 from engine.adapters import llm
+from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import tags, verify
 from engine.assess.items import Item, Response
@@ -17,6 +18,49 @@ from engine.assess.pick import Sheet, _sheet_id
 from engine.assess.render import render_sheet
 
 BATCH = 20  # the free tier timed out on 40 (STATE.md)
+SAMPLER_FORMATS = ["column_grid", "bare_sum", "missing_number", "word_1step"]
+
+
+def _sampled(check, formats, n, seed):
+    """Candidates from the deterministic samplers instead of the model — the documented fallback
+    for when the model is unavailable (ADR 0005), and the oracle the prompt is graded against.
+
+    Produces the same shape `verify.problems` reads, so both paths meet the same gate.
+    """
+    rng = random.Random(seed)
+    usable = [f for f in formats if f in SAMPLER_FORMATS] or SAMPLER_FORMATS
+    da, dbi = check["digits"]
+    out = []
+    for i in range(n * 4):
+        if len(out) >= n:
+            break
+        try:
+            if check["op"] == "+":
+                a, b = I.sample_add(rng, da, dbi, set(check["regroups"]), max_total=check.get("max_total"))
+            elif check["op"] == "-":
+                a, b = I.sample_sub(rng, da, dbi, set(check["regroups"]),
+                                    across_zero=bool(check.get("across_zero")),
+                                    max_a=check.get("max_total"))
+            else:
+                break  # no sampler for this operation yet; the model path still covers it
+        except RuntimeError:
+            continue
+        if check.get("no_zero_top") and "0" in str(a):
+            continue
+        fmt = usable[len(out) % len(usable)]
+        ans = M.compute(check["op"], a, b)
+        c = {"format": fmt, "op": check["op"], "a": a, "b": b, "answer": ans, "stem": "",
+             "missing": None, "misconceptions": [{"code": k, "wrong_answer": v}
+                                                 for k, v in M.predict(check["op"], a, b).items()]}
+        if fmt == "missing_number":
+            c["missing"] = "b"
+            c["stem"] = f"{a} {'−' if check['op'] == '-' else '+'} □ = {ans}"
+        elif fmt == "word_1step":
+            op_ctx = [t for o, t in I.CONTEXTS_1STEP if o == check["op"]]
+            n1, n2 = rng.sample(I.NAMES, 2)
+            c["stem"] = rng.choice(op_ctx).format(a=a, b=b, n=n1, n2=n2)
+        out.append(c)
+    return out
 
 
 def spec(conn, code, difficulty):
@@ -47,18 +91,25 @@ def spec(conn, code, difficulty):
     return prompt_input, s, band["check"]
 
 
-def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=None):
+def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=None, offline=False):
     """`after_batch` is called once per model call — the CLI passes conn.commit so a long fill
     keeps what it has and its flow_run rows are visible while it runs. `on_reject(candidate,
-    problems)` lets the CLI show why items fall; tests pass neither."""
+    problems)` lets the CLI show why items fall; tests pass neither. `offline` swaps the model for
+    the deterministic samplers, which write no sentence a model would have written but never fail
+    on a quota."""
     prompt_input, s, check = spec(conn, code, difficulty)
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     counts = Counter(asked=0, returned=0, accepted=0, rejected=0, duplicate=0, already_in_bank=0)
     reasons, seen, accepted = Counter(), set(), []
     while counts["accepted"] < n and counts["asked"] < 3 * n:
         ask = min(BATCH, n - counts["accepted"])
-        out = llm.generate(conn, "item_generate", {"spec": prompt_input, "n": ask})
+        if offline:
+            out = {"items": _sampled(check, list(s["formats"]), ask, seed=counts["asked"])}
+        else:
+            out = llm.generate(conn, "item_generate", {"spec": prompt_input, "n": ask})
         counts["asked"] += ask
+        if not out["items"]:
+            break
         for c in out["items"]:
             counts["returned"] += 1
             c = verify.normalise(c)
@@ -99,26 +150,37 @@ def _insert(conn, tenant, it, code, difficulty):
 
 
 def recheck(conn):
-    """Recompute every active generated item's answer and predictor table from its spec.
-    Returns the item_keys that disagree — the number that must stay zero."""
+    """Rebuild every active generated item from its own stored spec and compare.
+
+    The rebuild runs the same `verify.to_item` that made the row, so the audit cannot drift from
+    generation: if the two ever disagree the item is named, and the count must stay zero. Claims
+    with no predictor behind them (the model's own, for an operation we cannot compute) are the
+    one thing not re-derived — there is nothing to re-derive them from.
+    """
     bad = []
     rows = conn.execute(
-        "select item_key, fmt, spec, responses from item where status = 'active' and source = 'generated'"
-        " and fmt = any(%s)", (list(verify.FORMATS),)
+        "select item_key, fmt, stem, spec, responses, rung_code, skill_codes from item"
+        " where status = 'active' and source = 'generated' and fmt = any(%s)",
+        (list(verify.FORMATS),),
     ).fetchall()
     for r in rows:
         sp = r["spec"]
-        ans = next(x for x in r["responses"] if x["rid"] == "ans")
         if not {"a", "b", "op"} <= sp.keys():
-            continue  # a deterministic-generator missing_number carries only its text
-        correct = M.compute(sp["op"], sp["a"], sp["b"])
-        expect = {"a": sp["a"], "b": sp["b"], "answer": correct}[sp.get("missing", "answer")]
-        truth = M.predict(sp["op"], sp["a"], sp["b"])
-        claimed = ans["misconceptions"]
-        wrong_key = ans["answer"] != str(expect)
-        wrong_claim = any(v == expect for v in claimed.values()) or any(
-            code in truth and truth[code] != v for code, v in claimed.items())
-        if wrong_key or wrong_claim:
+            continue  # an older row that kept only its printed text
+        stored = next(x for x in r["responses"] if x["rid"] == "ans")
+        rebuilt = verify.to_item(
+            {"format": r["fmt"], "op": sp["op"], "a": sp["a"], "b": sp["b"],
+             "answer": M.compute(sp["op"], sp["a"], sp["b"]), "stem": r["stem"],
+             "missing": sp.get("missing"), "misconceptions": []},
+            r["rung_code"], skills=list(r["skill_codes"]),
+        )
+        want = rebuilt.responses[0]
+        table = M.TABLES.get(sp["op"], {})
+        claims_disagree = any(
+            code in table and want.misconceptions.get(code) != value
+            for code, value in stored["misconceptions"].items()
+        )
+        if want.answer != stored["answer"] or rebuilt.item_id != r["item_key"] or claims_disagree:
             bad.append(r["item_key"])
     return bad
 
@@ -134,7 +196,8 @@ def flag(conn, item_key, actor, note, verdict="retire"):
     return conn.execute("select status from item where id = %s", (row["id"],)).fetchone()["status"]
 
 
-def _item_from_row(r):
+def item_from_row(r):
+    """A stored row back into the Item the renderer and marker already understand."""
     return Item(r["item_key"], r["template"], r["rung_code"], list(r["skill_codes"]), r["signal"], r["fmt"],
                 False, r["stem"], r["spec"], [Response(**x) for x in r["responses"]],
                 working_lines=verify.FORMATS[r["fmt"]][1])
@@ -149,5 +212,5 @@ def sheet(conn, code, difficulty, n, outdir, seed=1):
         raise ValueError(f"only {len(rows)} active items for {code} {difficulty}; asked for {n}")
     chosen = random.Random(seed).sample(rows, n)
     sh = Sheet(_sheet_id(code, difficulty, seed, "bank"), chosen[0]["band"], difficulty, seed, "bank",
-               [_item_from_row(r) for r in chosen])
+               [item_from_row(r) for r in chosen])
     return render_sheet(sh, outdir, week_label=f"{code} · {difficulty}")

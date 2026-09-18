@@ -50,7 +50,7 @@ EXPECTED = {
     "coverage_target": 46,
     "prompt": 6,
     "threshold": 10,
-    "config": 3,
+    "config": 6,
     "skill_set": 4,
 }
 

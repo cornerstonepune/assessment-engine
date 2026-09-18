@@ -89,6 +89,26 @@ def test_recheck_agrees_with_what_the_verifier_let_through(conn, monkeypatch):
     assert bank.recheck(conn) == []
 
 
+def test_recheck_catches_an_answer_edited_behind_the_engines_back(conn, monkeypatch):
+    """The audit exists for the case nobody plans for: a row changed by hand."""
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2)))
+    _, _, accepted = bank.fill(conn, SET, DIFF, 2)
+    key = accepted[0].item_id
+    conn.execute(
+        "update item set responses = jsonb_set(responses::jsonb, '{0,answer}', '\"999\"')::json"
+        " where item_key = %s", (key,))
+    assert key in bank.recheck(conn)
+
+
+def test_recheck_passes_the_missing_number_items_the_samplers_make(conn):
+    """A missing-number question's answer is the hidden number, and its distractors are about
+    that number — not about the whole equation. The audit must use the same rule."""
+    counts, _, accepted = bank.fill(conn, SET, DIFF, 8, offline=True)
+    assert counts["accepted"] == 8
+    assert any(i.fmt == "missing_number" for i in accepted), "the sampler should make some"
+    assert bank.recheck(conn) == []
+
+
 def test_a_flag_retires_the_item_by_trigger(conn, monkeypatch):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 2)

@@ -42,3 +42,4 @@ apps/web/node_modules/
 apps/web/.next/
 apps/web/test-results/
 apps/web/.design-approved.json
+.design-approved.json
