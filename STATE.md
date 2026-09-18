@@ -328,9 +328,10 @@ Plan: `docs/superpowers/plans/2026-09-18-web-shell-and-w1-screens.md`. Brand:
 the Atlas house language for this product, and says why). Screens published for review:
 claude.ai/artifact/D1zoM7ZZX8nSfWswvH2mQR
 
-- Builds clean, no type errors, nine routes.
-  Check: `cd apps/web && npm run build` → `✓ Compiled successfully`, routes `/ /auth/callback
-  /capture /growth /home /library /login /skill-sets/[code] /worksheets` + Proxy.
+- Builds clean, no type errors, eight routes.
+  Check: `cd apps/web && npm run build` → `✓ Compiled successfully`, routes `/ /_not-found
+  /capture /growth /home /library /login /skill-sets/[code] /worksheets`. No Proxy: the
+  middleware existed only to refresh a Supabase session and went with it.
 
 - Every screen renders its heading, scrolls sideways nowhere, and logs no console error, at
   1440 px and at 400 px. Check: `cd apps/web && AUTH_DEV_BYPASS=1 npx playwright test` →
@@ -353,9 +354,25 @@ claude.ai/artifact/D1zoM7ZZX8nSfWswvH2mQR
   now insert-only for that table, with `test_load_does_not_overwrite_a_skill_set_edited_in_the_app`
   as the regression. Engine suite: 101 passing.
 
-- Sign-in is Supabase magic link with a staff allowlist in `config.app.staff`; every route in the
-  app group is behind it and both server actions check again on their own. A development bypass
-  exists, is refused outside development, and shows a "dev bypass" pill in the sidebar when on.
+- Sign-in is email and password against the staff allowlist in `config.app.staff`, which holds a
+  `scrypt$salt$hash` per person; the session is an httpOnly cookie signed with `AUTH_SECRET`
+  (HMAC-SHA256, 30 days). Every route in the app group is behind it and both server actions check
+  again on their own. A development bypass exists, is refused outside development, and shows a
+  "dev bypass" pill in the sidebar when on.
+  Check: `cd apps/web && npm run test:gate` → `8 passed`, seven routes redirecting and a wrong
+  password refused. `npm run test:screens` → `32 passed`.
+
+  It replaced the magic link on 2026-09-18, after the live site returned `over_email_send_rate_limit`:
+  Supabase's built-in mail sender allows two emails an hour, and there is no other sender on the
+  project. Check: `curl -s -X POST "$SUPABASE_URL/auth/v1/otp" …` →
+  `{"code":429,"error_code":"over_email_send_rate_limit"}`; and the project's auth config reads
+  `rate_limit_email_sent = 2`, `smtp_host = None`.
+  Check: `curl -s "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/auth" -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"`.
+
+- `SUPABASE_SERVICE_ROLE_KEY` in the repo `.env` does not authenticate — the project rejects it on
+  both the auth admin API and PostgREST. Nothing in the engine uses it (data goes through
+  `DATABASE_URL`), so it is dead rather than breaking, but it is wrong and should be re-copied or
+  deleted. Check: `curl -s -o /dev/null -w "%{http_code}" "$SUPABASE_URL/rest/v1/config?select=key&limit=1" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"` → `401`.
 
 - Not built: the Generate form (needs W2), paper previews (the Python renderer owns those), and
   Capture, Child Growth and Home Assignments beyond their honest empty states, which name the

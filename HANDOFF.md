@@ -5,7 +5,16 @@ Read `STATE.md` for what is verified and how. This file is what the last session
 ## Where things stand, 2026-09-18
 
 **Live at https://cornerstone-assessment.vercel.app**, behind a staff sign-in. Nimish is the only
-person on the staff list. Repo: `cornerstonepune/assessment-engine`, private, in sync.
+person on the staff list.
+
+Sign-in is **email and password** since 2026-09-18, not a mailed link. The magic link had failed
+with `over_email_send_rate_limit`: Supabase's built-in sender allows two emails an hour and the
+project has no other sender. For three internal users that mechanism was never worth its cost, so
+it is gone — with the Supabase auth client, the session proxy, the callback route and 281 lines.
+Passwords are `scrypt` hashes inside the `config.app.staff` row; the session is an httpOnly cookie
+signed with `AUTH_SECRET`. **Production needs `AUTH_SECRET` set on Vercel** or sign-in throws —
+`openssl rand -hex 32 | npx vercel env add AUTH_SECRET production`, then redeploy. Adding a
+person is: add them to `app.staff` with a hash from `hashPassword()` in `apps/web/lib/auth.ts`. Repo: `cornerstonepune/assessment-engine`, private, in sync.
 
 Built and verified: the database and loader; W1 the question bank (a prompt generates, code
 verifies, staff retire); W2 the week's papers (roster, prescription, per-child packs with QR);
@@ -28,12 +37,12 @@ the offline samplers.
 
 ## Blocked on Nimish
 
+- **Set `AUTH_SECRET` on Vercel and redeploy.** Until then production sign-in cannot work.
 - **Rotate the database password.** It was typed into a chat and then printed into a Vercel build
   log by a malformed connection string. Supabase → Settings → Database → Reset, alphanumeric only,
   then update `.env` and the Vercel variable.
 - **Achal's and Neha's emails**, to add to the `app.staff` config row. Nobody else can sign in.
-- **A real SMTP sender.** Supabase's built-in one allows two emails an hour and forbids custom
-  templates on the free tier. This is what forces the client-side `/auth/finish` page to exist.
+- **Re-copy or delete `SUPABASE_SERVICE_ROLE_KEY`** in `.env`: it returns 401. Nothing uses it.
 - **A working `ANTHROPIC_API_KEY`** — the one in `.env` returns 401.
 - **An API key** for GLM or Kimi, if the experiment goes ahead.
 - Consent text · parent-note channel · whether the Olympiad papers count · Kiyaan's missing Week 1.
