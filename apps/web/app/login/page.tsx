@@ -38,6 +38,12 @@ export default async function LoginPage({ searchParams }: Props) {
       {q.error === "email" ? <Err>That does not look like an email address.</Err> : null}
       {q.error === "send" ? <Err>The link could not be sent. Try again in a minute.</Err> : null}
       {q.error === "link" ? <Err>That link has expired or was already used. Ask for a new one.</Err> : null}
+      {q.error === "fragment" ? (
+        <Err>
+          That link came back in a form this site cannot read. Ask for a new one — if it happens again, the sign-in email
+          template needs to point at /auth/callback with a token_hash.
+        </Err>
+      ) : null}
       {q.error === "config" || !configured ? (
         <Err>
           Sign-in is not configured on this machine yet: add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to
