@@ -26,6 +26,17 @@ function connect() {
         "pooler on port 6543.",
     );
   }
+  // Check the shape here, so a malformed value fails with a message of our own. The driver's own
+  // error quotes the whole connection string, password and all, straight into the build log.
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname || !parsed.pathname.replace("/", "")) throw new Error("no host or database");
+  } catch {
+    throw new Error(
+      "DATABASE_URL is not a valid connection string. Expected " +
+        "postgresql://user:password@host:6543/postgres — check for stray escaping.",
+    );
+  }
   if (SERVERLESS && url.includes(":5432/")) {
     console.warn(
       "DATABASE_URL uses the session pooler (5432) in a serverless runtime. Use the transaction " +

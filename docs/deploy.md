@@ -41,12 +41,24 @@ Nobody, until their school email is in the `app.staff` config row. Add them to
 
 ## Deploy
 
+Deploy **from `apps/web`**, not from the repository root. Vercel decides a project is a Next.js
+app by finding `next` in the `package.json` of the directory it is given, and the root one is not
+a Node project at all. `apps/web/vercel.json` carries the build settings and the Mumbai region.
+
 ```bash
-vercel --prod
+cd apps/web && vercel --prod
 ```
 
-The repository root holds `vercel.json`, which builds `apps/web`. The Python engine is not built
-or deployed; it runs where a coordinator runs it.
+The Python engine is not built or deployed; it runs where a coordinator runs it.
+
+Live: **https://cornerstone-assessment.vercel.app**
+
+## Never put a connection string together in the shell
+
+A bash substitution to swap the port produced `…:6543\/postgres`, the driver rejected it, and its
+error quoted the whole string — **password included — into the build log**. Build a connection
+string with a real URL parser, and check its shape before it reaches the driver, which `lib/db.ts`
+now does so the message never carries the credentials.
 
 ## What is exposed
 
