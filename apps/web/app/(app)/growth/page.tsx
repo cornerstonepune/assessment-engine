@@ -18,13 +18,14 @@ export default async function GrowthPage() {
         sub="One child: what they can do on each rung, in six states, and what the next paper should be."
       />
       <Body>
-        <div className="grid gap-[18px]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
           {sections.map((section) => (
             <Panel
               key={section}
               title={section}
               aside={`${rows.filter((r) => r.section === section).length} on roll`}
             >
+              <div className="overflow-x-auto">
               <table className="grid">
                 <thead>
                   <tr>
@@ -57,6 +58,7 @@ export default async function GrowthPage() {
                     ))}
                 </tbody>
               </table>
+              </div>
             </Panel>
           ))}
           <p className="note">

@@ -448,6 +448,39 @@ Confirmed by Nimish: Level B is above Level A, so B maps to L+ and A to L0.
 - `engine/assess/tags.py` — taxonomy §12 case tags derived from generator parameters.
 - macOS python.org build has no CA bundle; the engine venv must include `certifi`.
 
+## N3 — legacy import and Child Growth, as a teacher reads it (2026-09-18)
+
+Migration `20260918130000_graph_functions` applied: the six-state graph rule is SQL
+(`rebuild_child_skill_state`, `next_difficulty`, `confirm_results`, `resolve_result`), so the CLI
+and the app run one rule. Thresholds are rows (`state.min_events` 3, `state.min_observers` 2,
+`next_sheet.promote_at` 0.8, `next_sheet.demote_below` 0.5).
+
+- **Four Grade 2 children have ladders built from confirmed evidence.** Check:
+  `psql "$DATABASE_URL" -Atc "select count(*), count(distinct child_id) from evidence_event where confirmed_by is not null"`
+  → `218|4`. Blank answers carry `correct = null` and never count as attempts (rule 5):
+  `select status, correct, count(*) from evidence_event e join item_result r on r.id = e.item_result_id group by 1,2`
+  → `blank||7`, `correct|t|178`, `wrong|f|33`.
+
+- **A rung can carry two skills and keeps a state per skill.** R9 (3-digit ±) holds Addition and
+  Subtraction separately; for one child they differ (`stretch_ready` / `patterned_error`, mistake
+  `M_FACT_PM10`). Check: `select child_id, rung_code, skill_code, state from child_skill_state
+  where rung_code = 'R9'` → six rows, two per child.
+
+- **`/growth/[id]` is one lane per skill, in the school's words, with the answers behind each
+  step.** Names come from `rung.descriptor`, `skill.name`, `skill_set.name` and
+  `misconception.name`; no code reaches the page. Check: `cd apps/web && AUTH_DEV_BYPASS=1 npx
+  playwright test --project=screens` → `17 passed (8.1s)`, including *a child's ladder is in
+  words, with the answers behind each rung*, which asserts no `R\d`, `X\d`, `M_…` or
+  `AAA.BBB.CCC` token appears in the ladder and that clicking a step reveals a table with a
+  *Child wrote* column. No sideways scroll at 400 px on `/growth` or a child page.
+
+- **Known faults in the data, not yet fixed** (see `HANDOFF.md`): every paper was imported twice
+  per child, so answers count double — check: `select si.child_id, t.key->>'title', count(*)
+  from capture c join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on
+  t.id = si.sheet_template_id where exists (select 1 from item_result r where r.capture_id = c.id)
+  group by 1,2 having count(*) > 1` → six rows; and 13 of 28 captures are `status = 'error'`
+  from `pdftoppm` failures and hold no results.
+
 ## Environment
 
 - Docker, Supabase CLI, psql, Node, Python 3.14 present; n8n not installed (Docker);

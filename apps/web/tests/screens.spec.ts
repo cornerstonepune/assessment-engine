@@ -46,3 +46,19 @@ test("the menu marks where you are", async ({ page }) => {
   await page.goto("/library");
   await expect(page.getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");
 });
+
+// A child's page reads as a ladder in the school's own words: no rung, skill-set or mistake code
+// reaches a teacher, and every rung with answers opens to the work behind it.
+test("a child's ladder is in words, with the answers behind each rung", async ({ page }) => {
+  await page.goto("/growth");
+  await page.getByRole("main").getByRole("link").first().click();
+  await expect(page).toHaveURL(/\/growth\/[0-9a-f-]{36}$/);
+  const ladder = page.getByRole("list", { name: "The ladder" });
+  await expect(ladder.getByRole("listitem").first()).toBeVisible();
+  await expect(ladder).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z]+)\b/);
+  await expect(ladder.getByRole("table")).toHaveCount(0);
+  await ladder.getByRole("link").first().click();
+  const opened = ladder.locator(":target");
+  await expect(opened.getByRole("table")).toBeVisible();
+  await expect(opened.getByRole("columnheader", { name: "Child wrote" })).toBeVisible();
+});

@@ -2,65 +2,61 @@
 
 Read `STATE.md` for what is verified and how. This file is what the last session left.
 
-## Where things stand, 2026-09-18
+## Where things stand, 2026-09-18, evening
 
-**Live at https://cornerstone-assessment.vercel.app**, behind a staff sign-in. Nimish is the only
+**Live at https://cornerstone-assessment.vercel.app** behind email + password sign-in (`scrypt`
+hashes in `config.app.staff`, an httpOnly cookie signed with `AUTH_SECRET`). Nimish is the only
 person on the staff list.
 
-Sign-in is **email and password** since 2026-09-18, not a mailed link. The magic link had failed
-with `over_email_send_rate_limit`: Supabase's built-in sender allows two emails an hour and the
-project has no other sender. For three internal users that mechanism was never worth its cost, so
-it is gone — with the Supabase auth client, the session proxy, the callback route and 281 lines.
-Passwords are `scrypt` hashes inside the `config.app.staff` row; the session is an httpOnly cookie
-signed with `AUTH_SECRET`. **Production needs `AUTH_SECRET` set on Vercel** or sign-in throws —
-`openssl rand -hex 32 | npx vercel env add AUTH_SECRET production`, then redeploy. Adding a
-person is: add them to `app.staff` with a hash from `hashPassword()` in `apps/web/lib/auth.ts`. Repo: `cornerstonepune/assessment-engine`, private, in sync.
+**N3, the legacy import, ran for four Grade 2 children** (Advika, Agastya, Heian, Hridhima).
+`engine legacy paper` entered four paper definitions (`supabase/seed/papers/`); `engine legacy
+import` read the scans with the `legacy_extract` prompt on Haiku and marked by lookup; `engine
+legacy confirm` turned 218 candidate answers into evidence. The six-state graph is SQL
+(`supabase/migrations/20260918130000_graph_functions.sql`), so CLI and app run one rule.
 
-Built and verified: the database and loader; W1 the question bank (a prompt generates, code
-verifies, staff retire); W2 the week's papers (roster, prescription, per-child packs with QR);
-and four of the six screens. 114 engine tests, 40 browser tests over two passes.
+**Child Growth is rebuilt for a teacher.** `/growth/[id]` shows one lane per skill (Addition,
+Subtraction, Mental maths, Word problems, …), each step a marked node — tick, arrow, dot, bang,
+dashed ring — with score, bar and the school's own rung descriptor beneath. Click a step and the
+answers behind it open under the lane (`:target`, no client JS). Every name is a row —
+`rung.descriptor`, `skill.name`, `skill_set.name`, `misconception.name`; no code reaches the
+page. A rung shared by two skills (R9, 3-digit ±) sits in both lanes with its own state. Above
+the lanes: got it / practising / same mistake repeating / not seen yet / waiting for you. Below:
+the answers a person must settle, then the marked answers to confirm. Right: next papers, papers read.
 
-The bank holds 200 verified questions for SUB.2D.EXCH — 80 Hard from the model, 120 Medium from
-the offline samplers.
+## Start here — two data faults to settle before anyone reads a ladder
 
-## Start here
+1. **Every paper was imported twice per child.** `import_scan` is not idempotent and the batch
+   ran twice, so each child has two captures per paper and every answer counts double (43
+   confirmed on a 24-question paper; "secure across two papers" is met by one paper read twice).
+   Fix: a re-read of the same scan for the same child supersedes the earlier capture (a
+   `superseded_by` on `capture`; the graph reads only live captures — rule 4 keeps the rows),
+   then `engine graph`. Nimish decides whether the accidental duplicates are voided or deleted.
+2. **13 of 28 captures errored** — `pdftoppm` returned non-zero on some WhatsApp PDFs; those
+   reads hold no results. Render with `pdftocairo` or PyMuPDF and re-run.
 
-1. **Pick up the model research.** `research/2026-09-18-cheaper-models-glm-kimi.md` has prices,
-   quality, the privacy split, and the exact experiment. Nimish asked for this and it is the open
-   thread. Short version: try GLM 5.2 for question generation behind the existing adapter, never
-   for reading children's work, and decide on cost per *accepted* question, not per token.
-2. **W3, read and mark.** The next real build: photos in, QR resolves the child, marking by
-   lookup, the confirm queue, the six-state graph. This makes Capture and Child Growth real.
-   `assess/graph.py` is the seam already waiting for it.
-3. **N3, the legacy import.** 37 real papers in `~/cornerstone/assessments/` become each child's
-   starting evidence, checked against Aseem's five Grade 3 reports.
+Then: CI (`.github/workflows/ci.yml` exists, untested; the Vercel↔GitHub connection failed once —
+reconnect in the Vercel dashboard), W3 for real (photos in, QR resolves the child), and the model
+research in `research/2026-09-18-cheaper-models-glm-kimi.md`.
 
 ## Blocked on Nimish
 
-- **Set `AUTH_SECRET` on Vercel and redeploy.** Until then production sign-in cannot work.
-- **Rotate the database password.** It was typed into a chat and then printed into a Vercel build
-  log by a malformed connection string. Supabase → Settings → Database → Reset, alphanumeric only,
-  then update `.env` and the Vercel variable.
-- **Achal's and Neha's emails**, to add to the `app.staff` config row. Nobody else can sign in.
-- **Re-copy or delete `SUPABASE_SERVICE_ROLE_KEY`** in `.env`: it returns 401. Nothing uses it.
-- **A working `ANTHROPIC_API_KEY`** — the one in `.env` returns 401.
-- **An API key** for GLM or Kimi, if the experiment goes ahead.
+- Voiding vs deleting the duplicate imports (above).
+- `AUTH_SECRET` on Vercel, if not yet set; **rotate the database password** (it was typed into a
+  chat and printed into a build log); re-copy or delete `SUPABASE_SERVICE_ROLE_KEY` (returns 401).
+- Achal's and Neha's emails for `app.staff`.
 - Consent text · parent-note channel · whether the Olympiad papers count · Kiyaan's missing Week 1.
 
 ## Traps this session fell into — do not repeat
 
-- **Two keys in `.env` were placeholders**, not keys: `SUPABASE_ANON_KEY` was nine characters and
-  `SUPABASE_SERVICE_ROLE_KEY` was too. Both are fixed. The only symptom was "the link could not be
-  sent" on a healthy-looking page. Check a key authenticates before believing anything downstream.
-- **Never assemble a connection string with shell substitution.** A stray backslash made the driver
-  print the whole string, password included, into a build log.
-- **Do not run a migration while a fill is writing** — the `ALTER TABLE` lock deadlocks it, and it
-  cost a day's model quota.
-- **The end-to-end suite writes to the live database.** It sweeps up after itself now and fails if
-  it cannot, but a failing run once left a real question retired.
-- Free Gemini tier: 20 requests per model per day, resets about 12:30 IST.
-  `gemini-3.5-flash-lite` is useless here — 0 of 20 items passed the verifier.
-- `apps/web/.env.local` holds `AUTH_DEV_BYPASS=1` on this machine only. It is gitignored and
-  refused outside development.
-- A hook blocks frontend edits until `.design-approved.json` exists at the repo root; it is
-  gitignored, so a fresh clone needs it written again.
+- **Hard-coded rung and mistake names in TypeScript were wrong** (R3 labelled "adding ones"; it is
+  subtraction within 20). Rule 1: names are rows. Read `rung.descriptor` and `misconception.name`.
+- **`import_scan` ran twice for every paper.** Check `capture` for an existing (child, paper)
+  before importing; better, make the command idempotent.
+- **Routing paper reads through Sonnet 5 burned the $10 balance in one pass.** Haiku reads pages;
+  a stronger model is for judging answers only, and only when asked.
+- **A grid track without `minmax(0, 1fr)` grows to a table's width** and the page scrolls
+  sideways on a phone even with `overflow-x-auto`. The screens test catches it.
+- **A `"use client"` file must not import from `lib/queries.ts`** — it drags the Postgres driver
+  into the browser bundle. Types only (`import type`), or a server component.
+- Never assemble a connection string with shell substitution; never run a migration while a fill
+  is writing; the e2e suite writes to the live database.

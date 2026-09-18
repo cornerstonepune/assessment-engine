@@ -230,6 +230,7 @@ export type RungState = {
   ladder_order: number | null;
   descriptor: string;
   skill_code: string | null;
+  skill_name: string | null;
   state: string | null;
   n_events: number;
   n_correct: number;
@@ -239,19 +240,21 @@ export type RungState = {
 
 // The band's ladder (its three levels) plus any rung the child has evidence on; rungs no paper
 // has touched stay "not enough yet" with nothing behind them, which is the honest reading.
+// One row per rung × skill: a rung like "3-digit ±" carries addition and subtraction separately.
 export async function childMap(id: string): Promise<RungState[]> {
   return sql<RungState[]>`
     with ladder as (
       select unnest(l.rung_codes) as rung_code from level_rule l join child c on c.band = l.band where c.id = ${id}::uuid
       union select rung_code from child_skill_state where child_id = ${id}::uuid
     )
-    select r.code as rung_code, r.ladder_order, r.descriptor, s.skill_code, s.state,
+    select r.code as rung_code, r.ladder_order, r.descriptor, s.skill_code, k.name as skill_name, s.state,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
     from ladder x
     join rung r on r.code = x.rung_code
     left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code
-    order by r.ladder_order nulls last, r.code`;
+    left join skill k on k.tenant_id = s.tenant_id and k.code = s.skill_code
+    order by r.ladder_order nulls last, r.code, s.skill_code`;
 }
 
 export type NextStep = { code: string; name: string; rung_code: string; difficulty: string | null; rule: string; targets: string[] };
@@ -291,6 +294,40 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     where si.child_id = ${id}::uuid and r.state = 'candidate'
+    order by t.key ->> 'date', i.item_key`;
+}
+
+export type Evidence = {
+  rung_code: string;
+  skill_code: string;
+  date: string | null;
+  paper: string;
+  item_key: string;
+  question: string;
+  answer: string | null;
+  read: string;
+  working: string;
+  status: string;
+  misconception_codes: string[];
+};
+
+// Every confirmed answer, with the question and what the child wrote, so a rung's state can be
+// opened up to the work it rests on.
+export async function childEvidence(id: string): Promise<Evidence[]> {
+  return sql<Evidence[]>`
+    select e.rung_code, e.skill_code, t.key ->> 'date' as date, t.key ->> 'title' as paper, i.item_key,
+           coalesce(i.spec ->> 'question', i.stem) as question,
+           coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
+           coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
+           coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
+           r.status, e.misconception_codes
+    from evidence_event e
+    join item_result r on r.id = e.item_result_id
+    join item i on i.id = r.item_id
+    join capture c on c.id = r.capture_id
+    join sheet_instance si on si.id = c.sheet_instance_id
+    join sheet_template t on t.id = si.sheet_template_id
+    where e.child_id = ${id}::uuid and e.confirmed_by is not null
     order by t.key ->> 'date', i.item_key`;
 }
 
