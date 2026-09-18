@@ -31,7 +31,29 @@ unset variable cannot be misread.
 ## Supabase, once
 
 Authentication → URL Configuration → Redirect URLs: add `https://<the deployment>/auth/callback`.
-A magic link to a URL that is not on that list silently fails.
+A magic link to a URL that is not on that list silently fails. Already done for the current URL.
+
+### Check the key is a key
+
+`SUPABASE_ANON_KEY` sat in `.env` as a nine-character placeholder that nobody had filled in, and the
+only symptom was "the link could not be sent" on a screen that otherwise looked perfectly healthy.
+Before blaming email, confirm the key actually authenticates:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/auth/v1/settings"
+```
+
+`200` means the key is good; `401` means it is wrong, whatever its shape. Use the **publishable**
+key (`sb_publishable_…`), never the secret or service-role one — that reaches the browser.
+
+### Email sending is not production-ready yet
+
+The project has no SMTP server configured, so Supabase sends through its own shared service, which
+allows **two emails an hour** and is not intended for real use. Three staff signing in one morning
+will exhaust it. Before the pilot widens, connect a real sender (Resend, SendGrid, Postmark, or the
+school's own Google Workspace SMTP) under Authentication → Emails → SMTP Settings, and raise
+`rate_limit_email_sent` to match.
 
 ## Who can sign in
 
