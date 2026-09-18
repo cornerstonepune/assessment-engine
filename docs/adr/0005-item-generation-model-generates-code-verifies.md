@@ -1,6 +1,9 @@
 # ADR 0005 — Item generation: a prompt generates, code verifies, staff retire
 
-Date: 2026-09-17. Status: accepted.
+Date: 2026-09-17. Status: accepted; **superseded in part by ADR 0010 (2026-09-19)** — the
+deterministic enumerator, not the prompt, is the default for every unit code can enumerate from
+the spec; the prompt writes language once per pattern and remains the path for item kinds whose
+language cannot be templated, and the eval oracle. "Code verifies, staff retire" stands unchanged.
 
 ## Decision
 

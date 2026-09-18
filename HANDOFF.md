@@ -28,9 +28,10 @@ everywhere; the code verifier knows + and − only.
 
 ## Blocked on Nimish
 
-- The W1 gate list and the 50-per-unit number.
-- Budget: 64 units × 50 ≈ 3,200 items ≈ ₹1,000–1,500 on Haiku at the measured ~20k tokens per
-  20-question request. `llm.daily_budget_inr` (₹150) spreads that over ~8 days or is raised.
+- The W1 gate list and the 50-per-unit number — now with ADR 0010's design: code enumerates the
+  arithmetic from the spec for nothing; the model writes sentence templates once per skill set.
+  The whole bank's model spend is bounded at ₹50 (gate 6). The earlier ₹1,000–1,500 figure was the
+  cost of paying the model per question and is withdrawn.
 - Standing: Achal's and Neha's emails for `app.staff`; rotate the database password; `AUTH_SECRET`
   on Vercel if unset; the n8n owner account when F1 is wired (W1 gate 5).
 

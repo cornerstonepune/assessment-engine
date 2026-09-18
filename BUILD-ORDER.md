@@ -40,6 +40,17 @@ W3's reading engine is proven on the 84 real sheets. It is never mixed into the 
 
 ## W1 — build the bank: the six gates
 
+**How the bank is made (ADR 0010, supersedes ADR 0005's demotion of the samplers).** Questions
+of one kind are a *pattern*, not a conversation: "two 2-digit numbers, one regroup, total under
+100" is a finite space of (a, b) pairs that code enumerates from the skill set's rule, with the
+answer and every misconception distractor computed, in a loop, for nothing. The model is paid
+**once per pattern** — to write a small library of sentence templates with number slots for word
+problems, and to judge a template's language — never once per question. Per-question model
+generation is the exception, kept for the few item kinds whose language cannot be templated
+(explain a claim, find the mistake) and as the oracle the enumerator is evaluated against.
+The whole 64-unit bank must cost tens of rupees in model spend, not thousands; if it costs more,
+the design has regressed and gate 6 fails.
+
 Done means every line has a command and its output in `STATE.md`.
 
 1. **Every rung has a ratifiable spec.** 16 of 16 rungs on the ladder have a `skill_set` row: name,
@@ -47,28 +58,34 @@ Done means every line has a command and its output in `STATE.md`.
    Hard, Advance a rule in words plus a checkable rule. Drafted by the engine for Neha and Achal to
    correct, ratified by Aseem (N1). Gate: `select count(*) from rung r where not exists (select 1
    from skill_set s where s.rung_code = r.code)` → `0`, and every row `ratified`.
-2. **Every skill × difficulty unit is rich.** At least 50 approved items in each of the 64 units
-   (16 rungs × 4 difficulties — ~50 per skill per difficulty is the number agreed with the school
-   in the workflow document). Gate: `engine bank coverage` prints the 16 × 4 table with no cell
-   under 50.
+2. **Every skill × difficulty unit is rich, produced by code from the spec.** At least 50 approved
+   items in each of the 64 units (16 rungs × 4 difficulties — ~50 per skill per difficulty is the
+   number agreed with the school in the workflow document), enumerated by `engine bank fill` from
+   the rule in the skill-set row, answers and distractors computed, no model call for the
+   arithmetic. Gate: `engine bank coverage` prints the 16 × 4 table with no cell under 50, and
+   `flow_run` shows the fill's model spend for the + and − units was zero.
 3. **Any topic, by rows only.** A new skill set — multiplication, the workflow document's own
    example — added as rows produces verified questions with no Python change outside the
    verifier's rule checks (`ARCHITECTURE.md` §7.5's stated proof). Gate: the fill command's output
    and `git diff --stat` showing only `assess/verify.py`, if anything.
-4. **Code verifies where it can; a validator agent checks everything.** Each generated item passes
-   the code verifier (numbers exact) where one exists for its operation, and a `validate_item`
-   prompt always — answerable, one right answer, fits the objective and the difficulty's words,
-   language for the grade, no forbidden words, plausible distractors. Every rejection is counted
-   by reason in `flow_run`. Gate: `engine eval item_generate` and `engine eval validate_item`,
-   pass rates recorded, and a gold set of hand-judged items the validator is scored against.
+4. **Code verifies every item; the validator agent checks language once per pattern, never once
+   per item.** Every enumerated item passes the code verifier (numbers exact — redundant by
+   construction, kept so the gate stays honest). The `validate_item` prompt judges each *sentence
+   template* when it is written (answerable, one right answer, fits the objective and the
+   difficulty's words, language for the grade, no forbidden words) and a random sample of at most
+   5 % of the items in each unit — a per-item model check would put the token cost straight back.
+   Every rejection is counted by reason in `flow_run`. Gate: `engine eval validate_item` on a
+   hand-judged gold set of templates and sampled items, pass rate recorded.
 5. **It runs as a workflow.** n8n F1 build-the-bank: trigger (a skill-set row changes, or a unit
    drops under 50) → `POST /bank/fill` → validator → items land `sample` until the set is
    ratified, then `approved` → any staff member can flag an item from the library, which retires
    it and feeds the eval. Exported to `n8n/workflows/f1-build-the-bank.json`; `n8n/lint.py`
    passes (no Code node, no prompt text, ids only). Gate: change one skill-set row and watch new
    items appear with nobody typing a command; the run visible as boxes in n8n.
-6. **Cost and rate are known.** Cost per accepted item and acceptance rate per unit, from
-   `flow_run`, on the Skill Map screen. Gate: the query and its output.
+6. **Cost and rate are known, and the cost is near zero.** Cost per accepted item and acceptance
+   rate per unit, from `flow_run`, on the Skill Map screen. Gate: the query and its output, and the
+   whole 64-unit bank's model spend under ₹50 — templates and their validation, nothing per item.
+   Over that, the design has regressed to paying per question and the gate fails.
 
 ## Parked — nothing here before W1's six gates pass
 
