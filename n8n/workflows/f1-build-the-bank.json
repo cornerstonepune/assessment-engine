@@ -1,0 +1,345 @@
+{
+  "name": "F1 — build the bank",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "name": "Every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        32
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 6,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "A skill set changed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        224
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bank/refill",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "name": "Which units are short?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        144
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "http://engine:8000/bank/coverage",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "short_only",
+              "value": "true"
+            }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "name": "One unit at a time",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        144
+      ],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "name": "Top up the bank",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/bank/fill",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.code }}-{{ $json.difficulty }}-{{ $now.toFormat(\"yyyyLLdd\") }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"skill_set\": $json.code, \"difficulty\": $json.difficulty, \"count\": $json.shortfall } }}",
+        "options": {
+          "timeout": 600000
+        }
+      }
+    },
+    {
+      "name": "Language reviewer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/bank/review",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"skill_set\": $(\"One unit at a time\").item.json.code, \"difficulty\": $(\"One unit at a time\").item.json.difficulty, \"reviewer\": \"language_review\" } }}",
+        "options": {
+          "timeout": 600000
+        }
+      }
+    },
+    {
+      "name": "Pedagogy reviewer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/bank/review",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpTemplatedCustomAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"skill_set\": $(\"One unit at a time\").item.json.code, \"difficulty\": $(\"One unit at a time\").item.json.difficulty, \"reviewer\": \"pedagogy_review\" } }}",
+        "options": {
+          "timeout": 600000
+        }
+      }
+    },
+    {
+      "name": "Anything for a person?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.not_passed }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "rightValue": 0
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "name": "Ask a person to look",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        80
+      ],
+      "parameters": {
+        "fromEmail": "engine@cornerstoneschool.in",
+        "toEmail": "nimish.shah1989@gmail.com",
+        "subject": "=Question bank: {{ $json.not_passed }} to look at in {{ $json.skill_set }} {{ $json.difficulty }}",
+        "emailFormat": "text",
+        "text": "=The reviewers flagged {{ $json.not_passed }} of {{ $json.judged }} in {{ $json.skill_set }} {{ $json.difficulty }}.\n\nOpen the Skill Map screen to agree or overrule. Nothing has been retired: a verdict is advice until a person acts on it."
+      }
+    },
+    {
+      "name": "Why this flow is boring",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        380
+      ],
+      "parameters": {
+        "content": "## n8n never thinks\n\nEvery box here is a trigger, an HTTP call to the engine, a field comparison, or a notification.\n\nNo Code node. No prompt text. No marking rule. No secret — the engine key is a credential reference.\n\nWhich units are short, how many questions to make, and whether an item is any good are all decided by the engine. If this flow ever needs a new decision, the decision goes behind an endpoint and this flow calls it.\n\n`n8n/lint.py` fails the build otherwise.",
+        "height": 360,
+        "width": 460
+      }
+    }
+  ],
+  "connections": {
+    "Every morning": {
+      "main": [
+        [
+          {
+            "node": "Which units are short?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A skill set changed": {
+      "main": [
+        [
+          {
+            "node": "Which units are short?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which units are short?": {
+      "main": [
+        [
+          {
+            "node": "One unit at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One unit at a time": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Top up the bank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top up the bank": {
+      "main": [
+        [
+          {
+            "node": "Language reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Language reviewer": {
+      "main": [
+        [
+          {
+            "node": "Pedagogy reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedagogy reviewer": {
+      "main": [
+        [
+          {
+            "node": "Anything for a person?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything for a person?": {
+      "main": [
+        [
+          {
+            "node": "Ask a person to look",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "One unit at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask a person to look": {
+      "main": [
+        [
+          {
+            "node": "One unit at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodeGroups": [
+    {
+      "name": "2 · Fill it",
+      "nodeNames": [
+        "Top up the bank"
+      ],
+      "description": "One call per unit, keyed so a retry cannot double-fill."
+    },
+    {
+      "name": "3 · Review it",
+      "nodeNames": [
+        "Language reviewer",
+        "Pedagogy reviewer"
+      ],
+      "description": "Two advisory passes over the band's rule and a small sample. Nothing is retired here."
+    }
+  ]
+}

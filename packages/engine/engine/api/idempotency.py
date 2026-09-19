@@ -8,6 +8,7 @@ Three outcomes for a key already on record:
 - `error`   → the previous attempt failed; this call reclaims the row and retries fn().
 - `running` → another call is still in flight; this call refuses rather than running twice.
 """
+
 import hashlib
 import json
 
@@ -39,7 +40,8 @@ def run_idempotent(conn, tenant_id, flow: str, key: str, request: dict, fn):
         if run_id is None:
             existing = conn.execute(
                 "select result from flow_run where tenant_id = %s and flow = %s and idempotency_key = %s",
-                (tenant_id, flow, key)).fetchone()
+                (tenant_id, flow, key),
+            ).fetchone()
             return existing["result"], True
     else:
         run_id = claimed["id"]
@@ -49,11 +51,13 @@ def run_idempotent(conn, tenant_id, flow: str, key: str, request: dict, fn):
     except Exception as e:
         conn.execute(
             "update flow_run set status = 'error', error = %s, finished_at = clock_timestamp() where id = %s",
-            (str(e), run_id))
+            (str(e), run_id),
+        )
         raise
     conn.execute(
         "update flow_run set status = 'ok', result = %s, finished_at = clock_timestamp() where id = %s",
-        (json.dumps(result), run_id))
+        (json.dumps(result), run_id),
+    )
     return result, False
 
 
@@ -64,7 +68,8 @@ def _reclaim_or_return(conn, tenant_id, flow, key, request):
     more, which resolves to 'running' → InProgress, never a silent double run)."""
     existing = conn.execute(
         "select id, status from flow_run where tenant_id = %s and flow = %s and idempotency_key = %s",
-        (tenant_id, flow, key)).fetchone()
+        (tenant_id, flow, key),
+    ).fetchone()
     if existing["status"] == "ok":
         return None
     if existing["status"] == "running":
@@ -73,7 +78,8 @@ def _reclaim_or_return(conn, tenant_id, flow, key, request):
         "update flow_run set status = 'running', started_at = clock_timestamp(),"
         " finished_at = null, error = null, request = %s"
         " where id = %s and status = 'error' returning id",
-        (json.dumps(request), existing["id"])).fetchone()
+        (json.dumps(request), existing["id"]),
+    ).fetchone()
     if reclaimed is None:
         return _reclaim_or_return(conn, tenant_id, flow, key, request)
     return reclaimed["id"]

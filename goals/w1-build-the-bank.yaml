@@ -1,0 +1,67 @@
+name: w1-build-the-bank
+goal: >
+  Given a topic, its learning objective, a difficulty and the conditions the school sets for the
+  subject, the engine produces a set of questions that are arithmetically correct, inside that
+  difficulty's own rule, diagnostic (every wrong answer maps to a named mistake) and all different —
+  for any topic, added as rows, with no code written for that topic.
+
+# The functional bar. Every scenario must pass completely: 20 of 20, not 19.
+scenarios:
+  - name: two-digit subtraction, one exchange, Hard — the rung Aseem diagnosed by hand
+    skill_set: SUB.2D.EXCH
+    difficulty: Hard
+    n: 20
+  - name: the same rung at its easiest, to prove a band is not a suggestion
+    skill_set: SUB.2D.EXCH
+    difficulty: Easy
+    n: 20
+  - name: three-digit subtraction across a zero, Hard — the hardest arithmetic shape
+    skill_set: SUB.3D.ZERO
+    difficulty: Hard
+    n: 20
+  - name: two-digit addition with regrouping, Medium
+    skill_set: ADD.2D.REG
+    difficulty: Medium
+    n: 20
+  - name: adds within ten, Easy — a foundational rung whose universe is small
+    skill_set: ADD.1D.WITHIN10
+    difficulty: Easy
+    n: 15
+  - name: multiplication — a topic added as rows only, no Python written for it
+    skill_set: MUL.1D
+    difficulty: Easy
+    n: 20
+  - name: four-digit advance, Medium — four addends, where a carry can be 2
+    skill_set: ADDSUB.4D.ADV
+    difficulty: Medium
+    n: 20
+  - name: a one-step word problem, Easy — a question made of sentences
+    skill_set: WORD.1_2STEP
+    difficulty: Easy
+    n: 20
+  - name: a budget question, Easy — two steps and money
+    skill_set: WORD.BUDGET
+    difficulty: Easy
+    n: 20
+  - name: find the mistake, Easy — a question whose answer is a diagnosis
+    skill_set: REASON.FIND_MISTAKE
+    difficulty: Easy
+    n: 12
+
+# The engine around those questions: the rows stay consistent and the bank stays honest.
+criteria:
+  - name: every invariant across every row holds
+    run: engine audit
+    expect: "0 violations"
+  - name: every skill x difficulty unit is rich enough to draw from
+    run: engine bank coverage
+    expect: "0 under their target"
+  - name: every stored question still satisfies the band it claims
+    run: engine bank recheck
+    expect: "0 mismatches"
+  - name: the seed loads twice with nothing moving
+    run: engine load --check
+    expect: "unchanged on a second run"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

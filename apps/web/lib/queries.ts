@@ -60,7 +60,7 @@ export type Misconception = { code: string; op: string; name: string; descriptio
 export async function misconceptionsFor(op: string): Promise<Misconception[]> {
   return sql<Misconception[]>`
     select distinct on (code) code, op, name, description from misconception
-    where op = ${op} or op = 'both' order by code`;
+    where op = ${op} or op = 'any' order by code`;
 }
 
 export async function misconceptionNames(): Promise<Record<string, string>> {

@@ -5,6 +5,7 @@ copying from a neighbour gains nothing while the teacher still holds one key. A 
 the same question twice inside the exposure window, which is what makes a second attempt evidence
 rather than recall.
 """
+
 import hashlib
 import json
 import random
@@ -69,16 +70,27 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     if not rx:
         raise ValueError(f"no prescriptions for {section} {week} {kind} — run prescribe first")
 
-    taken: set[str] = set()      # item ids already used by this class this week
+    taken: set[str] = set()  # item ids already used by this class this week
     built, short = [], []
     for p in rx:
-        pool = [r for r in _available(conn, p["skill_set_code"], p["difficulty"], p["child_id"], window)
-                if r["id"] not in taken]
+        pool = [
+            r
+            for r in _available(conn, p["skill_set_code"], p["difficulty"], p["child_id"], window)
+            if r["id"] not in taken
+        ]
         if len(pool) < per_sheet:
-            short.append({"roll_no": p["roll_no"], "difficulty": p["difficulty"],
-                          "had": len(pool), "needed": per_sheet})
+            short.append(
+                {
+                    "roll_no": p["roll_no"],
+                    "difficulty": p["difficulty"],
+                    "had": len(pool),
+                    "needed": per_sheet,
+                }
+            )
             continue
-        rng = random.Random(int(hashlib.sha1(f"{p['child_id']}|{week}|{kind}".encode()).hexdigest(), 16) % (2**32))
+        rng = random.Random(
+            int(hashlib.sha1(f"{p['child_id']}|{week}|{kind}".encode()).hexdigest(), 16) % (2**32)
+        )
         chosen = rng.sample(pool, per_sheet)
         taken.update(r["id"] for r in chosen)
         built.append(_store(conn, tenant, p, chosen, week, kind))
@@ -88,19 +100,40 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
         skill_set = next(p["skill_set_code"] for p in rx if p["difficulty"] == difficulty)
         band = next(p["band"] for p in rx if p["difficulty"] == difficulty)
         for n in range(spares_each):
-            pool = [r for r in conn.execute(
-                "select * from item where status = 'active' and skill_set_code = %s and difficulty = %s"
-                " order by times_used, item_key", (skill_set, difficulty)).fetchall()
-                if r["id"] not in taken]
+            pool = [
+                r
+                for r in conn.execute(
+                    "select * from item where status = 'active' and skill_set_code = %s and difficulty = %s"
+                    " order by times_used, item_key",
+                    (skill_set, difficulty),
+                ).fetchall()
+                if r["id"] not in taken
+            ]
             if len(pool) < per_sheet:
                 break
-            rng = random.Random(int(hashlib.sha1(f"spare|{difficulty}|{n}|{week}".encode()).hexdigest(), 16) % (2**32))
+            rng = random.Random(
+                int(hashlib.sha1(f"spare|{difficulty}|{n}|{week}".encode()).hexdigest(), 16) % (2**32)
+            )
             chosen = rng.sample(pool, per_sheet)
             taken.update(r["id"] for r in chosen)
-            spares.append(_store(conn, tenant, {"id": None, "child_id": None, "skill_set_code": skill_set,
-                                                "difficulty": difficulty, "band": band, "roll_no": f"spare {n + 1}",
-                                                "rule_fired": "spare"},
-                                 chosen, week, kind))
+            spares.append(
+                _store(
+                    conn,
+                    tenant,
+                    {
+                        "id": None,
+                        "child_id": None,
+                        "skill_set_code": skill_set,
+                        "difficulty": difficulty,
+                        "band": band,
+                        "roll_no": f"spare {n + 1}",
+                        "rule_fired": "spare",
+                    },
+                    chosen,
+                    week,
+                    kind,
+                )
+            )
 
     return {"sheets": built, "spares": spares, "short": short}
 
@@ -110,8 +143,15 @@ def _store(conn, tenant, p, items, week, kind):
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, week, variant, item_ids, skill_set_code,"
         " difficulty, child_id, source) values (%s,%s,%s,1,%s,%s,%s,%s,'generated') returning id",
-        (tenant, p["band"], week, [r["id"] for r in items], p["skill_set_code"], p["difficulty"],
-         p["child_id"]),
+        (
+            tenant,
+            p["band"],
+            week,
+            [r["id"] for r in items],
+            p["skill_set_code"],
+            p["difficulty"],
+            p["child_id"],
+        ),
     ).fetchone()["id"]
     qr = _qr(template, p["child_id"], week, kind)
     instance = conn.execute(
@@ -120,17 +160,30 @@ def _store(conn, tenant, p, items, week, kind):
         (tenant, qr, template, p["child_id"]),
     ).fetchone()
     if p["id"]:
-        conn.execute("update prescription set sheet_instance_id = %s where id = %s", (instance["id"], p["id"]))
+        conn.execute(
+            "update prescription set sheet_instance_id = %s where id = %s", (instance["id"], p["id"])
+        )
     if p["child_id"]:
         for r in items:
             conn.execute(
                 "insert into item_exposure (tenant_id, child_id, item_id, week) values (%s,%s,%s,%s)"
                 " on conflict (tenant_id, child_id, item_id) do nothing",
-                (tenant, p["child_id"], r["id"], week))
-    conn.execute("update item set times_used = times_used + 1 where id = any(%s)", ([r["id"] for r in items],))
-    return {"template_id": template, "instance_id": instance["id"], "qr": instance["qr_code"],
-            "child_id": p["child_id"], "roll_no": p["roll_no"], "band": p["band"],
-            "difficulty": p["difficulty"], "rule": p["rule_fired"], "item_rows": items}
+                (tenant, p["child_id"], r["id"], week),
+            )
+    conn.execute(
+        "update item set times_used = times_used + 1 where id = any(%s)", ([r["id"] for r in items],)
+    )
+    return {
+        "template_id": template,
+        "instance_id": instance["id"],
+        "qr": instance["qr_code"],
+        "child_id": p["child_id"],
+        "roll_no": p["roll_no"],
+        "band": p["band"],
+        "difficulty": p["difficulty"],
+        "rule": p["rule_fired"],
+        "item_rows": items,
+    }
 
 
 def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "practice") -> dict:
@@ -153,14 +206,22 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
             sh = Sheet(s["qr"], s["band"], s["difficulty"], 1, week, items)
             label = f"{named.get(s['child_id'], 'Spare copy')} · {s['difficulty']} {kind}"
             key = render_sheet(sh, outdir, week_label=label, pw=pw)
-            conn.execute("update sheet_template set key = %s, html_path = %s where id = %s",
-                         (json.dumps(key), str(outdir / f"{s['qr']}.html"), s["template_id"]))
-            conn.execute("update sheet_instance set pdf_path = %s where id = %s",
-                         (str(outdir / f"{s['qr']}.pdf"), s["instance_id"]))
+            conn.execute(
+                "update sheet_template set key = %s, html_path = %s where id = %s",
+                (json.dumps(key), str(outdir / f"{s['qr']}.html"), s["template_id"]),
+            )
+            conn.execute(
+                "update sheet_instance set pdf_path = %s where id = %s",
+                (str(outdir / f"{s['qr']}.pdf"), s["instance_id"]),
+            )
             pdfs.append(str(outdir / f"{s['qr']}.pdf"))
             s["pages"] = key["pages"]
 
     pack = outdir / f"{week}_pack.pdf"
     subprocess.run(["pdfunite", *pdfs, str(pack)], check=True)
-    return {"pack": str(pack), "sheets": len(built["sheets"]), "spares": len(built["spares"]),
-            "pages": sum(s["pages"] for s in sheets)}
+    return {
+        "pack": str(pack),
+        "sheets": len(built["sheets"]),
+        "spares": len(built["spares"]),
+        "pages": sum(s["pages"] for s in sheets),
+    }

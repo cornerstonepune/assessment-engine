@@ -2,6 +2,7 @@
 answers as evidence. Every route is a thin idempotent wrapper over the same functions the CLI
 calls (`engine/legacy.py`) — no logic lives here, only request/response shaping (rule 3, extended
 to this HTTP layer: it orchestrates, it does not decide)."""
+
 from fastapi import APIRouter, Depends, Header
 
 from engine import legacy
@@ -30,8 +31,14 @@ def ingest(
 
     def run():
         summary = legacy.import_scan(
-            conn, body.path, body.paper_code, body.child_id, body.actor,
-            pages=body.pages, masks=body.masks, narrative=body.narrative,
+            conn,
+            body.path,
+            body.paper_code,
+            body.child_id,
+            body.actor,
+            pages=body.pages,
+            masks=body.masks,
+            narrative=body.narrative,
         )
         return {
             "capture_id": str(summary["capture_id"]),
@@ -54,7 +61,11 @@ def mark(
 ):
     key = idempotency_key or derive_key(body.model_dump())
     result, already = run_idempotent(
-        conn, tenant_id, "mark", key, body.model_dump(),
+        conn,
+        tenant_id,
+        "mark",
+        key,
+        body.model_dump(),
         lambda: {"changed": legacy.remark(conn, body.child_id)},
     )
     return {**result, "already": already}
@@ -69,7 +80,11 @@ def commit(
 ):
     key = idempotency_key or derive_key(body.model_dump())
     result, already = run_idempotent(
-        conn, tenant_id, "commit", key, body.model_dump(),
+        conn,
+        tenant_id,
+        "commit",
+        key,
+        body.model_dump(),
         lambda: {"confirmed": legacy.confirm(conn, body.child_id, body.by)},
     )
     return {**result, "already": already}

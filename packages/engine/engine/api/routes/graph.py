@@ -6,6 +6,7 @@ per confirm event on the same day) must pass its own distinguishing Idempotency-
 one from the body alone, as every other route does, cannot tell "the same event retried" from
 "a new event with an identical body" apart, and guessing at that here would be worse than not
 guessing."""
+
 from fastapi import APIRouter, Depends, Header
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
@@ -25,7 +26,11 @@ def rebuild(
 ):
     key = idempotency_key or derive_key(body.model_dump())
     result, already = run_idempotent(
-        conn, tenant_id, "graph_rebuild", key, body.model_dump(),
+        conn,
+        tenant_id,
+        "graph_rebuild",
+        key,
+        body.model_dump(),
         lambda: {"states": skill_graph.rebuild(conn, body.child_id)},
     )
     return {**result, "already": already}

@@ -16,13 +16,14 @@ dependencies = [
     "pymupdf>=1.24",
     "pydantic>=2.9",
     "python-dotenv>=1.0",
+    "pyyaml>=6.0",
     "segno>=1.6",
     "typer>=0.15",
     "uvicorn[standard]>=0.32",
 ]
 
 [project.optional-dependencies]
-dev = ["httpx>=0.27", "pytest>=8.3", "pytest-cov>=6.0"]
+dev = ["httpx>=0.27", "pytest>=8.3", "pytest-cov>=6.0", "ruff>=0.14"]
 
 [project.scripts]
 engine = "engine.cli:app"
@@ -40,3 +41,19 @@ addopts = "-q"
 
 [tool.coverage.run]
 source = ["engine"]
+
+[tool.ruff]
+# 110 is the width this engine was written at; 88 would rewrap every line in the repository and
+# call it formatting. The predictor registries are wrapped in `# fmt: off` where one line per
+# misconception is the point — `ruff format` would turn 27 readable rows into 130 lines.
+line-length = 110
+
+[tool.ruff.lint]
+# The classes that are defects, named explicitly so a ruff upgrade cannot silently turn taste into a
+# CI failure: pycodestyle errors and warnings, pyflakes, and import order. Deliberately not selected:
+# C4/B/PL/SIM/PERF/UP, which argue about dict() versus {} and other matters of preference.
+select = ["E", "W", "F", "I"]
+# E501 is the formatter's job and only fires where the formatter deliberately cannot act — inside a
+# long comment or a string it must not break. Selecting both makes 114 unfixable findings out of a
+# width that is already enforced on every commit by `ruff format --check`.
+ignore = ["E501"]

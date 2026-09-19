@@ -1,6 +1,7 @@
 """Resolving a folder name to a child id — the one lookup a workflow needs before it can call
 /ingest. A pure read (roster.find already logs it, like every pii read); no idempotency wrapper:
 running a lookup twice writes two access_log rows, which is the honest and correct behaviour."""
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from engine import roster

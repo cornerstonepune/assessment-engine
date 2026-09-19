@@ -4,6 +4,7 @@ non-zero exit from a spawned process under load, retried by re-running the whole
 Rendering in-process removes the subprocess entirely, so there is nothing left to be flaky. No
 temp directory and no system binary: a legacy import is run from more than one machine, and this
 needs nothing beyond the Python dependency."""
+
 import cv2
 import numpy as np
 import pymupdf

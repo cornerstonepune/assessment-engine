@@ -379,6 +379,508 @@
           }
         }
       }
+    },
+    {
+      "purpose": "pedagogy_review",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/pedagogy_review.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdicts"
+        ],
+        "properties": {
+          "verdicts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ref",
+                "verdict",
+                "reasons"
+              ],
+              "properties": {
+                "ref": {
+                  "type": "string"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "pass",
+                    "revise",
+                    "reject"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "skill",
+                      "signal",
+                      "difficulty",
+                      "answer",
+                      "reading_load",
+                      "vocabulary",
+                      "ambiguity",
+                      "forbidden",
+                      "age"
+                    ]
+                  }
+                },
+                "note": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "language_review",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/language_review.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdicts"
+        ],
+        "properties": {
+          "verdicts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ref",
+                "verdict",
+                "reasons"
+              ],
+              "properties": {
+                "ref": {
+                  "type": "string"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "pass",
+                    "revise",
+                    "reject"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "skill",
+                      "signal",
+                      "difficulty",
+                      "answer",
+                      "reading_load",
+                      "vocabulary",
+                      "ambiguity",
+                      "forbidden",
+                      "age"
+                    ]
+                  }
+                },
+                "note": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "misconception_list",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/misconception_list.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistakes"
+        ],
+        "properties": {
+          "mistakes": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 14,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "how_it_goes",
+                "example",
+                "repair_hint",
+                "visible_in"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "how_it_goes": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "example": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "a",
+                    "b",
+                    "op",
+                    "child_writes"
+                  ],
+                  "properties": {
+                    "a": {
+                      "type": "integer"
+                    },
+                    "b": {
+                      "type": "integer"
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": [
+                        "+",
+                        "-",
+                        "×"
+                      ]
+                    },
+                    "child_writes": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "repair_hint": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "visible_in": {
+                  "type": "string",
+                  "enum": [
+                    "answer_lookup",
+                    "working",
+                    "explanation",
+                    "teacher"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "misconception_list",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/misconception_list.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistakes"
+        ],
+        "properties": {
+          "mistakes": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 14,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "how_it_goes",
+                "family",
+                "example",
+                "repair_hint",
+                "visible_in"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "how_it_goes": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "example": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "a",
+                    "b",
+                    "op",
+                    "correct_answer",
+                    "child_writes"
+                  ],
+                  "properties": {
+                    "a": {
+                      "type": "integer"
+                    },
+                    "b": {
+                      "type": "integer"
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": [
+                        "+",
+                        "-",
+                        "×"
+                      ]
+                    },
+                    "child_writes": {
+                      "type": "integer"
+                    },
+                    "correct_answer": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "repair_hint": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "visible_in": {
+                  "type": "string",
+                  "enum": [
+                    "answer_lookup",
+                    "working",
+                    "explanation",
+                    "teacher"
+                  ]
+                },
+                "family": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B",
+                    "C",
+                    "D",
+                    "E",
+                    "F"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "misconception_list",
+      "version": 3,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/misconception_list.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistakes"
+        ],
+        "properties": {
+          "mistakes": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "how_it_goes",
+                "family",
+                "example",
+                "repair_hint",
+                "visible_in"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "how_it_goes": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "example": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "a",
+                    "b",
+                    "op",
+                    "correct_answer",
+                    "child_writes"
+                  ],
+                  "properties": {
+                    "a": {
+                      "type": "integer"
+                    },
+                    "b": {
+                      "type": "integer"
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": [
+                        "+",
+                        "-",
+                        "×"
+                      ]
+                    },
+                    "child_writes": {
+                      "type": "integer"
+                    },
+                    "correct_answer": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "repair_hint": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "visible_in": {
+                  "type": "string",
+                  "enum": [
+                    "answer_lookup",
+                    "working",
+                    "explanation",
+                    "teacher"
+                  ]
+                },
+                "family": {
+                  "type": "string",
+                  "enum": [
+                    "D",
+                    "F"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "misconception_list",
+      "version": 4,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/misconception_list.v4.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistakes"
+        ],
+        "properties": {
+          "mistakes": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "how_it_goes",
+                "family",
+                "repair_hint",
+                "visible_in"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "how_it_goes": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "example": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numbers",
+                    "op",
+                    "correct_answer",
+                    "child_writes"
+                  ],
+                  "properties": {
+                    "numbers": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 5,
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": [
+                        "+",
+                        "-",
+                        "×"
+                      ]
+                    },
+                    "correct_answer": {
+                      "type": "integer"
+                    },
+                    "child_writes": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "repair_hint": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "visible_in": {
+                  "type": "string",
+                  "enum": [
+                    "answer_lookup",
+                    "working",
+                    "explanation",
+                    "teacher"
+                  ]
+                },
+                "family": {
+                  "type": "string",
+                  "enum": [
+                    "D",
+                    "F"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

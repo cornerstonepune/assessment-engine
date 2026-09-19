@@ -2,6 +2,7 @@
 the request. One request is one transaction — every write a route and its idempotency wrapper
 make lands together on success, and unwinds together on any error, exactly like `db.connect()`'s
 existing commit-on-exit / rollback-on-exception behaviour already used everywhere else."""
+
 import os
 
 from fastapi import Depends, Header, HTTPException

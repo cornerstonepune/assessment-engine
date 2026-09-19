@@ -7,6 +7,7 @@ taxonomy names as distinct diagnostics. A child who can add in a column but cann
 
 Reverting a blueprint slot would reopen the hole silently. This test is what stops that.
 """
+
 import collections
 import random
 

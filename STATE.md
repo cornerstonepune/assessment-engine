@@ -585,7 +585,626 @@ deliberate departures from its original text and everything below in more detail
   case a future session hits the same silent hang and burns time on the wrong theory (network
   block) before checking `docker pull` directly.
 
+## W1 gate 1 — every rung has a ratifiable skill-set spec (2026-09-19)
+
+Nimish gave the yes on `BUILD-ORDER.md`'s six W1 gates in chat on 2026-09-19, including the
+50-per-unit number and ADR 0010's design, clearing the block `HANDOFF.md` had recorded. Gate 1
+scope: draft the 12 missing skill-set specs — R1–R4, R7, R8, R11–R14, X1, X2 — as rows in
+`supabase/seed/skill_sets.json`, each with name, learning objective, philosophy, formats,
+misconception codes, and a words rule plus a checkable rule for Easy/Medium/Hard/Advance.
+
+- **All 16 rungs now have a skill-set row; the four already-drafted ones (R5, R6, R9, R10) are
+  untouched.** For R7, R11, R13, X1 and X2 — where the substantive claim (mental strategy,
+  rounding reasoning, "most efficient" method, an explanation, a diagnosis) is not something code
+  can check — the row says so in its `philosophy` and names the validator route (a template-level
+  check plus a ≤5 % item sample, never a per-item model call), per ADR 0009 and ADR 0010, rather
+  than inventing a code verifier for it. Every `check` block still states what code *can* verify
+  (the numeric or tick answer). All 16 rows load at `status = 'draft'`, awaiting Neha's and
+  Achal's correction and Aseem's ratification (N1) — not yet ratified, so gate 1's fuller text
+  ("every row `ratified`") is open; the count gate itself is closed.
+
+  Check (the gate exactly as stated): `psql "$DATABASE_URL" -Atc "select count(*) from rung r
+  where not exists (select 1 from skill_set s where s.rung_code = r.code)"` → `0`.
+
+- **The loader accepts all 16 rows with no orphaned reference.** Every `misconception_codes` entry
+  across the 12 new rows was checked by hand against `misconceptions.json` before writing, since
+  `skill_set` is insert-only (Neha's and Achal's edits must never be overwritten) and a bad code
+  would otherwise sit silently orphaned. Check: `cd packages/engine && uv run engine load --check`
+  → `skill_set 16`, `every code referenced resolves`, `unchanged on a second run`.
+
+- **A real regression this caught:** `tests/test_loaders.py`'s `EXPECTED` dict hardcoded
+  `"skill_set": 4`; `test_every_table_has_the_expected_number_of_rows` would have failed the
+  moment the loader ran with 16 rows in the seed. Fixed to `16` — the only code change gate 1
+  needed. Check: `cd packages/engine && uv run pytest -q` → 186 passed, 0 failed (up from the
+  182 recorded at N3.2; no other test assumed a skill_set count).
+
+- **Not done:** gate 1's own fuller sentence — "every row `ratified`" — needs Neha and Achal to
+  correct the 12 drafts and Aseem to ratify all 16, in the app; that is a human step, not a
+  command. Gates 2–6 (the enumerator itself, the any-topic proof, per-template validation, the n8n
+  flow, and the cost figure) are untouched, per `BUILD-ORDER.md` rule 1.
+
+## W1 gate 2, chunk A — the arithmetic enumerator, zero model spend (2026-09-19)
+
+Nimish chose "chunk A first" when gate 2 turned out to be two differently-sized jobs: (a) the
++/- units, which already had a working offline sampler ("the coin slot already exists"), needed
+only a fix for a rung that mixes both operations; (b) 8 new question shapes (mental strategies,
+word problems, budget, estimation, "most efficient method", explain, find-the-mistake) that need
+their own generator wiring plus the sentence-template feature ADR 0010 promises — not built at
+all yet. Chunk A is (a) only; (b) is deliberately not started.
+
+- **A real, dangerous bug the new rungs exposed, fixed before it could fire:** `bank._sampled`
+  silently fell back to rendering plain column arithmetic whenever a skill set's `formats` didn't
+  overlap the sampler's four known shapes — which never happened with the original 4 skill sets
+  (their formats always did overlap) but would have on R11 or X2 the moment anyone ran
+  `--offline` on them: an "estimate first" or "find the mistake" unit would have silently filled
+  with ordinary sums. It now refuses with a clear error instead. Check:
+  `cd packages/engine && uv run pytest -q tests/test_bank.py -k sampled` → 2 passed (op-list
+  candidates come back as real "+"/"-" pairs; a formats list with no sampler match raises).
+
+- **`_sampled` and `verify.problems` accept `check.op` as a list**, needed because ADR 0010's own
+  rungs are one skill_set per rung, not one per operation — R4 (2-digit ± without regrouping)
+  mixes + and − in a single unit. Check: `uv run pytest -q tests/test_verify.py -k op_list` →
+  2 passed.
+
+- **`engine bank coverage`** (`bank.coverage()` + the CLI command gate 2 names) prints every one
+  of the 64 skill_set x difficulty cells, zero cells included — the number gate 2's own text asks
+  for, not a description. Check: `cd packages/engine && uv run engine bank coverage` → 64 units
+  printed, 39 under 50 (the exact table is below).
+
+- **25 of the 32 arithmetic-shaped units (the ones whose `check` is a plain op/digits/regroups
+  rule reachable by the sampler) now hold >=50 active items, filled by
+  `engine bank fill <code> <difficulty> --offline --n 50` — zero model calls. 7 fell short.**
+  Check: `psql "$DATABASE_URL" -Atc "select coalesce(sum(cost_inr),0), count(*) from flow_run
+  where flow = 'bank_fill' and created_at > now() - interval '20 minutes'"` → `0|0` — no flow_run
+  row exists for this run because `--offline` never calls the model, a stronger proof than a cost
+  of zero. Then `uv run engine bank recheck` → `0 mismatches` over the whole bank, old and new.
+  Full table (Advance columns marked "native" were never attempted this chunk — R1's and R2's
+  Advance bands use `missing_number`/`number_line_jumps` with no `digits`/`op` key, correctly
+  routed to chunk B, not a shortfall):
+
+  ```
+  ADD.1D.WITHIN10   Easy 16  Medium 42  Hard  6                    — all three short
+  ADD.1D.BRIDGE10   Easy 38  Medium 43  Hard  1   Advance  native  — all three attempted, short
+  SUB.1D.WITHIN20   Easy 50  Medium 50  Hard 50   Advance 46       — one short
+  ADD.2D.REG / SUB.2D.EXCH / ADD.3D.REG / SUB.3D.ZERO / ADDSUB.2D.NOREG: every band >=50
+  ADDSUB.4D.ADV: Hard 50, Advance 50 (Easy/Medium are multi_add — native, chunk B, not attempted)
+  ```
+
+- **Two different causes behind the 7 short bands, both spec problems, not enumerator bugs:**
+  (1) `ADD.1D.WITHIN10` Easy's own ceiling is only 16: at "sums to 5, both addends 1-9, no repeat
+  digit" there are exactly 8 distinct (a, b) pairs, times the 2 formats the row declares
+  (bare_sum, missing_number) = 16 — 16 is not a partial run, it is every item that rule can ever
+  produce; Medium's ceiling is likewise well under 50. (2) `ADD.1D.WITHIN10` Medium/Hard and
+  `ADD.1D.BRIDGE10` Medium/Hard share an *identical* effective rule (an unused `allow_zero_addend`
+  flag doesn't change what the sampler draws), so the two bands compete for the same pool and
+  whichever filled first — Medium, both times — took most of it, starving Hard (6 and 1). Item
+  identity is the (template, a, b, op) tuple, not the skill_set/difficulty asking for it, so a
+  pair generated under one band can never be generated again under a sibling. Neha, Achal and
+  Aseem need to widen R1's number range (not just its band signatures) and give R1/R2's Medium and
+  Hard bands genuinely distinct rules during ratification — a wording fix, not a code fix.
+
+  `SUB.2D.EXCH` Medium/Hard now read 159/130 — the old per-item model path's rows (120/80, from
+  the Sep 17 session, STATE.md above) plus this run's new enumerator items on top; the two paths
+  cannot collide because they insert through the same dedup constraint.
+
+- **A real regression this run caused, found by the full suite, fixed the same session:**
+  `test_it_says_which_child_it_could_not_fill_rather_than_printing_a_short_paper` asserted
+  `SUB.2D.EXCH` Advance was empty — true when the test was written, false now that chunk A filled
+  every SUB.2D.EXCH band. Fixed by having the test retire those items inside its own rolled-back
+  transaction rather than relying on a part of the shared bank staying empty forever. Check:
+  `cd packages/engine && uv run pytest -q` → 191 passed, 0 failed (up from 186 at gate 1).
+
+## W1 gate 2, chunk B — the native-generator units, still zero model spend (2026-09-19)
+
+Nimish said "finish that" for chunk B. It split further once the code was actually read: 8 of the
+9 remaining rungs (R1/R2's Advance bands, R7, R8, R11, R12's Easy/Medium, R13, R14, X2) already
+had a hand-written generator function in `assess/items.py` needing only to be wired to a
+skill_set row; X1 does not — its generator can only ever write one fixed, always-true claim about
+two specific numbers, which ADR 0010 itself names as the reason explain-a-claim stays on the
+per-item model path. X1 is therefore genuinely not part of this chunk's zero-cost story; it is
+still 0 of 4 bands, honestly, not force-fit.
+
+- **`bank.fill_native` (`engine bank fill <code> <difficulty> --native`) dispatches nine formats
+  to their existing `assess/items.py` generator by `check['format']`, no model call, no
+  verify.problems detour** (these generators are trusted code, the same guarantee the arithmetic
+  sampler gets from its own round trip through `check`). Check:
+  `cd packages/engine && uv run pytest -q tests/test_bank.py -k fill_native` → 27 passed.
+
+- **Three real bugs found and fixed before they could ship, each with its own test:**
+  1. `number_line_jumps(hi=20)` (tried for R2's Advance band) computed an impossible random
+     range and crashed with a raw Python `ValueError` — its second jump is hard-coded to an
+     11-39 two-digit number, a different scale than R2's "within 20." It now refuses clearly
+     (`RuntimeError: … needs hi >= 54 …`) instead of crashing obscurely; R2 Advance stays
+     unfilled rather than fed a nonsensical hi. Not a rewrite of the generator's number range —
+     that would be inventing pedagogical content that is Aseem's call, not mine.
+  2. `efficient_method` and `find_mistake` ignored the very parameter (`kind`, `digits`) that
+     distinguishes STRATEGY.EFFICIENT's and REASON.FIND_MISTAKE's own difficulty bands — every
+     band would have drawn from the same mixed pool. Both now take an optional parameter
+     (default preserves the old random-choice behaviour for any other caller). Check:
+     `uv run pytest -q tests/test_items.py -k "efficient_method or find_mistake"` → 6 passed.
+  3. `fill_native`'s RNG was seeded from `(code, difficulty, attempt_number)` alone, so a second
+     call for the same unit retraced the exact same sequence from attempt 1 — it could never top
+     up a unit, only rediscover what a previous call had already inserted (this is what my own
+     first test run collided with, against the real bank chunk B-1 had just filled). Fixed to a
+     real per-call RNG. Check: `uv run pytest -q tests/test_bank.py -k produces_no_flow_run_row`
+     plus the full `fill_native` suite above, both green against the real, now-fuller bank.
+
+- **22 of the 23 units reachable this way, plus all 4 of REASON.FIND_MISTAKE (X2, filled
+  separately after its `check` needed a `format`/`digits` fix — see below), now hold >=50 active
+  items — 0₹ model spend for all of it.** Check: `psql "$DATABASE_URL" -Atc "select
+  coalesce(sum(cost_inr),0), count(*) from flow_run where created_at > now() - interval '30
+  minutes'"` → `0|0` — no flow_run row exists for any of chunk B's fills. Then
+  `uv run engine bank recheck` → `0 mismatches` over the whole bank, chunk A and B and the
+  original 4 together.
+
+- **`ESTIMATE.ROUND10`, `ADDSUB.4D.ADV` (its multi-addend Easy/Medium bands) and
+  `STRATEGY.EFFICIENT`'s `check` blocks needed a `format` key added** (they had `op`/`digits`/
+  `kind` but nothing saying which generator to use — `_sampled`'s empty-intersection guard from
+  chunk A would otherwise have refused them, correctly, rather than guess). `REASON.FIND_MISTAKE`
+  needed the same plus its new `digits` key. Since none of these four rows had any items yet and
+  `skill_set` is insert-only, the rows were deleted and `engine load` re-inserted the corrected
+  version — the seed file stays the single source of truth. Check: `cd packages/engine && uv run
+  engine load --check` → `skill_set 16`, `every code referenced resolves`.
+
+- **`engine bank coverage` now reads 50 of 64 units at >=50 — 14 short.** Full remaining list:
+  `ADD.1D.WITHIN10` (16, 42, 6, 24 — its own tiny "sums to 10" ceiling, not a bug, see chunk A),
+  `ADD.1D.BRIDGE10` (38, 43, 1, and Advance still 0 — `number_line_jumps` needs a proper
+  small-range generator, not built), `MENTAL.BRIDGE_EQ` Hard (48, one short of its own ceiling),
+  `SUB.1D.WITHIN20` Advance (46, one short), and `REASON.EXPLAIN` (X1, all four bands still 0 —
+  needs either new claim-template content or the real per-item model path, whichever Nimish
+  chooses; not started).
+
+- **Full engine suite: 227 passed, 0 failed** (up from 191 at gate 1, and including a fix to
+  `tests/test_bank.py::test_coverage_…` whose "this cell is always empty" fixture cell was itself
+  a casualty of chunk B filling `ADD.1D.WITHIN10` Advance).
+
+## W1 gate 2, chunk C — closing out: 57 of 64, and the seven that arithmetic forbids (2026-09-19)
+
+Nimish: "finish this and finalize so that we can move to the next workflow." Everything that
+could be closed by engineering is closed. Seven units cannot be, for a reason no amount of code
+changes, and that needs one decision from him (below).
+
+- **X1 (`REASON.EXPLAIN`) is no longer stuck at zero: all four bands hold 50.** `explain_claim`
+  had exactly one hardcoded claim (always true, always a 120-480 compensation pair). It now takes
+  `a_range`, `claim_is_true` and `claim_topic`, giving it the four shapes its bands actually ask
+  for — a true compensation claim, the same at 2-digit scale, a *false* claim the child must
+  catch, and a claim about regrouping itself. Defaults reproduce the old behaviour exactly, which
+  `blueprints.py`'s three callers depend on. Check: `uv run pytest -q tests/test_items.py -k
+  explain_claim` → 5 passed, including that the true and false variants are distinct items.
+  This keeps X1 on the zero-cost template path rather than the per-item model path ADR 0010
+  allowed for it — the claim wording is a template with number slots, which is exactly what that
+  ADR asks the model to write once; here it is written once in code instead, for ₹0.
+
+- **R2's Advance band (`number_line_jumps` at hi=20) now works** — a `_bridge_jump` path draws
+  the jump that crosses one ten (the strategy that rung teaches) instead of the 11-39 two-digit
+  jump the full-scale version uses, which is what made hi=20 impossible before. Below hi=12 it
+  still refuses with a sentence rather than a raw `randrange` error. Check:
+  `uv run pytest -q tests/test_items.py -k number_line` → 3 passed (the small-range jump always
+  lands on a ten and stays in range; the full-scale split is unchanged).
+
+- **A band can now pin itself to one format** (`check.format` on the arithmetic path, mirroring
+  what the native path already did). This is what stopped R1's and R2's Medium and Hard bands
+  competing for one pool of sums: Medium is now the bare sum, Hard the same sums told as a story.
+  Together with the seeding fix, this moved `ADD.1D.BRIDGE10` Easy 38 → 75, its Hard 1 → 45,
+  `ADD.1D.WITHIN10` Hard 6 → 30, and `SUB.1D.WITHIN20` Advance 46 → 68.
+
+- **`MENTAL.BRIDGE_EQ` Hard reached 50** by raising its balance-scale ceiling from 100 to 150:
+  `balance_scale` draws its terms in tens below hi/2, so hi=100 allowed only {10,20,30,40} and
+  capped the unit at exactly 48. A number in a draft row, not a code change.
+
+- **Where gate 2 now stands: 57 of 64 units at >=50.** Check: `uv run engine bank coverage` →
+  `64 units, 7 under 50`; `uv run engine bank recheck` → `0 mismatches`;
+  `cd packages/engine && uv run pytest -q` → 235 passed, 0 failed.
+
+- **The seven that could not reach 50 are capped by arithmetic, not engineering — and Nimish
+  amended the gate rather than the ladder (ADR 0011).** "Adds within 10" has about 40 usable
+  (a, b) pairs in total; four bands each wanting 50 distinct items need 200, which the numbers
+  cannot supply however the code is written. The target is now "50, or the unit's whole
+  enumerable universe, whichever is smaller", with the floor written as `min_items` on the band's
+  own row so the gate stays one machine-checkable command. He rejected widening R1/R2's ranges
+  (that redefines what the rung teaches — Aseem's call) and re-identifying word problems by their
+  story (honest, but rewrites the key of every stored word problem and needs a migration).
+
+- **Each floor was measured, not assumed.** A fill against each of the seven was re-run and
+  accepted zero new items — the evidence that the count is the ceiling of what the rule can ever
+  produce, not the point a run stopped at. Check: the run's output, `new=0` on six and `new=1` on
+  the seventh (`ADD.1D.BRIDGE10` Hard, 45 → 46). Floors recorded: `ADD.1D.WITHIN10` 24/42/30/24,
+  `ADD.1D.BRIDGE10` 43/46/35. ADR 0011 requires this evidence before any future floor is written,
+  so the rule cannot decay into "the bar is whatever we got".
+
+- **W1 GATE 2 IS CLOSED.** Check: `cd packages/engine && uv run engine bank coverage` →
+  `64 units, 0 under their target`; `uv run engine bank recheck` → `0 mismatches`;
+  `uv run pytest -q` → 236 passed, 0 failed.
+
+- **Gate 6 is already satisfied, well inside its bar: the whole bank cost ₹0.** Check:
+  `psql "$DATABASE_URL" -Atc "select coalesce(sum(cost_inr),0), count(*) from flow_run"` → `0|62`,
+  against 3,373 live questions (`select count(*) from item where status='active' and
+  skill_set_code is not null`). The bar was ₹50 for the whole 64-unit bank; every item in it was
+  enumerated by code. The only model spend this design ever calls for is template judging
+  (gate 4), which has not been run yet.
+
+## W1 gate 3 — a new topic added as rows: multiplication (2026-09-19)
+
+`BUILD-ORDER.md` names multiplication as this gate's own test case. `NUM.OPS.03 Multiplication &
+times tables` already existed in the registry, so the topic needed a rung row, a skill-set row,
+and the one sampler ADR 0010 prices in per *operation* (not per topic).
+
+- **What the new topic actually cost in code**, against the gate's hope of "only `verify.py`,
+  if anything": `verify.py` needed **nothing** — `problems()` reads the op generically,
+  `REGROUPS` has no `×` so the regroup rule is skipped, and `_template` already emitted `MUL.*`.
+  What it did need: `sample_mul` (~18 lines) and a `CONTEXTS_MUL` story list in
+  `assess/items.py`, and a two-line `elif op == "×"` in `bank._sampled`. Everything else —
+  the rung, the skill set, all four difficulty rules — is rows. A *second* multiplication topic
+  now costs rows alone, which is what the gate is really testing.
+
+- **A silent-corruption bug caught before it could fire.** `word_1step` picks a story first and
+  then samples numbers in an if-plus/else-minus branch, so a `×` story added to `CONTEXTS_1STEP`
+  would have been handed *subtraction* numbers — a multiplication word problem with a
+  subtraction answer, which nothing downstream would have flagged. The `×` stories live in their
+  own `CONTEXTS_MUL` list instead, and the word-problem path now raises a sentence naming the
+  missing story list rather than an `IndexError` from inside `random.choice`.
+
+- **All four multiplication bands hold 50 items, zero model spend.** Check:
+  `uv run engine bank fill MUL.1D <band> --offline --n 50` → `accepted 50` ×4; a sample reads
+  `59 × 8 = 472`, `12 × 7 = 84`, and "A shelf holds 84 books. How many books are there on 31
+  shelves?" (2604). Then `uv run engine bank recheck` → `0 mismatches`, and
+  `uv run engine bank coverage` → `68 units, 0 under their target`. Suite: 240 passed.
+
+- **Known thinness, stated not hidden:** multiplication has no misconception predictors yet, so
+  its items carry no wrong-answer diagnosis — `M.predict("×", …)` returns `{}` and the verifier
+  drops unverifiable claims by design. `tags.derive` also returns early for any op that is not
+  `+`/`-`, so × items carry the format-level tags but none of the regrouping dimensions. Both
+  are additions for whenever multiplication is actually taught, not blockers for this gate.
+
+- **Debt taken on knowingly, recorded not hidden:** `assess/items.py` is now over the 400-line
+  limit aislop enforces (it gained six generators' worth of parameters and the bridge jump).
+  Splitting it touches every import of `I.*` across the engine; not done mid-task, and it is the
+  first thing to clean up before more generators land there.
+
+## The whole skill map, and what kind of thing each question is (2026-09-19)
+
+Nimish, after finding the registry held 37 of 244 skills: "Stop doing incomplete work. If you
+are loading a table and if you are making the backend, build the whole thing for now with all
+the information that we have." And: every question should carry a classification, with the
+evaluation triggered off it.
+
+- **The registry now holds the whole map, not the maths slice.** `supabase/seed/registry.json`
+  is generated from the Skill Map Review artifact (built 2026-09-15) and never hand-edited.
+  Migration `20260921090000_full_registry`. Check: `cd packages/engine && uv run engine load
+  --check` →
+  ```
+  domain 14 · skill 244 · milestone 849 · learning_objective 1750 ·
+  learning_objective_skill 2012 · activity 2216 · activity_skill 3711 ·
+  report_item 885 · trait 56
+  every code referenced resolves · unchanged on a second run
+  ```
+  Those counts match the source's own `counts` block exactly. `registry-num.json` is deleted —
+  two sources of truth for the registry is how a third of a map got loaded in the first place.
+
+- **Four kinds of material that had nowhere to live before, now tables**: the school's own
+  learning objectives (with the same five-word `signal` vocabulary our items use), its activity
+  plans (each with the teachers' own three-level mastery descriptors, `level_1/2/3`), its
+  report-card lines, and the trait/pillar framework. `skill` also gained `skill_type`
+  (`academic` 127 / `non_academic` 94 / `trait_behaviour` 23), `pillar`, `ncf`, `cg`.
+  `skill_type` is load-bearing: a trait or value-education skill must never be handed to the
+  question bank and auto-scored — the council review is explicit that scoring honesty is the
+  kind of measurement the school's founding principle rejects.
+
+- **A performance bug I introduced and fixed in the same pass:** the first full load took
+  **2 min 46 s** — 11,000 single inserts, each a round trip to a remote database, and the test
+  suite loads three times. Rewritten with `executemany`: **13 seconds for two full loads**
+  (`engine load --check` runs it twice), same output, still idempotent.
+
+- **Every question now says what kind of thing it is, and marking dispatches on that**
+  (ADR 0012, migration `20260921093000_eval_type`). A Postgres enum with four values —
+  `computable`, `closed_set`, `rule_governed`, `open_response` — declared on the skill set as a
+  row and stamped onto each item at generation. `assess/evaluate.judge()` routes to the
+  evaluator. Only two are built; `closed_set` and `rule_governed` raise rather than fall through
+  to the arithmetic evaluator, because a question the engine cannot judge must never be quietly
+  marked. Check: `uv run pytest -q tests/test_evaluate.py` → 9 passed, including that an unbuilt
+  kind refuses and that an unrecognised wrong answer stays `wrong` with no diagnosis rather than
+  being forced into the nearest known mistake.
+
+- **Current split, from the database rather than from intent:** 14 skill sets `computable`
+  (3,040 items), 3 `open_response` (600 items — explain-a-claim, find-the-mistake and
+  choose-the-efficient-method, the three that ask for a sentence as well as a number). The three
+  were identified by querying which items actually carry a free-text response, not by guessing.
+  Check: `select eval_type, count(*) from item where status='active' group by 1`.
+
+- **Suite: 249 passed, 0 failed; `engine bank recheck` → 0 mismatches.**
+
+## W1 gates 4 and 5 — the reviewers, versioning, dimensional difficulty, and F1 in n8n (2026-09-19)
+
+Nimish read an external "Assessment Engine — Technical Architecture" proposal and asked for three
+of its points to be folded into gate 4 before n8n hardened anything: two narrow reviewers instead
+of one blended validator (§8.2/8.3), difficulty as measured dimensions rather than a label (§7),
+and immutable versioning with provenance (§15). All three are in, written into `BUILD-ORDER.md`
+first (rule 5).
+
+- **Two advisory reviewers, each a prompt row.** `pedagogy_review` (does this test the claimed
+  skill, rung and signal?) and `language_review` (can a child of this grade read it?). Each judges
+  the band's *rule* once plus a ≤5 % sample of its items — ADR 0010's economics, applied to
+  review. Verdicts land in `item_review` with `acted_on_by` null: advice until a person acts.
+  Check: `uv run pytest -q tests/test_review.py` → 6 passed, including that a reject never
+  retires anything and that reviewing every item (the cost enumeration removed) is refused.
+
+- **Scored against a hand-judged gold set, and the first real money spent.** Check:
+  `uv run engine eval language_review` → `agreed 6/6 = 1.0 · right reason 6/6 · ₹0.1855`;
+  `uv run engine eval pedagogy_review` → `agreed 5/6 = 0.83 · right reason 5/6 · ₹0.3815`.
+  The single disagreement is a real judgment difference, not an error: on a 2-digit sum filed in
+  a 3-digit band, I said *revise* (right skill, wrong band) and the reviewer said *reject*.
+  Neha and Achal should settle it; `supabase/seed/validator_gold.json` is provisional until they do.
+
+- **A bug in my own eval harness, found by disbelieving a bad score.** The first run scored
+  pedagogy 4/6. Both disagreements were the harness's fault: it sent one skill set's context for
+  gold cases spanning three, and blanked the band rule — then scored the reviewer for not knowing
+  the rule it had been denied. Now one call per (skill set, band), each carrying its own rule.
+  A harness that withholds the rule measures the harness.
+
+- **Difficulty is checked as measured dimensions, not asserted.** `verify.dimension_problems`
+  compares an item's own `tags` against its band's region, in `fill` and across the whole bank in
+  `recheck`. `engine load --check` additionally refuses two bands of one skill set that declare
+  the same region — the starvation that emptied R1's Hard band, now impossible to reintroduce.
+
+- **It immediately found real drift, and the bank was wrong, not the check.** 93 items sat in
+  bands whose rule they did not satisfy: when R1/R2/R3's bands were pinned to one format each,
+  the items already in them had been generated under the old unpinned rule —
+  `SUB.1D.WITHIN20` Hard says "a comparison word problem" and held 36 bare sums and missing-number
+  equations. All 93 retired (not deleted), the units re-filled under the pinned rules, and the
+  floors re-measured with fresh zero-accept evidence (ADR 0011): pinning makes each band correct
+  but smaller, because it draws on one format's pool instead of three. New floors:
+  `ADD.1D.WITHIN10` 24/22/24/24, `ADD.1D.BRIDGE10` —/43/45/35, `SUB.1D.WITHIN20` —/—/44/40.
+  `ADD.1D.BRIDGE10` Easy cleared 50 outright and lost its floor.
+
+- **Versioned rules and provenance.** Editing a skill-set rule files the old one in
+  `skill_set_version`, bumps `version`, and withdraws its ratification — Aseem approved the rule
+  he read, not the one that replaced it. Ratifying is not an edit and bumps nothing. Every item
+  records `skill_set_version`, `generator`, `prompt_id` and `model`; the 3,574 items that predate
+  this carry `generator = 'pre-provenance'` rather than a reconstructed story. Check:
+  `uv run pytest -q tests/test_provenance.py` → 5 passed;
+  `select count(*) from item where skill_set_version is null and skill_set_code is not null` → 0.
+
+- **The misconception analyst (ADR 0012, external proposal §8.5): `engine bank unclassified`.**
+  Wrong answers no named mistake explains, commonest first, with how many children wrote each.
+  Empty until W3 reads real papers — the instrument exists before the data. For any subject
+  beyond arithmetic it is the only way the mistake vocabulary grows. Check:
+  `uv run pytest -q tests/test_unclassified.py` → 3 passed, against seeded results.
+
+- **GATE 5: F1 lives in Nimish's own n8n.** `https://cornerstoneschool.app.n8n.cloud/workflow/F0i4ylZkD8zpOfH0`,
+  exported to `n8n/workflows/f1-build-the-bank.json`. Schedule + webhook → `GET
+  /bank/coverage?short_only=true` → per unit: `POST /bank/fill` (idempotency-keyed per unit per
+  day) → language reviewer → pedagogy reviewer → email a person only if something was flagged.
+  Two new endpoints carry it (`/bank/coverage`, `/bank/review`) so the *engine* decides what
+  "short" means and n8n only forwards the answer.
+
+- **`n8n/lint.py` enforces rule 3, and it has been seen to fail.** Check:
+  `python n8n/lint.py n8n/workflows/*.json` → `ok — 10 nodes, no thinking, no prompt text, no
+  secrets`; `uv run pytest -q tests/test_n8n_lint.py` → 9 passed, each breaking the real workflow
+  one way (Code node, langchain node, prompt in a body, literal credential in an auth header, no
+  trigger) and expecting it caught — plus that a sticky note may hold long prose and that every
+  HTTP call goes to the engine and nowhere else.
+
+- **The flow's routing proven by running it** with pinned data (execution 1, status success): the
+  loop took both short units one at a time, the IF sent the one with `not_passed = 2` down the
+  "ask a person" branch, and the loop closed with `noItemsLeft`.
+
+- **Not done, and it is the honest gap in gate 5:** the live end-to-end run — "change a skill-set
+  row and watch items appear with nobody typing a command" — has not happened, because n8n Cloud
+  cannot reach `http://engine:8000` on this laptop. That needs the engine deployed or tunnelled;
+  it is a hosting decision, not a workflow change, and `deploy/compose.yml` already runs both
+  together for the case where they share a host.
+
+- **Suite: 281 passed, 0 failed.** Total model spend for everything so far: see gate 6 below —
+  the reviewers are the first real cost, and they are pennies.
+
 ## Environment
 
 - Docker, Supabase CLI, psql, Node, Python 3.14 present; n8n not installed (Docker);
   `gh` authenticated as nimishshah1989, admin of org `cornerstonepune`.
+
+## W1 gate 1 closed — all 17 specs ratified by name (2026-09-19)
+
+Gate 1's fuller sentence ("every row `ratified`") was the last open line in W1. It is closed by
+Nimish's own signature rather than Aseem's, by his instruction in chat and ADR 0013.
+
+- **`engine ratify --by "Nimish Shah"` → `17 ratified, 0 still draft`.** New: `bank.ratify` (one
+  `update … where status = 'draft' … returning code, version`) behind `engine ratify`, which also
+  takes `--code` for a single set. The per-set button in the app is unchanged and stays the normal
+  path; this is the bulk command a gate can quote.
+  Check: `select status, count(*) from skill_set group by status` → `ratified 17`;
+  `select distinct ratified_by from skill_set` → `Nimish Shah`.
+- **The gate exactly as `BUILD-ORDER.md` states it:** `select count(*) from rung r where not
+  exists (select 1 from skill_set s where s.rung_code = r.code)` → `0`, and no row is `draft`.
+- **Ratification is per-version, and that is enforced by the database, not by discipline.** The
+  trigger `internal.skill_set_version_on_change` withdraws it the moment any content column moves,
+  so the 17 signatures refer to the exact words live today (`SUB.2D.EXCH` is at v15, R1–R3 at v2,
+  the rest at v1). Check: `uv run pytest tests/test_provenance.py` → 6 passed, including the new
+  `test_ratify_records_the_person_and_only_touches_drafts` (ratifies one set, then the rest, and
+  proves an already-ratified row is not signed twice).
+- **Suite: 282 passed, 0 failed** (up from 281). Check: `cd packages/engine && .venv/bin/python -m
+  pytest` → `282 passed, 6 warnings in 80.55s`.
+- **Stale counts corrected in `BUILD-ORDER.md`:** it said 16 rungs and 64 units, written before
+  multiplication was added as the gate-3 proof. The ladder holds 17 rungs and 68 units, which is
+  what `engine bank coverage` has been printing since gate 2.
+- **A real defect this closed gate exposed, now fixed.** Running the full suite used to un-ratify
+  `SUB.2D.EXCH` in the live database: `tests/test_loaders.py`'s
+  `test_load_does_not_overwrite_a_skill_set_edited_in_the_app` commits a real edit to that row and
+  restores it, and the versioning trigger withdrew the signature on both writes. Measured before the
+  fix: `v33 ratified` → suite → `v35 draft, ratified_by null`. The restore now puts status and
+  `ratified_by` back in a second statement that touches no content column (the trigger only fires on
+  content). Measured after: `v35 ratified` → suite → `v37 ratified`, `0 drafts`. The version still
+  advances by two per run, which is correct — the test really does write two versions of that rule.
+- **Not resolved by this.** Ratification is a signature, not an answer to the three pedagogy
+  questions `HANDOFF.md` carries: the pedagogy reviewer's objection to missing-number and
+  word-problem items inside an exchange band (verdicts still in `item_review`), the gold set's
+  band-vs-reject disagreement, and the G1 floors. Those still need Neha, Achal and Aseem.
+
+## The mistake list becomes an engine output (2026-09-19, ADR 0014)
+
+Nimish's instruction: the list of everything a child can get wrong on a learning objective is the
+engine's job, not a teacher's checkbox column. Built in two halves, which is the whole point.
+
+- **Code owns what code can compute.** `engine bank misconceptions SUB.2D.EXCH` →
+  `computed  Easy 6 · Hard 7 · Medium 5 · Advance 6`, then the model's additions. The computed half
+  comes from `assess/bands.py`: sample the numbers a band's own rule allows, build items with the
+  same generators the bank uses, and read the misconception codes off them. No model, no cost, and
+  it cannot drift from what the bank actually computes for a real item because it is the same code.
+- **The model owns what code cannot** — how a child misreads a story, a method nobody has written a
+  predictor for, a reasoning slip. It is told what code has already covered and asked only for the
+  rest. On a pure-arithmetic set it now correctly finds almost nothing to add; on `WORD.1_2STEP` it
+  added 4 (`engine bank misconceptions WORD.1_2STEP` → `11 computed by code, 4 added by the model,
+  1 thrown away · ₹0.6053`).
+- **The prompt's eval measures the job the prompt actually has** (rule 7). `engine eval
+  misconception_list` → `0.75 of the model's proposals survived as additions over 3 skill sets ·
+  claude-haiku-4-5 · ₹1.5877`, one set per kind chosen by a row (arithmetic / word / open-response),
+  not by a list in code. Recall against the curated lists is **no longer an eval**: it became a
+  property of arithmetic, so it is a test.
+- **Version history, kept because it is the record of the loop.** v1 scored recall 0.40 against the
+  curated lists, v2 0.53 — and then the design changed, because asking a model to rediscover what
+  predictors can enumerate was the wrong question (CLAUDE.md rule 11). v3 asks only for the
+  uncovered families; v4 makes the worked example optional (a reasoning mistake has no wrong number;
+  v3 threw away 3 of 5 proposals on `REASON.EXPLAIN` for arithmetic that was never the point) and
+  lets an example carry three or four addends (a multi-addend band could not state its own example
+  and the whole reply was rejected by the schema). v1–v3 are inactive rows, not deleted.
+- **Every check a proposal passes, in code:** its own stated correct answer must be right, or the
+  entry is dropped; a wrong answer an existing predictor reproduces means the proposal *is* that
+  misconception, not a new name for it; a claim of "you can see it in the answer alone" that no
+  predictor reproduces is **downgraded** to the written working (or to an explanation when there is
+  no number at all) rather than stored as if a marker could act on it. Check:
+  `uv run pytest tests/test_spec.py` → 11 passed, all offline.
+- **Three real defects the code half found in the specs themselves**, each fixed at its cause:
+  - `ADDSUB.2D.NOREG` claimed `M_SMALL_FROM_LARGE`. Its four bands forbid exchange, where that
+    method produces the *right* answer — unmarkable by definition. Removed from seed and row.
+  - `SUB.3D.ZERO` claimed `M_ALIGN_LEFT`. All four of its bands are equal-length (3−3, 4−4), so
+    misaligning unequal operands cannot occur. Removed. If the school wants that mistake tested here,
+    the fix is a band with unequal-length operands — Aseem's call, and the list then regenerates
+    itself.
+  - `ADDSUB.4D.ADV` claimed `M_CONCAT` and its multi-addend bands had no predictor for it, and
+    `WORD.BUDGET` claimed `M_WRONG_OP` with nothing computing it. Both are real mistakes, so the
+    predictors were written: `misconceptions.multi_concat` (column totals written out side by side
+    with three or more addends) and the wrong-operation answer in `items.word_budget`.
+  - The test that finds this class of defect is `test_code_finds_every_computable_mistake_a_curated_list_names`:
+    for every skill set with numbers, what code reaches must include every curated code a predictor
+    can produce at all. It is the guard against a spec claiming more than the engine can mark.
+  - **`ADDSUB.2D.NOREG` and `SUB.3D.ZERO` went back to `draft`** when their lists changed — the
+    trigger working — and were re-signed on 2026-09-20. Check: `engine ratify --by "Nimish Shah"` →
+    `2 ratified, 0 still draft`; `select status, count(*) from skill_set group by status` →
+    `ratified 17`.
+- **Modules split along real responsibilities** (CLAUDE.md rule 11, aislop's 400-line ceiling):
+  `engine/spec.py` (the spec a person approves, its ratification, its mistake list — 197 lines),
+  `engine/assess/bands.py` (a band's rule → its numbers, its items, its reachable mistakes),
+  `engine/cli_legacy.py` (N3's commands). `bank.py` 520 → 309, `cli.py` 454 → 367, both under the
+  ceiling. `tests/test_spec.py` mirrors the new module.
+- **Nothing has been applied to any skill set.** `--apply` unions the proposals into the set (it can
+  never remove a curated code) and withdraws its ratification, so it waits for Nimish's word. Check:
+  `select count(*) from misconception where source like 'misconception_list%'` → `0`.
+- **Suite: 291 passed, 0 failed.** `engine load --check` → `unchanged on a second run`;
+  `engine bank recheck` → `0 mismatches`. Model spend for the whole day's work on this: ₹11.
+- **Still open, and it is a style decision, not a defect:** every Python file in the engine trips
+  aislop's `python-formatting` warning, because the repo has never adopted `ruff format`. Measured
+  before deciding: on two files the reformat is 536 diff lines, and it explodes the misconception
+  registry from one readable line per mistake into five, which is the layout the vocabulary is read
+  from. It needs Nimish's call — adopt the formatter and accept that, or record the exception in
+  `.aislop/config.yaml` with the reason. `assess/items.py` carries the engine's oldest debt, now measured
+  exactly: 49 ruff E701/E702 errors (the prototype's one-line style), 3 functions over the 6-parameter
+  ceiling and 490 lines against a 400-line ceiling. Fixed there this session: an unused import, two
+  f-strings with no placeholders, and the missing wrong-operation predictor. The rest is frozen and
+  named, not inherited silently — `ruff format` would clear the 49 but grow the file past 700, so the
+  honest order is split first, format second: a warning aislop itself marks unfixable, surfaced here per `AISLOP.md`'s ladder. Its real
+  cause is that per-format generators and their story text belong in rows (rule 1, ADR 0010), which
+  is a design thread with its own ADR, not a line-count shuffle.
+
+## A goal is now runnable, and it found four more defects (2026-09-20, ADR 0015)
+
+Nimish: "with every test you are finding an error — how do we know that we don't have any more
+errors", then "we need to start having a very specific goal for every task/milestone … till 100%
+accuracy is achieved." Two commands answer those two questions.
+
+- **`bin/engine goal w1-build-the-bank` → `10/10 scenarios met the bar completely`,
+  `5/5 criteria met · GOAL ACHIEVED`.** The goal file (`goals/w1-build-the-bank.yaml`) states in one
+  sentence what W1 must do, then proves it on ten real requests — two-digit exchange at Hard and at
+  Easy, three-digit across a zero, two-digit regrouping, a foundational rung with a small universe,
+  multiplication (a topic added as rows only), four addends, a word problem, a budget, find-the-
+  mistake. Each is checked *independently of the code that answered it*: every answer recomputed from
+  the numbers, every question re-measured against its band's rule, every wrong answer mapped to a
+  named mistake, no duplicates, nothing stored. Every scenario reported
+  `produced=asked  answers_recomputed=asked  off_rule=0  undiagnosed=0  distinct=asked`.
+- **`bin/engine audit` → `12 invariants checked, 0 violations`.** Twelve named properties of every
+  row, in one sweep, so a new class of bug becomes an invariant rather than a test that trips over it
+  by luck. It runs from any directory (`bin/engine`, CLAUDE.md rule 13) — the `cd packages/engine`
+  form was giving Nimish shell errors.
+
+**Four defects found by running them, each fixed at its cause:**
+
+1. **Multiplication questions could not be diagnosed at all.** `MUL.1D` produced 20 correct, on-rule,
+   distinct questions of which **14 had no named mistake to mark against**: `M.predict` had tables for
+   `+` and `-` only, so every multiplication distractor was empty and a child's wrong answer could
+   only ever be "wrong". Fixed by writing the predictors — `M_MUL_NO_CARRY`, `M_MUL_CONCAT`,
+   `M_MUL_CARRY_FIRST`, `M_MUL_ONES_ONLY`, `M_MUL_ROW_OUT`, `M_WRONG_OP` — with their vocabulary rows.
+   Check: `M.predict("×", 56, 3)` → `{M_MUL_CONCAT: 1518, M_MUL_ONES_ONLY: 18, M_MUL_ROW_OUT: 112, …}`,
+   and the scenario now reports `undiagnosed=0`.
+2. **The `misconception.op` constraint had no `×`** (it predated the multiplication rung), so the
+   vocabulary had nowhere to put those rows. Migration `20260922090000_misconception_multiply.sql`.
+3. **1,172 live items named six mistakes that were not in the vocabulary** — `M_ADD_INSTEAD` (476),
+   `M_ONE_STEP_ONLY` (300), `M_SUM_ONLY` (200), `M_ADD_ALL` (148), `M_EQUALS_MEANS_ANSWER` (148),
+   `M_FACT_PM100` (100). The generators had invented them inline and nothing checked. All six now have
+   rows with names, examples and repair hints, and **an unknown code can no longer reach an item**:
+   `bank._strip_unnamed` drops it at insert and counts it as `unnamed_distractor_dropped`, because the
+   marker, the graph and the teacher's screen all read the vocabulary by code.
+4. **The skill-set screen asked for `op = 'both'`**, a value the data has never used (it is `'any'`),
+   so every operation-independent mistake was invisible in the app. One-word fix in
+   `apps/web/lib/queries.ts`.
+
+**And one test was hiding a defect rather than catching it:**
+`test_every_seeded_answer_lookup_code_has_a_predictor` re-typed the union of predictor tables inside
+itself, so it could not see that `MUL_PREDICTORS` did not exist. Replaced by one registry
+(`M.PREDICTED`) plus the audit invariant *every answer-lookup code is computed somewhere*, which also
+covers the codes the generators compute inline — the case the old test could never have caught.
+
+**Suite: 294 passed** (up from 291). `tests/test_goal.py` runs the ten scenarios and the twelve
+invariants, so the goal is defended in CI and not only by someone remembering to type it.
+
+**What these two commands do NOT cover — the honest list of what we still do not know:**
+- **W3's reading accuracy.** Nothing yet measures how well a scanned paper is read; 10 of the 84 real
+  sheets have been through a first reader and no number was recorded. W3 needs its own goal file with
+  an accuracy bar *before* the reader is built (ADR 0015).
+- **W2 and W4 have no goal file**, so "assemble and print" and "close the loop" have no functional
+  bar yet.
+- **The app.** `apps/web` has Playwright screenshot tests; no scenario checks that what a teacher
+  sees matches what the engine knows. The `op = 'both'` bug lived there for exactly that reason.
+- **Pedagogy.** Whether a band's rule is the right thing to teach, and the three open questions in
+  `HANDOFF.md`, are Neha's, Achal's and Aseem's. No command can close them.
+- **Prompt quality beyond its own eval.** `misconception_list` scores 0.75 on additions and the two
+  reviewers 6/6 and 5/6 against a provisional gold set; those numbers bound what the model is
+  trusted for, they do not prove it right.
+
+## Style is machine-enforced, and three "flaky" failures had one cause (2026-09-20)
+
+- **`ruff format` adopted, `ruff check` pinned to the classes that are defects.** `line-length = 110`
+  (the width this engine was written at; 88 would rewrap every line and call it formatting), the
+  predictor registries wrapped in `# fmt: off` because one line per misconception is the point, and
+  `select = ["E", "W", "F", "I"]` with `E501` left to the formatter. That cleared 49 real E701/E702
+  errors in `assess/items.py`, three unused imports, two ambiguous `l` variables and a lambda
+  assignment. CI now runs `ruff format --check` and `ruff check` before the suite, so the style
+  cannot drift back. Check: `uv run ruff check engine tests` → `All checks passed!`;
+  `uv run ruff format --check engine tests` → `72 files already formatted`.
+- **`assess/words.py` split out of `items.py`** — the stories, the names and the three word-problem
+  generators, whose real home is a row (ADR 0010) and which are now one visible file rather than a
+  tail on a catalogue. `items.py` is still 741 lines against aislop's 400 because formatting expanded
+  its dense one-line style; the remaining fix is rows, not another split, and it is named here rather
+  than gamed.
+- **Three intermittent failures — `test_legacy`, `test_loaders`, and a scenario — had one cause
+  between them: a test that committed to a live spec row, plus me running two suites at once.**
+  `test_load_does_not_overwrite_a_skill_set_edited_in_the_app` edited `SUB.2D.EXCH`, committed so
+  that `load_all()`'s own connection could see it, and restored it in a `finally`. Two runs at once
+  left the row edited and unratified, and every other test that read it failed in ways that looked
+  like their own bugs. It now calls `loaders._skill_sets(conn, tenant)` on its own connection and
+  rolls back: same clause proved, nothing written. Check: three consecutive full runs →
+  `294 passed` each, and `engine audit` → `0 violations` after.
+- **A real gap that flake exposed: `fill_native` had no in-batch duplicate guard.** Its only defence
+  was the insert's conflict clause, so a dry run — a scenario, an eval — could hand back a set with a
+  repeat in it. It now keeps the same `seen` set `fill` does. Check: six consecutive dry runs of
+  `WORD.1_2STEP Easy` → `produced 20  distinct 20` every time; before, one in roughly five had 19
+  distinct.
+- **`bin/engine goal w1-build-the-bank` → `10/10 scenarios`, `5/5 criteria`, `GOAL ACHIEVED`** after
+  all of the above. Suite 294 passed, audit 12/12 clean.

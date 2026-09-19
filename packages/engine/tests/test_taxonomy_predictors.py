@@ -5,6 +5,7 @@ engine can say what number this specific mistake produces, so a marker can tag i
 model. A seeded code with no predictor is a silent lie — the code exists in the vocabulary and
 can never once be assigned.
 """
+
 import pytest
 
 from engine.assess import misconceptions as M
@@ -57,15 +58,10 @@ def test_align_left_is_actually_produced_on_an_unequal_length_item():
     assert predicted.get("M_ALIGN_LEFT") == 842
 
 
-def test_every_seeded_answer_lookup_code_has_a_predictor():
-    """Guards the promise: seed and code must not drift apart."""
-    import json
-    import pathlib
-
-    seed = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed/misconceptions.json"
-    rows = json.loads(seed.read_text())["misconceptions"]
-    have = set(M.ADD_PREDICTORS) | set(M.SUB_PREDICTORS) | set(M.MULTI_PREDICTORS)
-    missing = sorted(
-        r["code"] for r in rows if r["detectable_by"] == "answer_lookup" and r["code"] not in have
-    )
-    assert not missing, f"seeded as answer_lookup but no predictor exists: {missing}"
+def test_every_predictor_table_is_in_the_one_registry():
+    """Superseded the seed-vs-table check: that union was re-typed here and missed MUL_PREDICTORS
+    entirely, so multiplication had no predictors and nothing said so. The seed side is now
+    `engine audit`'s "every answer-lookup code is computed somewhere", which also covers the codes
+    the item generators compute inline."""
+    for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MUL_PREDICTORS, M.MULTI_PREDICTORS):
+        assert set(table) <= M.PREDICTED

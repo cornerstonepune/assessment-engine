@@ -5,6 +5,7 @@ plus `word_structure` from §10.1. Tags are never typed by a person: a generator
 a rung and a signal, and what it emits is measured here. That is what makes the coverage
 report trustworthy — it reports the items that exist, not the items someone meant to make.
 """
+
 from . import misconceptions as M
 
 FORMAT_REASONING = {

@@ -4,6 +4,7 @@ An item that claims one regrouping but needs none is a silent failure: it prints
 answers it, and the result is filed against a rung it never tested. The spec calls this out
 explicitly (§8.2) as common and worth checking on purpose.
 """
+
 import random
 
 import pytest
@@ -86,3 +87,111 @@ def test_unequal_length_operands_are_tagged_as_requiring_alignment(digits_b):
         return
     assert t["alignment_required"] == "YES"
     assert t["operand_order"] == "LONGER_FIRST"
+
+
+@pytest.mark.parametrize("kind,expect_op", [("near100", "+"), ("same_tens", "-"), ("near1000", "+")])
+def test_efficient_method_honours_an_explicit_kind(kind, expect_op):
+    # STRATEGY.EFFICIENT's Easy/Medium/Hard bands each test one named shortcut family — without a
+    # way to pin `kind`, the function's own random choice would mix all three into every band.
+    rng = random.Random(29)
+    for _ in range(10):
+        item = I.efficient_method(rng, "R13", "Conceptual", kind=kind)
+        assert item.spec["op"] == expect_op, (kind, item.spec)
+
+
+def test_efficient_method_still_picks_a_random_kind_when_none_is_given():
+    rng = random.Random(31)
+    ops = {I.efficient_method(rng, "R13", "Conceptual").spec["op"] for _ in range(20)}
+    assert ops == {"+", "-"}, "near100/near1000 give +, same_tens gives -; 20 draws should see both"
+
+
+@pytest.mark.parametrize("digits", [2, 3])
+def test_find_mistake_honours_a_digit_width(digits):
+    # REASON.FIND_MISTAKE's Hard/Advance bands plant the mistake in a 3-digit calculation —
+    # without a digits param the generator was fixed at 2-digit regardless of the band asked.
+    rng = random.Random(37)
+    item = I.find_mistake(rng, "X2", "Conceptual", op="+", digits=digits)
+    assert len(str(item.spec["a"])) == digits and len(str(item.spec["b"])) == digits
+
+
+def test_find_mistake_still_defaults_to_two_digit():
+    rng = random.Random(41)
+    item = I.find_mistake(rng, "X2", "Conceptual")
+    assert len(str(item.spec["a"])) == 2
+
+
+def test_explain_claim_defaults_to_the_true_compensation_claim_its_callers_expect():
+    # blueprints.py calls this with no extra arguments; that behaviour must not move.
+    rng = random.Random(43)
+    item = I.explain_claim(rng, "X1", "Conceptual")
+    tick = next(r for r in item.responses if r.rid == "tick")
+    assert tick.answer == "yes" and item.spec["topic"] == "compensation"
+    assert 120 <= item.spec["a"] <= 480
+
+
+def test_explain_claim_can_state_a_false_claim_the_child_must_catch():
+    rng = random.Random(47)
+    item = I.explain_claim(rng, "X1", "Conceptual", claim_is_true=False)
+    tick = next(r for r in item.responses if r.rid == "tick")
+    assert tick.answer == "no", item.stem
+
+
+def test_explain_claim_can_ask_about_regrouping_instead_of_compensation():
+    rng = random.Random(53)
+    item = I.explain_claim(rng, "X1", "Conceptual", claim_topic="regrouping", claim_is_true=False)
+    assert item.spec["topic"] == "regrouping"
+    assert next(r for r in item.responses if r.rid == "tick").answer == "no"
+    assert "exchange" in item.stem.lower()
+
+
+def test_explain_claim_honours_a_smaller_number_range_for_the_easy_band():
+    rng = random.Random(59)
+    for _ in range(10):
+        item = I.explain_claim(rng, "X1", "Conceptual", a_range=(10, 99))
+        assert 10 <= item.spec["a"] <= 99
+
+
+@pytest.mark.parametrize("da,db", [(2, 1), (2, 2), (3, 1)])
+def test_sample_mul_respects_digit_counts_and_skips_the_trivial_operands(da, db):
+    """The one sampler a new operation costs, once (ADR 0010, W1 gate 3). x1 and x10 are not
+    worth a question, so they are excluded the way sample_add excludes multiples of ten."""
+    rng = random.Random(73)
+    for _ in range(40):
+        a, b = I.sample_mul(rng, da, db)
+        assert (len(str(a)), len(str(b))) == (da, db), (a, b)
+        assert a % 10 and b % 10 and a != 1 and b != 1, (a, b)
+
+
+def test_sample_mul_honours_a_product_ceiling():
+    rng = random.Random(79)
+    for _ in range(30):
+        a, b = I.sample_mul(rng, 2, 1, max_product=200)
+        assert a * b <= 200, (a, b)
+
+
+@pytest.mark.parametrize("op", ["+", "-"])
+def test_number_line_bridges_one_ten_in_a_small_range(op):
+    # R2's Advance band is "within 20, crossing ten": the first hop must land exactly on a ten,
+    # and the whole question must stay inside the range.
+    rng = random.Random(67)
+    for _ in range(20):
+        item = I.number_line_jumps(rng, "R2", "Conceptual", op, 20)
+        a, b = item.spec["a"], item.spec["b"]
+        land1 = int(next(r for r in item.responses if r.rid == "land1").answer)
+        answer = int(next(r for r in item.responses if r.rid == "ans").answer)
+        assert land1 % 10 == 0, (a, op, b, land1)
+        assert answer == (a + b if op == "+" else a - b)
+        assert 0 < answer <= 20 and 0 < a <= 20
+
+
+def test_number_line_still_splits_into_tens_and_ones_at_full_scale():
+    rng = random.Random(71)
+    item = I.number_line_jumps(rng, "R9", "Procedural", "+", 200)
+    assert item.spec["tens"] % 10 == 0 and 11 <= item.spec["b"] <= 39
+
+
+def test_explain_claims_true_and_false_variants_are_different_items():
+    # Same numbers, opposite claim: the stored spec must differ or one would overwrite the other.
+    t = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=True)
+    f = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=False)
+    assert t.item_id != f.item_id

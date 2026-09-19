@@ -2,6 +2,9 @@
 code — never a name, and never the content of what a child wrote (rule 6): n8n receives these
 bodies and logs every one of them, so the detail a person needs to review an import lives in the
 app, which reads the database directly, not in what a workflow's execution history retains."""
+
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -77,6 +80,31 @@ class BankFillResponse(BaseModel):
     counts: dict[str, int]
     reasons: dict[str, int]
     accepted_item_keys: list[str]
+    already: bool = False
+
+
+class BankCoverageRow(BaseModel):
+    code: str
+    difficulty: str
+    n: int
+    target: int
+    shortfall: int
+
+
+class BankReviewRequest(BaseModel):
+    skill_set: str
+    difficulty: str
+    reviewer: Literal["pedagogy_review", "language_review"]
+
+
+class BankReviewResponse(BaseModel):
+    skill_set: str
+    difficulty: str
+    reviewer: str
+    judged: int
+    not_passed: int
+    model: str | None = None
+    cost_inr: float = 0
     already: bool = False
 
 

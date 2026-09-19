@@ -6,6 +6,7 @@ surface much later, as a skill state that quietly disagrees with the evidence be
 
 These tests hit the real Supabase project, so they skip when no DATABASE_URL is configured.
 """
+
 import json
 import os
 
@@ -13,45 +14,58 @@ import pytest
 
 from engine import db, loaders
 
-pytestmark = pytest.mark.skipif(
-    not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"
-)
+pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+
 
 def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
-    """Neha edits a set in the app; the next `engine load` must leave her words alone. An upsert
-    here silently discarded her work, and she would have had no way to know."""
+    """Neha edits a set in the app; the next `engine load` must leave her words alone. An upsert here
+    silently discarded her work, and she would have had no way to know.
+
+    Everything happens on one connection and is rolled back. The earlier version committed the edit
+    so that `load_all()`'s own connection could see it — which made this the only test that wrote to
+    a live spec row, and it showed: two suite runs at once left `SUB.2D.EXCH` edited and unratified,
+    and three "flaky" failures elsewhere in the suite were that state, not their own code. The loader
+    for this one table is called directly instead, which needs no commit and proves the same clause.
+    """
     with db.connect() as conn:
-        before = conn.execute(
-            "select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()["difficulty"]
+        tenant = loaders._tenant(conn)
+        before = conn.execute("select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()[
+            "difficulty"
+        ]
         edited = {**before, "Easy": {"words": "edited in the app", "check": before["Easy"]["check"]}}
-        conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'",
-                     (json.dumps(edited),))
-        conn.commit()
-    try:
-        loaders.load_all()
-        with db.connect() as conn:
-            after = conn.execute(
-                "select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()["difficulty"]
-        assert after["Easy"]["words"] == "edited in the app"
-    finally:
-        with db.connect() as conn:
-            conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'",
-                         (json.dumps(before),))
-            conn.commit()
+        conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'", (json.dumps(edited),))
+
+        loaders._skill_sets(conn, tenant)  # what `engine load` does for this table, same transaction
+
+        after = conn.execute("select difficulty, status from skill_set where code = 'SUB.2D.EXCH'").fetchone()
+        assert after["difficulty"]["Easy"]["words"] == "edited in the app", (
+            "the seed overwrote a person's words"
+        )
+        conn.rollback()
+        live = conn.execute("select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()
+        assert live["difficulty"]["Easy"]["words"] == before["Easy"]["words"], "and nothing was left behind"
 
 
 EXPECTED = {
     "tenant": 1,
-    "skill": 37,
-    "rung": 16,
+    "domain": 14,
+    "skill": 244,  # the whole map, all 14 domains — not the maths slice
+    "milestone": 849,
+    "learning_objective": 1750,
+    "learning_objective_skill": 2012,
+    "activity": 2216,
+    "activity_skill": 3711,
+    "report_item": 885,
+    "trait": 56,
+    "rung": 17,
     "level_rule": 12,
-    "misconception": 27,
+    "misconception": 39,
     "case_dimension": 18,
     "coverage_target": 46,
-    "prompt": 7,
+    "prompt": 13,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4
     "threshold": 12,
     "config": 7,
-    "skill_set": 4,
+    "skill_set": 17,
     "subject": 1,
 }
 
@@ -71,6 +85,12 @@ def test_milestones_load_for_the_registry_skills(loaded):
 
 def test_a_second_run_changes_nothing(loaded):
     assert loaders.load_all() == loaded
+
+
+def test_no_two_bands_of_one_skill_set_declare_the_same_region(loaded):
+    """Two bands with one rule draw from one pool and starve each other — R1's Medium and Hard
+    did exactly this until Hard was pinned to a story (BUILD-ORDER gate 4, amended)."""
+    assert loaders.orphans()["skill_set bands sharing one region"] == []
 
 
 def test_no_code_refers_to_something_that_does_not_exist(loaded):

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Run the engine from anywhere: `~/cornerstone/assessment-engine/bin/engine audit`.
+# Every command handed to a person must work from whatever directory they are standing in
+# (CLAUDE.md rule 12). This resolves its own location and hands over to the venv's console script.
+here=$(cd "$(dirname "$0")" && pwd)
+venv="$here/../packages/engine/.venv/bin/engine"
+if [ ! -x "$venv" ]; then
+  echo "engine is not installed yet: cd $here/../packages/engine && uv sync" >&2
+  exit 1
+fi
+exec "$venv" "$@"

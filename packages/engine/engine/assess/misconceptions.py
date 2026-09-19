@@ -8,13 +8,14 @@ Seeded from Neha S's teacher-authored list (Maths planning.docx, Aug 2026) and
 the arithmetic itself. Codes are the shared vocabulary for the `misconceptions` tab.
 """
 
+
 def digits(n, width):
-    return [int(c) for c in str(n).zfill(width)][::-1]   # index 0 = ones
+    return [int(c) for c in str(n).zfill(width)][::-1]  # index 0 = ones
+
 
 def from_digits(ds):
     return int("".join(str(d) for d in ds[::-1])) if ds else 0
 
-# ---------------- addition ----------------
 
 def add_nocarry(a, b):
     """Writes each column sum mod 10 and never carries. 47+38 -> 75."""
@@ -23,6 +24,7 @@ def add_nocarry(a, b):
     out = [(x + y) % 10 for x, y in zip(da, db)]
     r = from_digits(out)
     return r if r != a + b else None
+
 
 def add_carry_skips_column(a, b):
     """Carry is added two columns left instead of one. 47+38 -> 175."""
@@ -47,6 +49,7 @@ def add_carry_skips_column(a, b):
     r = from_digits(out)
     return r if r != a + b else None
 
+
 def add_concat(a, b):
     """Writes the full column sums side by side. 47+38 -> 715."""
     w = max(len(str(a)), len(str(b)))
@@ -57,16 +60,17 @@ def add_concat(a, b):
     r = int("".join(str(c) for c in cols[::-1]))
     return r if r != a + b else None
 
+
 def add_drop_carry_out(a, b):
     """Drops the final carry-out. 76+54 -> 30."""
     w = max(len(str(a)), len(str(b)))
-    r = (a + b) % (10 ** w)
+    r = (a + b) % (10**w)
     return r if r != a + b else None
+
 
 def off_by(n, delta):
     return n + delta
 
-# ---------------- subtraction ----------------
 
 def sub_smaller_from_larger(a, b):
     """Subtracts the smaller digit from the larger in every column, whatever the row. 62-27 -> 45."""
@@ -75,6 +79,7 @@ def sub_smaller_from_larger(a, b):
     out = [abs(x - y) for x, y in zip(da, db)]
     r = from_digits(out)
     return r if r != a - b else None
+
 
 def sub_no_decrement(a, b):
     """Exchanges (adds 10 to the column) but never reduces the lender column. 62-27 -> 45."""
@@ -87,6 +92,7 @@ def sub_no_decrement(a, b):
         out.append(x - y)
     r = from_digits(out)
     return r if r != a - b and r >= 0 else None
+
 
 def sub_across_zero_lender_not_decremented(a, b):
     """Borrowing across a zero: the zero becomes 10 and lends 1 (-> 9) but the column
@@ -112,6 +118,7 @@ def sub_across_zero_lender_not_decremented(a, b):
     r = from_digits(out)
     return r if r != a - b and r >= 0 else None
 
+
 def sub_across_zero_zero_not_reduced(a, b):
     """Borrowing across a zero: takes from the left column correctly but leaves the zero
     as 10 instead of 9. 302-178 -> 134."""
@@ -134,11 +141,14 @@ def sub_across_zero_zero_not_reduced(a, b):
     r = from_digits(out)
     return r if r != a - b and r >= 0 else None
 
+
 def wrong_operation_add(a, b):
     return a + b
 
+
 def wrong_operation_sub(a, b):
     return abs(a - b)
+
 
 def align_left(op, a, b):
     """Unequal lengths aligned from the left instead of the ones column.
@@ -151,11 +161,12 @@ def align_left(op, a, b):
     if d1 == d2:
         return None
     shifted = b * 10 ** (d1 - d2) if d1 > d2 else b
-    if d1 < d2:                       # a is the shorter one; it slides left instead
+    if d1 < d2:  # a is the shorter one; it slides left instead
         a, shifted = a * 10 ** (d2 - d1), b
     r = a + shifted if op == "+" else a - shifted
     correct = (a + b) if op == "+" else (a - b)
     return r if r != correct and r >= 0 else None
+
 
 def zero_dropped(result):
     """A placeholder zero is left out when the answer is written. 495 + 505 -> 100, not 1000.
@@ -165,9 +176,10 @@ def zero_dropped(result):
     s = str(result)
     for i, ch in enumerate(s):
         if ch == "0" and i > 0:
-            out = s[:i] + s[i + 1:]
+            out = s[:i] + s[i + 1 :]
             return int(out) if out else None
     return None
+
 
 def carry_always_one(addends):
     """Three or more addends can make a column total of 20 or more, and the carry is then 2.
@@ -182,15 +194,88 @@ def carry_always_one(addends):
     for i in range(w):
         s = sum(d[i] for d in digs) + carry
         out.append(s % 10)
-        carry = 1 if s >= 10 else 0      # the mistake: always 1, never s // 10
+        carry = 1 if s >= 10 else 0  # the mistake: always 1, never s // 10
     while carry:
         out.append(carry % 10)
         carry //= 10
     r = from_digits(out)
     return r if r != sum(addends) else None
 
-# ---------------- registry ----------------
 
+def mul_no_carry(a, b):
+    """Multiplies each digit and writes only the last digit of each product, dropping every carry.
+    34 x 6 -> 84 (4x6=24 writes 4, 3x6=18 writes 8)."""
+    if b >= 10:
+        return None
+    r = from_digits([(d * b) % 10 for d in digits(a, len(str(a)))])
+    return r if r != a * b else None
+
+
+def mul_concat(a, b):
+    """Writes each digit's whole product side by side. 34 x 6 -> 1824."""
+    if b >= 10:
+        return None
+    ds = digits(a, len(str(a)))[::-1]  # most significant first, as it is written
+    r = int("".join(str(d * b) for d in ds))
+    return r if r != a * b else None
+
+
+def mul_carry_added_before_multiplying(a, b):
+    """Adds the carry to the next digit and then multiplies it, instead of multiplying then adding.
+    34 x 6 -> 304 (4x6=24, write 4 carry 2; then (3+2)x6=30)."""
+    if b >= 10:
+        return None
+    out, carry = [], 0
+    for d in digits(a, len(str(a))):
+        product = (d + carry) * b
+        out.append(product % 10)
+        carry = product // 10
+    while carry:
+        out.append(carry % 10)
+        carry //= 10
+    r = from_digits(out)
+    return r if r != a * b else None
+
+
+def mul_ones_only(a, b):
+    """Multiplies the ones digit and stops. 34 x 6 -> 24."""
+    if b >= 10:
+        return None
+    r = (a % 10) * b
+    return r if r != a * b else None
+
+
+def mul_row_out(a, b):
+    """One row out in the table: 34 x 6 answered as 34 x 5."""
+    r = a * (b - 1)
+    return r if r != a * b and r > 0 else None
+
+
+def mul_added_instead(a, b):
+    """Adds where the question multiplies. 34 x 6 -> 40."""
+    r = a + b
+    return r if r != a * b else None
+
+
+def multi_concat(addends):
+    """Writes each column's whole total side by side, with three or more addends. 4321+2456+3212
+    -> columns 9, 9, 11, 9 written out as 99119.
+
+    `add_concat` is the two-operand version of the same mistake; with several addends the column
+    totals are larger and the wrong answer is a different number, so the pair predictor cannot
+    stand in for it. Without this, a multi-addend band could name the mistake in its spec and have
+    nothing able to mark it — which is how a spec comes to claim more than the engine can do.
+    """
+    w = max(len(str(x)) for x in addends)
+    digs = [digits(x, w) for x in addends]
+    cols = [sum(d[i] for d in digs) for i in range(w)]
+    if all(c < 10 for c in cols):
+        return None
+    r = int("".join(str(c) for c in cols[::-1]))
+    return r if r != sum(addends) else None
+
+
+# fmt: off
 ADD_PREDICTORS = {
     "M_NOCARRY":       (add_nocarry, "Forgets to carry", "Place-value chart; exchange 10 ones for a ten with rods before recording"),
     "M_CARRY_SKIP":    (add_carry_skips_column, "Carry placed one column too far left", "Column chart with the carry written above the correct column; two worked examples"),
@@ -216,6 +301,7 @@ SUB_PREDICTORS = {
 
 MULTI_PREDICTORS = {
     "M_CARRY_ALWAYS_1": (carry_always_one, "Carries 1 when the column total is 20 or more", "Three-addend columns with rods; count the tens being exchanged, not the act of exchanging"),
+    "M_CONCAT":         (multi_concat, "Writes the whole column sum instead of regrouping", "Ten-frame / rods: 'only one digit fits in a column'"),
     "M_ZERO_DROPPED":   (lambda xs: zero_dropped(sum(xs)), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value before writing it"),
 }
 
@@ -232,7 +318,24 @@ def predict_multi(addends):
             out[code] = v
     return out
 
-TABLES = {"+": ADD_PREDICTORS, "-": SUB_PREDICTORS}
+MUL_PREDICTORS = {
+    "M_MUL_NO_CARRY":    (mul_no_carry, "Multiplies each digit and drops the carry", "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'"),
+    "M_MUL_CONCAT":      (mul_concat, "Writes each digit's whole product side by side", "Grid (area) method first, then the column method beside it"),
+    "M_MUL_CARRY_FIRST": (mul_carry_added_before_multiplying, "Adds the carry before multiplying instead of after", "Say the order aloud: multiply, then add what was carried"),
+    "M_MUL_ONES_ONLY":   (mul_ones_only, "Multiplies the ones digit and stops", "Grid method: show that both parts of the number are multiplied"),
+    "M_MUL_ROW_OUT":     (mul_row_out, "One row out in the times table", "Count on in that table; check against a known fact"),
+    "M_WRONG_OP":        (mul_added_instead, "Added instead of multiplying", "Read the question aloud; identify the operation word"),
+}
+
+# fmt: on
+
+TABLES = {"+": ADD_PREDICTORS, "-": SUB_PREDICTORS, "×": MUL_PREDICTORS}
+
+# Every code a predictor computes, in one place. A caller that re-types this union is one
+# table away from a silent gap — which is how multiplication came to have none.
+PREDICTED = {
+    code for table in (ADD_PREDICTORS, SUB_PREDICTORS, MUL_PREDICTORS, MULTI_PREDICTORS) for code in table
+}
 
 
 def compute(op, a, b):
@@ -254,6 +357,21 @@ def predict(op, a, b):
         if v is not None and v != correct and v >= 0:
             out[code] = v
     return out
+
+
+def applicable(pairs):
+    """Every known misconception that can actually occur on these (op, a, b) triples.
+
+    This is the deterministic half of a skill set's mistake list: given the numbers a band allows,
+    code — not a model — says which named wrong methods are reachable in it. A band with no exchange
+    cannot produce an exchange mistake, and this is where that is decided by running the predictors
+    rather than by anyone remembering it.
+    """
+    out = set()
+    for op, a, b in pairs:
+        out |= set(predict(op, a, b))
+    return sorted(out)
+
 
 def catalogue():
     rows = []
