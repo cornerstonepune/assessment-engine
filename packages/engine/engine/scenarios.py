@@ -38,6 +38,13 @@ def _answer_is_right(item):
 
 
 def run_one(conn, sc):
+    kind = sc.get("kind", "bank")
+    if kind != "bank":
+        return {"kind": kind}, [f"no runner for a {kind!r} scenario yet — this goal is declared, not met"]
+    return _run_bank(conn, sc)
+
+
+def _run_bank(conn, sc):
     """One scenario → (measurements, failures). Nothing is written to the database."""
     code, difficulty, n = sc["skill_set"], sc["difficulty"], int(sc.get("n", 20))
     _, s, check = spec.read(conn, code, difficulty)

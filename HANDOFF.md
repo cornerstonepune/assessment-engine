@@ -22,6 +22,24 @@ so W2 is not held on other people's calendars. Ratification is per-version — t
 it the moment anyone edits a spec's content — so the school's corrections remain the normal path
 and re-open the signature on whatever they touch.
 
+## Where we are: **W2 — assemble and print.** W1 closed 2026-09-20, all six gates.
+
+`goals/w2-assemble-and-print.yaml` is written and **red on purpose**: `0/9 scenarios`, because a
+`kind: week` scenario has no runner yet and F2 does not exist. That file is W2's definition of done —
+ten children at one difficulty getting ten different papers, a QR that resolves to one child, one key
+the teacher marks the class from, the exposure window respected, unnamed spares, a named child rather
+than a short paper, the band default when evidence is thin, roll order. The engine functions behind
+most of it exist and are tested (`prescribe.for_class`, `assemble.for_week`, `assemble.render`); what
+is missing is the runner that proves them together and the n8n flow.
+
+First three moves of W2, in order:
+1. `scenarios._run_week` — build the week for a test section on a rolled-back transaction and check
+   the nine properties, the way `_run_bank` checks questions.
+2. Make whatever it finds true. (It will find things: nothing has ever checked a whole week end to
+   end, only its parts.)
+3. `n8n/workflows/f2-assemble-and-print.json` + its lint, so a person watches boxes rather than
+   remembering commands.
+
 ## How to tell if anything is broken, before anything else
 
 ```
