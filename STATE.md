@@ -1208,3 +1208,44 @@ invariants, so the goal is defended in CI and not only by someone remembering to
   distinct.
 - **`bin/engine goal w1-build-the-bank` → `10/10 scenarios`, `5/5 criteria`, `GOAL ACHIEVED`** after
   all of the above. Suite 294 passed, audit 12/12 clean.
+
+## The mistake lists applied to all 17 specs (2026-09-20)
+
+Nimish ran `bank misconceptions WORD.1_2STEP --apply` himself, which exposed two defects in the
+apply path before the rest were touched. Both fixed, then the whole ladder was applied.
+
+- **The generated codes were unusable.** `_code_for` slugged the model's whole sentence and produced
+  `M_MISCONCEPTION_S_DEMAND_ANSWERED_THE_Q` — a join key the graph, prescriptions and every screen
+  would have carried forever. It now takes the first three words that mean something, never cutting
+  mid-word: `M_USES_WRONG_OPERATION`, `M_PICKS_EXTRA_NUMBER`, `M_READS_TWO_STEP`. The five rows from
+  that first apply were deleted and re-proposed; two later codes cut at the 30-character cap were
+  renamed in the vocabulary and in every spec that referenced them.
+- **Prompt v5: the name is a label, not a sentence** (six words, 60 characters), and the model is now
+  shown **every name in the vocabulary**, not only the codes this band computes — because a mistake in
+  reading a story has no wrong number to match on, so the only way to stop a second name for it is to
+  show the first. Measured on `WORD.1_2STEP`: 5 proposals of which several duplicated existing
+  mistakes, down to 1 genuinely new.
+- **`--computed-only`: the free half, applied to all 17 specs.** `engine bank misconceptions <set>
+  --computed-only` unions what code can already mark against, with no model call. **58 codes added
+  across 12 specs at ₹0** — mistakes the marker has been diagnosing while the spec a person approves
+  never mentioned them.
+- **The model half applied to the seven sets arithmetic cannot reach** (reasoning, strategy, mental,
+  estimate, budget, word problems): **26 engine-proposed mistakes now in the vocabulary**, every one
+  `working`, `explanation` or `teacher` — none claims to be markable from the answer alone, because
+  none has a reproducible number. Total spend ₹4.1.
+- **A defect the dropped counter caught in my own checker:** `WORD.BUDGET` threw away 5 of 5
+  proposals as "its own arithmetic is wrong" — and the arithmetic was mine. A budget question is a
+  chain (`8000 − 25 − 40 − …`) and the checker read only its first two numbers. `M.chain` now folds
+  left over however many numbers a question has. After the fix: 3 added, 3 dropped. The 3 that remain
+  dropped mix operations in one example (per-child multiplication inside a subtraction chain), which a
+  single `op` field cannot express — named here, not hidden.
+- **All 17 ratified as `Nimish Shah (engine-derived list, applied 2026-09-20)`** — his instruction to
+  finish, with the full list in front of him, and the attribution says the list was derived rather
+  than read line by line. Editing any spec withdraws it as usual.
+- **The vocabulary is now a table the seed does not own outright** (65 rows: 39 seeded, 26 proposed),
+  so `test_every_table_has_the_expected_number_of_rows` no longer asserts an exact count for it. The
+  seeded rows are a floor and each must be present — which is the stronger claim, and it will hold
+  when `engine bank unclassified` starts adding what children actually write.
+- **Green after all of it:** `bin/engine goal w1-build-the-bank` → `10/10 scenarios`, `5/5 criteria`,
+  `GOAL ACHIEVED`; `bin/engine audit` → `12 invariants, 0 violations`; **295 passed**;
+  `uv run ruff check engine tests` → `All checks passed!`.

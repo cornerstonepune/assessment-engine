@@ -342,6 +342,17 @@ def compute(op, a, b):
     return {"+": a + b, "-": a - b, "×": a * b}[op]
 
 
+def chain(op, numbers):
+    """The answer to a question with however many numbers it has, read left to right: `8000 - 25 - 40`
+    is 7935, not 7975. A budget question is a chain, and reading only its first two numbers is how a
+    proposal about one came to be thrown away for arithmetic that was never wrong.
+    """
+    total = numbers[0]
+    for n in numbers[1:]:
+        total = compute(op, total, n)
+    return total
+
+
 def predict(op, a, b):
     """Return {code: wrong_answer} for every misconception that can occur on these operands.
     An operation with no predictor table yet (multiplication) returns {} — the verifier then

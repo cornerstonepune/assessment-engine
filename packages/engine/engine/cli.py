@@ -248,10 +248,22 @@ def week_assemble(
 def bank_misconceptions(
     skill_set: str,
     apply: bool = typer.Option(False, "--apply", help="Store the new ones and attach the list to the set"),
+    computed_only: bool = typer.Option(
+        False, "--computed-only", help="Attach what code computes and ask no model at all"
+    ),
 ) -> None:
     """Every wrong method a child can use on this skill set: what code computes from the band's own
     numbers, then what only judgment finds. Without --apply nothing is stored. With it, the set's
     ratification is withdrawn — a changed list needs a signature."""
+    if computed_only:
+        with db.connect() as conn:
+            added = spec.apply_computed(conn, skill_set)
+            conn.commit()
+        typer.echo(
+            f"  {skill_set}: {len(added)} added from what code computes"
+            + (f" — {', '.join(added)}" if added else ", nothing new")
+        )
+        return
     with db.connect() as conn:
         meta = {}
         try:

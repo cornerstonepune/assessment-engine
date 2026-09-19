@@ -84,11 +84,67 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
     return {d: bands.codes(b.get("check") or {}, n, rung=s["rung_code"]) for d, b in s["difficulty"].items()}
 
 
+# Words that carry no meaning in a code. A join key is read by people — in a graph, a prescription,
+# a teacher's screen — so it is three words long, not a sentence with its spaces replaced.
+_FILLER = {
+    "THE",
+    "A",
+    "AN",
+    "OF",
+    "THAT",
+    "THIS",
+    "DOES",
+    "DOESNT",
+    "NOT",
+    "BECAUSE",
+    "IS",
+    "ARE",
+    "IN",
+    "ON",
+    "FOR",
+    "TO",
+    "AS",
+    "AND",
+    "OR",
+    "WITH",
+    "FROM",
+    "ITS",
+    "IT",
+    "S",
+    "BY",
+    "AT",
+    "WHEN",
+    "ONLY",
+    "ALL",
+    "ANY",
+    "THEN",
+    "THEIR",
+    "THEM",
+    "HAS",
+    "HAVE",
+    "BEEN",
+    "BUT",
+    "SO",
+    "INTO",
+}
+
+
 def _code_for(name):
-    """A stable code from a proposed mistake's name. The code is the join key the marker, the graph
-    and the prescription all use, so it is mechanical, not the model's invention."""
-    keep = [c if c.isalnum() else " " for c in name.split("(")[0].upper()]
-    return ("M_" + "_".join("".join(keep).split())[:44]).rstrip("_")
+    """A stable, readable code from a proposed mistake's name: `M_` plus its first three words that
+    mean something. Mechanical, never the model's invention — and short, because the first version
+    slugged whole sentences and produced `M_MISREAD_THE_QUESTION_S_DEMAND_ANSWERED_THE_Q`, which the
+    graph and every screen would have carried from then on.
+    """
+    letters = "".join(c if c.isalnum() else " " for c in name.split("(")[0].split(":")[0].upper())
+    words = [w for w in letters.split() if w not in _FILLER and not w.isdigit()]
+    if not words:
+        return "M_UNNAMED"
+    out = []
+    for w in words[:3]:
+        if len("_".join(out + [w])) > 28:  # whole words only: a code cut mid-word reads as a typo
+            break
+        out.append(w)
+    return "M_" + "_".join(out or [words[0][:28]])
 
 
 def _same_wrong_path(predicted, written):
@@ -123,7 +179,7 @@ def _check_proposal(m, covered):
         return p
     nums, op = list(ex["numbers"]), ex["op"]
     try:
-        correct = sum(nums) if op == "+" and len(nums) > 2 else M.compute(op, nums[0], nums[1])
+        correct = M.chain(op, nums)
     except KeyError:
         correct = None  # an operation with no arithmetic here: nothing to check, nothing claimed
     if correct is not None and ex.get("correct_answer", correct) != correct:
@@ -146,6 +202,24 @@ def _check_proposal(m, covered):
         p["downgraded"] = "no predictor reproduces this answer, so it cannot be marked from the answer alone"
         p["visible_in"] = "working"
     return p
+
+
+def apply_computed(conn, code, n=SAMPLE_PAIRS):
+    """Union into a spec exactly what code can already mark against — no model, no cost.
+
+    A spec that lists fewer mistakes than the engine computes is not wrong, it is out of date: the
+    marker is already diagnosing children with mistakes the document never mentions (67 of them
+    across the ladder when this was written). Returns the codes added.
+    """
+    s = row(conn, code)
+    computed = {c for codes in known_misconceptions(conn, code, n).values() for c in codes}
+    added = sorted(computed - set(s["misconception_codes"]))
+    if added:
+        conn.execute(
+            "update skill_set set misconception_codes = %s where code = %s",
+            (sorted(set(s["misconception_codes"]) | computed), code),
+        )
+    return added
 
 
 def propose_misconceptions(conn, code, apply=False, meta=None, n=SAMPLE_PAIRS):
@@ -173,7 +247,10 @@ def propose_misconceptions(conn, code, apply=False, meta=None, n=SAMPLE_PAIRS):
             "formats": list(s["formats"]),
         },
         "bands": {d: b.get("words", "") for d, b in s["difficulty"].items()},
-        "already_covered": [names.get(c, c) for c in covered],
+        # Everything the vocabulary already names, not only what this band computes: a mistake in
+        # reading a story has no wrong number to match on, so showing the model the existing name is
+        # the only thing that stops a second name for it.
+        "already_covered": sorted(set(names.values())),
     }
     out = llm.generate(conn, MISCONCEPTION_PROMPT, variables, meta=meta)
     proposals = [_check_proposal(m, covered) for m in out["mistakes"]]

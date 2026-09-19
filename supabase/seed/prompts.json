@@ -790,7 +790,7 @@
       "purpose": "misconception_list",
       "version": 4,
       "model": "claude-haiku-4-5",
-      "active": true,
+      "active": false,
       "text_file": "prompts/misconception_list.v4.txt",
       "json_schema": {
         "type": "object",
@@ -817,6 +817,102 @@
                 "name": {
                   "type": "string",
                   "maxLength": 120
+                },
+                "how_it_goes": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "example": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numbers",
+                    "op",
+                    "correct_answer",
+                    "child_writes"
+                  ],
+                  "properties": {
+                    "numbers": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 5,
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": [
+                        "+",
+                        "-",
+                        "×"
+                      ]
+                    },
+                    "correct_answer": {
+                      "type": "integer"
+                    },
+                    "child_writes": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "repair_hint": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "visible_in": {
+                  "type": "string",
+                  "enum": [
+                    "answer_lookup",
+                    "working",
+                    "explanation",
+                    "teacher"
+                  ]
+                },
+                "family": {
+                  "type": "string",
+                  "enum": [
+                    "D",
+                    "F"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "misconception_list",
+      "version": 5,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/misconception_list.v5.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistakes"
+        ],
+        "properties": {
+          "mistakes": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "how_it_goes",
+                "family",
+                "repair_hint",
+                "visible_in"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 60
                 },
                 "how_it_goes": {
                   "type": "string",

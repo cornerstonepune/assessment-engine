@@ -9,6 +9,7 @@ These tests hit the real Supabase project, so they skip when no DATABASE_URL is 
 
 import json
 import os
+import pathlib
 
 import pytest
 
@@ -62,7 +63,7 @@ EXPECTED = {
     "misconception": 39,
     "case_dimension": 18,
     "coverage_target": 46,
-    "prompt": 13,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4
+    "prompt": 14,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4
     "threshold": 12,
     "config": 7,
     "skill_set": 17,
@@ -75,8 +76,27 @@ def loaded():
     return loaders.load_all()
 
 
+# The vocabulary is the one table the seed does not own outright: `engine bank misconceptions --apply`
+# adds what a prompt found, and `engine bank unclassified` will add what children write. An exact
+# count here would fail every time the engine legitimately learned a mistake, so the seed's rows are
+# a floor and each one must be present.
+GROWS = {"misconception"}
+
+
 def test_every_table_has_the_expected_number_of_rows(loaded):
-    assert {k: loaded[k] for k in EXPECTED} == EXPECTED
+    fixed = {k: v for k, v in EXPECTED.items() if k not in GROWS}
+    assert {k: loaded[k] for k in fixed} == fixed
+
+
+def test_the_vocabulary_holds_every_seeded_mistake_and_may_hold_more(loaded):
+    seed = json.loads(
+        (pathlib.Path(__file__).resolve().parents[3] / "supabase/seed/misconceptions.json").read_text()
+    )
+    want = {(m["code"], m["op"]) for m in seed["misconceptions"]}
+    with db.connect() as conn:
+        have = {(r["code"], r["op"]) for r in conn.execute("select code, op from misconception").fetchall()}
+    assert want <= have, f"the seed's own mistakes are missing: {sorted(want - have)}"
+    assert loaded["misconception"] >= len(want)
 
 
 def test_milestones_load_for_the_registry_skills(loaded):
