@@ -123,3 +123,39 @@ def read_stability(
                 seen[code or "—"] = seen.get(code or "—", 0) + 1
             typer.echo(f"    {n:>4}  " + "   ".join(f"{k} x{c}" for k, c in sorted(seen.items(), key=lambda kv: -kv[1])))
     typer.echo(f"\n  {distinct} distinct responses across {runs} runs   model spend Rs {spent:.2f}")
+
+
+@read_app.command("eval")
+def read_eval_cmd(
+    runs: int = typer.Option(1, "--runs", help="repeats; the reported rate is the WORST of them"),
+) -> None:
+    """Score the active `legacy_extract` against what a person actually saw on the page.
+
+    The gold holds answers that are WRONG on purpose. A reader that computes instead of transcribing
+    scores perfectly against right answers and catastrophically here — which is exactly how v3
+    regressed 24/24 to 17/24 while every mark came back "correct".
+    """
+    from engine import read_eval
+
+    with db.connect() as conn:
+        version = conn.execute(
+            "select version from prompt where purpose = 'legacy_extract' and active"
+        ).fetchone()["version"]
+        before = external.spend_today(conn)
+        worst, per_run = read_eval.run(conn, runs)
+        conn.commit()
+        spent = external.spend_today(conn) - before
+
+    typer.echo(f"\n  legacy_extract v{version}, {runs} run(s), {worst['total']} responses of gold\n")
+    for f, k, want, said in worst["details"]:
+        typer.echo(f"    {k:>4}  page says {want:<10} reader said {said}")
+    typer.echo(
+        f"\n  read exactly right   {worst['read_exactly_right']:.1%}   ({worst['exact']}/{worst['total']})"
+        f"\n  given a row at all   {worst['responses_given_a_row']:.1%}   ({worst['missing']} missing)"
+        f"\n  wrong value          {worst['wrong_value']}"
+        f"\n  wrong answer_state   {worst['state_wrong']}"
+    )
+    if runs > 1:
+        rates = [r["read_exactly_right"] for r in per_run]
+        typer.echo(f"  spread over {runs} runs  {min(rates):.1%} – {max(rates):.1%}")
+    typer.echo(f"  model spend Rs {spent:.2f}\n")

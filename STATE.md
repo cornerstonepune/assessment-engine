@@ -1616,3 +1616,53 @@ today, are the first two to migrate.
 
 - `bin/engine goal w3-read-and-graph` → `2/4 criteria · 36 scenarios short of the bar`
 - `bin/engine audit` → `12 invariants checked, 0 violations`; `pytest` → `307 passed`
+
+## The reader is at ~60%, not ~100%. The bar is 97%. (2026-09-20)
+
+Nimish asked to extract all the papers and score them. Before spending ~118 pages of model calls,
+`legacy_extract` was measured against a page a person had actually read. It should have been
+measured months ago; rule 7 says every model output ships with an eval and this one never had one.
+
+- **The gold**: `supabase/seed/read_gold.json` — all 27 answers on `Advika sept. 1st assessment.pdf`,
+  read off the rendered page by eye and checked twice. It deliberately records what the CHILD wrote,
+  which for eleven of the 27 is NOT the right answer. A reader that computes instead of transcribing
+  scores perfectly against a gold set of right answers and catastrophically against this one.
+
+- **The measurement**, `bin/engine read eval --runs 3`, worst of three runs:
+
+  | prompt | read exactly right | spread over 3 runs | given a row |
+  |---|---|---|---|
+  | `legacy_extract` v2 | **55.6%** (15/27) | 55.6 – 63.0% | 81.5% (5 missing) |
+  | `legacy_extract` v3 | **59.3%** (16/27) | 59.3 – 63.0% | 81.5% (5 missing) |
+
+- **Two claims made earlier in this session are wrong and are withdrawn.**
+  1. *"24 of 24 responses read exactly right."* That was the stored rows from an earlier import,
+     hand-checked once. A fresh run of the same prompt reads 15–17 of 27. **The perfect score was
+     one lucky run of a noisy process** — exactly the trap the `runs:` guard was added to the goal
+     to prevent, and I fell into it myself while writing that guard.
+  2. *"v3 regressed the reader from 24/24 to 17/24."* Not established and probably false: measured
+     head to head over three runs each, v3 is marginally **better** than v2, not worse. The seven
+     "wrong" values in the v3 run that prompted the alarm are within v2's own error rate.
+
+- **What the errors actually are.** The reader supplies the *correct* answer in place of the child's
+  wrong one: `425 − 38` read as `387` when the child wrote `397`; `342 − 58` read as `284` when the
+  child wrote `384`; `250 + [ ] = 300` read as `50` when the child wrote `150`. Every one of those
+  turns a diagnosable mistake into a silent "correct", which is the `silently_wrong_at_most: 0.01`
+  bar's exact failure mode — currently running at roughly 22%, not 1%.
+
+- **Five of 27 responses still get no row at all** (81.5%, bar 100%), and they are the same five:
+  Q5's three boxes and Q7's estimate-and-total. Correcting the paper from 24 slots to 27 was
+  necessary and did not fix this — the slots now exist and the reader does not see those as separate
+  answers. The paper was one half of that defect; the prompt is the other.
+
+- **A design fault in ADR 0018 itself, found by its own schema limit.** v3's `resolution.why` came
+  back holding arithmetic: *"the child's working shows 763 + 427 = 1140, but this is arithmetically
+  incorrect … requiring 763 − 427 = 336"*. Asking a model what it could not do invites it to judge
+  whether the answer is **right**, and judging correctness is precisely what pulls a transcriber
+  into computing. The contract stands, but `resolution` must be about legibility and completeness
+  only, and must forbid reasoning about correctness in as many words. That is v4's job.
+
+- **The consequence for the plan.** Reading all 118 pages at ~60% would put a confidently wrong
+  diagnosis on sixteen children and fill the graph with answers no child gave. The reader is fixed
+  to the bar first, then the corpus is read once. `engine read eval` is now the command that says
+  whether it is ready, and it runs in about a minute for Rs 1.40.

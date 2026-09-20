@@ -53,36 +53,39 @@ def _resp():
 
 
 def test_mark_keeps_three_signals_apart():
-    assert legacy.mark(
-        _spec(), _resp(), {"child_answer": "375", "attempted": True, "working_summary": ""}
-    ) == ("correct", [], "none")
-    assert legacy.mark(
-        _spec(), _resp(), {"child_answer": "374", "attempted": True, "working_summary": "columns"}
-    ) == ("wrong", ["M_FACT_PM1"], "partial")
-    assert legacy.mark(_spec(), _resp(), {"child_answer": "", "attempted": False, "working_summary": ""}) == (
-        "blank",
-        [],
-        "none",
-    )
+    """Rule 5, and now ADR 0018's fourth case. `answer_state` is the reader saying which of four
+    things it saw rather than the caller guessing from an empty string — v2 returned the same empty
+    `child_answer` for "wrote nothing" and "wrote something I cannot read"."""
+    m = lambda read, spec=None, resp=None: legacy.mark(spec or _spec(), resp or _resp(), read)
+
+    assert m({"child_answer": "375", "answer_state": "written", "working_summary": ""}) == (
+        "correct", [], "none")
+    assert m({"child_answer": "374", "answer_state": "written", "working_summary": "columns"}) == (
+        "wrong", ["M_FACT_PM1"], "partial")
+    assert m({"child_answer": "", "answer_state": "blank", "working_summary": ""}) == ("blank", [], "none")
+
     # working but no final answer is not a blank and not a wrong: a person decides
-    assert (
-        legacy.mark(
-            _spec(), _resp(), {"child_answer": "", "attempted": True, "working_summary": "started columns"}
-        )[0]
-        == "needs_teacher"
-    )
-    assert (
-        legacy.mark(_spec(), _resp(), {"child_answer": "3?5", "attempted": True, "working_summary": ""})[0]
-        == "unreadable"
-    )
-    assert (
-        legacy.mark(
-            _spec("text"),
-            {"answer": None},
-            {"child_answer": "because it is big", "attempted": True, "working_summary": ""},
-        )[0]
-        == "needs_teacher"
-    )
+    assert m({"child_answer": "", "answer_state": "written", "working_summary": "started columns"})[0] == (
+        "needs_teacher")
+
+    # writing that cannot be made out is never reported as a blank — the collapse rule 5 forbids
+    assert m({"child_answer": "", "answer_state": "illegible", "working_summary": ""})[0] == "unreadable"
+    assert m({"child_answer": "3?5", "answer_state": "written", "working_summary": ""})[0] == "unreadable"
+
+    # only an educator's tick is visible: the outcome is knowable, the child's answer is not, and
+    # working backwards from the tick would invent an answer out of an adult's opinion of it
+    assert m({"child_answer": "", "answer_state": "not_visible", "educator_mark": "right",
+              "working_summary": ""})[0] == "needs_teacher"
+
+    assert m({"child_answer": "because it is big", "answer_state": "written", "working_summary": ""},
+             spec=_spec("text"), resp={"answer": None})[0] == "needs_teacher"
+
+
+def test_working_shown_is_taken_from_the_reader_not_guessed_from_a_summary():
+    """v2 had no way to say `full`, so a ponytail comment admitted every page read `partial`."""
+    assert legacy.mark(_spec(), _resp(),
+        {"child_answer": "375", "answer_state": "written", "working_shown": "full",
+         "working_summary": "full column method"})[2] == "full"
 
 
 def test_normalise_answer_reads_units_and_commas():
@@ -117,14 +120,14 @@ PAPER = {
 }
 
 READ = {
-    "page_note": "",
+    "resolution": {"status": "complete", "saw": "a question page", "unresolved": []},
     "items": [
         {
             "n": 1,
             "part": "",
             "question_as_printed": "46 + 38",
             "child_answer": "84",
-            "attempted": True,
+            "answer_state": "written",
             "working_summary": "",
             "self_corrected": False,
         },
@@ -133,7 +136,7 @@ READ = {
             "part": "",
             "question_as_printed": "57 + 28",
             "child_answer": "75",
-            "attempted": True,
+            "answer_state": "written",
             "working_summary": "columns",
             "self_corrected": False,
         },  # M_NOCARRY
@@ -142,7 +145,7 @@ READ = {
             "part": "",
             "question_as_printed": "68 + 27",
             "child_answer": "85",
-            "attempted": True,
+            "answer_state": "written",
             "working_summary": "",
             "self_corrected": False,
         },  # M_NOCARRY again
@@ -151,7 +154,7 @@ READ = {
             "part": "",
             "question_as_printed": "59 + 24",
             "child_answer": "",
-            "attempted": False,
+            "answer_state": "blank",
             "working_summary": "",
             "self_corrected": False,
         },
@@ -160,7 +163,7 @@ READ = {
             "part": "",
             "question_as_printed": "Explain.",
             "child_answer": "because",
-            "attempted": True,
+            "answer_state": "written",
             "working_summary": "",
             "self_corrected": False,
         },
@@ -169,7 +172,7 @@ READ = {
             "part": "",
             "question_as_printed": "extra",
             "child_answer": "1",
-            "attempted": True,
+            "answer_state": "written",
             "working_summary": "",
             "self_corrected": False,
         },

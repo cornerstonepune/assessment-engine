@@ -19,6 +19,10 @@ from engine.assess import tags
 from engine.assess.ladder import RUNGS
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
+# `capture_live_content_idx` forbids two LIVE captures of one file, so on a re-read the old row must
+# leave the live set BEFORE the new one is inserted — and at that moment its replacement does not
+# exist yet. It points at itself for those few statements, which is non-null (so it is no longer
+# live) and self-describing, and is repointed at the real replacement below.
 _EXPR = re.compile(r"^\s*(\d+)\s*([+\-−–×x])\s*(\d+)\s*=?\s*$")
 _MINUS = str.maketrans({"−": "-", "–": "-", "x": "×"})
 _SKILL_FOR_OP = {"+": "NUM.OPS.01", "-": "NUM.OPS.02"}
@@ -211,15 +215,28 @@ def _jpeg(img):
 
 def mark(spec, response, read):
     """→ (status, misconception codes, working_shown). Blank, wrong and wrong-with-working stay
-    three signals (rule 5): status carries the first two, working_shown the third."""
-    working = (
-        "partial" if read.get("working_summary") else "none"
-    )  # ponytail: the page call cannot tell partial from full
+    three signals (rule 5): status carries the first two, working_shown the third.
+
+    `answer_state` (legacy_extract v3, ADR 0018) is the reader saying which of four different things
+    it saw, rather than the caller inferring it from an empty string. v2 returned `attempted` and an
+    empty `child_answer` for both "wrote nothing" and "wrote something I cannot read" — the exact
+    collapse rule 5 forbids. `not_visible` is its own case because the SOF pages carry an educator's
+    tick over a rubbed-out pencil mark: the outcome is knowable, the child's answer is not, and
+    working backwards from the tick would invent an answer out of an adult's opinion of it.
+    """
+    working = read.get("working_shown") or ("partial" if read.get("working_summary") else "none")
     answer = normalise_answer(read.get("child_answer", ""))
+    state = read.get("answer_state")
+    if state == "blank":
+        return "blank", [], working
+    if state == "illegible":
+        return "unreadable", [], working
+    if state == "not_visible":
+        return "needs_teacher", [], working
     if spec["kind"] == "text":
-        return ("blank" if not read.get("attempted") and not answer else "needs_teacher"), [], working
+        return ("blank" if state == "blank" and not answer else "needs_teacher"), [], working
     if not answer:
-        return ("needs_teacher" if read.get("attempted") else "blank"), [], working
+        return "needs_teacher", [], working
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
@@ -230,7 +247,21 @@ def mark(spec, response, read):
     return "wrong", codes, working
 
 
-def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False):
+def _page_resolution(summary, page_no, out):
+    """The reader's own account of the page (ADR 0018) → one line for a person, and every thing it
+    could not settle collected for the approval queue. `needs` is what code routes on: a page that
+    says `nothing` is a complete answer, not a failure, and a cover page saying so is the difference
+    between an honest empty list and an invented question."""
+    res = out["resolution"]
+    for u in res["unresolved"]:
+        summary.setdefault("unresolved", []).append({**u, "page": page_no})
+    unmet = [u for u in res["unresolved"] if u["needs"] != "nothing"]
+    tail = f" — {len(unmet)} needing attention" if unmet else ""
+    return f"{res['status']}: {res['saw']}{tail}"
+
+
+def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False,
+                again=False):
     """One scan of one child's paper → capture, item_result rows (candidate), and optionally a
     narrative_observation. Returns a summary a person can read before confirming.
 
@@ -243,6 +274,7 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
     tenant = template["tenant_id"]
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
 
+    stale_id = None
     qr = f"LEGACY-{paper_code}-{str(child_id)[:8]}"
     instance = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
@@ -257,6 +289,15 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
         " and superseded_by is null",
         (instance, file_sha256),
     ).fetchone()
+    if existing and again:
+        # The scan is unchanged but the PAPER is not — `G2-CAM-A` went from 24 answer slots to the
+        # 27 its page holds, and three answers per child had nowhere to land. Idempotency keys on
+        # the file alone, so it reported "nothing to do" on a reading that was three answers short.
+        # `engine.stale` finds these; this re-reads one. The old capture is superseded, never
+        # deleted (rule 4) — a teacher may have confirmed rows on it and that history stays.
+        stale_id = existing["id"]
+        existing = None
+        conn.execute("update capture set superseded_by = id where id = %s", (stale_id,))
     if existing and existing["status"] == "processed":
         n = conn.execute(
             "select count(*) as n from item_result where capture_id = %s", (existing["id"],)
@@ -287,6 +328,9 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
             (tenant, rel, len(images), instance, qr, file_sha256),
         ).fetchone()["id"]
 
+    if stale_id:  # point the placeholder at the reading that actually replaced it
+        conn.execute("update capture set superseded_by = %s where id = %s", (capture, stale_id))
+
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
         for page_no, jpeg in zip(page_numbers, images):
@@ -294,8 +338,7 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
             jpeg = mask_name_band(jpeg, fraction)
             expected = sum(1 for it in by_key.values() if it["spec"].get("page", 1) == page_no)
             out = llm.generate(conn, "legacy_extract", {"expected": str(expected)}, images=[jpeg])
-            if out.get("page_note"):
-                summary["notes"].append(f"p{page_no}: {out['page_note']}")
+            summary["notes"].append(f"p{page_no}: {_page_resolution(summary, page_no, out)}")
             for read in out["items"]:
                 key = f"{read['n']}{read.get('part', '')}"
                 it = by_key.get(key)

@@ -40,6 +40,9 @@ def legacy_import(
     narrative: bool = typer.Option(
         False, "--narrative", help="Also ask for the whole-page reading (Channel B)"
     ),
+    again: bool = typer.Option(
+        False, "--again", help="Re-read even though the file is unchanged: the PAPER changed (engine.stale)"
+    ),
     actor: str = typer.Option("engine-cli", "--actor"),
 ) -> None:
     """Read one scan of one child's paper: candidate results a person then confirms."""
@@ -48,7 +51,9 @@ def legacy_import(
     with db.connect() as conn:
         cid = roster.find(conn, section, child, actor)
         try:
-            summary = legacy.import_scan(conn, path, paper, cid, actor, page_list, masks, narrative)
+            summary = legacy.import_scan(
+                conn, path, paper, cid, actor, page_list, masks, narrative, again
+            )
         except LLMError as e:
             conn.commit()
             typer.echo(f"  could not read: {e}", err=True)
