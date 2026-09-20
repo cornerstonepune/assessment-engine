@@ -16,7 +16,7 @@ screen where a person acts. "Built" means all of that, not the Python alone.
 |---|---|---|---|---|
 | **W1** | Build the bank (N1–N2) | any skill on the map, its learning objective, a difficulty | hundreds of verified questions per skill × difficulty, for any topic, by rows only | **done: `engine goal w1-build-the-bank` → 10/10 scenarios, 5/5 criteria (2026-09-20)** |
 | W2 | Assemble and print (N5–N7) | each child's prescription | per-child papers with QR, spares, key; the teacher approves | **goal met 2026-09-20: `engine goal w2-assemble-and-print` → 12/12 scenarios, 4/4 criteria. Its engine is proven; its output is not pilot-ready until W3 feeds it — see below. A live n8n run and the Grade 1 decision remain** |
-| W3 | Read and graph (N8–N10) | scanned or photographed papers | marked answers, mistake patterns, the child's skill graph | **goal written and agreed 2026-09-20: `goals/w3-read-and-graph.yaml`, 21 scenarios, 4 criteria, all red on purpose.** 10 of 72 papers read, all the easy kind, never measured; 4 of 18 children have any result; no Grade 3 paper is enterable yet |
+| W3 | Read and graph (N8–N10) | scanned or photographed papers | marked answers, mistake patterns, the child's skill graph | **gate 1 moving, 2026-09-20.** The first Grade 3 paper is entered and read — 12/18 exact on a phone photograph, 1 silently wrong — and the teacher approval screen is live, so every correction is a hand-verified response and coverage of a signed-off paper is 100%. 5 of 15 papers entered; the reader is at 76.2% against a 97% bar |
 | W4 | Close the loop (N11–N12 → N5) | the graph | next paper, home sheet, parent note, per child | not started |
 
 **Sequencing, set by Nimish 2026-09-20.** W2's engine is proven, but its output is not

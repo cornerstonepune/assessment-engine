@@ -62,3 +62,25 @@ test("a child's ladder is in words, with the answers behind each rung", async ({
   await expect(opened.getByRole("table")).toBeVisible();
   await expect(opened.getByRole("columnheader", { name: "Child wrote" })).toBeVisible();
 });
+
+// The approval screen is reached by opening a paper, so it has no fixed path to list above. It is
+// the one screen a teacher stands at with a photograph, and the one that must survive a phone.
+for (const { name, width, height } of SIZES) {
+  test(`${name} /capture/<paper>`, async ({ page }, testInfo) => {
+    const errors: string[] = [];
+    // The page images come from the engine, which is not running in CI. A missing image is a
+    // broken <img>, not a broken screen, so those are the one thing not counted here.
+    page.on("console", (m) => m.type() === "error" && !m.text().includes("/api/scan/") && errors.push(m.text()));
+    await page.setViewportSize({ width, height });
+    await page.goto("/capture", { waitUntil: "networkidle" });
+    const open = page.getByRole("table").first().getByRole("link").first();
+    if ((await open.count()) === 0) test.skip(true, "no paper has been read yet");
+    await open.click();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("·");
+    await expect(page.getByRole("heading", { name: "What this paper says, by skill" })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, "page must not scroll sideways").toBeLessThanOrEqual(1);
+    expect(errors).toEqual([]);
+    await page.screenshot({ path: testInfo.outputPath(`${name}-capture-paper.png`), fullPage: true });
+  });
+}

@@ -7,6 +7,7 @@ lands as a candidate for a person to confirm. A model transcribes, code marks �
 import hashlib
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 import cv2
@@ -185,16 +186,52 @@ def _ids(conn, template_id):
 
 
 def render_pages(path, pages=None):
-    """A PDF or an image → one JPEG bytes per page."""
+    """A PDF or an image → one JPEG bytes per page.
+
+    `pages` selects pages out of a multi-page document. It does NOT apply to a photograph: a
+    Grade 3 sitting is one JPEG per page, so `--pages 2` on one of those means "this file is page 2
+    of the paper", which `import_scan` uses to look up the right slots. Filtering a one-image file
+    by that number returned an empty list and read nothing at all.
+    """
     path = Path(path)
-    out = (
-        [cv2.imread(str(path))]
-        if path.suffix.lower() in (".jpg", ".jpeg", ".png")
-        else render_pdf.render(path)
-    )
-    if pages:
+    photo = path.suffix.lower() in (".jpg", ".jpeg", ".png")
+    out = [cv2.imread(str(path))] if photo else render_pdf.render(path)
+    if pages and not photo:
         out = [out[i - 1] for i in pages if 0 < i <= len(out)]
     return [_jpeg(im) for im in out]
+
+
+@lru_cache(maxsize=8)
+def _rendered(path, mtime):
+    """Every page of a file as JPEG bytes, remembered. The approval screen asks for one crop per
+    answer — eighteen requests for one page — and re-rendering a PDF each time would make a screen
+    a teacher has to wait for. Keyed on the file's mtime so a re-photographed page is not stale."""
+    del mtime
+    return render_pages(path)
+
+
+def page_crop(path, page_no, box=None, pad=0.01):
+    """One page of a scan as JPEG bytes, or the patch of it an answer was read from.
+
+    `box` is (left, top, right, bottom) as fractions of the page — `item_result.raw_read`'s own
+    `box`, so what a person is shown is exactly the region the reading came from, not an
+    approximation of it. A file holding a single image IS one page however the paper numbers it:
+    a Grade 3 sitting is one photograph per page, so its second page is a second file.
+    """
+    images = _rendered(str(path), Path(path).stat().st_mtime)
+    jpeg = images[min(max(page_no, 1), len(images)) - 1]
+    if not box:
+        return jpeg
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    h, w = img.shape[:2]
+    left, top, right, bottom = box
+    x0 = max(0, int((left - pad) * w))
+    y0 = max(0, int((top - pad) * h))
+    x1 = min(w, int((right + pad) * w))
+    y1 = min(h, int((bottom + pad) * h))
+    if x1 - x0 < 8 or y1 - y0 < 8:  # a region too small to see is more use whole than cropped
+        return jpeg
+    return _jpeg(img[y0:y1, x0:x1])
 
 
 def masked_image(jpeg, fraction):
@@ -505,6 +542,77 @@ def import_scan(
         (tenant, actor, child_id),
     )
     return summary
+
+
+def correct(conn, result_id, human_read, by):
+    """A person says what the child actually wrote. `POST /capture/correct`, and the mechanism the
+    approval screen exists for.
+
+    Append-only, and deliberately so (rule 4): the machine's own reading stays in
+    `item_result.raw_read` untouched for ever, and the correction is a NEW `read_correction` row.
+    Two things depend on that. A teacher can always see what the engine made of their child's
+    handwriting, and the flag rate and the silent-error rate stay measurable afterwards — overwrite
+    the read and the engine can never again be scored against the page it read.
+
+    Only the MARK is recomputed, by the same `mark` the import path uses, because marking is a
+    lookup against numbers computed when the paper was entered. A teacher is asked what a child
+    wrote, never whether it is right.
+    """
+    row = conn.execute(
+        "select r.id, r.tenant_id, r.raw_read, r.capture_id, si.child_id, i.spec, i.responses"
+        " from item_result r join item i on i.id = r.item_id"
+        " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
+        " where r.id = %s and r.state = 'candidate'",
+        (result_id,),
+    ).fetchone()
+    if not row:
+        raise ValueError(f"no answer waiting for a person with id {result_id}")
+    read = (
+        json.loads(row["raw_read"] or "{}") if isinstance(row["raw_read"], str) else (row["raw_read"] or {})
+    )
+    text = (human_read or "").strip()
+    reading = {**read, "child_answer": text, "answer_state": "written" if text else "blank"}
+    status, codes, working = mark(row["spec"], row["responses"][0], reading)
+    conn.execute(
+        "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read,"
+        " human_read, misconception_codes, by) values (%s,%s,%s,%s,%s,%s,%s,%s)",
+        (
+            row["tenant_id"],
+            row["child_id"],
+            row["capture_id"],
+            row["id"],
+            read.get("child_answer", "") or "",
+            text,
+            codes,
+            by,
+        ),
+    )
+    conn.execute(
+        "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
+        " updated_at = now() where id = %s",
+        (status, codes, working, row["id"]),
+    )
+    return {"status": status, "codes": codes, "was": read.get("child_answer", "") or "", "now": text}
+
+
+def corrections(conn):
+    """Every answer a person has said the true reading of, latest first per answer.
+
+    This is the gold set growing by use rather than by a data-entry project: a teacher confirming
+    one paper hands the eval a handful of hand-verified responses, on the exact page a child wrote.
+    """
+    return conn.execute(
+        "select distinct on (rc.item_result_id) t.batch_id as paper, c.path, i.item_key,"
+        " rc.human_read, rc.by, rc.created_at"
+        " from read_correction rc"
+        " join item_result r on r.id = rc.item_result_id"
+        " join item i on i.id = r.item_id"
+        " join capture c on c.id = rc.capture_id"
+        " join sheet_instance si on si.id = c.sheet_instance_id"
+        " join sheet_template t on t.id = si.sheet_template_id"
+        " where c.superseded_by is null"
+        " order by rc.item_result_id, rc.created_at desc"
+    ).fetchall()
 
 
 def dedupe(conn):

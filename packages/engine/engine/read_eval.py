@@ -24,8 +24,49 @@ GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
 ASSESSMENTS = "~/cornerstone/assessments"
 
 
-def gold_sheets():
-    return json.loads(GOLD.read_text())["sheets"]
+def gold_sheets(conn=None):
+    """Every hand-verified response there is: the seed file, plus every correction a teacher has
+    made on the screen.
+
+    This is the whole argument for building the approval screen early. A correction IS a
+    hand-verified response — a person looked at the page and said what the child wrote — so the set
+    the reader is measured against grows by using the system rather than by a data-entry project.
+    The bar needs 300 responses and 100 of them phone photos (`goals/w3-read-and-graph.yaml`); 63
+    were typed in by hand, and the rest should arrive as a by-product of marking.
+
+    Where both sources hold the same answer, the teacher's is the one kept: they looked at the page
+    more recently, and the seed was one person reading a screen at midnight.
+    """
+    sheets = json.loads(GOLD.read_text())["sheets"]
+    if conn is None:
+        return sheets
+    # The seed names a file relative to the assessments folder and a capture names it with a ~;
+    # both are the same scan, so they are matched as the one path they resolve to.
+    by_file = {_resolved(sheet_name(s)): s for s in sheets}
+    for row in legacy.corrections(conn):
+        key = row["item_key"].rsplit("/", 1)[1]
+        sheet = by_file.get(_resolved(row["path"]))
+        if sheet is None:
+            sheet = {
+                "paper": row["paper"],
+                "file": row["path"],
+                "note": "from the approval screen",
+                "answers": [],
+            }
+            by_file[_resolved(row["path"])] = sheet
+            sheets.append(sheet)
+        answer = {
+            "n": key,
+            "part": "",
+            "child_answer": row["human_read"],
+            "answer_state": "written" if row["human_read"] else "blank",
+        }
+        sheet["answers"] = [a for a in sheet["answers"] if _key(a) != key] + [answer]
+    return sheets
+
+
+def _resolved(file, root=None):
+    return str((Path(root or ASSESSMENTS).expanduser() / Path(file).expanduser()).resolve())
 
 
 def sheet_name(sheet):
@@ -155,7 +196,7 @@ def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
             "details": [],
             "sheets": [],
         }
-        for sheet in gold_sheets():
+        for sheet in gold_sheets(conn):
             s = score(sheet["answers"], read(conn, sheet, root))
             for k in ("total", "exact", "wrong_value", "missing", "state_wrong", "silently_wrong"):
                 agg[k] += s[k]

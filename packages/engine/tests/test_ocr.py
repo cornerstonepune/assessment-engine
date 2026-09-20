@@ -190,3 +190,45 @@ def test_geometry_comes_from_rows_not_from_the_code():
         "first_page_mask",
     }
     assert ocr.settings(None) == ocr.DEFAULTS  # no database: the measured defaults
+
+
+def test_a_question_matches_despite_a_token_the_page_lost():
+    """Textract read the printed "234 + 178" as "234 + 78" — the child's own "No." loops over the
+    1. Advancing only on a hit stopped counting at the first token it could not find, so the
+    question scored 3 of 8 against a 0.6 bar, never anchored, and a correct answer was lost."""
+    line = w("15. Aryan solved 234 + 78 and got 302. Is he correct?", 0.14, 0.10, hand=False, width=0.6)
+    found = ocr.find_question(
+        [line], "Aryan solved 234 + 178 and got 302. Is he correct? If not, write the correct answer."
+    )
+    assert found is line
+
+
+def test_the_answer_need_not_be_the_last_thing_on_the_line():
+    """The child's 412 came back from Textract as "412-": the printed answer line runs into the
+    digits. An end-anchored match found no number there at all, and a page holding a correct answer
+    was recorded as blank."""
+    assert ocr.value_of("412-") == "412"
+    assert ocr.value_of("ans=43") == "43"
+    assert ocr.value_of("No.") is None
+
+
+def test_an_answer_that_is_not_a_number_goes_to_a_person_rather_than_being_called_blank():
+    """ "Compare using >, <, or =: 456 [ ] 465" is answered with a symbol. This reader reads numbers,
+    so it cannot tell a child who wrote "<" from one who wrote nothing — and `blank` is not a flag,
+    it is a claim that the child did not attempt the skill. That claim went into a Grade 3 graph on
+    a question the child got right."""
+    anchor = w("13. Compare using >, <, or =: 456", 0.10, 0.73, hand=False, width=0.31)
+    p = page([w("<", 0.35, 0.73, conf=55.7, line="13. Compare using >, <, or =: 456 < 465")], [anchor])
+    q = {"13": "Compare using >, <, or =: 456 ___ 465"}
+    assert ocr.answers_for(p, q)["13"]["answer_state"] == "blank"
+    assert ocr.answers_for(p, q, symbolic={"13"})["13"]["answer_state"] == "illegible"
+
+
+def test_every_reading_says_where_on_the_page_it_came_from():
+    """The approval screen shows a teacher that patch of the photograph beside what the reader made
+    of it. Without the region there is nothing to show but the whole page."""
+    anchor = w("342 + 579 =", 0.13, 0.38, hand=False)
+    p = page([w("763", 0.23, 0.39)], [anchor])
+    got = ocr.answers_for(p, {"6": "342 + 579 ="})["6"]
+    assert len(got["box"]) == 4
+    assert got["box"][0] < 0.23 < got["box"][2]

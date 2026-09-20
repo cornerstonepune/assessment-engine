@@ -27,6 +27,17 @@ const MARK = "end-to-end test";
  * test that triggered it has already failed and cleaned up. One run left a real question retired
  * in the live bank that way. This sweep runs last, after every write has certainly landed.
  */
+// What the database already held before a line of this ran. A test can only be blamed for what it
+// changed: 93 items were retired on 2026-09-19 by the bank's own review, and a sweep that asserts
+// "no item anywhere is retired" calls that dirt. It had never fired — the serial run always failed
+// earlier — so the false assertion sat unseen behind a real one.
+let retiredBefore = 0;
+
+test.beforeAll(async () => {
+  [{ retired: retiredBefore }] = await sql<{ retired: number }[]>`
+    select count(*)::int as retired from item where status = 'retired'`;
+});
+
 test.afterAll(async () => {
   await sql`update item set status = 'active' where id in (
     select item_id from item_feedback where note = ${MARK})`;
@@ -36,8 +47,11 @@ test.afterAll(async () => {
   const [{ retired }] = await sql<{ retired: number }[]>`
     select count(*)::int as retired from item where status = 'retired'`;
   await sql.end();
-  if (leaked || retired) {
-    throw new Error(`the tests left the database dirty: ${leaked} flags, ${retired} retired items`);
+  if (leaked || retired > retiredBefore) {
+    throw new Error(
+      `the tests left the database dirty: ${leaked} flags, ` +
+        `${retired - retiredBefore} items retired that were not retired before`,
+    );
   }
 });
 
@@ -81,7 +95,11 @@ test("a skill set on the map opens its own page", async ({ page }) => {
 // ---------------------------------------------------------------- the skill set editor
 
 test("editing a difficulty in plain fields changes the rule the checker enforces", async ({ page }) => {
-  const [before] = await sql`select difficulty from skill_set where code = 'SUB.2D.EXCH'`;
+  // The ratification comes back too. Editing a spec withdraws it, by design — a signature must
+  // name whoever read the words that are live — so a test that edits one and restores only the
+  // words leaves the set in draft, and `engine audit`'s "every spec is ratified" red afterwards.
+  const [before] = await sql`
+    select difficulty, status, ratified_by from skill_set where code = 'SUB.2D.EXCH'`;
   try {
     await page.goto("/skill-sets/SUB.2D.EXCH");
     await page.locator('textarea[name="words:Easy"]').fill("A gentle warm-up, set from the app.");
@@ -98,7 +116,13 @@ test("editing a difficulty in plain fields changes the rule the checker enforces
     expect(after.difficulty.Easy.check.regroups).toEqual([1, 2]);
     expect(after.difficulty.Easy.check.no_zero_top).toBe(true);
   } finally {
+    // Two statements, and it has to be two. `skill_set_version_on_change` withdraws the
+    // ratification whenever the content changes, so putting the words back withdraws it again —
+    // in the same statement that tries to restore it. The second touches no content field, so the
+    // trigger does not fire and the signature survives.
     await sql`update skill_set set difficulty = ${sql.json(before.difficulty)} where code = 'SUB.2D.EXCH'`;
+    await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by}
+              where code = 'SUB.2D.EXCH'`;
   }
 });
 
@@ -122,6 +146,11 @@ test("a difficulty with no exchange ticked is refused, and nothing is saved", as
 test("ratifying records who did it, and the seed loader cannot undo it", async ({ page }) => {
   const [before] = await sql`select status, ratified_by from skill_set where code = 'ADD.3D.REG'`;
   try {
+    // The test makes its own starting state rather than hoping for one. Every spec has been
+    // ratified since W1 gate 1 closed, so the button this test clicks is not on the page unless
+    // the set is put back into draft first — and the test had been red ever since. Status alone
+    // changes no content, so the versioning trigger does not fire.
+    await sql`update skill_set set status = 'draft', ratified_by = null where code = 'ADD.3D.REG'`;
     await page.goto("/skill-sets/ADD.3D.REG");
     await page.getByRole("button", { name: "Ratify this set" }).click();
     await expect(page.getByRole("status")).toContainText("Ratified");
@@ -298,7 +327,10 @@ test("spare copies are listed and carry no child's name", async ({ page }) => {
 // ---------------------------------------------------------------- the screens with no data yet
 
 test("a screen with no data says what it will show and the real count today", async ({ page }) => {
-  for (const [route, table] of [["/capture", "captures"], ["/growth", "evidence events"], ["/home", "home sheets"]]) {
+  // The list is what is still a placeholder, and it shrinks as screens get built: `/capture` is
+  // the approval screen now and `/growth` is a child's ladder. This assertion had not actually run
+  // since either was built — the serial run always failed earlier and skipped it.
+  for (const [route, table] of [["/home", "home sheets"]]) {
     await page.goto(route);
     await expect(page.getByText("What this screen will show")).toBeVisible();
     await expect(page.getByText("In the database today")).toBeVisible();

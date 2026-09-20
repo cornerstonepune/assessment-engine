@@ -2068,3 +2068,102 @@ educator's own tick or cross sitting beside every one of them. Not one had ever 
 - Suite **340 passed**, `ruff format --check` and `ruff check` clean, `bin/engine audit` → 12
   invariants, 0 violations, and W1 and W2 were green before and after. Textract spend for the whole
   exercise: under ₹2.
+
+## The teacher approval screen: the page beside the reading, and the correction that feeds it (2026-09-20)
+
+Nimish: "Not a reward for finishing the reader — the mechanism that improves it. Every correction a
+teacher makes IS a hand-verified response." Built as `Capture & Mark`, the screen `BUILD-ORDER.md`
+has listed as W3's human gate since the plan was written.
+
+- **The queue, and one paper.** `/capture` lists every paper that has been read, newest first, with
+  how many answers are waiting; `/capture/<paper>` is one child's copy of one paper. The unit is the
+  SHEET, not the file: a Grade 2 sitting is one scanned PDF and a Grade 3 sitting is one photograph
+  per page, and a teacher signs off the paper either way. Check, at a laptop and at a phone:
+  `cd apps/web && AUTH_DEV_BYPASS=1 npx playwright test --project=screens` → `19 passed`, twice in a
+  row, including two new cases that open a real paper and assert no sideways scroll.
+
+- **The page image sits beside the reading, cropped to the answer.** Every reading now records the
+  region it was read from (`item_result.raw_read.box`, four page fractions), the engine serves that
+  patch from the school's disk — `GET /capture/{id}/page/{n}.jpg?box=…` — and the app proxies it
+  behind its own sign-in so the engine key never reaches a browser. The scan never enters the
+  database or git (rule 6). Check: `curl -s -o /dev/null -w "%{http_code}"
+  "http://localhost:3000/api/scan/<capture>/1?box=0.0124,0.7972,0.3976,0.8972"` → `200`, and the
+  9,951-byte JPEG it returns is question 14's answer line with the educator's cross over it.
+  A teacher confirming eighteen answers against a whole photograph would not check eighteen.
+
+- **A person is asked what the child wrote, never whether it is right.** The mark is recomputed by
+  the same `legacy.mark` the import path uses, because marking these papers is a lookup against
+  numbers computed when the paper was entered. The four answers code genuinely cannot mark — a
+  comparison symbol, "find the mistake" — are the only ones that ask a person for right or wrong.
+
+- **A correction is a new row, and the engine's own reading survives it.** Proved on the real page,
+  through the screen, by hand: Kabir's question 6, where Textract read `363` at 79.8% and the child
+  wrote `763`. Check:
+  ```
+  select model_read, human_read, by from read_correction  →  363 | 763 | dev@local
+  select status, raw_read from item_result …/6            →  wrong |
+      {"child_answer": "363", "answer_state": "written", "confidence": 79.77…, "box": [...]}
+  ```
+  The mark moved; the machine's reading did not. That is rule 4, and it is also the only way the
+  reader stays measurable: overwrite the read and it can never again be scored against the page.
+  Two corrections of one answer leave two rows, in order (`tests/test_legacy.py`).
+
+- **The gold set now grows by use.** `read_eval.gold_sheets(conn)` returns the seed file plus every
+  correction any teacher has made, matched to the sheet it belongs to by the path both name, with
+  the teacher's reading winning where they overlap. 63 hand-typed responses today; the bar wants 300
+  with 100 of them phone photos, and the rest should arrive as a by-product of marking rather than
+  as a data-entry project. Check: `tests/test_legacy.py::test_a_correction_feeds_the_next_measurement_of_the_reader`.
+
+- **Coverage becomes 100% the moment a paper is signed off**, which is the screen's real argument:
+  every answer is either read confidently or confirmed by a person, and the ones in between are
+  counted on the screen rather than averaged away. Kabir's paper opens at `12 read and marked · 6
+  the reader could not settle · 0 signed off`, and the sign-off button says what it will and will
+  not cover.
+
+- **A signature now means the person read the thing they signed.** `confirm_results` took every
+  candidate answer a child had, wherever it came from — right for Child Growth, wrong for a screen
+  showing one photograph. Migration `20260924090000_confirm_one_paper.sql` adds an optional capture,
+  `20260924093000_settle_one_paper.sql` makes `resolve_result` use it, and every existing caller is
+  unchanged because the parameter defaults to null. Check:
+  `tests/test_legacy.py::test_signing_off_one_paper_does_not_sign_off_another`.
+
+- **Grade 3 goes through the real ingest path, not just the eval.** Check:
+  `bin/engine legacy import "…/WhatsApp Image 2026-08-16 at 18.02.42.jpeg" --paper G3-BASE16
+  --child Kabir --section G3 --pages 1` → `16 answers read, 7 for a person`, and `--pages 2` on the
+  second photograph → `2 answers read, 0 for a person`. Question 11 came back
+  `read '238' wrong M_SMALL_FROM_LARGE` — Aseem's own diagnosis of this child, reached from a row
+  with no model involved. A photograph is its own page: `--pages 2` on a one-image file used to
+  return nothing at all, because the page filter meant for PDFs was applied to it.
+
+- **Three defects found in the web suite while proving this, all of them older than this session
+  and all of them hidden behind each other** (the run is serial, so the first failure skipped the
+  rest):
+  1. Editing a skill set in the app and restoring it left the set in **draft** — the versioning
+     trigger withdraws a ratification whenever content changes, so the restore withdrew it again in
+     the same statement that tried to put it back. Every `npm run test:e2e` therefore left
+     `engine audit` red. The restore is two statements now, the second touching no content field.
+  2. "Ratifying records who did it" had been red since W1 gate 1 closed: it clicks a button that is
+     only on the page while a set is in draft, and every set has been ratified since 2026-09-19. It
+     makes its own starting state now instead of hoping for one.
+  3. The end-of-run sweep called the database dirty over **93 items retired on 2026-09-19** by the
+     bank's own review. It compares against what was there before the run now, not against zero.
+  Check: `cd apps/web && npm run test:e2e` → `35 passed` then `8 passed`, and `bin/engine audit` →
+  12 invariants, 0 violations, after the run rather than before it.
+
+- **`.panel` may now shrink below its content.** A grid item's minimum width is its content unless
+  told otherwise, so the queue's table pushed the whole page 353px sideways on a phone. One line in
+  `globals.css`, and every panel in the app is safer for it.
+
+- Suite **353 passed** (13 new), `ruff format --check` and `ruff check` clean, `bin/engine audit` →
+  12 invariants 0 violations, `bin/engine goal w1-build-the-bank` → 6/6, `w2-assemble-and-print` →
+  5/5, aislop engine **69/100** (0 errors) and web **83/100** (0 errors, up from 78 after
+  `lib/queries.ts` was split at its 400-line ceiling into `lib/queries-read.ts`).
+
+- **`ENGINE_URL` is now a setting** (`.env.example`), because the app needs the engine for the page
+  images and for marking a correction. On this laptop it is `http://localhost:8931`: ports 8000 and
+  8011 are both held by other projects of Nimish's, and the engine's own default is 8000.
+
+- **One correction row in the live database was made by `dev@local`** while proving the path
+  through the screen. Its value is true — the child did write 763, which is what the hand-verified
+  gold already says — so it changes no number; it is named here rather than deleted, because
+  deleting a correction is the one thing rule 4 forbids.

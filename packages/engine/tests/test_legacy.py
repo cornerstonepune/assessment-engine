@@ -443,3 +443,107 @@ def test_dedupe_supersedes_every_live_capture_but_the_best_one(conn, child, tmp_
 
     # running it again is a no-op: nothing left to backfill or void
     assert legacy.dedupe(conn) == (0, 0)
+
+
+def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tmp_path, monkeypatch):
+    """The approval screen's whole mechanism (rule 4).
+
+    A person says what the child wrote; the engine marks it again by lookup, because marking is a
+    lookup and a teacher must never be asked to do arithmetic the engine can do. The machine's own
+    reading stays exactly where it was — overwrite it and the reader can never again be scored
+    against the page it read, which is the measurement the whole of W3 rests on.
+    """
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+
+    row = conn.execute(
+        "select r.id, r.raw_read, r.status from item_result r join item i on i.id = r.item_id"
+        " where i.item_key = 'legacy/TEST-PAPER/2'"
+    ).fetchone()
+    assert (row["status"], json.loads(row["raw_read"])["child_answer"]) == ("wrong", "75")
+
+    out = legacy.correct(conn, row["id"], "85", "neha@school")
+    assert (out["was"], out["now"], out["status"]) == ("75", "85", "correct")
+
+    after = conn.execute(
+        "select raw_read, status, misconception_codes from item_result where id = %s", (row["id"],)
+    ).fetchone()
+    assert json.loads(after["raw_read"])["child_answer"] == "75", (
+        "the engine's own reading is never overwritten"
+    )
+    assert (after["status"], after["misconception_codes"]) == ("correct", [])
+
+    # Looking again and changing your mind leaves BOTH rows behind, in order.
+    legacy.correct(conn, row["id"], "", "neha@school")
+    said = conn.execute(
+        "select model_read, human_read, by from read_correction where item_result_id = %s order by created_at",
+        (row["id"],),
+    ).fetchall()
+    assert [(s["model_read"], s["human_read"]) for s in said] == [("75", "85"), ("75", "")]
+    assert (
+        conn.execute("select status from item_result where id = %s", (row["id"],)).fetchone()["status"]
+        == "blank"
+    )
+
+
+def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_path, monkeypatch):
+    """A teacher's correction IS a hand-verified response, so the gold set the reader is measured
+    against grows by using the system rather than by a data-entry project."""
+    from engine import read_eval
+
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    rid = conn.execute(
+        "select r.id from item_result r join item i on i.id = r.item_id"
+        " where i.item_key = 'legacy/TEST-PAPER/2'"
+    ).fetchone()["id"]
+    legacy.correct(conn, rid, "85", "neha@school")
+
+    seed = read_eval.gold_sheets()
+    grown = read_eval.gold_sheets(conn)
+    assert sum(len(s["answers"]) for s in grown) > sum(len(s["answers"]) for s in seed)
+    mine = next(s for s in grown if s["paper"] == "TEST-PAPER")
+    assert mine["answers"] == [{"n": "2", "part": "", "child_answer": "85", "answer_state": "written"}]
+
+
+def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, monkeypatch):
+    """A signature has to mean the person read the thing they signed. `confirm_results` took every
+    candidate answer a child had, wherever it came from, which was right while the only screen was
+    Child Growth — and wrong the moment a screen shows one photograph."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    first, second = tmp_path / "one.jpg", tmp_path / "two.jpg"
+    first.write_bytes(b"one")
+    second.write_bytes(b"two")
+    a = legacy.import_scan(conn, first, "TEST-PAPER", child, "test")["capture_id"]
+    b = legacy.import_scan(conn, second, "TEST-PAPER", child, "test")["capture_id"]
+
+    n = conn.execute("select confirm_results(%s, 'neha', %s) as n", (child, a)).fetchone()["n"]
+    assert n == 4  # the four markable answers on that one paper
+    live = {
+        r["capture_id"]: r["n"]
+        for r in conn.execute(
+            "select capture_id, count(*) as n from item_result where state = 'confirmed'"
+            " and capture_id in (%s, %s) group by capture_id",
+            (a, b),
+        ).fetchall()
+    }
+    assert live == {a: 4}, "the second paper is untouched until someone reads it"

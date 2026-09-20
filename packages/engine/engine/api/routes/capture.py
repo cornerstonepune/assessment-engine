@@ -3,7 +3,9 @@ answers as evidence. Every route is a thin idempotent wrapper over the same func
 calls (`engine/legacy.py`) — no logic lives here, only request/response shaping (rule 3, extended
 to this HTTP layer: it orchestrates, it does not decide)."""
 
-from fastapi import APIRouter, Depends, Header
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
 from engine import legacy
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
@@ -11,6 +13,8 @@ from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
     CommitRequest,
     CommitResponse,
+    CorrectRequest,
+    CorrectResponse,
     IngestRequest,
     IngestResponse,
     MarkRequest,
@@ -88,3 +92,38 @@ def commit(
         lambda: {"confirmed": legacy.confirm(conn, body.child_id, body.by)},
     )
     return {**result, "already": already}
+
+
+@router.post("/capture/correct", response_model=CorrectResponse)
+def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
+    """A person says what a child actually wrote, and the answer is marked again from it.
+
+    Not idempotency-wrapped: a second correction of the same answer is a SECOND fact, not a repeat
+    of the first — a teacher who looks again and changes their mind must leave both rows behind
+    (rule 4). The append-only table is what makes that safe.
+    """
+    return legacy.correct(conn, body.result_id, body.human_read, body.by)
+
+
+@router.get("/capture/{capture_id}/page/{page_no}.jpg")
+def capture_page(capture_id: str, page_no: int, box: str = "", conn=Depends(get_conn)) -> Response:
+    """The photograph a reading came from — the whole page, or the patch one answer sits in.
+
+    The approval screen's whole reason for existing: a teacher confirms what a child wrote by
+    looking at what the child wrote, not by trusting a row. The scan itself never enters git or the
+    database (rule 6) — it stays on the school's disk and is served from there, by the one process
+    that already knows how to open it.
+    """
+    row = conn.execute("select path from capture where id = %s", (capture_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="no such capture")
+    path = Path(row["path"]).expanduser()
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"the scan is not on this machine: {row['path']}")
+    try:
+        want = [float(v) for v in box.split(",")] if box else None
+    except ValueError:
+        raise HTTPException(status_code=400, detail="box must be left,top,right,bottom") from None
+    if want is not None and len(want) != 4:
+        raise HTTPException(status_code=400, detail="box must be left,top,right,bottom")
+    return Response(content=legacy.page_crop(path, page_no, want), media_type="image/jpeg")

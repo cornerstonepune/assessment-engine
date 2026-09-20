@@ -386,6 +386,10 @@ def answers_for(page, slots, cfg=None, symbolic=()):
             "right": max(a["x"] + max(a["w"], cfg["answer_column"]) for a in mine) + cfg["answer_column"],
         }
         working = _working_shown(len(_all_handwriting(page, box)), len(members))
+        # Where on the page this answer was read from, as fractions of the page. The approval screen
+        # shows a person this patch of the photograph beside what the reader made of it: a teacher
+        # who has to hunt down the question on a whole page will not check eighteen of them.
+        where = [round(box["left"], 4), round(box["top"], 4), round(box["right"], 4), round(box["bottom"], 4)]
         candidates = _dedupe(_handwriting_near(page, box, cfg))
         if not candidates:
             # The question is on the page and there is no handwriting in its region: the child wrote
@@ -399,6 +403,7 @@ def answers_for(page, slots, cfg=None, symbolic=()):
                     "answer_state": "blank",
                     "confidence": 0.0,
                     "working_shown": working,
+                    "box": where,
                 }
             continue
         if len(members) == 1 and len(candidates) > 1:
@@ -417,6 +422,7 @@ def answers_for(page, slots, cfg=None, symbolic=()):
                     "answer_state": "illegible",
                     "confidence": 0.0,
                     "working_shown": working,
+                    "box": where,
                 }
             continue
         for slot, pick in zip(members, candidates):
@@ -426,6 +432,7 @@ def answers_for(page, slots, cfg=None, symbolic=()):
                 "answer_state": "written" if sure else "illegible",
                 "confidence": pick["confidence"],
                 "working_shown": working,
+                "box": where,
             }
 
     # A slot whose answer is not a number at all — "Compare using >, <, or =: 456 [ ] 465". This
@@ -440,5 +447,6 @@ def answers_for(page, slots, cfg=None, symbolic=()):
                 "answer_state": "illegible",
                 "confidence": 0.0,
                 "working_shown": out[slot].get("working_shown", "none"),
+                "box": out[slot].get("box"),
             }
     return out

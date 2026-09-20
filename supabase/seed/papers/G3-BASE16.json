@@ -4,7 +4,7 @@
   "band": "G3",
   "week": "Baseline",
   "date": "2026-08-16",
-  "_note": "The paper prints no date; 2026-08-16 is when every child's sitting was photographed. Entered from the printed page, one slot per ANSWER: Q3 asks for an expanded form, which is three numbers on one line, so it holds three slots. Q13 (a comparison symbol) and Q15 (find the mistake) are answers code cannot check from digits alone — they carry the kind that routes them to a person rather than a fabricated numeric check.",
+  "_note": "The paper prints no date; 2026-08-16 is when every child's sitting was photographed. Entered from the printed page, one slot per ANSWER: Q3 asks for an expanded form, which is three numbers on one line, so it holds three slots. Q13 (a comparison symbol) and Q15 (find the mistake) are answers code cannot check from digits alone — they carry the kind that routes them to a person rather than a fabricated numeric check. The place-value, comparison and rounding questions carry their registry skill by name (NUM.PV.01/02/03): R11 is the only rung the ladder has for any of them, and without an explicit skill all three would be filed under rounding.",
   "pages": [
     {
       "n": 1,
@@ -29,7 +29,8 @@
       "kind": "bare",
       "rung": "R11",
       "answer": 50,
-      "question": "What is the value of the digit 5 in 458?"
+      "question": "What is the value of the digit 5 in 458?",
+      "skill": "NUM.PV.01"
     },
     {
       "n": 3,
@@ -38,7 +39,8 @@
       "kind": "missing",
       "rung": "R11",
       "answer": 200,
-      "question": "Write 236 in expanded form:"
+      "question": "Write 236 in expanded form:",
+      "skill": "NUM.PV.01"
     },
     {
       "n": 3,
@@ -47,7 +49,8 @@
       "kind": "missing",
       "rung": "R11",
       "answer": 30,
-      "question": "Write 236 in expanded form:"
+      "question": "Write 236 in expanded form:",
+      "skill": "NUM.PV.01"
     },
     {
       "n": 3,
@@ -56,7 +59,8 @@
       "kind": "missing",
       "rung": "R11",
       "answer": 6,
-      "question": "Write 236 in expanded form:"
+      "question": "Write 236 in expanded form:",
+      "skill": "NUM.PV.01"
     },
     {
       "n": 4,
@@ -137,7 +141,8 @@
       "kind": "missing",
       "rung": "R11",
       "answer": "<",
-      "question": "Compare using >, <, or =: 456 ___ 465"
+      "question": "Compare using >, <, or =: 456 ___ 465",
+      "skill": "NUM.PV.02"
     },
     {
       "n": 14,
@@ -145,7 +150,8 @@
       "kind": "bare",
       "rung": "R11",
       "answer": 50,
-      "question": "Round 47 to the nearest 10:"
+      "question": "Round 47 to the nearest 10:",
+      "skill": "NUM.PV.03"
     },
     {
       "n": 15,

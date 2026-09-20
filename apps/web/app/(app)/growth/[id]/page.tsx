@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { Body, PageHeader, Panel, Pill } from "@/components/shell";
+import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile, TONE_BG } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import {
   RULE_WORDS,
@@ -22,10 +22,6 @@ import {
 import { confirmChild, resolveOne } from "../actions";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
-type Tone = keyof typeof TONE_BG;
-
-const TONE_BG = { neem: "bg-neem", bamboo: "bg-bamboo", terracotta: "bg-terracotta", monsoon: "bg-monsoon" } as const;
-const TONE_EDGE = { neem: "border-l-neem", bamboo: "border-l-bamboo", terracotta: "border-l-terracotta", monsoon: "border-l-monsoon" } as const;
 const MACHINE = ["correct", "wrong", "blank"];
 
 const fmtDate = (d: string | null) =>
@@ -363,24 +359,8 @@ function AnswerTable({ rows, names }: { rows: AnswerRow[]; names: Record<string,
   );
 }
 
-// Three signals, never two: blank, wrong, and wrong-with-working stay distinct (rule 5).
-function MarkPill({ status, working }: { status: string; working: string }) {
-  if (status === "correct") return <Pill tone="neem">right</Pill>;
-  if (status === "blank") return <Pill tone="monsoon">blank</Pill>;
-  if (status === "wrong") return <Pill tone="terracotta">{working ? "wrong · with working" : "wrong"}</Pill>;
-  return <Pill tone="monsoon">{status}</Pill>;
-}
-
 function DifficultyPill({ n }: { n: NextStep }) {
   return n.difficulty ? <Pill tone={n.rule === "from_state" ? "neem" : "monsoon"}>{n.difficulty}</Pill> : <Pill tone="monsoon">starting level</Pill>;
-}
-
-function Bar({ tone, share, width }: { tone: Tone; share: number; width: number }) {
-  return (
-    <span className="inline-block h-[6px] bg-basalt/10" style={{ width }} aria-hidden="true">
-      <span className={`block h-full ${TONE_BG[tone]}`} style={{ width: `${Math.round(share * 100)}%` }} />
-    </span>
-  );
 }
 
 // One glyph per state, in the state's material: a tick, an arrow, a dot, a bang, an empty ring.
@@ -415,19 +395,3 @@ function Legend({ state, children }: { state: string; children: ReactNode }) {
   );
 }
 
-function Tile({ tone, n, words }: { tone: Tone; n: number; words: string }) {
-  return (
-    <div className={`panel border-l-4 p-3 ${TONE_EDGE[tone]}`}>
-      <div className="font-heading text-[26px] leading-none">{n}</div>
-      <div className="mt-2 text-[12.5px] text-basalt/62">{words}</div>
-    </div>
-  );
-}
-
-function Notice({ tone, children }: { tone: "neem" | "terracotta"; children: ReactNode }) {
-  return (
-    <p className={`mb-4 border p-3 text-[13.5px] ${tone === "neem" ? "border-neem/30 bg-neem/10" : "border-terracotta/30 bg-terracotta/10"}`} role="status">
-      {children}
-    </p>
-  );
-}

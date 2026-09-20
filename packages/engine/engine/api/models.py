@@ -61,6 +61,19 @@ class CommitResponse(BaseModel):
     already: bool = False
 
 
+class CorrectRequest(BaseModel):
+    result_id: str
+    human_read: str
+    by: str
+
+
+class CorrectResponse(BaseModel):
+    status: str
+    codes: list[str]
+    was: str
+    now: str
+
+
 class GraphRebuildRequest(BaseModel):
     child_id: str | None = None
 
