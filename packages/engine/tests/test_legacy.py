@@ -123,8 +123,7 @@ READ = {
     "resolution": {"status": "complete", "saw": "a question page", "unresolved": []},
     "items": [
         {
-            "n": 1,
-            "part": "",
+            "slot": "1",
             "question_as_printed": "46 + 38",
             "child_answer": "84",
             "answer_state": "written",
@@ -132,8 +131,7 @@ READ = {
             "self_corrected": False,
         },
         {
-            "n": 2,
-            "part": "",
+            "slot": "2",
             "question_as_printed": "57 + 28",
             "child_answer": "75",
             "answer_state": "written",
@@ -141,8 +139,7 @@ READ = {
             "self_corrected": False,
         },  # M_NOCARRY
         {
-            "n": 3,
-            "part": "",
+            "slot": "3",
             "question_as_printed": "68 + 27",
             "child_answer": "85",
             "answer_state": "written",
@@ -150,8 +147,7 @@ READ = {
             "self_corrected": False,
         },  # M_NOCARRY again
         {
-            "n": 4,
-            "part": "",
+            "slot": "4",
             "question_as_printed": "59 + 24",
             "child_answer": "",
             "answer_state": "blank",
@@ -159,8 +155,7 @@ READ = {
             "self_corrected": False,
         },
         {
-            "n": 5,
-            "part": "",
+            "slot": "5",
             "question_as_printed": "Explain.",
             "child_answer": "because",
             "answer_state": "written",
@@ -168,8 +163,7 @@ READ = {
             "self_corrected": False,
         },
         {
-            "n": 9,
-            "part": "",
+            "slot": "9",
             "question_as_printed": "extra",
             "child_answer": "1",
             "answer_state": "written",
@@ -227,7 +221,13 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     )
 
     s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
-    assert asked == [("legacy_extract", {"expected": "5"})]
+    # The reader is handed the page's answer SLOTS, not a count (ADR 0019). Asking it to transcribe
+    # the printed question back primed it to compute the answer; handing it the slots also means a
+    # slot it cannot find must say so rather than silently never appearing.
+    assert [p for p, _ in asked] == ["legacy_extract"]
+    slots = asked[0][1]["slots"]
+    assert [line.split()[0] for line in slots.splitlines()] == ["1", "2", "3", "4", "5"]
+    assert "46 + 38" in slots
     by = {r["item"]: r for r in s["results"]}
     assert by["1"]["status"] == "correct"
     assert (

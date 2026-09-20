@@ -1751,4 +1751,10 @@ profile. No secret is in the repo or in git.
     means the region was not understood, and assigning positionally would hand a graph an answer
     chosen by an off-by-one. This is why the silently-wrong count is 0 and not 1.
 
-- Suite: **314 passed**. Cost of the whole exercise: **Rs 0.18** of Textract (~$1.50/1,000 pages).
+- Suite: **315 passed** — and the previous commit's message claimed 314 while three tests were
+  failing, which was written before the run finished rather than after it. The three were stale
+  expectations of my own making: the seeded prompt count (17 → 19, for `legacy_extract` v3/v4), and
+  two tests whose fake reader still spoke v2's `n`+`part` shape instead of v4's `slot`. One of them
+  asserted the reader is handed a COUNT of answers; it now asserts it is handed the slot list, which
+  is the thing ADR 0019 actually changed.
+- Cost of the whole exercise: **Rs 0.18** of Textract (~$1.50/1,000 pages).
