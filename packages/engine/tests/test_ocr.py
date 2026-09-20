@@ -188,6 +188,10 @@ def test_geometry_comes_from_rows_not_from_the_code():
         "answer_drop",
         "row_band",
         "first_page_mask",
+        "box_min_width",
+        "box_min_height",
+        "box_max_width",
+        "box_ink_blank",
     }
     assert ocr.settings(None) == ocr.DEFAULTS  # no database: the measured defaults
 
@@ -254,3 +258,159 @@ def test_every_reading_says_where_on_the_page_it_came_from():
     got = ocr.answers_for(p, {"6": "342 + 579 ="})["6"]
     assert len(got["box"]) == 4
     assert got["box"][0] < 0.23 < got["box"][2]
+
+
+def _page_with_boxes(rects, size=(800, 1000)):
+    """A blank page with printed rectangles on it, as a scanner would hand it over."""
+    import cv2
+    import numpy as np
+
+    img = np.full((size[1], size[0]), 255, np.uint8)
+    for x0, y0, x1, y1 in rects:
+        cv2.rectangle(
+            img, (int(x0 * size[0]), int(y0 * size[1])), (int(x1 * size[0]), int(y1 * size[1])), 0, 2
+        )
+    return cv2.imencode(".jpg", img)[1].tobytes()
+
+
+def test_the_paper_says_where_its_fields_are():
+    """Every paper in the corpus prints its answer fields as rectangles. Finding them turns a
+    recognition problem into a cropping problem, which is how forms have been read for decades."""
+    rects = [(0.10, 0.20, 0.30, 0.30), (0.40, 0.20, 0.60, 0.30), (0.10, 0.50, 0.40, 0.58)]
+    found = ocr.printed_boxes(_page_with_boxes(rects))
+    assert len(found) == 3
+    for want, got in zip(sorted(rects, key=lambda b: (b[1], b[0])), found):
+        assert all(abs(a - b) < 0.01 for a, b in zip(want, got[:4]))
+        assert got[4] < 0.002  # nothing written in it
+
+
+def test_a_grids_outer_frame_is_not_a_field_but_its_cells_are():
+    cells = [(0.1, 0.2, 0.3, 0.3), (0.3, 0.2, 0.5, 0.3)]
+    found = ocr.printed_boxes(_page_with_boxes(cells + [(0.1, 0.2, 0.5, 0.3)]))
+    assert len(found) == 2
+
+
+def test_one_printed_box_is_one_answer_and_the_count_cannot_be_wrong():
+    """Level D prints four boxes for four sums, and the child wrote each answer twice — once in the
+    box and once on the Answer line. The region held eight numbers for four slots and all four went
+    to a person. With the boxes known, each slot reads what is inside its own box."""
+    anchors = [
+        w(q, x, 0.24, hand=False)
+        for q, x in (("4 + 3 =", 0.10), ("6 + 2 =", 0.32), ("5 + 4 =", 0.54), ("3 + 5 =", 0.76))
+    ]
+    boxes = [
+        (0.08, 0.22, 0.28, 0.32),
+        (0.30, 0.22, 0.50, 0.32),
+        (0.52, 0.22, 0.72, 0.32),
+        (0.74, 0.22, 0.94, 0.32),
+    ]
+    words = [
+        w("55", 0.20, 0.24, line="4 + 3 = 55"),
+        w("55", 0.14, 0.30, line="Answer: 55"),
+        w("45", 0.42, 0.24, line="6 + 2 = 45"),
+        w("45", 0.36, 0.30, line="Answer: 45"),
+        w("35", 0.64, 0.24, line="5 + 4 = 35"),
+        w("35", 0.58, 0.30, line="Answer: 35"),
+        w("61", 0.86, 0.24, line="3 + 5 = 61"),
+        w("61", 0.80, 0.30, line="Answer: 61"),
+    ]
+    slots = {"1a": "4 + 3 =", "1b": "6 + 2 =", "1c": "5 + 4 =", "1d": "3 + 5 ="}
+    got = ocr.answers_for(page(words, anchors), slots, boxes=boxes)
+    assert [got[k]["child_answer"] for k in ("1a", "1b", "1c", "1d")] == ["55", "45", "35", "61"]
+    assert all(got[k]["answer_state"] == "written" for k in slots)
+
+
+def test_a_box_holding_only_printed_words_is_the_paper_not_a_field():
+    """The pans of a balance scale print 40 and 30 in boxes; only the empty pan is the answer."""
+    anchor = w("2 Write the missing number so that the scales balance.", 0.08, 0.40, hand=False, width=0.5)
+    boxes = [
+        (0.10, 0.42, 0.20, 0.47),
+        (0.20, 0.42, 0.30, 0.47),
+        (0.55, 0.42, 0.65, 0.47),
+        (0.65, 0.42, 0.75, 0.47),
+    ]
+    words = [
+        w("40", 0.14, 0.44, hand=False),
+        w("30", 0.24, 0.44, hand=False),
+        w("50", 0.59, 0.44),
+        w("20", 0.69, 0.44, hand=False),
+    ]
+    got = ocr.answers_for(
+        page(words, [anchor]), {"2": "Write the missing number so that the scales balance."}, boxes=boxes
+    )
+    assert (got["2"]["child_answer"], got["2"]["answer_state"]) == ("50", "written")
+
+
+def test_two_different_numbers_in_one_box_still_go_to_a_person():
+    anchor = w("1 Complete each addition.", 0.08, 0.20, hand=False, width=0.3)
+    words = [w("55", 0.20, 0.24, line="4 + 3 = 55"), w("58", 0.14, 0.30, line="58")]
+    got = ocr.answers_for(
+        page(words, [anchor]), {"1": "Complete each addition."}, boxes=[(0.08, 0.22, 0.28, 0.32)]
+    )
+    assert got["1"]["answer_state"] == "illegible"
+
+
+def test_an_empty_frame_beside_an_answer_on_a_line_is_not_a_blank():
+    """The five silent errors the box path introduced, pinned: a decorative rectangle in the
+    question's region matched a one-slot count, held nothing, and the answer written on the
+    underline beside it was reported as never given."""
+    anchor = w("2. What is the value of the digit 5 in 458?", 0.15, 0.19, hand=False, width=0.24)
+    frame = (0.60, 0.20, 0.90, 0.28)
+    words = [w("50", 0.45, 0.19, line="2. What is the value of the digit 5 in 458? 50")]
+    got = ocr.answers_for(
+        page(words, [anchor]), {"2": "What is the value of the digit 5 in 458?"}, boxes=[frame]
+    )
+    assert (got["2"]["child_answer"], got["2"]["answer_state"]) == ("50", "written")
+
+
+def test_a_frame_around_a_number_line_is_not_a_field():
+    """Level B prints a rectangle around each number line. It was counted as a field, the count
+    happened to match, and one slot was handed the next box's answer."""
+    found = ocr.printed_boxes(_page_with_boxes([(0.10, 0.50, 0.70, 0.56), (0.20, 0.60, 0.28, 0.63)]))
+    assert [tuple(round(v, 2) for v in b[:4]) for b in found] == [(0.20, 0.60, 0.28, 0.63)]
+
+
+def test_ink_in_a_box_with_no_readable_word_is_a_doubt_not_a_blank():
+    """A child's faint "2" that Textract returns no word for is still ink."""
+    import cv2
+    import numpy as np
+
+    img = np.full((1000, 800), 255, np.uint8)
+    cv2.rectangle(img, (160, 600), (224, 630), 0, 2)
+    cv2.rectangle(img, (400, 600), (464, 630), 0, 2)
+    cv2.putText(img, "2", (175, 625), cv2.FONT_HERSHEY_SIMPLEX, 0.8, 0, 2)
+    boxes = ocr.printed_boxes(cv2.imencode(".jpg", img)[1].tobytes())
+    assert len(boxes) == 2
+    inked, empty = sorted(boxes, key=lambda b: b[0])
+    assert inked[4] > ocr.DEFAULTS["box_ink_blank"] > empty[4]
+    # the printed instruction spans the row of boxes, as it does on the page
+    anchor = w("Write the missing digits.", 0.10, 0.58, hand=False, width=0.5)
+    got = ocr.answers_for(
+        page([], [anchor]),
+        {"6a": "Write the missing digits.", "6b": "Write the missing digits."},
+        boxes=boxes,
+    )
+    assert (got["6a"]["answer_state"], got["6b"]["answer_state"]) == ("illegible", "blank")
+
+
+def test_a_question_read_from_its_boxes_still_bounds_the_question_above_it():
+    """Cambridge A, question 3: once question 4 was claimed by its printed boxes it dropped out of
+    the ordering, question 3's region ran down over question 4's rows, and its Answer-line numbers
+    made four candidates for three slots. A claimed question still occupies its rows."""
+    q3 = [
+        w(q, x, 0.48, hand=False) for q, x in (("165 - 7 =", 0.10), ("243 - 8 =", 0.34), ("352 - 6 =", 0.58))
+    ]
+    q4 = w("425 - 38 =", 0.10, 0.62, hand=False)
+    box4 = (0.08, 0.60, 0.28, 0.70)
+    words = [
+        w("158", 0.12, 0.55, line="Answer: 158"),
+        w("235", 0.36, 0.55, line="Answer: 235"),
+        w("346", 0.60, 0.55, line="Answer: 346"),
+        w("397", 0.12, 0.69, line="Answer: 397"),
+    ]
+    slots = {"3a": "165 - 7 =", "3b": "243 - 8 =", "3c": "352 - 6 =", "4a": "425 - 38 ="}
+    page_ = page(words, q3 + [q4])
+    page_["words"].append(w("425 - 38 =", 0.10, 0.62, hand=False))  # the label, inside its box
+    got = ocr.answers_for(page_, slots, boxes=[box4])
+    assert got["4a"]["child_answer"] == "397"
+    assert [got[k]["child_answer"] for k in ("3a", "3b", "3c")] == ["158", "235", "346"]

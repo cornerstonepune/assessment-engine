@@ -87,6 +87,34 @@ THRESHOLDS = [
         "page fraction",
         "Top of page one painted out before anything is sent: the name band lives there (rule 6)",
     ),
+    (
+        "ocr.box_min_width",
+        0.04,
+        "page fraction",
+        "A printed answer box is at least this wide. Narrower rectangles are tick boxes and stray"
+        " marks, not fields. Used only on a paper whose row says its answers live in boxes",
+    ),
+    (
+        "ocr.box_min_height",
+        0.015,
+        "page fraction",
+        "And at least this tall. With box_min_width this separates the boxes a paper prints for its"
+        " answers from the noise on a photograph of it",
+    ),
+    (
+        "ocr.box_max_width",
+        0.35,
+        "page fraction",
+        "Wider than this is a frame around a number line or a working area, not an answer box. Counting"
+        " one as a field handed a slot its neighbour's answer when the count happened to match",
+    ),
+    (
+        "ocr.box_ink_blank",
+        0.004,
+        "fraction of pixels",
+        "A field with more ink than this and no word the transcriber could read is a doubt for a person,"
+        " never a blank",
+    ),
     ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
     (
         "llm.daily_budget_inr",

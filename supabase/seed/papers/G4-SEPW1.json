@@ -349,5 +349,6 @@
       "answer": 517,
       "question": "What is the smallest total she can make?"
     }
-  ]
+  ],
+  "fields": "boxes"
 }

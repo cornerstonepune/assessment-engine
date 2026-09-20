@@ -5,16 +5,90 @@
   "week": "Sep W2",
   "date": "2026-09-11",
   "_note": "Entered 2026-09-20 from the printed page: nine answers, five free-response boxes on page 1 and two missing-digit sums on page 2. Questions 3 and 5 hold their answer rather than an expression — one is two subtractions in a row, the other is a digit inside a sum the paper only part-prints.",
-  "pages": [{"n": 1, "mask": 0.2}, {"n": 2, "mask": 0}],
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.2
+    },
+    {
+      "n": 2,
+      "mask": 0
+    }
+  ],
   "items": [
-    {"n": 1, "page": 1, "kind": "word", "expr": "342 + 268", "question": "A charity concert has 342 adults and 268 children in the audience. How many people are at the concert altogether?"},
-    {"n": 2, "page": 1, "kind": "word", "expr": "862 - 268", "question": "She makes the largest number she can with the three cards. Then she makes the smallest number she can with the three cards. What is the difference between Zara's two numbers?"},
-    {"n": 3, "page": 1, "kind": "word", "rung": "R9", "answer": 160, "question": "573 people attend a school fair. 215 of them are men. 198 of them are women. How many children are at the fair?"},
-    {"n": 4, "page": 1, "kind": "word", "expr": "300 - 99", "question": "Subtract the largest 2-digit number from 300."},
-    {"n": 5, "page": 1, "kind": "missing", "rung": "R7", "answer": 2, "question": "Meera spilt paint on her work. Her answer is correct. What is the missing digit?"},
-    {"n": 6, "part": "a", "page": 2, "kind": "missing", "rung": "R7", "answer": 8, "question": "Write the missing digits. 4 6"},
-    {"n": 6, "part": "b", "page": 2, "kind": "missing", "rung": "R7", "answer": 4, "question": "Write the missing digits. 4 6"},
-    {"n": 7, "part": "a", "page": 2, "kind": "missing", "rung": "R7", "answer": 6, "question": "Write the missing digits. 3"},
-    {"n": 7, "part": "b", "page": 2, "kind": "missing", "rung": "R7", "answer": 6, "question": "Write the missing digits. 3"}
-  ]
+    {
+      "n": 1,
+      "page": 1,
+      "kind": "word",
+      "expr": "342 + 268",
+      "question": "A charity concert has 342 adults and 268 children in the audience. How many people are at the concert altogether?"
+    },
+    {
+      "n": 2,
+      "page": 1,
+      "kind": "word",
+      "expr": "862 - 268",
+      "question": "She makes the largest number she can with the three cards. Then she makes the smallest number she can with the three cards. What is the difference between Zara's two numbers?"
+    },
+    {
+      "n": 3,
+      "page": 1,
+      "kind": "word",
+      "rung": "R9",
+      "answer": 160,
+      "question": "573 people attend a school fair. 215 of them are men. 198 of them are women. How many children are at the fair?"
+    },
+    {
+      "n": 4,
+      "page": 1,
+      "kind": "word",
+      "expr": "300 - 99",
+      "question": "Subtract the largest 2-digit number from 300."
+    },
+    {
+      "n": 5,
+      "page": 1,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 2,
+      "question": "Meera spilt paint on her work. Her answer is correct. What is the missing digit?"
+    },
+    {
+      "n": 6,
+      "part": "a",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 8,
+      "question": "Write the missing digits. 4 6"
+    },
+    {
+      "n": 6,
+      "part": "b",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 4,
+      "question": "Write the missing digits. 4 6"
+    },
+    {
+      "n": 7,
+      "part": "a",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 6,
+      "question": "Write the missing digits. 3"
+    },
+    {
+      "n": 7,
+      "part": "b",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 6,
+      "question": "Write the missing digits. 3"
+    }
+  ],
+  "fields": "boxes"
 }

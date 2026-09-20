@@ -503,7 +503,10 @@ def import_scan(
             # because a model that does fills faint pencil with the answer it can compute (ADR 0019).
             # Measured on 45 hand-read responses: 80% exactly right with ZERO wrong readings the
             # engine stood behind, against 55-63% with about seven of them.
-            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg, symbolic_slots(by_key))
+            # The paper says where its answers live (rule 1): only a paper that prints a box per
+            # answer hands the reader its boxes. On an underline paper a stray rectangle is not a field.
+            boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
+            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg, symbolic_slots(by_key), boxes)
             flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
             summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
             for key, read in readings.items():

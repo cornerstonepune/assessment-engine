@@ -72,6 +72,10 @@ DEFAULTS = {
     "answer_drop": 0.095,  # how far below, when no following question bounds the region
     "row_band": 0.02,  # answers within this vertically are one row, read left to right
     "first_page_mask": 0.34,  # name band painted out before anything is sent (rule 6)
+    "box_min_width": 0.04,  # a printed answer box is at least this wide, as a fraction of the page
+    "box_min_height": 0.015,  # and at least this tall; anything smaller is a tick box or noise
+    "box_max_width": 0.35,  # wider than this is a frame or a working area, not an answer box
+    "box_ink_blank": 0.004,  # a field with more ink than this and no readable word is a doubt, not a blank
 }
 
 
@@ -130,6 +134,91 @@ def fit(image_bytes, limit=MAX_BYTES, max_side=MAX_SIDE):
     scale = (limit / buf.nbytes) ** 0.5
     small = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
     return cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])[1].tobytes()
+
+
+def printed_boxes(image_bytes, cfg=None):
+    """Every rectangle the paper prints, as (left, top, right, bottom) fractions of the page.
+
+    This is the standard form-processing move, and the one this reader was missing: a paper that
+    prints a box around the place an answer goes has already said where the field is. Long
+    horizontal and vertical strokes are pulled out of the page with morphological opening — the
+    textbook table-cell recipe — and the closed rectangles they form are the fields. Handwriting,
+    printed text and the odd stray line are all too short to survive the opening. Where one box
+    frames another (a grid's outer border) the inner ones are kept, because those are the cells.
+
+    No template, no alignment: the boxes are found on the child's own scan, so a photograph taken
+    at an angle is read where its boxes actually are.
+    """
+    cfg = cfg or DEFAULTS
+    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        return []  # not an image: nothing printed on it, so nothing to find
+    h, w = img.shape
+    ink = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 25, 15)
+    horizontal = cv2.morphologyEx(
+        ink, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, w // 40), 1))
+    )
+    vertical = cv2.morphologyEx(
+        ink, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(20, h // 60)))
+    )
+    frame = cv2.dilate(cv2.bitwise_or(horizontal, vertical), np.ones((3, 3), np.uint8))
+    contours, _ = cv2.findContours(frame, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    found = []
+    for c in contours:
+        x, y, bw, bh = cv2.boundingRect(c)
+        if bw < cfg["box_min_width"] * w or bh < cfg["box_min_height"] * h:
+            continue
+        if bw > cfg["box_max_width"] * w or bh > 0.5 * h:
+            # A frame around a number line, a "show your working" area: the child's answer may be
+            # inside it, but it is not a field, and counting it as one handed a slot its
+            # neighbour's answer when the count happened to match.
+            continue
+        # How much ink sits inside, border excluded. A child's faint "2" that Textract returns no
+        # word for is still ink, and a field with ink in it is not blank — it is a doubt.
+        pad_x, pad_y = max(2, bw // 12), max(2, bh // 8)
+        inside = ink[y + pad_y : y + bh - pad_y, x + pad_x : x + bw - pad_x]
+        fill = float((inside > 0).mean()) if inside.size else 0.0
+        found.append((x / w, y / h, (x + bw) / w, (y + bh) / h, fill))
+    inner = [
+        b
+        for b in found
+        if not any(
+            o != b
+            and o[0] >= b[0] - 0.002
+            and o[1] >= b[1] - 0.002
+            and o[2] <= b[2] + 0.002
+            and o[3] <= b[3] + 0.002
+            for o in found
+        )
+    ]
+    return sorted(inner, key=lambda b: (b[1], b[0]))
+
+
+def _as_region(b):
+    return {"top": b[1], "bottom": b[3], "left": b[0], "right": b[2]}
+
+
+def _words_in_box(page, b):
+    return [w for w in page["words"] if _in_field(w, _as_region(b))]
+
+
+def _fields_in(boxes, page, region):
+    """The printed boxes inside a question's region that are answer FIELDS.
+
+    A box holding nothing but printed words is part of the paper — the pans of a balance scale
+    print "40" and "30" in boxes and only the empty pan is the field. An empty box, or one with
+    handwriting in it, is a place the child was meant to write.
+    """
+    out = []
+    for b in boxes:
+        cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+        if not (region["top"] <= cy < region["bottom"] and region["left"] <= cx <= region["right"]):
+            continue
+        words = _words_in_box(page, b)
+        if words and not any(w["hand"] for w in words):
+            continue
+        out.append(b)
+    return out
 
 
 def assemble(blocks):
@@ -217,8 +306,14 @@ def _candidates(lines):
     return out
 
 
+_OPS = str.maketrans({"−": "-", "–": "-", "×": "x", "*": "x"})
+
+
 def _tokens(s):
-    return re.findall(r"[0-9]+|[a-z]+", s.lower())
+    """Digits, words and operators. "9 - 4 =" and "9 + 4 = 49" share every digit; without the
+    operator the first anchored on the second's line, and every region on a page of single-digit
+    sums was wrong before a box was ever considered."""
+    return re.findall(r"[0-9]+|[a-z]+|[-+x=]", s.lower().translate(_OPS))
 
 
 def _in_order(want, got):
@@ -249,6 +344,18 @@ def _in_box(word, box):
     return box["top"] <= word["y"] < box["bottom"] and box["left"] <= word["x"] <= box["right"]
 
 
+def _in_field(word, box):
+    """Is this word inside a printed box? Judged by the word's CENTRE, unlike a region.
+
+    A child's large "70" overhung the left border of its printed box, the border survived only
+    where the ink did not cross it, and the word's top-left corner fell outside the box that was
+    found: an answer the child gave, reported as never written. Regions keep the corner rule they
+    were measured with — moving them to centres cost the gold set two silent errors.
+    """
+    cx, cy = word["x"] + word.get("w", 0) / 2, word["y"] + word.get("h", 0) / 2
+    return box["top"] <= cy < box["bottom"] and box["left"] <= cx <= box["right"]
+
+
 def _in_region(word, anchor, max_drop, column, bottom=None):
     """Is this word an answer to the question anchored here?
 
@@ -268,7 +375,7 @@ def _in_region(word, anchor, max_drop, column, bottom=None):
     return anchor["x"] - column <= word["x"] <= anchor["x"] + max(anchor["w"], column)
 
 
-def _all_handwriting(page, box):
+def _all_handwriting(page, box, inside=_in_box):
     """Every handwritten number in a question's region, answer and working alike.
 
     What separates them is which is the answer; what they have in common is that the child wrote
@@ -276,10 +383,10 @@ def _all_handwriting(page, box):
     shown" apart everywhere, because a child who reached a wrong answer through a visible method is
     telling a teacher something a bare wrong answer does not.
     """
-    return [w for w in page["words"] if w["hand"] and value_of(w["text"]) and _in_box(w, box)]
+    return [w for w in page["words"] if w["hand"] and value_of(w["text"]) and inside(w, box)]
 
 
-def _handwriting_near(page, box, cfg=None):
+def _handwriting_near(page, box, cfg=None, inside=_in_box):
     """Every handwritten number in a question's region, in reading order.
 
     Handwriting only, which is the whole reason for being here: a printed `452` inside
@@ -295,7 +402,7 @@ def _handwriting_near(page, box, cfg=None):
     paper prints its boxes inline instead, the child's digits sit on the question's own line and the
     same region search finds them.
     """
-    hand = _all_handwriting(page, box)
+    hand = _all_handwriting(page, box, inside)
 
     # Ranked, not filtered — each rule applies only where the page offers it.
     #
@@ -359,7 +466,69 @@ def _number(slot):
     return int("".join(c for c in slot if c.isdigit()) or 0)
 
 
-def answers_for(page, slots, cfg=None, symbolic=()):
+def _read_field(page, f, cfg, working):
+    """What the child wrote inside one printed box: their answer, or a doubt, or nothing."""
+    region = _as_region(f)
+    hand = _handwriting_near(page, region, cfg, _in_field)
+    if not any(_LABEL.search(w.get("line_text") or "") for w in hand):
+        # The Cambridge boxes print their "Answer:" line along the bottom edge, and a scan a
+        # degree off square can leave it just outside the rectangle that was found — so the box
+        # holds the child's working and the answer sits a hair below. A labelled line directly
+        # under the box, within its width, is that box's answer line.
+        under = {**region, "top": f[3], "bottom": f[3] + cfg["row_band"] * 2}
+        labelled = [
+            w for w in _all_handwriting(page, under, _in_field) if _LABEL.search(w.get("line_text") or "")
+        ]
+        if labelled:
+            hand = _reading_order(labelled, cfg["row_band"])
+    hand = _dedupe(hand)
+    where = [round(v, 4) for v in f[:4]]
+    if not hand:
+        inked = len(f) > 4 and f[4] > cfg["box_ink_blank"]
+        return {
+            "child_answer": "",
+            "answer_state": "illegible" if inked else "blank",
+            "confidence": 0.0,
+            "working_shown": working,
+            "box": where,
+        }
+    doubtful = len({value_of(w["text"]) for w in hand}) > 1 or hand[-1]["confidence"] < cfg["min_confidence"]
+    return {
+        "child_answer": "" if doubtful else value_of(hand[-1]["text"]),
+        "answer_state": "illegible" if doubtful else "written",
+        "confidence": hand[-1]["confidence"],
+        "working_shown": working,
+        "box": where,
+    }
+
+
+def _labelled_boxes(page, slots, boxes, min_overlap=0.6):
+    """{slot: box} for every slot whose printed question sits INSIDE one of the paper's boxes.
+
+    The Cambridge grids print "4 + 3 =" inside the box the answer goes in, so the box is the
+    field and the label says which slot it is — the way a form template names its fields. Each
+    box goes to one slot: the best match claims it, and a part that would only share another's
+    box is left to the region logic instead of being handed its neighbour's answer.
+    """
+    # Every word in the box, not only those tagged PRINTED: beside a child's large digits Textract
+    # tags the small printed "8 + 6 =" as handwriting, and a label that is not seen is a field lost.
+    printed = [(b, _tokens(" ".join(w["text"] for w in _words_in_box(page, b)))) for b in boxes]
+    scored = []
+    for slot, question in slots.items():
+        want = [t for t in _tokens(_PLACEHOLDER.sub(" ", question)) if t][:8]
+        for b, have in printed:
+            if want and have:
+                scored.append((_in_order(want, have) / len(want), slot, b))
+    out, taken = {}, set()
+    for ratio, slot, b in sorted(scored, key=lambda t: -t[0]):
+        if ratio < min_overlap:
+            break
+        if slot not in out and b not in taken:
+            out[slot], taken = b, taken | {b}
+    return out
+
+
+def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
     """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
     Grouped by QUESTION NUMBER rather than by the line each part happened to match. Question 5 of
@@ -372,18 +541,32 @@ def answers_for(page, slots, cfg=None, symbolic=()):
     ever printed, and it needs no per-paper configuration.
     """
     cfg = cfg or DEFAULTS
+    out = {}
+    # Every question is anchored first, claimed or not: a question read from its own boxes still
+    # occupies its rows, and the question above it is bounded by it. Dropping claimed questions
+    # from the ordering let a region run down over the next question's answers.
     anchors = {slot: find_question(page["lines"], q) for slot, q in slots.items()}
     groups = {}
     for slot in slots:
         groups.setdefault(_number(slot), []).append(slot)
-
     tops = {
         n: min((anchors[s]["y"] for s in members if anchors[s]), default=None)
         for n, members in groups.items()
     }
     ordered = sorted((y, n) for n, y in tops.items() if y is not None)
 
-    out = {}
+    labelled = _labelled_boxes(page, slots, boxes) if boxes else {}
+    for slot, f in labelled.items():
+        out[slot] = _read_field(page, f, cfg, "none")
+    if labelled:
+        # Once a box is claimed, what is written in it — and on the Answer line the paper prints
+        # just under it — is that slot's and no other's. A sibling still read by region would
+        # otherwise count it, and four candidates for three slots is a doubt that need not exist.
+        claimed = [{**_as_region(f), "bottom": f[3] + cfg["row_band"] * 2} for f in labelled.values()]
+        page = {**page, "words": [w for w in page["words"] if not any(_in_field(w, r) for r in claimed)]}
+    groups = {n: [s for s in members if s not in labelled] for n, members in groups.items()}
+    groups = {n: members for n, members in groups.items() if members}
+
     for n, members in groups.items():
         members.sort()
         anchor = min((anchors[s] for s in members if anchors[s]), key=lambda a: a["y"], default=None)
@@ -406,6 +589,31 @@ def answers_for(page, slots, cfg=None, symbolic=()):
             "right": max(a["x"] + max(a["w"], cfg["answer_column"]) for a in mine) + cfg["answer_column"],
         }
         working = _working_shown(len(_all_handwriting(page, box)), len(members))
+        fields = _fields_in(boxes, page, box) if boxes else []
+        # Boxes are trusted only when the count matches AND they hold the child's ink — or the
+        # whole region is empty. A decorative frame beside an answer written on an underline
+        # matched the count, was empty, and came back "blank" on an answer the child had given.
+        inked = _all_handwriting(page, box)
+        in_fields = any(
+            _in_box(w, {"top": f[1], "bottom": f[3], "left": f[0], "right": f[2]})
+            for f in fields
+            for w in inked
+        )
+        if fields and len(fields) == len(members) and (in_fields or not inked):
+            # The paper printed one box per answer here, so each slot reads its own box and the
+            # count can never be wrong — which is the whole class of failure that sent 42% of the
+            # corpus to a person. Two different numbers inside one box is still a doubt.
+            stray = [w for w in inked if not any(_in_field(w, _as_region(f)) for f in fields)]
+            for slot, field in zip(
+                members, _reading_order([{"x": f[0], "y": f[1], "box": f} for f in fields], cfg["row_band"])
+            ):
+                read = _read_field(page, field["box"], cfg, working)
+                if read["answer_state"] == "blank" and stray:
+                    # Ink in the region that no box claims, beside a box that is empty: the child
+                    # most likely wrote across the border. A person looks; nobody is told "blank".
+                    read = {**read, "answer_state": "illegible"}
+                out[slot] = read
+            continue
         # Where on the page this answer was read from, as fractions of the page. The approval screen
         # shows a person this patch of the photograph beside what the reader made of it: a teacher
         # who has to hunt down the question on a whole page will not check eighteen of them.

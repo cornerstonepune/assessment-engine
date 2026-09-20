@@ -226,5 +226,6 @@
       "expr": "742 + 168",
       "question": "Use each of the digits 2, 4 and 7 once to make a 3-digit number. Add 168 to your number. What is the largest total you can make?"
     }
-  ]
+  ],
+  "fields": "boxes"
 }

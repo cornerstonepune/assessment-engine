@@ -5,27 +5,177 @@
   "week": "Sep W1",
   "date": "2026-09-03",
   "_note": "Entered 2026-09-20 from the printed page. The foundational form: single digits within 10 and within 20. Its rungs are given by hand because the ladder's shape rule reads a one-digit sum as a 2-digit column sum — R1 adds within 10, R2 crosses 10, R3 subtracts within 20. One child sat this form, and their bare-box answers bear no relation to the operands while their word answers do.",
-  "pages": [{"n": 1, "mask": 0.19}, {"n": 2, "mask": 0}],
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.19
+    },
+    {
+      "n": 2,
+      "mask": 0
+    }
+  ],
   "items": [
-    {"n": 1, "part": "a", "page": 1, "rung": "R1", "expr": "4 + 3", "question": "4 + 3 ="},
-    {"n": 1, "part": "b", "page": 1, "rung": "R1", "expr": "6 + 2", "question": "6 + 2 ="},
-    {"n": 1, "part": "c", "page": 1, "rung": "R1", "expr": "5 + 4", "question": "5 + 4 ="},
-    {"n": 1, "part": "d", "page": 1, "rung": "R1", "expr": "3 + 5", "question": "3 + 5 ="},
-    {"n": 2, "part": "a", "page": 1, "rung": "R2", "expr": "7 + 5", "question": "7 + 5 ="},
-    {"n": 2, "part": "b", "page": 1, "rung": "R2", "expr": "8 + 6", "question": "8 + 6 ="},
-    {"n": 2, "part": "c", "page": 1, "rung": "R2", "expr": "9 + 4", "question": "9 + 4 ="},
-    {"n": 2, "part": "d", "page": 1, "rung": "R2", "expr": "6 + 7", "question": "6 + 7 ="},
-    {"n": 3, "part": "a", "page": 1, "rung": "R3", "expr": "9 - 4", "question": "9 - 4 ="},
-    {"n": 3, "part": "b", "page": 1, "rung": "R3", "expr": "8 - 3", "question": "8 - 3 ="},
-    {"n": 3, "part": "c", "page": 1, "rung": "R3", "expr": "7 - 5", "question": "7 - 5 ="},
-    {"n": 3, "part": "d", "page": 1, "rung": "R3", "expr": "6 - 2", "question": "6 - 2 ="},
-    {"n": 4, "part": "a", "page": 1, "rung": "R3", "expr": "9 - 6", "question": "9 - 6 ="},
-    {"n": 4, "part": "b", "page": 1, "rung": "R3", "expr": "8 - 7", "question": "8 - 7 ="},
-    {"n": 4, "part": "c", "page": 1, "rung": "R3", "expr": "7 - 4", "question": "7 - 4 ="},
-    {"n": 4, "part": "d", "page": 1, "rung": "R3", "expr": "5 - 3", "question": "5 - 3 ="},
-    {"n": 5, "page": 1, "kind": "word", "rung": "R1", "expr": "5 + 3", "question": "There are 5 red apples and 3 green apples in a bowl. How many apples are there all together? Show your working."},
-    {"n": 6, "page": 2, "kind": "word", "rung": "R2", "expr": "6 + 7", "question": "Sam has 6 stickers. His friend gives him 7 more stickers. How many stickers does Sam have now? Show your working."},
-    {"n": 7, "page": 2, "kind": "word", "rung": "R3", "expr": "9 - 4", "question": "There are 9 birds on a wall. 4 of the birds fly away. How many birds are left on the wall? Show your working."},
-    {"n": 8, "page": 2, "kind": "word", "rung": "R3", "expr": "8 - 6", "question": "A shop has 8 balloons. It sells 6 of the balloons. How many balloons are left? Show your working."}
-  ]
+    {
+      "n": 1,
+      "part": "a",
+      "page": 1,
+      "rung": "R1",
+      "expr": "4 + 3",
+      "question": "4 + 3 ="
+    },
+    {
+      "n": 1,
+      "part": "b",
+      "page": 1,
+      "rung": "R1",
+      "expr": "6 + 2",
+      "question": "6 + 2 ="
+    },
+    {
+      "n": 1,
+      "part": "c",
+      "page": 1,
+      "rung": "R1",
+      "expr": "5 + 4",
+      "question": "5 + 4 ="
+    },
+    {
+      "n": 1,
+      "part": "d",
+      "page": 1,
+      "rung": "R1",
+      "expr": "3 + 5",
+      "question": "3 + 5 ="
+    },
+    {
+      "n": 2,
+      "part": "a",
+      "page": 1,
+      "rung": "R2",
+      "expr": "7 + 5",
+      "question": "7 + 5 ="
+    },
+    {
+      "n": 2,
+      "part": "b",
+      "page": 1,
+      "rung": "R2",
+      "expr": "8 + 6",
+      "question": "8 + 6 ="
+    },
+    {
+      "n": 2,
+      "part": "c",
+      "page": 1,
+      "rung": "R2",
+      "expr": "9 + 4",
+      "question": "9 + 4 ="
+    },
+    {
+      "n": 2,
+      "part": "d",
+      "page": 1,
+      "rung": "R2",
+      "expr": "6 + 7",
+      "question": "6 + 7 ="
+    },
+    {
+      "n": 3,
+      "part": "a",
+      "page": 1,
+      "rung": "R3",
+      "expr": "9 - 4",
+      "question": "9 - 4 ="
+    },
+    {
+      "n": 3,
+      "part": "b",
+      "page": 1,
+      "rung": "R3",
+      "expr": "8 - 3",
+      "question": "8 - 3 ="
+    },
+    {
+      "n": 3,
+      "part": "c",
+      "page": 1,
+      "rung": "R3",
+      "expr": "7 - 5",
+      "question": "7 - 5 ="
+    },
+    {
+      "n": 3,
+      "part": "d",
+      "page": 1,
+      "rung": "R3",
+      "expr": "6 - 2",
+      "question": "6 - 2 ="
+    },
+    {
+      "n": 4,
+      "part": "a",
+      "page": 1,
+      "rung": "R3",
+      "expr": "9 - 6",
+      "question": "9 - 6 ="
+    },
+    {
+      "n": 4,
+      "part": "b",
+      "page": 1,
+      "rung": "R3",
+      "expr": "8 - 7",
+      "question": "8 - 7 ="
+    },
+    {
+      "n": 4,
+      "part": "c",
+      "page": 1,
+      "rung": "R3",
+      "expr": "7 - 4",
+      "question": "7 - 4 ="
+    },
+    {
+      "n": 4,
+      "part": "d",
+      "page": 1,
+      "rung": "R3",
+      "expr": "5 - 3",
+      "question": "5 - 3 ="
+    },
+    {
+      "n": 5,
+      "page": 1,
+      "kind": "word",
+      "rung": "R1",
+      "expr": "5 + 3",
+      "question": "There are 5 red apples and 3 green apples in a bowl. How many apples are there all together? Show your working."
+    },
+    {
+      "n": 6,
+      "page": 2,
+      "kind": "word",
+      "rung": "R2",
+      "expr": "6 + 7",
+      "question": "Sam has 6 stickers. His friend gives him 7 more stickers. How many stickers does Sam have now? Show your working."
+    },
+    {
+      "n": 7,
+      "page": 2,
+      "kind": "word",
+      "rung": "R3",
+      "expr": "9 - 4",
+      "question": "There are 9 birds on a wall. 4 of the birds fly away. How many birds are left on the wall? Show your working."
+    },
+    {
+      "n": 8,
+      "page": 2,
+      "kind": "word",
+      "rung": "R3",
+      "expr": "8 - 6",
+      "question": "A shop has 8 balloons. It sells 6 of the balloons. How many balloons are left? Show your working."
+    }
+  ],
+  "fields": "boxes"
 }

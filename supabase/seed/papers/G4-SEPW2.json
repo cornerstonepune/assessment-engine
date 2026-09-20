@@ -89,5 +89,6 @@
       "answer": 6,
       "question": "Write the missing digits. 3"
     }
-  ]
+  ],
+  "fields": "boxes"
 }

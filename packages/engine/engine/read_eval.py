@@ -106,9 +106,10 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
         if not slots:
             continue  # a blank back page, or a scan longer than the paper: nothing to look for
         img = legacy.masked_image(jpeg, masks.get(page_no, 0))
-        out.update(
-            ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots, cfg, legacy.symbolic_slots(by_key))
-        )
+        jpeg = legacy._jpeg(img)
+        boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
+        boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
+        out.update(ocr.answers_for(ocr.read(jpeg, cli), slots, cfg, legacy.symbolic_slots(by_key), boxes))
     return out
 
 
