@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 
 from engine import db, render_pdf
-from engine.adapters import llm
+from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
 from engine.assess import tags
 from engine.assess.ladder import RUNGS
@@ -420,14 +420,29 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
 
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
+        cfg = ocr.settings(conn)
+        cli = ocr.client()
         for page_no, jpeg in zip(page_numbers, images):
             fraction = (masks or {}).get(page_no, page_specs.get(page_no, {}).get("mask", 0))
             jpeg = mask_name_band(jpeg, fraction)
-            slots = slot_list(by_key, page_no)
-            out = llm.generate(conn, "legacy_extract", {"slots": slots}, images=[jpeg])
-            summary["notes"].append(f"p{page_no}: {_page_resolution(summary, page_no, out)}")
-            for read in out["items"]:
-                key = read["slot"]
+            questions = {
+                k: it["spec"]["question"]
+                for k, it in by_key.items()
+                if it["spec"].get("page", 1) == page_no
+            }
+            if not questions:
+                summary["notes"].append(f"p{page_no}: no answers printed on this page")
+                continue
+            # Textract, not a model: what reads a child's handwriting must not know arithmetic,
+            # because a model that does fills faint pencil with the answer it can compute (ADR 0019).
+            # Measured on 45 hand-read responses: 80% exactly right with ZERO wrong readings the
+            # engine stood behind, against 55-63% with about seven of them.
+            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg)
+            flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
+            summary["notes"].append(
+                f"p{page_no}: {len(readings)} answers read, {flagged} for a person"
+            )
+            for key, read in readings.items():
                 it = by_key.get(key)
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
@@ -447,6 +462,7 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
                         "item": key,
                         "question": it["spec"]["question"],
                         "read": read.get("child_answer", ""),
+                        "confidence": read.get("confidence"),
                         "status": status,
                         "codes": codes,
                         "working": working,

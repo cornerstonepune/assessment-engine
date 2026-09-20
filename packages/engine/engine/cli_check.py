@@ -48,7 +48,14 @@ def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list the
         for n in goal_module.names():
             _say(f"  {n}  —  {goal_module.load(n)['goal'].strip()}")
         return
-    spec = goal_module.load(name)
+    try:
+        spec = goal_module.load(name)
+    except ValueError as e:
+        # A mistyped goal name used to print a Python traceback. The message underneath it was
+        # already the right one — it names every goal that does exist — but nobody reads a traceback,
+        # and the person most likely to mistype a goal name is the one least able to read one.
+        _say(f"  {e}")
+        raise typer.Exit(1) from None
     _say(f"  GOAL  {spec['goal'].strip()}")
 
     scenarios = goal_module.scenarios_of(spec)

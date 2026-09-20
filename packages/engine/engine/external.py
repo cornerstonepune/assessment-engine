@@ -44,7 +44,12 @@ def _registry_text(rows):
 # default rather than a flag because the first run of this module sent a cover unmasked and put a
 # child's name in front of a model, which rule 6 forbids. A caller who genuinely wants the whole page
 # passes mask=0 and says so.
-FIRST_PAGE_MASK = 0.34
+def first_page_mask(conn):
+    """The name band painted out before anything is sent (rule 6) — a row, like the rest of the
+    page geometry, because it is a property of the paper and not of this code."""
+    from engine.adapters import ocr
+
+    return ocr.settings(conn)["first_page_mask"]
 
 
 def extract_questions(conn, path, pages=None, mask=None):
@@ -55,7 +60,7 @@ def extract_questions(conn, path, pages=None, mask=None):
     which means one of the two is invented, and the run says so rather than quietly keeping both.
     A cover page that yields a question is exactly this, and it is not detectable any other way.
     """
-    mask = FIRST_PAGE_MASK if mask is None else mask
+    mask = first_page_mask(conn) if mask is None else mask
     by_page = {}
     images = render_pdf.render(path) if str(path).lower().endswith(".pdf") else []
     for page_no, image in enumerate(images, 1):

@@ -30,24 +30,6 @@ MAX_BYTES = 5_000_000
 # higher-dpi render of one crosses this long before it crosses the byte limit.
 MAX_SIDE = 10_000
 
-# Below this, the engine does not stand behind what it read — the reading is kept, flagged, and a
-# person decides. Chosen from a measured grid of render resolution against this threshold:
-#
-#   150 dpi, floor off  88.9% exact  2.2% silently wrong
-#   150 dpi, floor 70   80.0% exact  0.0% silently wrong   <- shipped
-#   250 dpi, floor off  91.1% exact  4.4% silently wrong
-#   250 dpi, floor 70   80.0% exact  2.2% silently wrong
-#
-# A higher render finds more numbers, which raises exact reads AND gives the single-answer tie-break
-# more wrong things to choose confidently. The two bars pull against each other and no setting meets
-# both; this one meets the bar that protects a child's graph and sends the rest to a teacher.
-# Measured: a child's "64" came back as
-# "-64" — a stray mark taken for a minus sign — at 60% confidence, and it was the only reading in a
-# 45-response gold set that was wrong while claiming to be right. The engine had said it was unsure
-# and nothing listened. Textract's confidence is calibrated, unlike a model's opinion of itself
-# (ADR 0018), so it can be trusted as a threshold rather than as a boast.
-MIN_CONFIDENCE = 70.0
-
 PROFILE = "cornerstone"
 REGION = "ap-south-1"
 _NUM = re.compile(r"-?\d[\d,]*")
@@ -73,6 +55,32 @@ def value_of(text):
 
 def client(profile=PROFILE, region=REGION):
     return boto3.Session(profile_name=profile, region_name=region).client("textract")
+
+
+# How the transcriber finds an answer on a page. Every one of these was tuned against a hand-read
+# page, and every one describes how a PAPER is laid out rather than how the code works — the next
+# paper will want them different. Rule 1: that is a row to edit, not a Python file to change.
+# Defaults here are the measured values, so the module still works against a database that has not
+# been loaded yet; `settings(conn)` is what the engine actually uses.
+DEFAULTS = {
+    "min_confidence": 70.0,   # below this the engine does not stand behind the reading
+    "answer_column": 0.085,   # how far either side of a question its answer may sit
+    "answer_drop": 0.095,     # how far below, when no following question bounds the region
+    "row_band": 0.02,         # answers within this vertically are one row, read left to right
+    "first_page_mask": 0.34,  # name band painted out before anything is sent (rule 6)
+}
+
+
+def settings(conn=None):
+    """The geometry, from `threshold` rows. Falls back to the measured defaults where a row is
+    absent, so a fresh database reads the same way a loaded one does."""
+    if conn is None:
+        return dict(DEFAULTS)
+    rows = conn.execute(
+        "select key, value from threshold where key like 'ocr.%%'"
+    ).fetchall()
+    got = {r["key"].split(".", 1)[1]: float(r["value"]) for r in rows}
+    return {**DEFAULTS, **{k: v for k, v in got.items() if k in DEFAULTS}}
 
 
 def _box(b):
@@ -230,7 +238,18 @@ def _in_region(word, anchor, max_drop, column, bottom=None):
     return anchor["x"] - column <= word["x"] <= anchor["x"] + max(anchor["w"], column)
 
 
-def _handwriting_near(page, box):
+def _all_handwriting(page, box):
+    """Every handwritten number in a question's region, answer and working alike.
+
+    What separates them is which is the answer; what they have in common is that the child wrote
+    them. The count of the rest is the third signal — rule 5 keeps "wrong" and "wrong with working
+    shown" apart everywhere, because a child who reached a wrong answer through a visible method is
+    telling a teacher something a bare wrong answer does not.
+    """
+    return [w for w in page["words"] if w["hand"] and value_of(w["text"]) and _in_box(w, box)]
+
+
+def _handwriting_near(page, box, cfg=None):
     """Every handwritten number in a question's region, in reading order.
 
     Handwriting only, which is the whole reason for being here: a printed `452` inside
@@ -246,7 +265,7 @@ def _handwriting_near(page, box):
     paper prints its boxes inline instead, the child's digits sit on the question's own line and the
     same region search finds them.
     """
-    hand = [w for w in page["words"] if w["hand"] and value_of(w["text"]) and _in_box(w, box)]
+    hand = _all_handwriting(page, box)
 
     # Ranked, not filtered — each rule applies only where the page offers it.
     #
@@ -262,7 +281,16 @@ def _handwriting_near(page, box):
     worded = [w for w in hand if _WORDS.search(w.get("line_text") or "")]
     mixed = [w for w in hand if w.get("mixed_line")]
     hand = labelled or worded or mixed or hand
-    return _reading_order(hand)
+    return _reading_order(hand, (cfg or DEFAULTS)["row_band"])
+
+
+def _working_shown(found, answers):
+    """How much method the child showed: everything they wrote here beyond the answers themselves.
+
+    "none" and "partial" only — a page cannot say whether a method is complete, and claiming "full"
+    would be a judgement the transcriber is not entitled to make.
+    """
+    return "partial" if found > answers else "none"
 
 
 def _dedupe(words):
@@ -280,7 +308,7 @@ def _dedupe(words):
     return out
 
 
-def _reading_order(words, row=0.02):
+def _reading_order(words, row):
     """Words in the order a person reads them: across each row, then down.
 
     Rows are clustered rather than rounded. These pages are scanned by hand and sit a degree or two
@@ -301,7 +329,7 @@ def _number(slot):
     return int("".join(c for c in slot if c.isdigit()) or 0)
 
 
-def answers_for(page, slots):
+def answers_for(page, slots, cfg=None):
     """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
     Grouped by QUESTION NUMBER rather than by the line each part happened to match. Question 5 of
@@ -313,6 +341,7 @@ def answers_for(page, slots):
     A question's answers lie between that question and the next one. That is true of every paper
     ever printed, and it needs no per-paper configuration.
     """
+    cfg = cfg or DEFAULTS
     anchors = {slot: find_question(page["lines"], q) for slot, q in slots.items()}
     groups = {}
     for slot in slots:
@@ -344,11 +373,21 @@ def answers_for(page, slots):
             # questions scored 0 of 6 because every region held two answers and none could be told
             # apart from the other.
             "top": anchor["y"] - 0.005,
-            "bottom": below if below is not None else anchor["y"] + 0.095,
-            "left": min(a["x"] for a in mine) - 0.085,
-            "right": max(a["x"] + max(a["w"], 0.085) for a in mine) + 0.085,
+            "bottom": below if below is not None else anchor["y"] + cfg["answer_drop"],
+            "left": min(a["x"] for a in mine) - cfg["answer_column"],
+            "right": max(a["x"] + max(a["w"], cfg["answer_column"]) for a in mine) + cfg["answer_column"],
         }
-        candidates = _dedupe(_handwriting_near(page, box))
+        working = _working_shown(len(_all_handwriting(page, box)), len(members))
+        candidates = _dedupe(_handwriting_near(page, box, cfg))
+        if not candidates:
+            # The question is on the page and there is no handwriting in its region: the child wrote
+            # nothing. That is BLANK, and it is not the same fact as "there is writing I cannot make
+            # out" — rule 5 keeps those apart everywhere, and a blank never counts as an attempt.
+            # Reporting a blank as unreadable sends a teacher to look at an empty box, and quietly
+            # turns "did not answer" into "could not be read".
+            for slot in members:
+                out[slot] = {"child_answer": "", "answer_state": "blank", "confidence": 0.0, "working_shown": working}
+            continue
         if len(members) == 1 and len(candidates) > 1:
             # One answer asked for, several numbers in the region: the child's working and then
             # their answer. A child writes the answer AFTER the working, so the last number in
@@ -360,13 +399,14 @@ def answers_for(page, slots):
             # answer chosen by an off-by-one, so these go to a person: a flagged unknown costs a
             # glance, a confident guess costs trust.
             for slot in members:
-                out[slot] = {"child_answer": "", "answer_state": "illegible", "confidence": 0.0}
+                out[slot] = {"child_answer": "", "answer_state": "illegible", "confidence": 0.0, "working_shown": working}
             continue
         for slot, pick in zip(members, candidates):
-            sure = pick["confidence"] >= MIN_CONFIDENCE
+            sure = pick["confidence"] >= cfg["min_confidence"]
             out[slot] = {
                 "child_answer": value_of(pick["text"]) if sure else "",
                 "answer_state": "written" if sure else "illegible",
                 "confidence": pick["confidence"],
+                "working_shown": working,
             }
     return out

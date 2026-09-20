@@ -35,6 +35,7 @@ def _key(a):
 def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
     """One pass of the OCR reader over a gold sheet → {slot: reading} (ADR 0019)."""
     cli = cli or ocr.client()
+    cfg = ocr.settings(conn)
     template, by_key = legacy.paper_rows(conn, sheet["paper"])
     paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
@@ -48,7 +49,7 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
         if not slots:
             continue  # a blank back page, or a scan longer than the paper: nothing to look for
         img = legacy.masked_image(jpeg, masks.get(page_no, 0))
-        out.update(ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots))
+        out.update(ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots, cfg))
     return out
 
 

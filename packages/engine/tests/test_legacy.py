@@ -8,7 +8,7 @@ import os
 import pytest
 
 from engine import db, legacy
-from engine.adapters import llm
+from engine.adapters import llm, ocr
 from engine.assess import graph
 
 # ---- pure: shape → rung, and marking by lookup
@@ -56,7 +56,8 @@ def test_mark_keeps_three_signals_apart():
     """Rule 5, and now ADR 0018's fourth case. `answer_state` is the reader saying which of four
     things it saw rather than the caller guessing from an empty string — v2 returned the same empty
     `child_answer` for "wrote nothing" and "wrote something I cannot read"."""
-    m = lambda read, spec=None, resp=None: legacy.mark(spec or _spec(), resp or _resp(), read)
+    def m(read, spec=None, resp=None):
+        return legacy.mark(spec or _spec(), resp or _resp(), read)
 
     assert m({"child_answer": "375", "answer_state": "written", "working_summary": ""}) == (
         "correct", [], "none")
@@ -118,6 +119,36 @@ PAPER = {
         {"n": 5, "page": 1, "kind": "text", "rung": "X1", "question": "Explain."},
     ],
 }
+
+def fake_ocr(monkeypatch, asked=None):
+    """Stand in for Textract. `import_scan` reads with OCR now, not a model (ADR 0019), so the
+    thing to stub is the adapter — and stubbing `answers_for` rather than `read` keeps the test
+    about the import path instead of about page geometry, which `test_ocr.py` owns."""
+    monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
+    monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
+
+    def answers(page, slots, cfg=None):
+        if asked is not None:
+            asked.append(slots)
+        return {
+            r["slot"]: {
+                "child_answer": r["child_answer"],
+                "answer_state": r["answer_state"],
+                "confidence": 99.0,
+                # The real adapter derives this from handwriting in the region beyond the answer
+                # itself; the fixture says the same thing with a summary, so mirror it rather than
+                # hard-coding "none" and quietly dropping rule 5's third signal.
+                "working_shown": r.get("working_shown") or ("partial" if r.get("working_summary") else "none"),
+                "working_summary": r.get("working_summary", ""),
+                "self_corrected": r.get("self_corrected", False),
+                "educator_mark": r.get("educator_mark", "none"),
+            }
+            for r in READ["items"]
+            if r["slot"] in slots
+        }
+
+    monkeypatch.setattr(ocr, "answers_for", answers)
+
 
 READ = {
     "resolution": {"status": "complete", "saw": "a question page", "unresolved": []},
@@ -214,6 +245,7 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
     asked = []
+    fake_ocr(monkeypatch, asked)
     monkeypatch.setattr(
         llm,
         "generate",
@@ -221,13 +253,13 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     )
 
     s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
-    # The reader is handed the page's answer SLOTS, not a count (ADR 0019). Asking it to transcribe
-    # the printed question back primed it to compute the answer; handing it the slots also means a
-    # slot it cannot find must say so rather than silently never appearing.
-    assert [p for p, _ in asked] == ["legacy_extract"]
-    slots = asked[0][1]["slots"]
-    assert [line.split()[0] for line in slots.splitlines()] == ["1", "2", "3", "4", "5"]
-    assert "46 + 38" in slots
+    # The reader is handed the page's answer SLOTS and their printed questions, so a slot it cannot
+    # find reports itself rather than silently never appearing — the defect that lost three answers
+    # per child on every sheet of one paper.
+    assert len(asked) == 1
+    slots = asked[0]
+    assert sorted(slots) == ["1", "2", "3", "4", "5"]
+    assert slots["1"] == "46 + 38"
     by = {r["item"]: r for r in s["results"]}
     assert by["1"]["status"] == "correct"
     assert (
@@ -235,7 +267,12 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     )
     assert by["4"]["status"] == "blank"
     assert by["5"]["status"] == "needs_teacher"
-    assert s["unmatched"] == ["9"]
+    # Nothing unmatched, and it cannot be: the reader is HANDED the slots the paper has, so a slot
+    # that is not printed on the paper can never come back. The model path could return one — the
+    # fixture still carries a slot 9 that this paper does not print — and the caller had to notice
+    # and discard it. Being unable to invent is better than catching an invention.
+    assert s["unmatched"] == []
+    assert "9" not in {r["item"] for r in s["results"]}
     assert (
         conn.execute("select status from capture where id = %s", (s["capture_id"],)).fetchone()["status"]
         == "processed"
@@ -309,7 +346,7 @@ def test_reimporting_the_same_file_returns_the_existing_capture(conn, child, tmp
     monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
     asked = []
-    monkeypatch.setattr(llm, "generate", lambda conn, purpose, variables, images=(): asked.append(1) or READ)
+    fake_ocr(monkeypatch, asked)
 
     first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
     second = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")

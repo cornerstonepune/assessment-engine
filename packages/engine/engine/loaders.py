@@ -50,6 +50,43 @@ THRESHOLDS = [
         "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above",
     ),
     ("marking.agreement_gate", 0.95, "proportion", "Agreement with teacher marking before marks are trusted"),
+    # How the transcriber finds a child's answer on a page (ADR 0019). Every one of these was tuned
+    # against a hand-read page, and every one is a property of how a PAPER is laid out rather than of
+    # the code — so the next paper will want them different, and rule 1 says that is a row to edit,
+    # not a Python file to change.
+    (
+        "ocr.min_confidence",
+        70,
+        "confidence",
+        "Below this the engine does not stand behind a reading: it is kept, flagged, and a person"
+        " decides. At 0 a stray mark read as a minus sign reached a child's graph unchallenged",
+    ),
+    (
+        "ocr.answer_column",
+        0.085,
+        "page fraction",
+        "How far either side of a question its answer may sit. These papers print four boxes across,"
+        " about 0.19 apart, so anything wider reaches into the neighbouring child's answer",
+    ),
+    (
+        "ocr.answer_drop",
+        0.095,
+        "page fraction",
+        "How far below a question its answer may sit, when no following question bounds the region",
+    ),
+    (
+        "ocr.row_band",
+        0.02,
+        "page fraction",
+        "Answers within this of each other vertically are one row, read left to right. The scans sit"
+        " a degree off square, so rounding instead of clustering gave every child the next one's answer",
+    ),
+    (
+        "ocr.first_page_mask",
+        0.34,
+        "page fraction",
+        "Top of page one painted out before anything is sent: the name band lives there (rule 6)",
+    ),
     ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
     (
         "llm.daily_budget_inr",

@@ -7,6 +7,8 @@ Measured on that page after these rules: 14 of 14 ordinary answer boxes read exa
 
 from engine.adapters import ocr
 
+ROW_BAND = ocr.DEFAULTS["row_band"]
+
 
 def w(text, x, y, hand=True, conf=99.0, h=0.012, width=0.04, line="", mixed=True):
     """A word as `assemble` builds it: it knows the line it sits on and whether that line mixes the
@@ -126,10 +128,29 @@ def test_a_skewed_scan_does_not_hand_a_child_their_neighbours_answer():
     got = ocr._reading_order([
         w("431", 0.696, 0.302), w("365", 0.507, 0.306),
         w("245", 0.317, 0.310), w("155", 0.124, 0.313),
-    ])
+    ], ROW_BAND)
     assert [x["text"] for x in got] == ["155", "245", "365", "431"]
 
 
 def test_a_genuine_second_row_is_still_a_second_row():
-    got = ocr._reading_order([w("b", 0.30, 0.42), w("a", 0.12, 0.40), w("c", 0.12, 0.50)])
+    got = ocr._reading_order([w("b", 0.30, 0.42), w("a", 0.12, 0.40), w("c", 0.12, 0.50)], ROW_BAND)
     assert [x["text"] for x in got] == ["a", "b", "c"]
+
+
+def test_a_question_with_no_handwriting_is_blank_not_unreadable():
+    """Rule 5: "the child wrote nothing" and "there is writing I cannot make out" are different
+    facts everywhere, and a blank never counts as an attempt. Reporting a blank as unreadable sends
+    a teacher to look at an empty box and turns "did not answer" into "could not be read"."""
+    anchor = w("Zara says 358 + 199 gives the same", 0.12, 0.40, hand=False, width=0.60)
+    got = ocr.answers_for(page([], [anchor]), {"9": "Zara says 358 + 199 gives the same"})
+    assert got["9"]["answer_state"] == "blank"
+    assert got["9"]["child_answer"] == ""
+
+
+def test_geometry_comes_from_rows_not_from_the_code():
+    """Rule 1: nothing structural lives in Python. Every number the transcriber was tuned on is a
+    property of how a PAPER is laid out, so the next paper changes a row rather than a file."""
+    assert set(ocr.DEFAULTS) == {
+        "min_confidence", "answer_column", "answer_drop", "row_band", "first_page_mask"
+    }
+    assert ocr.settings(None) == ocr.DEFAULTS          # no database: the measured defaults
