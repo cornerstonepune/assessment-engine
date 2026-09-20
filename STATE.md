@@ -2348,3 +2348,42 @@ paper row marks so they always reach a person.
   invariants 0 violations. `adapters/ocr.py` is now 859 lines against a 400-line ceiling and wants
   splitting along the transcriber/geometry seam; an attempt at it this session was abandoned rather
   than half-landed.
+
+## The 261 that reach a person, counted by cause (2026-09-20)
+
+Nimish: "261 is a lot of teacher approvals — how come you aren't able to figure so many out?"
+Counted rather than characterised, so the next session works the biggest class first:
+
+```
+  39  (15%)  not a number by design — an ordering, an explanation, a tick, a comparison symbol
+  20  ( 8%)  the question was never located on the page
+ 104  (40%)  the region or box count did not add up
+  84  (32%)  read, but under the 70% confidence floor
+  14  ( 5%)  other
+```
+
+- **Only the 39 are a floor.** They are the slots whose expected answer is not a number, which this
+  transcriber cannot read by design and which the paper row marks so they always reach a person.
+- **104 is the free-response box**: the child works the whole method inside it, so the region holds
+  five numbers where the paper asks for two and the engine refuses rather than guess. Not hard
+  handwriting — the engine not knowing which number is the answer.
+- **84 sit at 50–69% confidence**, one band under the floor, which is a resolution problem: the
+  page goes to Textract at 150 dpi and a 40×25-pixel answer inside it is at the limit.
+- **16 of the flags were read perfectly and routed to a person anyway** because `legacy.mark` sends
+  every `kind: text` item to a human. The judgement ("is Achal correct?") is not checkable, but the
+  number the child wrote is, and 5 of the 16 match the key exactly. That is a marking rule, not a
+  reading one.
+
+The slots that flag on the most children, with the average confidence where there was one:
+`G2-DIAG-B` q11 (5 children, count), `G3-QUIZ20` q3 and q8 (5 each, read at 77–80% and routed by
+kind), `G2-WORD-SEP17` q4 (4, at 48%), `G3-QUIZ20` q1 (4, at 44%), `G2-CAM-A` q7b/q8a/q8b (3 each,
+count). Four of them are in `scratchpad/flagged-samples.jpg`, each showing the exact patch the
+engine read.
+
+**What is not yet tried, and is the reason 70% is not the ceiling:** there is no blank copy of any
+paper on disk, so the template half of the standard pipeline — align each scan to an unmarked page
+with a homography, read fields at known coordinates — has never been available. It can be
+reconstructed by median-averaging the aligned copies of a paper across the children who sat it
+(≥4 copies exist for 9 of 16 papers), which removes the handwriting and leaves the printed page.
+That is the next session's first move, and `HANDOFF.md` carries the full plan with a target for
+each class.

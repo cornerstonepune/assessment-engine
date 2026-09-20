@@ -3,7 +3,8 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: **W3 — read and graph. Gate 1 closed: every paper entered, every scan read. The queue is now 368 answers deep.**
+## Where we are: **W3 — read and graph. Every paper entered, every scan read, the engine settles 70%.**
+**The open question is the other 30%: 261 answers waiting for a person, and the next session's whole job is to cut that.**
 
 W1 and W2 were verified at the start of this session and at the end of it, not assumed:
 
@@ -42,22 +43,77 @@ answer unless the child declared it**. Both are rows, both are tested, both meas
 **A sixteenth paper was hiding**: the Grade 4 child's baseline is not the Grade 3 one — same
 header, different questions. `G4-BASE16` is entered and his misfiled reading superseded.
 
-## Next, in the order that removes the most risk
+## Next session: the 261, and why 70% is not the ceiling
 
-1. **Sign off the corpus on the approval screen.** 606 answers are marked and waiting for a
-   signature; 261 need a person, 39 of them structurally. Nothing reaches a child's ladder until
-   that happens, and every correction is a hand-verified response that grows the gold set.
-2. **A real template for the two underline papers.** `G3-SEPW1-A` and `G4-SEPW1` print their
-   answers on plain rules with no box, and they are where the remaining flags concentrate. One
-   blank page per paper plus an ORB/RANSAC homography — the PyImageSearch pipeline in full — gives
-   field coordinates for papers whose fields the page does not draw. That is the next real lever,
-   and it is the half of the standard approach this session did not need.
-3. **Split `adapters/ocr.py`** along the transcriber/geometry seam: 859 lines against a 400 ceiling.
-   An attempt this session was abandoned rather than half-landed; the seam is real and the tests
-   already cover both sides.
-4. **Textract QUERIES as a second opinion** on answers already flagged, accepted only above the
-   confidence floor or where it agrees with a candidate already found.
-5. **Then** the graph, the five gold reports, and the two W3 criteria still red.
+Nimish, end of this session: "261 is a lot of teacher approvals... you sure this is the best you
+can do — we gotta work deeper into this module." No, it is not the best, and the breakdown says
+where the ceiling actually is. **Every one of the 261 was counted by cause, not guessed at:**
+
+```
+  39  (15%)  not a number by design — an ordering, an explanation, a tick, a comparison symbol
+  20  ( 8%)  the question was never located on the page
+ 104  (40%)  the region or box count did not add up
+  84  (32%)  read, but under the 70% confidence floor
+  14  ( 5%)  other
+```
+
+Only the first 39 are a floor. **The other 222 are addressable, and three of the four biggest
+classes are not hard handwriting at all** — they are the engine not knowing which number on the
+page is the answer. Work them in this order; each one names its own measurement.
+
+**1. The 104 that did not add up — the free-response box (biggest single win).**
+`G2-CAM-A` q7/q8, `G2-DIAG-B` q11 and their like: the child works the whole method inside one box,
+so the region holds five numbers where the paper asks for two, and the engine refuses rather than
+guess. Two levers, in this order:
+  - **A blank-page template per paper.** This is the half of the standard pipeline this session did
+    NOT need and now does: one unmarked copy of each paper, ORB + RANSAC homography to align a
+    child's scan to it (`cv2.findHomography` / `warpPerspective`, the PyImageSearch recipe), then
+    field coordinates read from the template instead of inferred from the scan. It is the only
+    thing that fixes a paper whose answer sits on a plain underline the page does not draw —
+    `G3-SEPW1-A` and `G4-SEPW1`, where the flags concentrate. **There is no blank copy of any paper
+    on disk: ask the school, or reconstruct one by median-averaging the aligned copies of a paper
+    across the children who sat it (≥4 copies exist for 9 of 16 papers), which removes the
+    handwriting and leaves the printed page.**
+  - **Textract QUERIES as a second opinion on exactly these**, in plain English ("what number did
+    the student write as the final answer"), accepted only above the floor or where it agrees with
+    a candidate geometry already found. Measured once before: recovered 3 of 4 on this class, at
+    $15/1,000 pages and only on flagged answers.
+
+**2. The 84 under the confidence floor — re-read the crop, do not lower the bar.**
+18% of all flags sit at 50–69%, one band under the floor. The standard move is not to lower the
+floor (measured: 85 costs Grade 2 80.0% → 73.3%) but to **re-read just that box at a higher
+resolution**: the page goes to Textract at 150 dpi, a 40×25-pixel answer within it is at the limit,
+and a crop re-rendered at 400–600 dpi is a different problem. Cost is one extra call per flagged
+answer, not per page. **Target: half of the 84.**
+
+**3. The 20 never located — anchor failures on photographs.** Mostly `G3-BASE16` and `G2-DIAG-B` on
+angled phone photos where the printed question line broke up. The template from (1) removes this
+class entirely, which is another reason to do (1) first.
+
+**4. The 16 "find the mistake" answers that were read perfectly and still went to a person.**
+`legacy.mark` routes every `kind: text` item to a human. But the engine already reads the number
+("No! 84,602" → 84602) and the key already holds the right answer — 5 of the 16 match it exactly.
+The judgement ("is he correct?") is not checkable; **the number is**. Mark the number, show the
+teacher the judgement. This is a marking change, ~10 lines, no reading risk.
+
+**If all four land, 261 → roughly 60–80, of which 39 are the structural floor.** That is the 90%+
+coverage you asked for, and every step of it is measurable against the gold set before it ships.
+
+## Do not skip this: the gold set is the only thing that kept this session honest
+
+`supabase/seed/read_gold.json` is now **82 responses over 6 sheets**, hand-read off the page,
+recording what the CHILD wrote including eleven answers that are wrong. The first cut of the box
+reader this session put **five silent errors** into the corpus; the gold caught all five before
+they reached a child's graph, and each is now a test. The bar wants 300 responses with 100 of them
+phone photographs. **Grow it by signing papers off on the approval screen** — every correction a
+teacher makes is a hand-verified response — not by another typing session.
+
+Run it before and after every single change:
+
+```
+bin/engine read eval --reader ocr --runs 2
+  78.0% exact (64/82) · 100% given a row · 1.2% silently wrong (1) · spread 78.0-78.0%
+```
 
 ## Carried over — Nimish's calls, not blockers
 
