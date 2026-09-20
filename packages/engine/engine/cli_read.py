@@ -128,6 +128,7 @@ def read_stability(
 @read_app.command("eval")
 def read_eval_cmd(
     runs: int = typer.Option(1, "--runs", help="repeats; the reported rate is the WORST of them"),
+    reader: str = typer.Option("ocr", "--reader", help="ocr | model — what does the transcribing"),
 ) -> None:
     """Score the active `legacy_extract` against what a person actually saw on the page.
 
@@ -142,11 +143,12 @@ def read_eval_cmd(
             "select version from prompt where purpose = 'legacy_extract' and active"
         ).fetchone()["version"]
         before = external.spend_today(conn)
-        worst, per_run = read_eval.run(conn, runs)
+        worst, per_run = read_eval.run(conn, runs, reader=reader)
         conn.commit()
         spent = external.spend_today(conn) - before
 
-    typer.echo(f"\n  legacy_extract v{version}, {runs} run(s), {worst['total']} responses of gold\n")
+    who = "Textract + geometry" if reader == "ocr" else f"legacy_extract v{version}"
+    typer.echo(f"\n  {who}, {runs} run(s), {worst['total']} responses of gold\n")
     for f, k, want, said in worst["details"]:
         typer.echo(f"    {k:>4}  page says {want:<10} reader said {said}")
     typer.echo(

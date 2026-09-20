@@ -53,10 +53,44 @@ def read(image_bytes, cli=None):
     """
     cli = cli or client()
     r = cli.detect_document_text(Document={"Bytes": image_bytes})
-    return {
-        "lines": [_box(b) for b in r["Blocks"] if b["BlockType"] == "LINE"],
-        "words": [_box(b) for b in r["Blocks"] if b["BlockType"] == "WORD"],
-    }
+    return assemble(r["Blocks"])
+
+
+def assemble(blocks):
+    """Textract blocks → {"lines", "words"}, each word knowing the line it belongs to.
+
+    The line membership comes from Textract's own Relationships, not from comparing y values: a
+    child's digit sits a little above or below the printed text it is squeezed between, and matching
+    by position gets that wrong exactly where it matters most.
+    """
+    by_id = {b["Id"]: b for b in blocks}
+    words, lines = [], []
+    for b in blocks:
+        if b["BlockType"] != "LINE":
+            continue
+        line = _box(b)
+        kids = [
+            by_id[i]
+            for rel in b.get("Relationships", [])
+            if rel["Type"] == "CHILD"
+            for i in rel["Ids"]
+            if by_id[i]["BlockType"] == "WORD"
+        ]
+        # A line holding BOTH printed and handwritten words is the paper's own text with the child's
+        # writing inserted into it — a fill-in box, or an "Answer:" label with a number after it.
+        # A line that is handwriting alone is the child's working, written in blank space. That one
+        # distinction separates an answer from rough work, on every layout, without knowing which
+        # layout it is.
+        line["mixed"] = any(w.get("TextType") == "PRINTED" for w in kids) and any(
+            w.get("TextType") == "HANDWRITING" for w in kids
+        )
+        lines.append(line)
+        for k in kids:
+            word = _box(k)
+            word["mixed_line"] = line["mixed"]
+            word["line_text"] = line["text"]
+            words.append(word)
+    return {"lines": lines, "words": words}
 
 
 def _norm(s):
@@ -65,37 +99,53 @@ def _norm(s):
     return re.sub(r"[^0-9a-z]", "", s.lower())
 
 
-def find_question(lines, question, min_overlap=0.7):
+_PLACEHOLDER = re.compile(r"\[\s*\]|□|_{2,}")
+
+
+def find_question(lines, question, min_overlap=0.6):
     """Where a printed question sits on the page, or None.
 
-    Matched on the question's leading run of characters rather than the whole string: a word problem
-    wraps over several lines, and only its first line carries a position worth having.
+    Matched on the question's tokens appearing in order, not on a contiguous string. Two reasons,
+    both met on real pages: a question with a fill-in box is no longer contiguous once a child fills
+    it — "250 + [ ] = 300" is printed on the page as "250 + 150 = 300" and never matched at all —
+    and a word problem wraps, so only its opening survives on any one line.
     """
-    want = _norm(question)[:24]
+    want = [tok for tok in _tokens(_PLACEHOLDER.sub(" ", question)) if tok][:8]
     if not want:
         return None
     best, score = None, 0.0
     for ln in lines:
-        got = _norm(ln["text"])
-        if not got:
-            continue
-        hit = len(want) if want in got else _prefix_overlap(want, got)
-        ratio = hit / len(want)
+        ratio = _in_order(want, _tokens(ln["text"])) / len(want)
         if ratio > score:
             best, score = ln, ratio
     return best if score >= min_overlap else None
 
 
-def _prefix_overlap(a, b):
-    n = 0
-    for i in range(min(len(a), len(b))):
-        if a[i] != b[i]:
-            break
-        n += 1
-    return n
+def _tokens(s):
+    return re.findall(r"[0-9]+|[a-z]+", s.lower())
 
 
-def _in_region(word, anchor, max_drop, column):
+def _in_order(want, got):
+    """How many of `want` appear in `got`, in order — the child's own digits sitting between them
+    does not break the match."""
+    i = 0
+    for tok in got:
+        if i < len(want) and tok == want[i]:
+            i += 1
+    return i
+
+
+def _in_box(word, box):
+    """Is this word inside a question's region?
+
+    The region spans all of a question's parts. A grid question prints four boxes side by side
+    across the page, so anchoring on one of them and looking down its column finds a quarter of the
+    answers and flags the rest — which is what happened when grouping moved to question numbers.
+    """
+    return box["top"] <= word["y"] < box["bottom"] and box["left"] <= word["x"] <= box["right"]
+
+
+def _in_region(word, anchor, max_drop, column, bottom=None):
     """Is this word an answer to the question anchored here?
 
     The region is as wide as the question itself. A grid question — "236 + 9 =" in one of four boxes
@@ -108,12 +158,13 @@ def _in_region(word, anchor, max_drop, column):
     every grid answer ambiguous. The page already says which kind it is: the printed line's width.
     """
     dy = word["y"] - anchor["y"]
-    if not -anchor["h"] <= dy <= max_drop:
+    limit = (bottom - anchor["y"]) if bottom is not None else max_drop
+    if not -anchor["h"] <= dy < limit:
         return False
     return anchor["x"] - column <= word["x"] <= anchor["x"] + max(anchor["w"], column)
 
 
-def _handwriting_near(page, anchor, max_drop=0.095, column=0.085):
+def _handwriting_near(page, box):
     """Every handwritten number in a question's region, in reading order.
 
     Handwriting only, which is the whole reason for being here: a printed `452` inside
@@ -129,63 +180,102 @@ def _handwriting_near(page, anchor, max_drop=0.095, column=0.085):
     paper prints its boxes inline instead, the child's digits sit on the question's own line and the
     same region search finds them.
     """
-    hand = [w for w in page["words"] if w["hand"] and _NUM.fullmatch(w["text"].strip())
-            and _in_region(w, anchor, max_drop, column)]
-    label = next(
-        (
-            ln
-            for ln in page["lines"]
-            if "answer" in ln["text"].lower()
-            and 0 < ln["y"] - anchor["y"] <= max_drop
-            and abs(ln["x"] - anchor["x"]) <= column
-        ),
-        None,
-    )
-    if label:
-        on_label = [w for w in hand if abs(w["y"] - label["y"]) <= label["h"]]
-        if on_label:
-            hand = on_label
-    return sorted(hand, key=lambda w: (round(w["y"], 2), w["x"]))
+    hand = [
+        w
+        for w in page["words"]
+        if w["hand"] and _NUM.fullmatch(w["text"].strip()) and _in_box(w, box)
+    ]
+    # A line mixing the paper's print with the child's writing is a fill-in box or a labelled answer;
+    # a line of pure handwriting is working. Prefer the former WHERE THERE IS ONE — that is what
+    # separates Q5's box-fills from the scribbles beside them. But a free-response box has no printed
+    # text on the answer's line at all, and there the handwriting is the answer, so this ranks rather
+    # than filters.
+    mixed = [w for w in hand if w.get("mixed_line")]
+    if mixed:
+        hand = mixed
+    # Where the paper prints an "Answer:" label, that box is the final answer — not the number the
+    # child left in the working above it, and not their first attempt at the same line (1a reads
+    # "148 +7 = 148" because the child copied the operand before working down).
+    labelled = [w for w in hand if "answer" in (w.get("line_text") or "").lower()]
+    if labelled:
+        hand = labelled
+    return _reading_order(hand)
+
+
+def _reading_order(words, row=0.02):
+    """Words in the order a person reads them: across each row, then down.
+
+    Rows are clustered rather than rounded. These pages are scanned by hand and sit a degree or two
+    off square, so four answers printed on one line came back at y = 0.302, 0.306, 0.310 and 0.313 —
+    and rounding to two decimals split them across two "rows", putting the rightmost answer first.
+    Every child then got their neighbour's answer, confidently and silently.
+    """
+    out, rest = [], sorted(words, key=lambda w: w["y"])
+    while rest:
+        top = rest[0]["y"]
+        line = [w for w in rest if w["y"] - top <= row]
+        rest = rest[len(line):]
+        out.extend(sorted(line, key=lambda w: w["x"]))
+    return out
+
+
+def _number(slot):
+    return int("".join(c for c in slot if c.isdigit()) or 0)
 
 
 def answers_for(page, slots):
-    """{slot: printed question} → {slot: reading}. Every slot gets an entry; one that cannot be
-    located comes back `not_found` rather than silently missing (the defect that lost three answers
-    per child on every sheet of one paper)."""
-    out, groups = {}, {}
-    for slot, question in slots.items():
-        anchor = find_question(page["lines"], question)
-        groups.setdefault(id(anchor) if anchor else slot, (anchor, []))[1].append(slot)
+    """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
-    for anchor, members in groups.values():
-        # Several slots can share one anchor: "452 = 400 + [ ] + [ ]" then "= [ ]" is three answers
-        # printed on one line, and each asked on its own would take the same first number. Slots that
-        # share a line take the handwriting in reading order — left to right, then down — which is
-        # the order they are printed in and the order the child filled them.
+    Grouped by QUESTION NUMBER rather than by the line each part happened to match. Question 5 of
+    the Cambridge paper prints three fill-in boxes across three lines, and its parts match each
+    other's lines: "452 − 236 = [ ]" matches the line that begins "452 − 236 Regroup…" just as well
+    as its own. Matching each part separately therefore put two parts on one anchor and left the
+    counts unable to line up, so all three went to a person.
+
+    A question's answers lie between that question and the next one. That is true of every paper
+    ever printed, and it needs no per-paper configuration.
+    """
+    anchors = {slot: find_question(page["lines"], q) for slot, q in slots.items()}
+    groups = {}
+    for slot in slots:
+        groups.setdefault(_number(slot), []).append(slot)
+
+    tops = {
+        n: min((anchors[s]["y"] for s in members if anchors[s]), default=None)
+        for n, members in groups.items()
+    }
+    ordered = sorted((y, n) for n, y in tops.items() if y is not None)
+
+    out = {}
+    for n, members in groups.items():
         members.sort()
-        candidates = _handwriting_near(page, anchor) if anchor else []
-        # Reading order only holds when the region offers exactly as many numbers as the page prints
-        # boxes. Q5 of the Cambridge paper prints three fill-in boxes INSIDE a line of printed
-        # arithmetic, and the child's digits sit among printed ones — a count that does not line up
-        # means the region was not understood, and assigning positionally would hand a child's graph
-        # an answer chosen by an off-by-one. Those go to a person instead. This is the whole point of
-        # `silently_wrong_at_most`: a flagged unknown costs a glance, a confident guess costs trust.
-        if anchor and len(candidates) != len(members):
+        anchor = min(
+            (anchors[s] for s in members if anchors[s]), key=lambda a: a["y"], default=None
+        )
+        if anchor is None:
+            for slot in members:
+                out[slot] = {"child_answer": "", "answer_state": "not_found", "confidence": 0.0}
+            continue
+        below = next((y for y, other in ordered if y > anchor["y"] + 1e-9), None)
+        mine = [anchors[s] for s in members if anchors[s]]
+        box = {
+            "top": anchor["y"] - anchor["h"],
+            "bottom": below if below is not None else anchor["y"] + 0.095,
+            "left": min(a["x"] for a in mine) - 0.085,
+            "right": max(a["x"] + max(a["w"], 0.085) for a in mine) + 0.085,
+        }
+        candidates = _handwriting_near(page, box)
+        if len(candidates) != len(members):
+            # The region was not understood. Assigning positionally would hand a child's graph an
+            # answer chosen by an off-by-one, so these go to a person: a flagged unknown costs a
+            # glance, a confident guess costs trust.
             for slot in members:
                 out[slot] = {"child_answer": "", "answer_state": "illegible", "confidence": 0.0}
             continue
-        for i, slot in enumerate(members):
-            pick = candidates[i] if i < len(candidates) else None
-            if pick is None:
-                out[slot] = {
-                    "child_answer": "",
-                    "answer_state": "not_found" if not anchor else "blank",
-                    "confidence": 0.0,
-                }
-            else:
-                out[slot] = {
-                    "child_answer": pick["text"].replace(",", ""),
-                    "answer_state": "written",
-                    "confidence": pick["confidence"],
-                }
+        for slot, pick in zip(members, candidates):
+            out[slot] = {
+                "child_answer": pick["text"].replace(",", ""),
+                "answer_state": "written",
+                "confidence": pick["confidence"],
+            }
     return out

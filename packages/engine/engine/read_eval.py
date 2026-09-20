@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 from engine import db, legacy
-from engine.adapters import llm
+from engine.adapters import llm, ocr
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
 ASSESSMENTS = "~/cornerstone/assessments"
@@ -30,6 +30,24 @@ def gold_sheets():
 
 def _key(a):
     return f"{a['n']}{a.get('part', '')}"
+
+
+def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
+    """One pass of the OCR reader over a gold sheet → {slot: reading} (ADR 0019)."""
+    cli = cli or ocr.client()
+    template, by_key = legacy.paper_rows(conn, sheet["paper"])
+    paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
+    masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
+    out = {}
+    for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
+        img = legacy.masked_image(jpeg, masks[page_no])
+        slots = {
+            k: it["spec"]["question"]
+            for k, it in by_key.items()
+            if it["spec"].get("page", 1) == page_no
+        }
+        out.update(ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots))
+    return out
 
 
 def read_once(conn, sheet, root=ASSESSMENTS):
@@ -84,13 +102,18 @@ def score(gold_answers, read):
     }
 
 
-def run(conn, runs=1, root=ASSESSMENTS):
-    """Every gold sheet, `runs` times. The reported rate is the WORST run, never the mean."""
+def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
+    """Every gold sheet, `runs` times. The reported rate is the WORST run, never the mean.
+
+    `reader` picks what does the transcribing, so the two are scored by one command on one page and
+    the choice is evidence rather than a vendor's benchmark.
+    """
+    read = read_once_ocr if reader == "ocr" else read_once
     per_run = []
     for _ in range(runs):
         agg = {"total": 0, "exact": 0, "wrong_value": 0, "missing": 0, "state_wrong": 0, "details": []}
         for sheet in gold_sheets():
-            s = score(sheet["answers"], read_once(conn, sheet, root))
+            s = score(sheet["answers"], read(conn, sheet, root))
             for k in ("total", "exact", "wrong_value", "missing", "state_wrong"):
                 agg[k] += s[k]
             agg["details"] += [(sheet["file"], *d) for d in s["details"]]

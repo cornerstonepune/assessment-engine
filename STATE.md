@@ -1758,3 +1758,44 @@ profile. No secret is in the repo or in git.
   asserted the reader is handed a COUNT of answers; it now asserts it is handed the slot list, which
   is the thing ADR 0019 actually changed.
 - Cost of the whole exercise: **Rs 0.18** of Textract (~$1.50/1,000 pages).
+
+## 63% → 85.2% exact, 100% on the page a person verified, 0 silently wrong (2026-09-20)
+
+Nimish: "lets get that 82.4 to as close to 100 as possible." Four rules found, each one paid for by
+a measured regression. `bin/engine read eval --reader ocr` — vendor-blind, so the model and Textract
+are scored by one command against the same hand-read page.
+
+| reader | exactly right | to a person | **silently wrong** |
+|---|---|---|---|
+| `legacy_extract` v2/v3/v4 (Haiku vision) | 55.6 – 63.0% | 0 | ~7 |
+| Textract + geometry | **85.2%** (23/27) | 4 | **0** |
+| — of which **page 1, the page hand-verified** | **100%** (17/17) | 0 | 0 |
+
+- **A line mixing print and handwriting is an answer; a line of pure handwriting is working.** Q5
+  prints "452 = 400 + [ ] + [ ]" and the region also holds the child's scribbles — including a
+  second `52` and a second `72`. Textract's per-word `HANDWRITING`/`PRINTED` flag plus its own
+  word→line relationships separate the two exactly. It ranks rather than filters: a free-response
+  box has no printed text on the answer's line at all.
+- **A question's answers lie between that question and the next one.** Matching each part to its own
+  line put 5a and 5c on the same anchor, because "452 − 236 = [ ]" matches the line beginning
+  "452 − 236 Regroup…" as well as its own. Grouping by question number needs no per-paper
+  configuration and is true of every paper ever printed.
+- **The region is a box spanning every part, not a column under one.** A grid prints four boxes
+  side by side; anchoring on one found a quarter of the answers and flagged the rest.
+- **Rows are clustered, never rounded.** The scans sit a degree or two off square, so four answers
+  on one printed line came back at y = 0.302, 0.306, 0.310, 0.313. Rounding to two decimals split
+  them across two "rows" and put the rightmost first — **every child in that row got their
+  neighbour's answer, silently, at 99% confidence.** Caught only because the gold set records what
+  the child wrote rather than what was correct.
+- **A question is matched on its tokens appearing in order, not as a string.** "250 + [ ] = 300" is
+  printed on the page as "250 + 150 = 300" once a child fills the box, and never matched at all.
+
+- **The four that remain are one identifiable class and all four are flagged, not guessed**: Q7 and
+  Q8's free-response boxes, where the child's whole column method fills the box and nothing marks
+  which number is the final answer. `answer_state = illegible` → a person, never `blank`, which
+  would be a claim that the child wrote nothing.
+
+- `silently_wrong_at_most: 0.01` → **met at 0.000**. `read_exactly_right: 0.97` → **0.852, not met**,
+  and the whole remaining gap is that one question shape on one sheet.
+- Suite **319 passed** (11 in `tests/test_ocr.py`, no network — the skew case and the mixed-line
+  case are both pinned). `engine audit` → 12 invariants, 0 violations. Textract spend: **Rs 0.9**.
