@@ -43,11 +43,10 @@ def read_once(conn, sheet, root=ASSESSMENTS):
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
     for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
-        expected = sum(1 for it in by_key.values() if it["spec"].get("page", 1) == page_no)
-        jpeg = legacy.mask_name_band(jpeg, masks[page_no])
-        got = llm.generate(conn, "legacy_extract", {"expected": str(expected)}, images=[jpeg])
-        for r in got["items"]:
-            out[_key(r)] = r
+        slots = legacy.slot_list(by_key, page_no)
+        img = legacy.masked_image(jpeg, masks[page_no])
+        readings, _ = legacy.read_page_in_bands(conn, img, slots)
+        out.update(readings)
     return out
 
 

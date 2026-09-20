@@ -318,7 +318,7 @@
       "purpose": "legacy_extract",
       "version": 2,
       "model": "claude-haiku-4-5",
-      "active": true,
+      "active": false,
       "text_file": "prompts/legacy_extract.v2.txt",
       "json_schema": {
         "type": "object",
@@ -1225,6 +1225,139 @@
                     "none",
                     "partial",
                     "full"
+                  ]
+                }
+              }
+            }
+          },
+          "resolution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "saw",
+              "unresolved"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "complete",
+                  "partial",
+                  "cannot"
+                ]
+              },
+              "saw": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "unresolved": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "what",
+                    "why",
+                    "needs"
+                  ],
+                  "properties": {
+                    "what": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "why": {
+                      "type": "string",
+                      "maxLength": 400
+                    },
+                    "needs": {
+                      "type": "string",
+                      "enum": [
+                        "a_person",
+                        "more_of_the_input",
+                        "a_new_row",
+                        "nothing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "legacy_extract",
+      "version": 4,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/legacy_extract.v4.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "resolution"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "slot",
+                "child_answer",
+                "answer_state",
+                "working_shown",
+                "working_summary",
+                "self_corrected",
+                "educator_mark"
+              ],
+              "properties": {
+                "slot": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                "child_answer": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "answer_state": {
+                  "type": "string",
+                  "enum": [
+                    "written",
+                    "blank",
+                    "illegible",
+                    "not_visible",
+                    "not_found"
+                  ]
+                },
+                "working_shown": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "partial",
+                    "full"
+                  ]
+                },
+                "working_summary": {
+                  "type": "string",
+                  "maxLength": 250
+                },
+                "self_corrected": {
+                  "type": "boolean"
+                },
+                "educator_mark": {
+                  "type": "string",
+                  "enum": [
+                    "right",
+                    "wrong",
+                    "none",
+                    "unclear"
                   ]
                 }
               }

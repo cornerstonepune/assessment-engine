@@ -1666,3 +1666,46 @@ measured months ago; rule 7 says every model output ships with an eval and this 
   diagnosis on sixteen children and fill the graph with answers no child gave. The reader is fixed
   to the bar first, then the corpus is read once. `engine read eval` is now the command that says
   whether it is ready, and it runs in about a minute for Rs 1.40.
+
+## The reader was the wrong kind of tool, and the measurements say so (2026-09-20)
+
+Nimish: *"isn't there an established technology to do this? … obviously someone has solved this
+basic issue."* He was right. Five measured attempts at prompt-tuning, and then the research that
+should have come first.
+
+- **Every configuration measured against the hand-read page** (`bin/engine read eval`, worst run):
+
+  | configuration | read exactly right | given a row |
+  |---|---|---|
+  | `legacy_extract` v2 | 55.6% | 81.5% |
+  | v3 (ADR 0018 contract) | 59.3% | 81.5% |
+  | **v4: stop asking for the printed question, hand it the answer slots** | **63.0%** | **100%** |
+  | v4 + overlapping bands for resolution | 63.0% | 100% |
+  | v4 + digits masked in the slot list | **51.8% — worse** | 100% |
+
+  The slot list is a keeper regardless of what reads the page: **missing rows went 81.5% → 100%**,
+  because a slot the reader cannot find must now come back `not_found` rather than never appearing.
+
+- **The diagnostic experiment.** Asked for six answers on a whole page the reader got 2 right; asked
+  for the same six on tight crops it got 4 — and both it gained (`381→281`, `387→397`) were cases
+  where it had returned the arithmetically correct answer instead of the child's wrong one. **It was
+  not disobeying the instruction to transcribe. It could not see the pencil, and a model that knows
+  arithmetic fills an uncertain gap with the answer it can compute.** No phrasing fixes that: the
+  arithmetic is not in the prompt, it is in the model.
+
+- **The field's own numbers**, 2026 handwriting word error rate: specialist handwriting OCR 0.9%,
+  Azure Document Intelligence 8.67%, AWS Textract 10.5%, Claude Sonnet 11.2%, GPT-5 vision 14.4%,
+  Google Document AI 23.3%. **This engine reads on Haiku, smaller than the Sonnet that scores
+  11.2%.** Azure reaches ~95% on neat printing and block handwriting, which is what a Grade 2
+  child's digits are.
+
+- **ADR 0019**: transcription moves to an OCR engine; the model keeps only the judgement. Not
+  because OCR is more accurate, though it is, but because **OCR cannot make our worst error at all**
+  — it does not know that 348 + 27 = 375, so it can never write 375 where a child wrote 374. And it
+  returns calibrated per-word confidence, which is the thing ADR 0018 established a model cannot
+  report about itself. This is CLAUDE.md's own rule, broken: *code where correctness is needed, a
+  model where judgment is needed, never the reverse.* Reading a digit is recognition, not judgement.
+
+- **Open and Nimish's:** which vendor. `gcloud` and `aws` are on this machine, no Azure CLI, no OCR
+  credential in `.env`. Cost is not a constraint — Textract is ~$15/1,000 pages, so the whole
+  118-page corpus is about ₹150.

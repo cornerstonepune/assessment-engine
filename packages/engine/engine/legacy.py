@@ -192,6 +192,14 @@ def render_pages(path, pages=None):
     return [_jpeg(im) for im in out]
 
 
+def masked_image(jpeg, fraction):
+    """The masked page as an array, for cutting bands from without a re-encode per band."""
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    if fraction:
+        img[: int(img.shape[0] * fraction), :] = 255
+    return img
+
+
 def mask_name_band(jpeg, fraction):
     """Paint over the top band where the printed name sits (rule 6: prompts receive images, not
     names). The fraction is per paper, per page, and can be overridden per scan."""
@@ -245,6 +253,85 @@ def mark(spec, response, read):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     return "wrong", codes, working
+
+
+def slot_list(by_key, page_no):
+    """The answer slots printed on one page, as the reader is shown them.
+
+    The paper already holds every printed question — asking the model to transcribe them back was
+    both redundant and harmful: writing "348 + 27 =" before reaching the child's answer primed it to
+    compute 375, and it returned the right answer in place of the child's wrong one about a fifth of
+    the time. Handing it the slots instead also ends the missing-row problem, because a slot it
+    cannot find must come back as `not_found` rather than simply never appearing.
+    """
+    on_page = [(k, it) for k, it in by_key.items() if it["spec"].get("page", 1) == page_no]
+    on_page.sort(key=lambda kv: (int("".join(c for c in kv[0] if c.isdigit()) or 0), kv[0]))
+    return "\n".join(f"{k:<4} {_locator(it['spec']['question'])}" for k, it in on_page)
+
+
+def _locator(question):
+    """Enough of a printed question to FIND its answer on the page.
+
+    Masking the digits was tried, to stop the reader computing the answer from its own instructions,
+    and measured WORSE — 51.8% against 63.0%. Removing the numbers takes away what locates a slot
+    on the page without taking away the arithmetic, which is still printed on the page the reader is
+    looking at. The failure was never about what the prompt contained: a vision model that knows
+    arithmetic fills a gap in faint pencil with the answer it can compute, and no phrasing prevents
+    that. See ADR 0019 — the transcription layer moves to an OCR engine that cannot do sums.
+    """
+    return question[:90]
+
+
+# A whole page goes to the model as roughly 1568px on its long edge, so a handwritten "397" lands in
+# about 40x25 pixels. Measured on a real page: asked for six answers on the whole page the reader got
+# two right, and asked for the same six on tight crops it got four — and both it gained were cases
+# where it had previously returned the arithmetically CORRECT answer instead of the child's wrong
+# one. It was not disobeying the instruction to transcribe; it could not see the pencil, and a
+# maths-shaped prior filled the gap. Bands give each digit its own share of the pixel budget.
+#
+# They overlap so that no answer falls on a seam, which means most answers are read twice — and two
+# bands disagreeing about one answer is a *measured* doubt, worth far more than a model's opinion of
+# its own confidence. That doubt goes to a person instead of being guessed at, which is what the
+# silent-error bar is for.
+BANDS = ((0.00, 0.42), (0.30, 0.72), (0.58, 1.00))
+
+
+def read_page_in_bands(conn, image, slots, bands=BANDS):
+    """One page → {slot: reading}, read once per band and merged. Returns (readings, disagreements)."""
+    h = image.shape[0]
+    seen = {}
+    for top, bottom in bands:
+        crop = image[int(h * top) : int(h * bottom)]
+        got = llm.generate(conn, "legacy_extract", {"slots": slots}, images=[_jpeg(crop)])
+        for r in got["items"]:
+            seen.setdefault(r["slot"], []).append(r)
+    return _merge_bands(seen)
+
+
+# What one band knows about a slot, strongest first. `not_found` is the weakest by a distance: it
+# means "not in the part of the page I was shown", which every band says about most of the page. It
+# must never outrank a band that could actually see the slot and found it empty — letting it do so
+# turned two genuinely blank answers into `not_found` and cost four correct readings.
+_STATE_RANK = {"written": 0, "blank": 1, "illegible": 2, "not_visible": 3, "not_found": 4}
+
+
+def _merge_bands(seen):
+    """Readings of one slot from several bands → one reading, or a disagreement a person settles."""
+    out, disagreements = {}, []
+    for slot, reads in seen.items():
+        best = min(_STATE_RANK[r["answer_state"]] for r in reads)
+        agree = [r for r in reads if _STATE_RANK[r["answer_state"]] == best]
+        if best == 0:  # at least one band read handwriting here
+            values = {normalise_answer(r["child_answer"]) for r in agree}
+            if len(values) > 1:
+                # Two bands saw the same slot and read it differently. That is measured doubt, and
+                # it is worth more than any confidence a model reports about itself — so it goes to
+                # a person rather than being resolved by picking one.
+                disagreements.append({"slot": slot, "values": sorted(values)})
+                out[slot] = {**agree[0], "child_answer": "", "answer_state": "illegible"}
+                continue
+        out[slot] = agree[0]
+    return out, disagreements
 
 
 def _page_resolution(summary, page_no, out):
@@ -336,11 +423,11 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
         for page_no, jpeg in zip(page_numbers, images):
             fraction = (masks or {}).get(page_no, page_specs.get(page_no, {}).get("mask", 0))
             jpeg = mask_name_band(jpeg, fraction)
-            expected = sum(1 for it in by_key.values() if it["spec"].get("page", 1) == page_no)
-            out = llm.generate(conn, "legacy_extract", {"expected": str(expected)}, images=[jpeg])
+            slots = slot_list(by_key, page_no)
+            out = llm.generate(conn, "legacy_extract", {"slots": slots}, images=[jpeg])
             summary["notes"].append(f"p{page_no}: {_page_resolution(summary, page_no, out)}")
             for read in out["items"]:
-                key = f"{read['n']}{read.get('part', '')}"
+                key = read["slot"]
                 it = by_key.get(key)
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
