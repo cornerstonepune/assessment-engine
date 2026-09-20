@@ -1895,3 +1895,42 @@ need." Yes, and the clarity is that **tuning will not get there.**
   both, degrading quality and then size rather than failing.
 
 - Suite **319 passed**, `engine audit` → 12 invariants, 0 violations.
+
+## The codebase, measured (2026-09-20)
+
+Nimish asked for the confidence level, the size, and whether the quality steps have actually been
+taken. Measured, not asserted.
+
+- **Size.** Engine 8,745 lines of Python, tests 3,846, web app 9,719, migrations 1,360, n8n 871,
+  goals 410, docs 5,838. Seed is 97,613 but that is the skill registry as data, not code. Call it
+  **~18,500 lines written by hand, with 3,846 lines of test beside them.**
+
+- **Tests: 319 passing, 63% line coverage** (`pytest --cov=engine`), and the shape matters more than
+  the number:
+  - Core logic is well covered — `tags` 100%, `loaders` 100%, `misconceptions` 97%, `verify` 94%,
+    `audit` 94%, `items` 93%, `bank` 92%.
+  - **The command line is 0%**: `cli.py` (252 statements), `cli_check`, `cli_legacy`, `cli_read`,
+    `read_eval`, `stale`. Everything a person actually types is untested, and the three test
+    failures earlier today were all in that blind spot.
+  - `scenarios_week.py` is 12%.
+
+- **`engine/assess/mark.py` is 247 statements at 0% coverage and nothing imports it.** Built for
+  the QR-sheet path and never wired. Named here rather than deleted (rule 3: pre-existing dead code
+  is mentioned, never removed by a session that did not create it) — but it is dead, and it will rot.
+
+- **aislop: 32 / 100, "Critical"** — 16 errors, 32 warnings. The label overstates it and the
+  breakdown says why: **24 of the findings sit in `research/spike_prompt_gen.py`**, a research spike
+  that is not production and holds 15 of the 16 lint errors and all 9 `print()` warnings. The engine
+  itself had **2** lint errors, both orphans of this session's own edits, now fixed — `ruff check
+  engine/` → `All checks passed!`. What remains against the engine is real but structural:
+  4 files over the size ceiling (`items.py` 743, `legacy.py` 570, `loaders.py` 481, `cli.py` 462),
+  3 functions too long, 3 with too many parameters, a repetitive dispatch ladder in `render.py`,
+  and the standing `ruff format` decision that was never taken.
+
+- **The repo's own best rule is broken by its newest code.** Rule 1 says nothing structural lives in
+  code — bands, rungs, thresholds and prompts are all rows, and that is this project's strongest
+  property. But `adapters/ocr.py` hard-codes every number it was tuned on: `MIN_CONFIDENCE = 70`,
+  the column tolerance `0.085`, the drop `0.095`, the row-clustering band `0.02`, `FIRST_PAGE_MASK`.
+  Those are exactly the values a second paper will want different, and today they can only be
+  changed by editing Python. **They belong in `threshold` rows.** This is the clearest piece of debt
+  in the session and it is new, not inherited.

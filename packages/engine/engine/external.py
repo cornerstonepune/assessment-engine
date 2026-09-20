@@ -56,7 +56,7 @@ def extract_questions(conn, path, pages=None, mask=None):
     A cover page that yields a question is exactly this, and it is not detectable any other way.
     """
     mask = FIRST_PAGE_MASK if mask is None else mask
-    by_page, conflicts = {}, []
+    by_page = {}
     images = render_pdf.render(path) if str(path).lower().endswith(".pdf") else []
     for page_no, image in enumerate(images, 1):
         if pages and page_no not in pages:

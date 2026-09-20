@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 from engine import db, legacy
-from engine.adapters import llm, ocr
+from engine.adapters import ocr
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
 ASSESSMENTS = "~/cornerstone/assessments"
