@@ -82,6 +82,39 @@ loop:
   flag_rate_is_recorded_per_batch: true
   correction_must_change_a_later_read: true
 
+# ------------------------------------------------------------------------------------------------
+# PAPERS THAT ARE NOT THE ADD/SUB LADDER (Nimish, 2026-09-20; ADR 0017)
+# ------------------------------------------------------------------------------------------------
+# "Structurally, we'll have some of these kinds of inputs coming in, like physics, science,
+# Olympiads, and other exams also. They might not very clearly attach themselves to a certain skill
+# set in that table, but somehow we need to still figure out a way that they become a part of the
+# evaluation of the child."
+#
+# Today they cannot: `evidence_event.skill_code` and `rung_code` are both NOT NULL, so an
+# observation matching no known skill has nowhere to go and is dropped. ADR 0017 makes them
+# nullable, holds the evidence with the engine's own description of what it tests, reports the
+# unnamed pile for a person to name, and lets naming a skill place months-old evidence — which works
+# only because evidence is append-only and the graph is derived.
+#
+# Two calls Nimish left to me, recorded here so they are checkable rather than opinions:
+#
+# 1. A teacher's mark is not the child's answer, and neither is thrown away. The reader answers two
+#    separate questions per item — what the CHILD chose (null when their mark is not visible) and
+#    what the EDUCATOR marked. On an Olympiad page the red circle is frequently the only mark there
+#    is; the child's choice is then recorded as not visible and NEVER inferred from the red. The
+#    outcome still counts, through `evidence_event.channel` as a teacher observation rather than a
+#    read one, so the child keeps the credit without the engine inventing which option they picked.
+#    This also keeps teacher-marked items out of the approval queue: a human already adjudicated it.
+#
+# 2. Multiple choice is excluded from the 97%/93% bar and measured on its own. Selecting an option
+#    is a different task from transcribing digits, and averaging the two makes both numbers
+#    meaningless. Its own floor is set once there is a measurement to set it from — stated as a gap
+#    rather than guessed, because no MCQ page has ever been read.
+non_ladder_inputs:
+  unmapped_evidence_is_held_not_dropped: true   # ADR 0017
+  child_choice_never_inferred_from_a_teacher_mark: true
+  multiple_choice_excluded_from_the_bar: true   # measured separately; floor still unset
+
 scenarios:
   # --- reading: does it see what is on the paper ---
   - kind: read
@@ -141,6 +174,26 @@ scenarios:
   - kind: read
     name: how often the reader asks for help is recorded every batch, so it can be seen to fall
     must: flag_rate_is_recorded_per_batch     # a series, not a threshold
+
+  # --- papers that are not the add/sub ladder: Olympiad today, science and physics next (ADR 0017) ---
+  - kind: read
+    name: an answer matching no skill we know is still stored against the child, never dropped
+    must: unmapped_evidence_is_held           # evidence_event.skill_code is NOT NULL today
+  - kind: read
+    name: the engine says what it thinks an unmapped item tests, so "unnamed" never means "empty"
+    must: unmapped_evidence_carries_a_proposal
+  - kind: read
+    name: naming a skill today makes evidence read months ago count, with nothing re-read
+    must: naming_a_skill_places_old_evidence  # the whole payoff of append-only + a derived graph
+  - kind: read
+    name: a teacher's mark is never read as the child's choice
+    must: child_choice_never_inferred_from_a_teacher_mark
+  - kind: read
+    name: an item only the teacher marked still counts, as a teacher observation not a read one
+    must: teacher_marked_items_count_by_channel
+  - kind: read
+    name: a bare circled option yields right or wrong and never a named mistake
+    must: no_misconception_claimed_from_a_bare_choice   # entered question + answer only, no distractors
 
   # --- the rules that do not bend ---
   - kind: read
