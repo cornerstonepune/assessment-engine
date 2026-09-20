@@ -1965,3 +1965,106 @@ But the instinct was right: we were using one Textract call out of several avail
   70**; both together the same. Textract does its own preparation and ours interferes with it. The
   lever named in the previous section as "the untried lever most likely to help" does not help, and
   that is worth more written down than quietly dropped.
+
+## Grade 3 read for the first time: a photograph, and one silent error (2026-09-20)
+
+Nimish: "Grade 3, before anything is built on the current numbers." Every measurement in this file
+until now came from Grade 2 PDFs — flat scans of a printed paper answered in pen. Grade 3 is a phone
+photograph: page curved, taken at an angle on a patterned tablecloth, answers in pencil, and the
+educator's own tick or cross sitting beside every one of them. Not one had ever been read.
+
+- **The paper is entered — the first Grade 3 paper the engine can read.** `G3-BASE16`, the
+  16-question baseline diagnostic all five of Aseem's reports are written from. Check:
+  `bin/engine legacy paper supabase/seed/papers/G3-BASE16.json` → `18 questions`. Eighteen slots for
+  sixteen printed questions, because question 3 asks for 236 in expanded form and the child writes
+  three numbers on one line — one slot per ANSWER, which is the rule `docs/w3-paper-inventory.md`
+  exists to enforce. Entered from the printed page by eye, not from the manifest.
+
+  **`8500 − 3647 = 5147` is not on this paper.** It is question 5 of a *second* Grade 3 paper in the
+  same folder — "Grade 3–4 Mathematics Quiz", 20 questions, dated 24/7/2026, marked 8/20 — whose
+  question 18 is the `56 × 3 = 1518` of Aseem's report. Each Grade 3 child's four photographs are
+  two papers of two pages, not one paper of four. That paper is not entered yet.
+
+- **The gold is one whole sitting, read off the photograph by eye**: `supabase/seed/read_gold.json`
+  now holds 63 responses over 5 sheets, of which 18 are this Grade 3 sheet. It records what the
+  CHILD wrote, including `27 + 15 = 40`, `342 + 579 = 763`, two questions left blank with the
+  teacher's cross over them, and one answered with `<` rather than a number.
+
+- **The first Grade 3 number.** `bin/engine read eval --reader ocr --runs 2`, worst of two:
+
+  | sheet | exact | silently wrong |
+  |---|---|---|
+  | `G2-CAM-A` (flat scan) | 22/27 81.5% | 0 |
+  | `G2-WORD-SEP17` ×3 (flat scans) | 14/18 77.8% | 0 |
+  | **`G3-BASE16` (phone photograph)** | **12/18 66.7%** | **1** |
+  | **total** | **48/63 76.2%** | **1 (1.6%)** |
+
+  `given a row at all 100.0%`, spread over 2 runs `76.2% – 76.2%`. Grade 2's own figure is
+  **unchanged at 36/45 = 80.0% with 0 silently wrong**, so nothing below was bought by trading the
+  scans away.
+
+- **The approach survives the photograph. The geometry did not need one new rule.** Fifteen of the
+  eighteen questions anchored on an angled, curved page at 150 dpi; every answer came back either
+  read or flagged; the educator's crosses beside two blank answers were correctly ignored, and both
+  blanks were reported as blanks rather than as unreadable. What the photograph broke was three
+  things that were broken everywhere and had never been exercised:
+
+  1. **One lost token stopped a question matching at all.** Textract reads the printed
+     "234 + 178" as "234 + 78" — the child's own "No." loops over the 1 — and `_in_order` advanced
+     only on a hit, so the first token it could not find ended the count: question 15 scored 3 of 8
+     against a 0.6 bar and never anchored, and its correct answer was lost. It is now a
+     longest-common-subsequence count, which scores that line 7 of 8 and can only ever score a line
+     higher than before.
+  2. **The answer was required to be the last thing on the line.** The child's `412` came back from
+     Textract as `412-`, the printed answer line running into the digits, and `value_of` matched a
+     number only at the end of the text — so a page holding a correct answer was recorded as
+     **blank**. It now takes the last number in the text wherever it sits.
+  3. **A false blank is a silent error, and the eval was not counting it.** `blank` is not a flag,
+     it is a claim: the child did not attempt this skill, and it lands in the graph as exactly that.
+     `read_eval.score` counted only a wrong `written` value as silently wrong, so both defects above
+     scored as quiet misses. It now counts any reading the engine STANDS BEHIND — `written` or
+     `blank` — and leaves `illegible` and `not_found` uncounted, because those reach a person.
+     Re-scored under the corrected metric, Grade 2's 45 responses are still **0** silently wrong:
+     every one of its nine misses is `illegible`.
+
+- **The reader must not claim a blank on an answer it cannot read.** Question 13 is
+  "Compare using >, <, or =: 456 ___ 465". Textract found the child's `<` (at 55.7% confidence) and
+  the engine threw it away, because `value_of` reads numbers — then reported the region as blank at
+  full confidence, on a question the child got right. The paper row already knows the expected
+  answer is not a number, so `legacy.symbolic_slots` names those slots and `ocr.answers_for` sends
+  them to a person instead. `legacy.mark` carries the same refusal as a second line of defence:
+  an expected answer that is not a number now returns `needs_teacher` rather than crashing
+  `int("<")` on the whole import.
+
+- **The one silent error, named.** Question 6: the child wrote `763` for `342 + 579`; Textract read
+  `363` at **79.8% confidence**, above the 70 floor, so the engine stands behind it. Verified by eye
+  at 14× — the first glyph has a flat top bar and a straight diagonal, the same 7 the same child
+  writes in `743` on question 4. Raising the floor to 85 would flag it, and STATE.md's own frontier
+  measurement says that costs Grade 2 80.0% → 73.3% exact. **It is not retuned from one sheet.**
+  This is the class of error the approval screen exists to catch: a reading in the 70–85 band, on a
+  photograph, that no amount of geometry will resolve.
+
+- **What else the photograph flags rather than guesses** (all four reach a person, none is wrong):
+  question 3's expanded form, which Textract returns as the single token `200+30+6` where three
+  slots are expected; question 4, whose printed `287` is overwritten by the child's own erased
+  working so the line reads `4. -67 456 + = 743` and no anchor matches; question 13's symbol.
+
+- **Marking already names the mistake.** Question 11 — "A shop had 350 pencils. 128 were sold" —
+  the child wrote **238**, and `M_SMALL_FROM_LARGE` predicts exactly 238 for those operands. Check:
+  `select responses->0->'misconceptions' from item where item_key = 'legacy/G3-BASE16/11'` →
+  `{"M_FACT_PM1": 221, "M_WRONG_OP": 478, "M_FACT_PM10": 232, "M_NO_DECREMENT": 232,
+  "M_SMALL_FROM_LARGE": 238}`. That is Aseem's own diagnosis of this child, reached from a row.
+  Questions 1 (`40`) and 6 (`763`) match no predictor — they are the unclassified wrong answers
+  `engine bank unclassified` was built in W1 to surface.
+
+- **A paper on a rung that lives only as a row now says so.** `engine/assess/ladder.py` maps the
+  addition/subtraction ladder; `M1` (multiplication) was added as rows in W1 gate 3 and is not in
+  it, so a times-table question raised a bare `KeyError: 'M1'`. `skill_for` now refuses with a
+  sentence naming the fix, and the paper's five multiplication items carry their own skill.
+
+- **A sitting can be several photographs.** A Grade 2 sitting is one PDF; a Grade 3 sitting is one
+  JPEG per page. A gold sheet may now name `files` in page order instead of `file`.
+
+- Suite **340 passed**, `ruff format --check` and `ruff check` clean, `bin/engine audit` → 12
+  invariants, 0 violations, and W1 and W2 were green before and after. Textract spend for the whole
+  exercise: under ₹2.

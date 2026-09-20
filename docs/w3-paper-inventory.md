@@ -35,24 +35,28 @@ children read against it lost the same 3 answers each.
 | 5 | G2 September Week 2 | 9 | ~25 | `G2-SEPW2-S1` | 12 | unchecked; two children's files are 10p and 3p, so variants are likely |
 | 6 | G2 Word Problems 17-Sep | 6 | 12 | `G2-WORD-SEP17` | 6 | unchecked |
 | 7 | G2 extra pages (larger working) | 5 | 15 | — | — | **not entered**; includes an explain-your-answer item |
-| 8 | **G3 baseline diagnostic (16 q)** | 5 | 20 | — | — | **not entered — this is the gold paper** |
+| 8 | **G3 baseline diagnostic (16 q)** | 5 | 10 | `G3-BASE16` | 18 | **entered 2026-09-20**; one sheet hand-verified, 12/18 exact, 1 silently wrong |
 | 9 | G3 September W1 Level A | 2 | 6 | — | — | **not entered** |
 | 10 | G3 September W1 Level B | 1 | 2 | — | — | **not entered** |
 | 11 | G3 September W2 | 4 | 8 | — | — | **not entered** |
 | 12 | G4 September W1 | 1 | 3 | — | — | **not entered** |
 | 13 | G4 September W2 | 1 | 2 | — | — | **not entered** |
 | 14 | SOF Olympiad (G2 and G3 forms) | 7 | 66 | — | — | **not entered**; multiple-choice, only its add/sub items map to a rung |
+| 15 | **G3-4 Mathematics Quiz (20 q)** | 5 | 10 | — | — | **not entered**; found 2026-09-20 — the other half of each Grade 3 child's four photographs, and where `8500 - 3647 = 5147` and `56 x 3 = 1518` actually live |
 
-**4 entered, of which 1 is proven wrong and 2 are unchecked. 10 never entered.**
+**5 entered, of which 1 is proven wrong, 2 are unchecked and 1 is hand-verified against a real
+sheet. 10 never entered** — and the count of distinct papers is 15, not 14: each Grade 3
+child's four photographs are TWO papers of two pages, not one paper of four (#8 and #15).
 
 ## What this changes
 
 1. **The Cambridge paper runs at four levels, not two.** Only A and B exist in the database. Seven
    of the ten Grade 2 children who sat it are on C or D or an unchecked B page. They cannot be read
    until their level is entered.
-2. **Every Grade 3 paper is unenterable today** — including #8, the 16-question baseline that all
-   five of Aseem's reports are written from, and where `8500 - 3647 = 5147` lives. The gold set for
-   the whole pipeline is behind this gate.
+2. **Every Grade 3 paper was unenterable.** #8, the 16-question baseline all five of Aseem's
+   reports are written from, was entered on 2026-09-20 and one sheet hand-verified: the first
+   Grade 3 measurement in the project (STATE.md, "Grade 3 read for the first time"). `8500 - 3647 =
+   5147` is not on it — that is #15, the other paper in the same folder, still not entered.
 3. **The child with the fewest papers is on the paper nobody entered.** One child has a single
    sitting, on Level D, and their answers (`4+3=55`, `6+2=45`, `5+4=35`, `9+4=49`) show no working
    at all and no relation to the operands. That is not an arithmetic slip; the child is not

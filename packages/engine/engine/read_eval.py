@@ -28,6 +28,24 @@ def gold_sheets():
     return json.loads(GOLD.read_text())["sheets"]
 
 
+def sheet_name(sheet):
+    return sheet.get("file") or sheet["files"][0]
+
+
+def sheet_pages(sheet, root):
+    """Every page of one sitting, in order, as JPEG bytes.
+
+    A Grade 2 sitting arrives as one scanned PDF. A Grade 3 sitting is a set of phone photographs —
+    one file per page, taken on a teacher's phone — so a sheet may name `files` instead of `file`,
+    and each of those is one page of the same paper.
+    """
+    root = Path(root).expanduser()
+    files = sheet.get("files") or [sheet["file"]]
+    if len(files) == 1:
+        return legacy.render_pages(root / files[0])
+    return [legacy.render_pages(root / f)[0] for f in files]
+
+
 def _key(a):
     return f"{a['n']}{a.get('part', '')}"
 
@@ -40,14 +58,16 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
     paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
-    for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
+    for page_no, jpeg in enumerate(sheet_pages(sheet, root), 1):
         slots = {
             k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
         }
         if not slots:
             continue  # a blank back page, or a scan longer than the paper: nothing to look for
         img = legacy.masked_image(jpeg, masks.get(page_no, 0))
-        out.update(ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots, cfg))
+        out.update(
+            ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots, cfg, legacy.symbolic_slots(by_key))
+        )
     return out
 
 
@@ -61,7 +81,7 @@ def read_once(conn, sheet, root=ASSESSMENTS):
     paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
-    for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
+    for page_no, jpeg in enumerate(sheet_pages(sheet, root), 1):
         slots = legacy.slot_list(by_key, page_no)
         img = legacy.masked_image(jpeg, masks[page_no])
         readings, _ = legacy.read_page_in_bands(conn, img, slots)
@@ -79,7 +99,7 @@ def score(gold_answers, read):
         got = read.get(k)
         if got is None:
             missing += 1
-            details.append((k, a["child_answer"], "— no row —"))
+            details.append((k, a["child_answer"], "— no row —", "missing"))
             continue
         said = legacy.normalise_answer(got.get("child_answer", "") or "")
         want = legacy.normalise_answer(a["child_answer"] or "")
@@ -89,9 +109,16 @@ def score(gold_answers, read):
             wrong_value += 1
             # The distinction the whole bar rests on: a reading the engine STANDS BEHIND and got
             # wrong corrupts a child's graph invisibly. One it flagged costs a teacher a glance.
-            if got.get("answer_state") == "written":
+            #
+            # `blank` is stood behind exactly as `written` is. It is not "I could not read this" —
+            # it is the engine asserting the child did not answer, and it lands in the graph as a
+            # skill not attempted. The Grade 3 baseline is where that showed: its comparison item
+            # is answered with "<", the transcriber reads numbers only, and the region came back
+            # blank at full confidence on a question the child got right. Counting only `written`
+            # scored that as a quiet miss rather than the false claim it is.
+            if got.get("answer_state") in ("written", "blank"):
                 silent += 1
-            details.append((k, want or "(blank)", said or "(blank)"))
+            details.append((k, want or "(blank)", said or "(blank)", got.get("answer_state", "?")))
         if "answer_state" in got and got["answer_state"] != a["answer_state"]:
             state_wrong += 1
     total = len(gold_answers)
@@ -132,7 +159,7 @@ def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
             s = score(sheet["answers"], read(conn, sheet, root))
             for k in ("total", "exact", "wrong_value", "missing", "state_wrong", "silently_wrong"):
                 agg[k] += s[k]
-            agg["details"] += [(sheet["file"], *d) for d in s["details"]]
+            agg["details"] += [(sheet_name(sheet), *d) for d in s["details"]]
             agg["sheets"].append({"paper": sheet["paper"], "note": sheet.get("note", ""), **s})
         agg["read_exactly_right"] = round(agg["exact"] / agg["total"], 4) if agg["total"] else 0.0
         agg["silently_wrong_rate"] = round(agg["silently_wrong"] / agg["total"], 4) if agg["total"] else 0.0

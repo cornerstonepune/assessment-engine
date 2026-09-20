@@ -1,0 +1,167 @@
+{
+  "code": "G3-BASE16",
+  "title": "Cornerstone · Grade 3 — Mathematics Assessment (16 Questions, diagnostic)",
+  "band": "G3",
+  "week": "Baseline",
+  "date": "2026-08-16",
+  "_note": "The paper prints no date; 2026-08-16 is when every child's sitting was photographed. Entered from the printed page, one slot per ANSWER: Q3 asks for an expanded form, which is three numbers on one line, so it holds three slots. Q13 (a comparison symbol) and Q15 (find the mistake) are answers code cannot check from digits alone — they carry the kind that routes them to a person rather than a fabricated numeric check.",
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.085
+    },
+    {
+      "n": 2,
+      "mask": 0.085
+    }
+  ],
+  "items": [
+    {
+      "n": 1,
+      "page": 1,
+      "kind": "bare",
+      "expr": "27 + 15",
+      "question": "27 + 15 ="
+    },
+    {
+      "n": 2,
+      "page": 1,
+      "kind": "bare",
+      "rung": "R11",
+      "answer": 50,
+      "question": "What is the value of the digit 5 in 458?"
+    },
+    {
+      "n": 3,
+      "part": "a",
+      "page": 1,
+      "kind": "missing",
+      "rung": "R11",
+      "answer": 200,
+      "question": "Write 236 in expanded form:"
+    },
+    {
+      "n": 3,
+      "part": "b",
+      "page": 1,
+      "kind": "missing",
+      "rung": "R11",
+      "answer": 30,
+      "question": "Write 236 in expanded form:"
+    },
+    {
+      "n": 3,
+      "part": "c",
+      "page": 1,
+      "kind": "missing",
+      "rung": "R11",
+      "answer": 6,
+      "question": "Write 236 in expanded form:"
+    },
+    {
+      "n": 4,
+      "page": 1,
+      "kind": "bare",
+      "expr": "456 + 287",
+      "question": "456 + 287 ="
+    },
+    {
+      "n": 5,
+      "page": 1,
+      "kind": "bare",
+      "expr": "600 - 245",
+      "question": "600 - 245 ="
+    },
+    {
+      "n": 6,
+      "page": 1,
+      "kind": "bare",
+      "expr": "342 + 579",
+      "question": "342 + 579 ="
+    },
+    {
+      "n": 7,
+      "page": 1,
+      "kind": "bare",
+      "rung": "M1",
+      "expr": "6 x 4",
+      "question": "6 x 4 =",
+      "skill": "NUM.OPS.03"
+    },
+    {
+      "n": 8,
+      "page": 1,
+      "kind": "bare",
+      "rung": "M1",
+      "expr": "3 x 7",
+      "question": "3 x 7 =",
+      "skill": "NUM.OPS.03"
+    },
+    {
+      "n": 9,
+      "page": 1,
+      "kind": "bare",
+      "rung": "M1",
+      "expr": "5 x 6",
+      "question": "5 x 6 =",
+      "skill": "NUM.OPS.03"
+    },
+    {
+      "n": 10,
+      "page": 1,
+      "kind": "bare",
+      "rung": "M1",
+      "expr": "8 x 2",
+      "question": "8 x 2 =",
+      "skill": "NUM.OPS.03"
+    },
+    {
+      "n": 11,
+      "page": 1,
+      "kind": "word",
+      "expr": "350 - 128",
+      "question": "A shop had 350 pencils. 128 were sold. How many pencils are left?"
+    },
+    {
+      "n": 12,
+      "page": 1,
+      "kind": "word",
+      "rung": "M1",
+      "expr": "3 x 6",
+      "question": "There are 3 boxes with 6 pencils in each box. How many pencils are there in total?",
+      "skill": "NUM.OPS.03"
+    },
+    {
+      "n": 13,
+      "page": 1,
+      "kind": "missing",
+      "rung": "R11",
+      "answer": "<",
+      "question": "Compare using >, <, or =: 456 ___ 465"
+    },
+    {
+      "n": 14,
+      "page": 1,
+      "kind": "bare",
+      "rung": "R11",
+      "answer": 50,
+      "question": "Round 47 to the nearest 10:"
+    },
+    {
+      "n": 15,
+      "page": 2,
+      "kind": "text",
+      "rung": "X2",
+      "answer": 412,
+      "question": "Aryan solved 234 + 178 and got 302. Is he correct? If not, find his mistake and write the correct answer."
+    },
+    {
+      "n": 16,
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 75,
+      "question": "Continue the pattern: 25, 50, ___, 100."
+    }
+  ]
+}

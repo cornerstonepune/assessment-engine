@@ -51,6 +51,11 @@ def rung_for(op, a, b):
 
 
 def skill_for(rung, op=None):
+    if rung not in RUNGS:
+        # A rung added as rows and never as Python — M1, multiplication (W1 gate 3). This module
+        # maps the addition/subtraction ladder, so a paper on one of those rungs names its own
+        # skill rather than having one invented here.
+        raise ValueError(f"rung {rung!r} is off the addition/subtraction ladder; give the item a skill")
     skills = RUNGS[rung]["skills"]
     return _SKILL_FOR_OP.get(op) if op in _SKILL_FOR_OP and _SKILL_FOR_OP[op] in skills else skills[0]
 
@@ -249,10 +254,29 @@ def mark(spec, response, read):
         return "unreadable", [], working
     n = int(answer)
     want = response.get("answer")
+    if want is not None and not re.fullmatch(r"-?\d+", str(want)):
+        # The paper asks for something that is not a number — "456 [ ] 465" wants < — and the
+        # child wrote digits. Code cannot rule on that, and int() on the expected answer would
+        # crash the whole import, so it goes to a person exactly as an unreadable answer does.
+        return "needs_teacher", [], working
     if want is not None and n == int(want):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     return "wrong", codes, working
+
+
+def symbolic_slots(by_key):
+    """The slots whose answer is not a number: "456 [ ] 465" wants "<", not a value.
+
+    The paper row already knows — it is the answer the question was entered with — so the reader is
+    told rather than left to infer it from a question's wording.
+    """
+    return {
+        k
+        for k, it in by_key.items()
+        if it["spec"].get("answer") is not None
+        and not re.fullmatch(r"-?\d+", str(it["spec"]["answer"]).strip())
+    }
 
 
 def slot_list(by_key, page_no):
@@ -436,7 +460,7 @@ def import_scan(
             # because a model that does fills faint pencil with the answer it can compute (ADR 0019).
             # Measured on 45 hand-read responses: 80% exactly right with ZERO wrong readings the
             # engine stood behind, against 55-63% with about seven of them.
-            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg)
+            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg, symbolic_slots(by_key))
             flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
             summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
             for key, read in readings.items():

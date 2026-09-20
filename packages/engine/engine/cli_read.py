@@ -162,8 +162,8 @@ def read_eval_cmd(
 
     who = "Textract + geometry" if reader == "ocr" else f"legacy_extract v{version}"
     typer.echo(f"\n  {who}, {runs} run(s), {worst['total']} responses of gold\n")
-    for f, k, want, said in worst["details"]:
-        typer.echo(f"    {k:>4}  page says {want:<10} reader said {said}")
+    for _f, k, want, said, state in worst["details"]:
+        typer.echo(f"    {k:>4}  page says {want:<10} reader said {said:<10} [{state}]")
     typer.echo("\n  per sheet:")
     for i, s in enumerate(worst["sheets"], 1):
         typer.echo(

@@ -43,7 +43,11 @@ _NUM = re.compile(r"-?\d[\d,]*")
 # be right. This is a property of the PAPER, not of the sum, so reading it off does not smuggle
 # arithmetic back into the transcriber (ADR 0019). A paper that can produce negative answers must
 # say so before this holds.
-_VALUE = re.compile(r"(\d[\d,]*)\s*$")
+# The LAST number in what was read, not the number the text happens to END with. The child's
+# answer to "find the mistake" came back as "412-" — the printed answer line runs into the digits
+# and Textract reads the stroke as part of the word — and an end-anchored match found no number at
+# all there, so a page holding a correct answer was recorded as blank.
+_VALUE = re.compile(r"(\d[\d,]*)(?!.*\d)", re.S)
 _LABEL = re.compile(r"ans|answer", re.I)
 _WORDS = re.compile(r"[A-Za-z]{3,}")
 
@@ -198,13 +202,21 @@ def _tokens(s):
 
 
 def _in_order(want, got):
-    """How many of `want` appear in `got`, in order — the child's own digits sitting between them
-    does not break the match."""
-    i = 0
+    """How many of `want` appear in `got` in order, allowing gaps on BOTH sides.
+
+    The child's own digits sitting between the question's tokens never broke the match. A token the
+    page itself lost did: scanning once and advancing only on a hit means the first token that never
+    turns up stops the count dead. On a Grade 3 photograph Textract read "234 + 178" as "234 + 78" —
+    the child's answer loops over the 1 — and question 15 scored 3 of 8 instead of 7 of 8, so it
+    never anchored and every answer on that page went to a person. A longest-common-subsequence
+    count is the same measure without that cliff, and it can only ever score a line higher.
+    """
+    row = [0] * (len(want) + 1)
     for tok in got:
-        if i < len(want) and tok == want[i]:
-            i += 1
-    return i
+        prev = row[:]
+        for i, w in enumerate(want, 1):
+            row[i] = prev[i - 1] + 1 if tok == w else max(row[i - 1], prev[i])
+    return row[-1]
 
 
 def _in_box(word, box):
@@ -327,7 +339,7 @@ def _number(slot):
     return int("".join(c for c in slot if c.isdigit()) or 0)
 
 
-def answers_for(page, slots, cfg=None):
+def answers_for(page, slots, cfg=None, symbolic=()):
     """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
     Grouped by QUESTION NUMBER rather than by the line each part happened to match. Question 5 of
@@ -414,5 +426,19 @@ def answers_for(page, slots, cfg=None):
                 "answer_state": "written" if sure else "illegible",
                 "confidence": pick["confidence"],
                 "working_shown": working,
+            }
+
+    # A slot whose answer is not a number at all — "Compare using >, <, or =: 456 [ ] 465". This
+    # reader reads numbers (`value_of`), so it cannot tell a child who wrote "<" from one who wrote
+    # nothing, and "blank" is not a flag but a claim: the child did not attempt this skill. That
+    # claim went into a Grade 3 graph on a question the child got right. Whatever else is true here,
+    # this reader is not entitled to an opinion, so the answer goes to a person.
+    for slot in symbolic:
+        if slot in out:
+            out[slot] = {
+                "child_answer": "",
+                "answer_state": "illegible",
+                "confidence": 0.0,
+                "working_shown": out[slot].get("working_shown", "none"),
             }
     return out

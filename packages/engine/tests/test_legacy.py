@@ -161,7 +161,7 @@ def fake_ocr(monkeypatch, asked=None):
     monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
     monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
 
-    def answers(page, slots, cfg=None):
+    def answers(page, slots, cfg=None, symbolic=()):
         if asked is not None:
             asked.append(slots)
         return {
