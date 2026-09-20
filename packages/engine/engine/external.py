@@ -16,6 +16,7 @@ Nothing here writes evidence or invents a skill. It reads printed questions and 
 land, which is the input to a person's decision, not a substitute for it.
 """
 
+import hashlib
 import json
 
 from engine import db, render_pdf
@@ -152,3 +153,15 @@ def spend_today(conn):
         " where t.slug = %s and f.started_at::date = current_date",
         (db.tenant_slug(),),
     ).fetchone()["n"]
+
+
+def fingerprint(matches):
+    """A response's identity, for telling independent samples from one cached answer replayed.
+
+    Five runs of the matcher once came back byte-identical, billed at three input tokens for half
+    the cost of five real calls, and the stability command called that 100% stable. Perfect
+    agreement across runs is the symptom of a cache hit long before it is evidence of a steady model.
+    """
+    return hashlib.sha256(
+        json.dumps(sorted((m["n"], m["skill_code"], m["confidence"]) for m in matches)).encode()
+    ).hexdigest()

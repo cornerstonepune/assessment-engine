@@ -80,16 +80,31 @@ def read_stability(
     for a few rupees rather than a few hundred.
     """
     saved = json.loads(Path(questions_json).read_text())["questions"]
-    rates, per_q = [], {}
+    rates, per_q, fingerprints = [], {}, []
     with db.connect() as conn:
         before = external.spend_today(conn)
         for _ in range(runs):
             matches = external.match_skills(conn, saved)
             rates.append(external.rate(matches))
+            fingerprints.append(external.fingerprint(matches))
             for m in matches:
                 per_q.setdefault(m["n"], []).append((m["skill_code"], m["confidence"]))
         conn.commit()
         spent = external.spend_today(conn) - before
+
+    # A provider that serves a repeated identical request from cache returns the SAME response every
+    # time, and this command would then report perfect stability having sampled once. That happened:
+    # five runs came back byte-identical, billed at three input tokens, for half the cost of five
+    # real calls. Perfect agreement is the symptom of a cache hit, not evidence of a steady model.
+    distinct = len(set(fingerprints))
+    if runs > 1 and distinct == 1:
+        typer.echo(
+            f"\n  NOT A MEASUREMENT — all {runs} runs returned a byte-identical response."
+            "\n  That is a cached answer served repeatedly, not the model sampled independently."
+            "\n  Check flow_run.tokens_in: a cached call bills almost no input."
+            "\n  Re-run later, or after the prompt row changes, to get distinct samples."
+        )
+        raise typer.Exit(2)
 
     mapped = [r["mapped"] for r in rates]
     typer.echo(f"\n  {len(saved)} questions, {runs} runs of the matcher alone\n")
@@ -107,4 +122,4 @@ def read_stability(
             for code, conf in v:
                 seen[code or "—"] = seen.get(code or "—", 0) + 1
             typer.echo(f"    {n:>4}  " + "   ".join(f"{k} x{c}" for k, c in sorted(seen.items(), key=lambda kv: -kv[1])))
-    typer.echo(f"\n  model spend Rs {spent:.2f}")
+    typer.echo(f"\n  {distinct} distinct responses across {runs} runs   model spend Rs {spent:.2f}")

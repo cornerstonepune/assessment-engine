@@ -214,6 +214,26 @@ scenarios:
     name: no skill is created without a person, however confident the engine is
     must: a_person_approves_every_new_skill    # q10 proposed a new skill on 3 of 5 runs and matched an existing one on 2
 
+  # --- the prompt contract: rule 5 applied to the model's own output (ADR 0018) ---
+  - kind: read
+    name: every active prompt can say what it could not do
+    must: every_prompt_declares_its_resolution   # an audit invariant: no `resolution`, no ship
+  - kind: read
+    name: a page with nothing on it is an assertion, not an empty list
+    must: nothing_there_differs_from_could_not_tell   # rule 5's collapse, applied to the engine
+  - kind: read
+    name: a page holding no questions yields no questions, on every run
+    must: a_blank_page_invents_nothing         # both SOF covers invented one under v1
+  - kind: read
+    name: no prompt reports its own confidence; confidence is measured from agreement
+    must: confidence_is_measured_not_claimed
+  - kind: read
+    name: every prompt's gold set contains an input whose right answer is "I cannot"
+    must: the_eval_covers_refusals             # a prompt that never refuses was never shown able to
+  - kind: read
+    name: a repeated model call proves its samples were independent
+    must: repeated_calls_are_fingerprinted     # 5 cached replies were once reported as 100% stable
+
   # --- the rules that do not bend ---
   - kind: read
     name: the child's name is masked before any page leaves the machine

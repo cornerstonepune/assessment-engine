@@ -1572,3 +1572,47 @@ so the expensive vision half is held fixed and only the cheap text half varies.
   goal now requires the accuracy number to be the **worst of repeated runs**, not one run's luck.
   Digit transcription should be far more stable than 244-way classification — but that is a
   prediction, and the bar must not rest on it.
+
+## The cache made the stability command lie, and four patches turned out to be one defect (2026-09-20)
+
+Nimish re-ran `engine read stability` and got `100% stable, spread 0%, Rs 6.22` where the same
+command minutes earlier had given `59% stable, spread 14%, Rs 13.26`.
+
+- **His run was one response served five times, not five samples.** Check:
+  `select to_char(started_at,'HH24:MI:SS'), model, tokens_in, tokens_out, cost_inr from flow_run …`
+  → both runs served by `claude-haiku-4-5`, but the earlier run billed `in=7326` / `in=8116` with
+  output moving every pass (`986, 932, 1049, 1032, 1038`), while the later billed **`in=3`** with
+  output **exactly `1895, 933` five times over**. Independent samples of a ~1,900-token generation do
+  not repeat their token count five times running. The provider served a cached reply; the adapter
+  sets no `cache_control`, so this is upstream and outside our control.
+- **So the 59% stands and the 100% measured nothing** — and the command reported perfect stability
+  having made one distinct call, which is a confident false negative and worse than no command.
+  Fixed at the cause: `external.fingerprint` hashes each run's answer, and `read stability` refuses
+  with exit 2 when every run is byte-identical rather than calling it agreement. Re-verified:
+  `bin/engine read stability … --runs 3` → `3 distinct responses across 3 runs`, 11 questions moving.
+- **Noted, not fixed:** `flow_run.tokens_in` records only uncached input, so a cached call
+  under-reports both tokens and cost. Any cost claim drawn from `flow_run` is a floor, not a total.
+
+**Nimish, on seeing the fourth fix in a row:** *"none of this is patchwork … let's figure out a very
+core solution … The prompts need to then consider this kind of use case. When the system is not able
+to comprehend the prompt, it should exactly tell the system what to do."*
+
+He is right, and the four fixes are one defect. `question_extract` gaining a `part` field, masking
+becoming a default, conflict resolution preferring the page that holds a run of questions, and
+fingerprinting responses are four symptoms of: **the engine treats the shape of a model's reply as
+evidence of its substance.** An empty list and an unreadable page are indistinguishable to the
+caller — which is exactly the collapse rule 5 forbids for a child's answer ("blank, wrong and
+wrong-with-working are distinct everywhere") and which the engine never applied to itself.
+
+**ADR 0018** is the core solution: every prompt returns a `resolution` alongside its payload —
+`status`, what it `saw`, and an `unresolved` list whose `needs` field is a closed vocabulary the
+code branches on (`a_person`, `more_of_the_input`, `a_new_row`, `nothing`). "This page holds no
+questions" becomes an assertion the model makes rather than an absence the caller interprets, so
+inventing a question means contradicting its own `saw`. It also forbids a prompt reporting its own
+confidence — measured agreement replaces it — and requires every gold set to contain an input whose
+right answer is a refusal. All 17 prompts migrate; `engine audit` gains an invariant that an active
+prompt without `resolution` does not ship. `question_extract` v2 and `skill_match` v1, both written
+today, are the first two to migrate.
+
+- `bin/engine goal w3-read-and-graph` → `2/4 criteria · 36 scenarios short of the bar`
+- `bin/engine audit` → `12 invariants checked, 0 violations`; `pytest` → `307 passed`
