@@ -151,9 +151,17 @@ def read_eval_cmd(
     typer.echo(f"\n  {who}, {runs} run(s), {worst['total']} responses of gold\n")
     for f, k, want, said in worst["details"]:
         typer.echo(f"    {k:>4}  page says {want:<10} reader said {said}")
+    typer.echo("\n  per sheet:")
+    for i, s in enumerate(worst["sheets"], 1):
+        typer.echo(
+            f"    {i}. {s['paper']:<16} {s['exact']:>2}/{s['total']:<3} "
+            f"{s['read_exactly_right']:>6.1%}   silently wrong {s['silently_wrong']}   {s['note'][:44]}"
+        )
     typer.echo(
         f"\n  read exactly right   {worst['read_exactly_right']:.1%}   ({worst['exact']}/{worst['total']})"
         f"\n  given a row at all   {worst['responses_given_a_row']:.1%}   ({worst['missing']} missing)"
+        f"\n  SILENTLY WRONG       {worst['silently_wrong_rate']:.1%}   ({worst['silently_wrong']})"
+        f"   <- bar is 1%; the rest went to a person"
         f"\n  wrong value          {worst['wrong_value']}"
         f"\n  wrong answer_state   {worst['state_wrong']}"
     )

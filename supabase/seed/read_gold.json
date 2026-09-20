@@ -7,33 +7,315 @@
       "verified_by": "Nimish's session, by eye against the rendered page",
       "verified_on": "2026-09-20",
       "answers": [
-        {"n": 1, "part": "a", "child_answer": "155", "answer_state": "written"},
-        {"n": 1, "part": "b", "child_answer": "245", "answer_state": "written"},
-        {"n": 1, "part": "c", "child_answer": "365", "answer_state": "written"},
-        {"n": 1, "part": "d", "child_answer": "431", "answer_state": "written"},
-        {"n": 2, "part": "a", "child_answer": "374", "answer_state": "written", "note": "correct answer is 375 — the child is wrong here and the reader must say 374"},
-        {"n": 2, "part": "b", "child_answer": "534", "answer_state": "written"},
-        {"n": 2, "part": "c", "child_answer": "281", "answer_state": "written", "note": "correct answer is 381"},
-        {"n": 3, "part": "a", "child_answer": "158", "answer_state": "written"},
-        {"n": 3, "part": "b", "child_answer": "235", "answer_state": "written"},
-        {"n": 3, "part": "c", "child_answer": "346", "answer_state": "written"},
-        {"n": 3, "part": "d", "child_answer": "462", "answer_state": "written"},
-        {"n": 4, "part": "a", "child_answer": "397", "answer_state": "written", "note": "correct answer is 387"},
-        {"n": 4, "part": "b", "child_answer": "516", "answer_state": "written"},
-        {"n": 4, "part": "c", "child_answer": "384", "answer_state": "written", "note": "correct answer is 284; the working shows 284 and the answer line 384"},
-        {"n": 5, "part": "a", "child_answer": "0", "answer_state": "written", "note": "correct answer is 40"},
-        {"n": 5, "part": "b", "child_answer": "52", "answer_state": "written", "note": "correct answer is 12"},
-        {"n": 5, "part": "c", "child_answer": "72", "answer_state": "written", "note": "correct answer is 216"},
-        {"n": 6, "part": "a", "child_answer": "150", "answer_state": "written", "note": "correct answer is 50"},
-        {"n": 6, "part": "b", "child_answer": "5", "answer_state": "written"},
-        {"n": 6, "part": "c", "child_answer": "80", "answer_state": "written"},
-        {"n": 6, "part": "d", "child_answer": "30", "answer_state": "written"},
-        {"n": 7, "part": "a", "child_answer": "282", "answer_state": "written", "note": "the estimate"},
-        {"n": 7, "part": "b", "child_answer": "282", "answer_state": "written", "note": "the total; correct answer is 272"},
-        {"n": 8, "part": "a", "child_answer": "1190", "answer_state": "written", "note": "correct answer is 336 — the child ADDED where the question subtracts, which is the diagnosis this system exists to find"},
-        {"n": 8, "part": "b", "child_answer": "1228", "answer_state": "written", "note": "correct answer is 725; the child carried their own wrong 1190 forward"},
-        {"n": 9, "part": "", "child_answer": "", "answer_state": "blank"},
-        {"n": 10, "part": "", "child_answer": "", "answer_state": "blank"}
+        {
+          "n": 1,
+          "part": "a",
+          "child_answer": "155",
+          "answer_state": "written"
+        },
+        {
+          "n": 1,
+          "part": "b",
+          "child_answer": "245",
+          "answer_state": "written"
+        },
+        {
+          "n": 1,
+          "part": "c",
+          "child_answer": "365",
+          "answer_state": "written"
+        },
+        {
+          "n": 1,
+          "part": "d",
+          "child_answer": "431",
+          "answer_state": "written"
+        },
+        {
+          "n": 2,
+          "part": "a",
+          "child_answer": "374",
+          "answer_state": "written",
+          "note": "correct answer is 375 — the child is wrong here and the reader must say 374"
+        },
+        {
+          "n": 2,
+          "part": "b",
+          "child_answer": "534",
+          "answer_state": "written"
+        },
+        {
+          "n": 2,
+          "part": "c",
+          "child_answer": "281",
+          "answer_state": "written",
+          "note": "correct answer is 381"
+        },
+        {
+          "n": 3,
+          "part": "a",
+          "child_answer": "158",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "b",
+          "child_answer": "235",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "c",
+          "child_answer": "346",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "d",
+          "child_answer": "462",
+          "answer_state": "written"
+        },
+        {
+          "n": 4,
+          "part": "a",
+          "child_answer": "397",
+          "answer_state": "written",
+          "note": "correct answer is 387"
+        },
+        {
+          "n": 4,
+          "part": "b",
+          "child_answer": "516",
+          "answer_state": "written"
+        },
+        {
+          "n": 4,
+          "part": "c",
+          "child_answer": "384",
+          "answer_state": "written",
+          "note": "correct answer is 284; the working shows 284 and the answer line 384"
+        },
+        {
+          "n": 5,
+          "part": "a",
+          "child_answer": "0",
+          "answer_state": "written",
+          "note": "correct answer is 40"
+        },
+        {
+          "n": 5,
+          "part": "b",
+          "child_answer": "52",
+          "answer_state": "written",
+          "note": "correct answer is 12"
+        },
+        {
+          "n": 5,
+          "part": "c",
+          "child_answer": "72",
+          "answer_state": "written",
+          "note": "correct answer is 216"
+        },
+        {
+          "n": 6,
+          "part": "a",
+          "child_answer": "150",
+          "answer_state": "written",
+          "note": "correct answer is 50"
+        },
+        {
+          "n": 6,
+          "part": "b",
+          "child_answer": "5",
+          "answer_state": "written"
+        },
+        {
+          "n": 6,
+          "part": "c",
+          "child_answer": "80",
+          "answer_state": "written"
+        },
+        {
+          "n": 6,
+          "part": "d",
+          "child_answer": "30",
+          "answer_state": "written"
+        },
+        {
+          "n": 7,
+          "part": "a",
+          "child_answer": "282",
+          "answer_state": "written",
+          "note": "the estimate"
+        },
+        {
+          "n": 7,
+          "part": "b",
+          "child_answer": "282",
+          "answer_state": "written",
+          "note": "the total; correct answer is 272"
+        },
+        {
+          "n": 8,
+          "part": "a",
+          "child_answer": "1190",
+          "answer_state": "written",
+          "note": "correct answer is 336 — the child ADDED where the question subtracts, which is the diagnosis this system exists to find"
+        },
+        {
+          "n": 8,
+          "part": "b",
+          "child_answer": "1228",
+          "answer_state": "written",
+          "note": "correct answer is 725; the child carried their own wrong 1190 forward"
+        },
+        {
+          "n": 9,
+          "part": "",
+          "child_answer": "",
+          "answer_state": "blank"
+        },
+        {
+          "n": 10,
+          "part": "",
+          "child_answer": "",
+          "answer_state": "blank"
+        }
+      ]
+    },
+    {
+      "file": "G2/WhatsApp Scan 2026-09-18 at 11.57.25.pdf",
+      "paper": "G2-WORD-SEP17",
+      "verified_by": "Nimish's session, by eye against the page",
+      "verified_on": "2026-09-20",
+      "note": "Child A. Writes 'ans=NN'. Q4 answers 63, the intermediate, where 51 is right; the teacher queried it.",
+      "answers": [
+        {
+          "n": 1,
+          "part": "",
+          "child_answer": "43",
+          "answer_state": "written"
+        },
+        {
+          "n": 2,
+          "part": "",
+          "child_answer": "26",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "",
+          "child_answer": "64",
+          "answer_state": "written"
+        },
+        {
+          "n": 4,
+          "part": "",
+          "child_answer": "63",
+          "answer_state": "written"
+        },
+        {
+          "n": 5,
+          "part": "",
+          "child_answer": "32",
+          "answer_state": "written"
+        },
+        {
+          "n": 6,
+          "part": "",
+          "child_answer": "72",
+          "answer_state": "written"
+        }
+      ]
+    },
+    {
+      "file": "G2/WhatsApp Scan 2026-09-18 at 11.52.41.pdf",
+      "paper": "G2-WORD-SEP17",
+      "verified_by": "Nimish's session, by eye against the page",
+      "verified_on": "2026-09-20",
+      "note": "Child B. Writes 'Answer=NN'. Same Q4 slip; the teacher wrote 'should half!!' beside it.",
+      "answers": [
+        {
+          "n": 1,
+          "part": "",
+          "child_answer": "43",
+          "answer_state": "written"
+        },
+        {
+          "n": 2,
+          "part": "",
+          "child_answer": "26",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "",
+          "child_answer": "64",
+          "answer_state": "written"
+        },
+        {
+          "n": 4,
+          "part": "",
+          "child_answer": "63",
+          "answer_state": "written"
+        },
+        {
+          "n": 5,
+          "part": "",
+          "child_answer": "32",
+          "answer_state": "written"
+        },
+        {
+          "n": 6,
+          "part": "",
+          "child_answer": "72",
+          "answer_state": "written"
+        }
+      ]
+    },
+    {
+      "file": "G2/WhatsApp Scan 2026-09-18 at 11.53.41.pdf",
+      "paper": "G2-WORD-SEP17",
+      "verified_by": "Nimish's session, by eye against the page",
+      "verified_on": "2026-09-20",
+      "note": "Child C. Answers in FULL SENTENCES with no label at all — 'Simran took 43 total apples.' Q2 is the child's 25 with the educator's 26 written beside it; the sentence is the child's. Q4 is 51, the only one of the three to finish the two-step problem.",
+      "answers": [
+        {
+          "n": 1,
+          "part": "",
+          "child_answer": "43",
+          "answer_state": "written"
+        },
+        {
+          "n": 2,
+          "part": "",
+          "child_answer": "25",
+          "answer_state": "written"
+        },
+        {
+          "n": 3,
+          "part": "",
+          "child_answer": "64",
+          "answer_state": "written"
+        },
+        {
+          "n": 4,
+          "part": "",
+          "child_answer": "51",
+          "answer_state": "written"
+        },
+        {
+          "n": 5,
+          "part": "",
+          "child_answer": "32",
+          "answer_state": "written"
+        },
+        {
+          "n": 6,
+          "part": "",
+          "child_answer": "72",
+          "answer_state": "written"
+        }
       ]
     }
   ]

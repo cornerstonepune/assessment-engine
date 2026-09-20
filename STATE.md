@@ -1799,3 +1799,46 @@ are scored by one command against the same hand-read page.
   and the whole remaining gap is that one question shape on one sheet.
 - Suite **319 passed** (11 in `tests/test_ocr.py`, no network — the skew case and the mixed-line
   case are both pinned). `engine audit` → 12 invariants, 0 violations. Textract spend: **Rs 0.9**.
+
+## Three children, four sheets, 45 hand-verified responses (2026-09-20)
+
+Nimish: "do this over 2-3 full student profiles." One sheet proved nothing — the four rules of the
+previous section could all have been tuned to one paper. Three children who each sat the same papers,
+every answer read off the page by eye and recorded as what the CHILD wrote.
+
+`bin/engine read eval --reader ocr`, per sheet:
+
+| sheet | exact | silently wrong | the child's style |
+|---|---|---|---|
+| `G2-CAM-A` | 23/27 (85.2%) | **0** | grid boxes with printed `Answer:` labels |
+| `G2-WORD-SEP17` child A | 4/6 (66.7%) | **0** | writes `ans=43` beside the working |
+| `G2-WORD-SEP17` child B | 5/6 (83.3%) | 1 | writes `Answer=43` |
+| `G2-WORD-SEP17` child C | 3/6 (50.0%) | **0** | **full sentences, no label at all** |
+| **total** | **35/45 (77.8%)** | **1 (2.2%)** | 100% given a row |
+
+- **Generalising cost three more rules, and each was a real defect the single sheet had hidden.**
+  - *A label is a label, whoever wrote it.* The paper prints `Answer:` beside a box; a child writes
+    `ans=43` beside their working. Rejecting anything not purely numeric threw away every
+    child-written label and fell back to the column arithmetic above it. Child A and B: 0/6 → 4/6
+    and 5/6.
+  - *A number in a sentence is a declared answer.* Child C answers every question in prose —
+    "Simran took 43 total apples." — with no label anywhere. A handwritten line with words on it is
+    a child stating an answer; digits stacked in a column are working, and the page says which by
+    whether the line has words.
+  - *A question's region must not reach up into the one before it.* The region started a full
+    line-height above its anchor, and a word problem wraps, so its bounding box is two lines tall.
+    Every region therefore held the previous question's answer as well as its own. Child C, who
+    writes her sentences in the gap between questions, scored **0/6** until this was fixed: every
+    region held two answers and neither could be told from the other. 0/6 → 3/6.
+
+- **`silently_wrong` is now what the eval leads with**, because it is the bar that protects a child:
+  a reading the engine stands behind and got wrong corrupts a graph invisibly; one it flagged costs
+  a teacher a glance. **1 of 45 = 2.2%, against a 1% bar** — close, and not met.
+  `read_exactly_right` is 77.8% against 97%. Both numbers are honest and both have room.
+
+- **What the remaining 9 flagged responses are**: Q7/Q8's free-response boxes on the Cambridge sheet
+  (4), and word problems where the child's sentence and their working were merged by the OCR into
+  one line holding two different numbers (5). None is a new class; all reach a person.
+
+- Suite **319 passed**, `engine audit` → 12 invariants, 0 violations. Spend to date **Rs 117.59**
+  all-in, of which Textract is a few rupees; the rest was the model experiments this replaced.

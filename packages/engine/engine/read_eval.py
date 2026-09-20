@@ -40,12 +40,14 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
     for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
-        img = legacy.masked_image(jpeg, masks[page_no])
         slots = {
             k: it["spec"]["question"]
             for k, it in by_key.items()
             if it["spec"].get("page", 1) == page_no
         }
+        if not slots:
+            continue  # a blank back page, or a scan longer than the paper: nothing to look for
+        img = legacy.masked_image(jpeg, masks.get(page_no, 0))
         out.update(ocr.answers_for(ocr.read(legacy._jpeg(img), cli), slots))
     return out
 
@@ -71,7 +73,7 @@ def read_once(conn, sheet, root=ASSESSMENTS):
 def score(gold_answers, read):
     """→ per-response counts. `missing` is the one that hides: a response with no row at all cannot
     be corrected by anyone, because nobody is shown it."""
-    exact = wrong_value = missing = state_wrong = 0
+    exact = wrong_value = missing = state_wrong = silent = 0
     details = []
     for a in gold_answers:
         k = _key(a)
@@ -86,6 +88,10 @@ def score(gold_answers, read):
             exact += 1
         else:
             wrong_value += 1
+            # The distinction the whole bar rests on: a reading the engine STANDS BEHIND and got
+            # wrong corrupts a child's graph invisibly. One it flagged costs a teacher a glance.
+            if got.get("answer_state") == "written":
+                silent += 1
             details.append((k, want or "(blank)", said or "(blank)"))
         if "answer_state" in got and got["answer_state"] != a["answer_state"]:
             state_wrong += 1
@@ -96,6 +102,8 @@ def score(gold_answers, read):
         "wrong_value": wrong_value,
         "missing": missing,
         "state_wrong": state_wrong,
+        "silently_wrong": silent,
+        "silently_wrong_rate": round(silent / total, 4) if total else 0.0,
         "read_exactly_right": round(exact / total, 4) if total else 0.0,
         "responses_given_a_row": round((total - missing) / total, 4) if total else 0.0,
         "details": details,
@@ -111,13 +119,18 @@ def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
     read = read_once_ocr if reader == "ocr" else read_once
     per_run = []
     for _ in range(runs):
-        agg = {"total": 0, "exact": 0, "wrong_value": 0, "missing": 0, "state_wrong": 0, "details": []}
+        agg = {"total": 0, "exact": 0, "wrong_value": 0, "missing": 0, "state_wrong": 0,
+               "silently_wrong": 0, "details": [], "sheets": []}
         for sheet in gold_sheets():
             s = score(sheet["answers"], read(conn, sheet, root))
-            for k in ("total", "exact", "wrong_value", "missing", "state_wrong"):
+            for k in ("total", "exact", "wrong_value", "missing", "state_wrong", "silently_wrong"):
                 agg[k] += s[k]
             agg["details"] += [(sheet["file"], *d) for d in s["details"]]
+            agg["sheets"].append({"paper": sheet["paper"], "note": sheet.get("note", ""), **s})
         agg["read_exactly_right"] = round(agg["exact"] / agg["total"], 4) if agg["total"] else 0.0
+        agg["silently_wrong_rate"] = (
+            round(agg["silently_wrong"] / agg["total"], 4) if agg["total"] else 0.0
+        )
         agg["responses_given_a_row"] = (
             round((agg["total"] - agg["missing"]) / agg["total"], 4) if agg["total"] else 0.0
         )

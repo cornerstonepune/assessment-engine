@@ -21,6 +21,17 @@ import boto3
 PROFILE = "cornerstone"
 REGION = "ap-south-1"
 _NUM = re.compile(r"-?\d[\d,]*")
+# What the child wrote, as a number: "ans=43" -> "43", "43." -> "43", "1,264" -> "1264". A child
+# labels their own answer as often as a paper does, and rejecting anything that is not purely
+# numeric threw away every one of those and fell back to the column working above it.
+_VALUE = re.compile(r"(-?\d[\d,]*)\s*$")
+_LABEL = re.compile(r"ans|answer", re.I)
+_WORDS = re.compile(r"[A-Za-z]{3,}")
+
+
+def value_of(text):
+    m = _VALUE.search(text.strip().rstrip("."))
+    return m.group(1).replace(",", "") if m else None
 
 
 def client(profile=PROFILE, region=REGION):
@@ -180,26 +191,38 @@ def _handwriting_near(page, box):
     paper prints its boxes inline instead, the child's digits sit on the question's own line and the
     same region search finds them.
     """
-    hand = [
-        w
-        for w in page["words"]
-        if w["hand"] and _NUM.fullmatch(w["text"].strip()) and _in_box(w, box)
-    ]
-    # A line mixing the paper's print with the child's writing is a fill-in box or a labelled answer;
-    # a line of pure handwriting is working. Prefer the former WHERE THERE IS ONE — that is what
-    # separates Q5's box-fills from the scribbles beside them. But a free-response box has no printed
-    # text on the answer's line at all, and there the handwriting is the answer, so this ranks rather
-    # than filters.
+    hand = [w for w in page["words"] if w["hand"] and value_of(w["text"]) and _in_box(w, box)]
+
+    # Ranked, not filtered — each rule applies only where the page offers it.
+    #
+    # 1. A LABELLED answer wins outright. The paper prints "Answer:" beside a box; a child writes
+    #    "ans=43" beside their working. Same statement — this is my final answer — whoever wrote it.
+    # 2. Then a number sitting in a SENTENCE. One child answers every question in words — "Simran
+    #    took 43 total apples." — with no label anywhere, and scored 0 of 6 until this rule existed.
+    #    A child writing prose is declaring an answer; digits stacked in a column are working. The
+    #    page says which is which, by whether the line has words on it.
+    # 3. Then a line mixing print and handwriting: a fill-in box rather than the scribbles beside it.
+    # 4. Failing all three, the region is a free-response box and the handwriting in it is the answer.
+    labelled = [w for w in hand if _LABEL.search(w.get("line_text") or "")]
+    worded = [w for w in hand if _WORDS.search(w.get("line_text") or "")]
     mixed = [w for w in hand if w.get("mixed_line")]
-    if mixed:
-        hand = mixed
-    # Where the paper prints an "Answer:" label, that box is the final answer — not the number the
-    # child left in the working above it, and not their first attempt at the same line (1a reads
-    # "148 +7 = 148" because the child copied the operand before working down).
-    labelled = [w for w in hand if "answer" in (w.get("line_text") or "").lower()]
-    if labelled:
-        hand = labelled
+    hand = labelled or worded or mixed or hand
     return _reading_order(hand)
+
+
+def _dedupe(words):
+    """Collapse neighbouring candidates that say the same thing.
+
+    Textract merges a child's answer sentence with the working beside it — "Simran took 43 total
+    apples- 43" is one line holding two 43s — and two candidates where one answer is expected reads
+    as a region not understood, so it went to a person. Two readings that AGREE are not ambiguity;
+    two that disagree still are, and those still go to a person.
+    """
+    out = []
+    for w in words:
+        if not out or value_of(out[-1]["text"]) != value_of(w["text"]):
+            out.append(w)
+    return out
 
 
 def _reading_order(words, row=0.02):
@@ -259,12 +282,18 @@ def answers_for(page, slots):
         below = next((y for y, other in ordered if y > anchor["y"] + 1e-9), None)
         mine = [anchors[s] for s in members if anchors[s]]
         box = {
-            "top": anchor["y"] - anchor["h"],
+            # A hair above the question's own line, never a whole line-height above it. A word
+            # problem wraps, so its bounding box is two lines tall, and subtracting that height made
+            # every region reach up into the one before — question 2 then held question 1's answer
+            # as well as its own, and one child who writes her answers as sentences between the
+            # questions scored 0 of 6 because every region held two answers and none could be told
+            # apart from the other.
+            "top": anchor["y"] - 0.005,
             "bottom": below if below is not None else anchor["y"] + 0.095,
             "left": min(a["x"] for a in mine) - 0.085,
             "right": max(a["x"] + max(a["w"], 0.085) for a in mine) + 0.085,
         }
-        candidates = _handwriting_near(page, box)
+        candidates = _dedupe(_handwriting_near(page, box))
         if len(candidates) != len(members):
             # The region was not understood. Assigning positionally would hand a child's graph an
             # answer chosen by an off-by-one, so these go to a person: a flagged unknown costs a
@@ -274,7 +303,7 @@ def answers_for(page, slots):
             continue
         for slot, pick in zip(members, candidates):
             out[slot] = {
-                "child_answer": pick["text"].replace(",", ""),
+                "child_answer": value_of(pick["text"]),
                 "answer_state": "written",
                 "confidence": pick["confidence"],
             }
