@@ -1709,3 +1709,46 @@ should have come first.
 - **Open and Nimish's:** which vendor. `gcloud` and `aws` are on this machine, no Azure CLI, no OCR
   credential in `.env`. Cost is not a constraint — Textract is ~$15/1,000 pages, so the whole
   118-page corpus is about ₹150.
+
+## Textract reads the page the model could not (2026-09-20)
+
+ADR 0019 built: `adapters/ocr.py`, Ring C, one external service in one file. Nimish created an IAM
+user `cornerstone-reader` with a two-action read-only Textract policy, on the existing JSL account
+(389517402998, ap-south-1 — the same region as the database), configured locally as the `cornerstone`
+profile. No secret is in the repo or in git.
+
+- **Same page, same 17 answers, scored against what a person read by eye:**
+
+  | reader | exactly right | silently wrong | sent to a person |
+  |---|---|---|---|
+  | `legacy_extract` (Haiku vision), whole sheet | 63.0% | ~7 | 0 |
+  | **Textract + geometry** | **82.4%** (14/17) | **0** | 3 |
+
+  **Every one of the 14 ordinary answer boxes is exactly right.** The three that are not are Q5's
+  inline fill-in boxes, and all three come back flagged rather than guessed.
+
+- **`silently_wrong_at_most: 0.01` is met — at zero.** That is the bar that protects a child's graph,
+  and it is met for the reason ADR 0019 predicted: Textract does not know that 425 − 38 = 387, so it
+  cannot write 387 where the child wrote 397. The model's single worst failure is now impossible
+  rather than merely rarer. `read_exactly_right: 0.97` is not met (0.824) and the whole gap is one
+  question shape.
+
+- **The confidence is real.** `2a` — the `374` that v2 read as `375` and a crop read as `874` — came
+  back correct at 99.7%, and the genuinely hard `3b` at 61.0%. Calibrated, per word, from the engine
+  rather than claimed by it: exactly what ADR 0018 says a model cannot do about itself, and what the
+  approval queue needs.
+
+- **The geometry, and what each rule cost to learn** (`tests/test_ocr.py`, seven cases, no network):
+  - *Handwriting only.* Textract tags every word `HANDWRITING` or `PRINTED` — 91 and 157 on this
+    page. Without it the printed `452` inside "452 = 400 + [ ] + 12" was returned as a child's answer.
+  - *The region is as wide as its question.* A grid question sits in one of four boxes ~0.19 apart,
+    so a fixed 0.13 column reached the neighbour and 1a's `155` beat 1b's `245` on a rounding tie;
+    narrowing it to 0.085 then made Q5's boxes — 0.12 right of where their question starts —
+    unreachable. The printed line's own width says which kind it is.
+  - *A labelled "Answer:" box beats a number left in the working.* On 4c the working shows `284` and
+    the answer line `384`; the paper's own label says which the child stands behind.
+  - *A region that does not add up goes to a person.* Three printed boxes and two numbers found
+    means the region was not understood, and assigning positionally would hand a graph an answer
+    chosen by an off-by-one. This is why the silently-wrong count is 0 and not 1.
+
+- Suite: **314 passed**. Cost of the whole exercise: **Rs 0.18** of Textract (~$1.50/1,000 pages).
