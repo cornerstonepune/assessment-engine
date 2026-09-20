@@ -220,6 +220,11 @@ def test_two_classes_assembled_at_the_same_moment_both_finish():
         except Exception as e:  # noqa: BLE001 — the test reports whatever it was
             errors.append(e)
 
+    # Cleaned up by the ids this run created, never by its section name: two children from an
+    # earlier version of this test, written before the per-run section existed, sat `active` in the
+    # live roster for a day because a section-scoped cleanup cannot match a section it no longer
+    # uses. The ids are known here and cannot drift.
+    made: list[str] = []
     with db.connect() as setup:
         tenant = setup.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
         for i in (1, 2):
@@ -227,6 +232,7 @@ def test_two_classes_assembled_at_the_same_moment_both_finish():
                 "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,'G2') returning id",
                 (tenant, str(i), section),
             ).fetchone()
+            made.append(row["id"])
             setup.execute(
                 "insert into pii.child (tenant_id, child_id, first_name) values (%s,%s,%s)",
                 (tenant, row["id"], f"Concurrent {i}"),
@@ -241,5 +247,9 @@ def test_two_classes_assembled_at_the_same_moment_both_finish():
         assert not errors, f"concurrent week builds failed: {errors}"
     finally:
         with db.connect() as done:
-            done.execute("update child set active = false where section = %s", (section,))
+            done.execute("update child set active = false where id = any(%s)", (made,))
             done.commit()
+            left = done.execute(
+                "select count(*) as n from child where id = any(%s) and active", (made,)
+            ).fetchone()["n"]
+        assert left == 0, f"{left} test children left active in the roster"

@@ -60,12 +60,15 @@ is the work list: **14 distinct papers, 4 entered (1 proven wrong, 2 unchecked),
 4. **Then** build the `kind: read` runner (`engine/scenarios_read.py`), `engine read accuracy`, and
    `n8n/workflows/f3-read-and-graph.json` — the three things W3's goal names as missing.
 
-**Blocked, needs a session that can write to the database:** two test children (`Concurrent 1`,
-`Concurrent 2`, bare `CONCURSEC` section) are still `active`, so the roster reads 18 where 16 are
-real. This session's sandbox refused the update and then blocked `psql` entirely. Fix:
-`update child set active = false where section = 'CONCURSEC' and active` (expect `UPDATE 2`).
-Root cause is recorded in `STATE.md`; the current test is not at fault, these predate its per-run
-section. `engine audit` should grow an invariant over the roster so this cannot recur unseen.
+**Fixed this session, not carried:** the two test children left active in the roster. Nimish ran
+the deactivation (`UPDATE 2`); the roster now reads `G2|11`, `G3|5` — 16 active, matching disk. The
+cause was a cleanup keyed on a section name that drifted, so the concurrency test now cleans up by
+the ids it created and asserts none survives. Suite `301 passed`, `engine audit` `0 violations`.
+
+**Still open, Nimish's call:** `child.section` is free text with no section table, which is what let
+a test invent a section and leave it live. No audit invariant was added, because with sections as
+free text it could only pattern-match on a test's name — a fabricated check, which the traps below
+forbid. The real fix is a `section` table and a migration. Now, or after W3's gate 1?
 
 ## Carried over — Nimish's calls, not blockers
 

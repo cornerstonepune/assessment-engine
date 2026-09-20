@@ -1453,5 +1453,21 @@ so make sure that you are not missing out on anything." Counting from disk rathe
   (`Modify Shared Resources`), and `psql` was blocked for the rest of the session afterwards.
   The fix, for a session that can write: `update child set active = false where section =
   'CONCURSEC' and active` → expect `UPDATE 2`, then `select count(*) from child where active` → `16`.
-  The deeper cause is that `engine audit` has no invariant over the roster; one that refuses an
-  active child in a section the roster does not know would have caught this the day it happened.
+  **Fixed 2026-09-20.** Nimish ran the deactivation; `select section, count(*) from child where
+  active group by section` → `G2|11`, `G3|5` — 16 active children, matching the 16 folders on disk.
+
+- **And the test can no longer leave orphans, whatever its section is called.** The band-aid was
+  deactivating two rows; the cause was a cleanup keyed on a name that can drift. It now cleans up by
+  the ids the run created — which are known at insert time and cannot drift — and asserts none is
+  left active, so the test fails rather than silently leaking. Check: `pytest
+  tests/test_week.py::test_two_classes_assembled_at_the_same_moment_both_finish` → `1 passed`, then
+  the roster query again → still `G2|11`, `G3|5`. Suite `301 passed`, `engine audit` → `12
+  invariants checked, 0 violations`.
+
+- **The structural gap underneath is still open, and deliberately not papered over.** `child.section`
+  is free text (`ring_a.sql:247`) with no section table, which is what let a test invent `CONCURSEC`
+  and leave it live. CLAUDE.md rule 1 says structure is rows, so sections should be rows too. No
+  invariant was added to `engine audit`, because with sections as free text any such check would
+  have to pattern-match on a test's name — a fabricated check standing in for a real one, which is
+  the trap `HANDOFF.md` already names. The honest fix is a `section` table and a migration; it is
+  Nimish's call whether that happens now or after W3's gate 1.
