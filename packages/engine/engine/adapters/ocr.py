@@ -17,6 +17,36 @@ a teacher instead of into a child's graph.
 import re
 
 import boto3
+import cv2
+import numpy as np
+
+# Textract's synchronous call refuses an image over 5 MB with `UnsupportedDocumentException`, which
+# names neither the size nor the limit. Rendering a page at 250 dpi crosses it. The adapter keeps
+# itself inside the limit rather than leaving every caller to discover it: re-encode at falling
+# quality, then scale down, so a higher-resolution render degrades instead of failing.
+MAX_BYTES = 5_000_000
+# Textract also caps the pixel dimensions, and the error names neither the limit nor which of the
+# two was exceeded. A WhatsApp scan is already a 4,575 x 6,782 photograph before any render, so a
+# higher-dpi render of one crosses this long before it crosses the byte limit.
+MAX_SIDE = 10_000
+
+# Below this, the engine does not stand behind what it read — the reading is kept, flagged, and a
+# person decides. Chosen from a measured grid of render resolution against this threshold:
+#
+#   150 dpi, floor off  88.9% exact  2.2% silently wrong
+#   150 dpi, floor 70   80.0% exact  0.0% silently wrong   <- shipped
+#   250 dpi, floor off  91.1% exact  4.4% silently wrong
+#   250 dpi, floor 70   80.0% exact  2.2% silently wrong
+#
+# A higher render finds more numbers, which raises exact reads AND gives the single-answer tie-break
+# more wrong things to choose confidently. The two bars pull against each other and no setting meets
+# both; this one meets the bar that protects a child's graph and sends the rest to a teacher.
+# Measured: a child's "64" came back as
+# "-64" — a stray mark taken for a minus sign — at 60% confidence, and it was the only reading in a
+# 45-response gold set that was wrong while claiming to be right. The engine had said it was unsure
+# and nothing listened. Textract's confidence is calibrated, unlike a model's opinion of itself
+# (ADR 0018), so it can be trusted as a threshold rather than as a boast.
+MIN_CONFIDENCE = 70.0
 
 PROFILE = "cornerstone"
 REGION = "ap-south-1"
@@ -24,7 +54,14 @@ _NUM = re.compile(r"-?\d[\d,]*")
 # What the child wrote, as a number: "ans=43" -> "43", "43." -> "43", "1,264" -> "1264". A child
 # labels their own answer as often as a paper does, and rejecting anything that is not purely
 # numeric threw away every one of those and fell back to the column working above it.
-_VALUE = re.compile(r"(-?\d[\d,]*)\s*$")
+# No minus. Every answer on these papers is a count — apples, birds, marbles — and primary
+# addition and subtraction is set so the answer is never negative. A leading "-" is therefore a
+# stray pencil mark or an operator from the working alongside, and it was exactly that: a child's
+# "64" came back "-64", the only reading in a 45-response gold set that was wrong while claiming to
+# be right. This is a property of the PAPER, not of the sum, so reading it off does not smuggle
+# arithmetic back into the transcriber (ADR 0019). A paper that can produce negative answers must
+# say so before this holds.
+_VALUE = re.compile(r"(\d[\d,]*)\s*$")
 _LABEL = re.compile(r"ans|answer", re.I)
 _WORDS = re.compile(r"[A-Za-z]{3,}")
 
@@ -63,8 +100,26 @@ def read(image_bytes, cli=None):
     `x` and `y` are fractions of the page, so the same rules hold on a 200-dpi render and a photo.
     """
     cli = cli or client()
-    r = cli.detect_document_text(Document={"Bytes": image_bytes})
+    r = cli.detect_document_text(Document={"Bytes": fit(image_bytes)})
     return assemble(r["Blocks"])
+
+
+def fit(image_bytes, limit=MAX_BYTES, max_side=MAX_SIDE):
+    """An image Textract will accept, losing as little of it as possible."""
+    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+    side = max(img.shape[:2])
+    if side > max_side:
+        img = cv2.resize(img, None, fx=max_side / side, fy=max_side / side, interpolation=cv2.INTER_AREA)
+        image_bytes = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 85])[1].tobytes()
+    if len(image_bytes) <= limit:
+        return image_bytes
+    for quality in (85, 70, 55):
+        ok, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, quality])
+        if ok and buf.nbytes <= limit:
+            return buf.tobytes()
+    scale = (limit / buf.nbytes) ** 0.5
+    small = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    return cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])[1].tobytes()
 
 
 def assemble(blocks):
@@ -294,6 +349,12 @@ def answers_for(page, slots):
             "right": max(a["x"] + max(a["w"], 0.085) for a in mine) + 0.085,
         }
         candidates = _dedupe(_handwriting_near(page, box))
+        if len(members) == 1 and len(candidates) > 1:
+            # One answer asked for, several numbers in the region: the child's working and then
+            # their answer. A child writes the answer AFTER the working, so the last number in
+            # reading order is the one they stood behind. Only for a single-answer question —
+            # where a question prints several boxes, position decides and guessing is not allowed.
+            candidates = candidates[-1:]
         if len(candidates) != len(members):
             # The region was not understood. Assigning positionally would hand a child's graph an
             # answer chosen by an off-by-one, so these go to a person: a flagged unknown costs a
@@ -302,9 +363,10 @@ def answers_for(page, slots):
                 out[slot] = {"child_answer": "", "answer_state": "illegible", "confidence": 0.0}
             continue
         for slot, pick in zip(members, candidates):
+            sure = pick["confidence"] >= MIN_CONFIDENCE
             out[slot] = {
-                "child_answer": value_of(pick["text"]),
-                "answer_state": "written",
+                "child_answer": value_of(pick["text"]) if sure else "",
+                "answer_state": "written" if sure else "illegible",
                 "confidence": pick["confidence"],
             }
     return out

@@ -1842,3 +1842,56 @@ every answer read off the page by eye and recorded as what the CHILD wrote.
 
 - Suite **319 passed**, `engine audit` → 12 invariants, 0 violations. Spend to date **Rs 117.59**
   all-in, of which Textract is a few rupees; the rest was the model experiments this replaced.
+
+## What it would take to reach 97%, measured rather than hoped (2026-09-20)
+
+Nimish: "so do we have clarity on how we get the read exactly right answer to the threshold we
+need." Yes, and the clarity is that **tuning will not get there.**
+
+- **Two fixes moved the frontier, and both were real defects rather than knob-turning:**
+  - *No minus sign.* A child's `64` came back `-64` — a stray mark read as an operator — and it was
+    the only reading in the set that was wrong while claiming to be right. Every answer on these
+    papers is a count and primary arithmetic is set so none is negative, so a leading `-` is a mark,
+    not a value. That is a property of the PAPER, not of the sum, so reading it off smuggles no
+    arithmetic back into the transcriber. 77.8% → 80.0%, and the silent error gone.
+  - *The child's final answer comes after their working.* Where a question asks for one answer and
+    the region holds several numbers, the last in reading order is the one they stood behind. Only
+    for single-answer questions: where a paper prints several boxes, position decides and guessing
+    is not allowed. Children A and B went to **6/6**. 80.0% → 88.9%.
+
+- **Then the frontier, measured as a grid of render resolution against the confidence floor:**
+
+  | render | floor | exact | silently wrong |
+  |---|---|---|---|
+  | 150 dpi | off | 88.9% | 2.2% |
+  | **150 dpi** | **70** | **80.0%** | **0.0%** ← shipped |
+  | 150 dpi | 85 | 73.3% | 0.0% |
+  | 250 dpi | off | **91.1%** | 4.4% |
+  | 250 dpi | 70 | 80.0% | 2.2% |
+  | 250 dpi | 85 | 73.3% | 0.0% |
+
+  A higher render finds more numbers, which raises exact reads **and** hands the single-answer
+  tie-break more wrong numbers to choose confidently. The two bars pull against each other.
+  **No setting meets both.** Shipped is the one that protects the child's graph.
+
+- **The 1% bar cannot be measured on 45 responses.** The smallest non-zero rate this gold set can
+  express is 1/45 = 2.2%. The goal file already says `gold_responses_min: 300` for exactly this
+  reason, and 45 is where we are. More gold is not admin — it is the only way the bar becomes a
+  measurement rather than a coin flip.
+
+- **The nine that remain are two named causes, not a long tail:**
+  1. **Free-response boxes** (4 of 9, all on `G2-CAM-A` q7 and q8): the child's whole column method
+     fills the box and nothing on the page marks which number is final. A rule is possible — the
+     number under the rule line — but untested. The honest alternative is a model that never reads
+     digits and only *chooses* among the numbers OCR already read, which cannot hallucinate an
+     answer because it is picking from a list.
+  2. **Faint pencil read at low confidence** (the rest): genuinely at the engine's limit. Image
+     preparation before Textract — contrast, deskew, binarisation — is the untried lever, and
+     nothing here has tested it.
+
+- **Also fixed, found by the DPI sweep:** Textract refuses an image over 5 MB *or* over 10,000 px on
+  a side with `UnsupportedDocumentException`, naming neither the limit nor which one was crossed. A
+  WhatsApp scan is a 4,575 × 6,782 photograph before any render. `ocr.fit` now keeps an image inside
+  both, degrading quality and then size rather than failing.
+
+- Suite **319 passed**, `engine audit` → 12 invariants, 0 violations.
