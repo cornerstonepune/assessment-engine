@@ -55,7 +55,9 @@ def demo():
     with db.connect() as conn:
         rows = report(conn)
     for r in rows:
-        print(f"  {r['paper']:<14} {r['found']:>3} of {r['slots']:<3} answers  ({r['missing']} missing)  {r['file']}")
+        print(
+            f"  {r['paper']:<14} {r['found']:>3} of {r['slots']:<3} answers  ({r['missing']} missing)  {r['file']}"
+        )
     print(f"  {len(rows)} stale reading(s)")
     return 1 if rows else 0
 

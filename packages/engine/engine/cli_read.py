@@ -15,7 +15,9 @@ read_app = typer.Typer(help="W3 — read papers and place them on the skill grap
 def read_map(
     path: str,
     pages: str = typer.Option("", "--pages", help="1,2,3 — default every page"),
-    mask: float = typer.Option(-1.0, "--mask", help="fraction of page 1's top to paint out; default masks the name band (rule 6)"),
+    mask: float = typer.Option(
+        -1.0, "--mask", help="fraction of page 1's top to paint out; default masks the name band (rule 6)"
+    ),
     out: str = typer.Option("", "--out", help="write the questions and matches to this json"),
 ) -> None:
     """Place one paper's printed questions against the skill registry, and say what fraction landed.
@@ -36,11 +38,15 @@ def read_map(
         typer.echo("  no printed questions found — nothing to place")
         raise typer.Exit(1)
 
-    typer.echo(f"\n  {Path(path).name}  —  {len(questions)} printed questions on {len({q['page'] for q in questions})} pages\n")
+    typer.echo(
+        f"\n  {Path(path).name}  —  {len(questions)} printed questions on {len({q['page'] for q in questions})} pages\n"
+    )
     for m in sorted(matches, key=lambda m: (int("".join(c for c in m["n"] if c.isdigit()) or 0), m["n"])):
         q = by_n.get(m["n"], {})
         mark = {"clear": "  ok  ", "arguable": " ~ask ", "none": " MISS "}[m["confidence"]]
-        typer.echo(f"{mark} {m['n']:>4}  {(m['skill_code'] or '—'):<14} {(q.get('what_it_tests') or '')[:62]}")
+        typer.echo(
+            f"{mark} {m['n']:>4}  {(m['skill_code'] or '—'):<14} {(q.get('what_it_tests') or '')[:62]}"
+        )
         if m["confidence"] == "none" and m.get("proposed_skill"):
             typer.echo(f"            proposes: {m['proposed_skill']}  ({m['reason']})")
         elif m.get("alternative_codes"):
@@ -108,20 +114,27 @@ def read_stability(
 
     mapped = [r["mapped"] for r in rates]
     typer.echo(f"\n  {len(saved)} questions, {runs} runs of the matcher alone\n")
-    typer.echo(f"  MAPPED  min {min(mapped):.0%}   max {max(mapped):.0%}   spread {max(mapped)-min(mapped):.0%}")
+    typer.echo(
+        f"  MAPPED  min {min(mapped):.0%}   max {max(mapped):.0%}   spread {max(mapped) - min(mapped):.0%}"
+    )
     typer.echo(f"  no-match count per run: {', '.join(str(r['none']) for r in rates)}")
 
     unstable = {n: v for n, v in per_q.items() if len({c for c, _ in v}) > 1}
     same = len(per_q) - len(unstable)
-    typer.echo(f"\n  {same} of {len(per_q)} questions gave the SAME skill every run"
-               f"   ({same / (len(per_q) or 1):.0%} stable)")
+    typer.echo(
+        f"\n  {same} of {len(per_q)} questions gave the SAME skill every run"
+        f"   ({same / (len(per_q) or 1):.0%} stable)"
+    )
     if unstable:
         typer.echo("\n  questions whose skill changed between runs:")
-        for n, v in sorted(unstable.items(), key=lambda kv: (len(kv[1][0][0] or ''), kv[0])):
+        for n, v in sorted(unstable.items(), key=lambda kv: (len(kv[1][0][0] or ""), kv[0])):
             seen = {}
             for code, conf in v:
                 seen[code or "—"] = seen.get(code or "—", 0) + 1
-            typer.echo(f"    {n:>4}  " + "   ".join(f"{k} x{c}" for k, c in sorted(seen.items(), key=lambda kv: -kv[1])))
+            typer.echo(
+                f"    {n:>4}  "
+                + "   ".join(f"{k} x{c}" for k, c in sorted(seen.items(), key=lambda kv: -kv[1]))
+            )
     typer.echo(f"\n  {distinct} distinct responses across {runs} runs   model spend Rs {spent:.2f}")
 
 

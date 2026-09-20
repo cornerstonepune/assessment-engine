@@ -63,10 +63,10 @@ def client(profile=PROFILE, region=REGION):
 # Defaults here are the measured values, so the module still works against a database that has not
 # been loaded yet; `settings(conn)` is what the engine actually uses.
 DEFAULTS = {
-    "min_confidence": 70.0,   # below this the engine does not stand behind the reading
-    "answer_column": 0.085,   # how far either side of a question its answer may sit
-    "answer_drop": 0.095,     # how far below, when no following question bounds the region
-    "row_band": 0.02,         # answers within this vertically are one row, read left to right
+    "min_confidence": 70.0,  # below this the engine does not stand behind the reading
+    "answer_column": 0.085,  # how far either side of a question its answer may sit
+    "answer_drop": 0.095,  # how far below, when no following question bounds the region
+    "row_band": 0.02,  # answers within this vertically are one row, read left to right
     "first_page_mask": 0.34,  # name band painted out before anything is sent (rule 6)
 }
 
@@ -76,9 +76,7 @@ def settings(conn=None):
     absent, so a fresh database reads the same way a loaded one does."""
     if conn is None:
         return dict(DEFAULTS)
-    rows = conn.execute(
-        "select key, value from threshold where key like 'ocr.%%'"
-    ).fetchall()
+    rows = conn.execute("select key, value from threshold where key like 'ocr.%%'").fetchall()
     got = {r["key"].split(".", 1)[1]: float(r["value"]) for r in rows}
     return {**DEFAULTS, **{k: v for k, v in got.items() if k in DEFAULTS}}
 
@@ -320,7 +318,7 @@ def _reading_order(words, row):
     while rest:
         top = rest[0]["y"]
         line = [w for w in rest if w["y"] - top <= row]
-        rest = rest[len(line):]
+        rest = rest[len(line) :]
         out.extend(sorted(line, key=lambda w: w["x"]))
     return out
 
@@ -356,9 +354,7 @@ def answers_for(page, slots, cfg=None):
     out = {}
     for n, members in groups.items():
         members.sort()
-        anchor = min(
-            (anchors[s] for s in members if anchors[s]), key=lambda a: a["y"], default=None
-        )
+        anchor = min((anchors[s] for s in members if anchors[s]), key=lambda a: a["y"], default=None)
         if anchor is None:
             for slot in members:
                 out[slot] = {"child_answer": "", "answer_state": "not_found", "confidence": 0.0}
@@ -386,7 +382,12 @@ def answers_for(page, slots, cfg=None):
             # Reporting a blank as unreadable sends a teacher to look at an empty box, and quietly
             # turns "did not answer" into "could not be read".
             for slot in members:
-                out[slot] = {"child_answer": "", "answer_state": "blank", "confidence": 0.0, "working_shown": working}
+                out[slot] = {
+                    "child_answer": "",
+                    "answer_state": "blank",
+                    "confidence": 0.0,
+                    "working_shown": working,
+                }
             continue
         if len(members) == 1 and len(candidates) > 1:
             # One answer asked for, several numbers in the region: the child's working and then
@@ -399,7 +400,12 @@ def answers_for(page, slots, cfg=None):
             # answer chosen by an off-by-one, so these go to a person: a flagged unknown costs a
             # glance, a confident guess costs trust.
             for slot in members:
-                out[slot] = {"child_answer": "", "answer_state": "illegible", "confidence": 0.0, "working_shown": working}
+                out[slot] = {
+                    "child_answer": "",
+                    "answer_state": "illegible",
+                    "confidence": 0.0,
+                    "working_shown": working,
+                }
             continue
         for slot, pick in zip(members, candidates):
             sure = pick["confidence"] >= cfg["min_confidence"]

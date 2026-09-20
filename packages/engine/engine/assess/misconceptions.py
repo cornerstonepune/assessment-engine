@@ -276,6 +276,11 @@ def multi_concat(addends):
 
 
 # fmt: off
+# fmt: off
+# The mistake vocabulary is a TABLE, and its alignment is what makes it readable: one wrong method
+# per line, code and description and remedy in columns a person can scan. A formatter would give
+# each entry five lines and turn a page you can read into a page you have to parse. The formatter
+# is adopted everywhere else in this repository; this is the one place the shape carries meaning.
 ADD_PREDICTORS = {
     "M_NOCARRY":       (add_nocarry, "Forgets to carry", "Place-value chart; exchange 10 ones for a ten with rods before recording"),
     "M_CARRY_SKIP":    (add_carry_skips_column, "Carry placed one column too far left", "Column chart with the carry written above the correct column; two worked examples"),
@@ -305,6 +310,9 @@ MULTI_PREDICTORS = {
     "M_ZERO_DROPPED":   (lambda xs: zero_dropped(sum(xs)), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value before writing it"),
 }
 
+# fmt: on
+
+
 def predict_multi(addends):
     """Errors that only become visible with three or more addends, so they need the whole list."""
     correct = sum(addends)
@@ -318,13 +326,38 @@ def predict_multi(addends):
             out[code] = v
     return out
 
+
 MUL_PREDICTORS = {
-    "M_MUL_NO_CARRY":    (mul_no_carry, "Multiplies each digit and drops the carry", "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'"),
-    "M_MUL_CONCAT":      (mul_concat, "Writes each digit's whole product side by side", "Grid (area) method first, then the column method beside it"),
-    "M_MUL_CARRY_FIRST": (mul_carry_added_before_multiplying, "Adds the carry before multiplying instead of after", "Say the order aloud: multiply, then add what was carried"),
-    "M_MUL_ONES_ONLY":   (mul_ones_only, "Multiplies the ones digit and stops", "Grid method: show that both parts of the number are multiplied"),
-    "M_MUL_ROW_OUT":     (mul_row_out, "One row out in the times table", "Count on in that table; check against a known fact"),
-    "M_WRONG_OP":        (mul_added_instead, "Added instead of multiplying", "Read the question aloud; identify the operation word"),
+    "M_MUL_NO_CARRY": (
+        mul_no_carry,
+        "Multiplies each digit and drops the carry",
+        "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'",
+    ),
+    "M_MUL_CONCAT": (
+        mul_concat,
+        "Writes each digit's whole product side by side",
+        "Grid (area) method first, then the column method beside it",
+    ),
+    "M_MUL_CARRY_FIRST": (
+        mul_carry_added_before_multiplying,
+        "Adds the carry before multiplying instead of after",
+        "Say the order aloud: multiply, then add what was carried",
+    ),
+    "M_MUL_ONES_ONLY": (
+        mul_ones_only,
+        "Multiplies the ones digit and stops",
+        "Grid method: show that both parts of the number are multiplied",
+    ),
+    "M_MUL_ROW_OUT": (
+        mul_row_out,
+        "One row out in the times table",
+        "Count on in that table; check against a known fact",
+    ),
+    "M_WRONG_OP": (
+        mul_added_instead,
+        "Added instead of multiplying",
+        "Read the question aloud; identify the operation word",
+    ),
 }
 
 # fmt: on

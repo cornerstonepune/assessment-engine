@@ -42,7 +42,7 @@ COMMANDS = [
 @pytest.mark.parametrize("args", COMMANDS, ids=lambda a: " ".join(a) or "(root)")
 def test_every_command_resolves_and_describes_itself(args):
     r = run(*args)
-    assert r.exit_code in (0, 2), r.output          # 2 is typer's "here is the help" for a group
+    assert r.exit_code in (0, 2), r.output  # 2 is typer's "here is the help" for a group
     assert "No such command" not in r.output
     assert "Usage" in r.output or "Commands" in r.output
 

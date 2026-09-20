@@ -347,8 +347,9 @@ def _page_resolution(summary, page_no, out):
     return f"{res['status']}: {res['saw']}{tail}"
 
 
-def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False,
-                again=False):
+def import_scan(
+    conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False
+):
     """One scan of one child's paper → capture, item_result rows (candidate), and optionally a
     narrative_observation. Returns a summary a person can read before confirming.
 
@@ -426,9 +427,7 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
             fraction = (masks or {}).get(page_no, page_specs.get(page_no, {}).get("mask", 0))
             jpeg = mask_name_band(jpeg, fraction)
             questions = {
-                k: it["spec"]["question"]
-                for k, it in by_key.items()
-                if it["spec"].get("page", 1) == page_no
+                k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
             }
             if not questions:
                 summary["notes"].append(f"p{page_no}: no answers printed on this page")
@@ -439,9 +438,7 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
             # engine stood behind, against 55-63% with about seven of them.
             readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg)
             flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
-            summary["notes"].append(
-                f"p{page_no}: {len(readings)} answers read, {flagged} for a person"
-            )
+            summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
             for key, read in readings.items():
                 it = by_key.get(key)
                 if not it or it["spec"].get("page", 1) != page_no:

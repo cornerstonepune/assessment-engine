@@ -252,6 +252,9 @@ criteria:
   - name: every invariant across every row holds
     run: engine audit
     expect: "0 violations"
+  - name: the code is formatted and lints clean
+    run: cd packages/engine && .venv/bin/ruff format --check engine tests && .venv/bin/ruff check engine tests
+    expect: "All checks passed"
   - name: the engine's own test suite
     run: cd packages/engine && .venv/bin/python -m pytest
     expect: "passed"

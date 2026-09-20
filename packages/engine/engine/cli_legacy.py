@@ -51,9 +51,7 @@ def legacy_import(
     with db.connect() as conn:
         cid = roster.find(conn, section, child, actor)
         try:
-            summary = legacy.import_scan(
-                conn, path, paper, cid, actor, page_list, masks, narrative, again
-            )
+            summary = legacy.import_scan(conn, path, paper, cid, actor, page_list, masks, narrative, again)
         except LLMError as e:
             conn.commit()
             typer.echo(f"  could not read: {e}", err=True)

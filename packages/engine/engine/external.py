@@ -93,7 +93,7 @@ def resolve(by_page):
                 )
                 continue
             seen[key] = page_no
-            kept.append({**q, "page": page_no})   # the dict key is the authority, never a caller's field
+            kept.append({**q, "page": page_no})  # the dict key is the authority, never a caller's field
     kept.sort(key=lambda q: (q["page"], q["n"], q.get("part", "")))
     return kept, conflicts
 

@@ -62,6 +62,9 @@ criteria:
   - name: the seed loads twice with nothing moving
     run: engine load --check
     expect: "unchanged on a second run"
+  - name: the code is formatted and lints clean
+    run: cd packages/engine && .venv/bin/ruff format --check engine tests && .venv/bin/ruff check engine tests
+    expect: "All checks passed"
   - name: the engine's own test suite
     run: cd packages/engine && .venv/bin/python -m pytest
     expect: "passed"

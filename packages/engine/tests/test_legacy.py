@@ -56,18 +56,26 @@ def test_mark_keeps_three_signals_apart():
     """Rule 5, and now ADR 0018's fourth case. `answer_state` is the reader saying which of four
     things it saw rather than the caller guessing from an empty string — v2 returned the same empty
     `child_answer` for "wrote nothing" and "wrote something I cannot read"."""
+
     def m(read, spec=None, resp=None):
         return legacy.mark(spec or _spec(), resp or _resp(), read)
 
     assert m({"child_answer": "375", "answer_state": "written", "working_summary": ""}) == (
-        "correct", [], "none")
+        "correct",
+        [],
+        "none",
+    )
     assert m({"child_answer": "374", "answer_state": "written", "working_summary": "columns"}) == (
-        "wrong", ["M_FACT_PM1"], "partial")
+        "wrong",
+        ["M_FACT_PM1"],
+        "partial",
+    )
     assert m({"child_answer": "", "answer_state": "blank", "working_summary": ""}) == ("blank", [], "none")
 
     # working but no final answer is not a blank and not a wrong: a person decides
     assert m({"child_answer": "", "answer_state": "written", "working_summary": "started columns"})[0] == (
-        "needs_teacher")
+        "needs_teacher"
+    )
 
     # writing that cannot be made out is never reported as a blank — the collapse rule 5 forbids
     assert m({"child_answer": "", "answer_state": "illegible", "working_summary": ""})[0] == "unreadable"
@@ -75,18 +83,43 @@ def test_mark_keeps_three_signals_apart():
 
     # only an educator's tick is visible: the outcome is knowable, the child's answer is not, and
     # working backwards from the tick would invent an answer out of an adult's opinion of it
-    assert m({"child_answer": "", "answer_state": "not_visible", "educator_mark": "right",
-              "working_summary": ""})[0] == "needs_teacher"
+    assert (
+        m(
+            {
+                "child_answer": "",
+                "answer_state": "not_visible",
+                "educator_mark": "right",
+                "working_summary": "",
+            }
+        )[0]
+        == "needs_teacher"
+    )
 
-    assert m({"child_answer": "because it is big", "answer_state": "written", "working_summary": ""},
-             spec=_spec("text"), resp={"answer": None})[0] == "needs_teacher"
+    assert (
+        m(
+            {"child_answer": "because it is big", "answer_state": "written", "working_summary": ""},
+            spec=_spec("text"),
+            resp={"answer": None},
+        )[0]
+        == "needs_teacher"
+    )
 
 
 def test_working_shown_is_taken_from_the_reader_not_guessed_from_a_summary():
     """v2 had no way to say `full`, so a ponytail comment admitted every page read `partial`."""
-    assert legacy.mark(_spec(), _resp(),
-        {"child_answer": "375", "answer_state": "written", "working_shown": "full",
-         "working_summary": "full column method"})[2] == "full"
+    assert (
+        legacy.mark(
+            _spec(),
+            _resp(),
+            {
+                "child_answer": "375",
+                "answer_state": "written",
+                "working_shown": "full",
+                "working_summary": "full column method",
+            },
+        )[2]
+        == "full"
+    )
 
 
 def test_normalise_answer_reads_units_and_commas():
@@ -120,6 +153,7 @@ PAPER = {
     ],
 }
 
+
 def fake_ocr(monkeypatch, asked=None):
     """Stand in for Textract. `import_scan` reads with OCR now, not a model (ADR 0019), so the
     thing to stub is the adapter — and stubbing `answers_for` rather than `read` keeps the test
@@ -138,7 +172,8 @@ def fake_ocr(monkeypatch, asked=None):
                 # The real adapter derives this from handwriting in the region beyond the answer
                 # itself; the fixture says the same thing with a summary, so mirror it rather than
                 # hard-coding "none" and quietly dropping rule 5's third signal.
-                "working_shown": r.get("working_shown") or ("partial" if r.get("working_summary") else "none"),
+                "working_shown": r.get("working_shown")
+                or ("partial" if r.get("working_summary") else "none"),
                 "working_summary": r.get("working_summary", ""),
                 "self_corrected": r.get("self_corrected", False),
                 "educator_mark": r.get("educator_mark", "none"),

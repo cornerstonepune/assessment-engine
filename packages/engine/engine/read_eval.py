@@ -42,9 +42,7 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
     out = {}
     for page_no, jpeg in enumerate(legacy.render_pages(Path(root).expanduser() / sheet["file"]), 1):
         slots = {
-            k: it["spec"]["question"]
-            for k, it in by_key.items()
-            if it["spec"].get("page", 1) == page_no
+            k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
         }
         if not slots:
             continue  # a blank back page, or a scan longer than the paper: nothing to look for
@@ -120,8 +118,16 @@ def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
     read = read_once_ocr if reader == "ocr" else read_once
     per_run = []
     for _ in range(runs):
-        agg = {"total": 0, "exact": 0, "wrong_value": 0, "missing": 0, "state_wrong": 0,
-               "silently_wrong": 0, "details": [], "sheets": []}
+        agg = {
+            "total": 0,
+            "exact": 0,
+            "wrong_value": 0,
+            "missing": 0,
+            "state_wrong": 0,
+            "silently_wrong": 0,
+            "details": [],
+            "sheets": [],
+        }
         for sheet in gold_sheets():
             s = score(sheet["answers"], read(conn, sheet, root))
             for k in ("total", "exact", "wrong_value", "missing", "state_wrong", "silently_wrong"):
@@ -129,9 +135,7 @@ def run(conn, runs=1, root=ASSESSMENTS, reader="ocr"):
             agg["details"] += [(sheet["file"], *d) for d in s["details"]]
             agg["sheets"].append({"paper": sheet["paper"], "note": sheet.get("note", ""), **s})
         agg["read_exactly_right"] = round(agg["exact"] / agg["total"], 4) if agg["total"] else 0.0
-        agg["silently_wrong_rate"] = (
-            round(agg["silently_wrong"] / agg["total"], 4) if agg["total"] else 0.0
-        )
+        agg["silently_wrong_rate"] = round(agg["silently_wrong"] / agg["total"], 4) if agg["total"] else 0.0
         agg["responses_given_a_row"] = (
             round((agg["total"] - agg["missing"]) / agg["total"], 4) if agg["total"] else 0.0
         )
