@@ -51,6 +51,7 @@ goal: >
 # the teacher's red pen is already on many of these pages (which is also the regime-B hazard).
 # ------------------------------------------------------------------------------------------------
 
+# Agreed by Nimish 2026-09-20: the five numbers below stand as proposed.
 bar:
   unit: response                      # one child's answer to one question-part. Not the page, not the sheet.
   read_exactly_right: 0.97            # of every response in the gold set
@@ -59,6 +60,27 @@ bar:
   phone_photo_floor: 0.93             # regime B, measured on its own
   gold_responses_min: 300
   gold_phone_photo_min: 100
+
+# ------------------------------------------------------------------------------------------------
+# THE CORRECTION LOOP (Nimish, 2026-09-20)
+# ------------------------------------------------------------------------------------------------
+# "Whatever is the doubtful part for the machine, that the machine cannot read, goes to the teacher
+# for approval. The teacher makes the changes or approves that part, and that part again feeds back
+# to the system so that the system keeps learning. Today, if we have 10 things that the system is
+# not able to recognize, over the months that should just keep getting fewer and fewer."
+#
+# What that means mechanically, stated plainly so nobody expects magic: the vision model does not
+# learn and nothing is retrained. What falls is the flag rate, and it falls because corrections
+# ACCUMULATE AS CONTEXT — a stored correction becomes a worked example in the next read of that
+# child's handwriting (`read_correction`, `child_reading_profile`; both tables exist, both empty).
+# So the loop only counts as built if a correction changes a LATER read, not just its own row.
+#
+# The flag rate is therefore a measured series, not a target: it is recorded per batch so that it
+# can be seen to fall. It deliberately has no threshold — a reader that flags less by guessing more
+# is worse, which is what `silently_wrong_at_most` above already guards.
+loop:
+  flag_rate_is_recorded_per_batch: true
+  correction_must_change_a_later_read: true
 
 scenarios:
   # --- reading: does it see what is on the paper ---
@@ -105,6 +127,20 @@ scenarios:
   - kind: read
     name: a wrong answer with no named mistake is counted, never quietly discarded
     must: unclassified_wrongs_are_reported    # feeds `engine bank unclassified` (ADR 0012)
+
+  # --- the correction loop: doubt reaches a person, and their answer does not stop at one row ---
+  - kind: read
+    name: every response the reader is unsure of reaches a person, and none of them is graphed first
+    must: doubt_waits_for_a_person            # a flagged read stays candidate; the graph reads only confirmed
+  - kind: read
+    name: a teacher's correction is a new row, and the original read is still there afterwards
+    must: correction_never_overwrites_the_read   # rule 4; read_correction, not an UPDATE
+  - kind: read
+    name: a correction on one page changes how the next page of the same child's writing is read
+    must: correction_changes_a_later_read     # the whole claim of "the system keeps learning"
+  - kind: read
+    name: how often the reader asks for help is recorded every batch, so it can be seen to fall
+    must: flag_rate_is_recorded_per_batch     # a series, not a threshold
 
   # --- the rules that do not bend ---
   - kind: read
