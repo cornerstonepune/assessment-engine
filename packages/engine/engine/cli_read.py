@@ -66,3 +66,45 @@ def read_map(
     if out:
         Path(out).write_text(json.dumps({"questions": questions, "matches": matches, "rate": r}, indent=1))
         typer.echo(f"\n  written to {out}")
+
+
+@read_app.command("stability")
+def read_stability(
+    questions_json: str,
+    runs: int = typer.Option(5, "--runs", help="how many times to re-match the same questions"),
+) -> None:
+    """Re-match one saved extraction N times and report how much the answer moves.
+
+    The mapping rate swung 84-95% across four runs of one paper. Extraction is vision and dear;
+    matching is text and cheap — so re-matching a SAVED extraction isolates which half is unstable,
+    for a few rupees rather than a few hundred.
+    """
+    saved = json.loads(Path(questions_json).read_text())["questions"]
+    rates, per_q = [], {}
+    with db.connect() as conn:
+        before = external.spend_today(conn)
+        for _ in range(runs):
+            matches = external.match_skills(conn, saved)
+            rates.append(external.rate(matches))
+            for m in matches:
+                per_q.setdefault(m["n"], []).append((m["skill_code"], m["confidence"]))
+        conn.commit()
+        spent = external.spend_today(conn) - before
+
+    mapped = [r["mapped"] for r in rates]
+    typer.echo(f"\n  {len(saved)} questions, {runs} runs of the matcher alone\n")
+    typer.echo(f"  MAPPED  min {min(mapped):.0%}   max {max(mapped):.0%}   spread {max(mapped)-min(mapped):.0%}")
+    typer.echo(f"  no-match count per run: {', '.join(str(r['none']) for r in rates)}")
+
+    unstable = {n: v for n, v in per_q.items() if len({c for c, _ in v}) > 1}
+    same = len(per_q) - len(unstable)
+    typer.echo(f"\n  {same} of {len(per_q)} questions gave the SAME skill every run"
+               f"   ({same / (len(per_q) or 1):.0%} stable)")
+    if unstable:
+        typer.echo("\n  questions whose skill changed between runs:")
+        for n, v in sorted(unstable.items(), key=lambda kv: (len(kv[1][0][0] or ''), kv[0])):
+            seen = {}
+            for code, conf in v:
+                seen[code or "—"] = seen.get(code or "—", 0) + 1
+            typer.echo(f"    {n:>4}  " + "   ".join(f"{k} x{c}" for k, c in sorted(seen.items(), key=lambda kv: -kv[1])))
+    typer.echo(f"\n  model spend Rs {spent:.2f}")

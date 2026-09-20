@@ -52,8 +52,18 @@ goal: >
 # ------------------------------------------------------------------------------------------------
 
 # Agreed by Nimish 2026-09-20: the five numbers below stand as proposed.
+#
+# Amended the same day, after the skill matcher was measured across repeated runs: the same paper,
+# the same prompt and the same model gave 84%, 89%, 89% and 95% on four passes, and five passes of
+# the matcher alone over one fixed extraction spanned 84–97%. A single run of a model over a
+# judgement-heavy task is not a measurement. So every number here is the WORST of `runs` repeats,
+# never one run's luck, and a run-to-run spread is itself reported — a bar met only sometimes is
+# not met. Digit transcription should be far steadier than 244-way classification, but that is a
+# prediction and the bar must not rest on it.
 bar:
   unit: response                      # one child's answer to one question-part. Not the page, not the sheet.
+  runs: 3                             # every rate below is the worst of this many repeats
+  report_run_to_run_spread: true
   read_exactly_right: 0.97            # of every response in the gold set
   silently_wrong_at_most: 0.01        # of responses the reader did NOT flag. This is the number that protects the graph.
   responses_given_a_row: 1.00         # a missing row is invisible; nobody corrects what was never shown
@@ -194,6 +204,15 @@ scenarios:
   - kind: read
     name: a bare circled option yields right or wrong and never a named mistake
     must: no_misconception_claimed_from_a_bare_choice   # entered question + answer only, no distractors
+  - kind: read
+    name: the same paper read twice gives the same answer
+    must: reading_is_stable_across_runs        # measured: the skill matcher was only 59% stable
+  - kind: read
+    name: a question's skill comes from agreement across runs, not from one run's self-assessment
+    must: skill_is_decided_by_measured_agreement
+  - kind: read
+    name: no skill is created without a person, however confident the engine is
+    must: a_person_approves_every_new_skill    # q10 proposed a new skill on 3 of 5 runs and matched an existing one on 2
 
   # --- the rules that do not bend ---
   - kind: read

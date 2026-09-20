@@ -1492,8 +1492,11 @@ ADR 0017's requirement that naming a skill later places evidence already held.
   → **`MAPPED 95%` (clear alone 60%)**, `Rs 6.48`; and
   `bin/engine read map "…/Advika SOF (olympiad).pdf"` → `clear 18, arguable 15, no match 2, of 35`
   → **`MAPPED 94%` (clear alone 51%)**, `Rs 6.21`. Nimish's guess was right at the top of its range.
-  **The number carries run-to-run noise**: three runs of the Grade 3 form gave 89 / 89 / 95 %, and
-  `clear` moved 54 / 68 / 60 — so this is "about 95, not below 89", not a point estimate.
+  **Corrected 2026-09-20, same session.** "About 95, not below 89" was written from three runs and
+  is wrong. Nimish ran it himself and got **84%** with 6 no-matches. Across four full runs the rate
+  went **84 / 89 / 89 / 95**, and a further five runs of the matcher alone against one saved
+  extraction gave **84–97%, a 14-point spread**, with the no-match count at 4, 2, 3, 1, 6.
+  The honest statement is ~90% with a ±7-point swing, and a single run's number means little.
 
 - **What the registry is missing is four questions, and one of them appears on both forms**:
   letter-sequence and odd-one-out reasoning (Grade 3 q2 and Grade 2 q1), embedded figures within a
@@ -1523,3 +1526,49 @@ ADR 0017's requirement that naming a skill later places evidence already held.
 - **Suite `307 passed`** (6 new in `tests/test_external.py`), `engine audit` → `12 invariants, 0
   violations`. `select round(sum(cost_inr),2) from flow_run` → **Rs 49.05** all-time, of which this
   measurement is about Rs 19 across five runs.
+
+
+## The matcher is unstable, and that matters more than its average (2026-09-20)
+
+Found because Nimish re-ran `engine read map` himself and got a materially different number from the
+one this file claimed. Isolated with `engine read stability`, which re-matches a **saved** extraction
+so the expensive vision half is held fixed and only the cheap text half varies.
+
+- **Check:** `bin/engine read stability <saved.json> --runs 5` →
+  ```
+  37 questions, 5 runs of the matcher alone
+  MAPPED  min 84%   max 97%   spread 14%
+  no-match count per run: 4, 2, 3, 1, 6
+  22 of 37 questions gave the SAME skill every run   (59% stable)
+  ```
+  **The variance is in the matcher, not the reading**: the questions were identical across all five.
+
+- **41% of questions move between runs**, and the moves are not random noise — they are real
+  ambiguity the model resolves differently each time. A money-and-change question (q34) landed on
+  four different codes in five runs (`NUM.PRB.02`, `NUM.OPS.02`, `NUM.MEAS.04`, `NUM.OPS.01`); a
+  mirror-image question (q10) was `NUM.GEO.03` twice and *no match at all* three times; a word
+  analogy (q8) went to `ICT.CT.01` — Computing — on three of five runs.
+
+- **This kills unsupervised skill creation, with a measurement rather than an argument.** q10 would
+  propose a new "Mirror image identification" skill on three runs out of five and map to an existing
+  registry skill on the other two. Run the pipeline twice and the registry gains a duplicate that
+  shadows a skill already there — the exact near-duplicate proliferation that splits a child's
+  evidence until nothing reaches `state.min_events` (3). The case for a person approving a *cluster*
+  rather than the engine creating per question is now evidence, not caution.
+
+- **The model's self-reported confidence is not usable and should be replaced by measured
+  agreement.** `clear` / `arguable` / `none` is what the model says about itself on one pass, and
+  the same question earns different labels on different passes. Agreement across N runs is a real
+  measure of the same thing: 5 of 5 is clear, 3 of 5 is genuinely arguable, all-different means a
+  person must look. At Rs 2.65 a run this costs about Rs 13 a paper, which is nothing against the
+  cost of filing a child's evidence under the wrong skill.
+
+- **This is rule 7 catching me.** "Every model output ships with an eval." I wrote two prompts and
+  ran them without one; an eval would have surfaced the instability immediately, because an eval is
+  run repeatedly against a gold set and a single run is not. The eval for `skill_match` is owed.
+
+- **It carries straight into W3's own bar.** `read_exactly_right: 0.97` is currently written as
+  though one measurement settles it. On this evidence a single run can be 7 points off, so the
+  goal now requires the accuracy number to be the **worst of repeated runs**, not one run's luck.
+  Digit transcription should be far more stable than 244-way classification — but that is a
+  prediction, and the bar must not rest on it.

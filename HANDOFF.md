@@ -17,7 +17,7 @@ bin/engine audit                       12 invariants · 0 violations      (suite
 requires. It opens red, which is correct:
 
 ```
-bin/engine goal w3-read-and-graph      2/4 criteria · 21 scenarios short of the bar   (exit 1)
+bin/engine goal w3-read-and-graph      2/4 criteria · 30 scenarios short of the bar   (exit 1)
 ```
 
 ## The bar — agreed by Nimish 2026-09-20
@@ -46,19 +46,28 @@ correctly" would score that sheet 100% and hide the hole.
 
 ## Next action
 
-W3's gate 1 is **entering the papers**, and it is bigger than it looked. `docs/w3-paper-inventory.md`
-is the work list: **14 distinct papers, 4 entered (1 proven wrong, 2 unchecked), 10 never entered.**
+**Read `STATE.md`'s last two sections first — a number in this repo was overstated and corrected.**
+The Olympiad mapping rate is ~90% with a ±7-point swing, NOT the "94–95%" first recorded. Nimish
+re-ran the command himself and got 84%.
 
-1. **Fix `G2-CAM-A`**: 24 slots for a 27-answer page. Q5's three boxes need three slots, Q7's
-   estimate and total need two. Then re-read the 10 captures. Nimish's call, 2026-09-20: re-check
-   all four entered papers now, not later.
-2. **Check `G2-SEPW2-S1` (12 slots) and `G2-WORD-SEP17` (6 slots)** against their real pages.
-   `G2-CAM-B` page 1 is already verified correct; its page 2 is not.
-3. **Enter the 10 missing papers**, engine-proposes/person-approves. Order by what unblocks most:
-   the **G3 16-question baseline** first — it is the gold paper, all five of Aseem's reports are
-   written from it, and `8500 - 3647 = 5147` lives there.
-4. **Then** build the `kind: read` runner (`engine/scenarios_read.py`), `engine read accuracy`, and
-   `n8n/workflows/f3-read-and-graph.json` — the three things W3's goal names as missing.
+W3's gate 1 is **entering the papers**. `docs/w3-paper-inventory.md` is the work list: 14 distinct
+papers, 4 entered (1 proven wrong, 2 unchecked), 10 never entered.
+
+1. **Fix `G2-CAM-A`**: 24 slots for a 27-answer page, then re-read the 10 captures.
+2. **Check `G2-SEPW2-S1` and `G2-WORD-SEP17`** against their real pages (`G2-CAM-B` page 1 verified).
+3. **Enter the 10 missing papers**, engine proposes / person approves. The **G3 16-question
+   baseline** first: it is the gold paper and `8500 - 3647 = 5147` lives there.
+4. **Owed before `skill_match` is trusted anywhere: its eval** (rule 7, which this session broke —
+   two prompts were written and run without one, and the instability below is what that costs).
+   The fix in hand is majority voting across runs, replacing the model's self-reported
+   `clear/arguable/none` with measured agreement: 5 of 5 is clear, 3 of 5 is arguable, all-different
+   means a person looks. About Rs 13 a paper.
+5. **Then** the `kind: read` runner, `engine read accuracy`, `n8n/workflows/f3-read-and-graph.json`.
+
+**The four skills the registry is missing** — letter-sequence reasoning (on BOTH forms), embedded
+figures, counting overlapping shapes, mirror images, logical analogy, multi-constraint digit
+deduction — are a proposal for Aseem, not something to insert. Note the count itself is unstable:
+different runs propose between 2 and 6 of them.
 
 **Fixed this session, not carried:** the two test children left active in the roster. Nimish ran
 the deactivation (`UPDATE 2`); the roster now reads `G2|11`, `G3|5` — 16 active, matching disk. The
