@@ -505,6 +505,7 @@ def import_scan(
             # engine stood behind, against 55-63% with about seven of them.
             # The paper says where its answers live (rule 1): only a paper that prints a box per
             # answer hands the reader its boxes. On an underline paper a stray rectangle is not a field.
+            jpeg = ocr.mask_red_pen(jpeg, cfg)
             boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
             readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg, symbolic_slots(by_key), boxes)
             flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")

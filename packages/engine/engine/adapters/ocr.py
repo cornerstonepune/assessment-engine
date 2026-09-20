@@ -53,8 +53,37 @@ _WORDS = re.compile(r"[A-Za-z]{3,}")
 
 
 def value_of(text):
-    m = _VALUE.search(text.strip().rstrip("."))
+    t = text.strip().rstrip(".")
+    if t.endswith(","):
+        return None  # "24," is the front of 24,568 that Textract split: not a number anyone wrote
+    m = _VALUE.search(t)
     return m.group(1).replace(",", "") if m else None
+
+
+def mask_red_pen(image_bytes, cfg=None):
+    """Paint out red ink before the page is read.
+
+    The educator marks in red — a circle round a wrong answer, digits and comments in the margin —
+    and Textract reads the composite: Kabir's 5147 under a red circle came back 147, his 533 came
+    back 53, both above the confidence floor and both stood behind. The child writes in pencil or
+    blue. By the school's own convention red is the educator's, and it is not the child's answer
+    under any reading — so it is removed, the way exam digitisation has removed marking ink for
+    years. The approval screen still shows the page as photographed.
+    """
+    if not (cfg or DEFAULTS).get("red_pen_mask"):
+        return image_bytes
+    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        return image_bytes
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    red = cv2.inRange(hsv, (0, 80, 60), (12, 255, 255)) | cv2.inRange(hsv, (160, 80, 60), (180, 255, 255))
+    if not red.any():
+        return image_bytes
+    # Inpainted, not painted white: a red circle crosses the child's own strokes, and a white gap
+    # through a 7 leaves a 1. Filling the stroke from its surroundings carries the pencil across.
+    mask = cv2.dilate(red, np.ones((3, 3), np.uint8))
+    img = cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA)
+    return cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])[1].tobytes()
 
 
 def client(profile=PROFILE, region=REGION):
@@ -76,6 +105,7 @@ DEFAULTS = {
     "box_min_height": 0.015,  # and at least this tall; anything smaller is a tick box or noise
     "box_max_width": 0.35,  # wider than this is a frame or a working area, not an answer box
     "box_ink_blank": 0.004,  # a field with more ink than this and no readable word is a doubt, not a blank
+    "red_pen_mask": 1,  # paint out red ink before reading: the educator's circles and corrections
 }
 
 
@@ -202,23 +232,30 @@ def _words_in_box(page, b):
     return [w for w in page["words"] if _in_field(w, _as_region(b))]
 
 
-def _fields_in(boxes, page, region):
+def _fields_in(boxes, page, region, printed=None):
     """The printed boxes inside a question's region that are answer FIELDS.
 
     A box holding nothing but printed words is part of the paper — the pans of a balance scale
     print "40" and "30" in boxes and only the empty pan is the field. An empty box, or one with
     handwriting in it, is a place the child was meant to write.
+
+    `printed` is how many numbers the paper says it prints here — the question row lists them.
+    More printed-only boxes than that means a child's neat digits were tagged as print (a "19" in
+    a number wall, and the whole wall went to a person), and the surplus boxes carrying the most
+    ink are the ones the child filled.
     """
-    out = []
+    fields, paper = [], []
     for b in boxes:
         cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
         if not (region["top"] <= cy < region["bottom"] and region["left"] <= cx <= region["right"]):
             continue
         words = _words_in_box(page, b)
-        if words and not any(w["hand"] for w in words):
-            continue
-        out.append(b)
-    return out
+        (paper if words and not any(w["hand"] for w in words) else fields).append(b)
+    if printed is not None and len(paper) > printed:
+        # marked with a trailing True: the reader may trust its printed-tagged words as the child's
+        surplus = sorted(paper, key=lambda b: -(b[4] if len(b) > 4 else 0))[: len(paper) - printed]
+        fields += [(*b, True) for b in surplus]
+    return fields
 
 
 def assemble(blocks):
@@ -375,7 +412,7 @@ def _in_region(word, anchor, max_drop, column, bottom=None):
     return anchor["x"] - column <= word["x"] <= anchor["x"] + max(anchor["w"], column)
 
 
-def _all_handwriting(page, box, inside=_in_box):
+def _all_handwriting(page, box, inside=_in_box, any_hand=False):
     """Every handwritten number in a question's region, answer and working alike.
 
     What separates them is which is the answer; what they have in common is that the child wrote
@@ -383,10 +420,10 @@ def _all_handwriting(page, box, inside=_in_box):
     shown" apart everywhere, because a child who reached a wrong answer through a visible method is
     telling a teacher something a bare wrong answer does not.
     """
-    return [w for w in page["words"] if w["hand"] and value_of(w["text"]) and inside(w, box)]
+    return [w for w in page["words"] if (w["hand"] or any_hand) and value_of(w["text"]) and inside(w, box)]
 
 
-def _handwriting_near(page, box, cfg=None, inside=_in_box):
+def _handwriting_near(page, box, cfg=None, inside=_in_box, any_hand=False):
     """Every handwritten number in a question's region, in reading order.
 
     Handwriting only, which is the whole reason for being here: a printed `452` inside
@@ -402,7 +439,7 @@ def _handwriting_near(page, box, cfg=None, inside=_in_box):
     paper prints its boxes inline instead, the child's digits sit on the question's own line and the
     same region search finds them.
     """
-    hand = _all_handwriting(page, box, inside)
+    hand = _all_handwriting(page, box, inside, any_hand)
 
     # Ranked, not filtered — each rule applies only where the page offers it.
     #
@@ -466,10 +503,49 @@ def _number(slot):
     return int("".join(c for c in slot if c.isdigit()) or 0)
 
 
-def _read_field(page, f, cfg, working):
+def _echoes(questions):
+    """The numbers the paper prints in these questions. A "handwritten" word carrying one of them is
+    the child copying an operand into their working — or, beside large handwriting, the printed
+    operand itself mis-tagged as handwriting. Kabir's 24,568 + 37,845 came back as 37845 and his
+    8 × ___ = 72 as 72, both at 94%+, both the paper's own digits: an echo is never an answer."""
+    return {value_of(tok) for q in questions for tok in re.findall(r"\d[\d,]*", q)}
+
+
+def _on_line(word, anchor):
+    """Does this word sit on the anchor's printed line — by geometry, not by Textract's grouping,
+    which on a photograph gives a child's large digits, and a mis-tagged printed operand, lines of
+    their own. Kabir's 5147 and his echoed 37,845 were both invisible to a rule that trusted it."""
+    cy = word["y"] + word.get("h", 0) / 2
+    return anchor["y"] - anchor["h"] * 0.5 <= cy <= anchor["y"] + anchor["h"] * 1.5
+
+
+def _not_echo(hand, echoes, in_box=False):
+    """An echo of a number the paper prints is never the answer — the child copying an operand into
+    their working (Kabir's 37,845, on a line of its own under the sum), or the printed operand
+    itself tagged as handwriting (his "8 × ___ = 72" giving back the 72) — unless the child
+    declared it. A labelled line ("ans=26") or a sentence in the child's own hand is a child
+    stating their answer, and on every copy of the word paper 52 − 26 IS 26.
+
+    Inside a printed box the only echo that matters is the box's own label mis-tagged as
+    handwriting, which shares the label's mixed line; a lone number in a brick is the child's even
+    when a brick elsewhere prints the same one.
+    """
+    kept = []
+    for w in hand:
+        line = w.get("line_text") or ""
+        declared = _LABEL.search(line) or (_WORDS.search(line) and not w.get("mixed_line"))
+        echo = value_of(w["text"]) in echoes and (w.get("mixed_line") if in_box else True)
+        if declared or not echo:
+            kept.append(w)
+    return kept
+
+
+def _read_field(page, f, cfg, working, echoes=frozenset()):
     """What the child wrote inside one printed box: their answer, or a doubt, or nothing."""
     region = _as_region(f)
-    hand = _handwriting_near(page, region, cfg, _in_field)
+    hand = _handwriting_near(page, region, cfg, _in_field, any_hand=len(f) > 5)
+    had_ink = bool(hand)
+    hand = _not_echo(hand, echoes, in_box=True)
     if not any(_LABEL.search(w.get("line_text") or "") for w in hand):
         # The Cambridge boxes print their "Answer:" line along the bottom edge, and a scan a
         # degree off square can leave it just outside the rectangle that was found — so the box
@@ -484,7 +560,7 @@ def _read_field(page, f, cfg, working):
     hand = _dedupe(hand)
     where = [round(v, 4) for v in f[:4]]
     if not hand:
-        inked = len(f) > 4 and f[4] > cfg["box_ink_blank"]
+        inked = had_ink or (len(f) > 4 and f[4] > cfg["box_ink_blank"])
         return {
             "child_answer": "",
             "answer_state": "illegible" if inked else "blank",
@@ -492,7 +568,13 @@ def _read_field(page, f, cfg, working):
             "working_shown": working,
             "box": where,
         }
-    doubtful = len({value_of(w["text"]) for w in hand}) > 1 or hand[-1]["confidence"] < cfg["min_confidence"]
+    if len({value_of(w["text"]) for w in hand}) > 1:
+        # The child's column working and their answer share the box. The rule a single-answer
+        # region already uses, measured on the gold set when it was added: a child writes the
+        # answer after the working, so the last number in reading order is the one they stood
+        # behind — and the Answer line the paper prints along the box's bottom edge is last of all.
+        hand = hand[-1:]
+    doubtful = hand[-1]["confidence"] < cfg["min_confidence"]
     return {
         "child_answer": "" if doubtful else value_of(hand[-1]["text"]),
         "answer_state": "illegible" if doubtful else "written",
@@ -528,6 +610,35 @@ def _labelled_boxes(page, slots, boxes, min_overlap=0.6):
     return out
 
 
+def _split_rows(groups, anchors, band=0.02):
+    """A question's parts that sit on different printed rows are read as different regions.
+
+    Grouping by question number was right for a grid — "452 − 236 = [ ]" matches its sibling's line
+    as well as its own — and wrong for 13a and 13b, two boxes a tenth of a page apart: one region
+    held both workings, six numbers for two slots, and both went to a person. Parts chain into one
+    row while each sits within a line and a half of the one before it, so three consecutive printed
+    lines still read as one region and two separate boxes do not.
+    """
+    out = {}
+    for n, members in groups.items():
+        rows, last_y = [], None
+        for slot in sorted(members, key=lambda s: (anchors[s]["y"] if anchors[s] else -1.0, s)):
+            a = anchors[slot]
+            if a is None:
+                if not rows:
+                    rows.append([None, []])
+                rows[0][1].append(slot)
+                continue
+            if last_y is not None and abs(a["y"] - last_y) <= max(a["h"], band) * 1.5:
+                rows[-1][1].append(slot)
+            else:
+                rows.append([a["y"], [slot]])
+            last_y = a["y"]
+        for i, (_, row) in enumerate(rows):
+            out[(n, i)] = row
+    return out
+
+
 def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
     """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
@@ -549,6 +660,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
     groups = {}
     for slot in slots:
         groups.setdefault(_number(slot), []).append(slot)
+    groups = _split_rows(groups, anchors)
     tops = {
         n: min((anchors[s]["y"] for s in members if anchors[s]), default=None)
         for n, members in groups.items()
@@ -557,7 +669,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
 
     labelled = _labelled_boxes(page, slots, boxes) if boxes else {}
     for slot, f in labelled.items():
-        out[slot] = _read_field(page, f, cfg, "none")
+        out[slot] = _read_field(page, f, cfg, "none", _echoes([slots[slot]]))
     if labelled:
         # Once a box is claimed, what is written in it — and on the Answer line the paper prints
         # just under it — is that slot's and no other's. A sibling still read by region would
@@ -588,8 +700,24 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             "left": min(a["x"] for a in mine) - cfg["answer_column"],
             "right": max(a["x"] + max(a["w"], cfg["answer_column"]) for a in mine) + cfg["answer_column"],
         }
+        # A word on the question's own printed line is the question's, wherever its corner falls.
+        # Kabir's "5147" — the finding Aseem's report is written around — sits a hair above the
+        # baseline of "8,500 − 3,647 =", its top-left corner fell above the region's top, and the
+        # answer the whole project exists to catch was reported as blank.
+        own_lines = {a["text"] for a in mine}
+        on_line = [
+            w
+            for w in page["words"]
+            if w["hand"]
+            and value_of(w["text"])
+            and (w.get("line_text") in own_lines or any(_on_line(w, a) for a in mine))
+        ]
+        if on_line:
+            box["top"] = min(box["top"], min(w["y"] for w in on_line))
         working = _working_shown(len(_all_handwriting(page, box)), len(members))
-        fields = _fields_in(boxes, page, box) if boxes else []
+        echoes = _echoes([slots[s] for s in members])
+        printed = len(re.findall(r"\d[\d,]*", " ".join({slots[s] for s in members})))
+        fields = _fields_in(boxes, page, box, printed) if boxes else []
         # Boxes are trusted only when the count matches AND they hold the child's ink — or the
         # whole region is empty. A decorative frame beside an answer written on an underline
         # matched the count, was empty, and came back "blank" on an answer the child had given.
@@ -607,7 +735,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             for slot, field in zip(
                 members, _reading_order([{"x": f[0], "y": f[1], "box": f} for f in fields], cfg["row_band"])
             ):
-                read = _read_field(page, field["box"], cfg, working)
+                read = _read_field(page, field["box"], cfg, working, echoes)
                 if read["answer_state"] == "blank" and stray:
                     # Ink in the region that no box claims, beside a box that is empty: the child
                     # most likely wrote across the border. A person looks; nobody is told "blank".
@@ -618,7 +746,20 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
         # shows a person this patch of the photograph beside what the reader made of it: a teacher
         # who has to hunt down the question on a whole page will not check eighteen of them.
         where = [round(box["left"], 4), round(box["top"], 4), round(box["right"], 4), round(box["bottom"], 4)]
-        candidates = _dedupe(_handwriting_near(page, box, cfg))
+        found = _handwriting_near(page, box, cfg)
+        candidates = _dedupe(_not_echo(found, echoes))
+        if found and not candidates:
+            # Every number in the region is one the paper printed: the child copied the operands
+            # and the answer itself was not read. A person looks; nobody is told "blank".
+            for slot in members:
+                out[slot] = {
+                    "child_answer": "",
+                    "answer_state": "illegible",
+                    "confidence": 0.0,
+                    "working_shown": working,
+                    "box": where,
+                }
+            continue
         if not candidates:
             # Handwriting the transcriber could not turn into a value is not nothing. A child wrote
             # "40" and Textract read the word `to`; with no number in the region that came back
@@ -628,7 +769,18 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             # INTO the paper's own line, so their mark shares a line with printed text; an
             # educator's tick or cross sits alone in the margin on a line of its own. The Grade 3
             # papers carry a cross beside every blank, and they must stay blank.
-            scribble = [w for w in page["words"] if w["hand"] and w.get("mixed_line") and _in_box(w, box)]
+            # On the printed line by Textract's grouping or by geometry, and more than a single
+            # character: an educator's cross beside a blank is one letter, a child's answer the
+            # reader could not turn into a number ("Elhlo" for 61413) is not.
+            above = {**box, "top": min(box["top"], min((a["y"] - a["h"] for a in mine), default=box["top"]))}
+            scribble = [
+                w
+                for w in page["words"]
+                if w["hand"]
+                and len(w["text"].strip()) >= 2
+                and (w.get("mixed_line") or any(_on_line(w, a) for a in mine))
+                and _in_box(w, above)
+            ]
             if scribble:
                 for slot in members:
                     out[slot] = {
@@ -653,6 +805,13 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
                     "box": where,
                 }
             continue
+        if len(members) > 1 and len(candidates) == 1:
+            parts = re.findall(r"\d[\d,]*", candidates[0]["text"])
+            if len(parts) == len(members):
+                # "200+30+6" is one Textract word and three answers: an expanded form written the
+                # way the paper printed it. Split only when the pieces match the slots exactly —
+                # "452-236" in a one-slot region stays what it is, working, never two answers.
+                candidates = [{**candidates[0], "text": part} for part in parts]
         if len(members) == 1 and len(candidates) > 1:
             # One answer asked for, several numbers in the region: the child's working and then
             # their answer. A child writes the answer AFTER the working, so the last number in

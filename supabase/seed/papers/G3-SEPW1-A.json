@@ -4,7 +4,7 @@
   "band": "G3",
   "week": "Sep W1",
   "date": "2026-09-03",
-  "_note": "Entered 2026-09-20 from the printed page: 40 answers over three pages, one slot per box the paper leaves empty. Three of them are not numbers — question 10's general statement, question 11's four true/not-true ticks and question 12's explanation — so they carry their answer as words and the reader hands them to a person rather than claiming a blank. Question 8's walls hold three empty bricks each, which is what makes them six slots and not two.",
+  "_note": "Entered 2026-09-20 from the printed page: 40 answers over three pages, one slot per box the paper leaves empty. Three of them are not numbers — question 10's general statement, question 11's four true/not-true ticks and question 12's explanation — so they carry their answer as words and the reader hands them to a person rather than claiming a blank. Question 8's walls hold three empty bricks each, which is what makes them six slots and not two. The number-wall bricks are lettered in reading order — top row first, then the next row left to right — because that is the order the reader assigns fields in; each brick carries its own sum, and all anchor on the printed instruction above the wall.",
   "pages": [
     {
       "n": 1,
@@ -212,45 +212,45 @@
       "n": 8,
       "part": "a",
       "page": 2,
-      "expr": "14 + 19",
-      "question": "14 19 24"
+      "expr": "33 + 43",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "b",
       "page": 2,
-      "expr": "19 + 24",
-      "question": "14 19 24"
+      "expr": "45 + 60",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "c",
       "page": 2,
-      "expr": "33 + 43",
-      "question": "14 19 24"
+      "expr": "14 + 19",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "d",
       "page": 2,
-      "kind": "missing",
-      "rung": "R7",
-      "answer": 19,
-      "question": "26 41"
+      "expr": "19 + 24",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "e",
       "page": 2,
       "expr": "19 + 41",
-      "question": "26 41"
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "f",
       "page": 2,
-      "expr": "45 + 60",
-      "question": "26 41"
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 19,
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 9,

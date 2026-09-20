@@ -115,6 +115,13 @@ THRESHOLDS = [
         "A field with more ink than this and no word the transcriber could read is a doubt for a person,"
         " never a blank",
     ),
+    (
+        "ocr.red_pen_mask",
+        1,
+        "switch",
+        "Paint out red ink before a page is read. The educator marks in red and the child writes in"
+        " pencil or blue; a red circle over 5147 read back as 147 at 95%. 0 turns it off",
+    ),
     ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
     (
         "llm.daily_budget_inr",

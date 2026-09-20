@@ -435,6 +435,130 @@
      "answer_state": "written"
     }
    ]
+  },
+  {
+   "paper": "G3-QUIZ20",
+   "files": [
+    "G3/1. Kabir/Assessment 0/WhatsApp Image 2026-08-16 at 18.02.43 (1).jpeg",
+    "G3/1. Kabir/Assessment 0/WhatsApp Image 2026-08-16 at 18.02.43 (2).jpeg"
+   ],
+   "note": "GRADE 3, regime B at its worst: a phone photograph with the educator's red pen over the child's answers — circles around the wrong ones, digits and comments in the margin. Question 6 is left out: the child's second digit cannot be read with certainty by eye, and the gold records nothing it is not sure of. Questions 3 and 8 record the number in the child's 'No! 84,602' / 'No! 4,424'.",
+   "answers": [
+    {
+     "n": 1,
+     "part": "",
+     "child_answer": "61413",
+     "answer_state": "written"
+    },
+    {
+     "n": 2,
+     "part": "",
+     "child_answer": "75025",
+     "answer_state": "written"
+    },
+    {
+     "n": 3,
+     "part": "",
+     "child_answer": "84602",
+     "answer_state": "written"
+    },
+    {
+     "n": 4,
+     "part": "",
+     "child_answer": "533",
+     "answer_state": "written"
+    },
+    {
+     "n": 5,
+     "part": "",
+     "child_answer": "5147",
+     "answer_state": "written"
+    },
+    {
+     "n": 7,
+     "part": "",
+     "child_answer": "6456",
+     "answer_state": "written"
+    },
+    {
+     "n": 8,
+     "part": "",
+     "child_answer": "4424",
+     "answer_state": "written"
+    },
+    {
+     "n": 9,
+     "part": "",
+     "child_answer": "56",
+     "answer_state": "written"
+    },
+    {
+     "n": 10,
+     "part": "",
+     "child_answer": "",
+     "answer_state": "blank"
+    },
+    {
+     "n": 11,
+     "part": "",
+     "child_answer": "44",
+     "answer_state": "written"
+    },
+    {
+     "n": 12,
+     "part": "",
+     "child_answer": "70",
+     "answer_state": "written"
+    },
+    {
+     "n": 13,
+     "part": "",
+     "child_answer": "9",
+     "answer_state": "written"
+    },
+    {
+     "n": 14,
+     "part": "",
+     "child_answer": "",
+     "answer_state": "blank"
+    },
+    {
+     "n": 15,
+     "part": "",
+     "child_answer": "800",
+     "answer_state": "written"
+    },
+    {
+     "n": 16,
+     "part": "",
+     "child_answer": "40500",
+     "answer_state": "written"
+    },
+    {
+     "n": 17,
+     "part": "",
+     "child_answer": "68",
+     "answer_state": "written"
+    },
+    {
+     "n": 18,
+     "part": "",
+     "child_answer": "1518",
+     "answer_state": "written"
+    },
+    {
+     "n": 19,
+     "part": "",
+     "child_answer": "1242",
+     "answer_state": "written"
+    },
+    {
+     "n": 20,
+     "part": "",
+     "child_answer": "2040",
+     "answer_state": "written"
+    }
+   ]
   }
  ]
 }

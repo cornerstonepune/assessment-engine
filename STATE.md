@@ -2273,3 +2273,78 @@ and every in-scope scan has been read once, by the reader in service.
   invariants 0 violations, web `35 passed` (1 skipped: a rung cannot be opened until a paper is
   signed off) and `8 passed`. Textract for the whole extraction, at $1.50 per 1,000 pages including
   the 38 classification reads: **about ₹18**.
+
+## The paper's own boxes are the fields: 58% → 70% settled by the engine (2026-09-20)
+
+Nimish: "You're not researching how this problem has been solved before, and you're just trying to
+reinvent everything from scratch." Correct, and the criticism stands. The established pipeline for
+a form is: align the scan to a template, then read each field at its known coordinates — turning a
+recognition problem into a cropping problem (PyImageSearch's document-OCR tutorials; OMRChecker's
+template layouts; `_labelled_boxes` is the same idea as a form template naming its fields).
+
+This reader had no field layer at all. It found the printed question, drew a region around it, and
+hoped the count of numbers matched the count of slots. That is why 42% of the corpus went to a
+person: not because the handwriting was hard, but because the engine never knew where the answers
+were supposed to be.
+
+**What was built instead of an alignment step.** These papers print a box around the place an answer
+goes, so the boxes are the template — and they are on the child's own scan, which means a
+photograph taken at an angle is read where its boxes actually are, with no homography at all.
+`ocr.printed_boxes` pulls long horizontal and vertical strokes out of the page with morphological
+opening (the textbook table-cell recipe), and the closed rectangles are the fields. A paper says
+whether its answers live in boxes — `fields: boxes`, a row, nine of sixteen papers.
+
+```
+                    answers   settled by the engine   waiting for a person
+before                  869        501  (58%)              368
+after                   867        606  (70%)              261
+G2 (30 sittings)        484        365  (75%)              119
+G3 (19 sittings)        383        241  (63%)              142
+```
+
+Of the 261 remaining, **39 are structural** — an ordering, an explanation, a tick, a comparison
+symbol: answers that are not numbers, which this transcriber cannot read by design and which the
+paper row marks so they always reach a person.
+
+- **The rules, each paid for by a measured regression on the 82-response gold set.** The first cut
+  put five silent errors in; every one is now a test:
+  - a box whose printed label matches a slot is that slot's field, exclusively — and what is
+    written in it, and on the `Answer:` line the paper prints under it, is nobody else's candidate
+  - a frame round a number line is not a field; a box holding only printed words is the paper
+    (a balance scale prints 40 and 30 in boxes, and only the empty pan is the field)
+  - ink in a box with no readable word is a doubt, never a blank
+  - a claimed question still bounds the question above it
+  - working and the answer in one box read as the answer — the last number, the rule the region
+    path was already measured with
+  - an expanded form Textract returns as one word ("200+30+6") is three answers when, and only
+    when, the pieces match the slot count exactly
+  - **a number the question prints is an echo, never an answer** — unless the child declared it
+    with a label or a sentence, because 52 − 26 really is 26
+  - **red ink is the educator's and is inpainted out before the page is read.** Kabir's 5147 under
+    a red circle came back `147` at 95%, his 533 as `53`. Inpainted rather than whited out: a white
+    gap through a 7 leaves a 1. Measured both ways on the gold — same 78.0% exact, and silently
+    wrong 3 → 1. It is a row (`ocr.red_pen_mask`), so it can be turned off for a school that marks
+    in pencil.
+  - a word on the question's own printed line belongs to it, by geometry — Textract gives a child's
+    large digits a line of their own, and 5147 sat a hair above the region's top edge
+
+- **`engine read eval --reader ocr --runs 2` → 78.0% exact (64/82), 100% given a row, 1.2%
+  silently wrong (1), spread 78.0–78.0%.** The gold grew from 63 to 82 with Kabir's Grade 3–4 quiz,
+  the worst page in the corpus: a phone photograph under heavy red marking.
+
+- **A sixteenth paper was hiding.** The Grade 4 child's baseline is not the Grade 3 baseline — same
+  header, same sixteen-question shape, entirely different questions (division, fractions, numbers
+  in words), which the page classifier could not tell apart. His sitting had been read against the
+  wrong paper, twelve of sixteen answers came back `not_found`, and that is what surfaced it.
+  `G4-BASE16` is entered; the misfiled reading is superseded, not deleted.
+
+- **Still open, and named rather than tuned away:** `G3-BASE16` question 6 — the child wrote 763,
+  Textract reads 363 at 80%, on a pencil photograph. One silent error in 82. The 222 non-structural
+  flags are dominated by two papers whose answers sit on plain underlines with no box at all
+  (`G3-SEPW1-A`, `G4-SEPW1`), which is where a real template — one blank page per paper, aligned
+  with a homography — would earn its keep next.
+
+- Suite **362 passed**, web **34 passed (1 skipped) + 8 passed**, ruff clean, `engine audit` → 12
+  invariants 0 violations. `adapters/ocr.py` is now 859 lines against a 400-line ceiling and wants
+  splitting along the transcriber/geometry seam; an attempt at it this session was abandoned rather
+  than half-landed.

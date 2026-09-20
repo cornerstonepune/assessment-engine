@@ -4,7 +4,7 @@
   "band": "G3",
   "week": "Sep W1",
   "date": "2026-09-03",
-  "_note": "Entered 2026-09-20 from the printed page. The harder September Week 1 form (Level B is above Level A, settled with Nimish 2026-09-17): 30 answers over two pages, of which the general statement and the three true/not-true ticks are not numbers and always reach a person.",
+  "_note": "Entered 2026-09-20 from the printed page. The harder September Week 1 form (Level B is above Level A, settled with Nimish 2026-09-17): 30 answers over two pages, of which the general statement and the three true/not-true ticks are not numbers and always reach a person. The number-wall bricks are lettered in reading order — top row first, then the next row left to right — because that is the order the reader assigns fields in; each brick carries its own sum, and all anchor on the printed instruction above the wall.",
   "pages": [
     {
       "n": 1,
@@ -192,22 +192,22 @@
       "n": 7,
       "part": "a",
       "page": 2,
-      "expr": "12 + 15",
-      "question": "12 15 18"
+      "expr": "27 + 33",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete the number wall. 12 15 18"
     },
     {
       "n": 7,
       "part": "b",
       "page": 2,
-      "expr": "15 + 18",
-      "question": "12 15 18"
+      "expr": "12 + 15",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete the number wall. 12 15 18"
     },
     {
       "n": 7,
       "part": "c",
       "page": 2,
-      "expr": "27 + 33",
-      "question": "12 15 18"
+      "expr": "15 + 18",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete the number wall. 12 15 18"
     },
     {
       "n": 8,

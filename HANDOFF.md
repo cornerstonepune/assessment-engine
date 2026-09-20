@@ -18,53 +18,46 @@ bin/engine read eval --reader ocr --runs 2              76.2% exact · 1.6% sile
 
 ## What moved
 
-**Every paper is entered — 16 of 16, each checked against its printed page.** Twelve were new
-today. Four of them had never been seen by anyone: the Cambridge paper runs at four levels and
-September Week 2 at three sets, the eighteen loose Grade 2 photographs turned out to be a whole
-15-question diagnostic of their own, and each Grade 3 child's four photographs are two papers of
-two pages. `docs/w3-paper-inventory.md` is the table.
-
-**Every in-scope scan is read — 71 files, 108 pages, 0 failures.**
+**The paper's own printed boxes are now the answer fields** — the standard form-processing move
+(align to a template, read each field at its coordinates), with the boxes found on the child's own
+scan so no alignment step is needed. Nine of sixteen papers declare `fields: boxes` as a row.
 
 ```
-section  sittings  children  files  answers  correct  wrong  blank  to a person
-G2             30        11     42      484      183     86     29          186
-G3             19         5     29      385       87     58     58          182
-total          49        16     71      869      270    144     87          368
+                answers   settled by the engine   waiting for a person
+before              869        501  (58%)              368
+after               867        606  (70%)              261   of which 39 are structural
 ```
 
-**No child has a ladder, and that is correct.** `bin/engine graph` → `0 states`. The graph reads
-confirmed evidence and nothing else; 869 answers are candidates waiting on the approval screen, and
-the 218 answers that had been confirmed from the replaced vision model are superseded — still in
-the database, no longer in any ladder. A migration was needed for that last part: the graph was the
-one place in the system that did not honour `capture.superseded_by`.
+Structural means an ordering, an explanation, a tick or a comparison symbol — answers that are not
+numbers, which this transcriber cannot read by design and which always reach a person.
 
-**Three reader defects and one ladder defect, all found by running the corpus:** a stacked column
-sum could not be anchored at all (4 of 10 answers on one sheet → 8 of 10 once a question may span
-two printed lines); a child's answer that OCR could not turn into a number was still being called
-`blank` at full confidence; `rung_for` filed "4 + 3" under R4, the 2-digit column rung, so a child
-who cannot add within 10 would have been recorded as failing at place value; and the graph read
-superseded evidence. All four are fixed at the cause with tests.
+**`bin/engine read eval --reader ocr --runs 2` → 78.0% exact (64/82), 100% given a row, 1.2%
+silently wrong, spread 78.0–78.0%.** The gold grew from 63 to 82: Kabir's Grade 3–4 quiz, a phone
+photograph under heavy red marking, hand-verified.
+
+Two findings worth carrying: **red ink is the educator's and is inpainted out before reading** (a
+red circle over 5147 read back as 147 at 95%), and **a number the question prints is never the
+answer unless the child declared it**. Both are rows, both are tested, both measured on the gold.
+
+**A sixteenth paper was hiding**: the Grade 4 child's baseline is not the Grade 3 one — same
+header, different questions. `G4-BASE16` is entered and his misfiled reading superseded.
 
 ## Next, in the order that removes the most risk
 
-1. **Sign off the corpus on the approval screen.** 368 answers are waiting for a person and 501 are
-   marked and waiting for a signature. Nothing reaches a child's ladder until that happens, and
-   every correction made there is a hand-verified response that grows the gold set — which is how
-   the bar's `gold_responses_min: 300` gets met without a data-entry project.
-2. **Then the flag rate, which is a layout problem, not a grade or a regime problem.** Papers with
-   one answer per question flag 0–35%; fill-in-the-box grids flag 70–87%, and almost all of it is
-   `illegible`: the question is found and the region holds a different number of candidates than it
-   has slots. The commonest cause is a child writing the answer twice, once in the box and once on
-   the printed `Answer:` line. **Collapsing candidates that agree in value is the next lever** — and
-   it must be measured against the gold set first, because two boxes in one row can legitimately
-   hold the same number and collapsing those trades a flagged unknown for a silent error.
-3. **Textract QUERIES as a second opinion** on answers geometry has already flagged, accepted only
-   above the confidence floor or where it agrees with a candidate already found.
-4. **Then the graph and the five gold reports**: with the corpus signed off, `reproduces_the_gold_diagnosis`
-   and `matches_all_five_reports` become runnable for the first time.
-5. **Then** `n8n/workflows/f3-read-and-graph.json` and `engine read accuracy`, the two W3 criteria
-   still red.
+1. **Sign off the corpus on the approval screen.** 606 answers are marked and waiting for a
+   signature; 261 need a person, 39 of them structurally. Nothing reaches a child's ladder until
+   that happens, and every correction is a hand-verified response that grows the gold set.
+2. **A real template for the two underline papers.** `G3-SEPW1-A` and `G4-SEPW1` print their
+   answers on plain rules with no box, and they are where the remaining flags concentrate. One
+   blank page per paper plus an ORB/RANSAC homography — the PyImageSearch pipeline in full — gives
+   field coordinates for papers whose fields the page does not draw. That is the next real lever,
+   and it is the half of the standard approach this session did not need.
+3. **Split `adapters/ocr.py`** along the transcriber/geometry seam: 859 lines against a 400 ceiling.
+   An attempt this session was abandoned rather than half-landed; the seam is real and the tests
+   already cover both sides.
+4. **Textract QUERIES as a second opinion** on answers already flagged, accepted only above the
+   confidence floor or where it agrees with a candidate already found.
+5. **Then** the graph, the five gold reports, and the two W3 criteria still red.
 
 ## Carried over — Nimish's calls, not blockers
 

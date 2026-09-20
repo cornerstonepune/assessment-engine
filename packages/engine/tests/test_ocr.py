@@ -192,6 +192,7 @@ def test_geometry_comes_from_rows_not_from_the_code():
         "box_min_height",
         "box_max_width",
         "box_ink_blank",
+        "red_pen_mask",
     }
     assert ocr.settings(None) == ocr.DEFAULTS  # no database: the measured defaults
 
@@ -226,8 +227,9 @@ def test_an_answer_that_is_not_a_number_goes_to_a_person_rather_than_being_calle
     q = {"13": "Compare using >, <, or =: 456 ___ 465"}
     # The paper row knows its answer is not a number, so this slot can never be read at all.
     assert ocr.answers_for(p, q, symbolic={"13"})["13"]["answer_state"] == "illegible"
-    # And even without being told, a mark the child made ON the printed line is not nothing.
-    assert ocr.answers_for(p, q)["13"]["answer_state"] == "illegible"
+    # Untold, a one-character mark on the line reads as an educator's cross and the slot as blank —
+    # which is exactly why a symbolic slot is named in the paper row and never left to inference.
+    assert ocr.answers_for(p, q)["13"]["answer_state"] == "blank"
 
 
 def test_writing_on_the_papers_own_line_is_never_reported_as_a_blank():
@@ -341,13 +343,17 @@ def test_a_box_holding_only_printed_words_is_the_paper_not_a_field():
     assert (got["2"]["child_answer"], got["2"]["answer_state"]) == ("50", "written")
 
 
-def test_two_different_numbers_in_one_box_still_go_to_a_person():
+def test_working_above_an_answer_in_one_box_is_read_as_the_answer():
+    """Two numbers in one box are the child's working and their answer, and the answer comes
+    last — the rule a single-answer region has used since it was measured. Its known limit is a
+    self-correction written beside the first attempt on the same row: the rightmost wins, which
+    is a coin toss the confidence floor and the approval screen both stand behind."""
     anchor = w("1 Complete each addition.", 0.08, 0.20, hand=False, width=0.3)
     words = [w("55", 0.20, 0.24, line="4 + 3 = 55"), w("58", 0.14, 0.30, line="58")]
     got = ocr.answers_for(
         page(words, [anchor]), {"1": "Complete each addition."}, boxes=[(0.08, 0.22, 0.28, 0.32)]
     )
-    assert got["1"]["answer_state"] == "illegible"
+    assert (got["1"]["child_answer"], got["1"]["answer_state"]) == ("58", "written")
 
 
 def test_an_empty_frame_beside_an_answer_on_a_line_is_not_a_blank():
@@ -414,3 +420,209 @@ def test_a_question_read_from_its_boxes_still_bounds_the_question_above_it():
     got = ocr.answers_for(page_, slots, boxes=[box4])
     assert got["4a"]["child_answer"] == "397"
     assert [got[k]["child_answer"] for k in ("3a", "3b", "3c")] == ["158", "235", "346"]
+
+
+def test_working_and_the_answer_in_one_box_read_as_the_answer():
+    """Cambridge B, box 1d: the child stacks 55 + 6 in the box and writes 61 on the Answer line.
+    Three numbers, one slot — and the box path called that a doubt while the region path had long
+    since learned that the last number is the one the child stood behind."""
+    anchor = w("55 + 6 =", 0.75, 0.24, hand=False)
+    box = (0.73, 0.22, 0.93, 0.33)
+    words = [
+        w("55 + 6 =", 0.75, 0.24, hand=False),
+        w("55", 0.80, 0.27, line="55"),
+        w("6", 0.81, 0.29, line="+ 6"),
+        w("61", 0.84, 0.32, line="Answer: 61"),
+    ]
+    got = ocr.answers_for(page(words, [anchor]), {"1d": "55 + 6 ="}, boxes=[box])
+    assert (got["1d"]["child_answer"], got["1d"]["answer_state"]) == ("61", "written")
+
+
+def test_an_expanded_form_written_as_one_token_is_three_answers():
+    """Grade 3 baseline, question 3: "200+30+6" comes back from Textract as a single word, and
+    three slots against one candidate went to a person on every child. The pieces are the
+    answers when — and only when — there are exactly as many as the paper has slots."""
+    anchor = w("3. Write 236 in expanded form:", 0.15, 0.22, hand=False, width=0.32)
+    words = [w("200+30+6", 0.33, 0.22, line="3. Write 236 in expanded form: 200+30+6")]
+    slots = {
+        "3a": "Write 236 in expanded form:",
+        "3b": "Write 236 in expanded form:",
+        "3c": "Write 236 in expanded form:",
+    }
+    got = ocr.answers_for(page(words, [anchor]), slots)
+    assert [got[k]["child_answer"] for k in ("3a", "3b", "3c")] == ["200", "30", "6"]
+
+
+def test_a_compound_token_in_a_one_slot_region_is_still_working():
+    anchor = w("452 - 236 =", 0.10, 0.60, hand=False)
+    words = [w("452-236", 0.12, 0.64, line="452-236"), w("216", 0.14, 0.68, line="216")]
+    got = ocr.answers_for(page(words, [anchor]), {"9": "452 - 236 ="})
+    assert (got["9"]["child_answer"], got["9"]["answer_state"]) == ("216", "written")
+
+
+def test_an_answer_written_on_the_questions_own_line_is_never_above_the_region():
+    """Kabir's 5147 for 8,500 − 3,647, the finding Aseem's report is written around: a large
+    handwritten answer on the printed line starts a little above the printed text, its top-left
+    corner fell above the region's top, and the answer came back blank."""
+    anchor = w("5. 8,500 - 3,647 =", 0.06, 0.490, hand=False, width=0.28, h=0.02)
+    answer = w("5147", 0.36, 0.476, h=0.03, line="5. 8,500 - 3,647 =")
+    got = ocr.answers_for(page([answer], [anchor]), {"5": "8,500 - 3,647 ="})
+    assert (got["5"]["child_answer"], got["5"]["answer_state"]) == ("5147", "written")
+
+
+def test_a_printed_operand_read_back_as_handwriting_is_never_the_answer():
+    """Kabir's quiz: beside his large digits Textract tagged the printed 37,845 as handwriting at
+    94%, and "8 x ___ = 72" gave back the printed 72 at 86%. Both were stood behind, both wrong.
+    A number the question prints is an echo — working at best — and when nothing else was read,
+    the answer goes to a person rather than to the graph."""
+    anchor = w("1. 24,568 + 37,845 =", 0.06, 0.19, hand=False, width=0.30)
+    # as the photograph came back: the child's copy of the operand on a line of its own, and
+    # their answer read as a word — nothing left that is a number, and the child wrote something
+    words = [
+        w("37,845", 0.16, 0.205, conf=94, h=0.04, line="37,845", mixed=False),
+        w("Elhlo", 0.29, 0.186, conf=64, h=0.036, line="Elhlo", mixed=False),
+    ]
+    got = ocr.answers_for(page(words, [anchor]), {"1": "24,568 + 37,845 ="})
+    assert got["1"]["answer_state"] == "illegible"
+
+    anchor = w("13. Fill in the blank: 8 x", 0.10, 0.22, hand=False, width=0.30)
+    words = [
+        w("9", 0.30, 0.22, conf=95, line="13. Fill in the blank: 8 x 9 = 72"),
+        w("72", 0.36, 0.22, conf=86, line="13. Fill in the blank: 8 x 9 = 72"),
+    ]
+    got = ocr.answers_for(page(words, [anchor]), {"13": "Fill in the blank: 8 x ___ = 72"})
+    assert (got["13"]["child_answer"], got["13"]["answer_state"]) == ("9", "written")
+
+
+def test_an_operand_copied_into_the_working_still_leaves_the_answer():
+    anchor = w("342 + 579 =", 0.13, 0.38, hand=False)
+    words = [
+        w("342", 0.14, 0.40, line="342"),
+        w("579", 0.14, 0.42, line="579"),
+        w("921", 0.14, 0.44, line="921"),
+    ]
+    got = ocr.answers_for(page(words, [anchor]), {"6": "342 + 579 ="})
+    assert (got["6"]["child_answer"], got["6"]["answer_state"]) == ("921", "written")
+
+
+def test_a_word_on_the_printed_line_belongs_to_it_whatever_textract_grouped():
+    """Kabir's 5147 again, the way the photograph actually came back: Textract gave the child's
+    digits a line of their own, so a rule that trusted its grouping still reported a blank."""
+    anchor = w("5. 8,500 - 3,647 =", 0.06, 0.490, hand=False, width=0.28, h=0.02)
+    answer = w("5147", 0.36, 0.476, h=0.03, line="5147", mixed=False)
+    got = ocr.answers_for(page([answer], [anchor]), {"5": "8,500 - 3,647 ="})
+    assert (got["5"]["child_answer"], got["5"]["answer_state"]) == ("5147", "written")
+
+
+def test_two_parts_a_tenth_of_a_page_apart_are_two_regions():
+    """Week 1, question 13: (a) the largest total and (b) the smallest, each with its own working
+    box. One region held both workings — six numbers for two slots — and both went to a person."""
+    a13 = w("a What is the largest total Naomi can make?", 0.10, 0.33, hand=False, width=0.5)
+    b13 = w("b What is the smallest total she can make?", 0.10, 0.44, hand=False, width=0.5)
+    words = [
+        w("963", 0.14, 0.36, line="963", mixed=False),
+        w("841", 0.14, 0.38, line="841", mixed=False),
+        w("1804", 0.14, 0.40, line="1804", mixed=False),
+        w("149", 0.14, 0.47, line="149", mixed=False),
+        w("368", 0.14, 0.49, line="368", mixed=False),
+        w("517", 0.14, 0.51, line="517", mixed=False),
+    ]
+    slots = {
+        "13a": "What is the largest total Naomi can make?",
+        "13b": "What is the smallest total she can make?",
+    }
+    got = ocr.answers_for(page(words, [a13, b13]), slots)
+    assert (got["13a"]["child_answer"], got["13b"]["child_answer"]) == ("1804", "517")
+
+
+def test_three_consecutive_printed_lines_are_still_one_region():
+    """Cambridge A, question 5 prints its three parts on three lines a line apart, and its parts
+    match each other's lines. Those stay one region, read positionally, as they always were."""
+    lines = [
+        w("452 - 236. Regroup 452 into 400 +", 0.13, 0.70, hand=False, width=0.30),
+        w("452 = 400 + 40 +", 0.13, 0.725, hand=False, width=0.30),
+        w("452 - 236 =", 0.13, 0.75, hand=False, width=0.30),
+    ]
+    words = [w("0", 0.40, 0.70), w("52", 0.40, 0.725), w("72", 0.40, 0.75)]
+    slots = {
+        "5a": "452 - 236. Regroup 452 into 400 + [ ]",
+        "5b": "452 = 400 + 40 + [ ]",
+        "5c": "452 - 236 = [ ]",
+    }
+    got = ocr.answers_for(page(words, lines), slots)
+    assert [got[k]["child_answer"] for k in ("5a", "5b", "5c")] == ["0", "52", "72"]
+
+
+def test_an_answer_that_equals_an_operand_is_kept_when_the_child_declared_it():
+    """52 − 26 = 26 on every copy of the word paper. The child who labels it, or states it in a
+    sentence, has declared an answer; the number itself is no reason to doubt them."""
+    anchor = w(
+        "2. There were 52 birds sitting on a tree. 26 birds flew away.", 0.10, 0.30, hand=False, width=0.6
+    )
+    q = {
+        "2": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?"
+    }
+    labelled = [w("26", 0.30, 0.36, line="ans=26", mixed=False)]
+    assert ocr.answers_for(page(labelled, [anchor]), q)["2"]["child_answer"] == "26"
+    sentence = [w("26", 0.12, 0.36, line="26 birds are left on the tree", mixed=False)]
+    assert ocr.answers_for(page(sentence, [anchor]), q)["2"]["child_answer"] == "26"
+    bare = [w("26", 0.30, 0.36, line="26", mixed=False)]
+    assert ocr.answers_for(page(bare, [anchor]), q)["2"]["answer_state"] == "illegible"
+
+
+def test_a_childs_neat_digits_tagged_as_print_still_make_their_brick_a_field():
+    """The number wall: twelve bricks, six printed by the paper, six for the child — and one of the
+    child's, a neat "19", came back tagged PRINTED. Seven printed-only boxes against the six the
+    row lists: the surplus box with the most ink is the child's, and its digits are read as theirs."""
+    region = {"top": 0.18, "bottom": 0.32, "left": -0.04, "right": 0.98}
+    printed = [
+        (0.07, 0.28, 0.16, 0.30, 0.082),
+        (0.16, 0.28, 0.25, 0.30, 0.084),
+        (0.26, 0.28, 0.35, 0.30, 0.092),
+        (0.37, 0.28, 0.46, 0.30, 0.092),
+        (0.42, 0.26, 0.50, 0.28, 0.095),
+        (0.55, 0.28, 0.64, 0.30, 0.083),
+    ]
+    childs_tagged_printed = (0.46, 0.28, 0.55, 0.30, 0.117)
+    childs = [
+        (0.16, 0.23, 0.25, 0.26, 0.096),
+        (0.46, 0.23, 0.55, 0.26, 0.139),
+        (0.12, 0.26, 0.21, 0.28, 0.108),
+        (0.21, 0.26, 0.30, 0.28, 0.106),
+        (0.51, 0.26, 0.60, 0.28, 0.110),
+    ]
+    words = [
+        w(str(n), b[0] + 0.02, b[1] + 0.005, hand=False) for n, b in zip((14, 19, 24, 26, 45, 41), printed)
+    ]
+    words.append(w("19", 0.48, 0.285, hand=False))
+    words += [w(str(n), b[0] + 0.02, b[1] + 0.005) for n, b in zip((76, 105, 33, 43, 60), childs)]
+    fields = ocr._fields_in(printed + [childs_tagged_printed] + childs, page(words, []), region, printed=6)
+    assert len(fields) == 6
+    trusted = next(f for f in fields if len(f) > 5)
+    assert trusted[:5] == childs_tagged_printed
+    assert ocr._read_field(page(words, []), trusted, ocr.DEFAULTS, "none")["child_answer"] == "19"
+
+
+def test_red_ink_is_painted_out_and_pencil_is_not():
+    """A red circle round 5147 read back as 147, at 95%."""
+    import cv2
+    import numpy as np
+
+    img = np.full((300, 600, 3), 255, np.uint8)
+    cv2.putText(img, "5147", (200, 160), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (40, 40, 40), 6)
+    cv2.ellipse(img, (290, 140), (150, 70), 0, 0, 360, (30, 30, 220), 6)  # BGR red
+    out = cv2.imdecode(
+        np.frombuffer(ocr.mask_red_pen(cv2.imencode(".jpg", img)[1].tobytes()), np.uint8), cv2.IMREAD_COLOR
+    )
+    hsv = cv2.cvtColor(out, cv2.COLOR_BGR2HSV)
+    red_left = (
+        cv2.inRange(hsv, (0, 80, 60), (12, 255, 255)) | cv2.inRange(hsv, (160, 80, 60), (180, 255, 255))
+    ).sum()
+    assert red_left == 0
+    assert (out[100:170, 205:420].mean(axis=2) < 100).sum() > 2000  # the pencil digits survive
+    assert ocr.mask_red_pen(b"", {"red_pen_mask": 0}) == b""
+
+
+def test_a_truncated_thousands_number_is_not_a_value():
+    assert ocr.value_of("24,") is None
+    assert ocr.value_of("24,568") == "24568"

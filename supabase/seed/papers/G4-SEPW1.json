@@ -4,7 +4,7 @@
   "band": "G4",
   "week": "Sep W1",
   "date": "2026-09-03",
-  "_note": "Entered 2026-09-20. The Grade 4 September Week 1 paper prints the same thirteen questions as Grade 3 Level A — checked page by page — and differs only in the header band and the footer. It is its own paper because it is its own printed sheet and its own band; the items are the same, so a child who sat either is read the same way. One child sat this form.",
+  "_note": "Entered 2026-09-20. The Grade 4 September Week 1 paper prints the same thirteen questions as Grade 3 Level A — checked page by page — and differs only in the header band and the footer. It is its own paper because it is its own printed sheet and its own band; the items are the same, so a child who sat either is read the same way. One child sat this form. The number-wall bricks are lettered in reading order — top row first, then the next row left to right — because that is the order the reader assigns fields in; each brick carries its own sum, and all anchor on the printed instruction above the wall.",
   "pages": [
     {
       "n": 1,
@@ -212,45 +212,45 @@
       "n": 8,
       "part": "a",
       "page": 2,
-      "expr": "14 + 19",
-      "question": "14 19 24"
+      "expr": "33 + 43",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "b",
       "page": 2,
-      "expr": "19 + 24",
-      "question": "14 19 24"
+      "expr": "45 + 60",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "c",
       "page": 2,
-      "expr": "33 + 43",
-      "question": "14 19 24"
+      "expr": "14 + 19",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "d",
       "page": 2,
-      "kind": "missing",
-      "rung": "R7",
-      "answer": 19,
-      "question": "26 41"
+      "expr": "19 + 24",
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "e",
       "page": 2,
       "expr": "19 + 41",
-      "question": "26 41"
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 8,
       "part": "f",
       "page": 2,
-      "expr": "45 + 60",
-      "question": "26 41"
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 19,
+      "question": "The number in each brick is the sum of the two bricks below it. Complete both number walls. 14 19 24 26 45 41"
     },
     {
       "n": 9,
