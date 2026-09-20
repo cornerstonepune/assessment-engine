@@ -22,7 +22,7 @@ so W2 is not held on other people's calendars. Ratification is per-version — t
 it the moment anyone edits a spec's content — so the school's corrections remain the normal path
 and re-open the signature on whatever they touch.
 
-## Where we are: **W2 — assemble and print.** Its goal is written and most of it is met.
+## Where we are: **W2 — assemble and print. Its goal is met: 12/12 scenarios, 4/4 criteria.**
 
 `goals/w2-assemble-and-print.yaml` is W2's definition of done. Run it:
 
@@ -36,7 +36,15 @@ real week and read the properties off the rows), the class-need target that scen
 `n8n/workflows/f2-assemble-and-print.json`, which lints — and the approval gate, which the
 database now enforces (a printed sheet must name who allowed it, migration 20260923090000).
 
-What W2 still needs:
+Both goals are green as of 2026-09-20:
+
+```
+bin/engine goal w1-build-the-bank      10/10 scenarios · 5/5 criteria · GOAL ACHIEVED
+bin/engine goal w2-assemble-and-print  12/12 scenarios · 4/4 criteria · GOAL ACHIEVED
+bin/engine audit                       12 invariants · 0 violations
+```
+
+What W2 still needs before the pilot:
 1. **A live end-to-end run** — the same honest gap W1 gate 5 has: n8n Cloud cannot reach
    `http://engine:8000` on a laptop. `deploy/compose.yml` runs both together where they share a host.
 2. **The Grade 1 decision, which is the school's**: `ADD.1D.WITHIN10` holds 22–24 questions against a

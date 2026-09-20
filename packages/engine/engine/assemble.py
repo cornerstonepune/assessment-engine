@@ -164,15 +164,23 @@ def _store(conn, tenant, p, items, week, kind):
             "update prescription set sheet_instance_id = %s where id = %s", (instance["id"], p["id"])
         )
     if p["child_id"]:
-        for r in items:
-            conn.execute(
-                "insert into item_exposure (tenant_id, child_id, item_id, week) values (%s,%s,%s,%s)"
-                " on conflict (tenant_id, child_id, item_id) do nothing",
-                (tenant, p["child_id"], r["id"], week),
-            )
-    conn.execute(
-        "update item set times_used = times_used + 1 where id = any(%s)", ([r["id"] for r in items],)
-    )
+        # One ordered statement, not a loop: two classes assembled at the same moment insert into the
+        # same index pages, and doing it in each child's own sample order deadlocked (the pair that
+        # `test_two_classes_assembled_at_the_same_moment_both_finish` catches). Ordering by item id
+        # makes every builder touch the index the same way round — and it is one round trip, not
+        # twelve.
+        conn.execute(
+            "insert into item_exposure (tenant_id, child_id, item_id, week)"
+            " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id"
+            " on conflict (tenant_id, child_id, item_id) do nothing",
+            (tenant, p["child_id"], week, [r["id"] for r in items]),
+        )
+    # `item.times_used` is NOT written here. It is a derived number — how often a question has been
+    # handed out, which `item_exposure` already records row by row — and writing it from the hot path
+    # made two classes assembled at the same moment deadlock on the same item rows (Postgres locks in
+    # scan order, so even an ordered `for update` did not fix it). Ring B owns derived numbers:
+    # `engine graph` refreshes the counter from the exposures. The ordering it feeds only spreads the
+    # load across a unit, so being a rebuild behind costs nothing.
     return {
         "template_id": template,
         "instance_id": instance["id"],

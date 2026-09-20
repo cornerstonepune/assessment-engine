@@ -6,6 +6,7 @@ question, a child never sees a question twice, and the prescription can always s
 
 import json
 import os
+import uuid
 
 import pytest
 
@@ -188,3 +189,57 @@ def test_reading_a_name_is_logged(conn, children):
         ]
         == before + 1
     )
+
+
+def test_two_classes_assembled_at_the_same_moment_both_finish():
+    """Two teachers declare on the same Wednesday. Both weeks must be built, not one deadlocked.
+
+    `_store` used to bump `item.times_used` for every question it handed out, and two builders
+    touching the same unit deadlocked on those rows — first on `item`, then, once the update was
+    ordered, on `item_exposure`'s index. Ordering cannot fix it (Postgres locks in scan order, not
+    sorted order); the counter is derived, so it moved to Ring B (`graph.refresh_item_usage`) and the
+    hot path takes no locks at all. This test fails with `DeadlockDetected` against the old code.
+
+    A deadlock needs two real transactions, so this is the one test here that commits: its own
+    section, deleted in a `finally`, never the roster another test reads.
+    """
+    import threading
+
+    # A section of its own per run, and the children are deactivated rather than deleted at the end:
+    # `evidence_event` is append-only (rule 4) and a cascading DELETE is refused by its trigger, which
+    # is also what a school does when a child leaves — the work they did stays.
+    section = f"CONCURSEC-{uuid.uuid4().hex[:6]}"
+    errors: list[Exception] = []
+
+    def build(week):
+        try:
+            with db.connect() as c:
+                prescribe.for_class(c, section, week, SET)
+                assemble.for_week(c, section, week)
+                c.rollback()
+        except Exception as e:  # noqa: BLE001 — the test reports whatever it was
+            errors.append(e)
+
+    with db.connect() as setup:
+        tenant = setup.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        for i in (1, 2):
+            row = setup.execute(
+                "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,'G2') returning id",
+                (tenant, str(i), section),
+            ).fetchone()
+            setup.execute(
+                "insert into pii.child (tenant_id, child_id, first_name) values (%s,%s,%s)",
+                (tenant, row["id"], f"Concurrent {i}"),
+            )
+        setup.commit()
+    try:
+        threads = [threading.Thread(target=build, args=(f"{WEEK}-c{i}",)) for i in (1, 2)]
+        for th in threads:
+            th.start()
+        for th in threads:
+            th.join(timeout=120)
+        assert not errors, f"concurrent week builds failed: {errors}"
+    finally:
+        with db.connect() as done:
+            done.execute("update child set active = false where section = %s", (section,))
+            done.commit()

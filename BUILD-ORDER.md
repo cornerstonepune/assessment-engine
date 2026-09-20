@@ -15,7 +15,7 @@ screen where a person acts. "Built" means all of that, not the Python alone.
 | # | Workflow | In | Out | Status |
 |---|---|---|---|---|
 | **W1** | Build the bank (N1–N2) | any skill on the map, its learning objective, a difficulty | hundreds of verified questions per skill × difficulty, for any topic, by rows only | **done: `engine goal w1-build-the-bank` → 10/10 scenarios, 5/5 criteria (2026-09-20)** |
-| W2 | Assemble and print (N5–N7) | each child's prescription | per-child papers with QR, spares, key; the teacher approves | **← we are here. Week runner, class-need target (ADR 0016), `/week/*` endpoints and F2 built 2026-09-20; the approval gate and a live run remain** |
+| W2 | Assemble and print (N5–N7) | each child's prescription | per-child papers with QR, spares, key; the teacher approves | **goal met 2026-09-20: `engine goal w2-assemble-and-print` → 12/12 scenarios, 4/4 criteria. A live n8n run and the Grade 1 decision remain** |
 | W3 | Read and graph (N8–N10) | scanned or photographed papers | marked answers, mistake patterns, the child's skill graph | a first reader has run on 10 of the 84 real sheets; nothing measured; not a workflow |
 | W4 | Close the loop (N11–N12 → N5) | the graph | next paper, home sheet, parent note, per child | not started |
 

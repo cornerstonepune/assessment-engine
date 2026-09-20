@@ -1318,3 +1318,29 @@ W2's goal was written before its code (ADR 0015). Building against it, in the or
   tests were the ones that said so.
 - **Suite: 300 passed** (up from 295: the week routes, the approval gate both ways, and the eleventh
   W2 scenario).
+
+## A derived counter in the hot path deadlocked two classes (2026-09-20)
+
+Found by timing W2's scenarios while a goal run was building weeks in another connection — two real
+week builders at once, which is what a school does when two teachers declare on the same Wednesday,
+or when F2 fires for two sections.
+
+- **`assemble._store` incremented `item.times_used` for every question it handed out.** Two builders
+  touching the same unit deadlocked on those rows. Ordering the update by id did not fix it —
+  Postgres takes `FOR UPDATE` locks in *scan* order, not in the order of the `ORDER BY` — and once the
+  update was ordered the deadlock simply moved to `item_exposure`'s index.
+- **The counter is derived, so it moved to Ring B.** `graph.refresh_item_usage` computes it from
+  `item_exposure`, which already records every handout row by row, and `engine graph` calls it. The
+  hot path now takes no row locks at all. What the counter feeds is the pool's ordering — spreading
+  the load across a unit — so being one rebuild behind costs nothing. This is what CLAUDE.md's Ring B
+  already said: a derived number is a pure function of Ring A, rebuildable at any time, and it had no
+  business being written by a concurrent path in Ring A.
+- **Checked by a test that fails against the old code:**
+  `tests/test_week.py::test_two_classes_assembled_at_the_same_moment_both_finish` builds two weeks in
+  two threads on two connections. Against the previous query it raised `DeadlockDetected` (seen on the
+  first of three attempts, then intermittently — a deadlock needs the interleaving); with the counter
+  derived it passed **five runs out of five**. It is the one test here that commits, so it uses a
+  section of its own per run and deactivates its children afterwards rather than deleting them —
+  `evidence_event` is append-only and refuses a cascading delete (rule 4), which is also what a school
+  does when a child leaves.
+- **Suite: 301 passed.** `engine audit` → `12 invariants, 0 violations`.

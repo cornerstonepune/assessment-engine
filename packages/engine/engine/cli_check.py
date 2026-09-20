@@ -46,31 +46,39 @@ def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list the
     """A goal and the commands that prove it. Exits 1 until every criterion passes."""
     if not name:
         for n in goal_module.names():
-            _say(f"  {n}  —  {goal_module.load(n)['goal']}")
+            _say(f"  {n}  —  {goal_module.load(n)['goal'].strip()}")
         return
-    spec, results = goal_module.check(name)
+    spec = goal_module.load(name)
     _say(f"  GOAL  {spec['goal'].strip()}")
+
     scenarios = goal_module.scenarios_of(spec)
     met = 0
     if scenarios:
         with db.connect() as conn:
-            for sc, m, failures in scenarios_module.run(scenarios, conn):
+            for sc in scenarios:
+                m, failures = scenarios_module.run_one(conn, sc)
                 met += not failures
                 _say(f"  {'PASS' if not failures else 'FAIL'}  {sc['name']}")
                 _say("          " + "  ".join(f"{k}={v}" for k, v in m.items()))
                 for f in failures:
                     _say(f"          {f}", err=True)
         _say(f"  {met}/{len(scenarios)} scenarios met the bar completely")
-    for c, ok, out in results:
-        _say(f"  {'PASS' if ok else 'FAIL'}  {c['name']}")
-        _say(f"          $ {c['run']}")
+
+    failed = []
+    for crit in spec["criteria"]:
+        _say(f"  ....  {crit['name']}")  # said before it runs: some of these take minutes
+        ok, out = goal_module.run_criterion(crit)
+        if not ok:
+            failed.append(crit["name"])
+        _say(f"  {'PASS' if ok else 'FAIL'}  {crit['name']}")
+        _say(f"          $ {crit['run']}")
         tail = [ln for ln in out.strip().splitlines() if ln.strip()][-3:]
         for ln in tail if not ok else tail[-1:]:
             _say(f"          {ln[:110]}")
-    failed = [c["name"] for c, ok, _ in results if not ok]
+
     short = len(scenarios) - met
     _say(
-        f"  {len(results) - len(failed)}/{len(results)} criteria met"
+        f"  {len(spec['criteria']) - len(failed)}/{len(spec['criteria'])} criteria met"
         + (f" · not met: {', '.join(failed)}" if failed else "")
         + (f" · {short} scenarios short of the bar" if short else "")
         + ("" if failed or short else " · GOAL ACHIEVED")

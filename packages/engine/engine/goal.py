@@ -40,26 +40,29 @@ def scenarios_of(spec):
     return spec.get("scenarios") or []
 
 
-def check(name, timeout=1800):
-    """Run every criterion in order. Returns (spec, [(criterion, passed, output)])."""
-    spec = load(name)
-    # The engine's own console script, so a goal file writes `engine ...` and never a path.
-    env = {**os.environ, "PATH": f"{os.path.dirname(sys.executable)}{os.pathsep}{os.environ.get('PATH', '')}"}
-    results = []
-    for c in spec["criteria"]:
-        try:
-            p = subprocess.run(
-                c["run"],
-                shell=True,
-                cwd=db.REPO_ROOT,
-                env=env,
-                timeout=timeout,
-                capture_output=True,
-                text=True,
-            )
-            out = (p.stdout or "") + (p.stderr or "")
-            ok = p.returncode == 0 and (c.get("expect", "") in out)
-        except subprocess.TimeoutExpired:
-            out, ok = f"timed out after {timeout}s", False
-        results.append((c, ok, out))
-    return spec, results
+def env():
+    """The engine's own console script on PATH, so a goal file writes `engine …` and never a path."""
+    return {
+        **os.environ,
+        "PATH": f"{os.path.dirname(sys.executable)}{os.pathsep}{os.environ.get('PATH', '')}",
+    }
+
+
+def run_criterion(c, timeout=1800):
+    """One criterion → (passed, output). It passes when the command exits 0 and its output contains
+    `expect`. Run one at a time by the caller, so a person sees each result as it lands instead of
+    waiting in silence for the slowest one."""
+    try:
+        p = subprocess.run(
+            c["run"],
+            shell=True,
+            cwd=db.REPO_ROOT,
+            env=env(),
+            timeout=timeout,
+            capture_output=True,
+            text=True,
+        )
+        out = (p.stdout or "") + (p.stderr or "")
+        return p.returncode == 0 and (c.get("expect", "") in out), out
+    except subprocess.TimeoutExpired:
+        return False, f"timed out after {timeout}s"
