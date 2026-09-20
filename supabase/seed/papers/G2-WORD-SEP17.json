@@ -4,13 +4,97 @@
   "band": "G2",
   "week": "Sep 17",
   "date": "2026-09-17",
-  "pages": [{"n": 1, "mask": 0.15}],
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.15
+    },
+    {
+      "n": 2,
+      "mask": 0
+    }
+  ],
   "items": [
-    {"n": 1, "page": 1, "kind": "word", "rung": "R8", "expr": "24 + 19", "question": "Simran picked 24 red apples and 19 green apples from the orchard. How many apples did she pick in all?"},
-    {"n": 2, "page": 1, "kind": "word", "rung": "R8", "expr": "52 - 26", "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?"},
-    {"n": 3, "page": 1, "kind": "word", "rung": "R8", "expr": "36 + 28", "question": "There are 36 boys and 28 girls in the school playground. How many children are in the playground altogether?"},
-    {"n": 4, "page": 1, "kind": "word", "rung": "R8", "answer": 51, "question": "Priya had 45 stickers. Her mother gave her 18 more stickers. Then she gave 12 stickers to her brother. How many stickers does Priya have now?"},
-    {"n": 5, "page": 1, "kind": "word", "rung": "R8", "expr": "70 - 38", "question": "Aryan had 70 marbles. He gave 38 marbles to his friend. How many marbles does Aryan have now?"},
-    {"n": 6, "page": 1, "kind": "word", "rung": "R8", "expr": "45 + 27", "question": "A baker made 45 muffins in the morning and 27 more muffins in the afternoon. How many muffins did the baker make in all?"}
-  ]
+    {
+      "n": 1,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "24 + 19",
+      "question": "Simran picked 24 red apples and 19 green apples from the orchard. How many apples did she pick in all?"
+    },
+    {
+      "n": 2,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "52 - 26",
+      "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?"
+    },
+    {
+      "n": 3,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "36 + 28",
+      "question": "There are 36 boys and 28 girls in the school playground. How many children are in the playground altogether?"
+    },
+    {
+      "n": 4,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "answer": 51,
+      "question": "Priya had 45 stickers. Her mother gave her 18 more stickers. Then she gave 12 stickers to her brother. How many stickers does Priya have now?"
+    },
+    {
+      "n": 5,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "70 - 38",
+      "question": "Aryan had 70 marbles. He gave 38 marbles to his friend. How many marbles does Aryan have now?"
+    },
+    {
+      "n": 6,
+      "page": 1,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "45 + 27",
+      "question": "A baker made 45 muffins in the morning and 27 more muffins in the afternoon. How many muffins did the baker make in all?"
+    },
+    {
+      "n": 7,
+      "page": 2,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "64 - 27",
+      "question": "A shopkeeper had 64 balloons. He sold 27 of them. How many balloons are left?"
+    },
+    {
+      "n": 8,
+      "page": 2,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "33 + 29",
+      "question": "Kabir collected 33 seashells on Monday and 29 seashells on Tuesday. How many seashells did he collect in all?"
+    },
+    {
+      "n": 9,
+      "page": 2,
+      "kind": "word",
+      "rung": "R8",
+      "answer": 65,
+      "question": "A farmer had 80 mangoes. He sold 35 mangoes in the morning and bought 20 more mangoes in the afternoon. How many mangoes does he have now?"
+    },
+    {
+      "n": 10,
+      "page": 2,
+      "kind": "word",
+      "rung": "R8",
+      "expr": "58 - 23",
+      "question": "A library had 58 story books. 23 books were borrowed by students. How many story books are left in the library?"
+    }
+  ],
+  "_note": "Page 2 entered 2026-09-20: questions 7-10 were on every child's scan from the start and had no slots, so four answers per child - twenty-four in all - were dropped on every import. Question 9 is two-step across two operations, which no expression on this paper can carry, so it holds its answer and no predictions."
 }

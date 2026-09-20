@@ -1,0 +1,68 @@
+{
+  "code": "G2-SEPW2-S3",
+  "title": "Cornerstone School · September Week 2 Assessment · Set 3",
+  "band": "G2",
+  "week": "Sep W2",
+  "date": "2026-09-11",
+  "_note": "Entered 2026-09-20 from the printed page: eight printed sums in column form, four a page, starting at single digits. The three extra sums on page 1 are in the educator's own hand, not printed, so they are not slots — a template cannot carry a question that is written on one copy. The stacked sums are entered as the page prints them; `ocr._candidates` joins a line to the one below it so a two-line sum can be found.",
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.2
+    },
+    {
+      "n": 2,
+      "mask": 0.15
+    }
+  ],
+  "items": [
+    {
+      "n": 1,
+      "page": 1,
+      "expr": "4 + 3",
+      "question": "4 + 3"
+    },
+    {
+      "n": 2,
+      "page": 1,
+      "expr": "7 + 6",
+      "question": "7 + 6"
+    },
+    {
+      "n": 3,
+      "page": 1,
+      "expr": "32 + 14",
+      "question": "32 + 14"
+    },
+    {
+      "n": 4,
+      "page": 1,
+      "expr": "45 + 23",
+      "question": "45 + 23"
+    },
+    {
+      "n": 5,
+      "page": 2,
+      "expr": "58 + 27",
+      "question": "58 + 27"
+    },
+    {
+      "n": 6,
+      "page": 2,
+      "expr": "69 + 14",
+      "question": "69 + 14"
+    },
+    {
+      "n": 7,
+      "page": 2,
+      "expr": "123 + 456",
+      "question": "123 + 456"
+    },
+    {
+      "n": 8,
+      "page": 2,
+      "expr": "278 + 345",
+      "question": "278 + 345"
+    }
+  ]
+}

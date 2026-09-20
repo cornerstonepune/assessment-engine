@@ -42,6 +42,12 @@ def rung_for(op, a, b):
     cols = tags._regroup_columns(op, a, b)
     if op == "×":
         return None  # off the addition/subtraction ladder (manifest.md: no multiplication rung yet)
+    if a < 10 and b < 10:
+        # A one-digit sum is not a two-digit column sum with a blank in front of it. The shape rule
+        # below reads "4 + 3" as width 2 without regrouping and files it under R4, which would tell
+        # the engine a child who cannot add within 10 has failed at place-value columns. The
+        # Cambridge Level D paper is entirely these, and it is the paper the weakest child sat.
+        return ("R1" if a + b <= 10 else "R2") if op == "+" else "R3"
     if width <= 2:
         return "R4" if not cols else ("R5" if op == "+" else "R6")
     if width == 3:

@@ -220,8 +220,30 @@ def test_an_answer_that_is_not_a_number_goes_to_a_person_rather_than_being_calle
     anchor = w("13. Compare using >, <, or =: 456", 0.10, 0.73, hand=False, width=0.31)
     p = page([w("<", 0.35, 0.73, conf=55.7, line="13. Compare using >, <, or =: 456 < 465")], [anchor])
     q = {"13": "Compare using >, <, or =: 456 ___ 465"}
-    assert ocr.answers_for(p, q)["13"]["answer_state"] == "blank"
+    # The paper row knows its answer is not a number, so this slot can never be read at all.
     assert ocr.answers_for(p, q, symbolic={"13"})["13"]["answer_state"] == "illegible"
+    # And even without being told, a mark the child made ON the printed line is not nothing.
+    assert ocr.answers_for(p, q)["13"]["answer_state"] == "illegible"
+
+
+def test_writing_on_the_papers_own_line_is_never_reported_as_a_blank():
+    """A child wrote "40" and Textract read the word `to`. With no number in the region that came
+    back BLANK at full confidence — the engine asserting the child did not attempt the skill."""
+    anchor = w("3. 31 + 26 =", 0.076, 0.608, hand=False, width=0.30)
+    p = page([w("to", 0.451, 0.608, conf=99, line="3. 31 + 26 = to")], [anchor])
+    assert ocr.answers_for(p, {"3": "31 + 26 ="})["3"]["answer_state"] == "illegible"
+
+
+def test_an_educators_cross_beside_an_empty_answer_leaves_it_blank():
+    """The other half of the same rule, and the one that must not regress: every Grade 3 answer
+    carries a tick or a cross beside it, and a cross over an empty line is a blank. An educator
+    marks in the margin, on a line of their own; a child writes into the paper's line."""
+    anchor = w("2. What is the value of the digit 5 in 458?", 0.151, 0.191, hand=False, width=0.239)
+    mark = w("X", 0.445, 0.192, conf=73, line="X x", mixed=False)
+    p = page([mark], [anchor, w("X x", 0.445, 0.192, hand=False, width=0.045)])
+    assert (
+        ocr.answers_for(p, {"2": "What is the value of the digit 5 in 458?"})["2"]["answer_state"] == "blank"
+    )
 
 
 def test_every_reading_says_where_on_the_page_it_came_from():

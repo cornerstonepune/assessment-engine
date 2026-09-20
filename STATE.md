@@ -2167,3 +2167,109 @@ has listed as W3's human gate since the plan was written.
   through the screen. Its value is true — the child did write 763, which is what the hand-verified
   gold already says — so it changes no number; it is named here rather than deleted, because
   deleting a correction is the one thing rule 4 forbids.
+
+## The whole corpus, entered and read (2026-09-20)
+
+Nimish: "Now finish the whole extraction." Every paper in `~/cornerstone/assessments` is now entered
+and every in-scope scan has been read once, by the reader in service.
+
+- **What is on disk, counted again.** 84 files / 194 pages. **In scope: 71 files / 108 pages.**
+  Excluded: 13 files / 86 pages — 8 SOF Olympiad booklets (multiple choice, excluded from W3's bar
+  by `goals/w3-read-and-graph.yaml` and measured separately when there is a measurement to set a
+  floor from) and Aseem's 5 typed reports, which are the gold and not the input. **The eighth
+  Olympiad booklet was hiding**: `G2/Hriday/Hriday sept. 2nd assessment.pdf` is a 10-page IMO
+  booklet, not a Week 2 paper. Hriday has no Week 2 paper, and `manifest.md` says he does.
+
+- **Sixteen distinct papers, every one entered from its printed page.** Four existed at the start of
+  the day, of which one was proven wrong and two unchecked. Each of the twelve new ones was read off
+  a real scan, question by question, and the four old ones were checked the same way:
+
+  | paper | children | slots | how it was settled |
+  |---|---|---|---|
+  | `G2-CAM-A` | 4 | 27 | already corrected, verified earlier |
+  | `G2-CAM-B` | 4 | 24 | page 2 checked today: 6a/6b/7/8 exactly as entered |
+  | **`G2-CAM-C`** | 1 | 20 | new — four grids, two working boxes, two number lines, two word problems |
+  | **`G2-CAM-D`** | 1 | 20 | new — the foundational form, single digits |
+  | `G2-SEPW2-S1` | 6 | 12 | verified against a real page; the three extra sums on one copy are in the educator's hand, not printed |
+  | **`G2-SEPW2-S2`** | 1 | 10 | new |
+  | **`G2-SEPW2-S3`** | 1 | 8 | new |
+  | `G2-WORD-SEP17` | 6 | 6 → **10** | **page 2 was never entered**: questions 7–10 are on every child's scan and had no slots, so four answers per child were dropped on every import |
+  | **`G2-DIAG-B`** | 6 | 15 | new — the 18 loose Grade 2 photographs are not extra pages of another paper, they are this one, three pages each |
+  | `G3-BASE16` | 5 | 18 | entered earlier today |
+  | **`G3-QUIZ20`** | 5 | 20 | new — where `8500 − 3647` and `56 × 3` live |
+  | **`G3-SEPW1-A`** | 2 | 40 | new |
+  | **`G3-SEPW1-B`** | 1 | 30 | new |
+  | **`G3-SEPW2`** | 4 | 9 | new |
+  | **`G4-SEPW1`** | 1 | 40 | new — the same thirteen questions as G3 Level A, checked page by page |
+  | **`G4-SEPW2`** | 1 | 9 | new — the same nine as G3 Week 2 |
+
+- **No file was attributed by its name.** The Cambridge level, the Week 2 set number, which of three
+  photographs is page 1 and which of a Grade 3 child's four photographs belongs to which paper were
+  all read off the page — the printed level band, the header set, the section headings. Check:
+  `classify.py` / `classify3.py` (kept outside the repository: they name children, rule 6) →
+  38 photographs placed, and **Kabir's four are in a different order from every other child's**, so
+  a file-name guess would have put two of his pages in the wrong paper.
+
+- **The corpus as read.** `ingest.py`, 71 files, every one with `again=True` so an earlier reading is
+  superseded rather than overwritten (rule 4):
+
+  ```
+  section  sittings  children  files  answers  correct  wrong  blank  to a person
+  G2             30        11     42      484      183     86     29          186
+  G3             19         5     29      385       87     58     58          182
+  total          49        16     71      869      270    144     87          368
+  ```
+
+  **49 sittings, all 16 children, 869 answers, 0 files failed.** Every answer on every in-scope page
+  now has a row; 501 of them the engine settled itself and **368 (42%) reached a person**.
+
+- **Nothing has been signed off, so no child has a ladder.** `bin/engine graph` → `0 states`, and
+  that is the system working: the graph reads confirmed evidence and nothing else, and the whole
+  corpus is queued behind the approval screen. **218 answers that had been confirmed from the
+  replaced vision model are superseded** and no longer reach the graph — they are still in the
+  database, as rule 4 requires.
+
+- **The graph was still reading superseded evidence, and now does not.**
+  `rebuild_child_skill_state` and `next_difficulty` joined `evidence_event` without looking at
+  `capture.superseded_by`, so a re-read replaced a reading everywhere except in the ladder it fed.
+  Migration `20260924100000_the_graph_ignores_a_superseded_read.sql`. Every screen already honoured
+  the flag; the graph is the thing that matters most and was the one place that did not.
+
+- **Two more reader defects, both found by running the corpus rather than by reading code:**
+  1. **A stacked sum could not be found at all.** A column sum prints as "53" and then "+ 24", so no
+     single line holds the question and every one came back `not_found` — six of ten answers on one
+     paper went to a person because the engine could not find the sum, not because it could not read
+     the child. `ocr._candidates` now offers each line and each line joined to the one below it.
+     Measured on the same sheet, same reader: **4 of 10 anchored → 8 of 10.**
+  2. **A child's answer that is not a number was still being called blank.** A child wrote `40` and
+     Textract read the word `to`; with no number in the region that came back **blank at full
+     confidence** — the engine asserting the child did not attempt the skill. The rule that
+     separates it from a real blank is whose hand it is: a child writes INTO the paper's own line,
+     an educator's tick or cross sits alone in the margin. Both halves are pinned by tests, because
+     the Grade 3 papers carry a cross beside every blank answer and those must stay blank.
+
+- **A one-digit sum is not a two-digit column sum.** `rung_for` read "4 + 3" as width 2 without
+  regrouping and filed it under R4 — so a child who cannot add within 10 would have been recorded as
+  failing at place-value columns. It returns R1, R2 and R3 now. The Cambridge Level D paper is
+  entirely single digits and it is the paper the weakest child in the school sat.
+
+- **Where the flag rate actually comes from**, measured per paper (% of answers that reached a
+  person): `G3-SEPW1-B` 87, `G2-CAM-D` 80, `G4-SEPW1` 73, `G3-SEPW1-A` 70 … `G3-SEPW2` 8,
+  `G4-SEPW2` 0. The split is not grade or regime — it is **layout**. A paper with one answer per
+  question flags 0–35%; a paper of fill-in-the-box grids flags 70–87%, and almost all of it is
+  `illegible` rather than `not_found`: the question IS found, and the region holds a different
+  number of candidates than it has slots, so the engine refuses to assign them positionally.
+  The commonest cause is a child writing their answer twice — once in the box and once on the
+  printed `Answer:` line. **Collapsing candidates that agree in value is the next lever**, and it is
+  not taken here because two boxes on one row can legitimately hold the same number, and collapsing
+  those would trade a flagged unknown for a silent error. It must be measured against the gold set
+  before it ships.
+
+- **The reader's own number is unchanged by any of this**:
+  `bin/engine read eval --reader ocr --runs 2` → `76.2% exact (48/63)`, `100% given a row`,
+  `SILENTLY WRONG 1.6% (1)`, spread `76.2% – 76.2%`.
+
+- Suite **356 passed**, `ruff format --check` and `ruff check` clean, `bin/engine audit` → 12
+  invariants 0 violations, web `35 passed` (1 skipped: a rung cannot be opened until a paper is
+  signed off) and `8 passed`. Textract for the whole extraction, at $1.50 per 1,000 pages including
+  the 38 classification reads: **about ₹18**.

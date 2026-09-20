@@ -547,3 +547,15 @@ def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, 
         ).fetchall()
     }
     assert live == {a: 4}, "the second paper is untouched until someone reads it"
+
+
+def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
+    """The shape rule read "4 + 3" as width 2 with no regrouping and filed it under R4 — 2-digit
+    columns — so a child who cannot add within 10 would have been recorded as failing at place
+    value. The Cambridge Level D paper is entirely single digits, and it is the paper the weakest
+    child in the school sat."""
+    assert legacy.rung_for("+", 4, 3) == "R1"  # adds within 10
+    assert legacy.rung_for("+", 7, 5) == "R2"  # crosses 10
+    assert legacy.rung_for("-", 9, 4) == "R3"  # subtracts within 20
+    assert legacy.rung_for("+", 23, 4) == "R4"  # and two digits still read as two digits
+    assert legacy.rung_for("+", 148, 7) == "R9"

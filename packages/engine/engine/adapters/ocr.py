@@ -190,11 +190,31 @@ def find_question(lines, question, min_overlap=0.6):
     if not want:
         return None
     best, score = None, 0.0
-    for ln in lines:
-        ratio = _in_order(want, _tokens(ln["text"])) / len(want)
+    for anchor, text in _candidates(lines):
+        ratio = _in_order(want, _tokens(text)) / len(want)
         if ratio > score:
-            best, score = ln, ratio
+            best, score = anchor, ratio
     return best if score >= min_overlap else None
+
+
+def _candidates(lines):
+    """Every printed line, and every line joined to the one below it.
+
+    A column sum is printed on two lines — "53" and then "+ 24" — so no single line holds the
+    question, and every one of them came back `not_found`: six of the ten answers on one paper went
+    to a person because the engine could not find the sum, not because it could not read the child.
+    Stacking a sum is how every arithmetic paper in this corpus prints one.
+
+    The anchor returned is the TOP line, so the answer region still starts at the top of the sum and
+    runs down to the next question — which is where the child writes the total.
+    """
+    out = [(ln, ln["text"]) for ln in lines]
+    order = sorted(lines, key=lambda ln: (ln["y"], ln["x"]))
+    for a, b in zip(order, order[1:]):
+        gap = b["y"] - (a["y"] + a["h"])
+        if -a["h"] <= gap <= 1.5 * max(a["h"], b["h"]) and abs(b["x"] - a["x"]) < 0.25:
+            out.append((a, f"{a['text']} {b['text']}"))
+    return out
 
 
 def _tokens(s):
@@ -392,6 +412,25 @@ def answers_for(page, slots, cfg=None, symbolic=()):
         where = [round(box["left"], 4), round(box["top"], 4), round(box["right"], 4), round(box["bottom"], 4)]
         candidates = _dedupe(_handwriting_near(page, box, cfg))
         if not candidates:
+            # Handwriting the transcriber could not turn into a value is not nothing. A child wrote
+            # "40" and Textract read the word `to`; with no number in the region that came back
+            # BLANK at full confidence — the engine asserting the child did not attempt it.
+            #
+            # What separates that from a genuinely blank answer is whose hand it is. A child writes
+            # INTO the paper's own line, so their mark shares a line with printed text; an
+            # educator's tick or cross sits alone in the margin on a line of its own. The Grade 3
+            # papers carry a cross beside every blank, and they must stay blank.
+            scribble = [w for w in page["words"] if w["hand"] and w.get("mixed_line") and _in_box(w, box)]
+            if scribble:
+                for slot in members:
+                    out[slot] = {
+                        "child_answer": "",
+                        "answer_state": "illegible",
+                        "confidence": 0.0,
+                        "working_shown": working,
+                        "box": where,
+                    }
+                continue
             # The question is on the page and there is no handwriting in its region: the child wrote
             # nothing. That is BLANK, and it is not the same fact as "there is writing I cannot make
             # out" — rule 5 keeps those apart everywhere, and a blank never counts as an attempt.
