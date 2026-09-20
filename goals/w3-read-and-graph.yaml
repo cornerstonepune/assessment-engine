@@ -1,0 +1,135 @@
+name: w3-read-and-graph
+goal: >
+  Given a scanned or photographed paper a child has actually written on, the engine reads every
+  response on it — the digits the child wrote, whether they wrote anything at all, and whether they
+  showed their working — keeps those three signals distinct, never silently drops a response or
+  reads a teacher's mark as the child's, and turns the result into the named mistake behind it and
+  the child's skill graph, reaching the same diagnosis a good teacher reached by hand.
+
+# Written 2026-09-20, before the reader (BUILD-ORDER rule "W2, W3 and W4 must have their goal files
+# written before their work starts"; ADR 0015). Every `kind: read` scenario below fails today with
+# "no runner for a 'read' scenario yet" — that is the point, the same way W2's file opened red.
+#
+# ------------------------------------------------------------------------------------------------
+# THE BAR, AND THE EVIDENCE UNDER IT (proposed 2026-09-20, awaiting Nimish's yes)
+# ------------------------------------------------------------------------------------------------
+# The corpus. ~/cornerstone/assessments holds 84 files / 194 pages. In scope for reading:
+# **118 pages across 72 files**. Excluded, with reasons: 66 pages of SOF Olympiad booklets across 7
+# files (multiple-choice across the whole syllabus — manifest.md: only their add/sub items map to a
+# rung), and 10 pages of Aseem's five typed Grade 3 reports (those are the gold, not the input).
+# Not one of the 118 pages carries a text layer: every response must come through vision.
+#
+# Two reading regimes, and they are not equally hard:
+#   A. flat scans of a printed paper, answers in pen        — 80 pages (G2 Cambridge + Sept W2 PDFs)
+#   B. phone photos: angled, page curved, answers in pencil — 38 pages (G3 WhatsApp, G2 WhatsApp),
+#      with the teacher's own tick and cross in pen sitting directly beside the child's answer.
+#
+# What is measured today. `engine legacy import` has read 10 captures, all regime A, 138 responses;
+# 2 more died on an API credit error. No regime-B page has ever been read. `read_confidence` is
+# null on all 138, so "the reader flagged it" does not yet exist as a distinction.
+#
+# The one sheet hand-checked against the page (Advika, Cambridge Level A, 2 pages, 2026-09-20):
+#   * 24 of 24 responses the engine emitted were read EXACTLY right — every digit, both blanks.
+#     Including 425-38 read as 397 (wrong, and read as wrong) and 763+427 read as 1190, the child
+#     adding where the question subtracts, which is the diagnostic signal the product exists to find.
+#   * But the page holds 27 responses. Q5's three filled boxes (0, 52, 72) became ONE row, and Q7's
+#     estimate and total became one. Three responses never got a row at all.
+#   * Systematic, not a one-off: all three children who sat that paper produced exactly 24 rows.
+#
+# So the failure mode is not misreading digits. It is not emitting a row. A bar phrased as "% of
+# responses read correctly" scores this sheet 100% and hides the hole entirely. Hence two separate
+# numbers below, and a recall bar that is 100% rather than 97%.
+#
+# Why 97 and not 99: regime A's measured digit accuracy is already 100%, but regime B is a third of
+# the corpus, has never been attempted, and carries pencil-under-pen-marks. 99% across both would
+# assert something no evidence supports.
+# Why 97 and not 95: at ~12 responses a sheet, 95% is 0.6 errors a sheet — the teacher corrects
+# something on every second paper, which is re-marking, not reading a result. 97% is ~0.36 a sheet.
+# Why the 93% floor on regime B: 80 easy pages must not be allowed to carry 38 hard ones.
+# Why >=300 gold responses: at n=300 a 97% reading has a 95% interval of about +/-1.9 points, so the
+# number means something. That is ~22 pages, ~12 sheets — a realistic amount of human marking, and
+# the teacher's red pen is already on many of these pages (which is also the regime-B hazard).
+# ------------------------------------------------------------------------------------------------
+
+bar:
+  unit: response                      # one child's answer to one question-part. Not the page, not the sheet.
+  read_exactly_right: 0.97            # of every response in the gold set
+  silently_wrong_at_most: 0.01        # of responses the reader did NOT flag. This is the number that protects the graph.
+  responses_given_a_row: 1.00         # a missing row is invisible; nobody corrects what was never shown
+  phone_photo_floor: 0.93             # regime B, measured on its own
+  gold_responses_min: 300
+  gold_phone_photo_min: 100
+
+scenarios:
+  # --- reading: does it see what is on the paper ---
+  - kind: read
+    name: every response on the page gets a row, even one the reader cannot read
+    must: no_response_is_silently_dropped     # today 24 of 27 on the sheet measured above
+  - kind: read
+    name: a question with several boxes yields one row per box, not one row per question
+    must: one_row_per_part                    # Q5's 0 / 52 / 72 became a single "72"
+  - kind: read
+    name: blank, wrong, and wrong-with-working stay three different answers
+    must: three_signals_stay_distinct         # rule 5; a blank carries correct = null and is never an attempt
+  - kind: read
+    name: a teacher's tick or cross is never read as the child's answer
+    must: teacher_marks_are_not_the_child     # regime B has them beside every answer
+  - kind: read
+    name: a crossed-out self-correction reads as the child's final answer, and says it was corrected
+    must: self_correction_is_the_final_answer
+  - kind: read
+    name: the reader says when it is unsure, instead of guessing confidently
+    must: unsure_responses_are_flagged        # read_confidence is null on all 138 today
+
+  # --- accuracy: the numbers above, against hand-marked truth ---
+  - kind: read
+    name: the gold set is big enough for its own number to mean something
+    must: gold_set_meets_its_size             # >=300 responses, >=100 of them phone photos
+  - kind: read
+    name: responses are read exactly right at the agreed rate
+    must: accuracy_meets_bar                  # 0.97
+  - kind: read
+    name: the hard third of the corpus carries its own floor
+    must: phone_photo_accuracy_meets_floor    # 0.93, so flat scans cannot carry it
+  - kind: read
+    name: a wrong read that was never flagged is rare enough to trust the graph
+    must: silent_error_under_bar              # 0.01
+
+  # --- the graph half: does the reading become the right diagnosis ---
+  - kind: read
+    name: Kabir's 8500 - 3647 reaches the mistake Aseem named by hand
+    must: reproduces_the_gold_diagnosis       # 5147 -> M_SMALL_FROM_LARGE, manifest.md
+  - kind: read
+    name: all five Grade 3 reports' named errors come back out of the graph
+    must: matches_all_five_reports            # the five reports are the gold set for the whole pipeline
+  - kind: read
+    name: a wrong answer with no named mistake is counted, never quietly discarded
+    must: unclassified_wrongs_are_reported    # feeds `engine bank unclassified` (ADR 0012)
+
+  # --- the rules that do not bend ---
+  - kind: read
+    name: the child's name is masked before any page leaves the machine
+    must: name_is_masked_before_send          # ADR 0004
+  - kind: read
+    name: a re-read supersedes, never overwrites, and the graph reads only confirmed rows
+    must: evidence_is_append_only             # rule 4
+  - kind: read
+    name: reading the same file twice changes nothing
+    must: reading_is_idempotent               # capture.file_sha256
+  - kind: read
+    name: reads run as background jobs inside the free tier's daily cap
+    must: reads_respect_the_daily_cap         # 20 requests/day/model (ADR 0004)
+
+criteria:
+  - name: every invariant across every row holds
+    run: engine audit
+    expect: "0 violations"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: W3 runs as a workflow, not a command someone remembers
+    run: python n8n/lint.py n8n/workflows/f3-read-and-graph.json
+    expect: "ok"
+  - name: the reading accuracy number itself, recomputed from the gold set
+    run: engine read accuracy
+    expect: "MEETS BAR"

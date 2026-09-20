@@ -1344,3 +1344,61 @@ or when F2 fires for two sections.
   `evidence_event` is append-only and refuses a cascading delete (rule 4), which is also what a school
   does when a child leaves.
 - **Suite: 301 passed.** `engine audit` → `12 invariants, 0 violations`.
+
+## W3 opens: its goal written before its reader, and red on purpose (2026-09-20)
+
+BUILD-ORDER rule "W2, W3 and W4 must have their goal files written before their work starts"
+(ADR 0015). `goals/w3-read-and-graph.yaml` states W3's sentence, 17 scenarios and 4 criteria.
+Nothing of the reader is built: the bar's numbers are proposed and wait on Nimish's yes.
+
+- **W1, W2 and the audit were all green before any of this was written.** Check:
+  `bin/engine goal w1-build-the-bank` → `10/10 scenarios · 5/5 criteria · GOAL ACHIEVED`;
+  `bin/engine goal w2-assemble-and-print` → `12/12 scenarios · 4/4 criteria · GOAL ACHIEVED`;
+  `bin/engine audit` → `12 invariants checked, 0 violations`. Suite `301 passed`.
+
+- **The corpus, counted rather than described.** `~/cornerstone/assessments` holds 84 files /
+  194 pages. In scope for reading: **118 pages across 72 files**. Out: 66 pages of SOF Olympiad
+  booklets across 7 files (multiple-choice across the whole syllabus — `manifest.md` says only
+  their add/sub items map to a rung) and 10 pages of Aseem's five typed Grade 3 reports, which are
+  the gold and not the input. Check: a `pymupdf` page count over the tree →
+  `files: 84   total pages: 194`, then classified → `paper 72/118, olympiad 7/66, report 5/10`,
+  and `paper pages whose PDF already has a text layer: 0`. Every response must come through vision.
+
+- **Two reading regimes, not one.** 80 pages are flat scans of a printed paper answered in pen
+  (regime A); 38 are phone photos — angled, page curved, answers in pencil, with the teacher's own
+  tick and cross in pen beside the child's answer (regime B). Confirmed by eye on
+  `G3/1. Kabir/Assessment 0/WhatsApp Image 2026-08-16 at 18.02.42.jpeg`.
+
+- **What has actually been read so far: 10 captures, all regime A, 138 responses.** Check:
+  `psql -Atc "select c.status, count(*) from capture c where c.superseded_by is null group by 1"`
+  → `processed 10`, `error 2`. Both errors are one cause — `claude-sonnet-5 returned HTTP 400:
+  Your credit balance is too low`. No regime-B page has ever been read.
+  `select count(*) from item_result r join capture c on c.id=r.capture_id where c.superseded_by is
+  null` → `138`, and `select round(read_confidence,2), count(*) …` → `null|138`: the reader does
+  not report its own confidence, so "the reader flagged it" does not yet exist as a distinction.
+
+- **The first hand-check of a read against the page it came from (Advika, Cambridge Level A,
+  2 pages).** Rendered at 150 dpi and compared response by response against the 24 rows in
+  `item_result`:
+  - **24 of 24 responses the engine emitted were read exactly right** — every digit and both
+    blanks. 148+7→155, 236+9→245, 357+8→365, 425+6→431, 348+27→374, 476+58→534, 285+96→281,
+    165−7→158, 243−8→235, 352−6→346, 471−9→462, 425−38→397, 563−47→516, 342−58→384, 250+[150],
+    45+[5], [80]−20, 100−[30], estimate 282, 763+427→1190, 1190+38→1228, Q9 blank, Q10 blank.
+    Two of those are diagnostic gold: 763+427 is the child adding where the question subtracts.
+  - **But the page holds 27 responses.** Q5's three filled boxes (`0`, `52`, `72`) became one row
+    reading `72`; Q7's estimate and total became one. **Three responses never got a row at all.**
+  - **Systematic, not a one-off.** All three children who sat that paper produced exactly 24 rows:
+    `select c.path, count(*) … where c.path like '%sept. 1st%'` → Advika 24, Heian 24, Hridhima 24.
+  - So the failure mode is not misreading digits — it is not emitting a row. A bar phrased as
+    "% of responses read correctly" scores this sheet 100% and hides the hole. This is why the goal
+    file carries two separate numbers and a recall bar of 100 rather than 97.
+  - It is the same defect class STATE.md recorded on 2026-09-17 ("`legacy_extract` needs a `part`
+    field — Q1's four lettered sub-answers arrived crammed into one string"): fixed for lettered
+    parts, still open for in-line boxes and for two-part questions like estimate-then-total.
+
+- **The goal is declared and red, which is the state it is supposed to open in.** Check:
+  `bin/engine goal w3-read-and-graph` → exit 1,
+  `2/4 criteria met · … · 17 scenarios short of the bar`; every scenario reports
+  `no runner for a 'read' scenario yet — this goal is declared, not met`, and the two failing
+  criteria are the two things W3 has to build (`n8n/workflows/f3-read-and-graph.json`,
+  `engine read accuracy`).

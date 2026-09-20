@@ -3,147 +3,88 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: W1 — build the bank. **All six gates closed (2026-09-20).** W2 opens.
+## Where we are: **W3 — read and graph. Its goal is written and red on purpose. Blocked on one yes.**
 
-| Gate | State | The command that says so |
-|---|---|---|
-| 1 every rung has a ratifiable spec | **closed** | `engine ratify --by "Nimish Shah"` → `17 ratified, 0 still draft`, then `2 ratified, 0 still draft` after two lists were corrected (2026-09-20); `select status, count(*) from skill_set group by status` → `ratified 17` |
-| 2 every unit is rich | **closed** | `engine bank coverage` → `68 units, 0 under their target` |
-| 3 a new topic by rows | **closed** | multiplication: a rung row, a skill-set row, one sampler; 200 items |
-| 4 code verifies, the validator judges language | **closed** | `engine eval language_review` 6/6, `pedagogy_review` 5/6; `bank recheck` → 0 mismatches |
-| 5 it runs as a workflow | **closed, one honest gap** | F1 in n8n; `python n8n/lint.py n8n/workflows/*.json` → ok; pinned run routed correctly. The live end-to-end run still needs the engine reachable from n8n Cloud |
-| 6 cost is known and near zero | **closed** | `select sum(cost_inr) from flow_run` → **₹1.29** against a ₹50 bar |
-
-Bank: **3,565 live questions**, 68 units, 17 skill sets, 17 rungs, 244 skills loaded.
-Suite: **291 passed**. Every number above is a command in `STATE.md`, not a description.
-
-Gate 1 closed on Nimish's own signature, not Aseem's (ADR 0013): he read the sets and said ratify
-so W2 is not held on other people's calendars. Ratification is per-version — the trigger withdraws
-it the moment anyone edits a spec's content — so the school's corrections remain the normal path
-and re-open the signature on whatever they touch.
-
-## Where we are: **W2 — assemble and print. Its goal is met: 12/12 scenarios, 4/4 criteria.**
-
-`goals/w2-assemble-and-print.yaml` is W2's definition of done. Run it:
-
-```
-~/cornerstone/assessment-engine/bin/engine goal w2-assemble-and-print
-```
-
-Built so far, in the order the goal asked for it: `scenarios_week.py` (eleven scenarios that build a
-real week and read the properties off the rows), the class-need target that scenario forced
-(**ADR 0016**, bank now 12,633 questions, 68 of 68 units at target), three `/week/*` endpoints, and
-`n8n/workflows/f2-assemble-and-print.json`, which lints — and the approval gate, which the
-database now enforces (a printed sheet must name who allowed it, migration 20260923090000).
-
-Both goals are green as of 2026-09-20:
+W1 and W2 are done. Verified again at the start of this session, not assumed:
 
 ```
 bin/engine goal w1-build-the-bank      10/10 scenarios · 5/5 criteria · GOAL ACHIEVED
 bin/engine goal w2-assemble-and-print  12/12 scenarios · 4/4 criteria · GOAL ACHIEVED
-bin/engine audit                       12 invariants · 0 violations
+bin/engine audit                       12 invariants · 0 violations      (suite: 301 passed)
 ```
 
-What W2 still needs before the pilot:
-1. **A live end-to-end run** — the same honest gap W1 gate 5 has: n8n Cloud cannot reach
-   `http://engine:8000` on a laptop. `deploy/compose.yml` runs both together where they share a host.
-2. **The Grade 1 decision, which is the school's**: `ADD.1D.WITHIN10` holds 22–24 questions against a
-   class need of 216, so sixteen children cannot have different papers from it in one week. Fewer
-   questions per sheet for Grade 1 (`assemble.items_per_sheet` is a row and could be per band), a
-   wider rung (Aseem), or accepted sharing. Until then the engine names the shortfall and prints
-   nothing for those children, which is checked by its own scenario.
-3. **`engine week` CLI parity** with the new endpoints, if an operator ever needs it by hand.
-
-## How to tell if anything is broken, before anything else
+`goals/w3-read-and-graph.yaml` now exists — written before a line of reader code, as ADR 0015
+requires. It opens red, which is correct:
 
 ```
-~/cornerstone/assessment-engine/bin/engine goal w1-build-the-bank     # 10 scenarios + 5 criteria
-~/cornerstone/assessment-engine/bin/engine audit                      # 12 invariants over every row
+bin/engine goal w3-read-and-graph      2/4 criteria · 17 scenarios short of the bar   (exit 1)
 ```
 
-Both must print `GOAL ACHIEVED` / `0 violations`. They run from any directory. A session that changes
-anything in W1 runs them before it claims to be done, and W2/W3/W4 each need their own goal file
-written **before** their work starts (ADR 0015) — for W3 that means the reading-accuracy bar against
-the 84 real sheets, as a number, first.
+## The one thing blocking W3's reader: Nimish's yes on the bar
+
+Proposed in the goal file, with the evidence in `STATE.md` under *W3 opens*:
+
+| | number | why |
+|---|---|---|
+| responses read exactly right | **97%** | regime A measured at 100%; regime B never attempted |
+| responses given a row at all | **100%** | a missing row is invisible — today it is 88.9% |
+| silently wrong (not flagged) | **≤1%** | a flagged error costs a glance, a silent one corrupts a graph |
+| phone-photo floor | **≥93%** | 80 easy pages must not carry 38 hard ones |
+| gold set | **≥300 responses, ≥100 phone photos** | ±1.9 points at n=300 |
+
+The unit is the **response** — one child's answer to one question-part — not the page or the sheet.
+
+**The finding that shaped it.** Hand-checking Advika's Cambridge Level A sheet against the 24 rows
+the engine stored: 24 of 24 read exactly right, but the page holds 27 responses. Q5's three boxes
+became one row, Q7's estimate and total became one. All three children who sat that paper produced
+exactly 24 rows. The failure mode is **not emitting a row**, not misreading digits — so "% read
+correctly" would score that sheet 100% and hide the hole.
 
 ## Next action
 
-1. **Decide whether to apply the engine's mistake lists.** `engine bank misconceptions <set>` shows
-   what code computed and what the model added; nothing is stored until `--apply`, which unions the
-   list into the set (it can never drop a curated code) and withdraws that set's ratification. Not
-   applied anywhere yet. Numbers to decide on: the model adds ~0 on a pure-arithmetic set (code has
-   it covered), 4 on `WORD.1_2STEP`, 5 on `REASON.EXPLAIN`, at ₹0.53 a set.
-2. **One style decision is open and it is yours** (`AISLOP.md`: config is authoritative, don't edit
-   without consent). Every engine `.py` trips aislop's `python-formatting` warning because the repo
-   never adopted `ruff format`. Measured: 536 diff lines over two files, and it explodes the
-   misconception registry from one readable line per mistake into five. Either adopt the formatter
-   and accept that, or record the exception in `.aislop/config.yaml` with the reason.
-3. **Nimish's instruction, 2026-09-19, not yet done: W1's screen talks like a machine.** His words:
-   "It can't be so robot-looking, so programmatic in nature, and we'll need to provide small little
-   examples behind a lot of these things." Specifically, on `/skill-sets/[code]`:
-   - **Formats** are shown as a label plus a raw code (`bare_sum`). Each needs a one-line worked
-     example of the shape — `47 + 38 = ___` for a horizontal sum, the column grid drawn, `4_ + 8 =
-     52` for a missing number — rendered from the format, not typed into prose.
-   - **The four difficulties** are shown as the checkable rule in boxes (digits, exchanges, zeros).
-     A teacher should first read one plain sentence — "two 2-digit numbers, one exchange, answer
-     under 100" — with a real example question under it, and the boxes underneath for whoever wants
-     them. The sentence is generated from the `check`, so it can never drift from the rule.
-   - **Misconceptions** lead with `M_NOCARRY` and then the name. Invert it: the plain sentence and
-     the worked example first (`47 + 38 → 75`, already in the row's `description`), the code kept
-     as small provenance text, because the code is the join key the reader and the graph use and
-     must stay visible somewhere.
-   - Same pass over learning objective and philosophy wording.
-   This is presentation only: it must not write to `skill_set`, or it withdraws the ratification it
-   is meant to make legible. Ask him whether it goes before W2 or alongside it.
-4. **W2 — assemble and print.** Now unblocked. Note `BUILD-ORDER.md`'s parked item: W2 is where the
-   single **Assessment Specification** contract should land (external proposal §4), because that is
-   when a second consumer of the shape appears.
-5. **The three pedagogy questions ratification did not answer** — they are Neha's, Achal's and
-   Aseem's, and the engine is not blocked on them:
-   - **The pedagogy reviewer disagrees with our format mixing.** On `SUB.2D.EXCH` Hard it rejected
-     the missing-number and word-problem items, arguing they test inverse reasoning and application
-     rather than the exchange procedure. If they agree, those formats move to their own bands; if
-     not, the reviewer prompt needs a line saying a rung's skill can be tested in applied form. The
-     verdicts are in `item_review`.
-   - **The gold set is provisional** (`supabase/seed/validator_gold.json`): a 2-digit sum filed in a
-     3-digit band — *revise* (wrong band) or *reject*?
-   - **The G1 floors.** `ADD.1D.WITHIN10` holds 22-24 per band because "within 10" has that many
-     distinct questions. Confirm that is acceptable, or widen the rung (ADR 0011).
-6. **Gate 5's remaining gap, whenever the pilot needs it:** n8n Cloud cannot reach
-   `http://engine:8000` on a laptop. Deploy the engine or tunnel to it; `deploy/compose.yml`
-   already runs both together where they share a host. The workflow itself needs no change.
-7. **Two credentials must be created by hand in n8n** before F1 can run — see `n8n/README.md`:
-   an `httpTemplatedCustomAuth` holding `ENGINE_KEY`, and an SMTP sender.
+1. **Get the yes on the five numbers above**, or the corrected ones. Change one line of
+   `goals/w3-read-and-graph.yaml` per number changed.
+2. **Then build the reader, in the goal file's own order** — the `kind: read` runner first
+   (`engine/scenarios_read.py`), because every scenario is red behind it. The two failing criteria
+   name the other two deliverables: `engine read accuracy` and `n8n/workflows/f3-read-and-graph.json`.
+3. **The gold set is the long pole and it needs a person.** ≥300 hand-marked responses across ≥22
+   pages. Much of the truth is already on the page in the teacher's red pen — which is also exactly
+   the regime-B hazard the reader must not fall for.
+4. **Two captures are stuck on a billing error, not a code fault**: `claude-sonnet-5 returned HTTP
+   400: Your credit balance is too low`. Also note those two ran on Sonnet, while `STATE.md` N3.1
+   records the three read prompts as pinned to Haiku — worth confirming which path sent them
+   before the first real read batch.
 
-## Blocked on Nimish
+## Carried over — Nimish's calls, not blockers
 
-- The three pedagogy judgment calls above — Neha, Achal and Aseem. Ratification itself is done
-  (2026-09-19, Nimish's signature on all 17; ADR 0013), so nothing in the engine waits on it.
+- **Grade 1**: `ADD.1D.WITHIN10` holds 22–24 questions against a class need of 216. Fewer questions
+  per sheet for G1, a wider rung, or accepted sharing.
+- **W2's live n8n run**: n8n Cloud cannot reach `http://engine:8000` on a laptop. `deploy/compose.yml`
+  runs both together where they share a host. Hosting decision, not a workflow change.
+- **The plain-English pass on the skill-set screen** is still not done — formats shown as raw codes
+  (`bare_sum`), difficulties as boxes instead of a sentence plus a worked example, misconceptions
+  led by `M_NOCARRY` instead of the plain sentence. Presentation only: it must not write to
+  `skill_set`, or it withdraws the ratification it exists to make legible.
+- **`ruff format`**: every engine `.py` trips aislop's `python-formatting` warning. Adopting it is
+  536 diff lines and explodes the misconception registry from one line per mistake into five.
+  Adopt, or record the exception in `.aislop/config.yaml` with the reason.
+- **Three pedagogy questions** for Neha, Achal and Aseem: the reviewer's objection to format mixing
+  on `SUB.2D.EXCH` Hard; the provisional gold set's revise-or-reject case; the G1 floors.
 - Standing: Achal's and Neha's emails for `app.staff`; rotate the database password; `AUTH_SECRET`
-  on Vercel if unset; the n8n owner account when F1 is wired (W1 gate 5).
+  on Vercel if unset; the n8n owner account and its two credentials (`n8n/README.md`).
 
 ## Traps — do not repeat
 
-- **Building out of order.** Each of the three sessions before 2026-09-19 opened a new area before
-  the last was done. `BUILD-ORDER.md` rule 1 exists because of this.
-- **Pivoting from chat.** QR was nearly built next because one sentence was misread. Restate, get
-  a yes, write it into `BUILD-ORDER.md`, then build.
-- **Answering "is X built?" with a mechanism instead of a number.** The bank was 2 of 64 units at
-  the start of 2026-09-19 and 68 of 68 units by the end of it, from `engine bank coverage`.
-- **Inventing a code verifier where none exists.** R7, R11, R13, X1, X2 have a claim (strategy,
-  reasoning, an explanation) code cannot check — say so in the row's `philosophy` and route through
-  the validator's template-level check plus its ≤5 % sample (ADR 0009/0010), never a fabricated
-  numeric check standing in for a judgment call.
-- **A skill set's `formats` list must be a subset the intended generator actually renders** — if
-  none of them are among the sampler's four known shapes, `bank._sampled` now refuses rather than
-  silently rendering plain column arithmetic under the wrong skill set. This bug existed latent
-  since Sept 17 and was only reachable once R11/X2-shaped rows existed; check for the same class of
-  mistake before wiring chunk B's native formats.
-- **Item identity ignores skill_set/difficulty** — two bands with the same effective rule compete
-  for the same items instead of each getting their own 50. Now caught rather than worked around:
-  `engine load --check` refuses two bands of one skill set that declare the same region, and
-  `bank recheck` re-measures every item against the band it claims. Giving each band
-  a genuinely distinct rule, which is exactly what R1/R2 above still need.
+- **Building out of order.** `BUILD-ORDER.md` rule 1 exists because three sessions did this.
+- **Pivoting from chat.** QR was nearly built next because one sentence was misread. QR is
+  identification only, layered on *after* the reading engine is proven. Restate, get a yes, write
+  it into `BUILD-ORDER.md`, then build.
+- **Answering "is X built?" with a mechanism instead of a number.**
+- **Measuring on synthetic images.** The prototype's 1.0 cell-geometry agreement was synthetic.
+  Every W3 number comes from the 118 real pages or it is not a number.
+- **Inventing a code verifier where none exists.** R7, R11, R13, X1, X2 have a claim code cannot
+  check — say so in `philosophy` and route through the validator, never a fabricated numeric check.
+- **A skill set's `formats` list must be a subset the generator actually renders** — `bank._sampled`
+  now refuses rather than silently rendering the wrong shape.
 - Still true, technical: `roster` is an unused import in `engine/legacy.py` (pre-existing, left
-  alone); Docker's credential helper hangs from a non-interactive session (STATE.md N3.2 has the
-  workaround); an idempotency key derived from a generic request body is not private to a test.
+  alone); Docker's credential helper hangs from a non-interactive session (STATE.md N3.2).
