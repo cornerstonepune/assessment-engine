@@ -1471,3 +1471,55 @@ so make sure that you are not missing out on anything." Counting from disk rathe
   have to pattern-match on a test's name — a fabricated check standing in for a real one, which is
   the trap `HANDOFF.md` already names. The honest fix is a `section` table and a migration; it is
   Nimish's call whether that happens now or after W3's gate 1.
+
+## The Olympiad mapping rate, measured instead of guessed (2026-09-20)
+
+Nimish: "the nature of the question will map itself to a skill 70%, 80%, or 90% of the time. If it
+doesn't, we need to have an engine that builds a skill out of it." `engine read map` replaces the
+guess with a count. Two prompts as rows (rule 2): `question_extract` (vision, a printed page → its
+questions and what each tests, no child's answer and no educator's mark) and `skill_match` (text,
+a described question → a registry code, `clear` / `arguable` / `none`). Split in two so the match
+re-runs for a fraction of a rupee when the registry grows, with no page read again — which is
+ADR 0017's requirement that naming a skill later places evidence already held.
+
+- **Seven booklets are two forms, not seven.** Check: the printed footers — all four Grade 2
+  booklets read `Class-2 | Level-1 | Set-7`, all three Grade 3 read `IMO | Class-3 | Set-C | Level 1`.
+  Identical questions, different children's marks. So the mapping is measured on **~70 distinct
+  questions over 16 pages, not 245 over 66** — the children's answers differ, the paper does not.
+
+- **The registry already covers 94–95% of an Olympiad paper.** Check:
+  `bin/engine read map "…/ACE Scanner_20260916(13).pdf"` → `clear 22, arguable 13, no match 2, of 37`
+  → **`MAPPED 95%` (clear alone 60%)**, `Rs 6.48`; and
+  `bin/engine read map "…/Advika SOF (olympiad).pdf"` → `clear 18, arguable 15, no match 2, of 35`
+  → **`MAPPED 94%` (clear alone 51%)**, `Rs 6.21`. Nimish's guess was right at the top of its range.
+  **The number carries run-to-run noise**: three runs of the Grade 3 form gave 89 / 89 / 95 %, and
+  `clear` moved 54 / 68 / 60 — so this is "about 95, not below 89", not a point estimate.
+
+- **What the registry is missing is four questions, and one of them appears on both forms**:
+  letter-sequence and odd-one-out reasoning (Grade 3 q2 and Grade 2 q1), embedded figures within a
+  composite figure, and arithmetic-operation verification. That cross-form repeat is exactly the
+  cluster signal a new skill should need — one stray is not a skill, the same thing on two papers is
+  a candidate.
+
+- **A cover page invents a question, reproducibly, on both forms.** The Grade 3 cover returned
+  `n=18 "Sonia had 80 sweets…"`; the Grade 2 cover returned an `n=16`. Neither page prints any
+  question — both are a title, a logo and a name band. The prompt said in v1 to return an empty list
+  for such a page and it fabricated anyway. **This is the `silently_wrong_at_most: 0.01` bar's
+  failure mode, found on the first real run**, and no reader that trusts a page's output can catch
+  it. What catches it: the same `n` read from two pages is a conflict, and the page that yields a
+  *run* of questions is the one that prints it — measured, the cover yields exactly 1 while every
+  question page yields 3 to 9. Keeping the *first* occurrence, which is the obvious thing, kept the
+  invention and threw away the real question 18. `external.resolve` and `tests/test_external.py`.
+
+- **Two defects of my own making, fixed at the cause in the same session (rule 11):**
+  - `question_extract` v1 had no `part` field, so Grade 3's `35 (p)` and `35 (q)` collided into one
+    question — the identical defect to the Cambridge paper's Q5, rebuilt hours after diagnosing it.
+    **v2 adds `part`, v1 is inactive.** Check: the run now reports `33p, 33q, 35p, 35q` separately.
+  - **The first run sent an unmasked cover to a model, with a child's handwritten name on it** —
+    a rule 6 violation, caused by `--mask` defaulting to 0. Masking is now a default rather than a
+    flag (`external.FIRST_PAGE_MASK = 0.34`, applied to page 1, where the name band is and where no
+    printed question sits), and a caller wanting the raw page passes `--mask 0` and says so.
+
+- **Suite `307 passed`** (6 new in `tests/test_external.py`), `engine audit` → `12 invariants, 0
+  violations`. `select round(sum(cost_inr),2) from flow_run` → **Rs 49.05** all-time, of which this
+  measurement is about Rs 19 across five runs.

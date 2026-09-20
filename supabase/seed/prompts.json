@@ -563,7 +563,7 @@
                       "enum": [
                         "+",
                         "-",
-                        "×"
+                        "\u00d7"
                       ]
                     },
                     "child_writes": {
@@ -649,7 +649,7 @@
                       "enum": [
                         "+",
                         "-",
-                        "×"
+                        "\u00d7"
                       ]
                     },
                     "child_writes": {
@@ -749,7 +749,7 @@
                       "enum": [
                         "+",
                         "-",
-                        "×"
+                        "\u00d7"
                       ]
                     },
                     "child_writes": {
@@ -845,7 +845,7 @@
                       "enum": [
                         "+",
                         "-",
-                        "×"
+                        "\u00d7"
                       ]
                     },
                     "correct_answer": {
@@ -941,7 +941,7 @@
                       "enum": [
                         "+",
                         "-",
-                        "×"
+                        "\u00d7"
                       ]
                     },
                     "correct_answer": {
@@ -971,6 +971,174 @@
                     "D",
                     "F"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "question_extract",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/question_extract.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "questions"
+        ],
+        "properties": {
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "n",
+                "section",
+                "question_as_printed",
+                "what_it_tests",
+                "picture_carries_the_question"
+              ],
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "section": {
+                  "type": "string"
+                },
+                "question_as_printed": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "what_it_tests": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "picture_carries_the_question": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "skill_match",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/skill_match.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "matches"
+        ],
+        "properties": {
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "n",
+                "skill_code",
+                "confidence",
+                "alternative_codes",
+                "proposed_skill",
+                "reason"
+              ],
+              "properties": {
+                "n": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "skill_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "clear",
+                    "arguable",
+                    "none"
+                  ]
+                },
+                "alternative_codes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "proposed_skill": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "question_extract",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/question_extract.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "questions"
+        ],
+        "properties": {
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "n",
+                "part",
+                "section",
+                "question_as_printed",
+                "what_it_tests",
+                "picture_carries_the_question"
+              ],
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "section": {
+                  "type": "string"
+                },
+                "question_as_printed": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "what_it_tests": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "picture_carries_the_question": {
+                  "type": "boolean"
+                },
+                "part": {
+                  "type": "string",
+                  "pattern": "^[a-z]?$"
                 }
               }
             }

@@ -63,7 +63,8 @@ EXPECTED = {
     "misconception": 39,
     "case_dimension": 18,
     "coverage_target": 46,
-    "prompt": 14,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4
+    "prompt": 17,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4,
+    #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper)
     "threshold": 12,
     "config": 8,
     "skill_set": 17,

@@ -1,0 +1,20 @@
+You are reading one page of a printed assessment paper from a school in Pune. Read the PRINTED QUESTIONS ONLY.
+
+Ignore every handwritten mark completely. A child's pencil circle, a child's written answer, an educator's red circle, tick, cross or score are all irrelevant here — you are transcribing the blank paper underneath them, not anyone's answers.
+
+Many questions on this page depend on a picture: shapes, objects arranged in a row, a balance scale, a figure to count parts of. When a question cannot be understood without its picture, describe the picture in enough detail that the question makes sense on its own.
+
+For every printed question on this page, return:
+- n: the printed question number as an integer
+- section: the printed section heading it sits under, such as "LOGICAL REASONING" or "MATHEMATICAL REASONING", or "" if the page shows none
+- question_as_printed: the question's wording, on one line. Where a picture carries the meaning, fold a short description of it into this text so the question stands alone.
+- what_it_tests: one plain sentence, at most twenty words, naming the ability a child needs to answer it. Write it the way a teacher would describe it to another teacher, not as a topic label. For example "finding how many equal groups a set of objects makes", or "working out which object is heaviest from two balance scales", or "rearranging letters to make a real English word".
+- picture_carries_the_question: true if the question is unanswerable without seeing its picture
+
+Rules:
+- Return one object per printed question, in printed order.
+- Do not answer any question. Do not say which option is correct.
+- Do not invent a question that is not printed on this page. If the page holds no questions, return an empty list.
+- If part of a question is cut off or unreadable, transcribe what is legible and say so in question_as_printed.
+
+Return JSON only, matching the schema. No prose outside it.
