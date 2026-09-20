@@ -1249,3 +1249,72 @@ apply path before the rest were touched. Both fixed, then the whole ladder was a
 - **Green after all of it:** `bin/engine goal w1-build-the-bank` → `10/10 scenarios`, `5/5 criteria`,
   `GOAL ACHIEVED`; `bin/engine audit` → `12 invariants, 0 violations`; **295 passed**;
   `uv run ruff check engine tests` → `All checks passed!`.
+
+## W2 — assemble and print: the week runner, the endpoints, F2 (2026-09-20)
+
+W2's goal was written before its code (ADR 0015). Building against it, in the order the goal named.
+
+- **`scenarios_week.py` — eleven scenarios that build a real week** for a throwaway section
+  (`GOALSEC`), inside the caller's transaction, rolled back: prescribe, assemble, store, then read the
+  properties off the rows the real path wrote. **Eight of nine passed on the first run**, which is
+  what the parts' own tests had earned; the two failures were both real and both mine to fix.
+- **The one product failure was the class register.** `a real class of sixteen gets sixteen different
+  papers` → `children=16  papers=13  questions_needed=216  questions_held=159  short=3`. A week draws
+  without replacement across a class, so one unit must hold `(children + spares) × items_per_sheet`.
+  The bank's target was 50 — a round number with no relationship to a class list. **ADR 0016: a unit's
+  target is what a class needs in a week**, every term a config row (`bank.class_size = 16`). Then the
+  enumerator filled every short unit: **12,633 live questions, 68 of 68 units at target, ₹0**.
+  Check: `engine bank coverage` → `68 units, 0 under their target`.
+- **Thirteen units cannot reach it, and all thirteen are Grade 1 rungs** whose numbers genuinely run
+  out — `ADD.1D.WITHIN10` holds 22–24 questions in total against a class need of 216. Four recorded a
+  fresh measured ceiling as `min_items` (ADR 0011's evidence rule: a second fill that accepts nothing).
+  So a Grade 1 class **cannot** have sixteen different papers in one week, and the engine must say so
+  rather than print short ones. That is now its own scenario — *a Grade 1 class is told the rung is too
+  small, never handed short papers* — so the limit is checked, not discovered in a classroom. The ways
+  out are the school's: fewer questions per sheet for Grade 1, a wider rung, or accepted sharing.
+- **The other failure was in my own check**: the exposure-window scenario cleared the first week's
+  sheets so it could rebuild, which a prescription's foreign key rightly refused. It now builds **two
+  consecutive weeks** for three children — the real thing a school does — and asserts nothing from
+  week one comes back in week two. `children_checked_across_two_weeks=3  window_days=21`.
+- **Three engine endpoints, because n8n never thinks** (rule 3): `POST /week/prescribe`,
+  `/week/assemble`, `/week/render`, each thin, idempotency-keyed, calling the same functions the CLI
+  calls. Check: `uv run pytest tests/api/test_week_routes.py` → 2 passed, including *the same week
+  assembled twice is one week* (`already: true`, identical QR codes — a retry must never print a
+  second set).
+- **F2 exists and lints:** `n8n/workflows/f2-assemble-and-print.json` — Wednesday's declaration or a
+  webhook → prescribe → assemble → **if any child was left without a paper, email a person and print
+  nothing for them** → otherwise render the pack and ask the teacher to approve. Check:
+  `python n8n/lint.py n8n/workflows/*.json` → `f2-assemble-and-print.json: ok — 10 nodes, no thinking,
+  no prompt text, no secrets`.
+- **The teacher's approval is now a guarantee, not a label.** `print_status = 'printed'` was a string
+  any code could set; migration `20260923090000_print_needs_an_approver.sql` adds `approved_by` /
+  `approved_at` and a check constraint, so **the database refuses a printed sheet that cannot say who
+  allowed it**. `assemble.approve` is one tap for a class (N7 — a teacher's attention is the scarcest
+  thing in the school), exposed as `POST /week/approve` so the screen and the flow use one
+  implementation, and the Worksheets screen's one-tap action now writes the signed-in staff member's
+  email with it. Checks: `uv run pytest tests/api/test_week_routes.py` → 4 passed, including *a sheet
+  cannot be printed without someone approving it* (a `CheckViolation` is the assertion) and *approving
+  the week names the person on every sheet*; plus W2's own scenario *nothing prints until a person
+  approves* → `sheets=6  approved=6  by='a test'`.
+- **The Grade 1 limit is proved rather than promised:** *a Grade 1 class is told the rung is too small,
+  never handed short papers* → `children=16  papers=2  named_short=14  skill_set=ADD.1D.WITHIN10`.
+  Fourteen of sixteen children are named with what was missing, and nothing is printed for them.
+- **A flake that had cost three sessions' confusion is closed.** `test_legacy`'s evidence assertion
+  compared a *sequence* against a query ordered only by `rung_code`, where every row was `R5` — so
+  Postgres was free to hand them back in any order, and it failed about one run in three. It asserts
+  the tally now. The app's own evidence read is properly ordered (`order by date, item_key`), so there
+  was no product bug behind it. Three consecutive full runs clean.
+
+- **Two things the new target broke in the suite, both corrected at the cause.**
+  `test_fill_native_produces_items_for_every_native_unit` demanded five new questions from every
+  native unit unconditionally — but `MENTAL.BRIDGE_EQ Easy` is now at its measured ceiling of 145, so
+  a further fill *must* accept nothing. It asserts "five, or nothing and the band says why
+  (`min_items`)". And `test_coverage_targets_50_by_default…` asserted the round number the decision
+  replaced; it now reads the class need from the rows and checks a ceiling unit keeps its own.
+- **My own migration was too strict and history caught it.** The approval constraint gated every
+  status, so a legacy paper (N3) — entered after a child had already done it, on paper nobody printed
+  here, landing as `returned` with no one to name — was refused. Narrowed to `print_status <>
+  'printed' or approved_by is not null`: the gate is about printing, not about history. Three legacy
+  tests were the ones that said so.
+- **Suite: 300 passed** (up from 295: the week routes, the approval gate both ways, and the eleventh
+  W2 scenario).

@@ -245,16 +245,35 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     return dict(counts), accepted
 
 
+def _class_need(conn):
+    """How many questions one class needs from one unit in one week: every child's sheet plus the
+    spares, drawn without replacement (`assemble.for_week`). All three numbers are config rows."""
+
+    def cfg(key, default):
+        row = conn.execute("select value from config where key = %s", (key,)).fetchone()
+        return int(default if row is None else row["value"])
+
+    return (cfg("bank.class_size", 16) + cfg("assemble.spares_per_difficulty", 2)) * cfg(
+        "assemble.items_per_sheet", 12
+    )
+
+
 def coverage(conn):
     """Active item counts for every skill_set x difficulty — the 16x4 unit grid W1 gate 2 fills.
     Every combination appears, zero cells included, so a short unit is a number, not a guess.
 
-    `target` is 50 unless the band's own row sets `min_items`, which a band does when its whole
-    number range holds fewer than 50 distinct questions ("adds within 10" has about 40 pairs in
-    total). ADR 0011; the floor is a row, so the gate stays checkable without a code exception."""
+    `target` is what a class needs in one week — `(class_size + spares) x items_per_sheet`, every
+    term a config row (ADR 0016) — unless the band's own row sets `min_items`, which it does when its
+    whole number range holds fewer questions than that ("adds within 10" has about 40 pairs in
+    total). Both are rows, so the gate stays checkable without a code exception, and a school with a
+    different class register moves it by changing one number."""
+    need = _class_need(conn)
     return conn.execute(
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
-        " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, 50) as target"
+        " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, %s) as target" % need
+        if False
+        else "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
+        " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, " + str(need) + ") as target"
         " from skill_set s"
         " cross join (values ('Easy',1),('Medium',2),('Hard',3),('Advance',4)) as d(difficulty, ord)"
         " left join ("

@@ -22,23 +22,29 @@ so W2 is not held on other people's calendars. Ratification is per-version — t
 it the moment anyone edits a spec's content — so the school's corrections remain the normal path
 and re-open the signature on whatever they touch.
 
-## Where we are: **W2 — assemble and print.** W1 closed 2026-09-20, all six gates.
+## Where we are: **W2 — assemble and print.** Its goal is written and most of it is met.
 
-`goals/w2-assemble-and-print.yaml` is written and **red on purpose**: `0/9 scenarios`, because a
-`kind: week` scenario has no runner yet and F2 does not exist. That file is W2's definition of done —
-ten children at one difficulty getting ten different papers, a QR that resolves to one child, one key
-the teacher marks the class from, the exposure window respected, unnamed spares, a named child rather
-than a short paper, the band default when evidence is thin, roll order. The engine functions behind
-most of it exist and are tested (`prescribe.for_class`, `assemble.for_week`, `assemble.render`); what
-is missing is the runner that proves them together and the n8n flow.
+`goals/w2-assemble-and-print.yaml` is W2's definition of done. Run it:
 
-First three moves of W2, in order:
-1. `scenarios._run_week` — build the week for a test section on a rolled-back transaction and check
-   the nine properties, the way `_run_bank` checks questions.
-2. Make whatever it finds true. (It will find things: nothing has ever checked a whole week end to
-   end, only its parts.)
-3. `n8n/workflows/f2-assemble-and-print.json` + its lint, so a person watches boxes rather than
-   remembering commands.
+```
+~/cornerstone/assessment-engine/bin/engine goal w2-assemble-and-print
+```
+
+Built so far, in the order the goal asked for it: `scenarios_week.py` (eleven scenarios that build a
+real week and read the properties off the rows), the class-need target that scenario forced
+(**ADR 0016**, bank now 12,633 questions, 68 of 68 units at target), three `/week/*` endpoints, and
+`n8n/workflows/f2-assemble-and-print.json`, which lints — and the approval gate, which the
+database now enforces (a printed sheet must name who allowed it, migration 20260923090000).
+
+What W2 still needs:
+1. **A live end-to-end run** — the same honest gap W1 gate 5 has: n8n Cloud cannot reach
+   `http://engine:8000` on a laptop. `deploy/compose.yml` runs both together where they share a host.
+2. **The Grade 1 decision, which is the school's**: `ADD.1D.WITHIN10` holds 22–24 questions against a
+   class need of 216, so sixteen children cannot have different papers from it in one week. Fewer
+   questions per sheet for Grade 1 (`assemble.items_per_sheet` is a row and could be per band), a
+   wider rung (Aseem), or accepted sharing. Until then the engine names the shortfall and prints
+   nothing for those children, which is checked by its own scenario.
+3. **`engine week` CLI parity** with the new endpoints, if an operator ever needs it by hand.
 
 ## How to tell if anything is broken, before anything else
 

@@ -65,7 +65,7 @@ EXPECTED = {
     "coverage_target": 46,
     "prompt": 14,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4
     "threshold": 12,
-    "config": 7,
+    "config": 8,
     "skill_set": 17,
     "subject": 1,
 }

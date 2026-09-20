@@ -1,0 +1,382 @@
+{
+  "name": "F2 — assemble and print",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                3
+              ],
+              "triggerAtHour": 15,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        0
+      ],
+      "id": "wednesday",
+      "name": "Wednesday afternoon"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "week/build",
+        "responseMode": "onReceived"
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        200
+      ],
+      "id": "teacher-declared",
+      "name": "A teacher declared the week"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "section",
+              "name": "section",
+              "value": "={{ $json.section || 'G2A' }}",
+              "type": "string"
+            },
+            {
+              "id": "week",
+              "name": "week",
+              "value": "={{ $json.week || $now.format('yyyy-\\'W\\'WW') }}",
+              "type": "string"
+            },
+            {
+              "id": "kind",
+              "name": "kind",
+              "value": "={{ $json.kind || 'practice' }}",
+              "type": "string"
+            },
+            {
+              "id": "skill_set",
+              "name": "skill_set",
+              "value": "={{ $json.skill_set }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        100
+      ],
+      "id": "which-week",
+      "name": "Which class, which week"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/week/prescribe",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ section: $json.section, week: $json.week, kind: $json.kind, skill_set: $json.skill_set }) }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.section }}-{{ $json.week }}-prescribe-the-class"
+            }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        100
+      ],
+      "id": "prescribe-the-class",
+      "name": "Prescribe the class",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "ENGINE_KEY",
+          "name": "engine key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/week/assemble",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ section: $('Which class, which week').item.json.section, week: $('Which class, which week').item.json.week, kind: $('Which class, which week').item.json.kind }) }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.section }}-{{ $json.week }}-assemble-the-papers"
+            }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        100
+      ],
+      "id": "assemble-the-papers",
+      "name": "Assemble the papers",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "ENGINE_KEY",
+          "name": "engine key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "anyone-short",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.short }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        100
+      ],
+      "id": "anyone-short",
+      "name": "Was any child left without a paper?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.TEACHER_EMAIL }}",
+        "subject": "={{ $json.section }} {{ $json.week }}: some children have no paper yet",
+        "emailType": "text",
+        "message": "={{ $json.short.length }} children could not be given a full paper this week:\\n\\n{{ $json.short.map(s => '  roll ' + s.roll_no + ' (' + s.difficulty + '): ' + s.had + ' questions available of ' + s.needed + ' needed').join('\\n') }}\\n\\nThe bank is short for those units. Nothing was printed for them.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        -40
+      ],
+      "id": "tell-a-person",
+      "name": "Tell a person, print nothing for them",
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "school smtp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/week/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ section: $('Which class, which week').item.json.section, week: $('Which class, which week').item.json.week, kind: $('Which class, which week').item.json.kind, actor: 'n8n' }) }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.section }}-{{ $json.week }}-render-the-pack"
+            }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        180
+      ],
+      "id": "render-the-pack",
+      "name": "Render the pack",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "ENGINE_KEY",
+          "name": "engine key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $vars.TEACHER_EMAIL }}",
+        "subject": "={{ $json.section }} {{ $json.week }}: the pack is ready to approve",
+        "emailType": "text",
+        "message": "={{ $json.sheets }} papers and {{ $json.spares }} spares, {{ $json.pages }} pages, in roll order.\\n\\nOpen the Worksheets screen to approve before printing. Nothing goes to the printer until you do.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        180
+      ],
+      "id": "ask-for-approval",
+      "name": "Ask the teacher to approve",
+      "credentials": {
+        "smtp": {
+          "id": "SMTP",
+          "name": "school smtp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "F2 — assemble and print (W2, N5-N7).\\n\\nWednesday's declaration (or the webhook) says which class and which skill set. The engine prescribes each child's difficulty, assembles a different paper for each of them plus unnamed spares, and renders one pack in roll order with a key per sheet.\\n\\nEvery decision is the engine's: which difficulty, which questions are still unseen, how many spares, who could not be dressed. This flow only forwards answers and asks a person at the end (CLAUDE.md rule 3).\\n\\nA child the bank cannot fill is emailed by roll number and gets nothing printed — never a short paper.",
+        "height": 360,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        420
+      ],
+      "id": "note",
+      "name": "What this is"
+    }
+  ],
+  "connections": {
+    "Wednesday afternoon": {
+      "main": [
+        [
+          {
+            "node": "Which class, which week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A teacher declared the week": {
+      "main": [
+        [
+          {
+            "node": "Which class, which week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which class, which week": {
+      "main": [
+        [
+          {
+            "node": "Prescribe the class",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prescribe the class": {
+      "main": [
+        [
+          {
+            "node": "Assemble the papers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble the papers": {
+      "main": [
+        [
+          {
+            "node": "Was any child left without a paper?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Was any child left without a paper?": {
+      "main": [
+        [
+          {
+            "node": "Tell a person, print nothing for them",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render the pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render the pack": {
+      "main": [
+        [
+          {
+            "node": "Ask the teacher to approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodeGroups": []
+}

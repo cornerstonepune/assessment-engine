@@ -183,19 +183,23 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
     assert all(isinstance(r["n"], int) and r["n"] >= 0 for r in table)
 
 
-def test_coverage_targets_50_by_default_and_a_units_own_floor_when_it_has_one(conn):
-    """A rung whose whole number range holds fewer than 50 distinct questions carries its own
-    measured floor in its row (W1 gate 2, amended 2026-09-19 — ADR 0011). The grid must compare
-    each unit against that floor, or the gate can never close for those units."""
-    table = bank.coverage(conn)
-    default = next(r for r in table if r["code"] == "SUB.2D.EXCH" and r["difficulty"] == "Hard")
-    assert default["target"] == 50
-    capped = next(r for r in table if r["code"] == "ADD.1D.WITHIN10" and r["difficulty"] == "Easy")
-    assert capped["target"] == 24, "the row's own min_items must win over the default 50"
+def test_coverage_targets_what_a_class_needs_and_a_units_own_ceiling_when_it_has_one(conn):
+    """The target is `(class_size + spares) x items_per_sheet` — what one week of one class draws
+    without replacement (ADR 0016) — except where a band recorded its whole number range."""
+    need = bank._class_need(conn)
+    assert need == 216, "16 children at 12 questions with 2 spares"
+    rows = {(r["code"], r["difficulty"]): r for r in bank.coverage(conn)}
+    assert rows[("SUB.2D.EXCH", "Hard")]["target"] == need
+    small = rows[("ADD.1D.WITHIN10", "Easy")]
+    assert small["target"] < need, "a rung whose numbers run out keeps its measured ceiling"
+    assert (
+        small["target"]
+        == conn.execute(
+            "select (difficulty -> 'Easy' ->> 'min_items')::int as n from skill_set where code = 'ADD.1D.WITHIN10'"
+        ).fetchone()["n"]
+    )
 
 
-# ---- fill_native: chunk B of W1 gate 2 — code-built items, no model, no verify detour
-# (ADR 0010 keeps X1/X2 on the model path, so they are not here.)
 NATIVE_UNITS = [
     ("MENTAL.BRIDGE_EQ", "Easy"),
     ("MENTAL.BRIDGE_EQ", "Medium"),
@@ -236,8 +240,22 @@ NATIVE_UNITS = [
 
 @pytest.mark.parametrize("code,difficulty", NATIVE_UNITS)
 def test_fill_native_produces_items_for_every_native_unit(conn, code, difficulty):
+    """Five new questions, or nothing because the unit is already at its measured ceiling.
+
+    Both are correct and the difference is a row: once a band records `min_items` — its whole number
+    range (ADR 0011/0016) — a further fill *must* accept nothing. `MENTAL.BRIDGE_EQ Easy` holds 145
+    and the numbers are spent. Asserting five unconditionally made a full bank look like a bug.
+    """
+    band = conn.execute("select difficulty from skill_set where code = %s", (code,)).fetchone()["difficulty"][
+        difficulty
+    ]
     counts, accepted = bank.fill_native(conn, code, difficulty, 5)
-    assert counts["accepted"] == 5 and len(accepted) == 5
+    assert counts["accepted"] == len(accepted)
+    if counts["accepted"] < 5:
+        assert band.get("min_items"), (
+            f"{code} {difficulty} produced {counts['accepted']} of 5 and claims no ceiling —"
+            " either the generator is broken or the band never recorded its universe"
+        )
 
 
 def test_fill_native_refuses_a_hi_below_any_possible_jump_rather_than_crashing_obscurely():

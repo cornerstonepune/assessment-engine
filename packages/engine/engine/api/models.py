@@ -116,3 +116,76 @@ class RunResponse(BaseModel):
     error: str | None
     tokens: int | None
     cost_inr: float | None
+
+
+class WeekPrescribeRequest(BaseModel):
+    section: str
+    week: str
+    skill_set: str
+    kind: str = "practice"
+
+
+class WeekPrescribeResponse(BaseModel):
+    section: str
+    week: str
+    kind: str
+    prescribed: int
+    by_rule: dict[str, int]
+    by_difficulty: dict[str, int]
+    already: bool = False
+
+
+class WeekAssembleRequest(BaseModel):
+    section: str
+    week: str
+    kind: str = "practice"
+
+
+class WeekAssembleResponse(BaseModel):
+    section: str
+    week: str
+    kind: str
+    sheets: int
+    spares: int
+    short: list[dict]
+    qr_codes: list[str]
+    already: bool = False
+
+
+class WeekRenderRequest(BaseModel):
+    section: str
+    week: str
+    kind: str = "practice"
+    out: str = "data/packs"
+    actor: str = "n8n"
+
+
+class WeekRenderResponse(BaseModel):
+    section: str
+    week: str
+    kind: str
+    pack_path: str
+    pages: int
+    sheets: int
+    spares: int
+    short: list[dict]
+    already: bool = False
+
+
+class WeekApproveRequest(BaseModel):
+    section: str
+    week: str
+    kind: str = "practice"
+    by: str
+
+
+class WeekApproveResponse(BaseModel):
+    section: str
+    week: str
+    kind: str
+    approved_by: str
+    sheets: int
+    named: int
+    spares: int
+    qr_codes: list[str]
+    already: bool = False

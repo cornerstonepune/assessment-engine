@@ -225,3 +225,33 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
         "spares": len(built["spares"]),
         "pages": sum(s["pages"] for s in sheets),
     }
+
+
+def approve(conn, section: str, week: str, kind: str = "practice", by: str = "") -> dict:
+    """A person says the week may be printed, and their name goes on every sheet in it.
+
+    One tap for a class (N7): the teacher's attention is the scarcest thing in the school, so this
+    is per week and not per sheet. The database refuses a printed sheet with no approver
+    (`sheet_instance_printed_needs_approver`), which is what makes this a gate and not a label.
+    """
+    if not by:
+        raise ValueError("an approval must name a person — that is the whole point of it")
+    rows = conn.execute(
+        "update sheet_instance si set print_status = 'printed', printed_at = now(),"
+        " approved_by = %s, approved_at = now(), updated_at = now()"
+        " where si.print_status = 'new' and si.sheet_template_id in ("
+        "   select st.id from sheet_template st left join child c on c.id = st.child_id"
+        "   where st.week = %s and (c.section = %s or st.child_id is null))"
+        " returning si.qr_code, si.child_id",
+        (by, week, section),
+    ).fetchall()
+    return {
+        "section": section,
+        "week": week,
+        "kind": kind,
+        "approved_by": by,
+        "sheets": len(rows),
+        "named": sum(1 for r in rows if r["child_id"]),
+        "spares": sum(1 for r in rows if not r["child_id"]),
+        "qr_codes": [r["qr_code"] for r in rows],
+    }

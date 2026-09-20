@@ -1,0 +1,125 @@
+"""W2/N5–N7 — the week's papers over HTTP: prescribe, assemble, render.
+
+Thin, like every route here. The decisions — which difficulty a child gets, which questions are
+still unseen, how many spares, who could not be filled — all live in `prescribe` and `assemble`,
+which is what the CLI and the tests call too. F2 forwards answers; it never computes one.
+"""
+
+from fastapi import APIRouter, Depends, Header
+
+from engine import assemble, db, prescribe
+from engine.api.deps import get_conn, get_tenant_id, require_engine_key
+from engine.api.idempotency import derive_key, run_idempotent
+from engine.api.models import (
+    WeekApproveRequest,
+    WeekApproveResponse,
+    WeekAssembleRequest,
+    WeekAssembleResponse,
+    WeekPrescribeRequest,
+    WeekPrescribeResponse,
+    WeekRenderRequest,
+    WeekRenderResponse,
+)
+
+router = APIRouter(dependencies=[Depends(require_engine_key)])
+
+
+@router.post("/week/prescribe", response_model=WeekPrescribeResponse)
+def prescribe_class(
+    body: WeekPrescribeRequest,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    conn=Depends(get_conn),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """One prescription per child in the section, each carrying the rule that chose it."""
+    key = idempotency_key or derive_key(body.model_dump())
+
+    def run():
+        rows = prescribe.for_class(conn, body.section, body.week, body.skill_set, body.kind)
+        return {
+            "section": body.section,
+            "week": body.week,
+            "kind": body.kind,
+            "prescribed": len(rows),
+            "by_rule": {r: sum(1 for x in rows if x["rule"] == r) for r in {x["rule"] for x in rows}},
+            "by_difficulty": {
+                d: sum(1 for x in rows if x["difficulty"] == d) for d in {x["difficulty"] for x in rows}
+            },
+        }
+
+    result, already = run_idempotent(conn, tenant_id, "week_prescribe", key, body.model_dump(), run)
+    return {**result, "already": already}
+
+
+@router.post("/week/assemble", response_model=WeekAssembleResponse)
+def assemble_week(
+    body: WeekAssembleRequest,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    conn=Depends(get_conn),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Every child's own paper plus the spares. A child the bank cannot dress is returned by name,
+    never given a short paper — which is the one thing F2 must be able to tell a person about."""
+    key = idempotency_key or derive_key(body.model_dump())
+
+    def run():
+        built = assemble.for_week(conn, body.section, body.week, body.kind)
+        return {
+            "section": body.section,
+            "week": body.week,
+            "kind": body.kind,
+            "sheets": len(built["sheets"]),
+            "spares": len(built["spares"]),
+            "short": built["short"],
+            "qr_codes": [s["qr"] for s in built["sheets"] + built["spares"]],
+        }
+
+    result, already = run_idempotent(conn, tenant_id, "week_assemble", key, body.model_dump(), run)
+    return {**result, "already": already}
+
+
+@router.post("/week/render", response_model=WeekRenderResponse)
+def render_week(
+    body: WeekRenderRequest,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    conn=Depends(get_conn),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """The printable pack, in roll order, one key per sheet. Names are read through the logging
+    accessor and printed on the child's own page only (`roster.names`)."""
+    key = idempotency_key or derive_key(body.model_dump())
+
+    def run():
+        built = assemble.for_week(conn, body.section, body.week, body.kind)
+        out = assemble.render(conn, built, db.REPO_ROOT / body.out, body.week, body.actor, body.kind)
+        return {
+            "section": body.section,
+            "week": body.week,
+            "kind": body.kind,
+            "pack_path": str(out.get("pack") or ""),
+            "pages": int(out.get("pages") or 0),
+            "sheets": len(built["sheets"]),
+            "spares": len(built["spares"]),
+            "short": built["short"],
+        }
+
+    result, already = run_idempotent(conn, tenant_id, "week_render", key, body.model_dump(), run)
+    return {**result, "already": already}
+
+
+@router.post("/week/approve", response_model=WeekApproveResponse)
+def approve_week(
+    body: WeekApproveRequest,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    conn=Depends(get_conn),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """The human gate, over HTTP so the app and a flow use one implementation. A second call
+    approves nothing further: only sheets still `new` move."""
+    key = idempotency_key or derive_key(body.model_dump())
+
+    def run():
+        return assemble.approve(conn, body.section, body.week, body.kind, body.by)
+
+    result, already = run_idempotent(conn, tenant_id, "week_approve", key, body.model_dump(), run)
+    return {**result, "already": already}

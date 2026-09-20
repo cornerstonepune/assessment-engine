@@ -25,6 +25,7 @@ scenarios:
   - kind: week
     name: no child is shown a question they saw inside the exposure window
     section: TESTSEC
+    children: 3                             # two consecutive weeks must fit in the unit to prove it
     must: respects_exposure_window          # exposure.days, a threshold row (21)
   - kind: week
     name: every sheet holds exactly the configured number of scorable questions
@@ -43,6 +44,23 @@ scenarios:
     section: TESTSEC
     must: falls_back_to_the_band_default
   - kind: week
+    name: a real class of sixteen gets sixteen different papers, not ten
+    section: TESTSEC
+    children: 16                            # the school's actual class size: 16 x 12 + 2 spares = 216
+    must: no_two_children_share_a_question
+  - kind: week
+    name: a Grade 1 class is told the rung is too small, never handed short papers
+    section: TESTSEC
+    children: 16
+    band: G1
+    skill_set: ADD.1D.WITHIN10            # 22-24 questions is its whole universe (ADR 0011/0016)
+    must: names_the_child_it_could_not_fill
+  - kind: week
+    name: nothing prints until a person approves, and their name is on every sheet
+    section: TESTSEC
+    children: 4
+    must: nothing_prints_until_a_person_approves
+  - kind: week
     name: the pack prints in roll order
     section: TESTSEC
     must: prints_in_roll_order
@@ -57,3 +75,6 @@ criteria:
   - name: W2 runs as a workflow, not a command someone remembers
     run: python n8n/lint.py n8n/workflows/f2-assemble-and-print.json
     expect: "ok"
+  - name: the week's HTTP surface is the one the flow calls
+    run: cd packages/engine && .venv/bin/python -m pytest tests/api/test_week_routes.py
+    expect: "passed"

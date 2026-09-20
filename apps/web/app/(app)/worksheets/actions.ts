@@ -30,16 +30,19 @@ export async function overrideChild(formData: FormData): Promise<void> {
   redirect(`${back}&changed=1`);
 }
 
-/** One tap for the whole class: the pack is approved and the sheets are marked printed. */
+/** One tap for the whole class: the pack is approved and the sheets are marked printed.
+ *  The approver's name is written with it — `sheet_instance_printed_needs_approver` refuses a
+ *  printed sheet that cannot say who allowed it (migration 20260923090000). */
 export async function approvePack(formData: FormData): Promise<void> {
-  await requireStaff();
+  const me = await requireStaff();
   const section = String(formData.get("section") ?? "");
   const week = String(formData.get("week") ?? "");
   const kind = String(formData.get("kind") ?? "practice");
   const back = BACK(formData);
 
   await sql`
-    update sheet_instance set print_status = 'printed', printed_at = now()
+    update sheet_instance set print_status = 'printed', printed_at = now(),
+      approved_by = ${me.email}, approved_at = now()
     where print_status = 'new' and sheet_template_id in (
       select st.id from sheet_template st
       left join child c on c.id = st.child_id

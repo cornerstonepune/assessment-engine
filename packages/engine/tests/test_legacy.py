@@ -253,11 +253,16 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
         "select rung_code, correct, misconception_codes from evidence_event where child_id = %s order by rung_code",
         (child,),
     ).fetchall()
-    assert [(e["rung_code"], e["correct"]) for e in ev] == [
-        ("R5", True),
-        ("R5", False),
-        ("R5", False),
-        ("R5", None),
+    # Four rows on one rung: one right, two wrong, one blank. Asserted as a tally and not as a
+    # sequence, because the query orders by rung_code and every row here is R5 — Postgres may hand
+    # them back in any order within that. This assertion used to be a list and failed about one run
+    # in three, which is what made three other tests look flaky (STATE.md, 2026-09-20).
+    assert [e["rung_code"] for e in ev] == ["R5"] * 4
+    assert sorted((e["correct"] is None, e["correct"]) for e in ev) == [
+        (False, False),
+        (False, False),
+        (False, True),
+        (True, None),
     ]
 
     states = {

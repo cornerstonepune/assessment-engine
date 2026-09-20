@@ -13,7 +13,7 @@ test that across a couple of scenarios … till 100% accuracy is achieved."
 distractors include one unnamed code, has not met the goal. The number it reports is what fails.
 """
 
-from engine import bank, db, spec
+from engine import bank, db, scenarios_week, spec
 from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
 
@@ -39,6 +39,8 @@ def _answer_is_right(item):
 
 def run_one(conn, sc):
     kind = sc.get("kind", "bank")
+    if kind == "week":
+        return scenarios_week.run(conn, sc)
     if kind != "bank":
         return {"kind": kind}, [f"no runner for a {kind!r} scenario yet — this goal is declared, not met"]
     return _run_bank(conn, sc)

@@ -89,14 +89,17 @@ def bank_fill(
 
 @bank_app.command("coverage")
 def bank_coverage() -> None:
-    """The 16x4 unit grid: active item count for every skill set at every difficulty."""
+    """Every skill set at every difficulty against what a class needs in a week (ADR 0016)."""
     with db.connect() as conn:
         rows = bank.coverage(conn)
+        need = bank._class_need(conn)
     short = 0
     for r in rows:
         under = r["n"] < r["target"]
         short += under
-        floor = "" if r["target"] == 50 else f"  (floor {r['target']}: whole range enumerated)"
+        # A unit below the class need carries its own measured ceiling: its numbers ran out, and the
+        # note says so rather than reading as a shortfall (ADR 0011, ADR 0016).
+        floor = "" if r["target"] == need else f"  (ceiling {r['target']}: whole range enumerated)"
         typer.echo(f"  {r['code']:<20}{r['difficulty']:<9}{r['n']:>4}{' <' if under else '  '}{floor}")
     typer.echo(f"  {len(rows)} units, {short} under their target")
 
@@ -242,6 +245,24 @@ def week_assemble(
         conn.commit()
     typer.echo(f"  {summary['sheets']} named · {summary['spares']} spare · {summary['pages']} pages")
     typer.echo(f"  {summary['pack']}")
+
+
+@week_app.command("approve")
+def week_approve(
+    section: str,
+    week: str,
+    kind: str = typer.Option("practice", "--kind"),
+    by: str = typer.Option(..., "--by", help="Who is approving — written on every sheet in the week"),
+) -> None:
+    """N7's gate by hand, for an operator without the screen. The database refuses a printed sheet
+    that cannot say who allowed it, so this is the only way it reaches a child."""
+    with db.connect() as conn:
+        out = assemble.approve(conn, section, week, kind, by)
+        conn.commit()
+    typer.echo(
+        f"  {out['sheets']} sheets approved by {out['approved_by']}"
+        f" — {out['named']} named, {out['spares']} spare"
+    )
 
 
 @bank_app.command("misconceptions")
