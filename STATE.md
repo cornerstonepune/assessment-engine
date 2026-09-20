@@ -2387,3 +2387,41 @@ reconstructed by median-averaging the aligned copies of a paper across the child
 (≥4 copies exist for 9 of 16 papers), which removes the handwriting and leaves the printed page.
 That is the next session's first move, and `HANDOFF.md` carries the full plan with a target for
 each class.
+
+## A rule written this morning was deleting correct answers, and Nimish spotted it on a crop (2026-09-20)
+
+Nimish, looking at four flagged samples: "It's very clear that the child has written 15 + 15 = 30,
+and the working for the next one is also there in the birds one. Where is the issue here?"
+
+He was right, and the cause was mine, from earlier the same session.
+
+- **What the page holds.** Textract found Hridhima's answer perfectly: `15`, tagged HANDWRITING, at
+  x=0.371, **97% confidence**, sitting in the blank of "Find the missing number: 15 + ___ = 30" —
+  distinct from the printed `15+` at x=0.324 and the printed `30` at x=0.435. The engine read it
+  and then deleted it.
+
+- **Why.** Kabir's quiz prints "24,568 + 37,845 =" and Textract returned the printed `37,845` a
+  second time, tagged as handwriting, on top of where it is printed — and the engine stood behind
+  it as his answer at 94%. The rule added to stop that dropped **any** number the question
+  mentions. But the answer to "15 + ___ = 30" IS 15, and the answer to "52 birds, 26 flew away"
+  IS 26. The rule threw away correct answers, at 97% confidence, across two whole papers.
+
+- **The fix is position, not value.** A number is the paper's only where a printed word of the same
+  value **overlaps it on the page** — the same mark found twice. Kabir's duplicate overlaps its
+  printed original and is dropped; a child's answer written in a blank, or below their working,
+  overlaps nothing and is kept. The "unless the child declared it with a label or a sentence"
+  escape hatch is gone: it was a patch over the wrong test, and it only saved the children who
+  happened to write `ans=`.
+
+- **Measured.** `bin/engine read eval --reader ocr --runs 2` → **79.3% exact (65/82)**, 100% given
+  a row, **1.2% silently wrong (1)**, spread 79.3–79.3%. Kabir's quiz sheet is unharmed at 15/19
+  with 0 silent errors, which is what the rule was written to protect.
+
+- **Across the corpus**, re-read in full: **242 waiting for a person, down from 261**, and the
+  engine now settles **625 of 867 (72%)** — Grade 2 **79%**, Grade 3 **64%**.
+
+- **The lesson worth keeping.** Both defects were in the same rule, one day apart, and the gold set
+  caught neither: Kabir's duplicate because his quiz was not yet in the gold, and this one because
+  `G2-DIAG-B` still is not. **A person looking at four crops found in a minute what 82 hand-verified
+  responses did not.** The approval screen is not only how the gold set grows — it is the only
+  place a rule that is wrong in a way the gold cannot see will show itself.

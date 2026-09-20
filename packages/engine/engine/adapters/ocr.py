@@ -519,33 +519,42 @@ def _on_line(word, anchor):
     return anchor["y"] - anchor["h"] * 0.5 <= cy <= anchor["y"] + anchor["h"] * 1.5
 
 
-def _not_echo(hand, echoes, in_box=False):
-    """An echo of a number the paper prints is never the answer — the child copying an operand into
-    their working (Kabir's 37,845, on a line of its own under the sum), or the printed operand
-    itself tagged as handwriting (his "8 × ___ = 72" giving back the 72) — unless the child
-    declared it. A labelled line ("ans=26") or a sentence in the child's own hand is a child
-    stating their answer, and on every copy of the word paper 52 − 26 IS 26.
+def _overlaps(a, b):
+    """Are these two words the same mark on the page, found twice?"""
+    ax, ay = a["x"] + a.get("w", 0) / 2, a["y"] + a.get("h", 0) / 2
+    bx, by = b["x"] + b.get("w", 0) / 2, b["y"] + b.get("h", 0) / 2
+    return (
+        abs(ax - bx) <= max(a.get("w", 0), b.get("w", 0)) * 0.5 + 0.01
+        and abs(ay - by) <= max(a.get("h", 0), b.get("h", 0)) * 0.5 + 0.005
+    )
 
-    Inside a printed box the only echo that matters is the box's own label mis-tagged as
-    handwriting, which shares the label's mixed line; a lone number in a brick is the child's even
-    when a brick elsewhere prints the same one.
+
+def _not_echo(hand, echoes, printed=()):
+    """Drop a number the paper prints ONLY where the paper is demonstrably the one that printed it —
+    a printed word of the same value in the same place, found a second time and tagged as
+    handwriting. Kabir's "24,568 + 37,845 =" came back with a handwritten 37,845 sitting on top of
+    the printed one, at 94%, and it was stood behind as his answer.
+
+    Position is the whole test, and the reason is a lesson this rule had to learn twice: for
+    "15 + ___ = 30" the answer IS 15, and for "52 birds, 26 flew away" it IS 26. Dropping every
+    number the question mentions threw away a correct answer, at 97% confidence, on two whole
+    papers — more children than the misreading it was written to prevent.
     """
     kept = []
     for w in hand:
-        line = w.get("line_text") or ""
-        declared = _LABEL.search(line) or (_WORDS.search(line) and not w.get("mixed_line"))
-        echo = value_of(w["text"]) in echoes and (w.get("mixed_line") if in_box else True)
-        if declared or not echo:
-            kept.append(w)
+        v = value_of(w["text"])
+        if v in echoes and any(value_of(pw["text"]) == v and _overlaps(w, pw) for pw in printed):
+            continue
+        kept.append(w)
     return kept
 
 
-def _read_field(page, f, cfg, working, echoes=frozenset()):
+def _read_field(page, f, cfg, working, echoes=frozenset(), printed=()):
     """What the child wrote inside one printed box: their answer, or a doubt, or nothing."""
     region = _as_region(f)
     hand = _handwriting_near(page, region, cfg, _in_field, any_hand=len(f) > 5)
     had_ink = bool(hand)
-    hand = _not_echo(hand, echoes, in_box=True)
+    hand = _not_echo(hand, echoes, printed)
     if not any(_LABEL.search(w.get("line_text") or "") for w in hand):
         # The Cambridge boxes print their "Answer:" line along the bottom edge, and a scan a
         # degree off square can leave it just outside the rectangle that was found — so the box
@@ -653,6 +662,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
     """
     cfg = cfg or DEFAULTS
     out = {}
+    printed = [w for w in page["words"] if not w["hand"] and value_of(w["text"])]
     # Every question is anchored first, claimed or not: a question read from its own boxes still
     # occupies its rows, and the question above it is bounded by it. Dropping claimed questions
     # from the ordering let a region run down over the next question's answers.
@@ -669,7 +679,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
 
     labelled = _labelled_boxes(page, slots, boxes) if boxes else {}
     for slot, f in labelled.items():
-        out[slot] = _read_field(page, f, cfg, "none", _echoes([slots[slot]]))
+        out[slot] = _read_field(page, f, cfg, "none", _echoes([slots[slot]]), printed)
     if labelled:
         # Once a box is claimed, what is written in it — and on the Answer line the paper prints
         # just under it — is that slot's and no other's. A sibling still read by region would
@@ -716,8 +726,8 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             box["top"] = min(box["top"], min(w["y"] for w in on_line))
         working = _working_shown(len(_all_handwriting(page, box)), len(members))
         echoes = _echoes([slots[s] for s in members])
-        printed = len(re.findall(r"\d[\d,]*", " ".join({slots[s] for s in members})))
-        fields = _fields_in(boxes, page, box, printed) if boxes else []
+        printed_here = len(re.findall(r"\d[\d,]*", " ".join({slots[s] for s in members})))
+        fields = _fields_in(boxes, page, box, printed_here) if boxes else []
         # Boxes are trusted only when the count matches AND they hold the child's ink — or the
         # whole region is empty. A decorative frame beside an answer written on an underline
         # matched the count, was empty, and came back "blank" on an answer the child had given.
@@ -735,7 +745,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             for slot, field in zip(
                 members, _reading_order([{"x": f[0], "y": f[1], "box": f} for f in fields], cfg["row_band"])
             ):
-                read = _read_field(page, field["box"], cfg, working, echoes)
+                read = _read_field(page, field["box"], cfg, working, echoes, printed)
                 if read["answer_state"] == "blank" and stray:
                     # Ink in the region that no box claims, beside a box that is empty: the child
                     # most likely wrote across the border. A person looks; nobody is told "blank".
@@ -747,7 +757,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
         # who has to hunt down the question on a whole page will not check eighteen of them.
         where = [round(box["left"], 4), round(box["top"], 4), round(box["right"], 4), round(box["bottom"], 4)]
         found = _handwriting_near(page, box, cfg)
-        candidates = _dedupe(_not_echo(found, echoes))
+        candidates = _dedupe(_not_echo(found, echoes, printed))
         if found and not candidates:
             # Every number in the region is one the paper printed: the child copied the operands
             # and the answer itself was not read. A person looks; nobody is told "blank".

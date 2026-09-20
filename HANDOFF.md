@@ -50,12 +50,17 @@ can do — we gotta work deeper into this module." No, it is not the best, and t
 where the ceiling actually is. **Every one of the 261 was counted by cause, not guessed at:**
 
 ```
-  39  (15%)  not a number by design — an ordering, an explanation, a tick, a comparison symbol
+  39  (16%)  not a number by design — an ordering, an explanation, a tick, a comparison symbol
   20  ( 8%)  the question was never located on the page
- 104  (40%)  the region or box count did not add up
-  84  (32%)  read, but under the 70% confidence floor
-  14  ( 5%)  other
+  ~90 (37%)  the region or box count did not add up
+  ~80 (33%)  read, but under the 70% confidence floor
+  ~13 ( 5%)  other
 ```
+
+(Counted at 261; 19 of them went away when the echo rule was corrected at the end of the session —
+see STATE.md, "A rule written this morning was deleting correct answers". **The corpus now stands
+at 242 waiting for a person and 625 of 867 settled, 72%.** Re-count by cause before working the
+list: the query is in that STATE entry's sibling above it.)
 
 Only the first 39 are a floor. **The other 222 are addressable, and three of the four biggest
 classes are not hard handwriting at all** — they are the engine not knowing which number on the
@@ -96,7 +101,7 @@ class entirely, which is another reason to do (1) first.
 The judgement ("is he correct?") is not checkable; **the number is**. Mark the number, show the
 teacher the judgement. This is a marking change, ~10 lines, no reading risk.
 
-**If all four land, 261 → roughly 60–80, of which 39 are the structural floor.** That is the 90%+
+**If all four land, 242 → roughly 60–80, of which 39 are the structural floor.** That is the 90%+
 coverage you asked for, and every step of it is measurable against the gold set before it ships.
 
 ## Do not skip this: the gold set is the only thing that kept this session honest

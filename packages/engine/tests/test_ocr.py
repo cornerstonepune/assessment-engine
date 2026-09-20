@@ -479,18 +479,22 @@ def test_a_printed_operand_read_back_as_handwriting_is_never_the_answer():
     # as the photograph came back: the child's copy of the operand on a line of its own, and
     # their answer read as a word — nothing left that is a number, and the child wrote something
     words = [
-        w("37,845", 0.16, 0.205, conf=94, h=0.04, line="37,845", mixed=False),
+        # the paper's own 37,845, found a second time and tagged as handwriting, on top of it
+        w("37,845", 0.162, 0.205, conf=94, h=0.04, width=0.10, line="37,845", mixed=False),
+        w("37,845", 0.160, 0.203, hand=False, h=0.038, width=0.10),
         w("Elhlo", 0.29, 0.186, conf=64, h=0.036, line="Elhlo", mixed=False),
     ]
     got = ocr.answers_for(page(words, [anchor]), {"1": "24,568 + 37,845 ="})
     assert got["1"]["answer_state"] == "illegible"
 
+    # the paper's 72, found a second time and tagged as handwriting, on top of where it is printed
+    printed_72 = w("72", 0.36, 0.22, hand=False, width=0.03, h=0.012)
     anchor = w("13. Fill in the blank: 8 x", 0.10, 0.22, hand=False, width=0.30)
     words = [
         w("9", 0.30, 0.22, conf=95, line="13. Fill in the blank: 8 x 9 = 72"),
         w("72", 0.36, 0.22, conf=86, line="13. Fill in the blank: 8 x 9 = 72"),
     ]
-    got = ocr.answers_for(page(words, [anchor]), {"13": "Fill in the blank: 8 x ___ = 72"})
+    got = ocr.answers_for(page(words + [printed_72], [anchor]), {"13": "Fill in the blank: 8 x ___ = 72"})
     assert (got["13"]["child_answer"], got["13"]["answer_state"]) == ("9", "written")
 
 
@@ -553,21 +557,19 @@ def test_three_consecutive_printed_lines_are_still_one_region():
     assert [got[k]["child_answer"] for k in ("5a", "5b", "5c")] == ["0", "52", "72"]
 
 
-def test_an_answer_that_equals_an_operand_is_kept_when_the_child_declared_it():
-    """52 − 26 = 26 on every copy of the word paper. The child who labels it, or states it in a
-    sentence, has declared an answer; the number itself is no reason to doubt them."""
+def test_an_answer_that_equals_an_operand_is_kept_wherever_the_child_wrote_it():
+    """52 − 26 = 26 on every copy of the word paper, and the child who writes 26 below their
+    working has answered it. The question mentioning 26 is no reason to doubt them — only the
+    paper having printed 26 *in that spot* would be."""
     anchor = w(
         "2. There were 52 birds sitting on a tree. 26 birds flew away.", 0.10, 0.30, hand=False, width=0.6
     )
     q = {
         "2": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?"
     }
-    labelled = [w("26", 0.30, 0.36, line="ans=26", mixed=False)]
-    assert ocr.answers_for(page(labelled, [anchor]), q)["2"]["child_answer"] == "26"
-    sentence = [w("26", 0.12, 0.36, line="26 birds are left on the tree", mixed=False)]
-    assert ocr.answers_for(page(sentence, [anchor]), q)["2"]["child_answer"] == "26"
-    bare = [w("26", 0.30, 0.36, line="26", mixed=False)]
-    assert ocr.answers_for(page(bare, [anchor]), q)["2"]["answer_state"] == "illegible"
+    for line, mixed in (("ans=26", False), ("26 birds are left on the tree", False), ("26", False)):
+        got = ocr.answers_for(page([w("26", 0.30, 0.36, line=line, mixed=mixed)], [anchor]), q)
+        assert got["2"]["child_answer"] == "26", line
 
 
 def test_a_childs_neat_digits_tagged_as_print_still_make_their_brick_a_field():
@@ -626,3 +628,21 @@ def test_red_ink_is_painted_out_and_pencil_is_not():
 def test_a_truncated_thousands_number_is_not_a_value():
     assert ocr.value_of("24,") is None
     assert ocr.value_of("24,568") == "24568"
+
+
+def test_an_answer_that_equals_a_printed_number_is_kept_where_the_paper_did_not_print_it():
+    """The rule that broke two papers. "Find the missing number: 15 + ___ = 30" — the answer IS 15,
+    written in the blank at 97%, and it was deleted because 15 appears in the question. So was the
+    26 in "52 birds, 26 flew away". A number is the paper's only where the paper printed it."""
+    anchor = w("11. Find the missing number: 15 + ", 0.096, 0.577, hand=False, width=0.30, h=0.012)
+    printed = [
+        w("15+", 0.324, 0.577, hand=False, width=0.03, h=0.012),
+        w("30", 0.435, 0.577, hand=False, width=0.02, h=0.012),
+    ]
+    childs = w(
+        "15", 0.371, 0.578, conf=97, width=0.02, h=0.014, line="11. Find the missing number: 15+ 15 = 30"
+    )
+    got = ocr.answers_for(
+        page([childs] + printed, [anchor]), {"11": "Find the missing number: 15 + ___ = 30"}
+    )
+    assert (got["11"]["child_answer"], got["11"]["answer_state"]) == ("15", "written")
