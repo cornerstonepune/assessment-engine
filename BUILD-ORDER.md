@@ -15,9 +15,15 @@ screen where a person acts. "Built" means all of that, not the Python alone.
 | # | Workflow | In | Out | Status |
 |---|---|---|---|---|
 | **W1** | Build the bank (N1–N2) | any skill on the map, its learning objective, a difficulty | hundreds of verified questions per skill × difficulty, for any topic, by rows only | **done: `engine goal w1-build-the-bank` → 10/10 scenarios, 5/5 criteria (2026-09-20)** |
-| W2 | Assemble and print (N5–N7) | each child's prescription | per-child papers with QR, spares, key; the teacher approves | **goal met 2026-09-20: `engine goal w2-assemble-and-print` → 12/12 scenarios, 4/4 criteria. A live n8n run and the Grade 1 decision remain** |
-| W3 | Read and graph (N8–N10) | scanned or photographed papers | marked answers, mistake patterns, the child's skill graph | a first reader has run on 10 of the 84 real sheets; nothing measured; not a workflow |
+| W2 | Assemble and print (N5–N7) | each child's prescription | per-child papers with QR, spares, key; the teacher approves | **goal met 2026-09-20: `engine goal w2-assemble-and-print` → 12/12 scenarios, 4/4 criteria. Its engine is proven; its output is not pilot-ready until W3 feeds it — see below. A live n8n run and the Grade 1 decision remain** |
+| W3 | Read and graph (N8–N10) | scanned or photographed papers | marked answers, mistake patterns, the child's skill graph | **goal written and agreed 2026-09-20: `goals/w3-read-and-graph.yaml`, 21 scenarios, 4 criteria, all red on purpose.** 10 of 72 papers read, all the easy kind, never measured; 4 of 18 children have any result; no Grade 3 paper is enterable yet |
 | W4 | Close the loop (N11–N12 → N5) | the graph | next paper, home sheet, parent note, per child | not started |
+
+**Sequencing, set by Nimish 2026-09-20.** W2's engine is proven, but its output is not
+pilot-ready until W3 has read the 37 existing assessments and built real graphs for all 18
+children. Entering each distinct paper with one slot per answer on the page — not per printed
+question — is W3's first gate, and it precedes any reading. The order is therefore: enter the
+papers → read the 37 sittings → 18 real graphs → then assemble for the pilot.
 
 QR identification is a routing lookup inside W3 — which sheet, which child — added only after
 W3's reading engine is proven on the 84 real sheets. It is never mixed into the reading engine.

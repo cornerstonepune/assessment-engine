@@ -1402,3 +1402,56 @@ Nothing of the reader is built: the bar's numbers are proposed and wait on Nimis
   `no runner for a 'read' scenario yet — this goal is declared, not met`, and the two failing
   criteria are the two things W3 has to build (`n8n/workflows/f3-read-and-graph.json`,
   `engine read accuracy`).
+
+## W3 gate 1 found: the papers themselves are the defect, not the reader (2026-09-20)
+
+Nimish: "for every grade 2 and grade 3 student in that drive we have, at least 3 to 4 assignments,
+so make sure that you are not missing out on anything." Counting from disk rather than from
+`manifest.md` proved him right and the manifest wrong.
+
+- **52 sittings across 16 children, not the manifest's 37.** Check: a per-child inventory over
+  `~/cornerstone/assessments`, attributing every loose file by the manifest's own table →
+  `sittings-per-child distribution: {1: 2, 2: 3, 3: 4, 4: 3, 5: 4}`, `children: 16`,
+  `total sittings: 52`, `unattributed files: none`. The manifest omits the WhatsApp images
+  entirely — 20 Grade 3 baseline pages and 15 Grade 2 extra pages. It is data documentation kept
+  outside git, so it is flagged here rather than rewritten.
+
+- **The Grade 2 Cambridge paper runs at four levels, not two.** Check: a contact sheet of the
+  printed header band of all ten `sept. 1st` PDFs → **Level A** ×4, **Level B** ×4, **Level D** ×1,
+  and one whose header is cropped but whose Q1 (`62 + 5`, `71 + 6`) matches neither `G2-CAM-A`
+  (`148 + 7`) nor `G2-CAM-B` (`48 + 7`), so a fourth form exists. Only A and B are in the database.
+  Seven of the ten Grade 2 children who sat it are therefore unreadable today.
+
+- **`G2-CAM-B` is correctly entered, as far as its first page.** Check: Q1–Q5 on a real Level B page
+  are `48+7, 36+9, 27+8, 55+6 / 154+8, 267+5, 348+9, 236+7 / 63−8, 72−5, 84−6, 91−7 / 52−27, 74−38,
+  61−45, 83−59 / 165−7, 243−8, 276−9, 354−6` — 20 answers, all single-box, matching the 20 slots the
+  row holds for that page. Page 2 (`6a, 6b, 7, 8`) is not yet checked.
+
+- **Why a wrong slot count loses answers silently.** `legacy.import_scan` looks each read up by
+  `n`+`part` in `paper_rows`' `by_key`; a key with no slot appends to `summary["unmatched"]` and
+  `continue`s. So the model may well have read all 27 of `G2-CAM-A`'s answers — the code had
+  nowhere to put three of them. The root cause is the paper's entry, not the prompt or the model.
+
+- **The full paper inventory is `docs/w3-paper-inventory.md`**: 14 distinct papers, of which 4 are
+  entered (1 proven wrong, 2 unchecked) and **10 have never been entered** — including the Grade 3
+  16-question baseline that all five of Aseem's gold reports are written from, and where
+  `8500 − 3647 = 5147` lives. The gold set for the whole pipeline is behind this gate.
+
+- **The child with the fewest papers is on the paper nobody entered.** One child has a single
+  sitting, on Level D, and wrote `4+3=55`, `6+2=45`, `5+4=35`, `3+5=61`, `9+4=49` with no working
+  anywhere on the page. The answers bear no relation to the operands: that child is not computing
+  at all. It is the sharpest diagnostic signal in the corpus and the engine cannot currently see it.
+
+- **Two test children were left active in the live roster.** `select count(*) from child where
+  active` → `18`, but only 16 children exist on disk. The extra two are `Concurrent 1` and
+  `Concurrent 2` in a bare `CONCURSEC` section, created 2026-09-20 05:26:04 by an **earlier version**
+  of `test_two_classes_assembled_at_the_same_moment_both_finish`. The current test is correct — it
+  uses a per-run `CONCURSEC-<hex>` section and deactivates it in a `finally`, and every one of the
+  ~25 hex sections is `active = false`. The two orphans predate that design and the section-scoped
+  cleanup can never match them. They sit in their own section, so they would never join a real class
+  assembly. **Not yet fixed: the one-line deactivation was refused by this session's sandbox**
+  (`Modify Shared Resources`), and `psql` was blocked for the rest of the session afterwards.
+  The fix, for a session that can write: `update child set active = false where section =
+  'CONCURSEC' and active` → expect `UPDATE 2`, then `select count(*) from child where active` → `16`.
+  The deeper cause is that `engine audit` has no invariant over the roster; one that refuses an
+  active child in a section the roster does not know would have caught this the day it happened.

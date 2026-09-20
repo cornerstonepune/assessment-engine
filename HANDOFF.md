@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: **W3 — read and graph. Its goal is written and red on purpose. Blocked on one yes.**
+## Where we are: **W3 — read and graph. Goal written, bar agreed, red on purpose. Gate 1 is entering the papers.**
 
 W1 and W2 are done. Verified again at the start of this session, not assumed:
 
@@ -17,12 +17,12 @@ bin/engine audit                       12 invariants · 0 violations      (suite
 requires. It opens red, which is correct:
 
 ```
-bin/engine goal w3-read-and-graph      2/4 criteria · 17 scenarios short of the bar   (exit 1)
+bin/engine goal w3-read-and-graph      2/4 criteria · 21 scenarios short of the bar   (exit 1)
 ```
 
-## The one thing blocking W3's reader: Nimish's yes on the bar
+## The bar — agreed by Nimish 2026-09-20
 
-Proposed in the goal file, with the evidence in `STATE.md` under *W3 opens*:
+In the goal file, with the evidence in `STATE.md` under *W3 opens*:
 
 | | number | why |
 |---|---|---|
@@ -33,6 +33,10 @@ Proposed in the goal file, with the evidence in `STATE.md` under *W3 opens*:
 | gold set | **≥300 responses, ≥100 phone photos** | ±1.9 points at n=300 |
 
 The unit is the **response** — one child's answer to one question-part — not the page or the sheet.
+Plus the correction loop he asked for: doubt goes to a person, their answer is stored, and it feeds
+later reads. Stated plainly in the goal — the model does not learn and nothing is retrained; what
+falls is the flag rate, because corrections accumulate as context. So a correction only counts if it
+changes a **later** read.
 
 **The finding that shaped it.** Hand-checking Advika's Cambridge Level A sheet against the 24 rows
 the engine stored: 24 of 24 read exactly right, but the page holds 27 responses. Q5's three boxes
@@ -42,18 +46,26 @@ correctly" would score that sheet 100% and hide the hole.
 
 ## Next action
 
-1. **Get the yes on the five numbers above**, or the corrected ones. Change one line of
-   `goals/w3-read-and-graph.yaml` per number changed.
-2. **Then build the reader, in the goal file's own order** — the `kind: read` runner first
-   (`engine/scenarios_read.py`), because every scenario is red behind it. The two failing criteria
-   name the other two deliverables: `engine read accuracy` and `n8n/workflows/f3-read-and-graph.json`.
-3. **The gold set is the long pole and it needs a person.** ≥300 hand-marked responses across ≥22
-   pages. Much of the truth is already on the page in the teacher's red pen — which is also exactly
-   the regime-B hazard the reader must not fall for.
-4. **Two captures are stuck on a billing error, not a code fault**: `claude-sonnet-5 returned HTTP
-   400: Your credit balance is too low`. Also note those two ran on Sonnet, while `STATE.md` N3.1
-   records the three read prompts as pinned to Haiku — worth confirming which path sent them
-   before the first real read batch.
+W3's gate 1 is **entering the papers**, and it is bigger than it looked. `docs/w3-paper-inventory.md`
+is the work list: **14 distinct papers, 4 entered (1 proven wrong, 2 unchecked), 10 never entered.**
+
+1. **Fix `G2-CAM-A`**: 24 slots for a 27-answer page. Q5's three boxes need three slots, Q7's
+   estimate and total need two. Then re-read the 10 captures. Nimish's call, 2026-09-20: re-check
+   all four entered papers now, not later.
+2. **Check `G2-SEPW2-S1` (12 slots) and `G2-WORD-SEP17` (6 slots)** against their real pages.
+   `G2-CAM-B` page 1 is already verified correct; its page 2 is not.
+3. **Enter the 10 missing papers**, engine-proposes/person-approves. Order by what unblocks most:
+   the **G3 16-question baseline** first — it is the gold paper, all five of Aseem's reports are
+   written from it, and `8500 - 3647 = 5147` lives there.
+4. **Then** build the `kind: read` runner (`engine/scenarios_read.py`), `engine read accuracy`, and
+   `n8n/workflows/f3-read-and-graph.json` — the three things W3's goal names as missing.
+
+**Blocked, needs a session that can write to the database:** two test children (`Concurrent 1`,
+`Concurrent 2`, bare `CONCURSEC` section) are still `active`, so the roster reads 18 where 16 are
+real. This session's sandbox refused the update and then blocked `psql` entirely. Fix:
+`update child set active = false where section = 'CONCURSEC' and active` (expect `UPDATE 2`).
+Root cause is recorded in `STATE.md`; the current test is not at fault, these predate its per-run
+section. `engine audit` should grow an invariant over the roster so this cannot recur unseen.
 
 ## Carried over — Nimish's calls, not blockers
 
