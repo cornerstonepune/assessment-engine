@@ -20,48 +20,64 @@ requires. It opens red, which is correct:
 bin/engine goal w3-read-and-graph      2/4 criteria · 30 scenarios short of the bar   (exit 1)
 ```
 
-## Where the reader stands (2026-09-20, end of session)
+## Where the reader stands (end of 2026-09-20)
 
-Transcription moved from a vision model to AWS Textract (ADR 0019): what reads a child's
-handwriting must not know arithmetic, because a model that does fills faint pencil with the answer
-it can compute. Measured against 45 responses read off the page by eye, across three children:
+Transcription is AWS Textract, not a vision model (ADR 0019): what reads a child's handwriting must
+not know arithmetic, because a model that does fills faint pencil with the answer it can compute.
+**`engine legacy import` — the real ingest path — now reads with it too**, which it did not for most
+of the session while every measurement was taken against a different reader.
 
 ```
 bin/engine read eval --reader ocr
-  read exactly right   80.0%   (36/45)      bar 97%   NOT MET
-  given a row at all   100.0%              bar 100%  met
-  SILENTLY WRONG       0.0%    (0)         bar 1%    met
+  read exactly right   80.0%   (36/45)     bar 97%    NOT MET
+  given a row at all   100.0%              bar 100%   met
+  SILENTLY WRONG       0.0%    (0)         bar 1%     met
 ```
 
-| | model (all day's prompt work) | Textract + geometry |
-|---|---|---|
-| exactly right | 55–63% | **80.0%** |
-| silently wrong | ~7 in 27 | **0** |
+45 responses read off the page by eye, three children, two paper types, **Grade 2 only**. Against
+the vision model on the same gold: 55–63% exact with about seven silent errors.
 
-The frontier is measured and in `STATE.md`: no combination of render resolution and confidence
-floor meets both bars. 250 dpi with no floor reaches 91.1% exact but 4.4% silently wrong. The
-shipped setting is the one that protects the child's graph.
+The frontier is measured, in `STATE.md`: no combination of render resolution and confidence floor
+meets both bars. 250 dpi with no floor reaches 91.1% exact but 4.4% silently wrong.
+
+**Three complements tested, results in `STATE.md`:** Textract QUERIES recovers 3 of the 4
+free-response misses (at confidences 98/32/66, and one confidently wrong) and is the clearest
+remaining lever **as a second opinion on already-flagged answers**; FORMS finds `Answer: → 155` but
+cannot say which question it belongs to; **OpenCV preprocessing measured WORSE** (mean confidence
+90.6 → 87.9) and was the lever I had predicted would help most.
 
 ## Next, in the order that removes the most risk
 
-1. **Test Grade 3 before anything else is built on this.** Every number above comes from Grade 2
-   PDFs. Grade 3 is 38 pages of phone photographs — angled, pencil, with the educator's pen over
-   the child's answer — and **not one has ever been read**. Enter one G3 paper, hand-verify one
-   sheet, run `read eval`. If the approach does not survive a photograph, everything below is
-   premature. This is the cheapest way to find that out and the largest unknown in the project.
-2. **Enter the remaining papers** (`docs/w3-paper-inventory.md`): 10 of 14 have never been entered,
-   including the Grade 3 baseline that all five of Aseem's gold reports are written from.
-3. **Grow the gold set to ~300 responses.** `1/45 = 2.2%` is the smallest non-zero rate this gold
-   can express, so the 1% bar is currently finer than the ruler. `gold_responses_min: 300` in the
-   goal file is that arithmetic, not bureaucracy.
-4. **The two named causes of the nine remaining misses**, both in `STATE.md`: free-response boxes
-   where nothing marks which number is final, and faint pencil at low confidence. For the first,
-   the clean option is a model that never reads digits and only CHOOSES among the numbers Textract
-   already read — it cannot hallucinate an answer because it is picking from a list. For the second,
-   image preparation before Textract (contrast, deskew, binarise) is completely untried.
-5. **Then** read all 118 pages once, score, and build the graph. Not before: reading the corpus at
-   80% would put a confident wrong diagnosis on sixteen real children.
-6. **Then** the frontend, which is where Nimish wants to see the output.
+1. **Grade 3, before anything else is built on these numbers.** Every measurement above is Grade 2
+   PDFs. Grade 3 is 38 pages of phone photographs — angled, pencil, the educator's pen over the
+   child's answer — and **not one has ever been read**. Enter one G3 paper, hand-verify one sheet,
+   run `read eval`. Largest unknown in the project and the cheapest way to close it.
+2. **The teacher approval screen.** Nimish's own argument for putting it early: every correction a
+   teacher makes IS a hand-verified response, so the gold set grows by using the system rather than
+   by a data-entry project — and coverage becomes 100% immediately, because anything doubtful is
+   either read confidently or confirmed by a person. It is the mechanism that makes the reader
+   improve, not a reward for finishing it.
+3. **Enter the remaining papers** (`docs/w3-paper-inventory.md`): 10 of 14 never entered, including
+   the Grade 3 baseline all five of Aseem's gold reports are written from.
+4. **Wire QUERIES as the second opinion** on flagged answers, accepted only above the confidence
+   floor or where it agrees with a candidate geometry already found.
+5. **Then** read all 118 pages once, score, build the graph. Not before: reading at 80% would put a
+   confident wrong diagnosis on sixteen real children.
+6. **Then** the rest of the frontend.
+
+## Code quality, measured
+
+```
+pytest        340 passed          coverage 66%
+ruff          format + check clean, and a goal criterion now fails if either drifts
+aislop        engine package 68/100 "Needs Work"; repo-wide 35 is ONE research spike
+engine audit  12 invariants, 0 violations
+```
+
+Known and named, not hidden: `engine/assess/mark.py` is 247 statements at 0% coverage that nothing
+imports (built for the QR path, never wired — dead, and it will rot). Four files are over the size
+ceiling (`items.py` 743, `legacy.py` 570, `loaders.py` 481, `cli.py` 462). `research/` holds 15 of
+the repo's 16 lint errors and is not production.
 
 ## Carried over — Nimish's calls, not blockers
 
