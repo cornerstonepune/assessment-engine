@@ -1934,3 +1934,34 @@ taken. Measured, not asserted.
   Those are exactly the values a second paper will want different, and today they can only be
   changed by editing Python. **They belong in `threshold` rows.** This is the clearest piece of debt
   in the session and it is new, not inherited.
+
+## Three complements tested; the one I expected to help made it worse (2026-09-20)
+
+Nimish: "use all the features of tesseract well and if see any such complementing capabilities can
+help it better." Tesseract itself is not the tool — it is not installed here, the prototype already
+tried it and rejected it, its own docstring says it is not for handwriting, and the 2026 benchmarks
+put specialist HTR at 0.9% word error against Tesseract-class engines far behind on handwriting.
+But the instinct was right: we were using one Textract call out of several available. Three tested.
+
+- **Textract `AnalyzeDocument` FORMS** — finds `Answer: → 155` as a key/value pair directly, which
+  is exactly the label our geometry hunts for. But of the 34 pairs it returned, many came back with
+  an empty value, and **none says which question its `Answer:` belongs to** — the linkage our
+  geometry already solves. At $50 per 1,000 pages against $1.50 it is 33× the cost to replace the
+  part that already works. Possible later as a second opinion, not as the reader.
+
+- **Textract `AnalyzeDocument` QUERIES — the real find.** Asked in plain English about the four
+  free-response answers geometry cannot resolve ("What number did the student write as the estimate
+  for the baker question?"), it recovered **3 of 4**: `7a` 282 at confidence 98, `7b` 282 at 32,
+  `8b` 1228 at 66, and `8a` wrong (427, the figure from the question text) at 52. As a primary
+  reader that is unsafe — one of the four is a confident-looking wrong answer. As a **second opinion
+  on answers geometry has already flagged**, accepted only above the confidence floor or where it
+  agrees with a candidate already found, it is the measured-agreement principle again and it is the
+  clearest remaining lever on the free-response class. $15 per 1,000 pages, and only on flagged
+  answers, so a few rupees for the corpus.
+
+- **OpenCV preprocessing — measured WORSE, and I had called it the most likely lever.** On a phone
+  photo: as rendered, 74 handwritten words at mean confidence 90.6 with 9 below 70; deskew found the
+  page already square (+0.00°) and changed nothing; CLAHE contrast gave **87.9 mean and 13 below
+  70**; both together the same. Textract does its own preparation and ours interferes with it. The
+  lever named in the previous section as "the untried lever most likely to help" does not help, and
+  that is worth more written down than quietly dropped.
