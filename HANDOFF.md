@@ -20,64 +20,48 @@ requires. It opens red, which is correct:
 bin/engine goal w3-read-and-graph      2/4 criteria · 30 scenarios short of the bar   (exit 1)
 ```
 
-## The bar — agreed by Nimish 2026-09-20
+## Where the reader stands (2026-09-20, end of session)
 
-In the goal file, with the evidence in `STATE.md` under *W3 opens*:
+Transcription moved from a vision model to AWS Textract (ADR 0019): what reads a child's
+handwriting must not know arithmetic, because a model that does fills faint pencil with the answer
+it can compute. Measured against 45 responses read off the page by eye, across three children:
 
-| | number | why |
+```
+bin/engine read eval --reader ocr
+  read exactly right   80.0%   (36/45)      bar 97%   NOT MET
+  given a row at all   100.0%              bar 100%  met
+  SILENTLY WRONG       0.0%    (0)         bar 1%    met
+```
+
+| | model (all day's prompt work) | Textract + geometry |
 |---|---|---|
-| responses read exactly right | **97%** | regime A measured at 100%; regime B never attempted |
-| responses given a row at all | **100%** | a missing row is invisible — today it is 88.9% |
-| silently wrong (not flagged) | **≤1%** | a flagged error costs a glance, a silent one corrupts a graph |
-| phone-photo floor | **≥93%** | 80 easy pages must not carry 38 hard ones |
-| gold set | **≥300 responses, ≥100 phone photos** | ±1.9 points at n=300 |
+| exactly right | 55–63% | **80.0%** |
+| silently wrong | ~7 in 27 | **0** |
 
-The unit is the **response** — one child's answer to one question-part — not the page or the sheet.
-Plus the correction loop he asked for: doubt goes to a person, their answer is stored, and it feeds
-later reads. Stated plainly in the goal — the model does not learn and nothing is retrained; what
-falls is the flag rate, because corrections accumulate as context. So a correction only counts if it
-changes a **later** read.
+The frontier is measured and in `STATE.md`: no combination of render resolution and confidence
+floor meets both bars. 250 dpi with no floor reaches 91.1% exact but 4.4% silently wrong. The
+shipped setting is the one that protects the child's graph.
 
-**The finding that shaped it.** Hand-checking Advika's Cambridge Level A sheet against the 24 rows
-the engine stored: 24 of 24 read exactly right, but the page holds 27 responses. Q5's three boxes
-became one row, Q7's estimate and total became one. All three children who sat that paper produced
-exactly 24 rows. The failure mode is **not emitting a row**, not misreading digits — so "% read
-correctly" would score that sheet 100% and hide the hole.
+## Next, in the order that removes the most risk
 
-## Next action
-
-**Read `STATE.md`'s last two sections first — a number in this repo was overstated and corrected.**
-The Olympiad mapping rate is ~90% with a ±7-point swing, NOT the "94–95%" first recorded. Nimish
-re-ran the command himself and got 84%.
-
-W3's gate 1 is **entering the papers**. `docs/w3-paper-inventory.md` is the work list: 14 distinct
-papers, 4 entered (1 proven wrong, 2 unchecked), 10 never entered.
-
-1. **Fix `G2-CAM-A`**: 24 slots for a 27-answer page, then re-read the 10 captures.
-2. **Check `G2-SEPW2-S1` and `G2-WORD-SEP17`** against their real pages (`G2-CAM-B` page 1 verified).
-3. **Enter the 10 missing papers**, engine proposes / person approves. The **G3 16-question
-   baseline** first: it is the gold paper and `8500 - 3647 = 5147` lives there.
-4. **Owed before `skill_match` is trusted anywhere: its eval** (rule 7, which this session broke —
-   two prompts were written and run without one, and the instability below is what that costs).
-   The fix in hand is majority voting across runs, replacing the model's self-reported
-   `clear/arguable/none` with measured agreement: 5 of 5 is clear, 3 of 5 is arguable, all-different
-   means a person looks. About Rs 13 a paper.
-5. **Then** the `kind: read` runner, `engine read accuracy`, `n8n/workflows/f3-read-and-graph.json`.
-
-**The four skills the registry is missing** — letter-sequence reasoning (on BOTH forms), embedded
-figures, counting overlapping shapes, mirror images, logical analogy, multi-constraint digit
-deduction — are a proposal for Aseem, not something to insert. Note the count itself is unstable:
-different runs propose between 2 and 6 of them.
-
-**Fixed this session, not carried:** the two test children left active in the roster. Nimish ran
-the deactivation (`UPDATE 2`); the roster now reads `G2|11`, `G3|5` — 16 active, matching disk. The
-cause was a cleanup keyed on a section name that drifted, so the concurrency test now cleans up by
-the ids it created and asserts none survives. Suite `301 passed`, `engine audit` `0 violations`.
-
-**Still open, Nimish's call:** `child.section` is free text with no section table, which is what let
-a test invent a section and leave it live. No audit invariant was added, because with sections as
-free text it could only pattern-match on a test's name — a fabricated check, which the traps below
-forbid. The real fix is a `section` table and a migration. Now, or after W3's gate 1?
+1. **Test Grade 3 before anything else is built on this.** Every number above comes from Grade 2
+   PDFs. Grade 3 is 38 pages of phone photographs — angled, pencil, with the educator's pen over
+   the child's answer — and **not one has ever been read**. Enter one G3 paper, hand-verify one
+   sheet, run `read eval`. If the approach does not survive a photograph, everything below is
+   premature. This is the cheapest way to find that out and the largest unknown in the project.
+2. **Enter the remaining papers** (`docs/w3-paper-inventory.md`): 10 of 14 have never been entered,
+   including the Grade 3 baseline that all five of Aseem's gold reports are written from.
+3. **Grow the gold set to ~300 responses.** `1/45 = 2.2%` is the smallest non-zero rate this gold
+   can express, so the 1% bar is currently finer than the ruler. `gold_responses_min: 300` in the
+   goal file is that arithmetic, not bureaucracy.
+4. **The two named causes of the nine remaining misses**, both in `STATE.md`: free-response boxes
+   where nothing marks which number is final, and faint pencil at low confidence. For the first,
+   the clean option is a model that never reads digits and only CHOOSES among the numbers Textract
+   already read — it cannot hallucinate an answer because it is picking from a list. For the second,
+   image preparation before Textract (contrast, deskew, binarise) is completely untried.
+5. **Then** read all 118 pages once, score, and build the graph. Not before: reading the corpus at
+   80% would put a confident wrong diagnosis on sixteen real children.
+6. **Then** the frontend, which is where Nimish wants to see the output.
 
 ## Carried over — Nimish's calls, not blockers
 
