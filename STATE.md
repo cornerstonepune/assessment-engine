@@ -2632,3 +2632,12 @@ snippet of how it will appear in the paper … simpler and clearer."
 - Commands, 2026-09-21: `cd packages/engine && .venv/bin/python -m pytest` → 415 passed;
   `bin/engine audit` → 12 invariants, 0 violations; `bin/engine goal w2-assemble-and-print` → 12/12
   scenarios, 5/5 criteria, GOAL ACHIEVED.
+
+## The website builds without a database (2026-09-21)
+
+- Every Vercel Preview build since 2cd0797 failed: `next build` loads every route to read its settings,
+  Preview has no DATABASE_URL, and `apps/web/lib/db.ts` threw at import. Now a missing URL is reported
+  at first use — a query or `sql.json` — with the same instruction; with a URL nothing changes.
+- Checks: on a clean checkout with no `.env` and no settings, `npm run build` failed exactly as on
+  Vercel before the change and exits 0 after; importing the module and calling it throws the
+  instruction; `gh pr checks 1` at 72d7d00 → engine pass, web pass, Vercel pass.
