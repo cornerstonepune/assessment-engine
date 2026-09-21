@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
+## Evening 2026-09-21: the approval page's pictures broke on the live link — fixed in the engine
+
+Every crop and page on a WhatsApp paper came back 502: the page asks for ~12 pictures at once, each drew a 45 MP page
+for itself, 3.3 GB on the 2 GB server, the engine was killed. `legacy.page_crop` now shows a page at most 2400 px and
+draws a paper once per burst (908 MB, 0.7 s for 12). Details and measurements in `STATE.md`. **The fix reaches the
+live site only when the engine server is redeployed** (`deploy/go-live.sh`, from a HEAD that contains it) — the
+website itself needs no change. Then open a WhatsApp paper on the public link and see every picture.
+
 ## Where we are: **all five steps' code is live; two human gates close them.**
 
 `BUILD-ORDER.md` ("Now: five steps"), goals `goals/s1…s5`. Shipped 2026-09-21 by PRs #3 (step 1), #4 (step 2),
