@@ -20,22 +20,40 @@ export type SkillSet = {
   band: string;
   descriptor: string;
   skill_codes: string[];
+  version: number;
   counts: Partial<Record<Difficulty, number>>;
+  // Ready-made worksheets per level (ADR 0026). None until the library is built.
+  worksheets: Partial<Record<Difficulty, number>>;
 };
 
 export async function skillSets(): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at,
+           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
            r.band, r.descriptor, r.skill_codes,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active'
-                           group by difficulty) d), '{}'::json) as counts
+                           group by difficulty) d), '{}'::json) as counts,
+           coalesce((select json_object_agg(w.difficulty, w.n)
+                     from (select difficulty, count(*)::int as n from sheet_template t
+                           where t.skill_set_code = s.code and t.source = 'library'
+                           group by difficulty) w), '{}'::json) as worksheets
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     order by r.ladder_order nulls last, s.code`;
 }
+
+// The school's grades, in the order the map shows them. Reasoning runs from Grade 2 up, so it has
+// its own group at the end rather than a grade of its own.
+export const GRADE_GROUPS: [string, string][] = [
+  ["G1", "Grade 1"],
+  ["G2", "Grade 2"],
+  ["G3", "Grade 3"],
+  ["G4", "Grade 4"],
+  ["G2+", "Reasoning · Grade 2 and up"],
+];
+export const gradeWords = (band: string) => GRADE_GROUPS.find(([b]) => b === band)?.[1] ?? band;
 
 export async function skillSet(code: string): Promise<SkillSet | undefined> {
   const rows = await skillSets();
@@ -53,14 +71,6 @@ export async function numSkills(): Promise<Skill[]> {
     where k.domain = 'NUM'
     group by k.code, k.name, k.description
     order by k.code`;
-}
-
-export type Misconception = { code: string; op: string; name: string; description: string };
-
-export async function misconceptionsFor(op: string): Promise<Misconception[]> {
-  return sql<Misconception[]>`
-    select distinct on (code) code, op, name, description from misconception
-    where op = ${op} or op = 'any' order by code`;
 }
 
 export async function misconceptionNames(): Promise<Record<string, string>> {

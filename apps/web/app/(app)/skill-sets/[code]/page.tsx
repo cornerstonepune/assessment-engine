@@ -1,220 +1,181 @@
-import Link from "@/components/link";
 import { notFound } from "next/navigation";
-import { Body, PageHeader, Panel, Pill } from "@/components/shell";
-import { DIFFICULTIES, misconceptionsFor, skillSet } from "@/lib/queries";
-import { ratifySkillSet, saveSkillSet } from "./actions";
+import Link from "@/components/link";
+import { Answers, KIND, mistakeOf, Question } from "@/components/question";
+import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-
-const FORMATS: [string, string][] = [
-  ["column_grid", "Column calculation"],
-  ["bare_sum", "Horizontal sum"],
-  ["missing_number", "Missing number"],
-  ["word_1step", "One-step word problem"],
-];
+import { DIFFICULTIES, gradeWords, skillSets, type Difficulty } from "@/lib/queries";
+import { mistakeBook } from "@/lib/queries-bank";
+import { levelExamples, skillKinds, skillMistakes } from "@/lib/queries-skills";
+import { approveSkills } from "./actions";
 
 type Props = { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
-export default async function SkillSetPage({ params, searchParams }: Props) {
-  const { code } = await params;
-  const q = await searchParams;
-  const s = await deadline(skillSet(code));
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+
+// One skill as a teacher reads it: what the child can do, what that looks like at each level with a
+// real question from the bank, the kinds of question that test it, the mistakes it watches for, and
+// its worksheets. Codes are provenance at the foot of the page, never the lead.
+export default async function SkillPage({ params, searchParams }: Props) {
+  const [{ code }, q] = await Promise.all([params, searchParams]);
+  const [sets, examples, kinds, caught, book] = await deadline(
+    Promise.all([skillSets(), levelExamples(code), skillKinds(code), skillMistakes(code), mistakeBook()]),
+  );
+  const s = sets.find((x) => x.code === code);
   if (!s) notFound();
-  const op = String(s.difficulty.Easy?.check?.op ?? "-");
-  const mis = await deadline(misconceptionsFor(op));
+  const example = (d: Difficulty) => examples.find((e) => e.difficulty === d);
+  const ops = new Set(DIFFICULTIES.map((d) => s.difficulty[d]?.check?.op).filter(Boolean));
+  const op = ops.size === 1 ? String([...ops][0]) : undefined;
+  const mistakes = caught.map((m) => ({ ...m, said: mistakeOf(book, m.code, op) })).filter((m) => m.said);
+  const level = DIFFICULTIES.find((d) => d === q.level);
 
   return (
     <>
       <PageHeader
-        stage="Stage 1 · Input"
-        title={s.name}
-        sub={`${s.code} · rung ${s.rung_code} (${s.band}) · ${s.descriptor}. What the prompt reads, in words, and what the verifier enforces, as a check.`}
+        stage={`${gradeWords(s.band)} · Skill ${sets.indexOf(s) + 1} of ${sets.length} · ${s.name}`}
+        title={s.learning_objective}
+        sub="What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."
       />
       <Body>
-        {q.saved ? <Notice tone="neem">Saved. The next fill for this set reads the new words.</Notice> : null}
-        {q.ratified ? <Notice tone="neem">Ratified. A reload of the seed file will not undo this.</Notice> : null}
-        {q.error === "required" ? <Notice tone="terracotta">Name and learning objective cannot be empty.</Notice> : null}
-        {q.error === "check" ? (
-          <Notice tone="terracotta">
-            The {q.band} rule needs an operation, digit counts from 1 to 5, and at least one exchange option ticked.
-            Nothing was saved.
-          </Notice>
-        ) : null}
+        {q.saved ? <Notice tone="neem">Saved. The new words wait for approval before they are the skill&rsquo;s words.</Notice> : null}
+        {q.approved ? <Notice tone="neem">Approved as written, in your name.</Notice> : null}
 
-        <form action={saveSkillSet} className="grid gap-[18px]">
-          <input type="hidden" name="code" value={s.code} />
-          <div className="grid gap-[18px] lg:grid-cols-[1fr_340px]">
-            <Panel title="The set">
-              <div className="grid gap-4">
-                <label className="field">
-                  <span className="label">Name</span>
-                  <input className="input" name="name" defaultValue={s.name} required />
-                </label>
-                <label className="field">
-                  <span className="label">Learning objective</span>
-                  <textarea className="textarea" name="learning_objective" defaultValue={s.learning_objective} required />
-                </label>
-                <label className="field">
-                  <span className="label">Philosophy for this set · one line each</span>
-                  <textarea className="textarea" name="philosophy" defaultValue={s.philosophy.join("\n")} />
-                  <span className="note">The school-wide lines are added to every set automatically.</span>
-                </label>
-              </div>
-            </Panel>
-            <div className="grid gap-[18px] content-start">
-              <Panel title="Status">
-                <div className="flex flex-wrap items-center gap-3">
-                  {s.status === "ratified" ? (
-                    <Pill tone="neem">Ratified · {s.ratified_by}</Pill>
-                  ) : (
-                    <Pill tone="bamboo">Draft</Pill>
-                  )}
-                  <span className="fact text-[11px] text-basalt/55">updated {new Date(s.updated_at).toLocaleDateString("en-IN")}</span>
-                </div>
-              </Panel>
-              <Panel title="Formats">
-                <div className="grid gap-2">
-                  {FORMATS.map(([v, labelText]) => (
-                    <label key={v} className="flex min-h-11 items-center gap-3 text-[14px]">
-                      <input type="checkbox" name="formats" value={v} defaultChecked={s.formats.includes(v)} className="accent-terracotta" />
-                      {labelText} <span className="fact text-[11px] text-basalt/55">{v}</span>
-                    </label>
+        <div className="mb-[18px] flex flex-wrap items-center gap-3">
+          <Link href="/" className="chip">
+            ← Skill Map
+          </Link>
+          {s.status === "ratified" ? (
+            <Pill tone="neem">Approved · {s.ratified_by?.split(" (")[0]}</Pill>
+          ) : (
+            <form action={approveSkills} className="flex flex-wrap items-center gap-3">
+              <Pill tone="bamboo">Waiting for approval</Pill>
+              <input type="hidden" name="code" value={s.code} />
+              <input type="hidden" name="version" value={s.version} />
+              <input type="hidden" name="back" value={`/skill-sets/${s.code}`} />
+              <button className="btn" type="submit">
+                Approve as written
+              </button>
+            </form>
+          )}
+          <Link href={`/skill-sets/${s.code}/edit`} className="chip">
+            Change the words
+          </Link>
+        </div>
+
+        <div className="grid gap-[18px]">
+          <Panel title="At each level" aside="the level in words, and a real question from the bank">
+            <div className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-4">
+              {DIFFICULTIES.map((d) => {
+                const it = example(d);
+                return (
+                  <section key={d} aria-label={d} className="grid content-start gap-2 border border-basalt/12 p-3">
+                    <h3 className="text-[15px]">{d}</h3>
+                    <p className="text-[13.5px] leading-snug">{s.difficulty[d]?.words}</p>
+                    {it ? (
+                      <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
+                        <span className="label">For example</span>
+                        <Link href={`/library/${it.item_key}`} className="text-basalt no-underline">
+                          <Question it={it} />
+                        </Link>
+                        <span className="text-[12.5px] text-basalt/62">
+                          Answer: <Answers it={it} />
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="note">No question in the bank at this level yet.</p>
+                    )}
+                    <p className="note">
+                      <Link href={`/library?set=${s.code}&difficulty=${d}#questions`}>{s.counts[d] ?? 0} questions</Link>
+                      {" · "}
+                      {s.worksheets[d] ? (
+                        <Link href={`/skill-sets/${s.code}?level=${d}#worksheets`}>{s.worksheets[d]} worksheets</Link>
+                      ) : (
+                        "no worksheets yet"
+                      )}
+                    </p>
+                  </section>
+                );
+              })}
+            </div>
+          </Panel>
+
+          <Panel title="Kinds of question" aside={`${kinds.length} ${kinds.length === 1 ? "kind" : "kinds"}`}>
+            <table className="grid" aria-label="Kinds of question">
+              <thead>
+                <tr>
+                  <th>Kind</th>
+                  <th>For example</th>
+                  <th className="text-right">Questions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kinds.map((k) => (
+                  <tr key={k.fmt}>
+                    <td className="whitespace-nowrap">{KIND[k.fmt] ?? k.fmt}</td>
+                    <td>
+                      <Link href={`/library/${k.item_key}`} className="text-basalt no-underline">
+                        <Question it={k} />
+                      </Link>
+                    </td>
+                    <td className="num">{k.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Panel>
+
+          <Panel title="Mistakes it watches for" aside="the wrong answers its questions are built to recognise">
+            {mistakes.length ? (
+              <>
+                <ul className="grid gap-3">
+                  {mistakes.slice(0, 6).map((m) => (
+                    <Mistake key={m.code} name={m.said!.name} example={m.said!.description} n={m.n} code={m.code} />
                   ))}
-                </div>
-              </Panel>
-            </div>
-          </div>
-
-          <Panel title="The four difficulties" aside="your words · the rule the checker uses">
-            <p className="note mb-4">
-              Say each difficulty in your own words first; that is what the question writer reads. The boxes under it are
-              the rule the computer checks on every question before it is kept.
-            </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              {DIFFICULTIES.map((d) => (
-                <BandEditor key={d} band={d} value={s.difficulty[d]} />
-              ))}
-            </div>
+                </ul>
+                {mistakes.length > 6 ? (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-[13.5px]">{mistakes.length - 6} more mistakes</summary>
+                    <ul className="mt-3 grid gap-3">
+                      {mistakes.slice(6).map((m) => (
+                        <Mistake key={m.code} name={m.said!.name} example={m.said!.description} n={m.n} code={m.code} />
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </>
+            ) : (
+              <p className="note">
+                This skill is marked by a person reading the child&rsquo;s words, so no wrong answer names a mistake on its own.
+              </p>
+            )}
           </Panel>
 
-          <Panel title="Misconceptions the prompt is told about" aside={`${mis.length} in the vocabulary for ${op}`}>
-            <div className="grid gap-2 md:grid-cols-2">
-              {mis.map((m) => (
-                <label key={m.code} className="flex min-h-11 items-start gap-3 text-[13.5px]">
-                  <input
-                    type="checkbox"
-                    name="misconception_codes"
-                    value={m.code}
-                    defaultChecked={s.misconception_codes.includes(m.code)}
-                    className="mt-[5px] accent-terracotta"
-                  />
-                  <span>
-                    <span className="fact">{m.code}</span> · {m.name}
-                    <span className="note block">{m.description}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </Panel>
+          <section id="worksheets" className="scroll-mt-6">
+            <Panel title="Worksheets" aside={level ? `${level} only` : "every level"}>
+              <p className="note">
+                No worksheets yet. Every question in this skill is being put onto numbered worksheets of twelve — at least ten
+                for each level — in the next step (BUILD-ORDER, step 3 of five).
+              </p>
+            </Panel>
+          </section>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button className="btn" type="submit">Save</button>
-            <Link href="/" className="btn secondary">Back to the map</Link>
-          </div>
-        </form>
-
-        {s.status !== "ratified" ? (
-          <form action={ratifySkillSet} className="mt-[18px] flex items-center gap-3">
-            <input type="hidden" name="code" value={s.code} />
-            <button className="btn secondary" type="submit">Ratify this set</button>
-            <span className="note">Aseem&apos;s step. Records who ratified and when; the seed loader never overwrites it.</span>
-          </form>
-        ) : null}
+        <p className="fact mt-[18px] text-[11px] text-basalt/50">
+          {s.code} · {s.rung_code} · version {s.version} · last changed {fmtDate(s.updated_at)}
+        </p>
       </Body>
     </>
   );
 }
 
-// The rule in plain boxes. Keys an engineer added that this form does not know are carried
-// through untouched by the action, so the form can stay simple without losing them.
-function BandEditor({ band, value }: { band: string; value?: { words: string; check: Record<string, unknown> } }) {
-  const c = value?.check ?? {};
-  const digits = Array.isArray(c.digits) ? (c.digits as number[]) : [2, 2];
-  const regroups = Array.isArray(c.regroups) ? (c.regroups as number[]) : [1];
-  const zeros = c.no_zero_top ? "none" : c.across_zero === true ? "across" : c.across_zero === false ? "not_across" : "any";
-  const num = "input !w-[74px] text-center fact";
+function Mistake({ name, example, n, code }: { name: string; example: string | null; n: number; code: string }) {
   return (
-    <fieldset className="grid gap-3 border border-basalt/14 p-4">
-      <legend className="fact px-1">{band}</legend>
-      <input type="hidden" name={`existing:${band}`} value={JSON.stringify(c)} />
-      <label className="field">
-        <span className="label">In your words</span>
-        <textarea className="textarea" name={`words:${band}`} defaultValue={value?.words ?? ""} />
-      </label>
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="field">
-          <span className="label">Operation</span>
-          <select className="select !w-auto" name={`op:${band}`} defaultValue={String(c.op ?? "-")}>
-            <option value="+">+ add</option>
-            <option value="-">− subtract</option>
-            <option value="×">× multiply</option>
-          </select>
-        </label>
-        <label className="field">
-          <span className="label">Top digits</span>
-          <input className={num} type="number" min={1} max={5} name={`top:${band}`} defaultValue={digits[0]} required />
-        </label>
-        <label className="field">
-          <span className="label">Bottom digits</span>
-          <input className={num} type="number" min={1} max={5} name={`bottom:${band}`} defaultValue={digits[1]} required />
-        </label>
-      </div>
-      <div className="field">
-        <span className="label">Exchanges allowed</span>
-        <div className="flex flex-wrap gap-4">
-          {[0, 1, 2, 3].map((n) => (
-            <label key={n} className="flex min-h-9 items-center gap-2 text-[13.5px]">
-              <input
-                type="checkbox"
-                name={`regroups:${band}`}
-                value={n}
-                defaultChecked={regroups.includes(n)}
-                className="accent-terracotta"
-              />
-              {n === 0 ? "none" : n}
-            </label>
-          ))}
-        </div>
-      </div>
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="field min-w-[180px] flex-1">
-          <span className="label">Zeros in the top number</span>
-          <select className="select" name={`zeros:${band}`} defaultValue={zeros}>
-            <option value="any">Do not mind</option>
-            <option value="none">No zero anywhere</option>
-            <option value="across">Must exchange across a zero</option>
-            <option value="not_across">Must not have a zero to exchange across</option>
-          </select>
-        </label>
-        <label className="field">
-          <span className="label">Answer at most</span>
-          <input
-            className={num}
-            type="number"
-            min={1}
-            name={`max_total:${band}`}
-            defaultValue={typeof c.max_total === "number" ? c.max_total : ""}
-            placeholder="—"
-          />
-        </label>
-      </div>
-    </fieldset>
-  );
-}
-
-function Notice({ tone, children }: { tone: "neem" | "terracotta"; children: React.ReactNode }) {
-  return (
-    <div className={`mb-[18px] border p-3 text-[13.5px] ${tone === "neem" ? "border-neem/30 bg-neem/10" : "border-terracotta/30 bg-terracotta/10"}`} role="status">
-      {children}
-    </div>
+    <li className="grid gap-[2px] text-[13.5px]">
+      <span>{name}</span>
+      {example ? <span className="text-basalt/70">{example}</span> : null}
+      <span className="note">
+        caught by {n} {n === 1 ? "question" : "questions"} <span className="fact ml-1 text-[10.5px] text-basalt/45">{code}</span>
+      </span>
+    </li>
   );
 }

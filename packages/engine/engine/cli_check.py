@@ -6,7 +6,7 @@ import sys
 import typer
 
 from engine import audit as audit_module
-from engine import db
+from engine import db, spec
 from engine import goal as goal_module
 from engine import scenarios as scenarios_module
 
@@ -21,6 +21,24 @@ def _say(line: str, err: bool = False) -> None:
 def register(app: typer.Typer) -> None:
     app.command()(audit)
     app.command()(goal)
+    spec_app = typer.Typer(help="The skill-set specs, as a person reads them", no_args_is_help=True)
+    spec_app.command("outcomes")(outcomes)
+    app.add_typer(spec_app, name="spec")
+
+
+def outcomes() -> None:
+    """Is every skill stated as what the child can do? One line per skill; exits 1 if any is not."""
+    with db.connect() as conn:
+        rows = spec.outcomes(conn)
+    good = 0
+    for code, text, problems in rows:
+        good += not problems
+        _say(f"  {'ok  ' if not problems else 'FAIL'}  {code:<20} {text}")
+        for p in problems:
+            _say(f"          {p}", err=True)
+    _say(f"  {good} of {len(rows)} read as outcomes")
+    if good < len(rows):
+        raise typer.Exit(1)
 
 
 def audit() -> None:
