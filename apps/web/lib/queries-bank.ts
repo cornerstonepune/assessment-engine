@@ -59,9 +59,13 @@ const inBank = (f: ItemFilter) => sql`
   ${f.difficulty ? sql`and i.difficulty = ${f.difficulty}` : sql``}
   ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}`;
 
-export async function items(f: ItemFilter, limit: number, offset: number): Promise<ItemRow[]> {
-  return sql<ItemRow[]>`
-    select ${itemColumns()} from item i where ${inBank(f)}
+// Each with the library worksheets it is on, in use (ADR 0026) — the bank's list shows the tie.
+export async function items(f: ItemFilter, limit: number, offset: number): Promise<(ItemRow & { worksheets: string[] })[]> {
+  return sql<(ItemRow & { worksheets: string[] })[]>`
+    select ${itemColumns()},
+           coalesce((select array_agg(t.code order by t.code) from sheet_template t
+                     where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
+    from item i where ${inBank(f)}
     order by i.created_at desc, i.item_key
     limit ${limit} offset ${offset}`;
 }
