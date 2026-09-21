@@ -159,6 +159,19 @@ Done means every line has a command and its output in `STATE.md`.
    whole 64-unit bank's model spend under ₹50 — templates and their validation, nothing per item.
    Over that, the design has regressed to paying per question and the gate fails.
 
+## Agreed with Nimish 2026-09-21 — built after the system is live on the server
+
+Nimish: *"before developing this, I want whatever is there as a system to be live on the server."*
+Nothing below starts until go-live (`deploy/go-live.sh`) has put today's system on a public link.
+
+- **Multi-skill scoring (ADR 0023):** a question counts for every skill it uses — all of them when
+  the child is right, the one whose part broke (named by the answer's mistake) when wrong. Each
+  question's skills are read from the question itself, not copied from its rung.
+- **Multi-skill questions** are skill sets of their own: two or three concepts combined in one
+  question, as a complexity level — made by rows, filled by the engine like any other set.
+- **Mixed-bag papers:** one paper drawing individual questions from two or three skill sets — a
+  different thing from a multi-skill question.
+
 ## Parked — nothing here before W1's six gates pass
 
 - **W3 reading engine on the 84 real sheets**: enter every paper, run every G2 and G3 scan, a
