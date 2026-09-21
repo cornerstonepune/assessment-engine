@@ -9,7 +9,7 @@
 #   the scans the engine has actually read, by their capture paths — not the roster, not the reports.
 #
 # Needs: the AWS profile `cornerstone` allowed `lightsail:*` (Nimish, IAM inline policy
-# `run-the-engine`), ssh and rsync, and the Vercel CLI logged in (npx vercel).
+# `run-the-engine`), ssh and tar, and the Vercel CLI logged in (npx vercel).
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -58,8 +58,9 @@ git -C "$REPO" archive --format=tar HEAD | "${SSH[@]}" 'tar -x -C ~/assessment-e
 "${SSH[@]}" 'rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
 
 say "5/7 the two settings, and the scans the engine has read"
+# scp and tar, never rsync: macOS ships openrsync, which refuses --chmod and more besides.
 grep -E '^(DATABASE_URL|ENGINE_KEY|TENANT_SLUG)=' "$REPO/.env" > "$WORK/env"
-rsync -e "ssh -i $WORK/key" --chmod=F600 "$WORK/env" "ubuntu@$IP:assessment-engine/.env"
+"${SSH[@]}" 'umask 077 && cat > ~/assessment-engine/.env' < "$WORK/env"
 "$REPO/packages/engine/.venv/bin/python" - > "$WORK/scans" <<'PY'
 import os
 from engine import db
@@ -68,7 +69,9 @@ with db.connect() as conn:
         print(os.path.relpath(os.path.expanduser(r["path"]), os.path.expanduser("~/cornerstone/assessments")))
 PY
 echo "$(wc -l < "$WORK/scans" | tr -d ' ') scans"
-rsync -a -e "ssh -i $WORK/key" --files-from="$WORK/scans" ~/cornerstone/assessments/ "ubuntu@$IP:cornerstone/assessments/"
+tar -C ~/cornerstone/assessments -cf - -T "$WORK/scans" \
+  | "${SSH[@]}" 'mkdir -p ~/cornerstone/assessments && tar -x -C ~/cornerstone/assessments'
+"${SSH[@]}" 'echo "on the server: $(find ~/cornerstone/assessments -type f | wc -l) scans"'
 
 say "6/7 start the engine"
 "${SSH[@]}" "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$HOST HOME=/home/ubuntu docker compose -f compose.server.yml up -d --build"
