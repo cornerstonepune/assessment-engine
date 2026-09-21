@@ -64,7 +64,9 @@ git -C "$REPO" archive --format=tar HEAD | "${SSH[@]}" 'tar -x -C ~/assessment-e
 "${SSH[@]}" 'rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
 
 say "5/7 the two settings, and the scans the engine has read"
-# scp and tar, never rsync: macOS ships openrsync, which refuses --chmod and more besides.
+# scp and tar, never rsync: macOS ships openrsync, which refuses --chmod and more besides. And tar
+# without Apple's extras: macOS tar otherwise sends a "._" companion per file for its quarantine and
+# download tags — the first run landed 142 files for 71 scans, and a warning for each on the server.
 grep -E '^(DATABASE_URL|ENGINE_KEY|TENANT_SLUG)=' "$REPO/.env" > "$WORK/env"
 "${SSH[@]}" 'umask 077 && cat > ~/assessment-engine/.env' < "$WORK/env"
 "$REPO/packages/engine/.venv/bin/python" - > "$WORK/scans" <<'PY'
@@ -75,7 +77,7 @@ with db.connect() as conn:
         print(os.path.relpath(os.path.expanduser(r["path"]), os.path.expanduser("~/cornerstone/assessments")))
 PY
 echo "$(wc -l < "$WORK/scans" | tr -d ' ') scans"
-tar -C ~/cornerstone/assessments -cf - -T "$WORK/scans" \
+COPYFILE_DISABLE=1 tar --no-xattrs -C ~/cornerstone/assessments -cf - -T "$WORK/scans" \
   | "${SSH[@]}" 'mkdir -p ~/cornerstone/assessments && tar -x -C ~/cornerstone/assessments'
 "${SSH[@]}" 'echo "on the server: $(find ~/cornerstone/assessments -type f | wc -l) scans"'
 # and the printed packs the question-bank screens show, by the paths their rows record
@@ -88,7 +90,7 @@ with db.connect() as conn:
             print(os.path.relpath(r["pdf_path"], sys.argv[1]))
 PACKS
 if [ -s "$WORK/packs" ]; then
-  tar -C "$REPO/data/packs" -cf - -T "$WORK/packs" \
+  COPYFILE_DISABLE=1 tar --no-xattrs -C "$REPO/data/packs" -cf - -T "$WORK/packs" \
     | "${SSH[@]}" 'mkdir -p ~/cornerstone/packs && tar -x -C ~/cornerstone/packs'
 fi
 echo "$(wc -l < "$WORK/packs" | tr -d ' ') printed sheets"
