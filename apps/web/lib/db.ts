@@ -17,15 +17,9 @@ if (!process.env.DATABASE_URL) {
 // requires, and is set either way.
 const SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
-function connect() {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error(
-      "DATABASE_URL is not set. Locally: copy .env.example to .env at the repo root. " +
-        "On Vercel: add it in Project Settings → Environment Variables, using the transaction " +
-        "pooler on port 6543.",
-    );
-  }
+type Sql = ReturnType<typeof postgres>;
+
+function connect(url: string): Sql {
   // Check the shape here, so a malformed value fails with a message of our own. The driver's own
   // error quotes the whole connection string, password and all, straight into the build log.
   try {
@@ -52,10 +46,23 @@ function connect() {
   });
 }
 
+// Importing this file must never need a database: `next build` loads every route to read its
+// settings, and a Vercel Preview build has no DATABASE_URL. Without one, every use of `sql` — a query
+// or `sql.json` — throws this instruction at the moment something asks for data, not at import.
+function unset(): never {
+  throw new Error(
+    "DATABASE_URL is not set. Locally: copy .env.example to .env at the repo root. " +
+      "On Vercel: add it in Project Settings → Environment Variables, using the transaction " +
+      "pooler on port 6543.",
+  );
+}
+
 declare global {
-  var cornerstoneSql: ReturnType<typeof postgres> | undefined;
+  var cornerstoneSql: Sql | undefined;
 }
 
 // One pool per process; dev's hot reload would otherwise open a new one on every edit.
-export const sql = globalThis.cornerstoneSql ?? connect();
-if (process.env.NODE_ENV !== "production") globalThis.cornerstoneSql = sql;
+const url = process.env.DATABASE_URL;
+const absent = new Proxy<Sql>(unset as never, { get: () => unset });
+export const sql: Sql = globalThis.cornerstoneSql ?? (url ? connect(url) : absent);
+if (process.env.NODE_ENV !== "production" && url) globalThis.cornerstoneSql = sql;

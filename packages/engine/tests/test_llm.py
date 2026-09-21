@@ -2,6 +2,7 @@
 row, survive the free tier's 503s and spurious 404s, fall through an ordered model list, refuse
 output that does not match the row's schema, leave a flow_run row every time, and refuse to spend
 past the daily budget row before it ever makes a call."""
+
 import io
 import json
 import os
@@ -12,15 +13,23 @@ import pytest
 from engine import db
 from engine.adapters import llm
 
-SCHEMA = {"type": "object", "required": ["items"], "properties": {
-    "items": {"type": "array", "items": {"type": "object", "required": ["a"],
-                                          "properties": {"a": {"type": "integer"}}}}}}
+SCHEMA = {
+    "type": "object",
+    "required": ["items"],
+    "properties": {
+        "items": {
+            "type": "array",
+            "items": {"type": "object", "required": ["a"], "properties": {"a": {"type": "integer"}}},
+        }
+    },
+}
 
 
 class Conn:
     """Enough of a psycopg connection for the adapter: prompt row(s), config, threshold, flow_run
     writes. `prompts` maps (purpose, subject) -> row, for the subject-selection tests; omitted,
     every purpose gets the one fixed row regardless of subject, matching the old fake exactly."""
+
     def __init__(self, schema=SCHEMA, fallback=("m2", "m3"), prompts=None, prices=None, budget=None, spent=0):
         self.schema, self.fallback, self.prompts, self.prices = schema, list(fallback), prompts, prices
         self.budget, self.spent, self.runs, self._sql, self._params = budget, spent, [], "", ()
@@ -34,7 +43,12 @@ class Conn:
     def fetchone(self):
         if "from prompt" in self._sql:
             if self.prompts is None:
-                return {"id": "p1", "text": "Make {{n}} things about {{topic}}.", "model": "m1", "json_schema": self.schema}
+                return {
+                    "id": "p1",
+                    "text": "Make {{n}} things about {{topic}}.",
+                    "model": "m1",
+                    "json_schema": self.schema,
+                }
             purpose, subject = self._params
             return self.prompts.get((purpose, subject)) or self.prompts.get((purpose, None))
         if "from threshold" in self._sql:
@@ -51,9 +65,16 @@ class Conn:
 
 
 def response(payload, tokens=42):
-    body = json.dumps({"candidates": [{"content": {"parts": [{"text": json.dumps(payload)}]}}],
-                       "usageMetadata": {"totalTokenCount": tokens, "promptTokenCount": tokens // 2,
-                                         "candidatesTokenCount": tokens - tokens // 2}}).encode()
+    body = json.dumps(
+        {
+            "candidates": [{"content": {"parts": [{"text": json.dumps(payload)}]}}],
+            "usageMetadata": {
+                "totalTokenCount": tokens,
+                "promptTokenCount": tokens // 2,
+                "candidatesTokenCount": tokens - tokens // 2,
+            },
+        }
+    ).encode()
     return io.BytesIO(body)
 
 
@@ -61,15 +82,37 @@ def http_error(code, body=b""):
     return urllib.error.HTTPError("u", code, "err", {}, io.BytesIO(body))
 
 
-DAILY_QUOTA_429 = json.dumps({"error": {"code": 429, "details": [
-    {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
-     "violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]},
-    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "38s"}]}}).encode()
+DAILY_QUOTA_429 = json.dumps(
+    {
+        "error": {
+            "code": 429,
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}
+                    ],
+                },
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "38s"},
+            ],
+        }
+    }
+).encode()
 
-MINUTE_QUOTA_429 = json.dumps({"error": {"code": 429, "details": [
-    {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
-     "violations": [{"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}]},
-    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "7s"}]}}).encode()
+MINUTE_QUOTA_429 = json.dumps(
+    {
+        "error": {
+            "code": 429,
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [{"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}],
+                },
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "7s"},
+            ],
+        }
+    }
+).encode()
 
 
 def test_a_model_whose_daily_quota_is_gone_is_skipped_without_waiting(calls, monkeypatch):
@@ -91,16 +134,21 @@ def test_a_per_minute_limit_waits_the_seconds_google_asks_for(calls, monkeypatch
 @pytest.fixture
 def calls(monkeypatch):
     log = []
+
     def fake(script):
         it = iter(script)
+
         def urlopen(req, context=None, timeout=None):
             log.append((req.full_url, json.loads(req.data)))
             r = next(it)
-            if isinstance(r, Exception): raise r
+            if isinstance(r, Exception):
+                raise r
             return r
+
         monkeypatch.setattr(llm.urllib.request, "urlopen", urlopen)
         monkeypatch.setattr(llm.time, "sleep", lambda s: None)
         return log
+
     return fake
 
 
@@ -193,6 +241,7 @@ def test_a_model_missing_from_the_prices_row_costs_nothing_tracked_rather_than_g
 
 # ---- the daily budget: refused before anything is spent, silent otherwise
 
+
 def test_refuses_once_todays_spend_reaches_the_budget_row(monkeypatch):
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
     conn = Conn(budget=100, spent=100)
@@ -210,13 +259,26 @@ def test_generation_proceeds_normally_when_under_budget(calls, monkeypatch):
 
 # ---- subject-scoped prompts (ADR 0009): a subject's own row wins; else the shared row answers
 
+
 def test_a_subject_specific_prompt_row_wins_over_the_shared_one(calls, monkeypatch):
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
     log = calls([response({"items": []})])
-    conn = Conn(prompts={
-        ("item_generate", None): {"id": "generic", "text": "generic {{n}}", "model": "m1", "json_schema": SCHEMA},
-        ("item_generate", "NUM"): {"id": "num", "text": "num {{n}}", "model": "m1", "json_schema": SCHEMA},
-    })
+    conn = Conn(
+        prompts={
+            ("item_generate", None): {
+                "id": "generic",
+                "text": "generic {{n}}",
+                "model": "m1",
+                "json_schema": SCHEMA,
+            },
+            ("item_generate", "NUM"): {
+                "id": "num",
+                "text": "num {{n}}",
+                "model": "m1",
+                "json_schema": SCHEMA,
+            },
+        }
+    )
     llm.generate(conn, "item_generate", {"n": 1}, subject="NUM")
     assert log[0][1]["contents"][0]["parts"][0]["text"].startswith("num 1")
 
@@ -224,7 +286,16 @@ def test_a_subject_specific_prompt_row_wins_over_the_shared_one(calls, monkeypat
 def test_falls_back_to_the_shared_prompt_when_no_row_names_that_subject(calls, monkeypatch):
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
     log = calls([response({"items": []})])
-    conn = Conn(prompts={("item_generate", None): {"id": "generic", "text": "generic {{n}}", "model": "m1", "json_schema": SCHEMA}})
+    conn = Conn(
+        prompts={
+            ("item_generate", None): {
+                "id": "generic",
+                "text": "generic {{n}}",
+                "model": "m1",
+                "json_schema": SCHEMA,
+            }
+        }
+    )
     llm.generate(conn, "item_generate", {"n": 1}, subject="SCI")
     assert log[0][1]["contents"][0]["parts"][0]["text"].startswith("generic 1")
 
@@ -238,7 +309,9 @@ def test_no_prompt_for_that_purpose_names_the_subject_in_the_error(monkeypatch):
 
 # ---- against the real database: the SQL itself, not the fake's dict lookup
 
-pytestmark_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+pytestmark_db = pytest.mark.skipif(
+    not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"
+)
 
 
 @pytest.fixture
@@ -255,13 +328,18 @@ def test_the_subject_selection_sql_prefers_the_subject_row_and_falls_back_correc
         real_conn.execute(
             "insert into prompt (tenant_id, purpose, version, text, model, json_schema, active, subject)"
             " values (%s,'test_purpose_llm',1,%s,'m1',%s,true,%s)",
-            (tenant, text, json.dumps(SCHEMA), subject))
+            (tenant, text, json.dumps(SCHEMA), subject),
+        )
     seen = []
-    monkeypatch.setattr(llm, "_dispatch", lambda models, text, images, schema: (seen.append(text) or {"items": []}, "m1", 5, 3, 2))
+    monkeypatch.setattr(
+        llm,
+        "_dispatch",
+        lambda models, text, images, schema: (seen.append(text) or {"items": []}, "m1", 5, 3, 2),
+    )
 
     llm.generate(real_conn, "test_purpose_llm", {"n": 1}, subject="NUM")
     llm.generate(real_conn, "test_purpose_llm", {"n": 2}, subject="SCI")  # no SCI row: falls back
-    llm.generate(real_conn, "test_purpose_llm", {"n": 3})                # no subject: the generic row
+    llm.generate(real_conn, "test_purpose_llm", {"n": 3})  # no subject: the generic row
 
     assert seen[0].startswith("num 1")
     assert seen[1].startswith("generic 2")

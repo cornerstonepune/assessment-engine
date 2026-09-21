@@ -1,0 +1,36 @@
+# The engine on the school's own server (AWS Lightsail, Mumbai), started by deploy/go-live.sh.
+#
+# SPEC §13: scans stay in Drive or the engine's own data folder, never in the repo or the database.
+# So the server holds them exactly as this Mac does — ~/cornerstone/assessments — and `capture.path`
+# ("~/cornerstone/assessments/…") resolves inside the container because its home is mounted there.
+#
+# The engine listens on the server only; Caddy is the one thing facing the internet, and it gets a
+# real certificate for <ip>.sslip.io on its own, so the key the website sends is never in clear text.
+services:
+  engine:
+    build:
+      context: ../packages/engine
+    env_file:
+      - ../.env
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ${HOME}/cornerstone/assessments:/root/cornerstone/assessments:ro
+      - ${HOME}/.aws:/root/.aws:ro
+      # sheet_instance.pdf_path records where a pack was rendered — an absolute path on the Mac that
+      # rendered it. The copies sit at that same path inside the container, so the rows stay true.
+      - ${HOME}/cornerstone/packs:${PACKS_AS_RECORDED}:ro
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    network_mode: host
+    environment:
+      ENGINE_HOST: ${ENGINE_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    restart: unless-stopped
+
+volumes:
+  caddy_data:

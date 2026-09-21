@@ -3,6 +3,7 @@ than the monorepo's own — which is exactly the Docker image's layout (Dockerfi
 `engine/`, so this file lands at /app/engine/db.py with nothing four levels above it). This broke
 the very first container start: every route imports `engine.db` transitively, so an IndexError
 here took down the whole process before a single request could be served."""
+
 from pathlib import Path
 
 from engine.db import _repo_root_for

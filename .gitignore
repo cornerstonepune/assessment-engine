@@ -45,3 +45,6 @@ apps/web/.design-approved.json
 .design-approved.json
 .vercel
 .env*
+
+# aislop session logs — the scanner's own working notes, regenerable
+**/.aislop/*.jsonl

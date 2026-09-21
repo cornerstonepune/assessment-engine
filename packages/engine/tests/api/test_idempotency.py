@@ -8,6 +8,7 @@
 All of it is tested against the real database: the partial unique index this leans on
 (`flow_run_idempotency_idx`) is Postgres behaviour a fake connection cannot stand in for.
 """
+
 import os
 
 import pytest
@@ -76,7 +77,9 @@ def test_an_exception_marks_the_row_error_and_is_reraised(conn, tenant):
 
     row = conn.execute(
         "select status, error from flow_run where tenant_id = %s and flow = 'test_flow'"
-        " and idempotency_key = 'k4'", (tenant,)).fetchone()
+        " and idempotency_key = 'k4'",
+        (tenant,),
+    ).fetchone()
     assert row["status"] == "error"
     assert "model is down" in row["error"]
 
@@ -103,7 +106,9 @@ def test_a_call_still_in_flight_refuses_rather_than_running_twice(conn, tenant):
     # Simulates a concurrent duplicate request: a row already claimed and still 'running'.
     conn.execute(
         "insert into flow_run (tenant_id, flow, trigger, idempotency_key, status)"
-        " values (%s,'test_flow','http','k6','running')", (tenant,))
+        " values (%s,'test_flow','http','k6','running')",
+        (tenant,),
+    )
     calls, fn = counter()
 
     with pytest.raises(InProgress, match="k6"):

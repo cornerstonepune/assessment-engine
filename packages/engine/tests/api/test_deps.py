@@ -3,6 +3,7 @@ A false negative (rejecting a valid key) is merely annoying; a false positive is
 — so the case worth the most attention is what happens when ENGINE_KEY itself is unset, which
 must refuse everything rather than let an unset header match an unset secret.
 """
+
 import pytest
 from fastapi import HTTPException
 

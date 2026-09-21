@@ -1,5 +1,12 @@
-# What must hold before anything reaches main. Deployment itself is Vercel's Git integration:
-# a push to main builds and ships apps/web; a pull request gets a preview URL.
+# What must hold before anything reaches main. The style is machine-enforced here (ruff format
+# --check) so it cannot drift back into hand formatting, and the engine suite runs without a
+# database — the DB-backed goal (`bin/engine goal w1-build-the-bank`, ten scenarios and twelve
+# invariants) runs against the real Supabase project before a merge, because CI has no database
+# yet. Giving CI one means a Postgres service with pgcrypto and the migrations, minus the
+# Supabase-only auth/RLS statements: worth doing, not yet done, named in STATE.md.
+# What must hold before anything reaches main. Deployment is NOT automatic yet: as of 2026-09-21
+# every Vercel deployment was made by hand from a laptop, and the repository is not connected to
+# the Vercel project. docs/deploy.md says what connecting it takes.
 # The database tests need DATABASE_URL and skip themselves without it, so CI runs the pure engine
 # suite and the web build — the two things that break silently otherwise.
 name: ci
@@ -15,7 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      # The server builds with `uv sync --frozen`, which installs the lockfile and nothing else. A
+      # lock missing boto3 passed every check here (a fresh resolve found it) and the deployed
+      # engine could not start. The lock must match pyproject.toml, or the build is refused.
+      - run: uv lock --check
       - run: uv sync --extra dev
+      - run: uv run ruff format --check engine tests
+      - run: uv run ruff check engine tests
       - run: uv run pytest -q
 
   web:
@@ -26,6 +39,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: npm, cache-dependency-path: apps/web/package-lock.json }
       - run: npm ci
+      # PageProps / LayoutProps are global types Next generates during dev, build or typegen. A fresh
+      # checkout has none, so tsc failed on every run from 2026-09-18 with "Cannot find name
+      # 'LayoutProps'" while the engine job stayed green — and nobody was looking.
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npm run build
         env: { DATABASE_URL: "postgres://ci:ci@localhost:5432/ci" }

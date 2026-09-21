@@ -84,6 +84,9 @@ a:hover {
 .panel {
   background: var(--chalk);
   border: 1px solid var(--ink-14);
+  /* A grid item's minimum width is its content unless told otherwise, so a panel holding a wide
+     table pushed the whole page sideways on a phone instead of scrolling inside its own edges. */
+  min-width: 0;
 }
 .panel-head {
   padding: 14px 18px;
@@ -99,7 +102,10 @@ a:hover {
   padding: 18px;
 }
 
+/* `grid` is also Tailwind's `display: grid` utility. Without `display: table` here, every table drew
+   its header row as a separate box, out of line with the columns under it. */
 table.grid {
+  display: table;
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;

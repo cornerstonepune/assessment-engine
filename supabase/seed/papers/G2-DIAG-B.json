@@ -1,0 +1,26 @@
+{
+  "code": "G2-DIAG-B",
+  "title": "Cornerstone · Grade 2 — Mathematics Assessment, Set B (15 Questions)",
+  "band": "G2",
+  "week": "Sep 16",
+  "date": "2026-09-16",
+  "_note": "Entered 2026-09-20 from the printed page. The eighteen loose WhatsApp photographs in the Grade 2 folders are not extra pages of another paper: they are this paper, three pages of it per child, and it had never been entered. Its ladder runs Foundational, Easy, Medium, Hard, Conceptual, Applied — the same shape as the Grade 3 baseline. Question 10 wants an ordering and question 12 an explanation, so neither is a number and both reach a person.",
+  "pages": [{"n": 1, "mask": 0.1}, {"n": 2, "mask": 0}, {"n": 3, "mask": 0}],
+  "items": [
+    {"n": 1, "page": 1, "expr": "8 - 3", "question": "8 - 3 ="},
+    {"n": 2, "page": 1, "expr": "4 + 3", "question": "4 + 3 ="},
+    {"n": 3, "page": 1, "kind": "missing", "rung": "R7", "answer": 8, "question": "Continue the pattern: 2, 4, 6, ___, 10"},
+    {"n": 4, "page": 1, "expr": "34 + 15", "question": "34 + 15 ="},
+    {"n": 5, "page": 1, "expr": "58 - 23", "question": "58 - 23 ="},
+    {"n": 6, "page": 1, "expr": "27 + 38", "question": "27 + 38 ="},
+    {"n": 7, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "2 x 4", "question": "2 x 4 ="},
+    {"n": 8, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "5 x 3", "question": "5 x 3 ="},
+    {"n": 9, "page": 2, "expr": "63 - 28", "question": "63 - 28 ="},
+    {"n": 10, "page": 2, "kind": "missing", "rung": "R11", "skill": "NUM.PV.02", "answer": "12, 34, 45, 78", "question": "Arrange from smallest to largest: 45, 12, 78, 34"},
+    {"n": 11, "page": 2, "kind": "missing", "rung": "R7", "answer": 15, "question": "Find the missing number: 15 + ___ = 30"},
+    {"n": 12, "page": 2, "kind": "text", "rung": "X1", "question": "In your own words, explain why we \"carry\" a number when adding two numbers."},
+    {"n": 13, "page": 3, "kind": "text", "rung": "X2", "answer": 75, "question": "Akanksha added 48 + 27 and wrote 65. Is he correct? If not, find his mistake and write the correct answer."},
+    {"n": 14, "page": 3, "kind": "word", "rung": "R8", "answer": 41, "question": "There are 45 mangoes in a basket. 12 are eaten, and then 8 more mangoes are added. How many mangoes are there now?"},
+    {"n": 15, "page": 3, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "answer": 20, "question": "A vendor has 3 boxes with 6 apples in each box, plus 2 more apples kept separately. How many apples does he have in total?"}
+  ]
+}

@@ -4,31 +4,228 @@
   "band": "G2",
   "week": "Sep W1",
   "date": "2026-09-03",
-  "pages": [{"n": 1, "mask": 0.16}, {"n": 2, "mask": 0}],
+  "pages": [
+    {
+      "n": 1,
+      "mask": 0.16
+    },
+    {
+      "n": 2,
+      "mask": 0
+    }
+  ],
   "items": [
-    {"n": 1, "part": "a", "page": 1, "expr": "148 + 7", "question": "148 + 7 ="},
-    {"n": 1, "part": "b", "page": 1, "expr": "236 + 9", "question": "236 + 9 ="},
-    {"n": 1, "part": "c", "page": 1, "expr": "357 + 8", "question": "357 + 8 ="},
-    {"n": 1, "part": "d", "page": 1, "expr": "425 + 6", "question": "425 + 6 ="},
-    {"n": 2, "part": "a", "page": 1, "expr": "348 + 27", "question": "348 + 27 ="},
-    {"n": 2, "part": "b", "page": 1, "expr": "476 + 58", "question": "476 + 58 ="},
-    {"n": 2, "part": "c", "page": 1, "expr": "285 + 96", "question": "285 + 96 ="},
-    {"n": 3, "part": "a", "page": 1, "expr": "165 - 7", "question": "165 - 7 ="},
-    {"n": 3, "part": "b", "page": 1, "expr": "243 - 8", "question": "243 - 8 ="},
-    {"n": 3, "part": "c", "page": 1, "expr": "352 - 6", "question": "352 - 6 ="},
-    {"n": 3, "part": "d", "page": 1, "expr": "471 - 9", "question": "471 - 9 ="},
-    {"n": 4, "part": "a", "page": 1, "expr": "425 - 38", "question": "425 - 38 ="},
-    {"n": 4, "part": "b", "page": 1, "expr": "563 - 47", "question": "563 - 47 ="},
-    {"n": 4, "part": "c", "page": 1, "expr": "342 - 58", "question": "342 - 58 ="},
-    {"n": 5, "page": 1, "kind": "text", "rung": "R9", "skill": "NUM.OPS.02", "question": "Emyr did not finish his calculation. Complete it for him: 452 − 236, regroup 452 into 400 + 40 + 12."},
-    {"n": 6, "part": "a", "page": 2, "kind": "missing", "rung": "R7", "answer": 50, "question": "250 + [ ] = 300"},
-    {"n": 6, "part": "b", "page": 2, "kind": "missing", "rung": "R7", "answer": 5, "question": "45 + [ ] = 50"},
-    {"n": 6, "part": "c", "page": 2, "kind": "missing", "rung": "R7", "answer": 80, "question": "[ ] − 20 = 60"},
-    {"n": 6, "part": "d", "page": 2, "kind": "missing", "rung": "R7", "answer": 30, "question": "100 − [ ] = 70"},
-    {"n": 7, "page": 2, "kind": "word", "rung": "R11", "expr": "246 + 26", "question": "A baker makes 246 small cakes and 26 large cakes. How many cakes does the baker make all together? Estimate, then find the total."},
-    {"n": 8, "part": "a", "page": 2, "kind": "word", "rung": "R9", "expr": "763 - 427", "question": "763 children attend Blue Haven School. 427 of them are girls. How many boys attend the school?"},
-    {"n": 8, "part": "b", "page": 2, "kind": "word", "rung": "R9", "expr": "763 - 38", "question": "Today 38 children are away. How many children are in school today?"},
-    {"n": 9, "page": 2, "kind": "text", "rung": "X1", "question": "Zara says: “358 + 199 gives the same total as 357 + 200.” Is she correct? Explain your answer."},
-    {"n": 10, "page": 2, "kind": "word", "rung": "R9", "expr": "742 + 168", "question": "Use each of the digits 2, 4 and 7 once to make a 3-digit number. Add 168 to your number. What is the largest total you can make?"}
-  ]
+    {
+      "n": 1,
+      "part": "a",
+      "page": 1,
+      "expr": "148 + 7",
+      "question": "148 + 7 ="
+    },
+    {
+      "n": 1,
+      "part": "b",
+      "page": 1,
+      "expr": "236 + 9",
+      "question": "236 + 9 ="
+    },
+    {
+      "n": 1,
+      "part": "c",
+      "page": 1,
+      "expr": "357 + 8",
+      "question": "357 + 8 ="
+    },
+    {
+      "n": 1,
+      "part": "d",
+      "page": 1,
+      "expr": "425 + 6",
+      "question": "425 + 6 ="
+    },
+    {
+      "n": 2,
+      "part": "a",
+      "page": 1,
+      "expr": "348 + 27",
+      "question": "348 + 27 ="
+    },
+    {
+      "n": 2,
+      "part": "b",
+      "page": 1,
+      "expr": "476 + 58",
+      "question": "476 + 58 ="
+    },
+    {
+      "n": 2,
+      "part": "c",
+      "page": 1,
+      "expr": "285 + 96",
+      "question": "285 + 96 ="
+    },
+    {
+      "n": 3,
+      "part": "a",
+      "page": 1,
+      "expr": "165 - 7",
+      "question": "165 - 7 ="
+    },
+    {
+      "n": 3,
+      "part": "b",
+      "page": 1,
+      "expr": "243 - 8",
+      "question": "243 - 8 ="
+    },
+    {
+      "n": 3,
+      "part": "c",
+      "page": 1,
+      "expr": "352 - 6",
+      "question": "352 - 6 ="
+    },
+    {
+      "n": 3,
+      "part": "d",
+      "page": 1,
+      "expr": "471 - 9",
+      "question": "471 - 9 ="
+    },
+    {
+      "n": 4,
+      "part": "a",
+      "page": 1,
+      "expr": "425 - 38",
+      "question": "425 - 38 ="
+    },
+    {
+      "n": 4,
+      "part": "b",
+      "page": 1,
+      "expr": "563 - 47",
+      "question": "563 - 47 ="
+    },
+    {
+      "n": 4,
+      "part": "c",
+      "page": 1,
+      "expr": "342 - 58",
+      "question": "342 - 58 ="
+    },
+    {
+      "n": 5,
+      "part": "a",
+      "page": 1,
+      "kind": "missing",
+      "rung": "R9",
+      "answer": 40,
+      "question": "452 − 236. Regroup 452 into 400 + 40 + 12.  452 = 400 + [ ] + 12"
+    },
+    {
+      "n": 5,
+      "part": "b",
+      "page": 1,
+      "kind": "missing",
+      "rung": "R9",
+      "answer": 12,
+      "question": "452 = 400 + 40 + [ ]"
+    },
+    {
+      "n": 5,
+      "part": "c",
+      "page": 1,
+      "kind": "word",
+      "rung": "R9",
+      "expr": "452 - 236",
+      "question": "452 − 236 = [ ]"
+    },
+    {
+      "n": 6,
+      "part": "a",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 50,
+      "question": "250 + [ ] = 300"
+    },
+    {
+      "n": 6,
+      "part": "b",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 5,
+      "question": "45 + [ ] = 50"
+    },
+    {
+      "n": 6,
+      "part": "c",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 80,
+      "question": "[ ] − 20 = 60"
+    },
+    {
+      "n": 6,
+      "part": "d",
+      "page": 2,
+      "kind": "missing",
+      "rung": "R7",
+      "answer": 30,
+      "question": "100 − [ ] = 70"
+    },
+    {
+      "n": 7,
+      "part": "a",
+      "page": 2,
+      "kind": "text",
+      "rung": "X1",
+      "question": "A baker makes 246 small cakes and 26 large cakes. Estimate the total first."
+    },
+    {
+      "n": 7,
+      "part": "b",
+      "page": 2,
+      "kind": "word",
+      "rung": "R11",
+      "expr": "246 + 26",
+      "question": "A baker makes 246 small cakes and 26 large cakes. How many cakes all together?"
+    },
+    {
+      "n": 8,
+      "part": "a",
+      "page": 2,
+      "kind": "word",
+      "rung": "R9",
+      "expr": "763 - 427",
+      "question": "763 children attend Blue Haven School. 427 of them are girls. How many boys attend the school?"
+    },
+    {
+      "n": 8,
+      "part": "b",
+      "page": 2,
+      "kind": "word",
+      "rung": "R9",
+      "expr": "763 - 38",
+      "question": "Today 38 children are away. How many children are in school today?"
+    },
+    {
+      "n": 9,
+      "page": 2,
+      "kind": "text",
+      "rung": "X1",
+      "question": "Zara says: “358 + 199 gives the same total as 357 + 200.” Is she correct? Explain your answer."
+    },
+    {
+      "n": 10,
+      "page": 2,
+      "kind": "word",
+      "rung": "R9",
+      "expr": "742 + 168",
+      "question": "Use each of the digits 2, 4 and 7 once to make a 3-digit number. Add 168 to your number. What is the largest total you can make?"
+    }
+  ],
+  "fields": "boxes"
 }

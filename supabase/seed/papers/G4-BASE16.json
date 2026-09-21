@@ -1,0 +1,27 @@
+{
+  "code": "G4-BASE16",
+  "title": "Cornerstone · Grade 4 — Mathematics Assessment (16 Questions, diagnostic)",
+  "band": "G4",
+  "week": "Baseline",
+  "date": "2026-07-30",
+  "_note": "Entered 2026-09-20 from the printed page. The Grade 4 child's baseline is NOT the Grade 3 baseline: same header, same sixteen-question shape, different questions — which the page classifier could not tell apart, so his sitting was first read against the wrong paper and twelve of sixteen answers came back not found. Division (question 8) and fractions (9, 10) have no rung on the addition/subtraction ladder; they carry their registry skill and a placeholder rung, which is one of the pedagogy questions already parked for Neha, Achal and Aseem.",
+  "pages": [{"n": 1, "mask": 0.1}, {"n": 2, "mask": 0.05}],
+  "items": [
+    {"n": 1, "page": 1, "expr": "56 + 29", "question": "56 + 29 ="},
+    {"n": 2, "page": 1, "rung": "M1", "skill": "NUM.OPS.03", "expr": "6 x 7", "question": "6 x 7 ="},
+    {"n": 3, "page": 1, "kind": "bare", "rung": "R11", "skill": "NUM.PV.01", "answer": 7000, "question": "What is the value of the digit 7 in 47,802?"},
+    {"n": 4, "page": 1, "kind": "text", "rung": "X1", "skill": "NUM.PV.01", "question": "Write in words: 4,563"},
+    {"n": 5, "page": 1, "expr": "3456 + 2789", "question": "3,456 + 2,789 ="},
+    {"n": 6, "page": 1, "expr": "8000 - 3456", "question": "8,000 - 3,456 ="},
+    {"n": 7, "page": 1, "rung": "M1", "skill": "NUM.OPS.03", "expr": "34 x 6", "question": "34 x 6 ="},
+    {"n": 8, "page": 1, "kind": "bare", "rung": "M1", "skill": "NUM.OPS.04", "answer": 12, "question": "144 ÷ 12 ="},
+    {"n": 9, "page": 1, "kind": "bare", "rung": "R11", "skill": "NUM.FRAC.01", "answer": 4, "question": "What is half of 8?"},
+    {"n": 10, "page": 1, "kind": "missing", "rung": "R11", "skill": "NUM.FRAC.01", "answer": "1/2", "question": "Which is bigger: 1/2 or 1/4?"},
+    {"n": 11, "page": 1, "kind": "word", "rung": "R9", "answer": 137, "question": "A vendor had 500 apples. He sold 235 in the morning and 128 in the afternoon. How many apples are left?"},
+    {"n": 12, "page": 1, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "expr": "6 x 12", "question": "There are 6 boxes with 12 pencils in each box. How many pencils are there in total?"},
+    {"n": 13, "page": 2, "kind": "text", "rung": "X2", "answer": 3556, "question": "Priya subtracted 5,432 - 1,876 and got 3,656. Is she correct? If not, find her mistake and write the correct answer."},
+    {"n": 14, "page": 2, "kind": "bare", "rung": "R11", "skill": "NUM.PV.03", "answer": 4600, "question": "Round 4,563 to the nearest 100:"},
+    {"n": 15, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "45 x 10", "question": "45 x 10 ="},
+    {"n": 16, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "45 x 100", "question": "45 x 100 ="}
+  ]
+}

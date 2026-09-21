@@ -31,7 +31,12 @@ A model may *generate* what code then *verifies* — that is how the question ba
 packages/engine/assess/      generation, blueprints, pick, render, mark, misconceptions — deterministic, no I/O
 packages/engine/api/         FastAPI: /generate /render /ingest /mark /read /commit /graph /cards /home — thin
 packages/engine/adapters/    drive.py  vision.py  notify.py — one class each, one interface each
-packages/engine/cli.py       engine load | generate | legacy import | graph | eval
+packages/engine/cli.py       engine load | bank | week | legacy | graph | eval | audit | goal
+packages/engine/audit.py     every invariant over every row, in one sweep (`engine audit`)
+packages/engine/goal.py      a goal file's criteria, run (`engine goal <name>`)
+packages/engine/scenarios.py a goal file's scenarios: does the engine do its job, checked independently
+goals/                       one yaml per goal: the sentence, its scenarios, its criteria
+bin/engine                   run the engine from any directory
 packages/engine/tests/       mirrors assess/ and api/
 supabase/migrations/         numbered SQL; the only way the schema changes
 supabase/seed/               json the loader reads: registry, rungs, levels, blueprints, misconceptions, prompts, thresholds
@@ -66,6 +71,32 @@ docs/sources/                team documents this design incorporates
    DDL, ever, on any environment.
 10. **Reuse before write.** The prototype's `assess/` is the engine. Extend it; do not rewrite it.
     A helper that exists a few files over is used, not re-implemented.
+11. **Root cause, in the same session, never a band-aid.** When something is found wrong — a weak
+    prompt, a failing check, a lint or aislop finding on code this session wrote, a limitation named
+    in a report — it is fixed at its cause before the session ends. Not noted for later, not worked
+    around, not deferred to a "v3" in `HANDOFF.md`. Nimish, 2026-09-19: "do not leave for anything
+    later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    What that means in practice: if a model is asked to produce something code can compute, the fix
+    is to compute it, not to write a better prompt; if a file breaches a ceiling, it is split along
+    a real responsibility, not exempted; if a claim cannot be verified, the claim is downgraded, not
+    dressed up. Pre-existing debt in files this session does not touch stays frozen (baseline and
+    ratchet) — it is named in `STATE.md`, never silently inherited.
+
+12. **A task starts with a goal and ends when the goal's own command is green.** A goal is a
+    sentence saying what the thing must *do*, plus the scenarios that prove it, written down before
+    the work: `goals/<name>.yaml`, run by `engine goal <name>`. A scenario states a real request in
+    the school's terms (this topic, this difficulty, this many questions) and the run checks the
+    result independently of the code that made it — answers recomputed, every question re-measured
+    against the band's own rule, every wrong answer mapped to a named mistake, no duplicates. **The
+    bar is 100%: 19 of 20 is a failure, and work continues until the command passes.** Hygiene
+    belongs in the same file as `criteria` (audit, coverage, recheck, load, suite), never instead of
+    scenarios. Nimish, 2026-09-20: "the system should keep on working towards it till 100% accuracy
+    is achieved."
+13. **Read the graph before reading files, and hand over commands that run anywhere.** Exploration
+    goes through `tokensave_context` / `tokensave_search` / `graft` first; `cat`, `grep` and `sed`
+    are for editing and running, not for finding out how something works — a session that greps its
+    way around the repository burns the context it needs later. Any command written for Nimish must
+    work from whatever directory he is in: `bin/engine …` or an absolute path, never `cd x && y`.
 
 ## Language and naming
 

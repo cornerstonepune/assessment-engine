@@ -1,5 +1,6 @@
 """A PDF's pages become images in-process — see engine/render_pdf.py for why the subprocess it
 replaces (pdftoppm) is gone rather than kept as a fallback."""
+
 import numpy as np
 import pymupdf
 

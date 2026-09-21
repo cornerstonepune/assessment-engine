@@ -85,6 +85,47 @@ export function Pill({ tone, children }: { tone: "neem" | "bamboo" | "terracotta
   return <span className={`pill pill-${tone}`}>{children}</span>;
 }
 
+// The material a state is drawn in. One place, because two screens now show the same states and a
+// second copy is a second vocabulary.
+export const TONE_BG = { neem: "bg-neem", bamboo: "bg-bamboo", terracotta: "bg-terracotta", monsoon: "bg-monsoon" } as const;
+export const TONE_EDGE = { neem: "border-l-neem", bamboo: "border-l-bamboo", terracotta: "border-l-terracotta", monsoon: "border-l-monsoon" } as const;
+export type Tone = keyof typeof TONE_BG;
+
+export function Tile({ tone, n, words }: { tone: Tone; n: number; words: string }) {
+  return (
+    <div className={`panel border-l-4 p-3 ${TONE_EDGE[tone]}`}>
+      <div className="font-heading text-[26px] leading-none">{n}</div>
+      <div className="mt-2 text-[12.5px] text-basalt/62">{words}</div>
+    </div>
+  );
+}
+
+export function Bar({ tone, share, width }: { tone: Tone; share: number; width: number }) {
+  return (
+    <span className="inline-block h-[6px] bg-basalt/10" style={{ width }} aria-hidden="true">
+      <span className={`block h-full ${TONE_BG[tone]}`} style={{ width: `${Math.round(share * 100)}%` }} />
+    </span>
+  );
+}
+
+export function Notice({ tone, children }: { tone: "neem" | "terracotta"; children: ReactNode }) {
+  return (
+    <p className={`mb-4 border p-3 text-[13.5px] ${tone === "neem" ? "border-neem/30 bg-neem/10" : "border-terracotta/30 bg-terracotta/10"}`} role="status">
+      {children}
+    </p>
+  );
+}
+
+// Three signals, never two: blank, wrong, and wrong-with-working stay distinct (rule 5).
+export function MarkPill({ status, working }: { status: string; working?: string }) {
+  if (status === "correct") return <Pill tone="neem">right</Pill>;
+  if (status === "blank") return <Pill tone="monsoon">blank</Pill>;
+  if (status === "wrong") return <Pill tone="terracotta">{working ? "wrong · with working" : "wrong"}</Pill>;
+  if (status === "unreadable") return <Pill tone="bamboo">could not read</Pill>;
+  if (status === "needs_teacher") return <Pill tone="bamboo">for you to judge</Pill>;
+  return <Pill tone="monsoon">{status}</Pill>;
+}
+
 // A section whose data does not exist yet says so, names what fills it, and shows the real count.
 export function NotYet({ what, when, facts }: { what: string[]; when: string; facts: [string, number][] }) {
   return (

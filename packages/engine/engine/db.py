@@ -1,4 +1,5 @@
 """The single database entry point. Nothing else in the engine opens a connection."""
+
 import os
 from contextlib import contextmanager
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 import psycopg
 from dotenv import load_dotenv
 from psycopg.rows import dict_row
+
 
 def _repo_root_for(this_file: Path) -> Path:
     """Four levels above .../assessment-engine/packages/engine/engine/db.py is the monorepo

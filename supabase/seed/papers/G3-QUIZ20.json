@@ -1,0 +1,31 @@
+{
+  "code": "G3-QUIZ20",
+  "title": "Grade 3–4 — Mathematics Quiz (20 Questions)",
+  "band": "G3",
+  "week": "Jul 24",
+  "date": "2026-07-24",
+  "_note": "Entered 2026-09-20 from the printed page. The second Grade 3 paper: each child's four photographs are TWO papers of two pages, not one of four. This is where `8500 - 3647 = 5147` (question 5) and `56 x 3 = 1518` (question 18) live — the two findings Aseem's report names by hand. Printed with thousands commas, so each question is entered as the page prints it and the expression beside it without them. Heavily marked in red by the educator, including corrections in digits, which is the hardest case in the corpus for telling an adult's hand from a child's.",
+  "pages": [{"n": 1, "mask": 0.14}, {"n": 2, "mask": 0}],
+  "items": [
+    {"n": 1, "page": 1, "expr": "24568 + 37845", "question": "24,568 + 37,845 ="},
+    {"n": 2, "page": 1, "expr": "56789 + 18236", "question": "56,789 + 18,236 ="},
+    {"n": 3, "page": 1, "kind": "text", "rung": "X2", "answer": 84602, "question": "Achal added 45,678 + 38,924 and got 74,502. Is he correct? If not, find his mistake and write the correct answer."},
+    {"n": 4, "page": 1, "expr": "6342 - 2875", "question": "6,342 - 2,875 ="},
+    {"n": 5, "page": 1, "expr": "8500 - 3647", "question": "8,500 - 3,647 ="},
+    {"n": 6, "page": 1, "expr": "7123 - 4568", "question": "7,123 - 4,568 ="},
+    {"n": 7, "page": 1, "kind": "word", "expr": "9000 - 3456", "question": "A stadium has 9,000 seats. 3,456 seats are occupied. How many seats are empty?"},
+    {"n": 8, "page": 1, "kind": "text", "rung": "X2", "answer": 3556, "question": "Priya subtracted 5,432 - 1,876 and got 3,656. Is she correct? If not, find her mistake and write the correct answer."},
+    {"n": 9, "page": 1, "rung": "M1", "skill": "NUM.OPS.03", "expr": "7 x 8", "question": "7 x 8 ="},
+    {"n": 10, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "9 x 6", "question": "9 x 6 ="},
+    {"n": 11, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "11 x 4", "question": "11 x 4 ="},
+    {"n": 12, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "12 x 5", "question": "12 x 5 ="},
+    {"n": 13, "page": 2, "kind": "missing", "rung": "M1", "skill": "NUM.OPS.03", "answer": 9, "question": "Fill in the blank: 8 x ___ = 72"},
+    {"n": 14, "page": 2, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "expr": "9 x 12", "question": "There are 9 boxes. Each box has 12 pencils. How many pencils are there in total?"},
+    {"n": 15, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "20 x 40", "question": "20 x 40 ="},
+    {"n": 16, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "405 x 100", "question": "405 x 100 ="},
+    {"n": 17, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "34 x 2", "question": "34 x 2 ="},
+    {"n": 18, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "56 x 3", "question": "56 x 3 ="},
+    {"n": 19, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "27 x 6", "question": "27 x 6 ="},
+    {"n": 20, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "48 x 5", "question": "48 x 5 ="}
+  ]
+}

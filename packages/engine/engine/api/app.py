@@ -3,11 +3,12 @@ part of it built so far. Every route below `require_engine_key` is thin — it f
 model, runs it through `run_idempotent`, and shapes the result. No route contains a decision;
 every decision is the function it calls, which is also what the CLI calls, which is also what the
 tests in `tests/` already cover. This file only wires."""
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
-from engine.api.routes import bank, capture, children, graph, runs
+from engine.api.routes import bank, capture, children, graph, runs, week
 
 app = FastAPI(title="Cornerstone engine")
 
@@ -17,6 +18,7 @@ app.include_router(children.router)
 app.include_router(capture.router)
 app.include_router(graph.router)
 app.include_router(bank.router)
+app.include_router(week.router)
 
 
 @app.exception_handler(InProgress)

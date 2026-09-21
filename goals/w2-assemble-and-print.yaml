@@ -1,0 +1,83 @@
+name: w2-assemble-and-print
+goal: >
+  Given each child's prescription for a week, the engine produces the paper that child will actually
+  hold: their own questions at their own difficulty, none of them seen in the last three weeks, no
+  two children in a class sharing a question, a QR that says whose paper it is, unnamed spares, and
+  one answer key the teacher marks the whole class from — printed in roll order, and never a short
+  paper without saying whose it is.
+
+# Written 2026-09-20, before the work (CLAUDE.md rule 12). Every one of these fails today; that is
+# the point. `kind: week` scenarios need the W2 runner, which is the first thing W2 builds.
+scenarios:
+  - kind: week
+    name: ten children at one difficulty get ten different papers
+    section: TESTSEC
+    children: 10
+    must: no_two_children_share_a_question
+  - kind: week
+    name: every sheet's QR resolves to exactly one child and one template
+    section: TESTSEC
+    must: qr_is_unique_and_resolves
+  - kind: week
+    name: the teacher's key matches every question on every sheet
+    section: TESTSEC
+    must: key_matches_every_sheet
+  - kind: week
+    name: no child is shown a question they saw inside the exposure window
+    section: TESTSEC
+    children: 3                             # two consecutive weeks must fit in the unit to prove it
+    must: respects_exposure_window          # exposure.days, a threshold row (21)
+  - kind: week
+    name: every sheet holds exactly the configured number of scorable questions
+    section: TESTSEC
+    must: sheet_length_matches_config       # assemble.items_per_sheet, a config row (12)
+  - kind: week
+    name: spares are unnamed, carry no child, and there is one set per difficulty
+    section: TESTSEC
+    must: spares_are_anonymous
+  - kind: week
+    name: a child the engine cannot fill is named, never given a short paper
+    section: TESTSEC
+    must: names_the_child_it_could_not_fill
+  - kind: week
+    name: a child without enough evidence gets the band default, not a guess
+    section: TESTSEC
+    must: falls_back_to_the_band_default
+  - kind: week
+    name: a real class of sixteen gets sixteen different papers, not ten
+    section: TESTSEC
+    children: 16                            # the school's actual class size: 16 x 12 + 2 spares = 216
+    must: no_two_children_share_a_question
+  - kind: week
+    name: a Grade 1 class is told the rung is too small, never handed short papers
+    section: TESTSEC
+    children: 16
+    band: G1
+    skill_set: ADD.1D.WITHIN10            # 22-24 questions is its whole universe (ADR 0011/0016)
+    must: names_the_child_it_could_not_fill
+  - kind: week
+    name: nothing prints until a person approves, and their name is on every sheet
+    section: TESTSEC
+    children: 4
+    must: nothing_prints_until_a_person_approves
+  - kind: week
+    name: the pack prints in roll order
+    section: TESTSEC
+    must: prints_in_roll_order
+
+criteria:
+  - name: every invariant across every row holds
+    run: engine audit
+    expect: "0 violations"
+  - name: the code is formatted and lints clean
+    run: cd packages/engine && .venv/bin/ruff format --check engine tests && .venv/bin/ruff check engine tests
+    expect: "All checks passed"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: W2 runs as a workflow, not a command someone remembers
+    run: python n8n/lint.py n8n/workflows/f2-assemble-and-print.json
+    expect: "ok"
+  - name: the week's HTTP surface is the one the flow calls
+    run: cd packages/engine && .venv/bin/python -m pytest tests/api/test_week_routes.py
+    expect: "passed"

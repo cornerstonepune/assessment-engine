@@ -3,21 +3,27 @@ produce (SPEC §6, "Legacy sheet"). The paper is entered once as a template; eac
 whole-page model call per page; marking is by lookup against the printed operands; everything
 lands as a candidate for a person to confirm. A model transcribes, code marks — never the reverse.
 """
+
 import hashlib
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 import cv2
 import numpy as np
 
-from engine import db, render_pdf, roster
-from engine.adapters import llm
+from engine import db, render_pdf, stencil
+from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
 from engine.assess import tags
 from engine.assess.ladder import RUNGS
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
+# `capture_live_content_idx` forbids two LIVE captures of one file, so on a re-read the old row must
+# leave the live set BEFORE the new one is inserted — and at that moment its replacement does not
+# exist yet. It points at itself for those few statements, which is non-null (so it is no longer
+# live) and self-describing, and is repointed at the real replacement below.
 _EXPR = re.compile(r"^\s*(\d+)\s*([+\-−–×x])\s*(\d+)\s*=?\s*$")
 _MINUS = str.maketrans({"−": "-", "–": "-", "x": "×"})
 _SKILL_FOR_OP = {"+": "NUM.OPS.01", "-": "NUM.OPS.02"}
@@ -36,6 +42,12 @@ def rung_for(op, a, b):
     cols = tags._regroup_columns(op, a, b)
     if op == "×":
         return None  # off the addition/subtraction ladder (manifest.md: no multiplication rung yet)
+    if a < 10 and b < 10:
+        # A one-digit sum is not a two-digit column sum with a blank in front of it. The shape rule
+        # below reads "4 + 3" as width 2 without regrouping and files it under R4, which would tell
+        # the engine a child who cannot add within 10 has failed at place-value columns. The
+        # Cambridge Level D paper is entirely these, and it is the paper the weakest child sat.
+        return ("R1" if a + b <= 10 else "R2") if op == "+" else "R3"
     if width <= 2:
         return "R4" if not cols else ("R5" if op == "+" else "R6")
     if width == 3:
@@ -46,6 +58,11 @@ def rung_for(op, a, b):
 
 
 def skill_for(rung, op=None):
+    if rung not in RUNGS:
+        # A rung added as rows and never as Python — M1, multiplication (W1 gate 3). This module
+        # maps the addition/subtraction ladder, so a paper on one of those rungs names its own
+        # skill rather than having one invented here.
+        raise ValueError(f"rung {rung!r} is off the addition/subtraction ladder; give the item a skill")
     skills = RUNGS[rung]["skills"]
     return _SKILL_FOR_OP.get(op) if op in _SKILL_FOR_OP and _SKILL_FOR_OP[op] in skills else skills[0]
 
@@ -61,6 +78,7 @@ def normalise_answer(text):
 
 # ---- the paper, entered once
 
+
 def _template_item(paper, it):
     """One printed question as an item row: operands, the right answer, and — for a bare sum —
     the wrong answers each misconception would produce, so marking is a lookup."""
@@ -75,7 +93,9 @@ def _template_item(paper, it):
         predictions = M.predict(op, a, b)
         rung = it.get("rung") or rung_for(op, a, b)
         if rung is None:
-            raise ValueError(f"item {it['n']}{it.get('part', '')}: {it['expr']!r} is not on the ladder; give it a rung")
+            raise ValueError(
+                f"item {it['n']}{it.get('part', '')}: {it['expr']!r} is not on the ladder; give it a rung"
+            )
     else:
         answer = it.get("answer")
         rung = it.get("rung")
@@ -87,9 +107,15 @@ def _template_item(paper, it):
     signal = {"bare": "Procedural", "word": "Application", "missing": "Conceptual", "text": "Stretch"}[kind]
     return {
         "item_key": f"legacy/{paper['code']}/{it['n']}{it.get('part', '')}",
-        "rung": rung, "skill": spec["skill"], "signal": signal, "fmt": f"legacy_{kind}",
-        "stem": it["question"], "spec": spec,
-        "responses": [{"rid": "a", "answer": None if answer is None else str(answer), "misconceptions": predictions}],
+        "rung": rung,
+        "skill": spec["skill"],
+        "signal": signal,
+        "fmt": f"legacy_{kind}",
+        "stem": it["question"],
+        "spec": spec,
+        "responses": [
+            {"rid": "a", "answer": None if answer is None else str(answer), "misconceptions": predictions}
+        ],
     }
 
 
@@ -109,16 +135,29 @@ def load_paper(conn, path):
             " skill_codes = excluded.skill_codes, signal = excluded.signal, fmt = excluded.fmt,"
             " stem = excluded.stem, spec = excluded.spec, responses = excluded.responses, updated_at = now()"
             " returning id",
-            (tenant, t["item_key"], t["rung"], [t["skill"]], t["signal"], t["fmt"], t["stem"],
-             json.dumps(t["spec"]), json.dumps(t["responses"])),
+            (
+                tenant,
+                t["item_key"],
+                t["rung"],
+                [t["skill"]],
+                t["signal"],
+                t["fmt"],
+                t["stem"],
+                json.dumps(t["spec"]),
+                json.dumps(t["responses"]),
+            ),
         ).fetchone()
         ids.append(row["id"])
     existing = conn.execute(
         "select id from sheet_template where tenant_id = %s and source = 'legacy' and batch_id = %s",
-        (tenant, paper["code"])).fetchone()
+        (tenant, paper["code"]),
+    ).fetchone()
     if existing:
-        conn.execute("update sheet_template set band = %s, week = %s, item_ids = %s, key = %s, updated_at = now()"
-                     " where id = %s", (paper["band"], paper["week"], ids, json.dumps(paper), existing["id"]))
+        conn.execute(
+            "update sheet_template set band = %s, week = %s, item_ids = %s, key = %s, updated_at = now()"
+            " where id = %s",
+            (paper["band"], paper["week"], ids, json.dumps(paper), existing["id"]),
+        )
         return existing["id"]
     return conn.execute(
         "insert into sheet_template (tenant_id, band, week, variant, batch_id, item_ids, key, source)"
@@ -128,12 +167,14 @@ def load_paper(conn, path):
 
 
 def paper_rows(conn, code):
-    t = conn.execute("select id, tenant_id, key from sheet_template where source = 'legacy' and batch_id = %s",
-                     (code,)).fetchone()
+    t = conn.execute(
+        "select id, tenant_id, key from sheet_template where source = 'legacy' and batch_id = %s", (code,)
+    ).fetchone()
     if not t:
         raise ValueError(f"no paper {code!r}; run `engine legacy paper` first")
-    items = conn.execute("select id, item_key, spec, responses from item where id = any(%s)",
-                         (list(_ids(conn, t["id"])),)).fetchall()
+    items = conn.execute(
+        "select id, item_key, spec, responses from item where id = any(%s)", (list(_ids(conn, t["id"])),)
+    ).fetchall()
     by_key = {}
     for it in items:
         n_part = it["item_key"].rsplit("/", 1)[1]
@@ -142,18 +183,115 @@ def paper_rows(conn, code):
 
 
 def _ids(conn, template_id):
-    return conn.execute("select item_ids from sheet_template where id = %s", (template_id,)).fetchone()["item_ids"]
+    return conn.execute("select item_ids from sheet_template where id = %s", (template_id,)).fetchone()[
+        "item_ids"
+    ]
 
 
 # ---- the scan
 
+
 def render_pages(path, pages=None):
-    """A PDF or an image → one JPEG bytes per page."""
+    """A PDF or an image → one JPEG bytes per page.
+
+    `pages` selects pages out of a multi-page document. It does NOT apply to a photograph: a
+    Grade 3 sitting is one JPEG per page, so `--pages 2` on one of those means "this file is page 2
+    of the paper", which `import_scan` uses to look up the right slots. Filtering a one-image file
+    by that number returned an empty list and read nothing at all.
+    """
     path = Path(path)
-    out = [cv2.imread(str(path))] if path.suffix.lower() in (".jpg", ".jpeg", ".png") else render_pdf.render(path)
-    if pages:
+    photo = path.suffix.lower() in (".jpg", ".jpeg", ".png")
+    out = [cv2.imread(str(path))] if photo else render_pdf.render(path)
+    if pages and not photo:
         out = [out[i - 1] for i in pages if 0 < i <= len(out)]
     return [_jpeg(im) for im in out]
+
+
+@lru_cache(maxsize=8)
+def _rendered(path, mtime):
+    """Every page of a file as JPEG bytes, remembered. The approval screen asks for one crop per
+    answer — eighteen requests for one page — and re-rendering a PDF each time would make a screen
+    a teacher has to wait for. Keyed on the file's mtime so a re-photographed page is not stale."""
+    del mtime
+    return render_pages(path)
+
+
+def page_crop(path, page_no, box=None, pad=0.01):
+    """One page of a scan as JPEG bytes, or the patch of it an answer was read from.
+
+    `box` is (left, top, right, bottom) as fractions of the page — `item_result.raw_read`'s own
+    `box`, so what a person is shown is exactly the region the reading came from, not an
+    approximation of it. A file holding a single image IS one page however the paper numbers it:
+    a Grade 3 sitting is one photograph per page, so its second page is a second file.
+    """
+    images = _rendered(str(path), Path(path).stat().st_mtime)
+    return crop(images[min(max(page_no, 1), len(images)) - 1], box, pad)
+
+
+def crop(jpeg, box=None, pad=0.01):
+    """The patch of a page image a box names, as JPEG bytes — or the whole page where there is no
+    box, or where the box is too small to be worth looking at on its own."""
+    if not box:
+        return jpeg
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    h, w = img.shape[:2]
+    left, top, right, bottom = box
+    x0 = max(0, int((left - pad) * w))
+    y0 = max(0, int((top - pad) * h))
+    x1 = min(w, int((right + pad) * w))
+    y1 = min(h, int((bottom + pad) * h))
+    if x1 - x0 < 8 or y1 - y0 < 8:  # a region too small to see is more use whole than cropped
+        return jpeg
+    return _jpeg(img[y0:y1, x0:x1])
+
+
+@lru_cache(maxsize=2)
+def _sharp_page(path, mtime, page_no, dpi):
+    """One page at the resolution a doubtful answer is looked at again in, as JPEG bytes.
+
+    A photograph is already at its own resolution and there is no more to render — the gain there
+    is that the answer fills the frame instead of being one word on a whole page. A PDF is a
+    different matter: it was read at 150 dpi and can be drawn again at any size.
+
+    Cached because a page holds many doubtful answers and rendering an A4 page at 500 dpi is not
+    free; JPEG bytes rather than the array, so the cache is megabytes and not hundreds of them.
+    """
+    del mtime
+    p = Path(path)
+    if p.suffix.lower() in (".jpg", ".jpeg", ".png"):
+        return _jpeg(cv2.imread(str(p)))
+    pages = render_pdf.render(p, dpi, render_pdf.MAX_PIXELS)
+    return _jpeg(pages[min(max(page_no, 1), len(pages)) - 1])
+
+
+def second_look(path, page_no, fraction, cfg, cli):
+    """→ a `reread(box)` for `ocr.answers_for`, or None when the row turns the second look off.
+
+    The big render happens on the first doubtful answer of a page and not before: a page the engine
+    reads cleanly costs nothing extra, and a page with no doubts never opens the file twice.
+    """
+    if not cfg.get("reread_dpi"):
+        return None
+    sharp = []
+
+    def reread(box):
+        if not sharp:
+            jpeg = _sharp_page(str(path), Path(path).stat().st_mtime, page_no, int(cfg["reread_dpi"]))
+            # The same page the engine read, masked the same way: the name band stays painted out
+            # (rule 6) and the educator's red ink stays inpainted, or a crop would hand back the
+            # very reading those two rules exist to prevent.
+            sharp.append(ocr.mask_red_pen(mask_name_band(jpeg, fraction), cfg))
+        return ocr.read(crop(sharp[0], box, pad=0.0), cli)
+
+    return reread
+
+
+def masked_image(jpeg, fraction):
+    """The masked page as an array, for cutting bands from without a re-encode per band."""
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    if fraction:
+        img[: int(img.shape[0] * fraction), :] = 255
+    return img
 
 
 def mask_name_band(jpeg, fraction):
@@ -176,26 +314,185 @@ def _jpeg(img):
 
 # ---- marking, by lookup
 
+
 def mark(spec, response, read):
     """→ (status, misconception codes, working_shown). Blank, wrong and wrong-with-working stay
-    three signals (rule 5): status carries the first two, working_shown the third."""
-    working = "partial" if read.get("working_summary") else "none"  # ponytail: the page call cannot tell partial from full
+    three signals (rule 5): status carries the first two, working_shown the third.
+
+    `answer_state` (legacy_extract v3, ADR 0018) is the reader saying which of four different things
+    it saw, rather than the caller inferring it from an empty string. v2 returned `attempted` and an
+    empty `child_answer` for both "wrote nothing" and "wrote something I cannot read" — the exact
+    collapse rule 5 forbids. `not_visible` is its own case because the SOF pages carry an educator's
+    tick over a rubbed-out pencil mark: the outcome is knowable, the child's answer is not, and
+    working backwards from the tick would invent an answer out of an adult's opinion of it.
+    """
+    working = read.get("working_shown") or ("partial" if read.get("working_summary") else "none")
     answer = normalise_answer(read.get("child_answer", ""))
+    state = read.get("answer_state")
+    if state == "blank":
+        return "blank", [], working
+    if state == "illegible":
+        return "unreadable", [], working
+    if state == "not_visible":
+        return "needs_teacher", [], working
     if spec["kind"] == "text":
-        return ("blank" if not read.get("attempted") and not answer else "needs_teacher"), [], working
+        if state == "blank" and not answer:
+            return "blank", [], working
+        # The judgement a "find the mistake" question asks for ("is Achal correct?") is not
+        # checkable by code, but the number the child wrote beside it is — and ONLY when it agrees
+        # with the key. Such a question prints its operands and the wrong answer, so its region
+        # holds four or five numbers by construction and the reader is not entitled to say which
+        # one the child stood behind: of fourteen such flags, five read the key exactly and the
+        # other nine read a fragment ("2" where the answer is 75) or a printed operand. A
+        # disagreement is therefore at least as likely to be the wrong number picked as a child
+        # who is wrong, and marking it would buy coverage with silent errors — the one trade
+        # rule 5 forbids. An agreement is two independent things saying the same thing, so it
+        # settles; everything else still goes to a person.
+        want = response.get("answer")
+        if answer and want is not None and normalise_answer(str(want)) == answer:
+            return "correct", [], working
+        return "needs_teacher", [], working
     if not answer:
-        return ("needs_teacher" if read.get("attempted") else "blank"), [], working
+        return "needs_teacher", [], working
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
     want = response.get("answer")
+    if want is not None and not re.fullmatch(r"-?\d+", str(want)):
+        # The paper asks for something that is not a number — "456 [ ] 465" wants < — and the
+        # child wrote digits. Code cannot rule on that, and int() on the expected answer would
+        # crash the whole import, so it goes to a person exactly as an unreadable answer does.
+        return "needs_teacher", [], working
     if want is not None and n == int(want):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     return "wrong", codes, working
 
 
-def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False):
+def symbolic_slots(by_key):
+    """The slots whose answer is not a number: "456 [ ] 465" wants "<", not a value.
+
+    The paper row already knows — it is the answer the question was entered with — so the reader is
+    told rather than left to infer it from a question's wording.
+    """
+    return {
+        k
+        for k, it in by_key.items()
+        if it["spec"].get("answer") is not None
+        and not re.fullmatch(r"-?\d+", str(it["spec"]["answer"]).strip())
+    }
+
+
+def slot_list(by_key, page_no):
+    """The answer slots printed on one page, as the reader is shown them.
+
+    The paper already holds every printed question — asking the model to transcribe them back was
+    both redundant and harmful: writing "348 + 27 =" before reaching the child's answer primed it to
+    compute 375, and it returned the right answer in place of the child's wrong one about a fifth of
+    the time. Handing it the slots instead also ends the missing-row problem, because a slot it
+    cannot find must come back as `not_found` rather than simply never appearing.
+    """
+    on_page = [(k, it) for k, it in by_key.items() if it["spec"].get("page", 1) == page_no]
+    on_page.sort(key=lambda kv: (int("".join(c for c in kv[0] if c.isdigit()) or 0), kv[0]))
+    return "\n".join(f"{k:<4} {_locator(it['spec']['question'])}" for k, it in on_page)
+
+
+def _locator(question):
+    """Enough of a printed question to FIND its answer on the page.
+
+    Masking the digits was tried, to stop the reader computing the answer from its own instructions,
+    and measured WORSE — 51.8% against 63.0%. Removing the numbers takes away what locates a slot
+    on the page without taking away the arithmetic, which is still printed on the page the reader is
+    looking at. The failure was never about what the prompt contained: a vision model that knows
+    arithmetic fills a gap in faint pencil with the answer it can compute, and no phrasing prevents
+    that. See ADR 0019 — the transcription layer moves to an OCR engine that cannot do sums.
+    """
+    return question[:90]
+
+
+# A whole page goes to the model as roughly 1568px on its long edge, so a handwritten "397" lands in
+# about 40x25 pixels. Measured on a real page: asked for six answers on the whole page the reader got
+# two right, and asked for the same six on tight crops it got four — and both it gained were cases
+# where it had previously returned the arithmetically CORRECT answer instead of the child's wrong
+# one. It was not disobeying the instruction to transcribe; it could not see the pencil, and a
+# maths-shaped prior filled the gap. Bands give each digit its own share of the pixel budget.
+#
+# They overlap so that no answer falls on a seam, which means most answers are read twice — and two
+# bands disagreeing about one answer is a *measured* doubt, worth far more than a model's opinion of
+# its own confidence. That doubt goes to a person instead of being guessed at, which is what the
+# silent-error bar is for.
+BANDS = ((0.00, 0.42), (0.30, 0.72), (0.58, 1.00))
+
+
+def read_page_in_bands(conn, image, slots, bands=BANDS):
+    """One page → {slot: reading}, read once per band and merged. Returns (readings, disagreements)."""
+    h = image.shape[0]
+    seen = {}
+    for top, bottom in bands:
+        crop = image[int(h * top) : int(h * bottom)]
+        got = llm.generate(conn, "legacy_extract", {"slots": slots}, images=[_jpeg(crop)])
+        for r in got["items"]:
+            seen.setdefault(r["slot"], []).append(r)
+    return _merge_bands(seen)
+
+
+# What one band knows about a slot, strongest first. `not_found` is the weakest by a distance: it
+# means "not in the part of the page I was shown", which every band says about most of the page. It
+# must never outrank a band that could actually see the slot and found it empty — letting it do so
+# turned two genuinely blank answers into `not_found` and cost four correct readings.
+_STATE_RANK = {"written": 0, "blank": 1, "illegible": 2, "not_visible": 3, "not_found": 4}
+
+
+def _merge_bands(seen):
+    """Readings of one slot from several bands → one reading, or a disagreement a person settles."""
+    out, disagreements = {}, []
+    for slot, reads in seen.items():
+        best = min(_STATE_RANK[r["answer_state"]] for r in reads)
+        agree = [r for r in reads if _STATE_RANK[r["answer_state"]] == best]
+        if best == 0:  # at least one band read handwriting here
+            values = {normalise_answer(r["child_answer"]) for r in agree}
+            if len(values) > 1:
+                # Two bands saw the same slot and read it differently. That is measured doubt, and
+                # it is worth more than any confidence a model reports about itself — so it goes to
+                # a person rather than being resolved by picking one.
+                disagreements.append({"slot": slot, "values": sorted(values)})
+                out[slot] = {**agree[0], "child_answer": "", "answer_state": "illegible"}
+                continue
+        out[slot] = agree[0]
+    return out, disagreements
+
+
+def _page_resolution(summary, page_no, out):
+    """The reader's own account of the page (ADR 0018) → one line for a person, and every thing it
+    could not settle collected for the approval queue. `needs` is what code routes on: a page that
+    says `nothing` is a complete answer, not a failure, and a cover page saying so is the difference
+    between an honest empty list and an invented question."""
+    res = out["resolution"]
+    for u in res["unresolved"]:
+        summary.setdefault("unresolved", []).append({**u, "page": page_no})
+    unmet = [u for u in res["unresolved"] if u["needs"] != "nothing"]
+    tail = f" — {len(unmet)} needing attention" if unmet else ""
+    return f"{res['status']}: {res['saw']}{tail}"
+
+
+def worked_on(conn, capture_id):
+    """How many answers on this capture a person has signed off or corrected.
+
+    A re-read would supersede the capture that work hangs from, and every screen and the graph read
+    only live captures — so a better reader would quietly undo a teacher's work. The first version of
+    this guard counted sign-offs only, and a re-read took six of Nimish's corrections on a paper he
+    had not yet signed off. What a person has checked, a person has checked: it is not read again.
+    """
+    return conn.execute(
+        "select (select count(*) from item_result where capture_id = %s and state = 'confirmed')"
+        " + (select count(*) from read_correction where capture_id = %s) as n",
+        (capture_id, capture_id),
+    ).fetchone()["n"]
+
+
+def import_scan(
+    conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False
+):
     """One scan of one child's paper → capture, item_result rows (candidate), and optionally a
     narrative_observation. Returns a summary a person can read before confirming.
 
@@ -208,46 +505,108 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
     tenant = template["tenant_id"]
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
 
+    stale_id = None
     qr = f"LEGACY-{paper_code}-{str(child_id)[:8]}"
     instance = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
         " values (%s,%s,%s,%s,'returned') on conflict (tenant_id, qr_code) do update set updated_at = now()"
-        " returning id", (tenant, qr, template["id"], child_id)).fetchone()["id"]
+        " returning id",
+        (tenant, qr, template["id"], child_id),
+    ).fetchone()["id"]
 
     file_sha256 = hashlib.sha256(Path(path).read_bytes()).hexdigest()
     existing = conn.execute(
         "select id, status, pages from capture where sheet_instance_id = %s and file_sha256 = %s"
-        " and superseded_by is null", (instance, file_sha256)).fetchone()
+        " and superseded_by is null",
+        (instance, file_sha256),
+    ).fetchone()
+    signed = existing and worked_on(conn, existing["id"])
+    if signed and again:
+        return {
+            "capture_id": existing["id"],
+            "pages": existing["pages"],
+            "results": [],
+            "unmatched": [],
+            "notes": [f"a person has worked on this paper ({signed} answers): not read again"],
+            "already": True,
+            "already_results": signed,
+        }
+    if existing and again:
+        # The scan is unchanged but the PAPER is not — `G2-CAM-A` went from 24 answer slots to the
+        # 27 its page holds, and three answers per child had nowhere to land. Idempotency keys on
+        # the file alone, so it reported "nothing to do" on a reading that was three answers short.
+        # `engine.stale` finds these; this re-reads one. The old capture is superseded, never
+        # deleted (rule 4) — a teacher may have confirmed rows on it and that history stays.
+        stale_id = existing["id"]
+        existing = None
+        conn.execute("update capture set superseded_by = id where id = %s", (stale_id,))
     if existing and existing["status"] == "processed":
-        n = conn.execute("select count(*) as n from item_result where capture_id = %s",
-                         (existing["id"],)).fetchone()["n"]
-        return {"capture_id": existing["id"], "pages": existing["pages"], "results": [], "unmatched": [],
-               "notes": [], "already": True, "already_results": n}
+        n = conn.execute(
+            "select count(*) as n from item_result where capture_id = %s", (existing["id"],)
+        ).fetchone()["n"]
+        return {
+            "capture_id": existing["id"],
+            "pages": existing["pages"],
+            "results": [],
+            "unmatched": [],
+            "notes": [],
+            "already": True,
+            "already_results": n,
+        }
 
     images = render_pages(path, pages)
     page_numbers = pages or sorted(page_specs)[: len(images)]
     rel = str(Path(path).resolve()).replace(str(Path.home()), "~")
     if existing:  # a previous attempt on this exact file errored; retry into that row, not a new one
         capture = existing["id"]
-        conn.execute("update capture set pages = %s, status = 'new', error = null where id = %s",
-                     (len(images), capture))
+        conn.execute(
+            "update capture set pages = %s, status = 'new', error = null where id = %s",
+            (len(images), capture),
+        )
     else:
         capture = conn.execute(
             "insert into capture (tenant_id, path, pages, sheet_instance_id, status, qr_read, file_sha256)"
             " values (%s,%s,%s,%s,'new',%s,%s) returning id",
-            (tenant, rel, len(images), instance, qr, file_sha256)).fetchone()["id"]
+            (tenant, rel, len(images), instance, qr, file_sha256),
+        ).fetchone()["id"]
+
+    if stale_id:  # point the placeholder at the reading that actually replaced it
+        conn.execute("update capture set superseded_by = %s where id = %s", (capture, stale_id))
 
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
+        cfg = ocr.settings(conn)
+        cli = ocr.client()
         for page_no, jpeg in zip(page_numbers, images):
             fraction = (masks or {}).get(page_no, page_specs.get(page_no, {}).get("mask", 0))
             jpeg = mask_name_band(jpeg, fraction)
-            expected = sum(1 for it in by_key.values() if it["spec"].get("page", 1) == page_no)
-            out = llm.generate(conn, "legacy_extract", {"expected": str(expected)}, images=[jpeg])
-            if out.get("page_note"):
-                summary["notes"].append(f"p{page_no}: {out['page_note']}")
-            for read in out["items"]:
-                key = f"{read['n']}{read.get('part', '')}"
+            questions = {
+                k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
+            }
+            if not questions:
+                summary["notes"].append(f"p{page_no}: no answers printed on this page")
+                continue
+            # Textract, not a model: what reads a child's handwriting must not know arithmetic,
+            # because a model that does fills faint pencil with the answer it can compute (ADR 0019).
+            # Measured on 45 hand-read responses: 80% exactly right with ZERO wrong readings the
+            # engine stood behind, against 55-63% with about seven of them.
+            # The paper says where its answers live (rule 1): only a paper that prints a box per
+            # answer hands the reader its boxes. On an underline paper a stray rectangle is not a field.
+            jpeg = ocr.mask_red_pen(jpeg, cfg)
+            readings = stencil.read_page(
+                jpeg,
+                questions,
+                cfg,
+                cli,
+                form=paper.get("printed_as", paper_code),
+                page_no=page_no,
+                symbolic=symbolic_slots(by_key),
+                use_boxes=paper.get("fields") == "boxes",
+                reread=second_look(path, page_no, fraction, cfg, cli),
+            )
+            flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
+            summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
+            for key, read in readings.items():
                 it = by_key.get(key)
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
@@ -260,23 +619,106 @@ def import_scan(conn, path, paper_code, child_id, actor, pages=None, masks=None,
                     " on conflict (capture_id, item_id, rid) do update set raw_read = excluded.raw_read,"
                     " status = excluded.status, misconception_codes = excluded.misconception_codes,"
                     " working_shown = excluded.working_shown, updated_at = now()",
-                    (tenant, capture, it["id"], json.dumps(read), status, codes, working))
-                summary["results"].append({"item": key, "question": it["spec"]["question"],
-                                           "read": read.get("child_answer", ""), "status": status,
-                                           "codes": codes, "working": working})
+                    (tenant, capture, it["id"], json.dumps(read), status, codes, working),
+                )
+                summary["results"].append(
+                    {
+                        "item": key,
+                        "question": it["spec"]["question"],
+                        "read": read.get("child_answer", ""),
+                        "confidence": read.get("confidence"),
+                        "status": status,
+                        "codes": codes,
+                        "working": working,
+                    }
+                )
             if narrative:
                 obs = llm.generate(conn, "read_page", {}, images=[jpeg])
                 conn.execute(
                     "insert into narrative_observation (tenant_id, capture_id, text, signals, prompt_version)"
                     " values (%s,%s,%s,%s,(select version from prompt where purpose = 'read_page' and active))",
-                    (tenant, capture, obs["narrative"], json.dumps(obs["signals"])))
+                    (tenant, capture, obs["narrative"], json.dumps(obs["signals"])),
+                )
         conn.execute("update capture set status = 'processed' where id = %s", (capture,))
     except llm.LLMError as e:
         conn.execute("update capture set status = 'error', error = %s where id = %s", (str(e), capture))
         raise
-    conn.execute("insert into access_log (tenant_id, actor, child_id, action) values (%s,%s,%s,'legacy_import')",
-                 (tenant, actor, child_id))
+    conn.execute(
+        "insert into access_log (tenant_id, actor, child_id, action) values (%s,%s,%s,'legacy_import')",
+        (tenant, actor, child_id),
+    )
     return summary
+
+
+def correct(conn, result_id, human_read, by):
+    """A person says what the child actually wrote. `POST /capture/correct`, and the mechanism the
+    approval screen exists for.
+
+    Append-only, and deliberately so (rule 4): the machine's own reading stays in
+    `item_result.raw_read` untouched for ever, and the correction is a NEW `read_correction` row.
+    Two things depend on that. A teacher can always see what the engine made of their child's
+    handwriting, and the flag rate and the silent-error rate stay measurable afterwards — overwrite
+    the read and the engine can never again be scored against the page it read.
+
+    Only the MARK is recomputed, by the same `mark` the import path uses, because marking is a
+    lookup against numbers computed when the paper was entered. A teacher is asked what a child
+    wrote, never whether it is right.
+    """
+    row = conn.execute(
+        "select r.id, r.tenant_id, r.raw_read, r.capture_id, si.child_id, i.spec, i.responses"
+        " from item_result r join item i on i.id = r.item_id"
+        " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
+        " where r.id = %s and r.state = 'candidate'",
+        (result_id,),
+    ).fetchone()
+    if not row:
+        raise ValueError(f"no answer waiting for a person with id {result_id}")
+    read = (
+        json.loads(row["raw_read"] or "{}") if isinstance(row["raw_read"], str) else (row["raw_read"] or {})
+    )
+    text = (human_read or "").strip()
+    reading = {**read, "child_answer": text, "answer_state": "written" if text else "blank"}
+    status, codes, working = mark(row["spec"], row["responses"][0], reading)
+    conn.execute(
+        "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read,"
+        " human_read, misconception_codes, by) values (%s,%s,%s,%s,%s,%s,%s,%s)",
+        (
+            row["tenant_id"],
+            row["child_id"],
+            row["capture_id"],
+            row["id"],
+            read.get("child_answer", "") or "",
+            text,
+            codes,
+            by,
+        ),
+    )
+    conn.execute(
+        "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
+        " updated_at = now() where id = %s",
+        (status, codes, working, row["id"]),
+    )
+    return {"status": status, "codes": codes, "was": read.get("child_answer", "") or "", "now": text}
+
+
+def corrections(conn):
+    """Every answer a person has said the true reading of, latest first per answer.
+
+    This is the gold set growing by use rather than by a data-entry project: a teacher confirming
+    one paper hands the eval a handful of hand-verified responses, on the exact page a child wrote.
+    """
+    return conn.execute(
+        "select distinct on (rc.item_result_id) t.batch_id as paper, c.path, c.pages as file_pages,"
+        " coalesce((i.spec->>'page')::int, 1) as page, i.item_key, rc.human_read, rc.by, rc.created_at"
+        " from read_correction rc"
+        " join item_result r on r.id = rc.item_result_id"
+        " join item i on i.id = r.item_id"
+        " join capture c on c.id = rc.capture_id"
+        " join sheet_instance si on si.id = c.sheet_instance_id"
+        " join sheet_template t on t.id = si.sheet_template_id"
+        " where c.superseded_by is null"
+        " order by rc.item_result_id, rc.created_at desc"
+    ).fetchall()
 
 
 def dedupe(conn):
@@ -292,7 +734,8 @@ def dedupe(conn):
     rows = conn.execute(
         "select c.id, c.path, c.file_sha256, c.status, c.created_at, c.sheet_instance_id,"
         " (select count(*) from item_result where capture_id = c.id) as n"
-        " from capture c where c.superseded_by is null").fetchall()
+        " from capture c where c.superseded_by is null"
+    ).fetchall()
 
     hashed = []
     for r in rows:
@@ -313,12 +756,15 @@ def dedupe(conn):
         members.sort(key=lambda r: (r["status"] == "processed", r["n"], r["created_at"]), reverse=True)
         keeper, rest = members[0], members[1:]
         if keeper["was_missing"]:
-            conn.execute("update capture set file_sha256 = %s where id = %s",
-                         (keeper["file_sha256"], keeper["id"]))
+            conn.execute(
+                "update capture set file_sha256 = %s where id = %s", (keeper["file_sha256"], keeper["id"])
+            )
             backfilled += 1
         for r in rest:
-            conn.execute("update capture set file_sha256 = %s, superseded_by = %s where id = %s",
-                         (r["file_sha256"], keeper["id"], r["id"]))
+            conn.execute(
+                "update capture set file_sha256 = %s, superseded_by = %s where id = %s",
+                (r["file_sha256"], keeper["id"], r["id"]),
+            )
             backfilled += r["was_missing"]
             voided += 1
     return backfilled, voided
@@ -331,13 +777,18 @@ def remark(conn, child_id):
         "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses"
         " from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
-        " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null", (child_id,)).fetchall()
+        " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null",
+        (child_id,),
+    ).fetchall()
     changed = 0
     for r in rows:
         status, codes, working = mark(r["spec"], r["responses"][0], json.loads(r["raw_read"]))
         if (status, codes, working) != (r["status"], list(r["misconception_codes"]), r["working_shown"]):
-            conn.execute("update item_result set status = %s, misconception_codes = %s, working_shown = %s"
-                         " where id = %s", (status, codes, working, r["id"]))
+            conn.execute(
+                "update item_result set status = %s, misconception_codes = %s, working_shown = %s"
+                " where id = %s",
+                (status, codes, working, r["id"]),
+            )
             changed += 1
     return changed
 
@@ -352,13 +803,18 @@ def child_map(conn, child_id):
     states = conn.execute(
         "select s.rung_code, s.skill_code, s.state, s.n_events, s.n_correct, s.repeating_misconception,"
         " r.descriptor, r.ladder_order from child_skill_state s join rung r on r.code = s.rung_code"
-        " where s.child_id = %s order by r.ladder_order nulls last", (child_id,)).fetchall()
+        " where s.child_id = %s order by r.ladder_order nulls last",
+        (child_id,),
+    ).fetchall()
     nxt = conn.execute(
         "select s.code, s.rung_code, n.difficulty, n.rule, n.targets from skill_set s,"
-        " lateral next_difficulty(%s, s.code) n order by s.code", (child_id,)).fetchall()
+        " lateral next_difficulty(%s, s.code) n order by s.code",
+        (child_id,),
+    ).fetchall()
     pending = conn.execute(
         "select count(*) as n from item_result r join capture c on c.id = r.capture_id"
         " join sheet_instance si on si.id = c.sheet_instance_id"
         " where si.child_id = %s and r.state = 'candidate' and c.superseded_by is null",
-        (child_id,)).fetchone()["n"]
+        (child_id,),
+    ).fetchone()["n"]
     return {"states": states, "next": nxt, "pending": pending}

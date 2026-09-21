@@ -215,7 +215,7 @@ SUPABASE_PROJECT_REF=ruznbyngtfjsaymuylhm
 SUPABASE_URL=https://ruznbyngtfjsaymuylhm.supabase.co
 
 # Session pooler, ap-south-1. Percent-encode any ! # @ : / in the password.
-DATABASE_URL=postgresql://postgres.ruznbyngtfjsaymuylhm:CHANGE_ME@aws-0-ap-south-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://postgres.ruznbyngtfjsaymuylhm:<password>@aws-0-ap-south-1.pooler.supabase.com:5432/postgres
 
 # Dashboard > Settings > API Keys. The service_role key is server-side only.
 SUPABASE_ANON_KEY=CHANGE_ME

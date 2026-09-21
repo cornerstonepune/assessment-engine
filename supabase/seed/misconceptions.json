@@ -269,6 +269,126 @@
       "detectable_by": "working",
       "source": "SPEC.md section 3.4 (taxonomy section 11 error list); visible only in the working box",
       "external_ref": null
+    },
+    {
+      "code": "M_ADD_INSTEAD",
+      "op": "any",
+      "name": "Adds the two numbers a missing-number question shows",
+      "description": "Reads 7 + □ = 12 as 'add what you see': writes 19 instead of 5.",
+      "repair_hint": "Say the sentence aloud as a story; find the part, not the whole",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_EQUALS_MEANS_ANSWER",
+      "op": "any",
+      "name": "Reads '=' as 'write the answer here'",
+      "description": "In 6 + 4 = □ + 3 writes 10, the total of the left side, ignoring the right.",
+      "repair_hint": "Balance scale with rods: both sides must weigh the same",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_ADD_ALL",
+      "op": "any",
+      "name": "Adds every number on the page",
+      "description": "In 6 + 4 = □ + 3 writes 13: the three numbers added together.",
+      "repair_hint": "Cover one side; ask what would make the two sides match",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_ONE_STEP_ONLY",
+      "op": "any",
+      "name": "Stops after the first step of a two-step question",
+      "description": "Answers 'had 40, spent 15, then earned 8' with 25 — the first step only.",
+      "repair_hint": "Underline both things that happen before calculating; two boxes for two steps",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_SUM_ONLY",
+      "op": "any",
+      "name": "Adds the amounts spent and forgets the budget",
+      "description": "Asked what is left of 8000 after 2400, 900 and 700, writes 4000 — the spending.",
+      "repair_hint": "Ask what the question wants: the money gone, or the money left?",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_FACT_PM100",
+      "op": "+",
+      "name": "A hundred out",
+      "description": "The answer is one hundred less than the correct total, from a miscounted hundreds column.",
+      "repair_hint": "Read the answer aloud in place value; estimate to the nearest hundred first",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_NO_CARRY",
+      "op": "×",
+      "name": "Multiplies each digit and drops the carry",
+      "description": "Writes only the last digit of each digit's product: 34 × 6 written as 84.",
+      "repair_hint": "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_CONCAT",
+      "op": "×",
+      "name": "Writes each digit's whole product side by side",
+      "description": "Writes the products of the tens and the ones next to each other: 34 × 6 written as 1824.",
+      "repair_hint": "Grid (area) method first, then the column method beside it",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_CARRY_FIRST",
+      "op": "×",
+      "name": "Adds the carry before multiplying instead of after",
+      "description": "Adds the carried digit to the next digit and then multiplies: 34 × 6 written as 304.",
+      "repair_hint": "Say the order aloud: multiply, then add what was carried",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_ONES_ONLY",
+      "op": "×",
+      "name": "Multiplies the ones digit and stops",
+      "description": "Only the ones digit is multiplied: 34 × 6 written as 24.",
+      "repair_hint": "Grid method: show that both parts of the number are multiplied",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_ROW_OUT",
+      "op": "×",
+      "name": "One row out in the times table",
+      "description": "Answers the row above in the table: 34 × 6 written as 170, which is 34 × 5.",
+      "repair_hint": "Count on in that table; check against a known fact",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
+    },
+    {
+      "code": "M_WRONG_OP",
+      "op": "×",
+      "name": "Added instead of multiplying",
+      "description": "Writes the sum where the product was asked: 34 × 6 written as 40.",
+      "repair_hint": "Read the question aloud; identify the operation word",
+      "detectable_by": "answer_lookup",
+      "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
+      "external_ref": null
     }
   ]
 }

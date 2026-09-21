@@ -1,6 +1,7 @@
 """/health (no key, no auth — a container or n8n polls it before anything is configured) and
 /runs/{id} (a coordinator's or n8n's window into what one flow_run actually did). Both are pure
 reads, tested against a real row rather than a mock — there is no domain function to fake here."""
+
 import os
 
 import pytest
@@ -45,7 +46,9 @@ def test_health_needs_no_key_and_confirms_real_database_connectivity(client):
 def test_a_known_run_is_returned_with_its_cost_and_status(client, conn, tenant):
     row = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger, status, tokens, cost_inr)"
-        " values (%s,'read_cells','engine','ok',1234,0.5432) returning id", (tenant,)).fetchone()
+        " values (%s,'read_cells','engine','ok',1234,0.5432) returning id",
+        (tenant,),
+    ).fetchone()
     r = client.get(f"/runs/{row['id']}", headers=HEADERS)
     assert r.status_code == 200
     body = r.json()
@@ -61,6 +64,7 @@ def test_an_unknown_run_is_a_404(client):
 def test_runs_refuses_without_the_engine_key(client, conn, tenant):
     row = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger, status) values (%s,'x','engine','ok') returning id",
-        (tenant,)).fetchone()
+        (tenant,),
+    ).fetchone()
     r = client.get(f"/runs/{row['id']}")
     assert r.status_code == 401

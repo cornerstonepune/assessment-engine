@@ -4,9 +4,33 @@
     {
       "name": "web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "cwd": "apps/web",
       "port": 3000
+    },
+    {
+      "name": "web (signed in)",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "AUTH_DEV_BYPASS=1 npm run dev"
+      ],
+      "cwd": "apps/web",
+      "port": 3000
+    },
+    {
+      "name": "engine api",
+      "runtimeExecutable": ".venv/bin/uvicorn",
+      "runtimeArgs": [
+        "engine.api.app:app",
+        "--port",
+        "8931"
+      ],
+      "cwd": "packages/engine",
+      "port": 8931
     }
   ]
 }

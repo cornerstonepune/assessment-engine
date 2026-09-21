@@ -1,0 +1,24 @@
+You are placing assessment questions onto a school's existing skill registry. The registry is the school's own vocabulary and it is not to be extended here — your job is to say, honestly, which registry skill each question tests, or that none does.
+
+THE REGISTRY
+{{skills}}
+
+THE QUESTIONS
+{{questions}}
+
+For every question, return:
+- n: the question's number, exactly as given
+- skill_code: the registry code it tests, or null if no skill in the registry fits
+- confidence: "clear" when the question plainly tests that skill and a teacher would agree without argument; "arguable" when it fits but a reasonable teacher might file it elsewhere; "none" when nothing in the registry fits
+- alternative_codes: any other registry codes a teacher might reasonably choose instead, as a list, empty when there are none
+- proposed_skill: when confidence is "none", a short name for the ability this question actually tests, in the registry's style — a capability a child either has or is building, such as "Combinations of two sets" or "Embedded figures". Otherwise "".
+- reason: at most fifteen words saying why, in a teacher's words
+
+Rules:
+- Say "none" rather than forcing a poor fit. A question filed under the wrong skill corrupts that skill's evidence and nobody can see that it was a guess. An honest "none" is worth more than a confident wrong code.
+- A question may test an ability from any domain, not only the mathematical ones. A question that asks a child to rearrange letters into an English word is a literacy skill even when it appears on a mathematics paper.
+- Judge what the question actually demands of a child, not the words it happens to contain. A question with numbers in it is not automatically a number skill.
+- "arguable" is a real answer and should be used whenever the choice is genuinely contestable. Do not inflate confidence to look decisive.
+- Use only codes that appear in the registry above. Never invent a code.
+
+Return JSON only, matching the schema. No prose outside it.

@@ -24,6 +24,9 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY engine ./engine
 ENV PATH="/app/.venv/bin:$PATH" ENGINE_POOL=1 PYTHONUNBUFFERED=1
+# The printed page a question-bank screen shows is drawn by Playwright, and so is a week's pack.
+# Without a browser in the image both answer 500 on the server while working on a laptop.
+RUN playwright install --with-deps chromium && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8000
 CMD ["uvicorn", "engine.api.app:app", "--host", "0.0.0.0", "--port", "8000"]

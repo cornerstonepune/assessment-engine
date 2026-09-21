@@ -4,6 +4,7 @@ The teacher's declaration says what was taught, so the skill set is an input. Wh
 decides is how hard each child's paper should be — and it must always be able to say which rule
 fired, because a teacher who disagrees needs something to disagree with.
 """
+
 from engine import db
 from engine.assess import graph
 
@@ -47,16 +48,28 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
             " skill_set_code = excluded.skill_set_code, difficulty = excluded.difficulty,"
             " rule_fired = excluded.rule_fired, misconception_targets = excluded.misconception_targets,"
             " updated_at = now()"
-            " where prescription.override_by is null"   # a teacher's override is never overwritten
+            " where prescription.override_by is null"  # a teacher's override is never overwritten
             " returning id, difficulty, rule_fired",
             (tenant, c["id"], week, kind, skill_set, difficulty, rule, targets),
         ).fetchone()
-        kept = row or conn.execute(
-            "select id, difficulty, rule_fired from prescription where child_id = %s and week = %s"
-            " and kind = %s", (c["id"], week, kind)).fetchone()
-        out.append({"child_id": c["id"], "roll_no": c["roll_no"], "band": c["band"],
-                    "difficulty": kept["difficulty"], "rule": kept["rule_fired"],
-                    "prescription_id": kept["id"]})
+        kept = (
+            row
+            or conn.execute(
+                "select id, difficulty, rule_fired from prescription where child_id = %s and week = %s"
+                " and kind = %s",
+                (c["id"], week, kind),
+            ).fetchone()
+        )
+        out.append(
+            {
+                "child_id": c["id"],
+                "roll_no": c["roll_no"],
+                "band": c["band"],
+                "difficulty": kept["difficulty"],
+                "rule": kept["rule_fired"],
+                "prescription_id": kept["id"],
+            }
+        )
     return out
 
 

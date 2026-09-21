@@ -1,0 +1,5 @@
+# The engine's only public door. ENGINE_HOST is <server-ip-with-dashes>.sslip.io, which resolves to
+# the server's own address, so Caddy can obtain a certificate for it with no domain to buy.
+{$ENGINE_HOST} {
+	reverse_proxy 127.0.0.1:8000
+}
