@@ -39,6 +39,8 @@ keeps every signed-off or corrected paper untouched).
 
 **`main` is locked on this Mac, not on GitHub:** `.git/hooks/pre-push` refuses any push to `main` (tested). GitHub branch protection on a private repo needs GitHub Team (~$4/person/month) — Nimish's call; with it, `gh api -X PUT repos/cornerstonepune/assessment-engine/branches/main/protection` (checks `engine` + `web`, enforce_admins) is the real lock. Until then: merge only a PR whose two checks are green.
 
+**The repository is PUBLIC, by Nimish's decision (2026-09-21), to be revisited.** It carries children's first names tied to their work in 19 files and 6 commit messages; he was told and chose to go live first. `main` is protected on GitHub (PR + checks `engine`,`web`, admins included) while it is public.
+
 **Shared working tree:** the "Question bank frontend" session edits the same folder and branch and
 commits its own files when its user asks — never stage by `-A`; stage by path.
 
