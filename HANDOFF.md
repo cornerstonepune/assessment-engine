@@ -37,6 +37,8 @@ keeps every signed-off or corrected paper untouched).
 3. **The live error rate:** `read waiting` reports spot-checks done and how many of the engine's sure
    answers a person changed, with an upper bound; a paper type over 1 in 100 goes to full review.
 
+**`main` is locked on this Mac, not on GitHub:** `.git/hooks/pre-push` refuses any push to `main` (tested). GitHub branch protection on a private repo needs GitHub Team (~$4/person/month) — Nimish's call; with it, `gh api -X PUT repos/cornerstonepune/assessment-engine/branches/main/protection` (checks `engine` + `web`, enforce_admins) is the real lock. Until then: merge only a PR whose two checks are green.
+
 **Shared working tree:** the "Question bank frontend" session edits the same folder and branch and
 commits its own files when its user asks — never stage by `-A`; stage by path.
 
