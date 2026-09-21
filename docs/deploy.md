@@ -63,12 +63,17 @@ Nobody, until their school email is in the `app.staff` config row. Add them to
 
 ## Deploy
 
-Deploy **from `apps/web`**, not from the repository root. Vercel decides a project is a Next.js
-app by finding `next` in the `package.json` of the directory it is given, and the root one is not
-a Node project at all. `apps/web/vercel.json` carries the build settings and the Mumbai region.
+Vercel builds **from `apps/web`**, not from the repository root: the project's Root Directory is
+`apps/web` (set 2026-09-21). Vercel decides a project is a Next.js app by finding `next` in the
+`package.json` of that directory, and the root one is not a Node project at all — with the root
+set to `.`, builds only passed on a leftover build cache and every clean build failed with "No
+Next.js version detected". `apps/web/vercel.json` carries the build settings and the Mumbai region.
+
+A merge into `main` publishes the website. To publish again without a merge — for example after a
+setting changes, since Vercel applies settings only to new deployments:
 
 ```bash
-cd apps/web && vercel --prod
+npx vercel redeploy https://cornerstone-assessment.vercel.app --target production
 ```
 
 The Python engine is not built or deployed; it runs where a coordinator runs it.

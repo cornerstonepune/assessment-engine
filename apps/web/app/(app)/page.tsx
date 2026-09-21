@@ -43,11 +43,22 @@ export default async function SkillMapPage() {
                     </td>
                     <td>{s.name}</td>
                     {DIFFICULTIES.map((d) => (
-                      <td key={d} className="num">{s.counts[d] ?? 0}</td>
+                      <td key={d} className="num">
+                        <Link
+                          href={`/library?set=${s.code}&difficulty=${d}#questions`}
+                          aria-label={`${s.name}, ${d}: ${s.counts[d] ?? 0} questions`}
+                        >
+                          {s.counts[d] ?? 0}
+                        </Link>
+                      </td>
                     ))}
                     <td>
                       {s.status === "ratified" ? (
-                        <Pill tone="neem">Ratified · {s.ratified_by}</Pill>
+                        // The signature's note — "(measured ceilings recorded …, ADR 0011/0016)" — is a
+                        // hover, not a column: in the pill it pushed the table past its panel.
+                        <span title={s.ratified_by ?? undefined}>
+                          <Pill tone="neem">Ratified · {s.ratified_by?.split(" (")[0]}</Pill>
+                        </span>
                       ) : (
                         <Pill tone="bamboo">Draft</Pill>
                       )}

@@ -2641,3 +2641,18 @@ snippet of how it will appear in the paper … simpler and clearer."
 - Checks: on a clean checkout with no `.env` and no settings, `npm run build` failed exactly as on
   Vercel before the change and exits 0 after; importing the module and calling it throws the
   instruction; `gh pr checks 1` at 72d7d00 → engine pass, web pass, Vercel pass.
+
+## The website is published with the engine's address (2026-09-21)
+
+- `deploy/go-live.sh` (Nimish ran it) added ENGINE_URL/ENGINE_KEY to Vercel Production at 07:47Z, but
+  the live website had been built at the 07:26Z merge, and Vercel applies settings only to new builds.
+  A redeploy failed "No Next.js version detected": the project's Root Directory was `.`, and earlier
+  builds had passed only on a restored build cache. Root Directory is now `apps/web` (Vercel settings,
+  with Nimish's yes); the redeploy built clean — no cache, `npm install` and `next build` from
+  `apps/web/vercel.json`, "Detected Next.js version: 16.3.5" — and is aliased to
+  https://cornerstone-assessment.vercel.app. The root `vercel.json`, now never read, is removed.
+- The engine at https://3-111-248-87.sslip.io, called with the key: `GET /health` 200;
+  `/bank/item/WP1-7eecdd4c/printed.png` 200 image/png; `/sheet/CS167023/page/1.jpg` 200 image/jpeg
+  (160,659 bytes, identical to the Mac's); without the key 401.
+- Not yet proved: a signed-in page on the live website drawing its picture through the engine. The
+  only login is Nimish's (`app.staff` holds one person).

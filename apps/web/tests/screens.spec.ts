@@ -42,6 +42,18 @@ test("every section is reachable from the menu", async ({ page }) => {
   }
 });
 
+// Unlayered, the global `a:hover` beat the sidebar's own hover colour and drew a menu item basalt on
+// basalt: it vanished under the pointer.
+test("a menu item stays readable while the pointer is on it", async ({ page }) => {
+  await page.goto("/");
+  const sidebar = await page.locator("aside").evaluate((el) => getComputedStyle(el).backgroundColor);
+  for (const item of await page.getByRole("navigation").getByRole("link").all()) {
+    await item.hover();
+    const colour = await item.evaluate((el) => getComputedStyle(el).color);
+    expect(colour, (await item.textContent()) ?? "").not.toBe(sidebar);
+  }
+});
+
 test("the menu marks where you are", async ({ page }) => {
   await page.goto("/library");
   await expect(page.getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");

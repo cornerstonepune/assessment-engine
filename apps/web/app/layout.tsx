@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, JetBrains_Mono, Young_Serif } from "next/font/google";
+import { Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
-// The type triad: the child (body), the teacher (headings), the space (facts). PRINCIPLES.md.
-const atkinson = Atkinson_Hyperlegible({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-atkinson" });
-const youngSerif = Young_Serif({ weight: "400", subsets: ["latin"], variable: "--font-young-serif" });
-const jetbrains = JetBrains_Mono({ weight: ["400", "500", "600"], subsets: ["latin"], variable: "--font-jetbrains" });
+// One simple serif family for every voice — body, headings, labels and figures. PRINCIPLES.md.
+const serif = Source_Serif_4({ subsets: ["latin"], variable: "--font-source-serif" });
 
 export const metadata: Metadata = {
   title: "Cornerstone · Assessment",
@@ -14,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${atkinson.variable} ${youngSerif.variable} ${jetbrains.variable} h-full`}>
+    <html lang="en" className={`${serif.variable} h-full`}>
       <body className="min-h-full">{children}</body>
     </html>
   );
