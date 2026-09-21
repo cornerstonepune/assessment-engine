@@ -22,6 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      # The server builds with `uv sync --frozen`, which installs the lockfile and nothing else. A
+      # lock missing boto3 passed every check here (a fresh resolve found it) and the deployed
+      # engine could not start. The lock must match pyproject.toml, or the build is refused.
+      - run: uv lock --check
       - run: uv sync --extra dev
       - run: uv run ruff format --check engine tests
       - run: uv run ruff check engine tests

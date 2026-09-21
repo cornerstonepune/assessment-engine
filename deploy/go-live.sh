@@ -6,7 +6,8 @@
 #   the committed code (git archive of HEAD — never the working folder, never .env as a whole);
 #   two settings, DATABASE_URL and ENGINE_KEY — no AWS keys, no Supabase admin token, no model keys:
 #     the server only shows scans and marks corrections; reading new papers stays on this Mac;
-#   the scans the engine has actually read, by their capture paths — not the roster, not the reports.
+#   the scans the engine has actually read, by their capture paths — not the roster, not the reports;
+#   and the printed packs that sheet rows point at, for the question-bank screens.
 #
 # Needs: the AWS profile `cornerstone` allowed `lightsail:*` (Nimish, IAM inline policy
 # `run-the-engine`), ssh and tar, and the Vercel CLI logged in (npx vercel).
@@ -72,9 +73,23 @@ echo "$(wc -l < "$WORK/scans" | tr -d ' ') scans"
 tar -C ~/cornerstone/assessments -cf - -T "$WORK/scans" \
   | "${SSH[@]}" 'mkdir -p ~/cornerstone/assessments && tar -x -C ~/cornerstone/assessments'
 "${SSH[@]}" 'echo "on the server: $(find ~/cornerstone/assessments -type f | wc -l) scans"'
+# and the printed packs the question-bank screens show, by the paths their rows record
+"$REPO/packages/engine/.venv/bin/python" - "$REPO/data/packs" > "$WORK/packs" <<'PACKS'
+import os, sys
+from engine import db
+with db.connect() as conn:
+    for r in conn.execute("select pdf_path from sheet_instance where pdf_path is not null"):
+        if r["pdf_path"].startswith(sys.argv[1]) and os.path.exists(r["pdf_path"]):
+            print(os.path.relpath(r["pdf_path"], sys.argv[1]))
+PACKS
+if [ -s "$WORK/packs" ]; then
+  tar -C "$REPO/data/packs" -cf - -T "$WORK/packs" \
+    | "${SSH[@]}" 'mkdir -p ~/cornerstone/packs && tar -x -C ~/cornerstone/packs'
+fi
+echo "$(wc -l < "$WORK/packs" | tr -d ' ') printed sheets"
 
 say "6/7 start the engine"
-"${SSH[@]}" "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$HOST HOME=/home/ubuntu docker compose -f compose.server.yml up -d --build"
+"${SSH[@]}" "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$HOST HOME=/home/ubuntu PACKS_AS_RECORDED='$REPO/data/packs' docker compose -f compose.server.yml up -d --build"
 printf 'waiting for https://%s/health ' "$HOST"
 for _ in $(seq 60); do
   if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://$HOST/health")" = 200 ]; then echo " up"; break; fi

@@ -28,9 +28,12 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from engine import db
 from engine.adapters import ocr
 
-TEMPLATES = Path(__file__).resolve().parents[3] / "data" / "paper-templates"
+# db.REPO_ROOT, never parents[3]: inside the Docker image this file is /app/engine/stencil.py and has
+# nothing three levels up, so counting folders stopped the whole engine from starting on the server.
+TEMPLATES = db.REPO_ROOT / "data" / "paper-templates"
 # Every copy, and the blank, is drawn this long on its long side before it is aligned or averaged.
 # The scans run from 1754 px (a 150-dpi render) to 6782 (a phone photograph); a common size is what
 # makes a per-pixel median mean anything.

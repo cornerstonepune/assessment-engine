@@ -17,6 +17,9 @@ services:
     volumes:
       - ${HOME}/cornerstone/assessments:/root/cornerstone/assessments:ro
       - ${HOME}/.aws:/root/.aws:ro
+      # sheet_instance.pdf_path records where a pack was rendered — an absolute path on the Mac that
+      # rendered it. The copies sit at that same path inside the container, so the rows stay true.
+      - ${HOME}/cornerstone/packs:${PACKS_AS_RECORDED}:ro
     restart: unless-stopped
 
   caddy:
