@@ -126,7 +126,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
     join item i on i.id = r.item_id
     left join lateral (
       select rc.human_read, rc.by from read_correction rc
-       where rc.item_result_id = r.id order by rc.created_at desc limit 1
+       where rc.item_result_id = r.id and rc.judged is null order by rc.created_at desc limit 1
     ) k on true
     where c.sheet_instance_id = ${id}::uuid and c.superseded_by is null
     order by page, n, slot`;
@@ -205,7 +205,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
     lateral pii.read_child(si.child_id, ${actor}) p
     left join lateral (
       select rc.human_read, rc.by from read_correction rc
-       where rc.item_result_id = r.id order by rc.created_at desc limit 1
+       where rc.item_result_id = r.id and rc.judged is null order by rc.created_at desc limit 1
     ) k on true
     where r.id = ${id}::uuid`;
   return rows[0];

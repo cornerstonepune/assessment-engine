@@ -2858,3 +2858,12 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   completed"; the approval page's twelve pictures at once on capture 05167c88 — **cold 12 × 200, slowest 1.12 s** (was
   5.4 s), warm 0.29 s. The typed-answer fix waits on a person typing on the live queue: at 19:17 IST the 29 answers
   with a key that is not one number were all still waiting (True 8, Not true 7, the order 5, `<` 4, even 4, 1/2 1).
+- **A judgement is not a reading** (found on live the same evening): a find-the-mistake 48 + 27 read as 76 was judged
+  Right on the queue, and `judgeOne` stored the engine's 76 as the person's reading — which the reader's gold set
+  (`legacy.corrections`) then counted as verified, scoring the reader right on its own misread. 3 such rows on live.
+  Migration `20260927100000_a_judgement_is_not_a_reading` adds `read_correction.judged` and marks the old rows (2 on
+  the copy, which predates the third); `judgeOne` sets it; the gold set, the gold check and the screens' "what a
+  person said the child wrote" read only rows where it is null. The judgement screen now also offers "Not what the
+  child wrote? Type it". Clicked through on the local preview against the copy: that 76 answer, typed 75 → `correct`,
+  stored as a reading, "200 answers left" (was 201). `test_a_judgement_is_never_counted_as_a_reading`; the queue's
+  browser tests on a production build **7 of 7** (the judgement test now also checks `judged`); engine suite 469.

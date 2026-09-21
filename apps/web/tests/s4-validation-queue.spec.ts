@@ -93,7 +93,9 @@ test("judging one answer settles that answer only — nothing else on the paper 
     await expect.poll(async () => (await keep(a.id)).status, { timeout: 15_000 }).toBe("wrong");
     expect((await keep(a.id)).state).toBe("candidate");
     expect(await confirmed()).toBe(signedBefore);
-    expect((await sql`select by from read_correction where item_result_id = ${a.id}`)[0].by).toBe(ME);
+    // recorded as a judgement, never as a reading the reader's gold set would count (2026-09-21)
+    const [row] = await sql`select by, judged from read_correction where item_result_id = ${a.id}`;
+    expect(row).toMatchObject({ by: ME, judged: "wrong" });
   } finally {
     await putBack(before);
   }

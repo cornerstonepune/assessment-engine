@@ -72,7 +72,8 @@ def check(conn) -> list[dict]:
         select g.child_id, p.first_name, g.verdict, g.skill_code, g.item_key, g.expect_mark,
                g.child_answer, g.misconception_code, g.confirmed_by, r.id as result_id, r.status,
                coalesce(r.misconception_codes, '{}') as codes,
-               coalesce((select rc.human_read from read_correction rc where rc.item_result_id = r.id
+               coalesce((select rc.human_read from read_correction rc
+                          where rc.item_result_id = r.id and rc.judged is null
                           order by rc.created_at desc limit 1),
                         r.raw_read::jsonb ->> 'child_answer') as answer,
                exists (select 1 from evidence_event e

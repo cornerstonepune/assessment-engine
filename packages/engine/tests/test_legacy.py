@@ -769,3 +769,37 @@ def test_marking_again_never_undoes_what_a_person_said(conn, child, tmp_path, mo
 
     after = conn.execute("select status from item_result where id = %s", (two["id"],)).fetchone()
     assert after["status"] == "correct"
+
+
+@pytestmark_db
+def test_a_judgement_is_never_counted_as_a_reading(conn, child, tmp_path, monkeypatch):
+    """Pressing Right on "the child wrote 76" judges the answer, not the reading. The reader's gold set
+    counted each judgement as a verified reading and scored the reader right on its own misread — a
+    find-the-mistake 75 read as 76 (2026-09-21). A typed reading still counts."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    two = conn.execute(
+        "select r.id, r.tenant_id, r.capture_id from item_result r join item i on i.id = r.item_id"
+        " where r.capture_id = %s and i.item_key = 'legacy/TEST-PAPER/2'",
+        (s["capture_id"],),
+    ).fetchone()
+
+    def gold():
+        return [r["human_read"] for r in legacy.corrections(conn) if r["item_key"] == "legacy/TEST-PAPER/2"]
+
+    conn.execute(
+        "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read,"
+        " by, judged) values (%s,%s,%s,%s,'75','75','a person','correct')",
+        (two["tenant_id"], child, two["capture_id"], two["id"]),
+    )
+    assert gold() == []
+
+    legacy.correct(conn, two["id"], "85", "a person")
+    assert gold() == ["85"]

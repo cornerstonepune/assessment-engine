@@ -765,7 +765,7 @@ def corrections(conn):
         " join capture c on c.id = rc.capture_id"
         " join sheet_instance si on si.id = c.sheet_instance_id"
         " join sheet_template t on t.id = si.sheet_template_id"
-        " where c.superseded_by is null"
+        " where c.superseded_by is null and rc.judged is null"  # a judgement is not a reading
         " order by rc.item_result_id, rc.created_at desc"
     ).fetchall()
 
