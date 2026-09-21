@@ -3,144 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Evening 2026-09-21: the approval page's pictures broke on the live link — fixed in the engine
+## Evening 2026-09-21 — where this session stopped
 
-Every crop and page on a WhatsApp paper came back 502: the page asks for ~12 pictures at once, each drew a 45 MP page
-for itself, 3.3 GB on the 2 GB server, the engine was killed. `legacy.page_crop` now shows a page at most 2400 px and
-draws a paper once per burst (908 MB, 0.7 s for 12). Details and measurements in `STATE.md`. **The fix reaches the
-live site only when the engine server is redeployed** (`deploy/go-live.sh`, from a HEAD that contains it) — the
-website itself needs no change. Then open a WhatsApp paper on the public link and see every picture.
+**Live now:** PR #8 (pictures on the approval page: 12 of 12 load; they had all 502'd). **Waiting for Nimish's Merge:**
+PR #9 — typed answers that are not one number (29 on the queue: order, sign, True/Not true, even, 1/2) and a WhatsApp
+paper's first view in 0.2 s. After it merges: `deploy/go-live.sh` from a HEAD equal to `origin/main`.
 
-## Where we are: **all five steps' code is live; two human gates close them.**
+**Nimish is validating** (Grade 3 first). The 17 skills are approved (`engine audit`: 0 violations).
 
-`BUILD-ORDER.md` ("Now: five steps"), goals `goals/s1…s5`. Shipped 2026-09-21 by PRs #3 (step 1), #4 (step 2),
-#5 (step 3), #6 (steps 4 and 5); the engine server redeployed with `deploy/go-live.sh` at 2c19bbc for step 3.
-Every step's local criteria are green (commands and outputs in `STATE.md`).
+**Step 6 of "Next: six steps" is under way** on branch `step-6` (goals, ADR 0028, gold, three new mistakes, the remark
+fix). Its live data jobs, in order, once merged: migration `20260927090000_gold_finding` → `engine load` → every
+paper in `supabase/seed/papers` re-entered → `engine legacy remark` per child (changes exactly the 3 on the copy) →
+`engine graph` → `engine gold load ~/cornerstone/assessments/gold_findings.json` → **Nimish confirms the 24 findings**
+→ `engine gold confirm --by …` → `engine gold check`.
 
-**Waiting on Nimish — nothing else is blocking:**
-1. **Sign in once in the Claude browser pane** (the Cornerstone tab). Then click through every page on the public
-   address and run `bin/engine live check --since 60m` — that is each goal's live criterion. It has never been done
-   signed in; do not call a step done without it.
-2. **Approve the 17 rewritten skills** — Skill Map → "Read and approve →" (`/skill-sets/approve`), one press.
-   Until then `engine audit` (and `tests/test_goal.py::test_every_invariant_holds`) report 17 waiting — correctly.
+**Open, for Nimish:** the reader reads the teacher's red pen on the Grade 3 photographs (2 of 12 settled answers
+checked today were misread). He decided the reader stays as it is; this is the lesson his validations teach — propose
+masking red ink with the silent-error count beside it (ADR 0020), not before.
 
-**Then:** validations happen on the live queue (`/capture/check`), each in the signed-in person's name; when every
-sheet is 100% covered, W3's graph half (Aseem's five reports) as `BUILD-ORDER.md` says; and, agreed separately, a
-child's weekly paper handed out *from* the worksheet library.
-
-**How to work here now:** tests and goal scenarios run on the local copy (`bin/testdb` refreshes it from live in
-~10 s; `bin/testdb migrate` applies a new migration to the copy first). The local preview servers read the copy too.
-An ad-hoc script that must not touch live: `DATABASE_URL=$TEST_DATABASE_URL …`. Live data jobs are deliberate and
-recorded in `STATE.md`. With `max_pipeline: 0` in the website's driver, `sql.begin` is refused — write one statement.
-
-```
-bin/engine read waiting        225 of 867 waiting · 73 of the 194 unclear readings carry the reader's guess
-bin/engine library check       1123 worksheets · 68 of 68 skill-levels ready · 0 problems (live)
-bin/engine spec outcomes       17 of 17 read as outcomes (live; all 17 waiting for approval)
-```
-
-**`main` is locked on this Mac, not on GitHub:** `.git/hooks/pre-push` refuses any push to `main` (tested). GitHub branch protection on a private repo needs GitHub Team (~$4/person/month) — Nimish's call; with it, `gh api -X PUT repos/cornerstonepune/assessment-engine/branches/main/protection` (checks `engine` + `web`, enforce_admins) is the real lock. Until then: merge only a PR whose two checks are green.
-
-**The repository is PUBLIC, by Nimish's decision (2026-09-21), to be revisited.** It carries children's first names tied to their work in 19 files and 6 commit messages; he was told and chose to go live first. `main` is protected on GitHub (PR + checks `engine`,`web`, admins included) while it is public.
-
-**Shared working tree:** the "Question bank frontend" session edits the same folder and branch and
-commits its own files when its user asks — never stage by `-A`; stage by path.
-
-## Next: does the graph reach the diagnosis Aseem reached by hand?
-
-This is W3's reason to exist (`goals/w3-read-and-graph.yaml`: *reproduces_the_gold_diagnosis*,
-*matches_all_five_reports*), and it needs no more reading. Kabir's `8500 − 3647 = 5147` must come
-back out of his graph as `M_SMALL_FROM_LARGE`, and every named error in the five Grade 3 reports
-(`~/cornerstone/assessments/G3/*/<Child> Maths Assessment.pdf`) must come back out of theirs.
-
-1. **The five Grade 3 children get signed off**: 25 papers, 318 answers, **95 waiting for a person**.
-   Nothing reaches the graph until a person approves the paper — the engine prepares, a person
-   approves. **Who does it is Nimish's call** (him, Neha or Achal); it is the approval screen,
-   `/capture/<id>`, which now says why each answer is there.
-2. Build their five graphs (`bin/engine graph`), and write the runner for the two scenarios above,
-   so `goal w3-read-and-graph` stops saying "declared, not met" for them.
-3. What the graph gets wrong, if anything, chooses the next reader fix — not the size of a bucket.
-
-## Queued reader fixes — found on crops, not taken, because coverage is held
-
-Each is a page-structure bug on answers a person reads instantly (crops in `STATE.md`, 2026-09-21):
-- `G4-SEPW1` q7: two answer boxes wider than `ocr.box_max_width` are thrown away as "a working
-  area" although each one's printed label names its slot. A labelled box is a field at any width.
-- `G3-SEPW1-A` q5: nine answers in nine small printed boxes, one found.
-- `G4-SEPW1` q3: the child's digits sit inside the printed question line ("4[6] + [5]4 = 100"), so
-  the question text never matches and the slot is `not_found`.
-- `G2-CAM-C` q1b: "98" at 74.8% where the child probably wrote 48 — check it on the approval screen.
-
-## Do not retry without the silent-error count beside it
-
-200 dpi (84.2% exact, **5** silently wrong), the scan's own dpi (76.8%), white margins round a crop
-(80.5%, 2 silently wrong), CLAHE/deskew. ADR 0020. The blank-page template was measured and not
-built: anchoring failed 0 times in 95; the reconstruction script is `scratchpad/template.py` in the
-2026-09-21 session and rebuilds in a minute from the capture rows.
-
-## The re-read driver is rebuilt from rows, not from the papers
-
-`ingest.py` was gone. It is not needed: every live capture already carries its file, child, paper
-and the paper pages its results land on. The 30-line driver that re-reads the corpus from those
-rows is in the 2026-09-21 session's scratchpad (`reingest.py`); it names no child, and rebuilding
-it is one query plus `legacy.import_scan(..., again=True)`.
-
-## Uncommitted
-
-Everything above is on disk on `w1-goal-and-audit`, not committed — earlier sessions committed per
-step; this one waits for Nimish to say so.
-
-## Carried over — Nimish's calls, not blockers
-
-- **Grade 1**: `ADD.1D.WITHIN10` holds 22–24 questions against a class need of 216.
-- **W2's live n8n run**: n8n Cloud cannot reach the engine on a laptop. Hosting decision.
-- **The plain-English pass on the skill-set screen** is still not done (formats as raw codes,
-  difficulties as boxes rather than a sentence plus a worked example).
-- **`ENGINE_URL`** is `http://localhost:8931` on this machine — 8000 and 8011 are held by other
-  projects of yours. The engine's own default is 8000; `deploy/compose.yml` is unaffected.
-- **Four pedagogy questions** for Neha, Achal and Aseem — the fourth is new:
-  format mixing on `SUB.2D.EXCH` Hard; the provisional gold set's revise-or-reject case; the G1
-  floors; and **which rung place value, comparison and rounding belong on**. The Grade 3 baseline
-  tests all three, the ladder is addition and subtraction only, and R11 ("estimate first, judge
-  reasonableness") is the only rung that carries any of their skills. Their skills are named
-  correctly (`NUM.PV.01/02/03`) so the screens read right; the rung is a guess and is marked as one.
-- Standing: Achal's and Neha's emails for `app.staff`; rotate the database password; `AUTH_SECRET`
-  on Vercel if unset; the n8n owner account and its two credentials (`n8n/README.md`).
-
-## Traps — do not repeat
-
-- **Building out of order.** `BUILD-ORDER.md` rule 1 exists because three sessions did this.
-- **Pivoting from chat.** Restate, get a yes, write it into `BUILD-ORDER.md`, then build.
-- **Answering "is X built?" with a mechanism instead of a number.**
-- **Measuring on synthetic images.** Every W3 number comes from the 118 real pages or it is not a
-  number.
-- **A `blank` is a claim, not a flag.** It says the child did not attempt the skill and it lands in
-  the graph as exactly that. Anything the engine stands behind — `written` or `blank` — counts
-  against `silently_wrong`; only `illegible` and `not_found` reach a person.
-- **Running `npm run test:e2e` used to leave `engine audit` red.** Fixed, and the cause was worth
-  the hour: a restore that changed content withdrew the ratification it was restoring.
-- **Inventing a code verifier where none exists.** R7, R11, R13, X1, X2 have a claim code cannot
-  check — say so in `philosophy` and route through a person, never a fabricated numeric check.
-- **The ingest map is outside the repository on purpose.** `ingest.py`, `classify.py` and
-  `classify3.py` in the session scratchpad hold the file-to-child-to-paper mapping; they name
-  children, and names stay in `pii` (rule 6). Everything they established is in
-  `docs/w3-paper-inventory.md` as counts, and in the database as rows. A future re-read of the
-  corpus rebuilds them from the papers themselves the same way — by reading the page, never the
-  file name.
-- Still true, technical: `engine/assess/mark.py` is 247 statements at 0% coverage that nothing
-  imports; `legacy.PAPERS` is an unused constant; `roster` is an unused import in `engine/legacy.py`;
-  `apps/web/lib/queries.ts` has one `regexp_replace(c.roll_no, '\D', …)` whose backslash is eaten by
-  the template literal, so it strips the letter D rather than non-digits (harmless on today's roll
-  numbers, wrong in principle); five `react-hooks/static-components` errors in
-  `apps/web/app/(app)/library/page.tsx`, all pre-existing.
-
-## Side work on this branch, 2026-09-21 — the question bank on screen (not a W3 gate)
-
-Asked for by Nimish for the founder. `/library` shows the whole bank; every question opens its own
-page (as it prints, answer, every wrong answer, Correct the wording, Remove); `/worksheets/<code>`
-shows a printed paper with its QR. Printing fixed on the way: 8 of 12 question kinds could not be
-printed, number walls overlapped, every paper was titled "Addition and subtraction". Details and
-commands in `STATE.md`. Open, and Nimish's to decide: the "combine concepts" screen (a mixed-bag
-paper, or new combined questions), how a multi-skill answer counts on a child's graph, and whether
-1 + 9 counts as "crossing ten". Engine-side, queued: walls and two-step problems record no
-operation, so their wrong-operation mistake shows as a code.

@@ -191,6 +191,30 @@ def test_a_typed_answer_whose_key_is_not_a_number_is_marked_by_the_keys_own_form
     assert m("375", "375") == "correct"  # a number key is still marked as a number
 
 
+def test_a_typed_sign_and_a_lost_digit_are_named_as_aseem_named_them():
+    """Two of his five reports name mistakes the vocabulary did not have: Labbhansh wrote 456 > 465,
+    and Rudraksh wrote 6,243 for 62,413 (2026-09-21)."""
+    wrote = {"answer_state": "written", "working_summary": ""}
+
+    def m(key, predicted, child_answer, kind="bare"):
+        return legacy.mark(
+            {"kind": kind},
+            {"answer": key, "misconceptions": predicted},
+            {**wrote, "child_answer": child_answer},
+        )[:2]
+
+    assert m("<", {"M_COMPARE_REVERSED": ">"}, ">", kind="missing") == ("wrong", ["M_COMPARE_REVERSED"])
+    assert m("<", {"M_COMPARE_REVERSED": ">"}, "=", kind="missing") == ("wrong", [])
+    assert m("62413", {"M_FACT_PM10": 62423}, "6,243") == ("wrong", ["M_DIGIT_DROPPED"])
+    # a predicted wrong answer wins; the rule is only for what nothing else explains
+    assert m("62413", {"M_FACT_PM10": 62423}, "62423") == ("wrong", ["M_FACT_PM10"])
+    # entering a comparison question stores the other sign as its predicted mistake
+    item = legacy._template_item(
+        {"code": "T"}, {"n": 1, "kind": "missing", "rung": "R11", "question": "456 ___ 465", "answer": "<"}
+    )
+    assert item["responses"][0]["misconceptions"] == {"M_COMPARE_REVERSED": ">"}
+
+
 # ---- with the database, inside one rolled-back transaction
 
 pytestmark_db = pytest.mark.skipif(
@@ -717,3 +741,31 @@ def test_a_burst_of_requests_for_one_paper_draws_it_once(tmp_path, monkeypatch):
     with ThreadPoolExecutor(8) as pool:
         list(pool.map(lambda _: legacy.page_crop(path, 1), range(8)))
     assert len(drawn) == 1
+
+
+@pytestmark_db
+def test_marking_again_never_undoes_what_a_person_said(conn, child, tmp_path, monkeypatch):
+    """`remark` rebuilt every mark from the reader's own reading, so after a person had said the child
+    wrote 85 where the reader saw 75, marking again put the reader's 75 back — and a person's Right
+    on a judgement went back to the queue. Found before it ever ran on live rows (2026-09-21)."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    two = conn.execute(
+        "select r.id, r.status from item_result r join item i on i.id = r.item_id"
+        " where r.capture_id = %s and i.item_key = 'legacy/TEST-PAPER/2'",
+        (s["capture_id"],),
+    ).fetchone()
+    assert two["status"] == "wrong"  # the reader saw 75 for 57 + 28
+
+    legacy.correct(conn, two["id"], "85", "a person")
+    legacy.remark(conn, child)
+
+    after = conn.execute("select status from item_result where id = %s", (two["id"],)).fetchone()
+    assert after["status"] == "correct"

@@ -12,6 +12,7 @@ from engine import assemble, bank, db, loaders, prescribe, review, roster, spec
 from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.cli_check import register as register_checks
+from engine.cli_gold import gold_app
 from engine.cli_legacy import legacy_app
 from engine.cli_library import library_app
 from engine.cli_live import live_app
@@ -26,6 +27,7 @@ app.add_typer(legacy_app, name="legacy")
 app.add_typer(read_app, name="read")
 app.add_typer(live_app, name="live")
 app.add_typer(library_app, name="library")
+app.add_typer(gold_app, name="gold")
 register_checks(app)
 
 

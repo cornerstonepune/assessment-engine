@@ -237,6 +237,32 @@ def read_waiting() -> None:
     )
 
 
+@read_app.command("coverage")
+def read_coverage() -> None:
+    """How much of the corpus is finished: papers signed off by a person, papers scored, answers still
+    waiting. W3 closes when nothing waits and every paper is signed off (ADR 0028). A paper is scored
+    once nothing on it waits; it is signed off once every answer on it is confirmed evidence."""
+    with db.connect() as conn:
+        c = conn.execute(
+            "with paper as (select c.sheet_instance_id,"
+            "   bool_and(r.state = 'confirmed') as signed_off,"
+            "   bool_and(r.status not in ('needs_teacher', 'unreadable')) as scored,"
+            "   count(*) filter (where r.status in ('needs_teacher', 'unreadable')) as waiting"
+            " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
+            " group by c.sheet_instance_id)"
+            " select count(*) as papers, count(*) filter (where signed_off) as signed_off,"
+            " count(*) filter (where scored) as scored, coalesce(sum(waiting), 0) as waiting from paper"
+        ).fetchone()
+    typer.echo(
+        f"  {c['papers']} papers · {c['signed_off']} signed off · {c['scored']} scored ·"
+        f" {c['waiting']} answers waiting for a person"
+    )
+    if c["papers"] and c["signed_off"] == c["scored"] == c["papers"]:
+        typer.echo("  every paper signed off · every sheet scored")
+    else:
+        raise typer.Exit(1)
+
+
 @read_app.command("again")
 def read_again(
     paper: list[str] = typer.Option([], "--paper", help="one paper's code; default every paper"),

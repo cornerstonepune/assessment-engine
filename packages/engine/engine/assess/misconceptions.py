@@ -257,6 +257,23 @@ def mul_added_instead(a, b):
     return r if r != a * b else None
 
 
+def mul_units_reversed(a, b):
+    """Writes only the units digit of each digit's product, ones column first. 34 x 2 -> 86
+    (4x2=8, 3x2=6); 56 x 3 -> 85 (18, 15)."""
+    if b >= 10:
+        return None
+    r = int("".join(str(d * b % 10) for d in digits(a, len(str(a)))))
+    return r if r != a * b else None
+
+
+def digit_dropped(right, wrote):
+    """A digit lost while copying out a long answer: 62413 written as 6243. Read off the right answer
+    rather than the operands, because any one of its digits can be the one that goes."""
+    r, w = str(right), str(wrote)
+    # ponytail: four digits or more — under that a missing digit is as likely another mistake
+    return len(r) >= 4 and len(w) == len(r) - 1 and any(r[:i] + r[i + 1 :] == w for i in range(len(r)))
+
+
 def multi_concat(addends):
     """Writes each column's whole total side by side, with three or more addends. 4321+2456+3212
     -> columns 9, 9, 11, 9 written out as 99119.
@@ -358,6 +375,30 @@ MUL_PREDICTORS = {
         "Added instead of multiplying",
         "Read the question aloud; identify the operation word",
     ),
+    "M_MUL_UNITS_REVERSED": (
+        mul_units_reversed,
+        "Writes only the units digit of each product, ones column first",
+        "Grid method: write each whole product in its place, then add them",
+    ),
+}
+
+# A comparison asks for a sign, not a number, so its one predictable mistake is the other sign.
+COMPARE_PREDICTORS = {
+    "M_COMPARE_REVERSED": (
+        lambda sign: {"<": ">", ">": "<"}.get(sign),
+        "Writes the comparison sign the wrong way round",
+        "The open side faces the bigger number; read it aloud as 'is less than'",
+    ),
+}
+
+# A mistake read off the right answer itself, not off the operands: several numbers can show it, so
+# it is a rule the marker applies when no predicted wrong answer matched, never a number on an item.
+ANSWER_RULES = {
+    "M_DIGIT_DROPPED": (
+        digit_dropped,
+        "Loses a digit when copying out the answer",
+        "Check the final answer against the working, digit by digit, before moving on",
+    ),
 }
 
 # fmt: on
@@ -367,8 +408,27 @@ TABLES = {"+": ADD_PREDICTORS, "-": SUB_PREDICTORS, "×": MUL_PREDICTORS}
 # Every code a predictor computes, in one place. A caller that re-types this union is one
 # table away from a silent gap — which is how multiplication came to have none.
 PREDICTED = {
-    code for table in (ADD_PREDICTORS, SUB_PREDICTORS, MUL_PREDICTORS, MULTI_PREDICTORS) for code in table
+    code
+    for table in (
+        ADD_PREDICTORS,
+        SUB_PREDICTORS,
+        MUL_PREDICTORS,
+        MULTI_PREDICTORS,
+        COMPARE_PREDICTORS,
+        ANSWER_RULES,
+    )
+    for code in table
 }
+
+
+def predict_sign(answer):
+    """{code: wrong sign} for a question whose answer is a comparison sign; {} for anything else."""
+    out = {}
+    for code, (fn, _, _) in COMPARE_PREDICTORS.items():
+        v = fn(str(answer).strip())
+        if v:
+            out[code] = v
+    return out
 
 
 def compute(op, a, b):
