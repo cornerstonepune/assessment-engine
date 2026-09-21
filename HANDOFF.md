@@ -3,33 +3,32 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: **step 1 of five — `s1-site-answers`. Then 2, 3, 4, 5, in that order.**
+## Where we are: **all five steps' code is live; two human gates close them.**
 
-Nimish, 2026-09-21 afternoon, after the live website failed him: the order is committed in
-`BUILD-ORDER.md` ("Now: five steps"), one goal file per step (`goals/s1…s5-*.yaml`), plan in
-`docs/superpowers/plans/2026-09-21-five-steps.md`. A step closes only when `bin/engine goal <name>`
-is green **including its live-link criterion** — a person signed in on the public address, every
-page clicked, `bin/engine live check` clean. Local green does not close a step.
+`BUILD-ORDER.md` ("Now: five steps"), goals `goals/s1…s5`. Shipped 2026-09-21 by PRs #3 (step 1), #4 (step 2),
+#5 (step 3), #6 (steps 4 and 5); the engine server redeployed with `deploy/go-live.sh` at 2c19bbc for step 3.
+Every step's local criteria are green (commands and outputs in `STATE.md`).
 
-**Step 1's cause is measured, not guessed (ADR 0024):** through the transaction pooler (6543, the
-live road) a third query stacked on one connection never answers; `max_pipeline: 0` answers seven
-at once. `STATE.md` has the runs.
+**Waiting on Nimish — nothing else is blocking:**
+1. **Sign in once in the Claude browser pane** (the Cornerstone tab). Then click through every page on the public
+   address and run `bin/engine live check --since 60m` — that is each goal's live criterion. It has never been done
+   signed in; do not call a step done without it.
+2. **Approve the 17 rewritten skills** — Skill Map → "Read and approve →" (`/skill-sets/approve`), one press.
+   Until then `engine audit` (and `tests/test_goal.py::test_every_invariant_holds`) report 17 waiting — correctly.
 
-**Tests now run on a local copy (ADR 0025):** `bin/testdb` copies the live rows into Supabase's own
-Postgres in Docker (port 54322, `TEST_DATABASE_URL`), every table's count compared — first run:
-45 tables, 45,607 rows, equal. Run it before a goal when fresh live rows matter.
+**Then:** validations happen on the live queue (`/capture/check`), each in the signed-in person's name; when every
+sheet is 100% covered, W3's graph half (Aseem's five reports) as `BUILD-ORDER.md` says; and, agreed separately, a
+child's weekly paper handed out *from* the worksheet library.
 
-**Next action:** step 1's code — `db.ts`, the pooler check, conftest guard, loading/error screens,
-deadline, sign-in check, prefetch, Playwright on a production build, `engine live check` — then PR,
-merge, and the live click-through.
-
-**Step 4 (the validation queue) is W3's validation step.** The reader stays frozen; the corpus is
-re-read only to carry guesses (`raw_read.guess` is written by the reader already; 0 of 225 waiting
-answers carry one today because the corpus has not been re-read since).
+**How to work here now:** tests and goal scenarios run on the local copy (`bin/testdb` refreshes it from live in
+~10 s; `bin/testdb migrate` applies a new migration to the copy first). The local preview servers read the copy too.
+An ad-hoc script that must not touch live: `DATABASE_URL=$TEST_DATABASE_URL …`. Live data jobs are deliberate and
+recorded in `STATE.md`. With `max_pipeline: 0` in the website's driver, `sql.begin` is refused — write one statement.
 
 ```
-bin/engine read eval --reader ocr --runs 2   81.9% exact (68/83) · 1.2% silently wrong · no spread
-bin/engine read waiting                      225 of 867 waiting · 642 settled (74%)
+bin/engine read waiting        225 of 867 waiting · 73 of the 194 unclear readings carry the reader's guess
+bin/engine library check       1123 worksheets · 68 of 68 skill-levels ready · 0 problems (live)
+bin/engine spec outcomes       17 of 17 read as outcomes (live; all 17 waiting for approval)
 ```
 
 **`main` is locked on this Mac, not on GitHub:** `.git/hooks/pre-push` refuses any push to `main` (tested). GitHub branch protection on a private repo needs GitHub Team (~$4/person/month) — Nimish's call; with it, `gh api -X PUT repos/cornerstonepune/assessment-engine/branches/main/protection` (checks `engine` + `web`, enforce_admins) is the real lock. Until then: merge only a PR whose two checks are green.
