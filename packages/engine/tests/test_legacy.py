@@ -164,6 +164,33 @@ def test_normalise_answer_reads_units_and_commas():
     assert legacy.normalise_answer("") == ""
 
 
+def test_a_typed_answer_whose_key_is_not_a_number_is_marked_by_the_keys_own_form():
+    """Nimish typed 12,34,45,78 for "Arrange from smallest to largest: 45, 12, 78, 34" and the answer
+    never left the queue: the commas were stripped as if it were 1,264, the one number 12344578 met a
+    key that is not a number, and it went back to a person — every time, for every child. 29 answers
+    on the live queue had such a key (2026-09-21). Only a person's reading reaches this: the reader
+    hands these slots over without a guess (`ocr.answers_for`)."""
+
+    def m(key, wrote):
+        return legacy.mark(
+            {"kind": "missing"}, {"answer": key}, {"child_answer": wrote, "answer_state": "written"}
+        )[0]
+
+    assert m("12, 34, 45, 78", "12,34,45,78") == "correct"
+    assert m("12, 34, 45, 78", "12 34 45 78") == "correct"
+    assert m("12, 34, 45, 78", "12, 35, 45, 78") == "wrong"
+    assert m("12, 34, 45, 78", "78, 45, 34, 12") == "wrong"  # largest first
+    assert m("<", "<") == "correct"
+    assert m("<", "456 < 465") == "correct"  # the whole statement typed, the sign is what is asked
+    assert m("<", ">") == "wrong"
+    assert m("True", "true") == "correct"
+    assert m("Not true", "not  true") == "correct"
+    assert m("Not true", "True") == "wrong"
+    assert m("even", "Even") == "correct"
+    assert m("1/2", "1 / 2") == "correct"
+    assert m("375", "375") == "correct"  # a number key is still marked as a number
+
+
 # ---- with the database, inside one rolled-back transaction
 
 pytestmark_db = pytest.mark.skipif(
@@ -681,10 +708,10 @@ def test_a_burst_of_requests_for_one_paper_draws_it_once(tmp_path, monkeypatch):
     drawn = []
     draw = legacy.render_pages
 
-    def slow(p, pages=None):
+    def slow(p, *args, **kwargs):
         drawn.append(p)
         time.sleep(0.2)  # long enough for all eight to arrive while the first is still drawing
-        return draw(p, pages)
+        return draw(p, *args, **kwargs)
 
     monkeypatch.setattr(legacy, "render_pages", slow)
     with ThreadPoolExecutor(8) as pool:

@@ -19,7 +19,8 @@ function whyHere(a: CheckItem, spot: boolean): string {
   const why = a.why ?? "";
   if (why.includes("numbers in the region"))
     return "The reader found a different number of numbers here than the question has answers.";
-  if (why.includes("not a number")) return "The answer is not a number, so the reader leaves it to you.";
+  if (why.includes("not a number"))
+    return "The answer is not a number, so the reader leaves it to you. Type it the way the paper asks for it: the numbers in order, the sign, or the word the child chose.";
   if (why.includes("no number")) return "There is writing here, but no number the reader could make out.";
   if (why.includes("paper printed")) return "The only numbers here are the question's own; the child may have left it blank.";
   return "The reader could not be sure what the child wrote.";
