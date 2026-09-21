@@ -17,9 +17,17 @@ function key(): string {
   return k;
 }
 
+// A call to the engine gives up after this long rather than holding a page or an action open until
+// Vercel's five-minute limit. Rendering a printed paper takes a few seconds; nothing takes a minute.
+const ENGINE_WAIT_MS = 30_000;
+
 export async function engineGet(path: string): Promise<Response> {
   try {
-    return await fetch(`${base()}${path}`, { headers: { "X-Engine-Key": key() }, cache: "no-store" });
+    return await fetch(`${base()}${path}`, {
+      headers: { "X-Engine-Key": key() },
+      cache: "no-store",
+      signal: AbortSignal.timeout(ENGINE_WAIT_MS),
+    });
   } catch {
     throw new EngineDown(`The engine is not answering on ${base()}.`);
   }
@@ -52,6 +60,7 @@ export async function engineSend(path: string, body: unknown): Promise<Response>
       headers: { "X-Engine-Key": key(), "content-type": "application/json" },
       body: JSON.stringify(body),
       cache: "no-store",
+      signal: AbortSignal.timeout(ENGINE_WAIT_MS),
     });
   } catch {
     throw new EngineDown(`The engine is not answering on ${base()}. Start it and try again.`);

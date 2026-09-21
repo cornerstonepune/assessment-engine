@@ -1,14 +1,15 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { Body, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { papersToApprove } from "@/lib/queries-read";
+import { deadline } from "@/lib/deadline";
 
 const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
 
 export default async function CapturePage() {
   const me = await requireStaff();
-  const papers = await papersToApprove(me.email);
+  const papers = await deadline(papersToApprove(me.email));
   const waiting = papers.filter((p) => p.n_candidate > 0);
   const done = papers.filter((p) => p.n_candidate === 0 && p.n_results > 0);
   const broken = papers.filter((p) => p.n_results === 0);

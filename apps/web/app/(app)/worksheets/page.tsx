@@ -1,16 +1,17 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
 import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } from "@/lib/queries";
 import { approvePack, overrideChild } from "./actions";
+import { deadline } from "@/lib/deadline";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 export default async function WorksheetsPage({ searchParams }: Props) {
   const q = await searchParams;
-  const all = await weeks();
+  const all = await deadline(weeks());
 
   if (all.length === 0) {
-    const c = await tableCounts();
+    const c = await deadline(tableCounts());
     return (
       <>
         <Header />
@@ -34,10 +35,10 @@ export default async function WorksheetsPage({ searchParams }: Props) {
   }
 
   const current = all.find((w) => w.section === q.section && w.week === q.week && w.kind === q.kind) ?? all[0];
-  const [plan, spares] = await Promise.all([
+  const [plan, spares] = await deadline(Promise.all([
     weekPlan(current.section, current.week, current.kind),
     spareSheets(current.section, current.week),
-  ]);
+  ]));
   const here = `/worksheets?section=${current.section}&week=${current.week}&kind=${current.kind}`;
   const printed = plan.filter((r) => r.print_status === "printed").length;
   const counts = plan.reduce<Record<string, number>>(

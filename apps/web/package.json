@@ -7,9 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:screens": "AUTH_DEV_BYPASS=1 playwright test --project=screens --project=e2e",
-    "test:gate": "AUTH_DEV_BYPASS=0 playwright test --project=gate",
-    "test:e2e": "npm run test:screens && npm run test:gate"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "16.3.5",

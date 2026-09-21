@@ -21,7 +21,7 @@ criteria:
     expect: "passed"
   - name: >-
       the website built for production, on the copy — a click shows loading at once, a database
-      that does not answer is said in words within 12 s, a page makes at most six background requests
+      that does not answer is said in words within 12 s, only the six menu pages load ahead
     run: cd apps/web && npx playwright test tests/s1-site-answers.spec.ts
     expect: "passed"
   - name: every screen still works when built for production

@@ -1,9 +1,10 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { DIFFICULTIES, numSkills, skillSets } from "@/lib/queries";
+import { deadline } from "@/lib/deadline";
 
 export default async function SkillMapPage() {
-  const [sets, skills] = await Promise.all([skillSets(), numSkills()]);
+  const [sets, skills] = await deadline(Promise.all([skillSets(), numSkills()]));
   const banked = sets.reduce((n, s) => n + Object.values(s.counts).reduce((a, b) => a + (b ?? 0), 0), 0);
 
   return (

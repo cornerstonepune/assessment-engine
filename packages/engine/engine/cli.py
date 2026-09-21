@@ -13,6 +13,7 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.cli_check import register as register_checks
 from engine.cli_legacy import legacy_app
+from engine.cli_live import live_app
 from engine.cli_read import read_app
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
@@ -22,6 +23,7 @@ app.add_typer(bank_app, name="bank")
 app.add_typer(week_app, name="week")
 app.add_typer(legacy_app, name="legacy")
 app.add_typer(read_app, name="read")
+app.add_typer(live_app, name="live")
 register_checks(app)
 
 

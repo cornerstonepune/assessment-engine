@@ -61,7 +61,8 @@ def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list the
     scenarios = goal_module.scenarios_of(spec)
     met = 0
     if scenarios:
-        with db.connect() as conn:
+        # Scenarios write while they prove, so they run on the local copy, never live (ADR 0025).
+        with db.connect(db.local_copy()) as conn:
             for sc in scenarios:
                 m, failures = scenarios_module.run_one(conn, sc)
                 met += not failures

@@ -1,9 +1,10 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Answers, KIND, mistakeOf, printsItsWording } from "@/components/question";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { mistakeBook, questionPage, type QuestionPage } from "@/lib/queries-bank";
 import { correctItem, flagItem } from "../actions";
+import { deadline } from "@/lib/deadline";
 
 type Props = {
   params: Promise<{ key: string }>;
@@ -15,7 +16,7 @@ type Props = {
 export default async function QuestionScreen({ params, searchParams }: Props) {
   const [{ key }, q] = await Promise.all([params, searchParams]);
   if (!/^[A-Za-z0-9._-]+$/.test(key)) notFound();
-  const [it, book] = await Promise.all([questionPage(key), mistakeBook()]);
+  const [it, book] = await deadline(Promise.all([questionPage(key), mistakeBook()]));
   if (!it) notFound();
 
   const live = it.status === "active";

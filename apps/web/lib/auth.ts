@@ -1,6 +1,7 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
 
 export type Session = Staff & { devBypass: boolean };
@@ -72,17 +73,16 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
   return staff && passwordMatches(password, staff.password) ? staff : null;
 }
 
-// Who is signed in, or null. Never throws.
+// Who is signed in, or null when the cookie is missing, edited, expired or names nobody on the
+// staff list. A database that does not answer is NOT "signed out": it throws, and the person reads
+// that the database did not answer (app/error.tsx). Swallowing it once sent a signed-in founder to
+// the login page during an outage, which read as a broken password.
 export async function currentStaff(): Promise<Session | null> {
   if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", devBypass: true };
-  try {
-    const email = readCookie((await cookies()).get(COOKIE)?.value);
-    if (!email) return null;
-    const staff = (await staffList()).find((s) => s.email.toLowerCase() === email.toLowerCase());
-    return staff ? { ...staff, devBypass: false } : null;
-  } catch {
-    return null;
-  }
+  const email = readCookie((await cookies()).get(COOKIE)?.value);
+  if (!email) return null;
+  const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
+  return staff ? { ...staff, devBypass: false } : null;
 }
 
 // For pages and server actions: the signed-in staff member, or a redirect to /login.

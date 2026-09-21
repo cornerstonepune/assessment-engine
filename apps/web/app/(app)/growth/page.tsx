@@ -1,11 +1,12 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { childrenOnRoll } from "@/lib/queries";
+import { deadline } from "@/lib/deadline";
 
 export default async function GrowthPage() {
   const me = await requireStaff();
-  const rows = await childrenOnRoll(me.email);
+  const rows = await deadline(childrenOnRoll(me.email));
   const sections = [...new Set(rows.map((r) => r.section))];
   const withEvidence = rows.filter((r) => r.n_events > 0).length;
   const waiting = rows.reduce((a, r) => a + r.n_pending, 0);

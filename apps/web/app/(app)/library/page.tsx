@@ -1,8 +1,9 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { Answers, KIND, Question } from "@/components/question";
 import { Body, PageHeader, Panel } from "@/components/shell";
 import { DIFFICULTIES } from "@/lib/queries";
 import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
+import { deadline } from "@/lib/deadline";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -13,12 +14,12 @@ export default async function LibraryPage({ searchParams }: Props) {
   const q = await searchParams;
   const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
-  const [grid, totals, total, rows] = await Promise.all([
+  const [grid, totals, total, rows] = await deadline(Promise.all([
     bankGrid(),
     bankTotals(),
     itemCount(filter),
     items(filter, PER_PAGE, (page - 1) * PER_PAGE),
-  ]);
+  ]));
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const chosen = grid.find((r) => r.code === q.set);
   const kinds = chosen?.fmts ?? [...new Set(grid.flatMap((r) => r.fmts))];

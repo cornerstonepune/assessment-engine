@@ -1,8 +1,9 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { DIFFICULTIES, misconceptionsFor, skillSet } from "@/lib/queries";
 import { ratifySkillSet, saveSkillSet } from "./actions";
+import { deadline } from "@/lib/deadline";
 
 const FORMATS: [string, string][] = [
   ["column_grid", "Column calculation"],
@@ -16,10 +17,10 @@ type Props = { params: Promise<{ code: string }>; searchParams: Promise<Record<s
 export default async function SkillSetPage({ params, searchParams }: Props) {
   const { code } = await params;
   const q = await searchParams;
-  const s = await skillSet(code);
+  const s = await deadline(skillSet(code));
   if (!s) notFound();
   const op = String(s.difficulty.Easy?.check?.op ?? "-");
-  const mis = await misconceptionsFor(op);
+  const mis = await deadline(misconceptionsFor(op));
 
   return (
     <>

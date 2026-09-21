@@ -1,8 +1,9 @@
 import { Body, NotYet, PageHeader } from "@/components/shell";
 import { tableCounts } from "@/lib/queries";
+import { deadline } from "@/lib/deadline";
 
 export default async function HomePage() {
-  const c = await tableCounts();
+  const c = await deadline(tableCounts());
   return (
     <>
       <PageHeader
