@@ -2854,3 +2854,7 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   `test_marking_again_never_undoes_what_a_person_said` (failed before: `wrong`). On a fresh copy, re-entering every
   paper and marking again changes exactly **3** answers — the three new names — where it counted 62 before.
 - Engine suite: **468 passed**; ruff clean.
+- **Live after PR #9 merged (9cab230) and `deploy/go-live.sh` (exit 0):** the website's Vercel deployment "has
+  completed"; the approval page's twelve pictures at once on capture 05167c88 — **cold 12 × 200, slowest 1.12 s** (was
+  5.4 s), warm 0.29 s. The typed-answer fix waits on a person typing on the live queue: at 19:17 IST the 29 answers
+  with a key that is not one number were all still waiting (True 8, Not true 7, the order 5, `<` 4, even 4, 1/2 1).
