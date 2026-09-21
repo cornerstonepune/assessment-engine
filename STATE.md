@@ -2757,3 +2757,20 @@ snippet of how it will appear in the paper … simpler and clearer."
   links. `tests/s5-question-bank.spec.ts`: 3 of 3, every link on the first page opens (200).
 - All browser tests on a production build against the copy: 71 passed, 1 skipped. Engine: 454 passed plus the audit's
   17 skills waiting for approval.
+
+## The five steps, where each goal stands (2026-09-21, 16:45 IST, after PR #6 merged as 3c81b66)
+
+`bin/engine goal <name>`, every criterion that does not need a signed-in person on the public address passes:
+
+```
+s1-site-answers              4 of 6 · the engine suite now also reports the 17 skills waiting for approval; the live click-through
+s2-skill-map-outcomes        2 of 4 · approval of the 17 skills; the live click-through
+s3-worksheet-library         4 of 5 · the live click-through
+s4-validation-queue          3 of 4 · the live click-through
+s5-question-bank-explained   1 of 2 · the live click-through
+```
+
+Checked on the public address without signing in: every protected page redirects to sign-in in under 2 s; the live
+engine prints R5-H03 (200, 140 KB, 2.1 s first time, 0.08 s after) and serves a waiting answer's handwriting crop
+(200, 0.75 s); `bin/engine live check --since 2h` → 5 requests · 0 timed out · 0 failed · database 0 statement
+timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier's disk allowance — watch it).
