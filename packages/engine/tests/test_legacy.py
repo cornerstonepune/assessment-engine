@@ -681,10 +681,10 @@ def test_a_burst_of_requests_for_one_paper_draws_it_once(tmp_path, monkeypatch):
     drawn = []
     draw = legacy.render_pages
 
-    def slow(p, pages=None):
+    def slow(p, *args, **kwargs):
         drawn.append(p)
         time.sleep(0.2)  # long enough for all eight to arrive while the first is still drawing
-        return draw(p, pages)
+        return draw(p, *args, **kwargs)
 
     monkeypatch.setattr(legacy, "render_pages", slow)
     with ThreadPoolExecutor(8) as pool:

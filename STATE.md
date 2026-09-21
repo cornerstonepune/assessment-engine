@@ -2795,3 +2795,14 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
 - `tests/test_legacy.py`: `test_a_page_is_shown_no_larger_than_a_screen_needs` (WhatsApp page → 2400, A4 → 1755) and
   `test_a_burst_of_requests_for_one_paper_draws_it_once` (8 requests → 1 drawing; 8 drawings before the fix). Engine
   suite: every test passes except the audit's 17 skills waiting for approval.
+- **Live, after PR #8 merged and `deploy/go-live.sh` (exit 0, 970e605):** the approval page's own load — both pages
+  and ten crops of capture 05167c88, twelve at once, against https://3-111-248-87.sslip.io — **12 of 12 × 200**,
+  each 5.4 s on the first view (the server drawing the 45 MP page once), then 12 of 12 in ≤ 0.29 s. A full page is
+  388 KB instead of 3.2 MB.
+- **The 5 s first view, removed at its cause** (the same evening): the page was still drawn at 45 MP and only then
+  shrunk. `render_pdf.render(long_side=)` now draws it at the size it is shown (A4 stays 150 dpi, 1755 px — a cap
+  never enlarges); `legacy.render_pages(long_side=)` passes it through and shrinks a photograph; the reader's calls
+  pass nothing and draw exactly as before. Burst on this Mac: **1 at once 278 MB · 12 at once 374 MB, 0.2 s** (was
+  908 MB, 0.7 s). Crops q4, q7 compared again: same legibility. `test_render_pdf.py::test_a_long_side_…`; engine
+  suite on a fresh copy: **459 passed** — the audit's invariant is green since Nimish approved the 17 skills
+  (`bin/engine audit` on live: 12 invariants checked, 0 violations).

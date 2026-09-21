@@ -192,20 +192,31 @@ def _ids(conn, template_id):
 # ---- the scan
 
 
-def render_pages(path, pages=None):
+def render_pages(path, pages=None, long_side=0):
     """A PDF or an image → one JPEG bytes per page.
 
     `pages` selects pages out of a multi-page document. It does NOT apply to a photograph: a
     Grade 3 sitting is one JPEG per page, so `--pages 2` on one of those means "this file is page 2
     of the paper", which `import_scan` uses to look up the right slots. Filtering a one-image file
     by that number returned an empty list and read nothing at all.
+
+    `long_side` is for showing a page (`_rendered`), never for reading one.
     """
     path = Path(path)
     photo = path.suffix.lower() in (".jpg", ".jpeg", ".png")
-    out = [cv2.imread(str(path))] if photo else render_pdf.render(path)
+    out = [cv2.imread(str(path))] if photo else render_pdf.render(path, long_side=long_side)
     if pages and not photo:
         out = [out[i - 1] for i in pages if 0 < i <= len(out)]
-    return [_jpeg(im) for im in out]
+    return [_jpeg(_fit(im, long_side)) for im in out]
+
+
+def _fit(img, long_side):
+    """A photograph shrunk to `long_side`; a PDF page arrives already drawn at it."""
+    h, w = img.shape[:2]
+    if not long_side or max(h, w) <= long_side:
+        return img
+    scale = long_side / max(h, w)
+    return cv2.resize(img, (round(w * scale), round(h * scale)), interpolation=cv2.INTER_AREA)
 
 
 # The longest side a page is shown at: about 200 dpi on A4, more than the 150 it is read at, so a
@@ -225,16 +236,7 @@ def _rendered(path, mtime):
     each time would make a screen a teacher has to wait for. Keyed on the file's mtime so a
     re-photographed page is not stale."""
     del mtime
-    return [_on_screen(page) for page in render_pages(path)]
-
-
-def _on_screen(jpeg):
-    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
-    h, w = img.shape[:2]
-    scale = SCREEN_PX / max(h, w)
-    if scale >= 1:
-        return jpeg
-    return _jpeg(cv2.resize(img, (round(w * scale), round(h * scale)), interpolation=cv2.INTER_AREA))
+    return render_pages(path, long_side=SCREEN_PX)
 
 
 def page_crop(path, page_no, box=None, pad=0.01):

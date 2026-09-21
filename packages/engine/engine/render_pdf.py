@@ -36,12 +36,15 @@ DPI = 150  # legible handwriting, ~1 MB a page
 MAX_PIXELS = 25_000_000
 
 
-def render(path, dpi: int = DPI, max_pixels: int = 0):
+def render(path, dpi: int = DPI, max_pixels: int = 0, long_side: int = 0):
     """One BGR image (OpenCV's own order) per page, top to bottom.
 
     `max_pixels` caps how large a page may be drawn, and NEVER below `DPI`: a render that came back
     smaller than the one the page was first read at would be a second look with fewer pixels than
     the first, which is how "Answer=43" came back as "4".
+
+    `long_side` is for SHOWING a page, never for reading one: no side longer than that, and never
+    larger than `dpi` would draw it.
     """
     floor = DPI / 72
     with pymupdf.open(path) as doc:
@@ -52,6 +55,8 @@ def render(path, dpi: int = DPI, max_pixels: int = 0):
             wanted = (page.rect.width * zoom) * (page.rect.height * zoom)
             if max_pixels and wanted > max_pixels:
                 zoom = max(floor, zoom * (max_pixels / wanted) ** 0.5)
+            if long_side:
+                zoom = min(zoom, long_side / max(page.rect.width, page.rect.height))
             matrix = pymupdf.Matrix(zoom, zoom)
             pix = page.get_pixmap(matrix=matrix, colorspace=pymupdf.csRGB)
             rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
