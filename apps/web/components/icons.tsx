@@ -43,6 +43,11 @@ export const Icons = {
       <path d="M4 21h16" />
     </svg>
   ),
+  check: () => (
+    <svg {...base}>
+      <path d="M4 12.5l5 5L20 6" />
+    </svg>
+  ),
   growth: () => (
     <svg {...base}>
       <path d="M3 17l6-6 4 4 8-8" />

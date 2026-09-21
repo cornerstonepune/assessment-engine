@@ -23,7 +23,8 @@ type Sql = ReturnType<typeof postgres>;
 // stacked query is never answered, and the live Question bank hung for five minutes on every click
 // (ADR 0024). `max_pipeline` is postgres.js's own option — its source parses it beside `max` and
 // `idle_timeout` — but its type file omits it; `node scripts/check-pooler.ts` fails if it ever
-// stops working.
+// stops working. It rules out `sql.begin` (the driver registers a transaction on a path this setting
+// skips, and refuses it: UNSAFE_TRANSACTION); write what must land together as one statement.
 const NEVER_STACK = { max_pipeline: 0 } as Record<string, number>;
 
 function connect(url: string): Sql {
