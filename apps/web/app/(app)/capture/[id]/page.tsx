@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { misconceptionNames, numSkills } from "@/lib/queries";
-import { paperAnswers, paperHeader, type CaptureAnswer } from "@/lib/queries-read";
+import { held, paperAnswers, paperHeader, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper, correctRead, judgeRead } from "../actions";
 import { deadline } from "@/lib/deadline";
 
@@ -16,6 +16,10 @@ const fmtDate = (d: string | null) =>
 // should never have to learn the word `illegible` to use this screen.
 function reading(a: CaptureAnswer): string {
   if (a.human_read !== null) return `You said the child wrote ${a.human_read || "nothing"}.`;
+  if (held(a))
+    return a.answer_state === "blank"
+      ? "The reader found nothing written here. Every blank is checked by a person before it counts."
+      : `The reader read ${a.read}, a wrong answer. Every wrong answer is checked by a person before it counts.`;
   // No percentage. The engine only stands behind a reading it is sure enough of; printing "82% sure"
   // beside it turned every settled answer into a question for the teacher.
   if (a.answer_state === "written") return `The reader read ${a.read}.`;
@@ -223,7 +227,9 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
 function AnswerCard({ a, paperId, names }: { a: CaptureAnswer; paperId: string; names: Record<string, string> }) {
   const box = a.box?.length === 4 ? `?box=${a.box.join(",")}` : "";
   const value = a.human_read ?? a.read ?? "";
-  const judged = a.status === "needs_teacher";
+  // A held reading (ADR 0029) is confirmed in "What the child wrote", which keeps the engine's mark and
+  // named mistake; a Right/Wrong press would record a judgement and drop both.
+  const judged = a.status === "needs_teacher" && !held(a);
   return (
     <li id={`a-${a.id}`} className="grid scroll-mt-6 gap-3 border border-basalt/12 p-4 md:grid-cols-[300px_minmax(0,1fr)]">
       {/* eslint-disable-next-line @next/next/no-img-element */}

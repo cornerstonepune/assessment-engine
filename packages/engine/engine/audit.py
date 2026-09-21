@@ -110,6 +110,17 @@ def exactly_one_prompt_version_is_active_per_purpose(conn):
     ]
 
 
+def no_wrong_or_blank_stands_on_the_engines_reading_alone(conn):
+    """ADR 0029: a wrong or a blank counts once a person has said what the child wrote, or signed the
+    paper off. Anything else is the reader's word against a child's record."""
+    n = conn.execute(
+        "select count(*) as n from item_result r join capture c on c.id = r.capture_id"
+        " where c.superseded_by is null and r.state = 'candidate' and r.status in ('wrong', 'blank')"
+        " and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)"
+    ).fetchone()["n"]
+    return [f"{n} wrong or blank answers stand on the engine's reading alone"] if n else []
+
+
 def every_generated_item_says_what_made_it(conn):
     n = conn.execute(
         "select count(*) as n from item where status = 'active' and source = 'generated'"
@@ -140,6 +151,10 @@ INVARIANTS = [
     ("every spec is ratified", every_spec_is_ratified),
     ("every code a spec references resolves", referential_codes_all_resolve),
     ("exactly one prompt version active per purpose", exactly_one_prompt_version_is_active_per_purpose),
+    (
+        "no wrong or blank answer stands on the engine's reading alone",
+        no_wrong_or_blank_stands_on_the_engines_reading_alone,
+    ),
     ("every format a spec lists can be made", every_format_a_spec_lists_can_be_made),
     ("every band can produce a question", every_band_can_produce_a_question),
     (

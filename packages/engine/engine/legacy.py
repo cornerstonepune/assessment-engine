@@ -403,6 +403,27 @@ def mark(spec, response, read):
     return "wrong", codes, working
 
 
+# What the engine may not settle on its own reading (ADR 0029), and the reason it gives a person.
+# A misread almost never lands on the exact key, so a right answer the reader read stands. A wrong or
+# a blank is as often the reader's failure as the child's: of 30 the engine had settled alone, 9 were
+# right answers it had not read — a first digit of 61, the top line of the working, an answer written
+# beside the "=" instead of on the line (STATE.md, 2026-09-21).
+HELD = {
+    "wrong": "read as a wrong answer; a person checks every wrong answer before it counts",
+    "blank": "read as blank; a person checks every blank before it counts",
+}
+
+
+def mark_read(spec, response, read):
+    """`mark` for the ENGINE's own reading → (status, codes, working, read). A wrong or a blank waits for
+    a person: the reading is kept, offered as the guess, and the reason is recorded where the queue
+    reads it. A person's reading goes through `mark` itself — what a person says was written stands."""
+    status, codes, working = mark(spec, response, read)
+    if status not in HELD:
+        return status, codes, working, read
+    return "needs_teacher", [], working, {**read, "why": HELD[status], "guess": read.get("child_answer", "")}
+
+
 def _against_the_key(key, wrote):
     """What a person says the child wrote, against a key that is not one number: numbers in order
     by the numbers in order ("12,34,45,78" is "12, 34, 45, 78"), a sign by the sign, and anything
@@ -660,7 +681,7 @@ def import_scan(
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
                     continue
-                status, codes, working = mark(it["spec"], it["responses"][0], read)
+                status, codes, working, read = mark_read(it["spec"], it["responses"][0], read)
                 conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"
@@ -825,7 +846,8 @@ def remark(conn, child_id):
 
     An answer a person has settled — typed what the child wrote, or judged it — is never marked again
     from the reader's own reading: that would put back the very reading the person corrected. Nor is
-    a reading a later read superseded: it is history, and nothing else reads it either."""
+    a reading a later read superseded: it is history, and nothing else reads it either. A wrong or a
+    blank the engine settled alone before ADR 0029 is held for a person here, its reading unchanged."""
     rows = conn.execute(
         "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses"
         " from item_result r join item i on i.id = r.item_id"
@@ -837,12 +859,12 @@ def remark(conn, child_id):
     ).fetchall()
     changed = 0
     for r in rows:
-        status, codes, working = mark(r["spec"], r["responses"][0], json.loads(r["raw_read"]))
+        status, codes, working, read = mark_read(r["spec"], r["responses"][0], json.loads(r["raw_read"]))
         if (status, codes, working) != (r["status"], list(r["misconception_codes"]), r["working_shown"]):
             conn.execute(
-                "update item_result set status = %s, misconception_codes = %s, working_shown = %s"
-                " where id = %s",
-                (status, codes, working, r["id"]),
+                "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
+                " raw_read = %s where id = %s",
+                (status, codes, working, json.dumps(read), r["id"]),
             )
             changed += 1
     return changed
