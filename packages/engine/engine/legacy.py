@@ -7,6 +7,7 @@ lands as a candidate for a person to confirm. A model transcribes, code marks �
 import hashlib
 import json
 import re
+import threading
 from functools import lru_cache
 from pathlib import Path
 
@@ -207,13 +208,33 @@ def render_pages(path, pages=None):
     return [_jpeg(im) for im in out]
 
 
+# The longest side a page is shown at: about 200 dpi on A4, more than the 150 it is read at, so a
+# person never sees fewer pixels than the reader did. A WhatsApp "scan" drawn at 150 dpi is
+# 5490 x 8138 — 134 MB decoded, for a picture shown 400 px wide — and the approval page asks for a
+# dozen of them at once: 3.3 GB on a 2 GB server, which killed the engine (2026-09-21).
+SCREEN_PX = 2400
+# ponytail: one lock for every paper, so two people opening two different papers at the same
+# moment wait about a second for each other's first drawing; a lock per paper if that is ever felt.
+_drawing = threading.Lock()
+
+
 @lru_cache(maxsize=8)
 def _rendered(path, mtime):
-    """Every page of a file as JPEG bytes, remembered. The approval screen asks for one crop per
-    answer — eighteen requests for one page — and re-rendering a PDF each time would make a screen
-    a teacher has to wait for. Keyed on the file's mtime so a re-photographed page is not stale."""
+    """Every page of a file as JPEG bytes at the size a screen shows it, remembered. The approval
+    screen asks for one crop per answer — eighteen requests for one page — and re-rendering a PDF
+    each time would make a screen a teacher has to wait for. Keyed on the file's mtime so a
+    re-photographed page is not stale."""
     del mtime
-    return render_pages(path)
+    return [_on_screen(page) for page in render_pages(path)]
+
+
+def _on_screen(jpeg):
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    h, w = img.shape[:2]
+    scale = SCREEN_PX / max(h, w)
+    if scale >= 1:
+        return jpeg
+    return _jpeg(cv2.resize(img, (round(w * scale), round(h * scale)), interpolation=cv2.INTER_AREA))
 
 
 def page_crop(path, page_no, box=None, pad=0.01):
@@ -224,7 +245,8 @@ def page_crop(path, page_no, box=None, pad=0.01):
     approximation of it. A file holding a single image IS one page however the paper numbers it:
     a Grade 3 sitting is one photograph per page, so its second page is a second file.
     """
-    images = _rendered(str(path), Path(path).stat().st_mtime)
+    with _drawing:  # a burst of requests for one paper draws it once; the rest find it remembered
+        images = _rendered(str(path), Path(path).stat().st_mtime)
     return crop(images[min(max(page_no, 1), len(images)) - 1], box, pad)
 
 

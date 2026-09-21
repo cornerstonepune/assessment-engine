@@ -2774,3 +2774,24 @@ Checked on the public address without signing in: every protected page redirects
 engine prints R5-H03 (200, 140 KB, 2.1 s first time, 0.08 s after) and serves a waiting answer's handwriting crop
 (200, 0.75 s); `bin/engine live check --since 2h` → 5 requests · 0 timed out · 0 failed · database 0 statement
 timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier's disk allowance — watch it).
+
+## The approval page's handwriting, on the live link (2026-09-21, evening)
+
+- **Broken on the public link.** Nimish opened a Grade 2 paper (`/capture/123f4ce2…`, two WhatsApp pages) and every
+  picture was a broken image. Vercel's own log (`vercel logs --environment production --query 05167c88`): 12 × 502
+  at 17:47:45 and 11 × 502 at 17:51:11 IST — every crop and both pages of one page load — then single requests 200.
+  The engine answers the same request alone in 0.3 s. The 502 is Caddy's: the engine behind it had been killed.
+- **Cause, reproduced on the copy.** A WhatsApp "scan" is a photograph in a 36 × 54 inch PDF page, drawn at 150 dpi
+  as 5490 × 8138 (45 MP, 134 MB decoded). Each picture request drew the whole paper for itself (`lru_cache` lets
+  twelve callers miss at once), and every crop decoded the 45 MP page again. A 12-thread cold-cache burst of
+  `legacy.page_crop` on that capture (the session's `burst.py`): **1 at once 610 MB · 12 at once 3,315 MB, 6.6 s**,
+  on a 2 GB server. The step-4 check above ("serves a waiting answer's handwriting crop, 200, 0.75 s") asked for one
+  picture; the page asks for a dozen at once.
+- **Fix, display path only** (`legacy._rendered` / `page_crop`; the reader's `render_pages` and `crop` unchanged): a
+  page is shown at most 2400 px on its long side — about 200 dpi on A4, above the 150 it is read at, so A4 (1755 px)
+  is untouched — and one lock, so a burst draws a paper once. Same burst after: **12 at once 908 MB, 0.7 s · 24 at
+  once 897 MB**. The two unclear answers' crops (q4, q7) compared at on-screen size, before and after: the same
+  legibility; the new crop is 1420 × 329 for a 400 px box.
+- `tests/test_legacy.py`: `test_a_page_is_shown_no_larger_than_a_screen_needs` (WhatsApp page → 2400, A4 → 1755) and
+  `test_a_burst_of_requests_for_one_paper_draws_it_once` (8 requests → 1 drawing; 8 drawings before the fix). Engine
+  suite: every test passes except the audit's 17 skills waiting for approval.

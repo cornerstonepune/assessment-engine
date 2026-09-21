@@ -4,7 +4,12 @@ stubbed: what is under test is everything code does around it."""
 
 import json
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor
 
+import cv2
+import numpy as np
+import pymupdf
 import pytest
 
 from engine import db, legacy
@@ -642,3 +647,46 @@ def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
     assert legacy.rung_for("-", 9, 4) == "R3"  # subtracts within 20
     assert legacy.rung_for("+", 23, 4) == "R4"  # and two digits still read as two digits
     assert legacy.rung_for("+", 148, 7) == "R9"
+
+
+# ---- the scan, as a person is shown it
+
+
+def _one_page_pdf(tmp_path, width, height):
+    doc = pymupdf.open()
+    doc.new_page(width=width, height=height)
+    path = tmp_path / "scan.pdf"
+    doc.save(path)
+    doc.close()
+    return path
+
+
+@pytest.mark.parametrize(
+    "width, height, long_side",
+    [
+        (2635, 3906, 2400),  # a WhatsApp "scan": a 36 x 54 inch page, 5490 x 8138 px at 150 dpi
+        (595, 842, 1755),  # A4 at 150 dpi is already smaller, and is shown exactly as it was read
+    ],
+)
+def test_a_page_is_shown_no_larger_than_a_screen_needs(tmp_path, width, height, long_side):
+    jpeg = legacy.page_crop(_one_page_pdf(tmp_path, width, height), 1)
+    assert max(cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR).shape[:2]) == long_side
+
+
+def test_a_burst_of_requests_for_one_paper_draws_it_once(tmp_path, monkeypatch):
+    """The approval page asks for every answer's picture at once, and each request drew the whole
+    paper for itself: twelve 45-megapixel drawings at the same moment took 3.3 GB on a 2 GB server,
+    the engine was killed, and every picture on the live page came back broken (2026-09-21)."""
+    path = _one_page_pdf(tmp_path, 200, 100)
+    drawn = []
+    draw = legacy.render_pages
+
+    def slow(p, pages=None):
+        drawn.append(p)
+        time.sleep(0.2)  # long enough for all eight to arrive while the first is still drawing
+        return draw(p, pages)
+
+    monkeypatch.setattr(legacy, "render_pages", slow)
+    with ThreadPoolExecutor(8) as pool:
+        list(pool.map(lambda _: legacy.page_crop(path, 1), range(8)))
+    assert len(drawn) == 1
