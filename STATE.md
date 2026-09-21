@@ -2806,3 +2806,20 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   908 MB, 0.7 s). Crops q4, q7 compared again: same legibility. `test_render_pdf.py::test_a_long_side_…`; engine
   suite on a fresh copy: **459 passed** — the audit's invariant is green since Nimish approved the 17 skills
   (`bin/engine audit` on live: 12 invariants checked, 0 violations).
+
+## A typed answer that is not one number is marked, not sent back to a person (2026-09-21, evening)
+
+- **Reported by Nimish from the live queue:** typing `12,34,45,78` for "Arrange from smallest to largest: 45, 12,
+  78, 34" (G2-DIAG-B q10) was never accepted, for any child. Cause, traced: `mark` stripped the commas as if the
+  answer were 1,264, the single number 12344578 met a key that is not a number ("12, 34, 45, 78"), and every such
+  answer went straight back to a person. On live, **29 waiting answers** had such a key — True 8, Not true 7, the
+  order 5, `<` 4, even 4, 1/2 1 — and 3 had already been typed and stayed stuck.
+- **Fix, in `mark`, the one function both the reader and a correction go through:** a key that is not one number
+  is marked by its own form — numbers in order by the numbers in order, a sign by the sign, a word or fraction by
+  its letters ignoring case and spacing. Only a person's reading reaches this branch: `ocr.answers_for` hands these
+  slots over with no guess. The queue's line for them now says what to type ("the numbers in order, the sign, or the
+  word the child chose"). `test_a_typed_answer_whose_key_is_not_a_number_is_marked_by_the_keys_own_form` (failed
+  before: `needs_teacher`); engine suite 460 passed.
+- **Clicked through on the local preview against the copy:** `/capture/check?from=5`, the q10 answer, typed
+  `12,34,45,78`, Save → "208 answers left" (was 209), the row `correct`, the reading kept as a `read_correction`.
+- The 3 stuck answers stay in the queue; one Save each settles them once this is live (2 come out right, 1 wrong).

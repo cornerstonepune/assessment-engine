@@ -378,19 +378,34 @@ def mark(spec, response, read):
         return "needs_teacher", [], working
     if not answer:
         return "needs_teacher", [], working
+    want = response.get("answer")
+    if want is not None and not re.fullmatch(r"-?\d+", str(want)):
+        # The paper asks for something that is not one number — an order, a sign, a word. The
+        # reader never reads these (`ocr.answers_for` hands them to a person without a guess), so
+        # the reading here is a person's, and it is marked by the key's own form.
+        return _against_the_key(str(want), read.get("child_answer", "")), [], working
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
-    want = response.get("answer")
-    if want is not None and not re.fullmatch(r"-?\d+", str(want)):
-        # The paper asks for something that is not a number — "456 [ ] 465" wants < — and the
-        # child wrote digits. Code cannot rule on that, and int() on the expected answer would
-        # crash the whole import, so it goes to a person exactly as an unreadable answer does.
-        return "needs_teacher", [], working
     if want is not None and n == int(want):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     return "wrong", codes, working
+
+
+def _against_the_key(key, wrote):
+    """What a person says the child wrote, against a key that is not one number: numbers in order
+    by the numbers in order ("12,34,45,78" is "12, 34, 45, 78"), a sign by the sign, and anything
+    else — a word, a fraction — by its letters, ignoring case and spacing."""
+    if re.fullmatch(r"\s*\d+(\s*[,;\s]\s*\d+)+\s*", key):
+        # ponytail: a thousands comma inside a number ("1,234, 2,345") splits it alike on both sides;
+        # a child who leaves that comma out would be marked wrong. No such key yet — split on the
+        # key's own separator if one arrives.
+        return "correct" if re.findall(r"\d+", wrote) == re.findall(r"\d+", key) else "wrong"
+    if key.strip() in ("<", ">", "="):
+        return "correct" if re.findall(r"[<>=]", wrote) == [key.strip()] else "wrong"
+    same = re.sub(r"\s+", "", wrote).casefold() == re.sub(r"\s+", "", key).casefold()
+    return "correct" if same else "wrong"
 
 
 def symbolic_slots(by_key):
