@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# The local copy of the live database that every test and goal run uses (ADR 0025). From anywhere:
+#   ~/cornerstone/assessment-engine/bin/testdb          copy today's live rows into the local copy
+#   ~/cornerstone/assessment-engine/bin/testdb migrate  apply new migrations to the local copy only
+#
+# The live side is only read (pg_dump). The copy is Supabase's own Postgres image in Docker, built
+# from this repository's migrations, so its schema is the live schema by construction; only the rows
+# come across. Children's names are in those rows (`pii`), so the copy stays on this Mac, like the
+# scans, and the dump file is deleted as soon as it is restored.
+set -euo pipefail
+
+main() {
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+LIVE=$(grep -E '^DATABASE_URL=' "$REPO/.env" | cut -d= -f2- | tr -d "\"'")
+COPY=$(grep -E '^TEST_DATABASE_URL=' "$REPO/.env" | cut -d= -f2- | tr -d "\"'")
+case "$COPY" in
+  *@127.0.0.1:*|*@localhost:*) ;;
+  *) echo "TEST_DATABASE_URL must point at this Mac (127.0.0.1 or localhost), not at: ${COPY%%@*}@…" >&2; exit 1 ;;
+esac
+# Restoring rows past their foreign keys and triggers needs the copy's superuser; same host and port.
+ADMIN=$(printf '%s' "$COPY" | sed -E 's#^postgresql://[^@]*@#postgresql://supabase_admin:postgres@#')
+
+(cd "$REPO" && supabase db start >/dev/null)
+if [ "${1:-copy}" = migrate ]; then
+  (cd "$REPO" && supabase db push --db-url "$COPY" --yes)
+  exit 0
+fi
+
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+echo "reading the live rows (public, pii) …"
+pg_dump "$LIVE" --format=custom --data-only --schema=public --schema=pii --file="$WORK/live.dump"
+
+echo "emptying the copy and loading them …"
+psql "$ADMIN" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (
+  select 'truncate table ' || string_agg(format('%I.%I', schemaname, tablename), ', ') || ' cascade'
+  from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
+pg_restore --data-only --disable-triggers --no-owner --exit-on-error --dbname="$ADMIN" "$WORK/live.dump"
+
+# The proof the copy is the live database: every table's exact row count, both sides, compared.
+count=$(psql "$COPY" -tAc "select string_agg(format('select %L as t, count(*) as n from %I.%I',
+  schemaname || '.' || tablename, schemaname, tablename), ' union all ' order by tablename)
+  from pg_tables where schemaname in ('public', 'pii')")
+psql "$LIVE" -tA -F ' ' -c "$count order by t" > "$WORK/live.counts"
+psql "$COPY" -tA -F ' ' -c "$count order by t" > "$WORK/copy.counts"
+if diff -q "$WORK/live.counts" "$WORK/copy.counts" >/dev/null; then
+  echo "copied: $(wc -l < "$WORK/copy.counts" | tr -d ' ') tables, $(awk '{s+=$2} END {print s}' "$WORK/copy.counts") rows, every count equal to live"
+else
+  echo "the copy differs from live:" >&2
+  diff "$WORK/live.counts" "$WORK/copy.counts" >&2 || true
+  exit 1
+fi
+}
+
+main "$@"

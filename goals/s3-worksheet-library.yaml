@@ -1,0 +1,30 @@
+name: s3-worksheet-library
+goal: >
+  Every question in the bank sits on a ready-made, numbered worksheet. Each of the 68 skill-levels
+  (17 skills × Easy, Medium, Hard, Advance) has at least ten worksheets of twelve questions, each
+  mixing that level's kinds of question in fair shares; no question repeats across a level's
+  worksheets unless the level holds too few questions to fill ten, and then every question is used
+  equally often. Clicking a skill shows its worksheets with a level filter; a worksheet opens with
+  its questions and answers and prints; every question says which worksheets it is on.
+
+# Written 2026-09-21, before the work. W = max(10, ceil(N / 12)) per level: 1,123 worksheets (ADR 0026).
+criteria:
+  - name: all 68 skill-levels ready, every rule held, checked against the live rows
+    run: engine library check
+    expect: "68 of 68 skill-levels ready · 0 problems"
+  - name: building again would change nothing
+    run: engine library build --dry-run
+    expect: "would make 0 · would retire 0"
+  - name: >-
+      the rules, on the copy — dealing, fair kinds, balanced reuse, a removed question retiring its
+      worksheets for new ones, a printed worksheet never changing, the printed PDF
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_library.py tests/api/test_library_routes.py
+    expect: "passed"
+  - name: >-
+      the website, on the copy — a skill's worksheets by level, a worksheet's questions and answers,
+      its PDF, a question's worksheets, the library's counts equal to the database's
+    run: cd apps/web && npx playwright test tests/s3-worksheets.spec.ts
+    expect: "passed"
+  - name: the live link — a skill's worksheets and one worksheet opened and printed, signed in
+    run: engine live check --since 60m --page /worksheets --page /api/worksheet
+    expect: "0 timed out · 0 failed · 2 of 2 pages seen"
