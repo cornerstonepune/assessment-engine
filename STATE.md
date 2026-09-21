@@ -2656,3 +2656,15 @@ snippet of how it will appear in the paper … simpler and clearer."
   (160,659 bytes, identical to the Mac's); without the key 401.
 - Not yet proved: a signed-in page on the live website drawing its picture through the engine. The
   only login is Nimish's (`app.staff` holds one person).
+
+## The live website: one serif font, menu items visible on hover, bank counts that open (2026-09-21)
+
+- Published by PR #2 (merge faf8178, 08:29Z); the production build ran from `apps/web` (Root Directory)
+  and is aliased to https://cornerstone-assessment.vercel.app. Check: the live CSS holds "Source Serif 4"
+  and none of JetBrains/Young Serif/Atkinson; its `a:hover` sits inside `@layer base`.
+- Tests: "a menu item stays readable while the pointer is on it" fails on the old unlayered rule
+  (rgb(38, 36, 31) on rgb(38, 36, 31)) and passes; "a count on the skill map opens exactly those
+  questions"; playwright screens + e2e bank/question/paper/skill-map 31 passed.
+- Seen in the Vercel logs: POST /login and page loads timed out 13:05–13:11 IST ("canceling statement due
+  to statement timeout") while the engine's full test suite and the W2 goal were running against the
+  same database. The tests share the live database; long runs there can stall the live site.
