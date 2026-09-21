@@ -89,6 +89,16 @@ test("the skill map's counts are the real number of questions in the bank", asyn
   await expect(row).toContainText(String(n));
 });
 
+test("a count on the skill map opens exactly those questions", async ({ page }) => {
+  const [{ n, name }] = await sql<{ n: number; name: string }[]>`
+    select count(*)::int as n, (select name from skill_set where code = 'SUB.2D.EXCH') as name from item
+    where status = 'active' and source = 'generated' and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard'`;
+  await page.goto("/");
+  await page.getByRole("link", { name: `${name}, Hard: ${n} questions` }).click();
+  await expect(page).toHaveURL(/set=SUB\.2D\.EXCH&difficulty=Hard/);
+  await expect(page.locator("#questions tbody tr")).toHaveCount(Math.min(n, 50));
+});
+
 test("a skill set on the map opens its own page", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "SUB.2D.EXCH" }).click();

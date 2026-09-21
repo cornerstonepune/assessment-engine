@@ -27,16 +27,19 @@ Semantic states map to materials, never to red/green: **secure → neem, draft/a
 error/retired → terracotta, waiting → monsoon.** Terracotta is rationed: if two things on a screen
 are terracotta, one of them is wrong.
 
-## Type — the triad, three voices
+## Type — one simple serif family
 
-| Voice | Face | Rule |
-|---|---|---|
-| the child · body | **Atkinson Hyperlegible** | 16–18 px body, 1.55 leading; 13.5 px for dense tables |
-| the teacher · headings | **Young Serif** | 400 only, never all-caps, never below 21 px |
-| the space · labels and facts | **JetBrains Mono** | 11–12 px letter-spaced caps for labels; every id, date, count and number |
+**Source Serif 4** for everything — body, headings, labels and facts. Nimish, 2026-09-21, on the live
+site: *"This font, I don't like. Let's use a simple serif family font."* It replaced a triad
+(Atkinson Hyperlegible body, Young Serif headings, JetBrains Mono facts) whose monospace made every
+table read like code.
 
-A fact looks like a fact: a count, a code, a difficulty band, a date is set in mono. Persuasion is
-never set in mono.
+| Use | Rule |
+|---|---|
+| body | 15 px, 1.55 leading; 13 px in dense tables |
+| headings | weight 600, never all-caps |
+| labels | 11 px letter-spaced capitals, weight 600 |
+| facts — ids, counts, dates | tabular lining figures, so numbers line up in a column |
 
 ## Graphic language
 
@@ -58,9 +61,9 @@ fun-filled, state-of-the-art, fearless, exclamation marks.
 
 ## Layout facts from the mockup
 
-Sidebar 230 px basalt, bamboo nav text, terracotta wash on the active item. Top bar: mono stage
-eyebrow, Young Serif 26 px title, 13.5 px sub in basalt at 62 %, then the chalk line. Body padding
-22 × 36 px. Tables: mono uppercase headers, 11 × 14 px cells, hairline rows. Pills: mono 10.5 px
+Sidebar 230 px basalt, bamboo nav text, terracotta wash on the active item. Top bar: letter-spaced
+stage eyebrow, 26 px title, 13.5 px sub in basalt at 62 %, then the chalk line. Body padding
+22 × 36 px. Tables: uppercase letter-spaced headers, 11 × 14 px cells, hairline rows. Pills: 11.5 px
 with a material tint and border. Chips: 7 × 13 px, basalt when on.
 
 ## Tokens
