@@ -2867,3 +2867,12 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   child wrote? Type it". Clicked through on the local preview against the copy: that 76 answer, typed 75 → `correct`,
   stored as a reading, "200 answers left" (was 201). `test_a_judgement_is_never_counted_as_a_reading`; the queue's
   browser tests on a production build **7 of 7** (the judgement test now also checks `judged`); engine suite 469.
+- **Live after PR #10 (merged 234dea3, 2026-09-21 19:27 IST):** migrations `20260927090000_gold_finding` and
+  `20260927100000_a_judgement_is_not_a_reading` pushed to live minutes after the website deployed — no request in
+  between touched the missing column (`vercel logs --query judged`: 0; no 5xx); 3 live rows marked `judged`. Step 6's
+  data job on live: vocabulary 65 → 68 rows (`loaders._misconceptions` alone — `engine load` would also re-upsert
+  every other seed), 17 papers re-entered (on the copy this changed only mistake lists: 15 multiplications gained
+  M_MUL_UNITS_REVERSED, 1 comparison M_COMPARE_REVERSED), **3 answers marked again** (as on the copy), `engine graph`
+  8 states, `engine gold load` 24 findings. `engine audit`: 12 invariants, 0 violations. `engine gold check`: 24
+  "transcription not yet confirmed". `engine read coverage`: 49 papers · 1 signed off · 13 scored · 196 waiting.
+  `deploy/go-live.sh` at 6da4519 (exit 0); the twelve pictures, cold, 12 × 200 in ≤ 0.99 s.
