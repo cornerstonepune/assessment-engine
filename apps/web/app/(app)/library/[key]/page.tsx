@@ -102,6 +102,19 @@ export default async function QuestionScreen({ params, searchParams }: Props) {
                   {it.level_words ? <span className="note block">{it.level_words}</span> : null}
                 </Fact>
                 <Fact label="Made by">{madeBy(it)}</Fact>
+                <Fact label="On worksheets">
+                  {it.worksheets.length ? (
+                    <span className="flex flex-wrap gap-2">
+                      {it.worksheets.map((c) => (
+                        <Link key={c} href={`/worksheets/${c}`} className="fact">
+                          {c}
+                        </Link>
+                      ))}
+                    </span>
+                  ) : (
+                    "None — a question that has left the bank is on no worksheet in use"
+                  )}
+                </Fact>
                 <Fact label="On papers">{it.children ? `${it.children} children have had it` : "Not on a paper yet"}</Fact>
               </dl>
             </Panel>

@@ -37,7 +37,7 @@ export async function skillSets(): Promise<SkillSet[]> {
                            group by difficulty) d), '{}'::json) as counts,
            coalesce((select json_object_agg(w.difficulty, w.n)
                      from (select difficulty, count(*)::int as n from sheet_template t
-                           where t.skill_set_code = s.code and t.source = 'library'
+                           where t.skill_set_code = s.code and t.source = 'library' and t.retired_at is null
                            group by difficulty) w), '{}'::json) as worksheets
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code

@@ -2,6 +2,7 @@ import Link from "@/components/link";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
 import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } from "@/lib/queries";
 import { approvePack, overrideChild } from "./actions";
+import { Library } from "./library";
 import { deadline } from "@/lib/deadline";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -16,6 +17,8 @@ export default async function WorksheetsPage({ searchParams }: Props) {
       <>
         <Header />
         <Body>
+          <Library q={q} />
+          <h2 className="mt-[28px] mb-3 text-[18px]">This week&rsquo;s papers</h2>
           <NotYet
             what={[
               "One row per child: the level they are set, and the reason it was chosen.",
@@ -56,6 +59,9 @@ export default async function WorksheetsPage({ searchParams }: Props) {
           <Notice tone="terracotta">A change needs a level and a reason. Nothing was changed.</Notice>
         ) : null}
 
+        <Library q={q} />
+        <h2 className="mt-[28px] mb-3 text-[18px]">This week&rsquo;s papers</h2>
+
         {all.length > 1 ? (
           <div className="mb-4 flex flex-wrap gap-2">
             {all.map((w) => (
@@ -80,7 +86,7 @@ export default async function WorksheetsPage({ searchParams }: Props) {
               : "What changes per child is how hard their paper is."}
           </p>
           <div className="overflow-x-auto">
-            <table className="grid">
+            <table className="grid" aria-label="Each child's paper this week">
               <thead>
                 <tr>
                   <th>Roll</th>
@@ -206,7 +212,7 @@ function Header() {
     <PageHeader
       stage="Stage 2 · Print"
       title="Worksheets"
-      sub="This week's paper for each child, the level it is set at, and why. Change any child, then approve the pack."
+      sub="Every question in the bank on a numbered worksheet, by skill and level — and below it, this week's paper for each child, the level it is set at and why."
     />
   );
 }

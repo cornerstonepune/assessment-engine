@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
-from engine.api.routes import bank, capture, children, graph, runs, week
+from engine.api.routes import bank, capture, children, graph, library, runs, week
 
 app = FastAPI(title="Cornerstone engine")
 
@@ -19,6 +19,7 @@ app.include_router(capture.router)
 app.include_router(graph.router)
 app.include_router(bank.router)
 app.include_router(week.router)
+app.include_router(library.router)
 
 
 @app.exception_handler(InProgress)

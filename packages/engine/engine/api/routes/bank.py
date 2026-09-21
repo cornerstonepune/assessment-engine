@@ -12,6 +12,8 @@ from engine.api.models import (
     BankCoverageRow,
     BankFillRequest,
     BankFillResponse,
+    BankRemoveRequest,
+    BankRemoveResponse,
     BankReviewRequest,
     BankReviewResponse,
 )
@@ -95,6 +97,18 @@ def correct_question(item_key: str, body: BankCorrectRequest, conn=Depends(get_c
     refused the second time, because the first one retired the wording it corrected."""
     try:
         return question.correct(conn, item_key, body.stem, body.by, body.reason)
+    except LookupError:
+        raise HTTPException(status_code=404, detail="no such question in the bank") from None
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from None
+
+
+@router.post("/bank/item/{item_key}/remove", response_model=BankRemoveResponse)
+def remove_question(item_key: str, body: BankRemoveRequest, conn=Depends(get_conn)):
+    """A person takes a question out of the bank. The worksheets it was on are retired and replaced
+    in the same transaction (ADR 0026)."""
+    try:
+        return question.remove(conn, item_key, body.by, body.note)
     except LookupError:
         raise HTTPException(status_code=404, detail="no such question in the bank") from None
     except ValueError as e:

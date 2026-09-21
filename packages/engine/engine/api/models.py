@@ -107,6 +107,17 @@ class BankCorrectResponse(BaseModel):
     retired: str
 
 
+class BankRemoveRequest(BaseModel):
+    by: str = Field(min_length=1, max_length=200)
+    note: str = Field(max_length=300)
+
+
+class BankRemoveResponse(BaseModel):
+    item_key: str
+    status: str
+    worksheets_retired: int
+
+
 class BankCoverageRow(BaseModel):
     code: str
     difficulty: str

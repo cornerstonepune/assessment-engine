@@ -7,6 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { libraryOf, restoreLibrary } from "./library-state";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
@@ -75,7 +76,7 @@ test("a teacher can reach every section from the menu, and the menu says where t
   for (const [label, heading] of sections) {
     await page.getByRole("navigation").getByRole("link", { name: label }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
-    await expect(page.getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("navigation").getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   }
 });
 
@@ -212,10 +213,11 @@ test("a question's page shows it as printed, its answer, and every wrong answer 
 // A teacher rewords a question; the engine keeps its numbers, so the answer cannot change. The new
 // wording is a new question, the old one retires naming who and why, and a changed number is refused.
 test("correcting a question's wording saves a new question and retires the old one", async ({ page }) => {
-  const [q] = await sql<{ id: string; item_key: string; stem: string }[]>`
-    select id, item_key, stem from item where status = 'active' and source = 'generated' and fmt = 'word_1step'
-    order by item_key desc limit 1`;
+  const [q] = await sql<{ id: string; item_key: string; stem: string; skill_set_code: string; difficulty: string }[]>`
+    select id, item_key, stem, skill_set_code, difficulty from item
+    where status = 'active' and source = 'generated' and fmt = 'word_1step' order by item_key desc limit 1`;
   const reworded = `Read carefully. ${q.stem}`;
+  const worksheets = await libraryOf(sql, q.skill_set_code, q.difficulty);
   try {
     await page.goto(`/library/${q.item_key}`);
     const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Save correction" }) });
@@ -223,14 +225,16 @@ test("correcting a question's wording saves a new question and retires the old o
     await form.locator('textarea[name="stem"]').fill(`${q.stem} There are 98765 more.`);
     await form.locator('input[name="reason"]').fill(MARK);
     await form.getByRole("button", { name: "Save correction" }).click();
-    await expect(page.getByRole("status")).toContainText("Keep every number exactly as it was");
+    // Both answers come from the engine, which may still be cutting the scan images earlier tests asked
+    // for; give it the time a busy engine takes, not a fixed five seconds.
+    await expect(page.getByRole("status")).toContainText("Keep every number exactly as it was", { timeout: 15_000 });
     const [{ made }] = await sql<{ made: number }[]>`select count(*)::int as made from item where corrected_from = ${q.id}`;
     expect(made, "a refused correction changes nothing").toBe(0);
 
     await form.locator('textarea[name="stem"]').fill(reworded);
     await form.locator('input[name="reason"]').fill(MARK);
     await Promise.all([page.waitForURL(/corrected=1/), form.getByRole("button", { name: "Save correction" }).click()]);
-    await expect(page.getByRole("status")).toContainText("Saved");
+    await expect(page.getByRole("status")).toContainText("Saved", { timeout: 15_000 });
     await expect(page.getByText("Reworded by a teacher")).toBeVisible();
 
     const [row] = await sql<{ status: string; stem: string; same: boolean }[]>`
@@ -240,6 +244,9 @@ test("correcting a question's wording saves a new question and retires the old o
     const [old] = await sql<{ status: string }[]>`select status from item where id = ${q.id}`;
     expect(old.status).toBe("retired");
   } finally {
+    // The worksheets first: a new one holds the corrected question this puts away.
+    await restoreLibrary(sql, q.skill_set_code, q.difficulty, worksheets);
+    await sql`delete from item_exposure where item_id in (select id from item where corrected_from = ${q.id})`;
     await sql`delete from item where corrected_from = ${q.id}`;
     await sql`update item set status = 'active' where id = ${q.id}`;
     await sql`delete from item_feedback where item_id = ${q.id} and note like ${`%${MARK}%`}`;
@@ -247,6 +254,8 @@ test("correcting a question's wording saves a new question and retires the old o
 });
 
 test("removing a question retires it in the database and it stops being offered", async ({ page }) => {
+  const levels = ["Easy", "Medium", "Hard", "Advance"];
+  const worksheets = await Promise.all(levels.map((d) => libraryOf(sql, "SUB.2D.EXCH", d)));
   try {
     await page.goto("/library?set=SUB.2D.EXCH");
     await page.locator("#questions tbody tr").first().locator("td").first().getByRole("link").click();
@@ -269,6 +278,7 @@ test("removing a question retires it in the database and it stops being offered"
     expect(retired.status).toBe("retired");
     expect(retired.actor).toBeTruthy();
   } finally {
+    for (const [i, d] of levels.entries()) await restoreLibrary(sql, "SUB.2D.EXCH", d, worksheets[i]);
     await sql`update item set status = 'active' where id in (
       select item_id from item_feedback where note = ${MARK})`;
     await sql`delete from item_feedback where note = ${MARK}`;
@@ -317,7 +327,7 @@ test("the week's plan shows every child with a level and a reason", async ({ pag
     select count(*)::int as n from prescription p join child c on c.id = p.child_id
     where c.section = 'G3' and p.week = 'T2W1' and p.kind = 'practice'`;
   await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
-  const rows = page.getByRole("table").first().locator("tbody tr");
+  const rows = page.getByRole("table", { name: "Each child's paper this week" }).locator("tbody tr");
   await expect(rows).toHaveCount(n);
   for (const row of await rows.all()) {
     await expect(row).toContainText(/Easy|Medium|Hard|Advance/);
@@ -327,7 +337,10 @@ test("the week's plan shows every child with a level and a reason", async ({ pag
 
 test("every child's paper has its own code, and no two children share questions", async ({ page }) => {
   await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
-  const codes = await page.getByRole("table").first().locator("tbody tr td:nth-child(4)").allInnerTexts();
+  // The page streams in behind its loading screen: wait for the table before reading its cells.
+  const week = page.getByRole("table", { name: "Each child's paper this week" });
+  await expect(week.locator("tbody tr").first()).toBeVisible();
+  const codes = await week.locator("tbody tr td:nth-child(4)").allInnerTexts();
   const real = codes.filter((c) => /^CS[0-9A-F]{6}$/.test(c.trim()));
   expect(real.length).toBeGreaterThan(0);
   expect(new Set(real).size).toBe(real.length);
@@ -345,7 +358,7 @@ test("changing one child's level writes the reason and survives the next prescri
     where c.section = 'G3' and p.week = 'T2W1' and c.roll_no = '1'`;
   try {
     await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
-    const row = page.getByRole("table").first().locator("tbody tr").first();
+    const row = page.getByRole("table", { name: "Each child's paper this week" }).locator("tbody tr").first();
     await row.getByText("Change level").click();
     await row.locator('select[name="difficulty"]').selectOption("Easy");
     await row.locator('input[name="reason"]').fill("she was away all week");
@@ -357,7 +370,7 @@ test("changing one child's level writes the reason and survives the next prescri
     expect(after.difficulty).toBe("Easy");
     expect(after.rule_fired).toBe("override");
     expect(after.override_reason).toBe("she was away all week");
-    await expect(page.getByRole("table").first()).toContainText("she was away all week");
+    await expect(page.getByRole("table", { name: "Each child's paper this week" })).toContainText("she was away all week");
   } finally {
     await sql`update prescription set difficulty = ${before.difficulty}, rule_fired = ${before.rule_fired},
               override_by = null, override_reason = null where id = ${before.id}`;
@@ -369,7 +382,7 @@ test("a level change with no reason is refused and nothing moves", async ({ page
     select p.id, p.difficulty from prescription p join child c on c.id = p.child_id
     where c.section = 'G3' and p.week = 'T2W1' and c.roll_no = '2'`;
   await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
-  const row = page.getByRole("table").first().locator("tbody tr").nth(1);
+  const row = page.getByRole("table", { name: "Each child's paper this week" }).locator("tbody tr").nth(1);
   await row.getByText("Change level").click();
   await row.locator('select[name="difficulty"]').selectOption("Advance");
   await row.getByRole("button", { name: "Change this child" }).click();
@@ -394,7 +407,7 @@ test("approving the pack marks the papers printed", async ({ page }) => {
       select count(*)::int as n from sheet_instance si join sheet_template st on st.id = si.sheet_template_id
       where st.week = 'T2W1' and si.print_status = 'printed'`;
     expect(n).toBeGreaterThan(0);
-    await expect(page.getByRole("table").first()).toContainText("printed");
+    await expect(page.getByRole("table", { name: "Each child's paper this week" })).toContainText("printed");
   } finally {
     for (const c of codes) {
       await sql`update sheet_instance set print_status = ${c.print_status}, printed_at = null,

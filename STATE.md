@@ -2704,3 +2704,26 @@ snippet of how it will appear in the paper … simpler and clearer."
   phone widths without sideways scroll.
 - Known and intended: `tests/test_goal.py::test_every_invariant_holds` and `engine audit` report 17 specs
   waiting for approval until a person approves them on `/skill-sets/approve`.
+
+## Step 3 of five — every question on a numbered worksheet (2026-09-21)
+
+- **The library, on the copy:** `bin/engine library check` before → "0 worksheets · 0 of 68 skill-levels
+  ready · 136 problems"; `bin/engine library build` → "made 1123 · retired 0"; check → "1123 worksheets · 68
+  of 68 skill-levels ready · 0 problems"; `build --dry-run` → "would make 0 · would retire 0".
+- **The first deal was wrong on real data, and the made-up tests had not caught it:** a level with two kinds
+  got 8 of one and 4 of the other per worksheet, and two Grade 1 levels used questions 4–6 times. The deal now
+  fixes each worksheet's share of each kind first, then deals each kind in laps. Pure tests over every level
+  size the bank holds (22–216) plus the real build: 0 problems.
+- **Removing a question from its page retired it in the database only; worksheets now follow in the same
+  transaction** (`question.remove` / `question.correct` → `library.build(only=level)`, `POST
+  /bank/item/{key}/remove`). A patch that would leave a small level uneven deals the level afresh (found by
+  `test_removing_a_question_retires_it_and_replaces_the_worksheet_it_was_on`: 4–8 uses, two worksheets alike).
+- **A worksheet prints:** `GET /worksheet/{code}.pdf` renders on first request with the paper renderer (its
+  code in the QR), then serves from disk — R5-H03, R1-E04 and X2-A07 looked at page by page.
+- **The website:** the Worksheets page leads with the library (every skill × level, a level filter, the list);
+  a skill's page lists its worksheets with Easy/Medium/Hard/Advance; a worksheet's page shows its twelve
+  questions and answers with Print (PDF); a question's page names its worksheets.
+- **Tests:** engine 451 passed + the audit's known 17 waiting approvals; browser 61 of 61, three runs in a row,
+  the library whole after each. Found on the way: with the loading screen, a page first arrives as "Loading…"
+  and streams in — two tests read too early and now wait for content; test cleanups now restore a level's
+  worksheets exactly (`tests/library-state.ts`).
