@@ -4,6 +4,7 @@ Newest first. One line per decision: date, decision, why, source. Rejected alter
 
 | Date | Decision | Why | Source |
 |---|---|---|---|
+| 2026-09-21 | **The validation queue settles one answer at a time and never signs a paper off; signing off stays on the paper's screen (ADR 0027).** | The paper screen's Right/Wrong/Blank confirms every answer on the page; from the queue that would be evidence in a person's name for answers they never saw. | step 4 |
 | 2026-09-21 | **Five steps, in order, each closed by its own goal file and the live link: the site answers → the skill map as outcomes → every question on a worksheet → the validation queue → the bank explained (`BUILD-ORDER.md`, `goals/s1…s5`).** | The live site failed on first real use while every local test passed; Nimish asked for the order committed with a goal post per step, "no constant rework". | nimish 2026-09-21 |
 | 2026-09-21 | **The website never stacks queries on one pooled connection: `max_pipeline: 0` (ADR 0024).** | Through Supabase's transaction pooler a third stacked query never answers — measured 3 of 3; the live Question bank hung for five minutes on every click. | measured |
 | 2026-09-21 | **Tests and goal runs use a local copy of the database, `bin/testdb`, never the live one (ADR 0025).** | Suites on the shared database stalled it (checkpoints of 127–203 s) and once wrote to real sheets. | measured |
