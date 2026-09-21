@@ -197,7 +197,7 @@
         "sendTo": "={{ $vars.TEACHER_EMAIL }}",
         "subject": "={{ $json.section }} {{ $json.week }}: some children have no paper yet",
         "emailType": "text",
-        "message": "={{ $json.short.length }} children could not be given a full paper this week:\\n\\n{{ $json.short.map(s => '  roll ' + s.roll_no + ' (' + s.difficulty + '): ' + s.had + ' questions available of ' + s.needed + ' needed').join('\\n') }}\\n\\nThe bank is short for those units. Nothing was printed for them.",
+        "message": "={{ $json.short.length }} children could not be given a full paper this week:\\n\\n{{ $json.short.map(s => '  roll ' + s.roll_no + ' (' + s.difficulty + '): ' + s.why).join('\\n') }}\\n\\nNothing was printed for them.",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",

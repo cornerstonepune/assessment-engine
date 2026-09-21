@@ -108,6 +108,7 @@ export type WeekRow = {
   qr_code: string | null;
   print_status: string | null;
   questions: number | null;
+  worksheet: string | null; // the library worksheet it is, when it came from the library
 };
 
 export const RULE_WORDS: Record<string, string> = {
@@ -129,7 +130,7 @@ export async function weekPlan(section: string, week: string, kind: string): Pro
     select p.id as prescription_id, p.child_id, c.roll_no, c.band, c.section,
            p.skill_set_code, s.name as skill_set_name, p.difficulty, p.rule_fired,
            p.override_by, p.override_reason,
-           si.qr_code, si.print_status, array_length(st.item_ids, 1) as questions
+           si.qr_code, si.print_status, array_length(st.item_ids, 1) as questions, st.code as worksheet
     from prescription p
     join child c on c.id = p.child_id
     left join skill_set s on s.tenant_id = p.tenant_id and s.code = p.skill_set_code
@@ -139,12 +140,17 @@ export async function weekPlan(section: string, week: string, kind: string): Pro
     order by coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no`;
 }
 
-export async function spareSheets(section: string, week: string): Promise<{ qr_code: string; difficulty: string }[]> {
+export async function spareSheets(
+  section: string,
+  week: string,
+): Promise<{ qr_code: string; difficulty: string; worksheet: string | null }[]> {
   return sql`
-    select si.qr_code, st.difficulty from sheet_instance si
+    select si.qr_code, st.difficulty, st.code as worksheet from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
-    where si.child_id is null and st.week = ${week}
-      and st.band in (select distinct band from child where section = ${section})
+    where si.child_id is null
+      and (si.section = ${section} and si.week = ${week}
+           or si.section is null and st.week = ${week}
+              and st.band in (select distinct band from child where section = ${section}))
     order by st.difficulty, si.qr_code`;
 }
 

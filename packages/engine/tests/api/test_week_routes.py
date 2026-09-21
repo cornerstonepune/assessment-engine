@@ -136,3 +136,17 @@ def test_a_paper_never_rendered_or_unknown_is_not_found(client, children):
     qr = client.post("/week/assemble", json={"section": SECTION, "week": WEEK}).json()["qr_codes"][0]
     assert client.get(f"/sheet/{qr}/page/1.jpg").status_code == 404
     assert client.get("/sheet/CS000000/page/1.jpg").status_code == 404
+
+
+def test_a_child_who_cannot_be_given_a_worksheet_is_named_in_the_answer(client, children, conn):
+    """A short child's row carries the child's id, and the result is stored for replay as JSON: the
+    id has to arrive as text, or the whole assembly fails and nobody is told why (step 7)."""
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    conn.execute(
+        "update sheet_template set retired_at = now() where source = 'library' and skill_set_code = %s",
+        (SET,),
+    )
+    r = client.post("/week/assemble", json={"section": SECTION, "week": WEEK})
+    assert r.status_code == 200, r.text
+    short = r.json()["short"]
+    assert short and all(s["why"] and isinstance(s["child_id"], str) for s in short)

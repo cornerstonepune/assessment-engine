@@ -126,26 +126,31 @@ export type PrintedPaper = {
   override_reason: string | null;
   pool: number;
   window_days: number;
+  worksheet: string | null; // the library worksheet it is, when it came from the library
+  worksheets: number; // how many worksheets the library holds at its level
 };
 
-// One generated paper and the facts of how it was drawn: who it is for (roll number only — the
+// One printed paper — a library worksheet handed to a child, or one generated before step 7 — and the facts of how it was made: who it is for (roll number only — the
 // name is printed on the page itself, never read into a row here), the pool it was drawn from, and
 // the exposure window `assemble` honoured. A spare has no child and no prescription.
 export async function printedPaper(qr: string): Promise<PrintedPaper | undefined> {
   const rows = await sql<PrintedPaper[]>`
     select si.qr_code, si.print_status, si.approved_by, si.pdf_path is not null as rendered,
-           coalesce((st.key ->> 'pages')::int, 1) as pages, st.week, st.difficulty, s.name as skill_set_name,
-           coalesce(array_length(st.item_ids, 1), 0) as n_items, c.roll_no, c.section,
-           p.kind, p.rule_fired, p.override_reason,
+           coalesce((si.key ->> 'pages')::int, (st.key ->> 'pages')::int, 1) as pages,
+           coalesce(si.week, st.week) as week, st.difficulty, s.name as skill_set_name,
+           coalesce(array_length(st.item_ids, 1), 0) as n_items, c.roll_no, coalesce(si.section, c.section) as section,
+           coalesce(p.kind, si.kind) as kind, p.rule_fired, p.override_reason, st.code as worksheet,
+           (select count(*)::int from sheet_template w where w.source = 'library' and w.retired_at is null
+              and w.skill_set_code = st.skill_set_code and w.difficulty = st.difficulty) as worksheets,
            (select count(*)::int from item i where i.status = 'active' and i.source = 'generated'
               and i.skill_set_code = st.skill_set_code and i.difficulty = st.difficulty) as pool,
            (select t.value::int from threshold t where t.key = 'exposure.days') as window_days
     from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
     join skill_set s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code
-    left join child c on c.id = st.child_id
+    left join child c on c.id = coalesce(si.child_id, st.child_id)
     left join prescription p on p.sheet_instance_id = si.id
-    where si.qr_code = ${qr} and st.source = 'generated'`;
+    where si.qr_code = ${qr} and st.source in ('generated', 'library')`;
   return rows[0];
 }
 
