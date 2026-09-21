@@ -13,6 +13,11 @@
 # `run-the-engine`), ssh and tar, and the Vercel CLI logged in (npx vercel).
 set -euo pipefail
 
+# Everything runs inside main, called on the last line: bash then reads the whole file before it
+# acts. It reads a script as it goes otherwise, and an edit made while a run was waiting broke it
+# with 'unexpected EOF' — a run half-reading a different version of itself.
+main() {
+
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 NAME=cornerstone-engine
 REGION=ap-south-1
@@ -107,3 +112,6 @@ echo "website settings: ENGINE_URL=https://$HOST, ENGINE_KEY set"
 
 say "done — the engine is online at https://$HOST"
 echo "The website picks this up on its next deployment: merging the pull request into main triggers it."
+}
+
+main "$@"
