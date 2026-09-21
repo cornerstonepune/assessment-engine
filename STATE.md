@@ -2876,3 +2876,8 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   8 states, `engine gold load` 24 findings. `engine audit`: 12 invariants, 0 violations. `engine gold check`: 24
   "transcription not yet confirmed". `engine read coverage`: 49 papers · 1 signed off · 13 scored · 196 waiting.
   `deploy/go-live.sh` at 6da4519 (exit 0); the twelve pictures, cold, 12 × 200 in ≤ 0.99 s.
+- **Aseem's 24 findings confirmed by Nimish** ("correct", in chat, 2026-09-21) → `engine gold confirm --by "Nimish, in
+  chat, 2026-09-21"`: 24 confirmed. `engine gold check` on live: **2 in the graph** (Kabir's M_SMALL_FROM_LARGE, a
+  pattern in the graph; his strong addition) · 18 not yet signed off · 3 waiting for a person (a 34 × 2, a comparison
+  sign, a 62,413 copied out) · 1 read differently (the "3 boxes of 6 pencils" read as 3 from the teacher's red pen;
+  the child wrote 9).
