@@ -7,6 +7,8 @@ exists, takes the arguments the documentation and the goal files claim, and fail
 than silently when given something wrong. They do not re-test the logic underneath.
 """
 
+import re
+
 import pytest
 from typer.testing import CliRunner
 
@@ -16,7 +18,12 @@ runner = CliRunner()
 
 
 def run(*args):
-    return runner.invoke(app, list(args))
+    """The command, with its help text as plain words. Typer draws help with rich, and in CI rich
+    styles each dash of an option on its own — "--paper" arrives as escape codes around "-" and
+    "-paper" — so a check that passed on a laptop failed on every run in GitHub."""
+    result = runner.invoke(app, list(args), env={"NO_COLOR": "1", "TERM": "dumb", "COLUMNS": "200"})
+    result.output_plain = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+    return result
 
 
 # Every command a person or a goal file is told to run. A name changing without this list changing
@@ -77,7 +84,7 @@ def test_read_map_needs_a_paper_to_read():
 def test_legacy_import_names_every_option_the_handoff_tells_people_to_pass():
     """`--again` exists because a corrected paper leaves earlier readings short; `--mask` because a
     name band must not reach a model (rule 6). Both are handed out as instructions in HANDOFF.md."""
-    out = run("legacy", "import", "--help").output
+    out = run("legacy", "import", "--help").output_plain
     for flag in ("--paper", "--child", "--section", "--pages", "--mask", "--again"):
         assert flag in out, f"{flag} is documented but the command no longer takes it"
 
@@ -85,7 +92,7 @@ def test_legacy_import_names_every_option_the_handoff_tells_people_to_pass():
 def test_read_eval_offers_both_readers_so_the_comparison_stays_one_command():
     """ADR 0019 chose Textract over a vision model on a measurement. That choice is only re-checkable
     while one command can still score either."""
-    out = run("read", "eval", "--help").output
+    out = run("read", "eval", "--help").output_plain
     assert "--reader" in out
     assert "--runs" in out
 

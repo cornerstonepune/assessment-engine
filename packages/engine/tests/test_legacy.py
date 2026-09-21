@@ -525,6 +525,7 @@ def test_dedupe_supersedes_every_live_capture_but_the_best_one(conn, child, tmp_
     assert legacy.dedupe(conn) == (0, 0)
 
 
+@pytestmark_db
 def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tmp_path, monkeypatch):
     """The approval screen's whole mechanism (rule 4).
 
@@ -573,6 +574,7 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
     )
 
 
+@pytestmark_db
 def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_path, monkeypatch):
     """A teacher's correction IS a hand-verified response, so the gold set the reader is measured
     against grows by using the system rather than by a data-entry project."""
@@ -600,6 +602,7 @@ def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_
     assert mine["answers"] == [{"n": "2", "part": "", "child_answer": "85", "answer_state": "written"}]
 
 
+@pytestmark_db
 def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, monkeypatch):
     """A signature has to mean the person read the thing they signed. `confirm_results` took every
     candidate answer a child had, wherever it came from, which was right while the only screen was
