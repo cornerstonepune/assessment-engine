@@ -106,7 +106,13 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                         </span>
                       ) : null}
                     </td>
-                    <td className="fact">{r.qr_code ?? <span className="text-basalt/40">not made yet</span>}</td>
+                    <td className="fact">
+                      {r.qr_code ? (
+                        <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+                      ) : (
+                        <span className="text-basalt/40">not made yet</span>
+                      )}
+                    </td>
                     <td className="num">{r.questions ?? 0}</td>
                     <td>
                       {r.print_status === "printed" ? (
@@ -161,9 +167,9 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {spares.map((s) => (
-                    <span key={s.qr_code} className="chip">
+                    <Link key={s.qr_code} href={`/worksheets/${s.qr_code}`} className="chip">
                       <span className="fact">{s.qr_code}</span> · {s.difficulty}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               </>

@@ -72,7 +72,7 @@ table.sort th, table.sort td { border: 1px solid #333; padding: 1.2mm 3mm; text-
 table.sort td:first-child { text-align: left; font-family: "DejaVu Sans Mono", monospace; }
 .wall { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .wall .r { display: flex; }
-.wall .b { width: 24mm; height: 11mm; border: 1px solid #111; display: flex; align-items: center; justify-content: center; font-size: 12pt; margin: -0.5px; }
+.wall .b { width: var(--brick, 24mm); height: 11mm; border: 1px solid #111; display: flex; align-items: center; justify-content: center; font-size: 12pt; margin: -0.5px; }
 .cards { display: inline-flex; gap: 3mm; margin: 1.5mm 0; }
 .card { width: 10mm; height: 13mm; border: 1.5px solid #111; border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 15pt; font-weight: bold; background: #f4f4f4; }
 svg text { font-family: "DejaVu Sans", Arial, sans-serif; }
@@ -164,7 +164,10 @@ def render_item(sheet, it, n):
 <div class="row"><span class="lab">? =</span>{_cells(sid, iid, R["ans"])}</div>"""
     elif f == "number_wall":
         b = sp["base"]
-        body = f"""<div class="wall"><div class="r"><div class="b">{_cells(sid, iid, R["top"])}</div></div>
+        # Every brick as wide as the widest answer's boxes (8.4 mm each), so no box spills out of its
+        # brick and the wall stays a pyramid: 24 mm bricks drew 106's four boxes over their neighbours.
+        brick = max(24, 8.4 * max(R[k].cells for k in ("top", "m1", "m2")) + 4)
+        body = f"""<div class="wall" style="--brick:{brick:.1f}mm"><div class="r"><div class="b">{_cells(sid, iid, R["top"])}</div></div>
 <div class="r"><div class="b">{_cells(sid, iid, R["m1"])}</div><div class="b">{_cells(sid, iid, R["m2"])}</div></div>
 <div class="r"><div class="b">{b[0]}</div><div class="b">{b[1]}</div><div class="b">{b[2]}</div></div></div>"""
     elif f == "number_line_jumps":
@@ -254,7 +257,15 @@ def render_item(sheet, it, n):
     return f'<div class="item{compact}" data-item="{iid}" data-rung="{it.rung}"><div class="q"><span class="n">{n}</span><span class="stem">{stem}</span></div><div class="body">{body}</div></div>'
 
 
-GRADE_TITLE = {"G1": "Grade 1", "G2": "Grade 2", "G3": "Grade 3", "G4": "Grade 4"}
+def _grade(band):
+    """A band in words: "G3" is "Grade 3", and a reasoning rung's "G2+" is "Grade 2+"."""
+    return f"Grade {band[1:]}" if band.startswith("G") else band
+
+
+def _literal(text):
+    """Text safe inside the page's HTML and inside the JavaScript template literal that lays it out:
+    a name holding a backtick or `${` must print as itself, not end the literal."""
+    return html.escape(text).replace("`", "&#96;").replace("$", "&#36;")
 
 
 def sheet_html(sheet, week_label="Week __"):
@@ -282,22 +293,27 @@ def sheet_html(sheet, week_label="Week __"):
             groups.append(r_html)
     flush()
     items = "\n".join(groups)
+    # What the paper practises comes from data — the skill set's own name — never a subject in code.
+    # It heads page 1 and every "continued" line; the footer keeps to school and grade, so a long
+    # name never wraps the page number onto a second line.
+    grade = _grade(sheet.grade)
+    heading = " · ".join(filter(None, [grade, _literal(sheet.title)]))
     instr = "Work carefully and show how you found each answer. Write one digit in each box."
     if sheet.grade == "G1":
         instr = "Write one number in each box. You may draw a picture to help you."
-    head = f"""<div class="head"><div class="school">Cornerstone School</div><div class="title">{GRADE_TITLE[sheet.grade]} · Addition and subtraction</div><div class="sub">{week_label}</div>
+    head = f"""<div class="head"><div class="school">Cornerstone School</div><div class="title">{heading}</div><div class="sub">{_literal(week_label)}</div>
 <div class="nameline"><span>Name:</span><span class="short">Class:</span><span class="short">Date:</span></div></div><div class="instr">{instr}</div>"""
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>
 <div id="src" style="position:absolute;left:-9999px;top:0;width:178mm">{items}</div>
 <template id="pageT"><div class="page"><div class="fid tl"></div><div class="fid tr"></div><div class="fid bl"></div><div class="fid br"></div>
 <div class="qr"><img src="data:image/svg+xml;base64,{svg}"></div><div class="code">{sheet.sheet_id}</div><div class="content"></div>
-<div class="foot"><span>Cornerstone School · {GRADE_TITLE[sheet.grade]} · Addition and subtraction</span><span>Show your working in the space provided · {sheet.sheet_id} · p<span class="pn"></span></span></div></div></template>
+<div class="foot"><span>Cornerstone School · {grade}</span><span>Show your working in the space provided · {sheet.sheet_id} · p<span class="pn"></span></span></div></div></template>
 <script>
 (function(){{
   const src=document.getElementById('src'); const T=document.getElementById('pageT');
   const items=[...src.children]; let pages=[];
   function newPage(first){{ const p=T.content.firstElementChild.cloneNode(true); const c=p.querySelector('.content');
-    c.innerHTML = first ? `{head}` : `<div class="slim">Cornerstone School · {GRADE_TITLE[sheet.grade]} · Addition and subtraction · continued</div>`;
+    c.innerHTML = first ? `{head}` : `<div class="slim">Cornerstone School · {heading} · continued</div>`;
     if(!first) c.style.top='36mm';
     document.body.appendChild(p); pages.push(p); return p; }}
   let p=newPage(true); let c=p.querySelector('.content');

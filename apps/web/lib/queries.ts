@@ -68,44 +68,6 @@ export async function misconceptionNames(): Promise<Record<string, string>> {
   return Object.fromEntries(rows.map((r) => [r.code, r.name]));
 }
 
-export type ItemRow = {
-  id: string;
-  item_key: string;
-  fmt: string;
-  stem: string;
-  spec: { a?: number; b?: number; op?: string; text?: string; layout?: string; missing?: string };
-  responses: { rid: string; answer: string; misconceptions: Record<string, number> }[];
-  tags: Record<string, string | number | number[]>;
-  status: string;
-  times_used: number;
-  skill_set_code: string | null;
-  difficulty: string | null;
-  created_at: string;
-};
-
-export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string };
-
-export async function items(f: ItemFilter, limit = 200): Promise<ItemRow[]> {
-  return sql<ItemRow[]>`
-    select id, item_key, fmt, stem, spec, responses, tags, status, times_used, skill_set_code, difficulty, created_at
-    from item
-    where source = 'generated'
-      ${f.set ? sql`and skill_set_code = ${f.set}` : sql``}
-      ${f.difficulty ? sql`and difficulty = ${f.difficulty}` : sql``}
-      ${f.fmt ? sql`and fmt = ${f.fmt}` : sql``}
-      ${f.status ? sql`and status = ${f.status}` : sql`and status = 'active'`}
-    order by created_at desc, item_key
-    limit ${limit}`;
-}
-
-export async function itemFacets(): Promise<{ fmts: string[]; sets: string[] }> {
-  const [fmts, sets] = await Promise.all([
-    sql<{ fmt: string }[]>`select distinct fmt from item where source = 'generated' order by fmt`,
-    sql<{ code: string }[]>`select code from skill_set order by code`,
-  ]);
-  return { fmts: fmts.map((r) => r.fmt), sets: sets.map((r) => r.code) };
-}
-
 // Honest empty states read the real tables so a screen can say what exists, even when that is nothing.
 export async function tableCounts(): Promise<Record<string, number>> {
   const rows = await sql<{ t: string; n: number }[]>`

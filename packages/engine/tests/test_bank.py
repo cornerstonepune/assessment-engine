@@ -272,9 +272,13 @@ def test_fill_native_dry_run_inserts_nothing(conn):
     assert conn.execute("select count(*) as n from item").fetchone()["n"] == before
 
 
-def test_fill_native_honours_a_kind_list_across_the_shortcut_families(conn):
+def test_fill_native_honours_a_kind_list_across_the_shortcut_families(conn, monkeypatch):
     # STRATEGY.EFFICIENT Advance's check names all three kinds; a real spread should show up.
-    counts, accepted = bank.fill_native(conn, "STRATEGY.EFFICIENT", "Advance", 15)
+    # Seeded and dry, so what the live bank already holds cannot decide whether a family appears:
+    # counting only questions not yet stored made this fail once in the W2 goal run on 2026-09-21.
+    seeded = random.Random(5)
+    monkeypatch.setattr(bank.random, "Random", lambda: seeded)
+    counts, accepted = bank.fill_native(conn, "STRATEGY.EFFICIENT", "Advance", 15, dry_run=True)
     ops = {it.spec["op"] for it in accepted}
     assert ops == {"+", "-"}, "near100/near1000 give +, same_tens gives -"
 
@@ -298,3 +302,36 @@ def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path
     ).fetchone()["n"]  # the real bank plus this test's
     with pytest.raises(ValueError, match=f"only {have}"):
         bank.sheet(conn, SET, DIFF, have + 1, tmp_path)
+
+
+def _printed(pdf):
+    """What page 1 of a printed PDF says, as one line of plain text (ligatures unfolded)."""
+    import unicodedata
+
+    import pymupdf
+
+    with pymupdf.open(pdf) as doc:
+        return " ".join(unicodedata.normalize("NFKC", doc[0].get_text()).split())
+
+
+def test_every_sample_sheet_is_titled_with_its_own_skill_set(conn, tmp_path):
+    """Every paper was once titled "Addition and subtraction" — multiplication and reasoning papers
+    included — and the reasoning sets' band "G2+" crashed the sample sheet outright. One sheet for
+    every skill set x difficulty the bank can fill, its title read back from the printed PDF."""
+    from playwright.sync_api import sync_playwright
+
+    units = conn.execute(
+        "select i.skill_set_code as code, i.difficulty, s.name from item i"
+        " join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
+        " where i.status = 'active' and i.source = 'generated'"
+        " group by 1, 2, 3 having count(*) >= 8 order by 1, 2"
+    ).fetchall()
+    assert len(units) >= 60
+    with sync_playwright() as pw:
+        for u in units:
+            out = tmp_path / f"{u['code']}-{u['difficulty']}"
+            key = bank.sheet(conn, u["code"], u["difficulty"], 8, out, pw=pw)
+            page1 = _printed(out / f"{key['sheet_id']}.pdf")
+            assert f" · {u['name']}" in page1, (u["code"], u["difficulty"], page1[:120])
+            if "addition and subtraction" not in u["name"].lower():
+                assert "Addition and subtraction" not in page1, (u["code"], u["difficulty"])

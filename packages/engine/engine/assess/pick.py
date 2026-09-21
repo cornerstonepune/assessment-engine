@@ -17,6 +17,7 @@ class Sheet:
     variant: int
     week: str
     items: list
+    title: str = ""  # what the paper practises, from data (the skill set's name); printed beside the grade
 
     def n_responses(self):
         return sum(len(i.responses) for i in self.items)

@@ -188,6 +188,7 @@ def _store(conn, tenant, p, items, week, kind):
         "child_id": p["child_id"],
         "roll_no": p["roll_no"],
         "band": p["band"],
+        "skill_set_code": p["skill_set_code"],
         "difficulty": p["difficulty"],
         "rule": p["rule_fired"],
         "item_rows": items,
@@ -206,12 +207,13 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
     outdir.mkdir(parents=True)
     sheets = built["sheets"] + built["spares"]
     named = roster.names(conn, [s["child_id"] for s in sheets if s["child_id"]], actor)
+    titles = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set").fetchall()}
 
     pdfs = []
     with sync_playwright() as pw:
         for s in sheets:
             items = [item_from_row(r) for r in s["item_rows"]]
-            sh = Sheet(s["qr"], s["band"], s["difficulty"], 1, week, items)
+            sh = Sheet(s["qr"], s["band"], s["difficulty"], 1, week, items, title=titles[s["skill_set_code"]])
             label = f"{named.get(s['child_id'], 'Spare copy')} · {s['difficulty']} {kind}"
             key = render_sheet(sh, outdir, week_label=label, pw=pw)
             conn.execute(

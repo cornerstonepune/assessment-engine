@@ -96,6 +96,17 @@ class BankFillResponse(BaseModel):
     already: bool = False
 
 
+class BankCorrectRequest(BaseModel):
+    stem: str = Field(min_length=1, max_length=600)
+    by: str = Field(min_length=1, max_length=200)
+    reason: str = Field(max_length=300)
+
+
+class BankCorrectResponse(BaseModel):
+    item_key: str
+    retired: str
+
+
 class BankCoverageRow(BaseModel):
     code: str
     difficulty: str

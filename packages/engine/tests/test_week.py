@@ -253,3 +253,20 @@ def test_two_classes_assembled_at_the_same_moment_both_finish():
                 "select count(*) as n from child where id = any(%s) and active", (made,)
             ).fetchone()["n"]
         assert left == 0, f"{left} test children left active in the roster"
+
+
+def test_a_multiplication_pack_is_titled_multiplication(conn, children, tmp_path):
+    """A real per-child pack, not a staff sample: each child's paper is titled with the skill set
+    the class was prescribed, read back from the printed PDF."""
+    import unicodedata
+
+    import pymupdf
+
+    prescribe.for_class(conn, SECTION, WEEK, "MUL.1D")
+    built = assemble.for_week(conn, SECTION, WEEK)
+    assemble.render(conn, built, tmp_path / "pack", WEEK, "tester@example.org")
+    name = conn.execute("select name from skill_set where code = 'MUL.1D'").fetchone()["name"]
+    for s in built["sheets"] + built["spares"]:
+        with pymupdf.open(tmp_path / "pack" / f"{s['qr']}.pdf") as doc:
+            page1 = " ".join(unicodedata.normalize("NFKC", doc[0].get_text()).split())
+        assert f" · {name}" in page1 and "Addition and subtraction" not in page1, page1[:120]

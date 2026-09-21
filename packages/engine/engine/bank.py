@@ -15,6 +15,7 @@ from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.assess.items import Item, Response
+from engine.assess.layout import WORKING_LINES
 from engine.assess.pick import Sheet, _sheet_id
 from engine.assess.render import render_sheet
 from engine.spec import read as spec
@@ -309,7 +310,7 @@ def recheck(conn):
             bad.append(r["item_key"])
 
     rows = conn.execute(
-        "select item_key, fmt, stem, spec, responses, rung_code, skill_codes from item"
+        "select item_key, fmt, stem, spec, responses, rung_code, skill_codes, generator from item"
         " where status = 'active' and source = 'generated' and fmt = any(%s)",
         (list(verify.FORMATS),),
     ).fetchall()
@@ -338,7 +339,9 @@ def recheck(conn):
             code in table and want.misconceptions.get(code) != value
             for code, value in stored["misconceptions"].items()
         )
-        if want.answer != stored["answer"] or rebuilt.item_id != r["item_key"] or claims_disagree:
+        # A person's rewording keeps the numbers and so the rebuilt key; its own key names the wording.
+        renamed = rebuilt.item_id != r["item_key"] and r["generator"] != "correction"
+        if want.answer != stored["answer"] or renamed or claims_disagree:
             bad.append(r["item_key"])
     return bad
 
@@ -398,11 +401,11 @@ def item_from_row(r):
         r["stem"],
         r["spec"],
         [Response(**x) for x in r["responses"]],
-        working_lines=verify.FORMATS[r["fmt"]][1],
+        working_lines=WORKING_LINES[r["fmt"]],
     )
 
 
-def sheet(conn, code, difficulty, n, outdir, seed=1):
+def sheet(conn, code, difficulty, n, outdir, seed=1, pw=None):
     rows = conn.execute(
         "select i.*, r.band from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
         " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s",
@@ -411,6 +414,7 @@ def sheet(conn, code, difficulty, n, outdir, seed=1):
     if len(rows) < n:
         raise ValueError(f"only {len(rows)} active items for {code} {difficulty}; asked for {n}")
     chosen = random.Random(seed).sample(rows, n)
+    name = conn.execute("select name from skill_set where code = %s", (code,)).fetchone()["name"]
     sh = Sheet(
         _sheet_id(code, difficulty, seed, "bank"),
         chosen[0]["band"],
@@ -418,5 +422,6 @@ def sheet(conn, code, difficulty, n, outdir, seed=1):
         seed,
         "bank",
         [item_from_row(r) for r in chosen],
+        title=name,
     )
-    return render_sheet(sh, outdir, week_label=f"{code} · {difficulty}")
+    return render_sheet(sh, outdir, week_label=f"{code} · {difficulty}", pw=pw)

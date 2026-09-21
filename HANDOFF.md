@@ -131,3 +131,14 @@ step; this one waits for Nimish to say so.
   the template literal, so it strips the letter D rather than non-digits (harmless on today's roll
   numbers, wrong in principle); five `react-hooks/static-components` errors in
   `apps/web/app/(app)/library/page.tsx`, all pre-existing.
+
+## Side work on this branch, 2026-09-21 — the question bank on screen (not a W3 gate)
+
+Asked for by Nimish for the founder. `/library` shows the whole bank; every question opens its own
+page (as it prints, answer, every wrong answer, Correct the wording, Remove); `/worksheets/<code>`
+shows a printed paper with its QR. Printing fixed on the way: 8 of 12 question kinds could not be
+printed, number walls overlapped, every paper was titled "Addition and subtraction". Details and
+commands in `STATE.md`. Open, and Nimish's to decide: the "combine concepts" screen (a mixed-bag
+paper, or new combined questions), how a multi-skill answer counts on a child's graph, and whether
+1 + 9 counts as "crossing ten". Engine-side, queued: walls and two-step problems record no
+operation, so their wrong-operation mistake shows as a code.

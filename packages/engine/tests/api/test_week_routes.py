@@ -111,3 +111,28 @@ def test_approving_the_week_names_the_person_on_every_sheet(client, children, co
         "/week/approve", json={"section": SECTION, "week": WEEK, "by": "someone@else.org"}
     ).json()
     assert again["already"] is True or again["sheets"] == 0, "a second approval approves nothing further"
+
+
+def test_a_papers_page_is_served_as_printed(client, children, conn, tmp_path):
+    """The paper view shows the page itself — QR and all — from the PDF the render wrote, never a
+    second drawing of it."""
+    import pymupdf
+
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    qr = client.post("/week/assemble", json={"section": SECTION, "week": WEEK}).json()["qr_codes"][0]
+    pdf = tmp_path / f"{qr}.pdf"
+    with pymupdf.open() as doc:
+        doc.new_page().insert_text((72, 72), qr)
+        doc.save(pdf)
+    conn.execute("update sheet_instance set pdf_path = %s where qr_code = %s", (str(pdf), qr))
+
+    r = client.get(f"/sheet/{qr}/page/1.jpg")
+    assert r.status_code == 200, r.text
+    assert r.headers["content-type"] == "image/jpeg" and r.content[:2] == b"\xff\xd8"
+
+
+def test_a_paper_never_rendered_or_unknown_is_not_found(client, children):
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    qr = client.post("/week/assemble", json={"section": SECTION, "week": WEEK}).json()["qr_codes"][0]
+    assert client.get(f"/sheet/{qr}/page/1.jpg").status_code == 404
+    assert client.get("/sheet/CS000000/page/1.jpg").status_code == 404

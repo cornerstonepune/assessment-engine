@@ -1,13 +1,15 @@
-"""W2/N5–N7 — the week's papers over HTTP: prescribe, assemble, render.
+"""W2/N5–N7 — the week's papers over HTTP: prescribe, assemble, render, and one printed page.
 
 Thin, like every route here. The decisions — which difficulty a child gets, which questions are
 still unseen, how many spares, who could not be filled — all live in `prescribe` and `assemble`,
 which is what the CLI and the tests call too. F2 forwards answers; it never computes one.
 """
 
-from fastapi import APIRouter, Depends, Header
+from pathlib import Path
 
-from engine import assemble, db, prescribe
+from fastapi import APIRouter, Depends, Header, HTTPException, Response
+
+from engine import assemble, db, legacy, prescribe
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
@@ -123,3 +125,19 @@ def approve_week(
 
     result, already = run_idempotent(conn, tenant_id, "week_approve", key, body.model_dump(), run)
     return {**result, "already": already}
+
+
+@router.get("/sheet/{qr}/page/{page_no}.jpg")
+def sheet_page(qr: str, page_no: int, conn=Depends(get_conn)) -> Response:
+    """One page of a paper exactly as it was printed — the QR in its corner — for the paper view.
+
+    Served from the PDF the render wrote, like a scan is served from the school's disk: a person
+    sees the page itself, not a second drawing of it that could disagree with what was handed out.
+    """
+    row = conn.execute("select pdf_path from sheet_instance where qr_code = %s", (qr,)).fetchone()
+    if not row or not row["pdf_path"]:
+        raise HTTPException(status_code=404, detail="this paper has not been rendered")
+    path = Path(row["pdf_path"])
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"the paper is not on this machine: {path}")
+    return Response(content=legacy.page_crop(path, page_no), media_type="image/jpeg")

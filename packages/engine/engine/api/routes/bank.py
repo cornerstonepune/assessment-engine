@@ -1,11 +1,14 @@
-"""W1/N2 — top up the question bank for one skill set × difficulty, over HTTP."""
+"""W1/N2 — top up the question bank for one skill set × difficulty, over HTTP; and one question on
+its own: how it prints, and a person's correction to it."""
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
-from engine import bank, review
+from engine import bank, question, review
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
+    BankCorrectRequest,
+    BankCorrectResponse,
     BankCoverageRow,
     BankFillRequest,
     BankFillResponse,
@@ -75,3 +78,24 @@ def fill(
 
     result, already = run_idempotent(conn, tenant_id, "bank_fill", key, body.model_dump(), run)
     return {**result, "already": already}
+
+
+@router.get("/bank/item/{item_key}/printed.png")
+def printed_question(item_key: str, conn=Depends(get_conn)) -> Response:
+    """One question exactly as a paper prints it, for the question page."""
+    png = question.printed(conn, item_key)
+    if png is None:
+        raise HTTPException(status_code=404, detail="no such question in the bank")
+    return Response(content=png, media_type="image/png")
+
+
+@router.post("/bank/item/{item_key}/correct", response_model=BankCorrectResponse)
+def correct_question(item_key: str, body: BankCorrectRequest, conn=Depends(get_conn)):
+    """A person rewords a question. Not idempotency-wrapped: the same correction sent twice is
+    refused the second time, because the first one retired the wording it corrected."""
+    try:
+        return question.correct(conn, item_key, body.stem, body.by, body.reason)
+    except LookupError:
+        raise HTTPException(status_code=404, detail="no such question in the bank") from None
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from None

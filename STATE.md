@@ -2575,3 +2575,60 @@ this kind of problem needs to be solved."* Stopped. What is true now:
   thinks it saw, for a person to confirm with one click, never marked from — `mark` reads
   `child_answer`, which stays empty. Test pins both halves. `read eval` unchanged: 81.9% (68/83),
   1 silently wrong. Suite **412 passed**.
+
+## One page per question; the bank can print every kind it holds (2026-09-21, same side session)
+
+Nimish, on the list: "+4 more isn't opening … all these questions should have a page which
+highlights everything about that question and option to correct/edit something along with a
+snippet of how it will appear in the paper … simpler and clearer."
+
+- **8 of the 12 kinds in the bank could not be printed at all** — `bank.item_from_row` looked up
+  working space in `verify.FORMATS`, which knows four kinds, so any paper drawing on the other
+  ~5,000 questions raised `KeyError`. Every paper printed so far was subtraction, which is why it
+  never showed. `assess/layout.WORKING_LINES` holds all 17 kinds the generators make, and
+  `test_items` fails if a generator disagrees with it. Check: `test_every_kind_in_the_bank_can_be_printed_again`
+  fails on the old lookup (`KeyError: 'balance_scale'`), passes now; `bank.sheet` printed
+  WORD.BUDGET, MENTAL.BRIDGE_EQ (walls) and ESTIMATE.ROUND10 papers.
+- **Number walls printed broken** — 24 mm bricks under four 8.4 mm answer boxes. Bricks are now as
+  wide as the widest answer. Check: `test_a_number_wall_keeps_every_answer_box_inside_its_brick`
+  (measured in Chromium) → 3 spilling bricks before, 0 after.
+- **`/library/<key>`**: the question as it prints (`GET /bank/item/{key}/printed.png`, the paper's own
+  `render_item` and CSS), its answer, every wrong answer with its mistake and example, the level's
+  rule, where it came from, and two actions. **Correct the wording**
+  (`POST /bank/item/{key}/correct`, `engine/question.py`) keeps every number (code compares them), so
+  the answer cannot change; it refuses a changed number, "borrow", an unchanged sentence, no reason,
+  and the three kinds that print from numbers alone. The correction is a new row
+  (`item.corrected_from`, migration `20260925090000`, applied) and the old one retires with who and
+  why; exposures carry over. `bank.recheck` accepts a correction's own key. **Remove** moved here.
+  The list is question · answer · kind, each opening its page.
+- Mistake sentences follow names: an example that differs by operation is not shown on a question
+  that records none (2 of 60 names).
+- Commands, 2026-09-21: `uv run pytest -q` (engine) → exit 0, 413 passed; playwright e2e bank/question/
+  paper + all screens → 29 passed; `bin/engine audit` → 0 violations; `bin/engine bank recheck` →
+  0 mismatches; ruff clean.
+- **Open:** walls and two-step problems record no operation, so their wrong-operation mistake shows
+  its code; `engine bank sheet` fails for the G2+ reasoning sets; every paper is titled "Addition and
+  subtraction". The two engine-side items are queued as tasks. 7 word problems say "1 marbles" —
+  each is a one-minute correction on its page.
+
+## Papers are titled by what they practise; the reasoning sample sheets print (2026-09-21)
+
+- **Every paper was titled "Addition and subtraction"** — head, footer and every "continued" line —
+  so a Grade 3 multiplication paper said addition and subtraction. `Sheet.title` now carries the
+  skill set's own name (`skill_set.name`) from both builders — `assemble.render` (a child's paper)
+  and `bank.sheet` (a staff sample); the head and the "continued" line print it, the footer keeps to
+  school and grade so a long name never wraps the page number. A name is escaped for the page's
+  HTML and for the JavaScript template literal that lays it out.
+- **`bank.sheet` crashed on REASON.EXPLAIN and REASON.FIND_MISTAKE** — rungs X1/X2 carry band "G2+",
+  which the `GRADE_TITLE` table did not hold. A band is now said in words by rule ("G2+" → "Grade 2+").
+- Checks, each read back from the printed PDF:
+  `test_every_sample_sheet_is_titled_with_its_own_skill_set` (every skill set x difficulty with ≥ 8
+  questions — 68 sheets) failed first on "Grade 1 · Addition and subtraction" for ADD.1D.BRIDGE10;
+  `test_a_multiplication_pack_is_titled_multiplication` (a real per-child MUL.1D pack) failed on
+  "Grade 2 · Addition and subtraction"; both pass. Page 1 of one sheet per skill set (17) was looked at.
+- `test_fill_native_honours_a_kind_list_across_the_shortcut_families` failed once in the first W2 goal
+  run and passed in 60 direct runs and three full suites: it counted only questions not already in the
+  live bank, so a nearly-full family could vanish from a run. It is now seeded and dry.
+- Commands, 2026-09-21: `cd packages/engine && .venv/bin/python -m pytest` → 415 passed;
+  `bin/engine audit` → 12 invariants, 0 violations; `bin/engine goal w2-assemble-and-print` → 12/12
+  scenarios, 5/5 criteria, GOAL ACHIEVED.

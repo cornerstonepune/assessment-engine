@@ -144,3 +144,30 @@ def test_review_rejects_an_unknown_reviewer_before_spending_anything(client, mon
         json={"skill_set": "SUB.2D.EXCH", "difficulty": "Hard", "reviewer": "vibes"},
     )
     assert r.status_code == 422
+
+
+def _word_problem(conn):
+    return conn.execute(
+        "select item_key, stem from item where status = 'active' and source = 'generated' and fmt = 'word_1step'"
+        " order by item_key limit 1"
+    ).fetchone()
+
+
+def test_a_questions_printed_block_is_served_as_a_png(client, conn):
+    key = _word_problem(conn)["item_key"]
+    r = client.get(f"/bank/item/{key}/printed.png", headers=HEADERS)
+    assert r.status_code == 200 and r.headers["content-type"] == "image/png"
+    assert client.get("/bank/item/no-such-question/printed.png", headers=HEADERS).status_code == 404
+    assert client.get(f"/bank/item/{key}/printed.png").status_code == 401
+
+
+def test_a_correction_over_http_returns_the_new_question_or_says_why_not(client, conn):
+    q = _word_problem(conn)
+    body = {"stem": "Read carefully. " + q["stem"], "by": "tester@example.org", "reason": "clearer"}
+    done = client.post(f"/bank/item/{q['item_key']}/correct", headers=HEADERS, json=body)
+    assert done.status_code == 200, done.text
+    assert done.json()["retired"] == q["item_key"] and done.json()["item_key"] != q["item_key"]
+
+    again = client.post(f"/bank/item/{q['item_key']}/correct", headers=HEADERS, json=body)
+    assert again.status_code == 422 and "ready to print" in again.json()["detail"]
+    assert client.post("/bank/item/no-such-question/correct", headers=HEADERS, json=body).status_code == 404

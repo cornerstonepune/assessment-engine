@@ -1,5 +1,5 @@
 import { currentStaff } from "@/lib/auth";
-import { EngineDown, engineGet } from "@/lib/engine";
+import { engineImage } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
 const BOX = /^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/;
@@ -21,13 +21,5 @@ export async function GET(
   }
   const box = new URL(request.url).searchParams.get("box") ?? "";
   const q = BOX.test(box) ? `?box=${box}` : "";
-  try {
-    const res = await engineGet(`/capture/${capture}/page/${n}.jpg${q}`);
-    if (!res.ok) return new Response("that page is not on this machine", { status: res.status });
-    return new Response(res.body, {
-      headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=300" },
-    });
-  } catch (e) {
-    return new Response(e instanceof EngineDown ? e.message : "could not fetch the page", { status: 503 });
-  }
+  return engineImage(`/capture/${capture}/page/${n}.jpg${q}`);
 }

@@ -195,3 +195,46 @@ def test_explain_claims_true_and_false_variants_are_different_items():
     t = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=True)
     f = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=False)
     assert t.item_id != f.item_id
+
+
+def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
+    """A question read back from the bank is printed with `layout.WORKING_LINES[fmt]`; a generator
+    that gives its kind different room would print a stored question differently from a fresh one.
+    Every band in the seed is driven through its own generator, and every generator no band uses
+    yet is called directly — the day a skill set starts using it, it is already covered."""
+    import json
+
+    from engine import db
+    from engine.assess import bands, verify, words
+    from engine.assess.layout import WORKING_LINES
+
+    rng = random.Random(7)
+    made = []
+    seed = json.loads((db.REPO_ROOT / "supabase/seed/skill_sets.json").read_text())["skill_sets"]
+    for s in seed:
+        for band in s["difficulty"].values():
+            check = band.get("check", {})
+            if check.get("format") in bands.NATIVE_GENERATORS:
+                try:
+                    made.append(bands.native_item(check["format"], check, rng, s["rung_code"], "Conceptual"))
+                except (KeyError, ValueError, RuntimeError):
+                    continue  # a band its generator cannot serve is filled another way (`bands.codes`)
+    made += [
+        I.bare_sum(rng, "R5", "Procedural", "+", 2, 2, {1}, layout="horizontal"),
+        I.bare_sum(rng, "R5", "Procedural", "+", 2, 2, {1}, layout="column"),
+        I.missing_part_20(rng, "R3", "Conceptual"),
+        I.multi_add(rng, "R12", "Procedural"),
+        I.missing_digit(rng, "R9", "Conceptual", "+", 3),
+        I.digit_cards(rng, "R13", "Conceptual"),
+        I.partition_scaffold(rng, "R9", "Conceptual", {1}),
+        I.sort_into_table(rng, "R9", "Conceptual", "+"),
+        I.partial_worked(rng, "R10", "Conceptual"),
+        words.word_1step(rng, "R8", "Application", 2, (0, 1)),
+    ]
+    assert {it.fmt for it in made} == set(WORKING_LINES), (
+        "every kind the generators make has a row, and no row is orphaned"
+    )
+    for it in made:
+        assert it.working_lines == WORKING_LINES[it.fmt], it.fmt
+    for fmt, (_, lines, _) in verify.FORMATS.items():
+        assert lines == WORKING_LINES[fmt], fmt
