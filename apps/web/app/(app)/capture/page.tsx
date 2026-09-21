@@ -70,7 +70,7 @@ function PaperTable({ rows }: { rows: Awaited<ReturnType<typeof papersToApprove>
             <th>Paper</th>
             <th>Sat</th>
             <th className="text-right">Answers</th>
-            <th className="text-right">Waiting</th>
+            <th className="text-right">Not signed yet</th>
             <th>State</th>
           </tr>
         </thead>

@@ -15,11 +15,16 @@ const fmtDate = (d: string | null) =>
 // should never have to learn the word `illegible` to use this screen.
 function reading(a: CaptureAnswer): string {
   if (a.human_read !== null) return `You said the child wrote ${a.human_read || "nothing"}.`;
-  const sure = a.confidence ? ` It is ${Math.round(Number(a.confidence))}% sure.` : "";
-  if (a.answer_state === "written") return `The reader read ${a.read}.${sure}`;
+  // No percentage. The engine only stands behind a reading it is sure enough of; printing "82% sure"
+  // beside it turned every settled answer into a question for the teacher.
+  if (a.answer_state === "written") return `The reader read ${a.read}.`;
   if (a.answer_state === "blank") return "The reader found nothing written here.";
   if (a.answer_state === "not_found") return "The reader could not find this question on the photograph.";
-  return "There is writing here that the reader could not make out.";
+  // The reader knows WHICH of five things went wrong, and saying so turns "your problem now" into
+  // a question the teacher can answer at a glance: an answer under the floor she confirms or
+  // corrects, a region holding four numbers for two answers she has to split herself.
+  const why = a.why ? ` (${a.why})` : "";
+  return `There is writing here that the reader could not make out.${why}`;
 }
 
 // The three signals stay three (rule 5), and an answer nobody has settled is not one of them.
@@ -125,15 +130,42 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
               </p>
             </Panel>
 
-            {pages.map((n) => (
-              <Panel key={n} title={`Page ${n}, answer by answer`} aside={`${answers.filter((a) => a.page === n).length} answers`}>
-                <ul className="grid gap-4">
-                  {answers.filter((a) => a.page === n).map((a) => (
-                    <AnswerCard key={a.id} a={a} paperId={id} names={names} />
-                  ))}
-                </ul>
-              </Panel>
-            ))}
+            {/* What needs a person comes first, and only that. The answers the engine marked itself
+                sit folded underneath, one click away: shown side by side with the doubtful ones, each
+                with "it is 82% sure", every settled answer read as a question put to the teacher, and
+                Nimish found himself checking dozens of answers nobody had asked him about. */}
+            {pages.map((n) => {
+              const here = answers.filter((a) => a.page === n);
+              const yours = here.filter((a) => !settled(a) && a.state === "candidate");
+              const theirs = here.filter((a) => !yours.includes(a));
+              return (
+                <Panel
+                  key={n}
+                  title={`Page ${n}`}
+                  aside={yours.length ? `${yours.length} need${yours.length === 1 ? "s" : ""} you` : "nothing needs you"}
+                >
+                  {yours.length ? (
+                    <ul className="grid gap-4">
+                      {yours.map((a) => (
+                        <AnswerCard key={a.id} a={a} paperId={id} names={names} />
+                      ))}
+                    </ul>
+                  ) : null}
+                  {theirs.length ? (
+                    <details className={yours.length ? "mt-4" : ""}>
+                      <summary className="cursor-pointer text-[13.5px] text-basalt/70">
+                        {theirs.length} answer{theirs.length === 1 ? "" : "s"} the engine marked itself — open to check
+                      </summary>
+                      <ul className="mt-3 grid gap-4">
+                        {theirs.map((a) => (
+                          <AnswerCard key={a.id} a={a} paperId={id} names={names} />
+                        ))}
+                      </ul>
+                    </details>
+                  ) : null}
+                </Panel>
+              );
+            })}
           </div>
 
           <div className="grid content-start gap-[18px] self-start xl:sticky xl:top-6">

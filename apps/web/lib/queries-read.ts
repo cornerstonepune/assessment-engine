@@ -81,6 +81,10 @@ export type CaptureAnswer = {
   answer: string | null;
   read: string | null;
   answer_state: string | null;
+  // Why this answer reached a person, in the reader's own words — "3 numbers in the region for 2
+  // answers", "under the confidence floor". A teacher looking at eighteen crops needs to know
+  // which of them are her judgement to make and which are the engine admitting it could not see.
+  why: string | null;
   confidence: number | null;
   box: number[] | null;
   status: string;
@@ -103,6 +107,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
+           nullif(r.raw_read::jsonb ->> 'why', '') as why,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
