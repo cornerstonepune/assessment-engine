@@ -15,7 +15,7 @@ import re
 
 from playwright.sync_api import sync_playwright
 
-from engine import bank
+from engine import bank, library
 from engine.assess import render, verify
 from engine.assess.items import _id
 from engine.assess.pick import Sheet
@@ -117,4 +117,19 @@ def correct(conn, item_key, stem, by, reason) -> dict:
         (new["id"], old["id"]),
     )
     bank.flag(conn, item_key, by, f"Corrected as {new_key}: {reason}")
+    library.build(conn, only=(old["skill_set_code"], old["difficulty"]))
     return {"item_key": new_key, "retired": item_key}
+
+
+def remove(conn, item_key, by, note) -> dict:
+    """Any staff member takes a question out of the bank, with one line of why. The worksheets it
+    was on are retired and replaced in the same transaction, so no worksheet ever holds a question
+    that has left the bank (ADR 0026). Raises LookupError for an unknown question."""
+    if not by:
+        raise ValueError("Removing a question must name the person removing it.")
+    old = _row(conn, item_key)
+    if not old:
+        raise LookupError(f"no question {item_key!r} in the bank")
+    status = bank.flag(conn, item_key, by, " ".join(note.split()))
+    changed = library.build(conn, only=(old["skill_set_code"], old["difficulty"]))
+    return {"item_key": item_key, "status": status, "worksheets_retired": changed["retired"]}

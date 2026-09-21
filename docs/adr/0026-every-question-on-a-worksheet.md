@@ -20,15 +20,18 @@ distinct question their arithmetic allows (ADR 0011).
   (rung, level initial, number — never reused), no child and no week, and the 12 question ids of
   one skill at one level (`assemble.items_per_sheet`). Which worksheets a question is on is read
   from those ids; nothing is copied onto the question.
-- A level gets W = max(10, ⌈N ÷ 12⌉) worksheets, so every active question is on at least one. The
-  questions are dealt out in turn, sorted by kind, so each worksheet holds each kind in its fair
-  share; where 12 × W exceeds N (the Grade 1 levels, and the 145) the deal goes round again in a
-  fresh order, never putting a question twice on one worksheet, so every question is used an equal
-  number of times, ±1. On a worksheet the questions print grouped by kind, in the skill's own order
-  of kinds. 1,123 worksheets for today's bank.
-- `engine library build` is idempotent. A question removed or corrected retires every worksheet it
-  was on (`retired_at`), and the next build deals replacements from what is active. A worksheet is
-  never edited in place, because a child's printed paper points at it.
+- A level gets W = max(10, ⌈N ÷ 12⌉) worksheets, so every active question is on at least one. Each
+  worksheet's share of each kind is fixed first, in proportion to the level's kinds; then each kind's
+  questions are dealt into those places in laps, a fresh order each lap, never twice on one
+  worksheet — so where 12 × W exceeds N (the Grade 1 levels, and the 145) every question is used an
+  equal number of times, ±1. (A first version dealt by rounds sorted by kind: on the real bank a
+  level of two kinds got 8 of one and 4 of the other per worksheet.) On a worksheet the questions
+  print grouped by kind, in the skill's own order of kinds. 1,123 worksheets for today's bank.
+- `engine library build` is idempotent. Removing or correcting a question on the website goes through
+  the engine, which in the same transaction retires every worksheet the question was on
+  (`retired_at`) and deals replacements from what is active. Where a patch would leave a small
+  level's questions used unevenly, or two worksheets alike, the whole level is retired and dealt
+  afresh. A worksheet is never edited in place, because a child's printed paper points at it.
 - A worksheet prints on demand (`GET /worksheet/{code}.pdf`), through the same renderer as a
   child's paper, its code where a child's paper has the QR's.
 

@@ -9,7 +9,7 @@ from collections import namedtuple
 import pytest
 from fastapi.testclient import TestClient
 
-from engine import bank, db
+from engine import bank, db, library
 from engine.api import deps
 from engine.api.app import app
 
@@ -171,3 +171,26 @@ def test_a_correction_over_http_returns_the_new_question_or_says_why_not(client,
     again = client.post(f"/bank/item/{q['item_key']}/correct", headers=HEADERS, json=body)
     assert again.status_code == 422 and "ready to print" in again.json()["detail"]
     assert client.post("/bank/item/no-such-question/correct", headers=HEADERS, json=body).status_code == 404
+
+
+def test_removing_a_question_retires_it_and_replaces_the_worksheet_it_was_on(client, conn):
+    library.build(conn)
+    q = conn.execute(
+        "select i.item_key, i.id, count(*)::int as on from item i join sheet_template t on i.id = any(t.item_ids)"
+        " where t.source = 'library' and t.retired_at is null and i.status = 'active'"
+        " group by i.item_key, i.id order by i.item_key limit 1"
+    ).fetchone()
+    res = client.post(
+        f"/bank/item/{q['item_key']}/remove",
+        headers=HEADERS,
+        json={"by": "tester@example.org", "note": "duplicate"},
+    )
+    assert res.status_code == 200
+    # Every worksheet that held it goes. A Grade 1 level shares its questions across its worksheets,
+    # so it is dealt afresh rather than patched unevenly: more may go than held this one question.
+    body = res.json()
+    assert (body["item_key"], body["status"]) == (q["item_key"], "retired")
+    assert body["worksheets_retired"] >= q["on"]
+    assert library.check(conn)[1] == {}
+    missing = client.post("/bank/item/NOPE-0/remove", headers=HEADERS, json={"by": "t@e.org", "note": ""})
+    assert missing.status_code == 404

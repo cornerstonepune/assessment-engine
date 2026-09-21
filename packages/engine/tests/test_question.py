@@ -8,7 +8,7 @@ import os
 import pytest
 from playwright.sync_api import sync_playwright
 
-from engine import bank, db, question
+from engine import bank, db, library, question
 from engine.assess import render
 from engine.assess.pick import Sheet
 
@@ -130,3 +130,45 @@ def test_a_number_wall_keeps_every_answer_box_inside_its_brick(conn):
         )
         browser.close()
     assert spills == 0
+
+
+# ---- a question on a worksheet (ADR 0026): the worksheet never holds a question that left the bank
+
+
+def _on_a_worksheet(conn):
+    library.build(conn)
+    return conn.execute(
+        "select i.item_key, i.id, t.code from item i join sheet_template t on i.id = any(t.item_ids)"
+        " where t.source = 'library' and t.retired_at is null and i.fmt = 'word_1step' and i.status = 'active'"
+        " and i.skill_set_code = 'ADD.2D.REG' and i.difficulty = 'Easy' order by i.item_key limit 1"
+    ).fetchone()
+
+
+def _live_worksheets_of(conn, item_id):
+    return [
+        r["code"]
+        for r in conn.execute(
+            "select code from sheet_template where source = 'library' and retired_at is null and %s = any(item_ids)",
+            (item_id,),
+        ).fetchall()
+    ]
+
+
+def test_rewording_a_question_moves_it_onto_a_new_worksheet_and_retires_the_old_one(conn):
+    q = _on_a_worksheet(conn)
+    stem = conn.execute("select stem from item where id = %s", (q["id"],)).fetchone()["stem"]
+    new = question.correct(
+        conn, q["item_key"], stem.replace("How many", "Altogether, how many"), BY, "clearer"
+    )
+    assert _live_worksheets_of(conn, q["id"]) == []
+    new_id = conn.execute("select id from item where item_key = %s", (new["item_key"],)).fetchone()["id"]
+    assert len(_live_worksheets_of(conn, new_id)) == 1
+    assert library.check(conn)[1] == {}
+
+
+def test_removing_a_question_retires_its_worksheet_and_every_other_question_stays_on_one(conn):
+    q = _on_a_worksheet(conn)
+    question.remove(conn, q["item_key"], BY, "a duplicate of another question")
+    assert _status(conn, q["id"]) == "retired"
+    assert _live_worksheets_of(conn, q["id"]) == []
+    assert library.check(conn)[1] == {}

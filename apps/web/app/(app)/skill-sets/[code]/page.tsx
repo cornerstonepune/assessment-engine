@@ -6,6 +6,8 @@ import { deadline } from "@/lib/deadline";
 import { DIFFICULTIES, gradeWords, skillSets, type Difficulty } from "@/lib/queries";
 import { mistakeBook } from "@/lib/queries-bank";
 import { levelExamples, skillKinds, skillMistakes } from "@/lib/queries-skills";
+import { worksheets } from "@/lib/queries-worksheets";
+import { kindsInWords } from "../../worksheets/library";
 import { approveSkills } from "./actions";
 
 type Props = { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -18,8 +20,16 @@ const fmtDate = (d: string) =>
 // its worksheets. Codes are provenance at the foot of the page, never the lead.
 export default async function SkillPage({ params, searchParams }: Props) {
   const [{ code }, q] = await Promise.all([params, searchParams]);
-  const [sets, examples, kinds, caught, book] = await deadline(
-    Promise.all([skillSets(), levelExamples(code), skillKinds(code), skillMistakes(code), mistakeBook()]),
+  const level = DIFFICULTIES.find((d) => d === q.level);
+  const [sets, examples, kinds, caught, book, sheets] = await deadline(
+    Promise.all([
+      skillSets(),
+      levelExamples(code),
+      skillKinds(code),
+      skillMistakes(code),
+      mistakeBook(),
+      worksheets({ set: code, level }, 200, 0),
+    ]),
   );
   const s = sets.find((x) => x.code === code);
   if (!s) notFound();
@@ -27,7 +37,6 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const ops = new Set(DIFFICULTIES.map((d) => s.difficulty[d]?.check?.op).filter(Boolean));
   const op = ops.size === 1 ? String([...ops][0]) : undefined;
   const mistakes = caught.map((m) => ({ ...m, said: mistakeOf(book, m.code, op) })).filter((m) => m.said);
-  const level = DIFFICULTIES.find((d) => d === q.level);
 
   return (
     <>
@@ -151,11 +160,41 @@ export default async function SkillPage({ params, searchParams }: Props) {
           </Panel>
 
           <section id="worksheets" className="scroll-mt-6">
-            <Panel title="Worksheets" aside={level ? `${level} only` : "every level"}>
-              <p className="note">
-                No worksheets yet. Every question in this skill is being put onto numbered worksheets of twelve — at least ten
-                for each level — in the next step (BUILD-ORDER, step 3 of five).
-              </p>
+            <Panel title="Worksheets" aside={`${sheets.length} ${level ? `at ${level}` : "at every level"}`}>
+              <div className="mb-3 flex flex-wrap items-center gap-2" aria-label="Show worksheets for">
+                <Link href={`/skill-sets/${s.code}#worksheets`} className={`chip ${level ? "" : "on"}`}>
+                  Every level
+                </Link>
+                {DIFFICULTIES.map((d) => (
+                  <Link key={d} href={`/skill-sets/${s.code}?level=${d}#worksheets`} className={`chip ${level === d ? "on" : ""}`}>
+                    {d} · {s.worksheets[d] ?? 0}
+                  </Link>
+                ))}
+              </div>
+              {sheets.length ? (
+                <table className="grid" aria-label="Worksheets for this skill">
+                  <thead>
+                    <tr>
+                      <th>Worksheet</th>
+                      <th>Level</th>
+                      <th>Its twelve questions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sheets.map((w) => (
+                      <tr key={w.code}>
+                        <td className="fact whitespace-nowrap">
+                          <Link href={`/worksheets/${w.code}`}>{w.code}</Link>
+                        </td>
+                        <td>{w.difficulty}</td>
+                        <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="note">No worksheets at this level: it holds too few questions to fill one.</p>
+              )}
             </Panel>
           </section>
         </div>

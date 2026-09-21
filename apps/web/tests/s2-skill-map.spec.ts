@@ -43,6 +43,8 @@ test("the map lists every skill by grade, each led by what the child can do, and
 
 test("every link on the Skill Map opens", async ({ page }) => {
   await page.goto("/");
+  // The page arrives as its loading screen and the map streams in after; read the map, not the screen.
+  await expect(page.getByRole("heading", { name: "Grade 1", exact: true })).toBeVisible();
   const hrefs = await page.getByRole("main").locator("a[href]").evaluateAll((as) => [
     ...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0])),
   ]);

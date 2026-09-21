@@ -186,6 +186,8 @@ export type QuestionPage = ItemRow & {
   replaced_by_key: string | null;
   removed_by: string | null;
   removed_note: string | null;
+  // The library worksheets it is on, in use (ADR 0026).
+  worksheets: string[];
 };
 
 // Everything about one question for its own page: the level's rule it was made to, where it came
@@ -199,7 +201,9 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
            (select o.item_key from item o where o.id = i.corrected_from) as corrected_from_key,
            (select n.item_key from item n where n.corrected_from = i.id order by n.created_at desc limit 1)
              as replaced_by_key,
-           f.actor as removed_by, f.note as removed_note
+           f.actor as removed_by, f.note as removed_note,
+           coalesce((select array_agg(t.code order by t.code) from sheet_template t
+                     where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
     from item i
     join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code
     left join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code

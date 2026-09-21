@@ -30,7 +30,7 @@ export default defineConfig({
   // One at a time: the specs share the copy's rows, and the outage tests lock tables every page reads.
   workers: 1,
   globalSetup: "./tests/global-setup.ts",
-  use: { baseURL: `http://localhost:${WEB_PORT}`, trace: "off" },
+  use: { baseURL: `http://localhost:${WEB_PORT}`, trace: "off", screenshot: "only-on-failure" },
   projects: [
     { name: "screens", testMatch: /screens\.spec\.ts/, use: { storageState: SIGNED_IN } },
     { name: "e2e", testMatch: /e2e\.spec\.ts/, use: { storageState: SIGNED_IN } },
