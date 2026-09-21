@@ -6,7 +6,7 @@ from pathlib import Path
 
 import typer
 
-from engine import db, external
+from engine import db, external, reread
 
 read_app = typer.Typer(help="W3 — read papers and place them on the skill graph", no_args_is_help=True)
 
@@ -235,6 +235,29 @@ def read_waiting() -> None:
     typer.echo(
         f"\n  settled by the engine  {totals['settled']}  ({totals['settled'] / totals['all_answers']:.0%})"
     )
+
+
+@read_app.command("again")
+def read_again(
+    paper: list[str] = typer.Option([], "--paper", help="one paper's code; default every paper"),
+) -> None:
+    """Read every live scan again so each unclear answer carries the reader's guess. A paper a person
+    has signed off or corrected is never read again; every settled answer whose reading changed is
+    named. Exits 1 if any did, or if any file could not be read."""
+    with db.connect() as conn:
+        out = reread.run(conn, only=paper or None)
+    for e in out["errors"]:
+        typer.echo(f"  {e}", err=True)
+    for c in out["changed"]:
+        typer.echo(
+            f"  CHANGED {c['item_result']}: {c['was']} ({c['read_was']}) -> {c['now']} ({c['read_now']})"
+        )
+    typer.echo(
+        f"  {out['read']} read · {out['missing']} missing · {out['failed']} failed · "
+        f"{len(out['changed'])} settled answers changed"
+    )
+    if out["changed"] or out["failed"] or out["missing"]:
+        raise typer.Exit(1)
 
 
 @read_app.command("stencil")

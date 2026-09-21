@@ -24,6 +24,14 @@ export default async function CapturePage() {
         sub="Every paper the engine has read, and what it wants you to look at. Nothing reaches a child's ladder until you have said it is right."
       />
       <Body>
+        {flagged > 0 ? (
+          <div className="mb-[18px] flex flex-wrap items-center gap-3">
+            <Link href="/capture/check" className="btn">
+              Check the {flagged} answers the reader was unsure of →
+            </Link>
+            <span className="note">One at a time, with the child&rsquo;s own writing and the reader&rsquo;s best guess.</span>
+          </div>
+        ) : null}
         <div className="mb-[18px] grid grid-cols-2 gap-[10px] md:grid-cols-4">
           <Tile tone="terracotta" n={waiting.length} words={`paper${waiting.length === 1 ? "" : "s"} waiting for you`} />
           <Tile tone="bamboo" n={flagged} words="answers the reader was unsure of" />
@@ -72,6 +80,7 @@ function PaperTable({ rows }: { rows: Awaited<ReturnType<typeof papersToApprove>
             <th>Sat</th>
             <th className="text-right">Answers</th>
             <th className="text-right">Not signed yet</th>
+            <th className="text-right">Score</th>
             <th>State</th>
           </tr>
         </thead>
@@ -88,6 +97,10 @@ function PaperTable({ rows }: { rows: Awaited<ReturnType<typeof papersToApprove>
               <td className="fact whitespace-nowrap">{fmtDate(p.date)}</td>
               <td className="num">{p.n_results}</td>
               <td className="num">{p.n_candidate || "—"}</td>
+              <td className="num whitespace-nowrap">
+                {/* A score once nothing on the sheet waits for a person: right, of every answer that counts. */}
+                {p.n_results > 0 && p.n_flagged === 0 ? `${p.n_right} / ${p.n_scored} right` : "—"}
+              </td>
               <td className="whitespace-nowrap">
                 {p.n_results === 0 ? (
                   <Pill tone="terracotta">nothing read</Pill>

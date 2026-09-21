@@ -2727,3 +2727,33 @@ snippet of how it will appear in the paper … simpler and clearer."
   the library whole after each. Found on the way: with the loading screen, a page first arrives as "Loading…"
   and streams in — two tests read too early and now wait for content; test cleanups now restore a level's
   worksheets exactly (`tests/library-state.ts`).
+
+## Step 4 of five — the validation queue (2026-09-21)
+
+- **The corpus re-read for guesses** (`bin/engine read again`, driver rebuilt from capture rows, papers a person
+  signed off or corrected skipped): "71 read · 0 missing · 0 failed · 0 settled answers changed". `read waiting`
+  before and after: 225 of 867. Unclear readings carrying the reader's guess: 0 of 194 before, **73 of 194** after
+  (the 20 not-found and 11 judgement answers have none, by design). `tests/test_read_again.py` (stand-in reader):
+  every live capture read from its own rows, a changed settled answer named, one failing file does not stop the rest.
+- **`/capture/check`** (menu: Check answers): one waiting answer at a time — the crop, the question, why it is here
+  in words, the guess as "Yes, the child wrote 47"; type, or "Nothing is written here"; Right / Wrong / Blank for a
+  judgement; one spot-check per paper (smallest md5 of the answer's id among settled written answers, shown until a
+  person has looked). The Capture list shows each sheet's score once nothing on it waits.
+- **Found and avoided:** the paper screen's Right/Wrong/Blank (`resolve_result`) signs off the whole page. In the
+  queue a person sees one answer, so the queue judges that answer only (`judgeOne`) and records who. And
+  `max_pipeline: 0` rules out postgres.js `sql.begin` (UNSAFE_TRANSACTION) — `judgeOne` is one statement; noted in
+  `db.ts`.
+- `tests/s4-validation-queue.spec.ts` on the copy: 7 of 7 — the count equals the engine's own, a real guess confirmed
+  in one click in the person's name, typed and blank answers marked, a judgement leaves the paper unsigned, a
+  spot-check, a sheet's score, the menu and a phone.
+- Live corrections are all "dev@local" (25, made through the local preview's development sign-in on 2026-09-20/21):
+  the person is lost that way. The local preview now reads the copy (`.claude/launch.json`), so validations happen on
+  the live site, each in the name of whoever signed in.
+
+## Step 5 of five — the bank explains itself (2026-09-21)
+
+- `/library` leads with three sentences — what the bank is (with the live counts), how a question is made and
+  checked, and its ties to a skill, a level, a kind and a worksheet — and every question row shows its worksheets as
+  links. `tests/s5-question-bank.spec.ts`: 3 of 3, every link on the first page opens (200).
+- All browser tests on a production build against the copy: 71 passed, 1 skipped. Engine: 454 passed plus the audit's
+  17 skills waiting for approval.

@@ -42,9 +42,28 @@ export default async function LibraryPage({ searchParams }: Props) {
       <PageHeader
         stage="Stage 2 · The bank"
         title="Question bank"
-        sub={`${n(totals.active)} questions ready to print. Every answer is checked by the computer.`}
+        sub={`${n(totals.active)} questions ready to print, every one of them on a numbered worksheet.`}
       />
       <Body>
+        <Panel title="What the bank is">
+          <div className="grid max-w-[820px] gap-2 text-[14px] leading-relaxed">
+            <p>
+              The question bank is every question the engine can put in front of a child: {n(totals.active)} today, for the{" "}
+              {grid.length} skills on the Skill Map, at Easy, Medium, Hard and Advance.
+            </p>
+            <p>
+              The engine makes each question from its skill&rsquo;s own rule for that level, and a computer checks every
+              answer — and every wrong answer a mistake would produce — before the question is kept. Any member of staff can
+              reword a question or remove it.
+            </p>
+            <p>
+              Every question belongs to one skill and one level, is one kind — a column sum, a word problem, a number wall
+              — and sits on at least one numbered worksheet. Each question below shows those ties; open one to see it as it
+              prints, with every wrong answer it can catch.
+            </p>
+          </div>
+        </Panel>
+        <div className="h-[18px]" />
         <Panel title="What is in the bank" aside={`${n(totals.active)} ready · ${n(totals.retired)} removed`}>
           <div className="overflow-x-auto">
             <table className="grid" aria-label="Questions by skill set and level">
@@ -135,6 +154,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                       <th>Question</th>
                       <th>Answer</th>
                       <th>Kind</th>
+                      <th>Worksheets</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -151,6 +171,19 @@ export default async function LibraryPage({ searchParams }: Props) {
                           <Answers it={it} />
                         </td>
                         <td className="min-w-[110px] text-[12.5px]">{KIND[it.fmt] ?? it.fmt}</td>
+                        <td className="text-[12.5px]">
+                          {it.worksheets.length ? (
+                            <span className="flex flex-wrap gap-x-2">
+                              {it.worksheets.map((c) => (
+                                <Link key={c} href={`/worksheets/${c}`} className="fact whitespace-nowrap">
+                                  {c}
+                                </Link>
+                              ))}
+                            </span>
+                          ) : (
+                            <span className="note">none</span>
+                          )}
+                        </td>
                         <td className="text-right">
                           <Link href={`/library/${it.item_key}`} className="whitespace-nowrap text-[12.5px]" tabIndex={-1} aria-hidden>
                             Open →

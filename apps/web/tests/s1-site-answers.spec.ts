@@ -55,10 +55,10 @@ test("when the staff check cannot reach the database, the page says so instead o
 });
 
 // Before this, one opening of the Skill Map pre-loaded every page behind its 85 table links at once.
-// Now only the six menu pages are fetched ahead — Next 16 asks for a page's outline and its loading
+// Now only the menu pages are fetched ahead — Next 16 asks for a page's outline and its loading
 // screen separately, so at most two small requests each.
-test("opening the Skill Map loads nothing ahead but the six menu pages", async ({ page }) => {
-  const MENU = ["/", "/worksheets", "/library", "/capture", "/growth", "/home"];
+test("opening the Skill Map loads nothing ahead but the menu pages", async ({ page }) => {
+  const MENU = ["/", "/worksheets", "/library", "/capture", "/capture/check", "/growth", "/home"];
   const background: string[] = [];
   page.on("request", (r) => {
     if (r.resourceType() !== "document" && r.headers()["rsc"] === "1") background.push(new URL(r.url()).pathname);

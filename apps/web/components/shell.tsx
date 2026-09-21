@@ -3,12 +3,13 @@ import { Nav, type NavItem } from "./nav";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 
-// Six sections, in the order of the week. Labels are the words a teacher would use.
+// The sections, in the order of the week. Labels are the words a teacher would use.
 export const NAV: readonly NavItem[] = [
   { href: "/", label: "Skill Map", icon: "map", match: ["/", "/skill-sets"] },
   { href: "/worksheets", label: "Worksheets", icon: "sheet", match: ["/worksheets"] },
   { href: "/library", label: "Question bank", icon: "bank", match: ["/library"] },
   { href: "/capture", label: "Capture & Mark", icon: "camera", match: ["/capture"] },
+  { href: "/capture/check", label: "Check answers", icon: "check", match: ["/capture/check"] },
   { href: "/growth", label: "Child Growth", icon: "growth", match: ["/growth"] },
   { href: "/home", label: "Home Assignments", icon: "house", match: ["/home"] },
 ];
