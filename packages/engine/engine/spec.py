@@ -14,6 +14,8 @@ Every proposal is then checked before anything is stored, and a claim that canno
 downgraded rather than trusted (ADR 0014).
 """
 
+import re
+
 from engine import db
 from engine.adapters import llm
 from engine.assess import bands
@@ -70,6 +72,51 @@ def ratify(conn, actor, code=None):
         " returning code, version",
         (actor, code, code),
     ).fetchall()
+
+
+# A skill on the map is what the child can do, said the way a teacher says it — never a topic label
+# ("2-digit addition with regrouping"), never the engine's own vocabulary. Nimish, 2026-09-21: "the
+# outcome needs to be articulated as a skill". Checked by `engine spec outcomes`.
+OUTCOME_WORDS = (8, 30)
+NOT_A_TEACHERS_WORD = (
+    "rung",
+    "misconception",
+    "misconceptions",
+    "planted",
+    "predictor",
+    "borrow",
+    "borrowing",
+    "algorithm",
+)
+_CODE = re.compile(r"\b[A-Z]{2,}[._][A-Z0-9_.]+\b|\bM_[A-Z_]+\b|\b[RXM]\d{1,2}\b")
+
+
+def outcome_problems(text):
+    """Why this sentence is not yet an outcome — nothing when it is one."""
+    problems = []
+    words = text.split()
+    first = words[0] if words else ""
+    if not (first[:1].isupper() and first.isalpha() and first.endswith("s")):
+        problems.append(f"does not start with what the child does (a verb such as Adds), it starts {first!r}")
+    if not text.rstrip().endswith(".") or re.search(r"[.!?]\s+[A-Z]", text):
+        problems.append("is not one sentence ending in a full stop")
+    lo, hi = OUTCOME_WORDS
+    if not lo <= len(words) <= hi:
+        problems.append(f"has {len(words)} words, not {lo}–{hi}")
+    if _CODE.search(text):
+        problems.append(f"names a code ({_CODE.search(text).group(0)})")
+    said = {w.strip(".,;:()'\"").lower() for w in words}
+    problems += [f"uses the engine's word {w!r}" for w in NOT_A_TEACHERS_WORD if w in said]
+    return problems
+
+
+def outcomes(conn):
+    """Every skill set's outcome and what is wrong with it, in ladder order."""
+    rows = conn.execute(
+        "select s.code, s.learning_objective from skill_set s"
+        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code order by r.ladder_order, s.code"
+    ).fetchall()
+    return [(r["code"], r["learning_objective"], outcome_problems(r["learning_objective"])) for r in rows]
 
 
 def known_misconceptions(conn, code, n=SAMPLE_PAIRS):

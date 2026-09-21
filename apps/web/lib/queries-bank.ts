@@ -48,7 +48,7 @@ export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; stat
 
 // The columns every question is read with, the skill set's name included — a fragment, so the bank
 // and a printed paper can never read a question two different ways.
-const itemColumns = () => sql`
+export const itemColumns = () => sql`
   i.id, i.item_key, i.fmt, i.stem, i.spec, i.responses, i.status, i.times_used, i.skill_set_code, i.difficulty,
   (select s.name from skill_set s where s.tenant_id = i.tenant_id and s.code = i.skill_set_code) as skill_set_name`;
 

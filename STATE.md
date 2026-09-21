@@ -2668,3 +2668,39 @@ snippet of how it will appear in the paper … simpler and clearer."
 - Seen in the Vercel logs: POST /login and page loads timed out 13:05–13:11 IST ("canceling statement due
   to statement timeout") while the engine's full test suite and the W2 goal were running against the
   same database. The tests share the live database; long runs there can stall the live site.
+
+## Step 1 of five — the site answers (2026-09-21, afternoon)
+
+- **The hang, reproduced and fixed (ADR 0024).** Through the transaction pooler (the live road), queries
+  stacked on one connection: `node scripts/check-pooler.ts` (8 value-less `select now()` at once, the app's
+  own `db.ts`) → **2 of 8 answered** before, **8 of 8** after `max_pipeline: 0`, three runs. The Question
+  bank's own four queries: hung (3 of 3) before, 1.4 s after.
+- **Before, from the platforms' own logs** (`bin/engine live check --since 3h`, 15:02 IST): 42 requests ·
+  16 timed out · database 3 statement timeouts · slowest checkpoint 203.5 s. Exit 1.
+- **Tests on a local copy (ADR 0025):** `bin/testdb` → "copied: 45 tables, 45607 rows, every count equal to
+  live" (9 s). Engine suite on the copy: 421 passed in 23.9 s. `tests/test_test_database.py` refuses a
+  remote TEST_DATABASE_URL (subprocess exits "refusing to run tests against a database that is not on this
+  machine").
+- **Browser tests on a production build** (Playwright starts `next build && next start` and its own engine,
+  both on the copy, a real session cookie): 55 passed, 1 skipped. Each new test was watched failing on the
+  old behaviour first: with table links pre-loading, 15 non-menu pages loaded ahead; with the old
+  error-swallowing staff check, a locked `config` sent the page to /login.
+- **Damage the old tests did to live rows, found while writing step 2:** `SUB.2D.EXCH` was rewritten 153 times
+  by the e2e suite; since 2026-09-19 20:38 its Easy level read "edited in the app" under "Ratified · Nimish
+  Shah". Restored from the seed in step 2 (which withdraws that signature, correctly).
+- Shipped: PR #3 merged 09:39Z (`67c14ae`); Vercel production Ready; the live JS carries the new error screen;
+  an unsigned `/library` redirects in 2 s. `bin/engine goal s1-site-answers` → 5/6; the sixth is the live
+  click-through, which needs a person signed in on the public address.
+
+## Step 2 of five — the skill map as outcomes (2026-09-21)
+
+- `bin/engine spec outcomes` on the live wording before: **11 of 17** (six too long, "algorithm", "planted
+  misconception", one starting "Given"). The 17 rewritten sentences: 17 of 17 by the same rule (20–28 words).
+- Applied to the copy with the step's one-off script (outcome + the restored Easy level): 18 rows changed,
+  each versioned and waiting for approval.
+- `tests/s2-skill-map.spec.ts` on a production build against the copy: 6 passed — every skill by grade led
+  by its outcome, every link on the map opens (all 200), all 17 skill pages show four levels with a sentence
+  and a drawn question, words-only editing withdraws approval, one-page approval in the approver's name,
+  phone widths without sideways scroll.
+- Known and intended: `tests/test_goal.py::test_every_invariant_holds` and `engine audit` report 17 specs
+  waiting for approval until a person approves them on `/skill-sets/approve`.

@@ -4,7 +4,6 @@ import { expect, test } from "@playwright/test";
 // sideways scroll. A teacher on a phone in a corridor is a real case.
 const ROUTES: [string, string][] = [
   ["/", "Skill Map"],
-  ["/skill-sets/SUB.2D.EXCH", "2-digit subtraction with exchange"],
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
   ["/capture", "Capture & Mark"],

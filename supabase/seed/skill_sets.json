@@ -5,7 +5,7 @@
       "code": "ADD.2D.REG",
       "rung_code": "R5",
       "name": "2-digit addition with regrouping",
-      "learning_objective": "Adds two numbers by columns, making a new ten (or hundred) exactly when a column total reaches ten.",
+      "learning_objective": "Adds numbers in columns, regrouping ten ones into a ten, and ten tens into a hundred, exactly when a column needs it.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -87,7 +87,7 @@
       "code": "SUB.2D.EXCH",
       "rung_code": "R6",
       "name": "2-digit subtraction with exchange",
-      "learning_objective": "Subtracts by columns, exchanging one ten for ten ones exactly when the ones column needs it.",
+      "learning_objective": "Subtracts numbers in columns, exchanging a ten for ten ones, or a hundred for ten tens, exactly when a column needs it.",
       "eval_type": "computable",
       "philosophy": [
         "The larger number is always on top. Never write a subtraction the child cannot do."
@@ -168,7 +168,7 @@
       "code": "ADD.3D.REG",
       "rung_code": "R9",
       "name": "3-digit addition with regrouping",
-      "learning_objective": "Adds 3-digit numbers by columns with one or more regroups, carrying into the correct column each time.",
+      "learning_objective": "Adds 3-digit numbers in columns, regrouping into the tens and the hundreds every time a column adds up to ten or more.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -248,7 +248,7 @@
       "code": "SUB.3D.ZERO",
       "rung_code": "R10",
       "name": "3-digit subtraction across zero",
-      "learning_objective": "Exchanges across a zero: takes a hundred, turns the zero into nine tens and ten ones, and keeps every column's value right.",
+      "learning_objective": "Subtracts in columns when an exchange has to cross a zero, turning one hundred into nine tens and ten ones.",
       "eval_type": "computable",
       "philosophy": [
         "The larger number is always on top."
@@ -334,7 +334,7 @@
       "code": "ADD.1D.WITHIN10",
       "rung_code": "R1",
       "name": "Addition within 10",
-      "learning_objective": "Combines two small sets into a total of 10 or less, and reads + as 'combine' and = as 'is the same as', not 'the answer comes next'.",
+      "learning_objective": "Adds two numbers to make a total of 10 or less, and reads = as \"is the same as\", not as \"the answer comes next\".",
       "eval_type": "computable",
       "philosophy": [
         "No column layout at this rung — one line, both numbers, the + and = signs printed exactly as the child should read them."
@@ -412,7 +412,7 @@
       "code": "ADD.1D.BRIDGE10",
       "rung_code": "R2",
       "name": "Addition within 20, crossing ten",
-      "learning_objective": "Adds two numbers whose total passes 10 by using ten as a landmark (make-ten / part-part-whole), and applies the +1 and +10 patterns without recomputing from one.",
+      "learning_objective": "Adds numbers within 20 whose total crosses ten by making ten first, in a sum, a story and on a number line.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -489,7 +489,7 @@
       "code": "SUB.1D.WITHIN20",
       "rung_code": "R3",
       "name": "Subtraction within 20",
-      "learning_objective": "Subtracts within 20 both as take-away (how many are left) and as comparison (how many more), and connects the two to the same fact family.",
+      "learning_objective": "Subtracts within 20, both as taking away (how many are left) and as comparing (how many more), and finds a missing number.",
       "eval_type": "computable",
       "philosophy": [
         "The larger number is always on top."
@@ -575,7 +575,7 @@
       "code": "ADDSUB.2D.NOREG",
       "rung_code": "R4",
       "name": "2-digit addition and subtraction without regrouping",
-      "learning_objective": "Adds and subtracts two 2-digit numbers by columns, ones under ones and tens under tens, with no exchange needed in either column.",
+      "learning_objective": "Adds and subtracts 2-digit numbers in columns when no exchange is needed, lining up ones under ones and tens under tens.",
       "eval_type": "computable",
       "philosophy": [
         "The larger number is always on top for subtraction.",
@@ -668,7 +668,7 @@
       "code": "MENTAL.BRIDGE_EQ",
       "rung_code": "R7",
       "name": "Mental strategies: bridging, friendly numbers, equality",
-      "learning_objective": "Solves without a written column algorithm — bridging through ten, using a friendly (round) number, or reasoning about what balances an equation — and reads = as balance, not 'the answer comes next'.",
+      "learning_objective": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
       "eval_type": "computable",
       "philosophy": [
         "No column grid is offered at this rung; the format itself forces a mental or jotted strategy rather than a rule about it.",
@@ -722,7 +722,7 @@
       "code": "WORD.1_2STEP",
       "rung_code": "R8",
       "name": "One- and two-step word problems",
-      "learning_objective": "Reads a short word problem in rupees or everyday objects, picks the right operation(s) from the situation rather than a keyword, and — for two-step problems — uses the first answer inside the second step.",
+      "learning_objective": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
       "eval_type": "computable",
       "philosophy": [
         "Word problems use things a child in Pune knows: mangoes, rupees, cricket runs, school steps, the mela, the bus.",
@@ -780,7 +780,7 @@
       "code": "ESTIMATE.ROUND10",
       "rung_code": "R11",
       "name": "Estimate first, then check reasonableness",
-      "learning_objective": "Rounds both numbers to the nearest ten before calculating, writes a sensible estimate, then works out the exact answer and checks it is close to the estimate.",
+      "learning_objective": "Estimates by rounding both numbers to the nearest ten, then works out the exact answer and checks that it is close to the estimate.",
       "eval_type": "computable",
       "philosophy": [
         "Round to the nearest ten only at this rung — nearest hundred is R13's estimate-for-efficiency case, not this one.",
@@ -870,7 +870,7 @@
       "code": "ADDSUB.4D.ADV",
       "rung_code": "R12",
       "name": "4-digit addition with three or more addends; 4-digit subtraction across zeros",
-      "learning_objective": "Adds three or more 4-digit numbers in a column, carrying more than 1 into a column when the total needs it, and subtracts across one or more internal zeros in a 4-digit number.",
+      "learning_objective": "Adds three or four 4-digit numbers in columns, carrying more than one when a column needs it, and subtracts 4-digit numbers across zeros.",
       "eval_type": "computable",
       "philosophy": [
         "The larger number is always on top for subtraction."
@@ -942,7 +942,7 @@
       "code": "STRATEGY.EFFICIENT",
       "rung_code": "R13",
       "name": "Chooses an efficient strategy under a place-value constraint",
-      "learning_objective": "Recognises when a question is close to a friendly hundred or thousand, or has same-tens numbers, and picks compensation or a mental shortcut over the standard column method, then can name the strategy used.",
+      "learning_objective": "Spots when numbers sit close to a round hundred or thousand, or share a tens digit, chooses a quicker method than columns, and names it.",
       "eval_type": "open_response",
       "philosophy": [
         "The standard column method gets the right answer but is not 'most efficient' — the rubric names this explicitly so it is not marked correct by accident.",
@@ -996,7 +996,7 @@
       "code": "WORD.BUDGET",
       "rung_code": "R14",
       "name": "Multi-step budget word problems",
-      "learning_objective": "Starts from a fixed budget, subtracts several costs in sequence, and reports what remains — the shape of the class-picnic problem the school actually uses.",
+      "learning_objective": "Solves budget problems by starting from an amount of money, taking away several costs one after another, and saying how much is left.",
       "eval_type": "computable",
       "philosophy": [
         "Word problems use things a child in Pune knows: mangoes, rupees, cricket runs, school steps, the mela, the bus.",
@@ -1061,7 +1061,7 @@
       "code": "MUL.1D",
       "rung_code": "M1",
       "name": "Multiplication by a single digit",
-      "learning_objective": "Multiplies a 2- or 3-digit number by a single digit, carrying into the next column when a column product passes ten.",
+      "learning_objective": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
       "eval_type": "computable",
       "philosophy": [
         "Never ×1 or ×10 — those test nothing.",
@@ -1124,7 +1124,7 @@
       "code": "REASON.EXPLAIN",
       "rung_code": "X1",
       "name": "Explains the procedure or judges a claim",
-      "learning_objective": "Given a claim about a shortcut (e.g. moving 1 between two numbers keeps the total the same), decides if it is true and explains why in the child's own words.",
+      "learning_objective": "Decides whether a statement about a calculation is true, such as moving 1 between two numbers keeping the total the same, and explains why in words.",
       "eval_type": "open_response",
       "philosophy": [
         "Accept any explanation that shows the underlying reasoning, not a fixed sentence — Neha and Achal own the rubric wording.",
@@ -1190,7 +1190,7 @@
       "code": "REASON.FIND_MISTAKE",
       "rung_code": "X2",
       "name": "Finds the mistake in a worked example",
-      "learning_objective": "Reads a worked column calculation with one planted, named misconception, locates which column the mistake is in, and writes the correct answer.",
+      "learning_objective": "Finds the mistake in a worked column calculation, says which column it is in, writes the correct answer, and at the top level explains what went wrong.",
       "eval_type": "open_response",
       "philosophy": [
         "Plant exactly one misconception per item, drawn from the vocabulary already in `misconception`, never an invented error.",

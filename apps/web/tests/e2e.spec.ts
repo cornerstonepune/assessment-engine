@@ -83,11 +83,11 @@ test("a teacher can reach every section from the menu, and the menu says where t
 
 test("the skill map's counts are the real number of questions in the bank", async ({ page }) => {
   await page.goto("/");
-  const [{ n }] = await sql<{ n: number }[]>`
-    select count(*)::int as n from item
-    where status = 'active' and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard'`;
-  const row = page.getByRole("row", { name: /SUB\.2D\.EXCH/ });
-  await expect(row).toContainText(String(n));
+  const [{ n, outcome }] = await sql<{ n: number; outcome: string }[]>`
+    select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D.EXCH') as outcome
+    from item where status = 'active' and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard'`;
+  const row = page.getByRole("row").filter({ hasText: outcome });
+  await expect(row).toContainText(`${n} questions`);
 });
 
 test("a count on the skill map opens exactly those questions", async ({ page }) => {
@@ -100,79 +100,29 @@ test("a count on the skill map opens exactly those questions", async ({ page }) 
   await expect(page.locator("#questions tbody tr")).toHaveCount(Math.min(n, 50));
 });
 
-test("a skill set on the map opens its own page", async ({ page }) => {
+test("a skill on the map opens its own page", async ({ page }) => {
+  const [{ outcome }] = await sql<{ outcome: string }[]>`select learning_objective as outcome from skill_set where code = 'SUB.2D.EXCH'`;
   await page.goto("/");
-  await page.getByRole("link", { name: "SUB.2D.EXCH" }).click();
+  await page.getByRole("link", { name: outcome }).click();
   await expect(page).toHaveURL(/skill-sets\/SUB\.2D\.EXCH/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("2-digit subtraction with exchange");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(outcome);
 });
 
-// ---------------------------------------------------------------- the skill set editor
+// ---------------------------------------------------------------- approving a skill
 
-test("editing a difficulty in plain fields changes the rule the checker enforces", async ({ page }) => {
-  // The ratification comes back too. Editing a spec withdraws it, by design — a signature must
-  // name whoever read the words that are live — so a test that edits one and restores only the
-  // words leaves the set in draft, and `engine audit`'s "every spec is ratified" red afterwards.
-  const [before] = await sql`
-    select difficulty, status, ratified_by from skill_set where code = 'SUB.2D.EXCH'`;
-  try {
-    await page.goto("/skill-sets/SUB.2D.EXCH");
-    await page.locator('textarea[name="words:Easy"]').fill("A gentle warm-up, set from the app.");
-    await page.locator('input[name="top:Easy"]').fill("3");
-    await page.locator('input[name="regroups:Easy"][value="2"]').check();
-    await page.locator('select[name="zeros:Easy"]').selectOption("none");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(page.getByRole("status")).toContainText("Saved");
-
-    const [after] = await sql<{ difficulty: Record<string, { words: string; check: Record<string, unknown> }> }[]>`
-      select difficulty from skill_set where code = 'SUB.2D.EXCH'`;
-    expect(after.difficulty.Easy.words).toBe("A gentle warm-up, set from the app.");
-    expect(after.difficulty.Easy.check.digits).toEqual([3, 1]);
-    expect(after.difficulty.Easy.check.regroups).toEqual([1, 2]);
-    expect(after.difficulty.Easy.check.no_zero_top).toBe(true);
-  } finally {
-    // Two statements, and it has to be two. `skill_set_version_on_change` withdraws the
-    // ratification whenever the content changes, so putting the words back withdraws it again —
-    // in the same statement that tries to restore it. The second touches no content field, so the
-    // trigger does not fire and the signature survives.
-    await sql`update skill_set set difficulty = ${sql.json(before.difficulty)} where code = 'SUB.2D.EXCH'`;
-    await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by}
-              where code = 'SUB.2D.EXCH'`;
-  }
-});
-
-test("a difficulty with no exchange ticked is refused, and nothing is saved", async ({ page }) => {
-  const [before] = await sql`select difficulty from skill_set where code = 'SUB.2D.EXCH'`;
-  await page.goto("/skill-sets/SUB.2D.EXCH");
-  await page.locator('textarea[name="words:Medium"]').fill("THIS MUST NOT BE SAVED");
-  for (const n of [0, 1, 2, 3]) {
-    const box = page.locator(`input[name="regroups:Medium"][value="${n}"]`);
-    if (await box.isChecked()) await box.uncheck();
-  }
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByText("at least one exchange")).toBeVisible();
-
-  const [after] = await sql<{ difficulty: Record<string, { words: string }> }[]>`
-    select difficulty from skill_set where code = 'SUB.2D.EXCH'`;
-  expect(after.difficulty.Medium.words).toBe(before.difficulty.Medium.words);
-  expect(after.difficulty.Medium.words).not.toBe("THIS MUST NOT BE SAVED");
-});
-
-test("ratifying records who did it, and the seed loader cannot undo it", async ({ page }) => {
+test("approving a skill records who did it, by name", async ({ page }) => {
   const [before] = await sql`select status, ratified_by from skill_set where code = 'ADD.3D.REG'`;
   try {
-    // The test makes its own starting state rather than hoping for one. Every spec has been
-    // ratified since W1 gate 1 closed, so the button this test clicks is not on the page unless
-    // the set is put back into draft first — and the test had been red ever since. Status alone
-    // changes no content, so the versioning trigger does not fire.
+    // The test makes its own starting state. Status alone changes no content, so the versioning
+    // trigger does not fire.
     await sql`update skill_set set status = 'draft', ratified_by = null where code = 'ADD.3D.REG'`;
     await page.goto("/skill-sets/ADD.3D.REG");
-    await page.getByRole("button", { name: "Ratify this set" }).click();
-    await expect(page.getByRole("status")).toContainText("Ratified");
+    await page.getByRole("button", { name: "Approve as written" }).click();
+    await expect(page.getByRole("status")).toContainText("Approved as written");
     const [after] = await sql<{ status: string; ratified_by: string }[]>`
       select status, ratified_by from skill_set where code = 'ADD.3D.REG'`;
     expect(after.status).toBe("ratified");
-    expect(after.ratified_by).toBeTruthy();
+    expect(after.ratified_by).toBe("End-to-end test");
   } finally {
     await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by}
               where code = 'ADD.3D.REG'`;

@@ -23,6 +23,10 @@ everything else in this file, W3's graph half included; step 4 **is** W3's valid
 | 4 | `goals/s4-validation-queue.yaml` | every answer the engine is unsure of is in one queue on the live link, one at a time with the child's handwriting and the engine's guess, settled in a click; a sheet shows its score when nothing on it waits |
 | 5 | `goals/s5-question-bank-explained.yaml` | the Question bank says in plain words what it is and how each question ties to a skill, a level, a kind and a worksheet |
 
+**A step's code is finished and shipped before the next step's work begins; its human gates — the live
+click-through, an approval — are asked for the moment the code is live and do not hold the next step's
+work. A step is called done only when they are given.**
+
 **The gate over all five is the live link, not this Mac** (Nimish: *"I am reasonably sure you have
 not checked through the elements"*). A person signs in once in the browser pane, every menu page and
 link is clicked on the public address, and `bin/engine live check` shows the window clean. A local

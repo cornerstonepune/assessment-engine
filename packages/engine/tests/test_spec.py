@@ -191,3 +191,39 @@ def test_a_reasoning_mistake_needs_no_arithmetic_and_is_not_asked_for_any(conn, 
     assert p["visible_in"] == "explanation" and p["downgraded"], "an answer-only claim with no answer"
     row = conn.execute("select op, detectable_by from misconception where code = %s", (p["code"],)).fetchone()
     assert (row["op"], row["detectable_by"]) == ("any", "explanation")
+
+
+# ---- a skill is stated as what the child can do (goals/s2-skill-map-outcomes.yaml)
+
+
+def test_an_outcome_that_starts_with_what_the_child_does_passes():
+    assert (
+        spec.outcome_problems(
+            "Adds numbers in columns, regrouping ten ones into a ten exactly when a column adds up to ten or more."
+        )
+        == []
+    )
+
+
+def test_a_topic_label_is_not_an_outcome():
+    problems = spec.outcome_problems("2-digit addition with regrouping")
+    assert any("what the child does" in p for p in problems)
+    assert any("words" in p for p in problems)
+
+
+def test_an_outcome_is_one_sentence_without_codes_or_jargon():
+    assert any("one sentence" in p for p in spec.outcome_problems("Adds within 10. Reads = as balance."))
+    assert any(
+        "code" in p
+        for p in spec.outcome_problems("Adds two numbers as rung R5 of ADD.2D.REG requires them to.")
+    )
+    assert any(
+        "planted" in p
+        for p in spec.outcome_problems(
+            "Reads a worked column calculation with one planted, named misconception and writes the correct answer."
+        )
+    )
+    assert any(
+        "borrow" in p
+        for p in spec.outcome_problems("Subtracts two numbers in columns and will borrow a ten when needed.")
+    )
