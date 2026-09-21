@@ -1,0 +1,29 @@
+name: s10-mixed-papers
+goal: >
+  A mixed paper puts individual questions from two or three skill sets in one bag — for a revision week
+  or the "mixed bag" a week's declaration can ask for. Each question is at the child's own level for
+  its skill, drawn from that skill's library worksheets so nothing repeats for the child; the paper
+  prints with its QR like any other, is marked like any other, and each answer reaches the graph on
+  its own skill. A mixed paper is a paper; a combined question (step 9) is a question — the two are
+  never confused on a screen or in a row.
+
+# Written 2026-09-21, evening, before the work (BUILD-ORDER "Next: six steps", step 10; ADR 0023's
+# "mixed bag").
+criteria:
+  - name: >-
+      on the copy — a mixed paper for three skills gives each child each skill's questions at that
+      child's level for it; nothing the child sat before; answers marked and graphed each on its own skill
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_mixed_paper.py
+    expect: "passed"
+  - name: W2 still does its whole job, with a mixed week among its scenarios
+    run: engine goal w2-assemble-and-print
+    expect: "GOAL ACHIEVED"
+  - name: a mixed paper opens and prints on the site, on the copy
+    run: cd apps/web && npx playwright test tests/s10-mixed-papers.spec.ts
+    expect: "passed"
+  - name: every invariant across every row holds
+    run: engine audit
+    expect: "0 violations"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

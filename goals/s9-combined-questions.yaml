@@ -1,0 +1,31 @@
+name: s9-combined-questions
+goal: >
+  A question that brings two or three concepts together — adding and subtracting inside one budget
+  problem, estimating and then working out — is a skill set of its own, a level of complexity above the
+  single concepts it combines. The engine drafts each such set from the concepts it joins: an outcome
+  sentence, Easy / Medium / Hard / Advance each as a sentence with a real question, its kinds and its
+  named mistakes; a person approves it once on the Skill Map, exactly as the 17 were approved. It is
+  then filled by the engine like any other set — a prompt writes, code verifies every number — and
+  dealt onto numbered worksheets, at least ten per level. Every question in it names each skill it
+  uses (step 8), so a right answer credits all of them and a wrong one charges the part that broke.
+
+# Written 2026-09-21, evening, before the work (BUILD-ORDER "Next: six steps", step 9). The engine
+# prepares, a person approves: which concepts combine is drafted, never asked of a teacher as a form.
+criteria:
+  - name: every skill on the map reads as an outcome, the combined sets included
+    run: engine spec outcomes
+    expect: "read as outcomes"
+  - name: >-
+      the bank does its whole job for a combined set too — asked-for questions at every level, every
+      answer recomputed, every wrong answer a named mistake, no duplicates
+    run: engine goal w1-build-the-bank
+    expect: "GOAL ACHIEVED"
+  - name: every level of every set, the combined ones included, has at least ten worksheets
+    run: engine library check
+    expect: "0 problems"
+  - name: every invariant holds — every set approved, every combined question naming every skill it uses
+    run: engine audit
+    expect: "0 violations"
+  - name: a combined set opens from the Skill Map with its levels, questions and worksheets, on the copy
+    run: cd apps/web && npx playwright test tests/s9-combined-questions.spec.ts
+    expect: "passed"

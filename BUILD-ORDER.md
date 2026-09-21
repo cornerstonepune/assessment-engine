@@ -71,6 +71,48 @@ mixed in as a spot-check; a sheet's score once nothing on it waits; reached from
 **Step 5 — the bank explains itself** in three plain sentences, and every question shows its skill,
 level, kind and worksheet.
 
+## Next: six steps after the five — agreed with Nimish 2026-09-21, evening
+
+Nimish approved the 17 skills, started validating the waiting answers, and said: *"you start building
+for the next steps, like whatever is left, with the right goals in the system, and the three parts of
+the queue that we also need to solve."* The three parts are the three agreed on 2026-09-21 for after
+go-live (below): a question counting for every skill it uses, questions that combine concepts, and
+mixed papers. The rules of the five hold: a step is done when its goal command is green; its code
+ships before the next step's work starts; a human gate is asked for the moment the code is live and
+does not hold the next step's code.
+
+| Step | Goal file | Green means |
+|---|---|---|
+| 6 | `goals/w3-read-and-graph.yaml`, restated | **W3 closes**, as decided the night of 2026-09-21: nothing waits, every paper is signed off and scored, the graph is built from confirmed evidence, and every mistake Aseem named by hand in the five Grade 3 reports comes back out of that child's graph |
+| 7 | `goals/s7-paper-from-library.yaml` | a child's paper is a library worksheet at their skill and level that they have not sat; children at one level in one week get different ones; it prints with its QR and its worksheet ID |
+| 8 | `goals/s8-every-skill-a-question-uses.yaml` | ADR 0023: a question's skills come from the question; a right answer is evidence for each, a wrong one against the skill its mistake names |
+| 9 | `goals/s9-combined-questions.yaml` | questions that combine two or three concepts are skill sets of their own: drafted by the engine, approved once, filled, verified, on worksheets |
+| 10 | `goals/s10-mixed-papers.yaml` | one paper holds questions from two or three skill sets, each at the child's own level for that skill |
+| 11 | `goals/w4-close-the-loop.yaml` | **W4**: from each child's graph, Friday's class card, a home sheet with a parent note, next week's seed; monthly, a parent report in the shape of Aseem's |
+
+**Why this order.** Step 6 first because Nimish's validations are happening now and it turns them into
+the verdict W3 exists for; it is also where the mistakes the engine cannot yet name are found (Aseem's
+reports diagnose multiplication, a reversed comparison sign and a copying slip, which the 39 named
+mistakes do not cover). Step 7 is "the next change after these five" agreed on 2026-09-21 afternoon.
+Step 8 before 9 and 10: a combined question or a mixed paper cannot be scored until an answer can
+count for more than one skill. W4 last: it reads the graph the steps before it make right. If step 6
+finds single-skill scoring is what keeps a report from matching, step 8 moves up — what the graph
+gets wrong chooses the next fix.
+
+**Step 6 — the gold, and what "closes" means.** Aseem's five reports are transcribed once into rows
+(`gold_finding`: the child, the skill, the named mistake, his example, his own words), keyed by
+`child_id` and never by name, and Nimish confirms the transcription before it is used. `engine gold
+check` then reads each child's graph against them. A finding whose evidence the scanned papers do not
+hold (Kiyaan has no Week 1 paper) is listed as such and counted apart, never dropped. The reader bars
+written 2026-09-20 (97% exact, 93% on photographs, 300 gold answers) are superseded by the night
+decision — the reader stays as it is and every doubtful answer goes to a person (ADR 0028); the rules
+those scenarios stated that still hold — rules 4, 5 and 6 — are held by the test suite and `engine audit`.
+
+**Step 8 — the two points ADR 0023 left open, with the default the code will take unless Nimish or
+Aseem says otherwise:** a wrong answer no named mistake explains counts against the skill the question
+was written for, marked unexplained (reported by `engine bank unclassified`, never spread across every
+skill); and a mistake's skill is a column on its `misconception` row, never a table in code.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

@@ -1,0 +1,36 @@
+name: s8-every-skill-a-question-uses
+goal: >
+  A question counts for every skill it uses (ADR 0023). The skills a question uses are decided by code
+  from the question itself, never copied from its rung. A right answer is one confirmed piece of
+  evidence for every skill the question uses. A wrong answer is evidence against the skill whose part
+  broke, named by the answer's own mistake — on a budget problem, "added the costs but never took them
+  from the budget" counts against subtraction, not against the adding the child did right. Every named
+  mistake says which skill it belongs to, as a row. A wrong answer no named mistake explains counts
+  against the skill the question was written for, marked unexplained, and is reported, never spread
+  across every skill.
+
+# Written 2026-09-21, evening, before the work (BUILD-ORDER "Next: six steps", step 8). The last two
+# sentences settle ADR 0023's two open points with the default the code will take unless Nimish or
+# Aseem says otherwise; that choice gets its own ADR when the step starts.
+criteria:
+  - name: >-
+      on the copy — a two-step budget problem answered right is evidence for each skill it uses; answered
+      with "added but never subtracted" it is evidence against subtraction only; an unexplained wrong
+      answer counts once, against its own skill, marked unexplained; a one-skill question counts exactly
+      as it did before
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_every_skill.py
+    expect: "passed"
+  - name: >-
+      every invariant holds, including the new ones — every named mistake names its skill; no question
+      carries a skill it does not use; no evidence row a question's answer made is missing a skill it uses
+    run: engine audit
+    expect: "0 violations"
+  - name: the graph, rebuilt with every answer counting for every skill it uses
+    run: engine graph
+    expect: "states"
+  - name: the five Grade 3 reports still come back out of the graph
+    run: engine gold check
+    expect: "every finding the papers hold is in the graph"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

@@ -1,10 +1,24 @@
 name: w3-read-and-graph
 goal: >
-  Given a scanned or photographed paper a child has actually written on, the engine reads every
-  response on it — the digits the child wrote, whether they wrote anything at all, and whether they
-  showed their working — keeps those three signals distinct, never silently drops a response or
-  reads a teacher's mark as the child's, and turns the result into the named mistake behind it and
-  the child's skill graph, reaching the same diagnosis a good teacher reached by hand.
+  Every answer on every paper the children sat is settled — by the engine where it is sure, by a
+  person where it is not — every paper is signed off and scored, each child's skill graph is built
+  from that confirmed evidence alone, and the graph reaches the diagnoses a good teacher reached by
+  hand: every mistake Aseem named in the five Grade 3 reports comes back out of that child's graph,
+  on the same skill, by the same name.
+
+# RESTATED 2026-09-21, evening (BUILD-ORDER "Next: six steps", step 6; ADR 0028). Nimish decided the
+# night before that the reader stays as it is and W3 closes on coverage and the gold diagnoses: (1)
+# every doubtful answer validated on the approval screen, (2) every sheet 100% covered and scored,
+# (3) the graphs checked against Aseem's five reports, (4) W3 closes. The criteria below are exactly
+# that. The reading scenarios and the bar written on 2026-09-20 are kept further down under
+# `superseded_scenarios` and `bar` as the record of what was once asked; `engine goal` runs neither.
+#
+# The original goal sentence, kept: "Given a scanned or photographed paper a child has actually
+# written on, the engine reads every response on it — the digits the child wrote, whether they wrote
+# anything at all, and whether they showed their working — keeps those three signals distinct, never
+# silently drops a response or reads a teacher's mark as the child's, and turns the result into the
+# named mistake behind it and the child's skill graph, reaching the same diagnosis a good teacher
+# reached by hand."
 
 # Written 2026-09-20, before the reader (BUILD-ORDER rule "W2, W3 and W4 must have their goal files
 # written before their work starts"; ADR 0015). Every `kind: read` scenario below fails today with
@@ -125,7 +139,11 @@ non_ladder_inputs:
   child_choice_never_inferred_from_a_teacher_mark: true
   multiple_choice_excluded_from_the_bar: true   # measured separately; floor still unset
 
-scenarios:
+# Superseded 2026-09-21 by the night decision (ADR 0028): written before the reader existed, for a
+# model reading every page against a 97% bar. The reader now reads with OCR, stays as it is, and
+# sends every answer it doubts to a person. Rules 4, 5 and 6, which several of these restate, are
+# held by the test suite and `engine audit`.
+superseded_scenarios:
   # --- reading: does it see what is on the paper ---
   - kind: read
     name: every response on the page gets a row, even one the reader cannot read
@@ -249,6 +267,26 @@ scenarios:
     must: reads_respect_the_daily_cap         # 20 requests/day/model (ADR 0004)
 
 criteria:
+  - name: nothing waits — every answer settled by the engine or by a person
+    run: engine read waiting
+    expect: " 0 answers waiting for a person"
+  - name: every paper signed off by a person, and every sheet scored
+    run: engine read coverage
+    expect: "every paper signed off · every sheet scored"
+  - name: the graph, rebuilt from confirmed evidence alone
+    run: engine graph
+    expect: "states"
+  - name: >-
+      the five Grade 3 reports — every mistake Aseem named that the papers hold comes back out of that
+      child's graph, on the same skill, by the same name; none of his strong concepts comes back as a
+      mistake; a finding the papers cannot show is listed, never dropped
+    run: engine gold check
+    expect: "every finding the papers hold is in the graph"
+  - name: >-
+      8500 − 3647 = 5147 goes from the page to the named mistake on the child's graph — read, marked,
+      confirmed, graphed — on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_gold.py
+    expect: "passed"
   - name: every invariant across every row holds
     run: engine audit
     expect: "0 violations"
@@ -261,6 +299,6 @@ criteria:
   - name: W3 runs as a workflow, not a command someone remembers
     run: python n8n/lint.py n8n/workflows/f3-read-and-graph.json
     expect: "ok"
-  - name: the reading accuracy number itself, recomputed from the gold set
-    run: engine read accuracy
-    expect: "MEETS BAR"
+  - name: the live link — a child's growth page opens, signed in
+    run: engine live check --since 60m --page /growth
+    expect: "0 timed out · 0 failed"
