@@ -122,6 +122,39 @@ THRESHOLDS = [
         "Paint out red ink before a page is read. The educator marks in red and the child writes in"
         " pencil or blue; a red circle over 5147 read back as 147 at 95%. 0 turns it off",
     ),
+    (
+        "ocr.reread_dpi",
+        500,
+        "dots per inch",
+        "A flagged answer gets a second look at this resolution. The page itself goes to the"
+        " transcriber at 150 dpi, where a 40x25-pixel answer is at the limit of what it can resolve"
+        " — a third of everything that reaches a person sits one band under the floor. 0 turns the"
+        " second look off",
+    ),
+    (
+        "ocr.reread_pad",
+        0.012,
+        "page fraction",
+        "How much of the page around a doubtful answer goes into its crop. Too tight and the"
+        " transcriber has no baseline to read the digits against; too loose and the neighbouring"
+        " answer comes with it and the crop is refused for holding two numbers",
+    ),
+    (
+        "ocr.stencil_min_inliers",
+        50,
+        "matched features",
+        "A child's page is read against its paper's rebuilt blank only when at least this many printed"
+        " features line the two up. Pages that align measure 300-1000; a page too bare to align reads as"
+        " it did before, never against a stencil that is not on it",
+    ),
+    (
+        "ocr.stencil_empty",
+        0.03,
+        "fraction of pixels",
+        "The rebuilt blank counts as empty where fewer than this share of its pixels are dark. A child's"
+        " number Textract took for print is given back to the child only where the blank is empty; a"
+        " printed word's patch runs 10-25% dark, an empty box's interior under 1%",
+    ),
     ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
     (
         "llm.daily_budget_inr",

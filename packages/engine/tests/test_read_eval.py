@@ -49,3 +49,19 @@ def test_a_sitting_can_be_several_photographs():
     """A Grade 2 sitting is one scanned PDF; a Grade 3 sitting is one photograph per page."""
     assert read_eval.sheet_name({"file": "a.pdf"}) == "a.pdf"
     assert read_eval.sheet_name({"files": ["p1.jpg", "p2.jpg"]}) == "p1.jpg"
+
+
+def test_a_photograph_a_teacher_corrected_is_read_as_its_own_page_from_its_own_path(tmp_path, monkeypatch):
+    """The first teacher correction on a paper outside the seed killed the whole eval: the capture
+    names its scan "~/cornerstone/…", and joined to the assessments folder unexpanded that named a
+    file that does not exist. And a Grade 3 sitting is one photograph per page, so the second
+    photograph is page 2 of the paper — read as page 1 it was scored against the wrong questions."""
+    import cv2
+    import numpy as np
+
+    from engine import read_eval
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    cv2.imwrite(str(tmp_path / "page-two.jpg"), np.full((40, 30, 3), 255, np.uint8))
+    got = read_eval.sheet_pages({"file": "~/page-two.jpg", "page": 2}, root=tmp_path / "elsewhere")
+    assert [(n, str(f), in_file) for n, f, in_file, _ in got] == [(2, str(tmp_path / "page-two.jpg"), 1)]

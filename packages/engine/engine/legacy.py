@@ -13,7 +13,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from engine import db, render_pdf
+from engine import db, render_pdf, stencil
 from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
 from engine.assess import tags
@@ -225,7 +225,12 @@ def page_crop(path, page_no, box=None, pad=0.01):
     a Grade 3 sitting is one photograph per page, so its second page is a second file.
     """
     images = _rendered(str(path), Path(path).stat().st_mtime)
-    jpeg = images[min(max(page_no, 1), len(images)) - 1]
+    return crop(images[min(max(page_no, 1), len(images)) - 1], box, pad)
+
+
+def crop(jpeg, box=None, pad=0.01):
+    """The patch of a page image a box names, as JPEG bytes — or the whole page where there is no
+    box, or where the box is too small to be worth looking at on its own."""
     if not box:
         return jpeg
     img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
@@ -238,6 +243,47 @@ def page_crop(path, page_no, box=None, pad=0.01):
     if x1 - x0 < 8 or y1 - y0 < 8:  # a region too small to see is more use whole than cropped
         return jpeg
     return _jpeg(img[y0:y1, x0:x1])
+
+
+@lru_cache(maxsize=2)
+def _sharp_page(path, mtime, page_no, dpi):
+    """One page at the resolution a doubtful answer is looked at again in, as JPEG bytes.
+
+    A photograph is already at its own resolution and there is no more to render — the gain there
+    is that the answer fills the frame instead of being one word on a whole page. A PDF is a
+    different matter: it was read at 150 dpi and can be drawn again at any size.
+
+    Cached because a page holds many doubtful answers and rendering an A4 page at 500 dpi is not
+    free; JPEG bytes rather than the array, so the cache is megabytes and not hundreds of them.
+    """
+    del mtime
+    p = Path(path)
+    if p.suffix.lower() in (".jpg", ".jpeg", ".png"):
+        return _jpeg(cv2.imread(str(p)))
+    pages = render_pdf.render(p, dpi, render_pdf.MAX_PIXELS)
+    return _jpeg(pages[min(max(page_no, 1), len(pages)) - 1])
+
+
+def second_look(path, page_no, fraction, cfg, cli):
+    """→ a `reread(box)` for `ocr.answers_for`, or None when the row turns the second look off.
+
+    The big render happens on the first doubtful answer of a page and not before: a page the engine
+    reads cleanly costs nothing extra, and a page with no doubts never opens the file twice.
+    """
+    if not cfg.get("reread_dpi"):
+        return None
+    sharp = []
+
+    def reread(box):
+        if not sharp:
+            jpeg = _sharp_page(str(path), Path(path).stat().st_mtime, page_no, int(cfg["reread_dpi"]))
+            # The same page the engine read, masked the same way: the name band stays painted out
+            # (rule 6) and the educator's red ink stays inpainted, or a crop would hand back the
+            # very reading those two rules exist to prevent.
+            sharp.append(ocr.mask_red_pen(mask_name_band(jpeg, fraction), cfg))
+        return ocr.read(crop(sharp[0], box, pad=0.0), cli)
+
+    return reread
 
 
 def masked_image(jpeg, fraction):
@@ -290,7 +336,22 @@ def mark(spec, response, read):
     if state == "not_visible":
         return "needs_teacher", [], working
     if spec["kind"] == "text":
-        return ("blank" if state == "blank" and not answer else "needs_teacher"), [], working
+        if state == "blank" and not answer:
+            return "blank", [], working
+        # The judgement a "find the mistake" question asks for ("is Achal correct?") is not
+        # checkable by code, but the number the child wrote beside it is — and ONLY when it agrees
+        # with the key. Such a question prints its operands and the wrong answer, so its region
+        # holds four or five numbers by construction and the reader is not entitled to say which
+        # one the child stood behind: of fourteen such flags, five read the key exactly and the
+        # other nine read a fragment ("2" where the answer is 75) or a printed operand. A
+        # disagreement is therefore at least as likely to be the wrong number picked as a child
+        # who is wrong, and marking it would buy coverage with silent errors — the one trade
+        # rule 5 forbids. An agreement is two independent things saying the same thing, so it
+        # settles; everything else still goes to a person.
+        want = response.get("answer")
+        if answer and want is not None and normalise_answer(str(want)) == answer:
+            return "correct", [], working
+        return "needs_teacher", [], working
     if not answer:
         return "needs_teacher", [], working
     if not re.fullmatch(r"-?\d+", answer):
@@ -414,6 +475,21 @@ def _page_resolution(summary, page_no, out):
     return f"{res['status']}: {res['saw']}{tail}"
 
 
+def worked_on(conn, capture_id):
+    """How many answers on this capture a person has signed off or corrected.
+
+    A re-read would supersede the capture that work hangs from, and every screen and the graph read
+    only live captures — so a better reader would quietly undo a teacher's work. The first version of
+    this guard counted sign-offs only, and a re-read took six of Nimish's corrections on a paper he
+    had not yet signed off. What a person has checked, a person has checked: it is not read again.
+    """
+    return conn.execute(
+        "select (select count(*) from item_result where capture_id = %s and state = 'confirmed')"
+        " + (select count(*) from read_correction where capture_id = %s) as n",
+        (capture_id, capture_id),
+    ).fetchone()["n"]
+
+
 def import_scan(
     conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False
 ):
@@ -444,6 +520,17 @@ def import_scan(
         " and superseded_by is null",
         (instance, file_sha256),
     ).fetchone()
+    signed = existing and worked_on(conn, existing["id"])
+    if signed and again:
+        return {
+            "capture_id": existing["id"],
+            "pages": existing["pages"],
+            "results": [],
+            "unmatched": [],
+            "notes": [f"a person has worked on this paper ({signed} answers): not read again"],
+            "already": True,
+            "already_results": signed,
+        }
     if existing and again:
         # The scan is unchanged but the PAPER is not — `G2-CAM-A` went from 24 answer slots to the
         # 27 its page holds, and three answers per child had nowhere to land. Idempotency keys on
@@ -506,8 +593,17 @@ def import_scan(
             # The paper says where its answers live (rule 1): only a paper that prints a box per
             # answer hands the reader its boxes. On an underline paper a stray rectangle is not a field.
             jpeg = ocr.mask_red_pen(jpeg, cfg)
-            boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
-            readings = ocr.answers_for(ocr.read(jpeg, cli), questions, cfg, symbolic_slots(by_key), boxes)
+            readings = stencil.read_page(
+                jpeg,
+                questions,
+                cfg,
+                cli,
+                form=paper.get("printed_as", paper_code),
+                page_no=page_no,
+                symbolic=symbolic_slots(by_key),
+                use_boxes=paper.get("fields") == "boxes",
+                reread=second_look(path, page_no, fraction, cfg, cli),
+            )
             flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
             summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
             for key, read in readings.items():
@@ -612,8 +708,8 @@ def corrections(conn):
     one paper hands the eval a handful of hand-verified responses, on the exact page a child wrote.
     """
     return conn.execute(
-        "select distinct on (rc.item_result_id) t.batch_id as paper, c.path, i.item_key,"
-        " rc.human_read, rc.by, rc.created_at"
+        "select distinct on (rc.item_result_id) t.batch_id as paper, c.path, c.pages as file_pages,"
+        " coalesce((i.spec->>'page')::int, 1) as page, i.item_key, rc.human_read, rc.by, rc.created_at"
         " from read_correction rc"
         " join item_result r on r.id = rc.item_result_id"
         " join item i on i.id = r.item_id"

@@ -105,6 +105,34 @@ def test_mark_keeps_three_signals_apart():
     )
 
 
+def test_a_find_the_mistake_answer_is_marked_only_where_it_agrees_with_the_key():
+    """The judgement is not checkable; the number is, and only on agreement.
+
+    Such a question prints its operands and the wrong answer, so the region holds four or five
+    numbers and the reader is not entitled to say which one the child stood behind. An agreement
+    settles; a disagreement is as likely to be the wrong number picked as a child who is wrong,
+    and marking it would put a silent error into a child's graph.
+    """
+
+    def m(read, resp):
+        return legacy.mark(_spec("text"), resp, read)
+
+    written = {"answer_state": "written", "working_summary": ""}
+    # Aryan's 234 + 178: the child wrote 412 and the key says 412
+    assert m({**written, "child_answer": "412"}, {"answer": 412})[0] == "correct"
+    assert m({**written, "child_answer": "1,264"}, {"answer": "1264"})[0] == "correct"
+    # a fragment read out of the working ("2" where the answer is 75) is never marked wrong
+    assert m({**written, "child_answer": "2"}, {"answer": 75})[0] == "needs_teacher"
+    # nor is a printed operand the child copied
+    assert m({**written, "child_answer": "5432"}, {"answer": 3556})[0] == "needs_teacher"
+    # a text item with no numeric key at all still goes to a person
+    assert m({**written, "child_answer": "because it is big"}, {"answer": None})[0] == "needs_teacher"
+    # and a blank is still a blank: the child did not attempt it (rule 5)
+    assert m({"child_answer": "", "answer_state": "blank", "working_summary": ""}, {"answer": 412})[0] == (
+        "blank"
+    )
+
+
 def test_working_shown_is_taken_from_the_reader_not_guessed_from_a_summary():
     """v2 had no way to say `full`, so a ponytail comment admitted every page read `partial`."""
     assert (
@@ -161,7 +189,7 @@ def fake_ocr(monkeypatch, asked=None):
     monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
     monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
 
-    def answers(page, slots, cfg=None, symbolic=(), boxes=()):
+    def answers(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
         if asked is not None:
             asked.append(slots)
         return {
@@ -395,6 +423,58 @@ def test_reimporting_the_same_file_returns_the_existing_capture(conn, child, tmp
         (first["capture_id"],),
     ).fetchone()["n"]
     assert n == 1
+
+
+@pytestmark_db
+def test_a_paper_a_person_signed_off_is_never_read_again(conn, child, tmp_path, monkeypatch):
+    """A better reader re-reads the corpus. A paper a teacher has already signed off must keep her
+    signature: superseding its capture would take her approved answers out of the child's ladder."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"signed off, then read again")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    asked = []
+    fake_ocr(monkeypatch, asked)
+
+    first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    conn.execute("update item_result set state = 'confirmed' where capture_id = %s", (first["capture_id"],))
+    again = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test", again=True)
+    _untouched(conn, asked, first, again)
+
+
+@pytestmark_db
+def test_a_paper_a_person_has_corrected_is_never_read_again(conn, child, tmp_path, monkeypatch):
+    """Not signed off yet, only corrected: still a person's work. A re-read took six of Nimish's
+    corrections before this was guarded."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"corrected, not yet signed, then read again")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    asked = []
+    fake_ocr(monkeypatch, asked)
+
+    first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    rid = conn.execute(
+        "select id from item_result where capture_id = %s limit 1", (first["capture_id"],)
+    ).fetchone()["id"]
+    legacy.correct(conn, rid, "42", "a teacher")
+    again = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test", again=True)
+    _untouched(conn, asked, first, again)
+
+
+def _untouched(conn, asked, first, again):
+    assert len(asked) == 1  # not read a second time
+    assert again["capture_id"] == first["capture_id"] and again["already"] is True
+    live = conn.execute("select superseded_by from capture where id = %s", (first["capture_id"],)).fetchone()[
+        "superseded_by"
+    ]
+    assert live is None
 
 
 @pytestmark_db

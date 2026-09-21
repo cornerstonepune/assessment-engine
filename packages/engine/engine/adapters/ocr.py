@@ -106,6 +106,10 @@ DEFAULTS = {
     "box_max_width": 0.35,  # wider than this is a frame or a working area, not an answer box
     "box_ink_blank": 0.004,  # a field with more ink than this and no readable word is a doubt, not a blank
     "red_pen_mask": 1,  # paint out red ink before reading: the educator's circles and corrections
+    "reread_dpi": 500,  # a doubtful answer is cropped out and looked at again this large; 0 is off
+    "reread_pad": 0.012,  # how much of the page around it comes with it
+    "stencil_min_inliers": 50,  # features that must line a page up with its rebuilt blank
+    "stencil_empty": 0.03,  # the blank is empty at a place with fewer dark pixels than this
 }
 
 
@@ -166,6 +170,43 @@ def fit(image_bytes, limit=MAX_BYTES, max_side=MAX_SIDE):
     return cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])[1].tobytes()
 
 
+# NOT DONE, and measured rather than guessed at. Textract is a DOCUMENT reader: handed a bare
+# 960 x 344 strip holding one word it returns fragments, and handed the SAME strip inside white
+# margins it reads the word — on three crops off one sheet, every one of them plainly legible:
+#
+#     bare       'wer-','L'      'iswen=3'@31     'we','=','swerz'
+#     margins    'Answer=43'     'Answer=32'@82   'Answer=64'
+#
+# The reading is better and the gold set still says no: 80.5% against 81.7%, and silently wrong 1
+# to 2. A margin makes a crop readable, which also makes a FRAGMENT readable — where the page had
+# seen only the "2" of a child's "72", the framed crop confirmed "2" over the floor and the engine
+# stood behind it. Widening `ocr.reread_pad` to 0.03 and 0.06 did not reach the missing digit.
+# There is no signal left to tell that case from a real one, so it waits for a gold set big enough
+# to price the trade. Do not re-add this without the silent-error count beside it.
+
+
+def ink_map(img):
+    """A greyscale page → where the ink is, as a binary image.
+
+    Every size here is a fraction of the page, never a count of pixels. The neighbourhood was 25
+    pixels flat, which is a page-sized assumption in disguise: a page drawn at its own scan's 282
+    dpi instead of 150 has the same boxes and twice the pixels, a 25-pixel neighbourhood then sits
+    INSIDE a printed rule rather than across it, the rule stops looking like ink against its
+    surroundings, and the Cambridge sheet fell from 23 of 27 to 17 of 27 on a change that gave it
+    more to read, not less.
+    """
+    block = max(25, (img.shape[1] // 50) | 1)
+    return cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, block, 15)
+
+
+def ink_fill(ink, x, y, bw, bh):
+    """How much ink sits inside a box, border excluded. A child's faint "2" that Textract returns no
+    word for is still ink, and a field with ink in it is not blank — it is a doubt."""
+    pad_x, pad_y = max(2, bw // 12), max(2, bh // 8)
+    inside = ink[y + pad_y : y + bh - pad_y, x + pad_x : x + bw - pad_x]
+    return float((inside > 0).mean()) if inside.size else 0.0
+
+
 def printed_boxes(image_bytes, cfg=None):
     """Every rectangle the paper prints, as (left, top, right, bottom) fractions of the page.
 
@@ -184,14 +225,15 @@ def printed_boxes(image_bytes, cfg=None):
     if img is None:
         return []  # not an image: nothing printed on it, so nothing to find
     h, w = img.shape
-    ink = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 25, 15)
+    ink = ink_map(img)
     horizontal = cv2.morphologyEx(
         ink, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, w // 40), 1))
     )
     vertical = cv2.morphologyEx(
         ink, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(20, h // 60)))
     )
-    frame = cv2.dilate(cv2.bitwise_or(horizontal, vertical), np.ones((3, 3), np.uint8))
+    close = max(3, round(w / 400)) | 1  # the closing dilation scales with the page too
+    frame = cv2.dilate(cv2.bitwise_or(horizontal, vertical), np.ones((close, close), np.uint8))
     contours, _ = cv2.findContours(frame, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     found = []
     for c in contours:
@@ -203,12 +245,7 @@ def printed_boxes(image_bytes, cfg=None):
             # inside it, but it is not a field, and counting it as one handed a slot its
             # neighbour's answer when the count happened to match.
             continue
-        # How much ink sits inside, border excluded. A child's faint "2" that Textract returns no
-        # word for is still ink, and a field with ink in it is not blank — it is a doubt.
-        pad_x, pad_y = max(2, bw // 12), max(2, bh // 8)
-        inside = ink[y + pad_y : y + bh - pad_y, x + pad_x : x + bw - pad_x]
-        fill = float((inside > 0).mean()) if inside.size else 0.0
-        found.append((x / w, y / h, (x + bw) / w, (y + bh) / h, fill))
+        found.append((x / w, y / h, (x + bw) / w, (y + bh) / h, ink_fill(ink, x, y, bw, bh)))
     inner = [
         b
         for b in found
@@ -226,6 +263,11 @@ def printed_boxes(image_bytes, cfg=None):
 
 def _as_region(b):
     return {"top": b[1], "bottom": b[3], "left": b[0], "right": b[2]}
+
+
+def _box_as_word(b):
+    """A printed box in the shape `_in_field` measures a word in, so it can be asked where it sits."""
+    return {"x": b[0], "y": b[1], "w": b[2] - b[0], "h": b[3] - b[1]}
 
 
 def _words_in_box(page, b):
@@ -549,7 +591,60 @@ def _not_echo(hand, echoes, printed=()):
     return kept
 
 
-def _read_field(page, f, cfg, working, echoes=frozenset(), printed=()):
+def sharper(pick, reread, cfg):
+    """A doubtful answer, cropped out of the page and looked at again large. → a better word, or None.
+
+    The page goes to the transcriber once, whole, at 150 dpi — where a 40x25-pixel answer is at the
+    limit of what it can resolve. That is why a third of everything reaching a person sits at 50-69%
+    confidence, one band under the floor: not hard handwriting, too few pixels. A crop re-rendered
+    at 500 dpi is a DIFFERENT image, not the same one asked twice, so the confidence it comes back
+    with is its own and the floor applies to it unchanged.
+
+    One number or nothing. A crop holding two has brought the neighbouring answer in with it and
+    there is no way to tell which is which, so the original reading stands and goes to a person —
+    it was already below the floor, so nothing is lost and nothing is guessed.
+
+    `reread` is handed in rather than opened here: this module owns geometry and the transcriber,
+    and the file a page was rendered from belongs to the caller.
+    """
+    pad = cfg["reread_pad"]
+    page = reread(
+        (pick["x"] - pad, pick["y"] - pad, pick["x"] + pick["w"] + pad, pick["y"] + pick["h"] + pad)
+    )
+    if not page:
+        return None
+    # No `hand` filter. Textract labels a word HANDWRITING by contrast with the printed text around
+    # it, and a crop has almost none — the child's own digits come back PRINTED about half the time.
+    # Whose hand it is was settled on the whole page, where the contrast exists.
+    found = [w for w in page["words"] if value_of(w["text"])]
+    if len(found) != 1:
+        return None
+    better = {**pick, "text": found[0]["text"], "confidence": found[0]["confidence"]}
+    if len(value_of(better["text"])) < len(value_of(pick["text"])):
+        # FEWER digits than the whole page saw is the crop having cut the answer in half, not a
+        # clearer view of it: "Answer=43" came back "4" at 91.7% and would have gone into a child's
+        # graph as 4. More pixels may add a digit the page missed; they cannot take one away.
+        return None
+    return better
+
+
+def _settle(pick, cfg, reread, echoes=frozenset(), printed=()):
+    """→ (word, is the engine standing behind it). One place, so the box path and the region path
+    cannot drift apart on what "sure" means."""
+    if pick["confidence"] >= cfg["min_confidence"]:
+        return pick, True
+    if reread and cfg["reread_dpi"]:
+        better = sharper(pick, reread, cfg)
+        # The echo test again, on what the crop resolved the mark INTO. The page read a fragment
+        # "3892" of the printed "38,924" beside it, which matched no echo and survived; the crop
+        # read the mark properly and it is the paper's own operand, at 99.3%. A second look that
+        # improves a reading changes what the echo rule is being asked about, so it is asked again.
+        if better and _not_echo([better], echoes, printed) and better["confidence"] >= cfg["min_confidence"]:
+            return better, True
+    return pick, False
+
+
+def _read_field(page, f, cfg, working, echoes=frozenset(), printed=(), reread=None):
     """What the child wrote inside one printed box: their answer, or a doubt, or nothing."""
     region = _as_region(f)
     hand = _handwriting_near(page, region, cfg, _in_field, any_hand=len(f) > 5)
@@ -573,6 +668,7 @@ def _read_field(page, f, cfg, working, echoes=frozenset(), printed=()):
         return {
             "child_answer": "",
             "answer_state": "illegible" if inked else "blank",
+            "why": "ink in the box but no number" if inked else "",
             "confidence": 0.0,
             "working_shown": working,
             "box": where,
@@ -583,11 +679,14 @@ def _read_field(page, f, cfg, working, echoes=frozenset(), printed=()):
         # answer after the working, so the last number in reading order is the one they stood
         # behind — and the Answer line the paper prints along the box's bottom edge is last of all.
         hand = hand[-1:]
-    doubtful = hand[-1]["confidence"] < cfg["min_confidence"]
+    pick, sure = _settle(hand[-1], cfg, reread, echoes, printed)
     return {
-        "child_answer": "" if doubtful else value_of(hand[-1]["text"]),
-        "answer_state": "illegible" if doubtful else "written",
-        "confidence": hand[-1]["confidence"],
+        "child_answer": value_of(pick["text"]) if sure else "",
+        "answer_state": "written" if sure else "illegible",
+        "why": "" if sure else "under the confidence floor",
+        # What the reader thinks it saw, kept for the person who decides — never marked from.
+        "guess": "" if sure else (value_of(pick["text"]) or ""),
+        "confidence": pick["confidence"],
         "working_shown": working,
         "box": where,
     }
@@ -648,7 +747,7 @@ def _split_rows(groups, anchors, band=0.02):
     return out
 
 
-def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
+def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
     """{slot: printed question} → {slot: reading}, one entry per slot, never silently missing.
 
     Grouped by QUESTION NUMBER rather than by the line each part happened to match. Question 5 of
@@ -679,13 +778,21 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
 
     labelled = _labelled_boxes(page, slots, boxes) if boxes else {}
     for slot, f in labelled.items():
-        out[slot] = _read_field(page, f, cfg, "none", _echoes([slots[slot]]), printed)
+        out[slot] = _read_field(page, f, cfg, "none", _echoes([slots[slot]]), printed, reread)
     if labelled:
         # Once a box is claimed, what is written in it — and on the Answer line the paper prints
         # just under it — is that slot's and no other's. A sibling still read by region would
         # otherwise count it, and four candidates for three slots is a doubt that need not exist.
         claimed = [{**_as_region(f), "bottom": f[3] + cfg["row_band"] * 2} for f in labelled.values()]
         page = {**page, "words": [w for w in page["words"] if not any(_in_field(w, r) for r in claimed)]}
+        # And the BOX is that slot's too, and every box inside its reach. Taking only the words away
+        # left the claimed box, and the answer line printed within the claim, still on offer as a
+        # field to whatever slots the labels did not reach — and positions then decided. On one
+        # Cambridge grid 2b and 2d went unlabelled: 2b was handed 2c's emptied box, and 2d a sliver
+        # of 2b's own answer line, and "29 + 4 =" was recorded as 64 at 99.8% — the child's answer
+        # to 58 + 6. She had written 33 for it, correctly. The gold set does not hold that paper, so
+        # it took a person looking at the crop to see it.
+        boxes = [b for b in boxes if not any(_in_field(_box_as_word(b), r) for r in claimed)]
     groups = {n: [s for s in members if s not in labelled] for n, members in groups.items()}
     groups = {n: members for n, members in groups.items() if members}
 
@@ -694,7 +801,12 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
         anchor = min((anchors[s] for s in members if anchors[s]), key=lambda a: a["y"], default=None)
         if anchor is None:
             for slot in members:
-                out[slot] = {"child_answer": "", "answer_state": "not_found", "confidence": 0.0}
+                out[slot] = {
+                    "child_answer": "",
+                    "answer_state": "not_found",
+                    "why": "the printed question was not found on the page",
+                    "confidence": 0.0,
+                }
             continue
         below = next((y for y, other in ordered if y > anchor["y"] + 1e-9), None)
         mine = [anchors[s] for s in members if anchors[s]]
@@ -745,11 +857,11 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             for slot, field in zip(
                 members, _reading_order([{"x": f[0], "y": f[1], "box": f} for f in fields], cfg["row_band"])
             ):
-                read = _read_field(page, field["box"], cfg, working, echoes, printed)
+                read = _read_field(page, field["box"], cfg, working, echoes, printed, reread)
                 if read["answer_state"] == "blank" and stray:
                     # Ink in the region that no box claims, beside a box that is empty: the child
                     # most likely wrote across the border. A person looks; nobody is told "blank".
-                    read = {**read, "answer_state": "illegible"}
+                    read = {**read, "answer_state": "illegible", "why": "ink beside an empty box"}
                 out[slot] = read
             continue
         # Where on the page this answer was read from, as fractions of the page. The approval screen
@@ -765,6 +877,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
                 out[slot] = {
                     "child_answer": "",
                     "answer_state": "illegible",
+                    "why": "every number in the region is one the paper printed",
                     "confidence": 0.0,
                     "working_shown": working,
                     "box": where,
@@ -796,6 +909,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
                     out[slot] = {
                         "child_answer": "",
                         "answer_state": "illegible",
+                        "why": "handwriting here, but no number in it",
                         "confidence": 0.0,
                         "working_shown": working,
                         "box": where,
@@ -810,6 +924,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
                 out[slot] = {
                     "child_answer": "",
                     "answer_state": "blank",
+                    "why": "",
                     "confidence": 0.0,
                     "working_shown": working,
                     "box": where,
@@ -836,16 +951,19 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
                 out[slot] = {
                     "child_answer": "",
                     "answer_state": "illegible",
+                    "why": f"{len(candidates)} numbers in the region for {len(members)} answers",
                     "confidence": 0.0,
                     "working_shown": working,
                     "box": where,
                 }
             continue
         for slot, pick in zip(members, candidates):
-            sure = pick["confidence"] >= cfg["min_confidence"]
+            pick, sure = _settle(pick, cfg, reread, echoes, printed)
             out[slot] = {
                 "child_answer": value_of(pick["text"]) if sure else "",
                 "answer_state": "written" if sure else "illegible",
+                "why": "" if sure else "under the confidence floor",
+                "guess": "" if sure else (value_of(pick["text"]) or ""),
                 "confidence": pick["confidence"],
                 "working_shown": working,
                 "box": where,
@@ -861,6 +979,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=()):
             out[slot] = {
                 "child_answer": "",
                 "answer_state": "illegible",
+                "why": "the answer to this question is not a number",
                 "confidence": 0.0,
                 "working_shown": out[slot].get("working_shown", "none"),
                 "box": out[slot].get("box"),

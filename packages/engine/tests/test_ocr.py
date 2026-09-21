@@ -193,6 +193,10 @@ def test_geometry_comes_from_rows_not_from_the_code():
         "box_max_width",
         "box_ink_blank",
         "red_pen_mask",
+        "reread_dpi",
+        "reread_pad",
+        "stencil_min_inliers",
+        "stencil_empty",
     }
     assert ocr.settings(None) == ocr.DEFAULTS  # no database: the measured defaults
 
@@ -646,3 +650,200 @@ def test_an_answer_that_equals_a_printed_number_is_kept_where_the_paper_did_not_
         page([childs] + printed, [anchor]), {"11": "Find the missing number: 15 + ___ = 30"}
     )
     assert (got["11"]["child_answer"], got["11"]["answer_state"]) == ("15", "written")
+
+
+def test_a_doubtful_answer_is_looked_at_again_larger_and_only_then_stood_behind():
+    """A 40x25-pixel answer on a 150-dpi page is at the limit of what the transcriber can resolve,
+    and a third of everything that reaches a person sits at 50-69% because of it. The crop is a
+    different image, so the floor applies to its confidence unchanged — it is not a second opinion
+    on the same pixels, and nothing below the floor is ever stood behind."""
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    ask = []
+
+    def reread(b):
+        ask.append(b)
+        return page([w("83", 0.5, 0.5, conf=96.0)], [])
+
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=58.0, line=q["text"])], [q]),
+        {"7": "7. 45 + 38 ="},
+        reread=reread,
+    )
+    assert out["7"] == {
+        "child_answer": "83",
+        "answer_state": "written",
+        "why": "",
+        "guess": "",
+        "confidence": 96.0,
+        "working_shown": "none",
+        "box": out["7"]["box"],
+    }
+    # the crop is the answer's own patch of the page, not the whole region a person is shown
+    pad = ocr.DEFAULTS["reread_pad"]
+    assert ask == [(0.42 - pad, 0.302 - pad, 0.42 + 0.04 + pad, 0.302 + 0.012 + pad)]
+
+
+def test_a_second_look_that_is_still_doubtful_changes_nothing():
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=58.0, line=q["text"])], [q]),
+        {"7": "7. 45 + 38 ="},
+        reread=lambda b: page([w("83", 0.5, 0.5, conf=61.0)], []),
+    )
+    assert out["7"]["answer_state"] == "illegible"
+    assert out["7"]["child_answer"] == ""
+
+
+def test_a_crop_holding_two_numbers_is_refused_rather_than_chosen_between():
+    """The neighbouring answer came with it and there is no telling which is which. The original
+    reading was already below the floor, so a person was always going to see this one."""
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=58.0, line=q["text"])], [q]),
+        {"7": "7. 45 + 38 ="},
+        reread=lambda b: page([w("83", 0.3, 0.5, conf=99.0), w("12", 0.7, 0.5, conf=99.0)], []),
+    )
+    assert out["7"]["answer_state"] == "illegible"
+
+
+def test_an_answer_already_over_the_floor_is_never_looked_at_again():
+    """One extra call per DOUBTFUL answer is the whole cost case. A page the engine reads cleanly
+    must cost nothing more than it did before."""
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    asked = []
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=96.0, line=q["text"])], [q]),
+        {"7": "7. 45 + 38 ="},
+        reread=lambda b: asked.append(b),
+    )
+    assert out["7"]["child_answer"] == "83"
+    assert asked == []
+
+
+def test_the_second_look_is_off_when_its_row_says_zero():
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    asked = []
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=58.0, line=q["text"])], [q]),
+        {"7": "7. 45 + 38 ="},
+        cfg={**ocr.DEFAULTS, "reread_dpi": 0},
+        reread=lambda b: asked.append(b),
+    )
+    assert out["7"]["answer_state"] == "illegible"
+    assert asked == []
+
+
+def test_a_crop_that_sees_fewer_digits_than_the_page_is_the_answer_cut_in_half():
+    """ "Answer=43" came back from its crop as "4" at 91.7% and would have entered a child's graph
+    as 4. More pixels may add a digit the page missed; they cannot take one away."""
+    q = w("1. 25 + 18 =", 0.1, 0.30, hand=False, width=0.3)
+    out = ocr.answers_for(
+        page([q, w("Answer=43", 0.42, 0.302, conf=65.4, line=q["text"])], [q]),
+        {"1": "1. 25 + 18 ="},
+        reread=lambda b: page([w("4", 0.5, 0.5, conf=91.7)], []),
+    )
+    assert out["1"]["answer_state"] == "illegible"
+    assert out["1"]["child_answer"] == ""
+
+
+def test_what_a_crop_resolves_a_mark_into_faces_the_echo_test_again():
+    """The page read a fragment "3892" of the printed "38,924" beside it, which matched no echo and
+    survived. The crop read the mark properly, at 99.3% — and it is the paper's own operand."""
+    q = w("3. Achal added 45,678 + 38,924", 0.1, 0.30, hand=False, width=0.5)
+    printed = w("38,924", 0.42, 0.302, hand=False, width=0.06, line=q["text"])
+    out = ocr.answers_for(
+        page([q, printed, w("3892", 0.42, 0.302, conf=51.7, width=0.041, line=q["text"])], [q]),
+        {"3": "3. Achal added 45,678 + 38,924"},
+        reread=lambda b: page([w("38,924", 0.5, 0.5, conf=99.3)], []),
+    )
+    assert out["3"]["answer_state"] == "illegible"
+    assert out["3"]["child_answer"] == ""
+
+
+def test_every_answer_that_reaches_a_person_says_why_it_did():
+    """ "86 did not add up" was one bucket holding five different failures, and the only way to tell
+    them apart was a SQL guess at the shape of the stored reading. The engine knows which branch it
+    took, so it says so — and the teacher is told the reason beside the crop, not just that it is
+    her problem now."""
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+
+    # two numbers where one answer is asked for, in a region with two parts
+    q2 = w("8. 12 + 9 =", 0.1, 0.40, hand=False, width=0.3)
+    out = ocr.answers_for(
+        page(
+            [
+                q,
+                w("83", 0.42, 0.302, line=q["text"]),
+                w("44", 0.55, 0.302, line=q["text"]),
+                w("31", 0.60, 0.302, line=q["text"]),
+                q2,
+            ],
+            [q, q2],
+        ),
+        {"7a": "7. 45 + 38 =", "7b": "7. 45 + 38 ="},
+    )
+    assert out["7a"]["why"] == "1 numbers in the region for 2 answers"
+
+    # a question the page does not carry at all
+    assert ocr.answers_for(page([], []), {"9": "9. 100 - 1 ="})["9"]["why"] == (
+        "the printed question was not found on the page"
+    )
+
+    # an answer the engine stands behind gives no reason, because there is nothing to explain
+    out = ocr.answers_for(page([q, w("83", 0.42, 0.302, line=q["text"])], [q]), {"7": "7. 45 + 38 ="})
+    assert out["7"] == {**out["7"], "answer_state": "written", "why": ""}
+
+    # a blank is a claim about the child, not a doubt about the reading, so it carries no reason
+    blank = ocr.answers_for(page([q], [q]), {"7": "7. 45 + 38 ="})["7"]
+    assert (blank["answer_state"], blank["why"]) == ("blank", "")
+
+
+def test_a_box_claimed_by_its_label_is_never_offered_to_another_question():
+    """The Cambridge grid "Complete each addition", row two, as one child's page produced it.
+
+    2a and 2c were claimed by their printed labels; the frames round 2b and 2d did not close, so
+    those two went to the region path — which still had 2c's emptied box and a sliver of 2b's own
+    answer line on offer as fields. Positions decided: 2d, "29 + 4 =", came back as 64 at 99.8%,
+    the child's answer to 58 + 6. She wrote 33, correctly, and was recorded as getting it wrong.
+    """
+    qs = {
+        "2a": ("36 + 7 =", 0.125, 0.325),
+        "2b": ("58 + 6 =", 0.330, 0.325),
+        "2c": ("47 + 5 =", 0.530, 0.315),
+        "2d": ("29 + 4 =", 0.730, 0.320),
+    }
+    printed = [w(t, x, y, hand=False, width=0.10, h=0.02, line=t, mixed=False) for t, x, y in qs.values()]
+    hand = [
+        w("42", 0.180, 0.400, width=0.04, h=0.02, line="Answer: 42"),
+        w("52", 0.620, 0.315, width=0.035, h=0.02, line="47 + 5 =52"),
+        w("64", 0.400, 0.393, width=0.035, h=0.016, line="Answer: 64"),
+        w("33", 0.790, 0.390, width=0.04, h=0.02, line="Answer: 33"),
+    ]
+    boxes = [
+        (0.1129, 0.3157, 0.3024, 0.4199, 0.1),  # 2a, closed, its label inside
+        (0.5202, 0.3031, 0.7145, 0.4097, 0.1),  # 2c, closed, its label inside
+        (0.3911, 0.3915, 0.4395, 0.4097, 0.3),  # a sliver of 2b's answer line
+    ]
+    out = ocr.answers_for(page(printed + hand, printed), {k: v[0] for k, v in qs.items()}, boxes=boxes)
+    assert out["2a"]["child_answer"] == "42"
+    assert out["2c"]["child_answer"] == "52"
+    # the property that protects the child: 2d is never handed 2b's answer
+    assert out["2d"]["child_answer"] != "64"
+    assert (out["2b"]["child_answer"], out["2d"]["child_answer"]) in {("64", "33"), ("", "")}
+
+
+def test_an_unsure_reading_keeps_its_guess_for_a_person_and_is_never_marked_from_it():
+    """ "A 51" came back at 29%. The engine threw the 51 away and the teacher had to type it. Kept
+    as a guess she confirms with one click — but a guess is never the child's answer: the reading
+    still stands at "illegible", and marking sees nothing."""
+    from engine import legacy
+
+    q = w("4. 45 + 18 - 12 =", 0.1, 0.30, hand=False, width=0.3)
+    out = ocr.answers_for(page([q, w("A51", 0.42, 0.302, conf=29.0, line=q["text"])], [q]), {"4": q["text"]})
+    assert (out["4"]["answer_state"], out["4"]["child_answer"], out["4"]["guess"]) == ("illegible", "", "51")
+    assert legacy.mark({"kind": "bare", "answer": 51}, {"answer": "51", "misconceptions": {}}, out["4"])[
+        0
+    ] == ("unreadable")
+    # a reading the engine stands behind carries no guess: there is nothing to confirm
+    sure = ocr.answers_for(page([q, w("51", 0.42, 0.302, conf=97.0, line=q["text"])], [q]), {"4": q["text"]})
+    assert sure["4"]["guess"] == ""

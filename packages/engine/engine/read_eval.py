@@ -17,7 +17,7 @@ swung 84-97% across passes.
 import json
 from pathlib import Path
 
-from engine import db, legacy
+from engine import db, legacy, stencil
 from engine.adapters import ocr
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
@@ -42,7 +42,9 @@ def gold_sheets(conn=None):
         return sheets
     # The seed names a file relative to the assessments folder and a capture names it with a ~;
     # both are the same scan, so they are matched as the one path they resolve to.
-    by_file = {_resolved(sheet_name(s)): s for s in sheets}
+    # Every file of a sheet, not only its first: a Grade 3 sitting is one photograph per page, and a
+    # correction on page 2 of a gold sheet belongs to that sheet, not to a new one beside it.
+    by_file = {_resolved(f): s for s in sheets for f in (s.get("files") or [s["file"]])}
     for row in legacy.corrections(conn):
         key = row["item_key"].rsplit("/", 1)[1]
         sheet = by_file.get(_resolved(row["path"]))
@@ -53,6 +55,10 @@ def gold_sheets(conn=None):
                 "note": "from the approval screen",
                 "answers": [],
             }
+            if row["file_pages"] == 1:
+                # One photograph is one page of the paper, and not necessarily page 1: read as page 1,
+                # a correction on the second photograph was scored against questions it does not hold.
+                sheet["page"] = row["page"]
             by_file[_resolved(row["path"])] = sheet
             sheets.append(sheet)
         answer = {
@@ -79,12 +85,22 @@ def sheet_pages(sheet, root):
     A Grade 2 sitting arrives as one scanned PDF. A Grade 3 sitting is a set of phone photographs —
     one file per page, taken on a teacher's phone — so a sheet may name `files` instead of `file`,
     and each of those is one page of the same paper.
+
+    Each page comes back with the file it was rendered from and its number INSIDE that file, which
+    is what a second look at a doubtful answer needs to draw the page again larger — the paper's
+    page number is not the file's when a sitting is a set of photographs.
+
+    Each comes back as (the paper's page number, file, page within that file, JPEG).
     """
     root = Path(root).expanduser()
-    files = sheet.get("files") or [sheet["file"]]
+    # `expanduser` on the name, not only the root: a sheet that arrived from the approval screen
+    # names its scan the way a capture does, "~/cornerstone/…", and joined to the root unexpanded it
+    # named a file that does not exist — the whole eval died on the first teacher correction.
+    files = [root / Path(f).expanduser() for f in (sheet.get("files") or [sheet["file"]])]
     if len(files) == 1:
-        return legacy.render_pages(root / files[0])
-    return [legacy.render_pages(root / f)[0] for f in files]
+        first = sheet.get("page", 1) - 1
+        return [(first + i, files[0], i, jpeg) for i, jpeg in enumerate(legacy.render_pages(files[0]), 1)]
+    return [(n, f, 1, legacy.render_pages(f)[0]) for n, f in enumerate(files, 1)]
 
 
 def _key(a):
@@ -99,17 +115,29 @@ def read_once_ocr(conn, sheet, root=ASSESSMENTS, cli=None):
     paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
-    for page_no, jpeg in enumerate(sheet_pages(sheet, root), 1):
+    for page_no, src, in_file, jpeg in sheet_pages(sheet, root):
         slots = {
             k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
         }
         if not slots:
             continue  # a blank back page, or a scan longer than the paper: nothing to look for
-        img = legacy.masked_image(jpeg, masks.get(page_no, 0))
+        mask = masks.get(page_no, 0)
+        img = legacy.masked_image(jpeg, mask)
         jpeg = legacy._jpeg(img)
         jpeg = ocr.mask_red_pen(jpeg, cfg)
-        boxes = ocr.printed_boxes(jpeg, cfg) if paper.get("fields") == "boxes" else ()
-        out.update(ocr.answers_for(ocr.read(jpeg, cli), slots, cfg, legacy.symbolic_slots(by_key), boxes))
+        out.update(
+            stencil.read_page(
+                jpeg,
+                slots,
+                cfg,
+                cli,
+                form=paper.get("printed_as", sheet["paper"]),
+                page_no=page_no,
+                symbolic=legacy.symbolic_slots(by_key),
+                use_boxes=paper.get("fields") == "boxes",
+                reread=legacy.second_look(src, in_file, mask, cfg, cli),
+            )
+        )
     return out
 
 
@@ -123,7 +151,7 @@ def read_once(conn, sheet, root=ASSESSMENTS):
     paper = template["key"] if isinstance(template["key"], dict) else json.loads(template["key"])
     masks = {p["n"]: p.get("mask", 0) for p in paper["pages"]}
     out = {}
-    for page_no, jpeg in enumerate(sheet_pages(sheet, root), 1):
+    for page_no, _, _, jpeg in sheet_pages(sheet, root):
         slots = legacy.slot_list(by_key, page_no)
         img = legacy.masked_image(jpeg, masks[page_no])
         readings, _ = legacy.read_page_in_bands(conn, img, slots)

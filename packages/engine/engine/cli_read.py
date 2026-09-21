@@ -182,3 +182,105 @@ def read_eval_cmd(
         rates = [r["read_exactly_right"] for r in per_run]
         typer.echo(f"  spread over {runs} runs  {min(rates):.1%} – {max(rates):.1%}")
     typer.echo(f"  model spend Rs {spent:.2f}\n")
+
+
+@read_app.command("waiting")
+def read_waiting() -> None:
+    """Every answer waiting for a person, counted by the reason the ENGINE gave for it.
+
+    This used to be a SQL query in `STATE.md` that inferred the cause from the shape of the stored
+    reading — "confidence is zero, so the count must not have lined up" — and it put five different
+    failures in one bucket of 86. The reader knows which branch it took and now records it, so the
+    biggest class is a fact rather than an inference, and the next person to work the list does not
+    have to re-derive it.
+    """
+    with db.connect() as conn:
+        rows = conn.execute(
+            # An answer the READER stood behind carries no reason, because the reading was not the
+            # problem: marking sent it to a person. A "find the mistake" question asks for a
+            # judgement no code can make, and that is a different fact from a reading the engine
+            # could not make out — putting the two in one bucket is what this command exists to
+            # stop.
+            "select case"
+            "   when nullif(r.raw_read::jsonb->>'why','') is not null"
+            "     then r.raw_read::jsonb->>'why'"
+            "   when r.raw_read::jsonb->>'answer_state' = 'written'"
+            "     then 'read cleanly; the judgement is the teacher''s'"
+            "   else '(read before reasons were recorded)' end as why,"
+            " count(*) as n"
+            " from item_result r join capture c on c.id = r.capture_id"
+            " where c.superseded_by is null and r.status in ('unreadable','needs_teacher')"
+            " group by 1 order by 2 desc"
+        ).fetchall()
+        totals = conn.execute(
+            "select count(*) as all_answers,"
+            " count(*) filter (where r.status in ('correct','wrong','blank')) as settled"
+            " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
+        ).fetchone()
+
+    waiting = sum(r["n"] for r in rows)
+    typer.echo(f"\n  {waiting} answers waiting for a person, of {totals['all_answers']}\n")
+    # Grouped, because "3 numbers in the region for 2 answers" and "1 numbers in the region for 2
+    # answers" are one problem with two shapes and reading them as nineteen rows hides that.
+    counted = {}
+    for r in rows:
+        key = (
+            "the region held a different count of numbers than the question has answers"
+            if ("numbers in the region" in r["why"])
+            else r["why"]
+        )
+        counted[key] = counted.get(key, 0) + r["n"]
+    for why, n in sorted(counted.items(), key=lambda kv: -kv[1]):
+        typer.echo(f"    {n:>4}  ({n / waiting:>3.0%})  {why}")
+    typer.echo(
+        f"\n  settled by the engine  {totals['settled']}  ({totals['settled'] / totals['all_answers']:.0%})"
+    )
+
+
+@read_app.command("stencil")
+def read_stencil(form: str = typer.Option("", "--form", help="one printed form; default every one")) -> None:
+    """Rebuild each paper's blank page from the children who sat it, and read the blank once (ADR 0022).
+
+    Three copies at least: one copy votes for its own handwriting, and two average into a page that
+    still carries both children's answers at half strength. The copies are masked exactly as
+    a page is before it is read — name band painted out, the educator's red ink inpainted — so the
+    blank holds no name and no teacher's mark.
+    """
+    from engine import legacy, stencil
+    from engine.adapters import ocr
+
+    with db.connect() as conn:
+        groups = stencil.copies(conn)
+        cfg = ocr.settings(conn)
+    cli = ocr.client()
+    for (f, page), found in sorted(groups.items()):
+        if form and f != form:
+            continue
+        if len(found) < 3:
+            typer.echo(
+                f"  {f:<14} p{page}  {len(found)} cop{'y' if len(found) == 1 else 'ies'} — too few to vote; read as before"
+            )
+            continue
+        jpegs = []
+        for src, in_file, mask in found:
+            imgs = legacy.render_pages(src)
+            jpegs.append(
+                ocr.mask_red_pen(legacy.mask_name_band(imgs[min(in_file, len(imgs)) - 1], mask), cfg)
+            )
+        blank, used, inliers = stencil.build(jpegs)
+        if used < 3:
+            # Two copies' median is their average, and both children's writing survives it at half
+            # strength; one is a child's page with their answers on it. Neither is a blank.
+            stencil.drop(f, page)
+            typer.echo(
+                f"  {f:<14} p{page}  only {used} of {len(found)} copies aligned — no blank; read as before"
+            )
+            continue
+        jpeg = legacy._jpeg(blank)
+        read = ocr.read(jpeg, cli)
+        boxes = ocr.printed_boxes(jpeg, cfg)
+        stencil.save(f, page, blank, read, [list(b) for b in boxes])
+        typer.echo(
+            f"  {f:<14} p{page}  {used} of {len(found)} copies aligned (inliers {min(inliers)}-{max(inliers)}),"
+            f" {sum(1 for w in read['words'] if not w['hand'])} printed words, {len(boxes)} boxes"
+        )
