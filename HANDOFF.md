@@ -3,122 +3,86 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: **W3 — read and graph. Every paper entered, every scan read, the engine settles 70%.**
-**The open question is the other 30%: 261 answers waiting for a person, and the next session's whole job is to cut that.**
+## Where we are: **W3 — validation, then hosting, then the graph. The reader is frozen.**
 
-W1 and W2 were verified at the start of this session and at the end of it, not assumed:
-
-```
-bin/engine goal w1-build-the-bank      6/6 criteria · GOAL ACHIEVED
-bin/engine goal w2-assemble-and-print  5/5 criteria · GOAL ACHIEVED
-bin/engine audit                       12 invariants · 0 violations
-cd packages/engine && .venv/bin/python -m pytest        356 passed
-cd apps/web && npm run test:e2e                         35 passed (1 skipped) · 8 passed
-bin/engine read eval --reader ocr --runs 2              76.2% exact · 1.6% silently wrong
-```
-
-## What moved
-
-**The paper's own printed boxes are now the answer fields** — the standard form-processing move
-(align to a template, read each field at its coordinates), with the boxes found on the child's own
-scan so no alignment step is needed. Nine of sixteen papers declare `fields: boxes` as a row.
+Nimish decided on 2026-09-21 (written into `BUILD-ORDER.md`): the reader stays as it is and improves
+only through what people's validations teach it — no other manual effort. Every doubtful answer is
+validated on the approval screen; then every uploaded sheet is 100% covered and scored; then the
+graphs; then W3 closes. He agreed to one random "sure" answer per paper as a permanent spot-check.
+Background is in `research/reports/Reading handwritten worksheet answers.md`; do not start the
+location-first rebuild it recommends without asking him.
 
 ```
-                answers   settled by the engine   waiting for a person
-before              869        501  (58%)              368
-after               867        606  (70%)              261   of which 39 are structural
+bin/engine read eval --reader ocr --runs 2   81.9% exact (68/83) · 1.2% silently wrong · no spread
+bin/engine read waiting                      225 of 867 waiting · 642 settled (74%)
+cd packages/engine && .venv/bin/python -m pytest      412 passed
 ```
 
-Structural means an ordering, an explanation, a tick or a comparison symbol — answers that are not
-numbers, which this transcriber cannot read by design and which always reach a person.
+**Done this session toward validation:** an unsure reading keeps the reader's best guess in
+`raw_read.guess` (never marked from; the gold is unchanged). The corpus has NOT been re-read since,
+so the stored readings do not carry guesses yet — re-read before the queue ships (`legacy.worked_on`
+keeps every signed-off or corrected paper untouched).
 
-**`bin/engine read eval --reader ocr --runs 2` → 78.0% exact (64/82), 100% given a row, 1.2%
-silently wrong, spread 78.0–78.0%.** The gold grew from 63 to 82: Kabir's Grade 3–4 quiz, a phone
-photograph under heavy red marking, hand-verified.
+**Next, in order:**
+1. **Hosting** (Nimish asked for a public link so he, Neha and others can validate). Waiting on him
+   for: OK to spend ~₹1,500–3,000/month on AWS Mumbai; an AWS permission for the engine's IAM user
+   (`cornerstone-reader` can only call Textract) to create one App Runner service and one private S3
+   bucket in ap-south-1; the names and emails of the people who will validate. Then: scans to the
+   private bucket, `capture.path` → bucket keys, the engine on App Runner with `ENGINE_KEY`, Vercel
+   given `ENGINE_URL`/`ENGINE_KEY`, each person's password set by Nimish with `bin/engine
+   set-password <email>`, branch merged to `main` (Vercel production deploys from it).
+2. **The validation queue** on the same link: one doubtful answer at a time across all papers, the
+   guess shown for a one-click confirm, one random settled answer per paper mixed in (chosen by the
+   smallest `md5(item_result.id)` per capture — stable, no schema change), a score per sheet.
+3. **The live error rate:** `read waiting` reports spot-checks done and how many of the engine's sure
+   answers a person changed, with an upper bound; a paper type over 1 in 100 goes to full review.
 
-Two findings worth carrying: **red ink is the educator's and is inpainted out before reading** (a
-red circle over 5147 read back as 147 at 95%), and **a number the question prints is never the
-answer unless the child declared it**. Both are rows, both are tested, both measured on the gold.
+**Shared working tree:** the "Question bank frontend" session edits the same folder and branch and
+commits its own files when its user asks — never stage by `-A`; stage by path.
 
-**A sixteenth paper was hiding**: the Grade 4 child's baseline is not the Grade 3 one — same
-header, different questions. `G4-BASE16` is entered and his misfiled reading superseded.
+## Next: does the graph reach the diagnosis Aseem reached by hand?
 
-## Next session: the 261, and why 70% is not the ceiling
+This is W3's reason to exist (`goals/w3-read-and-graph.yaml`: *reproduces_the_gold_diagnosis*,
+*matches_all_five_reports*), and it needs no more reading. Kabir's `8500 − 3647 = 5147` must come
+back out of his graph as `M_SMALL_FROM_LARGE`, and every named error in the five Grade 3 reports
+(`~/cornerstone/assessments/G3/*/<Child> Maths Assessment.pdf`) must come back out of theirs.
 
-Nimish, end of this session: "261 is a lot of teacher approvals... you sure this is the best you
-can do — we gotta work deeper into this module." No, it is not the best, and the breakdown says
-where the ceiling actually is. **Every one of the 261 was counted by cause, not guessed at:**
+1. **The five Grade 3 children get signed off**: 25 papers, 318 answers, **95 waiting for a person**.
+   Nothing reaches the graph until a person approves the paper — the engine prepares, a person
+   approves. **Who does it is Nimish's call** (him, Neha or Achal); it is the approval screen,
+   `/capture/<id>`, which now says why each answer is there.
+2. Build their five graphs (`bin/engine graph`), and write the runner for the two scenarios above,
+   so `goal w3-read-and-graph` stops saying "declared, not met" for them.
+3. What the graph gets wrong, if anything, chooses the next reader fix — not the size of a bucket.
 
-```
-  39  (16%)  not a number by design — an ordering, an explanation, a tick, a comparison symbol
-  20  ( 8%)  the question was never located on the page
-  ~90 (37%)  the region or box count did not add up
-  ~80 (33%)  read, but under the 70% confidence floor
-  ~13 ( 5%)  other
-```
+## Queued reader fixes — found on crops, not taken, because coverage is held
 
-(Counted at 261; 19 of them went away when the echo rule was corrected at the end of the session —
-see STATE.md, "A rule written this morning was deleting correct answers". **The corpus now stands
-at 242 waiting for a person and 625 of 867 settled, 72%.** Re-count by cause before working the
-list: the query is in that STATE entry's sibling above it.)
+Each is a page-structure bug on answers a person reads instantly (crops in `STATE.md`, 2026-09-21):
+- `G4-SEPW1` q7: two answer boxes wider than `ocr.box_max_width` are thrown away as "a working
+  area" although each one's printed label names its slot. A labelled box is a field at any width.
+- `G3-SEPW1-A` q5: nine answers in nine small printed boxes, one found.
+- `G4-SEPW1` q3: the child's digits sit inside the printed question line ("4[6] + [5]4 = 100"), so
+  the question text never matches and the slot is `not_found`.
+- `G2-CAM-C` q1b: "98" at 74.8% where the child probably wrote 48 — check it on the approval screen.
 
-Only the first 39 are a floor. **The other 222 are addressable, and three of the four biggest
-classes are not hard handwriting at all** — they are the engine not knowing which number on the
-page is the answer. Work them in this order; each one names its own measurement.
+## Do not retry without the silent-error count beside it
 
-**1. The 104 that did not add up — the free-response box (biggest single win).**
-`G2-CAM-A` q7/q8, `G2-DIAG-B` q11 and their like: the child works the whole method inside one box,
-so the region holds five numbers where the paper asks for two, and the engine refuses rather than
-guess. Two levers, in this order:
-  - **A blank-page template per paper.** This is the half of the standard pipeline this session did
-    NOT need and now does: one unmarked copy of each paper, ORB + RANSAC homography to align a
-    child's scan to it (`cv2.findHomography` / `warpPerspective`, the PyImageSearch recipe), then
-    field coordinates read from the template instead of inferred from the scan. It is the only
-    thing that fixes a paper whose answer sits on a plain underline the page does not draw —
-    `G3-SEPW1-A` and `G4-SEPW1`, where the flags concentrate. **There is no blank copy of any paper
-    on disk: ask the school, or reconstruct one by median-averaging the aligned copies of a paper
-    across the children who sat it (≥4 copies exist for 9 of 16 papers), which removes the
-    handwriting and leaves the printed page.**
-  - **Textract QUERIES as a second opinion on exactly these**, in plain English ("what number did
-    the student write as the final answer"), accepted only above the floor or where it agrees with
-    a candidate geometry already found. Measured once before: recovered 3 of 4 on this class, at
-    $15/1,000 pages and only on flagged answers.
+200 dpi (84.2% exact, **5** silently wrong), the scan's own dpi (76.8%), white margins round a crop
+(80.5%, 2 silently wrong), CLAHE/deskew. ADR 0020. The blank-page template was measured and not
+built: anchoring failed 0 times in 95; the reconstruction script is `scratchpad/template.py` in the
+2026-09-21 session and rebuilds in a minute from the capture rows.
 
-**2. The 84 under the confidence floor — re-read the crop, do not lower the bar.**
-18% of all flags sit at 50–69%, one band under the floor. The standard move is not to lower the
-floor (measured: 85 costs Grade 2 80.0% → 73.3%) but to **re-read just that box at a higher
-resolution**: the page goes to Textract at 150 dpi, a 40×25-pixel answer within it is at the limit,
-and a crop re-rendered at 400–600 dpi is a different problem. Cost is one extra call per flagged
-answer, not per page. **Target: half of the 84.**
+## The re-read driver is rebuilt from rows, not from the papers
 
-**3. The 20 never located — anchor failures on photographs.** Mostly `G3-BASE16` and `G2-DIAG-B` on
-angled phone photos where the printed question line broke up. The template from (1) removes this
-class entirely, which is another reason to do (1) first.
+`ingest.py` was gone. It is not needed: every live capture already carries its file, child, paper
+and the paper pages its results land on. The 30-line driver that re-reads the corpus from those
+rows is in the 2026-09-21 session's scratchpad (`reingest.py`); it names no child, and rebuilding
+it is one query plus `legacy.import_scan(..., again=True)`.
 
-**4. The 16 "find the mistake" answers that were read perfectly and still went to a person.**
-`legacy.mark` routes every `kind: text` item to a human. But the engine already reads the number
-("No! 84,602" → 84602) and the key already holds the right answer — 5 of the 16 match it exactly.
-The judgement ("is he correct?") is not checkable; **the number is**. Mark the number, show the
-teacher the judgement. This is a marking change, ~10 lines, no reading risk.
+## Uncommitted
 
-**If all four land, 242 → roughly 60–80, of which 39 are the structural floor.** That is the 90%+
-coverage you asked for, and every step of it is measurable against the gold set before it ships.
-
-## Do not skip this: the gold set is the only thing that kept this session honest
-
-`supabase/seed/read_gold.json` is now **82 responses over 6 sheets**, hand-read off the page,
-recording what the CHILD wrote including eleven answers that are wrong. The first cut of the box
-reader this session put **five silent errors** into the corpus; the gold caught all five before
-they reached a child's graph, and each is now a test. The bar wants 300 responses with 100 of them
-phone photographs. **Grow it by signing papers off on the approval screen** — every correction a
-teacher makes is a hand-verified response — not by another typing session.
-
-Run it before and after every single change:
-
-```
-bin/engine read eval --reader ocr --runs 2
-  78.0% exact (64/82) · 100% given a row · 1.2% silently wrong (1) · spread 78.0-78.0%
-```
+Everything above is on disk on `w1-goal-and-audit`, not committed — earlier sessions committed per
+step; this one waits for Nimish to say so.
 
 ## Carried over — Nimish's calls, not blockers
 

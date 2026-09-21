@@ -2425,3 +2425,153 @@ He was right, and the cause was mine, from earlier the same session.
   `G2-DIAG-B` still is not. **A person looking at four crops found in a minute what 82 hand-verified
   responses did not.** The approval screen is not only how the gold set grows — it is the only
   place a rule that is wrong in a way the gold cannot see will show itself.
+
+## The 242, worked: 242 → 229, one silent error found by looking, and the plan that did not survive (2026-09-21)
+
+W3, gate 2 (the reader). Started from the four checks green: W1 6/6, W2 5/5, audit 12/0, gold
+79.3% (65/82), 1.2% silently wrong, no spread.
+
+```
+                         answers   settled by the engine   waiting for a person
+start of session             867        625  (72%)              242
+end of session               867        638  (74%)              229
+```
+
+**Nimish, 2026-09-21: "let's keep this coverage for now and move ahead."** 229 is the coverage W3
+carries into the graph half; the reader is not worked again until the graph has been proven.
+
+- **Every flag now says why** (ADR 0021). `bin/engine read waiting`:
+  ```
+   78 (34%) under the confidence floor
+   74 (32%) the region held a different count of numbers than the question has answers
+   30 (13%) the answer to this question is not a number             <- the floor, with the 11 below
+   20 ( 9%) the printed question was not found on the page
+   11 ( 5%) read cleanly; the judgement is the teacher's
+   16 ( 7%) no number in the handwriting / ink but no number / every number printed
+  ```
+  The count by SQL inference said the biggest class was "five numbers where the paper asks for two".
+  Counted by the engine's own branch: **57 of the 74 hold FEWER numbers than the question has
+  answers** — the engine is not seeing the child's answers, not drowning in them.
+- **The second look** (ADR 0020): a flagged answer is cropped out and re-read at 500 dpi.
+  `bin/engine read eval --reader ocr --runs 2` → **81.7% exact (67/82)**, 100% given a row,
+  **1.2% silently wrong (1)**, spread 81.7–81.7%. It recovered 7 of 83 under the floor, not half,
+  and two guards were each paid for by a silent error on the gold (fewer digits than the page saw;
+  the echo test again on what the crop resolved).
+- **"Find the mistake" is marked where the number agrees with the key.** 5 of 14 read the key
+  exactly; the other 9 read a fragment or a printed operand and still go to a person.
+- **A silent error in the corpus, found by looking at crops.** `G2-CAM-C` q2d "29 + 4 =" was
+  recorded as **64 at 99.8%** — the child's answer to 2b (58 + 6). She wrote 33. A box claimed by
+  its printed label had its words withdrawn from the page but the box itself was still offered to
+  the unlabelled slots as a field. Fixed in `answers_for`, pinned by a test built from that page's
+  geometry that fails without the fix. Re-read of all 71 files: **exactly 2 readings of 867
+  changed** — 2d wrong(64) → correct(33), 2b flagged → correct(64). The gold set does not hold this
+  paper; the crop sheet did. That is the second session running where this happened.
+- **Measured and rejected, recorded where they would be retried:** the page at 200 dpi (84.2%
+  exact, **5 silently wrong**); at the scan's own 198–282 dpi (76.8%); white margins round the crop
+  (80.5%, 2 silently wrong — a margin makes a fragment readable too). `render_pdf.DPI` and
+  `adapters/ocr.py` carry the numbers. `printed_boxes` had two sizes in pixels; they are fractions
+  of the page now (unchanged at 150 dpi).
+- **The blank-page template, measured before building on it.** Reconstruction works: median of the
+  aligned copies, ORB + RANSAC, 300–1000 inliers a page, clean printed pages for 9 papers
+  (`scratchpad/template.py`, not in the repo). But the printed question failed to anchor **0 times
+  in 95** on the gold sheets, the box path already claims 18 of 20 fields where boxes exist, and the
+  flags it would fix are not the ones that exist. `G3-SEPW1-A` and `G4-SEPW1` are the same printed
+  paper (three copies, not two and one). Not built.
+- **Ten crops, one or two per cause** (sent to Nimish): 4 are the floor (explanations, a
+  true/false table, two column workings with no answer line), 2 are legible but under the floor
+  ("A 51"; "3556" under a red tick), and **4 are the engine misreading page structure on answers
+  any person reads instantly** — the wrong-box one above; `G4-SEPW1` q7 (two boxes wider than
+  `ocr.box_max_width`, "Answer: 252" / "Answer: 15"); `G3-SEPW1-A` q5 (nine answers in nine small
+  printed boxes, one found); `G4-SEPW1` q3 (the child's digits sit INSIDE the printed question line,
+  so the question never matches). `G2-CAM-C` q1b reads "98" at 74.8% where the child probably wrote
+  48 (a closed-top 4) — a person should look.
+- Suite **389 passed**, ruff clean, `engine audit` 12/0, web **34 passed (1 skipped) + 8 passed**,
+  lint's 5 errors all the pre-existing ones in `library/page.tsx`. Textract for four corpus re-reads
+  and the probes: about ₹80.
+
+## The approval screen, first used for real: what it showed Nimish, and what that found (2026-09-21)
+
+Nimish opened `/capture` (local, `web` + `engine api` in `.claude/launch.json`, dev sign-in) and
+corrected and signed off Kabir's Grade 3–4 quiz. **16 corrections, every `POST /capture/correct`
+→ 200.** Then: *"I am seeing a lot of entries with ~80% confidence … extremely easy to make out."*
+
+- **Most of what he was checking was never in his queue.** Of 225 waiting, 11 read at 70%+; the
+  108 answers the engine *settled* at 70–89% sat on the same page as the doubtful ones, each saying
+  "It is 82% sure", which reads as a question. The paper page now shows what needs a person first
+  and folds the engine's own marks under "N answers the engine marked itself — open to check"; no
+  percentage is shown on a reading the engine stands behind; the list's "Waiting" column (which
+  counted every unsigned answer) is "Not signed yet". Checked in the pane: 32 of 32 crops load,
+  page 1 folds 11, page 2 folds 3. `tsc` and `eslint` clean on the changed files.
+- **His first correction outside the seed killed the eval.** A correction on a paper the gold did
+  not hold became a new gold sheet named "~/cornerstone/…", joined to the assessments folder
+  unexpanded → a file that does not exist → `cv2.imencode` on an empty image. Behind it: a Grade 3
+  sitting is one photograph per page, and a correction on photograph 2 was matched only against
+  a sheet's FIRST file and read as page 1. `sheet_pages` expands the name and returns the paper's
+  page number; corrections are matched against every file of a sheet. Test pins both.
+  `bin/engine read eval --reader ocr --runs 1` → **81.9% exact (68/83)**, 1.2% silently wrong — the
+  gold grew by one response from his corrections.
+- **The floor, measured again, on 83** (runs 2, spread 0 each):
+  ```
+  floor 70   81.9%   silently wrong 1     <- stays
+  floor 60   86.8%   silently wrong 2     72 recorded as "2"
+  floor 50   87.9%   silently wrong 4     + 282 as "1", 84602 as "3892"
+  floor 40   90.4%   silently wrong 4
+  ```
+  Every error a lower floor lets through is a FRAGMENT of the right number. Easy answers under the
+  floor stay with a person until something can tell a whole answer from a piece of one.
+- **The engine service is started by the desktop app and stops when its tab is closed.** It was
+  stopped 29 minutes into his session and every crop returned 503; his corrections had all landed
+  first. Leave the `engine api` tab open.
+
+## The question bank on screen, and a paper with its QR (2026-09-21, a side session beside W3)
+
+Asked for by Nimish for the founder: "an interface for people to see" the ~12,000 questions and how
+a paper with a QR is made from them. A W1/W2 screen, not a W3 gate — W3's gate did not move here.
+
+- **`/library` shows the whole bank.** A grid of all 17 skill sets × 4 levels by name, each count
+  a link to its questions; 50 per page with paging; all 12 kinds of question drawn as the child
+  sees them. Before this, 8 of the 12 kinds printed as "undefined + undefined" (~5,000 questions).
+  Check: e2e `every kind of question in the bank is drawn with its own numbers` — fails on the old
+  drawing ("265 undefined undefined"), passes now.
+- **A mistake is named for the question's own operation.** `M_WRONG_OP` has three names (one per
+  + − ×) and `misconceptionNames()` picked one arbitrarily: "92 − 4" showed "Added instead of
+  multiplying". `mistakeNames()` keys by `code@op`. Check: e2e `a mistake is named for the
+  question's own operation` — fails on the old lookup, passes now. **Still open:** number walls
+  (216) and two-step word problems (1,093) record no operation, so their `M_WRONG_OP` shows the
+  code, not a guessed name; and `/capture/[id]`, `/growth/[id]` still use the arbitrary lookup.
+- **`/worksheets/<code>` shows one paper**: the page as printed (QR on every page, from the PDF via
+  `GET /sheet/{qr}/page/{n}.jpg`), five one-line facts from its rows, and its answer key. Check:
+  `uv run pytest tests/api/test_week_routes.py` → 6 passed; e2e `a paper opens from its code…`.
+- **Every `<table class="grid">` in the app had its header out of line with its columns** —
+  Tailwind's `grid` utility set `display: grid` on the table. `table.grid { display: table }`.
+- `queries.ts` went past 400 lines; the bank and paper queries moved to `lib/queries-bank.ts`.
+- The approval e2e test left `approved_by` on unapproved sheets; it now restores it (9 sheets cleared).
+- Commands, 2026-09-21: playwright (e2e bank/paper + all screens) → **27 passed**; `bin/engine audit`
+  → 12 invariants, 0 violations; `tsc --noEmit` and `eslint` clean. Not committed.
+
+## Stopped, restored, researched (2026-09-21, evening)
+
+Nimish: *"You just keep on shuffling between different things, finding errors … stop … research how
+this kind of problem needs to be solved."* Stopped. What is true now:
+
+- **The stencil is off.** Its blanks are parked in `data/paper-templates.parked/` (not deleted), so
+  `stencil.read_page` falls back to the old path. Measured on its re-read: it settled 16 more answers
+  and fixed 6 silent "blank" claims, but put in 5 new silent errors (812→752, 65→15, 600→46, 35→5,
+  13→3) — the extra ink it found made the "last number is the answer" rule pick working. The corpus
+  was re-read with it off: **0 settled answers differ from before it** (`diff.py before-stencil
+  after-restore`), `read eval` → 81.9% (68/83), 1 silently wrong.
+- **A re-read had taken six of Nimish's corrections** (Kabir's quiz p2, q11–16) and one from
+  2026-09-20, because the guard protected signed-off papers only. `legacy.worked_on` now protects any
+  capture a person has signed off OR corrected (test pins both). The seven were re-applied under
+  their original corrector; `read_correction` rows on live readings: 18 of 18.
+  `bin/engine read waiting` → **225 of 867 waiting, 642 settled**.
+- **Research**: `research/reports/Reading handwritten worksheet answers.md` (notes in
+  `research/research_notes/`). Its finding: every working system fixes WHERE an answer is (a box drawn
+  once per layout, or printed boxes found via corner marks + QR) before reading it; the engine infers
+  location from the ink, and 94 of the waiting answers are location failures, not reading ones.
+- Suite, ruff: clean on the files touched. No reader change ships until Nimish agrees the approach.
+
+- **An unsure reading keeps its guess** (`raw_read.guess`, both reading paths): what the reader
+  thinks it saw, for a person to confirm with one click, never marked from — `mark` reads
+  `child_answer`, which stays empty. Test pins both halves. `read eval` unchanged: 81.9% (68/83),
+  1 silently wrong. Suite **412 passed**.

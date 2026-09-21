@@ -20,6 +20,17 @@
       ],
       "cwd": "apps/web",
       "port": 3000
+    },
+    {
+      "name": "engine api",
+      "runtimeExecutable": ".venv/bin/uvicorn",
+      "runtimeArgs": [
+        "engine.api.app:app",
+        "--port",
+        "8931"
+      ],
+      "cwd": "packages/engine",
+      "port": 8931
     }
   ]
 }
