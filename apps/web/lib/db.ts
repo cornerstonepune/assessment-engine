@@ -19,6 +19,13 @@ const SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION
 
 type Sql = ReturnType<typeof postgres>;
 
+// Never stack a query behind another on one connection: through the transaction pooler the third
+// stacked query is never answered, and the live Question bank hung for five minutes on every click
+// (ADR 0024). `max_pipeline` is postgres.js's own option — its source parses it beside `max` and
+// `idle_timeout` — but its type file omits it; `node scripts/check-pooler.ts` fails if it ever
+// stops working.
+const NEVER_STACK = { max_pipeline: 0 } as Record<string, number>;
+
 function connect(url: string): Sql {
   // Check the shape here, so a malformed value fails with a message of our own. The driver's own
   // error quotes the whole connection string, password and all, straight into the build log.
@@ -38,9 +45,12 @@ function connect(url: string): Sql {
     );
   }
   return postgres(url, {
-    ssl: "require",
+    ...NEVER_STACK,
+    // The local copy the tests use (ADR 0025) runs on this machine without TLS; anything else must.
+    ssl: ["127.0.0.1", "localhost"].includes(new URL(url).hostname) ? false : "require",
     prepare: false,
-    max: SERVERLESS ? 1 : 3,
+    // Four connections keep a page's queries side by side now that none may stack.
+    max: SERVERLESS ? 4 : 3,
     idle_timeout: SERVERLESS ? 5 : 20,
     connect_timeout: 10,
   });

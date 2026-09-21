@@ -1,0 +1,29 @@
+name: s4-validation-queue
+goal: >
+  Every answer the engine is unsure of is in one queue on the live website, shown one at a time with
+  the child's own handwriting, the question and the engine's best guess. A member of staff confirms
+  the guess in one click, types what the child wrote, or judges right, wrong or blank; the next answer
+  appears at once. One answer the engine was sure of on each paper is mixed in as a spot-check, and a
+  sheet shows its score as soon as nothing on it waits. The re-read that supplies the guesses changes
+  nothing a person has signed off or corrected.
+
+# Written 2026-09-21, before the work. The reader stays as it is (BUILD-ORDER, 2026-09-21 night);
+# only its guesses are kept, never marked from.
+criteria:
+  - name: >-
+      the re-read, on the copy with a stand-in reader — guesses kept, papers a person signed off or
+      corrected untouched, every settled answer that changed reported by name
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_read_again.py
+    expect: "passed"
+  - name: >-
+      the queue, on the copy — each waiting answer once, in paper order, with its crop and guess;
+      confirm, type and judge each settle it in the person's name; one spot-check per paper; the
+      count equals the engine's own; a sheet's score when nothing waits
+    run: cd apps/web && npx playwright test tests/s4-validation-queue.spec.ts
+    expect: "passed"
+  - name: the engine's count of answers waiting for a person, on the live rows
+    run: engine read waiting
+    expect: "answers waiting for a person"
+  - name: the live link — the queue reached from the menu and one answer settled, signed in
+    run: engine live check --since 60m --page /capture/check
+    expect: "0 timed out · 0 failed · 1 of 1 pages seen"

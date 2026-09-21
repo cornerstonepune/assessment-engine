@@ -3,6 +3,7 @@
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from urllib.parse import urlparse
 
 import psycopg
 from dotenv import load_dotenv
@@ -42,9 +43,21 @@ def env(name: str) -> str:
     return value
 
 
+def local_copy() -> str:
+    """The copy of the live database on this Mac that every test and goal scenario uses (ADR 0025,
+    `bin/testdb`). An address anywhere else is refused: a test must never write to live rows."""
+    url = env("TEST_DATABASE_URL")
+    if urlparse(url).hostname not in ("127.0.0.1", "localhost"):
+        raise RuntimeError(
+            "refusing to run tests against a database that is not on this machine — "
+            "TEST_DATABASE_URL must name the local copy (bin/testdb)"
+        )
+    return url
+
+
 @contextmanager
-def connect():
-    with psycopg.connect(dsn(), row_factory=dict_row) as conn:
+def connect(url: str | None = None):
+    with psycopg.connect(url or dsn(), row_factory=dict_row) as conn:
         yield conn
 
 

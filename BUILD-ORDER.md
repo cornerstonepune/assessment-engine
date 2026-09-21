@@ -5,6 +5,68 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Now: five steps, in this order — agreed with Nimish 2026-09-21, afternoon
+
+Nimish opened the live website and it failed him: the Question bank never opened, the Skill Map
+named its 17 skills by topic label and listed 37 more that went nowhere, no skill had a single
+worksheet, and the 225 answers waiting for a person were nowhere on the site. He agreed this order:
+*"Go in this order, but first commit this order so that each of these particular steps has a very
+specific goal post. I don't want any constant rework happening."* A step is done when its goal
+command is green — `bin/engine goal <name>` — and the next starts only then. These five come before
+everything else in this file, W3's graph half included; step 4 **is** W3's validation step.
+
+| Step | Goal file | Green means |
+|---|---|---|
+| 1 | `goals/s1-site-answers.yaml` | every page of the live link opens in seconds, shows it is loading the moment it is clicked, and says so in words when the database cannot answer; no test or goal run touches the live database |
+| 2 | `goals/s2-skill-map-outcomes.yaml` | the 17 skills are stated as what the child can do, grouped by grade, each opening a page that shows every level as a sentence and a real question, its kinds, its mistakes and its worksheets; nothing on the map goes nowhere |
+| 3 | `goals/s3-worksheet-library.yaml` | every question in the bank sits on a numbered worksheet; all 68 skill-levels (17 × 4) have at least ten; a skill shows its worksheets with a level filter; a worksheet opens and prints; a question names its worksheets |
+| 4 | `goals/s4-validation-queue.yaml` | every answer the engine is unsure of is in one queue on the live link, one at a time with the child's handwriting and the engine's guess, settled in a click; a sheet shows its score when nothing on it waits |
+| 5 | `goals/s5-question-bank-explained.yaml` | the Question bank says in plain words what it is and how each question ties to a skill, a level, a kind and a worksheet |
+
+**The gate over all five is the live link, not this Mac** (Nimish: *"I am reasonably sure you have
+not checked through the elements"*). A person signs in once in the browser pane, every menu page and
+link is clicked on the public address, and `bin/engine live check` shows the window clean. A local
+test run, however green, does not close a step.
+
+**Step 1 — the cause, found while writing the goal.** The live website sent several queries at once
+down one connection of Supabase's *transaction* pooler, and that pooler never answers the third:
+reproduced 3 of 3 with the Question bank's own four queries, and with four `select 1`s. My Mac talks
+to the *session* pooler, where the same code works — so every test passed while the live page hung
+for Vercel's full five minutes. One driver setting (`max_pipeline: 0`) answers seven at once in
+0.2–0.5 s (ADR 0024). Also in step 1: tests and goal runs on a local copy of the database (ADR 0025;
+earlier today the shared database took 127–203 s to write under 1 MB while suites ran on it), table
+links that no longer pre-load every page behind them, a loading screen and an error screen, an
+8-second deadline on every page, a sign-in check that reports a database failure instead of sending
+the person to the login page, and `bin/engine live check` over Vercel's and Supabase's logs.
+
+**Step 2 — the words are the engine's draft; the approval is Nimish's.** The outcome is
+`skill_set.learning_objective`, rewritten for all 17 in one form: a verb first, one sentence, the
+school's words, no codes. A rewrite withdraws the set's ratification (trigger
+`skill_set_version_on_change`), so all 17 wait for one approval on the screen, and `engine audit`
+stays red until it is given. The 37-skill registry list leaves the map. Editing on the skill page
+becomes the words only: the checkbox rule editor leaves it, because it knew four of the twelve
+question kinds and saving any of the other ten skills from it dropped their kinds or refused.
+
+**Step 3 — the numbers (ADR 0026).** A worksheet is 12 questions (`assemble.items_per_sheet`) of one
+skill at one level, its kinds in fair shares and grouped as they print, with an ID such as `R5-H07`.
+Each level gets W = max(10, ⌈N ÷ 12⌉) worksheets, so every one of the 12,567 questions is on one:
+18 worksheets with no question repeated for each of the 55 levels that hold 216; 13 for the level
+that holds 145; 10 for each of the 12 Grade 1 levels, which hold 22–107 questions — all the distinct
+questions their arithmetic allows (ADR 0011) — so those worksheets share questions, each question
+used equally often. 1,123 worksheets. A worksheet prints on demand. A removed or corrected question
+retires the worksheets it was on and new ones replace them; a worksheet already printed for a child
+never changes. **Not in step 3:** a child's weekly paper being handed out *from* the library rather
+than drawn afresh — that is the next change after these five, agreed separately.
+
+**Step 4 — the queue.** The corpus is re-read first so that each unclear reading carries the
+reader's best guess — the reader itself unchanged, every paper a person signed off or corrected left
+untouched. Then one answer at a time: the crop, the question, the guess; confirm in one click, type
+what the child wrote, or judge right / wrong / blank; one answer the engine was sure of on each paper
+mixed in as a spot-check; a sheet's score once nothing on it waits; reached from the menu.
+
+**Step 5 — the bank explains itself** in three plain sentences, and every question shows its skill,
+level, kind and worksheet.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

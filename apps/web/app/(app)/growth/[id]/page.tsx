@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile, TONE_BG } from "@/components/shell";
@@ -20,6 +20,7 @@ import {
   type Skill,
 } from "@/lib/queries";
 import { confirmChild, resolveOne } from "../actions";
+import { deadline } from "@/lib/deadline";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 const MACHINE = ["correct", "wrong", "blank"];
@@ -47,7 +48,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, map, next, evidence, pending, papers, names, skills] = await Promise.all([
+  const [child, map, next, evidence, pending, papers, names, skills] = await deadline(Promise.all([
     childHeader(id, me.email),
     childMap(id),
     childNext(id),
@@ -56,7 +57,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     childPapers(id),
     misconceptionNames(),
     numSkills(),
-  ]);
+  ]));
   if (!child) notFound();
 
   const machine = pending.filter((p) => MACHINE.includes(p.status));

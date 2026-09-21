@@ -1,10 +1,11 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { misconceptionNames, numSkills } from "@/lib/queries";
 import { paperAnswers, paperHeader, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper, correctRead, judgeRead } from "../actions";
+import { deadline } from "@/lib/deadline";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -35,12 +36,12 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [paper, answers, names, skills] = await Promise.all([
+  const [paper, answers, names, skills] = await deadline(Promise.all([
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
     numSkills(),
-  ]);
+  ]));
   if (!paper) notFound();
 
   const skillName = Object.fromEntries(skills.map((s) => [s.code, s.name]));

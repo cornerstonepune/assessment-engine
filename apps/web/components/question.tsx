@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/components/link";
 import type { ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label

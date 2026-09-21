@@ -40,6 +40,7 @@ n8n/.n8n/
 # web app
 apps/web/node_modules/
 apps/web/.next/
+apps/web/.next-test/
 apps/web/test-results/
 apps/web/.design-approved.json
 .design-approved.json

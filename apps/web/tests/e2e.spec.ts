@@ -17,7 +17,8 @@ if (!process.env.DATABASE_URL) {
   const root = path.resolve(process.cwd(), "../../.env");
   if (existsSync(root)) process.loadEnvFile(root);
 }
-const sql = postgres(process.env.DATABASE_URL!, { ssl: "require", max: 2, prepare: false });
+// The local copy (playwright.config.ts refuses any other address), which runs without TLS.
+const sql = postgres(process.env.DATABASE_URL!, { max: 2, prepare: false });
 
 /** Everything these tests create carries this note, so it can always be found again. */
 const MARK = "end-to-end test";
@@ -353,7 +354,10 @@ test("a paper opens from its code: the page as printed, how it was drawn, and it
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow, "page must not scroll sideways on a phone").toBeLessThanOrEqual(1);
 
-  expect((await page.goto("/worksheets/CS000000"))?.status()).toBe(404);
+  // A code that names no paper says so. The status is 200, not 404: the loading screen streams
+  // first (app/(app)/loading.tsx), and Next cannot change a status once it has sent it.
+  await page.goto("/worksheets/CS000000");
+  await expect(page.getByText("This page could not be found.")).toBeVisible();
 });
 
 test("the week's plan shows every child with a level and a reason", async ({ page }) => {

@@ -1,0 +1,26 @@
+name: s2-skill-map-outcomes
+goal: >
+  The Skill Map shows the 17 skills the engine teaches, each stated as what the child can do — one
+  sentence, a verb first, in the school's words, grouped by grade — and each opens a page that shows
+  what the skill looks like at Easy, Medium, Hard and Advance as a plain sentence and a real question
+  from the bank, which kinds of question test it, the mistakes it watches for, and its worksheets.
+  Nothing on the map is a list that goes nowhere, and the words are approved by a person.
+
+# Written 2026-09-21, before the work. The outcome is skill_set.learning_objective; the engine drafts
+# the 17, a rewrite withdraws their ratification, and the last criterion is a person's approval.
+criteria:
+  - name: all 17 outcomes read as outcomes — a verb first, one sentence, 8 to 30 words, no code or jargon
+    run: engine spec outcomes
+    expect: "17 of 17 read as outcomes"
+  - name: >-
+      the map lists 17 skills led by their outcomes, grouped by grade, and every link on it opens;
+      every skill page shows four levels with a sentence and a drawn question, its kinds, its
+      mistakes and its worksheets; correcting a skill's words asks for approval again
+    run: cd apps/web && npx playwright test tests/s2-skill-map.spec.ts
+    expect: "passed"
+  - name: a person has approved the 17 as written
+    run: engine audit
+    expect: "0 violations"
+  - name: the live link — the map and a skill page clicked through, signed in
+    run: engine live check --since 60m --page / --page /skill-sets
+    expect: "0 timed out · 0 failed · 2 of 2 pages seen"

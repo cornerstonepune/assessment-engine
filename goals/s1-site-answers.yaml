@@ -1,0 +1,32 @@
+name: s1-site-answers
+goal: >
+  Every page of the live website opens within seconds when a member of staff clicks it, shows that
+  it is loading the moment it is clicked, and says in words when the database cannot answer — never
+  a five-minute wait on a blank screen, never a false "sign in again". Nothing but the website, the
+  school's engine server and deliberate data jobs touches the live database: every test and goal run
+  uses a local copy of it.
+
+# Written 2026-09-21, before the work (CLAUDE.md rule 12), in the order BUILD-ORDER.md fixes.
+# Found while writing it: the live Question bank hung because the website sent several queries at
+# once down one connection of the transaction pooler, which never answers the third (ADR 0024).
+criteria:
+  - name: eight queries at once through the live pooler all answer — the hang, kept as a check
+    run: cd apps/web && node scripts/check-pooler.ts
+    expect: "8 of 8 answered"
+  - name: tests refuse the live database and run on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_test_database.py
+    expect: "passed"
+  - name: the engine's own suite, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: >-
+      the website built for production, on the copy — a click shows loading at once, a database
+      that does not answer is said in words within 12 s, only the six menu pages load ahead
+    run: cd apps/web && npx playwright test tests/s1-site-answers.spec.ts
+    expect: "passed"
+  - name: every screen still works when built for production
+    run: cd apps/web && npx playwright test --project=screens --project=e2e --project=gate
+    expect: "passed"
+  - name: the live link, clicked through signed in — nothing timed out, nothing failed, every menu page seen
+    run: engine live check --since 60m
+    expect: "0 timed out · 0 failed · 6 of 6 menu pages seen"

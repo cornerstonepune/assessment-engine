@@ -3,39 +3,34 @@
 Read `BUILD-ORDER.md` first: it says which workflow we are on and what "done" means. Then
 `STATE.md` for what is verified. This file only says where the last session stopped.
 
-## Where we are: **W3 — validation, then hosting, then the graph. The reader is frozen.**
+## Where we are: **step 1 of five — `s1-site-answers`. Then 2, 3, 4, 5, in that order.**
 
-Nimish decided on 2026-09-21 (written into `BUILD-ORDER.md`): the reader stays as it is and improves
-only through what people's validations teach it — no other manual effort. Every doubtful answer is
-validated on the approval screen; then every uploaded sheet is 100% covered and scored; then the
-graphs; then W3 closes. He agreed to one random "sure" answer per paper as a permanent spot-check.
-Background is in `research/reports/Reading handwritten worksheet answers.md`; do not start the
-location-first rebuild it recommends without asking him.
+Nimish, 2026-09-21 afternoon, after the live website failed him: the order is committed in
+`BUILD-ORDER.md` ("Now: five steps"), one goal file per step (`goals/s1…s5-*.yaml`), plan in
+`docs/superpowers/plans/2026-09-21-five-steps.md`. A step closes only when `bin/engine goal <name>`
+is green **including its live-link criterion** — a person signed in on the public address, every
+page clicked, `bin/engine live check` clean. Local green does not close a step.
+
+**Step 1's cause is measured, not guessed (ADR 0024):** through the transaction pooler (6543, the
+live road) a third query stacked on one connection never answers; `max_pipeline: 0` answers seven
+at once. `STATE.md` has the runs.
+
+**Tests now run on a local copy (ADR 0025):** `bin/testdb` copies the live rows into Supabase's own
+Postgres in Docker (port 54322, `TEST_DATABASE_URL`), every table's count compared — first run:
+45 tables, 45,607 rows, equal. Run it before a goal when fresh live rows matter.
+
+**Next action:** step 1's code — `db.ts`, the pooler check, conftest guard, loading/error screens,
+deadline, sign-in check, prefetch, Playwright on a production build, `engine live check` — then PR,
+merge, and the live click-through.
+
+**Step 4 (the validation queue) is W3's validation step.** The reader stays frozen; the corpus is
+re-read only to carry guesses (`raw_read.guess` is written by the reader already; 0 of 225 waiting
+answers carry one today because the corpus has not been re-read since).
 
 ```
 bin/engine read eval --reader ocr --runs 2   81.9% exact (68/83) · 1.2% silently wrong · no spread
 bin/engine read waiting                      225 of 867 waiting · 642 settled (74%)
-cd packages/engine && .venv/bin/python -m pytest      412 passed
 ```
-
-**Done this session toward validation:** an unsure reading keeps the reader's best guess in
-`raw_read.guess` (never marked from; the gold is unchanged). The corpus has NOT been re-read since,
-so the stored readings do not carry guesses yet — re-read before the queue ships (`legacy.worked_on`
-keeps every signed-off or corrected paper untouched).
-
-**Next, in order:**
-1. **Hosting** (Nimish asked for a public link so he, Neha and others can validate). Waiting on him
-   for: OK to spend ~₹1,500–3,000/month on AWS Mumbai; an AWS permission for the engine's IAM user
-   (`cornerstone-reader` can only call Textract) to create one App Runner service and one private S3
-   bucket in ap-south-1; the names and emails of the people who will validate. Then: scans to the
-   private bucket, `capture.path` → bucket keys, the engine on App Runner with `ENGINE_KEY`, Vercel
-   given `ENGINE_URL`/`ENGINE_KEY`, each person's password set by Nimish with `bin/engine
-   set-password <email>`, branch merged to `main` (Vercel production deploys from it).
-2. **The validation queue** on the same link: one doubtful answer at a time across all papers, the
-   guess shown for a one-click confirm, one random settled answer per paper mixed in (chosen by the
-   smallest `md5(item_result.id)` per capture — stable, no schema change), a score per sheet.
-3. **The live error rate:** `read waiting` reports spot-checks done and how many of the engine's sure
-   answers a person changed, with an upper bound; a paper type over 1 in 100 goes to full review.
 
 **`main` is locked on this Mac, not on GitHub:** `.git/hooks/pre-push` refuses any push to `main` (tested). GitHub branch protection on a private repo needs GitHub Team (~$4/person/month) — Nimish's call; with it, `gh api -X PUT repos/cornerstonepune/assessment-engine/branches/main/protection` (checks `engine` + `web`, enforce_admins) is the real lock. Until then: merge only a PR whose two checks are green.
 

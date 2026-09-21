@@ -1,0 +1,16 @@
+name: s5-question-bank-explained
+goal: >
+  The Question bank page says in three plain sentences what the bank is, how its questions are made
+  and checked, and how each one is tied to a skill, a level, a kind and a worksheet — and every
+  question on it shows those ties, each worksheet a link that opens.
+
+# Written 2026-09-21, before the work.
+criteria:
+  - name: >-
+      the explanation is there, every question row shows its skill, level, kind and worksheets, every
+      link on the page opens, and the page's counts equal the database's
+    run: cd apps/web && npx playwright test tests/s5-question-bank.spec.ts
+    expect: "passed"
+  - name: the live link — the Question bank opened, signed in
+    run: engine live check --since 60m --page /library
+    expect: "0 timed out · 0 failed · 1 of 1 pages seen"

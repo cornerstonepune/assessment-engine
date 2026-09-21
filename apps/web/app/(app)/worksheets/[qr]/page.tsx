@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Answers, KIND, Mistakes, Question } from "@/components/question";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { RULE_WORDS } from "@/lib/queries";
 import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/queries-bank";
+import { deadline } from "@/lib/deadline";
 
 type Props = { params: Promise<{ qr: string }> };
 
@@ -13,7 +14,7 @@ type Props = { params: Promise<{ qr: string }> };
 export default async function PaperPage({ params }: Props) {
   const { qr } = await params;
   if (!/^CS[0-9A-F]{6}$/.test(qr)) notFound();
-  const [p, questions, book] = await Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]);
+  const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));
   if (!p) notFound();
   const back = p.section ? `/worksheets?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/worksheets";
 
