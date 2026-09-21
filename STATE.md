@@ -2823,3 +2823,47 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
 - **Clicked through on the local preview against the copy:** `/capture/check?from=5`, the q10 answer, typed
   `12,34,45,78`, Save → "208 answers left" (was 209), the row `correct`, the reading kept as a `read_correction`.
 - The 3 stuck answers stay in the queue; one Save each settles them once this is live (2 come out right, 1 wrong).
+
+## Next: six steps — written, and step 6 begun (2026-09-21, evening)
+
+- **The order and its goals**, agreed in principle by Nimish ("start building for the next steps … with the right
+  goals in the system, and the three parts of the queue"): `BUILD-ORDER.md` "Next: six steps" — 6 W3 closes · 7 a
+  child's paper from the library · 8 a question counts for every skill it uses · 9 combined-concept questions · 10
+  mixed papers · 11 W4. Goal files `goals/s7…s10`, `goals/w4-close-the-loop.yaml`, and W3's restated to the night
+  decision (ADR 0028: 10 runnable criteria; its 36 reading scenarios kept under `superseded_scenarios`). `bin/engine
+  goal` lists all 13.
+- **Step 6, Aseem's reports as gold.** Transcribed into `~/cornerstone/assessments/gold_findings.json` (beside the
+  reports, never in the repository — it names children): **24 findings** — 11 examples from his "faulty" sections,
+  13 strong concepts. Table `gold_finding` (migration `20260927090000`), `engine gold load | confirm | check`,
+  `engine read coverage`. `tests/test_gold.py` (3): 8500 − 3647 = 5147 goes from the page to M_SMALL_FROM_LARGE in
+  the graph and the check says "in the graph"; a misread is "read differently"; a changed finding needs confirming
+  again. Mutation check: with the misread test's branch removed, 1 of 3 fails.
+- **On the copy, before any Grade 3 paper is signed off** (`engine gold check`): 2 in the graph — the
+  smaller-from-larger subtraction, already a pattern, and strong addition; 18 not yet signed off; 3 waiting for a person
+  (a 34 × 2, a comparison sign, a 62,413 copied out); **1 read differently — a "3 boxes of 6 pencils" read as 3 at
+  99.4% confidence from the teacher's red "(6+3)" beside the child's crossed 9**, settled without a person. The same
+  crop's q11 was read as 128 (the child's working) where the child wrote 222 with a teacher's tick. Of the 12
+  engine-settled answers people looked at on live today, 2 had been misread.
+- **Three mistakes his reports name that the vocabulary lacked**, now rows with code that computes them:
+  M_MUL_UNITS_REVERSED (34 × 2 → 86, 56 × 3 → 85), M_COMPARE_REVERSED (the other sign, stored on a comparison question
+  when its paper is entered), M_DIGIT_DROPPED (a digit lost copying out a 4+ digit answer — a marking rule used only
+  when no predicted wrong answer matches). 42 vocabulary rows.
+- **Found and fixed before it ever ran on live rows: `legacy.remark`** rebuilt every mark from the reader's own
+  reading, so it would have put back a reading a person corrected and sent a person's Right back to the queue; it
+  also rewrote superseded readings. Now it skips any answer a person settled and any superseded reading.
+  `test_marking_again_never_undoes_what_a_person_said` (failed before: `wrong`). On a fresh copy, re-entering every
+  paper and marking again changes exactly **3** answers — the three new names — where it counted 62 before.
+- Engine suite: **468 passed**; ruff clean.
+- **Live after PR #9 merged (9cab230) and `deploy/go-live.sh` (exit 0):** the website's Vercel deployment "has
+  completed"; the approval page's twelve pictures at once on capture 05167c88 — **cold 12 × 200, slowest 1.12 s** (was
+  5.4 s), warm 0.29 s. The typed-answer fix waits on a person typing on the live queue: at 19:17 IST the 29 answers
+  with a key that is not one number were all still waiting (True 8, Not true 7, the order 5, `<` 4, even 4, 1/2 1).
+- **A judgement is not a reading** (found on live the same evening): a find-the-mistake 48 + 27 read as 76 was judged
+  Right on the queue, and `judgeOne` stored the engine's 76 as the person's reading — which the reader's gold set
+  (`legacy.corrections`) then counted as verified, scoring the reader right on its own misread. 3 such rows on live.
+  Migration `20260927100000_a_judgement_is_not_a_reading` adds `read_correction.judged` and marks the old rows (2 on
+  the copy, which predates the third); `judgeOne` sets it; the gold set, the gold check and the screens' "what a
+  person said the child wrote" read only rows where it is null. The judgement screen now also offers "Not what the
+  child wrote? Type it". Clicked through on the local preview against the copy: that 76 answer, typed 75 → `correct`,
+  stored as a reading, "200 answers left" (was 201). `test_a_judgement_is_never_counted_as_a_reading`; the queue's
+  browser tests on a production build **7 of 7** (the judgement test now also checks `judged`); engine suite 469.

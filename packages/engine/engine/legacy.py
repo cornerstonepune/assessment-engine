@@ -99,6 +99,7 @@ def _template_item(paper, it):
             )
     else:
         answer = it.get("answer")
+        predictions = M.predict_sign(answer) if answer is not None else {}
         rung = it.get("rung")
         if rung is None:
             raise ValueError(f"item {it['n']}{it.get('part', '')} has no expr and no rung")
@@ -382,14 +383,23 @@ def mark(spec, response, read):
     if want is not None and not re.fullmatch(r"-?\d+", str(want)):
         # The paper asks for something that is not one number — an order, a sign, a word. The
         # reader never reads these (`ocr.answers_for` hands them to a person without a guess), so
-        # the reading here is a person's, and it is marked by the key's own form.
-        return _against_the_key(str(want), read.get("child_answer", "")), [], working
+        # the reading here is a person's, and it is marked by the key's own form — and so is a
+        # predicted wrong answer, the other comparison sign.
+        wrote = read.get("child_answer", "")
+        status = _against_the_key(str(want), wrote)
+        predicted = response.get("misconceptions", {}).items()
+        codes = [
+            c for c, v in predicted if status == "wrong" and _against_the_key(str(v), wrote) == "correct"
+        ]
+        return status, sorted(codes), working
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
     if want is not None and n == int(want):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
+    if not codes and want is not None:
+        codes = sorted(code for code, (rule, _, _) in M.ANSWER_RULES.items() if rule(int(want), n))
     return "wrong", codes, working
 
 
@@ -755,7 +765,7 @@ def corrections(conn):
         " join capture c on c.id = rc.capture_id"
         " join sheet_instance si on si.id = c.sheet_instance_id"
         " join sheet_template t on t.id = si.sheet_template_id"
-        " where c.superseded_by is null"
+        " where c.superseded_by is null and rc.judged is null"  # a judgement is not a reading
         " order by rc.item_result_id, rc.created_at desc"
     ).fetchall()
 
@@ -811,12 +821,18 @@ def dedupe(conn):
 
 def remark(conn, child_id):
     """Mark every candidate again from what was read, without asking the model again — for when
-    the marking rule improves after a page was read. Returns how many rows changed."""
+    the marking rule improves after a page was read. Returns how many rows changed.
+
+    An answer a person has settled — typed what the child wrote, or judged it — is never marked again
+    from the reader's own reading: that would put back the very reading the person corrected. Nor is
+    a reading a later read superseded: it is history, and nothing else reads it either."""
     rows = conn.execute(
         "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses"
         " from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
-        " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null",
+        " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null"
+        " and c.superseded_by is null"
+        " and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)",
         (child_id,),
     ).fetchall()
     changed = 0

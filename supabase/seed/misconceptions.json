@@ -389,6 +389,36 @@
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
       "external_ref": null
+    },
+    {
+      "code": "M_MUL_UNITS_REVERSED",
+      "op": "×",
+      "name": "Writes only the units digit of each product, ones column first",
+      "description": "Multiplies each digit but writes only the units digit of each product, ones first: 34 × 2 written as 86, 56 × 3 as 85.",
+      "repair_hint": "Grid method: write each whole product in its place, then add them",
+      "detectable_by": "answer_lookup",
+      "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-21)",
+      "external_ref": null
+    },
+    {
+      "code": "M_COMPARE_REVERSED",
+      "op": "any",
+      "name": "Writes the comparison sign the wrong way round",
+      "description": "Knows which number is greater but turns the sign the wrong way: 456 > 465.",
+      "repair_hint": "The open side faces the bigger number; read it aloud as 'is less than'",
+      "detectable_by": "answer_lookup",
+      "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (COMPARE_PREDICTORS, 2026-09-21)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIGIT_DROPPED",
+      "op": "any",
+      "name": "Loses a digit when copying out the answer",
+      "description": "Works the answer out and loses one digit writing it down: 62,413 written as 6,243.",
+      "repair_hint": "Check the final answer against the working, digit by digit, before moving on",
+      "detectable_by": "answer_lookup",
+      "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (ANSWER_RULES, 2026-09-21)",
+      "external_ref": null
     }
   ]
 }

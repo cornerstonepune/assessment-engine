@@ -62,3 +62,26 @@ def test_catalogue_gives_every_code_a_repair_hint():
     assert rows, "catalogue is empty"
     for r in rows:
         assert r["repair"].strip(), f"{r['code']} has no repair hint for the teacher"
+
+
+def test_writes_only_the_units_digit_of_each_product_ones_first():
+    """Aseem's report, Ishaan: "writes only the units digit of each partial product and records them
+    in reverse order (34 × 2 = 86)". The same child wrote 85 for 56 × 3 — the rule predicts both."""
+    assert M.mul_units_reversed(34, 2) == 86
+    assert M.mul_units_reversed(56, 3) == 85
+
+
+def test_the_other_comparison_sign_is_the_reversed_sign_mistake():
+    """Aseem's report, Labbhansh: knows which number is greater, writes 456 > 465."""
+    assert M.predict_sign("<") == {"M_COMPARE_REVERSED": ">"}
+    assert M.predict_sign(">") == {"M_COMPARE_REVERSED": "<"}
+    assert M.predict_sign("=") == {}  # "=" has no single other sign to be mistaken for
+    assert M.predict_sign("12, 34, 45, 78") == {}
+
+
+def test_a_digit_lost_copying_out_a_long_answer():
+    """Aseem's report, Rudraksh: "calculated 62,413 correctly but wrote 6,243"."""
+    assert M.digit_dropped(62413, 6243)
+    assert M.digit_dropped(62413, 2413)
+    assert not M.digit_dropped(62413, 62423)  # a changed digit is not a lost one
+    assert not M.digit_dropped(222, 22)  # three digits: too short to tell a copying slip from anything else

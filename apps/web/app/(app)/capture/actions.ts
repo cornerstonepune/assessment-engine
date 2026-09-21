@@ -89,8 +89,8 @@ export async function judgeOne(formData: FormData): Promise<void> {
       where id = ${id}::uuid and state = 'candidate' and status = 'needs_teacher'
       returning tenant_id, capture_id, coalesce(raw_read::jsonb ->> 'child_answer', '') as read
     )
-    insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read, by)
-    select j.tenant_id, si.child_id, c.id, ${id}::uuid, j.read, j.read, ${me.email}
+    insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read, by, judged)
+    select j.tenant_id, si.child_id, c.id, ${id}::uuid, j.read, j.read, ${me.email}, ${status}
     from judged j join capture c on c.id = j.capture_id join sheet_instance si on si.id = c.sheet_instance_id`;
   revalidatePath("/capture/check");
   redirect(next);

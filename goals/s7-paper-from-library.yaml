@@ -1,0 +1,35 @@
+name: s7-paper-from-library
+goal: >
+  A child's paper for the week is a worksheet from the library, not questions drawn afresh. Each
+  prescription ("Kabir: R5 at Hard") hands the child a worksheet at that skill and level they have not
+  sat before; children at the same level in the same week get different worksheets; spares are
+  worksheets nobody was given that week; and the printed paper carries its QR and its worksheet's ID
+  (R5-H07), so anyone can say which one a child had. A paper already printed never changes, even when
+  the library later retires its worksheet. When a child has sat every worksheet at a level, the engine
+  says so by name rather than repeat one.
+
+# Written 2026-09-21, evening, before the work (BUILD-ORDER "Next: six steps", step 7). Agreed on the
+# afternoon of 2026-09-21 as "the next change after these five".
+criteria:
+  - name: >-
+      the hand-out, on the copy — every named paper's questions are exactly one library worksheet's; no
+      child is given a worksheet they sat; one level in one week never repeats a worksheet; spares are
+      worksheets nobody was given; a retired worksheet already printed keeps its questions; a child who
+      has sat every worksheet at a level is named, not handed a repeat
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_paper_from_library.py
+    expect: "passed"
+  - name: W2 still does its whole job, now with papers from the library
+    run: engine goal w2-assemble-and-print
+    expect: "GOAL ACHIEVED"
+  - name: every worksheet still holds its rules
+    run: engine library check
+    expect: "0 problems"
+  - name: a printed paper shows its worksheet ID and opens from the worksheet's own page, on the copy
+    run: cd apps/web && npx playwright test tests/s7-paper-from-library.spec.ts
+    expect: "passed"
+  - name: every invariant across every row holds
+    run: engine audit
+    expect: "0 violations"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

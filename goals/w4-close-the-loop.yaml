@@ -1,0 +1,39 @@
+name: w4-close-the-loop
+goal: >
+  The week closes on each child's own graph (N11, N12 → N5 of the workflow agreed with Aseem and
+  Achal). Friday evening the engine builds the class card — where every child stands on each skill,
+  in marks a teacher scans and one plain sentence per child — a home sheet for each child drawn from
+  their own weakest named mistake, with a note for the parent in plain words, and next week's seed
+  for the prescriptions. The educator confirms the card in one pass; a sentence the engine wrote is
+  edited, never typed from scratch. Monthly, each child gets a report in the shape of Aseem's —
+  strong concepts, faulty concepts each with the child's own example, the next steps the school will
+  drive — prepared by the engine from the graph and approved by the coordinator before any parent
+  sees it.
+
+# Written 2026-09-21, evening, before the work (BUILD-ORDER "Next: six steps", step 11; BUILD-ORDER
+# rule: a workflow's goal file is written before its work starts). Every sentence a model writes here
+# ships with an eval (rule 7); every number on a card or report is computed, never written by a model.
+criteria:
+  - name: >-
+      on the copy — the card places every child on every skill from the graph alone; the home sheet is
+      built from that child's weakest named mistake and nothing they already secured; next week's seed
+      is what N5 reads
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_close_the_loop.py
+    expect: "passed"
+  - name: >-
+      the monthly report reaches Aseem's own findings for the five Grade 3 children — every faulty
+      concept he named appears with the child's own example, and none he called strong appears as faulty
+    run: engine gold check --report
+    expect: "every finding the papers hold is in the report"
+  - name: the sentences a model writes — the card line, the parent note, the report — meet their eval
+    run: engine eval card_sentence && engine eval parent_note && engine eval report_narrative
+    expect: "MEETS BAR"
+  - name: every invariant holds — nothing reaches a parent without a named person's approval
+    run: engine audit
+    expect: "0 violations"
+  - name: W4 runs as a workflow, not a command someone remembers
+    run: python n8n/lint.py n8n/workflows/f4-close-the-loop.json
+    expect: "ok"
+  - name: the card, a home sheet and a report open and print on the site, on the copy
+    run: cd apps/web && npx playwright test tests/w4-close-the-loop.spec.ts
+    expect: "passed"

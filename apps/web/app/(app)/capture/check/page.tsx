@@ -103,23 +103,39 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 ) : null}
 
                 {a.status === "needs_teacher" && a.answer_state === "written" ? (
-                  <form action={judgeOne} className="flex flex-wrap items-center gap-2">
-                    <input type="hidden" name="result_id" value={a.id} />
-                    <input type="hidden" name="paper_id" value={a.paper_id} />
-                    <input type="hidden" name="next" value={next} />
-                    <span>
-                      The child wrote <strong className="fact">{a.read}</strong>. Is it
-                    </span>
-                    <button className="btn" name="status" value="correct" type="submit">
-                      Right
-                    </button>
-                    <button className="btn secondary" name="status" value="wrong" type="submit">
-                      Wrong
-                    </button>
-                    <button className="btn secondary" name="status" value="blank" type="submit">
-                      Blank
-                    </button>
-                  </form>
+                  <>
+                    <form action={judgeOne} className="flex flex-wrap items-center gap-2">
+                      <input type="hidden" name="result_id" value={a.id} />
+                      <input type="hidden" name="paper_id" value={a.paper_id} />
+                      <input type="hidden" name="next" value={next} />
+                      <span>
+                        The child wrote <strong className="fact">{a.human_read ?? a.read}</strong>. Is it
+                      </span>
+                      <button className="btn" name="status" value="correct" type="submit">
+                        Right
+                      </button>
+                      <button className="btn secondary" name="status" value="wrong" type="submit">
+                        Wrong
+                      </button>
+                      <button className="btn secondary" name="status" value="blank" type="submit">
+                        Blank
+                      </button>
+                    </form>
+                    {/* A judgement says whether the child is right, not what the child wrote: when the
+                        reading itself is wrong, it is corrected here and the engine marks it again. */}
+                    <form action={correctRead} className="flex flex-wrap items-end gap-2">
+                      <input type="hidden" name="result_id" value={a.id} />
+                      <input type="hidden" name="paper_id" value={a.paper_id} />
+                      <input type="hidden" name="next" value={next} />
+                      <label className="field">
+                        <span className="label">Not what the child wrote? Type it</span>
+                        <input className="input w-[160px]" name="human_read" required maxLength={40} />
+                      </label>
+                      <button className="btn secondary" type="submit">
+                        Save
+                      </button>
+                    </form>
+                  </>
                 ) : (
                   <>
                     {entry.spot || a.guess ? (
