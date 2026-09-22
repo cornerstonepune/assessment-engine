@@ -3120,7 +3120,8 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   36 · typing 20.** The dangerous error halved and typing turned to clicking; the reader settles half as much alone,
   because both notebooks read "floor 95" — it had been wrong on these children too often. The 9 that remain: 6 on
   one paper of Agastya's (`G2-SEPW2-S1`) where the reader stood behind wrong numbers at 95%+ and the notebook changed
-  nothing — a confident wrong *pick* of the number, not a misread digit; the gate keeps those from the graph, and
-  the pick is the next reader fix.
+  nothing — at 95%+ the reader is sure of the digits, so this is most likely a wrong *pick* of the number (the
+  working taken for the answer), which no notebook can catch; the gate keeps those from the graph, and the pick
+  is the next reader fix, to be confirmed on the crops.
 - Engine suite 893 passed; website s4 15 passed (a gate-held answer settles in one click; the second reader's guess
   offered back on the queue and the paper). **Live: not yet** — the order is in HANDOFF.

@@ -28,8 +28,9 @@ legacy remark --every-child` — **the gate: every right answer of an untrusted 
 guess; the queue will read ~867** · 4. `bin/engine read guess` (≈ Rs 30 of Haiku: every waiting give-up gets its
 guess) · 5. `bin/engine read report`. Then Nimish checks child by child; after each batch, `read profile` and
 `read report` again. The permission check refuses live writes from this session: Nimish runs 1–5.
-**Next reader fix, from the replay:** a confident wrong *pick* of the number (working taken for the answer at
-95%+) — the notebook cannot catch it; 6 of the 9 remaining silent errors are that, on one paper.
+**Next reader fix, from the replay:** 6 of the 9 remaining silent errors sit on one paper (`G2-SEPW2-S1`,
+Agastya) at 95%+ confidence, so most likely a wrong *pick* of the number (working taken for the answer) — no
+notebook can catch that; confirm on the crops, then fix the pick.
 
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
