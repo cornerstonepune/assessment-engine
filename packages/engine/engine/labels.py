@@ -22,7 +22,9 @@ RULE_KEYS = {
 
 
 def rules(conn):
-    rows = {r["key"]: r["value"] for r in conn.execute("select key, value from config where key like 'skills.%'")}
+    rows = {
+        r["key"]: r["value"] for r in conn.execute("select key, value from config where key like 'skills.%'")
+    }
     missing = [key for key in RULE_KEYS.values() if key not in rows]
     if missing:
         raise RuntimeError(f"config has no {', '.join(missing)} — run `engine load`")
@@ -56,6 +58,14 @@ def measure(fmt, spec, stem, responses, rung_skills, rs, vocab):
 def tags_of(row):
     """The taxonomy tags of a stored question, measured again from its numbers (`assess/tags.py`)."""
     return T.derive(Item("", "", row["rung_code"], [], "", row["fmt"], False, row["stem"], row["spec"], []))
+
+
+def label_item(it, rung_skills, rs, vocab):
+    """The skills a new question uses onto the item, and what each of its mistakes charges (ADR 0023)."""
+    it.skills, charged = measure(
+        it.fmt, it.spec, it.stem, [vars(r) for r in it.responses], rung_skills, rs, vocab
+    )
+    return charged
 
 
 def _drift(conn):
@@ -92,5 +102,7 @@ def relabel(conn):
     with conn.cursor() as cur:
         for name, rows in changes.items():
             if rows:
-                cur.executemany(f"update item set {columns[name]} = %s, updated_at = now() where id = %s", rows)
+                cur.executemany(
+                    f"update item set {columns[name]} = %s, updated_at = now() where id = %s", rows
+                )
     return {name: len(rows) for name, rows in changes.items()}

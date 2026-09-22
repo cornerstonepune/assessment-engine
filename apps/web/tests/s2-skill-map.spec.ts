@@ -105,14 +105,24 @@ test("changing a skill's words saves them and sends the skill back for approval"
 test("every waiting skill is approved from one page, in the approver's name", async ({ page }) => {
   const before = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
     select code, status, ratified_by from skill_set order by code`;
+  const [table] = await sql<{ value: unknown }[]>`select value from config where key = 'skills.charges_by_kind.approved'`;
   try {
+    await sql`update config set value = '{}'::jsonb where key = 'skills.charges_by_kind.approved'`;
     await sql`update skill_set set status = 'ratified', ratified_by = 'someone earlier'`;
     await sql`update skill_set set status = 'draft', ratified_by = null where code in ('ADD.1D.WITHIN10', 'MUL.1D')`;
     await page.goto("/");
     await page.getByRole("link", { name: "Read and approve →" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Approve the skills");
-    await page.getByRole("button", { name: "Approve all 2 as written, as End-to-end test" }).click();
+    // the table of what a mistake charges waits beside them (step 8b) and is approved with the same press
+    await expect(page.getByRole("heading", { name: "What a wrong answer counts against" })).toBeVisible();
+    await page
+      .getByRole("button", { name: "Approve all 2 skills and what a wrong answer counts against as written, as End-to-end test" })
+      .click();
     await expect(page.getByRole("status")).toContainText("Approved 2 as written");
+    const [approved] = await sql<{ by: string; same: boolean }[]>`
+      select a.value ->> 'by' as by, (a.value -> 'table') = t.value as same
+      from config a, config t where a.key = 'skills.charges_by_kind.approved' and t.key = 'skills.charges_by_kind'`;
+    expect(approved).toEqual({ by: "End-to-end test", same: true });
     const rows = await sql<{ code: string; ratified_by: string }[]>`
       select code, ratified_by from skill_set where code in ('ADD.1D.WITHIN10', 'MUL.1D') and status = 'ratified' order by code`;
     expect(rows).toEqual([
@@ -123,6 +133,7 @@ test("every waiting skill is approved from one page, in the approver's name", as
     for (const b of before) {
       await sql`update skill_set set status = ${b.status}, ratified_by = ${b.ratified_by} where code = ${b.code}`;
     }
+    await sql`update config set value = ${sql.json((table?.value ?? {}) as never)} where key = 'skills.charges_by_kind.approved'`;
   }
 });
 

@@ -75,7 +75,7 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 17,
+    "rung": 21,  # + R15–R18: three or more numbers, equality, missing digits, estimating to the hundred (8h)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 18,
@@ -86,7 +86,7 @@ EXPECTED = {
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
     "config": 13,  # + skills.by_operation / by_kind / by_symbol / charges_by_kind (+ its approval), step 8
-    "skill_set": 17,
+    "skill_set": 21,
     "subject": 1,
 }
 

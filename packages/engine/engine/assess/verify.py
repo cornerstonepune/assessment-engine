@@ -143,6 +143,15 @@ def dimension_problems(tags, check, fmt=None, case_matches=None):
         and tags["zero_pattern"] not in ("INTERNAL", "MULTIPLE")
     ):
         out.append("dimension zeros: band needs an exchange across a zero, item has none")
+    if check.get("format") == "word_budget" and "num_costs" in tags:
+        # a budget level says how many costs, how big a budget, and whether one cost is a product
+        if tags["num_costs"] != check.get("n_costs", 3):
+            out.append(f"dimension costs {tags['num_costs']} not the level's {check.get('n_costs', 3)}")
+        lo, hi = check.get("budget_range", (0, 10**9))
+        if not lo <= tags["budget"] <= hi:
+            out.append(f"dimension budget {tags['budget']} outside {lo}–{hi}")
+        if (tags["cost_is_a_product"] == "YES") != bool(check.get("one_cost_is_a_product")):
+            out.append("dimension a cost that is a product, against the level's rule")
     want_shape = FORMAT_DIMENSIONS.get(check.get("format"), {})
     for dim, value in want_shape.items():
         if dim in tags and tags[dim] != value:

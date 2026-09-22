@@ -6,7 +6,7 @@ from collections import Counter
 
 import typer
 
-from engine import cases, db, labels
+from engine import cases, db, labels, refill
 
 
 def register(bank_app: typer.Typer) -> None:
@@ -37,5 +37,37 @@ def register(bank_app: typer.Typer) -> None:
                     f"  {r['label'][:62]:<62}  {where}"
                 )
         by = Counter(r["state"] for r in rows)
-        typer.echo(f"  {len(rows)} cases · {by['covered']} covered · {by['missing']} missing · {by['thin']} thin")
+        typer.echo(
+            f"  {len(rows)} cases · {by['covered']} covered · {by['missing']} missing · {by['thin']} thin"
+        )
 
+    @bank_app.command("levels")
+    def bank_levels(
+        apply: bool = typer.Option(False, "--apply", help="Write them; default only lists"),
+    ) -> None:
+        """The rewritten levels from the seed onto the skill sets in the database; each waits for approval."""
+        with db.connect() as conn:
+            changed = cases.propose_levels(conn)
+            if apply:
+                conn.commit()
+            else:
+                conn.rollback()
+        verb = "now wait for approval" if apply else "would change (run with --apply)"
+        typer.echo(f"  {len(changed)} skill sets {verb}: {', '.join(changed) or '—'}")
+
+    @bank_app.command("refill")
+    def bank_refill() -> None:
+        """Retire every question its level's rule no longer holds, then fill every level to its target.
+        Commits level by level, so a long run keeps what it has made."""
+        with db.connect() as conn:
+
+            def said(code, difficulty, n):
+                conn.commit()
+                if n:
+                    typer.echo(f"  {code:<20} {difficulty:<8} +{n}")
+
+            retired, added = refill.refill(conn, after_level=said)
+            conn.commit()
+        typer.echo(
+            f"  retired {sum(retired.values())} questions outside their level · added {sum(added.values())}"
+        )

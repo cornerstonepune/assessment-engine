@@ -11,6 +11,8 @@ rung's order, so `skill_codes[1]` stays the question's own skill for every reade
 
 import re
 
+from . import words as W
+
 MINUS = ("−", "-")
 
 
@@ -25,8 +27,8 @@ def operations(fmt, spec, stem=""):
     if spec.get("ops"):
         return [_sign(o) for o in spec["ops"]]
     if fmt == "word_2step":
-        # A story written before its shape was stored says it in its own words.
-        return ["-", "+"] if "get on" in stem else ["-"]
+        tpl = W.template_of(stem)  # the operations are the story template's own (`word_templates.json`)
+        return [o for o in dict.fromkeys(tpl["op"])] if tpl else ["-"]
     if spec.get("addends") or fmt == "number_wall":
         return ["+"]
     if fmt == "balance_scale":
@@ -65,7 +67,11 @@ def charges(fmt, spec, stem, skills_used, codes, vocab, rules):
     for code in codes:
         skill = table.get(code)
         if skill is None:
-            skill_from, row_skill = vocab.get((code, ops[0]) if len(ops) == 1 else None) or vocab.get((code, "any")) or (None, None)
+            skill_from, row_skill = (
+                vocab.get((code, ops[0]) if len(ops) == 1 else None)
+                or vocab.get((code, "any"))
+                or (None, None)
+            )
             if skill_from == "row":
                 skill = row_skill
             elif len(ops) == 1:

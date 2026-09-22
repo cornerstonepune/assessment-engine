@@ -60,7 +60,12 @@ def _pairs(alt, check, op):
         for d2 in DIGITS:
             if (op == "-" and d2 > d1) or (allowed and (d1, d2) not in allowed):
                 continue
-            measured = {"operand_1_digits": d1, "operand_2_digits": d2, "digits_max": max(d1, d2), "digits_min": min(d1, d2)}
+            measured = {
+                "operand_1_digits": d1,
+                "operand_2_digits": d2,
+                "digits_max": max(d1, d2),
+                "digits_min": min(d1, d2),
+            }
             if all(taxonomy.holds(alt[k], v) for k, v in measured.items() if k in alt):
                 out.append((d1, d2))
     return out
@@ -97,7 +102,11 @@ def _built(rng, alt, op):
         a = rng.randint(b + 11, 9999 if b == 1000 else 999)
         return a, b
     if "answer_power_of_ten" in alt:
-        total = rng.choice(alt["answer_power_of_ten"] if isinstance(alt["answer_power_of_ten"], list) else [alt["answer_power_of_ten"]])
+        total = rng.choice(
+            alt["answer_power_of_ten"]
+            if isinstance(alt["answer_power_of_ten"], list)
+            else [alt["answer_power_of_ten"]]
+        )
         a = rng.randint(total // 10 + 1, total - total // 10 - 1)
         return a, total - a
     if alt.get("difference_small") == "YES":
@@ -140,9 +149,17 @@ def _plain(rng, alt, check, rung, k):
     if not got:
         return None
     a, b = got
-    pres = alt.get("presentation")
+    pres = alt.get("presentation") or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(
+        check.get("layout")
+    )
     column = pres == "VERTICAL" if pres else k % 2 == 0  # half in columns, half in a line
-    cand = {"format": "column_grid" if column else "bare_sum", "op": op, "a": a, "b": b, "answer": M.compute(op, a, b)}
+    cand = {
+        "format": "column_grid" if column else "bare_sum",
+        "op": op,
+        "a": a,
+        "b": b,
+        "answer": M.compute(op, a, b),
+    }
     return verify.to_item(cand | {"stem": "", "missing": None, "misconceptions": []}, rung)
 
 
@@ -151,7 +168,10 @@ def _many(rng, alt, check, rung, k):
     about = taxonomy.keys(alt)
     friendly = alt.get("shape") == "FRIENDLY_PAIRS"
     n = 3 if friendly else _pick(rng, alt.get("num_operands"), range(3, 6))
-    widest = _pick(rng, alt.get("digits_max"), range(1, check.get("digits_max", 4) + 1))
+    # a level's `digits_max` is the width of its widest number (ADDSUB.4D.ADV adds 4-digit numbers)
+    widest = _pick(
+        rng, alt.get("digits_max"), [check["digits_max"]] if "digits_max" in check else range(1, 5)
+    )
     if not n or not widest:
         return None
     if friendly:
@@ -169,35 +189,64 @@ def _many(rng, alt, check, rung, k):
     if check.get("max_total") and sum(xs) > check["max_total"]:
         return None
     pres = alt.get("presentation")
-    layout = "horizontal" if friendly else ("column" if (pres == "VERTICAL" if pres else k % 2 == 0) else "horizontal")
-    return I.multi_add(rng, rung, "Procedural", xs=xs, layout=layout, shape="FRIENDLY_PAIRS" if friendly else None)
+    layout = (
+        "horizontal"
+        if friendly
+        else ("column" if (pres == "VERTICAL" if pres else k % 2 == 0) else "horizontal")
+    )
+    return I.multi_add(
+        rng, rung, "Procedural", xs=xs, layout=layout, shape="FRIENDLY_PAIRS" if friendly else None
+    )
 
 
 def _missing(rng, alt, check, rung, k):
     """A missing number (§6.1, §6.3): which number the box hides and how many digits it has."""
     if isinstance(alt.get("num_operands"), dict):
-        return bands.native_item("missing_number", {"kind": "among_three", "hi": check.get("max_total", 100)}, rng, rung, "Conceptual")
+        return bands.native_item(
+            "missing_number",
+            {"kind": "among_three", "hi": check.get("max_total", 100)},
+            rng,
+            rung,
+            "Conceptual",
+        )
     op = _op(rng, alt, check)
     ways = ["FIRST_OPERAND", "SECOND_OPERAND"] + (["RESULT"] if op == "-" else [])
     where = _pick(rng, alt.get("unknown_position"), ways)
     size = _pick(rng, alt.get("unknown_digits"), DIGITS) if "unknown_digits" in alt else None
     if not where:
         return None
-    fix = (0, size) if size and where == "FIRST_OPERAND" else ((1, size) if size and where == "SECOND_OPERAND" else None)
+    fix = (
+        (0, size)
+        if size and where == "FIRST_OPERAND"
+        else ((1, size) if size and where == "SECOND_OPERAND" else None)
+    )
     got = _pair(rng, alt, check, op, taxonomy.keys(alt), fix)
     if not got:
         return None
     a, b = got
     ans = M.compute(op, a, b)
     sign = "−" if op == "-" else "+"
-    text = {"a": f"□ {sign} {b} = {ans}", "b": f"{a} {sign} □ = {ans}", "answer": f"{a} {sign} {b} = □"}[POSITIONS[where]]
+    text = {"a": f"□ {sign} {b} = {ans}", "b": f"{a} {sign} □ = {ans}", "answer": f"{a} {sign} {b} = □"}[
+        POSITIONS[where]
+    ]
     cand = {"format": "missing_number", "op": op, "a": a, "b": b, "answer": ans, "stem": text}
     return verify.to_item(cand | {"missing": POSITIONS[where], "misconceptions": []}, rung)
 
 
+def _one_value(rng, v):
+    """A hint the generator can use: one of a list, or a number inside a range (two or more boxes)."""
+    if isinstance(v, list):
+        return rng.choice(v)
+    if isinstance(v, dict):
+        return rng.randint(v.get("gte", 1), v.get("lte", v.get("gte", 1) + 1))
+    return v
+
+
 def _native(rng, alt, check, rung, k):
     fmt = rng.choice(_fmts(alt))
-    hints = {key: (rng.choice(v) if isinstance(v, list) else v) for key in HINTS if (v := alt.get(key)) is not None}
+    hints = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
+    if alt.get("context") == "TABLE_OR_CHART":
+        hints["table"] = True
     if alt.get("operation"):
         hints["op"] = OPS[_pick(rng, alt["operation"], ["ADD", "SUB"])]
     try:
@@ -236,13 +285,30 @@ def _some(rng, match, check, rung, want, seen, tries):
     return out
 
 
-def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000):
-    """Up to `n` distinct [(case, question)] for a level: the same number from each case it holds, then
-    — where a case's numbers run out (7 − 7 has nine) — the rest from the cases that still have more."""
+def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000, quotas=None):
+    """Up to `n` distinct [(case, question)] for a level: the same number from each case it holds, then —
+    where a case's numbers run out (7 − 7 has nine) — the rest from the cases that still have more.
+
+    With `quotas` (what each case is still short of) every case is drawn its own shortfall as far as its
+    numbers go, and `n` is only what the level as a whole still needs: a case that has run out stays
+    short for good, and letting that spill onto the others made every refill add more of them."""
     codes = list(check["cases"])
     seen = set() if seen is None else seen
-    quota = math.ceil(n / len(codes))
-    out = [(code, it) for code in codes for it in _some(rng, matches[code], check, rung, quota, seen, quota * tries_per_item)]
+    even = quotas is None
+    quotas = dict.fromkeys(codes, math.ceil(n / len(codes))) if even else quotas
+    out = [
+        (code, it)
+        for code in codes
+        for it in _some(
+            rng,
+            matches[code],
+            check,
+            rung,
+            quotas.get(code, 0),
+            seen,
+            max(1, quotas.get(code, 0)) * tries_per_item,
+        )
+    ]
     open_codes = list(codes)
     while len(out) < n and open_codes:
         for code in list(open_codes):
@@ -252,4 +318,4 @@ def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000):
             out += [(code, it) for it in more]
             if len(out) >= n:
                 break
-    return out[:n]
+    return out[:n] if even else out

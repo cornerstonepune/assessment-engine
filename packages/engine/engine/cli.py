@@ -13,11 +13,11 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.cli_check import register as register_checks
 from engine.cli_gold import gold_app
-from engine.cli_taxonomy import register as register_taxonomy
 from engine.cli_legacy import legacy_app
 from engine.cli_library import library_app
 from engine.cli_live import live_app
 from engine.cli_read import read_app
+from engine.cli_taxonomy import register as register_taxonomy
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)

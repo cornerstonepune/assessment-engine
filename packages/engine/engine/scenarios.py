@@ -13,7 +13,7 @@ test that across a couple of scenarios … till 100% accuracy is achieved."
 distractors include one unnamed code, has not met the goal. The number it reports is what fails.
 """
 
-from engine import bank, cases, db, scenarios_week, spec
+from engine import bank, cases, db, refill, scenarios_week, spec
 from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import misconceptions as M
 
@@ -28,8 +28,8 @@ def _answer_is_right(item):
     """Recompute from the numbers in the question, never trusting the stored answer."""
     s = item.spec or {}
     nums = s.get("addends") or ([s["a"], s["b"]] if {"a", "b"} <= s.keys() else None)
-    if not nums or not s.get("op"):
-        return None  # a question with no arithmetic of its own (a story, an explanation)
+    if not nums or not s.get("op") or not all(isinstance(x, int) for x in nums):
+        return None  # a question with no arithmetic of its own (a story, an explanation, boxed digits)
     want = sum(nums) if s["op"] == "+" and len(nums) > 2 else M.compute(s["op"], nums[0], nums[1])
     if s.get("missing"):
         return None  # a missing-number question's answer is an operand, checked by its own rule
@@ -52,7 +52,7 @@ def _run_bank(conn, sc):
     _, s, check = spec.read(conn, code, difficulty)
     native = check.get("format") in bands.NATIVE_GENERATORS
     if check.get("cases"):
-        counts, _, items = bank.fill_cases(conn, code, difficulty, n, dry_run=True)
+        counts, _, items = refill.fill_cases(conn, code, difficulty, n, dry_run=True)
     elif native:
         counts, items = bank.fill_native(conn, code, difficulty, n, dry_run=True)
     else:
@@ -101,10 +101,16 @@ def _run_bank(conn, sc):
         failures.append(f"{len(keys) - len(set(keys))} duplicate questions in one set")
     if sc.get("cases"):
         # Re-measured from the questions and read against the case rows, not asked of the generator.
-        rows = conn.execute("select code, match from taxonomy_case where code = any(%s)", (sc["cases"],)).fetchall()
+        rows = conn.execute(
+            "select code, match from taxonomy_case where code = any(%s)", (sc["cases"],)
+        ).fetchall()
         match = {r["code"]: r["match"] for r in rows}
         measured = [(it.fmt, tags.derive(it)) for it in items]
-        absent = [c for c in sc["cases"] if c not in match or not any(taxonomy.matches(match[c], f, t) for f, t in measured)]
+        absent = [
+            c
+            for c in sc["cases"]
+            if c not in match or not any(taxonomy.matches(match[c], f, t) for f, t in measured)
+        ]
         m["cases_held"] = len(sc["cases"]) - len(absent)
         if absent:
             failures.append(f"cases the level should hold and the set does not: {absent}")

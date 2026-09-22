@@ -4,6 +4,7 @@ The model is replaced by a fake that returns candidates built from the determini
 so these tests prove the rows, the verifier's gate, the trigger and the renderer — not Gemini.
 """
 
+import json
 import os
 import random
 
@@ -16,12 +17,32 @@ from engine.assess import misconceptions as M
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SET, DIFF = "SUB.2D.EXCH", "Hard"  # 3-digit minus 2-digit, one exchange
+SET, DIFF = "TEST.MODEL.PATH", "Hard"  # 3-digit minus 2-digit, one exchange
+# The model's path is for a level with a plain rule (op, digits, regroups). Since step 8h every real
+# addition and subtraction level is made of taxonomy cases and filled by `refill`, so these tests give
+# the model's path a skill set of its own — the rule SUB.2D.EXCH Hard had before, on the same rung —
+# inside each test's transaction, where no stored question can disagree with it; rolled back after.
+RULE = {"op": "-", "digits": [3, 2], "regroups": [1]}
 
 
 @pytest.fixture
 def conn():
     with db.connect() as c:
+        c.execute(
+            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
+            " difficulty, status) select tenant_id, %s, rung_code, 'the model path, under test', learning_objective,"
+            " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified'"
+            " from skill_set where code = 'SUB.2D.EXCH'",
+            (
+                SET,
+                json.dumps(
+                    {
+                        d: {"words": "a test level", "check": RULE}
+                        for d in ("Easy", "Medium", "Hard", "Advance")
+                    }
+                ),
+            ),
+        )
         yield c
         c.rollback()
 
@@ -207,28 +228,16 @@ NATIVE_UNITS = [
     # of its true ceiling (STATE.md, "W1 gate 2, chunk B") — a fresh 5-more request has almost no
     # room left, the same class of shortfall as R1/R2, not a dispatch bug this test should catch.
     ("MENTAL.BRIDGE_EQ", "Advance"),
-    ("WORD.1_2STEP", "Easy"),
-    ("WORD.1_2STEP", "Medium"),
-    ("WORD.1_2STEP", "Hard"),
-    ("WORD.1_2STEP", "Advance"),
     ("ESTIMATE.ROUND10", "Easy"),
     ("ESTIMATE.ROUND10", "Medium"),
     ("ESTIMATE.ROUND10", "Hard"),
     ("ESTIMATE.ROUND10", "Advance"),
-    ("ADDSUB.4D.ADV", "Easy"),
-    ("ADDSUB.4D.ADV", "Medium"),
-    ("STRATEGY.EFFICIENT", "Easy"),
-    ("STRATEGY.EFFICIENT", "Medium"),
-    ("STRATEGY.EFFICIENT", "Hard"),
-    ("STRATEGY.EFFICIENT", "Advance"),
     ("WORD.BUDGET", "Easy"),
     ("WORD.BUDGET", "Medium"),
     ("WORD.BUDGET", "Hard"),
     ("WORD.BUDGET", "Advance"),
-    ("REASON.FIND_MISTAKE", "Easy"),
-    ("REASON.FIND_MISTAKE", "Medium"),
-    ("REASON.FIND_MISTAKE", "Hard"),
-    ("REASON.FIND_MISTAKE", "Advance"),
+    # WORD.1_2STEP, ADDSUB.4D.ADV, STRATEGY.EFFICIENT and REASON.FIND_MISTAKE are made of taxonomy
+    # cases since step 8h and are filled by `refill` — `tests/test_taxonomy.py`, `tests/test_new_kinds.py`.
     # ADD.1D.WITHIN10 Advance (missing_number, add_missing_addend, hi=10) is not here: its true
     # ceiling is 24 (STATE.md, "W1 gate 2, chunk B") — "sums to 10" has only so many (a, b)
     # pairs, and the real bank already holds all of them; the same class of shortfall as above.
@@ -272,14 +281,15 @@ def test_fill_native_dry_run_inserts_nothing(conn):
     assert conn.execute("select count(*) as n from item").fetchone()["n"] == before
 
 
-def test_fill_native_honours_a_kind_list_across_the_shortcut_families(conn, monkeypatch):
-    # STRATEGY.EFFICIENT Advance's check names all three kinds; a real spread should show up.
-    # Seeded and dry, so what the live bank already holds cannot decide whether a family appears:
-    # counting only questions not yet stored made this fail once in the W2 goal run on 2026-09-21.
-    seeded = random.Random(5)
-    monkeypatch.setattr(bank.random, "Random", lambda: seeded)
-    counts, accepted = bank.fill_native(conn, "STRATEGY.EFFICIENT", "Advance", 15, dry_run=True)
-    ops = {it.spec["op"] for it in accepted}
+def test_fill_honours_a_kind_list_across_the_shortcut_families(conn):
+    # STRATEGY.EFFICIENT Advance's rule names all three kinds; a real spread should show up among its
+    # quickest-method questions. Seeded and dry, so what the bank already holds cannot decide it.
+    from engine import refill
+
+    _, _, accepted = refill.fill_cases(
+        conn, "STRATEGY.EFFICIENT", "Advance", 45, dry_run=True, rng=random.Random(5)
+    )
+    ops = {it.spec["op"] for it in accepted if it.fmt == "efficient_method"}
     assert ops == {"+", "-"}, "near100/near1000 give +, same_tens gives -"
 
 

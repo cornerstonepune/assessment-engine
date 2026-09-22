@@ -17,6 +17,14 @@ export const KIND: Record<string, string> = {
   number_wall: "number wall",
   balance_scale: "balance the scales",
   number_line_jumps: "number line",
+  missing_digit: "missing digit",
+  equation: "make both sides equal",
+  fact_family: "fact family",
+  inverse_check: "check with the inverse",
+  choose_estimate: "closest estimate",
+  possible_answer: "could it be right?",
+  odd_even: "odd or even",
+  break_apart: "tens, then ones",
 };
 
 // Kinds that print their own sentence. The other three draw their printed line from their numbers
@@ -36,8 +44,36 @@ export function Question({ it }: { it: ItemRow }) {
     case "bare_sum":
       return (
         <span className="fact">
-          {s.a} {sign(s.op)} {s.b} = ___
+          {s.addends ? s.addends.join(` ${sign(s.op)} `) : `${s.a} ${sign(s.op)} ${s.b}`} = ___
         </span>
+      );
+    case "missing_digit":
+      return s.shape ? (
+        <span>{it.stem}</span>
+      ) : (
+        <Column numbers={[s.a ?? "", s.b ?? ""]} op={sign(s.op)} result={s.c} />
+      );
+    case "equation":
+      return (
+        <Stem text={it.stem}>
+          <span className="fact">{s.text}</span>
+        </Stem>
+      );
+    case "fact_family":
+      return (
+        <Stem text={it.stem}>
+          <span className="fact grid gap-[2px]">
+            {(s.facts ?? []).map((f: string) => (
+              <span key={f}>{f}</span>
+            ))}
+          </span>
+        </Stem>
+      );
+    case "choose_estimate":
+      return (
+        <Stem text={it.stem}>
+          <span className="fact">{(s.options ?? []).join(" · ")}</span>
+        </Stem>
       );
     case "missing_number":
       return <span className="fact">{s.text ?? it.stem}</span>;
@@ -72,13 +108,13 @@ function Stem({ text, children }: { text: string; children: ReactNode }) {
 }
 
 // Numbers stacked on their place-value columns, the sign beside the last, a line to write under.
-function Column({ numbers, op }: { numbers: number[]; op: string }) {
+function Column({ numbers, op, result }: { numbers: (number | string)[]; op: string; result?: string }) {
   return (
     <span className="fact inline-grid justify-items-end leading-[1.45]">
       {numbers.map((n, i) => (
         <span key={i}>{i === numbers.length - 1 ? `${op} ${n}` : n}</span>
       ))}
-      <span className="h-[1.3em] w-full border-t border-basalt/60" />
+      <span className="h-[1.3em] w-full border-t border-basalt/60">{result ?? null}</span>
     </span>
   );
 }

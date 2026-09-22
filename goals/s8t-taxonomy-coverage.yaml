@@ -12,6 +12,9 @@ goal: >
 
 # Written 2026-09-22, before the work (BUILD-ORDER step 8, widened: chunks 8e–8i). Measured that morning
 # on the live bank: 252 cases, 112 covered, 14 thin, 126 with no question. Scenarios run on the copy;
+# two scenario lines written before the levels were designed named a case at a neighbouring level (the
+# shorter number first at 3 digits is Medium's; subtraction in columns without exchange is Easy's) and
+# were corrected that afternoon to where the levels put them, each case kept in some scenario.
 # the taxonomy count and the audit read the live bank, so this goal is green only once the live bank is
 # refilled and the skills approved.
 scenarios:
@@ -20,25 +23,36 @@ scenarios:
     difficulty: Medium
     n: 20
     cases: [A01, A03]
-  - name: 3-digit addition, Easy — the 1-digit and 2-digit number first and second, carries rippling through 9s
+  - name: 3-digit addition, Easy — the 1-digit number first and second, carries rippling through 9s
     skill_set: ADD.3D.REG
     difficulty: Easy
     n: 48
-    cases: [A25, A27, A29, A31, A33, A35, A39, A43]
-  - name: 2-digit addition and subtraction without regrouping — subtraction in columns too, shorter number first
+    cases: [A25, A27, A29, A31, A33, A35]
+  - name: 3-digit addition, Medium — the 2-digit number first and second, a 4-digit answer
+    skill_set: ADD.3D.REG
+    difficulty: Medium
+    n: 48
+    cases: [A39, A51, A53, A55]
+  - name: 2-digit addition and subtraction without regrouping, Easy — subtraction in columns too
+    skill_set: ADDSUB.2D.NOREG
+    difficulty: Easy
+    n: 28
+    cases: [A06, S05, S06]
+  - name: 2-digit addition without regrouping, Advance — the shorter number first
     skill_set: ADDSUB.2D.NOREG
     difficulty: Advance
     n: 24
-    cases: [A08, A09, S05]
+    cases: [A08, A09]
   - name: subtraction across zero, Easy — 3-digit minus 1-digit, across one zero and several
     skill_set: SUB.3D.ZERO
     difficulty: Easy
     n: 36
     cases: [S18, S20, S21, S23]
-  - name: missing digits, Medium — a digit found across a carry, the same letter for the same digit
+  - name: missing digits, Medium — one digit found across a carry or an exchange, in a number or in the answer
     skill_set: MISSING.DIGIT
     difficulty: Medium
     n: 20
+    cases: [M12, M16]
   - name: equality, inverse and checking, Medium — two operations on a balance, the missing sign
     skill_set: EQUALITY.INVERSE
     difficulty: Medium
@@ -78,7 +92,7 @@ criteria:
     run: engine audit
     expect: "0 violations"
   - name: the new kinds of question draw on the Question bank and on a worksheet, on the copy
-    run: cd apps/web && npx playwright test tests/s8t-taxonomy.spec.ts
+    run: cd apps/web && npx playwright test tests/s8-taxonomy.spec.ts
     expect: "passed"
   - name: the engine's own test suite
     run: cd packages/engine && .venv/bin/python -m pytest

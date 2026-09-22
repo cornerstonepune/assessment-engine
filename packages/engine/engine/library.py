@@ -126,6 +126,18 @@ def _levels(conn, only=None):
     ).fetchall()
 
 
+def _unfair(ids, fmt_of, share, total, n):
+    """The kinds a worksheet holds more or fewer of than its fair share of the level (±1). One rule for
+    `build` and `check`: a level whose mix of kinds changed (step 8h — plain sums half in columns, half
+    in a line) retires the worksheets dealt for the old mix, instead of keeping them and failing the check."""
+    got = Counter(fmt_of[i] for i in ids)
+    return [
+        (fmt, got[fmt], n * k / total)
+        for fmt, k in share.items()
+        if not math.floor(n * k / total) - 1 <= got[fmt] <= math.ceil(n * k / total) + 1
+    ]
+
+
 def _plan_level(conn, lv, n):
     """(worksheets to retire, question lists to make) for one skill at one level."""
     questions = conn.execute(
@@ -139,7 +151,13 @@ def _plan_level(conn, lv, n):
         (lv["code"], lv["difficulty"]),
     ).fetchall()
     active = {q["id"] for q in questions}
-    keep = [s for s in sheets if set(s["item_ids"]) <= active]
+    fmt_of = {q["id"]: q["fmt"] for q in questions}
+    share = Counter(fmt_of.values())
+    keep = [
+        s
+        for s in sheets
+        if set(s["item_ids"]) <= active and not _unfair(s["item_ids"], fmt_of, share, len(questions), n)
+    ]
     retire = [s for s in sheets if s not in keep]
     want = worksheets_needed(len(questions), n)
     if not want:
@@ -161,8 +179,11 @@ def _plan_level(conn, lv, n):
     # retired (never edited) and a whole new set made.
     after = used + Counter(q["id"] for s in new for q in s)
     alike = {frozenset(s["item_ids"]) for s in keep} | {frozenset(q["id"] for q in s) for s in new}
-    if max(after[i] for i in active) - min(after[i] for i in active) <= 1 and len(alike) == len(keep) + len(
-        new
+    fair = not any(_unfair([q["id"] for q in s], fmt_of, share, len(questions), n) for s in new)
+    if (
+        fair
+        and max(after[i] for i in active) - min(after[i] for i in active) <= 1
+        and len(alike) == len(keep) + len(new)
     ):
         return retire, new
     return sheets, deal(questions, n, kinds, want)
@@ -237,11 +258,9 @@ def check(conn):
             if stray := [i for i in ids if i not in questions]:
                 problems.append(f"{s['code']} holds {len(stray)} questions not active at this level")
                 continue
-            got = Counter(questions[i]["fmt"] for i in ids)
-            for fmt, total in share.items():
-                fair = n * total / len(questions)
-                if not math.floor(fair) - 1 <= got[fmt] <= math.ceil(fair) + 1:
-                    problems.append(f"{s['code']} holds {got[fmt]} {fmt}, fair share {fair:.1f}")
+            fmt_of = {i: q["fmt"] for i, q in questions.items()}
+            for fmt, held, fair in _unfair(ids, fmt_of, share, len(questions), n):
+                problems.append(f"{s['code']} holds {held} {fmt}, fair share {fair:.1f}")
         if problems:
             found[f"{lv['code']} {lv['difficulty']}"] = problems
     return len(levels), found

@@ -143,7 +143,12 @@ def render_item(sheet, it, n):
     body = ""
     f = it.fmt
     if f == "bare_sum":
-        stem = f'<span class="eq">{sp["a"]} {_op(sp["op"])} {sp["b"]} =</span>'
+        line = (
+            f" {_op(sp['op'])} ".join(map(str, sp["addends"]))
+            if sp.get("addends")
+            else f"{sp['a']} {_op(sp['op'])} {sp['b']}"
+        )
+        stem = (html.escape(it.stem) + "<br>" if it.stem else "") + f'<span class="eq">{line} =</span>'
         body = _cells(sid, iid, R["ans"], big) + _work(it.working_lines)
     elif f == "column_grid":
         rows = sp.get("addends") or [sp["a"], sp["b"]]
@@ -197,24 +202,60 @@ def render_item(sheet, it, n):
 <div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {_op(sp["op"])} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>""" + _work(
             2
         )
-    elif f == "missing_digit":
-        a, b, c, op = sp["a"], sp["b"], sp["c"], sp["op"]
-        w = max(len(a), len(b), len(c))
-
-        def rowhtml(s, rid, opch=""):
-            s = s.rjust(w)
-            cells = ""
-            for ch in s:
-                if ch == "□":
-                    cells += f'<div class="g ans cell" data-s="{sid}" data-i="{iid}" data-r="{rid}" data-k="0"></div>'
-                else:
-                    cells += f'<div class="g">{ch.strip()}</div>'
-            return f'<div class="g op">{opch}</div>' + cells
-
+        if "sense" in R:
+            body += f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(R["sense"].label)}</span>{_ticks(sid, iid, R["sense"])}</div>'
+    elif f == "missing_digit" and sp.get("shape") == "INEQUALITY":
         body = (
-            f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(a, "da")}{rowhtml(b, "db", _op(op))}{rowhtml(c, "none").replace('class="g"', 'class="g res"')}</div>"""
+            f'<div class="row"><span class="lab">how many digits:</span>{_cells(sid, iid, R["count"])}</div>'
             + _work(2)
         )
+    elif f == "missing_digit":
+        rows = [sp["a"], sp["b"], sp["c"]]
+        w = max(len(r) for r in rows)
+        boxes = iter([r for r in it.responses if r.kind == "digits" and r.rid != "A"])
+
+        def rowhtml(text, opch="", res=False):
+            cells = ""
+            for ch in text.rjust(w):
+                if ch == "□":
+                    r = next(boxes)
+                    cells += f'<div class="g ans cell" data-s="{sid}" data-i="{iid}" data-r="{r.rid}" data-k="0"></div>'
+                else:
+                    cells += f'<div class="g{" res" if res else ""}">{ch.strip()}</div>'
+            return f'<div class="g op">{opch}</div>' + cells
+
+        grid = f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(rows[0])}{rowhtml(rows[1], _op(sp["op"]))}{rowhtml(rows[2], res=True)}</div>"""
+        letter = (
+            f'<div class="row"><span class="lab">A =</span>{_cells(sid, iid, R["A"])}</div>'
+            if "A" in R
+            else ""
+        )
+        body = grid + letter + _work(2)
+    elif f == "equation":
+        stem = (
+            html.escape(it.stem)
+            + f'<br><span class="eq">{html.escape(sp["text"]).replace("□", "&#9633;")}</span>'
+        )
+        body = "".join(
+            _ticks(sid, iid, r)
+            if r.kind == "tick"
+            else f'<span class="lab">&#9633; =</span>{_cells(sid, iid, r, big)}'
+            for r in it.responses
+        )
+    elif f in ("fact_family", "break_apart"):
+        body = "".join(
+            f'<div class="row" style="margin-bottom:2mm"><span class="eq">{html.escape(r.label).replace("□", "&#9633;")}</span>{_cells(sid, iid, r)}</div>'
+            for r in it.responses
+        )
+    elif f == "inverse_check":
+        chk, ok = R["check"], R["right"]
+        body = (
+            f'<div class="row"><span class="eq">{html.escape(chk.label).replace("□", "&#9633;")}</span>{_cells(sid, iid, chk)}</div>'
+            f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(ok.label)}</span>{_ticks(sid, iid, ok)}</div>'
+            + _work(it.working_lines)
+        )
+    elif f in ("choose_estimate", "possible_answer", "odd_even"):
+        body = "".join(_ticks(sid, iid, r) for r in it.responses) + _work(it.working_lines)
     elif f == "digit_cards":
         cards = "".join(f'<div class="card">{c}</div>' for c in sp["cards"])
         body = (
@@ -236,13 +277,24 @@ def render_item(sheet, it, n):
             sid, iid, R["why"], 15
         )
     elif f == "find_mistake":
+        where = (
+            f'<div class="row"><span class="lab">{html.escape(R["where"].label or "The mistake is in the")}</span>{_ticks(sid, iid, R["where"])}</div>'
+            if "where" in R
+            else ""
+        )
         body = (
-            f'<div class="row"><span class="lab">The mistake is in the</span>{_ticks(sid, iid, R["where"])}</div><div class="row" style="margin-top:2mm"><span class="lab">The correct answer is</span>{_cells(sid, iid, R["ans"])}</div>'
+            where
+            + f'<div class="row" style="margin-top:2mm"><span class="lab">The correct answer is</span>{_cells(sid, iid, R["ans"])}</div>'
             + _text(sid, iid, R["why"], 14)
         )
     elif f in ("word_1step", "word_2step"):
+        table = ""
+        if sp.get("table"):
+            rows = "".join(f"<tr><td>{html.escape(str(k))}</td><td>{v}</td></tr>" for k, v in sp["table"])
+            table = f'<table class="sort">{rows}</table>'
         body = (
-            _work(it.working_lines)
+            table
+            + _work(it.working_lines)
             + f'<div class="row" style="margin-top:2mm"><span class="lab">Answer</span>{_cells(sid, iid, R["ans"], big)}</div>'
         )
     else:

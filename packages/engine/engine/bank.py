@@ -11,7 +11,7 @@ from collections import Counter
 
 from engine import cases, db, labels
 from engine.adapters import llm
-from engine.assess import bands, draw, tags, verify
+from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.assess.items import Item, Response
@@ -59,14 +59,16 @@ def _sampled(check, formats, n, seed):
             c["missing"] = "b"
             c["stem"] = f"{a} {'−' if op == '-' else '+'} □ = {ans}"
         elif fmt == "word_1step":
-            op_ctx = W.CONTEXTS_MUL if op == "×" else [t for o, t in W.CONTEXTS_1STEP if o == op]
+            op_ctx = [t for t in W.templates("word_1step", op=op) if not t.get("table")]
             if not op_ctx:
                 raise ValueError(
-                    f"no word-problem story written for {op!r}; add one to items.py"
+                    f"no word-problem story written for {op!r}; add one to supabase/seed/word_templates.json"
                     f" or drop word_1step from this skill set's formats"
                 )
             n1, n2 = rng.sample(W.NAMES, 2)
-            c["stem"] = rng.choice(op_ctx).format(a=a, b=b, n=n1, n2=n2)
+            tpl = rng.choice(op_ctx)
+            c["stem"] = tpl["text"].format(a=a, b=b, n=n1, n2=n2)
+            c["structure"] = tpl["structure"]
         out.append(c)
     return out
 
@@ -79,7 +81,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
     on a quota."""
     prompt_input, s, check = spec(conn, code, difficulty)
     if check.get("cases"):
-        return fill_cases(conn, code, difficulty, n, dry_run, after_batch)
+        raise ValueError(f"{code} {difficulty} is made of taxonomy cases — fill it with `engine bank refill`")
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     counts = Counter(
         asked=0,
@@ -135,7 +137,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
                     on_reject(c, dims)
                 continue
             counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
-            charged = _label(it, s, rules, vocab)
+            charged = labels.label_item(it, s["skill_codes"], rules, vocab)
             prov = {
                 "skill_set_version": s["version"],
                 "generator": f"sampled:{c['op']}" if offline else "model:item_generate",
@@ -169,14 +171,6 @@ def _strip_unnamed(it, known):
             r.misconceptions = {c: v for c, v in r.misconceptions.items() if c not in unknown}
             dropped += len(unknown)
     return dropped
-
-
-def _label(it, s, rules, vocab):
-    """The skills the question uses onto the item, and what each of its mistakes charges (ADR 0023)."""
-    it.skills, charged = labels.measure(
-        it.fmt, it.spec, it.stem, [vars(r) for r in it.responses], s["skill_codes"], rules, vocab
-    )
-    return charged
 
 
 def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=None, mistake_skills=None):
@@ -241,13 +235,16 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     while counts["accepted"] < n and tries < n * 8:
         tries += 1
         counts["asked"] += 1
-        it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+        try:
+            it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+        except RuntimeError:
+            continue  # this draw's numbers could not make the question; the loop draws again
         if it.item_id in seen:
             counts["duplicate"] += 1
             continue
         seen.add(it.item_id)
         counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
-        charged = _label(it, s, rules, vocab)
+        charged = labels.label_item(it, s["skill_codes"], rules, vocab)
         prov = {"skill_set_version": s["version"], "generator": f"native:{fmt}"}
         if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
             counts["already_in_bank"] += 1
@@ -259,36 +256,6 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     if after_batch:
         after_batch()
     return dict(counts), accepted
-
-
-def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=None):
-    """A level that lists taxonomy cases (step 8f), filled evenly from them: every question drawn is,
-    as measured, one of its cases (`assess/draw.py`). Questions the bank already holds anywhere are
-    not drawn again. Returns (counts, {case: accepted}, items)."""
-    _, s, check = spec(conn, code, difficulty)
-    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    held = {r["item_key"] for r in conn.execute("select item_key from item where tenant_id = %s", (tenant,))}
-    matches = cases.matches(conn, check["cases"])
-    missing = sorted(set(check["cases"]) - set(matches))
-    if missing:
-        raise ValueError(f"{code} {difficulty} names cases that are not rows: {', '.join(missing)}")
-    known, rules, vocab = _known_codes(conn), labels.rules(conn), labels.vocabulary(conn)
-    drawn = draw.level(rng or random.Random(), check, matches, s["rung_code"], n, seen=held)
-    counts = Counter(asked=n, drawn=len(drawn), accepted=0, already_in_bank=0, unnamed_distractor_dropped=0)
-    per_case, accepted = Counter(), []
-    for case_code, it in drawn:
-        counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
-        charged = _label(it, s, rules, vocab)
-        prov = {"skill_set_version": s["version"], "generator": f"case:{case_code}"}
-        if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
-            counts["already_in_bank"] += 1
-            continue
-        counts["accepted"] += 1
-        per_case[case_code] += 1
-        accepted.append(it)
-    if after_batch:
-        after_batch()
-    return dict(counts), dict(per_case), accepted
 
 
 def _class_need(conn):
@@ -338,22 +305,7 @@ def recheck(conn):
     with no predictor behind them (the model's own, for an operation we cannot compute) are the
     one thing not re-derived — there is nothing to re-derive them from.
     """
-    bad = []
-    # The band each item claims, so the audit can re-measure it against that band's own region
-    # and not just against its own arithmetic (BUILD-ORDER gate 4, amended).
-    regions = {
-        (s["code"], band): spec.get("check", {})
-        for s in conn.execute("select code, difficulty from skill_set").fetchall()
-        for band, spec in s["difficulty"].items()
-    }
-    case_matches = cases.matches(conn)
-    for r in conn.execute(
-        "select item_key, fmt, tags, skill_set_code, difficulty from item"
-        " where status = 'active' and source = 'generated' and skill_set_code is not null"
-    ).fetchall():
-        region = regions.get((r["skill_set_code"], r["difficulty"]))
-        if region and verify.dimension_problems(r["tags"], region, r["fmt"], case_matches):
-            bad.append(r["item_key"])
+    bad = [r["item_key"] for r in cases.outside_their_level(conn)]
 
     rows = conn.execute(
         "select item_key, fmt, stem, spec, responses, rung_code, skill_codes, generator from item"
@@ -364,6 +316,8 @@ def recheck(conn):
         sp = r["spec"]
         if not {"a", "b", "op"} <= sp.keys():
             continue  # an older row that kept only its printed text
+        if set(sp) - {"a", "b", "op", "layout", "missing", "text"}:
+            continue  # made by a generator with more than numbers (a story's table): not `to_item`'s to rebuild
         stored = next(x for x in r["responses"] if x["rid"] == "ans")
         rebuilt = verify.to_item(
             {

@@ -7,8 +7,9 @@ import type { Difficulty } from "./queries";
 // number wall, `left`/`right` for a balance (null is the box the child fills), `planted` for the
 // mistake a find-the-mistake question shows.
 export type ItemSpec = {
-  a?: number;
-  b?: number;
+  a?: number | string; // a missing-digit question keeps its boxed digits: "4□"
+  b?: number | string;
+  c?: string;
   op?: string;
   addends?: number[];
   text?: string;
@@ -17,6 +18,9 @@ export type ItemSpec = {
   left?: (number | null)[];
   right?: (number | null)[];
   planted?: string;
+  shape?: string;
+  facts?: string[];
+  options?: number[];
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and

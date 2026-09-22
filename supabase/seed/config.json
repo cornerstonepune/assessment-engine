@@ -130,6 +130,30 @@
         ],
         "explain_claim": [
           "NUM.PRB.03"
+        ],
+        "equation": [
+          "NUM.OPS.05"
+        ],
+        "fact_family": [
+          "NUM.OPS.05"
+        ],
+        "inverse_check": [
+          "NUM.PRB.03"
+        ],
+        "choose_estimate": [
+          "NUM.PV.03"
+        ],
+        "possible_answer": [
+          "NUM.PV.03"
+        ],
+        "odd_even": [
+          "NUM.PRB.03"
+        ],
+        "break_apart": [
+          "NUM.OPS.05"
+        ],
+        "missing_digit": [
+          "NUM.PRB.03"
         ]
       },
       "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023)."

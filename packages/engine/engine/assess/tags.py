@@ -11,6 +11,7 @@ someone meant to make. A case (`taxonomy_case.match`) is a combination of these 
 import re
 
 from . import misconceptions as M
+from . import words as W
 
 FORMAT_REASONING = {
     "missing_number": "INVERSE",
@@ -117,7 +118,8 @@ def _carry_into_zero(a, b, cols):
     w = max(len(str(a)), len(str(b)))
     da, db = M.digits(a, w), M.digits(b, w)
     return any(
-        i - 1 in cols and ((i < len(str(a)) and da[i] == 0) or (i < len(str(b)) and db[i] == 0)) for i in range(1, w)
+        i - 1 in cols and ((i < len(str(a)) and da[i] == 0) or (i < len(str(b)) and db[i] == 0))
+        for i in range(1, w)
     )
 
 
@@ -211,7 +213,9 @@ def _missing_digit(t, sp):
     rows = {"FIRST": sp.get("a", ""), "SECOND": sp.get("b", ""), "RESULT": sp.get("c", "")}
     where = [name for name, s in rows.items() if "□" in str(s) or re.search(r"[A-Z]", str(s))]
     boxes = [(name, s) for name, s in rows.items() for s in [str(s)] if "□" in s]
-    count = sum(s.count("□") for _, s in boxes) or len({c for s in rows.values() for c in re.findall(r"[A-Z]", str(s))})
+    count = sum(s.count("□") for _, s in boxes) or len(
+        {c for s in rows.values() for c in re.findall(r"[A-Z]", str(s))}
+    )
     t |= {
         "operation": "ADD" if sp.get("op") == "+" else "SUB",
         "missing_count": count,
@@ -250,12 +254,15 @@ def _missing_number(t, sp):
         x, op, y, z = m.groups()
         t["operation"] = "ADD" if op == "+" else "SUB"
         pos = [x, y, z].index("□") if "□" in (x, y, z) else None
-        t["unknown_position"] = ["FIRST_OPERAND", "SECOND_OPERAND", "RESULT"][pos] if pos is not None else "RESULT"
+        t["unknown_position"] = (
+            ["FIRST_OPERAND", "SECOND_OPERAND", "RESULT"][pos] if pos is not None else "RESULT"
+        )
         if pos is not None:
             n = [int(v) for v in (x, y, z) if v != "□"]
-            hidden = {0: n[0] + n[1] if op == "-" else n[1] - n[0], 1: n[0] - n[1] if op == "-" else n[1] - n[0]}.get(
-                pos, n[0] + n[1] if op == "+" else n[0] - n[1]
-            )
+            hidden = {
+                0: n[0] + n[1] if op == "-" else n[1] - n[0],
+                1: n[0] - n[1] if op == "-" else n[1] - n[0],
+            }.get(pos, n[0] + n[1] if op == "+" else n[0] - n[1])
             t["unknown_digits"] = len(str(abs(hidden)))
     return t
 
@@ -274,9 +281,21 @@ def derive(item) -> dict:
     for key in ("shape", "structure", "planted", "round_to"):
         if sp.get(key) is not None:
             t[key] = sp[key]
+    if fmt in FORMAT_CONTEXT and "structure" not in t:
+        # a story's shape is its template's (`words.template_of`); a budget is taken away step by step
+        t["structure"] = "SUB_SUB" if "budget" in sp else W.structure_of(item.stem)
+        if t["structure"] is None:
+            del t["structure"]
     if sp.get("table"):
         t["context"] = "TABLE_OR_CHART"
 
+    if "budget" in sp:
+        costs = sp.get("costs") or [sp[k] for k in ("a", "b", "c") if k in sp]
+        t |= {
+            "num_costs": len(costs),
+            "budget": sp["budget"],
+            "cost_is_a_product": "YES" if sp.get("children") else "NO",
+        }
     if fmt == "missing_digit":
         return _missing_digit(t, sp)
     addends = sp.get("addends")
@@ -284,7 +303,9 @@ def derive(item) -> dict:
         return _many_numbers(t, addends, sp.get("layout", "column"))
     a, b, op = sp.get("a"), sp.get("b"), sp.get("op")
     if isinstance(a, int) and isinstance(b, int) and op in ("+", "-"):
-        t = _two_numbers(t, op, a, b, sp.get("layout") or ("column" if fmt == "column_grid" else "horizontal"))
+        t = _two_numbers(
+            t, op, a, b, sp.get("layout") or ("column" if fmt == "column_grid" else "horizontal")
+        )
     if fmt == "missing_number":
         t = _missing_number(t, sp)
     return t

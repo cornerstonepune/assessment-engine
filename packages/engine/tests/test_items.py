@@ -9,7 +9,11 @@ import random
 
 import pytest
 
+from engine.assess import diagnosis as D
+from engine.assess import equality as EQ
 from engine.assess import items as I
+from engine.assess import missing_digits as MD
+from engine.assess import reasoning as RS
 from engine.assess import tags
 
 
@@ -63,7 +67,9 @@ def test_misconception_table_never_contains_the_correct_answer():
 
 def test_missing_digit_item_has_a_unique_solution():
     rng = random.Random(17)
-    item = I.missing_digit(rng, "R13", "Conceptual", "+", 3)
+    item = MD.one(
+        rng, "R13", "Conceptual", {"op": "+", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+    )
     assert len(item.responses) == 2
     for r in item.responses:
         assert r.answer.isdigit() and len(r.answer) == 1
@@ -110,20 +116,20 @@ def test_find_mistake_honours_a_digit_width(digits):
     # REASON.FIND_MISTAKE's Hard/Advance bands plant the mistake in a 3-digit calculation —
     # without a digits param the generator was fixed at 2-digit regardless of the band asked.
     rng = random.Random(37)
-    item = I.find_mistake(rng, "X2", "Conceptual", op="+", digits=digits)
+    item = D.find_mistake(rng, "X2", "Conceptual", op="+", digits=digits)
     assert len(str(item.spec["a"])) == digits and len(str(item.spec["b"])) == digits
 
 
 def test_find_mistake_still_defaults_to_two_digit():
     rng = random.Random(41)
-    item = I.find_mistake(rng, "X2", "Conceptual")
+    item = D.find_mistake(rng, "X2", "Conceptual")
     assert len(str(item.spec["a"])) == 2
 
 
 def test_explain_claim_defaults_to_the_true_compensation_claim_its_callers_expect():
     # blueprints.py calls this with no extra arguments; that behaviour must not move.
     rng = random.Random(43)
-    item = I.explain_claim(rng, "X1", "Conceptual")
+    item = D.explain_claim(rng, "X1", "Conceptual")
     tick = next(r for r in item.responses if r.rid == "tick")
     assert tick.answer == "yes" and item.spec["topic"] == "compensation"
     assert 120 <= item.spec["a"] <= 480
@@ -131,14 +137,14 @@ def test_explain_claim_defaults_to_the_true_compensation_claim_its_callers_expec
 
 def test_explain_claim_can_state_a_false_claim_the_child_must_catch():
     rng = random.Random(47)
-    item = I.explain_claim(rng, "X1", "Conceptual", claim_is_true=False)
+    item = D.explain_claim(rng, "X1", "Conceptual", claim_is_true=False)
     tick = next(r for r in item.responses if r.rid == "tick")
     assert tick.answer == "no", item.stem
 
 
 def test_explain_claim_can_ask_about_regrouping_instead_of_compensation():
     rng = random.Random(53)
-    item = I.explain_claim(rng, "X1", "Conceptual", claim_topic="regrouping", claim_is_true=False)
+    item = D.explain_claim(rng, "X1", "Conceptual", claim_topic="regrouping", claim_is_true=False)
     assert item.spec["topic"] == "regrouping"
     assert next(r for r in item.responses if r.rid == "tick").answer == "no"
     assert "exchange" in item.stem.lower()
@@ -147,7 +153,7 @@ def test_explain_claim_can_ask_about_regrouping_instead_of_compensation():
 def test_explain_claim_honours_a_smaller_number_range_for_the_easy_band():
     rng = random.Random(59)
     for _ in range(10):
-        item = I.explain_claim(rng, "X1", "Conceptual", a_range=(10, 99))
+        item = D.explain_claim(rng, "X1", "Conceptual", a_range=(10, 99))
         assert 10 <= item.spec["a"] <= 99
 
 
@@ -192,9 +198,20 @@ def test_number_line_still_splits_into_tens_and_ones_at_full_scale():
 
 def test_explain_claims_true_and_false_variants_are_different_items():
     # Same numbers, opposite claim: the stored spec must differ or one would overwrite the other.
-    t = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=True)
-    f = I.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=False)
+    t = D.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=True)
+    f = D.explain_claim(random.Random(61), "X1", "Conceptual", claim_is_true=False)
     assert t.item_id != f.item_id
+
+
+def _first(make, tries=200):
+    """A generator's first question: some draws cannot make one and say so; the next draw can."""
+    rng = random.Random(3)
+    for _ in range(tries):
+        try:
+            return make(rng)
+        except RuntimeError:
+            continue
+    raise AssertionError("no question in 200 draws")
 
 
 def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
@@ -224,12 +241,29 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         I.bare_sum(rng, "R5", "Procedural", "+", 2, 2, {1}, layout="column"),
         I.missing_part_20(rng, "R3", "Conceptual"),
         I.multi_add(rng, "R12", "Procedural"),
-        I.missing_digit(rng, "R9", "Conceptual", "+", 3),
+        MD.one(rng, "R9", "Conceptual", {"op": "+", "width": 3}),
+        *(
+            _first(lambda r, g=g: g(r))
+            for g in (
+                lambda r: EQ.equation(r, "R16", "Conceptual", "SAME_BOTH_SIDES"),
+                lambda r: EQ.fact_family(r, "R16", "Conceptual", "FROM_ADDITION"),
+                lambda r: EQ.inverse_check(r, "R16", "Conceptual", "+"),
+                lambda r: RS.choose_estimate(r, "R18", "Conceptual"),
+                lambda r: RS.possible_answer(r, "R18", "Conceptual"),
+                lambda r: RS.odd_even(r, "R18", "Conceptual"),
+                lambda r: RS.break_apart(r, "R13", "Conceptual"),
+            )
+        ),
         I.digit_cards(rng, "R13", "Conceptual"),
         I.partition_scaffold(rng, "R9", "Conceptual", {1}),
         I.sort_into_table(rng, "R9", "Conceptual", "+"),
         I.partial_worked(rng, "R10", "Conceptual"),
         words.word_1step(rng, "R8", "Application", 2, (0, 1)),
+        # kinds whose levels are made of taxonomy cases since step 8h, so the seed loop above no longer
+        # reaches them through a `format`
+        D.find_mistake(rng, "X2", "Conceptual"),
+        I.efficient_method(rng, "R13", "Conceptual"),
+        I.number_line_jumps(rng, "R2", "Conceptual", "+", 20),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"

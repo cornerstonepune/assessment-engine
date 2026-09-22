@@ -2994,3 +2994,41 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   case level as the union of its cases; scenarios and the known-mistakes check draw from cases too. With no level
   bounds every plain-sum and missing-number case yields ≥ 24 distinct questions except 7 − 7 and 7 − 0 (18 each —
   all there are). `tests/test_taxonomy.py` +4; suite green.
+- **8g — every kind of question the cases need.** One file per family, each a generator code checks:
+  `assess/equality.py` (the missing sign, two missing signs, a balance with the same or two operations, the same
+  number in both boxes, true or false, <, = or > without working; fact families from an addition or a subtraction;
+  checking with the inverse), `assess/reasoning.py` (the closest estimate, could that answer be right, odd or even,
+  tens then ones), `assess/diagnosis.py` (find the mistake with 16 plantable slips — column, alignment, three
+  numbers, reversed, digit, equals — and which column it first went wrong in; across a zero and exchanging in the
+  wrong place at 3 digits), `assess/missing_digits.py` (one answer only, proven by trying every digit; the same
+  letter twice; an inequality). Story templates are rows (`supabase/seed/word_templates.json`, 41 — ADR 0010's
+  debt); a stored story's shape is read back from its words (`words.structure_of`), never stored beside it; an
+  `eval` in `words.py` replaced by `words.evaluate`. WORD.BUDGET's four levels now print what they ask (2–4 costs,
+  one a product). `bands.READS`: `engine audit` holds "every key a level sets is one its generator reads" and
+  "every case a level names is a row". `tests/test_new_kinds.py`: each kind prints, marks, maps every wrong option
+  to a named mistake, and names its skills. Each prints on paper (`render.py`) and on screen (`question.tsx`).
+- **8h — the levels hold the cases.** 13 skills' levels rewritten and 4 skills added (`ADD.MULTI.SMALL`,
+  `EQUALITY.INVERSE`, `MISSING.DIGIT`, `ESTIMATE.HUNDRED`; rungs R15–R18); every one of the 269 cases is listed by a
+  level. The words Nimish approved are kept; only levels and kinds changed; all 17 wait for his one approval, with
+  the table of what a wrong answer counts against (8b), on `/skill-sets/approve`. The 2- and 3-digit skills keep
+  their missing-number and story questions, each a case inside the level's number bounds (ADR 0031). Grade 1
+  floors, measured as all there are (a second refill found no more, ADR 0011): `ADD.1D.BRIDGE10` Medium 131 (144 exist; 6 are Grade 2 questions still in their own level, 7 retired rows a question cannot be stored twice past);
+  `ADD.1D.WITHIN10` Medium 86, Hard 24, Advance 82; `SUB.1D.WITHIN20` Medium 110, Hard 44. `engine bank levels`
+  lists the rewrite before `--apply` writes it.
+- **8i — refilled and rebuilt, rehearsed on a fresh copy of live in the order live will run** (scratchpad
+  `rehearse.sh`): `bin/testdb` (46 tables, every count equal to live) → `engine load` (`app.staff` unchanged,
+  md5 before = after) → `engine bank levels --apply` (13 sets) → `engine bank refill` in 21 s: **"retired 4756
+  questions outside their level · added 10049"** (retired through `item_feedback`, actor "engine (step 8i)", each
+  kept with its reason) → a second refill: +4, one case (`M22`, "□ − 7 = 8" within 20: 48 exist against a share of
+  72) finding four the first search missed; a third: **0** → `engine library build`: "made 1160 · retired 742"; a
+  second build: **"made 0 · retired 0"** → `engine library check`: **"1541 worksheets · 84 of 84 skill-levels ready ·
+  0 problems"** → `engine bank taxonomy`: **"269 cases · 269 covered · 0 missing · 0 thin"** → `engine audit`: 18
+  violations, all the two that wait for a person (17 skills, 1 table).
+  Found and fixed at the cause on the way, each with a test that failed first: refill judged questions on stale
+  tags (relabel now runs first); a question was credited to its first case only, so levels overfilled (every case
+  it is); a case whose numbers had run out spilled its shortfall onto the other cases on every refill
+  (`test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out`: 167 before, 0 after); the library kept
+  worksheets with an unfair mix of kinds and dealt patches that looped (one `_unfair` for build and check); the
+  approval page's table never matched (postgres.js sends a string bound for `jsonb` as a JSON string —
+  `::text::jsonb`). Website on the copy: **77 passed, 1 skipped** (the long-standing "no paper signed off" skip).
+  **Live: not yet.**

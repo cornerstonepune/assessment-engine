@@ -134,7 +134,9 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
         check = b.get("check") or {}
         if check.get("cases"):
             # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f).
-            drawn = draw.level(random.Random(1), check, cases.matches(conn, check["cases"]), s["rung_code"], n)
+            drawn = draw.level(
+                random.Random(1), check, cases.matches(conn, check["cases"]), s["rung_code"], n
+            )
             out[d] = sorted({c for _, it in drawn for r in it.responses for c in (r.misconceptions or {})})
         else:
             out[d] = bands.codes(check, n, rung=s["rung_code"])

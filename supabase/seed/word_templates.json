@@ -1,0 +1,291 @@
+{
+  "word_templates": [
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_RESULT",
+      "op": "+",
+      "text": "{n} has {a} marbles. {n2} gives {n} {b} more. How many marbles does {n} have now?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_WHOLE",
+      "op": "+",
+      "text": "A shop sells {a} laddoos in the morning and {b} in the evening. How many laddoos does it sell in the whole day?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_WHOLE",
+      "op": "+",
+      "text": "There are {a} children in the ground and {b} children in the hall. How many children are there altogether?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_PART",
+      "op": "-",
+      "text": "A bus has {a} seats. {b} of them are taken. How many seats are empty?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_RESULT",
+      "op": "-",
+      "text": "{n} had ₹{a}. {n} bought a book for ₹{b}. How much money does {n} have left?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_DIFFERENCE",
+      "op": "-",
+      "text": "{n} collected {a} shells. {n2} collected {b}. How many more shells did {n} collect than {n2}?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_RESULT",
+      "op": "+",
+      "text": "There are {a} mangoes in a basket. Amma puts in {b} more. How many mangoes are in the basket now?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_CHANGE",
+      "op": "-",
+      "text": "{n} had {b} stickers. {n2} gave {n} some more, and now {n} has {a}. How many stickers did {n2} give?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_CHANGE",
+      "op": "-",
+      "text": "A school garden had {b} plants. The class planted some more. Now it has {a}. How many plants did the class plant?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_START",
+      "op": "-",
+      "text": "{n} had some mangoes. {n2} gave {n} {b} more. Now {n} has {a}. How many mangoes did {n} have at the start?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_START",
+      "op": "-",
+      "text": "Some children were on the bus. At the next stop {b} more got on. Now there are {a}. How many were on the bus at the start?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_RESULT",
+      "op": "-",
+      "text": "There were {a} birds on a tree. {b} flew away. How many birds are still on the tree?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_CHANGE",
+      "op": "-",
+      "text": "{n} had {a} cards. After giving some to {n2}, {n} has {b} left. How many cards did {n} give away?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_CHANGE",
+      "op": "-",
+      "text": "The canteen made {a} samosas. At the end of the day {b} were left. How many samosas were sold?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_START",
+      "op": "+",
+      "text": "{n} had some money. {n} spent ₹{b} at the mela and has ₹{a} left. How much money did {n} have at the start?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_START",
+      "op": "+",
+      "text": "Some cricket balls were in a box. {b} were lost in a match and {a} are left. How many balls were in the box at first?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_PART",
+      "op": "-",
+      "text": "There are {a} children in a class. {b} of them are boys. How many are girls?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_DIFFERENCE",
+      "op": "-",
+      "text": "{n} scored {a} runs and {n2} scored {b} runs. How many more runs did {n} score than {n2}?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_LARGER",
+      "op": "+",
+      "text": "{n2} has {a} stamps. {n} has {b} more stamps than {n2}. How many stamps does {n} have?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_LARGER",
+      "op": "+",
+      "text": "The red rope is {a} cm long. The blue rope is {b} cm longer. How long is the blue rope?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_SMALLER",
+      "op": "-",
+      "text": "{n} has {a} beads. {n2} has {b} fewer beads than {n}. How many beads does {n2} have?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_SMALLER",
+      "op": "-",
+      "text": "Class 3A collected {a} bottles for recycling. Class 3B collected {b} fewer. How many did Class 3B collect?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_WHOLE",
+      "op": "+",
+      "text": "The table shows the runs {n} scored. How many runs did {n} score on Monday and Tuesday together?",
+      "table": [
+        "Monday",
+        "Tuesday"
+      ]
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_DIFFERENCE",
+      "op": "-",
+      "text": "The table shows the mangoes sold at a stall. How many more were sold on Saturday than on Friday?",
+      "table": [
+        "Saturday",
+        "Friday"
+      ]
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "Each box has {a} pencils. There are {b} boxes. How many pencils are there altogether?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "One ticket to the mela costs ₹{a}. {n} buys {b} tickets. How much does {n} pay?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "A shelf holds {a} books. How many books are there on {b} shelves?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "{n} walks {a} steps to school every day. How many steps is that in {b} days?"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "SUB_SUB",
+      "op": "-",
+      "text": "{a} people are at a mela. {b} of them are adults and {c} are teachers. How many children are at the mela?",
+      "answer": "a-b-c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "SUB_SUB",
+      "op": "-",
+      "text": "{n} has ₹{a}. {n} buys a kite for ₹{b} and a ball for ₹{c}. How much money is left?",
+      "answer": "a-b-c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "SUB_ADD",
+      "op": "-+",
+      "text": "A train has {a} passengers. At the first station {b} get off and {c} get on. How many passengers are on the train now?",
+      "answer": "a-b+c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_ADD",
+      "op": "++",
+      "text": "{n} had {a} stickers. {n} got {b} more on Monday and {c} more on Tuesday. How many stickers does {n} have now?",
+      "answer": "a+b+c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_ADD",
+      "op": "++",
+      "text": "A farmer picked {a} mangoes in the morning, {b} at noon and {c} in the evening. How many mangoes did the farmer pick?",
+      "answer": "a+b+c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_SUB",
+      "op": "+-",
+      "text": "A library had {a} books. It bought {b} new books and then gave {c} old ones to a school. How many books does it have now?",
+      "answer": "a+b-c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_SUB",
+      "op": "+-",
+      "text": "{n} had ₹{a}. Nani gave {n} ₹{b}, and then {n} spent ₹{c} on a book. How much money does {n} have now?",
+      "answer": "a+b-c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "UNKNOWN_FIRST",
+      "op": "-+",
+      "text": "{n} had some marbles. {n} won {b} more and then lost {c}. Now {n} has {a}. How many marbles did {n} have at the start?",
+      "answer": "a-b+c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "UNKNOWN_FIRST",
+      "op": "+-",
+      "text": "Some children were in the hall. {b} went out and then {c} came in. Now there are {a}. How many children were in the hall at first?",
+      "answer": "a+b-c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "EXTRA_INFORMATION",
+      "op": "-",
+      "text": "A school has {a} students and {c} teachers. {b} students are away today. How many students are in school?",
+      "answer": "a-b"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "EXTRA_INFORMATION",
+      "op": "+",
+      "text": "{n} is {c} years old. {n} read {a} pages on Saturday and {b} pages on Sunday. How many pages did {n} read?",
+      "answer": "a+b"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "CONSTRAINT",
+      "op": "+-",
+      "text": "I think of a number. I add {b}, then take away {c}, and I get {a}. What was my number?",
+      "answer": "a-b+c"
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "CONSTRAINT",
+      "op": "-",
+      "text": "Two numbers add up to {a}. One of them is {b} more than the other. What is the smaller number?",
+      "answer": "a-b",
+      "divide": 2
+    }
+  ],
+  "budget": {
+    "2": "The class has ₹{budget} for a picnic. Bus tickets cost ₹{a} and snacks cost ₹{b}. How much money is left after paying for both?",
+    "3": "The class has ₹{budget} for a picnic. Bus tickets cost ₹{a}, snacks cost ₹{b} and a park ticket costs ₹{c}. How much money is left after paying for everything?",
+    "4": "The class has ₹{budget} for a picnic. Bus tickets cost ₹{a}, snacks cost ₹{b}, a park ticket costs ₹{c}, and each of the {k} children needs a cap at ₹{p}. How much money is left after paying for everything?"
+  },
+  "names": [
+    "Aarav",
+    "Riya",
+    "Kabir",
+    "Meera",
+    "Ishaan",
+    "Saee",
+    "Vihaan",
+    "Anaya",
+    "Dev",
+    "Zoya",
+    "Arjun",
+    "Tara"
+  ]
+}

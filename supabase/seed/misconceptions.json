@@ -445,6 +445,88 @@
       "detectable_by": "answer_lookup",
       "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (ANSWER_RULES, 2026-09-21)",
       "external_ref": null
+    },
+    {
+      "code": "M_EXCHANGE_WRONG_PLACE",
+      "op": "-",
+      "name": "Takes the exchange from the wrong column — the hundreds, not the tens",
+      "description": "The ones need an exchange and the ten is taken from the hundreds; the tens are left as they were, so the answer is 90 short: 352 − 178 written as 84.",
+      "repair_hint": "Rods: the ten always comes from the column next door",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null
+    },
+    {
+      "code": "M_SUB_INSTEAD",
+      "op": "any",
+      "name": "Turns the subtraction round: takes away the two numbers the question shows",
+      "description": "On □ − 7 = 8 writes 1 (8 − 7), as if subtraction could be done in either order.",
+      "repair_hint": "Read □ − 7 = 8 as 'something take away 7 leaves 8'; check by adding back",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_IGNORES_SIZE",
+      "op": "any",
+      "name": "Accepts an answer without checking its size",
+      "description": "Says 487 + 216 could be 6,903: an answer with a digit too many (or too few) is not caught by estimating first.",
+      "repair_hint": "Estimate before answering; ask 'about how big should this be?'",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
+    },
+    {
+      "code": "M_PARITY_RULE",
+      "op": "any",
+      "name": "Gets odd and even the wrong way round",
+      "description": "Says odd + odd is odd, or even − odd is even: the ones digits decide, and the rule is applied backwards.",
+      "repair_hint": "Pairs of counters: an odd number always has one left over",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
+    },
+    {
+      "code": "M_COMPARE_ESTIMATE_EXACT",
+      "op": "any",
+      "name": "Does not compare estimate to exact answer",
+      "description": "The child calculates the estimate correctly and the exact answer correctly but does not check whether they are close, or states they are close when they are far apart.",
+      "repair_hint": "Ask: is the difference between your estimate and your exact answer smaller than 10?",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
+    },
+    {
+      "code": "M_REVERSES_CLAIM_TRUTH",
+      "op": "any",
+      "name": "Reverses the claim's truth value",
+      "description": "The child judges a true claim as false, or a false claim as true, then explains reasoning that fits their wrong judgment.",
+      "repair_hint": "Ask the child to test the claim with concrete materials (rods or counters) before deciding if it is true or false.",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
+    },
+    {
+      "code": "M_ROUNDS_ONE_NUMBER",
+      "op": "+",
+      "name": "Rounds one number only",
+      "description": "The child rounds only the first number to the nearest ten and uses the second number unchanged, or rounds only the second number.",
+      "repair_hint": "Use a place-value chart to show which numbers need rounding before you estimate.",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
     }
   ]
 }

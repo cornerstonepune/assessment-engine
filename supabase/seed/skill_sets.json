@@ -1,6 +1,158 @@
 {
-  "_note": "Drafts written by the engineer for Neha and Achal to edit and Aseem to ratify (N1). `words` is what the prompt reads; `check` is what the verifier enforces. Digits are [top, bottom]. regroups lists the allowed counts.",
   "skill_sets": [
+    {
+      "code": "ADD.1D.BRIDGE10",
+      "rung_code": "R2",
+      "name": "Addition within 20, crossing ten",
+      "learning_objective": "Adds numbers within 20 whose total crosses ten by making ten first, in a sum, a story and on a number line.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "number_line_jumps",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two 1-digit numbers that cross ten, in columns and in a line: 8 + 5.",
+          "check": {
+            "cases": [
+              "A02",
+              "A04"
+            ]
+          },
+          "min_items": 90
+        },
+        "Medium": {
+          "words": "A teen number and a 1-digit number within 20, either one first, in a line and in columns: 13 + 4, 4 + 13.",
+          "check": {
+            "cases": [
+              "A06",
+              "A07",
+              "A08",
+              "A09"
+            ],
+            "max_total": 20
+          },
+          "min_items": 131
+        },
+        "Hard": {
+          "words": "Stories within 20: joining, two parts making a whole, and 'more than'.",
+          "check": {
+            "cases": [
+              "W01",
+              "W07",
+              "W10"
+            ],
+            "digits": [
+              2,
+              1
+            ],
+            "max_total": 20,
+            "regroups": [
+              0,
+              1
+            ]
+          },
+          "min_items": 45
+        },
+        "Advance": {
+          "words": "Make ten on a number line, and add three 1-digit numbers: 8 + 7 → 8 + 2 + 5, 3 + 4 + 8.",
+          "check": {
+            "cases": [
+              "K02",
+              "AA1"
+            ],
+            "op": "+",
+            "hi": 20,
+            "max_total": 20
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.1D.WITHIN10",
+      "rung_code": "R1",
+      "name": "Addition within 10",
+      "learning_objective": "Adds two numbers to make a total of 10 or less, and reads = as \"is the same as\", not as \"the answer comes next\".",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_ADD_INSTEAD",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_KEYWORD_OVERGENERALISED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two numbers that make 5 or less, set out in a line and in columns: 2 + 3.",
+          "check": {
+            "cases": [
+              "A01",
+              "A03"
+            ],
+            "max_total": 5
+          },
+          "min_items": 20
+        },
+        "Medium": {
+          "words": "Two numbers that make 10 or less, in a line and in columns, including adding zero: 4 + 5, 0 + 6.",
+          "check": {
+            "cases": [
+              "A01",
+              "A03",
+              "A05"
+            ],
+            "max_total": 10
+          },
+          "min_items": 86
+        },
+        "Hard": {
+          "words": "The same sums within 10, told as a short story the child reads first.",
+          "check": {
+            "cases": [
+              "W01",
+              "W07"
+            ],
+            "digits_max": 1,
+            "regroups": [
+              0
+            ]
+          },
+          "min_items": 24
+        },
+        "Advance": {
+          "words": "A missing number within 10, the box second or first: 3 + □ = 8, □ + 5 = 9.",
+          "check": {
+            "cases": [
+              "M01",
+              "M02"
+            ],
+            "max_total": 10
+          },
+          "min_items": 82
+        }
+      }
+    },
     {
       "code": "ADD.2D.REG",
       "rung_code": "R5",
@@ -27,12 +179,25 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "A 2-digit number plus a 1-digit number, with one regroup in the ones. Total under 100.",
+          "words": "A 2-digit and a 1-digit number with a carry into the tens, either number first, with a box and in a story: 47 + 6, 6 + 47, 47 + □ = 53.",
           "check": {
-            "op": "+",
+            "cases": [
+              "A10",
+              "A11",
+              "A12",
+              "A13",
+              "M01",
+              "W01"
+            ],
             "digits": [
-              2,
-              1
+              [
+                2,
+                1
+              ],
+              [
+                1,
+                2
+              ]
             ],
             "regroups": [
               1
@@ -41,9 +206,16 @@
           }
         },
         "Medium": {
-          "words": "Two 2-digit numbers with one regroup in the ones. Total under 100.",
+          "words": "Two 2-digit numbers with a carry from the ones, in columns, in a line, with a box and in a story: 27 + 36, 47 + □ = 83.",
           "check": {
-            "op": "+",
+            "cases": [
+              "A19",
+              "A20",
+              "M04",
+              "W01",
+              "W07",
+              "W10"
+            ],
             "digits": [
               2,
               2
@@ -55,111 +227,67 @@
           }
         },
         "Hard": {
-          "words": "Two 2-digit numbers with two regroups, ones and tens, so the total passes 100.",
+          "words": "A carry from the tens, or from both columns, so the total passes 100: 61 + 42, 68 + 47, 96 + 8.",
           "check": {
-            "op": "+",
+            "cases": [
+              "A21",
+              "A22",
+              "A23",
+              "A24",
+              "A14",
+              "A15",
+              "A16",
+              "M04",
+              "W07"
+            ],
             "digits": [
-              2,
-              2
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                1,
+                2
+              ]
             ],
             "regroups": [
+              1,
               2
             ]
           }
         },
         "Advance": {
-          "words": "A 3-digit number plus a 2-digit number with one or two regroups. The child must line up the shorter number.",
+          "words": "A 3-digit number and a 2-digit number with one carry, either one first, the shorter one lined up: 347 + 25, 25 + 347, 245 + □ = 613.",
           "check": {
-            "op": "+",
-            "digits": [
-              3,
-              2
+            "cases": [
+              "A41",
+              "A42",
+              "A43",
+              "A44",
+              "A45",
+              "A46",
+              "A47",
+              "A48",
+              "M05",
+              "W07"
             ],
-            "regroups": [
-              1,
-              2
-            ]
-          }
-        }
-      }
-    },
-    {
-      "code": "SUB.2D.EXCH",
-      "rung_code": "R6",
-      "name": "2-digit subtraction with exchange",
-      "learning_objective": "Subtracts numbers in columns, exchanging a ten for ten ones, or a hundred for ten tens, exactly when a column needs it.",
-      "eval_type": "computable",
-      "philosophy": [
-        "The larger number is always on top. Never write a subtraction the child cannot do."
-      ],
-      "formats": [
-        "column_grid",
-        "bare_sum",
-        "missing_number",
-        "word_1step"
-      ],
-      "misconception_codes": [
-        "M_SMALL_FROM_LARGE",
-        "M_NO_DECREMENT",
-        "M_FACT_PM1",
-        "M_FACT_PM10",
-        "M_WRONG_OP",
-        "M_ALIGN_LEFT",
-        "M_ZERO_DROPPED"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A 2-digit number minus a 1-digit number, with one exchange.",
-          "check": {
-            "op": "-",
             "digits": [
-              2,
-              1
+              [
+                3,
+                2
+              ],
+              [
+                2,
+                3
+              ]
             ],
             "regroups": [
               1
             ]
-          }
-        },
-        "Medium": {
-          "words": "A 2-digit number minus a 2-digit number, with one exchange.",
-          "check": {
-            "op": "-",
-            "digits": [
-              2,
-              2
-            ],
-            "regroups": [
-              1
-            ]
-          }
-        },
-        "Hard": {
-          "words": "A 3-digit number minus a 2-digit number, with one exchange. The child must line up the shorter number.",
-          "check": {
-            "op": "-",
-            "digits": [
-              3,
-              2
-            ],
-            "regroups": [
-              1
-            ]
-          }
-        },
-        "Advance": {
-          "words": "A 3-digit number minus a 3-digit number, with one or two exchanges. No zero anywhere in the top number.",
-          "check": {
-            "op": "-",
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              1,
-              2
-            ],
-            "no_zero_top": true
           }
         }
       }
@@ -190,12 +318,912 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "A 3-digit number plus a 2-digit number with one regroup.",
+          "words": "A 3-digit number and a 1-digit number, either first, with and without a carry, a carry rippling through 9s, and adding zero: 342 + 5, 5 + 347, 399 + 4, 999 + 7, 456 + 0.",
+          "check": {
+            "cases": [
+              "A25",
+              "A26",
+              "A27",
+              "A28",
+              "A29",
+              "A30",
+              "A31",
+              "A32",
+              "A33",
+              "A34",
+              "A35",
+              "A36",
+              "AZ1",
+              "AZ2",
+              "M01",
+              "W01"
+            ],
+            "digits": [
+              [
+                3,
+                1
+              ],
+              [
+                1,
+                3
+              ]
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A 3-digit and a 2-digit number, either first: no carry, carries from both columns, a 4-digit answer: 345 + 23, 378 + 47, 985 + 27.",
+          "check": {
+            "cases": [
+              "A37",
+              "A38",
+              "A39",
+              "A40",
+              "A49",
+              "A50",
+              "A51",
+              "A52",
+              "A53",
+              "A54",
+              "A55",
+              "A56",
+              "M05",
+              "W07"
+            ],
+            "digits": [
+              [
+                3,
+                2
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Two 3-digit numbers, every carry pattern — none, the ones, the tens, the hundreds, and every pair: 247 + 315, 608 + 715, 678 + 457.",
+          "check": {
+            "cases": [
+              "A57",
+              "A58",
+              "A59",
+              "A60",
+              "A61",
+              "A62",
+              "A63",
+              "A64",
+              "A65",
+              "A66",
+              "A67",
+              "A68",
+              "A69",
+              "A70",
+              "A71",
+              "A72",
+              "M05",
+              "W07",
+              "W10"
+            ],
+            "digits": [
+              3,
+              3
+            ]
+          }
+        },
+        "Advance": {
+          "words": "4-digit numbers with a shorter one on either side, and zeros: inside zeros, a carry onto a zero, placeholder zeros in the answer: 4382 + 57, 1099 + 8, 495 + 505.",
+          "check": {
+            "cases": [
+              "AN3",
+              "AN4",
+              "AN5",
+              "AN6",
+              "AN7",
+              "AZ3",
+              "AZ4",
+              "AZ5",
+              "AZ6",
+              "AZ7",
+              "AZ8",
+              "L4a",
+              "W07"
+            ],
+            "digits": [
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                3
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADDSUB.2D.NOREG",
+      "rung_code": "R4",
+      "name": "2-digit addition and subtraction without regrouping",
+      "learning_objective": "Adds and subtracts 2-digit numbers in columns when no exchange is needed, lining up ones under ones and tens under tens.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_H2V_SHIFT",
+        "M_MISALIGNED_COLUMNS",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "A 2-digit number and a 1-digit number, adding or taking away with no exchange, in columns, in a line, with a box and in a story: 43 + 5, 47 − 5, 43 + □ = 48.",
+          "check": {
+            "cases": [
+              "A06",
+              "A07",
+              "S05",
+              "S06",
+              "M01",
+              "W01",
+              "W04"
+            ],
+            "digits": [
+              2,
+              1
+            ],
+            "regroups": [
+              0
+            ]
+          }
+        },
+        "Medium": {
+          "words": "Two 2-digit numbers with no exchange, including answers that shrink to one digit or to zero, a 2-digit number missing, and stories: 76 − 23, 37 − 31, 44 − 44, 23 + □ = 58.",
+          "check": {
+            "cases": [
+              "A17",
+              "S11",
+              "S13",
+              "S14",
+              "M03",
+              "W07",
+              "W09"
+            ],
+            "digits": [
+              2,
+              2
+            ],
+            "regroups": [
+              0
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Two 2-digit numbers written in a line, set out in columns by the child: 23 + 45 = ?, 76 − 23 = ?",
+          "check": {
+            "cases": [
+              "A18",
+              "S12"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "The shorter number first — the order changes, the columns do not: 5 + 43, in columns and in a line.",
+          "check": {
+            "cases": [
+              "A08",
+              "A09"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADDSUB.4D.ADV",
+      "rung_code": "R12",
+      "name": "4-digit addition with three or more addends; 4-digit subtraction across zeros",
+      "learning_objective": "Adds three or four 4-digit numbers in columns, carrying more than one when a column needs it, and subtracts 4-digit numbers across zeros.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum"
+      ],
+      "misconception_codes": [
+        "M_CARRY_ALWAYS_1",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_FACT_PM100",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two 4-digit numbers added in columns and in a line, and four 4-digit numbers: 3457 + 2186.",
+          "check": {
+            "cases": [
+              "AN1",
+              "AN2",
+              "AA7"
+            ],
+            "digits_max": 4
+          }
+        },
+        "Medium": {
+          "words": "Numbers of different lengths lined up by the ones, in columns and in a line, and a column that carries 2 or more: 4382 + 57 + 6.",
+          "check": {
+            "cases": [
+              "AA5",
+              "AA6",
+              "AA8"
+            ],
+            "digits_max": 4
+          }
+        },
+        "Hard": {
+          "words": "Two 4-digit numbers subtracted, in columns and in a line, across one zero: 7304 − 2586.",
+          "check": {
+            "cases": [
+              "SN1",
+              "SN2",
+              "SZ5"
+            ],
+            "digits": [
+              4,
+              4
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Two 4-digit numbers subtracted across two or three zeros: 5003 − 1467, 7000 − 2548.",
+          "check": {
+            "cases": [
+              "SN5",
+              "SZ6"
+            ],
+            "digits": [
+              4,
+              4
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ESTIMATE.ROUND10",
+      "rung_code": "R11",
+      "name": "Estimate first, then check reasonableness",
+      "learning_objective": "Estimates by rounding both numbers to the nearest ten, then works out the exact answer and checks that it is close to the estimate.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "estimate_then_calc"
+      ],
+      "misconception_codes": [
+        "M_CARRY_SKIP",
+        "M_COMPARE_ESTIMATE_EXACT",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_NO_DECREMENT",
+        "M_ROUNDS_AWAY_ZERO",
+        "M_ROUNDS_NEAREST_FIVE",
+        "M_ROUNDS_ONE_NUMBER",
+        "M_SMALL_FROM_LARGE",
+        "M_TREATS_ESTIMATE_FINAL",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
           "check": {
             "op": "+",
             "digits": [
-              3,
+              2,
               2
+            ],
+            "format": "estimate_then_calc",
+            "regroups": [
+              1
+            ],
+            "tolerance": 10
+          },
+          "words": "Two 2-digit numbers, addition, one regroup. The estimate is accepted within 10 of the rounded total."
+        },
+        "Hard": {
+          "check": {
+            "op": [
+              "+",
+              "-"
+            ],
+            "digits": [
+              3,
+              3
+            ],
+            "format": "estimate_then_calc",
+            "regroups": [
+              1,
+              2
+            ],
+            "tolerance": 10
+          },
+          "words": "Two 3-digit numbers, either operation, one or two regroups."
+        },
+        "Medium": {
+          "check": {
+            "op": "-",
+            "digits": [
+              2,
+              2
+            ],
+            "format": "estimate_then_calc",
+            "regroups": [
+              1
+            ],
+            "tolerance": 10
+          },
+          "words": "Two 2-digit numbers, subtraction, one regroup."
+        },
+        "Advance": {
+          "check": {
+            "op": [
+              "+",
+              "-"
+            ],
+            "digits": [
+              3,
+              3
+            ],
+            "format": "estimate_then_calc",
+            "regroups": [
+              1,
+              2
+            ],
+            "tolerance": 10,
+            "shape": "JUDGED"
+          },
+          "words": "Two 3-digit numbers, either operation, where the child also states whether the exact answer is 'sensible' against the estimate before it is checked."
+        }
+      }
+    },
+    {
+      "code": "MENTAL.BRIDGE_EQ",
+      "rung_code": "R7",
+      "name": "Mental strategies: bridging, friendly numbers, equality",
+      "learning_objective": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "missing_number",
+        "balance_scale",
+        "number_wall"
+      ],
+      "misconception_codes": [
+        "M_ADD_ALL",
+        "M_ADD_INSTEAD",
+        "M_ALIGN_LEFT",
+        "M_APPLIES_FRIENDLY_NUMBER",
+        "M_BRIDGES_LANDS_WRONG",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_COUNTS_ONE_BY_ONE",
+        "M_DROP_CARRYOUT",
+        "M_EQUALS_MEANS_ANSWER",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_KEYWORD_OVERGENERALISED",
+        "M_NOCARRY",
+        "M_READS_EQUALS_MAKE",
+        "M_TREATS_NUMBER_WALL",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
+          "check": {
+            "hi": 20,
+            "kind": "add_missing_addend",
+            "format": "missing_number"
+          },
+          "words": "A missing addend within 20, found by bridging through ten rather than counting on by ones.",
+          "min_items": 145
+        },
+        "Hard": {
+          "check": {
+            "hi": 150,
+            "format": "balance_scale"
+          },
+          "words": "A balance equation, a + b = □ + c, in tens to 150 — the child finds the missing number without adding both sides out in full."
+        },
+        "Medium": {
+          "check": {
+            "hi": 50,
+            "kind": "sub_missing_subtrahend",
+            "format": "missing_number"
+          },
+          "words": "A missing part in a subtraction fact within 50, using a friendly-number jump."
+        },
+        "Advance": {
+          "check": {
+            "hi": 100,
+            "format": "number_wall"
+          },
+          "words": "A number wall: each brick is the sum of the two below it, within 100, solved without writing every column sum out in full."
+        }
+      }
+    },
+    {
+      "code": "MUL.1D",
+      "rung_code": "M1",
+      "name": "Multiplication by a single digit",
+      "learning_objective": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_KEYWORD_OVERGENERALISED",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ROW_OUT",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "check": {
+            "op": "×",
+            "digits": [
+              2,
+              1
+            ],
+            "max_total": 99
+          },
+          "words": "A 2-digit number times a single digit, product under 100 — no carry into the tens."
+        },
+        "Hard": {
+          "check": {
+            "op": "×",
+            "digits": [
+              3,
+              1
+            ]
+          },
+          "words": "A 3-digit number times a single digit."
+        },
+        "Medium": {
+          "check": {
+            "op": "×",
+            "digits": [
+              2,
+              1
+            ]
+          },
+          "words": "A 2-digit number times a single digit, product past 100."
+        },
+        "Advance": {
+          "check": {
+            "op": "×",
+            "digits": [
+              2,
+              2
+            ]
+          },
+          "words": "Two 2-digit numbers."
+        }
+      }
+    },
+    {
+      "code": "REASON.EXPLAIN",
+      "rung_code": "X1",
+      "name": "Explains the procedure or judges a claim",
+      "learning_objective": "Decides whether a statement about a calculation is true, such as moving 1 between two numbers keeping the total the same, and explains why in words.",
+      "eval_type": "open_response",
+      "philosophy": [],
+      "formats": [
+        "explain_claim"
+      ],
+      "misconception_codes": [
+        "M_APPLIES_COMPENSATION_ONE",
+        "M_CONFUSES_COMPENSATION",
+        "M_DIGITS_INDEPENDENT",
+        "M_EXCHANGE_UNEXPLAINED",
+        "M_EXPLAINS_MAGNITUDE_WITHOUT",
+        "M_REGROUP_CHANGES_TOTAL",
+        "M_REVERSES_CLAIM_TRUTH",
+        "M_TREATS_EXCHANGE_COMPENSATION"
+      ],
+      "difficulty": {
+        "Easy": {
+          "check": {
+            "format": "explain_claim",
+            "a_range": [
+              10,
+              99
+            ],
+            "claim_is_true": true
+          },
+          "words": "A compensation claim about two 2-digit numbers (e.g. 47 + 38 gives the same total as 46 + 39)."
+        },
+        "Hard": {
+          "check": {
+            "format": "explain_claim",
+            "a_range": [
+              120,
+              480
+            ],
+            "claim_is_true": false
+          },
+          "words": "A claim that is false, so the child must catch the flaw rather than just agree."
+        },
+        "Medium": {
+          "check": {
+            "format": "explain_claim",
+            "a_range": [
+              120,
+              480
+            ],
+            "claim_is_true": true
+          },
+          "words": "The same claim shape with a 3-digit number and a near-hundred number."
+        },
+        "Advance": {
+          "check": {
+            "format": "explain_claim",
+            "a_range": [
+              120,
+              480
+            ],
+            "claim_topic": "regrouping",
+            "claim_is_true": false
+          },
+          "words": "A claim about exchange/regrouping itself (e.g. 'trading a ten for ten ones changes the total') rather than about compensation."
+        }
+      }
+    },
+    {
+      "code": "REASON.FIND_MISTAKE",
+      "rung_code": "X2",
+      "name": "Finds the mistake in a worked example",
+      "learning_objective": "Finds the mistake in a worked column calculation, says which column it is in, writes the correct answer, and at the top level explains what went wrong.",
+      "eval_type": "open_response",
+      "philosophy": [],
+      "formats": [
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_EXPLAINS_MISTAKE_DIFFERENT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_GIVES_RIGHT_COLUMN",
+        "M_IDENTIFIES_WRONG_COLUMN",
+        "M_NOCARRY",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_SPOT_MISTAKE_EXISTS",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "A 2-digit addition with a forgotten carry, a carry in the wrong column, or numbers lined up from the left.",
+          "check": {
+            "cases": [
+              "X03",
+              "X04",
+              "X01"
+            ],
+            "op": "+",
+            "digits": [
+              2,
+              2
+            ]
+          }
+        },
+        "Medium": {
+          "words": "Taking the smaller digit from the larger, an exchange that does not reduce the lender, a sum copied into columns shifted left, a dropped zero.",
+          "check": {
+            "cases": [
+              "X07",
+              "X08",
+              "X02",
+              "X11"
+            ],
+            "op": [
+              "+",
+              "-"
+            ],
+            "digits": [
+              2,
+              2
+            ]
+          }
+        },
+        "Hard": {
+          "words": "A 3-digit calculation: an exchange across a zero done wrong, an exchange from the wrong column, a carry of 1 where 2 is needed, the final carry dropped.",
+          "check": {
+            "cases": [
+              "X10",
+              "X09",
+              "X05",
+              "X06"
+            ],
+            "op": [
+              "+",
+              "-"
+            ],
+            "digits": [
+              3,
+              3
+            ]
+          }
+        },
+        "Advance": {
+          "words": "A missing number or a missing digit worked out wrong, and = read as 'the answer comes next' — the child corrects it and says why.",
+          "check": {
+            "cases": [
+              "X12",
+              "X13",
+              "X14"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "STRATEGY.EFFICIENT",
+      "rung_code": "R13",
+      "name": "Chooses an efficient strategy under a place-value constraint",
+      "learning_objective": "Spots when numbers sit close to a round hundred or thousand, or share a tens digit, chooses a quicker method than columns, and names it.",
+      "eval_type": "open_response",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "efficient_method",
+        "break_apart"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_COMPENSATION_ADJUSTMENT",
+        "M_COMPENSATION_SIGN",
+        "M_CONCAT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_FRIENDLY_NUMBER_APPLIED",
+        "M_IDENTIFIES_FRIENDLY_NUMBER",
+        "M_NOCARRY",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_TREATS_FRIENDLY_NUMBER",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Add or take away 10, 100 or 1000, and make 100 or 1000, without columns: 347 + 100, 68 + 32.",
+          "check": {
+            "cases": [
+              "K01",
+              "K03"
+            ],
+            "layout": "horizontal"
+          }
+        },
+        "Medium": {
+          "words": "Add a number close to a hundred by rounding and adjusting: 316 + 299 → 316 + 300 − 1.",
+          "check": {
+            "cases": [
+              "K04",
+              "K06"
+            ],
+            "kind": "near100"
+          }
+        },
+        "Hard": {
+          "words": "Take away by counting on when the numbers are close, or by adjusting: 503 − 498, 83 − 39.",
+          "check": {
+            "cases": [
+              "K09",
+              "K05"
+            ],
+            "kind": "same_tens",
+            "layout": "horizontal"
+          }
+        },
+        "Advance": {
+          "words": "Pair friendly numbers, break a number apart, and choose the quickest method and show it: 25 + 37 + 75, 347 + 25, 4589 + 1999.",
+          "check": {
+            "cases": [
+              "K07",
+              "K08",
+              "K10"
+            ],
+            "kind": [
+              "near100",
+              "same_tens",
+              "near1000"
+            ],
+            "digits_max": 3
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.1D.WITHIN20",
+      "rung_code": "R3",
+      "name": "Subtraction within 20",
+      "learning_objective": "Subtracts within 20, both as taking away (how many are left) and as comparing (how many more), and finds a missing number.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_KEYWORD_OVERGENERALISED",
+        "M_MAKE_SMALLER",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Take away within 10, in columns and in a line, with an answer of zero and taking away zero: 8 − 3, 7 − 7, 7 − 0.",
+          "check": {
+            "cases": [
+              "S01",
+              "S02",
+              "S03",
+              "S04"
+            ],
+            "max_total": 10
+          },
+          "min_items": 108
+        },
+        "Medium": {
+          "words": "A teen number minus a 1-digit number, crossing back through ten or not: 13 − 7, 17 − 5.",
+          "check": {
+            "cases": [
+              "S05",
+              "S06",
+              "S09",
+              "S10"
+            ],
+            "max_total": 20
+          },
+          "min_items": 110
+        },
+        "Hard": {
+          "words": "Stories within 20: taking away, what is left of a whole, comparing, and 'fewer than'.",
+          "check": {
+            "cases": [
+              "W04",
+              "W08",
+              "W09",
+              "W11"
+            ],
+            "digits": [
+              2,
+              1
+            ],
+            "max_total": 20,
+            "regroups": [
+              0,
+              1
+            ]
+          },
+          "min_items": 44
+        },
+        "Advance": {
+          "words": "A missing number in a take-away within 20: 15 − □ = 7, □ − 7 = 8, 15 − 7 = □.",
+          "check": {
+            "cases": [
+              "M21",
+              "M22",
+              "M23"
+            ],
+            "max_total": 20
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.2D.EXCH",
+      "rung_code": "R6",
+      "name": "2-digit subtraction with exchange",
+      "learning_objective": "Subtracts numbers in columns, exchanging a ten for ten ones, or a hundred for ten tens, exactly when a column needs it.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "A 2-digit number minus a 1-digit number with an exchange; the answer may drop to one digit: 42 − 7, 13 − 7, 42 − □ = 35.",
+          "check": {
+            "cases": [
+              "S07",
+              "S08",
+              "S09",
+              "S10",
+              "M22",
+              "W04"
+            ],
+            "digits": [
+              2,
+              1
             ],
             "regroups": [
               1
@@ -203,12 +1231,19 @@
           }
         },
         "Medium": {
-          "words": "Two 3-digit numbers with one regroup.",
+          "words": "Two 2-digit numbers with an exchange from the tens, in columns, in a line, with a box and in a story: 72 − 38, 43 − 38, 58 − □ = 24.",
           "check": {
-            "op": "+",
+            "cases": [
+              "S15",
+              "S16",
+              "S17",
+              "M24",
+              "W09",
+              "W11"
+            ],
             "digits": [
-              3,
-              3
+              2,
+              2
             ],
             "regroups": [
               1
@@ -216,29 +1251,45 @@
           }
         },
         "Hard": {
-          "words": "Two 3-digit numbers with two regroups.",
+          "words": "A 3-digit number minus a 2-digit number, the shorter one lined up, with an exchange in the ones or the tens: 354 − 27, 352 − 71, 105 − 23, □ − 27 = 327.",
           "check": {
-            "op": "+",
+            "cases": [
+              "S26",
+              "S27",
+              "S31",
+              "S32",
+              "M23",
+              "W08"
+            ],
+            "digits": [
+              3,
+              2
+            ],
+            "regroups": [
+              1
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Two 3-digit numbers with one or two exchanges and no zero on top: 742 − 318, 726 − 382, 352 − 178, □ − 275 = 418.",
+          "check": {
+            "cases": [
+              "S36",
+              "S37",
+              "S38",
+              "S39",
+              "S40",
+              "S41",
+              "M25",
+              "W04"
+            ],
             "digits": [
               3,
               3
             ],
             "regroups": [
+              1,
               2
-            ]
-          }
-        },
-        "Advance": {
-          "words": "A 4-digit number plus a 3-digit number with two or three regroups.",
-          "check": {
-            "op": "+",
-            "digits": [
-              4,
-              3
-            ],
-            "regroups": [
-              2,
-              3
             ]
           }
         }
@@ -250,9 +1301,7 @@
       "name": "3-digit subtraction across zero",
       "learning_objective": "Subtracts in columns when an exchange has to cross a zero, turning one hundred into nine tens and ten ones.",
       "eval_type": "computable",
-      "philosophy": [
-        "The larger number is always on top."
-      ],
+      "philosophy": [],
       "formats": [
         "column_grid",
         "bare_sum",
@@ -271,449 +1320,123 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "Two 3-digit numbers with one exchange and no zero in the top number. A warm-up before zeros.",
+          "words": "A 3-digit number minus a 1- or 2-digit number, lined up by the ones, across a zero, and taking away 0 or the number itself: 347 − 5, 302 − 7, 100 − 7, 345 − 23, 456 − 456.",
           "check": {
-            "op": "-",
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              1
-            ],
-            "no_zero_top": true
-          }
-        },
-        "Medium": {
-          "words": "Two 3-digit numbers where the top number has a zero in the tens, and the child must exchange across it.",
-          "check": {
-            "op": "-",
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              1,
-              2
-            ],
-            "across_zero": true
-          }
-        },
-        "Hard": {
-          "words": "Two 3-digit numbers across a zero, with two exchanges.",
-          "check": {
-            "op": "-",
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              2
-            ],
-            "across_zero": true
-          }
-        },
-        "Advance": {
-          "words": "Two 4-digit numbers across zeros, with two or three exchanges.",
-          "check": {
-            "op": "-",
-            "digits": [
-              4,
-              4
-            ],
-            "regroups": [
-              2,
-              3
-            ],
-            "across_zero": true
-          }
-        }
-      }
-    },
-    {
-      "code": "ADD.1D.WITHIN10",
-      "rung_code": "R1",
-      "name": "Addition within 10",
-      "learning_objective": "Adds two numbers to make a total of 10 or less, and reads = as \"is the same as\", not as \"the answer comes next\".",
-      "eval_type": "computable",
-      "philosophy": [
-        "No column layout at this rung — one line, both numbers, the + and = signs printed exactly as the child should read them."
-      ],
-      "formats": [
-        "bare_sum",
-        "missing_number",
-        "word_1step"
-      ],
-      "misconception_codes": [
-        "M_FACT_PM1",
-        "M_WRONG_OP",
-        "M_KEYWORD_OVERGENERALISED"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "Two numbers that combine to 5 or less, e.g. 2 + 3.",
-          "check": {
-            "op": "+",
-            "digits": [
-              1,
-              1
-            ],
-            "regroups": [
-              0
-            ],
-            "max_total": 5
-          },
-          "min_items": 24
-        },
-        "Medium": {
-          "words": "Two numbers that combine to 10 or less, written as a sum.",
-          "check": {
-            "format": "bare_sum",
-            "op": "+",
-            "digits": [
-              1,
-              1
-            ],
-            "regroups": [
-              0
-            ],
-            "max_total": 10
-          },
-          "min_items": 22
-        },
-        "Hard": {
-          "words": "The same sums within 10, but told as a short story the child must read first.",
-          "check": {
-            "format": "word_1step",
-            "op": "+",
-            "digits": [
-              1,
-              1
-            ],
-            "regroups": [
-              0
-            ],
-            "max_total": 10
-          },
-          "min_items": 24
-        },
-        "Advance": {
-          "words": "A missing addend within 10, written a + □ = c, so = is read as balance rather than 'next comes the answer'.",
-          "check": {
-            "format": "missing_number",
-            "kind": "add_missing_addend",
-            "hi": 10
-          },
-          "min_items": 24
-        }
-      }
-    },
-    {
-      "code": "ADD.1D.BRIDGE10",
-      "rung_code": "R2",
-      "name": "Addition within 20, crossing ten",
-      "learning_objective": "Adds numbers within 20 whose total crosses ten by making ten first, in a sum, a story and on a number line.",
-      "eval_type": "computable",
-      "philosophy": [],
-      "formats": [
-        "bare_sum",
-        "word_1step",
-        "number_line_jumps"
-      ],
-      "misconception_codes": [
-        "M_FACT_PM1",
-        "M_FACT_PM10",
-        "M_WRONG_OP"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A 1-digit number plus a 1-digit number that together cross 10, e.g. 8 + 5.",
-          "check": {
-            "op": "+",
-            "digits": [
-              1,
-              1
-            ],
-            "regroups": [
-              1
-            ],
-            "max_total": 20
-          }
-        },
-        "Medium": {
-          "words": "A teen number (11-19) plus a 1-digit number, written as a sum.",
-          "check": {
-            "format": "bare_sum",
-            "op": "+",
-            "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0,
-              1
-            ],
-            "max_total": 20
-          },
-          "min_items": 43
-        },
-        "Hard": {
-          "words": "The same teen-plus-ones sums, told as a short story the child must read first.",
-          "check": {
-            "format": "word_1step",
-            "op": "+",
-            "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0,
-              1
-            ],
-            "max_total": 20
-          },
-          "min_items": 45
-        },
-        "Advance": {
-          "words": "The number-line format: the child names the landing point after a jump to the nearest ten, then the total.",
-          "check": {
-            "format": "number_line_jumps",
-            "op": "+",
-            "hi": 20
-          },
-          "min_items": 35
-        }
-      }
-    },
-    {
-      "code": "SUB.1D.WITHIN20",
-      "rung_code": "R3",
-      "name": "Subtraction within 20",
-      "learning_objective": "Subtracts within 20, both as taking away (how many are left) and as comparing (how many more), and finds a missing number.",
-      "eval_type": "computable",
-      "philosophy": [
-        "The larger number is always on top."
-      ],
-      "formats": [
-        "bare_sum",
-        "missing_number",
-        "word_1step"
-      ],
-      "misconception_codes": [
-        "M_SMALL_FROM_LARGE",
-        "M_FACT_PM1",
-        "M_WRONG_OP",
-        "M_MAKE_SMALLER",
-        "M_KEYWORD_OVERGENERALISED"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A number to 10 minus a 1-digit number, take-away only.",
-          "check": {
-            "op": "-",
-            "digits": [
-              1,
-              1
-            ],
-            "regroups": [
-              0
-            ],
-            "max_total": 10
-          }
-        },
-        "Medium": {
-          "words": "A teen number minus a 1-digit number, crossing back through 10.",
-          "check": {
-            "op": "-",
-            "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              1
-            ],
-            "max_total": 20
-          }
-        },
-        "Hard": {
-          "words": "A comparison ('how many more') word problem within 20, where the operation is not named in the stem.",
-          "check": {
-            "format": "word_1step",
-            "op": "-",
-            "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0,
-              1
-            ],
-            "max_total": 20
-          },
-          "min_items": 44
-        },
-        "Advance": {
-          "words": "A missing-number form, □ − b = c or c − □ = a, within 20.",
-          "check": {
-            "format": "missing_number",
-            "op": "-",
-            "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0,
-              1
-            ],
-            "max_total": 20
-          },
-          "min_items": 40
-        }
-      }
-    },
-    {
-      "code": "ADDSUB.2D.NOREG",
-      "rung_code": "R4",
-      "name": "2-digit addition and subtraction without regrouping",
-      "learning_objective": "Adds and subtracts 2-digit numbers in columns when no exchange is needed, lining up ones under ones and tens under tens.",
-      "eval_type": "computable",
-      "philosophy": [
-        "The larger number is always on top for subtraction.",
-        "Mix addition and subtraction items evenly within a set; never block all of one operation together."
-      ],
-      "formats": [
-        "column_grid",
-        "bare_sum",
-        "missing_number",
-        "word_1step"
-      ],
-      "misconception_codes": [
-        "M_WRONG_OP",
-        "M_ALIGN_LEFT",
-        "M_MISALIGNED_COLUMNS",
-        "M_H2V_SHIFT",
-        "M_FACT_PM1",
-        "M_FACT_PM10"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A 2-digit number plus or minus a 1-digit number, no regroup.",
-          "check": {
-            "op": [
-              "+",
-              "-"
+            "cases": [
+              "S18",
+              "S19",
+              "S20",
+              "S21",
+              "S23",
+              "S24",
+              "S25",
+              "SZ1",
+              "SZ2",
+              "M22",
+              "W04"
             ],
             "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0
+              [
+                3,
+                1
+              ],
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                3
+              ]
             ]
           }
         },
         "Medium": {
-          "words": "Two 2-digit numbers, no regroup needed in either column.",
+          "words": "A 3-digit number minus a 2-digit number with exchanges in both columns or across a zero, and 1000 − 7: 352 − 78, 302 − 18, 105 − 97, 1000 − 28.",
           "check": {
-            "op": [
-              "+",
-              "-"
+            "cases": [
+              "S22",
+              "S28",
+              "S29",
+              "S30",
+              "S33",
+              "M24",
+              "W09"
             ],
             "digits": [
-              2,
-              2
-            ],
-            "regroups": [
-              0
+              [
+                3,
+                2
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ]
             ]
           }
         },
         "Hard": {
-          "words": "Two 2-digit numbers, no regroup, written horizontally so the child must convert to columns correctly before calculating.",
+          "words": "Two 3-digit numbers across one zero, with zeros inside either number and answers that keep or end in a zero: 402 − 185, 764 − 203, 705 − 201.",
           "check": {
-            "op": [
-              "+",
-              "-"
+            "cases": [
+              "S34",
+              "S35",
+              "S42",
+              "S44",
+              "S45",
+              "SZ3",
+              "SZ4",
+              "SZ5",
+              "SZ7",
+              "SZ8",
+              "P15",
+              "M23",
+              "W08",
+              "W11"
             ],
             "digits": [
-              2,
-              2
-            ],
-            "regroups": [
-              0
-            ],
-            "layout": "horizontal"
+              3,
+              3
+            ]
           }
         },
         "Advance": {
-          "words": "A 2-digit number and a 1-digit number, no regroup, with the shorter number written first — order must not change the column alignment.",
+          "words": "4-digit numbers across several zeros, a shorter number lined up, and answers that lose several digits: 1000 − 476, 5003 − 1467, 1000 − 999.",
           "check": {
-            "op": [
-              "+",
-              "-"
+            "cases": [
+              "S43",
+              "SZ6",
+              "SZ9",
+              "SN3",
+              "SN4",
+              "SN5",
+              "L4s",
+              "L6s",
+              "M23",
+              "W04"
             ],
             "digits": [
-              2,
-              1
-            ],
-            "regroups": [
-              0
-            ],
-            "order": "shorter_first"
-          }
-        }
-      }
-    },
-    {
-      "code": "MENTAL.BRIDGE_EQ",
-      "rung_code": "R7",
-      "name": "Mental strategies: bridging, friendly numbers, equality",
-      "learning_objective": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
-      "eval_type": "computable",
-      "philosophy": [
-        "No column grid is offered at this rung; the format itself forces a mental or jotted strategy rather than a rule about it.",
-        "Code verifies the numeric answer in every format here (missing_number / balance_scale / number_wall each carry a computed correct answer and misconception table). Whether the child actually bridged or reasoned about balance, rather than counted on by ones, is not a gradable claim code can check — no verifier is invented for it. A future 'show your jump' claim would route through validate_item's per-template check and its ≤5% item sample, per ADR 0009 and ADR 0010, never a per-item model call."
-      ],
-      "formats": [
-        "missing_number",
-        "balance_scale",
-        "number_wall"
-      ],
-      "misconception_codes": [
-        "M_FACT_PM1",
-        "M_FACT_PM10",
-        "M_KEYWORD_OVERGENERALISED",
-        "M_COUNTS_ONE_BY_ONE"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A missing addend within 20, found by bridging through ten rather than counting on by ones.",
-          "check": {
-            "format": "missing_number",
-            "kind": "add_missing_addend",
-            "hi": 20
-          }
-        },
-        "Medium": {
-          "words": "A missing part in a subtraction fact within 50, using a friendly-number jump.",
-          "check": {
-            "format": "missing_number",
-            "kind": "sub_missing_subtrahend",
-            "hi": 50
-          }
-        },
-        "Hard": {
-          "words": "A balance equation, a + b = □ + c, in tens to 150 — the child finds the missing number without adding both sides out in full.",
-          "check": {
-            "format": "balance_scale",
-            "hi": 150
-          }
-        },
-        "Advance": {
-          "words": "A number wall: each brick is the sum of the two below it, within 100, solved without writing every column sum out in full.",
-          "check": {
-            "format": "number_wall",
-            "hi": 100
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                4,
+                4
+              ]
+            ]
           }
         }
       }
@@ -724,24 +1447,36 @@
       "name": "One- and two-step word problems",
       "learning_objective": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
       "eval_type": "computable",
-      "philosophy": [
-        "Word problems use things a child in Pune knows: mangoes, rupees, cricket runs, school steps, the mela, the bus.",
-        "One short plain sentence, both numbers in it, one question at the end."
-      ],
+      "philosophy": [],
       "formats": [
         "word_1step",
         "word_2step"
       ],
       "misconception_codes": [
-        "M_WRONG_OP",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_IGNORES_QUESTION_ANSWERS",
         "M_KEYWORD_OVERGENERALISED",
-        "M_FACT_PM1"
+        "M_NOCARRY",
+        "M_NO_DECREMENT",
+        "M_ONE_STEP_ONLY",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
       ],
       "difficulty": {
         "Easy": {
-          "words": "A one-step join or take-away story within 100, no regroup.",
+          "words": "One-step stories where the answer is the result or the whole: joining, taking away, two parts, what is left.",
           "check": {
-            "format": "word_1step",
+            "cases": [
+              "W01",
+              "W04",
+              "W07",
+              "W08"
+            ],
             "digits_max": 2,
             "regroups": [
               0
@@ -749,9 +1484,17 @@
           }
         },
         "Medium": {
-          "words": "A one-step story within 100 with one regroup, where the operation is not signalled by a keyword.",
+          "words": "One-step stories where the change or the start is unknown, or two amounts are compared: 7 more than, 7 fewer than.",
           "check": {
-            "format": "word_1step",
+            "cases": [
+              "W02",
+              "W03",
+              "W05",
+              "W06",
+              "W09",
+              "W10",
+              "W11"
+            ],
             "digits_max": 2,
             "regroups": [
               0,
@@ -760,234 +1503,27 @@
           }
         },
         "Hard": {
-          "words": "A two-step story (money spent twice, or people getting on and off a bus), 2-digit numbers.",
+          "words": "Two-step stories: add then add, take away twice, take away then add, add then take away.",
           "check": {
-            "format": "word_2step",
+            "cases": [
+              "W21",
+              "W22",
+              "W23",
+              "W27"
+            ],
             "digits_max": 2
           }
         },
         "Advance": {
-          "words": "A two-step story with 3-digit numbers, and one extra number in the stem that is not needed for the answer.",
+          "words": "Stories to work backwards, with a number not needed, read from a small table, or with several conditions.",
           "check": {
-            "format": "word_2step",
-            "digits_max": 3,
-            "extra_information": true
-          }
-        }
-      }
-    },
-    {
-      "code": "ESTIMATE.ROUND10",
-      "rung_code": "R11",
-      "name": "Estimate first, then check reasonableness",
-      "learning_objective": "Estimates by rounding both numbers to the nearest ten, then works out the exact answer and checks that it is close to the estimate.",
-      "eval_type": "computable",
-      "philosophy": [
-        "Round to the nearest ten only at this rung — nearest hundred is R13's estimate-for-efficiency case, not this one.",
-        "Code checks the exact answer exactly and the estimate within its tolerance (both are closed digit responses). Whether the child's rounding reasoning is sound, rather than a lucky guess inside the tolerance band, is not separately scored and no verifier is invented for it — a sampled read by validate_item is the check, per ADR 0009."
-      ],
-      "formats": [
-        "estimate_then_calc"
-      ],
-      "misconception_codes": [
-        "M_FACT_PM1",
-        "M_FACT_PM10",
-        "M_WRONG_OP"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "Two 2-digit numbers, addition, one regroup. The estimate is accepted within 10 of the rounded total.",
-          "check": {
-            "format": "estimate_then_calc",
-            "op": "+",
-            "digits": [
-              2,
-              2
+            "cases": [
+              "W25",
+              "W26",
+              "W28",
+              "W29"
             ],
-            "regroups": [
-              1
-            ],
-            "tolerance": 10
-          }
-        },
-        "Medium": {
-          "words": "Two 2-digit numbers, subtraction, one regroup.",
-          "check": {
-            "format": "estimate_then_calc",
-            "op": "-",
-            "digits": [
-              2,
-              2
-            ],
-            "regroups": [
-              1
-            ],
-            "tolerance": 10
-          }
-        },
-        "Hard": {
-          "words": "Two 3-digit numbers, either operation, one or two regroups.",
-          "check": {
-            "format": "estimate_then_calc",
-            "op": [
-              "+",
-              "-"
-            ],
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              1,
-              2
-            ],
-            "tolerance": 10
-          }
-        },
-        "Advance": {
-          "words": "Two 3-digit numbers, either operation, where the child also states whether the exact answer is 'sensible' against the estimate before it is checked.",
-          "check": {
-            "format": "estimate_then_calc",
-            "op": [
-              "+",
-              "-"
-            ],
-            "digits": [
-              3,
-              3
-            ],
-            "regroups": [
-              1,
-              2
-            ],
-            "tolerance": 10,
-            "judge_reasonableness": true
-          }
-        }
-      }
-    },
-    {
-      "code": "ADDSUB.4D.ADV",
-      "rung_code": "R12",
-      "name": "4-digit addition with three or more addends; 4-digit subtraction across zeros",
-      "learning_objective": "Adds three or four 4-digit numbers in columns, carrying more than one when a column needs it, and subtracts 4-digit numbers across zeros.",
-      "eval_type": "computable",
-      "philosophy": [
-        "The larger number is always on top for subtraction."
-      ],
-      "formats": [
-        "column_grid"
-      ],
-      "misconception_codes": [
-        "M_CARRY_ALWAYS_1",
-        "M_DROP_CARRYOUT",
-        "M_CONCAT",
-        "M_ZERO_LENDER",
-        "M_ZERO_NOT_NINE",
-        "M_ZERO_DROPPED",
-        "M_SMALL_FROM_LARGE"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "Three 4-digit addends, at most one column needing a carry of 2 or more.",
-          "check": {
-            "format": "multi_add",
-            "op": "+",
-            "n_addends": 3,
-            "digits_each": 4
-          }
-        },
-        "Medium": {
-          "words": "Four 4-digit addends.",
-          "check": {
-            "format": "multi_add",
-            "op": "+",
-            "n_addends": 4,
-            "digits_each": 4
-          }
-        },
-        "Hard": {
-          "words": "Two 4-digit numbers subtracted across one internal zero.",
-          "check": {
-            "op": "-",
-            "digits": [
-              4,
-              4
-            ],
-            "regroups": [
-              1,
-              2
-            ],
-            "across_zero": true
-          }
-        },
-        "Advance": {
-          "words": "Two 4-digit numbers subtracted across two zeros.",
-          "check": {
-            "op": "-",
-            "digits": [
-              4,
-              4
-            ],
-            "regroups": [
-              2,
-              3
-            ],
-            "across_zero": true
-          }
-        }
-      }
-    },
-    {
-      "code": "STRATEGY.EFFICIENT",
-      "rung_code": "R13",
-      "name": "Chooses an efficient strategy under a place-value constraint",
-      "learning_objective": "Spots when numbers sit close to a round hundred or thousand, or share a tens digit, chooses a quicker method than columns, and names it.",
-      "eval_type": "open_response",
-      "philosophy": [
-        "The standard column method gets the right answer but is not 'most efficient' — the rubric names this explicitly so it is not marked correct by accident.",
-        "Code verifies the numeric answer only (answer_lookup, as elsewhere). Whether the written method is genuinely the efficient one, or column arithmetic dressed up in a sentence, is a rubric judgment — 'Any compensation / friendly-number / counting-on method stated; column method is correct but not most efficient' — read by the validator at the template level and sampled at ≤5% of a unit's items, never a per-item model call. No code verifier is invented for the strategy claim, per ADR 0009."
-      ],
-      "formats": [
-        "efficient_method"
-      ],
-      "misconception_codes": [
-        "M_COMPENSATION_SIGN",
-        "M_FACT_PM1",
-        "M_FACT_PM10"
-      ],
-      "difficulty": {
-        "Easy": {
-          "words": "A 3-digit number plus a number within 2 of 100 (e.g. 298, 199).",
-          "check": {
-            "format": "efficient_method",
-            "kind": "near100"
-          }
-        },
-        "Medium": {
-          "words": "Two numbers with the same tens digit, subtracted, where counting on is faster than exchanging.",
-          "check": {
-            "format": "efficient_method",
-            "kind": "same_tens"
-          }
-        },
-        "Hard": {
-          "words": "A 4-digit number plus a number within 2 of 1000.",
-          "check": {
-            "format": "efficient_method",
-            "kind": "near1000"
-          }
-        },
-        "Advance": {
-          "words": "Any of the three shortcut families, chosen at random, with the method named in one written line.",
-          "check": {
-            "format": "efficient_method",
-            "kind": [
-              "near100",
-              "same_tens",
-              "near1000"
-            ],
-            "requires_method_statement": true
+            "digits_max": 3
           }
         }
       }
@@ -998,20 +1534,21 @@
       "name": "Multi-step budget word problems",
       "learning_objective": "Solves budget problems by starting from an amount of money, taking away several costs one after another, and saying how much is left.",
       "eval_type": "computable",
-      "philosophy": [
-        "Word problems use things a child in Pune knows: mangoes, rupees, cricket runs, school steps, the mela, the bus.",
-        "The budget is always enough to cover every cost — never a 'not enough money' trap at this rung."
-      ],
+      "philosophy": [],
       "formats": [
         "word_budget"
       ],
       "misconception_codes": [
-        "M_WRONG_OP",
-        "M_KEYWORD_OVERGENERALISED"
+        "M_KEYWORD_OVERGENERALISED",
+        "M_ONE_STEP_ONLY",
+        "M_READS_LEFT_REMAINS",
+        "M_STOPS_AFTER_SUBTRACTING",
+        "M_SUBTRACTS_COSTS_WRONG",
+        "M_SUM_ONLY",
+        "M_WRONG_OP"
       ],
       "difficulty": {
         "Easy": {
-          "words": "A budget minus two costs, values in the hundreds.",
           "check": {
             "format": "word_budget",
             "n_costs": 2,
@@ -1019,21 +1556,10 @@
               1000,
               3000
             ]
-          }
-        },
-        "Medium": {
-          "words": "A budget minus three costs, values in the hundreds.",
-          "check": {
-            "format": "word_budget",
-            "n_costs": 3,
-            "budget_range": [
-              3000,
-              6000
-            ]
-          }
+          },
+          "words": "A budget minus two costs, values in the hundreds."
         },
         "Hard": {
-          "words": "A budget minus three costs, values in the low thousands.",
           "check": {
             "format": "word_budget",
             "n_costs": 3,
@@ -1041,10 +1567,21 @@
               5000,
               12000
             ]
-          }
+          },
+          "words": "A budget minus three costs, values in the low thousands."
+        },
+        "Medium": {
+          "check": {
+            "format": "word_budget",
+            "n_costs": 3,
+            "budget_range": [
+              3000,
+              6000
+            ]
+          },
+          "words": "A budget minus three costs, values in the hundreds."
         },
         "Advance": {
-          "words": "A budget minus four costs, one of which is itself a two-step calculation (a per-child cost times a headcount) before it is subtracted.",
           "check": {
             "format": "word_budget",
             "n_costs": 4,
@@ -1053,197 +1590,220 @@
               15000
             ],
             "one_cost_is_a_product": true
-          }
+          },
+          "words": "A budget minus four costs, one of which is itself a two-step calculation (a per-child cost times a headcount) before it is subtracted."
         }
       }
     },
     {
-      "code": "MUL.1D",
-      "rung_code": "M1",
-      "name": "Multiplication by a single digit",
-      "learning_objective": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "code": "ADD.MULTI.SMALL",
+      "rung_code": "R15",
+      "name": "Adding three or more numbers",
+      "learning_objective": "Adds three or more numbers in columns and in a line, lining them up by the ones and carrying 2 or more when a column needs it.",
       "eval_type": "computable",
-      "philosophy": [
-        "Never ×1 or ×10 — those test nothing.",
-        "The times tables this rung assumes are 2 to 9; a child who does not have them yet belongs on a counting rung, not here."
-      ],
+      "philosophy": [],
       "formats": [
         "column_grid",
-        "bare_sum",
-        "word_1step"
+        "bare_sum"
       ],
-      "misconception_codes": [
-        "M_WRONG_OP",
-        "M_KEYWORD_OVERGENERALISED"
-      ],
+      "misconception_codes": [],
       "difficulty": {
         "Easy": {
-          "words": "A 2-digit number times a single digit, product under 100 — no carry into the tens.",
+          "words": "Three 1-digit numbers, where a column can make 20 or more: 8 + 7 + 9.",
           "check": {
-            "op": "×",
-            "digits": [
-              2,
-              1
+            "cases": [
+              "AA1",
+              "AA8"
             ],
-            "max_total": 99
+            "digits_max": 1
           }
         },
         "Medium": {
-          "words": "A 2-digit number times a single digit, product past 100.",
+          "words": "Three 2-digit numbers, with and without a carry: 21 + 34 + 12, 78 + 67 + 89.",
           "check": {
-            "op": "×",
-            "digits": [
-              2,
-              1
+            "cases": [
+              "AA2",
+              "AA3"
             ]
           }
         },
         "Hard": {
-          "words": "A 3-digit number times a single digit.",
+          "words": "Three 3-digit numbers, and numbers of different lengths lined up by the ones, in columns and in a line: 245 + 378 + 126, 345 + 27 + 6.",
           "check": {
-            "op": "×",
-            "digits": [
-              3,
-              1
-            ]
+            "cases": [
+              "AA4",
+              "AA5",
+              "AA6"
+            ],
+            "digits_max": 3
           }
         },
         "Advance": {
-          "words": "Two 2-digit numbers.",
+          "words": "Four or more numbers of up to 3 digits, with columns that carry 2: 25 + 38 + 47 + 16.",
           "check": {
-            "op": "×",
-            "digits": [
-              2,
-              2
-            ]
+            "cases": [
+              "AA7",
+              "AA8"
+            ],
+            "digits_max": 3
           }
         }
       }
     },
     {
-      "code": "REASON.EXPLAIN",
-      "rung_code": "X1",
-      "name": "Explains the procedure or judges a claim",
-      "learning_objective": "Decides whether a statement about a calculation is true, such as moving 1 between two numbers keeping the total the same, and explains why in words.",
-      "eval_type": "open_response",
-      "philosophy": [
-        "Accept any explanation that shows the underlying reasoning, not a fixed sentence — Neha and Achal own the rubric wording.",
-        "There is no numeric answer to verify by code here: the response is a tick (true/false) plus free text. The tick is checkable against the planted claim's known truth value; the explanation's quality is judged only by the rubric, read by the validator at the template level and sampled at ≤5% of items, per ADR 0009 and ADR 0010. No per-item code verifier is invented for the explanation."
-      ],
+      "code": "EQUALITY.INVERSE",
+      "rung_code": "R16",
+      "name": "Equality, inverse and checking",
+      "learning_objective": "Reads = as 'is the same as', finds the missing number or sign that makes both sides equal, and checks an answer with the other operation.",
+      "eval_type": "computable",
+      "philosophy": [],
       "formats": [
-        "explain_claim"
+        "fact_family",
+        "equation",
+        "balance_scale",
+        "inverse_check",
+        "missing_number"
       ],
-      "misconception_codes": [
-        "M_DIGITS_INDEPENDENT",
-        "M_REGROUP_CHANGES_TOTAL",
-        "M_EXCHANGE_UNEXPLAINED"
-      ],
+      "misconception_codes": [],
       "difficulty": {
         "Easy": {
-          "words": "A compensation claim about two 2-digit numbers (e.g. 47 + 38 gives the same total as 46 + 39).",
+          "words": "Fact families: from 7 + 5 = 12, write 5 + 7, 12 − 7 and 12 − 5; from 14 − 6 = 8, write 8 + 6.",
           "check": {
-            "format": "explain_claim",
-            "a_range": [
-              10,
-              99
-            ],
-            "claim_is_true": true
+            "cases": [
+              "E03",
+              "E04"
+            ]
           }
         },
         "Medium": {
-          "words": "The same claim shape with a 3-digit number and a near-hundred number.",
+          "words": "The missing sign, and a balance with the same or a different operation on each side: 7 □ 3 = 10, 12 + 8 = 15 + □, 43 − 7 = □ + 11.",
           "check": {
-            "format": "explain_claim",
-            "a_range": [
-              120,
-              480
+            "cases": [
+              "E01",
+              "E02",
+              "E07",
+              "E08"
             ],
-            "claim_is_true": true
+            "hi": 50
           }
         },
         "Hard": {
-          "words": "A claim that is false, so the child must catch the flaw rather than just agree.",
+          "words": "Check an answer with the other operation, say whether two sides are equal, compare without working it out: 347 + 258 = 605?, 35 + 17 = 40 + 12?",
           "check": {
-            "format": "explain_claim",
-            "a_range": [
-              120,
-              480
+            "cases": [
+              "E05",
+              "E06",
+              "E10",
+              "E11"
             ],
-            "claim_is_true": false
+            "digits_max": 3
           }
         },
         "Advance": {
-          "words": "A claim about exchange/regrouping itself (e.g. 'trading a ten for ten ones changes the total') rather than about compensation.",
+          "words": "The same number in two boxes, a missing number among three, and a 3-digit number to work back to: □ + 7 = 21 − □, 35 + □ + 18 = 80, □ − 275 = 418.",
           "check": {
-            "format": "explain_claim",
-            "a_range": [
-              120,
-              480
+            "cases": [
+              "E09",
+              "M06",
+              "M25"
             ],
-            "claim_topic": "regrouping",
-            "claim_is_true": false
+            "hi": 50
           }
         }
       }
     },
     {
-      "code": "REASON.FIND_MISTAKE",
-      "rung_code": "X2",
-      "name": "Finds the mistake in a worked example",
-      "learning_objective": "Finds the mistake in a worked column calculation, says which column it is in, writes the correct answer, and at the top level explains what went wrong.",
-      "eval_type": "open_response",
-      "philosophy": [
-        "Plant exactly one misconception per item, drawn from the vocabulary already in `misconception`, never an invented error.",
-        "Code verifies the planted mistake's arithmetic (the wrong answer shown is computed by the same predictor the misconception vocabulary uses) and the tick for 'where'. The free-text 'why' line is judged by the rubric named in the item, read by the validator at the template level and sampled at ≤5% of items — no per-item code verifier for the written explanation, per ADR 0009 and ADR 0010."
-      ],
+      "code": "MISSING.DIGIT",
+      "rung_code": "R17",
+      "name": "Missing digits",
+      "learning_objective": "Finds missing digits in an addition or subtraction by reasoning across the columns, including the carry or the exchange.",
+      "eval_type": "computable",
+      "philosophy": [],
       "formats": [
-        "find_mistake"
+        "missing_digit"
       ],
-      "misconception_codes": [
-        "M_NOCARRY",
-        "M_CARRY_SKIP",
-        "M_SMALL_FROM_LARGE",
-        "M_NO_DECREMENT"
-      ],
+      "misconception_codes": [],
       "difficulty": {
         "Easy": {
-          "words": "A 2-digit addition with a forgotten-carry mistake planted.",
+          "words": "One missing digit where no carry or exchange reaches it: 2□ + 34 = 59, 5□ − 23 = 34.",
           "check": {
-            "format": "find_mistake",
-            "op": "+",
-            "digits": [
-              2,
-              2
+            "cases": [
+              "M11",
+              "M31",
+              "M13",
+              "M14"
             ],
-            "planted": [
-              "M_NOCARRY"
-            ]
+            "width": 2
           }
         },
         "Medium": {
-          "words": "A 2-digit addition or subtraction with one of the two named column mistakes planted.",
+          "words": "One missing digit across a carry or an exchange, in either number or in the answer: 4□ + 38 = 85, 64 − 2□ = 37, 37 + 46 = 8□.",
           "check": {
-            "format": "find_mistake",
-            "op": [
-              "+",
-              "-"
+            "cases": [
+              "M12",
+              "M32",
+              "M15",
+              "M16",
+              "M33",
+              "M34",
+              "M35"
             ],
-            "digits": [
+            "width": [
               2,
-              2
-            ],
-            "planted": [
-              "M_NOCARRY",
-              "M_CARRY_SKIP",
-              "M_SMALL_FROM_LARGE",
-              "M_NO_DECREMENT"
+              3
             ]
           }
         },
         "Hard": {
-          "words": "A 3-digit calculation with the mistake planted in a column that is not the ones column, so the child cannot default to 'always the first column'.",
+          "words": "Two or more missing digits, in both numbers or in the answer too, and across a zero: 4□ + □3 = 78, □4□ + 2□5 = 6□9, 4□2 − 185 = 217.",
           "check": {
-            "format": "find_mistake",
+            "cases": [
+              "M17",
+              "M18",
+              "M36",
+              "M37"
+            ],
+            "width": [
+              2,
+              3
+            ]
+          }
+        },
+        "Advance": {
+          "words": "The same letter for the same digit, and every digit that fits an inequality: A5 + 2A = 88, 3□ + 27 < 70.",
+          "check": {
+            "cases": [
+              "M19",
+              "M20",
+              "M38",
+              "M39"
+            ],
+            "width": 2
+          }
+        }
+      }
+    },
+    {
+      "code": "ESTIMATE.HUNDRED",
+      "rung_code": "R18",
+      "name": "Estimating to the hundred and judging an answer",
+      "learning_objective": "Estimates by rounding to the nearest hundred, spots an answer that cannot be right by its size, and uses odd and even to check.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "estimate_then_calc",
+        "choose_estimate",
+        "possible_answer",
+        "odd_even"
+      ],
+      "misconception_codes": [],
+      "difficulty": {
+        "Easy": {
+          "words": "Round both numbers to the nearest hundred, estimate, then work it out: 398 + 207 ≈ 400 + 200.",
+          "check": {
+            "cases": [
+              "R03"
+            ],
             "op": [
               "+",
               "-"
@@ -1252,17 +1812,40 @@
               3,
               3
             ],
-            "planted": [
-              "M_CARRY_SKIP",
-              "M_NO_DECREMENT"
+            "regroups": [
+              0,
+              1,
+              2
             ],
-            "column": "not_ones"
+            "round_to": 100
+          }
+        },
+        "Medium": {
+          "words": "Choose the closest estimate from three round numbers without working it out: is 487 + 216 nearer 600, 700 or 800?",
+          "check": {
+            "cases": [
+              "R04"
+            ],
+            "digits_max": 3
+          }
+        },
+        "Hard": {
+          "words": "Could this answer be right, judged by its size alone, and will the answer be odd or even? 487 + 216 = 6,903?",
+          "check": {
+            "cases": [
+              "R05",
+              "R06"
+            ],
+            "digits_max": 3
           }
         },
         "Advance": {
-          "words": "The child also writes, in one line, what the person did wrong — not just where.",
+          "words": "Estimate, work it out exactly, and say whether the exact answer makes sense against the estimate — with 4-digit numbers too.",
           "check": {
-            "format": "find_mistake",
+            "cases": [
+              "R07",
+              "R05"
+            ],
             "op": [
               "+",
               "-"
@@ -1271,7 +1854,11 @@
               3,
               3
             ],
-            "requires_explanation": true
+            "regroups": [
+              1,
+              2
+            ],
+            "digits_max": 4
           }
         }
       }
