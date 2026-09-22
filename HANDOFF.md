@@ -27,6 +27,13 @@ silent errors left in the replay sit on one paper at 95%+ — most likely the wo
 the crops. **Then, per Nimish's standing direction (BUILD-ORDER):** how skills are read from evidence and the graph
 keeps itself honest; the graph readable at a glance.
 
+**Built tonight (PR #22, ADR 0033):** the engine laid out as its workflows and held to `workflows.json`; the How it
+works page; `engine promises`, `engine done <goal>`, `bin/check` run by the git pre-commit hook and a Claude Code
+Stop hook. **Report work done only with `engine done <goal>` pasted (CLAUDE.md rule 14).** **Next, queued before
+anything else:** the next-paper rule groups answers by rung, not skill — on shared rung R9 Dhanvi's subtraction
+mistakes are charged to 3-digit addition and 3-digit subtraction gets no next paper (a migration to
+`next_difficulty`; write its goal with `says` first).
+
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
 ADR 0029) open in the worktree `assessment-engine-reader`.
