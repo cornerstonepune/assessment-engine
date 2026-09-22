@@ -1,114 +1,173 @@
-"""Questions made of sentences: the stories, the names, and the generators that fill them.
+"""Questions made of sentences: the stories, and the generators that put numbers in them.
 
-Split out of `items.py` (CLAUDE.md rule 11: a file over the ceiling is split along a responsibility,
-not exempted). Their real home is a row, not Python — a story template is content the school should
-be able to change without an engineer, and ADR 0010 already says the model writes these templates
-once per pattern. Until that lands, they live together here so the debt is one file, visible.
+The sentences are rows, not Python: `word_templates.json` beside this file, the file the school edits (ADR
+0010 — the language is written once per pattern). Beside it, not in `supabase/seed/`: the engine reads it
+while it runs, and the server's image holds `engine/` alone (`tests/test_image.py`). Each template says its story shape (taxonomy §10:
+join or take away with the result, the change or the start unknown; two parts and a whole; compare, and
+which side is unknown; the two-step shapes) and the operation the child carries out, so a story's shape
+is known by construction, never guessed from its words. Old questions whose sentence predates the stored
+shape are matched back to their template by `structure_of`.
 """
+
+import json
+import pathlib
+import re
+from functools import lru_cache
 
 from engine.assess import misconceptions as M
 from engine.assess.items import Response, _cells, _item, sample_add, sample_sub
 
-NAMES = [
-    "Aarav",
-    "Riya",
-    "Kabir",
-    "Meera",
-    "Ishaan",
-    "Saee",
-    "Vihaan",
-    "Anaya",
-    "Dev",
-    "Zoya",
-    "Arjun",
-    "Tara",
-]
-CONTEXTS_1STEP = [
-    ("+", "{n} has {a} marbles. {n2} gives {n} {b} more. How many marbles does {n} have now?"),
-    (
-        "+",
-        "A shop sells {a} laddoos in the morning and {b} in the evening. How many laddoos does it sell in the whole day?",
-    ),
-    (
-        "+",
-        "There are {a} children in the ground and {b} children in the hall. How many children are there altogether?",
-    ),
-    ("-", "A bus has {a} seats. {b} of them are taken. How many seats are empty?"),
-    ("-", "{n} had ₹{a}. {n} bought a book for ₹{b}. How much money does {n} have left?"),
-    ("-", "{n} collected {a} shells. {n2} collected {b}. How many more shells did {n} collect than {n2}?"),
-]
-# Kept apart from CONTEXTS_1STEP on purpose: `word_1step` picks a story first and then samples
-# with an if-plus/else-minus branch, so a × story in that list would quietly be handed
-# subtraction numbers. The × path in bank._sampled reads this list instead.
-CONTEXTS_MUL = [
-    "Each box has {a} pencils. There are {b} boxes. How many pencils are there altogether?",
-    "One ticket to the mela costs ₹{a}. {n} buys {b} tickets. How much does {n} pay?",
-    "A shelf holds {a} books. How many books are there on {b} shelves?",
-    "{n} walks {a} steps to school every day. How many steps is that in {b} days?",
-]
-CONTEXTS_2STEP = [
-    "{a} people are at a mela. {b} of them are adults and {c} are teachers. How many children are at the mela?",
-    "{n} has ₹{a}. {n} buys a kite for ₹{b} and a ball for ₹{c}. How much money is left?",
-    "A train has {a} passengers. At the first station {b} get off and {c} get on. How many passengers are on the train now?",
-]
-BUDGET = [
-    "The class has ₹{budget} for a picnic. Bus tickets cost ₹{a}, snacks cost ₹{b} and a park ticket costs ₹{c}. How much money is left after paying for everything?",
-]
+SEED = pathlib.Path(__file__).with_name("word_templates.json")
 
 
-def word_1step(rng, rung, signal, digits_max, regroups=(0, 1)):
-    op, tpl = rng.choice(CONTEXTS_1STEP)
-    if op == "+":
-        a, b = sample_add(rng, digits_max, digits_max, set(regroups))
+@lru_cache(maxsize=1)
+def _seed():
+    return json.loads(SEED.read_text())
+
+
+def templates(fmt=None, op=None, structure=None):
+    return [
+        t
+        for t in _seed()["word_templates"]
+        if (fmt is None or t["fmt"] == fmt)
+        and (op is None or t["op"] == op)
+        and (structure is None or t["structure"] == structure)
+    ]
+
+
+NAMES = _seed()["names"]
+
+
+@lru_cache(maxsize=1)
+def _patterns():
+    """Each template as a pattern that matches the sentences it wrote, whatever the names and numbers."""
+    out = []
+    for t in templates():
+        rx = re.escape(t["text"])
+        rx = re.sub(r"\\\{(?:n|n2)\\\}", r"[A-Z][a-z]+", rx)
+        rx = re.sub(r"\\\{[a-z0-9]+\\\}", r"[\\d,]+", rx)
+        out.append((re.compile(rx), t))
+    return out
+
+
+def template_of(stem):
+    """The template that wrote a stored sentence, or None. A story's shape and its operations are read
+    from it, never stored on the question, so the question's key is its numbers and words alone."""
+    return next((t for rx, t in _patterns() if rx.fullmatch(stem or "")), None)
+
+
+def structure_of(stem):
+    t = template_of(stem)
+    return t["structure"] if t else None
+
+
+def word_1step(
+    rng,
+    rung,
+    signal,
+    digits_max,
+    regroups=(0, 1),
+    structure=None,
+    op=None,
+    table=False,
+    digits=None,
+    max_total=None,
+):
+    """One step (§10.1). `structure` pins the story shape; `op` the operation the child carries out;
+    `table` asks for a story whose numbers are read from a small table (§10.2), and only then.
+    `digits` ([2, 1]: a teen and a single digit) and `max_total` bound the numbers, as a level's rule may."""
+    pool = [
+        t
+        for t in templates("word_1step", structure=structure)
+        if t["op"] in ("+", "-") and (op is None or t["op"] == op) and bool(t.get("table")) == table
+    ]
+    if not pool:
+        raise ValueError(f"no one-step story for shape {structure!r} and operation {op!r}")
+    tpl = rng.choice(pool)
+    if digits and isinstance(digits[0], list):
+        digits = rng.choice(digits)  # a level that allows several shapes, 2 + 1 digits or 1 + 2
+    da, db = digits or (digits_max, digits_max)
+    if tpl["op"] == "+":
+        a, b = sample_add(rng, da, db, set(regroups), max_total=max_total)
     else:
-        a, b = sample_sub(rng, digits_max, digits_max, set(regroups))
+        a, b = sample_sub(rng, da, db, set(regroups), max_a=max_total)
     n, n2 = rng.sample(NAMES, 2)
-    stem = tpl.format(a=a, b=b, n=n, n2=n2)
-    ans = a + b if op == "+" else a - b
-    mis = M.predict(op, a, b)
-    mis["M_WRONG_OP"] = abs(a - b) if op == "+" else a + b
+    stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
+    ans = a + b if tpl["op"] == "+" else a - b
+    mis = M.predict(tpl["op"], a, b)
+    mis["M_WRONG_OP"] = abs(a - b) if tpl["op"] == "+" else a + b
+    spec = dict(a=a, b=b, op=tpl["op"])
+    if tpl.get("table"):
+        spec["table"] = [[tpl["table"][0], a], [tpl["table"][1], b]]
     r = Response("ans", "digits", str(ans), cells=_cells(max(ans, a + b)), misconceptions=mis)
-    return _item("WP1", rung, "Application", "word_1step", stem, dict(a=a, b=b, op=op), [r], working_lines=3)
+    return _item("WP1", rung, "Application", "word_1step", stem, spec, [r], working_lines=3)
 
 
-def word_2step(rng, rung, signal, digits_max):
-    tpl = rng.choice(CONTEXTS_2STEP)
+def _two_step_numbers(rng, structure, digits_max):
+    lo, hi = 10 ** (digits_max - 1) + 50, 10**digits_max - 1
+    a = rng.randint(lo, hi)
+    b, c = rng.randint(11, a // 3), rng.randint(11, max(12, a // 3))
+    if structure == "EXTRA_INFORMATION":
+        c = rng.randint(6, 40)  # the number the story does not need is an age or a count of teachers
+    if structure == "CONSTRAINT" and (a - b) % 2:
+        b += 1
+    return a, b, c
+
+
+def evaluate(formula, nums, flip=False, divide=1):
+    """A template's answer, "a-b+c": a signed sum of its numbers. `flip` turns every operation after
+    the first number round — the answer a child gets by choosing the wrong operation each time."""
+    total = 0
+    for i, (sign, name) in enumerate(re.findall(r"([+-]?)([abc])", formula)):
+        s = -1 if sign == "-" else 1
+        total += nums[name] * (-s if flip and i else s)
+    return total / divide
+
+
+def word_2step(rng, rung, signal, digits_max, structure=None):
+    """Two steps (§10.3), or one step with a number the story does not need (§10.2)."""
+    pool = templates("word_2step", structure=structure)
+    if not pool:
+        raise ValueError(f"no two-step story for shape {structure!r}")
+    tpl = rng.choice(pool)
+    a, b, c = _two_step_numbers(rng, tpl["structure"], digits_max)
+    nums, divide = {"a": a, "b": b, "c": c}, tpl.get("divide", 1)
+    ans = evaluate(tpl["answer"], nums, divide=divide)
+    if ans != int(ans) or ans <= 0 or (tpl["structure"] == "CONSTRAINT" and b >= a):
+        raise RuntimeError("these numbers do not make this story")
+    ans = int(ans)
+    first = {"-": a - b, "+": a + b}[tpl["op"][0]]
+    mis = {"M_ONE_STEP_ONLY": first, "M_WRONG_OP": evaluate(tpl["answer"], nums, flip=True, divide=divide)}
+    mis = {k: int(v) for k, v in mis.items() if v != ans and v >= 0 and v == int(v)}
     n = rng.choice(NAMES)
-    if "get on" in tpl:
-        a = rng.randint(10 ** (digits_max - 1) + 50, 10**digits_max - 1)
-        b = rng.randint(11, a // 3)
-        c = rng.randint(11, 60)
-        ans = a - b + c
-        mis = {"M_ONE_STEP_ONLY": a - b, "M_WRONG_OP": a + b - c}
-    else:
-        a = rng.randint(10 ** (digits_max - 1) + 50, 10**digits_max - 1)
-        b = rng.randint(11, a // 3)
-        c = rng.randint(11, a // 3)
-        ans = a - b - c
-        mis = {"M_ONE_STEP_ONLY": a - b, "M_WRONG_OP": a - b + c}
-    stem = tpl.format(a=a, b=b, c=c, n=n)
-    mis = {k: v for k, v in mis.items() if v != ans}
-    r = Response("ans", "digits", str(ans), cells=_cells(a + c), misconceptions=mis)
-    return _item("WP2", rung, "Application", "word_2step", stem, dict(a=a, b=b, c=c), [r], working_lines=4)
+    stem = tpl["text"].format(a=a, b=b, c=c, n=n)
+    r = Response("ans", "digits", str(ans), cells=_cells(a + b + c), misconceptions=mis)
+    spec = dict(a=a, b=b, c=c)
+    return _item("WP2", rung, "Application", "word_2step", stem, spec, [r], working_lines=4)
 
 
-def word_budget(rng, rung, signal):
-    budget = rng.choice([5000, 8000, 10000, 12000])
-    a = rng.randint(1200, 3900)
-    b = rng.randint(600, 1900)
-    c = rng.randint(400, 1500)
-    ans = budget - a - b - c
-    # M_WRONG_OP: the whole question read as "add it all up" — the budget spec names this mistake,
-    # so the generator must compute the answer it produces or nothing can mark it.
-    mis = {"M_ONE_STEP_ONLY": budget - a, "M_SUM_ONLY": a + b + c, "M_WRONG_OP": budget + a + b + c}
-    rs = [Response("ans", "digits", str(ans), cells=5, misconceptions=mis)]
-    return _item(
-        "BUDGET",
-        rung,
-        "Application",
-        "word_2step",
-        BUDGET[0].format(budget=budget, a=a, b=b, c=c),
-        dict(budget=budget, a=a, b=b, c=c),
-        rs,
-        working_lines=4,
-    )
+def word_budget(rng, rung, signal, n_costs=3, budget_range=(5000, 12000), one_cost_is_a_product=False):
+    """A budget, costs taken from it one after another (R14). Every level's rule is honoured: how many
+    costs, how big the budget, and whether one cost is itself a product (a cap for each child)."""
+    lo, hi = budget_range
+    budget = rng.randrange(max(1000, lo // 500 * 500), hi + 1, 500)
+    share = budget // (n_costs + 1)
+    costs = [rng.randint(share // 3, share) for _ in range(min(n_costs, 3))]
+    k = p = None
+    if n_costs >= 4 and not one_cost_is_a_product:
+        raise ValueError("the four-cost budget story has a cap for each child — set one_cost_is_a_product")
+    if one_cost_is_a_product and n_costs >= 4:
+        k, p = rng.randint(12, 32), rng.randint(15, 60)
+        costs.append(k * p)
+    ans = budget - sum(costs)
+    if ans <= 0:
+        raise RuntimeError("the costs are more than the budget")
+    names = dict(zip("abc", costs))
+    text = _seed()["budget"][str(min(n_costs, 4))]
+    stem = text.format(budget=budget, k=k, p=p, **names)
+    mis = {"M_ONE_STEP_ONLY": budget - costs[0], "M_SUM_ONLY": sum(costs), "M_WRONG_OP": budget + sum(costs)}
+    rs = [Response("ans", "digits", str(ans), cells=len(str(budget)) + 1, misconceptions=mis)]
+    spec = dict(budget=budget, **names, costs=costs)
+    if k:
+        spec |= {"children": k, "each": p}
+    return _item("BUDGET", rung, "Application", "word_2step", stem, spec, rs, working_lines=4)

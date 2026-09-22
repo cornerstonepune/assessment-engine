@@ -2902,3 +2902,180 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   child wrote? Type it". Clicked through on the local preview against the copy: that 76 answer, typed 75 → `correct`,
   stored as a reading, "200 answers left" (was 201). `test_a_judgement_is_never_counted_as_a_reading`; the queue's
   browser tests on a production build **7 of 7** (the judgement test now also checks `judged`); engine suite 469.
+- **Live after PR #10 (merged 234dea3, 2026-09-21 19:27 IST):** migrations `20260927090000_gold_finding` and
+  `20260927100000_a_judgement_is_not_a_reading` pushed to live minutes after the website deployed — no request in
+  between touched the missing column (`vercel logs --query judged`: 0; no 5xx); 3 live rows marked `judged`. Step 6's
+  data job on live: vocabulary 65 → 68 rows (`loaders._misconceptions` alone — `engine load` would also re-upsert
+  every other seed), 17 papers re-entered (on the copy this changed only mistake lists: 15 multiplications gained
+  M_MUL_UNITS_REVERSED, 1 comparison M_COMPARE_REVERSED), **3 answers marked again** (as on the copy), `engine graph`
+  8 states, `engine gold load` 24 findings. `engine audit`: 12 invariants, 0 violations. `engine gold check`: 24
+  "transcription not yet confirmed". `engine read coverage`: 49 papers · 1 signed off · 13 scored · 196 waiting.
+  `deploy/go-live.sh` at 6da4519 (exit 0); the twelve pictures, cold, 12 × 200 in ≤ 0.99 s.
+- **Aseem's 24 findings confirmed by Nimish** ("correct", in chat, 2026-09-21) → `engine gold confirm --by "Nimish, in
+  chat, 2026-09-21"`: 24 confirmed. `engine gold check` on live: **2 in the graph** (Kabir's M_SMALL_FROM_LARGE, a
+  pattern in the graph; his strong addition) · 18 not yet signed off · 3 waiting for a person (a 34 × 2, a comparison
+  sign, a 62,413 copied out) · 1 read differently (the "3 boxes of 6 pencils" read as 3 from the teacher's red pen;
+  the child wrote 9).
+
+## Aseem's findings checked by machine; the engine's own "wrong" marks hold silent misreads (2026-09-21, night)
+
+- **The transcription holds, checked by machine against his PDFs** (Nimish confirmed it too, 35945ef). `pdftotext` on the five reports: all 11
+  examples are the question on that child's paper; each of the 7 named mistakes reproduces the wrong answer he quotes
+  (`assess.misconceptions.predict('×'|'-', a, b)`, `predict_sign('<')`): 8500 − 3647 → 5147, 56 × 3 → 1518,
+  34 × 2 → 86, 350 − 128 → 232, 3 × 6 → 9, 456 _ 465 → `>`, and 62,413 → 6,243 is a dropped digit. Two gaps:
+  `words` is verbatim for only 7 of 24 (the rest paraphrase him), and one example he quotes is missing —
+  48 × 5 = 00 (`legacy/G3-QUIZ20/20`), which the engine holds as `blank`; `predict('×', 48, 5)` gives 0 under
+  M_MUL_UNITS_REVERSED, the rule of the same child's 34 × 2 = 86.
+- **His mistakes, against the engine's readings before any sign-off:** 8 of the 11 error findings have a reading;
+  7 match his answer and mark, and the 3 among them where he names a method carry that method. 3 are unreadable
+  (waiting); 1 is the red-pen misread (3 boxes of 6 read as 3).
+- **His strengths do not match:** three children's "strong" skills have more `wrong` than `correct` on the engine's
+  own marks (Addition 7/8, Addition 7/5 + 2 blank, Subtraction 3/5). Crops looked at: 600 − 245 = 355 with the
+  teacher's tick, read as 921 — the next question's answer — at 89%; 204 + 48 = 252 with a tick, read as 204, the
+  top line of the working, at 95%; 6,342 − 2,875 = 3567 read as 6342 at 99%. Each settled without a person.
+- **Across the corpus:** of 612 answers the engine settled with no person touching them, 185 are `wrong`, and 23 of
+  those read a number printed in the question (15) or another question's answer on the same paper (8) — 3.8% of
+  everything the engine settled alone, against the 1.2% silent-wrong figure the reader hold rested on. None is signed
+  off, so none is in a graph; signing a paper off shows only its doubtful answers and one spot-check.
+  ```sql
+  -- s: current captures, no read_correction; rd = raw_read.child_answer without spaces/commas
+  -- printed: rd ~ '^\d{2,}$' and rd is one of regexp_matches(replace(question, ',', ''), '(\d+)', 'g')
+  -- another: rd ~ '^\d{3,}$', rd <> key, and rd is the key of another item on the same capture
+  → correct 332 (7 printed) · wrong 185 (15 printed, 8 another) · blank 95 · 0 signed off
+  ```
+- **The gold check passes a strength the graph does not show.** `gold.outcome` calls a `strong` finding "in the
+  graph" once any confirmed evidence exists and no mistake repeats; it never reads the state. Kabir's "strong in
+  addition" is one of today's 2 "in the graph" while `child_skill_state` has NUM.OPS.01 `not_enough_yet` on R9
+  and R12 (2 of 4 confirmed answers right). Only the M_SMALL_FROM_LARGE pattern is a real match.
+- **Open for Nimish:** send a reading that is a number printed on the page to a person instead of marking it
+  (~23 more on the queue; it reverses the coverage hold of 2026-09-21).
+
+## Step 7 — a child's paper from the library (2026-09-21, night)
+
+- `assemble.for_week` hands each prescription a library worksheet (ADR 0026) instead of drawing twelve questions afresh:
+  never one the child sat, none holding a question they saw inside the exposure window, none holding a question
+  another child has this week, none holding a question that has left the bank (a flag retires an item before the
+  library is rebuilt); least handed-out first. Spares are worksheets nobody was given. A child who cannot be given one
+  is named with the reason in words (`why`, printed by the CLI and by the F2 flow's message) — never a short paper
+  or a repeat. The printed label carries the worksheet ID ("… · Worksheet R6-H07").
+- **Two things the change would have broken, caught by the suite and fixed at the cause:** approving a week approved
+  nothing (it found papers through the template's week, and a library worksheet has none) — a printed copy now
+  records its week, class and kind (`20260927120000`), and approval reads them; and a short child's id failed the
+  week endpoints' replay store (`TypeError: UUID`) — the endpoint now hands it over as text
+  (`test_a_child_who_cannot_be_given_a_worksheet_is_named_in_the_answer`). The page geometry printed for a child
+  lives on that child's `sheet_instance.key` (`20260927110000`); a library worksheet is never written to.
+- The website: a paper's page says "Worksheet R6-H07 from the library, one of 18 at this level" and links to it; the
+  week's list shows each child's worksheet; a spare is found by its own week and class.
+- **`bin/engine goal s7-paper-from-library`: 6/6 criteria · GOAL ACHIEVED** — `tests/test_paper_from_library.py` 7;
+  `engine goal w2-assemble-and-print` GOAL ACHIEVED (its scenarios on library worksheets); `engine library check` 0
+  problems; `tests/s7-paper-from-library.spec.ts` 3 of 3 on a production build (the whole G2 class, 11 children,
+  given 11 different worksheets through the engine's own week endpoints, the test's week removed afterwards);
+  `engine audit` 0 violations; engine suite 477.
+- **Live after PR #11 (merged 10e51cc, 2026-09-22 04:52 UTC):** the website deployed at 04:53:15; migrations
+  `20260927110000` and `20260927120000` pushed to live minutes later (the merge came before them, again — see memory
+  "nothing waits on the merge"); every `/worksheets` request in the window was before the merge (04:29–04:40, all 200),
+  `vercel logs --query "does not exist"`: 0. `deploy/go-live.sh` at d521da4 (exit 0). Live: the twelve pictures cold,
+  12 × 200 in ≤ 1.01 s; `engine library check`: 1123 worksheets · 68 of 68 skill-levels ready · 0 problems;
+  `engine audit`: 12 invariants, 0 violations.
+
+## Step 8, widened — the team's taxonomy and every skill a question uses (2026-09-22)
+
+- **Measured before the work** (live bank, 12,567 active questions): of the taxonomy's 252 cases, 112 hold ≥ 12
+  questions, 14 hold 1–11, 126 hold none. Page: claude.ai/artifact/769ATqK16k5iuBVyPLnhKQ. Several gaps are levels
+  whose rule names keys no generator reads (`order`, `layout`, `n_costs`, `planted`, `extra_information`).
+- **`engine load` took every staff password away** — `app.staff` was upserted from a seed that holds none. Fixed at
+  the cause: a config row marked `seed_once` is the app's after its first load
+  (`test_load_config_keeps_a_password_set_in_the_app`, failed before the fix). The copy's value was restored from live.
+- **8a — a question's skills are read from the question** (`assess/skills.py`; rules are config rows
+  `skills.by_operation / by_kind / by_symbol`; ADR 0030). On the copy, `engine bank relabel` changed 10,319 of the
+  12,331 generated questions (0.7 s); a second run: `skills: 0 would change`. Every 3-digit addition now carries
+  addition alone; every budget problem `NUM.PRB.02, NUM.MEAS.04, NUM.OPS.01, NUM.OPS.02`. `engine audit` holds
+  "no question carries a skill it does not use". `tests/test_every_skill.py` 12; engine suite green. Live not yet
+  relabelled.
+- **8b — the skill a mistake charges.** Migration `20260928090000`: `misconception.skill_from` ('operation' or
+  'row') + `skill_code`, `item.mistake_skills`. 39 of the 68 named mistakes name their own skill (equality, rounding,
+  budget steps, explaining); the rest take the question's operation. `skills.charges_by_kind` (config) covers the
+  kinds where a mistake charges something else — choosing the wrong operation in a story is a word-problem slip.
+  On the copy `engine bank relabel`: `mistake_skills: 11657 changed`; a budget question now records
+  `M_SUM_ONLY → NUM.OPS.02, M_ONE_STEP_ONLY → NUM.PRB.02`. **Waits for one approval** (`engine audit`: "the table of
+  what a mistake charges on each kind of question waits for one approval"); the suite counts only what code keeps
+  (`audit.AWAITS_A_PERSON`).
+- **8c — evidence per skill.** Migration `20260928100000`: `confirm_results` writes one row per skill a right answer
+  used, one per skill a wrong answer's named mistakes charge (each row carrying its mistakes), one on the question's
+  own skill for an unexplained wrong answer or a blank; `next_difficulty` counts answers, not rows (a four-skill
+  right answer no longer weighs four). On the copy: a right budget answer → 4 rows; "added but never subtracted" →
+  1 row against `NUM.OPS.02`; a one-skill column sum → 1 row as before (`tests/test_every_skill.py` 25). The 236
+  pieces of evidence already on live all come from old papers' one-skill questions, so none needs rewriting.
+- **8d — the graph reads it.** `engine graph` on the copy: 8 states. The Growth screen already keeps one row per rung
+  × skill and files each answer under every skill lane it counts for (`childMap`, `childEvidence`), so it needed no
+  change. `engine gold check` counts a paper's questions by any skill they use; copy and live read the same:
+  "18 not yet signed off · 3 waiting for a person · 2 in the graph · 1 read differently" — the 18 wait on the
+  validation queue, not on step 8.
+- **8e — the cases are rows, and one command counts them.** Migration `20260928110000`: `taxonomy_case`, 269 rows
+  from `supabase/seed/taxonomy_cases.json` (sections 2–11 of the document; 5-digit numbers and §10.2's language
+  notes left out, as the page said). `assess/tags.py` measures what the cases read (`regroup_at`, `exchange_zeros`,
+  `carry_into_zero`, `answer_zeros`, `zero_operand`, `zeros_in`, `knock_on`, `carry_max`, the missing number's and
+  missing digit's place, a story's `structure`); "answer size" gains the document's `-MULTIPLE` and `ZERO`.
+  `assess/taxonomy.py` reads a case's `match`. `engine bank relabel` recomputes tags too (copy: `tags: 9204
+  changed`). `tests/test_taxonomy.py` 306: every case accepts the document's own example, twelve twin pairs stay
+  apart. **On the copy `engine bank taxonomy`: 269 cases · 102 covered · 156 missing · 11 thin** — stricter than
+  the morning's estimate because stories that predate their stored shape have none yet (8g).
+- **8f — a level made of cases.** A level's rule may list `cases`; `assess/draw.py` draws the same number from each,
+  keeping a question only when, as measured, it is that case and inside the level's bounds (`max_total`, `digits`,
+  `op`); where a case does not fix the layout, questions alternate columns / line exactly. Defaults a question needs
+  (no number ending in 0, no equal numbers, no difference under 5) are lifted only by a case about that very thing.
+  Built numbers for three cases chance cannot find (347 + 100, 68 + 32, 503 − 498), and answers that shrink drawn from
+  the answer up (100 − 7). `bank.fill_cases` stores each question with `generator = 'case:<code>'`; `verify` judges a
+  case level as the union of its cases; scenarios and the known-mistakes check draw from cases too. With no level
+  bounds every plain-sum and missing-number case yields ≥ 24 distinct questions except 7 − 7 and 7 − 0 (18 each —
+  all there are). `tests/test_taxonomy.py` +4; suite green.
+- **8g — every kind of question the cases need.** One file per family, each a generator code checks:
+  `assess/equality.py` (the missing sign, two missing signs, a balance with the same or two operations, the same
+  number in both boxes, true or false, <, = or > without working; fact families from an addition or a subtraction;
+  checking with the inverse), `assess/reasoning.py` (the closest estimate, could that answer be right, odd or even,
+  tens then ones), `assess/diagnosis.py` (find the mistake with 16 plantable slips — column, alignment, three
+  numbers, reversed, digit, equals — and which column it first went wrong in; across a zero and exchanging in the
+  wrong place at 3 digits), `assess/missing_digits.py` (one answer only, proven by trying every digit; the same
+  letter twice; an inequality). Story templates are rows (`engine/assess/word_templates.json`, 41 — ADR 0010's
+  debt); a stored story's shape is read back from its words (`words.structure_of`), never stored beside it; an
+  `eval` in `words.py` replaced by `words.evaluate`. WORD.BUDGET's four levels now print what they ask (2–4 costs,
+  one a product). `bands.READS`: `engine audit` holds "every key a level sets is one its generator reads" and
+  "every case a level names is a row". `tests/test_new_kinds.py`: each kind prints, marks, maps every wrong option
+  to a named mistake, and names its skills. Each prints on paper (`render.py`) and on screen (`question.tsx`).
+- **8h — the levels hold the cases.** 13 skills' levels rewritten and 4 skills added (`ADD.MULTI.SMALL`,
+  `EQUALITY.INVERSE`, `MISSING.DIGIT`, `ESTIMATE.HUNDRED`; rungs R15–R18); every one of the 269 cases is listed by a
+  level. The words Nimish approved are kept; only levels and kinds changed; all 17 wait for his one approval, with
+  the table of what a wrong answer counts against (8b), on `/skill-sets/approve`. The 2- and 3-digit skills keep
+  their missing-number and story questions, each a case inside the level's number bounds (ADR 0031). Grade 1
+  floors, measured as all there are (a second refill found no more, ADR 0011): `ADD.1D.BRIDGE10` Medium 131 (144 exist; 6 are Grade 2 questions still in their own level, 7 retired rows a question cannot be stored twice past);
+  `ADD.1D.WITHIN10` Medium 86, Hard 24, Advance 82; `SUB.1D.WITHIN20` Medium 110, Hard 44. `engine bank levels`
+  lists the rewrite before `--apply` writes it.
+- **8i — refilled and rebuilt, rehearsed on a fresh copy of live in the order live will run** (scratchpad
+  `rehearse.sh`): `bin/testdb` (46 tables, every count equal to live) → `engine load` (`app.staff` unchanged,
+  md5 before = after) → `engine bank levels --apply` (13 sets) → `engine bank refill` in 21 s: **"retired 4756
+  questions outside their level · added 10049"** (retired through `item_feedback`, actor "engine (step 8i)", each
+  kept with its reason) → a second refill: +4, one case (`M22`, "□ − 7 = 8" within 20: 48 exist against a share of
+  72) finding four the first search missed; a third: **0** → `engine library build`: "made 1160 · retired 742"; a
+  second build: **"made 0 · retired 0"** → `engine library check`: **"1541 worksheets · 84 of 84 skill-levels ready ·
+  0 problems"** → `engine bank taxonomy`: **"269 cases · 269 covered · 0 missing · 0 thin"** → `engine audit`: 18
+  violations, all the two that wait for a person (17 skills, 1 table).
+  Found and fixed at the cause on the way, each with a test that failed first: refill judged questions on stale
+  tags (relabel now runs first); a question was credited to its first case only, so levels overfilled (every case
+  it is); a case whose numbers had run out spilled its shortfall onto the other cases on every refill
+  (`test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out`: 167 before, 0 after); the library kept
+  worksheets with an unfair mix of kinds and dealt patches that looped (one `_unfair` for build and check); the
+  approval page's table never matched (postgres.js sends a string bound for `jsonb` as a JSON string —
+  `::text::jsonb`). Website on the copy: **77 passed, 1 skipped** (the long-standing "no paper signed off" skip).
+- **Live, 2026-09-22** (PR #13 `4803aab`, PR #14 `450467b`). Migrations `20260928090000`, `…100000`, `…110000` pushed
+  before the merge; `engine load` (`app.staff` md5 unchanged); `bank levels --apply` (13); `bank refill` **"retired
+  4756 questions outside their level · added 10049"**; `library build` "made 1159 · retired 742"; `library check`
+  **"1540 worksheets · 84 of 84 skill-levels ready · 0 problems"**; `bank taxonomy` **"269 cases · 269 covered · 0
+  missing · 0 thin"**; `engine audit` 18 violations, only the 17 skills and 1 table waiting for Nimish.
+- **The live engine was down 13:16–13:56 IST.** After PR #13 deployed it crashed on start: `words.py` read the story
+  templates from `supabase/seed/`, which the server's image (`engine/` alone) does not hold. Fixed at the cause in
+  PR #14 — the file beside its reader; `tests/test_image.py` starts the engine from `engine/` alone and failed first
+  with the server's own error. This Mac's network then corrupted every transfer to the server above 16 KB (ssh
+  "incorrect signature"), so `go-live.sh` could not upload the code: the server fetched commit `450467b` from GitHub
+  itself (the repository is public), proved byte-identical to it (370 files, one sha256 over all, equal on both
+  sides), and rebuilt — `/health` 200 at 13:56. Website production deployment of `450467b`: success. **Not yet
+  proved: a signed-in click-through on the live link** (no session in this browser).

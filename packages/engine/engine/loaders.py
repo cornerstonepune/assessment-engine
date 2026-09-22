@@ -27,6 +27,7 @@ FILLED_TABLES = (
     "misconception",
     "case_dimension",
     "coverage_target",
+    "taxonomy_case",
     "prompt",
     "threshold",
     "config",
@@ -382,11 +383,13 @@ def _misconceptions(conn, t):
     for m in _seed("misconceptions.json", "misconceptions"):
         conn.execute(
             "insert into misconception (tenant_id, code, op, name, description, repair_hint,"
-            " detectable_by, source, external_ref) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " detectable_by, source, external_ref, skill_from, skill_code)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code, op) do update set name=excluded.name,"
             " description=excluded.description, repair_hint=excluded.repair_hint,"
             " detectable_by=excluded.detectable_by, source=excluded.source,"
-            " external_ref=excluded.external_ref, updated_at=now()",
+            " external_ref=excluded.external_ref, skill_from=excluded.skill_from,"
+            " skill_code=excluded.skill_code, updated_at=now()",
             (
                 t,
                 m["code"],
@@ -397,6 +400,8 @@ def _misconceptions(conn, t):
                 m["detectable_by"],
                 m.get("source", ""),
                 m.get("external_ref"),
+                m.get("skill_from", "operation"),
+                m.get("skill_code"),
             ),
         )
 
@@ -428,6 +433,28 @@ def _coverage(conn, t):
                 _text_array(c["values"]),
                 c.get("min_items", 1),
                 c.get("note", ""),
+            ),
+        )
+
+
+def _taxonomy_cases(conn, t):
+    for c in _seed("taxonomy_cases.json", "taxonomy_cases"):
+        conn.execute(
+            "insert into taxonomy_case (tenant_id, code, section, section_name, label, example_text, example,"
+            " match, min_items) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set section=excluded.section,"
+            " section_name=excluded.section_name, label=excluded.label, example_text=excluded.example_text,"
+            " example=excluded.example, match=excluded.match, min_items=excluded.min_items, updated_at=now()",
+            (
+                t,
+                c["code"],
+                c["section"],
+                c["section_name"],
+                c["label"],
+                c.get("example_text", ""),
+                json.dumps(c["example"]),
+                json.dumps(c["match"]),
+                c.get("min_items", 12),
             ),
         )
 
@@ -466,11 +493,17 @@ def _thresholds(conn, t):
 
 
 def _config(conn, t):
+    """A row marked `seed_once` belongs to the app after its first load — `app.staff` holds the
+    password hashes `engine set-password` writes, and re-seeding it took every one of them away."""
     for c in _seed("config.json", "config"):
+        on_conflict = (
+            "do nothing"
+            if c.get("seed_once")
+            else "do update set value=excluded.value, description=excluded.description, updated_at=now()"
+        )
         conn.execute(
             "insert into config (tenant_id, key, value, description) values (%s,%s,%s,%s)"
-            " on conflict (tenant_id, key) do update set value=excluded.value,"
-            " description=excluded.description, updated_at=now()",
+            f" on conflict (tenant_id, key) {on_conflict}",
             (t, c["key"], json.dumps(c["value"]), c.get("description", "")),
         )
 
@@ -520,6 +553,7 @@ def load_all() -> dict[str, int]:
             _misconceptions,
             _dimensions,
             _coverage,
+            _taxonomy_cases,
             _prompts,
             _thresholds,
             _config,

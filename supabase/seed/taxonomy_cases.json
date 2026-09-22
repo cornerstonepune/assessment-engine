@@ -1,0 +1,6967 @@
+{
+  "taxonomy_cases": [
+    {
+      "code": "A01",
+      "section": "2.1",
+      "section_name": "One-digit + one-digit",
+      "label": "Vertical; the answer stays one digit",
+      "example_text": "3 + 4 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 3,
+          "b": 4,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A02",
+      "section": "2.1",
+      "section_name": "One-digit + one-digit",
+      "label": "Vertical; the answer becomes two digits",
+      "example_text": "7 + 8 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 7,
+          "b": 8,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A03",
+      "section": "2.1",
+      "section_name": "One-digit + one-digit",
+      "label": "Horizontal; the answer stays one digit",
+      "example_text": "3 + 4 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 3,
+          "b": 4,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A04",
+      "section": "2.1",
+      "section_name": "One-digit + one-digit",
+      "label": "Horizontal; the answer becomes two digits",
+      "example_text": "7 + 8 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 7,
+          "b": 8,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A05",
+      "section": "2.1",
+      "section_name": "One-digit + one-digit",
+      "label": "Adding zero, zero first or second",
+      "example_text": "0 + 6; 6 + 0",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 0,
+          "b": 6,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "zero_operand": [
+          "FIRST",
+          "SECOND"
+        ]
+      }
+    },
+    {
+      "code": "A06",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in columns, no carry",
+      "example_text": "43 + 5 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 43,
+          "b": 5,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A07",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in a line, no carry",
+      "example_text": "43 + 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 43,
+          "b": 5,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A08",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "1-digit + 2-digit in columns, no carry — the smaller number first",
+      "example_text": "5 + 43 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 5,
+          "b": 43,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A09",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "1-digit + 2-digit in a line, no carry",
+      "example_text": "5 + 43 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 5,
+          "b": 43,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A10",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in columns, a carry, the answer stays 2 digits",
+      "example_text": "47 + 6 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 47,
+          "b": 6,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A11",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in a line, a carry, the answer stays 2 digits",
+      "example_text": "47 + 6 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 47,
+          "b": 6,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A12",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "1-digit + 2-digit in columns, a carry, the answer stays 2 digits",
+      "example_text": "6 + 47 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 6,
+          "b": 47,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A13",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "1-digit + 2-digit in a line, a carry, the answer stays 2 digits",
+      "example_text": "6 + 47 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 6,
+          "b": 47,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "A14",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in columns, the carry makes a 3-digit answer",
+      "example_text": "96 + 8 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 96,
+          "b": 8,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A15",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "2-digit + 1-digit in a line, the carry makes a 3-digit answer",
+      "example_text": "96 + 8 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 96,
+          "b": 8,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A16",
+      "section": "2.2",
+      "section_name": "Two-digit and one-digit",
+      "label": "1-digit + 2-digit, the carry makes a 3-digit answer",
+      "example_text": "8 + 96 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 8,
+          "b": 96,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 2,
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A17",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In columns, no carry",
+      "example_text": "23 + 45 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 23,
+          "b": 45,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "A18",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In a line, no carry",
+      "example_text": "23 + 45 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 23,
+          "b": 45,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "A19",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In columns, a carry from the ones only",
+      "example_text": "27 + 36 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 27,
+          "b": 36,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A20",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In a line, a carry from the ones only",
+      "example_text": "27 + 36 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 27,
+          "b": 36,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A21",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In columns, a carry from the tens only",
+      "example_text": "61 + 42 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 61,
+          "b": 42,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A22",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In a line, a carry from the tens only",
+      "example_text": "61 + 42 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 61,
+          "b": 42,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A23",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In columns, carries from the ones and the tens",
+      "example_text": "68 + 47 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 68,
+          "b": 47,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A24",
+      "section": "2.3",
+      "section_name": "Two-digit + two-digit",
+      "label": "In a line, carries from the ones and the tens",
+      "example_text": "68 + 47 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 68,
+          "b": 47,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A25",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "3-digit + 1-digit in columns, no carry — the 5 goes under the ones",
+      "example_text": "342 + 5 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 342,
+          "b": 5,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A26",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "3-digit + 1-digit in a line, no carry",
+      "example_text": "342 + 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 342,
+          "b": 5,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A27",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "1-digit + 3-digit in columns, no carry — the order changes, the columns do not",
+      "example_text": "5 + 342 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 5,
+          "b": 342,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A28",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "1-digit + 3-digit in a line, no carry",
+      "example_text": "5 + 342 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 5,
+          "b": 342,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A29",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "3-digit + 1-digit in columns, a carry from the ones only",
+      "example_text": "347 + 5 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 347,
+          "b": 5,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A30",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "3-digit + 1-digit in a line, a carry from the ones only",
+      "example_text": "347 + 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 347,
+          "b": 5,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A31",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "1-digit first, a carry from the ones, in columns",
+      "example_text": "5 + 347 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 5,
+          "b": 347,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A32",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "1-digit first, a carry from the ones, in a line",
+      "example_text": "5 + 347 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 5,
+          "b": 347,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 1,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A33",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "The carry ripples one more place (399 + 4), in columns",
+      "example_text": "399 + 4 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 399,
+          "b": 4,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": [
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "VERTICAL",
+          "regroup_at": "ONES+TENS",
+          "answer_digit_change": "SAME",
+          "operand_1_digits": 3,
+          "operand_2_digits": 1
+        },
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "VERTICAL",
+          "regroup_at": "ONES+TENS",
+          "answer_digit_change": "SAME",
+          "operand_1_digits": 1,
+          "operand_2_digits": 3
+        }
+      ]
+    },
+    {
+      "code": "A34",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "The carry ripples one more place, in a line",
+      "example_text": "399 + 4 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 399,
+          "b": 4,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": [
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "HORIZONTAL",
+          "regroup_at": "ONES+TENS",
+          "answer_digit_change": "SAME",
+          "operand_1_digits": 3,
+          "operand_2_digits": 1
+        },
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "HORIZONTAL",
+          "regroup_at": "ONES+TENS",
+          "answer_digit_change": "SAME",
+          "operand_1_digits": 1,
+          "operand_2_digits": 3
+        }
+      ]
+    },
+    {
+      "code": "A35",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "The carry ripples through the 9s and makes a new digit (999 + 7), in columns",
+      "example_text": "999 + 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 999,
+          "b": 7,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": [
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "VERTICAL",
+          "answer_digit_change": "+1",
+          "operand_1_digits": 3,
+          "operand_2_digits": 1
+        },
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "VERTICAL",
+          "answer_digit_change": "+1",
+          "operand_1_digits": 1,
+          "operand_2_digits": 3
+        }
+      ]
+    },
+    {
+      "code": "A36",
+      "section": "2.4",
+      "section_name": "Three-digit and one-digit",
+      "label": "The carry ripples through the 9s and makes a new digit, in a line",
+      "example_text": "999 + 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 999,
+          "b": 7,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": [
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "HORIZONTAL",
+          "answer_digit_change": "+1",
+          "operand_1_digits": 3,
+          "operand_2_digits": 1
+        },
+        {
+          "fmt": [
+            "bare_sum",
+            "column_grid"
+          ],
+          "operation": "ADD",
+          "presentation": "HORIZONTAL",
+          "answer_digit_change": "+1",
+          "operand_1_digits": 1,
+          "operand_2_digits": 3
+        }
+      ]
+    },
+    {
+      "code": "A37",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit in columns, no carry",
+      "example_text": "345 + 23 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A38",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit written in a line, no carry",
+      "example_text": "345 + 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A39",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, no carry",
+      "example_text": "23 + 345 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 23,
+          "b": 345,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A40",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, no carry",
+      "example_text": "23 + 345 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 23,
+          "b": 345,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "A41",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit in columns, a carry from the ones only",
+      "example_text": "347 + 25 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 347,
+          "b": 25,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A42",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit written in a line, a carry from the ones only",
+      "example_text": "347 + 25 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 347,
+          "b": 25,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A43",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, a carry from the ones only",
+      "example_text": "25 + 347 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 25,
+          "b": 347,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A44",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, a carry from the ones only",
+      "example_text": "25 + 347 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 25,
+          "b": 347,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A45",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit in columns, a carry from the tens only",
+      "example_text": "361 + 42 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 361,
+          "b": 42,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A46",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit written in a line, a carry from the tens only",
+      "example_text": "361 + 42 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 361,
+          "b": 42,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A47",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, a carry from the tens only",
+      "example_text": "42 + 361 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 42,
+          "b": 361,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A48",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, a carry from the tens only",
+      "example_text": "42 + 361 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 42,
+          "b": 361,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A49",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit in columns, carries from the ones and the tens",
+      "example_text": "378 + 47 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 378,
+          "b": 47,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A50",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit written in a line, carries from the ones and the tens",
+      "example_text": "378 + 47 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 378,
+          "b": 47,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A51",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, carries from the ones and the tens",
+      "example_text": "47 + 378 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 47,
+          "b": 378,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A52",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, carries from the ones and the tens",
+      "example_text": "47 + 378 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 47,
+          "b": 378,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A53",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit in columns, the carry makes a 4-digit answer",
+      "example_text": "985 + 27 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 985,
+          "b": 27,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A54",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "3-digit + 2-digit written in a line, the carry makes a 4-digit answer",
+      "example_text": "985 + 27 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 985,
+          "b": 27,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A55",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, the carry makes a 4-digit answer",
+      "example_text": "27 + 985 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 27,
+          "b": 985,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A56",
+      "section": "2.5",
+      "section_name": "Three-digit and two-digit",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, the carry makes a 4-digit answer",
+      "example_text": "27 + 985 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 27,
+          "b": 985,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 2,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "A57",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, no carry",
+      "example_text": "243 + 514 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 243,
+          "b": 514,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "A58",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, no carry",
+      "example_text": "243 + 514 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 243,
+          "b": 514,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "A59",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, a carry from the ones only",
+      "example_text": "247 + 315 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 247,
+          "b": 315,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A60",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, a carry from the ones only",
+      "example_text": "247 + 315 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 247,
+          "b": 315,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "A61",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, a carry from the tens only",
+      "example_text": "362 + 154 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 362,
+          "b": 154,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A62",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, a carry from the tens only",
+      "example_text": "362 + 154 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 362,
+          "b": 154,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "A63",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, a carry from the hundreds only — the answer gains a digit",
+      "example_text": "752 + 613 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 752,
+          "b": 613,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "HUNDREDS"
+      }
+    },
+    {
+      "code": "A64",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, a carry from the hundreds only — the answer gains a digit",
+      "example_text": "752 + 613 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 752,
+          "b": 613,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "HUNDREDS"
+      }
+    },
+    {
+      "code": "A65",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, carries from the ones and the tens",
+      "example_text": "278 + 145 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 278,
+          "b": 145,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A66",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, carries from the ones and the tens",
+      "example_text": "278 + 145 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 278,
+          "b": 145,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "A67",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, carries from the ones and the hundreds, not the tens",
+      "example_text": "608 + 715 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 608,
+          "b": 715,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+HUNDREDS"
+      }
+    },
+    {
+      "code": "A68",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, carries from the ones and the hundreds, not the tens",
+      "example_text": "608 + 715 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 608,
+          "b": 715,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+HUNDREDS"
+      }
+    },
+    {
+      "code": "A69",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, carries from the tens and the hundreds",
+      "example_text": "672 + 541 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 672,
+          "b": 541,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS+HUNDREDS"
+      }
+    },
+    {
+      "code": "A70",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, carries from the tens and the hundreds",
+      "example_text": "672 + 541 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 672,
+          "b": 541,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS+HUNDREDS"
+      }
+    },
+    {
+      "code": "A71",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In columns, carries from the ones, the tens and the hundreds",
+      "example_text": "678 + 457 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 678,
+          "b": 457,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS+HUNDREDS"
+      }
+    },
+    {
+      "code": "A72",
+      "section": "2.6",
+      "section_name": "Three-digit + three-digit: the carry pattern",
+      "label": "In a line, carries from the ones, the tens and the hundreds",
+      "example_text": "678 + 457 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 678,
+          "b": 457,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS+HUNDREDS"
+      }
+    },
+    {
+      "code": "AZ1",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "Add zero to a number",
+      "example_text": "456 + 0 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 456,
+          "b": 0,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "zero_operand": "SECOND",
+        "operand_1_digits": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "AZ2",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "Zero first",
+      "example_text": "0 + 456 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 0,
+          "b": 456,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "zero_operand": "FIRST",
+        "operand_2_digits": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "AZ3",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "An inside zero in one number — keep the columns",
+      "example_text": "405 + 32 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 405,
+          "b": 32,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "zeros_in": [
+          "FIRST",
+          "SECOND"
+        ],
+        "zero_operand": "NONE"
+      }
+    },
+    {
+      "code": "AZ4",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "Inside zeros in both numbers",
+      "example_text": "405 + 302 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 405,
+          "b": 302,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "zeros_in": "BOTH"
+      }
+    },
+    {
+      "code": "AZ5",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "A carry lands on a zero column",
+      "example_text": "208 + 96 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 208,
+          "b": 96,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "carry_into_zero": "YES"
+      }
+    },
+    {
+      "code": "AZ6",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "A carry ripples through 9s and ends on a zero",
+      "example_text": "1099 + 8 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1099,
+          "b": 8,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "carry_into_zero": "YES",
+        "regroup_pattern": "CASCADING"
+      }
+    },
+    {
+      "code": "AZ7",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "Several zeros in a large number",
+      "example_text": "2005 + 304 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 2005,
+          "b": 304,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "zeros_max": {
+          "gte": 2
+        },
+        "digits_max": {
+          "gte": 4
+        }
+      }
+    },
+    {
+      "code": "AZ8",
+      "section": "2.7",
+      "section_name": "Adding with zeros",
+      "label": "The answer holds placeholder zeros — do not drop them",
+      "example_text": "495 + 505 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 495,
+          "b": 505,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "answer_zeros": [
+          "INTERNAL",
+          "TRAILING",
+          "INTERNAL+TRAILING"
+        ],
+        "regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "AA1",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Three 1-digit numbers — a carry can be more than 1",
+      "example_text": "8 + 7 + 9 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            8,
+            7,
+            9
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 3,
+        "digits_max": 1
+      }
+    },
+    {
+      "code": "AA2",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Three 2-digit numbers, no carry",
+      "example_text": "21 + 34 + 12 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            21,
+            34,
+            12
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 3,
+        "digits_max": 2,
+        "digits_min": 2,
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "AA3",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Three 2-digit numbers, with a carry",
+      "example_text": "78 + 67 + 89 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            78,
+            67,
+            89
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 3,
+        "digits_max": 2,
+        "digits_min": 2,
+        "regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "AA4",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Three 3-digit numbers",
+      "example_text": "245 + 378 + 126 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            245,
+            378,
+            126
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 3,
+        "digits_max": 3,
+        "digits_min": 3
+      }
+    },
+    {
+      "code": "AA5",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Numbers of different lengths in columns — all lined up by the ones",
+      "example_text": "345 + 27 + 6 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            345,
+            27,
+            6
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": {
+          "gte": 3
+        },
+        "operand_order": "MIXED",
+        "presentation": "VERTICAL"
+      }
+    },
+    {
+      "code": "AA6",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Numbers of different lengths written in a line",
+      "example_text": "345 + 27 + 6 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "addends": [
+            345,
+            27,
+            6
+          ],
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": {
+          "gte": 3
+        },
+        "operand_order": "MIXED",
+        "presentation": "HORIZONTAL"
+      }
+    },
+    {
+      "code": "AA7",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "Four or more numbers",
+      "example_text": "25 + 38 + 47 + 16 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            25,
+            38,
+            47,
+            16
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": {
+          "gte": 4
+        }
+      }
+    },
+    {
+      "code": "AA8",
+      "section": "2.8",
+      "section_name": "Three or more numbers",
+      "label": "A column adds up to 20 or more, so it carries 2 or more",
+      "example_text": "9 + 8 + 7 + 6 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "addends": [
+            9,
+            8,
+            7,
+            6
+          ],
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "carry_max": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "AN1",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "4-digit + 4-digit in columns",
+      "example_text": "3457 + 2186 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 3457,
+          "b": 2186,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 4,
+        "operand_2_digits": 4,
+        "presentation": "VERTICAL"
+      }
+    },
+    {
+      "code": "AN2",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "4-digit + 4-digit in a line",
+      "example_text": "3457 + 2186 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 3457,
+          "b": 2186,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": 4,
+        "operand_2_digits": 4,
+        "presentation": "HORIZONTAL"
+      }
+    },
+    {
+      "code": "AN3",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "4-digit + a shorter number in columns",
+      "example_text": "4382 + 57 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 4382,
+          "b": 57,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "VERTICAL",
+        "operand_1_digits": 4,
+        "operand_2_digits": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "code": "AN4",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "4-digit + a shorter number in a line",
+      "example_text": "4382 + 57 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4382,
+          "b": 57,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_1_digits": 4,
+        "operand_2_digits": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "code": "AN5",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "A shorter number + a 4-digit number — the shorter first",
+      "example_text": "57 + 4382 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 57,
+          "b": 4382,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_1_digits": [
+          1,
+          2,
+          3
+        ],
+        "operand_2_digits": 4
+      }
+    },
+    {
+      "code": "AN6",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "A 4-digit carry that ripples through 9s",
+      "example_text": "1999 + 6 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1999,
+          "b": 6,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "digits_max": 4,
+        "regroup_pattern": "CASCADING"
+      }
+    },
+    {
+      "code": "AN7",
+      "section": "2.9",
+      "section_name": "Four-digit addition",
+      "label": "A 4-digit sum that gains a digit",
+      "example_text": "6724 + 5388 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 6724,
+          "b": 5388,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "digits_max": 4,
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "S01",
+      "section": "3.1",
+      "section_name": "One-digit − one-digit",
+      "label": "In columns, the answer more than zero",
+      "example_text": "8 − 3 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 8,
+          "b": 3,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "answer_digit_change": "SAME",
+        "zero_operand": "NONE"
+      }
+    },
+    {
+      "code": "S02",
+      "section": "3.1",
+      "section_name": "One-digit − one-digit",
+      "label": "In a line, the answer more than zero",
+      "example_text": "8 − 3 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 8,
+          "b": 3,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "answer_digit_change": "SAME",
+        "zero_operand": "NONE"
+      }
+    },
+    {
+      "code": "S03",
+      "section": "3.1",
+      "section_name": "One-digit − one-digit",
+      "label": "The answer is zero",
+      "example_text": "7 − 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 7,
+          "b": 7,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "answer_digit_change": "ZERO"
+      }
+    },
+    {
+      "code": "S04",
+      "section": "3.1",
+      "section_name": "One-digit − one-digit",
+      "label": "Take away zero",
+      "example_text": "7 − 0 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 7,
+          "b": 0,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 1,
+        "operand_2_digits": 1,
+        "zero_operand": "SECOND"
+      }
+    },
+    {
+      "code": "S05",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In columns, no exchange",
+      "example_text": "47 − 5 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 47,
+          "b": 5,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S06",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In a line, no exchange",
+      "example_text": "47 − 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 47,
+          "b": 5,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S07",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In columns, an exchange, the answer stays 2 digits",
+      "example_text": "42 − 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 42,
+          "b": 7,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S08",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In a line, an exchange, the answer stays 2 digits",
+      "example_text": "42 − 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 42,
+          "b": 7,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S09",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In columns, an exchange, the answer becomes 1 digit",
+      "example_text": "13 − 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 13,
+          "b": 7,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S10",
+      "section": "3.2",
+      "section_name": "Two-digit − one-digit",
+      "label": "In a line, an exchange, the answer becomes 1 digit",
+      "example_text": "13 − 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 13,
+          "b": 7,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S11",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "In columns, no exchange, the answer stays 2 digits",
+      "example_text": "76 − 23 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 76,
+          "b": 23,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S12",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "In a line, no exchange, the answer stays 2 digits",
+      "example_text": "76 − 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 76,
+          "b": 23,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S13",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "No exchange, the answer becomes 1 digit",
+      "example_text": "37 − 31 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 37,
+          "b": 31,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "regrouping": "NONE",
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S14",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "No exchange, the answer is zero",
+      "example_text": "44 − 44 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 44,
+          "b": 44,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "answer_digit_change": "ZERO"
+      }
+    },
+    {
+      "code": "S15",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "In columns, an exchange from the tens, the answer stays 2 digits",
+      "example_text": "72 − 38 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 72,
+          "b": 38,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S16",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "In a line, an exchange from the tens, the answer stays 2 digits",
+      "example_text": "72 − 38 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 72,
+          "b": 38,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regrouping": "SINGLE",
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S17",
+      "section": "3.3",
+      "section_name": "Two-digit − two-digit",
+      "label": "An exchange from the tens, the answer becomes 1 digit",
+      "example_text": "43 − 38 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 43,
+          "b": 38,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "regrouping": "SINGLE",
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S18",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "In columns, no exchange — the 5 goes under the ones",
+      "example_text": "347 − 5 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 347,
+          "b": 5,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S19",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "In a line, no exchange",
+      "example_text": "347 − 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 347,
+          "b": 5,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S20",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "An exchange from the tens",
+      "example_text": "342 − 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 342,
+          "b": 7,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "regroup_at": "ONES",
+        "exchange_zeros": 0
+      }
+    },
+    {
+      "code": "S21",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "An exchange across a zero",
+      "example_text": "302 − 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 302,
+          "b": 7,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "exchange_zeros": 1
+      }
+    },
+    {
+      "code": "S22",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "An exchange through several zeros",
+      "example_text": "1000 − 7 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1000,
+          "b": 7,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 4,
+        "operand_2_digits": 1,
+        "exchange_zeros": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "S23",
+      "section": "3.4",
+      "section_name": "Three-digit − one-digit",
+      "label": "The answer loses a digit",
+      "example_text": "100 − 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 100,
+          "b": 7,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1,
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S24",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "In columns, no exchange — 23 under the tens and ones",
+      "example_text": "345 − 23 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "VERTICAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S25",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "In a line, no exchange",
+      "example_text": "345 − 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "presentation": "HORIZONTAL",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "S26",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "An exchange in the ones column only",
+      "example_text": "354 − 27 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 354,
+          "b": 27,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "S27",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "An exchange in the tens column only",
+      "example_text": "352 − 71 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 352,
+          "b": 71,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "S28",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "Exchanges in both columns",
+      "example_text": "352 − 78 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 352,
+          "b": 78,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "S29",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "An exchange across a zero",
+      "example_text": "302 − 18 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 302,
+          "b": 18,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "exchange_zeros": 1
+      }
+    },
+    {
+      "code": "S30",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "An exchange through several zeros",
+      "example_text": "1000 − 28 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1000,
+          "b": 28,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 4,
+        "operand_2_digits": 2,
+        "exchange_zeros": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "S31",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "The answer stays 3 digits",
+      "example_text": "456 − 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 456,
+          "b": 23,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "answer_digit_change": "SAME"
+      }
+    },
+    {
+      "code": "S32",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "The answer becomes 2 digits",
+      "example_text": "105 − 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 105,
+          "b": 23,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "answer_digit_change": "-1"
+      }
+    },
+    {
+      "code": "S33",
+      "section": "3.5",
+      "section_name": "Three-digit − two-digit",
+      "label": "The answer becomes 1 digit",
+      "example_text": "105 − 97 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 105,
+          "b": 97,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 2,
+        "answer_digit_change": "-MULTIPLE"
+      }
+    },
+    {
+      "code": "S34",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In columns, no exchange",
+      "example_text": "764 − 231 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 764,
+          "b": 231,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "S35",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In a line, no exchange",
+      "example_text": "764 − 231 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 764,
+          "b": 231,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "NONE"
+      }
+    },
+    {
+      "code": "S36",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In columns, an exchange in the ones only",
+      "example_text": "742 − 318 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 742,
+          "b": 318,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "S37",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In a line, an exchange in the ones only",
+      "example_text": "742 − 318 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 742,
+          "b": 318,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES"
+      }
+    },
+    {
+      "code": "S38",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In columns, an exchange in the tens only",
+      "example_text": "726 − 382 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 726,
+          "b": 382,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "S39",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In a line, an exchange in the tens only",
+      "example_text": "726 − 382 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 726,
+          "b": 382,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "TENS"
+      }
+    },
+    {
+      "code": "S40",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In columns, exchanges in the ones and the tens, one after the other",
+      "example_text": "352 − 178 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 352,
+          "b": 178,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "VERTICAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "S41",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "In a line, exchanges in the ones and the tens, one after the other",
+      "example_text": "352 − 178 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 352,
+          "b": 178,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "presentation": "HORIZONTAL",
+        "regroup_at": "ONES+TENS"
+      }
+    },
+    {
+      "code": "S42",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "An exchange across one zero",
+      "example_text": "402 − 185 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 402,
+          "b": 185,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "exchange_zeros": 1
+      }
+    },
+    {
+      "code": "S43",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "An exchange across several zeros",
+      "example_text": "1000 − 476 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1000,
+          "b": 476,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 4,
+        "operand_2_digits": 3,
+        "exchange_zeros": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "S44",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "An inside zero in the number taken away",
+      "example_text": "764 − 203 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 764,
+          "b": 203,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "zeros_in": [
+          "SECOND",
+          "BOTH"
+        ]
+      }
+    },
+    {
+      "code": "S45",
+      "section": "3.6",
+      "section_name": "Three-digit − three-digit: the exchange pattern",
+      "label": "The answer loses digits",
+      "example_text": "412 − 385 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 412,
+          "b": 385,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 3,
+        "operand_2_digits": 3,
+        "answer_digit_change": [
+          "-1",
+          "-MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "SZ1",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "A number minus 0",
+      "example_text": "456 − 0 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 456,
+          "b": 0,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "zero_operand": "SECOND",
+        "operand_1_digits": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "SZ2",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "A number minus itself",
+      "example_text": "456 − 456 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 456,
+          "b": 456,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "answer_digit_change": "ZERO",
+        "operand_1_digits": {
+          "gte": 3
+        }
+      }
+    },
+    {
+      "code": "SZ3",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "A zero inside the first number",
+      "example_text": "504 − 203 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 504,
+          "b": 203,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "zeros_in": [
+          "FIRST",
+          "BOTH"
+        ],
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "SZ4",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "A zero inside the number taken away — it is not a missing digit",
+      "example_text": "764 − 203 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 764,
+          "b": 203,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "zeros_in": [
+          "SECOND",
+          "BOTH"
+        ]
+      }
+    },
+    {
+      "code": "SZ5",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "An exchange through one zero",
+      "example_text": "402 − 185 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 402,
+          "b": 185,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "exchange_zeros": 1
+      }
+    },
+    {
+      "code": "SZ6",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "An exchange through several zeros",
+      "example_text": "1000 − 476 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 1000,
+          "b": 476,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "exchange_zeros": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "SZ7",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "The answer keeps an inside zero",
+      "example_text": "705 − 201 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 705,
+          "b": 201,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "answer_zeros": [
+          "INTERNAL",
+          "INTERNAL+TRAILING"
+        ]
+      }
+    },
+    {
+      "code": "SZ8",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "The answer ends in zero",
+      "example_text": "650 − 120 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 650,
+          "b": 120,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "answer_zeros": [
+          "TRAILING",
+          "INTERNAL+TRAILING"
+        ]
+      }
+    },
+    {
+      "code": "SZ9",
+      "section": "3.7",
+      "section_name": "Subtracting with zeros",
+      "label": "The answer loses several digits",
+      "example_text": "1000 − 999 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 1000,
+          "b": 999,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "answer_digit_change": "-MULTIPLE",
+        "digits_max": {
+          "gte": 4
+        }
+      }
+    },
+    {
+      "code": "SN1",
+      "section": "3.8",
+      "section_name": "Four-digit subtraction",
+      "label": "4-digit − 4-digit in columns",
+      "example_text": "7304 − 2586 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 7304,
+          "b": 2586,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 4,
+        "operand_2_digits": 4,
+        "presentation": "VERTICAL"
+      }
+    },
+    {
+      "code": "SN2",
+      "section": "3.8",
+      "section_name": "Four-digit subtraction",
+      "label": "4-digit − 4-digit in a line",
+      "example_text": "7304 − 2586 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 7304,
+          "b": 2586,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "operand_1_digits": 4,
+        "operand_2_digits": 4,
+        "presentation": "HORIZONTAL"
+      }
+    },
+    {
+      "code": "SN3",
+      "section": "3.8",
+      "section_name": "Four-digit subtraction",
+      "label": "4-digit minus a shorter number in columns",
+      "example_text": "4382 − 57 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 4382,
+          "b": 57,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "VERTICAL",
+        "operand_1_digits": 4,
+        "operand_2_digits": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "code": "SN4",
+      "section": "3.8",
+      "section_name": "Four-digit subtraction",
+      "label": "4-digit minus a shorter number in a line",
+      "example_text": "4382 − 57 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4382,
+          "b": 57,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_1_digits": 4,
+        "operand_2_digits": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "code": "SN5",
+      "section": "3.8",
+      "section_name": "Four-digit subtraction",
+      "label": "A 4-digit exchange through several zeros",
+      "example_text": "5003 − 1467 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 5003,
+          "b": 1467,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "digits_max": 4,
+        "exchange_zeros": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "L1a",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, add: a 1-digit number under the ones of a 2-digit number",
+      "example_text": "43 + 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 43,
+          "b": 5,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 2,
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L2a",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, add: a 1-digit number under the ones of a 3-digit number",
+      "example_text": "342 + 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 342,
+          "b": 5,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 3,
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L3a",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, add: a 2-digit number under a 3-digit number",
+      "example_text": "345 + 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 3,
+        "digits_min": 2
+      }
+    },
+    {
+      "code": "L4a",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, add: a 1-digit number under the ones of a 4-digit number",
+      "example_text": "4382 + 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4382,
+          "b": 7,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": {
+          "gte": 4
+        },
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L6a",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, add: keep the placeholder zeros while lining up",
+      "example_text": "4005 + 73 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4005,
+          "b": 73,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "zeros_in": [
+          "FIRST",
+          "SECOND",
+          "BOTH"
+        ]
+      }
+    },
+    {
+      "code": "L1s",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, take away: a 1-digit number under the ones of a 2-digit number",
+      "example_text": "43 − 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 43,
+          "b": 5,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 2,
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L2s",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, take away: a 1-digit number under the ones of a 3-digit number",
+      "example_text": "342 − 5 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 342,
+          "b": 5,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 3,
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L3s",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, take away: a 2-digit number under a 3-digit number",
+      "example_text": "345 − 23 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 345,
+          "b": 23,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": 3,
+        "digits_min": 2
+      }
+    },
+    {
+      "code": "L4s",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, take away: a 1-digit number under the ones of a 4-digit number",
+      "example_text": "4382 − 7 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4382,
+          "b": 7,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "digits_max": {
+          "gte": 4
+        },
+        "digits_min": 1
+      }
+    },
+    {
+      "code": "L6s",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "Written in a line, take away: keep the placeholder zeros while lining up",
+      "example_text": "4005 − 73 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 4005,
+          "b": 73,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "presentation": "HORIZONTAL",
+        "operand_order": [
+          "LONGER_FIRST",
+          "SHORTER_FIRST"
+        ],
+        "zeros_in": [
+          "FIRST",
+          "SECOND",
+          "BOTH"
+        ]
+      }
+    },
+    {
+      "code": "L5",
+      "section": "4",
+      "section_name": "Lining up the columns",
+      "label": "The shorter number written first",
+      "example_text": "7 + 342 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 7,
+          "b": 342,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "operand_order": "SHORTER_FIRST"
+      }
+    },
+    {
+      "code": "P01",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "No carry",
+      "example_text": "243 + 514 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 243,
+          "b": 514,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "P02",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "One carry",
+      "example_text": "247 + 315 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 247,
+          "b": 315,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regrouping": "SINGLE"
+      }
+    },
+    {
+      "code": "P03",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "More than one carry",
+      "example_text": "286 + 157 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 286,
+          "b": 157,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regrouping": "MULTIPLE"
+      }
+    },
+    {
+      "code": "P04",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "Carries in columns side by side",
+      "example_text": "286 + 157 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 286,
+          "b": 157,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regroup_pattern": "CONSECUTIVE"
+      }
+    },
+    {
+      "code": "P05",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "Carries in columns apart from each other",
+      "example_text": "608 + 715 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 608,
+          "b": 715,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regroup_pattern": "NON_ADJACENT"
+      }
+    },
+    {
+      "code": "P06",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "A carry that sets off another because of a 9",
+      "example_text": "399 + 4 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 399,
+          "b": 4,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "regroup_pattern": "CASCADING"
+      }
+    },
+    {
+      "code": "P07",
+      "section": "5.1",
+      "section_name": "Carry patterns",
+      "label": "The top column carries — a new leading digit",
+      "example_text": "678 + 457 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 678,
+          "b": 457,
+          "op": "+",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "num_operands": 2,
+        "answer_digit_change": "+1"
+      }
+    },
+    {
+      "code": "P11",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "No exchange",
+      "example_text": "764 − 231 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 764,
+          "b": 231,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "P12",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "One exchange",
+      "example_text": "742 − 318 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 742,
+          "b": 318,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "regrouping": "SINGLE"
+      }
+    },
+    {
+      "code": "P13",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "More than one exchange",
+      "example_text": "653 − 278 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 653,
+          "b": 278,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "regrouping": "MULTIPLE"
+      }
+    },
+    {
+      "code": "P14",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "Exchanges in columns side by side",
+      "example_text": "352 − 178 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 352,
+          "b": 178,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "regroup_at": [
+          "ONES+TENS",
+          "TENS+HUNDREDS",
+          "ONES+TENS+HUNDREDS",
+          "HUNDREDS+THOUSANDS",
+          "TENS+HUNDREDS+THOUSANDS",
+          "ONES+TENS+HUNDREDS+THOUSANDS"
+        ]
+      }
+    },
+    {
+      "code": "P15",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "An exchange that makes the next column need one too",
+      "example_text": "342 − 148 (in columns)",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 342,
+          "b": 148,
+          "op": "-",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "knock_on": "YES"
+      }
+    },
+    {
+      "code": "P16",
+      "section": "5.2",
+      "section_name": "Exchange patterns",
+      "label": "The leading digit is reduced and the answer loses a digit",
+      "example_text": "105 − 97 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 105,
+          "b": 97,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "answer_digit_change": [
+          "-1",
+          "-MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "M01",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "The second number missing, 1 digit",
+      "example_text": "5 + 7 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "5 + □ = 12",
+          "a": 5,
+          "b": 7,
+          "op": "+",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "ADD",
+        "unknown_position": "SECOND_OPERAND",
+        "unknown_digits": 1
+      }
+    },
+    {
+      "code": "M02",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "The first number missing, 1 digit",
+      "example_text": "7 + 5 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "□ + 5 = 12",
+          "a": 7,
+          "b": 5,
+          "op": "+",
+          "missing": "a"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "ADD",
+        "unknown_position": "FIRST_OPERAND",
+        "unknown_digits": 1
+      }
+    },
+    {
+      "code": "M03",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "A 2-digit number missing, no carry",
+      "example_text": "23 + 35 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "23 + □ = 58",
+          "a": 23,
+          "b": 35,
+          "op": "+",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "ADD",
+        "unknown_position": [
+          "FIRST_OPERAND",
+          "SECOND_OPERAND"
+        ],
+        "unknown_digits": 2,
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "M04",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "A 2-digit number missing across a carry",
+      "example_text": "47 + 36 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "47 + □ = 83",
+          "a": 47,
+          "b": 36,
+          "op": "+",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "ADD",
+        "unknown_position": [
+          "FIRST_OPERAND",
+          "SECOND_OPERAND"
+        ],
+        "unknown_digits": 2,
+        "regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "M05",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "A 3-digit number missing",
+      "example_text": "245 + 368 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "245 + □ = 613",
+          "a": 245,
+          "b": 368,
+          "op": "+",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "ADD",
+        "unknown_position": [
+          "FIRST_OPERAND",
+          "SECOND_OPERAND"
+        ],
+        "unknown_digits": 3
+      }
+    },
+    {
+      "code": "M06",
+      "section": "6.1",
+      "section_name": "Missing number in an addition",
+      "label": "A number missing among three",
+      "example_text": "35 + □ + 18 = 80",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "35 + □ + 18 = 80",
+          "terms": [
+            35,
+            null,
+            18
+          ],
+          "total": 80
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "num_operands": {
+          "gte": 3
+        }
+      }
+    },
+    {
+      "code": "M11",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "One missing digit, no carry",
+      "example_text": "2□ + 34 = 59",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "2□",
+          "b": "34",
+          "c": "59",
+          "op": "+",
+          "solved": {
+            "a": 25,
+            "b": 34
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 1,
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "M12",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "One missing digit, a carry needed",
+      "example_text": "4□ + 38 = 85",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "4□",
+          "b": "38",
+          "c": "85",
+          "op": "+",
+          "solved": {
+            "a": 47,
+            "b": 38
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 1,
+        "regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "M13",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "The tens digit missing",
+      "example_text": "□7 + 25 = 62",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "□7",
+          "b": "25",
+          "c": "62",
+          "op": "+",
+          "solved": {
+            "a": 37,
+            "b": 25
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 1,
+        "missing_place": "TENS",
+        "missing_in": [
+          "FIRST",
+          "SECOND"
+        ]
+      }
+    },
+    {
+      "code": "M14",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "The ones digit missing",
+      "example_text": "4□ + 27 = 72",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "4□",
+          "b": "27",
+          "c": "72",
+          "op": "+",
+          "solved": {
+            "a": 45,
+            "b": 27
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 1,
+        "missing_place": "ONES",
+        "missing_in": [
+          "FIRST",
+          "SECOND"
+        ]
+      }
+    },
+    {
+      "code": "M15",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "The hundreds digit missing",
+      "example_text": "□24 + 352 = 876",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "□24",
+          "b": "352",
+          "c": "876",
+          "op": "+",
+          "solved": {
+            "a": 524,
+            "b": 352
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 1,
+        "missing_place": "HUNDREDS"
+      }
+    },
+    {
+      "code": "M16",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "A digit of the answer missing",
+      "example_text": "37 + 46 = 8□",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "37",
+          "b": "46",
+          "c": "8□",
+          "op": "+",
+          "solved": {
+            "a": 37,
+            "b": 46
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_in": "RESULT"
+      }
+    },
+    {
+      "code": "M17",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "Two missing digits, one in each number",
+      "example_text": "4□ + □3 = 78",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "4□",
+          "b": "□3",
+          "c": "78",
+          "op": "+",
+          "solved": {
+            "a": 45,
+            "b": 33
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": 2,
+        "missing_in": "FIRST+SECOND"
+      }
+    },
+    {
+      "code": "M18",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "Missing digits in the numbers and in the answer",
+      "example_text": "□4□ + 2□5 = 6□9",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "□4□",
+          "b": "2□5",
+          "c": "6□9",
+          "op": "+",
+          "solved": {
+            "a": 344,
+            "b": 265
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "missing_count": {
+          "gte": 2
+        },
+        "missing_in": [
+          "FIRST+RESULT",
+          "SECOND+RESULT",
+          "FIRST+SECOND+RESULT"
+        ]
+      }
+    },
+    {
+      "code": "M19",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "The same letter is the same digit",
+      "example_text": "A5 + 2A = 88",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "A5",
+          "b": "2A",
+          "c": "88",
+          "op": "+",
+          "solved": {
+            "a": 65,
+            "b": 23
+          },
+          "shape": "SAME_LETTER"
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "shape": "SAME_LETTER"
+      }
+    },
+    {
+      "code": "M20",
+      "section": "6.2",
+      "section_name": "Missing digit in an addition",
+      "label": "Every digit that fits an inequality",
+      "example_text": "3□ + 27 < 70",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "3□",
+          "b": "27",
+          "c": "70",
+          "op": "+",
+          "solved": {
+            "a": 32,
+            "b": 27
+          },
+          "shape": "INEQUALITY"
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "ADD",
+        "shape": "INEQUALITY"
+      }
+    },
+    {
+      "code": "M21",
+      "section": "6.3",
+      "section_name": "Missing number in a subtraction",
+      "label": "The difference missing",
+      "example_text": "15 − 7 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "15 − 7 = □",
+          "a": 15,
+          "b": 7,
+          "op": "-",
+          "missing": "answer"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "SUB",
+        "unknown_position": "RESULT"
+      }
+    },
+    {
+      "code": "M22",
+      "section": "6.3",
+      "section_name": "Missing number in a subtraction",
+      "label": "The number taken away missing",
+      "example_text": "15 − 8 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "15 − □ = 7",
+          "a": 15,
+          "b": 8,
+          "op": "-",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "SUB",
+        "unknown_position": "SECOND_OPERAND"
+      }
+    },
+    {
+      "code": "M23",
+      "section": "6.3",
+      "section_name": "Missing number in a subtraction",
+      "label": "The first number missing — work backwards",
+      "example_text": "15 − 7 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "□ − 7 = 8",
+          "a": 15,
+          "b": 7,
+          "op": "-",
+          "missing": "a"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "SUB",
+        "unknown_position": "FIRST_OPERAND"
+      }
+    },
+    {
+      "code": "M24",
+      "section": "6.3",
+      "section_name": "Missing number in a subtraction",
+      "label": "A 2-digit number taken away missing",
+      "example_text": "58 − 34 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "58 − □ = 24",
+          "a": 58,
+          "b": 34,
+          "op": "-",
+          "missing": "b"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "SUB",
+        "unknown_position": "SECOND_OPERAND",
+        "unknown_digits": 2
+      }
+    },
+    {
+      "code": "M25",
+      "section": "6.3",
+      "section_name": "Missing number in a subtraction",
+      "label": "A 3-digit first number missing",
+      "example_text": "693 − 275 = ?",
+      "example": {
+        "fmt": "missing_number",
+        "spec": {
+          "text": "□ − 275 = 418",
+          "a": 693,
+          "b": 275,
+          "op": "-",
+          "missing": "a"
+        }
+      },
+      "match": {
+        "fmt": "missing_number",
+        "operation": "SUB",
+        "unknown_position": "FIRST_OPERAND",
+        "unknown_digits": 3
+      }
+    },
+    {
+      "code": "M31",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "One missing digit, no exchange",
+      "example_text": "5□ − 23 = 34",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "5□",
+          "b": "23",
+          "c": "34",
+          "op": "-",
+          "solved": {
+            "a": 57,
+            "b": 23
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_count": 1,
+        "regrouping": "NONE"
+      }
+    },
+    {
+      "code": "M32",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "One missing digit, an exchange needed",
+      "example_text": "6□ − 28 = 35",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "6□",
+          "b": "28",
+          "c": "35",
+          "op": "-",
+          "solved": {
+            "a": 63,
+            "b": 28
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_count": 1,
+        "regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ]
+      }
+    },
+    {
+      "code": "M33",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "A digit of the first number missing",
+      "example_text": "□7 − 29 = 38",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "□7",
+          "b": "29",
+          "c": "38",
+          "op": "-",
+          "solved": {
+            "a": 67,
+            "b": 29
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_count": 1,
+        "missing_in": "FIRST"
+      }
+    },
+    {
+      "code": "M34",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "A digit of the number taken away missing",
+      "example_text": "64 − 2□ = 37",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "64",
+          "b": "2□",
+          "c": "37",
+          "op": "-",
+          "solved": {
+            "a": 64,
+            "b": 27
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_count": 1,
+        "missing_in": "SECOND"
+      }
+    },
+    {
+      "code": "M35",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "A digit of the answer missing",
+      "example_text": "74 − 28 = 4□",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "74",
+          "b": "28",
+          "c": "4□",
+          "op": "-",
+          "solved": {
+            "a": 74,
+            "b": 28
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_in": "RESULT"
+      }
+    },
+    {
+      "code": "M36",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "A missing digit in an exchange across a zero",
+      "example_text": "4□2 − 185 = 217",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "4□2",
+          "b": "185",
+          "c": "217",
+          "op": "-",
+          "solved": {
+            "a": 402,
+            "b": 185
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "exchange_zeros": {
+          "gte": 1
+        }
+      }
+    },
+    {
+      "code": "M37",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "Several missing digits",
+      "example_text": "□5 − 2□ = 17",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "□5",
+          "b": "2□",
+          "c": "17",
+          "op": "-",
+          "solved": {
+            "a": 45,
+            "b": 28
+          }
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "missing_count": {
+          "gte": 2
+        }
+      }
+    },
+    {
+      "code": "M38",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "The same letter is the same digit",
+      "example_text": "A5 − 2A = 27",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "A5",
+          "b": "2A",
+          "c": "27",
+          "op": "-",
+          "solved": {
+            "a": 55,
+            "b": 28
+          },
+          "shape": "SAME_LETTER"
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "shape": "SAME_LETTER"
+      }
+    },
+    {
+      "code": "M39",
+      "section": "6.4",
+      "section_name": "Missing digit in a subtraction",
+      "label": "Every digit that fits an inequality",
+      "example_text": "7□ − 25 > 50",
+      "example": {
+        "fmt": "missing_digit",
+        "spec": {
+          "a": "7□",
+          "b": "25",
+          "c": "50",
+          "op": "-",
+          "solved": {
+            "a": 76,
+            "b": 25
+          },
+          "shape": "INEQUALITY"
+        }
+      },
+      "match": {
+        "fmt": "missing_digit",
+        "operation": "SUB",
+        "shape": "INEQUALITY"
+      }
+    },
+    {
+      "code": "E01",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "The missing sign: + or −",
+      "example_text": "7 □ 3 = 10",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "MISSING_SIGN",
+          "text": "7 □ 3 = 10"
+        }
+      },
+      "match": {
+        "fmt": "equation",
+        "shape": "MISSING_SIGN"
+      }
+    },
+    {
+      "code": "E02",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "Two missing signs",
+      "example_text": "12 □ 5 □ 3 = 10",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "MISSING_SIGNS",
+          "text": "12 □ 5 □ 3 = 10"
+        }
+      },
+      "match": {
+        "fmt": "equation",
+        "shape": "MISSING_SIGNS"
+      }
+    },
+    {
+      "code": "E03",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "A fact family from an addition",
+      "example_text": "7 + 5 = 12 → 5 + 7, 12 − 7, 12 − 5",
+      "example": {
+        "fmt": "fact_family",
+        "spec": {
+          "shape": "FROM_ADDITION",
+          "a": 7,
+          "b": 5,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "fact_family",
+        "shape": "FROM_ADDITION"
+      }
+    },
+    {
+      "code": "E04",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "The addition fact from a subtraction",
+      "example_text": "14 − 6 = 8 → 8 + 6 = 14",
+      "example": {
+        "fmt": "fact_family",
+        "spec": {
+          "shape": "FROM_SUBTRACTION",
+          "a": 14,
+          "b": 6,
+          "op": "-"
+        }
+      },
+      "match": {
+        "fmt": "fact_family",
+        "shape": "FROM_SUBTRACTION"
+      }
+    },
+    {
+      "code": "E05",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "Check an addition with a subtraction",
+      "example_text": "347 + 258 = 605? Check: 605 − 258",
+      "example": {
+        "fmt": "inverse_check",
+        "spec": {
+          "a": 347,
+          "b": 258,
+          "op": "+",
+          "claimed": 605
+        }
+      },
+      "match": {
+        "fmt": "inverse_check",
+        "operation": "ADD"
+      }
+    },
+    {
+      "code": "E06",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "Check a subtraction with an addition",
+      "example_text": "605 − 258 = 347? Check: 347 + 258",
+      "example": {
+        "fmt": "inverse_check",
+        "spec": {
+          "a": 605,
+          "b": 258,
+          "op": "-",
+          "claimed": 347
+        }
+      },
+      "match": {
+        "fmt": "inverse_check",
+        "operation": "SUB"
+      }
+    },
+    {
+      "code": "E07",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "A balance with one blank, the same operation both sides",
+      "example_text": "12 + 8 = 15 + □",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "BALANCE_SAME_OP",
+          "text": "12 + 8 = 15 + □"
+        }
+      },
+      "match": [
+        {
+          "fmt": "balance_scale"
+        },
+        {
+          "fmt": "equation",
+          "shape": "BALANCE_SAME_OP"
+        }
+      ]
+    },
+    {
+      "code": "E08",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "A balance with a different operation on each side",
+      "example_text": "43 − 7 = □ + 11",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "BALANCE_TWO_OPS",
+          "text": "43 − 7 = □ + 11"
+        }
+      },
+      "match": {
+        "fmt": "equation",
+        "shape": "BALANCE_TWO_OPS"
+      }
+    },
+    {
+      "code": "E09",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "The same number in a box on both sides",
+      "example_text": "□ + 7 = 21 − □",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "SAME_BOTH_SIDES",
+          "text": "□ + 7 = 21 − □"
+        }
+      },
+      "match": {
+        "fmt": "equation",
+        "shape": "SAME_BOTH_SIDES"
+      }
+    },
+    {
+      "code": "E10",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "True or false: are both sides equal?",
+      "example_text": "35 + 17 = 40 + 12",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "TRUE_FALSE",
+          "text": "35 + 17 = 40 + 12"
+        }
+      },
+      "match": [
+        {
+          "fmt": "equation",
+          "shape": "TRUE_FALSE"
+        },
+        {
+          "fmt": "explain_claim",
+          "topic": "compensation"
+        }
+      ]
+    },
+    {
+      "code": "E11",
+      "section": "7",
+      "section_name": "Equality, inverse and checking",
+      "label": "Compare without working it all out",
+      "example_text": "198 + 47 □ 200 + 45",
+      "example": {
+        "fmt": "equation",
+        "spec": {
+          "shape": "COMPARE",
+          "text": "198 + 47 □ 200 + 45"
+        }
+      },
+      "match": {
+        "fmt": "equation",
+        "shape": "COMPARE"
+      }
+    },
+    {
+      "code": "K01",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Add or take away 10, 100 or 1000",
+      "example_text": "347 + 100 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 347,
+          "b": 100,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "round_operand": "POWER_OF_TEN"
+      }
+    },
+    {
+      "code": "K02",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Make ten on a number line (8 + 7 → 8 + 2 + 5)",
+      "example_text": "8 + 7 = ?",
+      "example": {
+        "fmt": "number_line_jumps",
+        "spec": {
+          "a": 8,
+          "b": 7,
+          "op": "+",
+          "tens": 2,
+          "ones": 5
+        }
+      },
+      "match": {
+        "fmt": "number_line_jumps",
+        "digits_max": 1
+      }
+    },
+    {
+      "code": "K03",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Make 100 or 1000",
+      "example_text": "68 + 32 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 68,
+          "b": 32,
+          "op": "+",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "ADD",
+        "answer_power_of_ten": [
+          100,
+          1000
+        ]
+      }
+    },
+    {
+      "code": "K04",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Compensation in an addition (56 + 29 → 56 + 30 − 1)",
+      "example_text": "56 + 29 = ?",
+      "example": {
+        "fmt": "efficient_method",
+        "spec": {
+          "a": 56,
+          "b": 29,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "efficient_method",
+        "operation": "ADD"
+      }
+    },
+    {
+      "code": "K05",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Compensation in a subtraction (83 − 39 → 83 − 40 + 1)",
+      "example_text": "83 − 39 = ?",
+      "example": {
+        "fmt": "efficient_method",
+        "spec": {
+          "a": 83,
+          "b": 39,
+          "op": "-"
+        }
+      },
+      "match": {
+        "fmt": "efficient_method",
+        "operation": "SUB"
+      }
+    },
+    {
+      "code": "K06",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Near a hundred or a thousand",
+      "example_text": "298 + 154 = ?",
+      "example": {
+        "fmt": "efficient_method",
+        "spec": {
+          "a": 298,
+          "b": 154,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "efficient_method",
+        "near_round": "YES"
+      }
+    },
+    {
+      "code": "K07",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Reorder to pair friendly numbers (25 + 37 + 75)",
+      "example_text": "25 + 37 + 75 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "addends": [
+            25,
+            37,
+            75
+          ],
+          "op": "+",
+          "layout": "horizontal",
+          "shape": "FRIENDLY_PAIRS"
+        }
+      },
+      "match": {
+        "fmt": "bare_sum",
+        "shape": "FRIENDLY_PAIRS"
+      }
+    },
+    {
+      "code": "K08",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Break a number apart by place value (347 + 25 → 347 + 20 + 5)",
+      "example_text": "347 + 25 = ?",
+      "example": {
+        "fmt": "break_apart",
+        "spec": {
+          "a": 347,
+          "b": 25,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "break_apart"
+      }
+    },
+    {
+      "code": "K09",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Count on for a small difference (503 − 498)",
+      "example_text": "503 − 498 = ?",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 503,
+          "b": 498,
+          "op": "-",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "operation": "SUB",
+        "difference_small": "YES"
+      }
+    },
+    {
+      "code": "K10",
+      "section": "8",
+      "section_name": "Mental strategies",
+      "label": "Choose the quickest method and show it",
+      "example_text": "199 + 47 = ?",
+      "example": {
+        "fmt": "efficient_method",
+        "spec": {
+          "a": 199,
+          "b": 47,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "efficient_method"
+      }
+    },
+    {
+      "code": "R01",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Estimate a sum by rounding",
+      "example_text": "398 + 207 = ?",
+      "example": {
+        "fmt": "estimate_then_calc",
+        "spec": {
+          "a": 398,
+          "b": 207,
+          "op": "+",
+          "ra": 400,
+          "rb": 210
+        }
+      },
+      "match": {
+        "fmt": "estimate_then_calc",
+        "operation": "ADD"
+      }
+    },
+    {
+      "code": "R02",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Estimate a difference by rounding",
+      "example_text": "802 − 396 = ?",
+      "example": {
+        "fmt": "estimate_then_calc",
+        "spec": {
+          "a": 802,
+          "b": 396,
+          "op": "-",
+          "ra": 800,
+          "rb": 400
+        }
+      },
+      "match": {
+        "fmt": "estimate_then_calc",
+        "operation": "SUB"
+      }
+    },
+    {
+      "code": "R03",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Round to the nearest hundred first",
+      "example_text": "398 + 207 = ?",
+      "example": {
+        "fmt": "estimate_then_calc",
+        "spec": {
+          "a": 398,
+          "b": 207,
+          "op": "+",
+          "ra": 400,
+          "rb": 200,
+          "round_to": 100
+        }
+      },
+      "match": {
+        "fmt": "estimate_then_calc",
+        "round_to": 100
+      }
+    },
+    {
+      "code": "R04",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Choose the closest estimate",
+      "example_text": "Which is closest to 487 + 216?",
+      "example": {
+        "fmt": "choose_estimate",
+        "spec": {
+          "a": 487,
+          "b": 216,
+          "op": "+",
+          "options": [
+            600,
+            700,
+            800
+          ]
+        }
+      },
+      "match": {
+        "fmt": "choose_estimate"
+      }
+    },
+    {
+      "code": "R05",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Spot an answer that cannot be right by its size",
+      "example_text": "Could 487 + 216 be 6,903?",
+      "example": {
+        "fmt": "possible_answer",
+        "spec": {
+          "a": 487,
+          "b": 216,
+          "op": "+",
+          "claimed": 6903
+        }
+      },
+      "match": {
+        "fmt": "possible_answer"
+      }
+    },
+    {
+      "code": "R06",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Odd or even, without working it out",
+      "example_text": "Is 347 + 258 odd or even?",
+      "example": {
+        "fmt": "odd_even",
+        "spec": {
+          "a": 347,
+          "b": 258,
+          "op": "+"
+        }
+      },
+      "match": {
+        "fmt": "odd_even"
+      }
+    },
+    {
+      "code": "R07",
+      "section": "9",
+      "section_name": "Estimation and reasonableness",
+      "label": "Say whether the exact answer makes sense against the estimate",
+      "example_text": "Does 705 make sense for 398 + 307?",
+      "example": {
+        "fmt": "estimate_then_calc",
+        "spec": {
+          "a": 398,
+          "b": 307,
+          "op": "+",
+          "ra": 400,
+          "rb": 310,
+          "shape": "JUDGED"
+        }
+      },
+      "match": {
+        "fmt": "estimate_then_calc",
+        "shape": "JUDGED"
+      }
+    },
+    {
+      "code": "W01",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Join, the result unknown",
+      "example_text": "Had 24, got 13 more. How many now?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "JOIN_RESULT"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "JOIN_RESULT"
+      }
+    },
+    {
+      "code": "W02",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Join, the change unknown",
+      "example_text": "Had 24, now 37. How many were added?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "JOIN_CHANGE"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "JOIN_CHANGE"
+      }
+    },
+    {
+      "code": "W03",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Join, the start unknown",
+      "example_text": "Had some, got 13, now 37. How many at first?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "JOIN_START"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "JOIN_START"
+      }
+    },
+    {
+      "code": "W04",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Take away, the result unknown",
+      "example_text": "Had 37, gave away 13. How many are left?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "SEPARATE_RESULT"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "SEPARATE_RESULT"
+      }
+    },
+    {
+      "code": "W05",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Take away, the change unknown",
+      "example_text": "Had 37, now 24. How many were given away?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "SEPARATE_CHANGE"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "SEPARATE_CHANGE"
+      }
+    },
+    {
+      "code": "W06",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Take away, the start unknown",
+      "example_text": "Had some, gave away 13, now 24. How many at first?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "SEPARATE_START"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "SEPARATE_START"
+      }
+    },
+    {
+      "code": "W07",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Two parts, the whole unknown",
+      "example_text": "24 boys and 18 girls. How many children?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "PPW_WHOLE"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "PPW_WHOLE"
+      }
+    },
+    {
+      "code": "W08",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "The whole and one part, the other part unknown",
+      "example_text": "42 children, 24 boys. How many girls?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "PPW_PART"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "PPW_PART"
+      }
+    },
+    {
+      "code": "W09",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Compare, the difference unknown",
+      "example_text": "Riya has 42, Aman 35. How many more has Riya?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "COMPARE_DIFFERENCE"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "COMPARE_DIFFERENCE"
+      }
+    },
+    {
+      "code": "W10",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Compare, the larger unknown",
+      "example_text": "Aman has 35; Riya has 7 more. How many has Riya?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "COMPARE_LARGER"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "COMPARE_LARGER"
+      }
+    },
+    {
+      "code": "W11",
+      "section": "10.1",
+      "section_name": "One-step word problems",
+      "label": "Compare, the smaller unknown",
+      "example_text": "Riya has 42; Aman has 7 fewer. How many has Aman?",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 24,
+          "b": 13,
+          "op": "+",
+          "structure": "COMPARE_SMALLER"
+        }
+      },
+      "match": {
+        "fmt": "word_1step",
+        "structure": "COMPARE_SMALLER"
+      }
+    },
+    {
+      "code": "W25",
+      "section": "10.2",
+      "section_name": "Reading a word problem",
+      "label": "Extra information to leave out",
+      "example_text": "A story with one number it does not need",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "EXTRA_INFORMATION"
+        }
+      },
+      "match": {
+        "fmt": [
+          "word_1step",
+          "word_2step"
+        ],
+        "structure": "EXTRA_INFORMATION"
+      }
+    },
+    {
+      "code": "W26",
+      "section": "10.2",
+      "section_name": "Reading a word problem",
+      "label": "Read the numbers from a small table",
+      "example_text": "Runs scored on two days, read from a table",
+      "example": {
+        "fmt": "word_1step",
+        "spec": {
+          "a": 34,
+          "b": 27,
+          "op": "+",
+          "structure": "PPW_WHOLE",
+          "table": [
+            [
+              "Monday",
+              34
+            ],
+            [
+              "Tuesday",
+              27
+            ]
+          ]
+        }
+      },
+      "match": {
+        "fmt": [
+          "word_1step",
+          "word_2step"
+        ],
+        "context": "TABLE_OR_CHART"
+      }
+    },
+    {
+      "code": "W21",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "Add, then add again",
+      "example_text": "Add, then add again",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "ADD_ADD"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "ADD_ADD"
+      }
+    },
+    {
+      "code": "W22",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "Take away, then take away again",
+      "example_text": "Take away, then take away again",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "SUB_SUB"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "SUB_SUB"
+      }
+    },
+    {
+      "code": "W23",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "Take away, then add",
+      "example_text": "Take away, then add",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "SUB_ADD"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "SUB_ADD"
+      }
+    },
+    {
+      "code": "W27",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "Add, then take away",
+      "example_text": "Add, then take away",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "ADD_SUB"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "ADD_SUB"
+      }
+    },
+    {
+      "code": "W28",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "The unknown in the first step — work backwards",
+      "example_text": "The unknown in the first step — work backwards",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "UNKNOWN_FIRST"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "UNKNOWN_FIRST"
+      }
+    },
+    {
+      "code": "W29",
+      "section": "10.3",
+      "section_name": "Multi-step word problems",
+      "label": "An Olympiad-style story with several conditions",
+      "example_text": "An Olympiad-style story with several conditions",
+      "example": {
+        "fmt": "word_2step",
+        "spec": {
+          "a": 45,
+          "b": 18,
+          "c": 12,
+          "structure": "CONSTRAINT"
+        }
+      },
+      "match": {
+        "fmt": "word_2step",
+        "structure": "CONSTRAINT"
+      }
+    },
+    {
+      "code": "X01",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "Place value lined up wrong (5 under the tens in 342 + 5)",
+      "example_text": "Place value lined up wrong (5 under the tens in 342 + 5)",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 342,
+          "b": 5,
+          "op": "+",
+          "planted": "M_ALIGN_LEFT",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_ALIGN_LEFT"
+      }
+    },
+    {
+      "code": "X02",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A sum written in a line and copied into columns shifted left",
+      "example_text": "A sum written in a line and copied into columns shifted left",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 345,
+          "b": 27,
+          "op": "+",
+          "planted": "M_H2V_SHIFT",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_H2V_SHIFT"
+      }
+    },
+    {
+      "code": "X03",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A forgotten carry",
+      "example_text": "A forgotten carry",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 47,
+          "b": 38,
+          "op": "+",
+          "planted": "M_NOCARRY",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_NOCARRY"
+      }
+    },
+    {
+      "code": "X04",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A carry written above the wrong column",
+      "example_text": "A carry written above the wrong column",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 58,
+          "b": 67,
+          "op": "+",
+          "planted": "M_CARRY_SKIP",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_CARRY_SKIP"
+      }
+    },
+    {
+      "code": "X05",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A carry of 1 where the column needs 2",
+      "example_text": "A carry of 1 where the column needs 2",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 89,
+          "b": 78,
+          "op": "+",
+          "planted": "M_CARRY_ALWAYS_1",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_CARRY_ALWAYS_1"
+      }
+    },
+    {
+      "code": "X06",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "The final carry dropped",
+      "example_text": "The final carry dropped",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 495,
+          "b": 505,
+          "op": "+",
+          "planted": "M_DROP_CARRYOUT",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_DROP_CARRYOUT"
+      }
+    },
+    {
+      "code": "X07",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "The smaller digit taken from the larger, whatever the row",
+      "example_text": "The smaller digit taken from the larger, whatever the row",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 52,
+          "b": 38,
+          "op": "-",
+          "planted": "M_SMALL_FROM_LARGE",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_SMALL_FROM_LARGE"
+      }
+    },
+    {
+      "code": "X08",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "An exchange that does not reduce the lender",
+      "example_text": "An exchange that does not reduce the lender",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 62,
+          "b": 38,
+          "op": "-",
+          "planted": "M_NO_DECREMENT",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_NO_DECREMENT"
+      }
+    },
+    {
+      "code": "X09",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "An exchange taken from the wrong column",
+      "example_text": "An exchange taken from the wrong column",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 352,
+          "b": 178,
+          "op": "-",
+          "planted": "M_EXCHANGE_WRONG_PLACE",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_EXCHANGE_WRONG_PLACE"
+      }
+    },
+    {
+      "code": "X10",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "An exchange across a zero done wrong (402 − 185)",
+      "example_text": "An exchange across a zero done wrong (402 − 185)",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 402,
+          "b": 185,
+          "op": "-",
+          "planted": "M_ZERO_LENDER",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": [
+          "M_ZERO_LENDER",
+          "M_ZERO_NOT_NINE"
+        ]
+      }
+    },
+    {
+      "code": "X11",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A zero dropped from inside or the end of the answer",
+      "example_text": "A zero dropped from inside or the end of the answer",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 705,
+          "b": 201,
+          "op": "-",
+          "planted": "M_ZERO_DROPPED",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_ZERO_DROPPED"
+      }
+    },
+    {
+      "code": "X12",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "Subtraction turned round (□ − 7 = 8 answered 1)",
+      "example_text": "Subtraction turned round (□ − 7 = 8 answered 1)",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 15,
+          "b": 7,
+          "op": "-",
+          "planted": "M_SUB_INSTEAD",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_SUB_INSTEAD"
+      }
+    },
+    {
+      "code": "X13",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "A missing digit that works in one column only",
+      "example_text": "A missing digit that works in one column only",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 47,
+          "b": 38,
+          "op": "+",
+          "planted": "M_MISSING_DIGIT_LOCAL",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_MISSING_DIGIT_LOCAL"
+      }
+    },
+    {
+      "code": "X14",
+      "section": "11",
+      "section_name": "Finding the mistake",
+      "label": "= read as 'the answer comes next'",
+      "example_text": "= read as 'the answer comes next'",
+      "example": {
+        "fmt": "find_mistake",
+        "spec": {
+          "a": 12,
+          "b": 8,
+          "op": "+",
+          "planted": "M_EQUALS_MEANS_ANSWER",
+          "wrong": 0
+        }
+      },
+      "match": {
+        "fmt": "find_mistake",
+        "planted": "M_EQUALS_MEANS_ANSWER"
+      }
+    }
+  ]
+}

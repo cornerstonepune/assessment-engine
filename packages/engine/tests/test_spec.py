@@ -56,7 +56,7 @@ def mistake(name, a, b, writes, visible="answer_lookup", correct=None):
 
 
 def test_a_bands_numbers_obey_its_rule(conn):
-    check = spec.row(conn, SET)["difficulty"]["Hard"]["check"]
+    check = {"op": "-", "digits": [3, 2], "regroups": [1]}  # SUB.2D.EXCH Hard's rule before step 8h
     pairs = bands.pairs(check, 30)
     assert len(pairs) == 30
     assert all(op == "-" and a > b and len(str(a)) == 3 and len(str(b)) == 2 for op, a, b in pairs)

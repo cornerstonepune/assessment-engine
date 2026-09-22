@@ -37,8 +37,9 @@ psql "$ADMIN" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (
   from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
 pg_restore --data-only --disable-triggers --no-owner --exit-on-error --dbname="$ADMIN" "$WORK/live.dump"
 
-# The proof the copy is the live database: every table's exact row count, both sides, compared.
-count=$(psql "$COPY" -tAc "select string_agg(format('select %L as t, count(*) as n from %I.%I',
+# The proof the copy is the live database: every table's exact row count, both sides, compared. The list
+# is live's: the copy may be migrations ahead (a table live has not got yet holds no live rows to compare).
+count=$(psql "$LIVE" -tAc "select string_agg(format('select %L as t, count(*) as n from %I.%I',
   schemaname || '.' || tablename, schemaname, tablename), ' union all ' order by tablename)
   from pg_tables where schemaname in ('public', 'pii')")
 psql "$LIVE" -tA -F ' ' -c "$count order by t" > "$WORK/live.counts"

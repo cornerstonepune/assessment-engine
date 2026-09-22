@@ -26,6 +26,41 @@ export type SkillSet = {
   worksheets: Partial<Record<Difficulty, number>>;
 };
 
+/** The one table a person approves beside the skills (step 8b): on these kinds of question, this named
+ *  mistake counts against this skill instead of the one its operation would name. `waiting` is true
+ *  until someone approves this exact table — a changed table waits again. */
+export type ChargeRow = { kind: string; code: string; mistake: string; skill: string };
+export type ChargesTable = { table: Record<string, Record<string, string>>; rows: ChargeRow[]; approvedBy: string | null; waiting: boolean };
+
+export async function chargesTable(): Promise<ChargesTable> {
+  const rows = await sql<{ key: string; value: unknown }[]>`
+    select key, value from config where key in ('skills.charges_by_kind', 'skills.charges_by_kind.approved')`;
+  const table = (rows.find((r) => r.key === "skills.charges_by_kind")?.value ?? {}) as Record<string, Record<string, string>>;
+  const approved = (rows.find((r) => r.key === "skills.charges_by_kind.approved")?.value ?? {}) as {
+    by?: string;
+    table?: unknown;
+  };
+  const pairs = Object.entries(table).flatMap(([kind, m]) => Object.entries(m).map(([code, skill]) => ({ kind, code, skill })));
+  const names = pairs.length
+    ? await sql<{ code: string; mistake: string; skill: string; skill_name: string }[]>`
+        select p.code, p.skill, (select m.name from misconception m where m.code = p.code order by m.op = 'any' desc limit 1) as mistake,
+               (select k.name from skill k where k.code = p.skill limit 1) as skill_name
+        from jsonb_to_recordset(${sql.json(pairs as never)}::jsonb) as p(kind text, code text, skill text)`
+    : [];
+  const named = new Map(names.map((n) => [`${n.code}|${n.skill}`, n]));
+  return {
+    table,
+    rows: pairs.map((p) => ({
+      kind: p.kind,
+      code: p.code,
+      mistake: named.get(`${p.code}|${p.skill}`)?.mistake ?? p.code,
+      skill: named.get(`${p.code}|${p.skill}`)?.skill_name ?? p.skill,
+    })),
+    approvedBy: approved.by ?? null,
+    waiting: !approved.by || JSON.stringify(approved.table) !== JSON.stringify(table),
+  };
+}
+
 export async function skillSets(): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
@@ -108,6 +143,7 @@ export type WeekRow = {
   qr_code: string | null;
   print_status: string | null;
   questions: number | null;
+  worksheet: string | null; // the library worksheet it is, when it came from the library
 };
 
 export const RULE_WORDS: Record<string, string> = {
@@ -129,7 +165,7 @@ export async function weekPlan(section: string, week: string, kind: string): Pro
     select p.id as prescription_id, p.child_id, c.roll_no, c.band, c.section,
            p.skill_set_code, s.name as skill_set_name, p.difficulty, p.rule_fired,
            p.override_by, p.override_reason,
-           si.qr_code, si.print_status, array_length(st.item_ids, 1) as questions
+           si.qr_code, si.print_status, array_length(st.item_ids, 1) as questions, st.code as worksheet
     from prescription p
     join child c on c.id = p.child_id
     left join skill_set s on s.tenant_id = p.tenant_id and s.code = p.skill_set_code
@@ -139,12 +175,17 @@ export async function weekPlan(section: string, week: string, kind: string): Pro
     order by coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no`;
 }
 
-export async function spareSheets(section: string, week: string): Promise<{ qr_code: string; difficulty: string }[]> {
+export async function spareSheets(
+  section: string,
+  week: string,
+): Promise<{ qr_code: string; difficulty: string; worksheet: string | null }[]> {
   return sql`
-    select si.qr_code, st.difficulty from sheet_instance si
+    select si.qr_code, st.difficulty, st.code as worksheet from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
-    where si.child_id is null and st.week = ${week}
-      and st.band in (select distinct band from child where section = ${section})
+    where si.child_id is null
+      and (si.section = ${section} and si.week = ${week}
+           or si.section is null and st.week = ${week}
+              and st.band in (select distinct band from child where section = ${section}))
     order by st.difficulty, si.qr_code`;
 }
 

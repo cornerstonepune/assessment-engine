@@ -46,12 +46,23 @@ export async function approveSkills(formData: FormData): Promise<void> {
   const shown = formData.getAll("code").map(String).filter((c) => CODE.test(c));
   const versions = formData.getAll("version").map(Number);
   const back = String(formData.get("back") ?? "/");
-  if (!shown.length || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
+  const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
+  if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
   const approved = await sql<{ code: string }[]>`
     update skill_set s set status = 'ratified', ratified_by = ${me.name}, updated_at = now()
     from unnest(${shown}::text[], ${versions}::int[]) as v(code, version)
     where s.code = v.code and s.version = v.version and s.status = 'draft'
     returning s.code`;
+  // The table of what a mistake charges, approved exactly as the page showed it: if it changed since,
+  // the update matches nothing and it keeps waiting. `::text` first: postgres.js sends a string it
+  // sees bound for jsonb as a JSON string, which would never equal the table.
+  const table = formData.get("charges_table");
+  if (typeof table === "string" && table) {
+    await sql`
+      update config set value = jsonb_build_object('by', ${me.name}::text, 'table', t.value), updated_at = now()
+      from (select value from config where key = 'skills.charges_by_kind') t
+      where config.key = 'skills.charges_by_kind.approved' and t.value = ${table}::text::jsonb`;
+  }
   revalidatePath("/");
   for (const c of approved) revalidatePath(`/skill-sets/${c.code}`);
   // Only back to the map or a skill page: a return address from a form is never trusted to leave the site.

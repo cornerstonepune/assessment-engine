@@ -82,7 +82,8 @@ def check(conn) -> list[dict]:
                   join capture c3 on c3.id = r3.capture_id and c3.superseded_by is null
                   join sheet_instance s3 on s3.id = c3.sheet_instance_id
                  where s3.child_id = g.child_id
-                   and coalesce(i3.spec ->> 'skill', i3.skill_codes[1]) = g.skill_code) as on_papers,
+                   and g.skill_code = any(case when i3.source = 'generated' then i3.skill_codes
+                        else array[coalesce(i3.spec ->> 'skill', i3.skill_codes[1])] end)) as on_papers,
                (select count(*) from evidence_event e left join item_result r2 on r2.id = e.item_result_id
                   left join capture c2 on c2.id = r2.capture_id
                  where e.child_id = g.child_id and e.skill_code = g.skill_code

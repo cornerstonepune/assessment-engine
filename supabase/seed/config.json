@@ -20,7 +20,8 @@
           "name": "Nimish",
           "role": "coordinator"
         }
-      ]
+      ],
+      "seed_once": true
     },
     {
       "key": "prescribe.band_default",
@@ -86,6 +87,101 @@
       "key": "bank.class_size",
       "value": 16,
       "description": "Children in one class. A unit must hold a paper for each of them plus the spares, drawn without replacement, or two children share a question (ADR 0016)."
+    },
+    {
+      "key": "skills.by_operation",
+      "value": {
+        "+": "NUM.OPS.01",
+        "-": "NUM.OPS.02",
+        "×": "NUM.OPS.03"
+      },
+      "description": "The registry skill each operation is. A question uses the skill of every operation a child carries out on it (ADR 0023)."
+    },
+    {
+      "key": "skills.by_kind",
+      "value": {
+        "missing_number": [
+          "NUM.OPS.05"
+        ],
+        "balance_scale": [
+          "NUM.OPS.05"
+        ],
+        "number_wall": [
+          "NUM.OPS.05"
+        ],
+        "number_line_jumps": [
+          "NUM.OPS.05"
+        ],
+        "efficient_method": [
+          "NUM.OPS.05",
+          "NUM.PRB.03"
+        ],
+        "estimate_then_calc": [
+          "NUM.PV.03"
+        ],
+        "word_1step": [
+          "NUM.PRB.02"
+        ],
+        "word_2step": [
+          "NUM.PRB.02"
+        ],
+        "find_mistake": [
+          "NUM.PRB.03"
+        ],
+        "explain_claim": [
+          "NUM.PRB.03"
+        ],
+        "equation": [
+          "NUM.OPS.05"
+        ],
+        "fact_family": [
+          "NUM.OPS.05"
+        ],
+        "inverse_check": [
+          "NUM.PRB.03"
+        ],
+        "choose_estimate": [
+          "NUM.PV.03"
+        ],
+        "possible_answer": [
+          "NUM.PV.03"
+        ],
+        "odd_even": [
+          "NUM.PRB.03"
+        ],
+        "break_apart": [
+          "NUM.OPS.05"
+        ],
+        "missing_digit": [
+          "NUM.PRB.03"
+        ]
+      },
+      "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023)."
+    },
+    {
+      "key": "skills.by_symbol",
+      "value": {
+        "₹": "NUM.MEAS.04"
+      },
+      "description": "A skill a question uses when its sentence carries this symbol: a story about rupees is also about money (ADR 0023)."
+    },
+    {
+      "key": "skills.charges_by_kind",
+      "value": {
+        "word_1step": {
+          "M_WRONG_OP": "NUM.PRB.02"
+        },
+        "word_2step": {
+          "M_WRONG_OP": "NUM.PRB.02"
+        }
+      },
+      "description": "Where a mistake charges a different skill on this kind of question than its own row says: choosing the wrong operation in a story is a word-problem slip, not an arithmetic one (ADR 0023, step 8b). Drafted by the engine; approved once by Nimish or Aseem."
+    },
+    {
+      "key": "skills.charges_by_kind.approved",
+      "seed_once": true,
+      "value": {},
+      "description": "Who approved the table of what a mistake charges on each kind of question, and the table they approved. A changed table is not approved until someone approves it again."
     }
   ]
 }

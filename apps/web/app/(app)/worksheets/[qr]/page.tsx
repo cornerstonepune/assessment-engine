@@ -125,9 +125,19 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
     ],
     [
       "Questions",
-      p.roll_no
-        ? `${p.n_items} picked at random from ${pool} at this level — none this child saw in ${p.window_days} days, none shared with a classmate`
-        : `${p.n_items} picked at random from ${pool} at this level — none given to a named child this week`,
+      p.worksheet ? (
+        <>
+          Worksheet <Link href={`/worksheets/${p.worksheet}`}>{p.worksheet}</Link> from the library, one of {p.worksheets} at this
+          level —{" "}
+          {p.roll_no
+            ? `never sat by this child, none of its ${p.n_items} questions seen in ${p.window_days} days, none on a classmate's paper this week`
+            : "not given to a named child this week"}
+        </>
+      ) : p.roll_no ? (
+        `${p.n_items} picked at random from ${pool} at this level — none this child saw in ${p.window_days} days, none shared with a classmate`
+      ) : (
+        `${p.n_items} picked at random from ${pool} at this level — none given to a named child this week`
+      ),
     ],
     [
       "QR code",

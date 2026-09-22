@@ -59,7 +59,8 @@ def _item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, 
         _id(template, spec),
         template,
         rung,
-        skills or RUNGS[rung]["skills"],
+        skills
+        or RUNGS.get(rung, {}).get("skills", []),  # a label only; `bank` measures the real one (ADR 0030)
         signal,
         fmt,
         scaffolded,
@@ -200,6 +201,11 @@ def missing_number(rng, rung, signal, kind, hi):
         ans = b + c
         stem = f"□ − {b} = {c}"
         mis = {"M_SUB_INSTEAD": abs(c - b), "M_FACT_PM1": ans - 1}
+    elif kind == "among_three":  # 35 + □ + 18 = 80 (taxonomy §6.1)
+        a, other, ans = (rng.randint(11, hi // 3) for _ in range(3))
+        c = a + ans + other
+        stem = f"{a} + □ + {other} = {c}"
+        mis = {"M_ADD_INSTEAD": a + other + c, "M_FACT_PM1": ans + 1}
     else:  # sub_missing_subtrahend
         c = rng.randint(hi // 4, hi - 2)
         a = rng.randint(1, c - 1)
@@ -419,16 +425,28 @@ def sort_into_table(rng, rung, signal, op, n=4):
     )
 
 
-def estimate_then_calc(rng, rung, signal, op, digits_a, digits_b, regroups):
+def estimate_then_calc(
+    rng, rung, signal, op, digits_a, digits_b, regroups, round_to=10, judged=False, tolerance=None
+):
+    """Estimate by rounding both numbers to the nearest `round_to`, then work it out (§9). `judged` adds
+    the question the taxonomy asks next: is the exact answer close to the estimate?"""
     if op == "+":
         a, b = sample_add(rng, digits_a, digits_b, regroups)
     else:
         a, b = sample_sub(rng, digits_a, digits_b, regroups)
-    ra, rb = round(a, -1), round(b, -1)
+    places = -len(str(round_to)) + 1
+    ra, rb = round(a, places), round(b, places)
     est = ra + rb if op == "+" else ra - rb
     ans = a + b if op == "+" else a - b
     rs = [
-        Response("est", "digits", str(est), cells=_cells(max(est, ans)), tolerance=10, label="estimate"),
+        Response(
+            "est",
+            "digits",
+            str(est),
+            cells=_cells(max(est, ans)),
+            tolerance=tolerance or round_to,
+            label="estimate",
+        ),
         Response(
             "ans",
             "digits",
@@ -438,56 +456,32 @@ def estimate_then_calc(rng, rung, signal, op, digits_a, digits_b, regroups):
             label="exact",
         ),
     ]
+    spec = dict(a=a, b=b, op=op, ra=ra, rb=rb)
+    if round_to != 10:
+        spec["round_to"] = round_to
+    if judged:
+        spec["shape"] = "JUDGED"
+        rs.append(
+            Response(
+                "sense",
+                "tick",
+                "yes",
+                options=["yes", "no"],
+                label="Is your exact answer close to your estimate?",
+                misconceptions={"M_COMPARE_ESTIMATE_EXACT": "no"},
+            )
+        )
     return _item(
         "ESTIMATE",
         rung,
         signal,
         "estimate_then_calc",
         f"Estimate first, then work out {a} {op} {b}.",
-        dict(a=a, b=b, op=op, ra=ra, rb=rb),
+        spec,
         rs,
         scaffolded=True,
         working_lines=2,
     )
-
-
-def missing_digit(rng, rung, signal, op, width):
-    """Column calculation with 1–2 hidden digits; brute-force guarantees a unique solution."""
-    for _ in range(300):
-        if op == "+":
-            a, b = sample_add(rng, width, width, {1, 2})
-            c = a + b
-        else:
-            a, b = sample_sub(rng, width, width, {1, 2})
-            c = a - b
-        sa, sb, sc = str(a), str(b).zfill(width), str(c)
-        # hide one digit in a and one in b (never leading), keep c visible
-        pa = rng.randint(1, len(sa) - 1)
-        pb = rng.randint(1, len(sb) - 1)
-        # count solutions
-        sols = []
-        for x in range(10):
-            for y in range(10):
-                aa = int(sa[:pa] + str(x) + sa[pa + 1 :])
-                bb = int(sb[:pb] + str(y) + sb[pb + 1 :])
-                if (aa + bb if op == "+" else aa - bb) == c:
-                    sols.append((x, y))
-        if len(sols) == 1:
-            rs = [
-                Response("da", "digits", sa[pa], cells=1, label="top"),
-                Response("db", "digits", sb[pb], cells=1, label="bottom"),
-            ]
-            return _item(
-                "MISSING.DIGIT",
-                rung,
-                signal,
-                "missing_digit",
-                "Write the missing digits.",
-                dict(a=sa[:pa] + "□" + sa[pa + 1 :], b=sb[:pb] + "□" + sb[pb + 1 :], c=sc, op=op),
-                rs,
-                working_lines=2,
-            )
-    raise RuntimeError("no unique missing-digit item")
 
 
 def digit_cards(rng, rung, signal, n_cards=3, addend=None):
@@ -596,108 +590,6 @@ def partial_worked(rng, rung, signal):
     )
 
 
-def explain_claim(rng, rung, signal, a_range=(120, 480), claim_is_true=True, claim_topic="compensation"):
-    """A claim to judge and explain: tick yes/no, then say why.
-
-    Two claim shapes, each one template the numbers slot into (ADR 0010 — the language is written
-    once, not per question). `compensation`: moving 1 from one addend to the other leaves the
-    total alone (the false variant moves it one way only, so the total does change).
-    `regrouping`: exchanging a ten for ten ones leaves the number's value alone (the false
-    variant claims it shrinks). Defaults reproduce the original true compensation claim, which
-    `blueprints.py` calls with no arguments."""
-    name = rng.choice(["Zoya", "Aarav", "Meera", "Kabir", "Riya", "Dev"])
-    if claim_topic == "regrouping":
-        a = rng.randint(*a_range)
-        shown = f"{a // 10} tens and {a % 10} ones" if a < 100 else f"{a}"
-        claim = (
-            f"When you exchange one ten in {a} for ten ones, {a} is still worth the same."
-            if claim_is_true
-            else f"When you exchange one ten in {a} for ten ones, {a} becomes smaller."
-        )
-        rubric = (
-            "Accept: the exchange only renames the parts — one ten and ten ones are the same"
-            " value — so the total does not change."
-        )
-        spec = dict(a=a, shown=shown, name=name, topic="regrouping", claim_is_true=claim_is_true)
-    else:
-        a = rng.randint(*a_range)
-        b = rng.choice([99, 199, 299, 49, 79] if a >= 120 else [9, 19, 29])
-        claim = (
-            f"{a} + {b} gives the same total as {a - 1} + {b + 1}."
-            if claim_is_true
-            else f"{a} + {b} gives the same total as {a - 1} + {b}."
-        )
-        rubric = (
-            "Accept any explanation showing 1 moved from one number to the other, or that"
-            " both sums equal the same total."
-        )
-        spec = dict(a=a, b=b, name=name, topic="compensation", claim_is_true=claim_is_true)
-    rs = [
-        Response(
-            "tick", "tick", "yes" if claim_is_true else "no", options=["yes", "no"], label="Is this correct?"
-        ),
-        Response("why", "text", None, rubric=rubric),
-    ]
-    return _item(
-        "CLAIM",
-        "X1",
-        "Conceptual",
-        "explain_claim",
-        f"{name} says: “{claim}” Is {name} correct? Explain your answer.",
-        spec,
-        rs,
-        working_lines=3,
-    )
-
-
-def find_mistake(rng, rung, signal, op="+", digits=2):
-    """A worked column calculation with one planted misconception; child ticks the wrong step and writes the correct answer."""
-    if op == "+":
-        a, b = sample_add(rng, digits, digits, {1})
-        mis = M.predict("+", a, b)
-        code = rng.choice([c for c in ("M_NOCARRY", "M_CARRY_SKIP") if c in mis])
-    else:
-        a, b = sample_sub(rng, digits, digits, {1})
-        mis = M.predict("-", a, b)
-        code = rng.choice([c for c in ("M_SMALL_FROM_LARGE", "M_NO_DECREMENT") if c in mis])
-    wrong = mis[code]
-    ans = a + b if op == "+" else a - b
-    name = rng.choice(["Ishaan", "Anaya", "Vihaan", "Saee"])
-    opts = ["ones column", "tens column", "both"]
-    correct_opt = (
-        "ones column"
-        if code in ("M_NOCARRY",)
-        else ("tens column" if code == "M_CARRY_SKIP" else "ones column")
-    )
-    rs = [
-        Response("where", "tick", correct_opt, options=opts, label="Where is the mistake?"),
-        Response(
-            "ans",
-            "digits",
-            str(ans),
-            cells=_cells(max(ans, wrong)),
-            misconceptions=mis,
-            label="correct answer",
-        ),
-        Response(
-            "why",
-            "text",
-            None,
-            rubric=f"Names the mistake: {M.ADD_PREDICTORS.get(code, M.SUB_PREDICTORS.get(code))[1]}",
-        ),
-    ]
-    return _item(
-        "FTM",
-        "X2",
-        "Conceptual",
-        "find_mistake",
-        f"{name} worked out {a} {op} {b} and wrote {wrong}. That is not right.",
-        dict(a=a, b=b, op=op, wrong=wrong, planted=code),
-        rs,
-        working_lines=2,
-    )
-
-
 # ---------------------------------------------------------------- word problems (deterministic contexts; LLM hook later)
 
 
@@ -720,23 +612,29 @@ def missing_part_20(rng, rung, signal):
     )
 
 
-def multi_add(rng, rung, signal, n_addends=3, digits_each=4):
-    lo, hi = 10 ** (digits_each - 1), 10**digits_each - 1
-    xs = [rng.randint(lo, hi) for _ in range(n_addends)]
-    while any(x % 10 == 0 for x in xs):
+def multi_add(rng, rung, signal, n_addends=3, digits_each=4, xs=None, layout="column", shape=None):
+    """Three or more numbers added, in columns or written in a line (taxonomy §2.8). `xs` gives the
+    numbers when a caller has already chosen them — a case with mixed lengths, or friendly pairs."""
+    if xs is None:
+        lo, hi = 10 ** (digits_each - 1), 10**digits_each - 1
         xs = [rng.randint(lo, hi) for _ in range(n_addends)]
+        while any(x % 10 == 0 for x in xs):
+            xs = [rng.randint(lo, hi) for _ in range(n_addends)]
     ans = sum(xs)
-    mis = {"M_DROP_CARRYOUT": ans % (10**digits_each), "M_FACT_PM10": ans + 10, "M_FACT_PM100": ans - 100}
+    widest = max(len(str(x)) for x in xs)
+    mis = {"M_DROP_CARRYOUT": ans % (10**widest), "M_FACT_PM10": ans + 10, "M_FACT_PM100": ans - 100}
     mis |= M.predict_multi(xs)
-    mis = {k: v for k, v in mis.items() if v != ans}
+    mis = {k: v for k, v in mis.items() if v != ans and v >= 0}
     r = Response("ans", "digits", str(ans), cells=len(str(ans)) + 1, misconceptions=mis)
+    spec = dict(addends=xs, op="+", layout=layout) | ({"shape": shape} if shape else {})
+    column = layout == "column"
     return _item(
-        f"ADD.MULTI{n_addends}",
+        f"ADD.MULTI{len(xs)}",
         rung,
         signal,
-        "column_grid",
-        "",
-        dict(addends=xs, op="+", layout="column"),
+        "column_grid" if column else "bare_sum",
+        "Add them in the easiest order." if shape == "FRIENDLY_PAIRS" else "",
+        spec,
         [r],
-        working_lines=0,
+        working_lines=0 if column else 3,
     )
