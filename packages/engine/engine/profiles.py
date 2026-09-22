@@ -152,7 +152,7 @@ def checked_rows(conn, child_id=None):
     return conn.execute(
         "with latest as (select distinct on (rc.item_result_id) rc.item_result_id, rc.human_read, rc.judged"
         "               from read_correction rc order by rc.item_result_id, rc.created_at desc)"
-        " select si.child_id, i.fmt, c.id as capture_id, c.path, c.pages as file_pages,"
+        " select si.child_id, i.fmt, c.id as capture_id, c.path, c.pages as file_pages, c.created_at::date as batch,"
         "        coalesce((i.spec ->> 'page')::int, 1) as page, i.item_key, t.batch_id as paper, r.id as item_result_id,"
         "        coalesce(r.raw_read::jsonb ->> 'child_answer', '') as model_read,"
         "        coalesce(l.human_read, r.raw_read::jsonb ->> 'child_answer', '') as human_read,"
@@ -169,6 +169,96 @@ def checked_rows(conn, child_id=None):
         " order by c.created_at, i.item_key",
         (child_id, child_id),
     ).fetchall()
+
+
+def kind_trust(conn, window=50):
+    """Each kind of question's standing against `marking.agreement_gate` (ADR 0032): of the last
+    `window` readings of that kind the reader stood behind and a person checked, how many were what
+    the person said. Trusted only once the window is full and the bar is met."""
+    bar = _bar(conn)
+    last = {}
+    for r in checked_rows(conn):
+        if doubted(r["why"]):
+            continue
+        last.setdefault(r["fmt"], []).append(_norm(r["model_read"]) == _norm(r["human_read"]))
+    out = {}
+    for fmt, hits in last.items():
+        recent = hits[-window:]
+        out[fmt] = {"n": len(recent), "right": sum(recent), "trusted": kind_trust_of(recent, window, bar)}
+    return out
+
+
+def report(conn, window=50):
+    """How the reader is doing, from every check people have made — the numbers `engine read report`
+    prints and Capture & Mark shows (ADR 0032): the total, each kind's standing against the gate, each
+    batch's flag rate, and one line per child."""
+    rows = checked_rows(conn)
+    total = {
+        "checked": len(rows),
+        "stood_behind": 0,
+        "right": 0,
+        "silently_wrong": 0,
+        "gave_up": 0,
+        "guess_right": 0,
+    }
+    kinds, batches = {}, {}
+    for r in rows:
+        k = kinds.setdefault(
+            r["fmt"], {"checked": 0, "right": 0, "silently_wrong": 0, "gave_up": 0, "hits": []}
+        )
+        b = batches.setdefault(
+            r["batch"],
+            {"batch": r["batch"], "read": 0, "flagged": 0, "checked": 0, "stood_behind": 0, "right": 0},
+        )
+        k["checked"] += 1
+        b["checked"] += 1
+        truth = _norm(r["human_read"])
+        if doubted(r["why"]):
+            k["gave_up"] += 1
+            total["gave_up"] += 1
+            total["guess_right"] += bool(truth) and _norm(r["guess"]) == truth
+            continue
+        right = _norm(r["model_read"]) == truth
+        k["hits"].append(right)
+        k["right"] += right
+        k["silently_wrong"] += not right
+        total["stood_behind"] += 1
+        total["right"] += right
+        total["silently_wrong"] += not right
+        b["stood_behind"] += 1
+        b["right"] += right
+    for fmt, k in kinds.items():
+        recent = k["hits"][-window:]
+        k["window_n"], k["window_right"] = len(recent), sum(recent)
+        k["trusted"] = kind_trust_of(recent, window, _bar(conn))
+        del k["hits"]
+    for b in conn.execute(
+        "select c.created_at::date as batch, count(*) as read,"
+        " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'answer_state', '') not in ('written', 'blank')"
+        "   or (coalesce(r.raw_read::jsonb ->> 'why', '') <> '' and r.raw_read::jsonb ->> 'why' not like 'read as%%')) as flagged"
+        " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
+        " group by 1 order by 1"
+    ).fetchall():
+        batches.setdefault(
+            b["batch"],
+            {"batch": b["batch"], "read": 0, "flagged": 0, "checked": 0, "stood_behind": 0, "right": 0},
+        )
+        batches[b["batch"]].update(read=b["read"], flagged=b["flagged"])
+    return {
+        "total": total,
+        "kinds": kinds,
+        "batches": [batches[k] for k in sorted(batches)],
+        "children": lines(conn),
+    }
+
+
+def _bar(conn):
+    row = conn.execute("select value from threshold where key = 'marking.agreement_gate'").fetchone()
+    return float(row["value"]) if row else 0.95
+
+
+def kind_trust_of(recent, window, bar):
+    return len(recent) >= window and sum(recent) / len(recent) >= bar
 
 
 def signed_off(conn):

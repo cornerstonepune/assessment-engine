@@ -14,7 +14,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from engine import db, render_pdf, stencil
+from engine import db, profiles, reading, render_pdf
 from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
 from engine.assess import tags
@@ -175,7 +175,7 @@ def paper_rows(conn, code):
     if not t:
         raise ValueError(f"no paper {code!r}; run `engine legacy paper` first")
     items = conn.execute(
-        "select id, item_key, spec, responses from item where id = any(%s)", (list(_ids(conn, t["id"])),)
+        "select id, item_key, fmt, spec, responses from item where id = any(%s)", (list(_ids(conn, t["id"])),)
     ).fetchall()
     by_key = {}
     for it in items:
@@ -408,17 +408,27 @@ def mark(spec, response, read):
 # a blank is as often the reader's failure as the child's: of 30 the engine had settled alone, 9 were
 # right answers it had not read — a first digit of 61, the top line of the working, an answer written
 # beside the "=" instead of on the line (STATE.md, 2026-09-21).
+# A kind of question with no checked readings yet has earned no trust (ADR 0032).
+UNTRUSTED = {"n": 0, "right": 0, "trusted": False}
+
 HELD = {
     "wrong": "read as a wrong answer; a person checks every wrong answer before it counts",
     "blank": "read as blank; a person checks every blank before it counts",
 }
 
 
-def mark_read(spec, response, read):
+def mark_read(spec, response, read, gate=None):
     """`mark` for the ENGINE's own reading → (status, codes, working, read). A wrong or a blank waits for
     a person: the reading is kept, offered as the guess, and the reason is recorded where the queue
-    reads it. A person's reading goes through `mark` itself — what a person says was written stands."""
+    reads it. A person's reading goes through `mark` itself — what a person says was written stands.
+
+    `gate` is this kind of question's standing against `marking.agreement_gate` (ADR 0032,
+    `profiles.kind_trust`): until the reader's readings of a kind have matched people 95% of the time
+    over the last fifty checks, a right answer waits for a person too, its reading the one-click guess."""
     status, codes, working = mark(spec, response, read)
+    if status == "correct" and gate and not gate["trusted"]:
+        why = f"read as a right answer; a person checks every answer of this kind until the reader is trusted on it ({gate['right']} of the last {gate['n']} right)"
+        return "needs_teacher", [], working, {**read, "why": why, "guess": read.get("child_answer", "")}
     if status not in HELD:
         return status, codes, working, read
     return "needs_teacher", [], working, {**read, "why": HELD[status], "guess": read.get("child_answer", "")}
@@ -645,43 +655,30 @@ def import_scan(
 
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
-        cfg = ocr.settings(conn)
         cli = ocr.client()
-        for page_no, jpeg in zip(page_numbers, images):
-            fraction = (masks or {}).get(page_no, page_specs.get(page_no, {}).get("mask", 0))
-            jpeg = mask_name_band(jpeg, fraction)
-            questions = {
-                k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
-            }
-            if not questions:
-                summary["notes"].append(f"p{page_no}: no answers printed on this page")
+        trust = profiles.kind_trust(conn)
+        scan = {
+            "path": path,
+            "paper_code": paper_code,
+            "paper": paper,
+            "by_key": by_key,
+            "page_numbers": page_numbers,
+            "images": images,
+            "masks": masks,
+        }
+        for pg in reading.read_pages(conn, scan, cli, child_id):
+            page_no, jpeg, readings = pg["page_no"], pg["jpeg"], pg["readings"]
+            summary["notes"].append(pg["note"])
+            if readings is None:
                 continue
-            # Textract, not a model: what reads a child's handwriting must not know arithmetic,
-            # because a model that does fills faint pencil with the answer it can compute (ADR 0019).
-            # Measured on 45 hand-read responses: 80% exactly right with ZERO wrong readings the
-            # engine stood behind, against 55-63% with about seven of them.
-            # The paper says where its answers live (rule 1): only a paper that prints a box per
-            # answer hands the reader its boxes. On an underline paper a stray rectangle is not a field.
-            jpeg = ocr.mask_red_pen(jpeg, cfg)
-            readings = stencil.read_page(
-                jpeg,
-                questions,
-                cfg,
-                cli,
-                form=paper.get("printed_as", paper_code),
-                page_no=page_no,
-                symbolic=symbolic_slots(by_key),
-                use_boxes=paper.get("fields") == "boxes",
-                reread=second_look(path, page_no, fraction, cfg, cli),
-            )
-            flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
-            summary["notes"].append(f"p{page_no}: {len(readings)} answers read, {flagged} for a person")
             for key, read in readings.items():
                 it = by_key.get(key)
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
                     continue
-                status, codes, working, read = mark_read(it["spec"], it["responses"][0], read)
+                status, codes, working, read = mark_read(
+                    it["spec"], it["responses"][0], read, trust.get(it["fmt"], UNTRUSTED)
+                )
                 conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"
@@ -849,7 +846,7 @@ def remark(conn, child_id):
     a reading a later read superseded: it is history, and nothing else reads it either. A wrong or a
     blank the engine settled alone before ADR 0029 is held for a person here, its reading unchanged."""
     rows = conn.execute(
-        "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses"
+        "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses, i.fmt"
         " from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
         " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null"
@@ -858,8 +855,11 @@ def remark(conn, child_id):
         (child_id,),
     ).fetchall()
     changed = 0
+    trust = profiles.kind_trust(conn)
     for r in rows:
-        status, codes, working, read = mark_read(r["spec"], r["responses"][0], json.loads(r["raw_read"]))
+        status, codes, working, read = mark_read(
+            r["spec"], r["responses"][0], json.loads(r["raw_read"]), trust.get(r["fmt"], UNTRUSTED)
+        )
         if (status, codes, working) != (r["status"], list(r["misconception_codes"]), r["working_shown"]):
             conn.execute(
                 "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"

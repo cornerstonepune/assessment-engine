@@ -16,6 +16,14 @@ const fmtDate = (d: string | null) =>
 // should never have to learn the word `illegible` to use this screen.
 function reading(a: CaptureAnswer): string {
   if (a.human_read !== null) return `You said the child wrote ${a.human_read || "nothing"}.`;
+  const reason = a.why ?? "";
+  // ADR 0032: a right answer waits until the reader has earned trust on this kind of question; a
+  // reading the child's own notebook doubts says why; the second reader's guess says who made it.
+  if (reason.includes("until the reader is trusted"))
+    return `The reader read ${a.read} and marks it right. This kind of question is not yet trusted (${reason.match(/\(([^)]*)\)$/)?.[1] ?? "not enough checks yet"}), so a person confirms it.`;
+  if (reason.startsWith("this child's")) return `The reader read ${a.guess}, but ${reason}.`;
+  if (a.guess && a.guess_by)
+    return `The reader could not settle this (${reason}). The second reader, shown ${a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child's own answers, reads it as ${a.guess}.`;
   if (held(a))
     return a.answer_state === "blank"
       ? "The reader found nothing written here. Every blank is checked by a person before it counts."
@@ -238,7 +246,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
 // one thing a person is asked — what the child actually wrote.
 function AnswerCard({ a, paperId, names }: { a: CaptureAnswer; paperId: string; names: Record<string, string> }) {
   const box = a.box?.length === 4 ? `?box=${a.box.join(",")}` : "";
-  const value = a.human_read ?? a.read ?? "";
+  const value = a.human_read ?? (a.read || a.guess) ?? ""; // a guess is offered back, filled in: one press if it is right
   // A held reading (ADR 0029) is confirmed in "What the child wrote", which keeps the engine's mark and
   // named mistake; a Right/Wrong press would record a judgement and drop both.
   const judged = a.status === "needs_teacher" && !held(a);

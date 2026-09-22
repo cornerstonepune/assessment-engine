@@ -345,7 +345,7 @@ def child(conn):
 
 
 @pytestmark_db
-def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
+def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind_trusted):
     path = tmp_path / "paper.json"
     path.write_text(json.dumps(PAPER))
     legacy.load_paper(conn, path)
@@ -672,7 +672,9 @@ def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_
 
 
 @pytestmark_db
-def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, monkeypatch):
+def test_signing_off_one_paper_does_not_sign_off_another(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
     """A signature has to mean the person read the thing they signed. `confirm_results` took every
     candidate answer a child had, wherever it came from, which was right while the only screen was
     Child Growth — and wrong the moment a screen shows one photograph."""
@@ -843,7 +845,7 @@ def _read_test_paper(conn, child, tmp_path, monkeypatch):
 
 @pytestmark_db
 def test_the_engine_settles_a_right_answer_alone_and_holds_a_wrong_or_blank_one(
-    conn, child, tmp_path, monkeypatch
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
 ):
     """ADR 0029. A misread almost never lands on the exact key, so a right answer the reader read
     stands; a wrong or a blank is as often the reader's failure as the child's — of 30 the engine had
@@ -869,7 +871,7 @@ def test_the_engine_settles_a_right_answer_alone_and_holds_a_wrong_or_blank_one(
 
 @pytestmark_db
 def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
-    conn, child, tmp_path, monkeypatch
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
 ):
     """Every live answer was marked before ADR 0029, so 185 wrongs and 95 blanks stood on the engine's
     reading alone. Marking again puts each in front of a person, leaves an answer a person settled
@@ -899,3 +901,101 @@ def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
     ]
     assert json.loads(after[rows["2"]["id"]]["raw_read"])["guess"] == "75"
     assert legacy.remark(conn, child) == 0
+
+
+# ---------------------------------------------------------------- ADR 0032: the reader learns
+
+
+def test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted():
+    """Until the reader's readings of a kind have matched people 95% of the time over the last fifty
+    checks, a right answer waits too — its reading the one-click guess. A wrong or a blank waited already."""
+    read = {"child_answer": "84", "answer_state": "written", "confidence": 97.0}
+    assert legacy.mark_read(_spec(), {"answer": 84}, read)[0] == "correct"
+    assert (
+        legacy.mark_read(_spec(), {"answer": 84}, read, {"n": 50, "right": 50, "trusted": True})[0]
+        == "correct"
+    )
+    status, codes, _, held = legacy.mark_read(
+        _spec(), {"answer": 84}, read, {"n": 50, "right": 41, "trusted": False}
+    )
+    assert (status, codes, held["guess"]) == ("needs_teacher", [], "84")
+    assert (
+        held["why"]
+        == "read as a right answer; a person checks every answer of this kind until the reader is trusted on it (41 of the last 50 right)"
+    )
+    assert legacy.mark_read(_spec(), {"answer": 84}, read, legacy.UNTRUSTED)[0] == "needs_teacher"
+
+
+def test_the_childs_notebook_changes_the_next_import_of_that_child(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """The loop: a person's checks on this child's earlier papers, and the next paper reads differently.
+    Slot 1 reads 84 at 99%; this child's 8 has been read for a 3 twice, so it is flagged with 84 as
+    the one-click guess, and the reader is handed her own floor."""
+    import json as _json
+
+    from engine import profiles
+
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    floors = []
+    real = ocr.answers_for
+
+    def probe(page, slots, cfg=None, *a, **kw):
+        floors.append(cfg["min_confidence"])
+        return real(page, slots, cfg, *a, **kw)
+
+    monkeypatch.setattr(ocr, "answers_for", probe)
+    notes = profiles.build(
+        [
+            {
+                "fmt": "legacy_bare",
+                "model_read": "84",
+                "human_read": "34",
+                "confidence": 96.0,
+                "why": "",
+                "answer_state": "written",
+                "guess": "",
+                "capture_id": "c",
+                "page": 1,
+                "box": None,
+            }
+        ]
+        * 2
+        + [
+            {
+                "fmt": "legacy_bare",
+                "model_read": "5",
+                "human_read": "5",
+                "confidence": 60.0,
+                "why": "",
+                "answer_state": "written",
+                "guess": "",
+                "capture_id": "c",
+                "page": 1,
+                "box": None,
+            }
+        ]
+        * 10
+    )
+    assert notes["confusions"] == {"8>3": 2} and notes["floor"] == 70
+    conn.execute(
+        "insert into child_reading_profile (tenant_id, child_id, notes) select tenant_id, id, %s from child where id = %s",
+        (_json.dumps({**notes, "floor": 90}), child),
+    )
+    s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    assert floors == [90.0]
+    one = next(r for r in s["results"] if r["item"] == "1")
+    assert one["status"] == "unreadable"  # the reader's own doubt, with the guess beside it
+    stored = conn.execute(
+        "select r.raw_read from item_result r join item i on i.id = r.item_id where right(i.item_key, 2) = '/1' and r.capture_id = %s",
+        (s["capture_id"],),
+    ).fetchone()["raw_read"]
+    stored = _json.loads(stored) if isinstance(stored, str) else stored
+    assert stored["why"] == "this child's 8 has been read for a 3 before" and stored["guess"] == "84"

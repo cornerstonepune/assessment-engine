@@ -113,6 +113,10 @@ export type CaptureAnswer = {
   misconception_codes: string[];
   human_read: string | null;
   corrected_by: string | null;
+  // What the reader thinks it saw where it would not stand behind a reading, and — ADR 0032 — who said
+  // so: the first reader below its floor, or the second reader shown this child's own answers.
+  guess: string | null;
+  guess_by: string | null;
 };
 
 // A wrong or a blank the engine read but may not settle alone (ADR 0029): a reading for a person to
@@ -141,11 +145,13 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,
+           nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
-           k.human_read, k.by as corrected_by
+           k.human_read, k.by as corrected_by,
+           nullif(r.raw_read::jsonb ->> 'guess', '') as guess
     from item_result r
     join capture c on c.id = r.capture_id
     join item i on i.id = r.item_id
@@ -215,6 +221,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,
+           nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,

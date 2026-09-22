@@ -6,7 +6,8 @@ from pathlib import Path
 
 import typer
 
-from engine import db, external, legacy, profiles, reread, roster
+from engine import db, external, legacy, profiles, reread
+from engine.cli_learn import register as register_learn
 
 read_app = typer.Typer(help="W3 — read papers and place them on the skill graph", no_args_is_help=True)
 
@@ -197,25 +198,6 @@ def read_eval_cmd(
     typer.echo(f"  model spend Rs {spent:.2f}\n")
 
 
-@read_app.command("profile")
-def read_profile(
-    section: str = typer.Option("", "--section", help="with --child: the class"),
-    child: list[str] = typer.Option(
-        [], "--child", help="one child's first name; default every checked child"
-    ),
-) -> None:
-    """Rebuild each checked child's notebook from every check a person has made (ADR 0032), and say
-    what it holds: how often the reader was right, the child's own confidence floor, the kinds routed
-    to a person, the digits the reader confuses in this hand, and the samples the second reader sees."""
-    with db.connect() as conn:
-        ids = [roster.find(conn, section, c, "engine-cli") for c in child] if child else None
-        n = profiles.rebuild(conn, ids)
-        for line in profiles.lines(conn, ids):
-            typer.echo("  " + line)
-        conn.commit()
-    typer.echo(f"  {n} children profiled")
-
-
 @read_app.command("waiting")
 def read_waiting() -> None:
     """Every answer waiting for a person, counted by the reason the ENGINE gave for it.
@@ -365,3 +347,6 @@ def read_stencil(form: str = typer.Option("", "--form", help="one printed form; 
             f"  {f:<14} p{page}  {used} of {len(found)} copies aligned (inliers {min(inliers)}-{max(inliers)}),"
             f" {sum(1 for w in read['words'] if not w['hand'])} printed words, {len(boxes)} boxes"
         )
+
+
+register_learn(read_app)

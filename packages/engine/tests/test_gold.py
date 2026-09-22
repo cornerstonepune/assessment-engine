@@ -53,6 +53,14 @@ def _read(conn, child, tmp_path, monkeypatch, wrote):
     scan.write_bytes(b"")
     monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    from engine import profiles
+
+    # ADR 0032's gate is not what these measure: every kind as if the reader had earned trust on it
+    monkeypatch.setattr(
+        profiles,
+        "kind_trust",
+        lambda conn, window=50: {f: {"n": 50, "right": 50, "trusted": True} for f in profiles.KIND_WORDS},
+    )
     monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
     monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
     monkeypatch.setattr(

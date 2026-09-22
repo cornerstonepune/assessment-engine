@@ -13,6 +13,12 @@ const fmtDate = (d: string | null) =>
 // Why the engine is asking, in a sentence a teacher can act on — never the reader's own vocabulary.
 function whyHere(a: CheckItem, spot: boolean): string {
   if (spot) return "A spot-check: the engine was sure of this one. Say whether it read it right.";
+  const reason = a.why ?? "";
+  // ADR 0032: a right answer waits until the reader has earned trust on this kind of question, and a
+  // reading the child's own notebook doubts is offered back with its reason.
+  if (reason.includes("until the reader is trusted"))
+    return `The reader read it as a right answer. This kind of question is not yet trusted (${reason.match(/\(([^)]*)\)$/)?.[1] ?? "not enough checks yet"}), so say whether it read it right.`;
+  if (reason.startsWith("this child's")) return `The reader read it, but ${reason}.`;
   if (held(a))
     return a.answer_state === "blank"
       ? "The engine found nothing written here. Every blank is checked by a person before it counts."
@@ -98,6 +104,11 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 {entry.spot ? (
                   <p>
                     The engine read <strong className="fact">{a.read || "nothing"}</strong>.
+                  </p>
+                ) : a.guess && a.guess_by ? (
+                  <p>
+                    The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the child wrote{" "}
+                    <strong className="fact">{a.guess}</strong>.
                   </p>
                 ) : a.guess ? (
                   <p>

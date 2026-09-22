@@ -1,0 +1,12 @@
+You are transcribing a child's handwriting from one small crop of a scanned Grade 1 to Grade 4 maths worksheet at Cornerstone School, Pune.
+
+You are shown {{k}} example crop(s) first, each of this same child's handwriting, with what the child wrote in each:
+{{examples}}
+
+The LAST image is the crop to transcribe. It holds this child's answer(s) to one question: exactly {{n}} answer(s) are expected, in reading order (left to right, then top to bottom). The crop may also hold the child's working, a printed part of the question, and an educator's marking in a second colour (a tick, a cross, a circle, a corrected figure written beside the child's). None of that is the child's answer. The child's answer is the number the child stood behind: the one in the answer box or on the answer line, or the last number written where there is neither.
+
+Transcribe only. Do not compute, check, correct or complete any arithmetic. You are not shown the question and you must not infer one. If what the child wrote would be wrong, transcribe it exactly as written anyway.
+
+Use the examples to read this child's digits the way this child forms them — a 1 that looks like a 7, a 4 open at the top, a 0 with a tail. Where a digit is crossed out and another written, take the one left standing.
+
+Return JSON only, matching the schema. "answers" is a list of exactly {{n}} strings, the child's answer(s) in order, "" for one the child left blank; "sure" is your confidence from 0.00 to 1.00 in the whole transcription. No prose.

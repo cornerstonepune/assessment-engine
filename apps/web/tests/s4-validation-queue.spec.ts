@@ -247,6 +247,54 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
   await expect(page.getByRole("table").first().locator("tbody tr").first()).toBeVisible();
 });
 
+// ADR 0032: until the reader has earned 95% on a kind of question, a right answer waits too — its
+// reading the one-click guess — and the queue says so in words.
+test("a right answer of a kind the reader is not yet trusted on waits, and settles in one click", async ({ page }) => {
+  const [a] = await sql<{ id: string; raw_read: string; read: string }[]>`
+    select r.id, r.raw_read, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE} and r.status = 'correct' and r.state = 'candidate'
+      and coalesce(r.raw_read::jsonb ->> 'child_answer', '') <> ''
+      and not exists (select 1 from read_correction rc where rc.item_result_id = r.id) order by r.id limit 1`;
+  test.skip(!a, "no right answer waits on the copy");
+  const before = await keep(a.id);
+  try {
+    const held = JSON.stringify({
+      ...JSON.parse(a.raw_read),
+      why: "read as a right answer; a person checks every answer of this kind until the reader is trusted on it (41 of the last 50 right)",
+      guess: a.read,
+    });
+    await sql`update item_result set status = 'needs_teacher', raw_read = ${held} where id = ${a.id}`;
+    await page.goto(`/capture/check?id=${a.id}`);
+    await expect(page.getByText("This kind of question is not yet trusted (41 of the last 50 right)")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Right", exact: true })).toHaveCount(0);
+    await page.getByRole("button", { name: `Yes, the child wrote ${a.read}` }).click();
+    await expect.poll(async () => (await keep(a.id)).status, { timeout: 15_000 }).toBe("correct");
+  } finally {
+    await sql`update item_result set raw_read = ${a.raw_read} where id = ${a.id}`;
+    await putBack(before);
+  }
+});
+
+test("the second reader's guess is offered back as one click, on the queue and on the paper", async ({ page }) => {
+  const [a] = await sql<{ id: string; raw_read: string; paper: string }[]>`
+    select r.id, r.raw_read, c.sheet_instance_id as paper ${LIVE} and r.state = 'candidate'
+      and r.raw_read::jsonb ->> 'why' like '%numbers in the region%' and coalesce(r.raw_read::jsonb ->> 'guess', '') = ''
+      and not exists (select 1 from read_correction rc where rc.item_result_id = r.id) order by r.id limit 1`;
+  test.skip(!a, "nothing the reader gave up on waits on the copy");
+  try {
+    const guessed = JSON.stringify({ ...JSON.parse(a.raw_read), guess: "282", guess_by: "read_with_examples with 3 of the child's answers" });
+    await sql`update item_result set raw_read = ${guessed} where id = ${a.id}`;
+    await page.goto(`/capture/check?id=${a.id}`);
+    await expect(page.getByText(/The second reader, shown 3 of the child.s own answers, thinks the child wrote/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes, the child wrote 282" })).toBeVisible();
+    await page.goto(`/capture/${a.paper}`);
+    const card = page.locator(`#a-${a.id}`);
+    await expect(card.getByText(/The second reader, shown 3 of the child's own answers, reads it as 282/)).toBeVisible();
+    await expect(card.getByRole("textbox")).toHaveValue("282");
+  } finally {
+    await sql`update item_result set raw_read = ${a.raw_read} where id = ${a.id}`;
+  }
+});
+
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" }).click();

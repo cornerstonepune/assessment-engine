@@ -201,3 +201,14 @@ def test_a_signed_off_answer_counts_as_the_reader_being_right(conn):
     assert (
         len(rows) == 1 and not rows[0]["corrected"] and rows[0]["human_read"] == rows[0]["model_read"] != ""
     )
+
+
+def test_kind_trust_is_the_last_fifty_checks_of_each_kind_against_the_gate(conn):
+    trust = profiles.kind_trust(conn)
+    assert trust and all(
+        v["n"] <= 50 and v["right"] <= v["n"] and isinstance(v["trusted"], bool) for v in trust.values()
+    )
+    assert all(not v["trusted"] for v in trust.values() if v["n"] < 50)
+    profiles.rebuild(conn)
+    r = profiles.report(conn)
+    assert r["total"]["checked"] > 0 and set(r["kinds"]) == set(trust) and r["batches"] and r["children"]
