@@ -192,17 +192,17 @@ export async function readerReport(): Promise<ReaderReport> {
       left join latest l on l.item_result_id = r.id
       where c.superseded_by is null and l.judged is null and (l.item_result_id is not null or r.state = 'confirmed')),
     scored as (
-      select fmt, (why = '' or why like 'read as%') as stood, model_read = human_read as right,
+      select fmt, (why = '' or why like 'read as%') as stood, model_read = human_read as is_right,
              human_read <> '' and guess = human_read as guess_right,
              row_number() over (partition by fmt, (why = '' or why like 'read as%') order by created_at desc) as rn
       from checked)
     select fmt, count(*)::int as checked,
            count(*) filter (where stood)::int as stood_behind,
-           count(*) filter (where stood and right)::int as right,
+           count(*) filter (where stood and is_right)::int as right,
            count(*) filter (where not stood)::int as gave_up,
            count(*) filter (where not stood and guess_right)::int as guess_right,
            count(*) filter (where stood and rn <= 50)::int as window_n,
-           count(*) filter (where stood and rn <= 50 and right)::int as window_right
+           count(*) filter (where stood and rn <= 50 and is_right)::int as window_right
     from scored group by fmt order by fmt`;
   const sum = (k: keyof (typeof rows)[number]) => rows.reduce((n, r) => n + Number(r[k]), 0);
   return {

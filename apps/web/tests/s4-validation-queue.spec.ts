@@ -240,7 +240,7 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
 
   // the first student in the list steps to the next one with something left to check
   await page.goto("/capture");
-  await page.getByRole("table").first().getByRole("link").first().click();
+  await page.getByRole("table").filter({ has: page.getByRole("link") }).first().getByRole("link").first().click();
   const first = new URL(page.url()).searchParams.get("child");
   await page.getByRole("link", { name: /^Next student to check: / }).click();
   await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
@@ -301,7 +301,7 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
     select count(*)::int as checked from item_result r join capture c on c.id = r.capture_id left join latest l on l.item_result_id = r.id
     where c.superseded_by is null and l.judged is null and (l.item_result_id is not null or r.state = 'confirmed')`;
   await page.goto("/capture");
-  const panel = page.getByRole("heading", { name: "How the reader is doing" }).locator("..");
+  const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
   await expect(panel.getByText(`Checked by a person: ${n.checked} answers.`)).toBeVisible();
   await expect(panel.getByRole("table")).toBeVisible();
   await expect(panel.getByText(/every answer checked by a person|trusted: settles alone/).first()).toBeVisible();

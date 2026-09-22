@@ -76,7 +76,6 @@ export default async function CapturePage({ searchParams }: Props) {
         </div>
 
         <div className="grid min-w-0 gap-[18px]">
-          <ReaderPanel r={reader} />
           {sections.map((section) => {
             const rows = students.filter((s) => s.section === section);
             return (
@@ -115,6 +114,7 @@ export default async function CapturePage({ searchParams }: Props) {
             );
           })}
 
+          <ReaderPanel r={reader} />
           {broken.length > 0 ? (
             <Panel title="Read, but nothing came back" aside={`${broken.length}`}>
               <p className="note mb-3">
