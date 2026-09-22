@@ -27,8 +27,16 @@ def conn():
 
 
 def test_every_invariant_holds(conn):
-    broken = {name: violations for name, violations in audit.run(conn) if violations}
+    """Every invariant code can keep. The ones a person closes (an approval) are counted by `engine audit`
+    and by the goal that names it, not here."""
+    broken = {name: v for name, v in audit.run(conn) if v and name not in audit.AWAITS_A_PERSON}
     assert not broken, f"invariants violated: { {k: v[:3] for k, v in broken.items()} }"
+
+
+def test_an_invariant_that_waits_for_a_person_says_so_in_words(conn):
+    waiting = {name: v for name, v in audit.run(conn) if v and name in audit.AWAITS_A_PERSON}
+    assert all(isinstance(line, str) and line for v in waiting.values() for line in v)
+    assert audit.AWAITS_A_PERSON <= {name for name, _ in audit.INVARIANTS}
 
 
 def test_the_goals_scenarios_are_the_ones_we_agreed(conn):

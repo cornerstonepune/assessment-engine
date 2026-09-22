@@ -2957,3 +2957,11 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   addition alone; every budget problem `NUM.PRB.02, NUM.MEAS.04, NUM.OPS.01, NUM.OPS.02`. `engine audit` holds
   "no question carries a skill it does not use". `tests/test_every_skill.py` 12; engine suite green. Live not yet
   relabelled.
+- **8b — the skill a mistake charges.** Migration `20260928090000`: `misconception.skill_from` ('operation' or
+  'row') + `skill_code`, `item.mistake_skills`. 39 of the 68 named mistakes name their own skill (equality, rounding,
+  budget steps, explaining); the rest take the question's operation. `skills.charges_by_kind` (config) covers the
+  kinds where a mistake charges something else — choosing the wrong operation in a story is a word-problem slip.
+  On the copy `engine bank relabel`: `mistake_skills: 11657 changed`; a budget question now records
+  `M_SUM_ONLY → NUM.OPS.02, M_ONE_STEP_ONLY → NUM.PRB.02`. **Waits for one approval** (`engine audit`: "the table of
+  what a mistake charges on each kind of question waits for one approval"); the suite counts only what code keeps
+  (`audit.AWAITS_A_PERSON`).

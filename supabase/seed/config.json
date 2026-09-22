@@ -140,6 +140,24 @@
         "₹": "NUM.MEAS.04"
       },
       "description": "A skill a question uses when its sentence carries this symbol: a story about rupees is also about money (ADR 0023)."
+    },
+    {
+      "key": "skills.charges_by_kind",
+      "value": {
+        "word_1step": {
+          "M_WRONG_OP": "NUM.PRB.02"
+        },
+        "word_2step": {
+          "M_WRONG_OP": "NUM.PRB.02"
+        }
+      },
+      "description": "Where a mistake charges a different skill on this kind of question than its own row says: choosing the wrong operation in a story is a word-problem slip, not an arithmetic one (ADR 0023, step 8b). Drafted by the engine; approved once by Nimish or Aseem."
+    },
+    {
+      "key": "skills.charges_by_kind.approved",
+      "seed_once": true,
+      "value": {},
+      "description": "Who approved the table of what a mistake charges on each kind of question, and the table they approved. A changed table is not approved until someone approves it again."
     }
   ]
 }

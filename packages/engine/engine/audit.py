@@ -135,14 +135,29 @@ def no_question_carries_a_skill_it_does_not_use(conn):
     return labels.mislabelled(conn)
 
 
+def what_a_mistake_charges_is_approved(conn):
+    """The (kind, mistake) → skill table was drafted by the engine; a person approves the table itself,
+    so a table changed after it was approved is not approved (step 8b, as the gold was)."""
+    rows = {r["key"]: r["value"] for r in conn.execute("select key, value from config where key like 'skills.charges_by_kind%'")}
+    approved = rows.get("skills.charges_by_kind.approved") or {}
+    if approved.get("table") == rows.get("skills.charges_by_kind") and approved.get("by"):
+        return []
+    return ["the table of what a mistake charges on each kind of question waits for one approval"]
+
+
 def referential_codes_all_resolve(_conn):
     return [f"{label}: {', '.join(codes)}" for label, codes in loaders.orphans().items() if codes]
 
+
+# Invariants a person closes, not code: an approval on the Skill Map. `engine audit` counts them like
+# any other; the test suite does not, because a suite proves the code and a click is not code.
+AWAITS_A_PERSON = {"every spec is ratified", "what a mistake charges is approved"}
 
 # Ordered cheapest first, so a run that fails early has still said something useful.
 INVARIANTS = [
     ("every rung has a spec", every_rung_has_a_spec),
     ("every spec is ratified", every_spec_is_ratified),
+    ("what a mistake charges is approved", what_a_mistake_charges_is_approved),
     ("every code a spec references resolves", referential_codes_all_resolve),
     ("exactly one prompt version active per purpose", exactly_one_prompt_version_is_active_per_purpose),
     ("every format a spec lists can be made", every_format_a_spec_lists_can_be_made),

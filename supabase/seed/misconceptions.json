@@ -158,7 +158,9 @@
       "repair_hint": "Ask what the 4 represents in 43.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M002"
+      "external_ref": "M002",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_REGROUP_CHANGES_TOTAL",
@@ -168,7 +170,9 @@
       "repair_hint": "Represent both decompositions with blocks.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M003"
+      "external_ref": "M003",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_EXCHANGE_UNEXPLAINED",
@@ -178,7 +182,9 @@
       "repair_hint": "Ask what was traded and why the value stayed the same.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M004"
+      "external_ref": "M004",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_MISALIGNED_COLUMNS",
@@ -198,7 +204,9 @@
       "repair_hint": "Use an algebraic balance visualisation.",
       "detectable_by": "working",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M008"
+      "external_ref": "M008",
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_COUNTS_ONE_BY_ONE",
@@ -208,7 +216,9 @@
       "repair_hint": "Ask the learner to create the largest sensible jumps.",
       "detectable_by": "working",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M009"
+      "external_ref": "M009",
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_KEYWORD_OVERGENERALISED",
@@ -218,7 +228,9 @@
       "repair_hint": "Give a non-subtraction context containing the keyword.",
       "detectable_by": "teacher",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M010"
+      "external_ref": "M010",
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     },
     {
       "code": "M_H2V_SHIFT",
@@ -268,7 +280,9 @@
       "repair_hint": "Substitute the chosen digit back and work the whole question through, column by column.",
       "detectable_by": "working",
       "source": "SPEC.md section 3.4 (taxonomy section 11 error list); visible only in the working box",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
     },
     {
       "code": "M_ADD_INSTEAD",
@@ -278,7 +292,9 @@
       "repair_hint": "Say the sentence aloud as a story; find the part, not the whole",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_EQUALS_MEANS_ANSWER",
@@ -288,7 +304,9 @@
       "repair_hint": "Balance scale with rods: both sides must weigh the same",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_ADD_ALL",
@@ -298,7 +316,9 @@
       "repair_hint": "Cover one side; ask what would make the two sides match",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_ONE_STEP_ONLY",
@@ -308,7 +328,9 @@
       "repair_hint": "Underline both things that happen before calculating; two boxes for two steps",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     },
     {
       "code": "M_SUM_ONLY",
@@ -318,7 +340,9 @@
       "repair_hint": "Ask what the question wants: the money gone, or the money left?",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.02"
     },
     {
       "code": "M_FACT_PM100",
@@ -408,7 +432,9 @@
       "repair_hint": "The open side faces the bigger number; read it aloud as 'is less than'",
       "detectable_by": "answer_lookup",
       "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (COMPARE_PREDICTORS, 2026-09-21)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.02"
     },
     {
       "code": "M_DIGIT_DROPPED",

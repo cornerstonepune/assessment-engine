@@ -382,11 +382,13 @@ def _misconceptions(conn, t):
     for m in _seed("misconceptions.json", "misconceptions"):
         conn.execute(
             "insert into misconception (tenant_id, code, op, name, description, repair_hint,"
-            " detectable_by, source, external_ref) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " detectable_by, source, external_ref, skill_from, skill_code)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code, op) do update set name=excluded.name,"
             " description=excluded.description, repair_hint=excluded.repair_hint,"
             " detectable_by=excluded.detectable_by, source=excluded.source,"
-            " external_ref=excluded.external_ref, updated_at=now()",
+            " external_ref=excluded.external_ref, skill_from=excluded.skill_from,"
+            " skill_code=excluded.skill_code, updated_at=now()",
             (
                 t,
                 m["code"],
@@ -397,6 +399,8 @@ def _misconceptions(conn, t):
                 m["detectable_by"],
                 m.get("source", ""),
                 m.get("external_ref"),
+                m.get("skill_from", "operation"),
+                m.get("skill_code"),
             ),
         )
 

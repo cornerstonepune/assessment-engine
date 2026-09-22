@@ -83,6 +83,54 @@ def test_used_a_kind_with_no_operation_of_its_own_uses_its_kinds_skills_alone():
     assert S.used("explain_claim", {"a": 417, "topic": "regrouping"}, "", ["NUM.PRB.03"], rules) == ["NUM.PRB.03"]
 
 
+# ---------------------------------------------------------------- 8b: the skill a mistake charges
+
+VOCAB = {
+    ("M_SUM_ONLY", "any"): ("row", "NUM.OPS.02"),
+    ("M_ONE_STEP_ONLY", "any"): ("row", "NUM.PRB.02"),
+    ("M_WRONG_OP", "+"): ("operation", None),
+    ("M_WRONG_OP", "-"): ("operation", None),
+    ("M_NOCARRY", "+"): ("operation", None),
+    ("M_SMALL_FROM_LARGE", "-"): ("operation", None),
+    ("M_ZERO_DROPPED", "any"): ("operation", None),
+    ("M_EQUALS_MEANS_ANSWER", "any"): ("row", "NUM.OPS.05"),
+    ("M_COMPARE_REVERSED", "any"): ("row", "NUM.PV.02"),
+}
+CHARGING = dict(RULES, charges_by_kind={"word_1step": {"M_WRONG_OP": "NUM.PRB.02"}, "word_2step": {"M_WRONG_OP": "NUM.PRB.02"}})
+
+
+def charges(fmt, spec, rung, codes, stem=""):
+    return S.charges(fmt, spec, stem, used(fmt, spec, rung, stem), codes, VOCAB, CHARGING)
+
+
+def test_charges_budget_mistakes_charge_the_step_that_broke():
+    spec = {"budget": 8000, "a": 1231, "b": 797, "c": 548}
+    got = charges("word_2step", spec, ["NUM.PRB.02", "NUM.MEAS.04"], ["M_SUM_ONLY", "M_ONE_STEP_ONLY", "M_WRONG_OP"], "₹")
+    assert got == {"M_SUM_ONLY": "NUM.OPS.02", "M_ONE_STEP_ONLY": "NUM.PRB.02", "M_WRONG_OP": "NUM.PRB.02"}
+
+
+def test_charges_every_mistake_on_a_bare_subtraction_charges_subtraction():
+    got = charges("column_grid", {"a": 402, "b": 185, "op": "-"}, ["NUM.OPS.02"], ["M_SMALL_FROM_LARGE", "M_ZERO_DROPPED"])
+    assert got == {"M_SMALL_FROM_LARGE": "NUM.OPS.02", "M_ZERO_DROPPED": "NUM.OPS.02"}
+
+
+def test_charges_choosing_the_wrong_operation_in_a_story_is_a_word_problem_slip_not_an_addition_one():
+    got = charges("word_1step", {"a": 47, "b": 38, "op": "+"}, ["NUM.PRB.02"], ["M_WRONG_OP", "M_NOCARRY"], "marbles")
+    assert got == {"M_WRONG_OP": "NUM.PRB.02", "M_NOCARRY": "NUM.OPS.01"}
+
+
+def test_charges_a_mistake_about_equality_charges_equality_whatever_the_numbers():
+    rules = dict(CHARGING, by_kind=dict(RULES["by_kind"], balance_scale=["NUM.OPS.05"]))
+    spec = {"left": [20, 60], "right": [None, 40]}
+    got = S.charges("balance_scale", spec, "", S.used("balance_scale", spec, "", ["NUM.OPS.05"], rules), ["M_EQUALS_MEANS_ANSWER"], VOCAB, rules)
+    assert got == {"M_EQUALS_MEANS_ANSWER": "NUM.OPS.05"}
+
+
+def test_charges_a_skill_the_question_does_not_use_falls_back_to_its_own_skill():
+    got = charges("bare_sum", {"a": 47, "b": 38, "op": "+"}, ["NUM.OPS.01"], ["M_COMPARE_REVERSED", "M_UNKNOWN"])
+    assert got == {"M_COMPARE_REVERSED": "NUM.OPS.01", "M_UNKNOWN": "NUM.OPS.01"}
+
+
 # ---------------------------------------------------------------- against the copy
 
 
@@ -114,10 +162,22 @@ def test_fill_labels_3_digit_addition_with_addition_alone(conn):
 
 
 def test_relabel_leaves_no_question_carrying_a_skill_it_does_not_use(conn):
-    changed = labels.relabel(conn)
-    assert changed["skills"] >= 0
+    labels.relabel(conn)
     assert labels.mislabelled(conn) == []
-    assert labels.relabel(conn)["skills"] == 0  # a second pass finds nothing left to correct
+    assert labels.relabel(conn) == {"skills": 0, "mistake_skills": 0}  # a second pass finds nothing left
+
+
+def test_relabel_records_what_each_mistake_on_a_budget_problem_charges(conn):
+    labels.relabel(conn)
+    row = conn.execute(
+        "select mistake_skills from item where status = 'active' and skill_set_code = 'WORD.BUDGET' limit 1"
+    ).fetchone()
+    assert row["mistake_skills"] == {"M_SUM_ONLY": "NUM.OPS.02", "M_ONE_STEP_ONLY": "NUM.PRB.02"}
+
+
+def test_every_named_mistake_says_which_skill_it_charges(conn):
+    rows = conn.execute("select code, op, skill_from, skill_code from misconception").fetchall()
+    assert rows and all(r["skill_from"] == "operation" or r["skill_code"] for r in rows)
 
 
 def test_relabel_never_touches_a_question_from_an_old_paper(conn):

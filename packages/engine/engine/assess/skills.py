@@ -48,3 +48,27 @@ def used(fmt, spec, stem, rung_skills, rules):
     found = list(dict.fromkeys(found))
     lead = [s for s in rung_skills if s in found]
     return lead + [s for s in found if s not in lead]
+
+
+def charges(fmt, spec, stem, skills_used, codes, vocab, rules):
+    """{mistake: skill} — the skill a wrong answer showing each mistake counts against (ADR 0023).
+
+    In order: this kind's own table (`skills.charges_by_kind`, approved once by a person), then the
+    mistake's vocabulary row, then the question's operation when it has exactly one. A mistake that
+    would charge a skill the question does not use — or that nothing names — charges the question's
+    own skill, so a wrong answer never lands on a skill the question never asked for.
+    """
+    ops = operations(fmt, spec, stem)
+    own = skills_used[0] if skills_used else None
+    table = rules.get("charges_by_kind", {}).get(fmt, {})
+    out = {}
+    for code in codes:
+        skill = table.get(code)
+        if skill is None:
+            skill_from, row_skill = vocab.get((code, ops[0]) if len(ops) == 1 else None) or vocab.get((code, "any")) or (None, None)
+            if skill_from == "row":
+                skill = row_skill
+            elif len(ops) == 1:
+                skill = rules["by_operation"].get(ops[0])
+        out[code] = skill if skill in skills_used else own
+    return out

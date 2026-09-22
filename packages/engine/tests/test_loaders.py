@@ -84,7 +84,7 @@ EXPECTED = {
     #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
-    "config": 11,  # + skills.by_operation / by_kind / by_symbol (ADR 0023, step 8a)
+    "config": 13,  # + skills.by_operation / by_kind / by_symbol / charges_by_kind (+ its approval), step 8
     "skill_set": 17,
     "subject": 1,
 }
