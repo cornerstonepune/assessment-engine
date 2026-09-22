@@ -3158,3 +3158,23 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   (`.claude/settings.json` in the repository, and `/Users/nimishshah/cornerstone/.claude/settings.json` for
   sessions started in the workspace). CLAUDE.md rule 14.
 
+
+## The next paper per skill set, not per rung — ADR 0034, live (2026-09-22, night)
+
+- **Found**: `next_difficulty` joined evidence to a skill set on `rung_code`. R9 holds 3-digit addition and
+  subtraction; its one skill set, ADD.3D.REG, practises addition. Live, before: Dhanvi's ADD.3D.REG → Medium
+  aimed at `M_FACT_PM10, M_NO_DECREMENT` (subtraction mistakes); no subtraction skill set read her R9 answers.
+- **Fix**: an answer counts for every skill set whose level holds its question — a generated one's own
+  (`item.skill_set_code`); an old one's measured from its numbers against the taxonomy cases (`engine legacy
+  place` → `item_placement`), else its rung's skill set when that set's questions use its skill, else named.
+  `skill_set_evidence()` is the one join; `next_difficulty` reads it. Placement runs in `engine legacy paper`
+  and `engine graph`.
+- `tests/test_place.py` 4 passed (the regression test failed on the old rule: ADD.3D.REG `from_state`);
+  engine suite 910 passed, 7 xfailed (steps 13 and 14's tests, written first); `bin/check` clean.
+- **Live, 2026-09-22 night**: migration `20260929090000` applied (`supabase db push`), `engine load`
+  (`legacy.kind_as`), `engine legacy place` → **"318 old questions placed in 368 skill-set levels; 12 counted
+  nowhere"** (place value, comparison, fractions, division, number words). Dhanvi now: ADD.3D.REG Medium, no
+  targets; **SUB.3D.ZERO Easy aimed at `M_FACT_PM10, M_NO_DECREMENT`**; SUB.2D.EXCH Hard. `engine audit` 17
+  invariants, 0 violations. Not clicked through signed in on the live link.
+- **The order after it** (BUILD-ORDER "Now, in this order"): step 12 this; 13 `goals/two-child-loop.yaml`
+  (Agastya 46/46, Dhanvi 49/49 signed off); 14 `goals/custom-paper.yaml`, replacing step 10.

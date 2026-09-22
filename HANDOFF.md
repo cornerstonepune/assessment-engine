@@ -29,10 +29,20 @@ keeps itself honest; the graph readable at a glance.
 
 **Built tonight (PR #22, ADR 0033):** the engine laid out as its workflows and held to `workflows.json`; the How it
 works page; `engine promises`, `engine done <goal>`, `bin/check` run by the git pre-commit hook and a Claude Code
-Stop hook. **Report work done only with `engine done <goal>` pasted (CLAUDE.md rule 14).** **Next, queued before
-anything else:** the next-paper rule groups answers by rung, not skill — on shared rung R9 Dhanvi's subtraction
-mistakes are charged to 3-digit addition and 3-digit subtraction gets no next paper (a migration to
-`next_difficulty`; write its goal with `says` first).
+Stop hook. **Report work done only with `engine done <goal>` pasted (CLAUDE.md rule 14).**
+
+**Step 12 — the next paper per skill set, live** (ADR 0034, branch `next-paper-per-skill`; migration applied to
+live, `engine load`, `engine legacy place` run on live — numbers in STATE). Dhanvi's subtraction mistakes now
+aim her SUB.3D.ZERO paper, not ADD.3D.REG. **Owed:** the PR merged (then `engine done next-paper-per-skill`
+reads DONE); 12 old questions no skill set holds wait on the pedagogy question below.
+
+**Next, in this order (BUILD-ORDER "Now, in this order", agreed by Nimish tonight):** step 13
+`goals/two-child-loop.yaml` — Agastya's and Dhanvi's graphs per skill set, read in plain sentences, drawn for a
+teacher, and the next paper's plan from them; build `engine/w3_read/skill_graph.py` against
+`tests/test_skill_graph.py` (xfail strict — take each marker off as it passes). Then step 14
+`goals/custom-paper.yaml` — `engine/w2_print/compose.py` against `tests/test_compose.py`; it replaces step 10.
+Add each new file to `workflows.json` before writing it. **Asked, no answer yet:** N4 (the teacher's Wednesday
+declaration) and N7 (the teacher approves the pack) are in no step.
 
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
