@@ -381,11 +381,10 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
     assert slots["1"] == "46 + 38"
     by = {r["item"]: r for r in s["results"]}
     assert by["1"]["status"] == "correct"
-    assert (
-        by["2"]["status"] == "wrong" and by["2"]["codes"] == ["M_NOCARRY"] and by["2"]["working"] == "partial"
-    )
-    assert by["4"]["status"] == "blank"
-    assert by["5"]["status"] == "needs_teacher"
+    # Two wrongs and a blank on the engine's reading alone wait for a person (ADR 0029), beside the
+    # judgement question that always did. Rule 5's third signal is kept while it waits.
+    assert [by[k]["status"] for k in ("2", "3", "4", "5")] == ["needs_teacher"] * 4
+    assert by["2"]["working"] == "partial"
     # Nothing unmatched, and it cannot be: the reader is HANDED the slots the paper has, so a slot
     # that is not printed on the paper can never come back. The model path could return one — the
     # fixture still carries a slot 9 that this paper does not print — and the caller had to notice
@@ -405,6 +404,20 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch):
         ]
         == 0
     )
+
+    # A person says what the child wrote on the three the engine held, and the engine marks each by
+    # lookup — the diagnosis is the engine's, the reading is the person's.
+    held = {
+        r["key"]: r["id"]
+        for r in conn.execute(
+            "select i.item_key as key, r.id from item_result r join item i on i.id = r.item_id"
+            " where r.capture_id = %s",
+            (s["capture_id"],),
+        ).fetchall()
+    }
+    assert legacy.correct(conn, held["legacy/TEST-PAPER/2"], "75", "aseem")["codes"] == ["M_NOCARRY"]
+    assert legacy.correct(conn, held["legacy/TEST-PAPER/3"], "85", "aseem")["status"] == "wrong"
+    assert legacy.correct(conn, held["legacy/TEST-PAPER/4"], "", "aseem")["status"] == "blank"
 
     n = legacy.confirm(conn, child, "aseem")
     assert n == 4  # the needs_teacher row waits for a person
@@ -604,7 +617,7 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
         "select r.id, r.raw_read, r.status from item_result r join item i on i.id = r.item_id"
         " where i.item_key = 'legacy/TEST-PAPER/2'"
     ).fetchone()
-    assert (row["status"], json.loads(row["raw_read"])["child_answer"]) == ("wrong", "75")
+    assert (row["status"], json.loads(row["raw_read"])["child_answer"]) == ("needs_teacher", "75")
 
     out = legacy.correct(conn, row["id"], "85", "neha@school")
     assert (out["was"], out["now"], out["status"]) == ("75", "85", "correct")
@@ -676,7 +689,9 @@ def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, 
     b = legacy.import_scan(conn, second, "TEST-PAPER", child, "test")["capture_id"]
 
     n = conn.execute("select confirm_results(%s, 'neha', %s) as n", (child, a)).fetchone()["n"]
-    assert n == 4  # the four markable answers on that one paper
+    # The one answer on that paper the engine may settle alone; its wrongs and blank wait for a person
+    # and cannot be signed off past one (ADR 0029).
+    assert n == 1
     live = {
         r["capture_id"]: r["n"]
         for r in conn.execute(
@@ -685,7 +700,7 @@ def test_signing_off_one_paper_does_not_sign_off_another(conn, child, tmp_path, 
             (a, b),
         ).fetchall()
     }
-    assert live == {a: 4}, "the second paper is untouched until someone reads it"
+    assert live == {a: 1}, "the second paper is untouched until someone reads it"
 
 
 def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
@@ -762,7 +777,7 @@ def test_marking_again_never_undoes_what_a_person_said(conn, child, tmp_path, mo
         " where r.capture_id = %s and i.item_key = 'legacy/TEST-PAPER/2'",
         (s["capture_id"],),
     ).fetchone()
-    assert two["status"] == "wrong"  # the reader saw 75 for 57 + 28
+    assert two["status"] == "needs_teacher"  # the reader saw 75 for 57 + 28, and a wrong waits (ADR 0029)
 
     legacy.correct(conn, two["id"], "85", "a person")
     legacy.remark(conn, child)
@@ -803,3 +818,84 @@ def test_a_judgement_is_never_counted_as_a_reading(conn, child, tmp_path, monkey
 
     legacy.correct(conn, two["id"], "85", "a person")
     assert gold() == ["85"]
+
+
+def _read_test_paper(conn, child, tmp_path, monkeypatch):
+    """TEST-PAPER entered and one scan of it read → {item_key: row} of what the engine stored."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    return {
+        r["key"].rsplit("/", 1)[1]: {**r, "read": json.loads(r["raw_read"])}
+        for r in conn.execute(
+            "select i.item_key as key, r.id, r.status, r.misconception_codes as codes, r.raw_read"
+            " from item_result r join item i on i.id = r.item_id where r.capture_id = %s",
+            (s["capture_id"],),
+        ).fetchall()
+    }
+
+
+@pytestmark_db
+def test_the_engine_settles_a_right_answer_alone_and_holds_a_wrong_or_blank_one(
+    conn, child, tmp_path, monkeypatch
+):
+    """ADR 0029. A misread almost never lands on the exact key, so a right answer the reader read
+    stands; a wrong or a blank is as often the reader's failure as the child's — of 30 the engine had
+    settled alone, 9 were right answers it had not read (STATE.md, 2026-09-21). Each waits for a
+    person, its reading kept and offered as the guess, and counts once a person says what was written."""
+    rows = _read_test_paper(conn, child, tmp_path, monkeypatch)
+    assert rows["1"]["status"] == "correct"
+
+    two, four = rows["2"], rows["4"]
+    assert (two["status"], two["codes"]) == ("needs_teacher", [])
+    assert (two["read"]["child_answer"], two["read"]["answer_state"]) == (
+        "75",
+        "written",
+    )  # the reading stays
+    assert (two["read"]["guess"], two["read"]["why"]) == ("75", legacy.HELD["wrong"])
+    assert (four["status"], four["read"]["why"]) == ("needs_teacher", legacy.HELD["blank"])
+
+    # the person's reading settles each, and the engine marks it by lookup as before
+    out = legacy.correct(conn, two["id"], "75", "a person")
+    assert (out["status"], out["codes"]) == ("wrong", ["M_NOCARRY"])
+    assert legacy.correct(conn, four["id"], "", "a person")["status"] == "blank"
+
+
+@pytestmark_db
+def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
+    conn, child, tmp_path, monkeypatch
+):
+    """Every live answer was marked before ADR 0029, so 185 wrongs and 95 blanks stood on the engine's
+    reading alone. Marking again puts each in front of a person, leaves an answer a person settled
+    exactly as the person left it, and changes nothing the second time."""
+    rows = _read_test_paper(conn, child, tmp_path, monkeypatch)
+    for k, status in (("2", "wrong"), ("4", "blank")):  # as the old rule stored them
+        read = {f: v for f, v in rows[k]["read"].items() if f not in ("why", "guess")}
+        conn.execute(
+            "update item_result set status = %s, raw_read = %s where id = %s",
+            (status, json.dumps(read), rows[k]["id"]),
+        )
+    legacy.correct(conn, rows["3"]["id"], "85", "a person")
+    assert legacy.remark(conn, child) == 2
+
+    after = {
+        r["id"]: r
+        for r in conn.execute(
+            "select id, status, raw_read from item_result where id = any(%s)",
+            ([rows[k]["id"] for k in ("1", "2", "3", "4")],),
+        ).fetchall()
+    }
+    assert [after[rows[k]["id"]]["status"] for k in ("1", "2", "3", "4")] == [
+        "correct",
+        "needs_teacher",
+        "wrong",  # the person's reading, untouched
+        "needs_teacher",
+    ]
+    assert json.loads(after[rows["2"]["id"]]["raw_read"])["guess"] == "75"
+    assert legacy.remark(conn, child) == 0

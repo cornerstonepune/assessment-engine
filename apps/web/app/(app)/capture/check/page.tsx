@@ -2,7 +2,7 @@ import Link from "@/components/link";
 import { Bar, Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
-import { checkItem, checkQueue, type CheckItem } from "@/lib/queries-read";
+import { checkItem, checkQueue, held, type CheckItem } from "@/lib/queries-read";
 import { correctRead, judgeOne } from "../actions";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -13,6 +13,10 @@ const fmtDate = (d: string | null) =>
 // Why the engine is asking, in a sentence a teacher can act on — never the reader's own vocabulary.
 function whyHere(a: CheckItem, spot: boolean): string {
   if (spot) return "A spot-check: the engine was sure of this one. Say whether it read it right.";
+  if (held(a))
+    return a.answer_state === "blank"
+      ? "The engine found nothing written here. Every blank is checked by a person before it counts."
+      : "The engine read this as a wrong answer. Every wrong answer is checked by a person before it counts.";
   if (a.status === "needs_teacher" && a.answer_state === "written")
     return "The reader read it, but only a person can say whether it is right.";
   if (a.answer_state === "not_found") return "The reader could not find this question on the photograph, so the whole page is shown.";
@@ -102,7 +106,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
                   </p>
                 ) : null}
 
-                {a.status === "needs_teacher" && a.answer_state === "written" ? (
+                {a.status === "needs_teacher" && a.answer_state === "written" && !held(a) ? (
                   <>
                     <form action={judgeOne} className="flex flex-wrap items-center gap-2">
                       <input type="hidden" name="result_id" value={a.id} />

@@ -2824,6 +2824,41 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   `12,34,45,78`, Save → "208 answers left" (was 209), the row `correct`, the reading kept as a `read_correction`.
 - The 3 stuck answers stay in the queue; one Save each settles them once this is live (2 come out right, 1 wrong).
 
+## The engine settles only a right answer on its own (2026-09-21, night — ADR 0029)
+
+Placed here rather than at the end so it merges cleanly beside step 7's notes; it is the newest section.
+
+- **Why.** A random 40 of the answers the engine had settled with no person touching them (per status by
+  `order by md5(item_result.id)`: 20 `wrong`, 10 `correct`, 10 `blank`), each crop looked at: **correct 10 of
+  10 right.** wrong: 11 read and marked right; **4 right answers** (61 read as 6 twice, 158 as 15, 252 as 204,
+  the top line of the working); 2 read from the wrong place; 3 illegible to me. blank: 3 truly blank; **5 right
+  answers** written where the reader did not look (612 in a box, 44, 272 beside the `=`, 5, the digits 6 and 5
+  inside `4[6] + [5]4 = 100`); 2 crops do not show the answer place. So 9 of 30 engine-settled wrongs and
+  blanks were the reader's failure (about 1 in 6 to 1 in 2 at this size). A misread almost never lands on the
+  exact key, which is why `correct` holds. It also covers the narrower question raised with Aseem's findings
+  (send a reading that equals a printed number to a person): every wrong and blank now goes.
+- **What changed.** `legacy.mark_read` → `(status, codes, working, read)`: a wrong or a blank becomes
+  `needs_teacher`, the reading kept, `guess` = the reading, `why` = `legacy.HELD[...]`. The import path and
+  `legacy.remark` use it; a person's reading (`legacy.correct`) still goes through `mark`. `engine legacy
+  remark --every-child`. `engine audit`: "no wrong or blank answer stands on the engine's reading alone". The
+  queue asks a held answer as a reading to confirm, not as Right/Wrong.
+- **Tests.** `pytest` on the copy → **471 passed, 0 failed** (junit: tests 471, failures 0, errors 0). The two
+  new ones failed first on the old rule (`('wrong', ['M_NOCARRY']) == ('needs_teacher', [])`). Five existing
+  tests now walk the new flow — read → held → a person's reading → confirmed: the scan-to-graph test, the
+  correction test, the re-mark test, the sign-off test (1 answer confirmed on the paper, not 4) and
+  `test_gold.py`'s 5147 (waiting → a person → not yet signed off → in the graph). ruff format and check clean.
+- **Browser.** `npx playwright test` → **74 passed, 1 skipped** (a ladder opens only on signed-off evidence).
+  `s4-validation-queue.spec.ts` 10 of 10, three new: a held wrong settles on "Yes, the child wrote {guess}" as
+  `wrong` in the person's name; a held blank on "Nothing is written here"; on its paper a held answer offers
+  "What the child wrote" filled with the reading and no Right/Wrong, which would drop the named mistake.
+- **Rehearsed on the copy** (`DATABASE_URL=$TEST_DATABASE_URL bin/engine legacy remark --every-child`). Before,
+  candidates no person touched: correct 332 · wrong 184 · blank 90 · needs_teacher 24 · unreadable 169.
+  `274 results changed across 16 children`. After: correct 332 · needs_teacher 298 (184 "read as a wrong
+  answer…", 90 "read as blank…", 24 as before) · unreadable 169. Exactly the held rows moved.
+- **Live: not yet.** After the merge: `deploy/go-live.sh`, then `bin/engine legacy remark --every-child` on
+  live (185 wrong + 95 blank on the evening's numbers), then `engine audit` → 0 violations and `engine read
+  waiting` naming the two reasons. No paper is signed off before that.
+
 ## Next: six steps — written, and step 6 begun (2026-09-21, evening)
 
 - **The order and its goals**, agreed in principle by Nimish ("start building for the next steps … with the right

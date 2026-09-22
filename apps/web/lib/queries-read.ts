@@ -103,6 +103,10 @@ export type CaptureAnswer = {
   corrected_by: string | null;
 };
 
+// A wrong or a blank the engine read but may not settle alone (ADR 0029): a reading for a person to
+// confirm or correct, never a Right/Wrong judgement — the engine marks it once the reading is a person's.
+export const held = (a: Pick<CaptureAnswer, "why">) => (a.why ?? "").includes("a person checks every");
+
 // Every answer on one paper, in the order they sit on the page — which is the order a teacher
 // reads them in, with the photograph beside them.
 export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {

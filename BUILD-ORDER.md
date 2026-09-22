@@ -169,6 +169,24 @@ and different budgets and all four print the same three-cost problem; find-the-m
   `goals/s8t-taxonomy-coverage.yaml` and `goals/s8-every-skill-a-question-uses.yaml` both green, on the copy
   and then on the live bank.
 
+## Inserted before step 8: the engine settles only a right answer on its own — Nimish, 2026-09-21, night
+
+Checking Aseem's reports against the engine's own marks found it marking right answers wrong with nobody
+told: 355 read as 921, 252 read as 204. A random 40 of the answers it had settled alone: every one it
+called right was right; 9 of the 30 it called wrong or blank were right answers it had not read. Nimish,
+on "the engine settles only right answers on its own; every wrong or blank goes to a person, with the
+engine's reading shown": *"yes, let's build that part."* ADR 0029. It goes before step 8 because every
+step after it reads the graph, and the graph must not hold a mark nobody checked.
+
+| Green means | Proved by |
+|---|---|
+| the engine's own reading settles `correct` alone and holds `wrong` and `blank`, reading kept and offered | `tests/test_legacy.py` (the two ADR 0029 tests), `tests/test_gold.py` |
+| no wrong or blank stands on the engine's reading alone, on live | `engine audit` → 0 violations |
+| a held answer settles in one click on the live queue, in the person's name | `apps/web/tests/s4-validation-queue.spec.ts`, 10 of 10 |
+
+**No paper is signed off until the data job has run on live** (`engine legacy remark --every-child`):
+signing off confirms every answer that is not waiting, and until then the old marks are not waiting.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

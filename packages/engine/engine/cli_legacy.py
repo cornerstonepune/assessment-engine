@@ -84,16 +84,31 @@ def legacy_dedupe() -> None:
 
 @legacy_app.command("remark")
 def legacy_remark(
-    child: str = typer.Option(..., "--child"),
-    section: str = typer.Option(..., "--section"),
+    child: str = typer.Option("", "--child"),
+    section: str = typer.Option("", "--section"),
+    every_child: bool = typer.Option(
+        False, "--every-child", help="every child with an answer not signed off"
+    ),
     actor: str = typer.Option("engine-cli", "--actor"),
 ) -> None:
-    """Mark a child's candidate results again from what was read — no model call."""
+    """Mark a child's candidate results again from what was read — no model call. `--every-child` is how
+    a change to the marking rule reaches every answer already read, in one transaction (ADR 0029)."""
     with db.connect() as conn:
-        cid = roster.find(conn, section, child, actor)
-        n = legacy.remark(conn, cid)
+        if every_child:
+            ids = [
+                r["child_id"]
+                for r in conn.execute(
+                    "select distinct si.child_id from item_result r join capture c on c.id = r.capture_id"
+                    " join sheet_instance si on si.id = c.sheet_instance_id where r.state = 'candidate'"
+                ).fetchall()
+            ]
+        elif child and section:
+            ids = [roster.find(conn, section, child, actor)]
+        else:
+            raise typer.BadParameter("name one child with --child and --section, or say --every-child")
+        n = sum(legacy.remark(conn, cid) for cid in ids)
         conn.commit()
-    typer.echo(f"  {n} results changed")
+    typer.echo(f"  {n} results changed" + (f" across {len(ids)} children" if every_child else ""))
 
 
 @legacy_app.command("confirm")

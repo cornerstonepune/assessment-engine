@@ -14,6 +14,8 @@ test.afterAll(async () => sql.end());
 
 const ME = "e2e@cornerstone.test";
 const LIVE = sql`from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null`;
+// A wrong or a blank the engine holds for a person (ADR 0029) is a reading to confirm, not a judgement.
+const notHeld = sql`coalesce(r.raw_read::jsonb ->> 'why', '') not like '%a person checks every%'`;
 
 // The engine's own definition (`engine read waiting`), so the screen's count is checked against it.
 const waiting = async () =>
@@ -81,7 +83,7 @@ test("typing what the child wrote marks it, and a blank is one press", async ({ 
 test("judging one answer settles that answer only — nothing else on the paper is signed off", async ({ page }) => {
   const [a] = await sql<{ id: string; capture_id: string }[]>`
     select r.id, r.capture_id ${LIVE} and r.status = 'needs_teacher' and r.state = 'candidate'
-    and r.raw_read::jsonb ->> 'answer_state' = 'written' order by r.id limit 1`;
+    and r.raw_read::jsonb ->> 'answer_state' = 'written' and ${notHeld} order by r.id limit 1`;
   test.skip(!a, "no answer waits for a person's judgement");
   const before = await keep(a.id);
   const confirmed = async () =>
@@ -99,6 +101,46 @@ test("judging one answer settles that answer only — nothing else on the paper 
   } finally {
     await putBack(before);
   }
+});
+
+// ADR 0029: a wrong or a blank on the engine's reading alone waits for a person. It is a reading to
+// confirm, not a judgement to make, so it is asked the way a guess is and settles in one click.
+for (const held of [
+  { kind: "wrong", why: "read as a wrong answer%", says: "The engine read this as a wrong answer.", status: "wrong" },
+  { kind: "blank", why: "read as blank%", says: "The engine found nothing written here.", status: "blank" },
+]) {
+  test(`a ${held.kind} the engine read is held for a person and settles in one click`, async ({ page }) => {
+    const [a] = await sql<{ id: string; guess: string }[]>`
+      select r.id, r.raw_read::jsonb ->> 'guess' as guess ${LIVE} and r.status = 'needs_teacher'
+      and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like ${held.why} order by r.id limit 1`;
+    test.skip(!a, `no ${held.kind} is held for a person`);
+    const before = await keep(a.id);
+    try {
+      await page.goto(`/capture/check?id=${a.id}`);
+      await expect(page.getByText(held.says)).toBeVisible();
+      await expect(page.getByRole("button", { name: "Right", exact: true })).toHaveCount(0);
+      const confirm = held.kind === "blank" ? "Nothing is written here" : `Yes, the child wrote ${a.guess}`;
+      await page.getByRole("button", { name: confirm }).click();
+      await expect.poll(async () => (await keep(a.id)).status, { timeout: 15_000 }).toBe(held.status);
+      const [said] = await sql`select human_read, by from read_correction where item_result_id = ${a.id}`;
+      expect(said).toEqual({ human_read: held.kind === "blank" ? "" : a.guess, by: ME });
+    } finally {
+      await putBack(before);
+    }
+  });
+}
+
+test("on its paper, a held answer asks what the child wrote with the reading filled in, never Right or Wrong", async ({ page }) => {
+  const [a] = await sql<{ id: string; paper: string; read: string }[]>`
+    select r.id, c.sheet_instance_id as paper, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE}
+    and r.status = 'needs_teacher' and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like 'read as a wrong answer%'
+    order by r.id limit 1`;
+  test.skip(!a, "no wrong answer is held for a person");
+  await page.goto(`/capture/${a.paper}`);
+  const card = page.locator(`#a-${a.id}`);
+  await expect(card.getByText(`The reader read ${a.read}, a wrong answer.`)).toBeVisible();
+  await expect(card.getByRole("textbox")).toHaveValue(a.read);
+  await expect(card.getByRole("button", { name: "Wrong", exact: true })).toHaveCount(0);
 });
 
 test("each paper has one spot-check, an answer the engine was sure of, asked the same way", async ({ page }) => {

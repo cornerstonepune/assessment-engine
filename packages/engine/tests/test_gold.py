@@ -108,6 +108,10 @@ def test_the_mistake_a_teacher_named_comes_back_out_of_the_graph(conn, child, tm
     assert _outcome(conn, child) == "transcription not yet confirmed"
 
     gold.confirm(conn, "a person")
+    assert _outcome(conn, child) == "waiting for a person"  # a wrong on the engine's reading alone (ADR 0029)
+
+    result = next(r["result_id"] for r in gold.check(conn) if r["child_id"] == child)
+    legacy.correct(conn, result, "5147", "a person")
     assert _outcome(conn, child) == "not yet signed off"
 
     legacy.confirm(conn, child, "a person")
