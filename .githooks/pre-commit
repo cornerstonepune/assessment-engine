@@ -1,0 +1,3 @@
+#!/bin/sh
+# Nothing is committed that drifts from the workflow map or leaves a promise without its command (ADR 0033).
+exec "$(git rev-parse --show-toplevel)/bin/check"

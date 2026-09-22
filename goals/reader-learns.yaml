@@ -14,6 +14,17 @@ goal: >
 # two whose every paper was signed off that afternoon — 46 and 49 answers, 28 and 20 typed.
 # Measured that afternoon on the 121 typed answers: right 33 of 42 at 90+ confidence, 7 of 17 at
 # 70–89, 1 of 30 below 70, 5 of 32 where the reader gave up; child_reading_profile 0 rows.
+says:
+  - words: "All the validations that we are doing right now should help improve the system."
+    proved_by: packages/engine/tests/test_legacy.py::test_a_person_s_corrections_change_the_childs_next_paper_with_no_command_in_between
+  - words: "the handwriting of the student starts remaining more consistent"
+    proved_by: packages/engine/tests/test_profiles.py::test_a_reading_holding_a_digit_this_child_has_had_confused_twice_is_flagged_with_the_reading_as_the_guess
+  - words: "Even the ones that you have marked as right and right, we are validating them also. Is this data going to be used in a constructive way?"
+    proved_by: packages/engine/tests/test_read_eval.py::test_a_signed_off_answer_joins_the_gold_set_and_a_correction_on_the_same_answer_wins
+  - words: "How many rounds of validations will we do till we get to more than 95% accuracy?"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
+  - words: "This is a massive effort I'm making the teachers do, so it better help the case"
+    proved_by: apps/web/tests/s4-validation-queue.spec.ts::the second reader's guess is offered back as one click, on the queue and on the paper
 scenarios: []
 criteria:
   - name: >-

@@ -109,6 +109,13 @@ files already over are frozen at their size in the map and may only shrink.
     are for editing and running, not for finding out how something works — a session that greps its
     way around the repository burns the context it needs later. Any command written for Nimish must
     work from whatever directory he is in: `bin/engine …` or an absolute path, never `cd x && y`.
+14. **A promise is a command, and done is a report the machine writes** (ADR 0033). A goal written from
+    2026-09-22 carries Nimish's own words, each with the test that proves it (`says:`), and nothing else a
+    command does not run — `engine promises` refuses the rest. `bin/check` (the code against
+    `workflows.json`, every promise against its command, lint) runs before every commit and before Claude
+    Code may end a turn; a failure is fixed at its cause, never by raising a limit or loosening a rule.
+    Work is reported done only with the output of `engine done <goal>` pasted — each of his sentences with
+    its test run now, what is still manual, what is not live — never with a summary written instead.
 
 ## Language and naming
 

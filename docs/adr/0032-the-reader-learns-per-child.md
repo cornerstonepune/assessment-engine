@@ -2,6 +2,7 @@
 
 Date: 2026-09-22
 Status: accepted (inserted after step 8, `BUILD-ORDER.md`)
+Goal: goals/reader-learns.yaml
 
 ## Context
 

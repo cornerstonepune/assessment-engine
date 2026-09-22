@@ -22,6 +22,8 @@ def _say(line: str, err: bool = False) -> None:
 def register(app: typer.Typer) -> None:
     app.command()(audit)
     app.command()(goal)
+    app.command()(done)
+    app.command()(promises)
     spec_app = typer.Typer(help="The skill-set specs, as a person reads them", no_args_is_help=True)
     spec_app.command("outcomes")(outcomes)
     app.add_typer(spec_app, name="spec")
@@ -111,4 +113,30 @@ def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list the
         + ("" if failed or short else " · GOAL ACHIEVED")
     )
     if failed or short:
+        raise typer.Exit(1)
+
+
+def done(name: str = typer.Argument(..., help="A goal in goals/")) -> None:
+    """The done-report, written by the machine: each of Nimish's sentences in the goal with the test
+    that proves it (run now, on the copy), what is still manual, and what is not live yet. Exits 1
+    unless every sentence is proved and all of it is live."""
+    from engine.checks import done as report
+
+    lines, ok = report.report(name)
+    for line in lines:
+        _say(line)
+    if not ok:
+        raise typer.Exit(1)
+
+
+def promises() -> None:
+    """No promise without a command: every goal line is a command or one of Nimish's sentences with
+    the test that proves it; every decision record from ADR 0032 names its goal. Exits 1 on any gap."""
+    from engine.checks import promises as rules
+
+    found = rules.problems()
+    for p in found:
+        _say(f"  FAIL  {p}", err=True)
+    _say(f"  {len(found)} broken promise(s)" if found else "  every promise has its command")
+    if found:
         raise typer.Exit(1)

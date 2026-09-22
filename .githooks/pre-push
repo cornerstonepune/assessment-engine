@@ -1,0 +1,13 @@
+#!/bin/sh
+# main takes changes only through a merged pull request whose CI passed (Nimish, 2026-09-21).
+# GitHub cannot enforce this on a private repo without GitHub Team, so it is enforced here, on the
+# machine every session pushes from. `gh pr merge` merges on GitHub and is not a push, so it is
+# unaffected — which is the one way into main this leaves open.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "Refused: main takes changes only through a pull request that passed CI." >&2
+    echo "Push your branch and open a PR instead: gh pr create --base main" >&2
+    exit 1
+  fi
+done
+exit 0

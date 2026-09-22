@@ -1,0 +1,34 @@
+name: promises-kept
+goal: >
+  A promise in this repository is a command that runs, never a sentence someone must remember. Every
+  line of a goal is a command or one of Nimish's own sentences with the test that proves it; every
+  decision record names the goal that proves it; the code stays inside the workflow map; and these
+  checks run by themselves — before every commit and before Claude Code may finish a turn here. When
+  work is called done, the machine writes the report: each of his sentences with its test run now,
+  what is still manual, and what is not live yet.
+
+# Written 2026-09-22, before the work (ADR 0033). Nimish: "Despite putting all of this in the handoffs and
+# Claude MDs, you keep on forgetting … How do we solve for this?" — then: "Build these checks. Make it a
+# hook or a syntax or something that you check or you give it to me."
+says:
+  - words: "Make it a hook or a syntax or something that you check"
+    proved_by: packages/engine/tests/test_promises.py::test_the_hooks_run_the_checks_before_a_commit_and_before_claude_says_it_is_finished
+  - words: "Despite putting all of this in the handoffs and Claude MDs, you keep on forgetting"
+    proved_by: packages/engine/tests/test_promises.py::test_a_line_that_looks_like_a_check_but_runs_nothing_is_refused
+  - words: "or you give it to me"
+    proved_by: packages/engine/tests/test_promises.py::test_the_done_report_names_each_sentence_its_test_and_what_is_not_live
+  - words: "you will again do something that's not appropriate, and you will miss"
+    proved_by: packages/engine/tests/test_promises.py::test_every_goal_line_is_a_command_or_one_of_nimishs_sentences_with_its_test
+manual:
+  - "Once per machine: `git config core.hooksPath .githooks` (done on this Mac on 2026-09-22), so git runs the checks before each commit."
+scenarios: []
+criteria:
+  - name: every goal line is a command or a sentence with its test; every decision record from 0032 names its goal
+    run: engine promises
+    expect: "every promise has its command"
+  - name: the code sits where the map says, and the checks that hold both run in under a minute with no database
+    run: bin/check
+    expect: "passed"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

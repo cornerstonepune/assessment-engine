@@ -222,6 +222,16 @@ report, the replay.
    graph, it needs to be visually easy to understand."* A graph a teacher cannot read at a glance is not
    built. (`feedback_teacher_first_screens` in memory: lanes per skill, plain sentences, codes demoted.)
 
+## Inserted after the reader learns: the workflows made visible, and promises made commands — Nimish, 2026-09-22, night
+
+*"I'm going to make you make an entire frontend … that shows each of the steps as a proper workflow, what is
+working, and how things are connected … it should look like independent workflows which connect very well to
+each other."* Then, on rules that kept being forgotten: *"Build these checks. Make it a hook … Let's first go
+ahead and do the three steps."* In that order (ADR 0033): the engine laid out one folder per workflow and held
+to `workflows.json` by `tests/test_layout.py`; each step marked any subject or maths only; the How it works
+page drawing the map with live numbers (`goals/workflows-visible.yaml`); then `engine promises`, `engine done`
+and `bin/check` run by a git hook and a Claude Code Stop hook (`goals/promises-kept.yaml`).
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

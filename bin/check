@@ -1,0 +1,27 @@
+#!/bin/sh
+# The checks that hold the code to its map and every promise to a command (ADR 0033): the engine's layout
+# against workflows.json, every goal line a command or one of Nimish's sentences with its test, and lint.
+# Fast and with no database, so it runs every time rather than when someone remembers:
+#   before every commit            .githooks/pre-commit
+#   before Claude Code ends a turn .claude/settings.json (Stop hook) — `--claude` makes a failure block it
+here=$(cd "$(dirname "$0")/.." && pwd)
+engine="$here/packages/engine"
+if [ ! -x "$engine/.venv/bin/python" ]; then
+  echo "engine is not installed yet: cd $engine && uv sync" >&2
+  exit 1
+fi
+run() {
+  cd "$engine" &&
+    DATABASE_URL= TEST_DATABASE_URL= .venv/bin/python -m pytest tests/test_layout.py tests/test_promises.py \
+      -q -p no:cacheprovider -o addopts= &&
+    .venv/bin/ruff check engine tests -q &&
+    .venv/bin/ruff format --check engine tests -q
+}
+if [ "${1:-}" = "--claude" ]; then
+  out=$(run 2>&1) && exit 0
+  echo "bin/check failed — the code drifted from workflows.json, a promise has no command, or lint failed." >&2
+  echo "Fix the cause before finishing (CLAUDE.md rule 11); do not raise a limit or loosen a rule." >&2
+  printf '%s\n' "$out" | grep -E "Error|FAIL|assert|would reformat|E   " | head -20 >&2
+  exit 2
+fi
+run

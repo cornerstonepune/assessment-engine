@@ -93,6 +93,7 @@ for (const { name, width, height } of SIZES) {
     const student = page.getByRole("table").filter({ has: page.getByRole("link") }).first().getByRole("link").first();
     if ((await student.count()) === 0) test.skip(true, "no paper has been read yet");
     await student.click();
+    await expect(page).toHaveURL(/child=/); // the student's own papers, not the list still on screen
     await page.getByRole("table").first().getByRole("link").first().click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText("·");
     await expect(page.getByRole("heading", { name: "What this paper says, by skill" })).toBeVisible();
