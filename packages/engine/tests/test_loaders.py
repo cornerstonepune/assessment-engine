@@ -47,6 +47,23 @@ def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
         assert live["difficulty"]["Easy"]["words"] == before["Easy"]["words"], "and nothing was left behind"
 
 
+def test_load_config_keeps_a_password_set_in_the_app():
+    """`engine set-password` writes a hash into `app.staff`; the seed's copy of the list has none. The
+    loader upserted every config row, so the next `engine load` silently took every password away and
+    no one could sign in. A row the app owns is seeded once and then left alone (`seed_once`)."""
+    with db.connect() as conn:
+        tenant = loaders._tenant(conn)
+        staff = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
+        staff[0]["password"] = "scrypt$test$hash"
+        conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
+
+        loaders._config(conn, tenant)
+
+        after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
+        assert after[0].get("password") == "scrypt$test$hash", "loading the seed took a password away"
+        conn.rollback()
+
+
 EXPECTED = {
     "tenant": 1,
     "domain": 14,
@@ -58,17 +75,18 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 17,
+    "rung": 21,  # + R15–R18: three or more numbers, equality, missing digits, estimating to the hundred (8h)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 18,
     "coverage_target": 46,
+    "taxonomy_case": 269,  # the team's taxonomy, one row per case (step 8e)
     "prompt": 19,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4,
     #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
-    "config": 8,
-    "skill_set": 17,
+    "config": 13,  # + skills.by_operation / by_kind / by_symbol / charges_by_kind (+ its approval), step 8
+    "skill_set": 21,
     "subject": 1,
 }
 

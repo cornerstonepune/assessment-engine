@@ -2,7 +2,9 @@
 Counted in scorable responses. The last slot of every sheet is the probe from the rung above.
 """
 
+from . import diagnosis as D
 from . import items as I
+from . import missing_digits as MD
 from . import words as W
 
 
@@ -119,7 +121,7 @@ BLUEPRINTS = {
         ("R9 sub two regroups", col("-", 3, 3, {2}, "R9")),
         ("R11 estimate", lambda r: I.estimate_then_calc(r, "R11", "Application", "+", 3, 2, {1})),
         ("R8 two-step", lambda r: W.word_2step(r, "R8", "Application", 2)),
-        ("X1 claim", lambda r: I.explain_claim(r, "X1", "Conceptual")),
+        ("X1 claim", lambda r: D.explain_claim(r, "X1", "Conceptual")),
         ("probe R10", col("-", 3, 3, {1, 2}, "R10", "Stretch", across_zero=True)),
     ],
 }
@@ -147,13 +149,23 @@ BLUEPRINTS[("G3", "Lp")] = [
     ("R12 multi-addend", lambda r: I.multi_add(r, "R12", "Procedural", 3, 4)),
     ("R12 sub across zeros", col("-", 4, 4, {1, 2, 3}, "R12", across_zero=True)),
     ("R12", col("-", 4, 4, {1, 2, 3}, "R12", across_zero=True)),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "+", 3)),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "-", 3)),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "+", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "-", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
     ("R13 digit cards", lambda r: I.digit_cards(r, "R13", "Stretch", 3)),
-    ("X1 claim", lambda r: I.explain_claim(r, "X1", "Conceptual")),
-    ("X2 find the mistake", lambda r: I.find_mistake(r, "X2", "Conceptual", "-")),
+    ("X1 claim", lambda r: D.explain_claim(r, "X1", "Conceptual")),
+    ("X2 find the mistake", lambda r: D.find_mistake(r, "X2", "Conceptual", "-")),
     ("probe R14 budget", lambda r: W.word_budget(r, "R14", "Stretch")),
 ]
 BLUEPRINTS[("G4", "Lm")] = BLUEPRINTS[("G3", "L0")]
@@ -164,26 +176,46 @@ BLUEPRINTS[("G4", "L0")] = [
     ("R12 multi-addend", lambda r: I.multi_add(r, "R12", "Procedural", 4, 4)),
     ("R12 sub across zeros", col("-", 4, 4, {1, 2, 3}, "R12", across_zero=True)),
     ("R12 horizontal 4d-2d", bare("-", 4, 2, {1, 2, 3}, "R12", across_zero=True)),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "+", 3)),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "-", 3)),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "+", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "-", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
     ("R11 estimate 4-digit", lambda r: I.estimate_then_calc(r, "R11", "Application", "-", 4, 4, {1, 2})),
     ("R13 digit cards", lambda r: I.digit_cards(r, "R13", "Stretch", 3)),
     ("R14 two-step", lambda r: W.word_2step(r, "R14", "Application", 3)),
     ("R14 budget", lambda r: W.word_budget(r, "R14", "Application")),
-    ("probe X2", lambda r: I.find_mistake(r, "X2", "Stretch", "+")),
+    ("probe X2", lambda r: D.find_mistake(r, "X2", "Stretch", "+")),
 ]
 BLUEPRINTS[("G4", "Lp")] = [
     ("R12 foundational", col("-", 4, 4, {1, 2, 3}, "R12", "Foundational", across_zero=True)),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
     ("R13 efficient", lambda r: I.efficient_method(r, "R13", "Procedural")),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "-", 3)),
-    ("R13 missing digits", lambda r: I.missing_digit(r, "R13", "Conceptual", "+", 4)),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "-", "width": 3, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
+    (
+        "R13 missing digits",
+        lambda r: MD.one(
+            r, "R13", "Conceptual", {"op": "+", "width": 4, "missing_count": 2, "missing_in": "FIRST+SECOND"}
+        ),
+    ),
     ("R13 digit cards", lambda r: I.digit_cards(r, "R13", "Stretch", 4)),
-    ("X1 claim", lambda r: I.explain_claim(r, "X1", "Conceptual")),
-    ("X2 find the mistake", lambda r: I.find_mistake(r, "X2", "Conceptual", "+")),
-    ("X2 find the mistake", lambda r: I.find_mistake(r, "X2", "Conceptual", "-")),
+    ("X1 claim", lambda r: D.explain_claim(r, "X1", "Conceptual")),
+    ("X2 find the mistake", lambda r: D.find_mistake(r, "X2", "Conceptual", "+")),
+    ("X2 find the mistake", lambda r: D.find_mistake(r, "X2", "Conceptual", "-")),
     ("R14 budget", lambda r: W.word_budget(r, "R14", "Application")),
     ("R14 budget", lambda r: W.word_budget(r, "R14", "Application")),
     ("R12 four addends", lambda r: I.multi_add(r, "R12", "Stretch", 4, 4)),

@@ -3,25 +3,28 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## Night 2026-09-21 — where this session stopped
+## 2026-09-22 — where this session stopped
 
-**Live:** PRs #8–#10 — pictures on the approval page (12 of 12, ≤ 1 s cold), typed answers that are not one
-number, a judgement recorded as a judgement, step 6's gold (Aseem's 24 findings **confirmed by Nimish**;
-`engine gold check`: 2 in the graph, 18 not yet signed off, 3 waiting, 1 read differently). `engine audit`: 0.
+**Step 7 is live** (PR #11 merged, `10e51cc`). **Step 8 is built on branch `step-8`**: 8a–8d (ADR 0023, 0030 — a
+question's skills read from the question, a wrong answer charged to the skill whose step broke, evidence per
+skill) and, widened the same day to the team's *Addition & Subtraction Assessment Skill Taxonomy*, 8e–8i (ADR
+0031 — 269 cases as rows, levels that hold named cases, 8 new kinds of question, 4 new skills, the bank refilled).
+Rehearsed end to end on a fresh copy of live: `engine bank taxonomy` "269 cases · 269 covered · 0 missing · 0
+thin", `engine library check` "0 problems", a second refill and a second build change nothing (STATE, 8i).
 
-**Step 7 is done on branch `step-7`, PR #11** (`engine goal s7-paper-from-library` 6/6 GOAL ACHIEVED). **Before it
-merges**, its two additive migrations go to live (`supabase db push --db-url "$DATABASE_URL"` → `20260927110000`,
-`20260927120000`, nullable columns on `sheet_instance`) — the website code in it reads them. Then merge, then
-`deploy/go-live.sh` from a HEAD equal to `origin/main`.
+**Live rollout, in this order** (the website reads the new columns, so migrations go first):
+1. `supabase db push --db-url "$DATABASE_URL"` → `20260928090000`, `20260928100000`, `20260928110000`.
+2. `bin/engine load` (the `app.staff` password survives: `seed_once`), `bin/engine bank levels --apply`,
+   `bin/engine bank refill`, `bin/engine library build`, `bin/engine library check`, `bin/engine bank taxonomy`.
+3. PR `step-8` → main, merge, `deploy/go-live.sh` from a HEAD equal to `origin/main`; click through the live link.
 
-**Nimish is validating** (196 waiting at 19:17 IST). Step 6 (W3) closes when nothing waits, every paper is signed
-off, and `engine gold check` says every finding the papers hold is in the graph. **Next build: step 8** — a question
-counts for every skill it uses (`goals/s8-every-skill-a-question-uses.yaml`, ADR 0023; its two open points carry
-defaults written in the goal).
+**Waits for Nimish, one press:** `/skill-sets/approve` — 17 skills (13 rewritten, 4 new) and the table of what a
+wrong answer counts against. Then `engine audit` is 0 and `engine goal s8t-taxonomy-coverage` and
+`engine goal s8-every-skill-a-question-uses` can go green on live.
 
-**Open, for Nimish:** the reader reads the teacher's red pen on the Grade 3 photographs (2 of 12 settled answers
-checked on 2026-09-21 were misread; a "3 boxes of 6 pencils" read as 3 from "(6+3)"). He decided the reader stays
-as it is; proposed: mask red ink, measured with the silent-error count beside it (ADR 0020). No answer yet.
+**Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
+finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
+ADR 0029) open in the worktree `assessment-engine-reader`.
 
 ## Queued reader fixes — found on crops, held while coverage is held
 
@@ -34,7 +37,8 @@ as it is; proposed: mask red ink, measured with the silent-error count beside it
 
 ## Carried over — Nimish's calls, not blockers
 
-- **Grade 1**: `ADD.1D.WITHIN10` holds 22–24 questions against a class need of 216.
+- **Grade 1**: some levels hold every question there is, below a class need of 216 — `ADD.1D.WITHIN10` Easy 20,
+  Hard 24; `ADD.1D.BRIDGE10` Hard 45; `SUB.1D.WITHIN20` Hard 44 (all floors: STATE, 8h).
 - **W2's live n8n run**: n8n Cloud cannot reach the engine on a laptop — a hosting decision.
 - **Four pedagogy questions** for Neha, Achal and Aseem: format mixing on `SUB.2D.EXCH` Hard; the provisional gold
   set's revise-or-reject case; the G1 floors; which rung place value, comparison and rounding belong on.

@@ -119,6 +119,18 @@ def sub_across_zero_lender_not_decremented(a, b):
     return r if r != a - b and r >= 0 else None
 
 
+def sub_exchange_from_wrong_column(a, b):
+    """The ones need an exchange and the ten is taken from the hundreds, the tens left as they were:
+    the top number becomes a − 100 + 10 and the rest is done right, so the answer is 90 short
+    (taxonomy §11, "borrow from wrong place"). Only where there is a hundreds digit to take from."""
+    w = len(str(a))
+    da, db = digits(a, w), digits(b, w)
+    if w < 3 or da[0] >= db[0] or da[2] == 0:
+        return None
+    wrong = a - b - 90
+    return wrong if wrong >= 0 else None
+
+
 def sub_across_zero_zero_not_reduced(a, b):
     """Borrowing across a zero: takes from the left column correctly but leaves the zero
     as 10 instead of 9. 302-178 -> 134."""
@@ -314,6 +326,7 @@ SUB_PREDICTORS = {
     "M_NO_DECREMENT":     (sub_no_decrement, "Exchanges but does not reduce the lender column", "Cross out and rewrite the lender digit before subtracting"),
     "M_ZERO_LENDER":      (sub_across_zero_lender_not_decremented, "Across zero: zero lends but the column to its left is not reduced", "Three-column rods; exchange a hundred for ten tens first"),
     "M_ZERO_NOT_NINE":    (sub_across_zero_zero_not_reduced, "Across zero: zero becomes 10 and stays 10 (should be 9)", "Number line count-up as a check"),
+    "M_EXCHANGE_WRONG_PLACE": (sub_exchange_from_wrong_column, "Takes the exchange from the wrong column — the hundreds, not the tens", "Rods: the ten always comes from the column next door"),
     "M_FACT_PM1":         (lambda a, b: off_by(a - b, -1), "Fact off by one", "Number bonds; count-up on a number line"),
     "M_FACT_PM10":        (lambda a, b: off_by(a - b, 10), "Tens miscounted", "Count back in tens on a 100-square"),
     "M_WRONG_OP":         (wrong_operation_add, "Added instead of subtracting", "Read the question aloud; identify the operation word"),

@@ -22,7 +22,8 @@ const counts = () => sql<{ code: string; difficulty: string; n: number }[]>`
 test("every skill shows its worksheets at each level, at least ten, and the filter shows only that level", async ({ page }) => {
   const rows = await counts();
   const skills = [...new Set(rows.map((r) => r.code))];
-  expect(skills).toHaveLength(17);
+  const [{ n: all }] = await sql<{ n: number }[]>`select count(*)::int as n from skill_set`;
+  expect(skills).toHaveLength(all); // 21 since step 8h: every skill has worksheets
   for (const code of skills) {
     await page.goto(`/skill-sets/${code}#worksheets`);
     const filters = page.getByLabel("Show worksheets for");
@@ -69,7 +70,7 @@ test("a worksheet shows its twelve questions with their answers, and prints", as
 test("a question names the worksheets it is on, and each opens", async ({ page }) => {
   const [q] = await sql<{ item_key: string; code: string }[]>`
     select i.item_key, t.code from item i join sheet_template t on i.id = any(t.item_ids)
-    where t.source = 'library' and t.retired_at is null and t.code = 'R6-M05' order by i.item_key limit 1`;
+    where t.source = 'library' and t.retired_at is null order by t.code, i.item_key limit 1`;
   await page.goto(`/library/${q.item_key}`);
   await page.getByRole("link", { name: q.code, exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Worksheet ${q.code}`);

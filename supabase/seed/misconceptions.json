@@ -158,7 +158,9 @@
       "repair_hint": "Ask what the 4 represents in 43.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M002"
+      "external_ref": "M002",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_REGROUP_CHANGES_TOTAL",
@@ -168,7 +170,9 @@
       "repair_hint": "Represent both decompositions with blocks.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M003"
+      "external_ref": "M003",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_EXCHANGE_UNEXPLAINED",
@@ -178,7 +182,9 @@
       "repair_hint": "Ask what was traded and why the value stayed the same.",
       "detectable_by": "explanation",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M004"
+      "external_ref": "M004",
+      "skill_from": "row",
+      "skill_code": "NUM.PV.01"
     },
     {
       "code": "M_MISALIGNED_COLUMNS",
@@ -198,7 +204,9 @@
       "repair_hint": "Use an algebraic balance visualisation.",
       "detectable_by": "working",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M008"
+      "external_ref": "M008",
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_COUNTS_ONE_BY_ONE",
@@ -208,7 +216,9 @@
       "repair_hint": "Ask the learner to create the largest sensible jumps.",
       "detectable_by": "working",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M009"
+      "external_ref": "M009",
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_KEYWORD_OVERGENERALISED",
@@ -218,7 +228,9 @@
       "repair_hint": "Give a non-subtraction context containing the keyword.",
       "detectable_by": "teacher",
       "source": "docs/sources/adaptive-subtraction-learning-engine-spec.txt section 12",
-      "external_ref": "M010"
+      "external_ref": "M010",
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     },
     {
       "code": "M_H2V_SHIFT",
@@ -268,7 +280,9 @@
       "repair_hint": "Substitute the chosen digit back and work the whole question through, column by column.",
       "detectable_by": "working",
       "source": "SPEC.md section 3.4 (taxonomy section 11 error list); visible only in the working box",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
     },
     {
       "code": "M_ADD_INSTEAD",
@@ -278,7 +292,9 @@
       "repair_hint": "Say the sentence aloud as a story; find the part, not the whole",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_EQUALS_MEANS_ANSWER",
@@ -288,7 +304,9 @@
       "repair_hint": "Balance scale with rods: both sides must weigh the same",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_ADD_ALL",
@@ -298,7 +316,9 @@
       "repair_hint": "Cover one side; ask what would make the two sides match",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     },
     {
       "code": "M_ONE_STEP_ONLY",
@@ -308,7 +328,9 @@
       "repair_hint": "Underline both things that happen before calculating; two boxes for two steps",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     },
     {
       "code": "M_SUM_ONLY",
@@ -318,7 +340,9 @@
       "repair_hint": "Ask what the question wants: the money gone, or the money left?",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/items.py (generator-declared; added to the vocabulary 2026-09-20 after engine audit found them on 1,172 live items with no row)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.02"
     },
     {
       "code": "M_FACT_PM100",
@@ -408,7 +432,9 @@
       "repair_hint": "The open side faces the bigger number; read it aloud as 'is less than'",
       "detectable_by": "answer_lookup",
       "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (COMPARE_PREDICTORS, 2026-09-21)",
-      "external_ref": null
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.02"
     },
     {
       "code": "M_DIGIT_DROPPED",
@@ -419,6 +445,88 @@
       "detectable_by": "answer_lookup",
       "source": "Aseem's Grade 3 reports to parents, 2026-09 — W3's gold (ADR 0028); packages/engine/engine/assess/misconceptions.py (ANSWER_RULES, 2026-09-21)",
       "external_ref": null
+    },
+    {
+      "code": "M_EXCHANGE_WRONG_PLACE",
+      "op": "-",
+      "name": "Takes the exchange from the wrong column — the hundreds, not the tens",
+      "description": "The ones need an exchange and the ten is taken from the hundreds; the tens are left as they were, so the answer is 90 short: 352 − 178 written as 84.",
+      "repair_hint": "Rods: the ten always comes from the column next door",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null
+    },
+    {
+      "code": "M_SUB_INSTEAD",
+      "op": "any",
+      "name": "Turns the subtraction round: takes away the two numbers the question shows",
+      "description": "On □ − 7 = 8 writes 1 (8 − 7), as if subtraction could be done in either order.",
+      "repair_hint": "Read □ − 7 = 8 as 'something take away 7 leaves 8'; check by adding back",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_IGNORES_SIZE",
+      "op": "any",
+      "name": "Accepts an answer without checking its size",
+      "description": "Says 487 + 216 could be 6,903: an answer with a digit too many (or too few) is not caught by estimating first.",
+      "repair_hint": "Estimate before answering; ask 'about how big should this be?'",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
+    },
+    {
+      "code": "M_PARITY_RULE",
+      "op": "any",
+      "name": "Gets odd and even the wrong way round",
+      "description": "Says odd + odd is odd, or even − odd is even: the ones digits decide, and the rule is applied backwards.",
+      "repair_hint": "Pairs of counters: an odd number always has one left over",
+      "detectable_by": "answer_lookup",
+      "source": "Addition & Subtraction Assessment Skill Taxonomy §11 (school team), step 8g",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
+    },
+    {
+      "code": "M_COMPARE_ESTIMATE_EXACT",
+      "op": "any",
+      "name": "Does not compare estimate to exact answer",
+      "description": "The child calculates the estimate correctly and the exact answer correctly but does not check whether they are close, or states they are close when they are far apart.",
+      "repair_hint": "Ask: is the difference between your estimate and your exact answer smaller than 10?",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
+    },
+    {
+      "code": "M_REVERSES_CLAIM_TRUTH",
+      "op": "any",
+      "name": "Reverses the claim's truth value",
+      "description": "The child judges a true claim as false, or a false claim as true, then explains reasoning that fits their wrong judgment.",
+      "repair_hint": "Ask the child to test the claim with concrete materials (rods or counters) before deciding if it is true or false.",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.03"
+    },
+    {
+      "code": "M_ROUNDS_ONE_NUMBER",
+      "op": "+",
+      "name": "Rounds one number only",
+      "description": "The child rounds only the first number to the nearest ten and uses the second number unchanged, or rounds only the second number.",
+      "repair_hint": "Use a place-value chart to show which numbers need rounding before you estimate.",
+      "detectable_by": "answer_lookup",
+      "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PV.03"
     }
   ]
 }

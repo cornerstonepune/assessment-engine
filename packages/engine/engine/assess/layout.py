@@ -24,4 +24,11 @@ WORKING_LINES = {
     "partition_scaffold": 0,
     "sort_into_table": 0,
     "partial_worked": 0,
+    "equation": 1,
+    "fact_family": 0,
+    "inverse_check": 2,
+    "choose_estimate": 0,
+    "possible_answer": 1,
+    "odd_even": 0,
+    "break_apart": 0,
 }

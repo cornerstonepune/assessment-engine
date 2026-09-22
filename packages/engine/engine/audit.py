@@ -10,7 +10,7 @@ prints the rows that break it. Adding a new class of bug means adding an invaria
 test that happens to notice it. What this file does NOT check is, by definition, what we do not know.
 """
 
-from engine import bank, db, loaders, spec
+from engine import bank, cases, db, labels, loaders, spec
 from engine.assess import bands, verify
 from engine.assess import misconceptions as M
 
@@ -62,6 +62,47 @@ def every_band_can_produce_a_question(conn):
         for d, band in r["difficulty"].items()
         if not bands.makeable(band.get("check") or {})
     ]
+
+
+def every_key_a_level_sets_is_one_its_generator_reads(conn):
+    """A level's rule is a promise about the questions it prints. A key no generator reads is a promise
+    nobody keeps — ADDSUB.2D.NOREG's `order: shorter_first` printed longer-first sums, and the four
+    WORD.BUDGET levels asked for different costs and budgets and printed the same problem (step 8f)."""
+    matches = cases.matches(conn)
+    out = []
+    for r in _skill_sets(conn):
+        for d, band in r["difficulty"].items():
+            check = band.get("check") or {}
+            kinds = {
+                f
+                for c in check.get("cases", [])
+                for alt in _alternatives(matches.get(c, {}))
+                for f in _fmts(alt)
+            }
+            unread = bands.unread_keys(check, kinds)
+            if unread:
+                out.append(f"{r['code']} {d}: {', '.join(unread)} — nothing reads it")
+    return out
+
+
+def every_case_a_level_names_is_a_row(conn):
+    known = set(cases.matches(conn))
+    return [
+        f"{r['code']} {d}: {c}"
+        for r in _skill_sets(conn)
+        for d, band in r["difficulty"].items()
+        for c in (band.get("check") or {}).get("cases", [])
+        if c not in known
+    ]
+
+
+def _alternatives(match):
+    return match if isinstance(match, list) else [match]
+
+
+def _fmts(alt):
+    f = alt.get("fmt")
+    return f if isinstance(f, list) else [f] if f else []
 
 
 def every_format_a_spec_lists_can_be_made(conn):
@@ -130,17 +171,42 @@ def every_stored_item_still_satisfies_its_band(conn):
     return list(bank.recheck(conn))
 
 
+def no_question_carries_a_skill_it_does_not_use(conn):
+    """ADR 0023: a question's skills are the ones it uses, read from the question — never its rung's."""
+    return labels.mislabelled(conn)
+
+
+def what_a_mistake_charges_is_approved(conn):
+    """The (kind, mistake) → skill table was drafted by the engine; a person approves the table itself,
+    so a table changed after it was approved is not approved (step 8b, as the gold was)."""
+    rows = {
+        r["key"]: r["value"]
+        for r in conn.execute("select key, value from config where key like 'skills.charges_by_kind%'")
+    }
+    approved = rows.get("skills.charges_by_kind.approved") or {}
+    if approved.get("table") == rows.get("skills.charges_by_kind") and approved.get("by"):
+        return []
+    return ["the table of what a mistake charges on each kind of question waits for one approval"]
+
+
 def referential_codes_all_resolve(_conn):
     return [f"{label}: {', '.join(codes)}" for label, codes in loaders.orphans().items() if codes]
 
+
+# Invariants a person closes, not code: an approval on the Skill Map. `engine audit` counts them like
+# any other; the test suite does not, because a suite proves the code and a click is not code.
+AWAITS_A_PERSON = {"every spec is ratified", "what a mistake charges is approved"}
 
 # Ordered cheapest first, so a run that fails early has still said something useful.
 INVARIANTS = [
     ("every rung has a spec", every_rung_has_a_spec),
     ("every spec is ratified", every_spec_is_ratified),
+    ("what a mistake charges is approved", what_a_mistake_charges_is_approved),
     ("every code a spec references resolves", referential_codes_all_resolve),
     ("exactly one prompt version active per purpose", exactly_one_prompt_version_is_active_per_purpose),
     ("every format a spec lists can be made", every_format_a_spec_lists_can_be_made),
+    ("every key a level sets is one its generator reads", every_key_a_level_sets_is_one_its_generator_reads),
+    ("every case a level names is a row", every_case_a_level_names_is_a_row),
     ("every band can produce a question", every_band_can_produce_a_question),
     (
         "no spec claims a mistake its own numbers cannot produce",
@@ -149,6 +215,7 @@ INVARIANTS = [
     ("every misconception a stored item names exists", every_misconception_a_stored_item_names_exists),
     ("every answer-lookup code is computed somewhere", every_answer_lookup_code_is_computed_somewhere),
     ("every generated item says what made it", every_generated_item_says_what_made_it),
+    ("no question carries a skill it does not use", no_question_carries_a_skill_it_does_not_use),
     ("every unit meets its target", every_unit_meets_its_target),
     ("every stored item still satisfies its band", every_stored_item_still_satisfies_its_band),
 ]

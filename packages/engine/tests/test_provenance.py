@@ -70,6 +70,14 @@ def test_a_generated_item_records_what_made_it(conn):
 
 
 def test_the_offline_sampler_records_itself_as_the_generator(conn):
+    # the sampler's path is a level with a plain rule; since step 8h this level holds taxonomy cases,
+    # so the rule it had before is set again inside this test's own transaction
+    d = conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+    rule = {"op": "-", "digits": [3, 2], "regroups": [1]}
+    conn.execute(
+        "update skill_set set difficulty = %s where code = %s",
+        (json.dumps(d | {"Hard": {**d["Hard"], "check": rule}}), SET),
+    )
     counts, _, accepted = bank.fill(conn, SET, "Hard", 2, offline=True)
     if counts["accepted"] == 0:
         pytest.skip("unit is at its ceiling; nothing new to attribute")

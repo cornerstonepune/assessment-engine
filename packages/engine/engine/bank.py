@@ -9,7 +9,7 @@ import json
 import random
 from collections import Counter
 
-from engine import db
+from engine import cases, db, labels
 from engine.adapters import llm
 from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
@@ -59,14 +59,16 @@ def _sampled(check, formats, n, seed):
             c["missing"] = "b"
             c["stem"] = f"{a} {'−' if op == '-' else '+'} □ = {ans}"
         elif fmt == "word_1step":
-            op_ctx = W.CONTEXTS_MUL if op == "×" else [t for o, t in W.CONTEXTS_1STEP if o == op]
+            op_ctx = [t for t in W.templates("word_1step", op=op) if not t.get("table")]
             if not op_ctx:
                 raise ValueError(
-                    f"no word-problem story written for {op!r}; add one to items.py"
+                    f"no word-problem story written for {op!r}; add one to supabase/seed/word_templates.json"
                     f" or drop word_1step from this skill set's formats"
                 )
             n1, n2 = rng.sample(W.NAMES, 2)
-            c["stem"] = rng.choice(op_ctx).format(a=a, b=b, n=n1, n2=n2)
+            tpl = rng.choice(op_ctx)
+            c["stem"] = tpl["text"].format(a=a, b=b, n=n1, n2=n2)
+            c["structure"] = tpl["structure"]
         out.append(c)
     return out
 
@@ -78,6 +80,8 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
     the deterministic samplers, which write no sentence a model would have written but never fail
     on a quota."""
     prompt_input, s, check = spec(conn, code, difficulty)
+    if check.get("cases"):
+        raise ValueError(f"{code} {difficulty} is made of taxonomy cases — fill it with `engine bank refill`")
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     counts = Counter(
         asked=0,
@@ -89,6 +93,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
         unnamed_distractor_dropped=0,
     )
     known = _known_codes(conn)
+    rules, vocab = labels.rules(conn), labels.vocabulary(conn)
     reasons, seen, accepted, meta = Counter(), set(), [], {}
     # A band may pin itself to one format (`check.format`); otherwise it draws on everything the
     # skill set declares. Pinning is what stops two bands of one skill set — same digits, same
@@ -132,12 +137,13 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
                     on_reject(c, dims)
                 continue
             counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
+            charged = labels.label_item(it, s["skill_codes"], rules, vocab)
             prov = {
                 "skill_set_version": s["version"],
                 "generator": f"sampled:{c['op']}" if offline else "model:item_generate",
                 **({} if offline else {"prompt_id": meta.get("prompt_id"), "model": meta.get("model")}),
             }
-            if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov):
+            if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
                 counts["already_in_bank"] += 1
                 continue
             counts["accepted"] += 1
@@ -167,7 +173,7 @@ def _strip_unnamed(it, known):
     return dropped
 
 
-def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=None):
+def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=None, mistake_skills=None):
     """`eval_type` is stamped from the skill set (ADR 0012) so marking never re-derives how a
     question should be judged from its shape. `prov` carries the provenance every item must be
     able to answer with — which version of the rule, which generator, which prompt and model
@@ -177,8 +183,8 @@ def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=Non
     row = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem,"
         " spec, responses, tags, source, status, skill_set_code, difficulty, eval_type,"
-        " skill_set_version, generator, prompt_id, model)"
-        " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'generated','active',%s,%s,%s,%s,%s,%s,%s)"
+        " skill_set_version, generator, prompt_id, model, mistake_skills)"
+        " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'generated','active',%s,%s,%s,%s,%s,%s,%s,%s)"
         " on conflict (tenant_id, item_key) do nothing returning id",
         (
             tenant,
@@ -199,6 +205,7 @@ def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=Non
             prov.get("generator"),
             prov.get("prompt_id"),
             prov.get("model"),
+            json.dumps(mistake_skills or {}),
         ),
     ).fetchone()
     return row is not None
@@ -213,6 +220,7 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     fmt = check.get("format") or s["formats"][0]
     counts = Counter(asked=0, accepted=0, already_in_bank=0, duplicate=0, unnamed_distractor_dropped=0)
     known = _known_codes(conn)
+    rules, vocab = labels.rules(conn), labels.vocabulary(conn)
     # The same in-batch guard `fill` has. Without it this path's only defence against two identical
     # questions is the insert's own conflict clause, so a dry run — a scenario, an eval — could hand
     # back a set with a repeat in it, and a caller that does not store would never know.
@@ -227,14 +235,18 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     while counts["accepted"] < n and tries < n * 8:
         tries += 1
         counts["asked"] += 1
-        it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+        try:
+            it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+        except RuntimeError:
+            continue  # this draw's numbers could not make the question; the loop draws again
         if it.item_id in seen:
             counts["duplicate"] += 1
             continue
         seen.add(it.item_id)
         counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
+        charged = labels.label_item(it, s["skill_codes"], rules, vocab)
         prov = {"skill_set_version": s["version"], "generator": f"native:{fmt}"}
-        if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov):
+        if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
             counts["already_in_bank"] += 1
             continue
         counts["accepted"] += 1
@@ -293,21 +305,7 @@ def recheck(conn):
     with no predictor behind them (the model's own, for an operation we cannot compute) are the
     one thing not re-derived — there is nothing to re-derive them from.
     """
-    bad = []
-    # The band each item claims, so the audit can re-measure it against that band's own region
-    # and not just against its own arithmetic (BUILD-ORDER gate 4, amended).
-    regions = {
-        (s["code"], band): spec.get("check", {})
-        for s in conn.execute("select code, difficulty from skill_set").fetchall()
-        for band, spec in s["difficulty"].items()
-    }
-    for r in conn.execute(
-        "select item_key, tags, skill_set_code, difficulty from item"
-        " where status = 'active' and source = 'generated' and skill_set_code is not null"
-    ).fetchall():
-        region = regions.get((r["skill_set_code"], r["difficulty"]))
-        if region and verify.dimension_problems(r["tags"], region):
-            bad.append(r["item_key"])
+    bad = [r["item_key"] for r in cases.outside_their_level(conn)]
 
     rows = conn.execute(
         "select item_key, fmt, stem, spec, responses, rung_code, skill_codes, generator from item"
@@ -318,6 +316,8 @@ def recheck(conn):
         sp = r["spec"]
         if not {"a", "b", "op"} <= sp.keys():
             continue  # an older row that kept only its printed text
+        if set(sp) - {"a", "b", "op", "layout", "missing", "text"}:
+            continue  # made by a generator with more than numbers (a story's table): not `to_item`'s to rebuild
         stored = next(x for x in r["responses"] if x["rid"] == "ans")
         rebuilt = verify.to_item(
             {

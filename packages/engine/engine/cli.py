@@ -17,6 +17,7 @@ from engine.cli_legacy import legacy_app
 from engine.cli_library import library_app
 from engine.cli_live import live_app
 from engine.cli_read import read_app
+from engine.cli_taxonomy import register as register_taxonomy
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
@@ -29,6 +30,7 @@ app.add_typer(live_app, name="live")
 app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
 register_checks(app)
+register_taxonomy(bank_app)
 
 
 @app.callback()

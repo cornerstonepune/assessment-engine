@@ -159,6 +159,46 @@
       "skill_codes": [
         "NUM.PRB.03"
       ]
+    },
+    {
+      "code": "R15",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Adds three or more numbers of 1 to 3 digits, lined up by the ones; a column can carry 2",
+      "skill_codes": [
+        "NUM.OPS.01"
+      ]
+    },
+    {
+      "code": "R16",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Equality and inverse: missing signs, balances, fact families, checking with the other operation",
+      "skill_codes": [
+        "NUM.OPS.05",
+        "NUM.PRB.03"
+      ]
+    },
+    {
+      "code": "R17",
+      "band": "G3",
+      "ladder_order": null,
+      "descriptor": "Missing digits across a carry or an exchange (Olympiad-style)",
+      "skill_codes": [
+        "NUM.PRB.03",
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R18",
+      "band": "G3",
+      "ladder_order": null,
+      "descriptor": "Estimates to the nearest hundred; judges an answer by its size, odd and even",
+      "skill_codes": [
+        "NUM.PV.03",
+        "NUM.PRB.03"
+      ]
     }
   ]
 }
