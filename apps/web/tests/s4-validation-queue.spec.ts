@@ -295,6 +295,18 @@ test("the second reader's guess is offered back as one click, on the queue and o
   }
 });
 
+test("Capture & Mark says how the reader is doing, with the database's own numbers", async ({ page }) => {
+  const [n] = await sql<{ checked: number }[]>`
+    with latest as (select distinct on (rc.item_result_id) rc.item_result_id, rc.judged from read_correction rc order by rc.item_result_id, rc.created_at desc)
+    select count(*)::int as checked from item_result r join capture c on c.id = r.capture_id left join latest l on l.item_result_id = r.id
+    where c.superseded_by is null and l.judged is null and (l.item_result_id is not null or r.state = 'confirmed')`;
+  await page.goto("/capture");
+  const panel = page.getByRole("heading", { name: "How the reader is doing" }).locator("..");
+  await expect(panel.getByText(`Checked by a person: ${n.checked} answers.`)).toBeVisible();
+  await expect(panel.getByRole("table")).toBeVisible();
+  await expect(panel.getByText(/every answer checked by a person|trusted: settles alone/).first()).toBeVisible();
+});
+
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" }).click();

@@ -2,7 +2,7 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
-import { papersToApprove, type PaperRow } from "@/lib/queries-read";
+import { papersToApprove, readerReport, type PaperRow, type ReaderReport } from "@/lib/queries-read";
 import { deadline } from "@/lib/deadline";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -41,7 +41,8 @@ function byStudent(papers: PaperRow[]): Student[] {
 export default async function CapturePage({ searchParams }: Props) {
   const me = await requireStaff();
   const { child } = await searchParams;
-  const students = byStudent(await deadline(papersToApprove(me.email)));
+  const [papers, reader] = await deadline(Promise.all([papersToApprove(me.email), readerReport()]));
+  const students = byStudent(papers);
   if (child) return <StudentPapers students={students} id={child} />;
 
   const sections = [...new Set(students.map((s) => s.section))];
@@ -75,6 +76,7 @@ export default async function CapturePage({ searchParams }: Props) {
         </div>
 
         <div className="grid min-w-0 gap-[18px]">
+          <ReaderPanel r={reader} />
           {sections.map((section) => {
             const rows = students.filter((s) => s.section === section);
             return (
@@ -125,6 +127,52 @@ export default async function CapturePage({ searchParams }: Props) {
         </div>
       </Body>
     </>
+  );
+}
+
+// Every check teaches the reader about that child (ADR 0032); this says what the checks so far add up to,
+// so the effort can be seen to pay — and which kinds of question the reader has earned trust on.
+const KIND_WORDS: Record<string, string> = { legacy_bare: "sums", legacy_missing: "missing numbers", legacy_word: "word problems", legacy_text: "written answers" };
+const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—");
+
+function ReaderPanel({ r }: { r: ReaderReport }) {
+  return (
+    <Panel title="How the reader is doing" aside={`from ${r.checked} answers people have checked`}>
+      <p className="text-[15px] leading-snug">
+        Checked by a person: {r.checked} answers. The reader was right on {r.right} of the {r.stood_behind} it stood behind ({pct(r.right, r.stood_behind)}),
+        wrong on {r.stood_behind - r.right}, and gave up on {r.gave_up}{r.gave_up ? ` (its guess was right on ${r.guess_right})` : ""}. Every check you make
+        teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you {Math.round(r.bar * 100)}% of the
+        time over the last {r.window} checks.
+      </p>
+      {r.kinds.length ? (
+        <div className="mt-3 min-w-0 overflow-x-auto">
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>Kind of question</th>
+                <th className="text-right">Checked</th>
+                <th className="text-right">Reader right</th>
+                <th className="text-right">Gave up</th>
+                <th className="text-right">Last {r.window}</th>
+                <th>Standing</th>
+              </tr>
+            </thead>
+            <tbody>
+              {r.kinds.map((k) => (
+                <tr key={k.fmt}>
+                  <td>{KIND_WORDS[k.fmt] ?? k.fmt}</td>
+                  <td className="num">{k.checked}</td>
+                  <td className="num">{pct(k.right, k.checked - k.gave_up)}</td>
+                  <td className="num">{k.gave_up}</td>
+                  <td className="num">{k.window_right} of {k.window_n}</td>
+                  <td>{k.trusted ? <Pill tone="neem">trusted: settles alone</Pill> : <Pill tone="bamboo">every answer checked by a person</Pill>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </Panel>
   );
 }
 

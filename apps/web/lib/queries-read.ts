@@ -172,6 +172,51 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
 
 export type QueueEntry = { id: string; spot: boolean };
 
+// How the reader is doing, from every check people have made (ADR 0032) — the same numbers as
+// `engine read report`: an answer counts once a person typed its reading or signed it off unchanged.
+export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean };
+export type ReaderReport = { checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; kinds: ReaderKind[]; window: number; bar: number };
+
+export async function readerReport(): Promise<ReaderReport> {
+  const [gate] = await sql<{ bar: number }[]>`select coalesce((select value from threshold where key = 'marking.agreement_gate'), 0.95)::float as bar`;
+  const rows = await sql<{ fmt: string; checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; window_n: number; window_right: number }[]>`
+    with latest as (
+      select distinct on (rc.item_result_id) rc.item_result_id, rc.human_read, rc.judged
+      from read_correction rc order by rc.item_result_id, rc.created_at desc),
+    checked as (
+      select i.fmt, c.created_at, coalesce(r.raw_read::jsonb ->> 'why', '') as why,
+             regexp_replace(lower(coalesce(r.raw_read::jsonb ->> 'child_answer', '')), '[\s,]', '', 'g') as model_read,
+             regexp_replace(lower(coalesce(l.human_read, r.raw_read::jsonb ->> 'child_answer', '')), '[\s,]', '', 'g') as human_read,
+             regexp_replace(lower(coalesce(r.raw_read::jsonb ->> 'guess', '')), '[\s,]', '', 'g') as guess
+      from item_result r join item i on i.id = r.item_id join capture c on c.id = r.capture_id
+      left join latest l on l.item_result_id = r.id
+      where c.superseded_by is null and l.judged is null and (l.item_result_id is not null or r.state = 'confirmed')),
+    scored as (
+      select fmt, (why = '' or why like 'read as%') as stood, model_read = human_read as right,
+             human_read <> '' and guess = human_read as guess_right,
+             row_number() over (partition by fmt, (why = '' or why like 'read as%') order by created_at desc) as rn
+      from checked)
+    select fmt, count(*)::int as checked,
+           count(*) filter (where stood)::int as stood_behind,
+           count(*) filter (where stood and right)::int as right,
+           count(*) filter (where not stood)::int as gave_up,
+           count(*) filter (where not stood and guess_right)::int as guess_right,
+           count(*) filter (where stood and rn <= 50)::int as window_n,
+           count(*) filter (where stood and rn <= 50 and right)::int as window_right
+    from scored group by fmt order by fmt`;
+  const sum = (k: keyof (typeof rows)[number]) => rows.reduce((n, r) => n + Number(r[k]), 0);
+  return {
+    checked: sum("checked"),
+    stood_behind: sum("stood_behind"),
+    right: sum("right"),
+    gave_up: sum("gave_up"),
+    guess_right: sum("guess_right"),
+    window: 50,
+    bar: gate.bar,
+    kinds: rows.map((r) => ({ ...r, trusted: r.window_n >= 50 && r.window_right / r.window_n >= gate.bar })),
+  };
+}
+
 export async function checkQueue(): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (

@@ -3087,3 +3087,40 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   changed across 16 children"; `engine read waiting` 190 → **454** (178 read as wrong, 86 read as blank, each now
   checked by a person); 413 stay settled by the engine, all read as right. The engine server still runs the code from
   before #12 — nothing the website calls changed (`legacy.correct` is as it was), but `deploy/go-live.sh` is owed.
+
+## The reader learns from every check — ADR 0032, built on the copy (2026-09-22, evening)
+
+- **Found first:** ADR 0007's loop (2026-09-19) was never built — `child_reading_profile` 0 rows, a correction
+  changing nothing after its own row, the reader recording nothing of what it saw when it gave up. Nimish:
+  *"this effort better help the case."* Measured on the 121 typed answers that afternoon: the reader right 33 of 42
+  at 90+ confidence, 7 of 17 at 70–89, 1 of 30 below 70, 5 of 32 where it gave up.
+- **L1 — the record.** Every reading carries `seen` (each number in the region with its confidence, on the
+  give-ups most of all). `engine read profile` builds a notebook per checked child (`profiles.build`, pure; ring B):
+  right by kind and by confidence, the child's own floor (70/80/90/95), routed kinds (`read.route_above_overturn`,
+  unused since day one), digit confusions, eight confirmed samples. A sign-off without a change joins the gold set:
+  `engine read eval --gold-only` → **284 gold responses on 33 sheets · 152 typed · 90 signed off** (was 82 + 103).
+  On the copy, 9 notebooks: Agastya 46 checked, right 24 of 37, floor 95, routes sums + word problems; Dhanvi 49,
+  35 of 41, floor 95, routes word problems; Kabir 25, 18 of 20, floor 80, confuses 3>7.
+- **L2 — the next read.** `engine/reading.py` is the one reader for the import, the re-read and the replay: the
+  child's floor replaces 70; a routed kind or a confused digit is flagged with the reading as the one-click guess
+  (`profiles.apply`, never overwriting a doubt or a blank). `test_the_childs_notebook_changes_the_next_import_of_
+  that_child`: the child's 8 read for a 3 twice → slot 1 flagged, guess 84, floor 90 handed to the reader.
+- **L3 — the second reader.** `read_with_examples` v1 (Haiku 4.5): the crop plus up to eight of this child's confirmed
+  answers as labelled examples; proposes, never settles, not shown the question (ADR 0019). **Eval (rule 7), on the
+  copy, Agastya + Dhanvi, notebook built without the paper under test: 9 of 16 give-ups guessed right (56%) — sums
+  5 of 7, word problems 3 of 7 — Rs 10.67.** `engine read guess` gives every waiting answer its guess.
+- **L4 — trust and proof.** `marking.agreement_gate` wired: a right answer waits until the reader's readings of that
+  kind matched people 95% of the time over the last fifty checks (`profiles.kind_trust`; `mark_read(gate=)`; the
+  import and `legacy remark` both). `engine read report` on the copy: **checked 246 · right 146 of 191 stood behind
+  (76%) · silently wrong 45 · gave up 55 (guess right 13); sums 28 of the last 50, word problems 36 of 47, missing
+  numbers 15 of 17, written 4 of 6 — no kind trusted yet.** Capture & Mark shows the same panel.
+- **The replay (`engine read replay --section G2 --child Agastya --child Dhanvi`), 8 papers, 95 answers people
+  settled, each read again without a notebook and with one built from the child's other papers:**
+  **without — right 59 · silently wrong 19 · one click 2 · typing 15; with — right 30 · silently wrong 9 · one click
+  36 · typing 20.** The dangerous error halved and typing turned to clicking; the reader settles half as much alone,
+  because both notebooks read "floor 95" — it had been wrong on these children too often. The 9 that remain: 6 on
+  one paper of Agastya's (`G2-SEPW2-S1`) where the reader stood behind wrong numbers at 95%+ and the notebook changed
+  nothing — a confident wrong *pick* of the number, not a misread digit; the gate keeps those from the graph, and
+  the pick is the next reader fix.
+- Engine suite 893 passed; website s4 15 passed (a gate-held answer settles in one click; the second reader's guess
+  offered back on the queue and the paper). **Live: not yet** — the order is in HANDOFF.

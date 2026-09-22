@@ -18,10 +18,18 @@ corrupted every transfer above 16 KB); the server fetched the commit from GitHub
 Rerun `deploy/go-live.sh` once the network is sound, so the server again comes from the script. **Not yet proved:
 a signed-in click-through on the live link.**
 
-**Done since:** Nimish approved step 8's skills (live `engine audit` 0), merged #12 and ran its data job (queue 190 →
-454). **Next:** Nimish checks child by child — PR #16 makes a child's papers links with previous/next paper.
-**Owed:** `deploy/go-live.sh` from `origin/main`, so the server carries #12's code (the permission check refused a
-production deploy from this session; this Mac's network was corrupting uploads 13:40–14:20).
+**Built this evening, on the copy (ADR 0032, `goals/reader-learns.yaml`, branch `reader-learns`):** the reader keeps a
+notebook per child and reads with it open; a second reader shown the child's own answers proposes for what the
+first gave up on; trust per kind at 95% of the last 50 checks; `engine read profile | guess | report | replay`.
+Replay on Agastya + Dhanvi: silently wrong 19 → 9, one click 2 → 36 (STATE). **Live rollout, in this order,
+after the PR merges and `deploy/go-live.sh` has put the engine up** (the website reads `guess_by`; no migration):
+1. `bin/engine load` (the prompt row `read_with_examples` v1) · 2. `bin/engine read profile` · 3. `bin/engine
+legacy remark --every-child` — **the gate: every right answer of an untrusted kind goes to a person with a one-click
+guess; the queue will read ~867** · 4. `bin/engine read guess` (≈ Rs 30 of Haiku: every waiting give-up gets its
+guess) · 5. `bin/engine read report`. Then Nimish checks child by child; after each batch, `read profile` and
+`read report` again. The permission check refuses live writes from this session: Nimish runs 1–5.
+**Next reader fix, from the replay:** a confident wrong *pick* of the number (working taken for the answer at
+95%+) — the notebook cannot catch it; 6 of the 9 remaining silent errors are that, on one paper.
 
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
