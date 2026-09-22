@@ -926,6 +926,7 @@ def test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
     assert legacy.mark_read(_spec(), {"answer": 84}, read, legacy.UNTRUSTED)[0] == "needs_teacher"
 
 
+@pytestmark_db
 def test_the_childs_notebook_changes_the_next_import_of_that_child(
     conn, child, tmp_path, monkeypatch, every_kind_trusted
 ):
