@@ -190,3 +190,96 @@ def test_relabel_never_touches_a_question_from_an_old_paper(conn):
         for r in conn.execute("select id, skill_codes, spec from item where id = any(%s)", ([b["id"] for b in before],))
     }
     assert all(after[b["id"]] == (b["skill_codes"], json.dumps(b["spec"], sort_keys=True)) for b in before)
+
+
+# ---------------------------------------------------------------- 8c: evidence per skill, on the copy
+
+
+def _paper(conn, answers):
+    """One child, one scanned paper, one answer row per (item_id, status, codes). Returns the child."""
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    child = conn.execute(
+        "insert into child (tenant_id, roll_no, section, band) values (%s,'1','TESTSEC8','G4') returning id", (tenant,)
+    ).fetchone()["id"]
+    tpl = conn.execute(
+        "insert into sheet_template (tenant_id, band, week) values (%s,'G4','2026-W39') returning id", (tenant,)
+    ).fetchone()["id"]
+    inst = conn.execute(
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id)"
+        " values (%s, 'CSTEST8' || substr(md5(random()::text), 1, 6), %s, %s) returning id",
+        (tenant, tpl, child),
+    ).fetchone()["id"]
+    cap = conn.execute(
+        "insert into capture (tenant_id, path, sheet_instance_id) values (%s,'test/8c.pdf',%s) returning id",
+        (tenant, inst),
+    ).fetchone()["id"]
+    for item_id, status, codes in answers:
+        conn.execute(
+            "insert into item_result (tenant_id, capture_id, item_id, rid, status, misconception_codes)"
+            " values (%s,%s,%s,'ans',%s,%s)",
+            (tenant, cap, item_id, status, codes),
+        )
+    return child
+
+
+def _item(conn, where):
+    return conn.execute(f"select id, skill_codes from item where status = 'active' and {where} limit 1").fetchone()
+
+
+def _evidence(conn, child):
+    return [
+        (r["skill_code"], r["correct"], sorted(r["misconception_codes"]))
+        for r in conn.execute(
+            "select skill_code, correct, misconception_codes from evidence_event where child_id = %s"
+            " order by skill_code, correct nulls first",
+            (child,),
+        )
+    ]
+
+
+def test_confirm_a_right_budget_answer_is_evidence_for_each_skill_it_uses(conn):
+    labels.relabel(conn)
+    q = _item(conn, "skill_set_code = 'WORD.BUDGET'")
+    child = _paper(conn, [(q["id"], "correct", [])])
+    conn.execute("select confirm_results(%s, 'a test')", (child,))
+    assert _evidence(conn, child) == sorted((s, True, []) for s in q["skill_codes"])
+
+
+def test_confirm_added_but_never_subtracted_is_evidence_against_subtraction_only(conn):
+    labels.relabel(conn)
+    q = _item(conn, "skill_set_code = 'WORD.BUDGET'")
+    child = _paper(conn, [(q["id"], "wrong", ["M_SUM_ONLY"])])
+    conn.execute("select confirm_results(%s, 'a test')", (child,))
+    assert _evidence(conn, child) == [("NUM.OPS.02", False, ["M_SUM_ONLY"])]
+
+
+def test_confirm_an_unexplained_wrong_answer_or_a_blank_counts_once_against_the_questions_own_skill(conn):
+    labels.relabel(conn)
+    two = conn.execute("select id from item where status = 'active' and skill_set_code = 'WORD.BUDGET' limit 2").fetchall()
+    child = _paper(conn, [(two[0]["id"], "wrong", []), (two[1]["id"], "blank", [])])
+    conn.execute("select confirm_results(%s, 'a test')", (child,))
+    assert _evidence(conn, child) == [("NUM.PRB.02", None, []), ("NUM.PRB.02", False, [])]
+
+
+def test_confirm_a_one_skill_question_counts_exactly_as_it_did_before(conn):
+    labels.relabel(conn)
+    q = _item(conn, "skill_set_code = 'ADD.2D.REG' and fmt = 'column_grid'")
+    child = _paper(conn, [(q["id"], "wrong", ["M_NOCARRY"])])
+    conn.execute("select confirm_results(%s, 'a test')", (child,))
+    assert q["skill_codes"] == ["NUM.OPS.01"]
+    assert _evidence(conn, child) == [("NUM.OPS.01", False, ["M_NOCARRY"])]
+
+
+def test_next_difficulty_counts_answers_not_evidence_rows(conn):
+    """A right budget answer is four evidence rows; the level rule must still see one answer. Two right and
+    one wrong is 67 % — the level holds. Counted by rows it would be 8 of 9 and promote the child."""
+    labels.relabel(conn)
+    three = conn.execute(
+        "select id from item where status = 'active' and skill_set_code = 'WORD.BUDGET' limit 3"
+    ).fetchall()
+    child = _paper(
+        conn, [(three[0]["id"], "correct", []), (three[1]["id"], "correct", []), (three[2]["id"], "wrong", ["M_SUM_ONLY"])]
+    )
+    conn.execute("select confirm_results(%s, 'a test')", (child,))
+    row = conn.execute("select * from next_difficulty(%s, 'WORD.BUDGET')", (child,)).fetchone()
+    assert row["rule"] == "from_state" and row["difficulty"] == "Medium"

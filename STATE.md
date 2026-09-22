@@ -2965,3 +2965,9 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   `M_SUM_ONLY → NUM.OPS.02, M_ONE_STEP_ONLY → NUM.PRB.02`. **Waits for one approval** (`engine audit`: "the table of
   what a mistake charges on each kind of question waits for one approval"); the suite counts only what code keeps
   (`audit.AWAITS_A_PERSON`).
+- **8c — evidence per skill.** Migration `20260928100000`: `confirm_results` writes one row per skill a right answer
+  used, one per skill a wrong answer's named mistakes charge (each row carrying its mistakes), one on the question's
+  own skill for an unexplained wrong answer or a blank; `next_difficulty` counts answers, not rows (a four-skill
+  right answer no longer weighs four). On the copy: a right budget answer → 4 rows; "added but never subtracted" →
+  1 row against `NUM.OPS.02`; a one-skill column sum → 1 row as before (`tests/test_every_skill.py` 25). The 236
+  pieces of evidence already on live all come from old papers' one-skill questions, so none needs rewriting.
