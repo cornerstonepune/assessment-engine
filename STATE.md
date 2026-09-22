@@ -2971,3 +2971,8 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   right answer no longer weighs four). On the copy: a right budget answer → 4 rows; "added but never subtracted" →
   1 row against `NUM.OPS.02`; a one-skill column sum → 1 row as before (`tests/test_every_skill.py` 25). The 236
   pieces of evidence already on live all come from old papers' one-skill questions, so none needs rewriting.
+- **8d — the graph reads it.** `engine graph` on the copy: 8 states. The Growth screen already keeps one row per rung
+  × skill and files each answer under every skill lane it counts for (`childMap`, `childEvidence`), so it needed no
+  change. `engine gold check` counts a paper's questions by any skill they use; copy and live read the same:
+  "18 not yet signed off · 3 waiting for a person · 2 in the graph · 1 read differently" — the 18 wait on the
+  validation queue, not on step 8.
