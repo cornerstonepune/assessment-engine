@@ -117,7 +117,16 @@ export type CaptureAnswer = {
 
 // A wrong or a blank the engine read but may not settle alone (ADR 0029): a reading for a person to
 // confirm or correct, never a Right/Wrong judgement — the engine marks it once the reading is a person's.
-export const held = (a: Pick<CaptureAnswer, "why">) => (a.why ?? "").includes("a person checks every");
+// Held (ADR 0029) until a person has said what the child wrote. After that the reading is theirs, and an
+// answer code still cannot mark (an explanation has no key) waits for their Right or Wrong: keeping it held
+// hid those buttons, so typing the child's words again and again never settled it (2026-09-22).
+export const held = (a: Pick<CaptureAnswer, "why" | "human_read">) =>
+  a.human_read === null && (a.why ?? "").includes("a person checks every");
+
+// Only a person's Right or Wrong settles this one: its reading is known — the reader's, or what a person
+// typed — and code cannot mark it.
+export const toJudge = (a: Pick<CaptureAnswer, "status" | "answer_state" | "why" | "human_read">) =>
+  a.status === "needs_teacher" && (a.human_read !== null || a.answer_state === "written") && !held(a);
 
 // Every answer on one paper, in the order they sit on the page — which is the order a teacher
 // reads them in, with the photograph beside them.

@@ -130,6 +130,31 @@ for (const held of [
   });
 }
 
+// Nimish, 2026-09-22: "the system isn't taking text answers". An explanation the reader saw as blank was
+// held; typing the child's words kept it held, Right and Wrong stayed hidden, and nine saves settled nothing.
+test("an explanation held as blank takes the child's words, then asks for Right or Wrong", async ({ page }) => {
+  const [a] = await sql<{ id: string; paper: string }[]>`
+    select r.id, c.sheet_instance_id as paper from item_result r join capture c on c.id = r.capture_id
+    join item i on i.id = r.item_id
+    where c.superseded_by is null and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like 'read as blank%'
+      and coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') is null
+      and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)
+    order by r.id limit 1`;
+  test.skip(!a, "no explanation is held as blank");
+  const before = await keep(a.id);
+  try {
+    await page.goto(`/capture/${a.paper}`);
+    const card = page.locator(`#a-${a.id}`);
+    await card.getByRole("textbox").fill("because the number is big");
+    await card.getByRole("button", { name: "Save" }).click();
+    await expect(card.getByText("You said the child wrote because the number is big.")).toBeVisible();
+    await card.getByRole("button", { name: "Right", exact: true }).click();
+    await expect.poll(async () => (await keep(a.id)).status, { timeout: 15_000 }).toBe("correct");
+  } finally {
+    await putBack(before);
+  }
+});
+
 test("on its paper, a held answer asks what the child wrote with the reading filled in, never Right or Wrong", async ({ page }) => {
   const [a] = await sql<{ id: string; paper: string; read: string }[]>`
     select r.id, c.sheet_instance_id as paper, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE}
