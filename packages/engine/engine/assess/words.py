@@ -1,7 +1,8 @@
 """Questions made of sentences: the stories, and the generators that put numbers in them.
 
-The sentences are rows, not Python: `supabase/seed/word_templates.json`, the file the school edits (ADR
-0010 — the language is written once per pattern). Each template says its story shape (taxonomy §10:
+The sentences are rows, not Python: `word_templates.json` beside this file, the file the school edits (ADR
+0010 — the language is written once per pattern). Beside it, not in `supabase/seed/`: the engine reads it
+while it runs, and the server's image holds `engine/` alone (`tests/test_image.py`). Each template says its story shape (taxonomy §10:
 join or take away with the result, the change or the start unknown; two parts and a whole; compare, and
 which side is unknown; the two-step shapes) and the operation the child carries out, so a story's shape
 is known by construction, never guessed from its words. Old questions whose sentence predates the stored
@@ -16,7 +17,7 @@ from functools import lru_cache
 from engine.assess import misconceptions as M
 from engine.assess.items import Response, _cells, _item, sample_add, sample_sub
 
-SEED = pathlib.Path(__file__).resolve().parents[4] / "supabase/seed/word_templates.json"
+SEED = pathlib.Path(__file__).with_name("word_templates.json")
 
 
 @lru_cache(maxsize=1)
