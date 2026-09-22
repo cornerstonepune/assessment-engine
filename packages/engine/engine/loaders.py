@@ -466,11 +466,17 @@ def _thresholds(conn, t):
 
 
 def _config(conn, t):
+    """A row marked `seed_once` belongs to the app after its first load — `app.staff` holds the
+    password hashes `engine set-password` writes, and re-seeding it took every one of them away."""
     for c in _seed("config.json", "config"):
+        on_conflict = (
+            "do nothing"
+            if c.get("seed_once")
+            else "do update set value=excluded.value, description=excluded.description, updated_at=now()"
+        )
         conn.execute(
             "insert into config (tenant_id, key, value, description) values (%s,%s,%s,%s)"
-            " on conflict (tenant_id, key) do update set value=excluded.value,"
-            " description=excluded.description, updated_at=now()",
+            f" on conflict (tenant_id, key) {on_conflict}",
             (t, c["key"], json.dumps(c["value"]), c.get("description", "")),
         )
 

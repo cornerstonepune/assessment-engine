@@ -47,6 +47,23 @@ def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
         assert live["difficulty"]["Easy"]["words"] == before["Easy"]["words"], "and nothing was left behind"
 
 
+def test_load_config_keeps_a_password_set_in_the_app():
+    """`engine set-password` writes a hash into `app.staff`; the seed's copy of the list has none. The
+    loader upserted every config row, so the next `engine load` silently took every password away and
+    no one could sign in. A row the app owns is seeded once and then left alone (`seed_once`)."""
+    with db.connect() as conn:
+        tenant = loaders._tenant(conn)
+        staff = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
+        staff[0]["password"] = "scrypt$test$hash"
+        conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
+
+        loaders._config(conn, tenant)
+
+        after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
+        assert after[0].get("password") == "scrypt$test$hash", "loading the seed took a password away"
+        conn.rollback()
+
+
 EXPECTED = {
     "tenant": 1,
     "domain": 14,
@@ -67,7 +84,7 @@ EXPECTED = {
     #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
-    "config": 8,
+    "config": 11,  # + skills.by_operation / by_kind / by_symbol (ADR 0023, step 8a)
     "skill_set": 17,
     "subject": 1,
 }

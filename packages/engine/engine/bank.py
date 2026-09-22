@@ -9,9 +9,10 @@ import json
 import random
 from collections import Counter
 
-from engine import db
+from engine import db, labels
 from engine.adapters import llm
 from engine.assess import bands, tags, verify
+from engine.assess import skills as S
 from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.assess.items import Item, Response
@@ -89,6 +90,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
         unnamed_distractor_dropped=0,
     )
     known = _known_codes(conn)
+    rules = labels.rules(conn)
     reasons, seen, accepted, meta = Counter(), set(), [], {}
     # A band may pin itself to one format (`check.format`); otherwise it draws on everything the
     # skill set declares. Pinning is what stops two bands of one skill set — same digits, same
@@ -122,6 +124,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
                     on_reject(c, probs)
                 continue
             it = verify.to_item(c, s["rung_code"], skills=list(s["skill_codes"]))
+            it.skills = S.used(it.fmt, it.spec, it.stem, list(s["skill_codes"]), rules)
             # The band as declared, against the item as measured. Redundant for the sampler,
             # which drew from this very rule; the model path is exactly where it earns its keep.
             dims = verify.dimension_problems(tags.derive(it), check)
@@ -213,6 +216,7 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     fmt = check.get("format") or s["formats"][0]
     counts = Counter(asked=0, accepted=0, already_in_bank=0, duplicate=0, unnamed_distractor_dropped=0)
     known = _known_codes(conn)
+    rules = labels.rules(conn)
     # The same in-batch guard `fill` has. Without it this path's only defence against two identical
     # questions is the insert's own conflict clause, so a dry run — a scenario, an eval — could hand
     # back a set with a repeat in it, and a caller that does not store would never know.
@@ -228,6 +232,7 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
         tries += 1
         counts["asked"] += 1
         it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+        it.skills = S.used(it.fmt, it.spec, it.stem, list(s["skill_codes"]), rules)
         if it.item_id in seen:
             counts["duplicate"] += 1
             continue

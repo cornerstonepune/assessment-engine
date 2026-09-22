@@ -10,7 +10,7 @@ prints the rows that break it. Adding a new class of bug means adding an invaria
 test that happens to notice it. What this file does NOT check is, by definition, what we do not know.
 """
 
-from engine import bank, db, loaders, spec
+from engine import bank, db, labels, loaders, spec
 from engine.assess import bands, verify
 from engine.assess import misconceptions as M
 
@@ -130,6 +130,11 @@ def every_stored_item_still_satisfies_its_band(conn):
     return list(bank.recheck(conn))
 
 
+def no_question_carries_a_skill_it_does_not_use(conn):
+    """ADR 0023: a question's skills are the ones it uses, read from the question — never its rung's."""
+    return labels.mislabelled(conn)
+
+
 def referential_codes_all_resolve(_conn):
     return [f"{label}: {', '.join(codes)}" for label, codes in loaders.orphans().items() if codes]
 
@@ -149,6 +154,7 @@ INVARIANTS = [
     ("every misconception a stored item names exists", every_misconception_a_stored_item_names_exists),
     ("every answer-lookup code is computed somewhere", every_answer_lookup_code_is_computed_somewhere),
     ("every generated item says what made it", every_generated_item_says_what_made_it),
+    ("no question carries a skill it does not use", no_question_carries_a_skill_it_does_not_use),
     ("every unit meets its target", every_unit_meets_its_target),
     ("every stored item still satisfies its band", every_stored_item_still_satisfies_its_band),
 ]

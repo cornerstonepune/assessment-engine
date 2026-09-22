@@ -2942,3 +2942,18 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   `vercel logs --query "does not exist"`: 0. `deploy/go-live.sh` at d521da4 (exit 0). Live: the twelve pictures cold,
   12 × 200 in ≤ 1.01 s; `engine library check`: 1123 worksheets · 68 of 68 skill-levels ready · 0 problems;
   `engine audit`: 12 invariants, 0 violations.
+
+## Step 8, widened — the team's taxonomy and every skill a question uses (2026-09-22)
+
+- **Measured before the work** (live bank, 12,567 active questions): of the taxonomy's 252 cases, 112 hold ≥ 12
+  questions, 14 hold 1–11, 126 hold none. Page: claude.ai/artifact/769ATqK16k5iuBVyPLnhKQ. Several gaps are levels
+  whose rule names keys no generator reads (`order`, `layout`, `n_costs`, `planted`, `extra_information`).
+- **`engine load` took every staff password away** — `app.staff` was upserted from a seed that holds none. Fixed at
+  the cause: a config row marked `seed_once` is the app's after its first load
+  (`test_load_config_keeps_a_password_set_in_the_app`, failed before the fix). The copy's value was restored from live.
+- **8a — a question's skills are read from the question** (`assess/skills.py`; rules are config rows
+  `skills.by_operation / by_kind / by_symbol`; ADR 0030). On the copy, `engine bank relabel` changed 10,319 of the
+  12,331 generated questions (0.7 s); a second run: `skills: 0 would change`. Every 3-digit addition now carries
+  addition alone; every budget problem `NUM.PRB.02, NUM.MEAS.04, NUM.OPS.01, NUM.OPS.02`. `engine audit` holds
+  "no question carries a skill it does not use". `tests/test_every_skill.py` 12; engine suite green. Live not yet
+  relabelled.
