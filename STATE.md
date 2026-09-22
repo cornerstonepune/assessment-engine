@@ -3079,3 +3079,11 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   itself (the repository is public), proved byte-identical to it (370 files, one sha256 over all, equal on both
   sides), and rebuilt — `/health` 200 at 13:56. Website production deployment of `450467b`: success. **Not yet
   proved: a signed-in click-through on the live link** (no session in this browser).
+- **Step 8 closed on live, 2026-09-22 afternoon.** Nimish approved the 17 skills and the table of what a wrong answer
+  counts against. Live, read-only: `engine bank taxonomy` "269 cases · 269 covered · 0 missing · 0 thin"; `engine
+  library check` "1540 worksheets · 84 of 84 skill-levels ready · 0 problems"; `engine audit` "17 invariants checked,
+  0 violations". Goal s8-every-skill-a-question-uses still waits on step 6's `engine gold check`.
+- **ADR 0029's data job ran on live** (PR #12, run by Nimish): `engine legacy remark --every-child` → "264 results
+  changed across 16 children"; `engine read waiting` 190 → **454** (178 read as wrong, 86 read as blank, each now
+  checked by a person); 413 stay settled by the engine, all read as right. The engine server still runs the code from
+  before #12 — nothing the website calls changed (`legacy.correct` is as it was), but `deploy/go-live.sh` is owed.

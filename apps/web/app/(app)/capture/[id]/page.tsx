@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { misconceptionNames, numSkills } from "@/lib/queries";
-import { held, paperAnswers, paperHeader, type CaptureAnswer } from "@/lib/queries-read";
+import { held, paperAnswers, paperHeader, sameChildPapers, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper, correctRead, judgeRead } from "../actions";
 import { deadline } from "@/lib/deadline";
 
@@ -40,13 +40,16 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [paper, answers, names, skills] = await deadline(Promise.all([
+  const [paper, answers, names, skills, siblings] = await deadline(Promise.all([
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
     numSkills(),
+    sameChildPapers(id),
   ]));
   if (!paper) notFound();
+  const at = siblings.findIndex((s) => s.id === id);
+  const [prev, next] = [siblings[at - 1], siblings[at + 1]];
 
   const skillName = Object.fromEntries(skills.map((s) => [s.code, s.name]));
   const waiting = answers.filter((a) => a.state === "candidate" && !settled(a));
@@ -81,6 +84,15 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
         <p className="mb-4 flex flex-wrap gap-2">
           <Link href="/capture" className="chip">← All papers</Link>
           <Link href={`/growth/${paper.child_id}`} className="chip">{paper.first_name}&rsquo;s ladder</Link>
+          {siblings.length > 1 ? (
+            <span className="ml-auto flex flex-wrap items-center gap-2">
+              {prev ? <Link href={`/capture/${prev.id}`} className="chip">← Previous paper</Link> : null}
+              <span className="text-[13px] text-basalt/62">
+                {paper.first_name}&rsquo;s paper {at + 1} of {siblings.length}
+              </span>
+              {next ? <Link href={`/capture/${next.id}`} className="chip">Next paper →</Link> : null}
+            </span>
+          ) : null}
         </p>
 
         {q.confirmed ? <Notice tone="neem">Signed off {q.confirmed} answers in your name. {paper.first_name}&rsquo;s ladder is rebuilt from them.</Notice> : null}
