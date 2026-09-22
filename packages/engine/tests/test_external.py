@@ -4,7 +4,7 @@ The cases here are the ones the first real run got wrong, on both SOF forms: a c
 question, and a question numbered once holds two answers.
 """
 
-from engine import external
+from engine.w3_read import external
 
 
 def q(n, part="", page=None):

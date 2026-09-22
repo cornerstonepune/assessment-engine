@@ -221,9 +221,9 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
     yet is called directly — the day a skill set starts using it, it is already covered."""
     import json
 
-    from engine import db
     from engine.assess import bands, verify, words
     from engine.assess.layout import WORKING_LINES
+    from engine.core import db
 
     rng = random.Random(7)
     made = []

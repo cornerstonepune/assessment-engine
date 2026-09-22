@@ -8,7 +8,7 @@ import os
 
 import pytest
 
-from engine import profiles
+from engine.w3_read import profiles
 
 
 def checked(**kw):
@@ -160,7 +160,7 @@ def test_a_blank_is_never_flagged_by_the_notebook():
 def conn():
     if not os.getenv("DATABASE_URL"):
         pytest.skip("needs DATABASE_URL (see .env.example)")
-    from engine import db
+    from engine.core import db
 
     with db.connect() as c:
         yield c

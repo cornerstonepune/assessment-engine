@@ -1,6 +1,6 @@
 """`engine live check` reads what Vercel recorded; these pin how it counts (engine/live.py)."""
 
-from engine import live
+from engine.checks import live
 
 
 def _r(path, status=200, level="info", message=""):

@@ -36,6 +36,7 @@ export default defineConfig({
     { name: "e2e", testMatch: /e2e\.spec\.ts/, use: { storageState: SIGNED_IN } },
     { name: "gate", testMatch: /gate\.spec\.ts/ },
     { name: "steps", testMatch: /s\d-[\w-]+\.spec\.ts/, use: { storageState: SIGNED_IN } },
+    { name: "map", testMatch: /workflows\.spec\.ts/, use: { storageState: SIGNED_IN } },
   ],
   webServer: [
     {

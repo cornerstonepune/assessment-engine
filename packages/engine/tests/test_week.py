@@ -10,8 +10,9 @@ import uuid
 
 import pytest
 
-from engine import assemble, db, prescribe, roster
 from engine.assess import graph
+from engine.core import db, roster
+from engine.w2_print import assemble, prescribe
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

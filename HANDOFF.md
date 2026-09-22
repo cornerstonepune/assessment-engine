@@ -18,19 +18,21 @@ corrupted every transfer above 16 KB); the server fetched the commit from GitHub
 Rerun `deploy/go-live.sh` once the network is sound, so the server again comes from the script. **Not yet proved:
 a signed-in click-through on the live link.**
 
-**Built this evening, on the copy (ADR 0032, `goals/reader-learns.yaml`, branch `reader-learns`):** the reader keeps a
-notebook per child and reads with it open; a second reader shown the child's own answers proposes for what the
-first gave up on; trust per kind at 95% of the last 50 checks; `engine read profile | guess | report | replay`.
-Replay on Agastya + Dhanvi: silently wrong 19 → 9, one click 2 → 36 (STATE). **Live rollout, in this order,
-after the PR merges and `deploy/go-live.sh` has put the engine up** (the website reads `guess_by`; no migration):
-1. `bin/engine load` (the prompt row `read_with_examples` v1) · 2. `bin/engine read profile` · 3. `bin/engine
-legacy remark --every-child` — **the gate: every right answer of an untrusted kind goes to a person with a one-click
-guess; the queue will read ~867** · 4. `bin/engine read guess` (≈ Rs 30 of Haiku: every waiting give-up gets its
-guess) · 5. `bin/engine read report`. Then Nimish checks child by child; after each batch, `read profile` and
-`read report` again. The permission check refuses live writes from this session: Nimish runs 1–5.
-**Next reader fix, from the replay:** 6 of the 9 remaining silent errors sit on one paper (`G2-SEPW2-S1`,
-Agastya) at 95%+ confidence, so most likely a wrong *pick* of the number (working taken for the answer) — no
-notebook can catch that; confirm on the crops, then fix the pick.
+**The reader learns — live since 20:10 IST** (ADR 0032, PR #19). Queue 382 → 624: 570 one click, 53 typing; audit 0
+(STATE). Nimish checks child by child; **after each batch run `bin/engine read profile` then `bin/engine read
+report`** — the report is the answer to "how many rounds": a kind leaves the queue for good once it reaches 95% of
+the last 50 checks. New papers read through `legacy import` pick up the notebooks and the second reader on their
+own. **Owed:** `deploy/go-live.sh` (server on `450467b`; nothing it serves changed). **Next reader fix:** 6 of the 9
+silent errors left in the replay sit on one paper at 95%+ — most likely the working picked as the answer; confirm on
+the crops. **Then, per Nimish's standing direction (BUILD-ORDER):** how skills are read from evidence and the graph
+keeps itself honest; the graph readable at a glance.
+
+**Built tonight (PR #22, ADR 0033):** the engine laid out as its workflows and held to `workflows.json`; the How it
+works page; `engine promises`, `engine done <goal>`, `bin/check` run by the git pre-commit hook and a Claude Code
+Stop hook. **Report work done only with `engine done <goal>` pasted (CLAUDE.md rule 14).** **Next, queued before
+anything else:** the next-paper rule groups answers by rung, not skill — on shared rung R9 Dhanvi's subtraction
+mistakes are charged to 3-digit addition and 3-digit subtraction gets no next paper (a migration to
+`next_difficulty`; write its goal with `says` first).
 
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,

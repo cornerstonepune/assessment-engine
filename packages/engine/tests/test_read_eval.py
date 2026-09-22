@@ -4,7 +4,7 @@ The one number that matters here is `silently_wrong`: a reading the engine STAND
 wrong corrupts a child's graph invisibly, where one it flagged costs a teacher a glance.
 """
 
-from engine import read_eval
+from engine.w3_read import read_eval
 
 GOLD = [
     {"n": 1, "part": "", "child_answer": "763", "answer_state": "written"},
@@ -59,7 +59,7 @@ def test_a_photograph_a_teacher_corrected_is_read_as_its_own_page_from_its_own_p
     import cv2
     import numpy as np
 
-    from engine import read_eval
+    from engine.w3_read import read_eval
 
     monkeypatch.setenv("HOME", str(tmp_path))
     cv2.imwrite(str(tmp_path / "page-two.jpg"), np.full((40, 30, 3), 255, np.uint8))
@@ -71,7 +71,7 @@ def test_a_signed_off_answer_joins_the_gold_set_and_a_correction_on_the_same_ans
     """ADR 0032: a sign-off is a person saying the reader's reading is what the child wrote. It joins
     the set the reader is scored against, as a typed correction does — and where both exist for one
     answer, the typed one is the truth."""
-    from engine import legacy, profiles
+    from engine.w3_read import marking, profiles
 
     row = {
         "paper": "G2-X",
@@ -85,7 +85,7 @@ def test_a_signed_off_answer_joins_the_gold_set_and_a_correction_on_the_same_ans
         profiles, "signed_off", lambda conn: [row, {**row, "item_key": "G2-X/1/5", "human_read": "9"}]
     )
     monkeypatch.setattr(
-        legacy, "corrections", lambda conn: [{**row, "item_key": "G2-X/1/5", "human_read": "19"}]
+        marking, "corrections", lambda conn: [{**row, "item_key": "G2-X/1/5", "human_read": "19"}]
     )
     sheets = [s for s in read_eval.gold_sheets(conn=object()) if s["paper"] == "G2-X"]
     assert len(sheets) == 1

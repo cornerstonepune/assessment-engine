@@ -1,0 +1,179 @@
+{
+  "about": "The map of the assessment engine: the twelve steps agreed with the school (docs/sources/assessment-workflow-v1.md) grouped as the four workflows (ARCHITECTURE.md §6.1), every file that does each step, and the only connections one workflow may make to another. `packages/engine/tests/test_layout.py` fails the day the code and this map disagree; the website's How it works page draws it with live numbers. Edit this file when a step, a file or a connection changes — never the other way round.",
+  "workflows": [
+    {"code": "W1", "name": "Build the bank", "folder": "engine/w1_bank", "does": "Turns the school's skill sets into checked questions at four levels, ready for any paper.", "steps": ["N1", "N2"]},
+    {"code": "W2", "name": "Assemble and print", "folder": "engine/w2_print", "does": "Chooses each child's next paper from their graph and prints the pack a teacher carries.", "steps": ["N4", "N5", "N6", "N7"]},
+    {"code": "W3", "name": "Read and graph", "folder": "engine/w3_read", "does": "Reads what each child wrote, has a person check what the reader doubts, learns from every check, and puts the answers on the child's skill graph.", "steps": ["N3", "N8", "N9", "N10"]},
+    {"code": "W4", "name": "Close the loop", "folder": null, "does": "Turns the graph into Friday's class card, the home sheet and parent note, and the monthly report — and the next week's paper.", "steps": ["N11", "N12"]}
+  ],
+  "steps": [
+    {
+      "code": "N1", "workflow": "W1", "name": "Skill sets and the ladder",
+      "does": "Each skill written as what a child can do, with four levels and the cases each level holds; a person approves them once.",
+      "who": "code drafts, a person approves",
+      "built": "live",
+      "takes": ["the skill registry", "the team's taxonomy"],
+      "gives": ["skill_set", "rung", "taxonomy_case", "misconception"],
+      "files": ["engine/w1_bank/spec.py"],
+      "commands": ["engine load", "engine bank levels"],
+      "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve"],
+      "subject": {"any": false, "note": "The shape (skill → four levels → cases, approved once) is any subject's. The content is maths: the add/sub ladder, the 269 cases and the named mistakes are rows a new subject writes for itself — no code."}
+    },
+    {
+      "code": "N2", "workflow": "W1", "name": "Question bank",
+      "does": "Code makes every question from its level's rule and checks its answer; a model writes only story sentences; a person can correct or retire any question.",
+      "who": "code; a model for sentences; a person corrects",
+      "built": "live",
+      "takes": ["skill_set", "taxonomy_case"],
+      "gives": ["item"],
+      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py"],
+      "commands": ["engine bank fill", "engine bank refill", "engine bank taxonomy", "engine bank relabel"],
+      "screens": ["/library", "/library/[key]", "/api/question/[key]"],
+      "subject": {"any": false, "note": "Maths only: questions are generated and their answers computed by arithmetic code (engine/assess). A subject whose answers cannot be computed needs a person-approved key per question, which this step does not have."}
+    },
+    {
+      "code": "N3", "workflow": "W3", "name": "Old papers read in",
+      "does": "The papers children sat before the QR sheets are read into the same answers and evidence, so every child starts with a graph.",
+      "who": "code reads, a person checks",
+      "built": "live",
+      "takes": ["scans on this Mac", "each old paper's answer key"],
+      "gives": ["capture", "item_result"],
+      "files": ["engine/w3_read/legacy.py", "engine/w3_read/cli_legacy.py", "engine/w3_read/external.py", "engine/w3_read/stale.py", "engine/w3_read/reread.py"],
+      "commands": ["engine legacy import", "engine legacy remark", "engine read again"],
+      "screens": [],
+      "subject": {"any": false, "note": "Maths only: each old paper's answer key is maths, and the reader reads numbers. Marking moved to marking.py (N9)."}
+    },
+    {
+      "code": "N4", "workflow": "W2", "name": "The week's declaration",
+      "does": "The teacher says what was taught this week, and the engine proposes the week's skill sets for her to confirm.",
+      "who": "a model structures, the teacher confirms",
+      "built": "not built",
+      "takes": ["the teacher's note"],
+      "gives": ["the week's skill sets"],
+      "files": [],
+      "commands": [],
+      "screens": [],
+      "subject": {"any": true, "note": "Not built. Today a person names the week's skill set on the command line."}
+    },
+    {
+      "code": "N5", "workflow": "W2", "name": "Each child's next paper",
+      "does": "Chooses each child's skill set and level from their graph — up at 80% right, down under 50% aimed at the named mistake — with the reason in one line.",
+      "who": "code",
+      "built": "live",
+      "takes": ["child_skill_state", "evidence_event"],
+      "gives": ["prescription"],
+      "files": ["engine/w2_print/prescribe.py"],
+      "commands": ["engine week prescribe"],
+      "screens": ["/worksheets"],
+      "subject": {"any": true, "note": "Any subject: the rule reads states and levels, not maths."}
+    },
+    {
+      "code": "N6", "workflow": "W2", "name": "Worksheets and packs",
+      "does": "Every question sits on a numbered worksheet; each child gets one they have not sat, printed with a QR code, in handout order with spares.",
+      "who": "code",
+      "built": "live",
+      "takes": ["prescription", "item"],
+      "gives": ["sheet_template", "sheet_instance"],
+      "files": ["engine/w2_print/library.py", "engine/w2_print/assemble.py", "engine/w2_print/cli_library.py", "engine/w2_print/cli_week.py"],
+      "commands": ["engine library build", "engine library check", "engine week assemble"],
+      "screens": ["/worksheets", "/worksheets/[qr]", "/api/worksheet/[code]", "/api/paper/[qr]/[page]"],
+      "subject": {"any": false, "note": "The library and packing are any subject's; how each kind of question is drawn on paper (engine/assess/render.py) is maths."}
+    },
+    {
+      "code": "N7", "workflow": "W2", "name": "Teacher approves the pack",
+      "does": "The teacher looks over the pack and its key and approves it before it is printed.",
+      "who": "a person",
+      "built": "partly",
+      "takes": ["sheet_instance"],
+      "gives": ["papers marked printed"],
+      "files": [],
+      "commands": [],
+      "screens": ["/worksheets"],
+      "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
+    },
+    {
+      "code": "N8", "workflow": "W3", "name": "Capture",
+      "does": "A photographed or scanned paper is drawn as page images and lined up with the page it was printed from.",
+      "who": "code",
+      "built": "partly",
+      "takes": ["scans"],
+      "gives": ["capture"],
+      "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/stencil.py"],
+      "commands": ["engine read stencil"],
+      "screens": ["/capture"],
+      "subject": {"any": true, "note": "Any subject. Scans enter from this Mac; a phone photo arriving on its own (Drive folder, QR) is not built."}
+    },
+    {
+      "code": "N9", "workflow": "W3", "name": "Read, check and learn",
+      "does": "The reader reads each answer with the child's notebook open, marks it by looking up the key, and sends what it doubts to a person; every check teaches it that child's handwriting.",
+      "who": "code reads and marks; a model proposes guesses; a person checks",
+      "built": "live",
+      "takes": ["capture", "item"],
+      "gives": ["item_result", "read_correction", "child_reading_profile"],
+      "files": ["engine/w3_read/reading.py", "engine/w3_read/marking.py", "engine/w3_read/profiles.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
+      "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval"],
+      "screens": ["/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
+      "subject": {"any": false, "note": "The loop — notebook, trust per kind, a person's check — is any subject's. The reader reads numbers only, and marking is a lookup against computed answers: a subject answered in words would reach a person every time."}
+    },
+    {
+      "code": "N10", "workflow": "W3", "name": "Evidence and the skill graph",
+      "does": "A signed-off answer becomes evidence for every skill it used, and each child's graph is rebuilt in six states.",
+      "who": "code (in the database)",
+      "built": "live",
+      "takes": ["item_result"],
+      "gives": ["evidence_event", "child_skill_state"],
+      "files": ["engine/w3_read/gold.py", "engine/w3_read/cli_gold.py"],
+      "commands": ["engine graph", "engine gold check"],
+      "screens": ["/growth", "/growth/[id]"],
+      "subject": {"any": true, "note": "Any subject: evidence and the six states read skill codes, not maths. The rule runs in the database (confirm_results, rebuild_child_skill_state)."}
+    },
+    {
+      "code": "N11", "workflow": "W4", "name": "Class card and home sheet",
+      "does": "Friday's class card, and a home sheet with a parent note for each child, aimed at what they got wrong.",
+      "who": "code; a model for one sentence; the teacher confirms",
+      "built": "not built",
+      "takes": ["child_skill_state"],
+      "gives": ["class_card", "home_sheet", "parent_note"],
+      "files": [],
+      "commands": [],
+      "screens": ["/home"],
+      "subject": {"any": true, "note": "Not built."}
+    },
+    {
+      "code": "N12", "workflow": "W4", "name": "Reports and planning",
+      "does": "Monthly parent reports, the class trend, regrouping and not-ready flags.",
+      "who": "code; a model for the narrative; the coordinator approves",
+      "built": "not built",
+      "takes": ["child_skill_state"],
+      "gives": ["report_item"],
+      "files": [],
+      "commands": [],
+      "screens": [],
+      "subject": {"any": true, "note": "Not built."}
+    }
+  ],
+  "shared": [
+    {"code": "assess", "name": "The maths library", "does": "Pure code with no database: makes, measures, draws and marks every kind of question. W1, W2 and W3 all use it.", "folder": "engine/assess", "subject": {"any": false, "note": "All maths. A new subject brings its own library beside this one."}},
+    {"code": "core", "name": "The base", "does": "The one database connection, the seed loader, and the class list every workflow reads.", "folder": "engine/core", "subject": {"any": true, "note": ""}},
+    {"code": "adapters", "name": "Outside services", "does": "The only two files that talk to a service outside: the text model, and Amazon's handwriting reader.", "folder": "engine/adapters", "subject": {"any": true, "note": ""}},
+    {"code": "checks", "name": "The proofs", "does": "Every invariant over every row, a goal's commands and scenarios, the live site's health.", "folder": "engine/checks", "subject": {"any": true, "note": ""}},
+    {"code": "doors", "name": "The front doors", "does": "The command line and the web service the website and n8n call — thin, each command handing straight to a workflow.", "folder": "engine/api", "files": ["engine/cli.py"], "subject": {"any": true, "note": ""}}
+  ],
+  "handovers": [
+    {"from": "engine/w2_print/library.py", "to": "engine/w1_bank/inventory.py", "why": "A worksheet is dealt from the bank's active questions, each read back as the question it is."},
+    {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/inventory.py", "why": "A child's paper is built from the bank's questions, each read back as the question it is."},
+    {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."}
+  ],
+  "ceilings": {
+    "limit": 400,
+    "frozen": {
+      "engine/adapters/ocr.py": 1002,
+      "engine/w3_read/legacy.py": 672,
+      "engine/assess/items.py": 640,
+      "engine/core/loaders.py": 619,
+      "engine/assess/misconceptions.py": 500,
+      "engine/assess/render.py": 464,
+      "engine/assess/mark.py": 417
+    }
+  }
+}

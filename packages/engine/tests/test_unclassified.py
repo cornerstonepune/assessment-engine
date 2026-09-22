@@ -9,7 +9,8 @@ import os
 
 import pytest
 
-from engine import bank, db
+from engine.core import db
+from engine.w1_bank import inventory
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -50,13 +51,13 @@ def wrong_answers(conn):
 
 
 def test_an_unexplained_wrong_answer_is_surfaced_with_how_many_children_wrote_it(conn, wrong_answers):
-    rows = bank.unclassified(conn)
+    rows = inventory.unclassified(conn)
     mine = [r for r in rows if r["wrote"] == "8113"]
     assert mine and mine[0]["children"] == 2, "two children wrote it; that is the pattern to name"
 
 
 def test_a_wrong_answer_a_named_mistake_already_explains_is_not_in_the_report(conn, wrong_answers):
-    raws = {r["wrote"] for r in bank.unclassified(conn)}
+    raws = {r["wrote"] for r in inventory.unclassified(conn)}
     explained = conn.execute(
         "select raw_read from item_result where cardinality(misconception_codes) > 0"
         " order by created_at desc limit 1"
@@ -65,5 +66,5 @@ def test_a_wrong_answer_a_named_mistake_already_explains_is_not_in_the_report(co
 
 
 def test_the_report_is_ordered_by_how_many_children_made_the_mistake(conn, wrong_answers):
-    counts = [r["children"] for r in bank.unclassified(conn)]
+    counts = [r["children"] for r in inventory.unclassified(conn)]
     assert counts == sorted(counts, reverse=True), "the commonest unexplained answer comes first"

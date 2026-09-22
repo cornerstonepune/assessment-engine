@@ -1,7 +1,7 @@
 """How much working space each kind of question is printed with, in lines.
 
 Every generator in `items.py` and `words.py` gives its own kind exactly this. A question read back
-from the bank has no generator to ask, so `bank.item_from_row` asks here. Before this table it asked
+from the bank has no generator to ask, so `inventory.item_from_row` asks here. Before this table it asked
 `verify.FORMATS`, which knows four kinds, and eight of the twelve kinds in the bank could not be
 printed at all. `test_items` fails the moment a generator and this table disagree.
 """

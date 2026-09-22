@@ -1,0 +1,142 @@
+"""The two commands that prove things: `engine audit` (every invariant) and `engine goal <name>`
+(a goal and the commands that prove it). Their own module so `cli.py` stays under the ceiling."""
+
+import sys
+
+import typer
+
+from engine.checks import audit as audit_module
+from engine.checks import goal as goal_module
+from engine.checks import scenarios as scenarios_module
+from engine.core import db
+from engine.w1_bank import spec
+
+
+def _say(line: str, err: bool = False) -> None:
+    """Echo and flush. A goal takes minutes and its output is usually piped into a log or a CI step;
+    without the flush a person watching sees nothing until the whole run ends and assumes it hung."""
+    typer.echo(line, err=err)
+    (sys.stderr if err else sys.stdout).flush()
+
+
+def register(app: typer.Typer) -> None:
+    app.command()(audit)
+    app.command()(goal)
+    app.command()(done)
+    app.command()(promises)
+    spec_app = typer.Typer(help="The skill-set specs, as a person reads them", no_args_is_help=True)
+    spec_app.command("outcomes")(outcomes)
+    app.add_typer(spec_app, name="spec")
+
+
+def outcomes() -> None:
+    """Is every skill stated as what the child can do? One line per skill; exits 1 if any is not."""
+    with db.connect() as conn:
+        rows = spec.outcomes(conn)
+    good = 0
+    for code, text, problems in rows:
+        good += not problems
+        _say(f"  {'ok  ' if not problems else 'FAIL'}  {code:<20} {text}")
+        for p in problems:
+            _say(f"          {p}", err=True)
+    _say(f"  {good} of {len(rows)} read as outcomes")
+    if good < len(rows):
+        raise typer.Exit(1)
+
+
+def audit() -> None:
+    """Every invariant the rows must satisfy, in one sweep. Exits 1 on any violation."""
+    with db.connect() as conn:
+        results = audit_module.run(conn)
+    bad = 0
+    for name, violations in results:
+        _say(
+            f"  {'FAIL' if violations else 'ok  '}  {name}" + (f"  → {len(violations)}" if violations else "")
+        )
+        for v in violations[:10]:
+            _say(f"          {v}", err=True)
+        if len(violations) > 10:
+            _say(f"          … and {len(violations) - 10} more", err=True)
+        bad += len(violations)
+    _say(f"  {len(results)} invariants checked, {bad} violations")
+    if bad:
+        raise typer.Exit(1)
+
+
+def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list them")) -> None:
+    """A goal and the commands that prove it. Exits 1 until every criterion passes."""
+    if not name:
+        for n in goal_module.names():
+            _say(f"  {n}  —  {goal_module.load(n)['goal'].strip()}")
+        return
+    try:
+        spec = goal_module.load(name)
+    except ValueError as e:
+        # A mistyped goal name used to print a Python traceback. The message underneath it was
+        # already the right one — it names every goal that does exist — but nobody reads a traceback,
+        # and the person most likely to mistype a goal name is the one least able to read one.
+        _say(f"  {e}")
+        raise typer.Exit(1) from None
+    _say(f"  GOAL  {spec['goal'].strip()}")
+
+    scenarios = goal_module.scenarios_of(spec)
+    met = 0
+    if scenarios:
+        # Scenarios write while they prove, so they run on the local copy, never live (ADR 0025).
+        with db.connect(db.local_copy()) as conn:
+            for sc in scenarios:
+                m, failures = scenarios_module.run_one(conn, sc)
+                met += not failures
+                _say(f"  {'PASS' if not failures else 'FAIL'}  {sc['name']}")
+                _say("          " + "  ".join(f"{k}={v}" for k, v in m.items()))
+                for f in failures:
+                    _say(f"          {f}", err=True)
+        _say(f"  {met}/{len(scenarios)} scenarios met the bar completely")
+
+    failed = []
+    for crit in spec["criteria"]:
+        _say(f"  ....  {crit['name']}")  # said before it runs: some of these take minutes
+        ok, out = goal_module.run_criterion(crit)
+        if not ok:
+            failed.append(crit["name"])
+        _say(f"  {'PASS' if ok else 'FAIL'}  {crit['name']}")
+        _say(f"          $ {crit['run']}")
+        tail = [ln for ln in out.strip().splitlines() if ln.strip()][-3:]
+        for ln in tail if not ok else tail[-1:]:
+            _say(f"          {ln[:110]}")
+
+    short = len(scenarios) - met
+    _say(
+        f"  {len(spec['criteria']) - len(failed)}/{len(spec['criteria'])} criteria met"
+        + (f" · not met: {', '.join(failed)}" if failed else "")
+        + (f" · {short} scenarios short of the bar" if short else "")
+        + ("" if failed or short else " · GOAL ACHIEVED")
+    )
+    if failed or short:
+        raise typer.Exit(1)
+
+
+def done(name: str = typer.Argument(..., help="A goal in goals/")) -> None:
+    """The done-report, written by the machine: each of Nimish's sentences in the goal with the test
+    that proves it (run now, on the copy), what is still manual, and what is not live yet. Exits 1
+    unless every sentence is proved and all of it is live."""
+    from engine.checks import done as report
+
+    lines, ok = report.report(name)
+    for line in lines:
+        _say(line)
+    if not ok:
+        raise typer.Exit(1)
+
+
+def promises() -> None:
+    """No promise without a command: every goal line is a command or one of Nimish's sentences with
+    the test that proves it; every decision record from ADR 0032 names its goal. Exits 1 on any gap."""
+    from engine.checks import promises as rules
+
+    found = rules.problems()
+    for p in found:
+        _say(f"  FAIL  {p}", err=True)
+    _say(f"  {len(found)} broken promise(s)" if found else "  every promise has its command")
+    if found:
+        raise typer.Exit(1)

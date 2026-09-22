@@ -205,7 +205,7 @@ def test_a_claim_under_a_name_of_the_models_own_survives_verify_and_is_dropped_a
     assert it.responses[0].misconceptions["M_MULT_CONCAT"] == 1518
     assert "M_MUL_CONCAT" in it.responses[0].misconceptions, "and the real one is computed alongside"
 
-    from engine import bank
+    from engine.w1_bank import bank
 
     dropped = bank._strip_unnamed(it, set(M.PREDICTED))
     assert dropped == 1 and "M_MULT_CONCAT" not in it.responses[0].misconceptions

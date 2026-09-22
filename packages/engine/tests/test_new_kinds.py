@@ -11,10 +11,10 @@ import random
 
 import pytest
 
-from engine import legacy
 from engine.assess import bands, diagnosis, tags, taxonomy, words
 from engine.assess.pick import Sheet
 from engine.assess.render import render_item
+from engine.w3_read import marking
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CASES = {
@@ -82,7 +82,7 @@ def _marks_right(it):
     for r in it.responses:
         if r.kind == "text":
             continue
-        status, _, _ = legacy.mark(
+        status, _, _ = marking.mark(
             {"kind": "bare"}, vars(r), {"child_answer": str(r.answer), "answer_state": "answered"}
         )
         assert status == "correct", (it.fmt, r.rid, r.answer)
@@ -92,7 +92,7 @@ def _names_its_mistakes(it):
     for r in it.responses:
         for code, wrong in (r.misconceptions or {}).items():
             assert code in VOCAB, f"{code} is not a named mistake"
-            status, codes, _ = legacy.mark(
+            status, codes, _ = marking.mark(
                 {"kind": "bare"}, vars(r), {"child_answer": str(wrong), "answer_state": "answered"}
             )
             assert status == "wrong" and code in codes, (it.fmt, r.rid, code, wrong, codes)

@@ -10,8 +10,8 @@ import urllib.error
 
 import pytest
 
-from engine import db
 from engine.adapters import llm
+from engine.core import db
 
 SCHEMA = {
     "type": "object",

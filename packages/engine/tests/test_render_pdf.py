@@ -4,7 +4,7 @@ replaces (pdftoppm) is gone rather than kept as a fallback."""
 import numpy as np
 import pymupdf
 
-from engine import render_pdf
+from engine.w3_read import render_pdf
 
 
 def test_renders_one_bgr_image_per_page(tmp_path):

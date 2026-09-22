@@ -837,12 +837,12 @@ def test_an_unsure_reading_keeps_its_guess_for_a_person_and_is_never_marked_from
     """ "A 51" came back at 29%. The engine threw the 51 away and the teacher had to type it. Kept
     as a guess she confirms with one click — but a guess is never the child's answer: the reading
     still stands at "illegible", and marking sees nothing."""
-    from engine import legacy
+    from engine.w3_read import marking
 
     q = w("4. 45 + 18 - 12 =", 0.1, 0.30, hand=False, width=0.3)
     out = ocr.answers_for(page([q, w("A51", 0.42, 0.302, conf=29.0, line=q["text"])], [q]), {"4": q["text"]})
     assert (out["4"]["answer_state"], out["4"]["child_answer"], out["4"]["guess"]) == ("illegible", "", "51")
-    assert legacy.mark({"kind": "bare", "answer": 51}, {"answer": "51", "misconceptions": {}}, out["4"])[
+    assert marking.mark({"kind": "bare", "answer": 51}, {"answer": "51", "misconceptions": {}}, out["4"])[
         0
     ] == ("unreadable")
     # a reading the engine stands behind carries no guess: there is nothing to confirm

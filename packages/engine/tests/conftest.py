@@ -1,6 +1,6 @@
 """Every test runs against the local copy of the database, never the live one (ADR 0025).
 
-This runs before any test module is imported, so before anything can connect. Importing `engine.db`
+This runs before any test module is imported, so before anything can connect. Importing `engine.core.db`
 reads the repo's `.env`; `DATABASE_URL` is then pointed at the copy `bin/testdb` builds on this Mac,
 and the run stops outright if that copy is anywhere else. Subprocesses a test starts (`bin/engine
 …`) inherit the same address.
@@ -10,7 +10,7 @@ import os
 
 import pytest
 
-from engine import db
+from engine.core import db
 
 if os.environ.get("TEST_DATABASE_URL"):
     try:
@@ -30,7 +30,7 @@ elif os.environ.get("DATABASE_URL"):
 def every_kind_trusted(monkeypatch):
     """ADR 0032's gate out of the way: every kind of question as if the reader had earned 95% on it, so
     a test about marking or signing off measures that and not the reader's standing on the copy."""
-    from engine import profiles
+    from engine.w3_read import profiles
 
     monkeypatch.setattr(
         profiles,

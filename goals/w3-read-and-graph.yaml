@@ -74,198 +74,206 @@ goal: >
 # never one run's luck, and a run-to-run spread is itself reported — a bar met only sometimes is
 # not met. Digit transcription should be far steadier than 244-way classification, but that is a
 # prediction and the bar must not rest on it.
-bar:
-  unit: response                      # one child's answer to one question-part. Not the page, not the sheet.
-  runs: 3                             # every rate below is the worst of this many repeats
-  report_run_to_run_spread: true
-  read_exactly_right: 0.97            # of every response in the gold set
-  silently_wrong_at_most: 0.01        # of responses the reader did NOT flag. This is the number that protects the graph.
-  responses_given_a_row: 1.00         # a missing row is invisible; nobody corrects what was never shown
-  phone_photo_floor: 0.93             # regime B, measured on its own
-  gold_responses_min: 300
-  gold_phone_photo_min: 100
-
-# ------------------------------------------------------------------------------------------------
-# THE CORRECTION LOOP (Nimish, 2026-09-20)
-# ------------------------------------------------------------------------------------------------
-# "Whatever is the doubtful part for the machine, that the machine cannot read, goes to the teacher
-# for approval. The teacher makes the changes or approves that part, and that part again feeds back
-# to the system so that the system keeps learning. Today, if we have 10 things that the system is
-# not able to recognize, over the months that should just keep getting fewer and fewer."
+# ----------------------------------------------------------------------------------------------
+# RECORDED, NOT CHECKED (2026-09-22, goals/promises-kept.yaml). The blocks below were written as keys
+# of this file but no command ever read them — `loop: correction_must_change_a_later_read: true` is
+# how the learning loop sat unbuilt for three days. They are kept as the record of what was asked.
+# Where each is now held: the loop by goals/reader-learns.yaml (tests/test_legacy.py::test_a_person_s_
+# corrections_change_the_childs_next_paper_with_no_command_in_between); the reading bar was superseded
+# by ADR 0028; unmapped evidence is ADR 0017.
+# ----------------------------------------------------------------------------------------------
+# bar:
+#   unit: response                      # one child's answer to one question-part. Not the page, not the sheet.
+#   runs: 3                             # every rate below is the worst of this many repeats
+#   report_run_to_run_spread: true
+#   read_exactly_right: 0.97            # of every response in the gold set
+#   silently_wrong_at_most: 0.01        # of responses the reader did NOT flag. This is the number that protects the graph.
+#   responses_given_a_row: 1.00         # a missing row is invisible; nobody corrects what was never shown
+#   phone_photo_floor: 0.93             # regime B, measured on its own
+#   gold_responses_min: 300
+#   gold_phone_photo_min: 100
 #
-# What that means mechanically, stated plainly so nobody expects magic: the vision model does not
-# learn and nothing is retrained. What falls is the flag rate, and it falls because corrections
-# ACCUMULATE AS CONTEXT — a stored correction becomes a worked example in the next read of that
-# child's handwriting (`read_correction`, `child_reading_profile`; both tables exist, both empty).
-# So the loop only counts as built if a correction changes a LATER read, not just its own row.
+# # ------------------------------------------------------------------------------------------------
+# # THE CORRECTION LOOP (Nimish, 2026-09-20)
+# # ------------------------------------------------------------------------------------------------
+# # "Whatever is the doubtful part for the machine, that the machine cannot read, goes to the teacher
+# # for approval. The teacher makes the changes or approves that part, and that part again feeds back
+# # to the system so that the system keeps learning. Today, if we have 10 things that the system is
+# # not able to recognize, over the months that should just keep getting fewer and fewer."
+# #
+# # What that means mechanically, stated plainly so nobody expects magic: the vision model does not
+# # learn and nothing is retrained. What falls is the flag rate, and it falls because corrections
+# # ACCUMULATE AS CONTEXT — a stored correction becomes a worked example in the next read of that
+# # child's handwriting (`read_correction`, `child_reading_profile`; both tables exist, both empty).
+# # So the loop only counts as built if a correction changes a LATER read, not just its own row.
+# #
+# # The flag rate is therefore a measured series, not a target: it is recorded per batch so that it
+# # can be seen to fall. It deliberately has no threshold — a reader that flags less by guessing more
+# # is worse, which is what `silently_wrong_at_most` above already guards.
+# loop:
+#   flag_rate_is_recorded_per_batch: true
+#   correction_must_change_a_later_read: true
 #
-# The flag rate is therefore a measured series, not a target: it is recorded per batch so that it
-# can be seen to fall. It deliberately has no threshold — a reader that flags less by guessing more
-# is worse, which is what `silently_wrong_at_most` above already guards.
-loop:
-  flag_rate_is_recorded_per_batch: true
-  correction_must_change_a_later_read: true
-
-# ------------------------------------------------------------------------------------------------
-# PAPERS THAT ARE NOT THE ADD/SUB LADDER (Nimish, 2026-09-20; ADR 0017)
-# ------------------------------------------------------------------------------------------------
-# "Structurally, we'll have some of these kinds of inputs coming in, like physics, science,
-# Olympiads, and other exams also. They might not very clearly attach themselves to a certain skill
-# set in that table, but somehow we need to still figure out a way that they become a part of the
-# evaluation of the child."
+# # ------------------------------------------------------------------------------------------------
+# # PAPERS THAT ARE NOT THE ADD/SUB LADDER (Nimish, 2026-09-20; ADR 0017)
+# # ------------------------------------------------------------------------------------------------
+# # "Structurally, we'll have some of these kinds of inputs coming in, like physics, science,
+# # Olympiads, and other exams also. They might not very clearly attach themselves to a certain skill
+# # set in that table, but somehow we need to still figure out a way that they become a part of the
+# # evaluation of the child."
+# #
+# # Today they cannot: `evidence_event.skill_code` and `rung_code` are both NOT NULL, so an
+# # observation matching no known skill has nowhere to go and is dropped. ADR 0017 makes them
+# # nullable, holds the evidence with the engine's own description of what it tests, reports the
+# # unnamed pile for a person to name, and lets naming a skill place months-old evidence — which works
+# # only because evidence is append-only and the graph is derived.
+# #
+# # Two calls Nimish left to me, recorded here so they are checkable rather than opinions:
+# #
+# # 1. A teacher's mark is not the child's answer, and neither is thrown away. The reader answers two
+# #    separate questions per item — what the CHILD chose (null when their mark is not visible) and
+# #    what the EDUCATOR marked. On an Olympiad page the red circle is frequently the only mark there
+# #    is; the child's choice is then recorded as not visible and NEVER inferred from the red. The
+# #    outcome still counts, through `evidence_event.channel` as a teacher observation rather than a
+# #    read one, so the child keeps the credit without the engine inventing which option they picked.
+# #    This also keeps teacher-marked items out of the approval queue: a human already adjudicated it.
+# #
+# # 2. Multiple choice is excluded from the 97%/93% bar and measured on its own. Selecting an option
+# #    is a different task from transcribing digits, and averaging the two makes both numbers
+# #    meaningless. Its own floor is set once there is a measurement to set it from — stated as a gap
+# #    rather than guessed, because no MCQ page has ever been read.
+# non_ladder_inputs:
+#   unmapped_evidence_is_held_not_dropped: true   # ADR 0017
+#   child_choice_never_inferred_from_a_teacher_mark: true
+#   multiple_choice_excluded_from_the_bar: true   # measured separately; floor still unset
 #
-# Today they cannot: `evidence_event.skill_code` and `rung_code` are both NOT NULL, so an
-# observation matching no known skill has nowhere to go and is dropped. ADR 0017 makes them
-# nullable, holds the evidence with the engine's own description of what it tests, reports the
-# unnamed pile for a person to name, and lets naming a skill place months-old evidence — which works
-# only because evidence is append-only and the graph is derived.
+# # Superseded 2026-09-21 by the night decision (ADR 0028): written before the reader existed, for a
+# # model reading every page against a 97% bar. The reader now reads with OCR, stays as it is, and
+# # sends every answer it doubts to a person. Rules 4, 5 and 6, which several of these restate, are
+# # held by the test suite and `engine audit`.
+# superseded_scenarios:
+#   # --- reading: does it see what is on the paper ---
+#   - kind: read
+#     name: every response on the page gets a row, even one the reader cannot read
+#     must: no_response_is_silently_dropped     # today 24 of 27 on the sheet measured above
+#   - kind: read
+#     name: a question with several boxes yields one row per box, not one row per question
+#     must: one_row_per_part                    # Q5's 0 / 52 / 72 became a single "72"
+#   - kind: read
+#     name: blank, wrong, and wrong-with-working stay three different answers
+#     must: three_signals_stay_distinct         # rule 5; a blank carries correct = null and is never an attempt
+#   - kind: read
+#     name: a teacher's tick or cross is never read as the child's answer
+#     must: teacher_marks_are_not_the_child     # regime B has them beside every answer
+#   - kind: read
+#     name: a crossed-out self-correction reads as the child's final answer, and says it was corrected
+#     must: self_correction_is_the_final_answer
+#   - kind: read
+#     name: the reader says when it is unsure, instead of guessing confidently
+#     must: unsure_responses_are_flagged        # read_confidence is null on all 138 today
 #
-# Two calls Nimish left to me, recorded here so they are checkable rather than opinions:
+#   # --- accuracy: the numbers above, against hand-marked truth ---
+#   - kind: read
+#     name: the gold set is big enough for its own number to mean something
+#     must: gold_set_meets_its_size             # >=300 responses, >=100 of them phone photos
+#   - kind: read
+#     name: responses are read exactly right at the agreed rate
+#     must: accuracy_meets_bar                  # 0.97
+#   - kind: read
+#     name: the hard third of the corpus carries its own floor
+#     must: phone_photo_accuracy_meets_floor    # 0.93, so flat scans cannot carry it
+#   - kind: read
+#     name: a wrong read that was never flagged is rare enough to trust the graph
+#     must: silent_error_under_bar              # 0.01
 #
-# 1. A teacher's mark is not the child's answer, and neither is thrown away. The reader answers two
-#    separate questions per item — what the CHILD chose (null when their mark is not visible) and
-#    what the EDUCATOR marked. On an Olympiad page the red circle is frequently the only mark there
-#    is; the child's choice is then recorded as not visible and NEVER inferred from the red. The
-#    outcome still counts, through `evidence_event.channel` as a teacher observation rather than a
-#    read one, so the child keeps the credit without the engine inventing which option they picked.
-#    This also keeps teacher-marked items out of the approval queue: a human already adjudicated it.
+#   # --- the graph half: does the reading become the right diagnosis ---
+#   - kind: read
+#     name: Kabir's 8500 - 3647 reaches the mistake Aseem named by hand
+#     must: reproduces_the_gold_diagnosis       # 5147 -> M_SMALL_FROM_LARGE, manifest.md
+#   - kind: read
+#     name: all five Grade 3 reports' named errors come back out of the graph
+#     must: matches_all_five_reports            # the five reports are the gold set for the whole pipeline
+#   - kind: read
+#     name: a wrong answer with no named mistake is counted, never quietly discarded
+#     must: unclassified_wrongs_are_reported    # feeds `engine bank unclassified` (ADR 0012)
 #
-# 2. Multiple choice is excluded from the 97%/93% bar and measured on its own. Selecting an option
-#    is a different task from transcribing digits, and averaging the two makes both numbers
-#    meaningless. Its own floor is set once there is a measurement to set it from — stated as a gap
-#    rather than guessed, because no MCQ page has ever been read.
-non_ladder_inputs:
-  unmapped_evidence_is_held_not_dropped: true   # ADR 0017
-  child_choice_never_inferred_from_a_teacher_mark: true
-  multiple_choice_excluded_from_the_bar: true   # measured separately; floor still unset
-
-# Superseded 2026-09-21 by the night decision (ADR 0028): written before the reader existed, for a
-# model reading every page against a 97% bar. The reader now reads with OCR, stays as it is, and
-# sends every answer it doubts to a person. Rules 4, 5 and 6, which several of these restate, are
-# held by the test suite and `engine audit`.
-superseded_scenarios:
-  # --- reading: does it see what is on the paper ---
-  - kind: read
-    name: every response on the page gets a row, even one the reader cannot read
-    must: no_response_is_silently_dropped     # today 24 of 27 on the sheet measured above
-  - kind: read
-    name: a question with several boxes yields one row per box, not one row per question
-    must: one_row_per_part                    # Q5's 0 / 52 / 72 became a single "72"
-  - kind: read
-    name: blank, wrong, and wrong-with-working stay three different answers
-    must: three_signals_stay_distinct         # rule 5; a blank carries correct = null and is never an attempt
-  - kind: read
-    name: a teacher's tick or cross is never read as the child's answer
-    must: teacher_marks_are_not_the_child     # regime B has them beside every answer
-  - kind: read
-    name: a crossed-out self-correction reads as the child's final answer, and says it was corrected
-    must: self_correction_is_the_final_answer
-  - kind: read
-    name: the reader says when it is unsure, instead of guessing confidently
-    must: unsure_responses_are_flagged        # read_confidence is null on all 138 today
-
-  # --- accuracy: the numbers above, against hand-marked truth ---
-  - kind: read
-    name: the gold set is big enough for its own number to mean something
-    must: gold_set_meets_its_size             # >=300 responses, >=100 of them phone photos
-  - kind: read
-    name: responses are read exactly right at the agreed rate
-    must: accuracy_meets_bar                  # 0.97
-  - kind: read
-    name: the hard third of the corpus carries its own floor
-    must: phone_photo_accuracy_meets_floor    # 0.93, so flat scans cannot carry it
-  - kind: read
-    name: a wrong read that was never flagged is rare enough to trust the graph
-    must: silent_error_under_bar              # 0.01
-
-  # --- the graph half: does the reading become the right diagnosis ---
-  - kind: read
-    name: Kabir's 8500 - 3647 reaches the mistake Aseem named by hand
-    must: reproduces_the_gold_diagnosis       # 5147 -> M_SMALL_FROM_LARGE, manifest.md
-  - kind: read
-    name: all five Grade 3 reports' named errors come back out of the graph
-    must: matches_all_five_reports            # the five reports are the gold set for the whole pipeline
-  - kind: read
-    name: a wrong answer with no named mistake is counted, never quietly discarded
-    must: unclassified_wrongs_are_reported    # feeds `engine bank unclassified` (ADR 0012)
-
-  # --- the correction loop: doubt reaches a person, and their answer does not stop at one row ---
-  - kind: read
-    name: every response the reader is unsure of reaches a person, and none of them is graphed first
-    must: doubt_waits_for_a_person            # a flagged read stays candidate; the graph reads only confirmed
-  - kind: read
-    name: a teacher's correction is a new row, and the original read is still there afterwards
-    must: correction_never_overwrites_the_read   # rule 4; read_correction, not an UPDATE
-  - kind: read
-    name: a correction on one page changes how the next page of the same child's writing is read
-    must: correction_changes_a_later_read     # the whole claim of "the system keeps learning"
-  - kind: read
-    name: how often the reader asks for help is recorded every batch, so it can be seen to fall
-    must: flag_rate_is_recorded_per_batch     # a series, not a threshold
-
-  # --- papers that are not the add/sub ladder: Olympiad today, science and physics next (ADR 0017) ---
-  - kind: read
-    name: an answer matching no skill we know is still stored against the child, never dropped
-    must: unmapped_evidence_is_held           # evidence_event.skill_code is NOT NULL today
-  - kind: read
-    name: the engine says what it thinks an unmapped item tests, so "unnamed" never means "empty"
-    must: unmapped_evidence_carries_a_proposal
-  - kind: read
-    name: naming a skill today makes evidence read months ago count, with nothing re-read
-    must: naming_a_skill_places_old_evidence  # the whole payoff of append-only + a derived graph
-  - kind: read
-    name: a teacher's mark is never read as the child's choice
-    must: child_choice_never_inferred_from_a_teacher_mark
-  - kind: read
-    name: an item only the teacher marked still counts, as a teacher observation not a read one
-    must: teacher_marked_items_count_by_channel
-  - kind: read
-    name: a bare circled option yields right or wrong and never a named mistake
-    must: no_misconception_claimed_from_a_bare_choice   # entered question + answer only, no distractors
-  - kind: read
-    name: the same paper read twice gives the same answer
-    must: reading_is_stable_across_runs        # measured: the skill matcher was only 59% stable
-  - kind: read
-    name: a question's skill comes from agreement across runs, not from one run's self-assessment
-    must: skill_is_decided_by_measured_agreement
-  - kind: read
-    name: no skill is created without a person, however confident the engine is
-    must: a_person_approves_every_new_skill    # q10 proposed a new skill on 3 of 5 runs and matched an existing one on 2
-
-  # --- the prompt contract: rule 5 applied to the model's own output (ADR 0018) ---
-  - kind: read
-    name: every active prompt can say what it could not do
-    must: every_prompt_declares_its_resolution   # an audit invariant: no `resolution`, no ship
-  - kind: read
-    name: a page with nothing on it is an assertion, not an empty list
-    must: nothing_there_differs_from_could_not_tell   # rule 5's collapse, applied to the engine
-  - kind: read
-    name: a page holding no questions yields no questions, on every run
-    must: a_blank_page_invents_nothing         # both SOF covers invented one under v1
-  - kind: read
-    name: no prompt reports its own confidence; confidence is measured from agreement
-    must: confidence_is_measured_not_claimed
-  - kind: read
-    name: every prompt's gold set contains an input whose right answer is "I cannot"
-    must: the_eval_covers_refusals             # a prompt that never refuses was never shown able to
-  - kind: read
-    name: a repeated model call proves its samples were independent
-    must: repeated_calls_are_fingerprinted     # 5 cached replies were once reported as 100% stable
-
-  # --- the rules that do not bend ---
-  - kind: read
-    name: the child's name is masked before any page leaves the machine
-    must: name_is_masked_before_send          # ADR 0004
-  - kind: read
-    name: a re-read supersedes, never overwrites, and the graph reads only confirmed rows
-    must: evidence_is_append_only             # rule 4
-  - kind: read
-    name: reading the same file twice changes nothing
-    must: reading_is_idempotent               # capture.file_sha256
-  - kind: read
-    name: reads run as background jobs inside the free tier's daily cap
-    must: reads_respect_the_daily_cap         # 20 requests/day/model (ADR 0004)
-
+#   # --- the correction loop: doubt reaches a person, and their answer does not stop at one row ---
+#   - kind: read
+#     name: every response the reader is unsure of reaches a person, and none of them is graphed first
+#     must: doubt_waits_for_a_person            # a flagged read stays candidate; the graph reads only confirmed
+#   - kind: read
+#     name: a teacher's correction is a new row, and the original read is still there afterwards
+#     must: correction_never_overwrites_the_read   # rule 4; read_correction, not an UPDATE
+#   - kind: read
+#     name: a correction on one page changes how the next page of the same child's writing is read
+#     must: correction_changes_a_later_read     # the whole claim of "the system keeps learning"
+#   - kind: read
+#     name: how often the reader asks for help is recorded every batch, so it can be seen to fall
+#     must: flag_rate_is_recorded_per_batch     # a series, not a threshold
+#
+#   # --- papers that are not the add/sub ladder: Olympiad today, science and physics next (ADR 0017) ---
+#   - kind: read
+#     name: an answer matching no skill we know is still stored against the child, never dropped
+#     must: unmapped_evidence_is_held           # evidence_event.skill_code is NOT NULL today
+#   - kind: read
+#     name: the engine says what it thinks an unmapped item tests, so "unnamed" never means "empty"
+#     must: unmapped_evidence_carries_a_proposal
+#   - kind: read
+#     name: naming a skill today makes evidence read months ago count, with nothing re-read
+#     must: naming_a_skill_places_old_evidence  # the whole payoff of append-only + a derived graph
+#   - kind: read
+#     name: a teacher's mark is never read as the child's choice
+#     must: child_choice_never_inferred_from_a_teacher_mark
+#   - kind: read
+#     name: an item only the teacher marked still counts, as a teacher observation not a read one
+#     must: teacher_marked_items_count_by_channel
+#   - kind: read
+#     name: a bare circled option yields right or wrong and never a named mistake
+#     must: no_misconception_claimed_from_a_bare_choice   # entered question + answer only, no distractors
+#   - kind: read
+#     name: the same paper read twice gives the same answer
+#     must: reading_is_stable_across_runs        # measured: the skill matcher was only 59% stable
+#   - kind: read
+#     name: a question's skill comes from agreement across runs, not from one run's self-assessment
+#     must: skill_is_decided_by_measured_agreement
+#   - kind: read
+#     name: no skill is created without a person, however confident the engine is
+#     must: a_person_approves_every_new_skill    # q10 proposed a new skill on 3 of 5 runs and matched an existing one on 2
+#
+#   # --- the prompt contract: rule 5 applied to the model's own output (ADR 0018) ---
+#   - kind: read
+#     name: every active prompt can say what it could not do
+#     must: every_prompt_declares_its_resolution   # an audit invariant: no `resolution`, no ship
+#   - kind: read
+#     name: a page with nothing on it is an assertion, not an empty list
+#     must: nothing_there_differs_from_could_not_tell   # rule 5's collapse, applied to the engine
+#   - kind: read
+#     name: a page holding no questions yields no questions, on every run
+#     must: a_blank_page_invents_nothing         # both SOF covers invented one under v1
+#   - kind: read
+#     name: no prompt reports its own confidence; confidence is measured from agreement
+#     must: confidence_is_measured_not_claimed
+#   - kind: read
+#     name: every prompt's gold set contains an input whose right answer is "I cannot"
+#     must: the_eval_covers_refusals             # a prompt that never refuses was never shown able to
+#   - kind: read
+#     name: a repeated model call proves its samples were independent
+#     must: repeated_calls_are_fingerprinted     # 5 cached replies were once reported as 100% stable
+#
+#   # --- the rules that do not bend ---
+#   - kind: read
+#     name: the child's name is masked before any page leaves the machine
+#     must: name_is_masked_before_send          # ADR 0004
+#   - kind: read
+#     name: a re-read supersedes, never overwrites, and the graph reads only confirmed rows
+#     must: evidence_is_append_only             # rule 4
+#   - kind: read
+#     name: reading the same file twice changes nothing
+#     must: reading_is_idempotent               # capture.file_sha256
+#   - kind: read
+#     name: reads run as background jobs inside the free tier's daily cap
+#     must: reads_respect_the_daily_cap         # 20 requests/day/model (ADR 0004)
+#
 criteria:
   - name: nothing waits — every answer settled by the engine or by a person
     run: engine read waiting

@@ -13,7 +13,7 @@ import pathlib
 
 import pytest
 
-from engine import db, loaders
+from engine.core import db, loaders
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

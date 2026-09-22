@@ -13,8 +13,8 @@ import os
 
 import pytest
 
-from engine import db
 from engine.api.idempotency import InProgress, derive_key, run_idempotent
+from engine.core import db
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

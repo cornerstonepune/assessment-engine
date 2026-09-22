@@ -3125,3 +3125,36 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   is the next reader fix, to be confirmed on the crops.
 - Engine suite 893 passed; website s4 15 passed (a gate-held answer settles in one click; the second reader's guess
   offered back on the queue and the paper). **Live: not yet** — the order is in HANDOFF.
+- **Live, 2026-09-22, 19:55–20:10 IST** (PR #19 merged as `5a450f7`, run by me at Nimish's word "run all of this in
+  prod"). Before: `engine read waiting` 382 of 867; audit 0; `child_reading_profile` 0 rows. `engine load` (prompt
+  20, `read_with_examples` v1 active; `app.staff` md5 unchanged) → `engine read profile` **9 children profiled**
+  (Agastya floor 95, routes sums + word problems; Dhanvi floor 95, routes word problems) → `engine legacy remark
+  --every-child` **"242 results changed across 16 children"** (the gate: right answers of untrusted kinds held; a
+  signed-off answer is never re-marked, so the queue did not reach 867) → `engine read guess` **74 waiting answers
+  given a guess over 33 questions, Rs 8.77** → `engine read report` as on the copy (checked 242, right 142 of 187,
+  no kind trusted: sums 28 of 50). After: **624 waiting — 570 one click (427 the reader's own reading, 74 the second
+  reader's guess, 69 confirm blank), 53 typing**; `engine audit` 17 invariants, 0 violations; website production
+  build of `5a450f7` success. The engine server still runs `450467b`: nothing it serves changed; redeploy when the
+  network allows.
+
+## The workflows made visible, and promises made commands — ADR 0033 (2026-09-22, night)
+
+- **The map** `workflows.json`: 12 steps in 4 workflows, every engine file on exactly one step or shared part,
+  3 declared connections between workflows, each step marked any-subject or maths-only. `tests/test_layout.py`
+  (6 checks) holds the code to it. The engine moved from 40 flat modules to `w1_bank/ w2_print/ w3_read/` on
+  `core/ assess/ adapters/`, doors `checks/ api/ cli.py` (git mv). Files over 400 lines 9 → 6, each frozen and
+  only allowed to shrink: bank.py split to inventory.py, legacy.py to marking.py (897 → 672), cli.py 505 → 215
+  (W1/W2 commands into cli_bank.py, cli_week.py). Engine suite 906 passed; the 894 before the move unchanged.
+- **How it works** (`/workflows`, menu): the map with each step's live number from the database. Website 89 +
+  the rerun pair passed on the copy; `tests/workflows.spec.ts` 3 passed; Vercel preview of PR #22 built green
+  (next.config roots Turbopack at the repository so the page can read the one map).
+- **Promises are commands**: `engine promises` — first run found 7 broken promises (w3-read-and-graph's four
+  keys nothing ran, incl. the loop line that hid ADR 0007's unbuilt loop; reader-learns without Nimish's words;
+  ADR 0032 without its goal; a loose test name in workflows-visible), each fixed at its cause; now "every
+  promise has its command". `engine done <goal>` writes the done-report; `engine done workflows-visible` and
+  `engine done promises-kept`: every sentence PROVED, NOT DONE only because the branch was not yet on main.
+- **Run by themselves**: `bin/check` (layout + promises + lint, ~3 s, no database) in `.githooks/pre-commit`
+  (core.hooksPath set on this Mac; the pre-push guard now committed beside it) and in the Claude Code Stop hook
+  (`.claude/settings.json` in the repository, and `/Users/nimishshah/cornerstone/.claude/settings.json` for
+  sessions started in the workspace). CLAUDE.md rule 14.
+

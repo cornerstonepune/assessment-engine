@@ -10,10 +10,11 @@ import random
 
 import pytest
 
-from engine import bank, db, spec
 from engine.assess import bands
 from engine.assess import items as I
 from engine.assess import misconceptions as M
+from engine.core import db
+from engine.w1_bank import bank, inventory, spec
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -131,7 +132,7 @@ def test_filling_again_with_the_same_numbers_adds_nothing(conn, monkeypatch):
 def test_recheck_agrees_with_what_the_verifier_let_through(conn, monkeypatch):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(4)))
     bank.fill(conn, SET, DIFF, 4)
-    assert bank.recheck(conn) == []
+    assert inventory.recheck(conn) == []
 
 
 def test_recheck_catches_an_answer_edited_behind_the_engines_back(conn, monkeypatch):
@@ -144,7 +145,7 @@ def test_recheck_catches_an_answer_edited_behind_the_engines_back(conn, monkeypa
         " where item_key = %s",
         (key,),
     )
-    assert key in bank.recheck(conn)
+    assert key in inventory.recheck(conn)
 
 
 def test_recheck_passes_the_missing_number_items_the_samplers_make(conn):
@@ -153,13 +154,13 @@ def test_recheck_passes_the_missing_number_items_the_samplers_make(conn):
     counts, _, accepted = bank.fill(conn, SET, DIFF, 8, offline=True)
     assert counts["accepted"] == 8
     assert any(i.fmt == "missing_number" for i in accepted), "the sampler should make some"
-    assert bank.recheck(conn) == []
+    assert inventory.recheck(conn) == []
 
 
 def test_a_flag_retires_the_item_by_trigger(conn, monkeypatch):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 2)
-    assert bank.flag(conn, accepted[0].item_id, "nimish", "odd wording") == "retired"
+    assert inventory.flag(conn, accepted[0].item_id, "nimish", "odd wording") == "retired"
     assert (
         conn.execute("select verdict from item_feedback where note = 'odd wording'").fetchone()["verdict"]
         == "retire"
@@ -187,7 +188,7 @@ def test_sampled_refuses_a_skill_set_with_no_sampler_format():
 def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, monkeypatch):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3)))
     bank.fill(conn, SET, DIFF, 3)
-    table = bank.coverage(conn)
+    table = inventory.coverage(conn)
     # Every skill_set x every difficulty band, zeros included. Derived, not hardcoded: adding a
     # skill set is a row (W1 gate 3 added multiplication that way), and this must not need an edit.
     sets = conn.execute("select count(*) as n from skill_set").fetchone()["n"]
@@ -207,9 +208,9 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
 def test_coverage_targets_what_a_class_needs_and_a_units_own_ceiling_when_it_has_one(conn):
     """The target is `(class_size + spares) x items_per_sheet` — what one week of one class draws
     without replacement (ADR 0016) — except where a band recorded its whole number range."""
-    need = bank._class_need(conn)
+    need = inventory._class_need(conn)
     assert need == 216, "16 children at 12 questions with 2 spares"
-    rows = {(r["code"], r["difficulty"]): r for r in bank.coverage(conn)}
+    rows = {(r["code"], r["difficulty"]): r for r in inventory.coverage(conn)}
     assert rows[("SUB.2D.EXCH", "Hard")]["target"] == need
     small = rows[("ADD.1D.WITHIN10", "Easy")]
     assert small["target"] < need, "a rung whose numbers run out keeps its measured ceiling"
@@ -284,7 +285,7 @@ def test_fill_native_dry_run_inserts_nothing(conn):
 def test_fill_honours_a_kind_list_across_the_shortcut_families(conn):
     # STRATEGY.EFFICIENT Advance's rule names all three kinds; a real spread should show up among its
     # quickest-method questions. Seeded and dry, so what the bank already holds cannot decide it.
-    from engine import refill
+    from engine.w1_bank import refill
 
     _, _, accepted = refill.fill_cases(
         conn, "STRATEGY.EFFICIENT", "Advance", 45, dry_run=True, rng=random.Random(5)
@@ -302,8 +303,8 @@ def test_fill_native_produces_no_flow_run_row(conn):
 def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(13)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 13)
-    bank.flag(conn, accepted[0].item_id, "nimish", "retired on purpose")
-    key = bank.sheet(conn, SET, DIFF, 12, tmp_path)
+    inventory.flag(conn, accepted[0].item_id, "nimish", "retired on purpose")
+    key = inventory.sheet(conn, SET, DIFF, 12, tmp_path)
     assert (tmp_path / f"{key['sheet_id']}.pdf").exists() and key["pages"] >= 1
     assert accepted[0].item_id not in {i["item_id"] for i in key["items"]}
     have = conn.execute(
@@ -311,7 +312,7 @@ def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path
         (SET, DIFF),
     ).fetchone()["n"]  # the real bank plus this test's
     with pytest.raises(ValueError, match=f"only {have}"):
-        bank.sheet(conn, SET, DIFF, have + 1, tmp_path)
+        inventory.sheet(conn, SET, DIFF, have + 1, tmp_path)
 
 
 def _printed(pdf):
@@ -340,7 +341,7 @@ def test_every_sample_sheet_is_titled_with_its_own_skill_set(conn, tmp_path):
     with sync_playwright() as pw:
         for u in units:
             out = tmp_path / f"{u['code']}-{u['difficulty']}"
-            key = bank.sheet(conn, u["code"], u["difficulty"], 8, out, pw=pw)
+            key = inventory.sheet(conn, u["code"], u["difficulty"], 8, out, pw=pw)
             page1 = _printed(out / f"{key['sheet_id']}.pdf")
             assert f" · {u['name']}" in page1, (u["code"], u["difficulty"], page1[:120])
             if "addition and subtraction" not in u["name"].lower():

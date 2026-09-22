@@ -12,9 +12,10 @@ import pathlib
 
 import pytest
 
-from engine import cases, db
 from engine.assess import tags, taxonomy
 from engine.assess.items import Item
+from engine.core import db
+from engine.w1_bank import cases
 
 SEED = json.loads(
     (pathlib.Path(__file__).resolve().parents[3] / "supabase/seed/taxonomy_cases.json").read_text()
@@ -216,7 +217,7 @@ def test_level_with_quotas_draws_each_case_its_own_shortfall_and_spills_only_wha
 
 
 def test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out(conn):
-    from engine import refill
+    from engine.w1_bank import refill
 
     before = conn.execute("select difficulty from skill_set where code = 'SUB.3D.ZERO'").fetchone()[
         "difficulty"
@@ -237,7 +238,7 @@ def test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out(conn):
 
 
 def test_fill_cases_fills_a_level_evenly_and_says_which_case_made_each_question(conn):
-    from engine import refill
+    from engine.w1_bank import refill
 
     before = conn.execute("select difficulty from skill_set where code = 'ADD.2D.REG'").fetchone()[
         "difficulty"

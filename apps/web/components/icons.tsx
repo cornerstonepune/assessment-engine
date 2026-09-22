@@ -60,6 +60,15 @@ export const Icons = {
       <path d="M5 10v10h14V10" />
     </svg>
   ),
+  flow: () => (
+    <svg {...base}>
+      <rect x="3" y="4" width="6" height="5" />
+      <rect x="15" y="4" width="6" height="5" />
+      <rect x="9" y="15" width="6" height="5" />
+      <path d="M9 6.5h6" />
+      <path d="M18 9v3.5H12V15" />
+    </svg>
+  ),
 };
 
 export type IconName = keyof typeof Icons;

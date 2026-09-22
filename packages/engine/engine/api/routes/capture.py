@@ -7,7 +7,6 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
-from engine import legacy
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
@@ -20,6 +19,7 @@ from engine.api.models import (
     MarkRequest,
     MarkResponse,
 )
+from engine.w3_read import legacy, marking
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -70,7 +70,7 @@ def mark(
         "mark",
         key,
         body.model_dump(),
-        lambda: {"changed": legacy.remark(conn, body.child_id)},
+        lambda: {"changed": marking.remark(conn, body.child_id)},
     )
     return {**result, "already": already}
 
@@ -89,7 +89,7 @@ def commit(
         "commit",
         key,
         body.model_dump(),
-        lambda: {"confirmed": legacy.confirm(conn, body.child_id, body.by)},
+        lambda: {"confirmed": marking.confirm(conn, body.child_id, body.by)},
     )
     return {**result, "already": already}
 
@@ -102,7 +102,7 @@ def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
     of the first — a teacher who looks again and changes their mind must leave both rows behind
     (rule 4). The append-only table is what makes that safe.
     """
-    return legacy.correct(conn, body.result_id, body.human_read, body.by)
+    return marking.correct(conn, body.result_id, body.human_read, body.by)
 
 
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")

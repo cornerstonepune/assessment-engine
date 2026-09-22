@@ -3,7 +3,6 @@ its own: how it prints, and a person's correction to it."""
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
-from engine import bank, question, review
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
@@ -17,6 +16,7 @@ from engine.api.models import (
     BankReviewRequest,
     BankReviewResponse,
 )
+from engine.w1_bank import bank, inventory, question, review
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -34,7 +34,7 @@ def coverage(short_only: bool = False, conn=Depends(get_conn)):
             "target": r["target"],
             "shortfall": max(0, r["target"] - r["n"]),
         }
-        for r in bank.coverage(conn)
+        for r in inventory.coverage(conn)
     ]
     return [r for r in rows if r["shortfall"] > 0] if short_only else rows
 

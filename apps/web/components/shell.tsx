@@ -12,6 +12,7 @@ export const NAV: readonly NavItem[] = [
   { href: "/capture/check", label: "Check answers", icon: "check", match: ["/capture/check"] },
   { href: "/growth", label: "Child Growth", icon: "growth", match: ["/growth"] },
   { href: "/home", label: "Home Assignments", icon: "house", match: ["/home"] },
+  { href: "/workflows", label: "How it works", icon: "flow", match: ["/workflows"] },
 ];
 
 export function Shell({ me, children }: { me: Session; children: ReactNode }) {

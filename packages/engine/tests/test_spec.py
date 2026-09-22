@@ -9,9 +9,10 @@ import os
 
 import pytest
 
-from engine import db, spec
 from engine.assess import bands
 from engine.assess import misconceptions as M
+from engine.core import db
+from engine.w1_bank import spec
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

@@ -10,8 +10,9 @@ import os
 
 import pytest
 
-from engine import bank, db, labels
 from engine.assess import skills as S
+from engine.core import db
+from engine.w1_bank import bank, labels
 
 RULES = {
     "by_operation": {"+": "NUM.OPS.01", "-": "NUM.OPS.02", "×": "NUM.OPS.03"},
@@ -201,7 +202,7 @@ def test_fill_labels_a_budget_problem_with_the_skills_it_uses(conn):
 
 
 def test_fill_labels_3_digit_addition_with_addition_alone(conn):
-    from engine import refill
+    from engine.w1_bank import refill
 
     _, _, items = refill.fill_cases(conn, "ADD.3D.REG", "Medium", 16, dry_run=True)
     assert items and {tuple(it.skills) for it in items if it.fmt in ("column_grid", "bare_sum")} == {

@@ -8,9 +8,9 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from engine import db
 from engine.api import deps
 from engine.api.app import app
+from engine.core import db
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
