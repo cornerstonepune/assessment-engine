@@ -2985,3 +2985,12 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   changed`). `tests/test_taxonomy.py` 306: every case accepts the document's own example, twelve twin pairs stay
   apart. **On the copy `engine bank taxonomy`: 269 cases · 102 covered · 156 missing · 11 thin** — stricter than
   the morning's estimate because stories that predate their stored shape have none yet (8g).
+- **8f — a level made of cases.** A level's rule may list `cases`; `assess/draw.py` draws the same number from each,
+  keeping a question only when, as measured, it is that case and inside the level's bounds (`max_total`, `digits`,
+  `op`); where a case does not fix the layout, questions alternate columns / line exactly. Defaults a question needs
+  (no number ending in 0, no equal numbers, no difference under 5) are lifted only by a case about that very thing.
+  Built numbers for three cases chance cannot find (347 + 100, 68 + 32, 503 − 498), and answers that shrink drawn from
+  the answer up (100 − 7). `bank.fill_cases` stores each question with `generator = 'case:<code>'`; `verify` judges a
+  case level as the union of its cases; scenarios and the known-mistakes check draw from cases too. With no level
+  bounds every plain-sum and missing-number case yields ≥ 24 distinct questions except 7 − 7 and 7 − 0 (18 each —
+  all there are). `tests/test_taxonomy.py` +4; suite green.

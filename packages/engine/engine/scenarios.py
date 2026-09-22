@@ -13,7 +13,7 @@ test that across a couple of scenarios … till 100% accuracy is achieved."
 distractors include one unnamed code, has not met the goal. The number it reports is what fails.
 """
 
-from engine import bank, db, scenarios_week, spec
+from engine import bank, cases, db, scenarios_week, spec
 from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import misconceptions as M
 
@@ -51,7 +51,9 @@ def _run_bank(conn, sc):
     code, difficulty, n = sc["skill_set"], sc["difficulty"], int(sc.get("n", 20))
     _, s, check = spec.read(conn, code, difficulty)
     native = check.get("format") in bands.NATIVE_GENERATORS
-    if native:
+    if check.get("cases"):
+        counts, _, items = bank.fill_cases(conn, code, difficulty, n, dry_run=True)
+    elif native:
         counts, items = bank.fill_native(conn, code, difficulty, n, dry_run=True)
     else:
         counts, reasons, items = bank.fill(conn, code, difficulty, n, dry_run=True, offline=True)
@@ -59,6 +61,7 @@ def _run_bank(conn, sc):
     conn.rollback()  # a scenario proves the engine, it does not add to the bank
 
     vocab = _vocabulary(conn)
+    case_matches = cases.matches(conn) if check.get("cases") else None
     m = {"asked": n, "produced": len(items)}
     failures = []
     if len(items) < n:
@@ -72,7 +75,7 @@ def _run_bank(conn, sc):
         ok = _answer_is_right(it)
         if ok is False:
             wrong_answer.append(it.item_id)
-        problems = verify.dimension_problems(tags.derive(it), check)
+        problems = verify.dimension_problems(tags.derive(it), check, it.fmt, case_matches)
         if problems:
             off_rule.append(f"{it.item_id}: {','.join(problems)}")
         named = {c for r in it.responses for c in (r.misconceptions or {}) if c in vocab}

@@ -10,6 +10,15 @@ from collections import Counter, defaultdict
 from engine.assess import taxonomy
 
 
+def matches(conn, codes=None):
+    """{case code: match} — every case, or the ones named."""
+    rows = conn.execute(
+        "select code, match from taxonomy_case" + (" where code = any(%s)" if codes is not None else ""),
+        (list(codes),) if codes is not None else (),
+    ).fetchall()
+    return {r["code"]: r["match"] for r in rows}
+
+
 def count(conn):
     cases = conn.execute("select code, section, section_name, label, match, min_items from taxonomy_case order by id").fetchall()
     rows = conn.execute(

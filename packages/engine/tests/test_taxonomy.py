@@ -125,3 +125,61 @@ def test_count_reports_every_case_with_its_state(conn):
     assert len(rows) == len(CASES)
     assert {r["state"] for r in rows} <= {"covered", "thin", "missing"}
     assert all(r["n"] >= r["min_items"] for r in rows if r["state"] == "covered")
+
+
+# ---------------------------------------------------------------- 8f: a level made of cases
+
+
+def test_level_draws_the_same_number_from_each_case_and_every_question_is_its_case():
+    import random
+
+    from engine.assess import draw
+
+    check = {"cases": ["A19", "A21", "S20", "S21"]}
+    got = draw.level(random.Random(3), check, {c: CASES[c]["match"] for c in check["cases"]}, "R9", 40)
+    assert len(got) == 40
+    per = {c: [it for code, it in got if code == c] for c in check["cases"]}
+    assert {c: len(v) for c, v in per.items()} == {c: 10 for c in check["cases"]}
+    for code, it in got:
+        assert taxonomy.matches(CASES[code]["match"], it.fmt, tags.derive(it)), (code, it.spec)
+
+
+def test_level_a_case_that_does_not_fix_the_layout_prints_half_in_columns_half_in_a_line():
+    import random
+
+    from engine.assess import draw
+
+    got = draw.level(random.Random(5), {"cases": ["P02"]}, {"P02": CASES["P02"]["match"]}, "R9", 20)
+    layouts = [it.fmt for _, it in got]
+    assert layouts.count("column_grid") == layouts.count("bare_sum") == 10
+
+
+def test_level_keeps_inside_its_bounds_and_away_from_round_numbers_unless_the_case_is_about_zeros():
+    import random
+
+    from engine.assess import draw
+
+    got = draw.level(random.Random(9), {"cases": ["A01", "A03"], "max_total": 5}, {c: CASES[c]["match"] for c in ("A01", "A03")}, "R1", 12)
+    assert got and all(it.spec["a"] + it.spec["b"] <= 5 for _, it in got)
+    tens = draw.level(random.Random(9), {"cases": ["A19"]}, {"A19": CASES["A19"]["match"]}, "R5", 60)
+    assert all(it.spec["a"] % 10 and it.spec["b"] % 10 for _, it in tens)
+    zeros = draw.level(random.Random(9), {"cases": ["SZ6"]}, {"SZ6": CASES["SZ6"]["match"]}, "R10", 12)
+    assert len(zeros) == 12  # 1000 − 476 needs a round top number, and the case is about zeros
+
+
+def test_fill_cases_fills_a_level_evenly_and_says_which_case_made_each_question(conn):
+    from engine import bank
+
+    before = conn.execute("select difficulty from skill_set where code = 'ADD.2D.REG'").fetchone()["difficulty"]
+    level = dict(before["Easy"], check={"cases": ["A10", "A11", "A12", "A13"]})
+    conn.execute("update skill_set set difficulty = %s where code = 'ADD.2D.REG'", (json.dumps(dict(before, Easy=level)),))
+    counts, per_case, items = bank.fill_cases(conn, "ADD.2D.REG", "Easy", 20)
+    assert counts["accepted"] == 20 and per_case == {"A10": 5, "A11": 5, "A12": 5, "A13": 5}
+    stored = conn.execute(
+        "select generator, fmt, tags, skill_codes from item where skill_set_code = 'ADD.2D.REG' and difficulty = 'Easy'"
+        " and generator like 'case:%%'"
+    ).fetchall()
+    assert len(stored) == 20
+    for r in stored:
+        assert taxonomy.matches(CASES[r["generator"][5:]]["match"], r["fmt"], r["tags"])
+        assert list(r["skill_codes"]) == ["NUM.OPS.01"]

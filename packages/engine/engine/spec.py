@@ -14,11 +14,12 @@ Every proposal is then checked before anything is stored, and a claim that canno
 downgraded rather than trusted (ADR 0014).
 """
 
+import random
 import re
 
-from engine import db
+from engine import cases, db
 from engine.adapters import llm
-from engine.assess import bands
+from engine.assess import bands, draw
 from engine.assess import misconceptions as M
 
 MISCONCEPTION_PROMPT = "misconception_list"
@@ -128,7 +129,16 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
     a guess.
     """
     s = row(conn, code)
-    return {d: bands.codes(b.get("check") or {}, n, rung=s["rung_code"]) for d, b in s["difficulty"].items()}
+    out = {}
+    for d, b in s["difficulty"].items():
+        check = b.get("check") or {}
+        if check.get("cases"):
+            # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f).
+            drawn = draw.level(random.Random(1), check, cases.matches(conn, check["cases"]), s["rung_code"], n)
+            out[d] = sorted({c for _, it in drawn for r in it.responses for c in (r.misconceptions or {})})
+        else:
+            out[d] = bands.codes(check, n, rung=s["rung_code"])
+    return out
 
 
 # Words that carry no meaning in a code. A join key is read by people — in a graph, a prescription,

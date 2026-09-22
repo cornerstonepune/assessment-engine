@@ -7,6 +7,7 @@ item_key from either path, which is what stops the bank holding one sum twice.
 """
 
 from . import misconceptions as M
+from . import taxonomy
 from .items import Response, _cells, _item, _regroup_count_add, _regroup_count_sub
 
 FORBIDDEN_WORDS = ("borrow",)
@@ -109,14 +110,23 @@ FORMAT_DIMENSIONS = {
 }
 
 
-def dimension_problems(tags, check):
+def dimension_problems(tags, check, fmt=None, case_matches=None):
     """The item as measured, against the band as declared (BUILD-ORDER gate 4, amended).
 
     Difficulty is a region in dimension space, not a label: a band says digits, regroups, zeros
     and shape, and an item's tags say what it actually is. This is the check that makes two bands
     with different rules produce different items — the one that would have caught R1's Hard band
     quietly holding the same sums as its Medium band. Dimensions the tags do not carry are not
-    judged; that is stated here, not hidden."""
+    judged; that is stated here, not hidden.
+
+    A level that lists taxonomy cases (step 8f) is exactly the union of its cases: an item is inside it
+    when it is one of them. With no case rows to read, there is nothing to judge it against."""
+    if check.get("cases"):
+        if case_matches is None:
+            return []
+        if any(taxonomy.matches(case_matches[c], fmt, tags) for c in check["cases"] if c in case_matches):
+            return []
+        return ["dimension outside every case the level holds"]
     out = []
     if "digits" in check and "operand_1_digits" in tags:
         want = tuple(check["digits"])

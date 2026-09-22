@@ -9,9 +9,9 @@ import json
 import random
 from collections import Counter
 
-from engine import db, labels
+from engine import cases, db, labels
 from engine.adapters import llm
-from engine.assess import bands, tags, verify
+from engine.assess import bands, draw, tags, verify
 from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.assess.items import Item, Response
@@ -78,6 +78,8 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
     the deterministic samplers, which write no sentence a model would have written but never fail
     on a quota."""
     prompt_input, s, check = spec(conn, code, difficulty)
+    if check.get("cases"):
+        return fill_cases(conn, code, difficulty, n, dry_run, after_batch)
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     counts = Counter(
         asked=0,
@@ -259,6 +261,36 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     return dict(counts), accepted
 
 
+def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=None):
+    """A level that lists taxonomy cases (step 8f), filled evenly from them: every question drawn is,
+    as measured, one of its cases (`assess/draw.py`). Questions the bank already holds anywhere are
+    not drawn again. Returns (counts, {case: accepted}, items)."""
+    _, s, check = spec(conn, code, difficulty)
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    held = {r["item_key"] for r in conn.execute("select item_key from item where tenant_id = %s", (tenant,))}
+    matches = cases.matches(conn, check["cases"])
+    missing = sorted(set(check["cases"]) - set(matches))
+    if missing:
+        raise ValueError(f"{code} {difficulty} names cases that are not rows: {', '.join(missing)}")
+    known, rules, vocab = _known_codes(conn), labels.rules(conn), labels.vocabulary(conn)
+    drawn = draw.level(rng or random.Random(), check, matches, s["rung_code"], n, seen=held)
+    counts = Counter(asked=n, drawn=len(drawn), accepted=0, already_in_bank=0, unnamed_distractor_dropped=0)
+    per_case, accepted = Counter(), []
+    for case_code, it in drawn:
+        counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
+        charged = _label(it, s, rules, vocab)
+        prov = {"skill_set_version": s["version"], "generator": f"case:{case_code}"}
+        if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
+            counts["already_in_bank"] += 1
+            continue
+        counts["accepted"] += 1
+        per_case[case_code] += 1
+        accepted.append(it)
+    if after_batch:
+        after_batch()
+    return dict(counts), dict(per_case), accepted
+
+
 def _class_need(conn):
     """How many questions one class needs from one unit in one week: every child's sheet plus the
     spares, drawn without replacement (`assemble.for_week`). All three numbers are config rows."""
@@ -314,12 +346,13 @@ def recheck(conn):
         for s in conn.execute("select code, difficulty from skill_set").fetchall()
         for band, spec in s["difficulty"].items()
     }
+    case_matches = cases.matches(conn)
     for r in conn.execute(
-        "select item_key, tags, skill_set_code, difficulty from item"
+        "select item_key, fmt, tags, skill_set_code, difficulty from item"
         " where status = 'active' and source = 'generated' and skill_set_code is not null"
     ).fetchall():
         region = regions.get((r["skill_set_code"], r["difficulty"]))
-        if region and verify.dimension_problems(r["tags"], region):
+        if region and verify.dimension_problems(r["tags"], region, r["fmt"], case_matches):
             bad.append(r["item_key"])
 
     rows = conn.execute(

@@ -19,6 +19,8 @@ SAMPLER_FORMATS = ["column_grid", "bare_sum", "missing_number", "word_1step"]
 def makeable(check):
     """Can any generator produce a question for this band? The one authority — `engine audit`
     and a fill must agree, or a band passes the audit and then fills nothing."""
+    if check.get("cases"):
+        return True  # a level made of taxonomy cases; `engine audit` checks each case is a row
     fmt = check.get("format")
     if fmt:
         return fmt in NATIVE_GENERATORS or fmt in SAMPLER_FORMATS

@@ -8,7 +8,7 @@ every other key reads the question's tags. A value is equality, a list is "one o
 """
 
 
-def _holds(want, got):
+def holds(want, got):
     if isinstance(want, dict):
         return isinstance(got, int) and got >= want.get("gte", got) and got <= want.get("lte", got)
     if isinstance(want, list):
@@ -21,7 +21,7 @@ def matches(match, fmt, tags):
         return any(matches(m, fmt, tags) for m in match)
     for key, want in match.items():
         got = fmt if key == "fmt" else tags.get(key)
-        if got is None or not _holds(want, got):
+        if got is None or not holds(want, got):
             return False
     return True
 

@@ -59,7 +59,7 @@ def _item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, 
         _id(template, spec),
         template,
         rung,
-        skills or RUNGS[rung]["skills"],
+        skills or RUNGS.get(rung, {}).get("skills", []),  # a label only; `bank` measures the real one (ADR 0030)
         signal,
         fmt,
         scaffolded,
@@ -200,6 +200,11 @@ def missing_number(rng, rung, signal, kind, hi):
         ans = b + c
         stem = f"□ − {b} = {c}"
         mis = {"M_SUB_INSTEAD": abs(c - b), "M_FACT_PM1": ans - 1}
+    elif kind == "among_three":  # 35 + □ + 18 = 80 (taxonomy §6.1)
+        a, other, ans = (rng.randint(11, hi // 3) for _ in range(3))
+        c = a + ans + other
+        stem = f"{a} + □ + {other} = {c}"
+        mis = {"M_ADD_INSTEAD": a + other + c, "M_FACT_PM1": ans + 1}
     else:  # sub_missing_subtrahend
         c = rng.randint(hi // 4, hi - 2)
         a = rng.randint(1, c - 1)
@@ -720,23 +725,29 @@ def missing_part_20(rng, rung, signal):
     )
 
 
-def multi_add(rng, rung, signal, n_addends=3, digits_each=4):
-    lo, hi = 10 ** (digits_each - 1), 10**digits_each - 1
-    xs = [rng.randint(lo, hi) for _ in range(n_addends)]
-    while any(x % 10 == 0 for x in xs):
+def multi_add(rng, rung, signal, n_addends=3, digits_each=4, xs=None, layout="column", shape=None):
+    """Three or more numbers added, in columns or written in a line (taxonomy §2.8). `xs` gives the
+    numbers when a caller has already chosen them — a case with mixed lengths, or friendly pairs."""
+    if xs is None:
+        lo, hi = 10 ** (digits_each - 1), 10**digits_each - 1
         xs = [rng.randint(lo, hi) for _ in range(n_addends)]
+        while any(x % 10 == 0 for x in xs):
+            xs = [rng.randint(lo, hi) for _ in range(n_addends)]
     ans = sum(xs)
-    mis = {"M_DROP_CARRYOUT": ans % (10**digits_each), "M_FACT_PM10": ans + 10, "M_FACT_PM100": ans - 100}
+    widest = max(len(str(x)) for x in xs)
+    mis = {"M_DROP_CARRYOUT": ans % (10**widest), "M_FACT_PM10": ans + 10, "M_FACT_PM100": ans - 100}
     mis |= M.predict_multi(xs)
-    mis = {k: v for k, v in mis.items() if v != ans}
+    mis = {k: v for k, v in mis.items() if v != ans and v >= 0}
     r = Response("ans", "digits", str(ans), cells=len(str(ans)) + 1, misconceptions=mis)
+    spec = dict(addends=xs, op="+", layout=layout) | ({"shape": shape} if shape else {})
+    column = layout == "column"
     return _item(
-        f"ADD.MULTI{n_addends}",
+        f"ADD.MULTI{len(xs)}",
         rung,
         signal,
-        "column_grid",
-        "",
-        dict(addends=xs, op="+", layout="column"),
+        "column_grid" if column else "bare_sum",
+        "Add them in the easiest order." if shape == "FRIENDLY_PAIRS" else "",
+        spec,
         [r],
-        working_lines=0,
+        working_lines=0 if column else 3,
     )
