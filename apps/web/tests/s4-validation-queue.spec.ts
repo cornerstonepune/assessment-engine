@@ -159,15 +159,15 @@ test("each paper has one spot-check, an answer the engine was sure of, asked the
 });
 
 test("a sheet shows its score as soon as nothing on it waits", async ({ page }) => {
-  const [p] = await sql<{ right: number; scored: number; title: string }[]>`
-    select count(*) filter (where r.status = 'correct')::int as right,
+  const [p] = await sql<{ right: number; scored: number; title: string; child: string }[]>`
+    select count(*) filter (where r.status = 'correct')::int as right, min(si.child_id::text) as child,
            count(*) filter (where r.status in ('correct', 'wrong', 'blank'))::int as scored,
            min(t.key ->> 'title') as title
     from item_result r join capture c on c.id = r.capture_id and c.superseded_by is null
     join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on t.id = si.sheet_template_id
     group by si.id having count(*) filter (where r.status in ('unreadable', 'needs_teacher')) = 0 limit 1`;
   test.skip(!p, "every sheet still has an answer waiting");
-  await page.goto("/capture");
+  await page.goto(`/capture?child=${p.child}`);
   await expect(page.getByText(`${p.right} / ${p.scored} right`).first()).toBeVisible();
 });
 
@@ -192,6 +192,34 @@ test("a child's papers open from their page, and each steps to the child's next 
   await expect(page).toHaveURL(new RegExp(`/capture/${c.second}$`));
   await expect(page.getByText(new RegExp(`paper 2 of ${c.n}$`))).toBeVisible();
   await expect(page.getByRole("link", { name: "← Previous paper" })).toHaveAttribute("href", `/capture/${c.first}`);
+});
+
+// Nimish, 2026-09-22: "a student's name. I click into the student, and then I have the papers … I click on
+// the assessment, and then all the questions of that assessment appear". Capture & Mark is that, by class.
+test("Capture & Mark lists students by class; a student lists their papers; a paper leads back to them", async ({ page }) => {
+  const [c] = await sql<{ child: string; section: string; sheets: number }[]>`
+    select si.child_id::text as child, min(ch.section) as section, count(distinct si.id)::int as sheets
+    from sheet_instance si join child ch on ch.id = si.child_id
+    where exists (select 1 ${LIVE} and c.sheet_instance_id = si.id)
+    group by si.child_id order by si.child_id::text limit 1`;
+  await page.goto("/capture");
+  await expect(page.getByRole("heading", { name: c.section, exact: true }).first()).toBeVisible();
+  await page.locator(`a[href="/capture?child=${c.child}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
+  const papers = page.getByRole("table").first().locator("tbody tr");
+  await expect(papers).toHaveCount(c.sheets);
+  await papers.first().getByRole("link").click();
+  await expect(page.getByRole("heading", { name: "What this paper says, by skill" })).toBeVisible();
+  await page.getByRole("link", { name: /’s papers$/ }).click();
+  await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
+
+  // the first student in the list steps to the next one with something left to check
+  await page.goto("/capture");
+  await page.getByRole("table").first().getByRole("link").first().click();
+  const first = new URL(page.url()).searchParams.get("child");
+  await page.getByRole("link", { name: /^Next student to check: / }).click();
+  await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
+  await expect(page.getByRole("table").first().locator("tbody tr").first()).toBeVisible();
 });
 
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
