@@ -7,6 +7,7 @@ ones or from the tens, the box first or second — are kept apart here too.
 """
 
 import json
+import os
 import pathlib
 
 import pytest
@@ -134,6 +135,9 @@ def test_matches_reads_lists_ranges_and_alternatives():
 
 @pytest.fixture
 def conn():
+    # CI has no database: the tests that need one skip there, the pure ones above still run
+    if not os.getenv("DATABASE_URL"):
+        pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
         yield c
         c.rollback()

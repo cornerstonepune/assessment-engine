@@ -6,6 +6,7 @@ skill for every reader that already takes the first one.
 """
 
 import json
+import os
 
 import pytest
 
@@ -174,6 +175,9 @@ def test_charges_a_skill_the_question_does_not_use_falls_back_to_its_own_skill()
 
 @pytest.fixture
 def conn():
+    # CI has no database: the tests that need one skip there, the pure ones above still run
+    if not os.getenv("DATABASE_URL"):
+        pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
         yield c
         c.rollback()
