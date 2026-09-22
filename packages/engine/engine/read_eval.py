@@ -17,7 +17,7 @@ swung 84-97% across passes.
 import json
 from pathlib import Path
 
-from engine import db, legacy, stencil
+from engine import db, legacy, profiles, stencil
 from engine.adapters import ocr
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
@@ -45,7 +45,9 @@ def gold_sheets(conn=None):
     # Every file of a sheet, not only its first: a Grade 3 sitting is one photograph per page, and a
     # correction on page 2 of a gold sheet belongs to that sheet, not to a new one beside it.
     by_file = {_resolved(f): s for s in sheets for f in (s.get("files") or [s["file"]])}
-    for row in legacy.corrections(conn):
+    # A sign-off is a person saying the reader's reading is what the child wrote (ADR 0032); where a
+    # typed correction exists for the same answer it comes second and wins.
+    for row in [*profiles.signed_off(conn), *legacy.corrections(conn)]:
         key = row["item_key"].rsplit("/", 1)[1]
         sheet = by_file.get(_resolved(row["path"]))
         if sheet is None:
