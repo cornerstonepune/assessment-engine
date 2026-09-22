@@ -19,6 +19,7 @@ export type PaperRow = {
   child_id: string;
   first_name: string;
   section: string;
+  roll_no: string;
   paper: string;
   title: string;
   date: string | null;
@@ -35,7 +36,7 @@ export type PaperRow = {
 };
 
 const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow[]>`
-  select si.id, si.child_id, p.first_name, ch.section, t.batch_id as paper,
+  select si.id, si.child_id, p.first_name, ch.section, ch.roll_no, t.batch_id as paper,
          t.key ->> 'title' as title, t.key ->> 'date' as date,
          coalesce(jsonb_array_length(t.key -> 'pages'), 1) as pages,
          (select count(*)::int from capture c

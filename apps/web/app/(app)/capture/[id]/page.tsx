@@ -82,7 +82,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2">
-          <Link href="/capture" className="chip">← All papers</Link>
+          <Link href={`/capture?child=${paper.child_id}`} className="chip">← {paper.first_name}&rsquo;s papers</Link>
           <Link href={`/growth/${paper.child_id}`} className="chip">{paper.first_name}&rsquo;s ladder</Link>
           {siblings.length > 1 ? (
             <span className="ml-auto flex flex-wrap items-center gap-2">

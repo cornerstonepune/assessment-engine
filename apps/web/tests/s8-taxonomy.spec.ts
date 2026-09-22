@@ -54,6 +54,18 @@ test("a worksheet of each new skill opens with its twelve questions and prints",
   }
 });
 
+test("a story whose numbers sit in a table shows the table on screen", async ({ page }) => {
+  const [q] = await sql<{ code: string; stem: string; label: string; n: string }[]>`
+    select t.code, i.stem, i.spec -> 'table' -> 0 ->> 0 as label, i.spec -> 'table' -> 0 ->> 1 as n
+    from sheet_template t join item i on i.id = any(t.item_ids)
+    where t.source = 'library' and t.retired_at is null and i.spec ? 'table' order by t.code limit 1`;
+  expect(q, "a worksheet holds a table story").toBeTruthy();
+  await page.goto(`/worksheets/${q.code}`);
+  const row = page.getByRole("table", { name: "Questions and answers" }).locator("tbody tr").filter({ hasText: q.stem });
+  await expect(row).toContainText(q.label);
+  await expect(row).toContainText(q.n);
+});
+
 test("a Grade 1 worksheet has sums in columns as well as in a line", async () => {
   const rows = await sql<{ code: string; columns: number; lines: number }[]>`
     select t.code,

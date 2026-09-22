@@ -89,9 +89,11 @@ for (const { name, width, height } of SIZES) {
     page.on("console", (m) => m.type() === "error" && !m.text().includes("/api/scan/") && errors.push(m.text()));
     await page.setViewportSize({ width, height });
     await page.goto("/capture", { waitUntil: "networkidle" });
-    const open = page.getByRole("table").first().getByRole("link").first();
-    if ((await open.count()) === 0) test.skip(true, "no paper has been read yet");
-    await open.click();
+    // Capture & Mark lists students; a student lists their papers (Nimish, 2026-09-22).
+    const student = page.getByRole("table").first().getByRole("link").first();
+    if ((await student.count()) === 0) test.skip(true, "no paper has been read yet");
+    await student.click();
+    await page.getByRole("table").first().getByRole("link").first().click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText("·");
     await expect(page.getByRole("heading", { name: "What this paper says, by skill" })).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

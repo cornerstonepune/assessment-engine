@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
 import type { ItemRow, Mistake } from "@/lib/queries-bank";
 
@@ -92,7 +92,21 @@ export function Question({ it }: { it: ItemRow }) {
         </Stem>
       );
     default:
-      return <span>{it.stem || s.question || s.text}</span>;
+      // A story that says "the table shows…" carries its numbers in the table, not the sentence.
+      return s.table ? (
+        <Stem text={it.stem}>
+          <span className="fact grid w-fit grid-cols-[auto_auto] gap-x-4">
+            {s.table.map(([label, n]) => (
+              <Fragment key={label}>
+                <span>{label}</span>
+                <span className="text-right">{n}</span>
+              </Fragment>
+            ))}
+          </span>
+        </Stem>
+      ) : (
+        <span>{it.stem || s.question || s.text}</span>
+      );
   }
 }
 
