@@ -3031,4 +3031,16 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   worksheets with an unfair mix of kinds and dealt patches that looped (one `_unfair` for build and check); the
   approval page's table never matched (postgres.js sends a string bound for `jsonb` as a JSON string —
   `::text::jsonb`). Website on the copy: **77 passed, 1 skipped** (the long-standing "no paper signed off" skip).
-  **Live: not yet.**
+- **Live, 2026-09-22** (PR #13 `4803aab`, PR #14 `450467b`). Migrations `20260928090000`, `…100000`, `…110000` pushed
+  before the merge; `engine load` (`app.staff` md5 unchanged); `bank levels --apply` (13); `bank refill` **"retired
+  4756 questions outside their level · added 10049"**; `library build` "made 1159 · retired 742"; `library check`
+  **"1540 worksheets · 84 of 84 skill-levels ready · 0 problems"**; `bank taxonomy` **"269 cases · 269 covered · 0
+  missing · 0 thin"**; `engine audit` 18 violations, only the 17 skills and 1 table waiting for Nimish.
+- **The live engine was down 13:16–13:56 IST.** After PR #13 deployed it crashed on start: `words.py` read the story
+  templates from `supabase/seed/`, which the server's image (`engine/` alone) does not hold. Fixed at the cause in
+  PR #14 — the file beside its reader; `tests/test_image.py` starts the engine from `engine/` alone and failed first
+  with the server's own error. This Mac's network then corrupted every transfer to the server above 16 KB (ssh
+  "incorrect signature"), so `go-live.sh` could not upload the code: the server fetched commit `450467b` from GitHub
+  itself (the repository is public), proved byte-identical to it (370 files, one sha256 over all, equal on both
+  sides), and rebuilt — `/health` 200 at 13:56. Website production deployment of `450467b`: success. **Not yet
+  proved: a signed-in click-through on the live link** (no session in this browser).

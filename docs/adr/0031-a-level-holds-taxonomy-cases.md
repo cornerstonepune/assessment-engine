@@ -40,6 +40,10 @@ cases after the document's sections were read case by case): 102 held a workshee
   which cases it holds cannot be checked; the next fill would drift back.
 - **A model writing the cases' questions.** Every case is a pattern of numbers or a story shape; code
   enumerates them for no tokens (ADR 0010), and the model is not asked to count carries.
+- **The story templates as a table, or in `supabase/seed/`.** They are a data file inside the engine,
+  `engine/assess/word_templates.json`: the generators in `assess/` are pure and read them without a
+  connection, which a table would take from every story generator; and the server's image holds `engine/`
+  alone, so a file under `supabase/seed/` stopped the engine starting on 2026-09-22 (`tests/test_image.py`).
 - **Storing a question twice so two skills' levels can both hold it** (Grade 1's 12 + 5 and Grade 2's). One row
   per question is what keeps its worksheets, flags and evidence one history. Levels of different skills that
   share a case split its numbers, so a Grade 1 floor is measured after the refill: `ADD.1D.BRIDGE10` Medium has
