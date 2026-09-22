@@ -1,0 +1,47 @@
+name: reader-learns
+goal: >
+  Every check a person makes teaches the reader about that child, and the next read of that child
+  is different for it: the reader keeps a notebook per child (how often it was right, its own
+  confidence floor, the kinds to route to a person, the digits it confuses, confirmed handwriting
+  samples), reads with it open, hands what it gave up on to a second reader that sees the child's
+  own examples and proposes a one-click guess, and settles a kind of question alone only once it
+  has matched people 95% of the time on it. All of it is measured per batch and proven by replaying
+  a signed-off paper with and without the notebook.
+
+# Written 2026-09-22 (ADR 0032), before the work. Nimish: "the system needs to be developed in a way
+# where … the handwriting of the student starts remaining more consistent … first tell me how you
+# are wiring, and then only go ahead and wire." First proof children: Agastya and Dhanvi (G2), the
+# two whose every paper was signed off that afternoon — 46 and 49 answers, 28 and 20 typed.
+# Measured that afternoon on the 121 typed answers: right 33 of 42 at 90+ confidence, 7 of 17 at
+# 70–89, 1 of 30 below 70, 5 of 32 where the reader gave up; child_reading_profile 0 rows.
+scenarios: []
+criteria:
+  - name: >-
+      the notebook is built from checks and changes a later read — floor, routed kinds, digit
+      confusions, samples; a reading holding a confused digit is flagged with the reading as the
+      guess; a kind overturned more than a quarter of the time is routed; nothing is silently changed
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_profiles.py tests/test_ocr.py tests/test_read_eval.py
+    expect: "passed"
+  - name: every checked child has a notebook on the copy
+    run: engine read profile
+    expect: "children profiled"
+  - name: sign-offs grow the gold set the reader is scored against
+    run: engine read eval --gold-only
+    expect: "gold responses"
+  - name: the second reader is scored on what people have typed (rule 7), on the copy
+    run: engine read guess --eval
+    expect: "of"
+  - name: >-
+      the replay — a signed-off paper of each proof child read again with and without the notebook
+      built from their other papers, both scored against what people confirmed
+    run: engine read replay --section G2 --child Agastya --child Dhanvi
+    expect: "with the notebook"
+  - name: the report says how the reader is doing, per batch and per kind
+    run: engine read report
+    expect: "trusted"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: the queue and the paper page show a profile flag and a second reader's guess as one click
+    run: cd apps/web && npx playwright test tests/s4-validation-queue.spec.ts
+    expect: "passed"

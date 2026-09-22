@@ -81,7 +81,7 @@ EXPECTED = {
     "case_dimension": 18,
     "coverage_target": 46,
     "taxonomy_case": 269,  # the team's taxonomy, one row per case (step 8e)
-    "prompt": 19,  # + pedagogy_review, language_review (gate 4), misconception_list v1-v4,
+    "prompt": 20,  # + read_with_examples (ADR 0032), pedagogy_review, language_review (gate 4), misconception_list v1-v4,
     #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)

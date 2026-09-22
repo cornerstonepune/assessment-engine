@@ -24,3 +24,16 @@ elif os.environ.get("DATABASE_URL"):
         "and add TEST_DATABASE_URL to .env",
         returncode=4,
     )
+
+
+@pytest.fixture
+def every_kind_trusted(monkeypatch):
+    """ADR 0032's gate out of the way: every kind of question as if the reader had earned 95% on it, so
+    a test about marking or signing off measures that and not the reader's standing on the copy."""
+    from engine import profiles
+
+    monkeypatch.setattr(
+        profiles,
+        "kind_trust",
+        lambda conn, window=50: {f: {"n": 50, "right": 50, "trusted": True} for f in profiles.KIND_WORDS},
+    )

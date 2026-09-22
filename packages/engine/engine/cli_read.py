@@ -6,7 +6,8 @@ from pathlib import Path
 
 import typer
 
-from engine import db, external, reread
+from engine import db, external, legacy, profiles, reread
+from engine.cli_learn import register as register_learn
 
 read_app = typer.Typer(help="W3 — read papers and place them on the skill graph", no_args_is_help=True)
 
@@ -142,6 +143,7 @@ def read_stability(
 def read_eval_cmd(
     runs: int = typer.Option(1, "--runs", help="repeats; the reported rate is the WORST of them"),
     reader: str = typer.Option("ocr", "--reader", help="ocr | model — what does the transcribing"),
+    gold_only: bool = typer.Option(False, "--gold-only", help="count the gold set and read nothing"),
 ) -> None:
     """Score the active `legacy_extract` against what a person actually saw on the page.
 
@@ -151,6 +153,18 @@ def read_eval_cmd(
     """
     from engine import read_eval
 
+    if gold_only:
+        # The set the reader is scored against grows by use (ADR 0032): every typed correction and
+        # every sign-off is a hand-verified response.
+        with db.connect() as conn:
+            sheets = read_eval.gold_sheets(conn)
+            typed = len(legacy.corrections(conn))
+            signed = len(profiles.signed_off(conn))
+        n = sum(len(s["answers"]) for s in sheets)
+        typer.echo(
+            f"  {n} gold responses on {len(sheets)} sheets · {typed} typed by a person · {signed} signed off"
+        )
+        return
     with db.connect() as conn:
         version = conn.execute(
             "select version from prompt where purpose = 'legacy_extract' and active"
@@ -333,3 +347,6 @@ def read_stencil(form: str = typer.Option("", "--form", help="one printed form; 
             f"  {f:<14} p{page}  {used} of {len(found)} copies aligned (inliers {min(inliers)}-{max(inliers)}),"
             f" {sum(1 for w in read['words'] if not w['hand'])} printed words, {len(boxes)} boxes"
         )
+
+
+register_learn(read_app)

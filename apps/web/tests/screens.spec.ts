@@ -90,7 +90,7 @@ for (const { name, width, height } of SIZES) {
     await page.setViewportSize({ width, height });
     await page.goto("/capture", { waitUntil: "networkidle" });
     // Capture & Mark lists students; a student lists their papers (Nimish, 2026-09-22).
-    const student = page.getByRole("table").first().getByRole("link").first();
+    const student = page.getByRole("table").filter({ has: page.getByRole("link") }).first().getByRole("link").first();
     if ((await student.count()) === 0) test.skip(true, "no paper has been read yet");
     await student.click();
     await page.getByRole("table").first().getByRole("link").first().click();

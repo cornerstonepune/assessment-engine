@@ -677,6 +677,7 @@ def test_a_doubtful_answer_is_looked_at_again_larger_and_only_then_stood_behind(
         "confidence": 96.0,
         "working_shown": "none",
         "box": out["7"]["box"],
+        "seen": [{"text": "83", "confidence": 58.0}],  # what the page read, before the second look
     }
     # the crop is the answer's own patch of the page, not the whole region a person is shown
     pad = ocr.DEFAULTS["reread_pad"]
@@ -847,3 +848,21 @@ def test_an_unsure_reading_keeps_its_guess_for_a_person_and_is_never_marked_from
     # a reading the engine stands behind carries no guess: there is nothing to confirm
     sure = ocr.answers_for(page([q, w("51", 0.42, 0.302, conf=97.0, line=q["text"])], [q]), {"4": q["text"]})
     assert sure["4"]["guess"] == ""
+
+
+def test_the_reader_records_what_it_saw_even_when_it_gives_up():
+    """ADR 0032: a check on an answer the reader gave up on teaches nothing unless the reader wrote
+    down what it saw. Every reading carries `seen` — each number in the region with its confidence —
+    including the ones that go to a person."""
+    q = w("7. 45 + 38 =", 0.1, 0.30, hand=False, width=0.3)
+    # two numbers on two rows under the question, for three answers
+    out = ocr.answers_for(
+        page([q, w("83", 0.42, 0.33, conf=91.0), w("44", 0.42, 0.36, conf=62.5)], [q]),
+        {"7a": "7. 45 + 38 =", "7b": "7. 45 + 38 =", "7c": "7. 45 + 38 ="},
+    )
+    assert out["7a"]["why"] == "2 numbers in the region for 3 answers"
+    assert out["7a"]["seen"] == [{"text": "83", "confidence": 91.0}, {"text": "44", "confidence": 62.5}]
+    clean = ocr.answers_for(
+        page([q, w("83", 0.42, 0.302, conf=91.0, line=q["text"])], [q]), {"7": "7. 45 + 38 ="}
+    )
+    assert clean["7"]["child_answer"] == "83" and clean["7"]["seen"] == [{"text": "83", "confidence": 91.0}]

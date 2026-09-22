@@ -187,6 +187,41 @@ step after it reads the graph, and the graph must not hold a mark nobody checked
 **No paper is signed off until the data job has run on live** (`engine legacy remark --every-child`):
 signing off confirms every answer that is not waiting, and until then the old marks are not waiting.
 
+## Inserted after step 8: the reader learns from every check — Nimish, 2026-09-22, afternoon
+
+Two children fully checked, 121 answers typed by a person, and the learning loop ADR 0007 designed on
+2026-09-19 was found unbuilt: `child_reading_profile` empty, a correction changing nothing after its own
+row, the reader recording nothing of what it saw when it gave up. Nimish: *"You need to definitely wire up
+the engine to ensure that this effort is not going in vain and the system is learning … first tell me how
+you are wiring, and then only go ahead and wire."* The wiring (ADR 0032): a notebook per child rebuilt by
+code from every check; the next read of that child uses it (its own floor, routed kinds, confused digits
+flagged with the reading as a one-click guess); a second reader with the child's own samples proposes for
+what the first gave up on; trust earned per kind at 95%; measured per batch; proven by replay. Goal:
+`goals/reader-learns.yaml`. Chunks, in order, each with its tests: **L1** the record and the notebook ·
+**L2** the next read uses it · **L3** the second reader with examples, with its eval · **L4** the gate, the
+report, the replay.
+
+### Standing direction — Nimish, 2026-09-22, in his words. Read before any work on reading or the graph.
+
+1. *"All the validations that we are doing right now should help improve the system."* Every check a
+   person makes must change a later read (ADR 0032; `goals/reader-learns.yaml`). A validation that only
+   settles its own row is effort in vain, and he has said so: *"This is a massive effort I'm making the
+   teachers do, so it better help the case."*
+2. *"After this loop is done, how the entire skill interaction happens — how the system is going to read
+   the skill and how that learning loop is going to take care of itself while the system really starts
+   understanding the child — is going to be extremely important."* The next design after this loop: how
+   evidence becomes a reading of a skill, and how that reading keeps itself honest as more papers arrive.
+3. *"The vision is not just this assessment engine. We are essentially thinking about this as a knowledge
+   graph which will exist for every subject, every topic, and all the grades, right from the nursery all
+   the way up to the 5th, 6th, and 7th standard. When the child grows, this entire data will just keep on
+   making the engine richer about the understanding of the child and how he or she is behaving."* Every
+   decision about evidence, skills and the graph is taken for that: one child's record across subjects
+   and years, append-only, richer with every paper. Nothing is designed for maths alone if it could be
+   designed for a subject.
+4. *"When you think about the skill graph, how you show it and how the teacher sees and reads the skill
+   graph, it needs to be visually easy to understand."* A graph a teacher cannot read at a glance is not
+   built. (`feedback_teacher_first_screens` in memory: lanes per skill, plain sentences, codes demoted.)
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

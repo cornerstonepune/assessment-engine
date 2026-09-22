@@ -663,6 +663,10 @@ def _read_field(page, f, cfg, working, echoes=frozenset(), printed=(), reread=No
             hand = _reading_order(labelled, cfg["row_band"])
     hand = _dedupe(hand)
     where = [round(v, 4) for v in f[:4]]
+    seen = [
+        {"text": value_of(w["text"]) or w["text"], "confidence": round(float(w["confidence"]), 1)}
+        for w in hand
+    ]
     if not hand:
         inked = had_ink or (len(f) > 4 and f[4] > cfg["box_ink_blank"])
         return {
@@ -672,6 +676,7 @@ def _read_field(page, f, cfg, working, echoes=frozenset(), printed=(), reread=No
             "confidence": 0.0,
             "working_shown": working,
             "box": where,
+            "seen": seen,
         }
     if len({value_of(w["text"]) for w in hand}) > 1:
         # The child's column working and their answer share the box. The rule a single-answer
@@ -689,6 +694,7 @@ def _read_field(page, f, cfg, working, echoes=frozenset(), printed=(), reread=No
         "confidence": pick["confidence"],
         "working_shown": working,
         "box": where,
+        "seen": seen,
     }
 
 
@@ -870,6 +876,12 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
         where = [round(box["left"], 4), round(box["top"], 4), round(box["right"], 4), round(box["bottom"], 4)]
         found = _handwriting_near(page, box, cfg)
         candidates = _dedupe(_not_echo(found, echoes, printed))
+        # What the reader saw here, kept on every reading of the group — the ones it gives up on
+        # most of all: a person's check on those teaches nothing unless it can be compared (ADR 0032).
+        seen = [
+            {"text": value_of(c["text"]) or c["text"], "confidence": round(float(c["confidence"]), 1)}
+            for c in candidates
+        ]
         if found and not candidates:
             # Every number in the region is one the paper printed: the child copied the operands
             # and the answer itself was not read. A person looks; nobody is told "blank".
@@ -881,6 +893,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
                     "confidence": 0.0,
                     "working_shown": working,
                     "box": where,
+                    "seen": seen,
                 }
             continue
         if not candidates:
@@ -955,6 +968,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
                     "confidence": 0.0,
                     "working_shown": working,
                     "box": where,
+                    "seen": seen,
                 }
             continue
         for slot, pick in zip(members, candidates):
@@ -967,6 +981,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
                 "confidence": pick["confidence"],
                 "working_shown": working,
                 "box": where,
+                "seen": seen,
             }
 
     # A slot whose answer is not a number at all — "Compare using >, <, or =: 456 [ ] 465". This

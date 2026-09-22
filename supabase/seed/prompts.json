@@ -1420,6 +1420,34 @@
           }
         }
       }
+    },
+    {
+      "purpose": "read_with_examples",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": true,
+      "text_file": "prompts/read_with_examples.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "answers",
+          "sure"
+        ],
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sure": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
     }
   ]
 }
