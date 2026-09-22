@@ -27,25 +27,37 @@ A model may *generate* what code then *verifies* — that is how the question ba
 
 ## Structure
 
+**`workflows.json` is the map, and the code follows it** — every step of the agreed workflow, the files
+that do it, and the only connections one workflow may make to another. `packages/engine/tests/test_layout.py`
+fails the day the code drifts from it (a file on no step, an undeclared connection, a file past its
+ceiling, a step with no subject mark, a command or screen that does not exist). Change the map first.
+
 ```
-packages/engine/assess/      generation, blueprints, pick, render, mark, misconceptions — deterministic, no I/O
-packages/engine/api/         FastAPI: /generate /render /ingest /mark /read /commit /graph /cards /home — thin
-packages/engine/adapters/    drive.py  vision.py  notify.py — one class each, one interface each
-packages/engine/cli.py       engine load | bank | week | legacy | graph | eval | audit | goal
-packages/engine/audit.py     every invariant over every row, in one sweep (`engine audit`)
-packages/engine/goal.py      a goal file's criteria, run (`engine goal <name>`)
-packages/engine/scenarios.py a goal file's scenarios: does the engine do its job, checked independently
-goals/                       one yaml per goal: the sentence, its scenarios, its criteria
-bin/engine                   run the engine from any directory
-packages/engine/tests/       mirrors assess/ and api/
-supabase/migrations/         numbered SQL; the only way the schema changes
-supabase/seed/               json the loader reads: registry, rungs, levels, blueprints, misconceptions, prompts, thresholds
-apps/web/app/                six routes matching the six screens; one Supabase client; server components by default
-n8n/workflows/               exported JSON, reviewed in PRs like code
-data/                        gitignored — scans, renders, print packs
-docs/adr/                    one decision per file, numbered
-docs/sources/                team documents this design incorporates
+workflows.json                  the map: 12 steps in 4 workflows, their files, hand-overs, ceilings
+packages/engine/engine/
+  w1_bank/                      W1 build the bank (N1–N2): skill sets, questions made and checked
+  w2_print/                     W2 assemble and print (N4–N7): prescriptions, worksheets, packs
+  w3_read/                      W3 read and graph (N3, N8–N10): reading, marking, the reader's notebook, evidence
+  assess/                       the maths library — pure, no I/O, stands alone; W1–W3 use it
+  core/                         the base: the one database connection, the seed loader, the class list
+  adapters/                     the only files that call an outside service (text model, handwriting reader)
+  checks/                       the proofs: `engine audit`, `engine goal`, scenarios, the live site's health
+  api/  cli.py                  the front doors — thin; each command or route hands straight to a workflow
+packages/engine/tests/          one test file per module; test_layout.py holds the code to the map
+goals/                          one yaml per goal: the sentence, its scenarios, its criteria
+bin/engine                      run the engine from any directory
+supabase/migrations/            numbered SQL; the only way the schema changes
+supabase/seed/                  json the loader reads: registry, rungs, levels, misconceptions, prompts, thresholds
+apps/web/app/                   the screens; server components by default
+n8n/workflows/                  exported JSON, reviewed in PRs like code
+data/                           gitignored — scans, renders, print packs
+docs/adr/                       one decision per file, numbered
+docs/sources/                   team documents this design incorporates
 ```
+
+A workflow imports only `core`, `assess`, `adapters`, and another workflow through a hand-over the map
+declares. The doors (`cli.py`, `api/`, `checks/`) may import anything. No new file over 400 lines; the
+files already over are frozen at their size in the map and may only shrink.
 
 ## Rules
 

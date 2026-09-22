@@ -10,7 +10,8 @@ import os
 
 import pytest
 
-from engine import bank, db
+from engine.core import db
+from engine.w1_bank import bank
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

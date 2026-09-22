@@ -8,9 +8,10 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from engine import db, legacy
 from engine.api import deps
 from engine.api.app import app
+from engine.core import db
+from engine.w3_read import legacy, marking
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -142,7 +143,7 @@ def test_ingest_rejects_a_malformed_body_before_touching_the_database(client, mo
 
 def test_mark_calls_remark_for_the_requested_child(client, monkeypatch):
     seen = []
-    monkeypatch.setattr(legacy, "remark", lambda conn, child_id: seen.append(child_id) or 3)
+    monkeypatch.setattr(marking, "remark", lambda conn, child_id: seen.append(child_id) or 3)
     r = client.post("/mark", headers=HEADERS, json={"child_id": "c9"})
     assert r.status_code == 200 and r.json() == {"changed": 3, "already": False}
     assert seen == ["c9"]
@@ -150,7 +151,7 @@ def test_mark_calls_remark_for_the_requested_child(client, monkeypatch):
 
 def test_mark_with_the_same_key_does_not_remark_twice(client, monkeypatch):
     calls = []
-    monkeypatch.setattr(legacy, "remark", lambda conn, child_id: calls.append(1) or len(calls))
+    monkeypatch.setattr(marking, "remark", lambda conn, child_id: calls.append(1) or len(calls))
     headers = {**HEADERS, "Idempotency-Key": "mk1"}
     client.post("/mark", headers=headers, json={"child_id": "c9"})
     r2 = client.post("/mark", headers=headers, json={"child_id": "c9"})
@@ -163,7 +164,7 @@ def test_mark_with_the_same_key_does_not_remark_twice(client, monkeypatch):
 
 def test_commit_calls_confirm_with_child_and_actor(client, monkeypatch):
     seen = []
-    monkeypatch.setattr(legacy, "confirm", lambda conn, child_id, by: seen.append((child_id, by)) or 5)
+    monkeypatch.setattr(marking, "confirm", lambda conn, child_id, by: seen.append((child_id, by)) or 5)
     r = client.post("/commit", headers=HEADERS, json={"child_id": "c1", "by": "aseem"})
     assert r.status_code == 200 and r.json() == {"confirmed": 5, "already": False}
     assert seen == [("c1", "aseem")]
@@ -171,7 +172,7 @@ def test_commit_calls_confirm_with_child_and_actor(client, monkeypatch):
 
 def test_commit_with_the_same_key_does_not_confirm_twice(client, monkeypatch):
     calls = []
-    monkeypatch.setattr(legacy, "confirm", lambda conn, child_id, by: calls.append(1) or len(calls))
+    monkeypatch.setattr(marking, "confirm", lambda conn, child_id, by: calls.append(1) or len(calls))
     headers = {**HEADERS, "Idempotency-Key": "cm1"}
     client.post("/commit", headers=headers, json={"child_id": "c1", "by": "aseem"})
     r2 = client.post("/commit", headers=headers, json={"child_id": "c1", "by": "aseem"})
@@ -187,7 +188,7 @@ def test_commit_a_different_child_with_the_same_explicit_key_still_only_runs_onc
     route derives its default key from the body, and why a caller supplying its own key is
     responsible for making it unique per real event."""
     calls = []
-    monkeypatch.setattr(legacy, "confirm", lambda conn, child_id, by: calls.append(child_id) or len(calls))
+    monkeypatch.setattr(marking, "confirm", lambda conn, child_id, by: calls.append(child_id) or len(calls))
     headers = {**HEADERS, "Idempotency-Key": "reused"}
     r1 = client.post("/commit", headers=headers, json={"child_id": "c1", "by": "aseem"})
     r2 = client.post("/commit", headers=headers, json={"child_id": "c2", "by": "aseem"})

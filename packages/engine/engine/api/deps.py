@@ -9,7 +9,7 @@ from fastapi import Depends, Header, HTTPException
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
-from engine import db
+from engine.core import db
 
 _pool: ConnectionPool | None = None
 

@@ -18,7 +18,7 @@ import anthropic
 import certifi
 import jsonschema
 
-from engine import db
+from engine.core import db
 
 WAITS = (
     5,

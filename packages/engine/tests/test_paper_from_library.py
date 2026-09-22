@@ -7,7 +7,8 @@ import os
 
 import pytest
 
-from engine import assemble, db, prescribe
+from engine.core import db
+from engine.w2_print import assemble, prescribe
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

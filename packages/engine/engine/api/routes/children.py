@@ -4,9 +4,9 @@ running a lookup twice writes two access_log rows, which is the honest and corre
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from engine import roster
 from engine.api.deps import get_conn, require_engine_key
 from engine.api.models import FindChildRequest, FindChildResponse
+from engine.core import roster
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 

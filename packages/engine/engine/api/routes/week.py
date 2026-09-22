@@ -9,7 +9,6 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
 
-from engine import assemble, db, legacy, prescribe
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
@@ -22,6 +21,9 @@ from engine.api.models import (
     WeekRenderRequest,
     WeekRenderResponse,
 )
+from engine.core import db
+from engine.w2_print import assemble, prescribe
+from engine.w3_read import legacy
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 

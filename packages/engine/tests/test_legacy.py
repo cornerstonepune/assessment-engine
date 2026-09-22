@@ -12,9 +12,10 @@ import numpy as np
 import pymupdf
 import pytest
 
-from engine import db, legacy
 from engine.adapters import llm, ocr
 from engine.assess import graph
+from engine.core import db
+from engine.w3_read import legacy, marking
 
 # ---- pure: shape → rung, and marking by lookup
 
@@ -63,7 +64,7 @@ def test_mark_keeps_three_signals_apart():
     `child_answer` for "wrote nothing" and "wrote something I cannot read"."""
 
     def m(read, spec=None, resp=None):
-        return legacy.mark(spec or _spec(), resp or _resp(), read)
+        return marking.mark(spec or _spec(), resp or _resp(), read)
 
     assert m({"child_answer": "375", "answer_state": "written", "working_summary": ""}) == (
         "correct",
@@ -120,7 +121,7 @@ def test_a_find_the_mistake_answer_is_marked_only_where_it_agrees_with_the_key()
     """
 
     def m(read, resp):
-        return legacy.mark(_spec("text"), resp, read)
+        return marking.mark(_spec("text"), resp, read)
 
     written = {"answer_state": "written", "working_summary": ""}
     # Aryan's 234 + 178: the child wrote 412 and the key says 412
@@ -141,7 +142,7 @@ def test_a_find_the_mistake_answer_is_marked_only_where_it_agrees_with_the_key()
 def test_working_shown_is_taken_from_the_reader_not_guessed_from_a_summary():
     """v2 had no way to say `full`, so a ponytail comment admitted every page read `partial`."""
     assert (
-        legacy.mark(
+        marking.mark(
             _spec(),
             _resp(),
             {
@@ -156,12 +157,12 @@ def test_working_shown_is_taken_from_the_reader_not_guessed_from_a_summary():
 
 
 def test_normalise_answer_reads_units_and_commas():
-    assert legacy.normalise_answer("43 apples") == "43"
-    assert legacy.normalise_answer("ans=43") == "43"
-    assert legacy.normalise_answer("A 48") == "48"
-    assert legacy.normalise_answer("3?5") == "3?5"
-    assert legacy.normalise_answer("1,264.") == "1264"
-    assert legacy.normalise_answer("") == ""
+    assert marking.normalise_answer("43 apples") == "43"
+    assert marking.normalise_answer("ans=43") == "43"
+    assert marking.normalise_answer("A 48") == "48"
+    assert marking.normalise_answer("3?5") == "3?5"
+    assert marking.normalise_answer("1,264.") == "1264"
+    assert marking.normalise_answer("") == ""
 
 
 def test_a_typed_answer_whose_key_is_not_a_number_is_marked_by_the_keys_own_form():
@@ -172,7 +173,7 @@ def test_a_typed_answer_whose_key_is_not_a_number_is_marked_by_the_keys_own_form
     hands these slots over without a guess (`ocr.answers_for`)."""
 
     def m(key, wrote):
-        return legacy.mark(
+        return marking.mark(
             {"kind": "missing"}, {"answer": key}, {"child_answer": wrote, "answer_state": "written"}
         )[0]
 
@@ -197,7 +198,7 @@ def test_a_typed_sign_and_a_lost_digit_are_named_as_aseem_named_them():
     wrote = {"answer_state": "written", "working_summary": ""}
 
     def m(key, predicted, child_answer, kind="bare"):
-        return legacy.mark(
+        return marking.mark(
             {"kind": kind},
             {"answer": key, "misconceptions": predicted},
             {**wrote, "child_answer": child_answer},
@@ -415,11 +416,11 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
             (s["capture_id"],),
         ).fetchall()
     }
-    assert legacy.correct(conn, held["legacy/TEST-PAPER/2"], "75", "aseem")["codes"] == ["M_NOCARRY"]
-    assert legacy.correct(conn, held["legacy/TEST-PAPER/3"], "85", "aseem")["status"] == "wrong"
-    assert legacy.correct(conn, held["legacy/TEST-PAPER/4"], "", "aseem")["status"] == "blank"
+    assert marking.correct(conn, held["legacy/TEST-PAPER/2"], "75", "aseem")["codes"] == ["M_NOCARRY"]
+    assert marking.correct(conn, held["legacy/TEST-PAPER/3"], "85", "aseem")["status"] == "wrong"
+    assert marking.correct(conn, held["legacy/TEST-PAPER/4"], "", "aseem")["status"] == "blank"
 
-    n = legacy.confirm(conn, child, "aseem")
+    n = marking.confirm(conn, child, "aseem")
     assert n == 4  # the needs_teacher row waits for a person
     ev = conn.execute(
         "select rung_code, correct, misconception_codes from evidence_event where child_id = %s order by rung_code",
@@ -532,7 +533,7 @@ def test_a_paper_a_person_has_corrected_is_never_read_again(conn, child, tmp_pat
     rid = conn.execute(
         "select id from item_result where capture_id = %s limit 1", (first["capture_id"],)
     ).fetchone()["id"]
-    legacy.correct(conn, rid, "42", "a teacher")
+    marking.correct(conn, rid, "42", "a teacher")
     again = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test", again=True)
     _untouched(conn, asked, first, again)
 
@@ -619,7 +620,7 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
     ).fetchone()
     assert (row["status"], json.loads(row["raw_read"])["child_answer"]) == ("needs_teacher", "75")
 
-    out = legacy.correct(conn, row["id"], "85", "neha@school")
+    out = marking.correct(conn, row["id"], "85", "neha@school")
     assert (out["was"], out["now"], out["status"]) == ("75", "85", "correct")
 
     after = conn.execute(
@@ -631,7 +632,7 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
     assert (after["status"], after["misconception_codes"]) == ("correct", [])
 
     # Looking again and changing your mind leaves BOTH rows behind, in order.
-    legacy.correct(conn, row["id"], "", "neha@school")
+    marking.correct(conn, row["id"], "", "neha@school")
     said = conn.execute(
         "select model_read, human_read, by from read_correction where item_result_id = %s order by created_at",
         (row["id"],),
@@ -647,7 +648,7 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
 def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_path, monkeypatch):
     """A teacher's correction IS a hand-verified response, so the gold set the reader is measured
     against grows by using the system rather than by a data-entry project."""
-    from engine import read_eval
+    from engine.w3_read import read_eval
 
     path = tmp_path / "paper.json"
     path.write_text(json.dumps(PAPER))
@@ -662,7 +663,7 @@ def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_
         "select r.id from item_result r join item i on i.id = r.item_id"
         " where i.item_key = 'legacy/TEST-PAPER/2'"
     ).fetchone()["id"]
-    legacy.correct(conn, rid, "85", "neha@school")
+    marking.correct(conn, rid, "85", "neha@school")
 
     seed = read_eval.gold_sheets()
     grown = read_eval.gold_sheets(conn)
@@ -781,8 +782,8 @@ def test_marking_again_never_undoes_what_a_person_said(conn, child, tmp_path, mo
     ).fetchone()
     assert two["status"] == "needs_teacher"  # the reader saw 75 for 57 + 28, and a wrong waits (ADR 0029)
 
-    legacy.correct(conn, two["id"], "85", "a person")
-    legacy.remark(conn, child)
+    marking.correct(conn, two["id"], "85", "a person")
+    marking.remark(conn, child)
 
     after = conn.execute("select status from item_result where id = %s", (two["id"],)).fetchone()
     assert after["status"] == "correct"
@@ -809,7 +810,7 @@ def test_a_judgement_is_never_counted_as_a_reading(conn, child, tmp_path, monkey
     ).fetchone()
 
     def gold():
-        return [r["human_read"] for r in legacy.corrections(conn) if r["item_key"] == "legacy/TEST-PAPER/2"]
+        return [r["human_read"] for r in marking.corrections(conn) if r["item_key"] == "legacy/TEST-PAPER/2"]
 
     conn.execute(
         "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read,"
@@ -818,7 +819,7 @@ def test_a_judgement_is_never_counted_as_a_reading(conn, child, tmp_path, monkey
     )
     assert gold() == []
 
-    legacy.correct(conn, two["id"], "85", "a person")
+    marking.correct(conn, two["id"], "85", "a person")
     assert gold() == ["85"]
 
 
@@ -860,13 +861,13 @@ def test_the_engine_settles_a_right_answer_alone_and_holds_a_wrong_or_blank_one(
         "75",
         "written",
     )  # the reading stays
-    assert (two["read"]["guess"], two["read"]["why"]) == ("75", legacy.HELD["wrong"])
-    assert (four["status"], four["read"]["why"]) == ("needs_teacher", legacy.HELD["blank"])
+    assert (two["read"]["guess"], two["read"]["why"]) == ("75", marking.HELD["wrong"])
+    assert (four["status"], four["read"]["why"]) == ("needs_teacher", marking.HELD["blank"])
 
     # the person's reading settles each, and the engine marks it by lookup as before
-    out = legacy.correct(conn, two["id"], "75", "a person")
+    out = marking.correct(conn, two["id"], "75", "a person")
     assert (out["status"], out["codes"]) == ("wrong", ["M_NOCARRY"])
-    assert legacy.correct(conn, four["id"], "", "a person")["status"] == "blank"
+    assert marking.correct(conn, four["id"], "", "a person")["status"] == "blank"
 
 
 @pytestmark_db
@@ -883,8 +884,8 @@ def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
             "update item_result set status = %s, raw_read = %s where id = %s",
             (status, json.dumps(read), rows[k]["id"]),
         )
-    legacy.correct(conn, rows["3"]["id"], "85", "a person")
-    assert legacy.remark(conn, child) == 2
+    marking.correct(conn, rows["3"]["id"], "85", "a person")
+    assert marking.remark(conn, child) == 2
 
     after = {
         r["id"]: r
@@ -900,7 +901,7 @@ def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
         "needs_teacher",
     ]
     assert json.loads(after[rows["2"]["id"]]["raw_read"])["guess"] == "75"
-    assert legacy.remark(conn, child) == 0
+    assert marking.remark(conn, child) == 0
 
 
 # ---------------------------------------------------------------- ADR 0032: the reader learns
@@ -910,12 +911,12 @@ def test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
     """Until the reader's readings of a kind have matched people 95% of the time over the last fifty
     checks, a right answer waits too — its reading the one-click guess. A wrong or a blank waited already."""
     read = {"child_answer": "84", "answer_state": "written", "confidence": 97.0}
-    assert legacy.mark_read(_spec(), {"answer": 84}, read)[0] == "correct"
+    assert marking.mark_read(_spec(), {"answer": 84}, read)[0] == "correct"
     assert (
-        legacy.mark_read(_spec(), {"answer": 84}, read, {"n": 50, "right": 50, "trusted": True})[0]
+        marking.mark_read(_spec(), {"answer": 84}, read, {"n": 50, "right": 50, "trusted": True})[0]
         == "correct"
     )
-    status, codes, _, held = legacy.mark_read(
+    status, codes, _, held = marking.mark_read(
         _spec(), {"answer": 84}, read, {"n": 50, "right": 41, "trusted": False}
     )
     assert (status, codes, held["guess"]) == ("needs_teacher", [], "84")
@@ -923,7 +924,7 @@ def test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
         held["why"]
         == "read as a right answer; a person checks every answer of this kind until the reader is trusted on it (41 of the last 50 right)"
     )
-    assert legacy.mark_read(_spec(), {"answer": 84}, read, legacy.UNTRUSTED)[0] == "needs_teacher"
+    assert marking.mark_read(_spec(), {"answer": 84}, read, marking.UNTRUSTED)[0] == "needs_teacher"
 
 
 @pytestmark_db
@@ -935,7 +936,7 @@ def test_the_childs_notebook_changes_the_next_import_of_that_child(
     the one-click guess, and the reader is handed her own floor."""
     import json as _json
 
-    from engine import profiles
+    from engine.w3_read import profiles
 
     path = tmp_path / "paper.json"
     path.write_text(json.dumps(PAPER))
@@ -1027,8 +1028,8 @@ def test_a_person_s_corrections_change_the_childs_next_paper_with_no_command_in_
             (week1["capture_id"],),
         ).fetchall()
     }
-    legacy.correct(conn, ids["1"], "34", "a teacher")  # the reader said 84
-    legacy.correct(conn, ids["3"], "35", "a teacher")  # the reader said 85
+    marking.correct(conn, ids["1"], "34", "a teacher")  # the reader said 84
+    marking.correct(conn, ids["3"], "35", "a teacher")  # the reader said 85
 
     second = tmp_path / "week2.jpg"
     second.write_bytes(b"two")

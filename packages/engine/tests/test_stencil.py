@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-from engine import stencil
+from engine.w3_read import stencil
 
 
 def _page(marks=()):

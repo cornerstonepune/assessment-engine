@@ -3,8 +3,8 @@ the first reader gave up on. It only ever proposes; a person confirms."""
 
 import pytest
 
-from engine import second_reader
 from engine.adapters import llm
+from engine.w3_read import second_reader
 
 DOUBT = {
     "child_answer": "",

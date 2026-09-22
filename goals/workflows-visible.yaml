@@ -1,0 +1,33 @@
+name: workflows-visible
+goal: >
+  The engine is laid out as the workflows agreed with the school, and anyone can see them: one map
+  names every step (what it does, what it takes, what it hands on, who does it, the files and commands
+  that do it, and whether it works for any subject or only maths); the code sits one folder per
+  workflow and may reach another workflow only through a hand-over the map declares; a page in the app
+  draws the map with each step's live numbers; and a check fails the day any file, step or connection
+  drifts from the map.
+
+# Written 2026-09-22, before the work. Nimish, in his words — each line below is proved by the test
+# named beside it (the check that every sentence has its proof is chunk C1 of the promises goal).
+says:
+  - words: "a proper workflow, what is working, and how things are connected"
+    proved_by: apps/web/tests/workflows.spec.ts — every step of the map is drawn in its workflow with a live number, and each hand-over names the step that takes it
+  - words: "independent workflows which connect very well to each other"
+    proved_by: packages/engine/tests/test_layout.py::test_a_workflow_reaches_another_only_through_a_declared_hand_over
+  - words: "which are the modules, what are the scripts"
+    proved_by: packages/engine/tests/test_layout.py::test_every_engine_file_belongs_to_exactly_one_part_of_the_map
+  - words: "Don't make the codebase and everything chaotic"
+    proved_by: packages/engine/tests/test_layout.py::test_no_file_grows_past_the_ceiling
+  - words: "start using this for other subjects"
+    proved_by: packages/engine/tests/test_layout.py::test_every_step_says_whether_it_works_for_any_subject
+scenarios: []
+criteria:
+  - name: the map and the code agree — every file in one part, every connection declared, no file past its ceiling, every step marked for subject
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_layout.py
+    expect: "passed"
+  - name: the engine's own test suite, after the move, unchanged in what it proves
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: the How it works page draws every step with its live number, on the copy
+    run: cd apps/web && npx playwright test tests/workflows.spec.ts
+    expect: "passed"

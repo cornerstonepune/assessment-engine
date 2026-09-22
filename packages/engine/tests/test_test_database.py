@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import pytest
 
-from engine import db
+from engine.core import db
 
 ENGINE = Path(__file__).resolve().parents[1]
 

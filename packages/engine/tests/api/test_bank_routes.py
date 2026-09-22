@@ -9,9 +9,11 @@ from collections import namedtuple
 import pytest
 from fastapi.testclient import TestClient
 
-from engine import bank, db, library
 from engine.api import deps
 from engine.api.app import app
+from engine.core import db
+from engine.w1_bank import bank
+from engine.w2_print import library
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -110,7 +112,7 @@ def test_coverage_refuses_without_the_engine_key(client):
 
 
 def test_review_reports_what_a_person_must_look_at_without_retiring_anything(client, conn, monkeypatch):
-    from engine import review
+    from engine.w1_bank import review
 
     monkeypatch.setattr(
         review,
@@ -135,7 +137,7 @@ def test_review_reports_what_a_person_must_look_at_without_retiring_anything(cli
 
 
 def test_review_rejects_an_unknown_reviewer_before_spending_anything(client, monkeypatch):
-    from engine import review
+    from engine.w1_bank import review
 
     monkeypatch.setattr(review, "review_unit", lambda *a, **k: pytest.fail("must not be called"))
     r = client.post(

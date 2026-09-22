@@ -8,7 +8,8 @@ import os
 
 import pytest
 
-from engine import db, legacy, reread
+from engine.core import db
+from engine.w3_read import legacy, reread
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

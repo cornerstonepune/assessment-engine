@@ -6,8 +6,8 @@ import re
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
-from engine import library
 from engine.api.deps import get_conn, require_engine_key
+from engine.w2_print import library
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 

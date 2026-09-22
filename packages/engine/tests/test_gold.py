@@ -7,9 +7,10 @@ import os
 
 import pytest
 
-from engine import db, gold, legacy
 from engine.adapters import llm, ocr
 from engine.assess import graph
+from engine.core import db
+from engine.w3_read import gold, legacy, marking
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -53,7 +54,7 @@ def _read(conn, child, tmp_path, monkeypatch, wrote):
     scan.write_bytes(b"")
     monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
-    from engine import profiles
+    from engine.w3_read import profiles
 
     # ADR 0032's gate is not what these measure: every kind as if the reader had earned trust on it
     monkeypatch.setattr(
@@ -119,10 +120,10 @@ def test_the_mistake_a_teacher_named_comes_back_out_of_the_graph(conn, child, tm
     assert _outcome(conn, child) == "waiting for a person"  # a wrong on the engine's reading alone (ADR 0029)
 
     result = next(r["result_id"] for r in gold.check(conn) if r["child_id"] == child)
-    legacy.correct(conn, result, "5147", "a person")
+    marking.correct(conn, result, "5147", "a person")
     assert _outcome(conn, child) == "not yet signed off"
 
-    legacy.confirm(conn, child, "a person")
+    marking.confirm(conn, child, "a person")
     graph.rebuild(conn, child)
     assert _outcome(conn, child) == "in the graph"
 

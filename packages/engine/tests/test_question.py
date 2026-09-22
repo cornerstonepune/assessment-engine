@@ -8,9 +8,11 @@ import os
 import pytest
 from playwright.sync_api import sync_playwright
 
-from engine import bank, db, library, question
 from engine.assess import render
 from engine.assess.pick import Sheet
+from engine.core import db
+from engine.w1_bank import inventory, question
+from engine.w2_print import library
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -43,7 +45,7 @@ def test_every_kind_in_the_bank_can_be_printed_again(conn):
     ).fetchall()
     assert len(rows) >= 12
     for r in rows:
-        it = bank.item_from_row(r)
+        it = inventory.item_from_row(r)
         block = render.render_item(Sheet("CS000000", "G3", r["difficulty"], 1, "test", [it]), it, 1)
         assert f'data-item="{r["item_key"]}"' in block, r["fmt"]
 
@@ -100,7 +102,7 @@ def test_a_correction_that_could_make_the_key_wrong_is_refused_and_changes_nothi
 
 def test_a_removed_question_cannot_be_corrected(conn):
     old = _row(conn, "word_1step")
-    bank.flag(conn, old["item_key"], BY, "removed first")
+    inventory.flag(conn, old["item_key"], BY, "removed first")
     with pytest.raises(ValueError, match="ready to print"):
         question.correct(conn, old["item_key"], "Read carefully. " + old["stem"], BY, "too late")
 
@@ -113,7 +115,7 @@ def test_a_number_wall_keeps_every_answer_box_inside_its_brick(conn):
         " where i.fmt = 'number_wall' and i.status = 'active' order by"
         " (select max(length(x ->> 'answer')) from jsonb_array_elements(i.responses) x) desc, i.item_key limit 1"
     ).fetchone()
-    it = bank.item_from_row(row)
+    it = inventory.item_from_row(row)
     block = render.render_item(Sheet("CS000000", row["band"], row["difficulty"], 1, "test", [it]), it, 1)
     with sync_playwright() as pw:
         browser = pw.chromium.launch()

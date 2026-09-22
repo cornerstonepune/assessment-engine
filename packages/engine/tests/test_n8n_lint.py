@@ -10,7 +10,7 @@ import sys
 
 import pytest
 
-from engine import db
+from engine.core import db
 
 sys.path.insert(0, str(db.REPO_ROOT / "n8n"))
 import lint

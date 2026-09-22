@@ -9,7 +9,8 @@ from collections import Counter
 
 import pytest
 
-from engine import db, library
+from engine.core import db
+from engine.w2_print import library
 
 KINDS = ["bare_sum", "column_grid", "missing_number", "word_1step"]
 
