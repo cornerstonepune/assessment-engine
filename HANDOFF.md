@@ -12,11 +12,11 @@ skill) and, widened the same day to the team's *Addition & Subtraction Assessmen
 Rehearsed end to end on a fresh copy of live: `engine bank taxonomy` "269 cases · 269 covered · 0 missing · 0
 thin", `engine library check` "0 problems", a second refill and a second build change nothing (STATE, 8i).
 
-**Live rollout, in this order** (the website reads the new columns, so migrations go first):
-1. `supabase db push --db-url "$DATABASE_URL"` → `20260928090000`, `20260928100000`, `20260928110000`.
-2. `bin/engine load` (the `app.staff` password survives: `seed_once`), `bin/engine bank levels --apply`,
-   `bin/engine bank refill`, `bin/engine library build`, `bin/engine library check`, `bin/engine bank taxonomy`.
-3. PR `step-8` → main, merge, `deploy/go-live.sh` from a HEAD equal to `origin/main`; click through the live link.
+**Live since 13:56 IST** (PRs #13 and #14; numbers in STATE, 8i). The engine was down 13:16–13:56 after #13 — the
+story templates were outside the image; fixed in #14. `go-live.sh` could not upload from this Mac (its network
+corrupted every transfer above 16 KB); the server fetched the commit from GitHub and was proved identical to it.
+Rerun `deploy/go-live.sh` once the network is sound, so the server again comes from the script. **Not yet proved:
+a signed-in click-through on the live link.**
 
 **Waits for Nimish, one press:** `/skill-sets/approve` — 17 skills (13 rewritten, 4 new) and the table of what a
 wrong answer counts against. Then `engine audit` is 0 and `engine goal s8t-taxonomy-coverage` and
@@ -56,6 +56,9 @@ ADR 0029) open in the worktree `assessment-engine-reader`.
 - **A migration the website reads goes to live before the merge** (PR #10 merged first; rescued in minutes).
 - **`legacy.remark` before 2026-09-21** would have undone people's corrections — fixed; re-marking now skips any
   answer a person settled.
+- **A file the engine reads while it runs, outside `engine/`**: the server's image holds `engine/` alone. Step 8's
+  story templates under `supabase/seed/` kept the live engine restarting after PR #13 (2026-09-22);
+  `tests/test_image.py` now starts the engine from that folder alone.
 - **Editing this file by slicing it**: a 2026-09-21 edit dropped everything after its own section; rebuilt from
   git (`970e605`).
 - Still true, technical: `engine/assess/mark.py` 0% covered, imported by nothing; `legacy.PAPERS` unused;
