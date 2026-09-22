@@ -216,7 +216,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
                   {read.map((p) => (
                     <li key={p.id} className="text-[13px]">
                       <div className="fact">{fmtDate(p.date)}</div>
-                      <div className="leading-snug">{p.title}</div>
+                      <Link href={`/capture/${p.sheet}`} className="leading-snug">{p.title}</Link>
                       <div className="text-[12px] text-basalt/62">
                         {p.pages} page{p.pages === 1 ? "" : "s"} · {p.n_confirmed} of {p.n_results} answers confirmed
                       </div>

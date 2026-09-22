@@ -76,6 +76,17 @@ export async function paperHeader(id: string, actor: string): Promise<PaperRow |
   return rows[0];
 }
 
+// Every read paper of the child this one belongs to, oldest first (the order of the child's page),
+// so a person checking one child steps from paper to paper without going back to a list.
+export async function sameChildPapers(id: string): Promise<{ id: string }[]> {
+  return sql<{ id: string }[]>`
+    select si.id from sheet_instance si join sheet_template t on t.id = si.sheet_template_id
+    where si.child_id = (select child_id from sheet_instance where id = ${id}::uuid)
+      and exists (select 1 from capture c join item_result r on r.capture_id = c.id
+                  where c.sheet_instance_id = si.id and c.superseded_by is null)
+    order by t.key ->> 'date', si.created_at`;
+}
+
 export type CaptureAnswer = {
   id: string;
   capture_id: string;

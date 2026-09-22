@@ -171,6 +171,29 @@ test("a sheet shows its score as soon as nothing on it waits", async ({ page }) 
   await expect(page.getByText(`${p.right} / ${p.scored} right`).first()).toBeVisible();
 });
 
+// Nimish, 2026-09-22: "go student by student and within student — choose an assessment and then look at
+// all questions within that". A child's page lists the papers read; each opens and steps to the next.
+test("a child's papers open from their page, and each steps to the child's next paper", async ({ page }) => {
+  const [c] = await sql<{ child_id: string; first: string; second: string; n: number }[]>`
+    with p as (
+      select si.child_id, si.id::text as id, count(*) over (partition by si.child_id)::int as n,
+             row_number() over (partition by si.child_id order by t.key ->> 'date', si.created_at) as k
+      from sheet_instance si join sheet_template t on t.id = si.sheet_template_id
+      where exists (select 1 ${LIVE} and c.sheet_instance_id = si.id))
+    select child_id, max(id) filter (where k = 1) as first, max(id) filter (where k = 2) as second, max(n) as n
+    from p group by child_id having max(n) >= 2 order by child_id limit 1`;
+  expect(c, "a child with two papers read").toBeTruthy();
+  await page.goto(`/growth/${c.child_id}`);
+  await page.locator(`a[href="/capture/${c.first}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`/capture/${c.first}$`));
+  await expect(page.getByText(new RegExp(`paper 1 of ${c.n}$`))).toBeVisible();
+  await expect(page.getByRole("link", { name: "← Previous paper" })).toHaveCount(0);
+  await page.getByRole("link", { name: "Next paper →" }).click();
+  await expect(page).toHaveURL(new RegExp(`/capture/${c.second}$`));
+  await expect(page.getByText(new RegExp(`paper 2 of ${c.n}$`))).toBeVisible();
+  await expect(page.getByRole("link", { name: "← Previous paper" })).toHaveAttribute("href", `/capture/${c.first}`);
+});
+
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" }).click();

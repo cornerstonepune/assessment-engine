@@ -346,11 +346,11 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
     order by t.key ->> 'date', i.item_key`;
 }
 
-export type Paper = { id: string; title: string; date: string | null; pages: number; status: string; narrative: string | null; n_results: number; n_confirmed: number };
+export type Paper = { id: string; sheet: string; title: string; date: string | null; pages: number; status: string; narrative: string | null; n_results: number; n_confirmed: number };
 
 export async function childPapers(id: string): Promise<Paper[]> {
   return sql<Paper[]>`
-    select c.id, t.key ->> 'title' as title, t.key ->> 'date' as date, c.pages, c.status,
+    select c.id, si.id as sheet, t.key ->> 'title' as title, t.key ->> 'date' as date, c.pages, c.status,
            (select text from narrative_observation n where n.capture_id = c.id order by n.created_at desc limit 1) as narrative,
            (select count(*)::int from item_result r where r.capture_id = c.id) as n_results,
            (select count(*)::int from item_result r where r.capture_id = c.id and r.state = 'confirmed') as n_confirmed
