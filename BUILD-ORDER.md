@@ -85,7 +85,7 @@ does not hold the next step's code.
 |---|---|---|
 | 6 | `goals/w3-read-and-graph.yaml`, restated | **W3 closes**, as decided the night of 2026-09-21: nothing waits, every paper is signed off and scored, the graph is built from confirmed evidence, and every mistake Aseem named by hand in the five Grade 3 reports comes back out of that child's graph |
 | 7 | `goals/s7-paper-from-library.yaml` | a child's paper is a library worksheet at their skill and level that they have not sat; children at one level in one week get different ones; it prints with its QR and its worksheet ID |
-| 8 | `goals/s8-every-skill-a-question-uses.yaml` | ADR 0023: a question's skills come from the question; a right answer is evidence for each, a wrong one against the skill its mistake names |
+| 8 | `goals/s8-every-skill-a-question-uses.yaml` + `goals/s8t-taxonomy-coverage.yaml` | ADR 0023: a question's skills come from the question; a right answer is evidence for each, a wrong one against the skill its mistake names. **Widened 2026-09-22:** every case of the team's addition & subtraction taxonomy holds a worksheet's worth of questions at the levels that own it |
 | 9 | `goals/s9-combined-questions.yaml` | questions that combine two or three concepts are skill sets of their own: drafted by the engine, approved once, filled, verified, on worksheets |
 | 10 | `goals/s10-mixed-papers.yaml` | one paper holds questions from two or three skill sets, each at the child's own level for that skill |
 | 11 | `goals/w4-close-the-loop.yaml` | **W4**: from each child's graph, Friday's class card, a home sheet with a parent note, next week's seed; monthly, a parent report in the shape of Aseem's |
@@ -132,6 +132,42 @@ each with its own tests:
   question's own skill. The evidence table already allows many rows per answer.
 - **8d — the graph and the screens read it**: `engine graph` rebuilds; the Growth screen shows each skill's
   row; `engine gold check` loses no finding it already reached.
+
+**Step 8 widened — the team's taxonomy, case by case (Nimish, 2026-09-22).** He shared the school team's
+*Addition & Subtraction Assessment Skill Taxonomy* (`docs/sources/addition-subtraction-skill-taxonomy.txt`)
+and said: *"Make sure that the addition section module is updated with this level of taxonomy and the
+consequent questions in terms of easy, medium, and advanced … we should have vertical sums as well"*, then
+*"yes — go ahead and do the needful"* to the plan below, and folded 8a–8d into the same task (*"merge this
+part as well in this task"*). Measured on the live bank that morning (page:
+claude.ai/artifact/769ATqK16k5iuBVyPLnhKQ): of the taxonomy's 252 cases, 112 hold at least a worksheet's 12
+questions, 14 hold fewer, **126 hold none** — the shorter number never first, no 3-digit ± 1-digit, no
+vertical sum in Grade 1, three or more numbers only at four digits, no missing digit, the box never first,
+zero never a number in its own right, find-the-mistake planting 4 of 14 errors. Reading the levels showed
+why several gaps exist at all: **a level declares rules no generator reads** — ADDSUB.2D.NOREG Advance says
+`order: shorter_first` and Hard `layout: horizontal`; WORD.BUDGET's four levels ask for two to four costs
+and different budgets and all four print the same three-cost problem; find-the-mistake Easy names
+`planted: [M_NOCARRY]` and plants either mistake. Four levels stay (Easy / Medium / Hard / Advance — his
+"easy, medium, advanced" is the settled four). Chunks after 8a–8d, in order, each with its own tests:
+- **8e — the cases are rows, and one command counts them**: the taxonomy's cases as `taxonomy_case` rows
+  (a combination of tags, the document's own §12 advice), the tags the cases need measured by code,
+  `engine bank taxonomy` printing every case's count from the bank. Done means it says 0 missing, 0 thin.
+- **8f — a level holds named cases, and a rule no generator reads is refused**: a level's rule lists the
+  cases it holds; the fill draws evenly across them; `engine audit` refuses any rule key its generator does
+  not read. Plain-sum levels print half in columns, half in a line, Grade 1 included.
+- **8g — the kinds of question the cases need**: missing digits, the box first, equations (balance with two
+  operations, the same number in two boxes, the missing sign, true or false, compare without working), fact
+  families, checking with the inverse, closest estimate, is-this-answer-possible, odd or even, round to the
+  hundred, add 10/100/1000, friendly pairs, break apart, three or more numbers at 1–3 digits in columns and
+  in a line; the missing story shapes; ten more planted mistakes. Each with its printed page, its screen,
+  its skills (8a) and its mistakes' skills (8b). Story templates move to rows (ADR 0010's debt, `words.py`).
+- **8h — the levels rewritten and four skills added**: the 17 skills' levels rewritten to hold their cases;
+  four new skills — missing digits · equality, inverse and checking · three or more numbers · estimating to
+  the hundred and judging an answer — each an outcome sentence with four levels; all wait for **one approval
+  by Nimish** on the Skill Map, as the 17 did.
+- **8i — the bank refilled, the library rebuilt**: new questions by code; questions outside their level's new
+  rule retired; worksheets rebuilt (≥ 10 per level, ADR 0026); papers already printed never change.
+  `goals/s8t-taxonomy-coverage.yaml` and `goals/s8-every-skill-a-question-uses.yaml` both green, on the copy
+  and then on the live bank.
 
 ## The four workflows, in the order they are built
 

@@ -1,0 +1,85 @@
+name: s8t-taxonomy-coverage
+goal: >
+  Every case in the school team's Addition & Subtraction Assessment Skill Taxonomy holds at least one
+  worksheet's worth of questions (12) in the bank, at the skill and level that owns it — the shorter
+  number first, 3-digit with 1-digit, vertical sums in Grade 1, three or more numbers at every size,
+  missing digits, the box first, zero as a number, equations, fact families, checking with the inverse,
+  estimating to the hundred, the story shapes, the fourteen named mistakes. A level holds named cases
+  and its questions come evenly from them; a level may declare only what its generator does, so two
+  levels never print the same question under different words. Plain-sum levels print half in columns and
+  half in a line. The 17 skills' levels are rewritten to hold their cases and four skills are added;
+  all wait for one approval on the Skill Map. Papers already printed never change.
+
+# Written 2026-09-22, before the work (BUILD-ORDER step 8, widened: chunks 8e–8i). Measured that morning
+# on the live bank: 252 cases, 112 covered, 14 thin, 126 with no question. Scenarios run on the copy;
+# the taxonomy count and the audit read the live bank, so this goal is green only once the live bank is
+# refilled and the skills approved.
+scenarios:
+  - name: Grade 1 addition within 10 prints sums in columns as well as in a line
+    skill_set: ADD.1D.WITHIN10
+    difficulty: Medium
+    n: 20
+    cases: [A01, A03]
+  - name: 3-digit addition, Easy — the 1-digit and 2-digit number first and second, carries rippling through 9s
+    skill_set: ADD.3D.REG
+    difficulty: Easy
+    n: 48
+    cases: [A25, A27, A29, A31, A33, A35, A39, A43]
+  - name: 2-digit addition and subtraction without regrouping — subtraction in columns too, shorter number first
+    skill_set: ADDSUB.2D.NOREG
+    difficulty: Advance
+    n: 24
+    cases: [A08, A09, S05]
+  - name: subtraction across zero, Easy — 3-digit minus 1-digit, across one zero and several
+    skill_set: SUB.3D.ZERO
+    difficulty: Easy
+    n: 36
+    cases: [S18, S20, S21, S23]
+  - name: missing digits, Medium — a digit found across a carry, the same letter for the same digit
+    skill_set: MISSING.DIGIT
+    difficulty: Medium
+    n: 20
+  - name: equality, inverse and checking, Medium — two operations on a balance, the missing sign
+    skill_set: EQUALITY.INVERSE
+    difficulty: Medium
+    n: 20
+  - name: three or more numbers, Easy — three single digits, a column that carries 2
+    skill_set: ADD.MULTI.SMALL
+    difficulty: Easy
+    n: 20
+    cases: [AA1]
+  - name: estimating to the hundred and judging an answer, Easy
+    skill_set: ESTIMATE.HUNDRED
+    difficulty: Easy
+    n: 20
+  - name: budget problems, Easy — two costs from a smaller budget, not the same problem as Hard
+    skill_set: WORD.BUDGET
+    difficulty: Easy
+    n: 20
+  - name: find the mistake, Hard — exchange across a zero done wrong, carry always 1
+    skill_set: REASON.FIND_MISTAKE
+    difficulty: Hard
+    n: 24
+    cases: [X10, X05]
+criteria:
+  - name: >-
+      the cases, the tags they read and the case-driven fill, on the copy — every case's rule matches the
+      document's own example; a level's questions come evenly from its cases; a rule key no generator
+      reads is refused; every new kind prints, marks and names its skills
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_taxonomy.py tests/test_new_kinds.py
+    expect: "passed"
+  - name: every case of the taxonomy holds a worksheet's worth of questions in the live bank
+    run: engine bank taxonomy
+    expect: "0 missing · 0 thin"
+  - name: every worksheet still holds its rules, with the new levels' worksheets built
+    run: engine library check
+    expect: "0 problems"
+  - name: every invariant across every row holds, the skills approved included
+    run: engine audit
+    expect: "0 violations"
+  - name: the new kinds of question draw on the Question bank and on a worksheet, on the copy
+    run: cd apps/web && npx playwright test tests/s8t-taxonomy.spec.ts
+    expect: "passed"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
