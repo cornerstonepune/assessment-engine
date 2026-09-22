@@ -164,7 +164,7 @@ def test_fill_labels_3_digit_addition_with_addition_alone(conn):
 def test_relabel_leaves_no_question_carrying_a_skill_it_does_not_use(conn):
     labels.relabel(conn)
     assert labels.mislabelled(conn) == []
-    assert labels.relabel(conn) == {"skills": 0, "mistake_skills": 0}  # a second pass finds nothing left
+    assert labels.relabel(conn) == {"skills": 0, "mistake_skills": 0, "tags": 0}  # a second pass finds nothing
 
 
 def test_relabel_records_what_each_mistake_on_a_budget_problem_charges(conn):

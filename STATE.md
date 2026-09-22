@@ -2976,3 +2976,12 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   change. `engine gold check` counts a paper's questions by any skill they use; copy and live read the same:
   "18 not yet signed off · 3 waiting for a person · 2 in the graph · 1 read differently" — the 18 wait on the
   validation queue, not on step 8.
+- **8e — the cases are rows, and one command counts them.** Migration `20260928110000`: `taxonomy_case`, 269 rows
+  from `supabase/seed/taxonomy_cases.json` (sections 2–11 of the document; 5-digit numbers and §10.2's language
+  notes left out, as the page said). `assess/tags.py` measures what the cases read (`regroup_at`, `exchange_zeros`,
+  `carry_into_zero`, `answer_zeros`, `zero_operand`, `zeros_in`, `knock_on`, `carry_max`, the missing number's and
+  missing digit's place, a story's `structure`); "answer size" gains the document's `-MULTIPLE` and `ZERO`.
+  `assess/taxonomy.py` reads a case's `match`. `engine bank relabel` recomputes tags too (copy: `tags: 9204
+  changed`). `tests/test_taxonomy.py` 306: every case accepts the document's own example, twelve twin pairs stay
+  apart. **On the copy `engine bank taxonomy`: 269 cases · 102 covered · 156 missing · 11 thin** — stricter than
+  the morning's estimate because stories that predate their stored shape have none yet (8g).

@@ -14,7 +14,7 @@ distractors include one unnamed code, has not met the goal. The number it report
 """
 
 from engine import bank, db, scenarios_week, spec
-from engine.assess import bands, tags, verify
+from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import misconceptions as M
 
 CHECKS = ("produced", "answers", "on_rule", "diagnostic", "unique")
@@ -96,6 +96,15 @@ def _run_bank(conn, sc):
         failures.append(f"{len(undiagnosed)} questions nothing could diagnose: {undiagnosed[:3]}")
     if len(set(keys)) != len(keys):
         failures.append(f"{len(keys) - len(set(keys))} duplicate questions in one set")
+    if sc.get("cases"):
+        # Re-measured from the questions and read against the case rows, not asked of the generator.
+        rows = conn.execute("select code, match from taxonomy_case where code = any(%s)", (sc["cases"],)).fetchall()
+        match = {r["code"]: r["match"] for r in rows}
+        measured = [(it.fmt, tags.derive(it)) for it in items]
+        absent = [c for c in sc["cases"] if c not in match or not any(taxonomy.matches(match[c], f, t) for f, t in measured)]
+        m["cases_held"] = len(sc["cases"]) - len(absent)
+        if absent:
+            failures.append(f"cases the level should hold and the set does not: {absent}")
     return m, failures
 
 

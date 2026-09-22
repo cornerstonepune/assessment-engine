@@ -27,6 +27,7 @@ FILLED_TABLES = (
     "misconception",
     "case_dimension",
     "coverage_target",
+    "taxonomy_case",
     "prompt",
     "threshold",
     "config",
@@ -436,6 +437,28 @@ def _coverage(conn, t):
         )
 
 
+def _taxonomy_cases(conn, t):
+    for c in _seed("taxonomy_cases.json", "taxonomy_cases"):
+        conn.execute(
+            "insert into taxonomy_case (tenant_id, code, section, section_name, label, example_text, example,"
+            " match, min_items) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set section=excluded.section,"
+            " section_name=excluded.section_name, label=excluded.label, example_text=excluded.example_text,"
+            " example=excluded.example, match=excluded.match, min_items=excluded.min_items, updated_at=now()",
+            (
+                t,
+                c["code"],
+                c["section"],
+                c["section_name"],
+                c["label"],
+                c.get("example_text", ""),
+                json.dumps(c["example"]),
+                json.dumps(c["match"]),
+                c.get("min_items", 12),
+            ),
+        )
+
+
 def _prompts(conn, t):
     for p in _seed("prompts.json", "prompts"):
         text = (SEED / p["text_file"]).read_text() if p.get("text_file") else p["text"]
@@ -530,6 +553,7 @@ def load_all() -> dict[str, int]:
             _misconceptions,
             _dimensions,
             _coverage,
+            _taxonomy_cases,
             _prompts,
             _thresholds,
             _config,
