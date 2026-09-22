@@ -21,6 +21,7 @@ export type ItemSpec = {
   shape?: string;
   facts?: string[];
   options?: number[];
+  table?: [string, number][]; // a story whose numbers sit in a table: [["Monday", 944], ["Tuesday", 533]]
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and
