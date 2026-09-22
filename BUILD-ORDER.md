@@ -113,6 +113,26 @@ Aseem says otherwise:** a wrong answer no named mistake explains counts against 
 was written for, marked unexplained (reported by `engine bank unclassified`, never spread across every
 skill); and a mistake's skill is a column on its `misconception` row, never a table in code.
 
+**Step 8 — the plan, measured on the bank (2026-09-22).** Of the 12,567 active questions, about 7,350
+single-operation ones (column grids, bare sums, missing numbers, one-step word problems) carry their rung's
+labels — often addition *and* subtraction for a question that uses one — and the 1,296 two-step budget
+problems carry "problem solving + money", never the adding and subtracting they need. Four chunks, in order,
+each with its own tests:
+- **8a — the skills a question uses, read from the question**: a pure function of its kind and its
+  operations, where an operation's skill and a kind's own skill are rows, not a Python map; every question's
+  `skill_codes` corrected to it (a derived label recomputed, as a re-entered paper is — its own ADR); audit
+  invariant "no question carries a skill it does not use".
+- **8b — the skill a mistake charges**: kept with each question's predicted wrong answers, because the step a
+  mistake breaks depends on the question — on a budget problem "summed the costs, never took them from the
+  budget" charges subtraction; on a bare subtraction every mistake does. The vocabulary row carries the default
+  where the operation decides. For the kinds with more than one step the engine drafts the table (kind,
+  mistake → skill) and **Nimish or Aseem approves it once**, as the gold was.
+- **8c — evidence per skill**: `confirm_results` writes one evidence row per skill a right answer used; for a
+  wrong answer, one per skill its named mistakes charge; an unexplained wrong answer or a blank, one row on the
+  question's own skill. The evidence table already allows many rows per answer.
+- **8d — the graph and the screens read it**: `engine graph` rebuilds; the Growth screen shows each skill's
+  row; `engine gold check` loses no finding it already reached.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.
