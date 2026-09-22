@@ -119,7 +119,7 @@ def backfill(conn, cfg, child_ids=None):
         first = rows[0][0]
         if not Path(first["path"]).expanduser().exists():
             continue
-        notes = profiles.for_child(conn, first["child_id"])
+        notes = profiles.current(conn, first["child_id"])
         got, _ = propose(conn, readings, first["path"], page if first["file_pages"] > 1 else 1, notes, cfg)
         asked += len(_groups(readings))
         for r, read in rows:

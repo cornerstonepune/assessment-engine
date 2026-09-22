@@ -1000,3 +1000,45 @@ def test_the_childs_notebook_changes_the_next_import_of_that_child(
     ).fetchone()["raw_read"]
     stored = _json.loads(stored) if isinstance(stored, str) else stored
     assert stored["why"] == "this child's 8 has been read for a 3 before" and stored["guess"] == "84"
+
+
+@pytestmark_db
+def test_a_person_s_corrections_change_the_childs_next_paper_with_no_command_in_between(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """The loop as a teacher lives it (ADR 0032): she corrects two answers where the reader took this
+    child's 3 for an 8, and the child's NEXT paper comes back with its 8s held for her — nobody ran
+    `engine read profile` in between."""
+    import json as _json
+
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch)
+    first = tmp_path / "week1.jpg"
+    first.write_bytes(b"one")
+    week1 = legacy.import_scan(conn, first, "TEST-PAPER", child, "test")
+    ids = {
+        r["item_key"].rsplit("/", 1)[1]: r["id"]
+        for r in conn.execute(
+            "select r.id, i.item_key from item_result r join item i on i.id = r.item_id where r.capture_id = %s",
+            (week1["capture_id"],),
+        ).fetchall()
+    }
+    legacy.correct(conn, ids["1"], "34", "a teacher")  # the reader said 84
+    legacy.correct(conn, ids["3"], "35", "a teacher")  # the reader said 85
+
+    second = tmp_path / "week2.jpg"
+    second.write_bytes(b"two")
+    week2 = legacy.import_scan(conn, second, "TEST-PAPER", child, "test")
+    raw = conn.execute(
+        "select r.raw_read from item_result r join item i on i.id = r.item_id"
+        " where r.capture_id = %s and right(i.item_key, 2) = '/1'",
+        (week2["capture_id"],),
+    ).fetchone()["raw_read"]
+    read = _json.loads(raw) if isinstance(raw, str) else raw
+    assert read["why"] == "this child's 8 has been read for a 3 before" and read["guess"] == "84"
+    # and in week 1, before any correction, the same reading was stood behind
+    assert next(r for r in week1["results"] if r["item"] == "1")["status"] == "correct"

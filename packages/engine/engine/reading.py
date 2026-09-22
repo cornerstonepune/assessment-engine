@@ -22,7 +22,7 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
 
     cfg = ocr.settings(conn)
     if notes is None:
-        notes = profiles.for_child(conn, child_id) if child_id else {}
+        notes = profiles.current(conn, child_id) if child_id else {}
     if notes.get("floor"):
         cfg = {**cfg, "min_confidence": float(notes["floor"])}
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}

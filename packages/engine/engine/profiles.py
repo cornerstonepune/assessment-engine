@@ -271,7 +271,8 @@ def rebuild(conn, child_ids=None):
     row = conn.execute("select value from threshold where key = 'read.route_above_overturn'").fetchone()
     route_above = float(row["value"]) if row else 0.25
     by_child = {}
-    for r in checked_rows(conn):
+    rows = [r for c in child_ids for r in checked_rows(conn, c)] if child_ids else checked_rows(conn)
+    for r in rows:
         by_child.setdefault(str(r["child_id"]), []).append(r)
     wanted = {str(c) for c in child_ids} if child_ids else set(by_child)
     for child, rows in by_child.items():
@@ -284,6 +285,15 @@ def rebuild(conn, child_ids=None):
             (json.dumps(build(rows, route_above)), child),
         )
     return len(wanted & set(by_child))
+
+
+def current(conn, child_id):
+    """The child's notebook from every check made up to this moment, written back. Every read of a
+    child goes through this, so a correction or a sign-off reaches that child's next paper without
+    anyone running `engine read profile` (the loop takes care of itself, BUILD-ORDER standing
+    direction 2)."""
+    rebuild(conn, [child_id])
+    return for_child(conn, child_id)
 
 
 def for_child(conn, child_id):
