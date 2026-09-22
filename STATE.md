@@ -2936,3 +2936,9 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   problems; `tests/s7-paper-from-library.spec.ts` 3 of 3 on a production build (the whole G2 class, 11 children,
   given 11 different worksheets through the engine's own week endpoints, the test's week removed afterwards);
   `engine audit` 0 violations; engine suite 477.
+- **Live after PR #11 (merged 10e51cc, 2026-09-22 04:52 UTC):** the website deployed at 04:53:15; migrations
+  `20260927110000` and `20260927120000` pushed to live minutes later (the merge came before them, again — see memory
+  "nothing waits on the merge"); every `/worksheets` request in the window was before the merge (04:29–04:40, all 200),
+  `vercel logs --query "does not exist"`: 0. `deploy/go-live.sh` at d521da4 (exit 0). Live: the twelve pictures cold,
+  12 × 200 in ≤ 1.01 s; `engine library check`: 1123 worksheets · 68 of 68 skill-levels ready · 0 problems;
+  `engine audit`: 12 invariants, 0 violations.
