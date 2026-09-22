@@ -18,9 +18,10 @@ corrupted every transfer above 16 KB); the server fetched the commit from GitHub
 Rerun `deploy/go-live.sh` once the network is sound, so the server again comes from the script. **Not yet proved:
 a signed-in click-through on the live link.**
 
-**Waits for Nimish, one press:** `/skill-sets/approve` — 17 skills (13 rewritten, 4 new) and the table of what a
-wrong answer counts against. Then `engine audit` is 0 and `engine goal s8t-taxonomy-coverage` and
-`engine goal s8-every-skill-a-question-uses` can go green on live.
+**Done since:** Nimish approved step 8's skills (live `engine audit` 0), merged #12 and ran its data job (queue 190 →
+454). **Next:** Nimish checks child by child — PR #16 makes a child's papers links with previous/next paper.
+**Owed:** `deploy/go-live.sh` from `origin/main`, so the server carries #12's code (the permission check refused a
+production deploy from this session; this Mac's network was corrupting uploads 13:40–14:20).
 
 **Open from before, unchanged:** validation (step 6 closes when nothing waits and `engine gold check` has every
 finding in the graph); the reader and the teacher's red pen (ADR 0020, no answer yet); PR #12 (`reader-trust`,
