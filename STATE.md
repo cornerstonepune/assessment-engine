@@ -3001,7 +3001,7 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   tens then ones), `assess/diagnosis.py` (find the mistake with 16 plantable slips — column, alignment, three
   numbers, reversed, digit, equals — and which column it first went wrong in; across a zero and exchanging in the
   wrong place at 3 digits), `assess/missing_digits.py` (one answer only, proven by trying every digit; the same
-  letter twice; an inequality). Story templates are rows (`supabase/seed/word_templates.json`, 41 — ADR 0010's
+  letter twice; an inequality). Story templates are rows (`engine/assess/word_templates.json`, 41 — ADR 0010's
   debt); a stored story's shape is read back from its words (`words.structure_of`), never stored beside it; an
   `eval` in `words.py` replaced by `words.evaluate`. WORD.BUDGET's four levels now print what they ask (2–4 costs,
   one a product). `bands.READS`: `engine audit` holds "every key a level sets is one its generator reads" and
