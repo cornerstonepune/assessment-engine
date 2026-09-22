@@ -3125,3 +3125,15 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   is the next reader fix, to be confirmed on the crops.
 - Engine suite 893 passed; website s4 15 passed (a gate-held answer settles in one click; the second reader's guess
   offered back on the queue and the paper). **Live: not yet** — the order is in HANDOFF.
+- **Live, 2026-09-22, 19:55–20:10 IST** (PR #19 merged as `5a450f7`, run by me at Nimish's word "run all of this in
+  prod"). Before: `engine read waiting` 382 of 867; audit 0; `child_reading_profile` 0 rows. `engine load` (prompt
+  20, `read_with_examples` v1 active; `app.staff` md5 unchanged) → `engine read profile` **9 children profiled**
+  (Agastya floor 95, routes sums + word problems; Dhanvi floor 95, routes word problems) → `engine legacy remark
+  --every-child` **"242 results changed across 16 children"** (the gate: right answers of untrusted kinds held; a
+  signed-off answer is never re-marked, so the queue did not reach 867) → `engine read guess` **74 waiting answers
+  given a guess over 33 questions, Rs 8.77** → `engine read report` as on the copy (checked 242, right 142 of 187,
+  no kind trusted: sums 28 of 50). After: **624 waiting — 570 one click (427 the reader's own reading, 74 the second
+  reader's guess, 69 confirm blank), 53 typing**; `engine audit` 17 invariants, 0 violations; website production
+  build of `5a450f7` success. The engine server still runs `450467b`: nothing it serves changed; redeploy when the
+  network allows.
+
