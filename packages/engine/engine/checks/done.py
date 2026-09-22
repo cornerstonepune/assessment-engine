@@ -49,8 +49,8 @@ def run_proof(proved_by, timeout=900):
     except subprocess.TimeoutExpired:
         return False, f"timed out after {timeout}s"
     lines = [ln for ln in (p.stdout + p.stderr).splitlines() if ln.strip()]
-    ran = any(" passed" in ln or " failed" in ln for ln in lines)
-    return p.returncode == 0 and ran, (lines[-1] if lines else "no output")
+    tally = [ln.strip() for ln in lines if " passed" in ln or " failed" in ln]
+    return p.returncode == 0 and bool(tally), (tally[-1] if tally else lines[-1] if lines else "no output")
 
 
 def not_live(conn=None):
