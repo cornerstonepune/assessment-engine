@@ -115,7 +115,15 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                     </td>
                     <td className="fact">
                       {r.qr_code ? (
-                        <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+                        <>
+                          <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+                          {r.worksheet ? (
+                            <>
+                              {" · "}
+                              <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link>
+                            </>
+                          ) : null}
+                        </>
                       ) : (
                         <span className="text-basalt/40">not made yet</span>
                       )}
@@ -176,6 +184,7 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                   {spares.map((s) => (
                     <Link key={s.qr_code} href={`/worksheets/${s.qr_code}`} className="chip">
                       <span className="fact">{s.qr_code}</span> · {s.difficulty}
+                      {s.worksheet ? ` · ${s.worksheet}` : ""}
                     </Link>
                   ))}
                 </div>

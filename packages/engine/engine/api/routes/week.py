@@ -26,6 +26,12 @@ from engine.api.models import (
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
+def _short(built):
+    """The children who could not be given a paper, as JSON — ids and counts only (rule 6), the
+    child's id as text: the result is stored for replay, and a UUID there failed the whole assembly."""
+    return [{**s, "child_id": str(s["child_id"])} for s in built["short"]]
+
+
 @router.post("/week/prescribe", response_model=WeekPrescribeResponse)
 def prescribe_class(
     body: WeekPrescribeRequest,
@@ -72,7 +78,7 @@ def assemble_week(
             "kind": body.kind,
             "sheets": len(built["sheets"]),
             "spares": len(built["spares"]),
-            "short": built["short"],
+            "short": _short(built),
             "qr_codes": [s["qr"] for s in built["sheets"] + built["spares"]],
         }
 
@@ -102,7 +108,7 @@ def render_week(
             "pages": int(out.get("pages") or 0),
             "sheets": len(built["sheets"]),
             "spares": len(built["spares"]),
-            "short": built["short"],
+            "short": _short(built),
         }
 
     result, already = run_idempotent(conn, tenant_id, "week_render", key, body.model_dump(), run)

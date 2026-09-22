@@ -2867,3 +2867,72 @@ timeouts, slowest checkpoint 38.5 s (still slow for a small write; the free tier
   child wrote? Type it". Clicked through on the local preview against the copy: that 76 answer, typed 75 → `correct`,
   stored as a reading, "200 answers left" (was 201). `test_a_judgement_is_never_counted_as_a_reading`; the queue's
   browser tests on a production build **7 of 7** (the judgement test now also checks `judged`); engine suite 469.
+- **Live after PR #10 (merged 234dea3, 2026-09-21 19:27 IST):** migrations `20260927090000_gold_finding` and
+  `20260927100000_a_judgement_is_not_a_reading` pushed to live minutes after the website deployed — no request in
+  between touched the missing column (`vercel logs --query judged`: 0; no 5xx); 3 live rows marked `judged`. Step 6's
+  data job on live: vocabulary 65 → 68 rows (`loaders._misconceptions` alone — `engine load` would also re-upsert
+  every other seed), 17 papers re-entered (on the copy this changed only mistake lists: 15 multiplications gained
+  M_MUL_UNITS_REVERSED, 1 comparison M_COMPARE_REVERSED), **3 answers marked again** (as on the copy), `engine graph`
+  8 states, `engine gold load` 24 findings. `engine audit`: 12 invariants, 0 violations. `engine gold check`: 24
+  "transcription not yet confirmed". `engine read coverage`: 49 papers · 1 signed off · 13 scored · 196 waiting.
+  `deploy/go-live.sh` at 6da4519 (exit 0); the twelve pictures, cold, 12 × 200 in ≤ 0.99 s.
+- **Aseem's 24 findings confirmed by Nimish** ("correct", in chat, 2026-09-21) → `engine gold confirm --by "Nimish, in
+  chat, 2026-09-21"`: 24 confirmed. `engine gold check` on live: **2 in the graph** (Kabir's M_SMALL_FROM_LARGE, a
+  pattern in the graph; his strong addition) · 18 not yet signed off · 3 waiting for a person (a 34 × 2, a comparison
+  sign, a 62,413 copied out) · 1 read differently (the "3 boxes of 6 pencils" read as 3 from the teacher's red pen;
+  the child wrote 9).
+
+## Aseem's findings checked by machine; the engine's own "wrong" marks hold silent misreads (2026-09-21, night)
+
+- **The transcription holds, checked by machine against his PDFs** (Nimish confirmed it too, 35945ef). `pdftotext` on the five reports: all 11
+  examples are the question on that child's paper; each of the 7 named mistakes reproduces the wrong answer he quotes
+  (`assess.misconceptions.predict('×'|'-', a, b)`, `predict_sign('<')`): 8500 − 3647 → 5147, 56 × 3 → 1518,
+  34 × 2 → 86, 350 − 128 → 232, 3 × 6 → 9, 456 _ 465 → `>`, and 62,413 → 6,243 is a dropped digit. Two gaps:
+  `words` is verbatim for only 7 of 24 (the rest paraphrase him), and one example he quotes is missing —
+  48 × 5 = 00 (`legacy/G3-QUIZ20/20`), which the engine holds as `blank`; `predict('×', 48, 5)` gives 0 under
+  M_MUL_UNITS_REVERSED, the rule of the same child's 34 × 2 = 86.
+- **His mistakes, against the engine's readings before any sign-off:** 8 of the 11 error findings have a reading;
+  7 match his answer and mark, and the 3 among them where he names a method carry that method. 3 are unreadable
+  (waiting); 1 is the red-pen misread (3 boxes of 6 read as 3).
+- **His strengths do not match:** three children's "strong" skills have more `wrong` than `correct` on the engine's
+  own marks (Addition 7/8, Addition 7/5 + 2 blank, Subtraction 3/5). Crops looked at: 600 − 245 = 355 with the
+  teacher's tick, read as 921 — the next question's answer — at 89%; 204 + 48 = 252 with a tick, read as 204, the
+  top line of the working, at 95%; 6,342 − 2,875 = 3567 read as 6342 at 99%. Each settled without a person.
+- **Across the corpus:** of 612 answers the engine settled with no person touching them, 185 are `wrong`, and 23 of
+  those read a number printed in the question (15) or another question's answer on the same paper (8) — 3.8% of
+  everything the engine settled alone, against the 1.2% silent-wrong figure the reader hold rested on. None is signed
+  off, so none is in a graph; signing a paper off shows only its doubtful answers and one spot-check.
+  ```sql
+  -- s: current captures, no read_correction; rd = raw_read.child_answer without spaces/commas
+  -- printed: rd ~ '^\d{2,}$' and rd is one of regexp_matches(replace(question, ',', ''), '(\d+)', 'g')
+  -- another: rd ~ '^\d{3,}$', rd <> key, and rd is the key of another item on the same capture
+  → correct 332 (7 printed) · wrong 185 (15 printed, 8 another) · blank 95 · 0 signed off
+  ```
+- **The gold check passes a strength the graph does not show.** `gold.outcome` calls a `strong` finding "in the
+  graph" once any confirmed evidence exists and no mistake repeats; it never reads the state. Kabir's "strong in
+  addition" is one of today's 2 "in the graph" while `child_skill_state` has NUM.OPS.01 `not_enough_yet` on R9
+  and R12 (2 of 4 confirmed answers right). Only the M_SMALL_FROM_LARGE pattern is a real match.
+- **Open for Nimish:** send a reading that is a number printed on the page to a person instead of marking it
+  (~23 more on the queue; it reverses the coverage hold of 2026-09-21).
+
+## Step 7 — a child's paper from the library (2026-09-21, night)
+
+- `assemble.for_week` hands each prescription a library worksheet (ADR 0026) instead of drawing twelve questions afresh:
+  never one the child sat, none holding a question they saw inside the exposure window, none holding a question
+  another child has this week, none holding a question that has left the bank (a flag retires an item before the
+  library is rebuilt); least handed-out first. Spares are worksheets nobody was given. A child who cannot be given one
+  is named with the reason in words (`why`, printed by the CLI and by the F2 flow's message) — never a short paper
+  or a repeat. The printed label carries the worksheet ID ("… · Worksheet R6-H07").
+- **Two things the change would have broken, caught by the suite and fixed at the cause:** approving a week approved
+  nothing (it found papers through the template's week, and a library worksheet has none) — a printed copy now
+  records its week, class and kind (`20260927120000`), and approval reads them; and a short child's id failed the
+  week endpoints' replay store (`TypeError: UUID`) — the endpoint now hands it over as text
+  (`test_a_child_who_cannot_be_given_a_worksheet_is_named_in_the_answer`). The page geometry printed for a child
+  lives on that child's `sheet_instance.key` (`20260927110000`); a library worksheet is never written to.
+- The website: a paper's page says "Worksheet R6-H07 from the library, one of 18 at this level" and links to it; the
+  week's list shows each child's worksheet; a spare is found by its own week and class.
+- **`bin/engine goal s7-paper-from-library`: 6/6 criteria · GOAL ACHIEVED** — `tests/test_paper_from_library.py` 7;
+  `engine goal w2-assemble-and-print` GOAL ACHIEVED (its scenarios on library worksheets); `engine library check` 0
+  problems; `tests/s7-paper-from-library.spec.ts` 3 of 3 on a production build (the whole G2 class, 11 children,
+  given 11 different worksheets through the engine's own week endpoints, the test's week removed afterwards);
+  `engine audit` 0 violations; engine suite 477.

@@ -245,13 +245,10 @@ def week_assemble(
     with db.connect() as conn:
         built = assemble.for_week(conn, section, week, kind)
         for s in built["short"]:
-            typer.echo(
-                f"  SHORT  {s['roll_no']} at {s['difficulty']}: {s['had']} questions left, needs {s['needed']}",
-                err=True,
-            )
+            typer.echo(f"  SHORT  {s['roll_no']} at {s['difficulty']}: {s['why']}", err=True)
         if not built["sheets"]:
             conn.rollback()
-            typer.echo("  nothing assembled — fill the bank first", err=True)
+            typer.echo("  nothing assembled — see why above", err=True)
             raise typer.Exit(1)
         summary = assemble.render(conn, built, outdir, week, actor, kind)
         conn.commit()

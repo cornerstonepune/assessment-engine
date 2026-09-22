@@ -1,14 +1,14 @@
 """W2 — one paper per child, and the pack the teacher carries.
 
-Every child at the same difficulty gets a different paper: the picker is seeded from the child, so
-copying from a neighbour gains nothing while the teacher still holds one key. A child never sees
-the same question twice inside the exposure window, which is what makes a second attempt evidence
-rather than recall.
+A child's paper is a worksheet from the library (ADR 0026, step 7): each child is handed a worksheet
+at their skill and level that they have never sat, holding no question they saw inside the exposure
+window and none another child has this week — so copying from a neighbour gains nothing while the
+teacher still holds one key per worksheet. A worksheet is never edited once made; what was printed
+for one child, its page geometry, is kept on that child's sheet instance.
 """
 
 import hashlib
 import json
-import random
 import shutil
 import subprocess
 from pathlib import Path
@@ -37,26 +37,50 @@ def _qr(*parts) -> str:
     return "CS" + hashlib.sha1("|".join(map(str, parts)).encode()).hexdigest()[:6].upper()
 
 
-def _available(conn, skill_set, difficulty, child_id, window_days):
-    """Active items for this set and difficulty that this child has not seen inside the window."""
+def _worksheets(conn, skill_set, difficulty, child_id, window_days):
+    """The library's worksheets at this skill and level a child may be given, least handed out first:
+    never one the child sat, never one holding a question they saw inside the exposure window, never
+    one holding a question that has left the bank. With no child — a spare — only the last applies."""
     return conn.execute(
-        "select i.* from item i"
-        " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s"
-        "   and not exists (select 1 from item_exposure x where x.item_id = i.id"
+        "select t.id, t.code, t.item_ids from sheet_template t"
+        " where t.source = 'library' and t.retired_at is null"
+        "   and t.skill_set_code = %s and t.difficulty = %s"
+        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')"
+        "   and not exists (select 1 from sheet_instance si where si.sheet_template_id = t.id and si.child_id = %s)"
+        "   and not exists (select 1 from item_exposure x where x.item_id = any(t.item_ids)"
         "                   and x.child_id = %s and x.created_at > now() - make_interval(days => %s))"
-        " order by i.times_used, i.item_key",
-        (skill_set, difficulty, child_id, int(window_days)),
+        " order by (select count(*) from sheet_instance si where si.sheet_template_id = t.id), t.code",
+        (skill_set, difficulty, child_id, child_id, int(window_days)),
     ).fetchall()
 
 
-def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
-    """Build a sheet for every prescription in the section this week, plus the spares.
+def _why_short(conn, p, window_days):
+    """Why this child could not be given a worksheet, in words — never a short paper or a repeat."""
+    n = conn.execute(
+        "select count(*) as level, count(*) filter (where exists (select 1 from sheet_instance si"
+        "   where si.sheet_template_id = t.id and si.child_id = %s)) as sat"
+        " from sheet_template t where t.source = 'library' and t.retired_at is null"
+        "   and t.skill_set_code = %s and t.difficulty = %s"
+        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')",
+        (p["child_id"], p["skill_set_code"], p["difficulty"]),
+    ).fetchone()
+    if not n["level"]:
+        return "the library holds no worksheet at this level yet: run engine library build"
+    if n["sat"] >= n["level"]:
+        return f"has sat every worksheet at {p['difficulty']} ({n['level']})"
+    return (
+        "every worksheet left shares a question with another child's paper this week, or holds one"
+        f" this child saw in the last {int(window_days)} days"
+    )
 
-    Draws without replacement across the whole class so no two children share a question, and
-    records what each child was shown.
+
+def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
+    """Hand every prescription in the section this week a worksheet from the library, plus the spares.
+
+    No two children share a question, and what each child was shown is recorded. A child who cannot
+    be given one is named with the reason, never handed a short paper or a repeat.
     """
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    per_sheet = int(_config(conn, "assemble.items_per_sheet", 12))
     spares_each = int(_config(conn, "assemble.spares_per_difficulty", 2))
     window = _threshold(conn, "exposure.days", 21)
 
@@ -70,94 +94,69 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     if not rx:
         raise ValueError(f"no prescriptions for {section} {week} {kind} — run prescribe first")
 
-    taken: set[str] = set()  # item ids already used by this class this week
+    pack = {"section": section, "week": week, "kind": kind}  # the pack every paper here belongs to
+    given: set = set()  # worksheets handed out this week
+    used: set = set()  # their questions — no two children share one
     built, short = [], []
     for p in rx:
-        pool = [
-            r
-            for r in _available(conn, p["skill_set_code"], p["difficulty"], p["child_id"], window)
-            if r["id"] not in taken
-        ]
-        if len(pool) < per_sheet:
+        w = next(
+            (
+                w
+                for w in _worksheets(conn, p["skill_set_code"], p["difficulty"], p["child_id"], window)
+                if w["id"] not in given and not used.intersection(w["item_ids"])
+            ),
+            None,
+        )
+        if w is None:
             short.append(
                 {
                     "roll_no": p["roll_no"],
+                    "child_id": p["child_id"],
                     "difficulty": p["difficulty"],
-                    "had": len(pool),
-                    "needed": per_sheet,
+                    "had": 0,  # worksheets this child could still be given
+                    "needed": 1,
+                    "why": _why_short(conn, p, window),
                 }
             )
             continue
-        rng = random.Random(
-            int(hashlib.sha1(f"{p['child_id']}|{week}|{kind}".encode()).hexdigest(), 16) % (2**32)
-        )
-        chosen = rng.sample(pool, per_sheet)
-        taken.update(r["id"] for r in chosen)
-        built.append(_store(conn, tenant, p, chosen, week, kind))
+        given.add(w["id"])
+        used.update(w["item_ids"])
+        built.append(_hand_out(conn, tenant, pack, p, w))
 
     spares = []
     for difficulty in sorted({p["difficulty"] for p in rx}):
-        skill_set = next(p["skill_set_code"] for p in rx if p["difficulty"] == difficulty)
-        band = next(p["band"] for p in rx if p["difficulty"] == difficulty)
-        for n in range(spares_each):
-            pool = [
-                r
-                for r in conn.execute(
-                    "select * from item where status = 'active' and skill_set_code = %s and difficulty = %s"
-                    " order by times_used, item_key",
-                    (skill_set, difficulty),
-                ).fetchall()
-                if r["id"] not in taken
-            ]
-            if len(pool) < per_sheet:
+        first = next(p for p in rx if p["difficulty"] == difficulty)
+        for w in _worksheets(conn, first["skill_set_code"], difficulty, None, window):
+            if len([s for s in spares if s["difficulty"] == difficulty]) == spares_each:
                 break
-            rng = random.Random(
-                int(hashlib.sha1(f"spare|{difficulty}|{n}|{week}".encode()).hexdigest(), 16) % (2**32)
-            )
-            chosen = rng.sample(pool, per_sheet)
-            taken.update(r["id"] for r in chosen)
-            spares.append(
-                _store(
-                    conn,
-                    tenant,
-                    {
-                        "id": None,
-                        "child_id": None,
-                        "skill_set_code": skill_set,
-                        "difficulty": difficulty,
-                        "band": band,
-                        "roll_no": f"spare {n + 1}",
-                        "rule_fired": "spare",
-                    },
-                    chosen,
-                    week,
-                    kind,
-                )
-            )
+            if w["id"] in given or used.intersection(w["item_ids"]):
+                continue
+            given.add(w["id"])
+            used.update(w["item_ids"])
+            n = 1 + len([s for s in spares if s["difficulty"] == difficulty])
+            spare = {
+                "id": None,
+                "child_id": None,
+                "skill_set_code": first["skill_set_code"],
+                "difficulty": difficulty,
+                "band": first["band"],
+                "roll_no": f"spare {n}",
+                "rule_fired": "spare",
+            }
+            spares.append(_hand_out(conn, tenant, pack, spare, w))
 
     return {"sheets": built, "spares": spares, "short": short}
 
 
-def _store(conn, tenant, p, items, week, kind):
-    """One template (the questions and the key) and one instance (the code on the page)."""
-    template = conn.execute(
-        "insert into sheet_template (tenant_id, band, week, variant, item_ids, skill_set_code,"
-        " difficulty, child_id, source) values (%s,%s,%s,1,%s,%s,%s,%s,'generated') returning id",
-        (
-            tenant,
-            p["band"],
-            week,
-            [r["id"] for r in items],
-            p["skill_set_code"],
-            p["difficulty"],
-            p["child_id"],
-        ),
-    ).fetchone()["id"]
-    qr = _qr(template, p["child_id"], week, kind)
+def _hand_out(conn, tenant, pack, p, w):
+    """One library worksheet given to one child, or kept as a spare: a new sheet instance — the code on
+    the page — pointing at the worksheet, which is never edited."""
+    # The section is in the code because two classes can be handed the same worksheet in one week.
+    qr = _qr(w["id"], p["child_id"], pack["section"], p["roll_no"], pack["week"], pack["kind"])
     instance = conn.execute(
-        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id)"
-        " values (%s,%s,%s,%s) returning id, qr_code",
-        (tenant, qr, template, p["child_id"]),
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind)"
+        " values (%s,%s,%s,%s,%s,%s,%s) returning id, qr_code",
+        (tenant, qr, w["id"], p["child_id"], pack["week"], pack["section"], pack["kind"]),
     ).fetchone()
     if p["id"]:
         conn.execute(
@@ -173,16 +172,17 @@ def _store(conn, tenant, p, items, week, kind):
             "insert into item_exposure (tenant_id, child_id, item_id, week)"
             " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id"
             " on conflict (tenant_id, child_id, item_id) do nothing",
-            (tenant, p["child_id"], week, [r["id"] for r in items]),
+            (tenant, p["child_id"], pack["week"], list(w["item_ids"])),
         )
     # `item.times_used` is NOT written here. It is a derived number — how often a question has been
     # handed out, which `item_exposure` already records row by row — and writing it from the hot path
     # made two classes assembled at the same moment deadlock on the same item rows (Postgres locks in
     # scan order, so even an ordered `for update` did not fix it). Ring B owns derived numbers:
-    # `engine graph` refreshes the counter from the exposures. The ordering it feeds only spreads the
-    # load across a unit, so being a rebuild behind costs nothing.
+    # `engine graph` refreshes the counter from the exposures.
+    rows = {r["id"]: r for r in conn.execute("select * from item where id = any(%s)", (list(w["item_ids"]),))}
     return {
-        "template_id": template,
+        "template_id": w["id"],
+        "code": w["code"],
         "instance_id": instance["id"],
         "qr": instance["qr_code"],
         "child_id": p["child_id"],
@@ -191,8 +191,14 @@ def _store(conn, tenant, p, items, week, kind):
         "skill_set_code": p["skill_set_code"],
         "difficulty": p["difficulty"],
         "rule": p["rule_fired"],
-        "item_rows": items,
+        "item_rows": [rows[i] for i in w["item_ids"]],
     }
+
+
+def label(name, s, kind):
+    """The line printed at the top of a child's page: who it is for, the level, and which worksheet it
+    is — so anyone holding the paper can say which one the child had."""
+    return f"{name} · {s['difficulty']} {kind} · Worksheet {s['code']}"
 
 
 def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "practice") -> dict:
@@ -214,15 +220,13 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
         for s in sheets:
             items = [item_from_row(r) for r in s["item_rows"]]
             sh = Sheet(s["qr"], s["band"], s["difficulty"], 1, week, items, title=titles[s["skill_set_code"]])
-            label = f"{named.get(s['child_id'], 'Spare copy')} · {s['difficulty']} {kind}"
-            key = render_sheet(sh, outdir, week_label=label, pw=pw)
-            conn.execute(
-                "update sheet_template set key = %s, html_path = %s where id = %s",
-                (json.dumps(key), str(outdir / f"{s['qr']}.html"), s["template_id"]),
+            key = render_sheet(
+                sh, outdir, week_label=label(named.get(s["child_id"], "Spare copy"), s, kind), pw=pw
             )
+            # What was printed for this child, on this child's instance — the worksheet stays as made.
             conn.execute(
-                "update sheet_instance set pdf_path = %s where id = %s",
-                (str(outdir / f"{s['qr']}.pdf"), s["instance_id"]),
+                "update sheet_instance set pdf_path = %s, key = %s where id = %s",
+                (str(outdir / f"{s['qr']}.pdf"), json.dumps(key), s["instance_id"]),
             )
             pdfs.append(str(outdir / f"{s['qr']}.pdf"))
             s["pages"] = key["pages"]
@@ -246,14 +250,18 @@ def approve(conn, section: str, week: str, kind: str = "practice", by: str = "")
     """
     if not by:
         raise ValueError("an approval must name a person — that is the whole point of it")
+    # A paper handed out from the library knows its own week, class and pack; a paper generated
+    # before step 7 is found, as it always was, through its own template's week.
     rows = conn.execute(
         "update sheet_instance si set print_status = 'printed', printed_at = now(),"
         " approved_by = %s, approved_at = now(), updated_at = now()"
-        " where si.print_status = 'new' and si.sheet_template_id in ("
-        "   select st.id from sheet_template st left join child c on c.id = st.child_id"
-        "   where st.week = %s and (c.section = %s or st.child_id is null))"
+        " where si.print_status = 'new' and ("
+        "   (si.week = %s and si.section = %s and si.kind = %s)"
+        "   or si.sheet_template_id in ("
+        "     select st.id from sheet_template st left join child c on c.id = st.child_id"
+        "     where st.source = 'generated' and st.week = %s and (c.section = %s or st.child_id is null)))"
         " returning si.qr_code, si.child_id",
-        (by, week, section),
+        (by, week, section, kind, week, section),
     ).fetchall()
     return {
         "section": section,
