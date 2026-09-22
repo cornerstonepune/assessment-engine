@@ -16,6 +16,7 @@ from engine.w1_bank import bank, review, spec
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
+from engine.w3_read import place
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
@@ -90,8 +91,9 @@ def set_password(email: str) -> None:
 def graph_(
     child_id: str = typer.Option("", "--child", help="One child id; default every child with evidence"),
 ) -> None:
-    """Rebuild Ring B — child_skill_state — from confirmed evidence."""
+    """Rebuild Ring B — child_skill_state — from confirmed evidence, and each old question's skill sets."""
     with db.connect() as conn:
+        place.place(conn)
         n = graph.rebuild(conn, child_id or None)
         conn.commit()
     typer.echo(f"  {n} states")

@@ -7,7 +7,7 @@ import typer
 
 from engine.adapters.llm import LLMError
 from engine.core import db, roster
-from engine.w3_read import legacy, marking
+from engine.w3_read import legacy, marking, place
 
 legacy_app = typer.Typer(help="N3 — papers done before QR sheets, read into evidence", no_args_is_help=True)
 
@@ -17,9 +17,11 @@ def legacy_paper(path: str) -> None:
     """Enter (or correct) a paper once: its printed questions become legacy items with a rung each."""
     with db.connect() as conn:
         template = legacy.load_paper(conn, path)
+        unplaced = place.place(conn)
         conn.commit()
         _, items = legacy.paper_rows(conn, __import__("json").loads(Path(path).read_text())["code"])
     typer.echo(f"  {template}  {len(items)} questions")
+    _echo_unplaced(unplaced)
     for key, it in sorted(
         items.items(), key=lambda kv: (int("".join(ch for ch in kv[0] if ch.isdigit()) or 0), kv[0])
     ):
@@ -28,6 +30,24 @@ def legacy_paper(path: str) -> None:
             f"  {key:<4}{sp.get('kind', 'bare'):<8}{sp.get('expr') or '':<14}= {sp.get('answer')!s:<6} "
             f"{it['responses'][0]['misconceptions'] and len(it['responses'][0]['misconceptions']) or 0:>2} predictions"
         )
+
+
+def _echo_unplaced(unplaced):
+    for r in unplaced:
+        typer.echo(f"  counts for no skill set: {r['item_key']}  {r['rung_code']} {r['stem'][:50]!r}")
+
+
+@legacy_app.command("place")
+def legacy_place() -> None:
+    """Which skill sets each old question counts for, measured again from its numbers (ADR 0034)."""
+    with db.connect() as conn:
+        unplaced = place.place(conn)
+        n = conn.execute("select count(*) as n, count(distinct item_id) as q from item_placement").fetchone()
+        conn.commit()
+    typer.echo(
+        f"  {n['q']} old questions placed in {n['n']} skill-set levels; {len(unplaced)} counted nowhere"
+    )
+    _echo_unplaced(unplaced)
 
 
 @legacy_app.command("import")

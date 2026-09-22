@@ -1,0 +1,26 @@
+name: next-paper-per-skill
+goal: >
+  A child's next paper in a skill set is decided from their answers to the questions that skill set's
+  levels hold — never from every answer that shares its rung. A mistake a child repeats in 3-digit
+  subtraction shapes their next subtraction paper and not their addition one; a question from an old paper
+  is placed by its own numbers on the skill sets and levels whose taxonomy cases it is one of; and an old
+  question no skill set holds is named for a person, never silently left out.
+
+# Written 2026-09-22, night, before the fix (ADR 0034). Found the same evening: on shared rung R9, Dhanvi's
+# subtraction mistakes were the targets of her next 3-digit addition paper and subtraction got no paper.
+says:
+  - words: "Fix the rule."
+    proved_by: packages/engine/tests/test_place.py::test_a_subtraction_mistake_on_a_shared_rung_shapes_the_subtraction_paper_not_the_addition_one
+scenarios: []
+criteria:
+  - name: an old question is placed by its numbers, falls back to its rung only where that skill set practises its skill, and is listed when nothing holds it
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_place.py
+    expect: "passed"
+  - name: the engine's suite, the paper → scan → confirm → graph path included
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"
+  - name: every invariant holds on the copy
+    run: engine audit
+    expect: "0 violations"
+manual:
+  - The 12 old questions `engine legacy place` names (place value, comparison, fractions, division, number words) wait for Neha, Achal and Aseem to say which skill they belong to — the same open question as which rung place value, comparison and rounding belong on.
