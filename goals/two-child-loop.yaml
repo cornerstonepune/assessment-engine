@@ -1,0 +1,38 @@
+name: two-child-loop
+goal: >
+  The whole loop, proved on the two children whose every paper a person has signed off — Agastya (3
+  papers, 46 answers) and Dhanvi (5 papers, 49 answers), Grade 2. From their answers alone the engine
+  builds each child's graph per skill set: every signed-off answer on the graph of each skill set whose
+  level holds its question, or named as counted nowhere; each skill read as one of the six states with
+  the mistake the child repeats and the child's own example of it; each skill said in one plain sentence
+  a teacher can act on, no codes; the graph drawn on the child's page so a teacher reads it at a glance;
+  and from that graph the plan for the child's next paper — which skills, at which level, and why.
+  Every other child runs through the same code, unchanged, the day their papers are signed off.
+
+# Written 2026-09-22, night, before the work (BUILD-ORDER "Now: the loop on two children, then the paper
+# engine"). The tests below fail until the step is built (xfail strict), so `engine done` says NOT PROVED.
+says:
+  - words: "You can completely create the knowledge graph on those two children"
+    proved_by: packages/engine/tests/test_skill_graph.py::test_every_signed_off_answer_is_on_the_graph_of_each_skill_set_that_holds_it
+  - words: "how the knowledge graph is created based on that"
+    proved_by: packages/engine/tests/test_skill_graph.py::test_each_skill_is_read_as_a_state_with_the_childs_own_example
+  - words: "What is the assessment?"
+    proved_by: packages/engine/tests/test_skill_graph.py::test_each_skill_is_read_in_one_plain_sentence_a_teacher_can_act_on
+  - words: "What kind of questions would happen?"
+    proved_by: packages/engine/tests/test_compose.py::test_a_paper_draws_from_several_skill_sets_most_from_the_weakest
+scenarios: []
+criteria:
+  - name: the graph per skill set, its states, examples and sentences, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_skill_graph.py
+    expect: "passed"
+  - name: Agastya's and Dhanvi's real graphs — every signed-off answer accounted for, on the copy
+    run: engine graph show --section G2 --child Agastya --child Dhanvi
+    expect: "every signed-off answer is on the graph or named"
+  - name: the child's page draws the graph a teacher reads at a glance, on the copy
+    run: cd apps/web && npx playwright test tests/two-child-loop.spec.ts
+    expect: "passed"
+  - name: every invariant holds
+    run: engine audit
+    expect: "0 violations"
+manual:
+  - Nimish, or a teacher who knows them, reads Agastya's and Dhanvi's graphs on the live link, signed in, and says skill by skill whether each reads true of the child — a skill that does not is a bug in the reading, not in the child.

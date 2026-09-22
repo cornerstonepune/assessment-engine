@@ -1,0 +1,34 @@
+name: custom-paper
+goal: >
+  A child's paper is composed from their own graph. The engine takes questions from several skill sets at
+  once — most from the skills the graph says are weakest, fewer from those that are practising, a few to
+  keep secure ones secure — and within each skill mixes levels in the proportion a config row sets: most at
+  the child's own level, some one below, some one above, never further. It aims at the mistakes the child
+  repeats, never repeats a question the child has sat, gives two children with the same graph different
+  papers, and says in one line why each section is there. A teacher's "mixed bag" is the same engine given
+  the teacher's list of skill sets instead of the graph's. This replaces step 10 (mixed papers).
+
+# Written 2026-09-22, night, before the work (BUILD-ORDER "Now: the loop on two children, then the paper
+# engine"). The tests below fail until the step is built (xfail strict), so `engine done` says NOT PROVED.
+says:
+  - words: "based on the lack or whatever skill set is there, the system captures multiple questions from those skill sets"
+    proved_by: packages/engine/tests/test_compose.py::test_a_paper_draws_from_several_skill_sets_most_from_the_weakest
+  - words: "in a certain proportion of difficulty"
+    proved_by: packages/engine/tests/test_compose.py::test_difficulty_is_mixed_in_the_proportion_the_config_row_sets
+  - words: "That will also solve for the mixed-bag thing"
+    proved_by: packages/engine/tests/test_compose.py::test_a_mixed_bag_is_the_same_engine_given_the_teachers_list_of_skill_sets
+  - words: "A custom engine"
+    proved_by: packages/engine/tests/test_compose.py::test_two_children_with_the_same_answers_get_different_papers
+scenarios: []
+criteria:
+  - name: the composer's rules, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_compose.py
+    expect: "passed"
+  - name: Agastya's and Dhanvi's next papers composed from their real graphs and printed with QR, on the copy
+    run: engine week compose --section G2 --child Agastya --child Dhanvi --print
+    expect: "2 papers"
+  - name: every invariant holds
+    run: engine audit
+    expect: "0 violations"
+manual:
+  - Nimish or Aseem reads the two composed papers against the two graphs and approves the level mix row (`compose.level_mix`) once, as the 17 skills were approved.

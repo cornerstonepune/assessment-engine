@@ -15,7 +15,7 @@ import pytest
 from engine.adapters import llm, ocr
 from engine.assess import graph
 from engine.core import db
-from engine.w3_read import legacy, marking
+from engine.w3_read import legacy, marking, place
 
 # ---- pure: shape → rung, and marking by lookup
 
@@ -359,6 +359,9 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
         conn.execute("select count(*) as n from sheet_template where batch_id = 'TEST-PAPER'").fetchone()["n"]
         == 1
     )
+    place.place(
+        conn
+    )  # as `engine legacy paper` does: each question onto the skill sets that hold it (ADR 0034)
 
     scan = tmp_path / "scan.jpg"
     scan.write_bytes(b"")

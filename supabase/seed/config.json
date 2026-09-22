@@ -98,6 +98,15 @@
       "description": "The registry skill each operation is. A question uses the skill of every operation a child carries out on it (ADR 0023)."
     },
     {
+      "key": "legacy.kind_as",
+      "value": {
+        "legacy_bare": "bare_sum",
+        "legacy_word": "bare_sum",
+        "legacy_missing": "missing_number"
+      },
+      "description": "How an old paper's question is measured against the team's taxonomy: a sum, printed bare or told as a story, is the bank's bare sum; a box to fill is a missing number. It decides which skill sets the question counts for (ADR 0034, `engine legacy place`)."
+    },
+    {
       "key": "skills.by_kind",
       "value": {
         "missing_number": [

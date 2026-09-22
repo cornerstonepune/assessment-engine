@@ -87,7 +87,7 @@ does not hold the next step's code.
 | 7 | `goals/s7-paper-from-library.yaml` | a child's paper is a library worksheet at their skill and level that they have not sat; children at one level in one week get different ones; it prints with its QR and its worksheet ID |
 | 8 | `goals/s8-every-skill-a-question-uses.yaml` + `goals/s8t-taxonomy-coverage.yaml` | ADR 0023: a question's skills come from the question; a right answer is evidence for each, a wrong one against the skill its mistake names. **Widened 2026-09-22:** every case of the team's addition & subtraction taxonomy holds a worksheet's worth of questions at the levels that own it |
 | 9 | `goals/s9-combined-questions.yaml` | questions that combine two or three concepts are skill sets of their own: drafted by the engine, approved once, filled, verified, on worksheets |
-| 10 | `goals/s10-mixed-papers.yaml` | one paper holds questions from two or three skill sets, each at the child's own level for that skill |
+| 10 | `goals/s10-mixed-papers.yaml` — **replaced by step 14, `goals/custom-paper.yaml` (2026-09-22, night)** | one paper holds questions from two or three skill sets, each at the child's own level for that skill |
 | 11 | `goals/w4-close-the-loop.yaml` | **W4**: from each child's graph, Friday's class card, a home sheet with a parent note, next week's seed; monthly, a parent report in the shape of Aseem's |
 
 **Why this order.** Step 6 first because Nimish's validations are happening now and it turns them into
@@ -231,6 +231,33 @@ ahead and do the three steps."* In that order (ADR 0033): the engine laid out on
 to `workflows.json` by `tests/test_layout.py`; each step marked any subject or maths only; the How it works
 page drawing the map with live numbers (`goals/workflows-visible.yaml`); then `engine promises`, `engine done`
 and `bin/check` run by a git hook and a Claude Code Stop hook (`goals/promises-kept.yaml`).
+
+## Now, in this order: the rule, the loop on two children, the paper engine — Nimish, 2026-09-22, night
+
+*"Fix the rule. By the way, that's what I've been saying: there are two children whose entire papers have
+been signed off. You can completely create the knowledge graph on those two children … We can completely
+validate the loop, the entire logic on these two children … What is the assessment? What kind of questions
+would happen?"* And: *"a module where, based on the lack or whatever skill set is there, the system captures
+multiple questions from those skill sets in a certain proportion of difficulty … That will also solve for the
+mixed-bag thing … Confirm the sequence of development … with each of them having a very specific goal."*
+
+The loop is proved on the two children who are fully signed off (Agastya, 3 papers, 46 answers; Dhanvi, 5
+papers, 49 answers — Grade 2) while people validate the rest; nothing in it is written for two children, so
+every child who is signed off later runs through the same code. The rules of the steps before hold: a step is
+done when `engine done <goal>` says DONE; its code ships before the next step's starts; a human gate is asked
+for the moment the code is live. Each goal's tests were written before its work and fail until it is built
+(`xfail(strict=True)`), so `engine done` reports NOT PROVED until they pass.
+
+| Step | Goal file | Green means |
+|---|---|---|
+| 12 | `goals/next-paper-per-skill.yaml` | ADR 0034: an answer counts for the skill set whose level holds its question, not the one that shares its rung; a subtraction mistake shapes the subtraction paper; an old question no skill set holds is named, never dropped |
+| 13 | `goals/two-child-loop.yaml` | Agastya's and Dhanvi's graphs per skill set: every signed-off answer on them or named; each skill a state, the mistake the child repeats and their own example; one plain sentence per skill, no codes; the graph read at a glance on the child's page (standing direction 2 and 4); the next paper's plan from it |
+| 14 | `goals/custom-paper.yaml` | **replaces step 10.** A paper composed from the child's graph: several skill sets, most questions from the weakest; levels mixed by a config row (most at the child's level, some one either side); aimed at their repeated mistakes; nothing they have sat; two children, two papers; each section says why. The mixed bag is the same engine given a teacher's list |
+
+**Then, unchanged:** step 6 closes as people validate the 624 waiting answers (each child who finishes goes
+through 13 and 14 with no new code); step 9, combined questions; step 11, W4. **Open, not in any step until
+Nimish says:** N4, the teacher's Wednesday declaration, and N7, the teacher approving the pack — both agreed
+with the school, neither built (asked 2026-09-22).
 
 ## The four workflows, in the order they are built
 
