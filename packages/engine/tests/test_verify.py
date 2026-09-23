@@ -5,7 +5,6 @@ run produced (research/2026-09-17-prompt-generation-spike.md)."""
 
 import pytest
 
-from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import verify
 
@@ -177,7 +176,8 @@ def test_an_op_not_in_the_rules_list_is_rejected():
 
 def test_bare_candidate_becomes_the_same_item_shape_the_generator_makes():
     it = verify.to_item(cand(), "R10")
-    assert it.fmt == "column_grid" and it.rung == "R10" and it.skills == I.RUNGS["R10"]["skills"]
+    # no skills on the item yet: `bank` measures the ones it uses from the question itself (ADR 0030)
+    assert it.fmt == "column_grid" and it.rung == "R10" and it.skills == []
     assert it.spec == {"a": 582, "b": 346, "op": "-", "layout": "column"}
     assert it.responses[0].rid == "ans" and it.responses[0].answer == "236"
     assert it.responses[0].misconceptions == M.predict("-", 582, 346)
