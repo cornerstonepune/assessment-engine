@@ -12,7 +12,11 @@ W02/W03/W06, AA9) reach live only through `engine bank levels --apply` — now i
 the 15 skills it changes wait for approval then; (3) 111 sums of three 4-digit numbers had no case — AA9 added, not
 from the team's taxonomy, for Aseem; (4) 20 old model-written stories ("…had 353 mangoes and sold 26…") whose
 story shape no template names — rehome now moves such a question to the skill its numbers give and retires it
-with the reason, instead of stopping; it still stops for a question no skill's numbers hold.
+with the reason, instead of stopping; it still stops for a question no skill's numbers hold. (5) old papers'
+questions keep the rung they were loaded with: update-live now reloads every `supabase/seed/papers/*.json`
+(a G3 word problem moves R9 → R31); G3-QUIZ20's two 5-digit sums, past the ladder, count on 4-digit addition
+(R32), noted in the file for Aseem. (6) answers on untaught topics (MUL.1D 19, REASON.EXPLAIN 8) are kept and
+noted by `engine live data`, not failed.
 
 ## 2026-09-23, night — the Grade 2 scan is library worksheets; the live update is rehearsed in GitHub
 

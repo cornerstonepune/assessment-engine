@@ -1057,3 +1057,30 @@ def test_a_person_s_corrections_change_the_childs_next_paper_with_no_command_in_
     assert read["why"] == "this child's 8 has been read for a 3 before" and read["guess"] == "84"
     # and in week 1, before any correction, the same reading was stood behind
     assert next(r for r in week1["results"] if r["item"] == "1")["status"] == "correct"
+
+
+@pytest.mark.parametrize(
+    "path",
+    sorted((pathlib.Path(__file__).resolve().parents[3] / "supabase/seed/papers").glob("*.json")),
+    ids=str,
+)
+def test_every_old_paper_question_has_a_place_on_todays_ladder(path):
+    """`bin/update-live` reloads every paper file: one question with no rung stops it, as G3-QUIZ20's two 5-digit
+    sums did on 2026-09-23 once the old ladder left."""
+    seed = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed"
+    skills = [
+        s | {"version": 1}
+        for s in json.loads((seed / "skill_sets.json").read_text())["skill_sets"]
+        if s.get("difficulty")
+    ]
+    cases = {
+        c["code"]: c["match"]
+        for c in json.loads((seed / "taxonomy_cases.json").read_text())["taxonomy_cases"]
+    }
+    rung_skills = {
+        r["code"]: r["skill_codes"] for r in json.loads((seed / "rungs.json").read_text())["rungs"]
+    }
+    paper = json.loads(path.read_text())
+    for it in paper["items"]:
+        t = legacy._template_item(paper, it, (skills, cases, rung_skills))
+        assert t["rung"] in rung_skills, (it["n"], t["rung"])
