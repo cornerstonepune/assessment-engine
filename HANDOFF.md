@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, late — live rehome refused 155 questions; fixed at the labeller (start here)
+
+Read on live (select only): `bank rehome` had never moved anything — it refused 155 old missing-number questions
+(`MISSING.NUM`, stored as text alone), so 454 signed-off answers of 9 G2 children still counted on old rungs
+(R9 237, R5 78, R4 60, R6 33, M1 19 …) that no taught skill shows; a child page showed only what sat on R8/R7/R11.
+`child_skill_state` itself matched a rebuild (0 missing, 0 stale). Cause: `tags._missing_number` measured the
+operation from the text but never the numbers' sizes, and a three-number one (`15 + □ + 13 = 42`, case M06) had
+no skill. Now the text is solved into a, b, op (or addends) and measured as a new question is; M06 is in
+ADD.MANY's Advance (a seed change, so ADD.MANY waits for approval again). **On live, in this order:**
+`bin/engine load && bin/engine bank relabel && bin/engine bank rehome && bin/engine graph` — relabel before rehome,
+since rehome places by stored tags. Marking G2 484 = 30 papers' printed questions, each counted once (checked).
+Next: update-live order + `engine check live`, See the paper, Marking totals row, `engine read file`.
+
 ## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
 
 Merged: L1 (#33), L2 and the old ladder's removal (#34, #35), L3 answer boxes (#36); U5 Curriculum on this branch.

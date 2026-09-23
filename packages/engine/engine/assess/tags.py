@@ -254,23 +254,38 @@ def _missing_number(t, sp):
             hidden = sp["a"] + sp["b"] if sp.get("op") == "+" else sp["a"] - sp["b"]
         if isinstance(hidden, int):
             t["unknown_digits"] = len(str(hidden))
-        return t
-    m = re.fullmatch(r"\s*(□|\d+)\s*([+\-])\s*(□|\d+)\s*=\s*(□|\d+)\s*", text)
-    if m:
-        x, op, y, z = m.groups()
-        t["operation"] = "ADD" if op == "+" else "SUB"
-        pos = [x, y, z].index("□") if "□" in (x, y, z) else None
-        t["unknown_position"] = (
-            ["FIRST_OPERAND", "SECOND_OPERAND", "RESULT"][pos] if pos is not None else "RESULT"
-        )
-        if pos is not None:
-            n = [int(v) for v in (x, y, z) if v != "□"]
-            hidden = {
-                0: n[0] + n[1] if op == "-" else n[1] - n[0],
-                1: n[0] - n[1] if op == "-" else n[1] - n[0],
-            }.get(pos, n[0] + n[1] if op == "+" else n[0] - n[1])
-            t["unknown_digits"] = len(str(abs(hidden)))
     return t
+
+
+def _num(v):
+    return None if v == "□" else int(v)
+
+
+def _solved(sp):
+    """A missing-number question kept as its text alone (`□ − 12 = 38`), given the numbers behind the box as a
+    new one is (`verify.to_item`): a op b, and which of a, b or the answer is hidden."""
+    if "missing" in sp or "addends" in sp:
+        return sp
+    text = (sp.get("text") or "").replace("−", "-")
+    many = re.fullmatch(r"\s*((?:(?:□|\d+)\s*\+\s*){2,}(?:□|\d+))\s*=\s*(\d+)\s*", text)
+    if many and many[1].count("□") == 1:  # 35 + □ + 18 = 80: the box is what the others leave of the total
+        terms = [v.strip() for v in many[1].split("+")]
+        known = sum(int(v) for v in terms if v != "□")
+        return sp | {
+            "addends": [int(many[2]) - known if v == "□" else int(v) for v in terms],
+            "layout": "horizontal",
+        }
+    m = re.fullmatch(r"\s*(□|\d+)\s*([+\-])\s*(□|\d+)\s*=\s*(□|\d+)\s*", text)
+    if not m or [m[1], m[3], m[4]].count("□") != 1:
+        return sp
+    x, op, y, z = _num(m[1]), m[2], _num(m[3]), _num(m[4])
+    if z is None:
+        a, b, missing = x, y, "answer"
+    elif x is None:
+        a, b, missing = (z - y if op == "+" else z + y), y, "a"
+    else:
+        a, b, missing = x, (z - x if op == "+" else x - z), "b"
+    return sp | {"a": a, "b": b, "op": op, "missing": missing}
 
 
 def derive(item) -> dict:
@@ -304,6 +319,8 @@ def derive(item) -> dict:
         }
     if fmt == "missing_digit":
         return _missing_digit(t, sp)
+    if fmt == "missing_number":
+        sp = _solved(sp)
     addends = sp.get("addends")
     if addends:
         return _many_numbers(t, addends, sp.get("layout", "column"))

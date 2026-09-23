@@ -168,3 +168,26 @@ def test_worksheets_are_built_one_skill_and_one_level_each(conn):
         "select 1 from sheet_template t where t.source = 'library' and t.retired_at is null"
         " and not exists (select 1 from skill_set s where s.code = t.skill_set_code)"
     ).fetchone(), "no worksheet in the library is of a skill that is gone"
+
+
+@pytest.mark.parametrize(
+    "text,spec",
+    [
+        ("43 + □ = 50", {"a": 43, "b": 7, "op": "+", "missing": "b"}),
+        ("□ + 25 = 61", {"a": 36, "b": 25, "op": "+", "missing": "a"}),
+        ("□ − 12 = 38", {"a": 50, "b": 12, "op": "-", "missing": "a"}),
+        ("31 − □ = 23", {"a": 31, "b": 8, "op": "-", "missing": "b"}),
+        ("419 + □ = 785", {"a": 419, "b": 366, "op": "+", "missing": "b"}),
+    ],
+)
+def test_a_missing_number_written_only_as_text_is_placed_as_if_its_numbers_were_given(text, spec):
+    """The old bank kept a missing-number question as its text alone; its numbers are in that text, so it is
+    measured, and placed, exactly as the same question stored with its numbers (the 155 live rehome refused)."""
+    assert _place("missing_number", {"text": text}) == _place("missing_number", {"text": text} | spec)
+    assert _place("missing_number", {"text": text})
+
+
+def test_a_number_missing_among_three_is_placed_in_adding_three_or_more_numbers():
+    """`15 + □ + 13 = 42` (taxonomy M06) has one home: adding three or more numbers, at Advance."""
+    assert _place("missing_number", {"text": "15 + □ + 13 = 42"}) == ("ADD.MANY", "Advance")
+    assert _place("missing_number", {"text": "133 + □ + 65 = 496"}) == ("ADD.MANY", "Advance")
