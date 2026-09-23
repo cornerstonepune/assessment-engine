@@ -249,6 +249,36 @@ skill by its skill as well as its rung, so subtraction mistakes on an addition r
 subtraction — the next-paper fault queued in HANDOFF, fixed for this paper at its cause. Steps 9 and 10 are
 unchanged and follow this.
 
+## Now: the website as the teacher's week — six areas, one at a time (Nimish, 2026-09-23)
+
+Nimish: *"we need to cleanup the frontend … this UI is important as navigation and ease of approval is important"*,
+then, on the four questions put to him: *"everything counts as evidence in the graph, and the system generates. The
+teacher always approves, and home assignments are not a separate purpose, but they are, again, an extension of what
+is being taught in the school and how the child is performing … Let's build this out properly. Create this as a
+clear goalpost for every subtask … As we have the ability to keep changing, say, map or edit certain stuff, those
+kinds of capabilities will need to exist also."*
+
+**Settled:** every paper is evidence; the engine proposes, a teacher approves every paper before it prints; a
+home assignment is the child's own next paper (`assess/focus.py`) sent home, not a third kind. **Red / amber /
+green** reads the graph's own states, never new numbers: red = a repeating mistake or under half right
+(`patterned_error`, `emerging`); amber = practising (`practising`); green = got it (`secure`, `stretch_ready`);
+grey = fewer than three answers (`not_enough_yet`). The website shows; the engine decides.
+
+The menu becomes the teacher's week. Each area is one slice: its goal file and its tests are written when it
+starts, before its code; it ships in its own pull request; the next starts when its goal command is green.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| U1 | `goals/u1-today.yaml` | the menu is Today · Children · Marking · Papers · Curriculum · Question bank; **Today** lists everything waiting on a teacher — answers to check, papers to sign off, class papers to approve for print, children whose work suggests a next paper, skills awaiting approval — each with its count and one click to act; nothing waiting says so |
+| U2 | `goals/u2-children.yaml` | **Children**: each grade's classes, a class as children × skills in red / amber / green / grey, a child's page opening on one plain summary, their knowledge graph, repeated mistakes, the next paper proposed with approve, and their papers |
+| U3 | `goals/u3-marking.yaml` | **Marking** = Capture & Mark and Check answers as one area: papers in, answers settled by the engine, checked by a person, still waiting — by class, child and worksheet — the one-click queue inside it, and how the reader is doing |
+| U4 | `goals/u4-papers.yaml` | **Papers**: every paper — class assessment, class practice, the child's own next paper sent home — in one list by class, week and purpose, each proposed by the engine and approved by a teacher before it prints; the week's pack |
+| U5 | `goals/u5-curriculum.yaml` | **Curriculum**: a tree — grade → subject → skill → level (Easy · Medium · Hard · Advance) → its worksheets — with the taxonomy as a second way to read it; a skill's words, a level's rule and cases edited in place and approved, as today |
+| U6 | `goals/u6-question-bank.yaml` | **Question bank**: every question, filtered by grade, skill, level, kind, taxonomy case, mistake it can show, on a worksheet or not, status; a question's page holds everything about it — as printed, answer, the wrong answers and their mistakes, skills, cases, worksheets, how children did — and correct / remove, as today |
+| U7 | later, not before U6 | **Generate questions**: from a skill or level, a teacher asks for new questions with a few inputs; every one verified by code before it joins the bank (ADR 0005). Queued, not started |
+
+Old addresses keep working (they open the new area) until nothing links to them.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

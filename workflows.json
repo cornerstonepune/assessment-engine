@@ -88,7 +88,7 @@
       "gives": ["papers marked printed"],
       "files": [],
       "commands": [],
-      "screens": ["/worksheets"],
+      "screens": ["/worksheets", "/today"],
       "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
     },
     {

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 // Every screen must render its heading at a laptop and at a phone, with no console error and no
 // sideways scroll. A teacher on a phone in a corridor is a real case.
 const ROUTES: [string, string][] = [
+  ["/today", "Today"],
   ["/", "Skill Map"],
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
@@ -36,8 +37,8 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Worksheets", "Question bank", "Capture & Mark", "Child Growth", "Home Assignments"]) {
-    await expect(page.getByRole("navigation").getByRole("link", { name: label })).toBeVisible();
+  for (const label of ["Today", "Children", "Marking", "Papers", "Curriculum", "Question bank"]) {
+    await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });
 

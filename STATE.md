@@ -3250,3 +3250,17 @@ taxonomy … do we have the worksheets mapped to the right taxonomy?"* On the co
 - Seen, not changed: a skill's outcome sentence can disagree with its Easy level (ADD.3D.REG says "regrouping …
   every time"; its Easy level holds the no-carry cases A25–A28 by rule). Pre-existing, not this change:
   `s3-worksheets.spec.ts` "fit a phone" fails on `/skill-sets/ADD.2D.REG?level=Easy` (21 px) on main as well.
+
+## U1 — Today and the menu as the teacher's week (2026-09-23)
+
+The plan for the website is in BUILD-ORDER ("the website as the teacher's week", U1–U7). U1, on the copy:
+- **The menu:** Today · Children · Marking · Papers · Curriculum · Question bank · How it works; old addresses kept
+  (Marking holds /capture and /capture/check, Papers holds /worksheets and /home, Curriculum holds / and /skill-sets).
+- **`/today`**: answers to check (the queue's own count), papers to sign off (Capture & Mark's own), next papers to
+  make (children with a red or amber skill and no next paper this week), class papers to approve for print (per
+  class, week and kind), skills to approve — each its count and one click, or "Nothing waiting".
+- **Red / amber / green / grey** in one place, `apps/web/lib/rag.ts`, from the graph's states; the ladder now
+  colours "under half right" (`emerging`) red, as decided.
+- `apps/web/tests/u1-today.spec.ts` 3 passed; the menu tests in `e2e`, `s1`, `s4`, `screens` updated to the new
+  labels and passing. Failing on main as well, not this change: `s4` "the queue counts what the engine counts" and
+  `e2e` "no two children share questions" on this copy's data.

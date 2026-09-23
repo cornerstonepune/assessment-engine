@@ -1,0 +1,29 @@
+name: u1-today
+goal: >
+  The menu is the teacher's week — Today, Children, Marking, Papers, Curriculum, Question bank — and says where
+  the teacher is. Today lists everything waiting on a teacher: answers to check, papers to sign off, class papers
+  to approve for print, children whose work suggests a next paper, skills awaiting approval. Each shows its count,
+  the same count the page it opens shows, and one click to act on it; what has nothing waiting says so.
+
+# Written 2026-09-23, before the work (BUILD-ORDER, "the website as the teacher's week", U1). Nimish: "this UI is
+# important as navigation and ease of approval is important" — "The teacher always approves".
+says:
+  - words: "navigation and ease of approval is important"
+    proved_by: apps/web/tests/u1-today.spec.ts::today lists everything waiting on a teacher, each with its count and one click to act
+  - words: "The teacher always approves"
+    proved_by: apps/web/tests/u1-today.spec.ts::what has nothing waiting says so, and each count is the page's own
+  - words: "this UI is important as navigation"
+    proved_by: apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are
+manual:
+  - "On live, once merged: open the website and click Today."
+scenarios: []
+criteria:
+  - name: Today and the menu, on the copy
+    run: cd apps/web && npx playwright test tests/u1-today.spec.ts
+    expect: "passed"
+  - name: every menu page still opens, in its new place
+    run: cd apps/web && npx playwright test tests/e2e.spec.ts tests/s1-site-answers.spec.ts tests/s4-validation-queue.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

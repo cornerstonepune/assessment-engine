@@ -3,6 +3,12 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, evening — the website as the teacher's week: U1 built
+
+BUILD-ORDER has the six areas (U1–U6, U7 queued). U1 (Today + the menu) is built (STATE). **Next: U2 Children**
+— write `goals/u2-children.yaml` and its tests first. Landing after sign-in is still `/` (Curriculum); it moves to
+Today when U5 moves Curriculum to its own address.
+
 ## 2026-09-23, later still — worksheets by taxonomy (goal s12-worksheets-by-taxonomy)
 
 `/worksheets/taxonomy` and each worksheet's cases (STATE). **On live, after merge:** apply migration
