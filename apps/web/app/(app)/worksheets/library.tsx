@@ -39,6 +39,11 @@ export async function Library({ q }: { q: Q }) {
         title="Worksheet library"
         aside={`${all.toLocaleString("en-IN")} worksheets · every question in the bank is on one`}
       >
+        <p className="mb-3">
+          <Link href="/worksheets/taxonomy" className="chip">
+            See the worksheets by taxonomy case →
+          </Link>
+        </p>
         <p className="note mb-4">
           Twelve questions of one skill at one level on each worksheet, the level&rsquo;s kinds of question mixed in
           fair shares. A level with too few different questions for ten worksheets shares its questions across them,

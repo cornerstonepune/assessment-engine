@@ -14,7 +14,7 @@ from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.core import db
-from engine.w1_bank import labels
+from engine.w1_bank import cases, labels
 from engine.w1_bank.spec import read as spec
 
 BATCH = 20  # the free tier timed out on 40 (STATE.md)
@@ -91,6 +91,7 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
     )
     known = _known_codes(conn)
     rules, vocab = labels.rules(conn), labels.vocabulary(conn)
+    all_cases = cases.matches(conn)
     reasons, seen, accepted, meta = Counter(), set(), [], {}
     # A band may pin itself to one format (`check.format`); otherwise it draws on everything the
     # skill set declares. Pinning is what stops two bands of one skill set — same digits, same
@@ -140,7 +141,9 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
                 "generator": f"sampled:{c['op']}" if offline else "model:item_generate",
                 **({} if offline else {"prompt_id": meta.get("prompt_id"), "model": meta.get("model")}),
             }
-            if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
+            if not dry_run and not _insert(
+                conn, tenant, it, code, difficulty, s["eval_type"], prov, charged, all_cases
+            ):
                 counts["already_in_bank"] += 1
                 continue
             counts["accepted"] += 1
@@ -170,18 +173,22 @@ def _strip_unnamed(it, known):
     return dropped
 
 
-def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=None, mistake_skills=None):
+def _insert(
+    conn, tenant, it, code, difficulty, eval_type="computable", prov=None, mistake_skills=None, all_cases=None
+):
     """`eval_type` is stamped from the skill set (ADR 0012) so marking never re-derives how a
     question should be judged from its shape. `prov` carries the provenance every item must be
     able to answer with — which version of the rule, which generator, which prompt and model
     (BUILD-ORDER gate 4, amended; external proposal §15)."""
     d = it.to_dict()
     prov = prov or {}
+    measured = tags.derive(it)
+    case_codes = cases.of(it.fmt, measured, cases.matches(conn) if all_cases is None else all_cases)
     row = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem,"
         " spec, responses, tags, source, status, skill_set_code, difficulty, eval_type,"
-        " skill_set_version, generator, prompt_id, model, mistake_skills)"
-        " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'generated','active',%s,%s,%s,%s,%s,%s,%s,%s)"
+        " skill_set_version, generator, prompt_id, model, mistake_skills, case_codes)"
+        " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'generated','active',%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         " on conflict (tenant_id, item_key) do nothing returning id",
         (
             tenant,
@@ -194,7 +201,7 @@ def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=Non
             it.stem,
             json.dumps(d["spec"]),
             json.dumps(d["responses"]),
-            json.dumps(tags.derive(it)),
+            json.dumps(measured),
             code,
             difficulty,
             eval_type,
@@ -203,6 +210,7 @@ def _insert(conn, tenant, it, code, difficulty, eval_type="computable", prov=Non
             prov.get("prompt_id"),
             prov.get("model"),
             json.dumps(mistake_skills or {}),
+            case_codes,
         ),
     ).fetchone()
     return row is not None
@@ -218,6 +226,7 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     counts = Counter(asked=0, accepted=0, already_in_bank=0, duplicate=0, unnamed_distractor_dropped=0)
     known = _known_codes(conn)
     rules, vocab = labels.rules(conn), labels.vocabulary(conn)
+    all_cases = cases.matches(conn)
     # The same in-batch guard `fill` has. Without it this path's only defence against two identical
     # questions is the insert's own conflict clause, so a dry run — a scenario, an eval — could hand
     # back a set with a repeat in it, and a caller that does not store would never know.
@@ -243,7 +252,9 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
         counts["unnamed_distractor_dropped"] += _strip_unnamed(it, known)
         charged = labels.label_item(it, s["skill_codes"], rules, vocab)
         prov = {"skill_set_version": s["version"], "generator": f"native:{fmt}"}
-        if not dry_run and not _insert(conn, tenant, it, code, difficulty, s["eval_type"], prov, charged):
+        if not dry_run and not _insert(
+            conn, tenant, it, code, difficulty, s["eval_type"], prov, charged, all_cases
+        ):
             counts["already_in_bank"] += 1
             continue
         counts["accepted"] += 1

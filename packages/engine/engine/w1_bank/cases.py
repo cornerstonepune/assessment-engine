@@ -19,6 +19,11 @@ def matches(conn, codes=None):
     return {r["code"]: r["match"] for r in rows}
 
 
+def of(fmt, tags, all_matches):
+    """The taxonomy cases a question is, as measured: every case whose match its tags satisfy."""
+    return sorted(c for c, m in all_matches.items() if taxonomy.matches(m, fmt, tags))
+
+
 def count(conn):
     cases = conn.execute(
         "select code, section, section_name, label, match, min_items from taxonomy_case order by id"

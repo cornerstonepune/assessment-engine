@@ -217,6 +217,7 @@ def test_relabel_leaves_no_question_carrying_a_skill_it_does_not_use(conn):
         "skills": 0,
         "mistake_skills": 0,
         "tags": 0,
+        "cases": 0,
     }  # a second pass finds nothing
 
 

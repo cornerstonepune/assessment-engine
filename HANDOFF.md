@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, later still — worksheets by taxonomy (goal s12-worksheets-by-taxonomy)
+
+`/worksheets/taxonomy` and each worksheet's cases (STATE). **On live, after merge:** apply migration
+`20260929100000_a_question_names_its_taxonomy_cases.sql`, then `bin/engine bank relabel` (it fills every question's
+cases; until then the page shows every case "on no worksheet"). For Nimish and the team: 22 cases have no single
+level by design; ADD.3D.REG's outcome sentence disagrees with its Easy level.
+
 ## 2026-09-23, later — the next paper chosen from the child's graph (goal s11-focus-paper)
 
 Built on the copy (STATE): `assess/focus.py`, `w2_print/focus_paper.py`, the "Next paper, from their own work"

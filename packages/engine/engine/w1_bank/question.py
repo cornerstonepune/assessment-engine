@@ -100,9 +100,9 @@ def correct(conn, item_key, stem, by, reason) -> dict:
     new_key = _id(old["template"], f"{json.dumps(old['spec'], sort_keys=True)}|{stem}")
     new = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem, spec,"
-        " responses, tags, source, status, skill_set_code, difficulty, eval_type, skill_set_version,"
+        " responses, tags, case_codes, source, status, skill_set_code, difficulty, eval_type, skill_set_version,"
         " generator, corrected_from)"
-        " select tenant_id, %s, template, rung_code, skill_codes, signal, fmt, %s, spec, responses, tags,"
+        " select tenant_id, %s, template, rung_code, skill_codes, signal, fmt, %s, spec, responses, tags, case_codes,"
         " source, 'active', skill_set_code, difficulty, eval_type, skill_set_version, 'correction', id"
         " from item where id = %s"
         " on conflict (tenant_id, item_key) do nothing returning id",
