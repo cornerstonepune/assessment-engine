@@ -272,3 +272,12 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         assert it.working_lines == WORKING_LINES[it.fmt], it.fmt
     for fmt, (_, lines, _) in verify.FORMATS.items():
         assert lines == WORKING_LINES[fmt], fmt
+
+
+def test_an_estimate_rounds_a_five_up_as_children_are_taught():
+    """The page prints the rounded numbers; 665 printed as 660 taught the wrong rounding."""
+    rng = random.Random(5)
+    for _ in range(300):
+        item = I.estimate_then_calc(rng, "R11", "Application", rng.choice("+-"), 3, 3, {1}, round_to=10)
+        s = item.spec
+        assert (s["ra"], s["rb"]) == ((s["a"] + 5) // 10 * 10, (s["b"] + 5) // 10 * 10), s

@@ -75,11 +75,15 @@ def _pattern(op, a, b, cols):
     if len(cols) == 1:
         return "ISOLATED"
     w = max(len(str(a)), len(str(b)))
-    da = M.digits(a, w)
-    # a carry landing on a 9 propagates: that is cascading, not merely consecutive
-    if op == "+" and any(da[i] == 9 for i in cols[:-1]):
+    da, db = M.digits(a, w), M.digits(b, w)
+    # §5.1: a carry cascades when it lands on a column whose own digits make 9 — that column carries only
+    # because of it (399 + 4, 391 + 9). Read where the carry lands, not where it leaves: 99 + 28 carries
+    # twice, but its tens would carry anyway, so it is consecutive.
+    if op == "+" and any(i - 1 in cols and da[i] + db[i] == 9 for i in cols):
         return "CASCADING"
-    if op == "-" and any(da[i] == 0 for i in cols):
+    # §5.2: an exchange crosses a zero when the place it exchanges from shows 0 (402 − 185); a 0 in the
+    # column that needs the exchange is not crossed (530 − 47 exchanges from the 3 and the 5).
+    if op == "-" and any(i + 1 < w and da[i + 1] == 0 for i in cols):
         return "ACROSS_ZERO"
     adjacent = all(cols[i + 1] - cols[i] == 1 for i in range(len(cols) - 1))
     return "CONSECUTIVE" if adjacent else "NON_ADJACENT"
@@ -177,6 +181,8 @@ def _two_numbers(t, op, a, b, layout):
     else:
         t["exchange_zeros"] = _exchange_zeros(a, b, cols)
         t["knock_on"] = "YES" if _knock_on(a, b, cols) else "NO"
+        # §5.2 highest-place reduction: the leading digit lends (105 − 97 = 8); 76 − 73 only loses a digit
+        t["highest_place_reduced"] = "YES" if len(str(a)) - 2 in cols else "NO"
         t["difference_small"] = "YES" if a >= 100 and 0 < ans <= 10 and a // 100 != b // 100 else "NO"
     # A shorter second operand, or a sum written in a line, both force the child to align it.
     t["alignment_required"] = "YES" if (d1 != d2 or t["presentation"] == "HORIZONTAL") else "NO"

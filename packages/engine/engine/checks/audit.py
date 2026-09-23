@@ -10,6 +10,8 @@ prints the rows that break it. Adding a new class of bug means adding an invaria
 test that happens to notice it. What this file does NOT check is, by definition, what we do not know.
 """
 
+from collections import Counter, defaultdict
+
 from engine.assess import bands, verify
 from engine.assess import misconceptions as M
 from engine.core import db, loaders
@@ -188,6 +190,38 @@ def no_question_carries_a_skill_it_does_not_use(conn):
     return labels.mislabelled(conn)
 
 
+def lopsided(places, rule):
+    """Pure: {(skill set, level, kind, response): Counter(place of the right option)} against the row's
+    limit — more than `share` of a group's right answers in one place, once it has `min_questions`."""
+    out = []
+    for (code, level, fmt, rid), seen in sorted(places.items()):
+        n = sum(seen.values())
+        place, most = seen.most_common(1)[0]
+        if n >= rule["min_questions"] and most / n > rule["share"]:
+            out.append(f"{code} {level} {fmt} ({rid}): {most} of {n} right answers are option {place + 1}")
+    return out
+
+
+def no_choice_is_answered_by_ticking_one_place(conn):
+    """A question answered by ticking is answered by guessing when its right answer sits in one place
+    most of the time: every closest-hundred question was the middle option, every "is your exact answer
+    close to your estimate?" was yes. Counted per level and kind; the limit is a row."""
+    rule = conn.execute("select value from config where key = 'bank.choice_answer_max_share'").fetchone()
+    if not rule:
+        return ["the config row bank.choice_answer_max_share is missing (engine load)"]
+    places = defaultdict(Counter)
+    for r in conn.execute(
+        "select i.skill_set_code, i.difficulty, i.fmt, x->>'rid' as rid, x->'options' as options,"
+        " x->>'answer' as answer from item i, jsonb_array_elements(i.responses) x"
+        " where i.status = 'active' and i.source = 'generated' and x->>'kind' = 'tick'"
+        " and jsonb_array_length(coalesce(x->'options', '[]'::jsonb)) > 1"
+    ):
+        if r["answer"] in r["options"]:
+            key = (r["skill_set_code"], r["difficulty"], r["fmt"], r["rid"])
+            places[key][r["options"].index(r["answer"])] += 1
+    return lopsided(places, rule["value"])
+
+
 def what_a_mistake_charges_is_approved(conn):
     """The (kind, mistake) → skill table was drafted by the engine; a person approves the table itself,
     so a table changed after it was approved is not approved (step 8b, as the gold was)."""
@@ -207,7 +241,14 @@ def referential_codes_all_resolve(_conn):
 
 # Invariants a person closes, not code: an approval on the Skill Map. `engine audit` counts them like
 # any other; the test suite does not, because a suite proves the code and a click is not code.
-AWAITS_A_PERSON = {"every spec is ratified", "what a mistake charges is approved"}
+# A lopsided choice is closed the same way when a level's own design fixes the answer (REASON.EXPLAIN Easy
+# asks only true claims): the level is rewritten and approved. A generator that places answers unfairly is
+# caught before that, by its own tests (`tests/test_reasoning.py`).
+AWAITS_A_PERSON = {
+    "every spec is ratified",
+    "what a mistake charges is approved",
+    "no choice is answered by ticking one place",
+}
 
 # Ordered cheapest first, so a run that fails early has still said something useful.
 INVARIANTS = [
@@ -234,6 +275,7 @@ INVARIANTS = [
     ("no question carries a skill it does not use", no_question_carries_a_skill_it_does_not_use),
     ("every unit meets its target", every_unit_meets_its_target),
     ("every stored item still satisfies its band", every_stored_item_still_satisfies_its_band),
+    ("no choice is answered by ticking one place", no_choice_is_answered_by_ticking_one_place),
 ]
 
 

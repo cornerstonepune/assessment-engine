@@ -226,3 +226,18 @@ def test_multiplication_is_predicted_now_that_a_rung_asks_for_it():
     assert got["M_MUL_CONCAT"] == 1518 and got["M_MUL_ONES_ONLY"] == 18
     assert got["M_MUL_ROW_OUT"] == 112 and got["M_WRONG_OP"] == 59
     assert 168 not in got.values(), "a distractor is never the right answer"
+
+
+@pytest.mark.parametrize(
+    "fmt,spec,stale",
+    [
+        ("estimate_then_calc", {"a": 665, "b": 247, "op": "-", "ra": 660, "rb": 250}, True),
+        ("estimate_then_calc", {"a": 665, "b": 247, "op": "-", "ra": 670, "rb": 250}, False),
+        ("estimate_then_calc", {"a": 450, "b": 131, "op": "+", "ra": 400, "rb": 100, "round_to": 100}, True),
+        ("choose_estimate", {"a": 483, "b": 367, "op": "+", "options": [700, 800, 900]}, True),
+        ("choose_estimate", {"a": 483, "b": 316, "op": "+", "options": [800, 900, 1000], "right": 0}, False),
+        ("bare_sum", {"a": 483, "b": 367, "op": "+", "layout": "column"}, False),
+    ],
+)
+def test_a_question_keyed_by_a_rule_since_corrected_is_named(fmt, spec, stale):
+    assert bool(verify.key_problems(fmt, spec)) is stale

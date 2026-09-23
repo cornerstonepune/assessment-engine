@@ -62,12 +62,13 @@ def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=N
 
 
 def retire_outside(conn, actor=ACTOR):
-    """Retire every active question its level's rule no longer holds; returns how many, by level."""
+    """Retire every active question its level's rule no longer holds, or keyed by a rule its kind has since
+    corrected; returns how many, by level."""
     out = Counter()
     for r in cases.outside_their_level(conn):
         conn.execute(
             "insert into item_feedback (tenant_id, item_id, actor, verdict, note) values (%s,%s,%s,'retire',%s)",
-            (r["tenant_id"], r["id"], actor, "outside its level's rewritten rule: " + "; ".join(r["why"])),
+            (r["tenant_id"], r["id"], actor, "no longer what its level holds: " + "; ".join(r["why"])),
         )
         out[(r["skill_set_code"], r["difficulty"])] += 1
     return out

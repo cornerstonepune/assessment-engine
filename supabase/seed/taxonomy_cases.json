@@ -4912,7 +4912,8 @@
         "answer_digit_change": [
           "-1",
           "-MULTIPLE"
-        ]
+        ],
+        "highest_place_reduced": "YES"
       }
     },
     {
