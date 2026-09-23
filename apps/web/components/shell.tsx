@@ -9,11 +9,8 @@ export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
   { href: "/capture", label: "Marking", icon: "camera", match: ["/capture"] },
-  { href: "/make", label: "Make papers", icon: "sheet", match: ["/make"] },
-  { href: "/worksheets", label: "Papers", icon: "sheet", match: ["/worksheets", "/home"] },
-  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets"] },
-  { href: "/library", label: "Question bank", icon: "bank", match: ["/library"] },
-  { href: "/workflows", label: "How it works", icon: "flow", match: ["/workflows"] },
+  { href: "/make", label: "Make papers", icon: "sheet", match: ["/make", "/home"] },
+  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets"] },
 ];
 
 export function Shell({ me, children }: { me: Session; children: ReactNode }) {
@@ -26,6 +23,9 @@ export function Shell({ me, children }: { me: Session; children: ReactNode }) {
         </div>
         <Nav items={NAV} />
         <div className="mt-auto pt-8">
+          <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
+            How it works
+          </a>
           <div className="label !text-bamboo opacity-75">Grade 1–4 · Maths</div>
           <div className="mt-3 flex items-center justify-between gap-2 text-[12.5px] text-bamboo">
             <span className="truncate" title={me.email}>{me.name}</span>

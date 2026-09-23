@@ -77,3 +77,21 @@ test("the taxonomy is one click from the tree, and the tree fits a phone", async
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+test("each grade's skills sit under their topics, in the topics' order, each topic with its own skills", async ({ page }) => {
+  const rows = await sql<{ band: string; topic: string; ord: number; outcome: string }[]>`
+    select r.band, t.name as topic, t.ord, s.learning_objective as outcome
+    from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+    where r.band = 'G3' order by t.ord`;
+  expect(rows.length).toBeGreaterThan(0);
+  await page.goto("/");
+  const grade = page.getByRole("region", { name: "Grade 3" });
+  await expect(grade.locator("details[data-topic]").first()).toBeVisible(); // the tree streams in after its loading screen
+  const shown = await grade.locator("details[data-topic]").evaluateAll((ds) => ds.map((d) => d.getAttribute("data-topic")));
+  expect(shown).toEqual([...new Set(rows.map((r) => r.topic))]);
+  for (const r of rows) {
+    const topic = grade.locator(`details[data-topic="${r.topic}"]`);
+    await expect(topic.getByRole("group", { name: r.outcome, exact: true })).toHaveCount(1);
+  }
+});

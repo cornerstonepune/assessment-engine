@@ -14,16 +14,21 @@ export type Waiting = {
   skills: number; // skill sets awaiting approval
 };
 
-export async function waiting(actor: string): Promise<Waiting> {
-  const [queue, read, packs, next, [{ skills }]] = await Promise.all([
-    checkQueue(),
-    papersToApprove(actor),
-    sql<Pack[]>`
+/** Class papers the engine made that no teacher has approved for print, pack by pack. */
+export async function classPacksWaiting(): Promise<Pack[]> {
+  return sql<Pack[]>`
       select c.section, si.week, si.kind, count(*)::int as n
       from sheet_instance si join child c on c.id = si.child_id
       where si.print_status = 'new' and si.kind in ('practice', 'assessment')
       group by c.section, si.week, si.kind
-      order by si.week desc, c.section, si.kind`,
+      order by si.week desc, c.section, si.kind`;
+}
+
+export async function waiting(actor: string): Promise<Waiting> {
+  const [queue, read, packs, next, [{ skills }]] = await Promise.all([
+    checkQueue(),
+    papersToApprove(actor),
+    classPacksWaiting(),
     proposedHomePapers(),
     sql<{ skills: number }[]>`select count(*)::int as skills from skill_set where status <> 'ratified'`,
   ]);

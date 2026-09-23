@@ -3,12 +3,13 @@ import { Body, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { gradeWords } from "@/lib/queries";
 import { homeByClass } from "@/lib/queries-make";
+import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek } from "@/lib/week";
 
 // Make papers (goals/m1-make-papers.yaml): each class's home papers for the week, proposed by the engine from each
 // child's own map; a class opens where they are approved, and where a paper is chosen for any one child.
 export default async function MakePapers() {
-  const classes = await deadline(homeByClass());
+  const [classes, packs] = await deadline(Promise.all([homeByClass(), classPacksWaiting()]));
   return (
     <>
       <PageHeader
@@ -56,6 +57,32 @@ export default async function MakePapers() {
             </table>
           </div>
         </Panel>
+
+        <div className="mt-[18px]">
+          <Panel title="Class papers" aside={`${packs.length} waiting for you`}>
+            <p className="note mb-3">
+              A class&rsquo;s practice or assessment for a week: each child&rsquo;s own worksheet at their level, and the
+              spares. Open one to check it and approve the whole class in one tap.
+            </p>
+            {packs.length ? (
+              <ul className="grid gap-1 text-[13.5px]" aria-label="Class papers waiting for approval">
+                {packs.map((p) => (
+                  <li key={`${p.section}|${p.week}|${p.kind}`}>
+                    <Link href={`/worksheets?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
+                      {p.section} · {p.week} · {p.kind === "assessment" ? "class assessment" : "class practice"}
+                    </Link>{" "}
+                    <span className="text-basalt/62">— {p.n} papers</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="note">Nothing waiting.</p>
+            )}
+            <p className="mt-3 text-[13px]">
+              <Link href="/worksheets">Every class&rsquo;s papers, week by week →</Link>
+            </p>
+          </Panel>
+        </div>
       </Body>
     </>
   );

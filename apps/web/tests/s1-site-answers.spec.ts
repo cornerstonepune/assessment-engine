@@ -32,10 +32,10 @@ async function menu(page: Page, label: string) {
 }
 
 test("a click shows the page is loading at once, and a database that does not answer is said in words within 12 s", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/today", { waitUntil: "networkidle" });
   await whileLocked("item", async () => {
     const clicked = Date.now();
-    await menu(page, "Question bank");
+    await menu(page, "Curriculum");
     await expect(page.getByRole("status", { name: "Loading this page" })).toBeVisible({ timeout: 1_500 });
     await expect(page.getByRole("heading", { name: COULD_NOT_LOAD })).toBeVisible({ timeout: 12_000 });
     expect(Date.now() - clicked).toBeLessThan(12_000);
@@ -43,7 +43,7 @@ test("a click shows the page is loading at once, and a database that does not an
   });
   // Once the database answers again, Try again brings the page back.
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Question bank" })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("heading", { level: 1, name: "Curriculum" })).toBeVisible({ timeout: 10_000 });
 });
 
 test("when the staff check cannot reach the database, the page says so instead of asking you to sign in again", async ({ page }) => {
@@ -75,8 +75,7 @@ test("every menu page opens within three seconds of its click", async ({ page })
     ["Today", "Today"],
     ["Children", "Children"],
     ["Marking", "Marking"],
-    ["Papers", "Worksheets"],
-    ["Question bank", "Question bank"],
+    ["Make papers", "Make papers"],
     ["Curriculum", "Curriculum"],
   ]) {
     const clicked = Date.now();

@@ -10,6 +10,10 @@ says:
     proved_by: packages/engine/tests/test_topics.py::test_every_skill_in_the_seed_sits_in_exactly_one_topic
   - words: "Everything should have something."
     proved_by: packages/engine/tests/test_library.py::test_a_level_with_too_few_questions_for_one_worksheet_is_refused_never_passed_as_empty
+  - words: "grade, subject, topic, learning objective/skill, and the difficulty levels"
+    proved_by: apps/web/tests/u5-curriculum.spec.ts::each grade's skills sit under their topics, in the topics' order, each topic with its own skills
+  - words: "If we don't need paper and curriculum, minimize the number of tabs. The flow should be extremely intuitive."
+    proved_by: apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are
 manual:
   - "Aseem and Nimish confirm which skills sit in which topic (supabase/seed/topics.json)."
   - "On live, once merged: `bin/update-live`, `bin/engine load`, then `bin/engine library check` — every level it names is filled or removed."
@@ -17,6 +21,9 @@ scenarios: []
 criteria:
   - name: topics and the empty-level check
     run: cd packages/engine && .venv/bin/python -m pytest tests/test_topics.py tests/test_library.py
+    expect: "passed"
+  - name: the tree and the five tabs, on the copy
+    run: cd apps/web && npx playwright test tests/u5-curriculum.spec.ts tests/u1-today.spec.ts tests/screens.spec.ts
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

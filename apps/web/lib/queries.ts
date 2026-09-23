@@ -28,6 +28,10 @@ export type SkillSet = {
   counts: Partial<Record<Difficulty, number>>;
   // Ready-made worksheets per level (ADR 0026). None until the library is built.
   worksheets: Partial<Record<Difficulty, number>>;
+  // Its place in the shared tree: grade (band) → subject → topic → skill → level (goals/t1-topics.yaml).
+  topic_code: string | null;
+  topic_name: string | null;
+  topic_ord: number | null;
 };
 
 /** The one table a person approves beside the skills (step 8b): on these kinds of question, this named
@@ -69,7 +73,7 @@ export async function skillSets(): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
-           r.band, r.descriptor, r.skill_codes,
+           r.band, r.descriptor, r.skill_codes, s.topic_code, t.name as topic_name, t.ord as topic_ord,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active'
@@ -80,6 +84,7 @@ export async function skillSets(): Promise<SkillSet[]> {
                            group by difficulty) w), '{}'::json) as worksheets
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     order by r.ladder_order nulls last, s.code`;
 }
 

@@ -55,7 +55,8 @@ test("every kind of link on the Curriculum opens", async ({ page }) => {
   // every kind of link, and one worksheet of each level: the tree lists every worksheet, some two thousand
   const seen = new Set<string>();
   const sample = hrefs.filter((h) => {
-    const kind = h.startsWith("/worksheets/") ? h.replace(/\d+$/, "") : h;
+    // one of each kind: a worksheet of each level, and a link that differs only in its query once
+    const kind = h.startsWith("/worksheets/") ? h.replace(/\d+$/, "") : h.replace(/=[^&]*/g, "=");
     if (seen.has(kind)) return false;
     seen.add(kind);
     return true;

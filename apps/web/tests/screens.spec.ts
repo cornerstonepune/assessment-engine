@@ -37,7 +37,7 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Today", "Children", "Marking", "Make papers", "Papers", "Curriculum", "Question bank"]) {
+  for (const label of ["Today", "Children", "Marking", "Make papers", "Curriculum"]) {
     await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });
@@ -55,8 +55,9 @@ test("a menu item stays readable while the pointer is on it", async ({ page }) =
 });
 
 test("the menu marks where you are", async ({ page }) => {
+  // the question bank is part of the Curriculum: its page marks Curriculum
   await page.goto("/library");
-  await expect(page.getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
 });
 
 // A child's page reads as a ladder in the school's own words: no rung, skill-set or mistake code
