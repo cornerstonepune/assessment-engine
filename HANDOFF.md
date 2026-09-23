@@ -19,7 +19,8 @@ fails on an unapplied migration, answers off the shown skills, a stale graph, a 
 "See the paper": `focus_paper.preview` renders the proposed home or custom paper to PDF in a temp folder, QR `PREVIEW`,
 nothing written; `GET /child/{id}/focus/paper.pdf`, `POST /child/{id}/paper/plan.pdf`, web `/api/see/[child]`, linked
 from the child page, each /make/[section] row and /make/custom. Tested: its text equals the printed paper's but the QR.
-Next: Marking totals row, `engine read file`.
+Marking: an "Answers read" column and a Total row under by class, by child and by worksheet, so engine + person +
+waiting visibly add up to the answers read (u3-marking spec asserts it). Next: `engine read file` (QR scans).
 
 ## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
 

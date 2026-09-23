@@ -8,12 +8,22 @@ export const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
 
 /** A group of papers — a class, a child, a worksheet, everything — and where the answers on them stand. */
-export type Standing = { papers: number; engine: number; person: number; waiting: number; signed: number; toSign: number; answersToSign: number };
+export type Standing = {
+  papers: number;
+  answers: number;
+  engine: number;
+  person: number;
+  waiting: number;
+  signed: number;
+  toSign: number;
+  answersToSign: number;
+};
 
 export function standing(rows: PaperRow[]): Standing {
   const read = rows.filter((p) => p.n_results > 0);
   return {
     papers: read.length,
+    answers: rows.reduce((n, p) => n + p.n_results, 0),
     engine: rows.reduce((n, p) => n + p.n_engine, 0),
     person: rows.reduce((n, p) => n + p.n_person, 0),
     waiting: rows.reduce((n, p) => n + p.n_waiting, 0),
@@ -23,11 +33,13 @@ export function standing(rows: PaperRow[]): Standing {
   };
 }
 
-/** The same four numbers as table cells, labelled for a test to read. */
+/** The same numbers as table cells, labelled for a test to read. Every answer read is settled by the engine, checked
+ *  by a person or still waiting, so the three after "Answers read" add up to it. */
 export function StandingCells({ s }: { s: Standing }) {
   return (
     <>
       <td className="num" data-testid="papers">{s.papers}</td>
+      <td className="num" data-testid="answers">{s.answers}</td>
       <td className="num" data-testid="engine">{s.engine}</td>
       <td className="num" data-testid="person">{s.person}</td>
       <td className="num" data-testid="waiting">{s.waiting ? <Pill tone="bamboo">{s.waiting}</Pill> : "—"}</td>
@@ -41,12 +53,27 @@ export function StandingCells({ s }: { s: Standing }) {
 export const STANDING_HEADS = (
   <>
     <th className="text-right">Papers in</th>
+    <th className="text-right">Answers read</th>
     <th className="text-right">Settled by the engine</th>
     <th className="text-right">Checked by a person</th>
     <th className="text-right">Still waiting</th>
     <th>Signed off</th>
   </>
 );
+
+/** The row under a table that adds its rows up: every paper and answer in it, so the columns visibly sum. `span` is
+ *  how many columns come before the numbers (the name, and a count of children when the table has one). */
+export function TotalRow({ rows, span, kids }: { rows: PaperRow[]; span: number; kids?: number }) {
+  return (
+    <tfoot>
+      <tr aria-label="Total" className="font-semibold">
+        <td colSpan={kids === undefined ? span : span - 1}>Total</td>
+        {kids === undefined ? null : <td className="num">{kids}</td>}
+        <StandingCells s={standing(rows)} />
+      </tr>
+    </tfoot>
+  );
+}
 
 /** One kind of number in the top row: a count and its words, the count labelled for a test to read. */
 export function Count({ id, n, words, tone }: { id: string; n: number; words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }) {

@@ -169,6 +169,12 @@ test("by class, by child and by worksheet, each count is where the engine says e
   expect(mine).toEqual({ papers: 3, engine: 8, person: 3, waiting: 4 });
   expect(await shown(cls)).toEqual(mine);
   await expect(cls).toContainText("1 of 3 signed off");
+  // the total row adds every class up, and every answer read is the engine's, a person's or still waiting
+  const total = page.getByRole("row", { name: "Total" });
+  const all = await counts();
+  expect(await shown(total)).toEqual(all);
+  const answers = Number(await total.getByTestId("answers").innerText());
+  expect(answers).toBe(all.engine + all.person + all.waiting);
 
   // by child: the class opens as its children
   await cls.getByRole("link", { name: SECTION, exact: true }).click();

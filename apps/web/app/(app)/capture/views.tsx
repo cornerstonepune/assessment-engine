@@ -5,7 +5,7 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import type { PaperRow } from "@/lib/queries-read";
-import { PaperTable, STANDING_HEADS, StandingCells, standing } from "./parts";
+import { PaperTable, STANDING_HEADS, StandingCells, TotalRow, standing } from "./parts";
 
 const roll = (r: string) => Number(r.replace(/\D/g, "")) || 9999;
 const groupBy = <T,>(rows: T[], key: (r: T) => string) =>
@@ -35,6 +35,7 @@ export function ByClass({ papers }: { papers: PaperRow[] }) {
               </tr>
             ))}
           </tbody>
+          <TotalRow rows={papers} span={2} kids={new Set(papers.map((r) => r.child_id)).size} />
         </table>
       </div>
     </Panel>
@@ -81,6 +82,7 @@ export function ByChild({ papers, only }: { papers: PaperRow[]; only?: string })
                     </tr>
                   ))}
                 </tbody>
+                <TotalRow rows={rows} span={2} />
               </table>
             </div>
           </Panel>
@@ -116,6 +118,7 @@ export function ByWorksheet({ papers }: { papers: PaperRow[] }) {
               </tr>
             ))}
           </tbody>
+          <TotalRow rows={papers} span={2} kids={new Set(papers.map((r) => r.child_id)).size} />
         </table>
       </div>
     </Panel>
