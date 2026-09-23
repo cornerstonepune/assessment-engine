@@ -3,6 +3,7 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { staffList } from "@/lib/queries";
+import { seeHref } from "@/lib/next-paper";
 import { classHome } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
 import { approveHome } from "../actions";
@@ -93,6 +94,11 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                               Approve
                             </button>
                           </form>
+                        ) : null}
+                        {!done && a ? (
+                          <a href={seeHref(c.id, week)} target="_blank" rel="noreferrer" className="mr-3">
+                            See the paper
+                          </a>
                         ) : null}
                         <Link href={`/make/custom?child=${c.id}`}>Choose a paper</Link>
                       </td>

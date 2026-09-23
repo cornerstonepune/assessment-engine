@@ -16,7 +16,10 @@ ADD.MANY's Advance (a seed change, so ADD.MANY waits for approval again). **On l
 since rehome places by stored tags. Marking G2 484 = 30 papers' printed questions, each counted once (checked).
 `bin/update-live` now runs relabel → rehome → refill → library → graph and ends with `engine live data` (read only;
 fails on an unapplied migration, answers off the shown skills, a stale graph, a question counted twice).
-Next: See the paper, Marking totals row, `engine read file`.
+"See the paper": `focus_paper.preview` renders the proposed home or custom paper to PDF in a temp folder, QR `PREVIEW`,
+nothing written; `GET /child/{id}/focus/paper.pdf`, `POST /child/{id}/paper/plan.pdf`, web `/api/see/[child]`, linked
+from the child page, each /make/[section] row and /make/custom. Tested: its text equals the printed paper's but the QR.
+Next: Marking totals row, `engine read file`.
 
 ## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
 

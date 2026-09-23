@@ -21,3 +21,10 @@ export function readArea(s: string): Area | null {
   const count = Number(n);
   return skill_set && level && Number.isInteger(count) ? { skill_set, level, n: count } : null;
 }
+
+/** Where a paper is seen as it will print, before approval: the home paper, or the areas a teacher chose. */
+export function seeHref(childId: string, week: string, areas: Area[] = []): string {
+  const q = new URLSearchParams({ week });
+  for (const a of areas) q.append("a", `${a.skill_set}~${a.level}~${a.n}`);
+  return `/api/see/${childId}?${q}`;
+}

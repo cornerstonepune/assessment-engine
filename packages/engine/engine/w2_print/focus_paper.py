@@ -15,7 +15,9 @@ the paper names who approved it. One next paper a week: a second approval is ref
 
 import json
 import random
+import tempfile
 from dataclasses import replace
+from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
@@ -35,7 +37,11 @@ WHY = {
     "asked": "chosen by a teacher",
 }
 HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by their teacher"}
-MOST_ASKED = 40  # questions in one area of a paper a teacher asks for
+MOST_ASKED = 40
+PREVIEW = (
+    "PREVIEW"  # the QR a paper seen before approval carries: no sheet has it, so a stray copy never reads
+)
+NOTHING = "nothing to work on: the child's graph shows no area they lag in, or the bank has no unseen question for it"  # questions in one area of a paper a teacher asks for
 
 
 def rule(conn) -> dict:
@@ -231,12 +237,7 @@ def make(conn, child_id: str, week: str, actor: str, ask: list | None = None) ->
     had = None if ask else approved(conn, child_id, week)
     if had:
         raise ValueError(f"this week's next paper is already approved: {had['qr']} by {had['approved_by']}")
-    p = plan(conn, child_id, week, ask)
-    ids = [q["id"] for a in p["areas"] for q in a["questions"]]
-    if not ids:
-        raise ValueError(
-            "nothing to work on: the child's graph shows no area they lag in, or the bank has no unseen question for it"
-        )
+    p, ids = _planned(conn, child_id, week, ask)
     child = conn.execute("select tenant_id, band, section from child where id = %s", (child_id,)).fetchone()
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)"
@@ -255,16 +256,39 @@ def make(conn, child_id: str, week: str, actor: str, ask: list | None = None) ->
         " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id on conflict do nothing",
         (child["tenant_id"], child_id, week, ids),
     )
-    rows = {str(r["id"]): r for r in conn.execute("select * from item where id = any(%s::uuid[])", (ids,))}
-    title = "Practice on: " + " · ".join(a["name"] for a in p["areas"])
-    sheet = Sheet(qr, child["band"], "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
-    name = roster.names(conn, [child_id], actor).get(child_id, "")
     outdir = db.REPO_ROOT / "data" / "focus" / week
-    with sync_playwright() as pw:
-        key = render_sheet(sheet, outdir, week_label=f"{name or 'Practice'} · {HOW[kind]}", pw=pw)
+    key = _render(conn, child_id, week, actor, kind, p, ids, qr, outdir)
     pdf = outdir / f"{qr}.pdf"
     conn.execute(
         "update sheet_instance set pdf_path = %s, key = %s where id = %s",
         (str(pdf), json.dumps(key), instance),
     )
     return {"qr": qr, "pdf_path": str(pdf), "pages": key["pages"], "questions": len(ids), "areas": p["areas"]}
+
+
+def _planned(conn, child_id, week, ask):
+    p = plan(conn, child_id, week, ask)
+    ids = [q["id"] for a in p["areas"] for q in a["questions"]]
+    if not ids:
+        raise ValueError(NOTHING)
+    return p, ids
+
+
+def _render(conn, child_id, week, actor, kind, p, ids, qr, outdir):
+    """The paper as it prints, into `outdir` as `<qr>.pdf`; returns its key. Approving and seeing it both come here."""
+    band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
+    rows = {str(r["id"]): r for r in conn.execute("select * from item where id = any(%s::uuid[])", (ids,))}
+    title = "Practice on: " + " · ".join(a["name"] for a in p["areas"])
+    sheet = Sheet(qr, band, "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
+    name = roster.names(conn, [child_id], actor).get(child_id, "")
+    with sync_playwright() as pw:
+        return render_sheet(sheet, outdir, week_label=f"{name or 'Practice'} · {HOW[kind]}", pw=pw)
+
+
+def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> bytes:
+    """The paper `make` would print now, as PDF bytes, before anyone approves it: the same plan, the same page,
+    its QR `PREVIEW`. Nothing is written — no sheet, no QR, no question marked seen."""
+    p, ids = _planned(conn, child_id, week, ask)
+    with tempfile.TemporaryDirectory() as tmp:
+        _render(conn, child_id, week, actor, "custom" if ask else "focus", p, ids, PREVIEW, tmp)
+        return (Path(tmp) / f"{PREVIEW}.pdf").read_bytes()

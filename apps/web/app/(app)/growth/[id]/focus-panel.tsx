@@ -6,6 +6,7 @@ import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
+import { seeHref } from "@/lib/next-paper";
 import { approveNextPaper } from "../actions";
 import { fmtDate } from "./answers";
 
@@ -66,7 +67,10 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
           <form action={approveNextPaper} className="mt-4">
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
-            <button className="btn" type="submit">Approve this paper</button>
+            <button className="btn" type="submit">Approve this paper</button>{" "}
+            <a href={seeHref(childId, week)} target="_blank" rel="noreferrer" className="ml-3">
+              See the paper
+            </a>
             <p className="note mt-2">
               Approving prints it in your name as {name}&rsquo;s paper for this week.{" "}
               <Link href={`/make/custom?child=${childId}`}>Choose a different paper</Link>

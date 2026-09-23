@@ -62,3 +62,31 @@ def test_a_request_the_bank_cannot_fill_says_why(client, child):
         client.post(f"/child/{child}/paper/plan", headers=HEADERS, json={**ASK, "areas": []}).status_code
         == 422
     )
+
+
+def test_the_website_sees_a_home_paper_and_an_asked_for_paper_as_pdfs_before_approving_them(
+    client, child, conn
+):
+    home = client.get(
+        f"/child/{child}/focus/paper.pdf", headers=HEADERS, params={"week": ASK["week"], "by": "t"}
+    )
+    assert home.status_code == 409 and "nothing to work on" in home.json()["detail"], (
+        "no answers, no home paper"
+    )
+    conn.execute(
+        "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, observed_at,"
+        " confirmed_by) select tenant_id, id, 'NUM.OPS.01', 'R22', false, 'item', now(), 't'"
+        " from child, generate_series(1, 4) where id = %s",
+        (child,),
+    )
+    conn.execute("select rebuild_child_skill_state(%s)", (child,))
+    home = client.get(
+        f"/child/{child}/focus/paper.pdf", headers=HEADERS, params={"week": ASK["week"], "by": "t"}
+    )
+    assert home.status_code == 200, home.text
+    assert home.headers["content-type"] == "application/pdf" and home.content.startswith(b"%PDF")
+    asked = client.post(f"/child/{child}/paper/plan.pdf", headers=HEADERS, json={**ASK, "by": "t"})
+    assert asked.status_code == 200 and asked.content.startswith(b"%PDF")
+    bad = {**ASK, "by": "t", "areas": [{"skill_set": "SUB.1D1D", "level": "Hard", "n": 4}]}
+    refused = client.post(f"/child/{child}/paper/plan.pdf", headers=HEADERS, json=bad)
+    assert refused.status_code == 409 and "has no level 'Hard'" in refused.json()["detail"]

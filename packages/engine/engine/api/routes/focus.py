@@ -3,7 +3,7 @@ plan and the paper are `w2_print.focus_paper`; the website reads a plan here and
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 
 from engine.api.deps import get_conn, require_engine_key
@@ -57,6 +57,23 @@ def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn)) -> dict:
     return {"qr": made["qr"], "pages": made["pages"], "questions": made["questions"]}
 
 
+def _pdf(see) -> Response:
+    try:
+        pdf = see()
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from None
+    return Response(
+        pdf, media_type="application/pdf", headers={"content-disposition": "inline; filename=paper.pdf"}
+    )
+
+
+@router.get("/child/{child_id}/focus/paper.pdf")
+def focus_see(child_id: str, week: str, by: str, conn=Depends(get_conn)) -> Response:
+    """The home paper the graph proposes, as it will print, before anyone approves it. Writes nothing."""
+    child = _child(child_id)
+    return _pdf(lambda: focus_paper.preview(conn, child, week, by))
+
+
 def _ask(body: Ask) -> list[dict]:
     if not body.areas:
         raise HTTPException(status_code=422, detail="ask for at least one skill")
@@ -81,3 +98,10 @@ def paper_make(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> dict:
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e)) from None
     return {"qr": made["qr"], "pages": made["pages"], "questions": made["questions"]}
+
+
+@router.post("/child/{child_id}/paper/plan.pdf")
+def paper_see(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> Response:
+    """The paper a teacher asks for, as it will print, before they approve it. Writes nothing."""
+    child, ask = _child(child_id), _ask(body)
+    return _pdf(lambda: focus_paper.preview(conn, child, body.week, body.by, ask))

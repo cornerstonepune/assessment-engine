@@ -4,7 +4,7 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
-import { readArea, type Area } from "@/lib/next-paper";
+import { readArea, seeHref, type Area } from "@/lib/next-paper";
 import { GRADE_GROUPS, levelsOf, skillSets } from "@/lib/queries";
 import { oneChild } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
@@ -124,7 +124,10 @@ export default async function CustomPaper({ searchParams }: Props) {
                     ))}
                     <button className="btn" type="submit">
                       Approve and print
-                    </button>
+                    </button>{" "}
+                    <a href={seeHref(id, week, areas)} target="_blank" rel="noreferrer" className="ml-3">
+                      See it as it will print
+                    </a>
                   </form>
                 </>
               ) : !refused ? (
