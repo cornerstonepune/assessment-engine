@@ -7,7 +7,7 @@ registry cannot be trusted as the thing every assessment result joins to.
 
 import json
 
-from engine.core import db
+from engine.core import db, topics
 
 SEED = db.REPO_ROOT / "supabase" / "seed"
 
@@ -32,6 +32,7 @@ FILLED_TABLES = (
     "config",
     "skill_set",
     "subject",
+    "topic",
 )
 
 THRESHOLDS = [
@@ -540,6 +541,7 @@ def load_all() -> dict[str, int]:
             _subjects,
         ):
             step(conn, t)
+        topics.load(conn, t, _seed)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 

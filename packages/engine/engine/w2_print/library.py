@@ -240,6 +240,11 @@ def check(conn):
             where,
         ).fetchall()
         problems = []
+        if len(questions) < n:
+            # the tree shows every level: one that cannot fill a worksheet is empty to a teacher, so it is refused
+            problems.append(
+                f"holds {len(questions)} questions, too few for one worksheet: fill it or remove the level"
+            )
         need = worksheets_needed(len(questions), n)
         if len(sheets) < need:
             problems.append(f"{len(sheets)} worksheets, needs {need}")
