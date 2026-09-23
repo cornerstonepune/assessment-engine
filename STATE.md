@@ -3285,7 +3285,8 @@ session (Postgres 16, 27 migrations, `engine load`, `engine bank refill` → 16,
   `engine week focus … --make` now refuses without `--by` — a paper prints only in a person's name.
 - Fixed on the way: the child page's tiles counted "under half right" as practising (now red, from `rag.ts`); the
   graph's footnote said the same; lanes were hidden by whether answers had item rows, not by the graph's own states.
-- `apps/web/tests/u2-children.spec.ts` 5 passed; `s11`, `u1`, `screens`, `e2e` menu updated and passing;
+- `apps/web/tests/u2-children.spec.ts` 5 passed, together and each on its own (as `engine done` runs them), twice in a
+  row with nothing left behind; the class grid names steps in words, and its names column stays put on a phone; `s11`, `u1`, `screens`, `e2e` menu updated and passing;
   `test_focus_paper.py` 5 passed, `test_cli.py` 21 passed; `bin/check` green; `tsc`, `eslint` clean.
 - **Failing on unchanged main as well, on this copy — named, not inherited silently:** `e2e` "no two children share
   questions" and `s7` "names the worksheet each child was given" (need live's G3 class and week T2W1); `s4` "the queue

@@ -11,6 +11,7 @@
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 import { ENGINE_PORT } from "../playwright.config";
+import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
 
 test.describe.configure({ mode: "serial" });
@@ -92,7 +93,8 @@ async function clearUp() {
   const children = sql`select id from child where section = ${SECTION}`;
   await sql`delete from item_exposure where child_id in (${children})`;
   await sql`delete from prescription where child_id in (${children})`;
-  await sql`delete from sheet_instance where child_id in (${children})`;
+  // the children's papers, and the class's spare copies of the week, which name no child
+  await sql`delete from sheet_instance where child_id in (${children}) or week = ${WEEK}`;
   await sql`delete from sheet_template where child_id in (${children})`;
   await sql`delete from sheet_template where week = ${WEEK}`;
 }
@@ -228,6 +230,9 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
 test("a child's page lists every paper made for them or read from them, with its purpose and who approved it", async ({
   page,
 }) => {
+  // the child's next paper, approved in the engine by the test's teacher unless the test before did it on the page
+  const [had] = await sql`select 1 from sheet_instance where child_id = ${ids.Asha}::uuid and kind = 'focus'`;
+  if (!had) await engine(`/child/${ids.Asha}/focus`, { week: isoWeek(), by: TEST_STAFF.email });
   const rows = await sql<{ qr_code: string; kind: string; approved_by: string | null }[]>`
     select qr_code, kind, approved_by from sheet_instance where child_id = ${ids.Asha}::uuid`;
   expect(rows.map((r) => r.kind).sort()).toEqual(["focus", "practice"]);

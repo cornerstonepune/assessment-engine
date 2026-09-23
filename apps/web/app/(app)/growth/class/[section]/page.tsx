@@ -42,7 +42,9 @@ export default async function ClassPage({ params }: Props) {
           <table className="grid" aria-label={`${section}: each child on each step`}>
             <thead>
               <tr>
-                <th rowSpan={2}>Child</th>
+                <th rowSpan={2} className="pin">
+                  Child
+                </th>
                 {skills.map(([code, name]) => (
                   <th key={code} colSpan={steps.filter((s) => s.skill_code === code).length} className="border-l border-basalt/12">
                     {name}
@@ -55,9 +57,12 @@ export default async function ClassPage({ params }: Props) {
                     key={stepKey(s)}
                     data-col={stepKey(s)}
                     title={s.descriptor}
-                    className={`min-w-[88px] max-w-[110px] align-top text-[11px] font-normal normal-case tracking-normal ${i === 0 || steps[i - 1].skill_code !== s.skill_code ? "border-l border-basalt/12" : ""}`}
+                    className={`min-w-[96px] max-w-[120px] align-top ${i === 0 || steps[i - 1].skill_code !== s.skill_code ? "border-l border-basalt/12" : ""}`}
                   >
-                    <span className="line-clamp-3 leading-tight">{s.descriptor}</span>
+                    {/* the table's headings are small capitals; a step's words are a sentence, so they are set as one */}
+                    <span className="line-clamp-3 block text-[11.5px] font-normal normal-case leading-tight tracking-normal text-basalt/75">
+                      {s.descriptor}
+                    </span>
                   </th>
                 ))}
               </tr>
@@ -65,7 +70,8 @@ export default async function ClassPage({ params }: Props) {
             <tbody>
               {children.map((c) => (
                 <tr key={c.id} data-child={c.id}>
-                  <td className="whitespace-nowrap">
+                  {/* the names stay put while a phone scrolls the steps */}
+                  <td className="pin whitespace-nowrap">
                     <span className="fact mr-2 text-basalt/55">{c.roll_no}</span>
                     <Link href={`/growth/${c.id}`} className="underline decoration-basalt/30 underline-offset-4">
                       {c.first_name}

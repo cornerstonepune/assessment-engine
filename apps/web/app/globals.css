@@ -127,6 +127,17 @@ table.grid td {
   border-bottom: 1px solid var(--ink-09);
   vertical-align: top;
 }
+/* A column that stays put while a wide table scrolls sideways (a class's children against every step). The
+   header's tint is see-through, so a pinned heading lays it over chalk; otherwise the scrolled cells show through. */
+table.grid .pin {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--chalk);
+}
+table.grid th.pin {
+  background: linear-gradient(var(--ink-03), var(--ink-03)), var(--chalk);
+}
 table.grid td.num {
   text-align: right;
   font-variant-numeric: tabular-nums lining-nums;
