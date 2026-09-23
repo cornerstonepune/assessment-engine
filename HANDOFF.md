@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, later — the next paper chosen from the child's graph (goal s11-focus-paper)
+
+Built on the copy (STATE): `assess/focus.py`, `w2_print/focus_paper.py`, the "Next paper, from their own work"
+panel on each child's Growth page with "Make this paper". **On live, after merge and `deploy/go-live.sh`:** apply
+migration `20260929090000_a_paper_made_for_one_child.sql` (as every migration reaches live), `bin/engine load` (the
+`focus` config row), then open a checked child's Growth page. From the terminal: `bin/engine week focus G2 <first
+name> 2026-W39` shows the plan; add `--make` to print it. **Next:** the class's weekly `prescribe` still groups by
+rung — move it onto `assess.focus` too, or retire it in favour of this; then steps 9 and 10.
+
 ## 2026-09-23 — the bank validated against the taxonomy (branch `claude/gallant-cray-zvj5ey`)
 
 Every question checked by solvers outside the engine: 0 wrong keys in 16,714. Five defects fixed with tests

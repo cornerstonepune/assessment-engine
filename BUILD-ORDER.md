@@ -232,6 +232,23 @@ to `workflows.json` by `tests/test_layout.py`; each step marked any subject or m
 page drawing the map with live numbers (`goals/workflows-visible.yaml`); then `engine promises`, `engine done`
 and `bin/check` run by a git hook and a Claude Code Stop hook (`goals/promises-kept.yaml`).
 
+## Inserted now: the next paper chosen from the child's graph — Nimish, 2026-09-23
+
+Asked whether the graph makes the child's next assessment, the answer was no: the teacher picks one skill
+set for the class, the child's repeated mistakes are computed and then ignored, and combined questions and
+mixed papers (steps 9, 10) are goal files only. Nimish: *"Now let's build this out … do not complicate this
+thing. These are like modules … After 34 evaluations, the system is able to see that there are certain areas
+where the child lags. Based on some simple, smart logic, the system is able to go ahead and choose random
+questions from the skill bank that it already has. That's that."* Goal: `goals/s11-focus-paper.yaml`.
+
+Three modules, nothing else: **`assess/focus.py`** reads the graph (pure: lagging areas, weakest first, at
+most three, each a skill set and a level); **`w2_print/focus_paper.py`** draws twelve random unseen bank
+questions for those areas, the child's own repeated mistake first, and prints them as a paper with its QR;
+**the Growth page** says which areas and why, lists the questions, and makes the paper. It reads a weak
+skill by its skill as well as its rung, so subtraction mistakes on an addition rung are worked on as
+subtraction — the next-paper fault queued in HANDOFF, fixed for this paper at its cause. Steps 9 and 10 are
+unchanged and follow this.
+
 ## The four workflows, in the order they are built
 
 The names are `ARCHITECTURE.md` §6.1's; the nodes are `docs/sources/assessment-workflow-v1.md`'s.

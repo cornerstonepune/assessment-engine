@@ -4,23 +4,21 @@ import type { ReactNode } from "react";
 import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile, TONE_BG } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import {
-  RULE_WORDS,
   STATE_WORDS,
   childEvidence,
   childHeader,
   childMap,
-  childNext,
   childPapers,
   misconceptionNames,
   numSkills,
   pendingResults,
   type Evidence,
-  type NextStep,
   type RungState,
   type Skill,
 } from "@/lib/queries";
 import { confirmChild, resolveOne } from "../actions";
 import { deadline } from "@/lib/deadline";
+import { FocusPanel } from "./focus-panel";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 const MACHINE = ["correct", "wrong", "blank"];
@@ -48,10 +46,9 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, map, next, evidence, pending, papers, names, skills] = await deadline(Promise.all([
+  const [child, map, evidence, pending, papers, names, skills] = await deadline(Promise.all([
     childHeader(id, me.email),
     childMap(id),
-    childNext(id),
     childEvidence(id),
     pendingResults(id),
     childPapers(id),
@@ -187,26 +184,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           </div>
 
           <div className="grid content-start gap-[18px] self-start xl:sticky xl:top-6">
-            <Panel title="Next papers">
-              <ul className="grid gap-4">
-                {next.map((n) => (
-                  <li key={n.code} className="text-[13.5px]">
-                    <Link href={`/skill-sets/${n.code}`} className="text-basalt no-underline hover:underline">{n.name}</Link>
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <DifficultyPill n={n} />
-                      <span className="text-[12px] text-basalt/62">{RULE_WORDS[n.rule] ?? n.rule}</span>
-                    </div>
-                    {n.targets.length ? (
-                      <div className="mt-1 text-[12.5px] text-terracotta">Aim at: {n.targets.map((t) => names[t] ?? t).join("; ")}</div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              <p className="note mt-4">
-                80 % right steps the difficulty up; under 50 % steps it down and names the mistake to aim at; between,
-                hold.
-              </p>
-            </Panel>
+            <FocusPanel childId={id} name={child.first_name} made={q.paper && /^CS[0-9A-F]{6}$/.test(q.paper) ? q.paper : undefined} />
 
             <Panel title="Papers read" aside={`${read.length}`}>
               {read.length === 0 ? (
@@ -358,10 +336,6 @@ function AnswerTable({ rows, names }: { rows: AnswerRow[]; names: Record<string,
       </table>
     </div>
   );
-}
-
-function DifficultyPill({ n }: { n: NextStep }) {
-  return n.difficulty ? <Pill tone={n.rule === "from_state" ? "neem" : "monsoon"}>{n.difficulty}</Pill> : <Pill tone="monsoon">starting level</Pill>;
 }
 
 // One glyph per state, in the state's material: a tick, an arrow, a dot, a bang, an empty ring.
