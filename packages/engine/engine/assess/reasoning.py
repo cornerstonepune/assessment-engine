@@ -9,6 +9,7 @@ Deterministic given an RNG. A ticked answer's wrong option carries the mistake i
 
 from . import misconceptions as M
 from .items import Response, _cells, _item
+from .rounding import half_up
 
 MINUS = "−"
 UNFIT = "these numbers do not make this question; draw again"
@@ -29,12 +30,18 @@ def _pair(rng, op, digits):
 
 
 def choose_estimate(rng, rung, signal, op="+", digits=3):
+    """Three hundreds in order, the nearest one right. It sits first, in the middle or last in turn, so
+    ticking one place every time scores a third, not everything; an exact answer ending in 50 is equally
+    near two of them, a question with two answers, so it is never asked."""
     a, b = _pair(rng, op, digits)
     exact = a + b if op == "+" else a - b
-    near = round(exact, -2)
-    one_rounded = round(round(a, -2) + b if op == "+" else round(a, -2) - b, -2)
-    options = sorted({near, near - 100, near + 100} - {0})
-    if len(options) < 3 or near <= 0:
+    if exact % 100 == 50:
+        raise RuntimeError(UNFIT)
+    near = half_up(exact, 100)
+    one_rounded = half_up(half_up(a, 100) + b if op == "+" else half_up(a, 100) - b, 100)
+    low = near - 100 * rng.choice((0, 1, 2))
+    options = [low, low + 100, low + 200]
+    if low <= 0:
         raise RuntimeError(UNFIT)
     mis = {"M_ROUNDS_ONE_NUMBER": one_rounded} if one_rounded in options and one_rounded != near else {}
     rs = [
@@ -42,7 +49,7 @@ def choose_estimate(rng, rung, signal, op="+", digits=3):
             "pick", "tick", str(near), options=[str(o) for o in options], label="closest", misconceptions=mis
         )
     ]
-    spec = dict(a=a, b=b, op=op, options=options)
+    spec = dict(a=a, b=b, op=op, options=options, right=options.index(near))
     return _item(
         "CLOSEST",
         rung,

@@ -89,6 +89,14 @@
       "description": "Children in one class. A unit must hold a paper for each of them plus the spares, drawn without replacement, or two children share a question (ADR 0016)."
     },
     {
+      "key": "bank.choice_answer_max_share",
+      "description": "A level's questions answered by ticking fail `engine audit` when more than this share of their right answers sit in one place (the middle option, or yes). Judged only once a level holds at least min_questions of them: forty fair coin tosses land three-quarters one way less than once in a thousand, so a generator that places the answer fairly almost never trips it.",
+      "value": {
+        "share": 0.75,
+        "min_questions": 40
+      }
+    },
+    {
       "key": "skills.by_operation",
       "value": {
         "+": "NUM.OPS.01",

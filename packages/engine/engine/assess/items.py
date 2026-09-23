@@ -12,6 +12,7 @@ from typing import Any
 
 from . import misconceptions as M
 from .ladder import RUNGS
+from .rounding import half_up
 
 
 @dataclass
@@ -434,8 +435,7 @@ def estimate_then_calc(
         a, b = sample_add(rng, digits_a, digits_b, regroups)
     else:
         a, b = sample_sub(rng, digits_a, digits_b, regroups)
-    places = -len(str(round_to)) + 1
-    ra, rb = round(a, places), round(b, places)
+    ra, rb = half_up(a, round_to), half_up(b, round_to)
     est = ra + rb if op == "+" else ra - rb
     ans = a + b if op == "+" else a - b
     rs = [

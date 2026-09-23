@@ -3158,3 +3158,46 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   (`.claude/settings.json` in the repository, and `/Users/nimishshah/cornerstone/.claude/settings.json` for
   sessions started in the workspace). CLAUDE.md rule 14.
 
+
+## The bank validated question by question against the taxonomy; five defects fixed at their cause (2026-09-23)
+
+Nimish asked for every question and question bank validated against the team's taxonomy (the PDF he shared is the
+same text as `docs/sources/addition-subtraction-skill-taxonomy.txt`). Run on a copy built from the repository in a
+cloud session (Postgres 16, 25 migrations, `engine load`, `engine bank refill`, `engine library build`) — **not on
+live**: this session had no live credentials. Children's names and papers were not used.
+
+- **Checked independently, outside the engine** (solvers that import nothing from it): every sum re-worked from its
+  printed numbers (answer, digit lengths, order, layout, where each carry or exchange falls, the answer's length,
+  the carry pattern); every missing number, missing digit, balance, equation, fact family, number wall, parity,
+  closest-hundred, possible-answer, inverse check, break-apart, estimate, word problem, find-the-mistake and
+  compensation claim solved again, and every missing-digit and balance question found to have exactly one answer.
+  **16,714 questions: 0 wrong keys, 0 duplicates.** The "why" and "show your method" parts are a person's to judge.
+- **`engine bank recheck` covers 7,604 of 16,714** (sums, missing numbers, one-step stories); it skips every kind
+  whose spec holds more than two numbers. Named here so its "0 mismatches" is not read as the whole bank.
+- **Fixed, each with its tests** (`tests/test_taxonomy.py`, `test_rounding.py`, `test_reasoning.py`,
+  `test_items.py`, `test_verify.py`, `test_audit.py`):
+  1. `assess/tags.py` read a cascade where a carry left, not where it landed: 391 + 9 was "consecutive", 99 + 28
+     and 609 + 715 "cascading"; an exchange from a non-zero place was "across zero" when the column needing it
+     showed 0 (530 − 47). 676 questions' tags were wrong; P04, P05, P06, AN6, AZ6 counted the wrong questions.
+  2. Estimates rounded a 5 down (Python's half-to-even: 665 printed as 660, 985 as 980) — 105 of 1,188, on the
+     printed page. `assess/rounding.half_up` now does school rounding.
+  3. "Which is closest?" was answered by the middle option in 216 of 216; 3 had two equally near options
+     (483 + 367 = 850). The right option now sits first, middle or last in turn; a sum ending in 50 is never asked.
+  4. P16 (the leading digit lends, 105 − 97) counted 76 − 73: tag `highest_place_reduced`; 565 → 447.
+  5. New invariant in `engine audit`: **no choice is answered by ticking one place** (limit a row,
+     `bank.choice_answer_max_share`). A question made by a rule since corrected leaves the bank on the next
+     `engine bank refill` (`verify.key_problems`), and its worksheets are rebuilt; printed papers never change.
+- **After, on the copy:** `engine bank relabel` → tags 676 changed (then 4,794 more: the new tag on every
+  subtraction); `engine bank refill` → "retired 322 · added 324", a second run "retired 0 · added 0";
+  `engine library build` → "made 82 · retired 81"; `engine library check` → "1442 worksheets · 84 of 84 skill-levels
+  ready · 0 problems"; `engine bank taxonomy` → "269 cases · 269 covered · 0 missing · 0 thin"; `engine bank recheck`
+  → "0 mismatches"; `engine goal s8t-taxonomy-coverage` → 12/12 scenarios. Independent solvers: 0 disagreements;
+  closest-hundred answers first/middle/last 66/87/63.
+- **Found, not fixed — each needs a person** (in `HANDOFF.md`): the audit's new invariant names 6 levels whose
+  right tick is one answer by design — REASON.EXPLAIN Easy/Medium always "yes", Hard/Advance always "no"; the two
+  JUDGED estimate levels always "yes" (the seed changed the document's R07 example from 704 to 705, which makes
+  every answer "yes"). Estimates print the rounded numbers, so R01–R03 never ask a child to round. 23 mistake
+  codes the skill sets name exist only on live (`engine load` ORPHAN; a copy built from the repository fails
+  `test_no_code_refers_to_something_that_does_not_exist`). Document lines no case counts: §10.2 addition and
+  subtraction words, solving without keywords, writing the number sentence, same story different question;
+  §11's "carry written but not added" and "forgotten exchange" folded into X03 and X07.

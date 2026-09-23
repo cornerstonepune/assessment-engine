@@ -3,6 +3,27 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23 — the bank validated against the taxonomy (branch `claude/gallant-cray-zvj5ey`)
+
+Every question checked by solvers outside the engine: 0 wrong keys in 16,714. Five defects fixed with tests
+(STATE, 2026-09-23): the carry-pattern tagger, school rounding, the closest-hundred always in the middle, P16's
+matcher, and a new audit invariant against answers guessable by ticking one place. **On live, after the merge and
+`deploy/go-live.sh`, in this order:** `bin/engine load` → `bin/engine bank relabel` → `bin/engine bank refill` →
+`bin/engine library build` → `bin/engine library check` → `bin/engine bank taxonomy` → `bin/engine audit`.
+
+**Waiting on Nimish and Aseem, each named by `engine audit` or here:**
+- REASON.EXPLAIN: each level asks only true claims (Easy, Medium) or only false ones (Hard, Advance), so every tick
+  on a worksheet is the same answer. Mix both in every level? A rewrite waits for approval on the Skill Map.
+- R07 "does the answer make sense against the estimate": always "yes". The document's own example is a wrong but
+  sensible answer ("Does 704 make sense for 398 + 307?"); the seed changed it to 705. Show a claimed answer,
+  sometimes sensible, sometimes not?
+- Estimates print the rounded numbers ("estimate: 660 − 250 ="), so R01–R03 never ask the child to round. Keep the
+  scaffold at every level, or drop it above Easy?
+- §10.2 lines no case counts (addition and subtraction words, no keywords, write the number sentence, same story
+  different question) and §11's two folded errors — add as cases, or agree they are covered?
+- 23 mistake codes live only on live: export their `misconception` rows into `supabase/seed/misconceptions.json`
+  (needs live read access) so a database built from the repository is the live one.
+
 ## 2026-09-22 — where this session stopped
 
 **Step 7 is live** (PR #11 merged, `10e51cc`). **Step 8 is built on branch `step-8`**: 8a–8d (ADR 0023, 0030 — a

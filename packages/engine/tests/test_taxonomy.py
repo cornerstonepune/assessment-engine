@@ -56,6 +56,26 @@ def two(op, a, b, layout="column"):
         ("+", 347, 100, "round_operand", "POWER_OF_TEN"),
         ("-", 503, 498, "difference_small", "YES"),
         ("+", 7, 342, "operand_order", "SHORTER_FIRST"),
+        # §5.1: a carry cascades when it lands on a column whose own digits make 9, so that column carries
+        # only because of it. 99 + 28 carries twice but the tens would carry anyway; 609 + 715 carries apart.
+        ("+", 399, 4, "regroup_pattern", "CASCADING"),
+        ("+", 1999, 6, "regroup_pattern", "CASCADING"),
+        ("+", 391, 9, "regroup_pattern", "CASCADING"),
+        ("+", 4, 399, "regroup_pattern", "CASCADING"),
+        ("+", 99, 28, "regroup_pattern", "CONSECUTIVE"),
+        ("+", 678, 457, "regroup_pattern", "CONSECUTIVE"),
+        ("+", 609, 715, "regroup_pattern", "NON_ADJACENT"),
+        # §5.2: an exchange crosses a zero when the place it exchanges from shows 0 in the top number.
+        # 530 − 47 exchanges from 3 and from 5; the 0 it starts on is not crossed.
+        ("-", 402, 185, "regroup_pattern", "ACROSS_ZERO"),
+        ("-", 1000, 476, "regroup_pattern", "ACROSS_ZERO"),
+        ("-", 530, 47, "regroup_pattern", "CONSECUTIVE"),
+        ("-", 352, 178, "regroup_pattern", "CONSECUTIVE"),
+        # §5.2 highest-place reduction: the leading digit lends (105 − 97 = 8), not merely a small difference
+        ("-", 105, 97, "highest_place_reduced", "YES"),
+        ("-", 1000, 476, "highest_place_reduced", "YES"),
+        ("-", 76, 73, "highest_place_reduced", "NO"),
+        ("-", 1043, 1039, "highest_place_reduced", "NO"),
     ],
 )
 def test_tags_measure_what_the_document_means(op, a, b, key, want):
