@@ -1,5 +1,5 @@
-"""A child's next paper chosen from their own graph (goal s11-focus-paper). Thin: the plan and the paper
-are `w2_print.focus_paper`; the Growth page reads the plan here and asks for the paper here."""
+"""A child's own paper: the home paper the graph proposes, or one a teacher asks for (Make papers). Thin: the
+plan and the paper are `w2_print.focus_paper`; the website reads a plan here and asks for the paper here."""
 
 import uuid
 
@@ -14,6 +14,21 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 class MakeFocus(BaseModel):
     week: str
+    by: str
+
+
+class Area(BaseModel):
+    skill_set: str
+    level: str
+    n: int
+
+
+class Ask(BaseModel):
+    week: str
+    areas: list[Area]
+
+
+class MakeAsked(Ask):
     by: str
 
 
@@ -37,6 +52,32 @@ def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn)) -> dict:
     """`by` approves that plan: it prints as the child's paper, with its QR, in their name; once a week."""
     try:
         made = focus_paper.make(conn, _child(child_id), body.week, body.by)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from None
+    return {"qr": made["qr"], "pages": made["pages"], "questions": made["questions"]}
+
+
+def _ask(body: Ask) -> list[dict]:
+    if not body.areas:
+        raise HTTPException(status_code=422, detail="ask for at least one skill")
+    return [a.model_dump() for a in body.areas]
+
+
+@router.post("/child/{child_id}/paper/plan")
+def paper_plan(child_id: str, body: Ask, conn=Depends(get_conn)) -> dict:
+    """What a paper a teacher asks for would hold, question by question. Writes nothing; refused in words when
+    the bank cannot fill it."""
+    try:
+        return focus_paper.plan(conn, _child(child_id), body.week, _ask(body))
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from None
+
+
+@router.post("/child/{child_id}/paper")
+def paper_make(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> dict:
+    """`by` approves the paper they asked for: it prints for the child, with its QR, in their name."""
+    try:
+        made = focus_paper.make(conn, _child(child_id), body.week, body.by, _ask(body))
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e)) from None
     return {"qr": made["qr"], "pages": made["pages"], "questions": made["questions"]}

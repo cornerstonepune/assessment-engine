@@ -62,12 +62,12 @@ test("a child's page says which areas the next paper works on and why, and makes
   await page.goto(`/growth/${child}`);
   await expect(page.getByRole("heading", { name: "Next paper, proposed by the engine" })).toBeVisible();
   const areas = page.getByRole("list", { name: "Areas the next paper works on" });
-  // the weakest first
+  // one skill, never a mix (goals/m1-make-papers.yaml): the weakest; the practising addition waits its turn
+  await expect(areas.getByRole("link", { name: "2-digit + 2-digit" })).toHaveCount(0);
   await expect(areas.getByRole("link", { name: "3-digit − 3-digit" })).toBeVisible();
   await expect(areas.getByText("Right 2 of 8 — the same mistake more than once")).toBeVisible();
-  await expect(areas.getByRole("link", { name: "2-digit + 2-digit" })).toBeVisible();
   await expect(areas.getByText("can show the mistake").first()).toBeVisible();
-  await expect(page.getByText("12 questions", { exact: true })).toBeVisible();
+  await expect(page.getByText("12 questions", { exact: true }).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Approve this paper" }).click();
   await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);

@@ -9,7 +9,7 @@ goal: >
 # old ladder rungs, which no skill in use carries, and a child's next paper found nothing to work on.
 says:
   - words: "this might also change how we show skills and child map accoding to skills"
-    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_never_seen_before
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_home_paper_is_one_skill_the_weakest_random_bank_questions_at_its_level_never_seen_before
   - words: "we dont need to rebuild the bank right ? just map the same"
     proved_by: packages/engine/tests/test_legacy.py::test_rung_from_shape
 manual:

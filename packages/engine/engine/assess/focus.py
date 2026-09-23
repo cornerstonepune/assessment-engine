@@ -9,6 +9,9 @@ stands; this answers one question — which few areas next, and at what level:
   nearest set for that skill within `rule["reach"]` rungs; else a set on the rung whose questions use the
   skill. So subtraction mistakes on an addition rung are worked on as subtraction.
 - its level follows how often the child was right: below `rule["easy_below"]` Easy, otherwise Medium.
+
+A home paper (`home`) is one area, never a mix: the weakest. A child who lags nowhere is stretched instead — their
+strongest skill, one level up, as `rule["stretch"]` says for its state (Nimish, 2026-09-23: "Stretch too").
 """
 
 from dataclasses import dataclass
@@ -74,3 +77,30 @@ def areas(states, catalog, rule):
         if key not in best or _weakness(area) < _weakness(best[key]):
             best[key] = area
     return sorted(best.values(), key=_weakness)[: rule["most"]]
+
+
+LEVELS = ("Easy", "Medium", "Hard", "Advance")  # the school's own four, in order
+
+
+def _at_most(level, defined):
+    """The hardest level a skill set defines that is no harder than `level`; None when it defines none."""
+    below = [d for d in LEVELS[: LEVELS.index(level) + 1] if d in defined]
+    return below[-1] if below else None
+
+
+def home(states, catalog, rule, levels):
+    """The one area a child's home paper works on: the weakest they lag in, or, when they lag nowhere, their
+    strongest skill one level up. `levels` is each skill set's defined levels. Empty when the graph shows neither."""
+    weak = areas(states, catalog, {**rule, "most": 1})
+    if weak:
+        return weak
+    strong = []
+    for s in states:
+        target = rule["stretch"].get(s["state"])
+        code = target and skill_set_for(s["skill_code"], s["rung_code"], catalog, rule["reach"])
+        level = code and _at_most(target, levels.get(code, ()))
+        if level:
+            area = Area(code, s["skill_code"], level, s["n_correct"], s["n_events"], None, s["state"])
+            strong.append(area)
+    strong.sort(key=lambda a: (-(a.right / a.answered if a.answered else 0), -a.answered, a.skill_set))
+    return strong[:1]

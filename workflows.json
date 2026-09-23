@@ -57,7 +57,7 @@
     },
     {
       "code": "N5", "workflow": "W2", "name": "Each child's next paper",
-      "does": "Chooses each child's next paper from their own graph: the areas they lag in, weakest first and at most three, each a skill set at a level set by how often they were right, then twelve random bank questions they have not seen, the ones that can show their repeated mistake first. The class's weekly paper still takes its skill set from the teacher. A teacher approves each next paper, in their name, before it prints.",
+      "does": "Makes each child's own paper from one request — skills, a level each, how many questions. A home paper's request comes from the child's graph: one skill, the weakest, at the level set by how often they were right, or a stretch one level up when they lag nowhere. A custom paper's comes from a teacher. Questions are random bank questions they have not seen, the ones that can show their repeated mistake first; a request the bank cannot fill is refused. The class's weekly paper still takes its skill set from the teacher. A teacher approves each paper, in their name, before it prints.",
       "who": "code",
       "built": "live",
       "takes": ["child_skill_state", "evidence_event"],
