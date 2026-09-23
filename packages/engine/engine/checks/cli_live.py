@@ -39,3 +39,19 @@ def live_data(
         typer.echo(line)
     if not ok:
         raise typer.Exit(1)
+
+
+@live_app.command("homes")
+def live_homes(
+    url: str = typer.Option(
+        "", "--url", help="a database address; default LIVE_READONLY_DATABASE_URL, else .env"
+    ),
+    week: str = typer.Option("", "--week", help="2026-W39; default this week"),
+) -> None:
+    """Every child's home paper this week as Make papers proposes it — section, roll, skill, level, questions.
+    Read only; no name is printed."""
+    week, rows = live_data_module.homes(url or None, week or None)
+    typer.echo(f"  week {week}")
+    for section, roll, what in rows:
+        typer.echo(f"  {section:<6}{roll:>4}  {what}")
+    typer.echo(f"  {len(rows)} children · {sum('×' in w for _, _, w in rows)} with a proposed paper")
