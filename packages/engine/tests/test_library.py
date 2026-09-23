@@ -119,6 +119,19 @@ def test_building_makes_every_level_ready_and_building_again_changes_nothing(con
 
 
 @needs_db
+def test_a_level_with_too_few_questions_for_one_worksheet_is_refused_never_passed_as_empty(conn):
+    """Nimish, 2026-09-23: "Everything should have something." A level is on the tree; one with no questions was
+    needing no worksheets and so passed the check, and showed a teacher an empty level."""
+    library.build(conn)
+    conn.execute(
+        "update item set status = 'retired' where skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'"
+    )
+    library.build(conn)
+    problems = library.check(conn)[1]
+    assert problems["SUB.2D2D Hard"][0].startswith("holds 0 questions, too few for one worksheet")
+
+
+@needs_db
 def test_a_removed_question_retires_its_worksheet_and_a_new_one_carries_the_rest(conn):
     library.build(conn)
     before = _unit(conn)
