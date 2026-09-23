@@ -14,7 +14,7 @@ type Props = { params: Promise<{ qr: string }> };
 // key it is marked against. Every sentence is filled from the paper's own rows.
 export default async function PaperPage({ params }: Props) {
   const { qr } = await params;
-  // A library worksheet (R5-H07) or a child's printed paper (CS + six hex): one address for both.
+  // A library worksheet (R22-H07) or a child's printed paper (CS + six hex): one address for both.
   if (LIBRARY_CODE.test(qr)) return <LibraryWorksheetPage code={qr} />;
   if (!/^CS[0-9A-F]{6}$/.test(qr)) notFound();
   const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));

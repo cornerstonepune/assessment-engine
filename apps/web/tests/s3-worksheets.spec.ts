@@ -55,13 +55,13 @@ test("the library on the Worksheets page holds exactly what the database holds",
 });
 
 test("a worksheet shows its twelve questions with their answers, and prints", async ({ page }) => {
-  await page.goto("/worksheets/R5-H03");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Worksheet R5-H03");
+  await page.goto("/worksheets/R22-H03");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Worksheet R22-H03");
   const rows = page.getByRole("table", { name: "Questions and answers" }).locator("tbody tr");
   await expect(rows).toHaveCount(12);
   const first = await rows.first().getByRole("link").getAttribute("href");
   expect(first).toMatch(/^\/library\//);
-  const pdf = await page.request.get("/api/worksheet/R5-H03");
+  const pdf = await page.request.get("/api/worksheet/R22-H03");
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
@@ -108,7 +108,7 @@ test("removing a question from its page retires the worksheet it was on and a ne
 
 test("the library and a worksheet fit a phone", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 860 });
-  for (const path of ["/worksheets", "/worksheets/R5-H03", "/skill-sets/ADD.2D2D?level=Easy"]) {
+  for (const path of ["/worksheets", "/worksheets/R22-H03", "/skill-sets/ADD.2D2D?level=Easy"]) {
     await page.goto(path, { waitUntil: "networkidle" });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, path).toBeLessThanOrEqual(1);

@@ -86,7 +86,7 @@ def test_spec_is_built_only_from_rows(conn):
     assert prompt_input["difficulty"].startswith("Hard:")
     assert any("exchange" in line.lower() for line in prompt_input["philosophy"])
     assert {m["code"] for m in prompt_input["misconceptions"]} >= {"M_SMALL_FROM_LARGE", "M_NO_DECREMENT"}
-    assert s["rung_code"] == "R6"
+    assert s["rung_code"] == "R30"  # SUB.3D2D's rung, which the fixture's skill set is made on
 
 
 def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
@@ -108,7 +108,7 @@ def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
         "generated",
         SET,
         DIFF,
-        "R6",
+        "R30",
     )
     assert row["tags"]["operation"] == "SUB" and row["tags"]["regrouping"] == "SINGLE"
 
