@@ -7,6 +7,7 @@
  */
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
+import { isoWeek } from "../lib/week";
 import { ENGINE_PORT } from "../playwright.config";
 
 test.describe.configure({ mode: "serial" });
@@ -77,6 +78,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
     "Today",
     "Children",
     "Marking",
+    "Make papers",
     "Papers",
     "Curriculum",
     "Question bank",
@@ -85,6 +87,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
   for (const [label, heading] of [
     ["Children", "Children"],
     ["Marking", "Marking"],
+    ["Make papers", "Make papers"],
     ["Papers", "Worksheets"],
     ["Curriculum", "Curriculum"],
     ["Question bank", "Question bank"],
@@ -107,16 +110,17 @@ test("today lists everything waiting on a teacher, each with its count and one c
   await pack.click();
   await expect(page).toHaveURL(new RegExp(`/worksheets\\?section=${SECTION}&week=${WEEK}&kind=practice`));
 
-  // a child whose checked work shows a red or amber skill, with no next paper made this week
+  // a child whose checked work gives the engine a home paper to propose — red, amber or green on any skill —
+  // with no home paper approved this week
   await page.goto("/today");
   const [{ n }] = await sql<{ n: number }[]>`
     select count(distinct s.child_id)::int as n from child_skill_state s join child c on c.id = s.child_id
-    where c.active and s.state in ('patterned_error', 'emerging', 'practising')
+    where c.active and s.state in ('patterned_error', 'emerging', 'practising', 'secure', 'stretch_ready')
       and not exists (select 1 from sheet_instance si where si.child_id = s.child_id and si.kind = 'focus'
-                      and si.created_at > date_trunc('week', now()))`;
-  expect(await count(page, "Next papers to approve")).toBe(n);
-  await page.getByRole("region", { name: "Next papers to approve" }).getByRole("link").first().click();
-  await expect(page).toHaveURL(/\/growth/);
+                      and si.week = ${isoWeek()})`;
+  expect(await count(page, "Home papers to approve")).toBe(n);
+  await page.getByRole("region", { name: "Home papers to approve" }).getByRole("link").first().click();
+  await expect(page).toHaveURL("/make");
 
   // the skills that wait for an approval
   await page.goto("/today");

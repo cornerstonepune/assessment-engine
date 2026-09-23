@@ -9,6 +9,7 @@ export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
   { href: "/capture", label: "Marking", icon: "camera", match: ["/capture"] },
+  { href: "/make", label: "Make papers", icon: "sheet", match: ["/make"] },
   { href: "/worksheets", label: "Papers", icon: "sheet", match: ["/worksheets", "/home"] },
   { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets"] },
   { href: "/library", label: "Question bank", icon: "bank", match: ["/library"] },

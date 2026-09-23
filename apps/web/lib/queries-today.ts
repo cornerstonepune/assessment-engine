@@ -1,6 +1,6 @@
 import { sql } from "./db";
 import { checkQueue, papersToApprove } from "./queries-read";
-import { NEEDS_WORK } from "./rag";
+import { proposedHomePapers } from "./queries-make";
 
 // Today — everything waiting on a teacher (goals/u1-today.yaml). Each count is the one the page it opens shows:
 // the answers queue and the papers to sign off are read through that page's own query, not a second copy of it.
@@ -10,12 +10,12 @@ export type Waiting = {
   answers: number; // answers left in the checking queue (spot-checks apart), as /capture/check counts them
   papers: number; // papers read with an answer not yet signed off, as /capture counts them
   packs: Pack[]; // class papers the engine proposed that no teacher has approved for print
-  nextPapers: number; // children with a red or amber skill and no next paper made this week
+  nextPapers: number; // children the engine proposes a home paper for this week, as Make papers counts them
   skills: number; // skill sets awaiting approval
 };
 
 export async function waiting(actor: string): Promise<Waiting> {
-  const [queue, read, packs, [{ next }], [{ skills }]] = await Promise.all([
+  const [queue, read, packs, next, [{ skills }]] = await Promise.all([
     checkQueue(),
     papersToApprove(actor),
     sql<Pack[]>`
@@ -24,12 +24,7 @@ export async function waiting(actor: string): Promise<Waiting> {
       where si.print_status = 'new' and si.kind in ('practice', 'assessment')
       group by c.section, si.week, si.kind
       order by si.week desc, c.section, si.kind`,
-    sql<{ next: number }[]>`
-      select count(distinct s.child_id)::int as next
-      from child_skill_state s join child c on c.id = s.child_id
-      where c.active and s.state = any(${NEEDS_WORK})
-        and not exists (select 1 from sheet_instance si where si.child_id = s.child_id and si.kind = 'focus'
-                        and si.created_at > date_trunc('week', now()))`,
+    proposedHomePapers(),
     sql<{ skills: number }[]>`select count(*)::int as skills from skill_set where status <> 'ratified'`,
   ]);
   return {

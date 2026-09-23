@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { EngineDown, engineSend } from "@/lib/engine";
 import { DIFFICULTIES } from "@/lib/queries";
 
 const BACK = (f: FormData) => {
@@ -30,29 +31,17 @@ export async function overrideChild(formData: FormData): Promise<void> {
   redirect(`${back}&changed=1`);
 }
 
-/** One tap for the whole class: the pack is approved and the sheets are marked printed.
- *  The approver's name is written with it — `sheet_instance_printed_needs_approver` refuses a
- *  printed sheet that cannot say who allowed it (migration 20260923090000). */
+/** One tap for the whole class: the engine approves the pack in the teacher's name (`w2_print/pack.py`), the one
+ *  approval the print flow uses too. The page once repeated it in its own SQL, which found papers through their
+ *  template's week — a library worksheet has none, so the tap approved nothing. */
 export async function approvePack(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const section = String(formData.get("section") ?? "");
   const week = String(formData.get("week") ?? "");
   const kind = String(formData.get("kind") ?? "practice");
   const back = BACK(formData);
-
-  await sql`
-    update sheet_instance set print_status = 'printed', printed_at = now(),
-      approved_by = ${me.email}, approved_at = now()
-    where print_status = 'new' and sheet_template_id in (
-      select st.id from sheet_template st
-      left join child c on c.id = st.child_id
-      where st.week = ${week}
-        and (c.section = ${section} or st.child_id is null)
-    ) and id in (
-      select si.id from sheet_instance si
-      left join prescription p on p.sheet_instance_id = si.id
-      where p.kind = ${kind} or p.id is null
-    )`;
+  const res = await engineSend("/week/approve", { section, week, kind, by: me.email });
+  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was approved.`);
   revalidatePath("/worksheets");
   redirect(`${back}&approved=1`);
 }
