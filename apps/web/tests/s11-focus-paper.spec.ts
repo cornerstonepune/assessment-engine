@@ -12,7 +12,7 @@ import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
-const SECTION = "S11-TEST";
+const SECTION = "S11-TEST-C"; // answers on the taxonomy-shaped skills' rungs (ADR 0034)
 
 async function testChild(): Promise<string> {
   const [had] = await sql<{ id: string }[]>`select id from child where section = ${SECTION} and roll_no = '1'`;
@@ -21,15 +21,16 @@ async function testChild(): Promise<string> {
   const [{ id }] = await sql<{ id: string }[]>`
     insert into child (tenant_id, roll_no, section, band) values (${tenant_id}, '1', ${SECTION}, 'G3') returning id`;
   await sql`insert into pii.child (tenant_id, child_id, first_name) values (${tenant_id}, ${id}, 'Focus')`;
-  // 3-digit subtraction: 2 of 8, taking the smaller digit from the larger four times; 2-digit addition with
-  // regrouping 5 of 8; 2-digit addition without regrouping 9 of 9.
+  // 3-digit − 3-digit: 2 of 8, taking the smaller digit from the larger four times; 2-digit + 2-digit 5 of 8, the
+  // carry forgotten each time it was wrong; 2-digit + 1-digit 9 of 9. 3-digit − 3-digit is worked on at Easy (no
+  // exchange, where that mistake cannot show); 2-digit + 2-digit at Medium, whose carries can show the forgotten one.
   const answers: [string, string, boolean, string[]][] = [
-    ...Array(4).fill(["NUM.OPS.02", "R9", false, ["M_SMALL_FROM_LARGE"]]),
-    ...Array(2).fill(["NUM.OPS.02", "R9", false, []]),
-    ...Array(2).fill(["NUM.OPS.02", "R9", true, []]),
-    ...Array(5).fill(["NUM.OPS.01", "R5", true, []]),
-    ...Array(3).fill(["NUM.OPS.01", "R5", false, []]),
-    ...Array(9).fill(["NUM.OPS.01", "R4", true, []]),
+    ...Array(4).fill(["NUM.OPS.02", "R31", false, ["M_SMALL_FROM_LARGE"]]),
+    ...Array(2).fill(["NUM.OPS.02", "R31", false, []]),
+    ...Array(2).fill(["NUM.OPS.02", "R31", true, []]),
+    ...Array(5).fill(["NUM.OPS.01", "R22", true, []]),
+    ...Array(3).fill(["NUM.OPS.01", "R22", false, ["M_NOCARRY"]]),
+    ...Array(9).fill(["NUM.OPS.01", "R21", true, []]),
   ];
   for (const [skill, rung, right, mistakes] of answers) {
     await sql`
@@ -61,10 +62,10 @@ test("a child's page says which areas the next paper works on and why, and makes
   await page.goto(`/growth/${child}`);
   await expect(page.getByRole("heading", { name: "Next paper, proposed by the engine" })).toBeVisible();
   const areas = page.getByRole("list", { name: "Areas the next paper works on" });
-  // the weakest first: subtraction, worked on as subtraction though the answers sat on an addition rung
-  await expect(areas.getByRole("link", { name: "3-digit subtraction across zero" })).toBeVisible();
+  // the weakest first
+  await expect(areas.getByRole("link", { name: "3-digit − 3-digit" })).toBeVisible();
   await expect(areas.getByText("Right 2 of 8 — the same mistake more than once")).toBeVisible();
-  await expect(areas.getByRole("link", { name: "2-digit addition with regrouping" })).toBeVisible();
+  await expect(areas.getByRole("link", { name: "2-digit + 2-digit" })).toBeVisible();
   await expect(areas.getByText("can show the mistake").first()).toBeVisible();
   await expect(page.getByText("12 questions", { exact: true })).toBeVisible();
 

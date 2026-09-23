@@ -3,7 +3,7 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { KIND } from "@/components/question";
-import { DIFFICULTIES, chargesTable, gradeWords, skillSets } from "@/lib/queries";
+import { chargesTable, gradeWords, levelsOf, skillSets } from "@/lib/queries";
 import { approveSkills } from "../[code]/actions";
 
 // Every skill waiting for approval on one page, in full — what the child can do and each level in
@@ -17,13 +17,13 @@ export default async function ApproveSkills() {
   return (
     <>
       <PageHeader
-        stage="Skill Map"
+        stage="Curriculum"
         title="Approve the skills"
         sub="The engine has written each skill as what a child can do, and each level as a sentence. Read them, then approve them as written — or open one and change its words first."
       />
       <Body>
         <Link href="/" className="chip mb-[18px] inline-block">
-          ← Skill Map
+          ← Curriculum
         </Link>
         {waiting.length === 0 && !charges.waiting ? (
           <Notice tone="neem">Every skill is approved.</Notice>
@@ -52,7 +52,7 @@ export default async function ApproveSkills() {
                 <input type="hidden" name="version" value={s.version} />
                 <p className="text-[15px] leading-snug">{s.learning_objective}</p>
                 <dl className="mt-3 grid gap-1 text-[13px] md:grid-cols-[90px_1fr]">
-                  {DIFFICULTIES.map((d) => (
+                  {levelsOf(s).map((d) => (
                     <div key={d} className="contents">
                       <dt className="label pt-[2px]">{d}</dt>
                       <dd className="text-basalt/80">{s.difficulty[d]?.words}</dd>

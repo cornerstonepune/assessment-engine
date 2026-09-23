@@ -61,9 +61,14 @@ test("a story whose numbers sit in a table shows the table on screen", async ({ 
     where t.source = 'library' and t.retired_at is null and i.spec ? 'table' order by t.code limit 1`;
   expect(q, "a worksheet holds a table story").toBeTruthy();
   await page.goto(`/worksheets/${q.code}`);
-  const row = page.getByRole("table", { name: "Questions and answers" }).locator("tbody tr").filter({ hasText: q.stem });
+  // a worksheet can hold several stories of the same wording with different numbers: find this one by its number
+  const row = page
+    .getByRole("table", { name: "Questions and answers" })
+    .locator("tbody tr")
+    .filter({ hasText: q.stem })
+    .filter({ hasText: q.n })
+    .first();
   await expect(row).toContainText(q.label);
-  await expect(row).toContainText(q.n);
 });
 
 test("a Grade 1 worksheet has sums in columns as well as in a line", async () => {

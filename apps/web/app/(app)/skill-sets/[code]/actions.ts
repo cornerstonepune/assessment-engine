@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { DIFFICULTIES, type Band, type Difficulty } from "@/lib/queries";
+import { type Band, type Difficulty, levelsOf } from "@/lib/queries";
 
 const CODE = /^[A-Z0-9._]+$/;
 
@@ -18,15 +18,16 @@ export async function saveWords(formData: FormData): Promise<void> {
   if (!CODE.test(code)) redirect("/");
   const name = String(formData.get("name") ?? "").trim().slice(0, 80);
   const outcome = String(formData.get("learning_objective") ?? "").trim().slice(0, 400);
-  const words = Object.fromEntries(
-    DIFFICULTIES.map((d) => [d, String(formData.get(`words:${d}`) ?? "").trim().slice(0, 400)]),
-  ) as Record<Difficulty, string>;
-  if (!name || !outcome || DIFFICULTIES.some((d) => !words[d])) redirect(`/skill-sets/${code}/edit?error=required`);
-
   const [row] = await sql<{ difficulty: Record<Difficulty, Band> }[]>`select difficulty from skill_set where code = ${code}`;
   if (!row) redirect("/");
+  // only the levels the skill defines: 1-digit − 1-digit has no Hard, and saving must not make one
+  const levels = levelsOf(row);
+  const words = Object.fromEntries(
+    levels.map((d) => [d, String(formData.get(`words:${d}`) ?? "").trim().slice(0, 400)]),
+  ) as Record<Difficulty, string>;
+  if (!name || !outcome || levels.some((d) => !words[d])) redirect(`/skill-sets/${code}/edit?error=required`);
   const difficulty = Object.fromEntries(
-    DIFFICULTIES.map((d) => [d, { ...row.difficulty[d], words: words[d] }]),
+    levels.map((d) => [d, { ...row.difficulty[d], words: words[d] }]),
   ) as Record<Difficulty, Band>;
   await sql`
     update skill_set set name = ${name}, learning_objective = ${outcome},

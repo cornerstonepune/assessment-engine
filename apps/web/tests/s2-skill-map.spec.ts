@@ -34,14 +34,17 @@ test("the map lists every skill by grade, each led by what the child can do, and
     await expect(page.getByRole("heading", { name: grade, exact: true })).toBeVisible();
   }
   for (const s of all) {
-    await expect(page.getByRole("link", { name: s.outcome, exact: true })).toHaveAttribute("href", `/skill-sets/${s.code}`);
+    // the Curriculum's tree (U5): each skill is led by what the child can do and opens its own page
+    const box = page.getByRole("group", { name: s.outcome, exact: true });
+    await expect(box.locator("summary")).toContainText(s.outcome);
+    await expect(box.getByRole("link", { name: "Read, edit and approve" })).toHaveAttribute("href", `/skill-sets/${s.code}`);
   }
   await expect(page.getByText("Registry skills")).toHaveCount(0);
   const tables = await page.getByRole("main").getByRole("table").allInnerTexts();
   expect(tables.join("\n")).not.toMatch(CODE);
 });
 
-test("every link on the Skill Map opens", async ({ page }) => {
+test("every kind of link on the Curriculum opens", async ({ page }) => {
   await page.goto("/");
   // The page arrives as its loading screen and the map streams in after; read the map, not the screen.
   await expect(page.getByRole("heading", { name: "Grade 1", exact: true })).toBeVisible();
@@ -49,7 +52,15 @@ test("every link on the Skill Map opens", async ({ page }) => {
     ...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0])),
   ]);
   expect(hrefs.length).toBeGreaterThan(17);
-  for (const href of hrefs) {
+  // every kind of link, and one worksheet of each level: the tree lists every worksheet, some two thousand
+  const seen = new Set<string>();
+  const sample = hrefs.filter((h) => {
+    const kind = h.startsWith("/worksheets/") ? h.replace(/\d+$/, "") : h;
+    if (seen.has(kind)) return false;
+    seen.add(kind);
+    return true;
+  });
+  for (const href of sample) {
     const res = await page.request.get(href);
     expect(res.status(), href).toBe(200);
   }
@@ -59,7 +70,8 @@ test("every skill page shows each level in a sentence with a real question, its 
   for (const s of await skills()) {
     await page.goto(`/skill-sets/${s.code}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(s.outcome);
-    for (const d of LEVELS) {
+    const levels = LEVELS.filter((d) => s.words[d]); // a skill may define fewer than four (1-digit − 1-digit)
+    for (const d of levels) {
       const card = page.getByRole("region", { name: d, exact: true });
       await expect(card.getByRole("heading", { name: d })).toBeVisible();
       await expect(card).toContainText(s.words[d].words);
@@ -70,7 +82,7 @@ test("every skill page shows each level in a sentence with a real question, its 
     await expect(page.locator("#worksheets")).toBeVisible();
     // The lead of the page — its heading and the four levels — never shows a code.
     const lead = [await page.getByRole("heading", { level: 1 }).innerText()];
-    for (const d of LEVELS) lead.push(await page.getByRole("region", { name: d, exact: true }).locator("h3, p").first().innerText());
+    for (const d of levels) lead.push(await page.getByRole("region", { name: d, exact: true }).locator("h3, p").first().innerText());
     expect(lead.join(" "), s.code).not.toMatch(CODE);
   }
 });

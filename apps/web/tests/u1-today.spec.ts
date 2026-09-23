@@ -86,7 +86,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
     ["Children", "Children"],
     ["Marking", "Marking"],
     ["Papers", "Worksheets"],
-    ["Curriculum", "Skill Map"],
+    ["Curriculum", "Curriculum"],
     ["Question bank", "Question bank"],
     ["Today", "Today"],
   ]) {

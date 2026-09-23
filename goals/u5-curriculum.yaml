@@ -1,0 +1,25 @@
+name: u5-curriculum
+goal: >
+  Curriculum is one tree a teacher reads top to bottom: each grade, its subject, each skill as what a child can do,
+  the skill's levels (Easy · Medium · Hard · Advance) each in a sentence with how many questions and worksheets it
+  holds, and under each level its worksheets, each a click away. A skill waiting for approval says so where it
+  stands and opens where it is read, edited and approved. The taxonomy is the second way to read the same
+  worksheets, one click from the tree.
+
+# Written 2026-09-23, before the work (BUILD-ORDER, U5; ADR 0034 made the skills one operation and digit shape).
+says:
+  - words: "the skill map page should be like a tree view of grade, subjects, skills, levels/rungs and then under that the tagged worksheets"
+    proved_by: apps/web/tests/u5-curriculum.spec.ts::the tree reads grade, subject, skill, level, worksheets, and every count is the database's own
+  - words: "As we have the ability to keep changing, say, map or edit certain stuff, those kinds of capabilities will need to exist also"
+    proved_by: apps/web/tests/u5-curriculum.spec.ts::a skill waiting for approval says so in the tree and opens where it is edited and approved
+  - words: "The worksheet library view, ideally, should give a very clear taxonomy and the worksheets attached to the taxonomy"
+    proved_by: apps/web/tests/u5-curriculum.spec.ts::the taxonomy is one click from the tree, and the tree fits a phone
+manual: []
+scenarios: []
+criteria:
+  - name: the tree, on the copy
+    run: cd apps/web && npx playwright test tests/u5-curriculum.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

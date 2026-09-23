@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-import { DIFFICULTIES, skillSet } from "@/lib/queries";
+import { levelsOf, skillSet } from "@/lib/queries";
 import { saveWords } from "../actions";
 
 type Props = { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -17,7 +17,7 @@ export default async function EditSkillWords({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage={`Skill Map · ${s.name}`}
+        stage={`Curriculum · ${s.name}`}
         title="Change the words"
         sub="What the child can do, and what each level asks of them, in the school's words. The rule every question is checked against stays as it is."
       />
@@ -40,7 +40,7 @@ export default async function EditSkillWords({ params, searchParams }: Props) {
           </Panel>
           <Panel title="Each level in a sentence">
             <div className="grid gap-4">
-              {DIFFICULTIES.map((d) => (
+              {levelsOf(s).map((d) => (
                 <label key={d} className="field">
                   <span className="label">{d}</span>
                   <textarea className="textarea" name={`words:${d}`} defaultValue={s.difficulty[d]?.words ?? ""} required />
