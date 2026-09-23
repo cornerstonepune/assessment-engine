@@ -1,0 +1,35 @@
+name: s12-worksheets-by-taxonomy
+goal: >
+  The worksheet library reads by the school team's taxonomy: each section of the Addition & Subtraction
+  taxonomy, each of its cases with the document's own example, the level the rules set it at, and the
+  worksheets that hold its questions, each one a click away. A case that sits on no worksheet, or only on
+  worksheets away from the level set for it, says so; a case no single level owns — a pattern many levels'
+  questions show — is named as that. A worksheet's own page says which cases it holds. Which cases a question
+  is are measured by code from the question and kept true by `engine audit`, never typed.
+
+# Written 2026-09-23, before the work. Nimish: "The worksheet library view, ideally, should give a very clear
+# taxonomy and the worksheets attached to the taxonomy, right? That's looking too broad, and that's why I think
+# there is confusion in the team: do we have the worksheets mapped to the right taxonomy?"
+says:
+  - words: "should give a very clear taxonomy and the worksheets attached to the taxonomy"
+    proved_by: apps/web/tests/s12-worksheets-by-taxonomy.spec.ts::the library reads case by case, each case with the worksheets that hold it
+  - words: "do we have the worksheets mapped to the right taxonomy?"
+    proved_by: packages/engine/tests/test_taxonomy.py::test_every_question_names_the_taxonomy_cases_it_is_and_the_count_agrees
+  - words: "That's looking too broad"
+    proved_by: apps/web/tests/s12-worksheets-by-taxonomy.spec.ts::a worksheet says which taxonomy cases it holds
+manual:
+  - "On live, once merged: apply migration 20260929100000, then `bin/engine bank relabel` so every question names its cases."
+scenarios: []
+criteria:
+  - name: every question names its cases, and the count agrees with `engine bank taxonomy`
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_taxonomy.py
+    expect: "passed"
+  - name: every question's labels are the ones it measures
+    run: engine audit
+    expect: "no question carries a skill it does not use"
+  - name: the library by taxonomy, on the copy
+    run: cd apps/web && npx playwright test tests/s12-worksheets-by-taxonomy.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -4,6 +4,7 @@ import { Answers, KIND, Question } from "@/components/question";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { gradeWords } from "@/lib/queries";
+import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../library";
 
@@ -15,7 +16,9 @@ const fmtDate = (d: string) =>
 // One worksheet from the library: what it practises, its twelve questions as the child meets them
 // with their answers, and the printed paper one press away.
 export async function LibraryWorksheetPage({ code }: { code: string }) {
-  const [w, questions] = await deadline(Promise.all([libraryWorksheet(code), worksheetItems(code)]));
+  const [w, questions, cases] = await deadline(
+    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code)]),
+  );
   if (!w) notFound();
   const kinds = questions.reduce<Record<string, number>>((a, q) => ({ ...a, [q.fmt]: (a[q.fmt] ?? 0) + 1 }), {});
 
@@ -98,6 +101,25 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
               <div>
                 <dt className="label mb-[3px]">Kinds of question</dt>
                 <dd>{kindsInWords(kinds)}</dd>
+              </div>
+              <div>
+                <dt className="label mb-[3px]">Taxonomy cases</dt>
+                <dd>
+                  {cases.length === 0 ? (
+                    <span className="note">None: this skill sits outside the addition and subtraction taxonomy.</span>
+                  ) : (
+                    <ul aria-label="Taxonomy cases on this worksheet" className="grid gap-1">
+                      {cases.map((c) => (
+                        <li key={c.code}>
+                          <Link href={`/worksheets/taxonomy?ch=${c.section.split(".")[0]}`} className="font-mono">
+                            {c.code}
+                          </Link>{" "}
+                          {c.label} <span className="text-basalt/62">· {c.n} of the questions</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </dd>
               </div>
               <div>
                 <dt className="label mb-[3px]">Made</dt>

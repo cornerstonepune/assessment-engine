@@ -41,6 +41,7 @@ def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=N
     if missing:
         raise ValueError(f"{code} {difficulty} names cases that are not rows: {', '.join(missing)}")
     known, rules, vocab = bank._known_codes(conn), labels.rules(conn), labels.vocabulary(conn)
+    all_cases = cases.matches(conn)
     drawn = draw.level(rng or random.Random(), check, matches, s["rung_code"], n, seen=held, quotas=quotas)
     counts = Counter(asked=n, drawn=len(drawn), accepted=0, already_in_bank=0, unnamed_distractor_dropped=0)
     per_case, accepted = Counter(), []
@@ -49,7 +50,7 @@ def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=N
         charged = labels.label_item(it, s["skill_codes"], rules, vocab)
         prov = {"skill_set_version": s["version"], "generator": f"case:{case_code}"}
         if not dry_run and not bank._insert(
-            conn, tenant, it, code, difficulty, s["eval_type"], prov, charged
+            conn, tenant, it, code, difficulty, s["eval_type"], prov, charged, all_cases
         ):
             counts["already_in_bank"] += 1
             continue

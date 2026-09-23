@@ -3229,3 +3229,24 @@ that it already has."* Built as three modules, on the copy (no live access from 
 - **Not changed:** the class's weekly paper (`engine week prescribe`, `/worksheets`) still takes one skill set from
   the teacher and `next_difficulty` still groups by rung; steps 9 (combined questions) and 10 (mixed papers) are
   not built.
+
+## The worksheet library read by the taxonomy — goal s12-worksheets-by-taxonomy (2026-09-23)
+
+Nimish: *"The worksheet library view, ideally, should give a very clear taxonomy and the worksheets attached to the
+taxonomy … do we have the worksheets mapped to the right taxonomy?"* On the copy:
+
+- **A question names its cases** (`item.case_codes`, migration `20260929100000`): measured by code from its tags
+  (`cases.of`), written when the question is made, recomputed by `engine bank relabel` ("cases: 15050 changed", a
+  second run 0), held by `engine audit`'s "no question carries a skill it does not use". The stored count agrees
+  with `engine bank taxonomy` for all 269 cases (`test_every_question_names_the_taxonomy_cases_it_is_and_the_count_agrees`).
+- **The mapping, measured:** 247 cases sit on worksheets at the level the rules set them at; 22 are patterns that
+  questions at many levels show and no one level owns (§4 lining up, §5 carry and exchange patterns, R01–R02
+  estimating); 0 only away from their level; 0 on no worksheet; 162 worksheets hold no case (multiplication,
+  explaining a claim).
+- **`/worksheets/taxonomy`**: the document's chapters, each section's cases with the example, where the rules set
+  each, and the worksheets holding it (links); linked from the Worksheet library. A worksheet's page lists its cases.
+  `apps/web/tests/s12-worksheets-by-taxonomy.spec.ts` 3 passed (incl. a phone). The map query ran in 4.9 s until
+  its worksheet totals were computed once (`materialized`): 0.15 s.
+- Seen, not changed: a skill's outcome sentence can disagree with its Easy level (ADD.3D.REG says "regrouping …
+  every time"; its Easy level holds the no-carry cases A25–A28 by rule). Pre-existing, not this change:
+  `s3-worksheets.spec.ts` "fit a phone" fails on `/skill-sets/ADD.2D.REG?level=Easy` (21 px) on main as well.

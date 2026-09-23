@@ -12,6 +12,7 @@ import json
 from engine.assess import skills as S
 from engine.assess import tags as T
 from engine.assess.items import Item
+from engine.w1_bank import cases
 
 RULE_KEYS = {
     "by_operation": "skills.by_operation",
@@ -41,7 +42,7 @@ def vocabulary(conn):
 
 def _generated(conn):
     return conn.execute(
-        "select i.id, i.fmt, i.spec, i.stem, i.responses, i.skill_codes, i.mistake_skills, i.tags,"
+        "select i.id, i.fmt, i.spec, i.stem, i.responses, i.skill_codes, i.mistake_skills, i.tags, i.case_codes,"
         " i.rung_code, r.skill_codes as rung_skills"
         " from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
         " where i.source = 'generated'"
@@ -69,36 +70,46 @@ def label_item(it, rung_skills, rs, vocab):
 
 
 def _drift(conn):
-    rs, vocab = rules(conn), vocabulary(conn)
+    rs, vocab, all_cases = rules(conn), vocabulary(conn), cases.matches(conn)
     for r in _generated(conn):
         skills, charged = measure(r["fmt"], r["spec"], r["stem"], r["responses"], r["rung_skills"], rs, vocab)
-        yield r, skills, charged, tags_of(r)
+        measured = tags_of(r)
+        yield r, skills, charged, measured, cases.of(r["fmt"], measured, all_cases)
 
 
 def mislabelled(conn):
     """Every generated question whose labels are not the ones it measures — `engine audit`'s invariant."""
     out = []
-    for r, skills, charged, measured in _drift(conn):
+    for r, skills, charged, measured, case_codes in _drift(conn):
         if list(r["skill_codes"]) != skills:
             out.append(f"{r['id']}: skills {list(r['skill_codes'])} ≠ {skills}")
         elif r["mistake_skills"] != charged:
             out.append(f"{r['id']}: mistakes charge {r['mistake_skills']} ≠ {charged}")
         elif r["tags"] != measured:
             out.append(f"{r['id']}: stored tags are not what its numbers measure")
+        elif list(r["case_codes"]) != case_codes:
+            out.append(f"{r['id']}: taxonomy cases {list(r['case_codes'])} ≠ {case_codes}")
     return out
 
 
 def relabel(conn):
     """Recompute every generated question's labels; return how many of each changed. The caller commits."""
-    changes = {"skills": [], "mistake_skills": [], "tags": []}
-    for r, skills, charged, measured in _drift(conn):
+    changes = {"skills": [], "mistake_skills": [], "tags": [], "cases": []}
+    for r, skills, charged, measured, case_codes in _drift(conn):
         if list(r["skill_codes"]) != skills:
             changes["skills"].append((skills, r["id"]))
         if r["mistake_skills"] != charged:
             changes["mistake_skills"].append((json.dumps(charged), r["id"]))
         if r["tags"] != measured:
             changes["tags"].append((json.dumps(measured), r["id"]))
-    columns = {"skills": "skill_codes", "mistake_skills": "mistake_skills", "tags": "tags"}
+        if list(r["case_codes"]) != case_codes:
+            changes["cases"].append((case_codes, r["id"]))
+    columns = {
+        "skills": "skill_codes",
+        "mistake_skills": "mistake_skills",
+        "tags": "tags",
+        "cases": "case_codes",
+    }
     with conn.cursor() as cur:
         for name, rows in changes.items():
             if rows:

@@ -278,3 +278,24 @@ def test_fill_cases_fills_a_level_evenly_and_says_which_case_made_each_question(
     for r in stored:
         assert taxonomy.matches(CASES[r["generator"][5:]]["match"], r["fmt"], r["tags"])
         assert list(r["skill_codes"]) == ["NUM.OPS.01"]
+
+
+def test_every_question_names_the_taxonomy_cases_it_is_and_the_count_agrees(conn):
+    from engine.w1_bank import labels
+
+    labels.relabel(conn)
+    assert [m for m in labels.mislabelled(conn) if "taxonomy cases" in m] == []
+    stored = {
+        r["code"]: r["n"]
+        for r in conn.execute(
+            "select x as code, count(*) as n from item, unnest(case_codes) x"
+            " where status = 'active' and skill_set_code is not null group by x"
+        )
+    }
+    assert {r["code"]: r["n"] for r in cases.count(conn)} == {c: stored.get(c, 0) for c in CASES}
+
+
+def test_a_question_is_every_case_its_tags_satisfy():
+    t = two("+", 399, 4)
+    got = cases.of("column_grid", t, {c: CASES[c]["match"] for c in ("P06", "A33", "A34", "S20")})
+    assert got == ["A33", "P06"]
