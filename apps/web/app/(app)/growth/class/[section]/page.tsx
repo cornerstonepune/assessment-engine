@@ -17,14 +17,15 @@ export default async function ClassPage({ params }: Props) {
   const section = decodeURIComponent((await params).section);
   const { steps, children } = await deadline(classGrid(section, me.email));
   if (!children.length) notFound();
-  const skills = [...new Map(steps.map((s) => [s.skill_code, s.skill_name])).entries()];
+  const topics = [...new Set(steps.map((s) => s.topic_name))];
+  const firstOfTopic = (i: number) => i === 0 || steps[i - 1].topic_name !== steps[i].topic_name;
 
   return (
     <>
       <PageHeader
         stage="Children · class"
         title={section}
-        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against every step of each skill on their ladder, from checked papers only. A name opens the child.`}
+        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against every skill of their grade, topic by topic, as the Curriculum reads them — from checked papers only. A name opens the child.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">
@@ -45,9 +46,9 @@ export default async function ClassPage({ params }: Props) {
                 <th rowSpan={2} className="pin">
                   Child
                 </th>
-                {skills.map(([code, name]) => (
-                  <th key={code} colSpan={steps.filter((s) => s.skill_code === code).length} className="border-l border-basalt/12">
-                    {name}
+                {topics.map((t) => (
+                  <th key={t} colSpan={steps.filter((s) => s.topic_name === t).length} className="border-l border-basalt/12">
+                    {t}
                   </th>
                 ))}
               </tr>
@@ -57,7 +58,7 @@ export default async function ClassPage({ params }: Props) {
                     key={stepKey(s)}
                     data-col={stepKey(s)}
                     title={s.descriptor}
-                    className={`min-w-[96px] max-w-[120px] align-top ${i === 0 || steps[i - 1].skill_code !== s.skill_code ? "border-l border-basalt/12" : ""}`}
+                    className={`min-w-[96px] max-w-[120px] align-top ${firstOfTopic(i) ? "border-l border-basalt/12" : ""}`}
                   >
                     {/* the table's headings are small capitals; a step's words are a sentence, so they are set as one */}
                     <span className="line-clamp-3 block text-[11.5px] font-normal normal-case leading-tight tracking-normal text-basalt/75">
@@ -78,7 +79,7 @@ export default async function ClassPage({ params }: Props) {
                     </Link>
                   </td>
                   {steps.map((s, i) => (
-                    <Cell key={stepKey(s)} step={s} first={i === 0 || steps[i - 1].skill_code !== s.skill_code} got={c.states[stepKey(s)]} />
+                    <Cell key={stepKey(s)} step={s} first={firstOfTopic(i)} got={c.states[stepKey(s)]} />
                   ))}
                 </tr>
               ))}
@@ -86,7 +87,7 @@ export default async function ClassPage({ params }: Props) {
           </table>
         </div>
         <p className="note mt-3">
-          A column is one step of the ladder for one skill, easy to hard; hover a step for all of what it asks. Red is a repeating mistake
+          Columns follow the Curriculum: topic by topic, each skill easy to hard; hover a cell for the child&rsquo;s answers. Red is a repeating mistake
           or under half right, amber practising, green got it, grey fewer than three checked answers.
         </p>
       </Body>
