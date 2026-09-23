@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, night — U2 Children built (start here)
+
+U2 is on branch `claude/gallant-cray-zvj5ey` (STATE, "U2 — Children"). **Next: U3 Marking** — write
+`goals/u3-marking.yaml` and its tests first. **On live, after merge:** nothing to migrate; `bin/update-live` as
+usual, then open Children → a grade → its class → a child. From the terminal a next paper now needs its approver:
+`bin/engine week focus G2 <first name> 2026-W39 --make --by "<your name>"`. U4 and U5 own two layout faults found
+failing on main: the Skill Map and a worksheet do not fit a phone (`s2`, `s3`).
+
 ## 2026-09-23, end of session — start here
 
 **Merged today:** #24 (bank validated against the taxonomy, five defects fixed), #25 (a child's next paper chosen
@@ -44,7 +52,7 @@ Built on the copy (STATE): `assess/focus.py`, `w2_print/focus_paper.py`, the "Ne
 panel on each child's Growth page with "Make this paper". **On live, after merge and `deploy/go-live.sh`:** apply
 migration `20260929090000_a_paper_made_for_one_child.sql` (as every migration reaches live), `bin/engine load` (the
 `focus` config row), then open a checked child's Growth page. From the terminal: `bin/engine week focus G2 <first
-name> 2026-W39` shows the plan; add `--make` to print it. **Next:** the class's weekly `prescribe` still groups by
+name> 2026-W39` shows the plan; add `--make --by "<name>"` to approve and print it. **Next:** the class's weekly `prescribe` still groups by
 rung — move it onto `assess.focus` too, or retire it in favour of this; then steps 9 and 10.
 
 ## 2026-09-23 — the bank validated against the taxonomy (branch `claude/gallant-cray-zvj5ey`)

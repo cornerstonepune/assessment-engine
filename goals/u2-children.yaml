@@ -1,0 +1,38 @@
+name: u2-children
+goal: >
+  Children: each grade opens on its classes; a class is its children against the steps of each skill, every
+  cell red, amber, green or grey as the graph's own state says (apps/web/lib/rag.ts); a child's page opens on one
+  plain sentence, then their knowledge graph, their repeated mistakes, the next paper the engine proposes with an
+  Approve button that records who approved it before it prints, and every paper made for or read from them.
+
+# Written 2026-09-23, before the work (BUILD-ORDER, "the website as the teacher's week", U2). Nimish's words, the
+# same day: the list of what the area holds, and "The teacher always approves".
+says:
+  - words: "grade → class grid of children × skills in red/amber/green/grey"
+    proved_by: apps/web/tests/u2-children.spec.ts::each grade opens on its classes, and a class is its children against every step in red, amber, green or grey
+  - words: "a child's page with a one-line summary"
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page opens on one plain sentence that counts what the graph says
+  - words: "their knowledge graph, repeated mistakes"
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page shows their knowledge graph and every mistake that repeats, and how often
+  - words: "the next paper proposed with an Approve button"
+    proved_by: apps/web/tests/u2-children.spec.ts::the engine proposes the next paper and a teacher approves it, once, in their own name
+  - words: "The teacher always approves"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_approved_in_the_name_of_whoever_made_it_and_only_once_a_week
+  - words: "and their papers"
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page lists every paper made for them or read from them, with its purpose and who approved it
+manual:
+  - "On live, once merged: open Children, a grade, its class, and one child."
+scenarios: []
+criteria:
+  - name: Children, on the copy
+    run: cd apps/web && npx playwright test tests/u2-children.spec.ts
+    expect: "passed"
+  - name: the pages Children replaces still open
+    run: cd apps/web && npx playwright test tests/s11-focus-paper.spec.ts tests/u1-today.spec.ts
+    expect: "passed"
+  - name: the next paper is approved in a person's name, once a week
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus_paper.py -q
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

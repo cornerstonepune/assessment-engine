@@ -26,13 +26,15 @@ def _child(child_id: str) -> str:
 
 @router.get("/child/{child_id}/focus")
 def focus_plan(child_id: str, week: str, conn=Depends(get_conn)) -> dict:
-    """The areas the child lags in, why, and the questions their next paper would hold. Writes nothing."""
-    return focus_paper.plan(conn, _child(child_id), week)
+    """The areas the child lags in, why, and the questions their next paper would hold, and the paper already
+    approved this week if there is one. Writes nothing."""
+    child = _child(child_id)
+    return {**focus_paper.plan(conn, child, week), "approved": focus_paper.approved(conn, child, week)}
 
 
 @router.post("/child/{child_id}/focus")
 def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn)) -> dict:
-    """Print that plan as the child's paper, with its QR; its questions are then seen by the child."""
+    """`by` approves that plan: it prints as the child's paper, with its QR, in their name; once a week."""
     try:
         made = focus_paper.make(conn, _child(child_id), body.week, body.by)
     except ValueError as e:

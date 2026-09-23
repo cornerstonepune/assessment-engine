@@ -88,13 +88,20 @@ def week_focus(
     first_name: str,
     week: str,
     make: bool = typer.Option(False, "--make", help="Print the paper; without it only the plan is shown"),
-    by: str = typer.Option("", "--by", help="Who is making it (names are read through the logging accessor)"),
+    by: str = typer.Option(
+        "", "--by", help="Who approves it; required with --make (names are read through the logging accessor)"
+    ),
 ) -> None:
-    """One child's next paper, chosen from their own graph: the areas they lag in and why, the questions."""
+    """One child's next paper, chosen from their own graph: the areas they lag in and why, the questions. With
+    --make, the person named by --by approves it and it prints in their name."""
+    if make and not by.strip():
+        raise typer.BadParameter(
+            "a paper prints only when a person approves it: name them with --by", param_hint="--by"
+        )
     with db.connect() as conn:
         child = str(roster.find(conn, section, first_name, by or "cli"))
         if make:
-            p = focus_paper.make(conn, child, week, by or "cli")
+            p = focus_paper.make(conn, child, week, by)
             conn.commit()
         else:
             p = focus_paper.plan(conn, child, week)

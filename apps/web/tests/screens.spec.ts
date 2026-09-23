@@ -8,7 +8,7 @@ const ROUTES: [string, string][] = [
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
   ["/capture", "Capture & Mark"],
-  ["/growth", "Child Growth"],
+  ["/growth", "Children"],
   ["/home", "Home Assignments"],
 ];
 
@@ -64,6 +64,8 @@ test("the menu marks where you are", async ({ page }) => {
 test("a child's ladder is in words, with the answers behind each rung", async ({ page }) => {
   await page.goto("/growth");
   await page.getByRole("main").getByRole("link").first().click();
+  await expect(page).toHaveURL(/\/growth\/class\//);
+  await page.getByRole("table").getByRole("link").first().click();
   await expect(page).toHaveURL(/\/growth\/[0-9a-f-]{36}$/);
   const ladder = page.getByRole("list", { name: "The ladder" });
   await expect(ladder.getByRole("listitem").first()).toBeVisible();

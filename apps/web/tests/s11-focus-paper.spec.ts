@@ -59,7 +59,7 @@ test.afterAll(async () => {
 
 test("a child's page says which areas the next paper works on and why, and makes it", async ({ page }) => {
   await page.goto(`/growth/${child}`);
-  await expect(page.getByRole("heading", { name: "Next paper, from their own work" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Next paper, proposed by the engine" })).toBeVisible();
   const areas = page.getByRole("list", { name: "Areas the next paper works on" });
   // the weakest first: subtraction, worked on as subtraction though the answers sat on an addition rung
   await expect(areas.getByRole("link", { name: "3-digit subtraction across zero" })).toBeVisible();
@@ -68,10 +68,10 @@ test("a child's page says which areas the next paper works on and why, and makes
   await expect(areas.getByText("can show the mistake").first()).toBeVisible();
   await expect(page.getByText("12 questions", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Make this paper" }).click();
+  await page.getByRole("button", { name: "Approve this paper" }).click();
   await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
   const qr = new URL(page.url()).searchParams.get("paper")!;
-  await page.getByRole("link", { name: qr }).click();
+  await page.getByRole("region", { name: "Next paper, proposed by the engine" }).getByRole("link", { name: qr }).click();
   await expect(page.getByRole("heading", { name: `Paper ${qr}` })).toBeVisible();
   await expect(page.getByText("chosen from this child's own checked papers")).toBeVisible();
   const [made] = await sql<{ n: number }[]>`

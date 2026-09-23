@@ -5,8 +5,9 @@ questions: at random from the bank's active questions for each area, at the area
 has seen, the ones that can show the child's own repeated mistake first. It writes nothing, and the same
 child in the same week always gets the same plan, so what the Growth page shows is what `make` prints.
 
-`make` prints that plan as a paper with its QR, exactly as a library worksheet is handed out: a
-sheet_template made for this child, the child's sheet_instance, the questions recorded as seen.
+`make` is a person approving that plan: it prints it as a paper with its QR, exactly as a library worksheet is
+handed out — a sheet_template made for this child, the child's sheet_instance, the questions recorded as seen — and
+the paper names who approved it. One next paper a week: a second approval is refused (`approved` says which).
 """
 
 import json
@@ -138,8 +139,23 @@ def plan(conn, child_id: str, week: str) -> dict:
     return {"child_id": child_id, "week": week, "areas": out, "n": sum(len(a["questions"]) for a in out)}
 
 
+def approved(conn, child_id: str, week: str) -> dict | None:
+    """The next paper already approved for this child this week: its QR, who approved it and when."""
+    row = conn.execute(
+        "select qr_code as qr, approved_by, approved_at from sheet_instance"
+        " where child_id = %s and week = %s and kind = 'focus' order by created_at limit 1",
+        (child_id, week),
+    ).fetchone()
+    return dict(row) if row else None
+
+
 def make(conn, child_id: str, week: str, actor: str) -> dict:
-    """Print the plan as this child's paper: a sheet made for the child, its QR, its questions seen."""
+    """`actor` approves the plan: it prints as this child's paper, its QR, its questions seen, and names them."""
+    # one approval at a time per child, so two teachers clicking together cannot both print this week's paper
+    conn.execute("select id from child where id = %s for update", (child_id,))
+    had = approved(conn, child_id, week)
+    if had:
+        raise ValueError(f"this week's next paper is already approved: {had['qr']} by {had['approved_by']}")
     p = plan(conn, child_id, week)
     ids = [q["id"] for a in p["areas"] for q in a["questions"]]
     if not ids:
@@ -154,9 +170,10 @@ def make(conn, child_id: str, week: str, actor: str) -> dict:
     ).fetchone()["id"]
     qr = _qr(template, child_id, week, "focus")
     instance = conn.execute(
-        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind)"
-        " values (%s,%s,%s,%s,%s,%s,'focus') returning id",
-        (child["tenant_id"], qr, template, child_id, week, child["section"]),
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind,"
+        " print_status, printed_at, approved_by, approved_at)"
+        " values (%s,%s,%s,%s,%s,%s,'focus','printed',now(),%s,now()) returning id",
+        (child["tenant_id"], qr, template, child_id, week, child["section"], actor),
     ).fetchone()["id"]
     conn.execute(
         "insert into item_exposure (tenant_id, child_id, item_id, week)"

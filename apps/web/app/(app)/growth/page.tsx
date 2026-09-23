@@ -1,70 +1,70 @@
 import Link from "@/components/link";
-import { Body, PageHeader, Panel, Pill } from "@/components/shell";
+import { Body, PageHeader, Panel, TONE_BG } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
-import { childrenOnRoll } from "@/lib/queries";
+import { classes } from "@/lib/queries-children";
+import { gradeWords } from "@/lib/queries";
+import { RAG_TONE, RAG_WORDS, type Rag } from "@/lib/rag";
 import { deadline } from "@/lib/deadline";
 
-export default async function GrowthPage() {
-  const me = await requireStaff();
-  const rows = await deadline(childrenOnRoll(me.email));
-  const sections = [...new Set(rows.map((r) => r.section))];
-  const withEvidence = rows.filter((r) => r.n_events > 0).length;
-  const waiting = rows.reduce((a, r) => a + r.n_pending, 0);
+const COLOURS: Rag[] = ["red", "amber", "green", "grey"];
+
+// Children (goals/u2-children.yaml): each grade, its classes; a class opens as its children against every step.
+export default async function ChildrenPage() {
+  await requireStaff();
+  const rows = await deadline(classes());
+  const grades = [...new Set(rows.map((r) => r.band))];
 
   return (
     <>
       <PageHeader
-        stage="Stage 4 · Understand"
-        title="Child Growth"
-        sub="One child: what they can do on each rung, in six states, and what the next paper should be."
+        stage="Children"
+        title="Children"
+        sub="Each grade and its classes. A class opens as its children against every step of each skill, in red, amber, green or grey."
       />
       <Body>
+        {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : null}
         <div className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
-          {sections.map((section) => (
-            <Panel
-              key={section}
-              title={section}
-              aside={`${rows.filter((r) => r.section === section).length} on roll`}
-            >
-              <div className="overflow-x-auto">
-              <table className="grid">
-                <thead>
-                  <tr>
-                    <th>Roll</th>
-                    <th>Child</th>
-                    <th>Band</th>
-                    <th className="text-right">Papers read</th>
-                    <th className="text-right">Confirmed answers</th>
-                    <th className="text-right">Waiting for a person</th>
-                  </tr>
-                </thead>
-                <tbody>
+          {grades.map((band) => (
+            <section key={band} aria-label={gradeWords(band)}>
+              <Panel title={gradeWords(band)} aside={`${rows.filter((r) => r.band === band).length} class${rows.filter((r) => r.band === band).length === 1 ? "" : "es"}`}>
+                <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                   {rows
-                    .filter((r) => r.section === section)
-                    .map((r) => (
-                      <tr key={r.id}>
-                        <td className="fact">{r.roll_no}</td>
-                        <td>
-                          <Link href={`/growth/${r.id}`} className="underline decoration-basalt/30 underline-offset-4">
-                            {r.first_name}
+                    .filter((r) => r.band === band)
+                    .map((r) => {
+                      const seen = COLOURS.reduce((a, c) => a + r.cells[c], 0);
+                      return (
+                        <li key={r.section}>
+                          <Link
+                            href={`/growth/class/${encodeURIComponent(r.section)}`}
+                            className="panel block p-4 text-basalt no-underline hover:bg-basalt/3"
+                          >
+                            <span className="font-heading text-[18px]">{r.section}</span>
+                            <span className="ml-2 text-[12.5px] text-basalt/62">{r.n} {r.n === 1 ? "child" : "children"}</span>
+                            <span className="mt-3 flex h-[8px] overflow-hidden bg-basalt/8" aria-hidden="true">
+                              {seen
+                                ? COLOURS.map((c) => (
+                                    <span key={c} className={TONE_BG[RAG_TONE[c]]} style={{ width: `${(100 * r.cells[c]) / seen}%` }} />
+                                  ))
+                                : null}
+                            </span>
+                            <span className="mt-2 block text-[12px] text-basalt/62">
+                              {seen
+                                ? COLOURS.filter((c) => r.cells[c])
+                                    .map((c) => `${r.cells[c]} ${RAG_WORDS[c]}`)
+                                    .join(" · ")
+                                : "no checked answers yet"}
+                            </span>
                           </Link>
-                        </td>
-                        <td className="fact">{r.band}</td>
-                        <td className="num">{r.n_papers}</td>
-                        <td className="num">{r.n_events}</td>
-                        <td className="num">
-                          {r.n_pending > 0 ? <Pill tone="bamboo">{r.n_pending}</Pill> : <span className="text-basalt/40">—</span>}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              </div>
-            </Panel>
+                        </li>
+                      );
+                    })}
+                </ul>
+              </Panel>
+            </section>
           ))}
           <p className="note">
-            {withEvidence} of {rows.length} children have confirmed evidence · {waiting} answers waiting for a person. Papers
-            are read with <code>engine legacy import</code>; a person confirms them here.
+            The colours count the steps the children have answers on, from checked papers only: red is a repeating
+            mistake or under half right, amber practising, green got it, grey fewer than three answers.
           </p>
         </div>
       </Body>

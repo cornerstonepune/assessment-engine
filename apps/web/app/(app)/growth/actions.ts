@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { enginePost } from "@/lib/engine";
+import { EngineDown, engineSend } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
 
@@ -32,14 +32,18 @@ export async function resolveOne(formData: FormData): Promise<void> {
   redirect(`/growth/${child}?resolved=1`);
 }
 
-/** Print the child's next paper, chosen from their own ladder (goals/s11-focus-paper.yaml). The engine
- *  chooses and prints; this asks, in the person's name, and shows the paper it made. */
-export async function makeFocusPaper(formData: FormData): Promise<void> {
+/** A teacher approves the child's next paper, proposed from their own ladder (goals/s11-focus-paper.yaml,
+ *  u2-children.yaml). The engine proposes and prints; this is the approval, in the person's name. */
+export async function approveNextPaper(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const id = String(formData.get("child_id") ?? "");
   const week = String(formData.get("week") ?? "");
   if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week)) redirect("/growth");
-  const made = await enginePost<{ qr: string }>(`/child/${id}/focus`, { week, by: me.email });
+  const res = await engineSend(`/child/${id}/focus`, { week, by: me.email });
   revalidatePath(`/growth/${id}`);
+  // already approved this week (a second click, or a colleague first): the page shows who approved it
+  if (res.status === 409) redirect(`/growth/${id}`);
+  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was changed.`);
+  const made = (await res.json()) as { qr: string };
   redirect(`/growth/${id}?paper=${made.qr}`);
 }
