@@ -8,23 +8,23 @@ goal: >
 # The functional bar. Every scenario must pass completely: 20 of 20, not 19.
 scenarios:
   - name: two-digit subtraction, one exchange, Hard — the rung Aseem diagnosed by hand
-    skill_set: SUB.2D.EXCH
+    skill_set: SUB.2D2D
     difficulty: Hard
     n: 20
   - name: the same rung at its easiest, to prove a band is not a suggestion
-    skill_set: SUB.2D.EXCH
+    skill_set: SUB.2D2D
     difficulty: Easy
     n: 20
   - name: three-digit subtraction across a zero, Hard — the hardest arithmetic shape
-    skill_set: SUB.3D.ZERO
+    skill_set: SUB.3D3D
     difficulty: Hard
     n: 20
   - name: two-digit addition with regrouping, Medium
-    skill_set: ADD.2D.REG
+    skill_set: ADD.2D2D
     difficulty: Medium
     n: 20
   - name: adds within ten, Easy — a foundational rung whose universe is small
-    skill_set: ADD.1D.WITHIN10
+    skill_set: ADD.1D1D
     difficulty: Easy
     n: 15
   - name: multiplication — a topic added as rows only, no Python written for it
@@ -32,7 +32,7 @@ scenarios:
     difficulty: Easy
     n: 20
   - name: four-digit advance, Medium — four addends, where a carry can be 2
-    skill_set: ADDSUB.4D.ADV
+    skill_set: ADD.4D
     difficulty: Medium
     n: 20
   - name: a one-step word problem, Easy — a question made of sentences

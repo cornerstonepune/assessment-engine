@@ -62,7 +62,7 @@ async function count(page: Page, card: string): Promise<number> {
 test.beforeAll(async () => {
   await clearUp();
   await testChild();
-  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D.EXCH" });
+  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D2D" });
   await engine("/week/assemble", { section: SECTION, week: WEEK });
 });
 test.afterAll(async () => {

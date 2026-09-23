@@ -96,7 +96,7 @@ def conn():
         c.rollback()
 
 
-def _unit(conn, code="SUB.2D.EXCH", d="Hard"):
+def _unit(conn, code="SUB.2D2D", d="Hard"):
     return conn.execute(
         "select id, code, variant, item_ids from sheet_template where source = 'library'"
         " and skill_set_code = %s and difficulty = %s and retired_at is null order by variant",

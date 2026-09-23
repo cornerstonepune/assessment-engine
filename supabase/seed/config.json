@@ -198,6 +198,16 @@
       "seed_once": true,
       "value": {},
       "description": "Who approved the table of what a mistake charges on each kind of question, and the table they approved. A changed table is not approved until someone approves it again."
+    },
+    {
+      "key": "taxonomy.across_levels",
+      "value": {
+        "sections": [
+          "5.1",
+          "5.2"
+        ]
+      },
+      "description": "Taxonomy sections whose cases are patterns read across levels — how carries and exchanges fall (§5) — rather than cases one level holds. `engine bank taxonomy` counts them as placed by being the rule the levels climb, and says so."
     }
   ]
 }

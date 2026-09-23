@@ -40,7 +40,7 @@ test("every new kind of question is on the Question bank, drawn as the child mee
 });
 
 test("a worksheet of each new skill opens with its twelve questions and prints", async ({ page }) => {
-  for (const skill of ["MISSING.DIGIT", "EQUALITY.INVERSE", "ADD.MULTI.SMALL", "ESTIMATE.HUNDRED"]) {
+  for (const skill of ["MISSING.DIGIT", "EQUALITY.INVERSE", "ADD.MANY", "ESTIMATE.HUNDRED"]) {
     const [ws] = await sql<{ code: string }[]>`
       select code from sheet_template where source = 'library' and retired_at is null and skill_set_code = ${skill}
       order by difficulty, variant limit 1`;
@@ -72,7 +72,7 @@ test("a Grade 1 worksheet has sums in columns as well as in a line", async () =>
            count(*) filter (where i.fmt = 'column_grid')::int as columns,
            count(*) filter (where i.fmt = 'bare_sum')::int as lines
     from sheet_template t join item i on i.id = any(t.item_ids)
-    where t.source = 'library' and t.retired_at is null and t.skill_set_code = 'ADD.1D.WITHIN10' and t.difficulty = 'Medium'
+    where t.source = 'library' and t.retired_at is null and t.skill_set_code = 'ADD.1D1D' and t.difficulty = 'Medium'
     group by t.code`;
   expect(rows.length).toBeGreaterThanOrEqual(10);
   for (const r of rows) {

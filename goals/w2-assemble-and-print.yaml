@@ -53,7 +53,7 @@ scenarios:
     section: TESTSEC
     children: 16
     band: G1
-    skill_set: ADD.1D.WITHIN10            # 22-24 questions is its whole universe (ADR 0011/0016)
+    skill_set: ADD.1D1D            # 22-24 questions is its whole universe (ADR 0011/0016)
     must: names_the_child_it_could_not_fill
   - kind: week
     name: nothing prints until a person approves, and their name is on every sheet

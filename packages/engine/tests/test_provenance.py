@@ -15,7 +15,7 @@ from engine.w1_bank import bank
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SET = "SUB.2D.EXCH"
+SET = "SUB.2D2D"
 
 
 @pytest.fixture

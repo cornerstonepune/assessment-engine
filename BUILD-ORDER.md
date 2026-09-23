@@ -249,6 +249,18 @@ skill by its skill as well as its rung, so subtraction mistakes on an addition r
 subtraction — the next-paper fault queued in HANDOFF, fixed for this paper at its cause. Steps 9 and 10 are
 unchanged and follow this.
 
+## First: the levels read from the taxonomy — L1 → L2 → L3, then U4 (Nimish, 2026-09-23)
+
+Nimish: *"even in a two-digit addition, an easy level should have just included sums with horizontal and vertical
+two-digit additions … the rung level isn't making sense that way"*, *"we dont need to rebuild the bank right ? just
+map the same"*, *"Mixed back can also be a part of advanced only"* (ADR 0034). Ahead of U4, one slice at a time:
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| L1 | `goals/s13-levels-by-taxonomy.yaml` | fifteen calculation skills, one operation and digit shape each; Easy–Hard straight calculation, Advance mixed; all 269 cases placed; the bank re-homed, none lost; worksheets one skill and level each |
+| L2 | `goals/s14-graph-by-skill.yaml` | a child's graph, the Children screens and `level_rule` read the fifteen skills; the replaced rungs and their seed rows removed |
+| L3 | `goals/s15-answer-boxes.yaml` | as many answer boxes as the answer has digits (Aseem to confirm: it tells the child the answer's size); more working space, most where a question takes two steps |
+
 ## Now: the website as the teacher's week — six areas, one at a time (Nimish, 2026-09-23)
 
 Nimish: *"we need to cleanup the frontend … this UI is important as navigation and ease of approval is important"*,

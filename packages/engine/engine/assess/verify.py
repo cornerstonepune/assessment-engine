@@ -141,7 +141,14 @@ def dimension_problems(tags, check, fmt=None, case_matches=None):
     if check.get("cases"):
         if case_matches is None:
             return []
-        if any(taxonomy.matches(case_matches[c], fmt, tags) for c in check["cases"] if c in case_matches):
+        shape = check.get(
+            "within"
+        )  # a skill of one operation and digit shape holds its cases on its own numbers
+        if any(
+            taxonomy.matches(taxonomy.within(case_matches[c], shape), fmt, tags)
+            for c in check["cases"]
+            if c in case_matches
+        ):
             return []
         return ["dimension outside every case the level holds"]
     out = []

@@ -148,7 +148,9 @@ READS = {
     "break_apart": {"op", "digits_max"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
-CASE_LEVEL_READS = {"cases", "max_total", "digits", "digits_max", "op", "layout"}
+# `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)
+# and measured against it (`verify.dimension_problems`)
+CASE_LEVEL_READS = {"cases", "within", "max_total", "digits", "digits_max", "op", "layout"}
 ALWAYS = {"format", "min_items"}
 
 

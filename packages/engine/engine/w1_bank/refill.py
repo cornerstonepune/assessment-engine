@@ -36,7 +36,7 @@ def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=N
             r["item_key"] for r in conn.execute("select item_key from item where tenant_id = %s", (tenant,))
         }
     )
-    matches = cases.matches(conn, check["cases"])
+    matches = cases.for_level(conn, check)
     missing = sorted(set(check["cases"]) - set(matches))
     if missing:
         raise ValueError(f"{code} {difficulty} names cases that are not rows: {', '.join(missing)}")
@@ -92,7 +92,7 @@ def top_up(conn, code, difficulty, target, rng=None):
     """Fill one level to `target`. Returns how many questions it added."""
     _, _, check = spec(conn, code, difficulty)
     if check.get("cases"):
-        matches = cases.matches(conn, check["cases"])
+        matches = cases.for_level(conn, check)
         have, total = _held_per_case(conn, code, difficulty, check, matches)
         share = math.ceil(target / len(check["cases"]))
         quotas = {c: max(0, share - have[c]) for c in check["cases"]}

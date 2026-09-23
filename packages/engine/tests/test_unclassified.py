@@ -27,7 +27,7 @@ def wrong_answers(conn):
     """Two children writing the same unexplained answer, one writing an explained one."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     item = conn.execute(
-        "select id, responses from item where status='active' and skill_set_code='SUB.2D.EXCH'"
+        "select id, responses from item where status='active' and skill_set_code='SUB.2D2D'"
         " and difficulty='Hard' and fmt='column_grid' limit 1"
     ).fetchone()
     known = next(iter(next(r for r in item["responses"] if r["rid"] == "ans")["misconceptions"].items()))

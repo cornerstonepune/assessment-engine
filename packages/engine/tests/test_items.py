@@ -126,6 +126,37 @@ def test_find_mistake_still_defaults_to_two_digit():
     assert len(str(item.spec["a"])) == 2
 
 
+@pytest.mark.parametrize(
+    "planted,op,digits",
+    [
+        ("M_NOCARRY", "+", 2),
+        ("M_NOCARRY", "+", 3),
+        ("M_CARRY_SKIP", "+", 2),
+        ("M_SMALL_FROM_LARGE", "-", 2),
+        ("M_SMALL_FROM_LARGE", "-", 3),
+        ("M_CARRY_ALWAYS_1", "+", 2),
+    ],
+)
+def test_find_mistake_does_not_always_put_the_first_wrong_digit_in_the_same_column(planted, op, digits):
+    """ "Which column is the first wrong digit in?" was answered "ones" 190 times in 222 (REASON.FIND_MISTAKE
+    Medium, `engine audit`), and a carry of 2 was always in the tens: a child who ticked one box scored. The
+    column is spread over the ones the mistake can show, and it is the one the child's working gets wrong."""
+    rng = random.Random(53)
+    ticks = []
+    for _ in range(60):
+        item = D.find_mistake(rng, "X2", "Conceptual", op=op, digits=digits, planted=planted)
+        where = next(r for r in item.responses if r.rid == "where")
+        right = str(
+            sum(item.spec["addends"])
+            if "addends" in item.spec
+            else D.M.compute(op, item.spec["a"], item.spec["b"])
+        )
+        assert where.answer == where.options[D._first_wrong_column(int(right), item.spec["wrong"])]
+        ticks.append(where.answer)
+    top = max(ticks.count(t) for t in set(ticks))
+    assert len(set(ticks)) >= 2 and top / len(ticks) <= 0.7, {t: ticks.count(t) for t in set(ticks)}
+
+
 def test_explain_claim_defaults_to_the_true_compensation_claim_its_callers_expect():
     # blueprints.py calls this with no extra arguments; that behaviour must not move.
     rng = random.Random(43)

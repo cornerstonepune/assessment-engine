@@ -118,7 +118,7 @@ def eval_(
                     for r in conn.execute(
                         "select distinct on (eval_type, has_words) code from ("
                         "  select code, eval_type, (formats && array['word_1step','word_2step']) as has_words"
-                        "  from skill_set) x order by eval_type, has_words, code"
+                        "  from skill_set where status <> 'retired') x order by eval_type, has_words, code"
                     ).fetchall()
                 ]
             )
@@ -170,7 +170,9 @@ def eval_(
         )
     total_ok = total = 0
     with db.connect() as conn:
-        sets = conn.execute("select code, difficulty from skill_set order by code").fetchall()
+        sets = conn.execute(
+            "select code, difficulty from skill_set where status <> 'retired' order by code"
+        ).fetchall()
         for s in sets:
             if only and s["code"] != only:
                 continue

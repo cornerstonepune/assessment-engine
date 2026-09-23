@@ -47,7 +47,7 @@ const papers = () =>
 test.beforeAll(async () => {
   await clearUp();
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from child where section = ${SECTION} and active`;
-  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D.EXCH" });
+  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D2D" });
   const built = await engine("/week/assemble", { section: SECTION, week: WEEK });
   expect(built.short, "every child in the class is given a worksheet").toEqual([]);
   expect(built.sheets).toBe(n);

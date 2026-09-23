@@ -398,7 +398,7 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
     )
 
     # nothing counts until a person confirms
-    assert graph.next_difficulty(conn, child, "ADD.2D.REG") == (None, "band_default", [])
+    assert graph.next_difficulty(conn, child, "ADD.2D2D") == (None, "band_default", [])
     assert (
         conn.execute("select count(*) as n from child_skill_state where child_id = %s", (child,)).fetchone()[
             "n"
@@ -447,8 +447,8 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
     )
     assert (states["R5"]["n_events"], states["R5"]["n_correct"]) == (3, 1)
 
-    # 1 of 3 on R5 is under demote_below: the next ADD.2D.REG sheet steps down and names the mistake
-    assert graph.next_difficulty(conn, child, "ADD.2D.REG") == ("Easy", "from_state", ["M_NOCARRY"])
+    # 1 of 3 on R5 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
+    assert graph.next_difficulty(conn, child, "ADD.2D2D") == ("Easy", "from_state", ["M_NOCARRY"])
 
     # a person settles the row the machine could not; the map is rebuilt from it
     rid = conn.execute(

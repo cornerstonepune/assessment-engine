@@ -55,7 +55,7 @@ def child(conn):
 
 def test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_never_seen_before(conn, child):
     seen = conn.execute(
-        "select id from item where status = 'active' and skill_set_code = 'SUB.3D.ZERO' and difficulty = 'Easy'"
+        "select id from item where status = 'active' and skill_set_code = 'SUB.3D3D' and difficulty = 'Easy'"
         " order by item_key limit 40"
     ).fetchall()
     conn.execute(
@@ -66,8 +66,8 @@ def test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_n
     p = focus_paper.plan(conn, child, WEEK)
     # the subtraction weakness is worked on as subtraction, the weakest first; the secure skill is left alone
     assert [(a["skill_set"], a["level"]) for a in p["areas"]] == [
-        ("SUB.3D.ZERO", "Easy"),
-        ("ADD.2D.REG", "Medium"),
+        ("SUB.3D3D", "Easy"),
+        ("ADD.2D2D", "Medium"),
     ]
     assert p["n"] == 12 and [len(a["questions"]) for a in p["areas"]] == [6, 6]
     for a in p["areas"]:

@@ -24,26 +24,26 @@ def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
 
     Everything happens on one connection and is rolled back. The earlier version committed the edit
     so that `load_all()`'s own connection could see it — which made this the only test that wrote to
-    a live spec row, and it showed: two suite runs at once left `SUB.2D.EXCH` edited and unratified,
+    a live spec row, and it showed: two suite runs at once left `SUB.2D2D` edited and unratified,
     and three "flaky" failures elsewhere in the suite were that state, not their own code. The loader
     for this one table is called directly instead, which needs no commit and proves the same clause.
     """
     with db.connect() as conn:
         tenant = loaders._tenant(conn)
-        before = conn.execute("select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()[
+        before = conn.execute("select difficulty from skill_set where code = 'SUB.2D2D'").fetchone()[
             "difficulty"
         ]
         edited = {**before, "Easy": {"words": "edited in the app", "check": before["Easy"]["check"]}}
-        conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D.EXCH'", (json.dumps(edited),))
+        conn.execute("update skill_set set difficulty = %s where code = 'SUB.2D2D'", (json.dumps(edited),))
 
         loaders._skill_sets(conn, tenant)  # what `engine load` does for this table, same transaction
 
-        after = conn.execute("select difficulty, status from skill_set where code = 'SUB.2D.EXCH'").fetchone()
+        after = conn.execute("select difficulty, status from skill_set where code = 'SUB.2D2D'").fetchone()
         assert after["difficulty"]["Easy"]["words"] == "edited in the app", (
             "the seed overwrote a person's words"
         )
         conn.rollback()
-        live = conn.execute("select difficulty from skill_set where code = 'SUB.2D.EXCH'").fetchone()
+        live = conn.execute("select difficulty from skill_set where code = 'SUB.2D2D'").fetchone()
         assert live["difficulty"]["Easy"]["words"] == before["Easy"]["words"], "and nothing was left behind"
 
 
@@ -75,7 +75,7 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 21,  # + R15–R18: three or more numbers, equality, missing digits, estimating to the hundred (8h)
+    "rung": 36,  # + R15–R18 (8h); + R19–R33, one per taxonomy-shaped calculation skill (s13)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 18,
@@ -85,8 +85,9 @@ EXPECTED = {
     #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
     #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
     "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
-    "config": 15,  # + skills.* and charges_by_kind (+ its approval), step 8; + bank.choice_answer_max_share; + focus
-    "skill_set": 21,
+    "config": 16,  # + skills.* and charges_by_kind (+ its approval), step 8; + bank.choice_answer_max_share; + focus;
+    #               + taxonomy.across_levels (s13)
+    "skill_set": 36,  # + fifteen taxonomy-shaped calculation skills; the ten they replace are kept, retired (s13)
     "subject": 1,
 }
 

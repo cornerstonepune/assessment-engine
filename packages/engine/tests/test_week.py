@@ -16,7 +16,7 @@ from engine.w2_print import assemble, prescribe
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SET, WEEK, SECTION = "SUB.2D.EXCH", "T2W9-test", "TESTSEC"
+SET, WEEK, SECTION = "SUB.2D2D", "T2W9-test", "TESTSEC"
 
 
 @pytest.fixture
@@ -162,7 +162,7 @@ def test_spares_are_unnamed_and_carry_no_child(conn, children):
 
 def test_it_says_which_child_it_could_not_fill_rather_than_printing_a_short_paper(conn, children):
     # Retired for this test's own (rolled-back) transaction only — the real bank now holds items
-    # at every SUB.2D.EXCH difficulty (W1 gate 2, chunk A), so "Advance" alone no longer means
+    # at every SUB.2D2D difficulty (W1 gate 2, chunk A), so "Advance" alone no longer means
     # empty. This makes the scenario true regardless of how full the bank gets.
     conn.execute(
         "update item set status = 'retired' where skill_set_code = %s and difficulty = %s", (SET, "Advance")

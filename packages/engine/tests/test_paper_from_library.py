@@ -12,7 +12,7 @@ from engine.w2_print import assemble, prescribe
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SET, SECTION = "SUB.2D.EXCH", "TESTSEC"
+SET, SECTION = "SUB.2D2D", "TESTSEC"
 
 
 @pytest.fixture
