@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
+
+Merged: L1 (#33), L2 and the old ladder's removal (#34, #35), L3 answer boxes (#36); U5 Curriculum on this branch.
+**Next: U4 Papers**, then U6 → U8 → U7 → R1 (BUILD-ORDER, "First: the levels read from the taxonomy"). **On live,
+once:** `bin/update-live && bin/engine load && bin/engine bank rehome && bin/engine bank refill && bin/engine bank
+relabel && bin/engine library build && bin/engine graph`, then a person approves the fifteen new skills on Curriculum.
+Aseem to confirm grade placement and where levels split (rows). R1 (one answer box read whole) waits until after U7.
+
 ## 2026-09-23, night — U3 Marking built (start here)
 
 U3 is on branch `claude/gallant-cray-zvj5ey` (STATE, "U3 — Marking"). **Next: U4 Papers** — write

@@ -16,7 +16,7 @@ import { TEST_STAFF } from "./global-setup";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
-const SECTION = "U2-TEST";
+const SECTION = "U2-TEST-B"; // answers on the taxonomy-shaped skills' rungs (ADR 0034)
 const WEEK = "U2-TEST";
 
 // The settled colours (BUILD-ORDER, "the website as the teacher's week"), written here so the test does not
@@ -38,17 +38,17 @@ const CHILDREN: { roll: string; name: string; answers: Answer[] }[] = [
     roll: "1",
     name: "Asha",
     answers: [
-      ...Array<Answer>(4).fill(["NUM.OPS.02", "R6", false, ["M_SMALL_FROM_LARGE"]]),
-      ...Array<Answer>(2).fill(["NUM.OPS.02", "R6", false, []]),
-      ...Array<Answer>(2).fill(["NUM.OPS.02", "R6", true, []]),
-      ...Array<Answer>(5).fill(["NUM.OPS.01", "R5", true, []]),
-      ...Array<Answer>(3).fill(["NUM.OPS.01", "R5", false, []]),
-      ...Array<Answer>(9).fill(["NUM.OPS.01", "R4", true, []]),
-      ...Array<Answer>(2).fill(["NUM.OPS.02", "R3", true, []]),
+      ...Array<Answer>(4).fill(["NUM.OPS.02", "R24", false, ["M_SMALL_FROM_LARGE"]]),
+      ...Array<Answer>(2).fill(["NUM.OPS.02", "R24", false, []]),
+      ...Array<Answer>(2).fill(["NUM.OPS.02", "R24", true, []]),
+      ...Array<Answer>(5).fill(["NUM.OPS.01", "R22", true, []]),
+      ...Array<Answer>(3).fill(["NUM.OPS.01", "R22", false, []]),
+      ...Array<Answer>(9).fill(["NUM.OPS.01", "R21", true, []]),
+      ...Array<Answer>(2).fill(["NUM.OPS.02", "R20", true, []]),
     ],
   },
   { roll: "2", name: "Bina", answers: [] },
-  { roll: "3", name: "Chetan", answers: Array<Answer>(4).fill(["NUM.OPS.02", "R4", true, []]) },
+  { roll: "3", name: "Chetan", answers: Array<Answer>(4).fill(["NUM.OPS.02", "R23", true, []]) },
 ];
 
 async function engine(path: string, body: object) {
@@ -153,19 +153,32 @@ test("each grade opens on its classes, and a class is its children against every
   // the four colours are there, as the test's answers made them
   const asha = grid.locator(`tbody tr[data-child="${ids.Asha}"]`);
   for (const [col, rag] of [
-    ["NUM.OPS.02|R6", "red"],
-    ["NUM.OPS.01|R5", "amber"],
-    ["NUM.OPS.01|R4", "green"],
-    ["NUM.OPS.02|R3", "grey"],
+    ["NUM.OPS.02|R24", "red"],
+    ["NUM.OPS.01|R22", "amber"],
+    ["NUM.OPS.01|R21", "green"],
+    ["NUM.OPS.02|R20", "grey"],
   ]) {
     await expect(asha.locator(`td[data-col="${col}"]`)).toHaveAttribute("data-rag", rag);
   }
 });
 
 test("a child's page opens on one plain sentence that counts what the graph says", async ({ page }) => {
+  // grey: every step of the grade's ladder, in a skill the child has answers in, with too few answers to say — the
+  // steps the graph below shows (the ladder is rows, so counted here, not typed)
+  const [{ grey }] = await sql<{ grey: number }[]>`
+    with ladder as (
+      select unnest(l.rung_codes) as rc from level_rule l join child c on c.band = l.band where c.id = ${ids.Asha}::uuid
+      union select rung_code from child_skill_state where child_id = ${ids.Asha}::uuid
+    ), steps as (
+      select k, r.code from ladder x join rung r on r.code = x.rc cross join lateral unnest(r.skill_codes) k
+      where k in (select skill_code from child_skill_state where child_id = ${ids.Asha}::uuid and last_seen is not null)
+    )
+    select count(*)::int as grey from steps p
+    left join child_skill_state s on s.child_id = ${ids.Asha}::uuid and s.rung_code = p.code and s.skill_code = p.k
+    where s.state is null or s.state = 'not_enough_yet'`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
-    "Asha needs help on 1 step, is practising 1 and has got 1; 4 steps have too few answers to say.",
+    `Asha needs help on 1 step, is practising 1 and has got 1; ${grey} steps have too few answers to say.`,
   );
   // the sentence counts the knowledge graph shown beneath it
   const graph = page.getByRole("region", { name: "Knowledge graph" });
@@ -173,7 +186,7 @@ test("a child's page opens on one plain sentence that counts what the graph says
     ["red", 1],
     ["amber", 1],
     ["green", 1],
-    ["grey", 4],
+    ["grey", grey],
   ] as const) {
     await expect(graph.locator(`[data-rag="${rag}"]`)).toHaveCount(n);
   }
@@ -194,7 +207,7 @@ test("a child's page shows their knowledge graph and every mistake that repeats,
   const mistakes = page.getByRole("region", { name: "Repeated mistakes" });
   const it = mistakes.getByRole("listitem").filter({ hasText: name });
   await expect(it).toBeVisible();
-  await expect(it).toContainText("Subtraction · 2-digit subtraction with exchange");
+  await expect(it).toContainText("Subtraction · 2-digit − 2-digit");
   await expect(it).toContainText("4 times");
   await expect(mistakes.getByRole("listitem")).toHaveCount(1);
 

@@ -20,7 +20,7 @@ test("the library reads case by case, each case with the worksheets that hold it
   const first = page.getByRole("table", { name: "Cases in §2.1" });
   const a01 = first.getByRole("row").filter({ hasText: "A01" });
   await expect(a01.getByText("on its level")).toBeVisible();
-  await expect(a01.getByRole("link", { name: "Addition within 10" }).first()).toBeVisible();
+  await expect(a01.getByRole("link", { name: "1-digit + 1-digit" }).first()).toBeVisible();
   const [{ code }] = await sql<{ code: string }[]>`
     select min(t.code) as code from sheet_template t, unnest(t.item_ids) u(id) join item i on i.id = u.id
     where t.source = 'library' and t.retired_at is null and 'A01' = any(i.case_codes)`;

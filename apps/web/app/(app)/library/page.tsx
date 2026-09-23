@@ -49,7 +49,7 @@ export default async function LibraryPage({ searchParams }: Props) {
           <div className="grid max-w-[820px] gap-2 text-[14px] leading-relaxed">
             <p>
               The question bank is every question the engine can put in front of a child: {n(totals.active)} today, for the{" "}
-              {grid.length} skills on the Skill Map, at Easy, Medium, Hard and Advance.
+              {grid.length} skills in the Curriculum, at Easy, Medium, Hard and Advance.
             </p>
             <p>
               The engine makes each question from its skill&rsquo;s own rule for that level, and a computer checks every

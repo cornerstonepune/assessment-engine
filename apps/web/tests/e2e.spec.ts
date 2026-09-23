@@ -5,7 +5,7 @@
  * database unchanged is a broken button, however green the screen looks. Nothing is mocked and
  * nothing is seeded behind the app's back except the one skill set these tests edit and restore.
  */
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
 import { libraryOf, restoreLibrary } from "./library-state";
 import { existsSync } from "node:fs";
@@ -71,7 +71,7 @@ test("a teacher can reach every section from the menu, and the menu says where t
     ["Marking", "Marking"],
     ["Papers", "Worksheets"],
     ["Question bank", "Question bank"],
-    ["Curriculum", "Skill Map"],
+    ["Curriculum", "Curriculum"],
   ];
   for (const [label, heading] of sections) {
     await page.getByRole("navigation").getByRole("link", { name: label, exact: true }).click();
@@ -85,30 +85,43 @@ test("a teacher can reach every section from the menu, and the menu says where t
 
 // ---------------------------------------------------------------- skill map
 
+/** A skill in the Curriculum's tree (U5), opened; the page streams in after its loading screen. */
+async function openSkill(page: Page, outcome: string) {
+  const box = page.getByRole("group", { name: outcome, exact: true });
+  await expect(box).toBeVisible();
+  if ((await box.getAttribute("open")) === null) await box.locator("summary").click();
+  await expect(box).toHaveAttribute("open", "");
+  return box;
+}
+
+const hardOf = async () =>
+  (
+    await sql<{ n: number; outcome: string }[]>`
+      select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome
+      from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`
+  )[0];
+
 test("the skill map's counts are the real number of questions in the bank", async ({ page }) => {
+  const { n, outcome } = await hardOf();
   await page.goto("/");
-  const [{ n, outcome }] = await sql<{ n: number; outcome: string }[]>`
-    select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome
-    from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`;
-  const row = page.getByRole("row").filter({ hasText: outcome });
-  await expect(row).toContainText(`${n} questions`);
+  const hard = (await openSkill(page, outcome)).getByRole("listitem").filter({ hasText: "Hard" });
+  await expect(hard).toContainText(`${n} questions`);
 });
 
 test("a count on the skill map opens exactly those questions", async ({ page }) => {
-  const [{ n, name }] = await sql<{ n: number; name: string }[]>`
-    select count(*)::int as n, (select name from skill_set where code = 'SUB.2D2D') as name from item
-    where status = 'active' and source = 'generated' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`;
+  const { n, outcome } = await hardOf();
   await page.goto("/");
-  await page.getByRole("link", { name: `${name}, Hard: ${n} questions` }).click();
-  await expect(page).toHaveURL(/set=SUB\.2D\.EXCH&difficulty=Hard/);
+  const hard = (await openSkill(page, outcome)).getByRole("listitem").filter({ hasText: "Hard" });
+  await hard.getByRole("link", { name: `${n} questions` }).click();
+  await expect(page).toHaveURL(/set=SUB\.2D2D&difficulty=Hard/);
   await expect(page.locator("#questions tbody tr")).toHaveCount(Math.min(n, 50));
 });
 
 test("a skill on the map opens its own page", async ({ page }) => {
-  const [{ outcome }] = await sql<{ outcome: string }[]>`select learning_objective as outcome from skill_set where code = 'SUB.2D2D'`;
+  const { outcome } = await hardOf();
   await page.goto("/");
-  await page.getByRole("link", { name: outcome }).click();
-  await expect(page).toHaveURL(/skill-sets\/SUB\.2D\.EXCH/);
+  await page.getByRole("group", { name: outcome, exact: true }).getByRole("link", { name: "Read, edit and approve" }).click();
+  await expect(page).toHaveURL(/skill-sets\/SUB\.2D2D/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(outcome);
 });
 
@@ -146,7 +159,7 @@ test("the bank's grid holds exactly what the database holds, and a cell opens th
   const cell = page.getByRole("link", { name: `${name}, Hard: ${n} questions` });
   await expect(cell).toHaveText(n.toLocaleString("en-IN"));
   await cell.click();
-  await expect(page).toHaveURL(/set=SUB\.2D\.EXCH/);
+  await expect(page).toHaveURL(/set=SUB\.2D2D/);
   await expect(page.locator("#questions tbody tr")).toHaveCount(Math.min(n, 50));
 });
 

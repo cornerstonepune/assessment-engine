@@ -3319,3 +3319,23 @@ Goal `goals/u3-marking.yaml`, written with its tests before the code. On the sam
 - `apps/web/tests/u3-marking.spec.ts` 5 passed; s4 (all but the one needing a real scan) passed; `bin/check` green;
   `tsc`, `eslint` clean. Engine: 950 passed; the same five environment-only failures as U2 (audit on a fresh copy,
   mistake codes only on live, scans, `pdfunite`). Web: the same five failing on unchanged main as U2 (STATE, U2).
+
+## L1–L3 and U5 — the levels read from the taxonomy, and Curriculum as a tree (2026-09-23)
+
+ADR 0034; goals `s13-levels-by-taxonomy`, `s14-graph-by-skill`, `s15-answer-boxes`, `u5-curriculum`.
+- **Fifteen calculation skills, one operation and digit shape each** (`ADD.1D1D` … `SUB.4D`, rungs R19–R33), levels
+  the taxonomy's cases on the skill's own numbers (`check.within`). `engine bank taxonomy` → "269 cases · 256 placed
+  in a level · 13 patterns the levels climb · 0 unplaced". The old ladder is gone: `engine bank rehome` moved 7,281
+  questions (0 without a place), deleted ten skill sets and ten rungs; `assess/ladder.py`, the prototype's blueprints
+  and builder, and `coverage_target` removed. Refill added what thin levels lacked; `library check` → "102 of 102
+  skill-levels ready · 0 problems".
+- **A child's answers count on their question's skill** (`evidence_placed`), recorded answers untouched; old papers'
+  sums placed by the same rule (`assess/placing.py`). Each calculation rung carries only its operation's registry
+  skill and reads as its skill's name on children's pages.
+- **Answer boxes = the answer's digits; working space 14–34mm** (`assess/answer_space.py`, split from `render.py`,
+  whose ceiling ratchets to 409). Cost, accepted by Nimish: a wrong answer longer than the right one has no box.
+- **Curriculum (`/`) is one tree**: grade → subject → skill → levels, each with its sentence, questions and worksheets
+  → the worksheets. A skill shows only the levels it defines on its page, its edit form, the approval page and on save
+  (1-digit − 1-digit has no Hard). Skill tables scroll inside themselves on a phone (s2 and s3 phone faults fixed).
+- Engine suite: only the environment-only failures named under U2. Web: 87 passed; `e2e` "no two children share
+  questions", `s4` "the queue counts", `s7` "names the worksheet" still need live's data, as on main before.

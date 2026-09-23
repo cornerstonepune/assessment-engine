@@ -77,7 +77,7 @@ test("every menu page opens within three seconds of its click", async ({ page })
     ["Marking", "Marking"],
     ["Papers", "Worksheets"],
     ["Question bank", "Question bank"],
-    ["Curriculum", "Skill Map"],
+    ["Curriculum", "Curriculum"],
   ]) {
     const clicked = Date.now();
     await menu(page, label);

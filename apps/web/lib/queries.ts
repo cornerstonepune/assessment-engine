@@ -6,6 +6,9 @@ export type Difficulty = (typeof DIFFICULTIES)[number];
 
 export type Band = { words: string; check: Record<string, unknown> };
 
+/** The levels a skill defines, in order: most have all four, some fewer (1-digit − 1-digit has no Hard). */
+export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) => DIFFICULTIES.filter((d) => s.difficulty[d]);
+
 export type SkillSet = {
   code: string;
   rung_code: string;
