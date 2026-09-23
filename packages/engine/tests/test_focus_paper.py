@@ -108,6 +108,36 @@ def test_making_the_paper_prints_it_with_its_qr_and_the_child_is_not_given_those
     assert not given & {q["id"] for a in again["areas"] for q in a["questions"]}
 
 
+def _text(pdf) -> str:
+    import pymupdf
+
+    with pymupdf.open(stream=pdf, filetype="pdf") as doc:
+        return "".join(page.get_text() for page in doc)
+
+
+def test_a_paper_is_seen_exactly_as_it_will_print_before_anyone_approves_it_and_seeing_it_writes_nothing(
+    conn, child
+):
+    before = {t: db.counts(conn, [t])[t] for t in ("sheet_template", "sheet_instance", "item_exposure")}
+    seen = focus_paper.preview(conn, child, WEEK, actor="test")
+    assert seen.startswith(b"%PDF")
+    assert {t: db.counts(conn, [t])[t] for t in before} == before, "seeing a paper prints nothing"
+    made = focus_paper.make(conn, child, WEEK, actor="test")
+    printed = _text(Path(made["pdf_path"]).read_bytes())
+    assert _text(seen).replace(focus_paper.PREVIEW, made["qr"]) == printed, "only the QR differs"
+
+
+def test_a_paper_a_teacher_asks_for_is_seen_before_it_is_approved_and_one_the_bank_cannot_fill_is_refused(
+    conn, child
+):
+    ask = [{"skill_set": "SUB.3D3D", "level": "Medium", "n": 5}]
+    seen = focus_paper.preview(conn, child, WEEK, "teacher@school.test", ask)
+    made = focus_paper.make(conn, child, WEEK, "teacher@school.test", ask)
+    assert _text(seen).replace(focus_paper.PREVIEW, made["qr"]) == _text(Path(made["pdf_path"]).read_bytes())
+    with pytest.raises(ValueError, match="has no level 'Hard'"):
+        focus_paper.preview(conn, child, WEEK, "t", [{"skill_set": "SUB.1D1D", "level": "Hard", "n": 5}])
+
+
 def test_the_paper_is_approved_in_the_name_of_whoever_made_it_and_only_once_a_week(conn, child):
     """The engine proposes; a person's click approves and prints it (BUILD-ORDER, U2). The approval names them,
     and a second approval in the same week is refused rather than printing a second next paper."""
