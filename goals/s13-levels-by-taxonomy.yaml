@@ -1,0 +1,39 @@
+name: s13-levels-by-taxonomy
+goal: >
+  Every addition and subtraction skill is one operation and one digit shape from the team's taxonomy, and its
+  Easy, Medium, Hard and Advance are the taxonomy's own cases on those numbers: Easy to Hard straight
+  calculation, in columns and in a line; Advance the mixed level, with missing numbers, stories, lining up and
+  finding the mistake. Every case of the taxonomy has a place. Every question already in the bank is marked to
+  the skill and level its own numbers put it in — none regenerated, none lost — and the worksheets are built
+  from them, one skill and one level each.
+
+# Written 2026-09-23, before the level work was finished (ADR 0034).
+says:
+  - words: "an easy level should have just included sums with horizontal and vertical two-digit additions"
+    proved_by: packages/engine/tests/test_rehome.py::test_easy_is_straight_calculation_of_one_operation
+  - words: "the 200-odd column taxonomy sheet that you had given is, in fact, the one that should have been used very clearly in order to map"
+    proved_by: packages/engine/tests/test_rehome.py::test_every_taxonomy_case_has_a_place
+  - words: "we dont need to rebuild the bank right ? just map the same"
+    proved_by: packages/engine/tests/test_rehome.py::test_every_question_moves_to_the_level_its_numbers_put_it_in_and_none_is_lost
+  - words: "Mixed back can also be a part of advanced only"
+    proved_by: packages/engine/tests/test_rehome.py::test_only_advance_mixes_kinds_of_question
+  - words: "and then the worksheets are built"
+    proved_by: packages/engine/tests/test_rehome.py::test_worksheets_are_built_one_skill_and_one_level_each
+manual:
+  - "On live, once merged: `bin/update-live`, then `bin/engine bank rehome`, `bin/engine bank refill`, `bin/engine bank relabel`, `bin/engine library build`."
+  - "A person approves the fifteen new skills once on the Skill Map."
+  - "Aseem confirms which grade each skill belongs to and where each level ends; both are rows."
+scenarios: []
+criteria:
+  - name: the levels, the cases and the re-homed bank
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_rehome.py tests/test_taxonomy.py
+    expect: "passed"
+  - name: every case placed
+    run: engine bank taxonomy
+    expect: "0 unplaced"
+  - name: every level's worksheets ready
+    run: engine library check
+    expect: "0 problems"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
