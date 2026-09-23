@@ -21,7 +21,7 @@ says:
   - words: "Based on some simple, smart logic"
     proved_by: packages/engine/tests/test_focus.py::test_the_weakest_areas_come_first_at_a_level_set_by_how_often_the_child_was_right
   - words: "choose random questions from the skill bank that it already has"
-    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_never_seen_before
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_home_paper_is_one_skill_the_weakest_random_bank_questions_at_its_level_never_seen_before
   - words: "an assessment that's very specific to the child"
     proved_by: packages/engine/tests/test_focus_paper.py::test_questions_that_can_show_the_childs_own_repeated_mistake_come_first
   - words: "just say addition, subtraction"

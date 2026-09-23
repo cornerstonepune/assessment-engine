@@ -4,7 +4,7 @@ Pure: graph rows in, areas out. The catalog is the bank's skill sets as the data
 rung each sits on, its place on the ladder, the skill it is for, and every skill its questions use.
 """
 
-from engine.assess.focus import Area, areas, skill_set_for
+from engine.assess.focus import Area, areas, home, skill_set_for
 
 CATALOG = [
     {
@@ -100,3 +100,37 @@ def test_the_same_area_read_twice_is_worked_on_once_at_its_weakest():
 
 def test_a_child_who_lags_nowhere_is_given_no_areas():
     assert areas([row("NUM.OPS.01", "R5", "secure", 9, 10)], CATALOG, RULE) == []
+
+
+HOME = {**RULE, "stretch": {"secure": "Hard", "stretch_ready": "Advance"}}
+LEVELS = {c["code"]: ("Easy", "Medium", "Hard", "Advance") for c in CATALOG}
+
+
+def test_a_home_paper_is_one_skill_never_a_mix_the_weakest():
+    graph = [
+        row("NUM.OPS.01", "R5", "practising", 6, 10),
+        row("NUM.OPS.02", "R6", "patterned_error", 3, 10, "M_SMALL_FROM_LARGE"),
+        row("NUM.OPS.02", "R10", "emerging", 2, 6),
+    ]
+    got = home(graph, CATALOG, HOME, LEVELS)
+    assert [(a.skill_set, a.level, a.mistake) for a in got] == [("SUB.2D2D", "Easy", "M_SMALL_FROM_LARGE")]
+
+
+def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill_one_level_up():
+    graph = [row("NUM.OPS.01", "R5", "secure", 9, 10), row("NUM.OPS.02", "R6", "stretch_ready", 10, 10)]
+    assert [(a.skill_set, a.level) for a in home(graph, CATALOG, HOME, LEVELS)] == [("SUB.2D2D", "Advance")]
+    only_secure = [row("NUM.OPS.01", "R5", "secure", 9, 10)]
+    assert [(a.skill_set, a.level) for a in home(only_secure, CATALOG, HOME, LEVELS)] == [
+        ("ADD.2D2D", "Hard")
+    ]
+
+
+def test_a_stretch_takes_the_hardest_level_the_skill_defines_up_to_its_target():
+    """1-digit + 1-digit has no Hard: a secure child is stretched at Medium, not handed a level that is not there."""
+    levels = {**LEVELS, "ADD.2D2D": ("Easy", "Medium", "Advance")}
+    got = home([row("NUM.OPS.01", "R5", "secure", 9, 10)], CATALOG, HOME, levels)
+    assert [(a.skill_set, a.level) for a in got] == [("ADD.2D2D", "Medium")]
+
+
+def test_a_child_with_too_little_work_gets_no_home_paper():
+    assert home([row("NUM.OPS.01", "R5", "not_enough_yet", 1, 2)], CATALOG, HOME, LEVELS) == []

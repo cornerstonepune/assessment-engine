@@ -1,0 +1,29 @@
+name: m1-make-papers
+goal: >
+  One engine makes every child's own paper from one request — skills, a level for each, how many questions. The
+  engine fills the request for a home paper from the child's graph: one skill, never a mix, the weakest at the
+  level where they go wrong, or, for a child who lags nowhere, their strongest skill one level up. A teacher fills
+  it for a custom paper: any skills, any levels, any count. Questions are the bank's, unseen by the child, the ones
+  that can show the child's own repeated mistake first; a request the bank cannot fill is refused in words, never
+  padded. Every paper prints only in a teacher's name.
+
+# Written 2026-09-23, before the work. Nimish, the same day, while a teacher was checking answers.
+says:
+  - words: "the system will automatically also generate home assessments with very simple logic, which won't be a mixed bag of skills"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_home_paper_is_one_skill_the_weakest_random_bank_questions_at_its_level_never_seen_before
+  - words: "Stretch too"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill
+  - words: "one can choose a certain skill or a bag of skills, choose the difficulty, and choose the number of questions, and then an assessment can be generated for the child"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_a_teacher_asks_for_any_skills_at_any_levels_and_how_many_and_the_engine_makes_it
+  - words: "let's think about how this one engine can be where we can generate the assessments"
+    proved_by: packages/engine/tests/api/test_paper_routes.py::test_a_teacher_previews_a_paper_then_it_prints_in_their_name
+manual:
+  - "On live, once merged: `bin/update-live` then `bin/engine load` (the home rule is a config row)."
+scenarios: []
+criteria:
+  - name: the home rule, stretch and custom papers, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus.py tests/test_focus_paper.py tests/api/test_paper_routes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
