@@ -35,20 +35,20 @@ def client(conn, monkeypatch, tmp_path):
 
 
 def test_a_worksheet_prints_as_a_pdf_and_is_served_from_disk_the_second_time(client, tmp_path):
-    first = client.get("/worksheet/R5-H03.pdf")
+    first = client.get("/worksheet/R22-H03.pdf")
     assert first.status_code == 200
     assert first.headers["content-type"] == "application/pdf"
     assert first.content.startswith(b"%PDF")
-    assert (tmp_path / "R5-H03.pdf").exists()
-    assert client.get("/worksheet/R5-H03.pdf").content == first.content
+    assert (tmp_path / "R22-H03.pdf").exists()
+    assert client.get("/worksheet/R22-H03.pdf").content == first.content
 
 
 def test_a_code_that_names_no_worksheet_is_not_found(client):
-    assert client.get("/worksheet/R5-H99.pdf").status_code == 404
+    assert client.get("/worksheet/R22-H99.pdf").status_code == 404
     assert client.get("/worksheet/..%2Fsecrets.pdf").status_code == 404
 
 
 def test_a_worksheet_needs_the_engine_key(conn, monkeypatch):
     monkeypatch.setenv("ENGINE_KEY", KEY)
     with TestClient(app) as c:
-        assert c.get("/worksheet/R5-H03.pdf").status_code == 401
+        assert c.get("/worksheet/R22-H03.pdf").status_code == 401

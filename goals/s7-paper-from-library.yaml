@@ -4,7 +4,7 @@ goal: >
   prescription ("Kabir: R5 at Hard") hands the child a worksheet at that skill and level they have not
   sat before; children at the same level in the same week get different worksheets; spares are
   worksheets nobody was given that week; and the printed paper carries its QR and its worksheet's ID
-  (R5-H07), so anyone can say which one a child had. A paper already printed never changes, even when
+  (R22-H07), so anyone can say which one a child had. A paper already printed never changes, even when
   the library later retires its worksheet. When a child has sat every worksheet at a level, the engine
   says so by name rather than repeat one.
 
