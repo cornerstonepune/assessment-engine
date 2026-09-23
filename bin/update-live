@@ -4,8 +4,11 @@
 #
 # 1 main, pulled   2 new migrations onto the live database, before anything reads them
 # 3 the engine server on that code (deploy/go-live.sh)   4 the seed rows (engine load)
-# 5 every question's labels measured again, questions made by an old rule replaced, worksheets rebuilt
-# 6 the checks, printed. Safe to run again: each step does nothing when there is nothing to do.
+# 5 every question's labels measured again, the old ladder's questions and papers moved onto the skills
+#   (rehome places by those labels, so it comes after relabel), questions made by an old rule replaced,
+#   worksheets rebuilt, each child's skills rebuilt from their answers (engine graph)
+# 6 the checks, printed; `engine live data` fails the run when the rows and the pages disagree.
+# Safe to run again: each step does nothing when there is nothing to do.
 # Needs what go-live.sh needs, plus DATABASE_URL in .env and the Supabase CLI.
 set -euo pipefail
 
@@ -28,15 +31,18 @@ say "3/6 the engine server"
 say "4/6 seed rows"
 "$E" load
 
-say "5/6 the bank and the worksheets"
+say "5/6 the bank, the worksheets, each child's skills"
 "$E" bank relabel
+"$E" bank rehome
 "$E" bank refill
 "$E" library build
+"$E" graph
 
 say "6/6 checks"
 "$E" library check
 "$E" bank taxonomy
 "$E" audit || true   # prints what waits on a person (approvals, the guessable levels); see HANDOFF
+"$E" live data
 }
 
 main "$@"
