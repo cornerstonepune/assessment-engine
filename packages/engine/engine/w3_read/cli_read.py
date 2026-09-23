@@ -361,8 +361,13 @@ def read_file(path: str) -> None:
         conn.rollback()
     for p in papers:
         pages = f"p{p['pages'][0]}" + (f"–{p['pages'][-1]}" if len(p["pages"]) > 1 else "")
-        s = p["sheet"]
-        if s:
+        s, w = p["sheet"], p["worksheet"]
+        if w:
+            short = (
+                f", {len(p['pages'])} of its {p['length']} pages" if len(p["pages"]) != p["length"] else ""
+            )
+            what = f"{p['qr']}  worksheet · {w['skill']} · {w['level']} · {w['questions']} questions{short}"
+        elif s:
             who = f"{s['section']} roll {s['roll_no']}" if s["roll_no"] else "no child"
             seen = f", already read {s['captures']}×" if s["captures"] else ""
             what = f"{p['qr']}  {who} · {s['kind']} · {s['paper'] or s['source']} · {s['questions']} questions{seen}"
