@@ -85,6 +85,10 @@ jobs:
           bin/engine graph
           bin/engine library check
           bin/engine bank taxonomy
+      - name: answers still on a rung no skill holds (their questions; no names)
+        if: always()
+        run: |
+          psql "$COPY" -c "select e.placed_rung, i.item_key, i.source, i.fmt, left(coalesce(i.spec ->> 'question', i.stem, i.spec::text), 90) as question, count(*) as answers from evidence_placed e left join item_result r on r.id = e.item_result_id left join item i on i.id = r.item_id where e.confirmed_by is not null and not exists (select 1 from skill_set ss where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung) group by 1, 2, 3, 4, 5 order by 1, 2"
       - name: the copy after — must be clean
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |

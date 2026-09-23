@@ -34,18 +34,32 @@ def _migrations(conn):
 
 
 def _off_the_map(conn):
+    """Signed-off answers on a rung no skill set holds at all: lost to every page. Answers on a skill whose topic is
+    not taught yet (multiplication, explaining a method) are hidden on purpose and kept; `hidden` counts them."""
     rows = conn.execute(
         "select e.placed_rung, count(*) as n, count(distinct e.child_id) as children"
         " from evidence_placed e where e.confirmed_by is not null and not exists ("
-        "  select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code"
-        "  where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung and t.taught)"
+        "  select 1 from skill_set ss where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung)"
         " group by 1 order by 2 desc"
     ).fetchall()
     return [
-        f"{r['n']} signed-off answers of {r['children']} children on {r['placed_rung']}, which no taught skill"
-        " shows — run `engine bank relabel`, `engine bank rehome`, `engine graph`"
+        f"{r['n']} signed-off answers of {r['children']} children on {r['placed_rung']}, which no skill holds"
+        " — run `engine bank levels --apply`, `engine bank relabel`, `engine bank rehome`, `engine graph`"
         for r in rows
     ]
+
+
+def hidden(conn):
+    """{skill set: signed-off answers} on skills whose topic the school does not teach yet — kept, not shown."""
+    return {
+        r["code"]: r["n"]
+        for r in conn.execute(
+            "select ss.code, count(*) as n from evidence_placed e"
+            " join skill_set ss on ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung"
+            " join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code"
+            " where e.confirmed_by is not null and not t.taught group by 1 order by 1"
+        )
+    }
 
 
 def _stale_graph(conn):
@@ -91,7 +105,7 @@ def _marking(conn):
 
 CHECKS = (
     ("every migration is applied", _migrations),
-    ("every signed-off answer counts on a skill the site shows", _off_the_map),
+    ("every signed-off answer counts on a skill", _off_the_map),
     ("each child's skills are rebuilt from their answers", _stale_graph),
     ("Marking counts each printed question once", _marking),
 )
@@ -107,6 +121,12 @@ def check(address: str | None = None):
             ok &= not problems
             lines.append(f"  {'ok  ' if not problems else 'FAIL'}  {name}")
             lines += [f"        {p}" for p in problems]
+        kept = hidden(conn)
+        if kept:
+            lines.append(
+                "  note  kept but not shown, their topic not taught yet: "
+                + ", ".join(f"{c} {n} answers" for c, n in kept.items())
+            )
         conn.rollback()
     return ok, lines
 
