@@ -79,18 +79,13 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
     "Children",
     "Marking",
     "Make papers",
-    "Papers",
     "Curriculum",
-    "Question bank",
-    "How it works",
   ]);
   for (const [label, heading] of [
     ["Children", "Children"],
     ["Marking", "Marking"],
     ["Make papers", "Make papers"],
-    ["Papers", "Worksheets"],
     ["Curriculum", "Curriculum"],
-    ["Question bank", "Question bank"],
     ["Today", "Today"],
   ]) {
     await menu.getByRole("link", { name: label, exact: true }).click();
