@@ -191,3 +191,37 @@ def test_a_number_missing_among_three_is_placed_in_adding_three_or_more_numbers(
     """`15 + □ + 13 = 42` (taxonomy M06) has one home: adding three or more numbers, at Advance."""
     assert _place("missing_number", {"text": "15 + □ + 13 = 42"}) == ("ADD.MANY", "Advance")
     assert _place("missing_number", {"text": "133 + □ + 65 = 496"}) == ("ADD.MANY", "Advance")
+
+
+@pytest.mark.parametrize(
+    "digits,op",
+    [(d, op) for d in ([1, 1], [2, 1], [1, 2], [2, 2], [3, 1], [3, 2], [3, 3], [4, 4]) for op in "+-"
+     if not (op == "-" and d[0] < d[1])],
+)  # fmt: skip
+def test_every_one_step_story_has_a_home_whatever_is_unknown_in_it(digits, op):
+    """A story sits with the sum the child does: 'had some, lost 52, 47 left' (W06) is 52 + 47, so an adding
+    skill holds it; 'had 11, now 30' (W02) and 'some, 6 more got on, now 20' (W03) are subtraction. Live's
+    rehome refused 131 such stories when no level named W02, W03 or W06."""
+    import random
+
+    from engine.assess import words
+
+    rng = random.Random(f"{digits}{op}")
+    seen = set()
+    for _ in range(80):
+        it = words.word_1step(rng, "R8", "Application", max(digits), regroups=(0, 1, 2), op=op, digits=digits)
+        t = tags.derive(it)
+        seen.add(t.get("structure"))
+        assert placing.place(it.fmt, t, SKILLS, MATCHES), (it.stem, t.get("structure"))
+    assert len(seen) >= 3, seen
+
+
+def test_a_refused_rehome_names_every_kind_of_question_without_a_place_at_once():
+    rows = [
+        {"item_key": "WP1-a", "fmt": "word_1step", "tags": {"structure": "SEPARATE_START"}},
+        {"item_key": "WP1-b", "fmt": "word_1step", "tags": {"structure": "SEPARATE_START"}},
+        {"item_key": "MISSING.NUM-c", "fmt": "missing_number", "tags": {"operation": "SUB"}},
+    ]
+    assert rehome.unplaced(rows) == (
+        "2 word_1step SEPARATE_START (e.g. WP1-a); 1 missing_number SUB (e.g. MISSING.NUM-c)"
+    )

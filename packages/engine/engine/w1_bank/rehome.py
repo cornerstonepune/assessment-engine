@@ -49,9 +49,9 @@ def rehome(conn):
         home = placing.place(r["fmt"], r["tags"], skills, case_matches)
         (moves if home else homeless).append((r, home))
     if homeless:
-        keys = ", ".join(r["item_key"] for r, _ in homeless[:10])
         raise ValueError(
-            f"{len(homeless)} questions have no place in the new skills, so nothing moved: {keys}"
+            f"{len(homeless)} questions have no place in the new skills, so nothing moved — "
+            + unplaced([r for r, _ in homeless])
         )
     moved = Counter()
     for r, (s, level) in moves:
@@ -90,6 +90,18 @@ def rehome(conn):
         "removed_sets": removed_sets,
         "removed_rungs": removed_rungs,
     }
+
+
+def unplaced(rows):
+    """Every kind of question without a place, counted, with one example of each — the whole list in one run."""
+    kind = lambda r: (r["fmt"], (r["tags"] or {}).get("structure") or (r["tags"] or {}).get("operation"))  # noqa: E731
+    kinds, first = Counter(map(kind, rows)), {}
+    for r in rows:
+        first.setdefault(kind(r), r["item_key"])
+    return "; ".join(
+        f"{n} {fmt}{f' {what}' if what else ''} (e.g. {first[(fmt, what)]})"
+        for (fmt, what), n in kinds.most_common()
+    )
 
 
 def _old_papers(conn, skills, case_matches):

@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, later — live rehome refused 131 word problems; the seed was missing three story types
+
+After #45 live's rehome refused 131 `WP1` one-step stories: "start unknown" / "change unknown" stories (W02, W03,
+W06) were on no calculation skill's Advance level. A story sits with the sum the child does, as the lists already
+had it (W05, W08 on SUB): W06 (lost 52, 47 left → 52 + 47) now on every ADD.* Advance, W02 and W03 (→ subtraction)
+on every SUB.* Advance. A seed change: the 14 skills wait for approval again. Rehome's refusal now counts every
+kind of homeless question with an example, so one run shows all of them. On live: `bin/update-live`.
+
 ## 2026-09-23, late — live rehome refused 155 questions; fixed at the labeller (start here)
 
 Read on live (select only): `bank rehome` had never moved anything — it refused 155 old missing-number questions
