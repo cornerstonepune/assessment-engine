@@ -3,6 +3,34 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-24, for the morning — the update is proven on a copy of live; run it on live
+
+`rehearse update-live` run 6 (GitHub Actions 35913118685): a copy of live (47 tables, 89,973 rows, every count
+equal) put through update-live's data steps ends clean — every migration applied, every signed-off answer on a
+skill, each child's skills rebuilt from their answers, Marking counting each question once; 27 answers kept but
+not shown (MUL.1D 19, REASON.EXPLAIN 8 — topics not taught yet). Rehome moved 9,063 questions, 10 old papers' sums,
+retired 20 unnamed stories, removed 10 old skill sets and 9 rungs; 3,010 worksheets; 270 of 270 cases covered.
+Home papers this week: 16 children, 9 with a proposed paper (`engine live homes` lists each by section and roll,
+now with its count of signed-off answers). **To make live the same: `bin/update-live` on the Mac** (the one
+unattended write to live was refused by the auto-mode classifier). Then approve the 15 skill sets on Curriculum
+(level changes withdraw ratification). Open for Nimish: `item_placement` on live (no migration), AA9 and
+G3-QUIZ20's 5-digit sums (for Aseem), and how a library-worksheet copy is tied to a child.
+
+## 2026-09-23, late night — what the rehearsal on a copy of live found
+
+`rehearse update-live` (GitHub) copies live into its runner (47 tables, 89,973 rows, every count equal) and runs
+the update there. It found: (1) live holds `item_placement`, which no migration makes (rule 9) — not copied, for
+Nimish to explain or drop; (2) `engine load` never rewrites an existing skill set, so tonight's level changes (M06,
+W02/W03/W06, AA9) reach live only through `engine bank levels --apply` — now in update-live after `load`, and
+the 15 skills it changes wait for approval then; (3) 111 sums of three 4-digit numbers had no case — AA9 added, not
+from the team's taxonomy, for Aseem; (4) 20 old model-written stories ("…had 353 mangoes and sold 26…") whose
+story shape no template names — rehome now moves such a question to the skill its numbers give and retires it
+with the reason, instead of stopping; it still stops for a question no skill's numbers hold. (5) old papers'
+questions keep the rung they were loaded with: update-live now reloads every `supabase/seed/papers/*.json`
+(a G3 word problem moves R9 → R31); G3-QUIZ20's two 5-digit sums, past the ladder, count on 4-digit addition
+(R32), noted in the file for Aseem. (6) answers on untaught topics (MUL.1D 19, REASON.EXPLAIN 8) are kept and
+noted by `engine live data`, not failed.
+
 ## 2026-09-23, night — the Grade 2 scan is library worksheets; the live update is rehearsed in GitHub
 
 The Grade 2 scan (Drive 1eBcFq8…, read as text through Drive): 11 copies of library worksheets — R8-H02 ×4,

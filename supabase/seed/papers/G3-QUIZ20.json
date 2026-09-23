@@ -7,8 +7,8 @@
   "_note": "Entered 2026-09-20 from the printed page. The second Grade 3 paper: each child's four photographs are TWO papers of two pages, not one of four. This is where `8500 - 3647 = 5147` (question 5) and `56 x 3 = 1518` (question 18) live — the two findings Aseem's report names by hand. Printed with thousands commas, so each question is entered as the page prints it and the expression beside it without them. Heavily marked in red by the educator, including corrections in digits, which is the hardest case in the corpus for telling an adult's hand from a child's.",
   "pages": [{"n": 1, "mask": 0.14}, {"n": 2, "mask": 0}],
   "items": [
-    {"n": 1, "page": 1, "expr": "24568 + 37845", "question": "24,568 + 37,845 ="},
-    {"n": 2, "page": 1, "expr": "56789 + 18236", "question": "56,789 + 18,236 ="},
+    {"n": 1, "page": 1, "expr": "24568 + 37845", "question": "24,568 + 37,845 =", "rung": "R32", "note": "5 digits, past the ladder (it stops at 4): counted on 4-digit addition, the same column method. For Aseem to confirm."},
+    {"n": 2, "page": 1, "expr": "56789 + 18236", "question": "56,789 + 18,236 =", "rung": "R32", "note": "5 digits, past the ladder (it stops at 4): counted on 4-digit addition, the same column method. For Aseem to confirm."},
     {"n": 3, "page": 1, "kind": "text", "rung": "X2", "answer": 84602, "question": "Achal added 45,678 + 38,924 and got 74,502. Is he correct? If not, find his mistake and write the correct answer."},
     {"n": 4, "page": 1, "expr": "6342 - 2875", "question": "6,342 - 2,875 ="},
     {"n": 5, "page": 1, "expr": "8500 - 3647", "question": "8,500 - 3,647 ="},

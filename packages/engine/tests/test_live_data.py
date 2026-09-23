@@ -42,9 +42,30 @@ def _answer_on(conn, rung):
     return child
 
 
-def test_a_signed_off_answer_on_a_rung_no_taught_skill_shows_fails_and_names_the_rung(conn):
+def test_a_signed_off_answer_on_a_rung_no_skill_holds_fails_and_names_the_rung(conn):
     _answer_on(conn, "R_NOWHERE")
     assert any("R_NOWHERE" in p for p in live_data._off_the_map(conn))
+
+
+def test_an_answer_on_a_skill_whose_topic_is_not_taught_is_kept_and_noted_not_failed(conn):
+    """Multiplication (M1) and explaining a method (X1) are hidden on purpose; their answers are kept."""
+    row = conn.execute(
+        "select ss.tenant_id, ss.rung_code, ss.code from skill_set ss join topic t"
+        " on t.tenant_id = ss.tenant_id and t.code = ss.topic_code where not t.taught limit 1"
+    ).fetchone()
+    if not row:
+        pytest.skip("needs the seed loaded on the copy")
+    child = conn.execute(
+        "insert into child (tenant_id, roll_no, band, section) values (%s, '1', 'G2', 'HIDDENTEST') returning id",
+        (row["tenant_id"],),
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, observed_at,"
+        " confirmed_by) values (%s, %s, 'NUM.OPS.03', %s, true, 'teacher_override', now(), 'a person')",
+        (row["tenant_id"], child, row["rung_code"]),
+    )
+    assert not any(row["rung_code"] in p for p in live_data._off_the_map(conn))
+    assert live_data.hidden(conn).get(row["code"], 0) >= 1
 
 
 def test_an_answer_the_graph_has_not_read_fails_until_the_graph_is_rebuilt(conn):
