@@ -2,57 +2,31 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
-import {
-  childEvidence,
-  childHeader,
-  childMap,
-  childPapers,
-  misconceptionNames,
-  numSkills,
-  pendingResults,
-  staffList,
-  type RungState,
-  type Skill,
-} from "@/lib/queries";
-import { childSheets, repeatedMistakes, summary } from "@/lib/queries-children";
+import { childEvidence, childHeader, childPapers, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
+import { childSheets, childSkills, repeatedMistakes, summary } from "@/lib/queries-children";
 import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
 import { confirmChild, resolveOne } from "../actions";
 import { deadline } from "@/lib/deadline";
 import { FocusPanel } from "./focus-panel";
-import { AnswerTable, fmtDate, Lane, Legend } from "./graph";
+import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
+import { SkillsPanel } from "./skills-panel";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 const MACHINE = ["correct", "wrong", "blank"];
-
-const groupBy = <T,>(rows: T[], key: (r: T) => string) =>
-  rows.reduce<Record<string, T[]>>((acc, r) => ((acc[key(r)] ??= []).push(r), acc), {});
-
-// A rung on the child's map that this skill has no confirmed answers on yet.
-const unseen = (rung: RungState, skill: Skill): RungState => ({
-  ...rung,
-  skill_code: skill.code,
-  skill_name: skill.name,
-  state: null,
-  n_events: 0,
-  n_correct: 0,
-  repeating_misconception: null,
-  last_seen: null,
-});
 
 export default async function ChildPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, map, evidence, pending, papers, names, skills, mistakes, sheets, staff] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff] = await deadline(Promise.all([
     childHeader(id, me.email),
-    childMap(id),
+    childSkills(id),
     childEvidence(id),
     pendingResults(id),
     childPapers(id),
     misconceptionNames(),
-    numSkills(),
     repeatedMistakes(id),
     childSheets(id),
     staffList(),
@@ -61,18 +35,10 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
   const machine = pending.filter((p) => MACHINE.includes(p.status));
   const person = pending.filter((p) => !MACHINE.includes(p.status));
-  // One lane per skill, holding only the rungs on this child's map: the band's ladder plus any
-  // rung a paper has touched. A rung shared by two skills appears in both lanes with its own state.
-  const byCode = groupBy(map, (r) => r.rung_code);
-  const lanes = skills
-    .map((skill) => ({
-      skill,
-      rows: skill.rungs.filter((c) => c in byCode).map((c) => byCode[c].find((m) => m.skill_code === skill.code) ?? unseen(byCode[c][0], skill)),
-    }))
-    .filter((l) => l.rows.length && (!map.some((r) => r.last_seen) || l.rows.some((r) => r.last_seen)));
   const read = papers.filter((p) => p.n_results > 0);
-  // the sentence, the tiles and the graph count the same steps: the ones the graph below shows
-  const shown = lanes.flatMap((l) => l.rows.map((r) => r.state));
+  // the sentence, the tiles and the panel count the same skills: the ones the child's checked answers reach
+  const shown = skills.filter((s) => s.n_events > 0).map((s) => s.state);
+  const notYet = skills.filter((s) => s.n_events === 0).length;
   const staffNames = Object.fromEntries(staff.map((x) => [x.email, x.name]));
   const count = (c: string) => shown.filter((s) => rag(s) === c).length;
 
@@ -93,18 +59,18 @@ export default async function ChildPage({ params, searchParams }: Props) {
           </Link>
         </p>
         <p data-testid="summary" className="mb-4 max-w-[760px] text-[16px] leading-snug">
-          {summary(child.first_name, shown)}
+          {summary(child.first_name, shown, notYet)}
         </p>
-        {q.confirmed ? <Notice tone="neem">Confirmed {q.confirmed} answers. The ladder below is rebuilt from them.</Notice> : null}
+        {q.confirmed ? <Notice tone="neem">Confirmed {q.confirmed} answers. What their answers show is rebuilt from them.</Notice> : null}
         {q.paper && /^CS[0-9A-F]{6}$/.test(q.paper) ? (
           <Notice tone="neem">Approved in your name: paper {q.paper}. Print it from its page.</Notice>
         ) : null}
-        {q.resolved ? <Notice tone="neem">Settled. The ladder is rebuilt.</Notice> : null}
+        {q.resolved ? <Notice tone="neem">Settled. What their answers show is rebuilt.</Notice> : null}
         {q.error === "resolve" ? <Notice tone="terracotta">Pick right, wrong or blank. Nothing was changed.</Notice> : null}
 
         <div className="mb-[18px] grid grid-cols-2 gap-[10px] md:grid-cols-5">
           {(["red", "amber", "green", "grey"] as const).map((c) => (
-            <Tile key={c} tone={RAG_TONE[c]} n={count(c)} words={RAG_WORDS[c]} />
+            <Tile key={c} tone={RAG_TONE[c]} n={count(c)} words={c === "grey" ? "too few answers yet" : RAG_WORDS[c]} />
           ))}
           <a href="#needs-you" className="panel flex flex-col justify-between border-l-4 border-l-basalt p-3 no-underline">
             <span className="font-heading text-[26px] leading-none text-basalt">{person.length + machine.length}</span>
@@ -116,26 +82,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
-            <Panel id="ladder" label="Knowledge graph" title="Knowledge graph" aside="each skill's steps, from checked answers only">
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">
-                  <Legend state="secure">got it</Legend>
-                  <Legend state="stretch_ready">ready to move up</Legend>
-                  <Legend state="practising">practising</Legend>
-                  <Legend state="patterned_error">same mistake repeating</Legend>
-                  <Legend state="emerging">under half right</Legend>
-                  <Legend state="not_enough_yet">not enough yet</Legend>
-                </div>
-                <ol aria-label="The ladder" className="mt-5">
-                  {lanes.map(({ skill, rows }) => (
-                    <Lane key={skill.code} skill={skill} rows={rows} answers={evidence.filter((a) => a.skill_code === skill.code)} names={names} />
-                  ))}
-                </ol>
-                <p className="note mt-3">
-                  Steps run easy to hard, left to right. Click a step to see the answers behind it. Grey: fewer than
-                  three checked answers. Red: a mistake matched twice, or under half right. Amber: practising, not yet
-                  four in five. Green: four in five across two papers; six answers at that rate is ready to move up.
-                </p>
-            </Panel>
+            <SkillsPanel skills={skills} answers={evidence} names={names} />
 
             <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 

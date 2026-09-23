@@ -10,12 +10,13 @@ import { deadline } from "@/lib/deadline";
 type Props = { params: Promise<{ section: string }> };
 const COLOURS: Rag[] = ["red", "amber", "green", "grey"];
 
-// A class: its children down the side, every step of each skill across the top, each cell the colour of the graph's
-// own state for that child on that step (goals/u2-children.yaml). The colour is lib/rag.ts's; nothing is decided here.
+// A class: its children down the side, across the top every skill someone in the class has been assessed on, topic by
+// topic; each cell the child's score in the colour of the graph's own state (goals/v2-what-answers-show.yaml). A skill
+// no one has answered yet is named once below, not drawn as a column of grey. The colour is lib/rag.ts's.
 export default async function ClassPage({ params }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
-  const { steps, children } = await deadline(classGrid(section, me.email));
+  const { steps, children, notYet } = await deadline(classGrid(section, me.email));
   if (!children.length) notFound();
   const topics = [...new Set(steps.map((s) => s.topic_name))];
   const firstOfTopic = (i: number) => i === 0 || steps[i - 1].topic_name !== steps[i].topic_name;
@@ -25,7 +26,7 @@ export default async function ClassPage({ params }: Props) {
       <PageHeader
         stage="Children · class"
         title={section}
-        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against every skill of their grade, topic by topic, as the Curriculum reads them — from checked papers only. A name opens the child.`}
+        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against every skill the class has been assessed on, topic by topic — each child's score from checked papers only. A name opens the child.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">
@@ -39,6 +40,7 @@ export default async function ClassPage({ params }: Props) {
             </span>
           ))}
         </p>
+        {steps.length ? null : <p className="note mb-3">No checked answers in this class yet.</p>}
         <div className="panel overflow-x-auto">
           <table className="grid" aria-label={`${section}: each child on each step`}>
             <thead>
@@ -86,8 +88,13 @@ export default async function ClassPage({ params }: Props) {
             </tbody>
           </table>
         </div>
+        {notYet.length ? (
+          <p className="note mt-3" data-testid="not-yet">
+            Not assessed yet in this class: {notYet.join(" · ")}
+          </p>
+        ) : null}
         <p className="note mt-3">
-          Columns follow the Curriculum: topic by topic, each skill easy to hard; hover a cell for the child&rsquo;s answers. Red is a repeating mistake
+          Columns follow the Curriculum: topic by topic, each skill easy to hard. A cell is the child&rsquo;s right answers of all they answered. Red is a repeating mistake
           or under half right, amber practising, green got it, grey fewer than three checked answers.
         </p>
       </Body>
@@ -97,10 +104,21 @@ export default async function ClassPage({ params }: Props) {
 
 function Cell({ step, first, got }: { step: Step; first: boolean; got?: { state: string; n_events: number; n_correct: number } }) {
   const colour = rag(got?.state);
-  const said = `${step.skill_name} · ${step.descriptor} — ${STATE_WORDS[got?.state ?? "not_enough_yet"].words}${got?.n_events ? `, ${got.n_correct} of ${got.n_events} right` : ""}`;
+  const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${STATE_WORDS[got.state].words}` : "no answers yet"}`;
   return (
     <td data-col={stepKey(step)} data-rag={colour} title={said} className={`text-center ${first ? "border-l border-basalt/12" : ""}`}>
-      <Swatch colour={colour} label={said} />
+      {got?.n_events ? (
+        <span className="inline-flex items-center gap-1">
+          <Swatch colour={colour} label={said} />
+          <span className="fact text-[12px]">
+            {got.n_correct}/{got.n_events}
+          </span>
+        </span>
+      ) : (
+        <span className="text-basalt/30" aria-label={said}>
+          —
+        </span>
+      )}
     </td>
   );
 }

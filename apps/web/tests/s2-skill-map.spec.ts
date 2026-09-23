@@ -20,6 +20,7 @@ const CODE = /\b([A-Z]{2,}\.[A-Z0-9_.]+|R\d{1,2}|X[12]|M_[A-Z0-9_]+)\b/;
 const skills = () => sql<Skill[]>`
   select s.code, s.learning_objective as outcome, s.name, r.band, s.difficulty as words
   from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+  where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)
   order by r.ladder_order nulls last, s.code`;
 
 async function noSidewaysScroll(page: Page) {
@@ -122,7 +123,7 @@ test("every waiting skill is approved from one page, in the approver's name", as
   try {
     await sql`update config set value = '{}'::jsonb where key = 'skills.charges_by_kind.approved'`;
     await sql`update skill_set set status = 'ratified', ratified_by = 'someone earlier'`;
-    await sql`update skill_set set status = 'draft', ratified_by = null where code in ('ADD.1D1D', 'MUL.1D')`;
+    await sql`update skill_set set status = 'draft', ratified_by = null where code in ('ADD.1D1D', 'SUB.1D1D')`;
     await page.goto("/");
     await page.getByRole("link", { name: "Read and approve →" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Approve the skills");
@@ -137,10 +138,10 @@ test("every waiting skill is approved from one page, in the approver's name", as
       from config a, config t where a.key = 'skills.charges_by_kind.approved' and t.key = 'skills.charges_by_kind'`;
     expect(approved).toEqual({ by: "End-to-end test", same: true });
     const rows = await sql<{ code: string; ratified_by: string }[]>`
-      select code, ratified_by from skill_set where code in ('ADD.1D1D', 'MUL.1D') and status = 'ratified' order by code`;
+      select code, ratified_by from skill_set where code in ('ADD.1D1D', 'SUB.1D1D') and status = 'ratified' order by code`;
     expect(rows).toEqual([
       { code: "ADD.1D1D", ratified_by: "End-to-end test" },
-      { code: "MUL.1D", ratified_by: "End-to-end test" },
+      { code: "SUB.1D1D", ratified_by: "End-to-end test" },
     ]);
   } finally {
     for (const b of before) {

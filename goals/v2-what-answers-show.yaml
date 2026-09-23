@@ -1,0 +1,25 @@
+name: v2-what-answers-show
+goal: >
+  A child's page and a class read what the checked answers show, not a wall of grey. A child's page has one line per
+  skill their answers reach — topic by topic, the score, what it means, the mistake that repeats — each opening to the
+  answers behind it; the grade's skills no paper has reached are named once. A class is its children against only the
+  skills it has been assessed on, each cell the child's score in its colour; the rest are named once below.
+
+# Written 2026-09-23, before the work. Nimish, the same day.
+says:
+  - words: "When I look at Advika, most of the things are gray. How do we better represent this?"
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page never draws a wall of grey, only skills with answers get a line, the rest are named once
+  - words: "When I click on Advika and go inside, I'm not too sure how this is going to be of help and am not able to make a lot of sense out of this."
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page opens on one plain sentence that counts what their answers show
+  - words: "This is not very useful even for a teacher."
+    proved_by: apps/web/tests/u2-children.spec.ts::each grade opens on its classes, and a class is its children against every step in red, amber, green or grey
+manual:
+  - "On live, once merged: open Children → a class → Advika."
+scenarios: []
+criteria:
+  - name: a child and a class, on the copy
+    run: cd apps/web && npx playwright test tests/u2-children.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -4,7 +4,7 @@ import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { PURPOSE, type ChildSheet, type Repeated } from "@/lib/queries-children";
 import type { Paper } from "@/lib/queries";
-import { fmtDate } from "./graph";
+import { fmtDate } from "./answers";
 
 /** `opens`: the steps whose answers the graph can open (a skill and rung with answers from a read paper). */
 export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set<string> }) {

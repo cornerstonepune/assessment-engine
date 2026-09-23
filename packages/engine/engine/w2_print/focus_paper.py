@@ -47,7 +47,8 @@ def rule(conn) -> dict:
 
 
 def catalog(conn) -> list[dict]:
-    """The bank's skill sets: rung, place on the ladder, the skill each is for, every skill it uses."""
+    """The bank's taught skill sets: rung, place on the ladder, the skill each is for, every skill it uses. A skill
+    the school does not teach yet is never on a child's paper, whatever the child's map shows."""
     rows = conn.execute(
         "select s.code, s.rung_code, r.ladder_order,"
         " (select x from item i, unnest(i.skill_codes) x where i.skill_set_code = s.code"
@@ -55,6 +56,7 @@ def catalog(conn) -> list[dict]:
         " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
         "   where i.skill_set_code = s.code and i.status = 'active') as skills"
         " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
+        " where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)"
     ).fetchall()
     return [
         {

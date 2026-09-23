@@ -60,27 +60,23 @@ test("the menu marks where you are", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
 });
 
-// A child's page reads as a ladder in the school's own words: no rung, skill-set or mistake code
-// reaches a teacher, and every rung with answers opens to the work behind it.
-test("a child's ladder is in words, with the answers behind each rung", async ({ page }) => {
+// A child's page reads in the school's own words: no rung, skill-set or mistake code reaches a teacher, and every skill
+// with answers opens to the work behind it.
+test("a child's page is in words, with the answers behind each skill", async ({ page }) => {
   await page.goto("/growth");
   await page.getByRole("main").getByRole("link").first().click();
   await expect(page).toHaveURL(/\/growth\/class\//);
   await page.getByRole("table").getByRole("link").first().click();
   await expect(page).toHaveURL(/\/growth\/[0-9a-f-]{36}$/);
-  const ladder = page.getByRole("list", { name: "The ladder" });
-  await expect(ladder.getByRole("listitem").first()).toBeVisible();
-  await expect(ladder).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z]+)\b/);
-  await expect(ladder.getByRole("table")).toHaveCount(0);
-  // A rung only opens once someone has signed off answers on it — the graph reads confirmed
-  // evidence and nothing else (rule 4). Straight after the corpus was re-read there is a ladder to
-  // look at and nothing behind any rung of it, and that is the system working, not failing.
-  const rung = ladder.getByRole("link").first();
-  if ((await rung.count()) === 0) test.skip(true, "no paper has been signed off yet");
-  await rung.click();
-  const opened = ladder.locator(":target");
-  await expect(opened.getByRole("table")).toBeVisible();
-  await expect(opened.getByRole("columnheader", { name: "Child wrote" })).toBeVisible();
+  const shown = page.getByRole("region", { name: "What their answers show" });
+  await expect(shown).toBeVisible();
+  await expect(shown).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z]+)\b/);
+  // The page reads confirmed evidence and nothing else (rule 4): straight after the corpus was re-read nothing is
+  // signed off, and that is the system working, not failing.
+  const line = shown.locator("li[data-skill]").first();
+  if ((await line.count()) === 0) test.skip(true, "no paper has been signed off yet");
+  await line.locator("summary").click();
+  await expect(line.locator("details")).toHaveAttribute("open", "");
 });
 
 // The approval screen is reached by opening a paper, so it has no fixed path to list above. It is

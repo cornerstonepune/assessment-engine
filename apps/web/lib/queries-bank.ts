@@ -57,9 +57,10 @@ export const itemColumns = () => sql`
   i.id, i.item_key, i.fmt, i.stem, i.spec, i.responses, i.status, i.times_used, i.skill_set_code, i.difficulty,
   (select s.name from skill_set s where s.tenant_id = i.tenant_id and s.code = i.skill_set_code) as skill_set_name`;
 
-// What the bank may print: generated questions, the live ones unless the removed ones are asked for.
+// What the bank may print: generated questions of a taught skill, the live ones unless the removed ones are asked for.
 const inBank = (f: ItemFilter) => sql`
   i.source = 'generated' and i.status = ${f.status === "retired" ? "retired" : "active"}
+  and exists (select 1 from skill_set ts join topic tt on tt.tenant_id = ts.tenant_id and tt.code = ts.topic_code and tt.taught where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code)
   ${f.set ? sql`and i.skill_set_code = ${f.set}` : sql``}
   ${f.difficulty ? sql`and i.difficulty = ${f.difficulty}` : sql``}
   ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}`;
@@ -103,6 +104,7 @@ export async function bankGrid(): Promise<BankRow[]> {
                            group by b.difficulty) d), '{}'::json) as counts
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
     order by r.ladder_order nulls last, s.code`;
 }
 
@@ -110,7 +112,7 @@ export async function bankTotals(): Promise<{ active: number; retired: number }>
   const [t] = await sql<{ active: number; retired: number }[]>`
     select count(*) filter (where status = 'active')::int as active,
            count(*) filter (where status = 'retired')::int as retired
-    from item where source = 'generated'`;
+    from item i where i.source = 'generated' and exists (select 1 from skill_set ts join topic tt on tt.tenant_id = ts.tenant_id and tt.code = ts.topic_code and tt.taught where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code)`;
   return t;
 }
 

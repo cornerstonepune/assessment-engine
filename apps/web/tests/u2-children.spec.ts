@@ -122,23 +122,19 @@ test("each grade opens on its classes, and a class is its children against every
   await expect(page).toHaveURL(`/growth/class/${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(SECTION);
 
-  // the steps are the grade's ladder, each rung once for every skill it carries, plus any step a child has answers on
+  // the columns are the taught skills someone in the class has a checked answer on — never a column nobody answered
   const steps = await sql<{ col: string }[]>`
-    with rungs as (
-      select unnest(rung_codes) as rung_code from level_rule where band = 'G2'
-      union select rung_code from child_skill_state s join child c on c.id = s.child_id where c.section = ${SECTION}
-    )
-    select k || '|' || r.code as col from rungs x join rung r on r.code = x.rung_code, unnest(r.skill_codes) k
-    union
-    select s.skill_code || '|' || s.rung_code from child_skill_state s join child c on c.id = s.child_id
-    where c.section = ${SECTION}`;
+    select distinct s.skill_code || '|' || s.rung_code as col
+    from child_skill_state s join child c on c.id = s.child_id
+    join skill_set ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and t.taught
+    where c.section = ${SECTION} and s.n_events > 0`;
   const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
   const shown = await grid.locator("thead th[data-col]").evaluateAll((ths) => ths.map((t) => t.getAttribute("data-col")));
   expect(shown.sort()).toEqual(steps.map((s) => s.col).sort());
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(grid).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
 
-  // every cell is the colour of the graph's own state for that child and step, grey where there is none
+  // every cell is the colour of the graph's own state for that child and skill, and its score; grey where there is none
   const states = await sql<{ child_id: string; col: string; state: string }[]>`
     select s.child_id, s.skill_code || '|' || s.rung_code as col, s.state
     from child_skill_state s join child c on c.id = s.child_id where c.section = ${SECTION}`;
@@ -160,48 +156,59 @@ test("each grade opens on its classes, and a class is its children against every
   ]) {
     await expect(asha.locator(`td[data-col="${col}"]`)).toHaveAttribute("data-rag", rag);
   }
+  await expect(asha.locator(`td[data-col="NUM.OPS.02|R24"]`)).toContainText("2/8");
 });
 
-test("a child's page opens on one plain sentence that counts what the graph says", async ({ page }) => {
-  // grey: every step of the grade's ladder, in a skill the child has answers in, with too few answers to say — the
-  // steps the graph below shows (the ladder is rows, so counted here, not typed)
-  const [{ grey }] = await sql<{ grey: number }[]>`
-    with ladder as (
-      select unnest(l.rung_codes) as rc from level_rule l join child c on c.band = l.band where c.id = ${ids.Asha}::uuid
-      union select rung_code from child_skill_state where child_id = ${ids.Asha}::uuid
-    ), steps as (
-      select k, r.code from ladder x join rung r on r.code = x.rc cross join lateral unnest(r.skill_codes) k
-      where k in (select skill_code from child_skill_state where child_id = ${ids.Asha}::uuid and last_seen is not null)
-    )
-    select count(*)::int as grey from steps p
-    left join child_skill_state s on s.child_id = ${ids.Asha}::uuid and s.rung_code = p.code and s.skill_code = p.k
-    where s.state is null or s.state = 'not_enough_yet'`;
+test("a child's page opens on one plain sentence that counts what their answers show", async ({ page }) => {
+  // not yet: the taught skills of the grade no checked answer of hers has reached
+  const [{ notYet }] = await sql<{ notYet: number }[]>`
+    select count(*)::int as "notYet" from skill_set ss
+    join topic t on t.code = ss.topic_code and t.taught join rung r on r.code = ss.rung_code
+    where r.band = 'G2' and not exists (select 1 from child_skill_state s
+      where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
-    `Asha needs help on 1 step, is practising 1 and has got 1; ${grey} steps have too few answers to say.`,
+    `Asha needs help on 1 skill, is practising 1 and has got 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
   );
-  // the sentence counts the knowledge graph shown beneath it
-  const graph = page.getByRole("region", { name: "Knowledge graph" });
+  // the sentence counts the skills shown beneath it, one line each
+  const shown = page.getByRole("region", { name: "What their answers show" });
   for (const [rag, n] of [
     ["red", 1],
     ["amber", 1],
     ["green", 1],
-    ["grey", grey],
+    ["grey", 1],
   ] as const) {
-    await expect(graph.locator(`[data-rag="${rag}"]`)).toHaveCount(n);
+    await expect(shown.locator(`li[data-rag="${rag}"]`)).toHaveCount(n);
   }
 
   await page.goto(`/growth/${ids.Bina}`);
   await expect(page.getByTestId("summary")).toHaveText(
-    "Bina has no checked answers yet; the graph fills in once a paper is read and checked.",
+    "Bina has no checked answers yet; this fills in once a paper is read and checked.",
   );
 });
 
-test("a child's page shows their knowledge graph and every mistake that repeats, and how often", async ({ page }) => {
+test("a child's page never draws a wall of grey, only skills with answers get a line, the rest are named once", async ({
+  page,
+}) => {
   await page.goto(`/growth/${ids.Asha}`);
-  const graph = page.getByRole("region", { name: "Knowledge graph" });
-  await expect(graph.getByRole("heading", { name: "Addition" })).toBeVisible();
-  await expect(graph.getByRole("heading", { name: "Subtraction" })).toBeVisible();
+  const shown = page.getByRole("region", { name: "What their answers show" });
+  await expect(shown.locator("li[data-skill]")).toHaveCount(4);
+  await expect(shown.getByTestId("not-yet")).toContainText("Not assessed yet:");
+  // a line opens to the answers behind it (this test's answers were entered straight onto the graph, not read from a
+  // paper, so it says where they are rather than showing a table; screens.spec.ts opens real ones)
+  const red = shown.locator('li[data-rag="red"]');
+  await expect(red).toContainText("2 of 8 right");
+  await red.locator("summary").click();
+  await expect(red.locator("details")).toHaveAttribute("open", "");
+  await expect(red).toContainText("papers not yet re-read");
+});
+
+test("a child's page shows what their answers show and every mistake that repeats, and how often", async ({ page }) => {
+  await page.goto(`/growth/${ids.Asha}`);
+  const shown = page.getByRole("region", { name: "What their answers show" });
+  await expect(shown.getByRole("heading", { name: "Addition & subtraction" })).toBeVisible();
+  const [{ name: skill }] = await sql<{ name: string }[]>`select name from skill_set where code = 'SUB.2D2D'`;
+  await expect(shown.locator('li[data-skill="SUB.2D2D"]')).toContainText(skill);
 
   const [{ name }] = await sql<{ name: string }[]>`select name from misconception where code = 'M_SMALL_FROM_LARGE' limit 1`;
   const mistakes = page.getByRole("region", { name: "Repeated mistakes" });

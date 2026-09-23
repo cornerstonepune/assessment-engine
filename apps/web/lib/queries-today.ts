@@ -30,7 +30,7 @@ export async function waiting(actor: string): Promise<Waiting> {
     papersToApprove(actor),
     classPacksWaiting(),
     proposedHomePapers(),
-    sql<{ skills: number }[]>`select count(*)::int as skills from skill_set where status <> 'ratified'`,
+    sql<{ skills: number }[]>`select count(*)::int as skills from skill_set s where s.status <> 'ratified' and exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)`,
   ]);
   return {
     answers: queue.filter((e) => !e.spot).length,

@@ -41,8 +41,8 @@ export async function measures(): Promise<Record<string, Measure>> {
     }[]
   >`
     select
-      (select count(*) from skill_set)::int as sets,
-      (select count(*) from skill_set where status = 'ratified')::int as approved,
+      (select count(*) from skill_set s where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught))::int as sets,
+      (select count(*) from skill_set s where s.status = 'ratified' and exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught))::int as approved,
       (select count(*) from item where status = 'active')::int as items,
       (select count(distinct skill_set_code) from item where status = 'active')::int as item_sets,
       (select count(*) from capture c join sheet_instance si on si.id = c.sheet_instance_id
