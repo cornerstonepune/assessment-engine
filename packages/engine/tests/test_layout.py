@@ -168,3 +168,21 @@ def test_every_screen_the_map_names_exists():
     for s in STEPS:
         for screen in s["screens"]:
             assert screen in routes, f"{s['code']} names the screen {screen}, which the website does not have"
+
+
+def test_every_engine_import_in_a_shell_script_resolves():
+    """The Python inside `deploy/` and `bin/` is run only on the day it is needed; a module moved in the engine
+    must fail here, not halfway through going live (2026-09-23: go-live stopped on `from engine import db`)."""
+    import importlib
+    import re
+
+    found = []
+    for script in [*(REPO / "deploy").glob("*.sh"), *(p for p in (REPO / "bin").iterdir() if p.is_file())]:
+        for m in re.finditer(r"^\s*from (engine[\w.]*) import ([\w, ]+)$", script.read_text(), re.M):
+            mod = importlib.import_module(m[1])
+            for name in (n.strip() for n in m[2].split(",")):
+                found.append((script.name, name))
+                assert hasattr(mod, name) or importlib.util.find_spec(f"{m[1]}.{name}"), (
+                    f"{script.relative_to(REPO)}: `from {m[1]} import {name}` does not resolve"
+                )
+    assert found, "no shell script imports the engine; this check reads nothing"
