@@ -104,3 +104,18 @@ def test_making_the_paper_prints_it_with_its_qr_and_the_child_is_not_given_those
     given = {q["id"] for a in made["areas"] for q in a["questions"]}
     again = focus_paper.plan(conn, child, WEEK)
     assert not given & {q["id"] for a in again["areas"] for q in a["questions"]}
+
+
+def test_the_paper_is_approved_in_the_name_of_whoever_made_it_and_only_once_a_week(conn, child):
+    """The engine proposes; a person's click approves and prints it (BUILD-ORDER, U2). The approval names them,
+    and a second approval in the same week is refused rather than printing a second next paper."""
+    made = focus_paper.make(conn, child, WEEK, actor="teacher@school.test")
+    inst = conn.execute(
+        "select print_status, approved_by, approved_at from sheet_instance where qr_code = %s", (made["qr"],)
+    ).fetchone()
+    assert inst["approved_by"] == "teacher@school.test" and inst["approved_at"] is not None
+    assert inst["print_status"] == "printed"
+    with pytest.raises(ValueError, match=made["qr"]):
+        focus_paper.make(conn, child, WEEK, actor="teacher@school.test")
+    assert focus_paper.approved(conn, child, WEEK)["qr"] == made["qr"]
+    assert focus_paper.approved(conn, child, "another-week") is None

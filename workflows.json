@@ -57,7 +57,7 @@
     },
     {
       "code": "N5", "workflow": "W2", "name": "Each child's next paper",
-      "does": "Chooses each child's next paper from their own graph: the areas they lag in, weakest first and at most three, each a skill set at a level set by how often they were right, then twelve random bank questions they have not seen, the ones that can show their repeated mistake first. The class's weekly paper still takes its skill set from the teacher.",
+      "does": "Chooses each child's next paper from their own graph: the areas they lag in, weakest first and at most three, each a skill set at a level set by how often they were right, then twelve random bank questions they have not seen, the ones that can show their repeated mistake first. The class's weekly paper still takes its skill set from the teacher. A teacher approves each next paper, in their name, before it prints.",
       "who": "code",
       "built": "live",
       "takes": ["child_skill_state", "evidence_event"],
@@ -88,7 +88,7 @@
       "gives": ["papers marked printed"],
       "files": [],
       "commands": [],
-      "screens": ["/worksheets", "/today"],
+      "screens": ["/worksheets", "/today", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
     },
     {
@@ -124,7 +124,7 @@
       "gives": ["evidence_event", "child_skill_state"],
       "files": ["engine/w3_read/gold.py", "engine/w3_read/cli_gold.py"],
       "commands": ["engine graph", "engine gold check"],
-      "screens": ["/growth", "/growth/[id]"],
+      "screens": ["/growth", "/growth/class/[section]", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject: evidence and the six states read skill codes, not maths. The rule runs in the database (confirm_results, rebuild_child_skill_state)."}
     },
     {

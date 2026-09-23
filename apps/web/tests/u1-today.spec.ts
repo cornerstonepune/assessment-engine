@@ -83,7 +83,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
     "How it works",
   ]);
   for (const [label, heading] of [
-    ["Children", "Child Growth"],
+    ["Children", "Children"],
     ["Marking", "Capture & Mark"],
     ["Papers", "Worksheets"],
     ["Curriculum", "Skill Map"],
@@ -114,8 +114,8 @@ test("today lists everything waiting on a teacher, each with its count and one c
     where c.active and s.state in ('patterned_error', 'emerging', 'practising')
       and not exists (select 1 from sheet_instance si where si.child_id = s.child_id and si.kind = 'focus'
                       and si.created_at > date_trunc('week', now()))`;
-  expect(await count(page, "Next papers to make")).toBe(n);
-  await page.getByRole("region", { name: "Next papers to make" }).getByRole("link").first().click();
+  expect(await count(page, "Next papers to approve")).toBe(n);
+  await page.getByRole("region", { name: "Next papers to approve" }).getByRole("link").first().click();
   await expect(page).toHaveURL(/\/growth/);
 
   // the skills that wait for an approval

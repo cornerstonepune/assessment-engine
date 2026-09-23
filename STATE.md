@@ -3264,3 +3264,32 @@ The plan for the website is in BUILD-ORDER ("the website as the teacher's week",
 - `apps/web/tests/u1-today.spec.ts` 3 passed; the menu tests in `e2e`, `s1`, `s4`, `screens` updated to the new
   labels and passing. Failing on main as well, not this change: `s4` "the queue counts what the engine counts" and
   `e2e` "no two children share questions" on this copy's data.
+
+## U2 — Children (2026-09-23)
+
+Goal `goals/u2-children.yaml`, written with its tests before the code. On a copy built from the repository in a cloud
+session (Postgres 16, 27 migrations, `engine load`, `engine bank refill` → 16,714 questions, `engine library build`)
+— no live rows; the test class is three made-up Grade 2 children with checked answers chosen to show every colour.
+- **`/growth`** is each grade and its classes, each class with its children's seen steps counted by colour.
+- **`/growth/class/<class>`**: the children down the side, every step of each skill across the top (the grade's
+  ladder, each rung once per skill it carries, plus any step a child has answers on), each cell the graph's own state
+  in its colour from `lib/rag.ts`. No aggregation into one colour per skill: the engine has no per-skill verdict, and
+  one colour would hide a red step behind a green one. Steps are named in the school's words, never rung codes.
+- **A child's page** opens on one sentence ("Asha needs help on 1 step, is practising 1 and has got 1; 4 steps have
+  too few answers to say."), counted from the same steps the knowledge graph shows; then the graph, **Repeated
+  mistakes** (each mistake, the step, how often), **Next paper, proposed by the engine** with **Approve this
+  paper**, and **Their papers** (every paper made for or read from them: purpose, who approved it, answers checked).
+- **Approval is the engine's record, not the website's:** `focus_paper.make` writes `approved_by`/`approved_at` and
+  `print_status = 'printed'` (as a class pack's approval does), refuses a second next paper for the child in the same
+  week (409; the page then shows who approved it), and takes a row lock on the child so two clicks cannot both print.
+  `engine week focus … --make` now refuses without `--by` — a paper prints only in a person's name.
+- Fixed on the way: the child page's tiles counted "under half right" as practising (now red, from `rag.ts`); the
+  graph's footnote said the same; lanes were hidden by whether answers had item rows, not by the graph's own states.
+- `apps/web/tests/u2-children.spec.ts` 5 passed; `s11`, `u1`, `screens`, `e2e` menu updated and passing;
+  `test_focus_paper.py` 5 passed, `test_cli.py` 21 passed; `bin/check` green; `tsc`, `eslint` clean.
+- **Failing on unchanged main as well, on this copy — named, not inherited silently:** `e2e` "no two children share
+  questions" and `s7` "names the worksheet each child was given" (need live's G3 class and week T2W1); `s4` "the queue
+  counts" (needs read papers); `s2` "the map and a skill page fit a phone" and `s3` "the library and a worksheet fit
+  a phone" — real layout faults on Curriculum and Papers, owned by U5 and U4. Engine: `test_goal` audit, `test_loaders`
+  (23 mistake codes only on live, drafts unratified), `test_profiles`, `test_read_again` (need scans), `test_week`
+  multiplication pack (`pdfunite` not installed in the container).

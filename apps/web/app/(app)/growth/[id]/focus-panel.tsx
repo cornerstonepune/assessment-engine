@@ -1,14 +1,17 @@
-// The child's next paper, chosen from their own ladder (goals/s11-focus-paper.yaml). The choosing is the
-// engine's (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas,
-// why, the questions — with one button that prints it.
+// The child's next paper, chosen from their own ladder (goals/s11-focus-paper.yaml, u2-children.yaml). The engine
+// proposes (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas, why, the
+// questions — and a teacher approves it with one button, which prints it in their name. Once a week: an approved
+// paper is shown with who approved it, and no second one is offered.
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { EngineDown, engineGet } from "@/lib/engine";
-import { makeFocusPaper } from "../actions";
+import { approveNextPaper } from "../actions";
+import { fmtDate } from "./graph";
 
 type Question = { item_key: string; text: string; fmt: string; shows_mistake: boolean };
 type Area = { skill_set: string; name: string; level: string; right: number; answered: number; why: string; questions: Question[] };
-type Plan = { week: string; areas: Area[]; n: number };
+type Approved = { qr: string; approved_by: string | null; approved_at: string | null };
+type Plan = { week: string; areas: Area[]; n: number; approved: Approved | null };
 
 /** The ISO week, "2026-W39": a paper chosen in one week is the same paper however often the page opens. */
 export function isoWeek(d = new Date()): string {
@@ -28,18 +31,23 @@ async function plan(childId: string, week: string): Promise<Plan | string> {
   }
 }
 
-export async function FocusPanel({ childId, name, made }: { childId: string; name: string; made?: string }) {
+const TITLE = "Next paper, proposed by the engine";
+
+export async function FocusPanel({ childId, name, staff }: { childId: string; name: string; staff: Record<string, string> }) {
   const week = isoWeek();
   const p = await plan(childId, week);
   return (
-    <Panel title="Next paper, from their own work" aside={typeof p === "string" ? undefined : `${p.n} questions`}>
-      {made ? (
-        <p className="mb-3 text-[13.5px]">
-          Paper made: <Link href={`/worksheets/${made}`}>{made}</Link>. Print it from its page.
-        </p>
-      ) : null}
+    <section aria-label={TITLE}>
+    <Panel title={TITLE} aside={typeof p === "string" || p.approved ? undefined : `${p.n} questions`}>
       {typeof p === "string" ? (
         <p className="note">{p}</p>
+      ) : p.approved ? (
+        <p className="text-[13.5px]">
+          Approved by {staff[p.approved.approved_by ?? ""] ?? p.approved.approved_by}
+          {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s paper,{" "}
+          <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. Print it from its page; the next proposal
+          comes next week, from what this one shows.
+        </p>
       ) : p.areas.length === 0 ? (
         <p className="note">Nothing to work on yet: no skill where {name} lags on the checked papers.</p>
       ) : (
@@ -64,10 +72,11 @@ export async function FocusPanel({ childId, name, made }: { childId: string; nam
               </li>
             ))}
           </ol>
-          <form action={makeFocusPaper} className="mt-4">
+          <form action={approveNextPaper} className="mt-4">
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
-            <button className="btn" type="submit">Make this paper</button>
+            <button className="btn" type="submit">Approve this paper</button>
+            <p className="note mt-2">Approving prints it in your name as {name}&rsquo;s paper for this week.</p>
           </form>
         </>
       )}
@@ -77,5 +86,6 @@ export async function FocusPanel({ childId, name, made }: { childId: string; nam
         that can show the repeating mistake first.
       </p>
     </Panel>
+    </section>
   );
 }

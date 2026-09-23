@@ -109,3 +109,9 @@ def test_a_staff_password_is_hashed_exactly_as_the_web_app_checks_it():
         "92cad9873f497b8ec938f72a226440454cd71d3477e50efc413b1521d5c320838873d38d868e41b58e3e3c897782"
         "bce759d39894350757661630bb4d5804b25c"
     )
+
+
+def test_a_next_paper_prints_only_with_the_person_who_approves_it_named():
+    """`week focus --make` is an approval (BUILD-ORDER, U2): without --by it refuses before touching the database."""
+    r = run("week", "focus", "G2", "Asha", "2026-W39", "--make")
+    assert r.exit_code != 0 and "--by" in r.output_plain
