@@ -7,6 +7,7 @@ against live (`LIVE_READONLY_DATABASE_URL`) without changing a row.
 """
 
 import os
+from datetime import date
 
 from engine.core import db
 
@@ -108,3 +109,37 @@ def check(address: str | None = None):
             lines += [f"        {p}" for p in problems]
         conn.rollback()
     return ok, lines
+
+
+def week_now() -> str:
+    """This ISO week as the website names it (`apps/web/lib/week.ts`): "2026-W39"."""
+    y, w, _ = date.today().isocalendar()
+    return f"{y}-W{w:02d}"
+
+
+def homes(address: str | None = None, week: str | None = None):
+    """Each child's home paper for the week, as Make papers proposes it: section, roll, then the skill, level and
+    questions — or the paper already approved, or why there is none. Read only; names never printed."""
+    from engine.w2_print import focus_paper
+
+    week = week or week_now()
+    out = []
+    with db.connect(address or url()) as conn:
+        conn.read_only = True
+        kids = conn.execute(
+            "select id, section, roll_no from child where active order by section, roll_no ~ '^[0-9]+$' desc,"
+            " case when roll_no ~ '^[0-9]+$' then roll_no::int end, roll_no"
+        ).fetchall()
+        for c in kids:
+            done = focus_paper.approved(conn, str(c["id"]), week)
+            if done:
+                what = f"approved {done['qr']}"
+            else:
+                p = focus_paper.plan(conn, str(c["id"]), week)
+                what = (
+                    " + ".join(f"{a['skill_set']} {a['level']} ×{len(a['questions'])}" for a in p["areas"])
+                    or "nothing to work on"
+                )
+            out.append((c["section"], c["roll_no"], what))
+        conn.rollback()
+    return week, out

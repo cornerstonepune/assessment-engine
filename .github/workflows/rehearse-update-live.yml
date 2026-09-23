@@ -1,0 +1,84 @@
+# `bin/update-live`'s data steps rehearsed on a copy of live, before a person runs them on live.
+#
+# The copy is built in this runner from the repository's migrations, then filled with every live row
+# (pg_dump, read only), and each count is compared with live's. The whole sequence runs on the copy and
+# its checks must come back clean (`engine live data`), then every child's home paper is listed as Make
+# papers would propose it. Live itself is only read: `bin/update-live`, run by a person, changes it.
+# The copy dies with the runner; nothing is kept.
+# Children's names are in the rows (`pii`) but nothing here prints one: the commands print codes, counts,
+# sections and roll numbers.
+#
+# Needs the repository secret LIVE_DATABASE_URL (the one `migrate live` uses).
+name: rehearse update-live
+on: workflow_dispatch
+
+concurrency: { group: rehearse-update-live, cancel-in-progress: false }
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      copy:
+        image: postgres:17
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      LIVE: "${{ secrets.LIVE_DATABASE_URL }}"
+      COPY: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: the engine
+        working-directory: packages/engine
+        run: |
+          uv sync --frozen
+          uv run playwright install --with-deps chromium
+      - name: a Postgres client as new as live
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17 >/dev/null
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+      - name: live answers, read only
+        run: |
+          if [ -z "$LIVE" ]; then echo "::error::LIVE_DATABASE_URL is not set"; exit 1; fi
+          psql "$LIVE" -tAc "set default_transaction_read_only = on; select 'live ' || version()"
+      - name: the copy's schema, from the migrations
+        run: |
+          psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create role anon nologin; create role authenticated nologin; create role service_role nologin;"
+          for f in supabase/migrations/*.sql; do psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; done
+          psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create schema supabase_migrations; create table supabase_migrations.schema_migrations (version text primary key);"
+          psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
+      - name: the copy's rows, every one of live's
+        run: |
+          pg_dump "$LIVE" --format=custom --data-only --schema=public --schema=pii --no-owner --no-privileges --file=/tmp/live.dump
+          psql "$COPY" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (select 'truncate table ' || string_agg(format('%I.%I', schemaname, tablename), ', ') || ' cascade' from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
+          pg_restore --data-only --disable-triggers --no-owner --no-privileges --exit-on-error --dbname="$COPY" /tmp/live.dump
+          rm /tmp/live.dump
+          q=$(psql "$LIVE" -tAc "select string_agg(format('select %L as t, count(*) as n from %I.%I', schemaname || '.' || tablename, schemaname, tablename), ' union all ' order by tablename) from pg_tables where schemaname in ('public', 'pii')")
+          psql "$LIVE" -tA -F ' ' -c "$q order by t" > /tmp/live.counts
+          psql "$COPY" -tA -F ' ' -c "$q order by t" > /tmp/copy.counts
+          diff /tmp/live.counts /tmp/copy.counts
+          echo "copied: $(wc -l < /tmp/live.counts) tables, $(awk '{s+=$2} END {print s}' /tmp/copy.counts) rows, every count equal to live"
+      - name: before, on the copy
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine live data --url "$COPY" || true
+      - name: rehearse on the copy — bin/update-live steps 4-6
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: |
+          bin/engine load
+          bin/engine bank relabel
+          bin/engine bank rehome
+          bin/engine bank refill
+          bin/engine library build
+          bin/engine graph
+          bin/engine library check
+          bin/engine bank taxonomy
+      - name: the copy after — must be clean
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: |
+          bin/engine live data --url "$COPY"
+          bin/engine live homes --url "$COPY"
