@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-24, for the morning — the update is proven on a copy of live; run it on live
+
+`rehearse update-live` run 6 (GitHub Actions 35913118685): a copy of live (47 tables, 89,973 rows, every count
+equal) put through update-live's data steps ends clean — every migration applied, every signed-off answer on a
+skill, each child's skills rebuilt from their answers, Marking counting each question once; 27 answers kept but
+not shown (MUL.1D 19, REASON.EXPLAIN 8 — topics not taught yet). Rehome moved 9,063 questions, 10 old papers' sums,
+retired 20 unnamed stories, removed 10 old skill sets and 9 rungs; 3,010 worksheets; 270 of 270 cases covered.
+Home papers this week: 16 children, 9 with a proposed paper (`engine live homes` lists each by section and roll,
+now with its count of signed-off answers). **To make live the same: `bin/update-live` on the Mac** (the one
+unattended write to live was refused by the auto-mode classifier). Then approve the 15 skill sets on Curriculum
+(level changes withdraw ratification). Open for Nimish: `item_placement` on live (no migration), AA9 and
+G3-QUIZ20's 5-digit sums (for Aseem), and how a library-worksheet copy is tied to a child.
+
 ## 2026-09-23, late night — what the rehearsal on a copy of live found
 
 `rehearse update-live` (GitHub) copies live into its runner (47 tables, 89,973 rows, every count equal) and runs
