@@ -308,10 +308,12 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
 });
 
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" }).click();
+  // U1: the queue sits inside Marking, and Today opens it
+  await page.goto("/today");
+  await page.getByRole("region", { name: "Answers to check" }).getByText(/Check them|Nothing waiting/).first().waitFor();
+  await page.goto("/capture/check");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" })).toHaveAttribute(
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Marking" })).toHaveAttribute(
     "aria-current",
     "page",
   );

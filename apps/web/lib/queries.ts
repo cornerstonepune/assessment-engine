@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { RAG, RAG_TONE } from "./rag";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
@@ -198,13 +199,14 @@ export async function staffList(): Promise<Staff[]> {
 
 // ---- Child Growth: what confirmed evidence says about one child, and what still waits for a person.
 
+// Each state's words; its colour is lib/rag.ts's, so the ladder, the class grid and Today agree.
 export const STATE_WORDS: Record<string, { words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }> = {
-  not_enough_yet: { words: "not enough yet", tone: "monsoon" },
-  patterned_error: { words: "repeating mistake", tone: "terracotta" },
-  emerging: { words: "emerging", tone: "bamboo" },
-  practising: { words: "practising", tone: "bamboo" },
-  secure: { words: "secure", tone: "neem" },
-  stretch_ready: { words: "ready to move up", tone: "neem" },
+  not_enough_yet: { words: "not enough yet", tone: RAG_TONE[RAG.not_enough_yet] },
+  patterned_error: { words: "repeating mistake", tone: RAG_TONE[RAG.patterned_error] },
+  emerging: { words: "under half right", tone: RAG_TONE[RAG.emerging] },
+  practising: { words: "practising", tone: RAG_TONE[RAG.practising] },
+  secure: { words: "secure", tone: RAG_TONE[RAG.secure] },
+  stretch_ready: { words: "ready to move up", tone: RAG_TONE[RAG.stretch_ready] },
 };
 
 export type ChildRow = {

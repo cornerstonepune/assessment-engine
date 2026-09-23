@@ -3,15 +3,15 @@ import { Nav, type NavItem } from "./nav";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 
-// The sections, in the order of the week. Labels are the words a teacher would use.
+// The menu is the teacher's week (BUILD-ORDER, "the website as the teacher's week"): what waits on them, the
+// children, the papers coming back, the papers going out, what is taught, the questions it is taught with.
 export const NAV: readonly NavItem[] = [
-  { href: "/", label: "Skill Map", icon: "map", match: ["/", "/skill-sets"] },
-  { href: "/worksheets", label: "Worksheets", icon: "sheet", match: ["/worksheets"] },
+  { href: "/today", label: "Today", icon: "check", match: ["/today"] },
+  { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
+  { href: "/capture", label: "Marking", icon: "camera", match: ["/capture"] },
+  { href: "/worksheets", label: "Papers", icon: "sheet", match: ["/worksheets", "/home"] },
+  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets"] },
   { href: "/library", label: "Question bank", icon: "bank", match: ["/library"] },
-  { href: "/capture", label: "Capture & Mark", icon: "camera", match: ["/capture"] },
-  { href: "/capture/check", label: "Check answers", icon: "check", match: ["/capture/check"] },
-  { href: "/growth", label: "Child Growth", icon: "growth", match: ["/growth"] },
-  { href: "/home", label: "Home Assignments", icon: "house", match: ["/home"] },
   { href: "/workflows", label: "How it works", icon: "flow", match: ["/workflows"] },
 ];
 

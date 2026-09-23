@@ -3,6 +3,34 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, end of session — start here
+
+**Merged today:** #24 (bank validated against the taxonomy, five defects fixed), #25 (a child's next paper chosen
+from their graph), #26 (worksheets by taxonomy), #27 (`bin/update-live`). **Open:** #28 (U1 Today + the menu).
+**Live is behind main** until Nimish runs `~/cornerstone/assessment-engine/bin/update-live` (migrations → engine
+server → `engine load` → relabel → refill → library build → checks). Until then live's worksheet pages break on the
+missing `item.case_codes` column.
+
+**What Nimish decided (do not re-ask):** everything counts as evidence; the engine proposes, a teacher approves every
+paper; a home assignment is the child's own next paper (`assess/focus.py`) sent home, not a third kind; red / amber /
+green read the graph's states (`apps/web/lib/rag.ts`); the website is six areas built one at a time, then U8 (how it
+ran, for a teacher), then U7 (Generate questions) — BUILD-ORDER, "the website as the teacher's week".
+
+**Next, in order:** U2 Children → U3 Marking → U4 Papers → U5 Curriculum → U6 Question bank → U8 How it ran → U7.
+Each: write `goals/uN-*.yaml` (his words in `says`, each with its test) and the tests first, then the code; its own
+PR; `bin/check` green; `engine done uN-…` pasted when reporting.
+
+**Still waiting on Nimish and Aseem:** REASON.EXPLAIN levels ask only true or only false claims; R07 "does it make
+sense" always "yes" (document's 704 changed to 705); estimates print the rounded numbers; §10.2 lines not cases; 23
+mistake codes only on live (export into `supabase/seed/misconceptions.json`); ADD.3D.REG's outcome sentence vs its
+Easy level.
+
+## 2026-09-23, evening — the website as the teacher's week: U1 built
+
+BUILD-ORDER has the six areas (U1–U6, U7 queued). U1 (Today + the menu) is built (STATE). **Next: U2 Children**
+— write `goals/u2-children.yaml` and its tests first. Landing after sign-in is still `/` (Curriculum); it moves to
+Today when U5 moves Curriculum to its own address.
+
 ## 2026-09-23, later still — worksheets by taxonomy (goal s12-worksheets-by-taxonomy)
 
 `/worksheets/taxonomy` and each worksheet's cases (STATE). **On live, after merge:** apply migration

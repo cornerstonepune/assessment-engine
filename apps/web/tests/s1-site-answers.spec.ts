@@ -28,7 +28,7 @@ async function whileLocked(table: "item" | "config", work: () => Promise<void>):
 const COULD_NOT_LOAD = "This page could not load";
 
 async function menu(page: Page, label: string) {
-  await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: label }).click();
+  await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: label, exact: true }).click();
 }
 
 test("a click shows the page is loading at once, and a database that does not answer is said in words within 12 s", async ({ page }) => {
@@ -58,7 +58,7 @@ test("when the staff check cannot reach the database, the page says so instead o
 // Now only the menu pages are fetched ahead — Next 16 asks for a page's outline and its loading
 // screen separately, so at most two small requests each.
 test("opening the Skill Map loads nothing ahead but the menu pages", async ({ page }) => {
-  const MENU = ["/", "/worksheets", "/library", "/capture", "/capture/check", "/growth", "/home", "/workflows"];
+  const MENU = ["/today", "/", "/worksheets", "/library", "/capture", "/capture/check", "/growth", "/home", "/workflows"];
   const background: string[] = [];
   page.on("request", (r) => {
     if (r.resourceType() !== "document" && r.headers()["rsc"] === "1") background.push(new URL(r.url()).pathname);
@@ -72,12 +72,12 @@ test("opening the Skill Map loads nothing ahead but the menu pages", async ({ pa
 test("every menu page opens within three seconds of its click", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   for (const [label, heading] of [
-    ["Worksheets", "Worksheets"],
+    ["Today", "Today"],
+    ["Children", "Child Growth"],
+    ["Marking", "Capture & Mark"],
+    ["Papers", "Worksheets"],
     ["Question bank", "Question bank"],
-    ["Capture & Mark", "Capture & Mark"],
-    ["Child Growth", "Child Growth"],
-    ["Home Assignments", "Home Assignments"],
-    ["Skill Map", "Skill Map"],
+    ["Curriculum", "Skill Map"],
   ]) {
     const clicked = Date.now();
     await menu(page, label);
