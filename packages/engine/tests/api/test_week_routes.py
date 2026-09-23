@@ -113,6 +113,21 @@ def test_approving_the_week_names_the_person_on_every_sheet(client, children, co
     assert again["already"] is True or again["sheets"] == 0, "a second approval approves nothing further"
 
 
+def test_a_pack_remade_after_an_approval_is_approved_again_by_the_same_person(client, children, conn):
+    """The same teacher approving the same class and week twice is two approvals, not a replay of the first."""
+    body = {"section": SECTION, "week": WEEK, "by": "neha@example.org"}
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    client.post("/week/assemble", json={"section": SECTION, "week": WEEK})
+    assert client.post("/week/approve", json=body).json()["sheets"] > 0
+    conn.execute(
+        "update sheet_instance set print_status = 'new', approved_by = null, approved_at = null, printed_at = null"
+        " where section = %s and week = %s",
+        (SECTION, WEEK),
+    )
+    again = client.post("/week/approve", json=body).json()
+    assert again["already"] is False and again["sheets"] > 0
+
+
 def test_a_papers_page_is_served_as_printed(client, children, conn, tmp_path):
     """The paper view shows the page itself — QR and all — from the PDF the render wrote, never a
     second drawing of it."""
@@ -150,3 +165,42 @@ def test_a_child_who_cannot_be_given_a_worksheet_is_named_in_the_answer(client, 
     assert r.status_code == 200, r.text
     short = r.json()["short"]
     assert short and all(s["why"] and isinstance(s["child_id"], str) for s in short)
+
+
+def test_the_pack_pdf_is_refused_until_approved_and_then_served_whole(client, children, conn, tmp_path):
+    """The Papers page hands on the week's pack; the engine will not give it out before a teacher approves."""
+    import pymupdf
+
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    qrs = client.post("/week/assemble", json={"section": SECTION, "week": WEEK}).json()["qr_codes"]
+    for qr in qrs:
+        with pymupdf.open() as doc:
+            doc.new_page().insert_text((72, 72), qr)
+            doc.save(tmp_path / f"{qr}.pdf")
+        conn.execute(
+            "update sheet_instance set pdf_path = %s where qr_code = %s", (str(tmp_path / f"{qr}.pdf"), qr)
+        )
+
+    r = client.get(f"/week/{SECTION}/{WEEK}/practice/pack.pdf")
+    assert r.status_code == 409 and "wait for a teacher" in r.json()["detail"]
+    client.post("/week/approve", json={"section": SECTION, "week": WEEK, "by": "neha@example.org"})
+    r = client.get(f"/week/{SECTION}/{WEEK}/practice/pack.pdf")
+    assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
+    with pymupdf.open(stream=r.content, filetype="pdf") as doc:
+        assert doc.page_count == len(qrs)
+    assert client.get(f"/week/{SECTION}/NO-SUCH-WEEK/practice/pack.pdf").status_code == 404
+
+
+def test_rendering_a_week_draws_the_papers_already_made_and_makes_no_second_set(
+    client, children, conn, tmp_path
+):
+    """The print flow assembles, then renders: the render must draw those papers, not hand every child another."""
+    client.post("/week/prescribe", json={"section": SECTION, "week": WEEK, "skill_set": SET})
+    made = client.post("/week/assemble", json={"section": SECTION, "week": WEEK}).json()["qr_codes"]
+    r = client.post("/week/render", json={"section": SECTION, "week": WEEK, "out": str(tmp_path / "pack")})
+    assert r.status_code == 200, r.text
+    rows = conn.execute(
+        "select qr_code, pdf_path from sheet_instance where section = %s and week = %s", (SECTION, WEEK)
+    ).fetchall()
+    assert sorted(x["qr_code"] for x in rows) == sorted(made)
+    assert all(x["pdf_path"] for x in rows)
