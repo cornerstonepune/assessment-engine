@@ -249,7 +249,7 @@ skill by its skill as well as its rung, so subtraction mistakes on an addition r
 subtraction — the next-paper fault queued in HANDOFF, fixed for this paper at its cause. Steps 9 and 10 are
 unchanged and follow this.
 
-## First: the levels read from the taxonomy — L1 → L2 → L3, then U4 (Nimish, 2026-09-23)
+## First: the levels read from the taxonomy — L1 → L2 → L3, then U5 → U4 → U6 → U8 → U7 → R1 (Nimish, 2026-09-23)
 
 Nimish: *"even in a two-digit addition, an easy level should have just included sums with horizontal and vertical
 two-digit additions … the rung level isn't making sense that way"*, *"we dont need to rebuild the bank right ? just
@@ -259,7 +259,7 @@ map the same"*, *"Mixed back can also be a part of advanced only"* (ADR 0034). A
 |---|---|---|
 | L1 | `goals/s13-levels-by-taxonomy.yaml` | fifteen calculation skills, one operation and digit shape each; Easy–Hard straight calculation, Advance mixed; all 269 cases placed; the bank re-homed, none lost; worksheets one skill and level each |
 | L2 | `goals/s14-graph-by-skill.yaml` | a child's graph, next paper and class grid read the fifteen skills: an answer counts on its question's skill (`evidence_placed`); old papers' sums placed by the bank's rule; `level_rule` names the new rungs. The replaced rungs stay as rows only because recorded answers and retired sets name them |
-| L3 | `goals/s15-answer-boxes.yaml` | as many answer boxes as the answer has digits (Aseem to confirm: it tells the child the answer's size); more working space, most where a question takes two steps |
+| L3 | `goals/s15-answer-boxes.yaml` | as many answer boxes as the answer has digits (Nimish chose this, 2026-09-23, knowing it tells the child the answer's size); more working space, most where a question takes two steps |
 
 ## Now: the website as the teacher's week — six areas, one at a time (Nimish, 2026-09-23)
 
@@ -289,6 +289,7 @@ starts, before its code; it ships in its own pull request; the next starts when 
 | U6 | `goals/u6-question-bank.yaml` | **Question bank**: every question, filtered by grade, skill, level, kind, taxonomy case, mistake it can show, on a worksheet or not, status; a question's page holds everything about it — as printed, answer, the wrong answers and their mistakes, skills, cases, worksheets, how children did — and correct / remove, as today |
 | U8 | `goals/u8-how-it-ran.yaml` | **How it ran — for a teacher, nothing a black box** (Nimish, 2026-09-23: *"a view where we actually show the 12 workflows and the states, like how they have run and what has been generated … not from an engineering point of view but from a teacher's lens … so that we are not treating anything as a black box"*). First the engine: every step records each run in `flow_run` (step, who or what started it, when, what it made — "read 14 papers, 212 answers, 38 held for a person"), from the command line as from the API. Then the page, replacing How it works: the twelve steps as this week's story in plain words — each step's last run, what it produced with a link to it, what waits on a person, what has not run and why — and a step opens its own history |
 | U7 | later, not before U6 | **Generate questions**: from a skill or level, a teacher asks for new questions with a few inputs; every one verified by code before it joins the bank (ADR 0005). Queued, not started |
+| R1 | after U7 | **One answer box, read whole** (Nimish, 2026-09-23: *"we should, at some point in time, move back to a place where, within the box, if the answer is written, the system should be able to recognize the answer"*): one box per answer again, the reader reading the number written in it, measured against the gold set (`engine eval read_cells`) before any paper prints that way. Until then, one box per digit of the answer (s15) |
 
 Old addresses keep working (they open the new area) until nothing links to them.
 

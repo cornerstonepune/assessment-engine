@@ -14,6 +14,8 @@ from pathlib import Path
 import segno
 from playwright.sync_api import sync_playwright
 
+from engine.assess.answer_space import _cells, _grid, _op, _text, _ticks, _work
+
 MM = 25.4 / 96.0  # CSS px -> mm
 
 CSS = """
@@ -41,7 +43,7 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 .item { break-inside: avoid; margin-bottom: 4.2mm; }
 .rowgroup { display: flex; gap: 4mm; align-items: flex-start; margin-bottom: 2mm; }
 .rowgroup .item { flex: 1 1 0; min-width: 0; }
-.rowgroup .item .work { min-height: 9mm; }
+.rowgroup .item .work { min-height: 12mm; }
 .item .q { display: flex; gap: 2.5mm; align-items: baseline; }
 .item .n { font-weight: bold; width: 6mm; flex: none; }
 .item .stem { font-weight: 600; }
@@ -50,8 +52,8 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 .cell { display: inline-block; width: 8.4mm; height: 10mm; border: 1px solid #111; margin-right: -1px; background: #fff; }
 .cell.sm { width: 5.4mm; height: 6.4mm; border-color: #666; }
 .cells.big .cell { width: 11mm; height: 13mm; }
-.work { border: 1px dashed #888; border-radius: 1.5mm; min-height: 11mm; margin-top: 1.5mm; padding: 1mm 2mm; font-size: 8pt; color: #888; }
-.work.h2 { min-height: 15mm; } .work.h3 { min-height: 20mm; } .work.h4 { min-height: 26mm; }
+.work { border: 1px dashed #888; border-radius: 1.5mm; min-height: 14mm; margin-top: 1.5mm; padding: 1mm 2mm; font-size: 8pt; color: #888; }
+.work.h2 { min-height: 20mm; } .work.h3 { min-height: 26mm; } .work.h4 { min-height: 34mm; }
 .row { display: flex; gap: 8mm; align-items: flex-end; flex-wrap: wrap; }
 .lab { font-size: 9pt; color: #333; margin-right: 2mm; }
 .eq { font-size: 13pt; }
@@ -77,63 +79,6 @@ table.sort td:first-child { text-align: left; font-family: "DejaVu Sans Mono", m
 .card { width: 10mm; height: 13mm; border: 1.5px solid #111; border-radius: 1mm; display: flex; align-items: center; justify-content: center; font-size: 15pt; font-weight: bold; background: #f4f4f4; }
 svg text { font-family: "DejaVu Sans", Arial, sans-serif; }
 """
-
-
-def _cells(sheet_id, item_id, r, big=False, cls=""):
-    n = max(1, r.cells)
-    s = "".join(
-        f'<span class="cell {cls}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="{k}"></span>'
-        for k in range(n)
-    )
-    return f'<span class="cells{" big" if big else ""}" data-resp="{item_id}|{r.rid}">{s}</span>'
-
-
-def _ticks(sheet_id, item_id, r, labels=None):
-    out = []
-    for j, o in enumerate(r.options):
-        lab = (labels or {}).get(o, o)
-        out.append(
-            f'<span class="tickopt"><span class="tick" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="{j}" data-opt="{html.escape(o)}"></span>{html.escape(lab)}</span>'
-        )
-    return f'<span data-resp="{item_id}|{r.rid}">{"".join(out)}</span>'
-
-
-def _text(sheet_id, item_id, r, h=16):
-    return f'<div class="textbox" data-resp="{item_id}|{r.rid}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="0" style="min-height:{h}mm"></div>'
-
-
-def _work(lines):
-    if not lines:
-        return ""
-    return f'<div class="work h{min(lines, 4)}">working</div>'
-
-
-def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True):
-    """rows: list of ints (addends or minuend/subtrahend); answer cells = ans_resp.cells"""
-    w = ans_resp.cells
-    out = ['<div class="grid" style="grid-template-columns: 8.4mm repeat(%d, 8.4mm)">' % w]
-    if carry:
-        out.append('<div class="g blank"></div>' + "".join('<div class="g carry"></div>' for _ in range(w)))
-    for idx, n in enumerate(rows):
-        s = str(n).rjust(w)
-        opch = "" if idx == 0 else _op(op)
-        out.append(
-            f'<div class="g op">{opch if idx == len(rows) - 1 else ""}</div>'
-            + "".join(f'<div class="g">{c.strip() or ""}</div>' for c in s)
-        )
-    out.append(
-        '<div class="g blank"></div>'
-        + "".join(
-            f'<div class="g ans cell" data-s="{sheet_id}" data-i="{item_id}" data-r="{ans_resp.rid}" data-k="{k}"></div>'
-            for k in range(w)
-        )
-    )
-    out.append("</div>")
-    return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
-
-
-def _op(o):
-    return "−" if o == "-" else o
 
 
 def render_item(sheet, it, n):

@@ -173,7 +173,7 @@
       "engine/assess/items.py": 640,
       "engine/core/loaders.py": 619,
       "engine/assess/misconceptions.py": 500,
-      "engine/assess/render.py": 464,
+      "engine/assess/render.py": 409,
       "engine/assess/mark.py": 417
     }
   }

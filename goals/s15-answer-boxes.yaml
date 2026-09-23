@@ -1,0 +1,25 @@
+name: s15-answer-boxes
+goal: >
+  Every answer a child writes as a number has exactly as many boxes as the right answer has digits — in a line and
+  in columns, where the numbers still line up by their ones and only the answer's own columns have boxes — and every
+  question that asks for working has more room for it, the most where a question takes two steps.
+
+# Written 2026-09-23. Nimish: "Don't give the number of digit boxes as the number of digits … Just give 1 box" and
+# then "The only path I have for now is to use the number of boxes for the number of digits in the answer";
+# "If the nature of the question is such that more working is required … give the working space. Make the
+# working space slightly larger because the children are struggling in that space."
+says:
+  - words: "use the number of boxes for the number of digits in the answer"
+    proved_by: packages/engine/tests/test_render.py::test_there_are_as_many_answer_boxes_as_the_answer_has_digits
+  - words: "Make the working space slightly larger because the children are struggling in that space"
+    proved_by: packages/engine/tests/test_render.py::test_a_question_of_two_steps_gets_the_most_room_to_work
+manual:
+  - "On live: nothing to run — a worksheet is drawn when it is printed, so the next print has the new boxes. Papers already printed are unchanged."
+scenarios: []
+criteria:
+  - name: boxes and working space, drawn
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_render.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
