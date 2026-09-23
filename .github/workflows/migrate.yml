@@ -1,0 +1,36 @@
+# The live database takes a merge's migrations as the website takes its code. Vercel deploys main on
+# every merge; before this, the database changed only when someone ran `bin/update-live`, so a page
+# reading a new table broke on live until then (2026-09-23: Marking, `answer_standing`).
+#
+# Needs one repository secret, LIVE_DATABASE_URL — the same DATABASE_URL `bin/update-live` reads from
+# .env (Supabase: Project Settings → Database → connection string). Without it the run says so and
+# stops; nothing else is touched. `supabase db push` applies only migrations live has not recorded,
+# so running it again, or `bin/update-live` after it, changes nothing.
+#
+# The engine server and the bank (relabel, refill, library build) still go live with `bin/update-live`.
+name: migrate live
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/migrations/**"]
+  workflow_dispatch:
+
+concurrency: { group: migrate-live, cancel-in-progress: false }
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the secret is set
+        env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
+        run: |
+          if [ -z "$LIVE" ]; then
+            echo "::error::LIVE_DATABASE_URL is not set; add it under Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: apply what live is missing
+        env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
+        run: supabase db push --db-url "$LIVE" --yes

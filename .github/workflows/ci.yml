@@ -4,9 +4,8 @@
 # invariants) runs against the real Supabase project before a merge, because CI has no database
 # yet. Giving CI one means a Postgres service with pgcrypto and the migrations, minus the
 # Supabase-only auth/RLS statements: worth doing, not yet done, named in STATE.md.
-# What must hold before anything reaches main. Deployment is NOT automatic yet: as of 2026-09-21
-# every Vercel deployment was made by hand from a laptop, and the repository is not connected to
-# the Vercel project. docs/deploy.md says what connecting it takes.
+# Deployment: Vercel deploys main on every merge, and migrate.yml applies a merge's migrations to the
+# live database; the engine server and the bank still go live with `bin/update-live`.
 # The database tests need DATABASE_URL and skip themselves without it, so CI runs the pure engine
 # suite and the web build — the two things that break silently otherwise.
 name: ci
