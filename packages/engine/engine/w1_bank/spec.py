@@ -116,7 +116,7 @@ def outcomes(conn):
     """Every skill set's outcome and what is wrong with it, in ladder order."""
     rows = conn.execute(
         "select s.code, s.learning_objective from skill_set s"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.status <> 'retired'"
+        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
         " order by r.ladder_order, s.code"
     ).fetchall()
     return [(r["code"], r["learning_objective"], outcome_problems(r["learning_objective"])) for r in rows]

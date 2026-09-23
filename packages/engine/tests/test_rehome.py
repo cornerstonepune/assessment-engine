@@ -10,7 +10,7 @@ import pathlib
 
 import pytest
 
-from engine.assess import tags
+from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
 from engine.core import db
 from engine.w1_bank import cases, rehome
@@ -28,7 +28,7 @@ CALCULATION = {"bare_sum", "column_grid"}
 
 
 def _place(fmt, spec):
-    got = rehome.place(
+    got = placing.place(
         fmt, tags.derive(Item("x", "x", "R0", [], "P", fmt, False, "", spec, [])), SKILLS, MATCHES
     )
     return got and (got[0]["code"], got[1])
@@ -56,8 +56,8 @@ def test_no_two_skills_hold_one_question_and_no_level_names_a_case_its_numbers_c
     for s in SKILLS:
         for level, lv in s["difficulty"].items():
             for c in lv["check"]["cases"]:
-                rehome.taxonomy.within(MATCHES[c], lv["check"]["within"])  # raises on a contradiction
-    shapes = [rehome._shape(s) for s in SKILLS]
+                taxonomy.within(MATCHES[c], lv["check"]["within"])  # raises on a contradiction
+    shapes = [placing.shape(s) for s in SKILLS]
     for a in (23, 5, 402, 4382):
         for b in (45, 7, 185):
             for op in "+-":
@@ -66,7 +66,7 @@ def test_no_two_skills_hold_one_question_and_no_level_names_a_case_its_numbers_c
                 t = tags.derive(
                     Item("x", "x", "R0", [], "P", "column_grid", False, "", {"a": a, "b": b, "op": op}, [])
                 )
-                assert sum(rehome.taxonomy.matches(sh, "column_grid", t) for sh in shapes) <= 1, (a, op, b)
+                assert sum(taxonomy.matches(sh, "column_grid", t) for sh in shapes) <= 1, (a, op, b)
 
 
 def test_every_replaced_skill_set_is_named_in_the_seed():
@@ -82,9 +82,7 @@ def conn():
     if not os.getenv("DATABASE_URL"):
         pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
-        if not c.execute(
-            "select 1 from skill_set where code = 'ADD.2D2D' and status <> 'retired'"
-        ).fetchone():
+        if not c.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
             pytest.skip(
                 "the taxonomy-shaped skills are not loaded here: `engine load`, then `engine bank rehome`"
             )
@@ -96,7 +94,7 @@ def _active(conn, where="true"):
     return conn.execute(
         "select i.skill_set_code, i.difficulty, i.fmt, i.tags, s.difficulty as levels from item i"
         " join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
-        " where i.status = 'active' and s.status <> 'retired' and " + where
+        " where i.status = 'active' and " + where
     ).fetchall()
 
 
@@ -137,21 +135,16 @@ def test_every_taxonomy_case_has_a_place(conn):
     assert {s for c, s, _, state in where if state == "pattern"} == {"5.1", "5.2"}
 
 
-def test_every_question_moves_to_the_level_its_numbers_put_it_in_and_none_is_lost(conn):
-    retired = conn.execute("select code from skill_set where status = 'retired'").fetchall()
-    assert retired, "the replaced skill sets are kept, retired"
-    left = conn.execute(
-        "select count(*) as n from item where status = 'active'"
-        " and skill_set_code in (select code from skill_set where status = 'retired')"
-    ).fetchone()["n"]
-    assert left == 0
+def test_every_question_moves_to_the_level_its_numbers_put_it_in_and_the_old_ladder_is_gone(conn):
+    old = sorted(rehome.replaced())
+    assert not conn.execute("select 1 from skill_set where code = any(%s)", (old,)).fetchone()
+    assert not conn.execute("select 1 from item where skill_set_code = any(%s)", (old,)).fetchone()
+    assert not conn.execute(
+        "select 1 from rung r where not exists (select 1 from skill_set s where s.rung_code = r.code)"
+    ).fetchone(), "every rung left is a skill's"
     assert cases.outside_their_level(conn) == []
     again = rehome.rehome(conn)
-    assert (again["retired_sets"], sum(again["moved"].values()), sum(again["no_place"].values())) == (
-        [],
-        0,
-        0,
-    )
+    assert (sum(again["moved"].values()), again["removed_sets"], again["removed_rungs"]) == (0, [], [])
 
 
 def test_worksheets_are_built_one_skill_and_one_level_each(conn):
@@ -168,10 +161,10 @@ def test_worksheets_are_built_one_skill_and_one_level_each(conn):
     ).fetchone()["n"]
     levels = conn.execute(
         "select count(*) as n from skill_set s, jsonb_object_keys(s.difficulty) k"
-        " where s.status <> 'retired' and s.difficulty -> 'Easy' -> 'check' ? 'within'"
+        " where s.difficulty -> 'Easy' -> 'check' ? 'within'"
     ).fetchone()["n"]
     assert built == levels
     assert not conn.execute(
-        "select 1 from sheet_template t join skill_set s on s.code = t.skill_set_code"
-        " where t.source = 'library' and t.retired_at is null and s.status = 'retired'"
-    ).fetchone()
+        "select 1 from sheet_template t where t.source = 'library' and t.retired_at is null"
+        " and not exists (select 1 from skill_set s where s.code = t.skill_set_code)"
+    ).fetchone(), "no worksheet in the library is of a skill that is gone"

@@ -173,7 +173,6 @@
       "n": 7,
       "page": 2,
       "kind": "word",
-      "rung": "R9",
       "expr": "158 + 27",
       "question": "A baker makes 158 small cakes and 27 large cakes. How many cakes does the baker make all together?"
     },
@@ -181,7 +180,6 @@
       "n": 8,
       "page": 2,
       "kind": "word",
-      "rung": "R9",
       "expr": "352 - 48",
       "question": "There are 352 people on a train. At the first station 48 people get off and no one gets on. How many people are on the train now?"
     }

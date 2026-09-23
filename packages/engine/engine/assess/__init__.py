@@ -1,1 +1,1 @@
-"""Deterministic assessment logic: ladder, items, blueprints, picking, rendering, marking."""
+"""Deterministic assessment logic: items, tags, placing, rendering, marking. No database."""

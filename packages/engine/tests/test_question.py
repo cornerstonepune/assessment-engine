@@ -142,7 +142,7 @@ def _on_a_worksheet(conn):
     return conn.execute(
         "select i.item_key, i.id, t.code from item i join sheet_template t on i.id = any(t.item_ids)"
         " where t.source = 'library' and t.retired_at is null and i.fmt = 'word_1step' and i.status = 'active'"
-        " and i.skill_set_code = 'ADD.2D2D' and i.difficulty = 'Easy' order by i.item_key limit 1"
+        " and i.skill_set_code = 'ADD.2D2D' and i.difficulty = 'Advance' order by i.item_key limit 1"  # stories are Advance's (s13)
     ).fetchone()
 
 

@@ -54,9 +54,11 @@ export type LibraryWorksheet = {
 
 export async function libraryWorksheet(code: string): Promise<LibraryWorksheet | undefined> {
   const rows = await sql<LibraryWorksheet[]>`
-    select t.code, t.skill_set_code, s.name as skill, s.learning_objective as outcome, t.band, t.difficulty,
+    select t.code, t.skill_set_code, coalesce(s.name, t.skill_set_code) as skill,
+           coalesce(s.learning_objective, '') as outcome, t.band, t.difficulty,
            s.difficulty -> t.difficulty ->> 'words' as level_words, t.created_at, t.retired_at
-    from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+    -- a worksheet printed from a skill set since replaced (ADR 0034) still opens, under the name it was made for
+    from sheet_template t left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
     where t.source = 'library' and t.code = ${code}`;
   return rows[0];
 }

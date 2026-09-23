@@ -14,7 +14,7 @@ says:
   - words: "the 200-odd column taxonomy sheet that you had given is, in fact, the one that should have been used very clearly in order to map"
     proved_by: packages/engine/tests/test_rehome.py::test_every_taxonomy_case_has_a_place
   - words: "we dont need to rebuild the bank right ? just map the same"
-    proved_by: packages/engine/tests/test_rehome.py::test_every_question_moves_to_the_level_its_numbers_put_it_in_and_none_is_lost
+    proved_by: packages/engine/tests/test_rehome.py::test_every_question_moves_to_the_level_its_numbers_put_it_in_and_the_old_ladder_is_gone
   - words: "Mixed back can also be a part of advanced only"
     proved_by: packages/engine/tests/test_rehome.py::test_only_advance_mixes_kinds_of_question
   - words: "and then the worksheets are built"

@@ -1,61 +1,6 @@
 {
   "rungs": [
     {
-      "code": "R1",
-      "band": "G1",
-      "ladder_order": 1,
-      "descriptor": "Adds within 10 by combining two sets; reads + and =",
-      "skill_codes": [
-        "NUM.OPS.01"
-      ]
-    },
-    {
-      "code": "R2",
-      "band": "G1",
-      "ladder_order": 2,
-      "descriptor": "Adds within 20 (crossing 10); part-part-whole; +1/+10 patterns",
-      "skill_codes": [
-        "NUM.OPS.01"
-      ]
-    },
-    {
-      "code": "R3",
-      "band": "G1",
-      "ladder_order": 3,
-      "descriptor": "Subtracts within 20 as take-away and 'how many more'",
-      "skill_codes": [
-        "NUM.OPS.02"
-      ]
-    },
-    {
-      "code": "R4",
-      "band": "G2",
-      "ladder_order": 4,
-      "descriptor": "2-digit ± without regrouping in place-value columns",
-      "skill_codes": [
-        "NUM.OPS.01",
-        "NUM.OPS.02"
-      ]
-    },
-    {
-      "code": "R5",
-      "band": "G2",
-      "ladder_order": 5,
-      "descriptor": "2-digit addition with one regrouping",
-      "skill_codes": [
-        "NUM.OPS.01"
-      ]
-    },
-    {
-      "code": "R6",
-      "band": "G2",
-      "ladder_order": 6,
-      "descriptor": "2-digit subtraction with exchange",
-      "skill_codes": [
-        "NUM.OPS.02"
-      ]
-    },
-    {
       "code": "R7",
       "band": "G2",
       "ladder_order": 7,
@@ -75,25 +20,6 @@
       ]
     },
     {
-      "code": "R9",
-      "band": "G3",
-      "ladder_order": 9,
-      "descriptor": "3-digit ± with one or two regroupings",
-      "skill_codes": [
-        "NUM.OPS.01",
-        "NUM.OPS.02"
-      ]
-    },
-    {
-      "code": "R10",
-      "band": "G3",
-      "ladder_order": 10,
-      "descriptor": "Subtraction across zero",
-      "skill_codes": [
-        "NUM.OPS.02"
-      ]
-    },
-    {
       "code": "R11",
       "band": "G3",
       "ladder_order": 11,
@@ -101,16 +27,6 @@
       "skill_codes": [
         "NUM.PV.03",
         "NUM.PRB.03"
-      ]
-    },
-    {
-      "code": "R12",
-      "band": "G4",
-      "ladder_order": 12,
-      "descriptor": "4-digit addition with multiple addends; 4-digit subtraction across zeros",
-      "skill_codes": [
-        "NUM.OPS.01",
-        "NUM.OPS.02"
       ]
     },
     {
@@ -158,15 +74,6 @@
       "descriptor": "Finds the mistake in a worked example",
       "skill_codes": [
         "NUM.PRB.03"
-      ]
-    },
-    {
-      "code": "R15",
-      "band": "G2",
-      "ladder_order": null,
-      "descriptor": "Adds three or more numbers of 1 to 3 digits, lined up by the ones; a column can carry 2",
-      "skill_codes": [
-        "NUM.OPS.01"
       ]
     },
     {

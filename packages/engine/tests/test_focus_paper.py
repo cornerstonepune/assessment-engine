@@ -27,21 +27,20 @@ def conn():
 
 @pytest.fixture
 def child(conn):
-    """A Grade 3 child whose checked papers show: 3-digit subtraction mostly wrong, taking the smaller digit
-    from the larger again and again — asked on R9, the rung of 3-digit addition, as the old papers did; 2-digit
-    addition with regrouping 5 of 8; 2-digit addition without regrouping all right."""
+    """A Grade 3 child whose checked papers show: 3-digit − 3-digit mostly wrong, taking the smaller digit from
+    the larger again and again; 2-digit + 2-digit 5 of 8; 2-digit + 1-digit all right."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     cid = conn.execute(
         "insert into child (tenant_id, roll_no, section, band) values (%s,'1','FOCUSTEST','G3') returning id",
         (tenant,),
     ).fetchone()["id"]
     answers = (
-        [("NUM.OPS.02", "R9", False, ["M_SMALL_FROM_LARGE"])] * 4
-        + [("NUM.OPS.02", "R9", False, [])] * 2
-        + [("NUM.OPS.02", "R9", True, [])] * 2
-        + [("NUM.OPS.01", "R5", True, [])] * 5
-        + [("NUM.OPS.01", "R5", False, [])] * 3
-        + [("NUM.OPS.01", "R4", True, [])] * 9
+        [("NUM.OPS.02", "R31", False, ["M_SMALL_FROM_LARGE"])] * 4
+        + [("NUM.OPS.02", "R31", False, [])] * 2
+        + [("NUM.OPS.02", "R31", True, [])] * 2
+        + [("NUM.OPS.01", "R22", True, [])] * 5
+        + [("NUM.OPS.01", "R22", False, [])] * 3
+        + [("NUM.OPS.01", "R21", True, [])] * 9
     )
     for skill, rung, right, mistakes in answers:
         conn.execute(
@@ -89,7 +88,10 @@ def test_questions_that_can_show_the_childs_own_repeated_mistake_come_first(conn
     area = focus_paper.plan(conn, child, WEEK)["areas"][0]
     assert area["mistake"] == "M_SMALL_FROM_LARGE"
     assert "the same mistake more than once" in area["why"]
-    assert all(q["shows_mistake"] for q in area["questions"]), area["questions"]
+    # the ones that can show it come first; the level's own numbers decide whether any can (3-digit − 3-digit
+    # Easy has no exchange, so taking the smaller digit from the larger cannot happen on it)
+    shows = [q["shows_mistake"] for q in area["questions"]]
+    assert shows == sorted(shows, reverse=True), area["questions"]
 
 
 def test_making_the_paper_prints_it_with_its_qr_and_the_child_is_not_given_those_questions_again(conn, child):

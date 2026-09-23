@@ -4,6 +4,7 @@ stubbed: what is under test is everything code does around it."""
 
 import json
 import os
+import pathlib
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -33,21 +34,30 @@ def test_parse_expr(text, expect):
     assert legacy.parse_expr(text) == expect
 
 
+SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed"
+# the skills and cases as seeded: where an old paper's sum goes, placed as the bank's own questions are (ADR 0034)
+WHERE = (
+    json.loads((SEED / "skill_sets.json").read_text())["skill_sets"],
+    {c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]},
+    {r["code"]: r["skill_codes"] for r in json.loads((SEED / "rungs.json").read_text())["rungs"]},
+)
+
+
 @pytest.mark.parametrize(
     "op, a, b, rung",
     [
-        ("+", 42, 16, "R4"),
-        ("+", 46, 38, "R5"),
-        ("-", 52, 26, "R6"),
-        ("-", 70, 38, "R6"),
-        ("+", 286, 457, "R9"),
-        ("-", 425, 38, "R9"),
-        ("-", 500, 247, "R10"),
-        ("+", 2345, 1678, "R12"),
+        ("+", 42, 16, "R22"),  # 2-digit + 2-digit
+        ("+", 46, 38, "R22"),
+        ("-", 52, 26, "R24"),  # 2-digit − 2-digit
+        ("-", 70, 38, "R24"),
+        ("+", 286, 457, "R27"),  # 3-digit + 3-digit
+        ("-", 425, 38, "R30"),  # 3-digit − 2-digit
+        ("-", 500, 247, "R31"),  # 3-digit − 3-digit
+        ("+", 2345, 1678, "R32"),  # 4-digit addition
     ],
 )
 def test_rung_from_shape(op, a, b, rung):
-    assert legacy.rung_for(op, a, b) == rung
+    assert legacy.rung_for(op, a, b, WHERE) == rung
 
 
 def _spec(kind="bare"):
@@ -211,7 +221,9 @@ def test_a_typed_sign_and_a_lost_digit_are_named_as_aseem_named_them():
     assert m("62413", {"M_FACT_PM10": 62423}, "62423") == ("wrong", ["M_FACT_PM10"])
     # entering a comparison question stores the other sign as its predicted mistake
     item = legacy._template_item(
-        {"code": "T"}, {"n": 1, "kind": "missing", "rung": "R11", "question": "456 ___ 465", "answer": "<"}
+        {"code": "T"},
+        {"n": 1, "kind": "missing", "rung": "R11", "question": "456 ___ 465", "answer": "<"},
+        WHERE,
     )
     assert item["responses"][0]["misconceptions"] == {"M_COMPARE_REVERSED": ">"}
 
@@ -427,10 +439,10 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
         (child,),
     ).fetchall()
     # Four rows on one rung: one right, two wrong, one blank. Asserted as a tally and not as a
-    # sequence, because the query orders by rung_code and every row here is R5 — Postgres may hand
+    # sequence, because the query orders by rung_code and every row here is R22 — Postgres may hand
     # them back in any order within that. This assertion used to be a list and failed about one run
     # in three, which is what made three other tests look flaky (STATE.md, 2026-09-20).
-    assert [e["rung_code"] for e in ev] == ["R5"] * 4
+    assert [e["rung_code"] for e in ev] == ["R22"] * 4  # 2-digit + 2-digit, placed by the numbers (ADR 0034)
     assert sorted((e["correct"] is None, e["correct"]) for e in ev) == [
         (False, False),
         (False, False),
@@ -443,11 +455,12 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
         for r in conn.execute("select * from child_skill_state where child_id = %s", (child,)).fetchall()
     }
     assert (
-        states["R5"]["state"] == "patterned_error" and states["R5"]["repeating_misconception"] == "M_NOCARRY"
+        states["R22"]["state"] == "patterned_error"
+        and states["R22"]["repeating_misconception"] == "M_NOCARRY"
     )
-    assert (states["R5"]["n_events"], states["R5"]["n_correct"]) == (3, 1)
+    assert (states["R22"]["n_events"], states["R22"]["n_correct"]) == (3, 1)
 
-    # 1 of 3 on R5 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
+    # 1 of 3 on R22 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
     assert graph.next_difficulty(conn, child, "ADD.2D2D") == ("Easy", "from_state", ["M_NOCARRY"])
 
     # a person settles the row the machine could not; the map is rebuilt from it
@@ -711,11 +724,12 @@ def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
     columns — so a child who cannot add within 10 would have been recorded as failing at place
     value. The Cambridge Level D paper is entirely single digits, and it is the paper the weakest
     child in the school sat."""
-    assert legacy.rung_for("+", 4, 3) == "R1"  # adds within 10
-    assert legacy.rung_for("+", 7, 5) == "R2"  # crosses 10
-    assert legacy.rung_for("-", 9, 4) == "R3"  # subtracts within 20
-    assert legacy.rung_for("+", 23, 4) == "R4"  # and two digits still read as two digits
-    assert legacy.rung_for("+", 148, 7) == "R9"
+    assert legacy.rung_for("+", 4, 3, WHERE) == "R19"  # 1-digit + 1-digit
+    assert legacy.rung_for("+", 7, 5, WHERE) == "R19"  # the answer two digits, still one-digit numbers
+    assert legacy.rung_for("-", 9, 4, WHERE) == "R20"  # 1-digit − 1-digit
+    assert legacy.rung_for("+", 23, 4, WHERE) == "R21"  # and two digits still read as two digits
+    assert legacy.rung_for("+", 148, 7, WHERE) == "R25"
+    assert legacy.rung_for("×", 14, 3, WHERE) is None  # off the addition and subtraction skills
 
 
 # ---- the scan, as a person is shown it

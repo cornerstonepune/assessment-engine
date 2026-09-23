@@ -11,7 +11,6 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from . import misconceptions as M
-from .ladder import RUNGS
 from .rounding import half_up
 
 
@@ -60,8 +59,7 @@ def _item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, 
         _id(template, spec),
         template,
         rung,
-        skills
-        or RUNGS.get(rung, {}).get("skills", []),  # a label only; `bank` measures the real one (ADR 0030)
+        skills or [],  # a label only; `bank` measures the real one from the question (ADR 0030)
         signal,
         fmt,
         scaffolded,

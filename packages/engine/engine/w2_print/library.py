@@ -120,7 +120,7 @@ def _levels(conn, only=None):
     return conn.execute(
         "select s.code, s.rung_code, s.formats, r.band, d.key as difficulty from skill_set s"
         " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code, jsonb_object_keys(s.difficulty) d(key)"
-        " where s.status <> 'retired' and (%s::text is null or s.code = %s) and (%s::text is null or d.key = %s)"
+        " where (%s::text is null or s.code = %s) and (%s::text is null or d.key = %s)"
         " order by r.ladder_order nulls last, s.code, d.key",
         (code, code, difficulty, difficulty),
     ).fetchall()

@@ -26,7 +26,6 @@ FILLED_TABLES = (
     "level_rule",
     "misconception",
     "case_dimension",
-    "coverage_target",
     "taxonomy_case",
     "prompt",
     "threshold",
@@ -418,25 +417,6 @@ def _dimensions(conn, t):
         )
 
 
-def _coverage(conn, t):
-    for c in _seed("coverage_targets.json", "coverage_targets"):
-        conn.execute(
-            "insert into coverage_target (tenant_id, rung_code, dimension_code, required_values,"
-            " min_items, note) values (%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, rung_code, dimension_code) do update set"
-            " required_values=excluded.required_values, min_items=excluded.min_items,"
-            " note=excluded.note, updated_at=now()",
-            (
-                t,
-                c["rung_code"],
-                c["dimension"],
-                _text_array(c["values"]),
-                c.get("min_items", 1),
-                c.get("note", ""),
-            ),
-        )
-
-
 def _taxonomy_cases(conn, t):
     for c in _seed("taxonomy_cases.json", "taxonomy_cases"):
         conn.execute(
@@ -552,7 +532,6 @@ def load_all() -> dict[str, int]:
             _levels,
             _misconceptions,
             _dimensions,
-            _coverage,
             _taxonomy_cases,
             _prompts,
             _thresholds,
@@ -581,21 +560,6 @@ def orphans() -> dict[str, list[str]]:
                 for r in conn.execute(
                     "select distinct s from level_rule, unnest(rung_codes) s"
                     " where not exists (select 1 from rung g where g.code = s)"
-                ).fetchall()
-            ],
-            "coverage_target rungs missing from the ladder": [
-                r["rung_code"]
-                for r in conn.execute(
-                    "select distinct rung_code from coverage_target c"
-                    " where not exists (select 1 from rung g where g.code = c.rung_code)"
-                ).fetchall()
-            ],
-            "coverage_target dimensions missing from the matrix": [
-                r["dimension_code"]
-                for r in conn.execute(
-                    "select distinct dimension_code from coverage_target c"
-                    " where not exists (select 1 from case_dimension d"
-                    " where d.code = c.dimension_code)"
                 ).fetchall()
             ],
             "skill_set misconception codes missing from the vocabulary": [

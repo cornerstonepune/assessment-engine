@@ -45,7 +45,6 @@ def catalog(conn) -> list[dict]:
         " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
         "   where i.skill_set_code = s.code and i.status = 'active') as skills"
         " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
-        " where s.status <> 'retired'"
     ).fetchall()
     return [
         {
