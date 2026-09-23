@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Bring the live site up to what is merged on main, in the one safe order. From anywhere:
+#   ~/cornerstone/assessment-engine/bin/update-live
+#
+# 1 main, pulled   2 new migrations onto the live database, before anything reads them
+# 3 the engine server on that code (deploy/go-live.sh)   4 the seed rows (engine load)
+# 5 every question's labels measured again, questions made by an old rule replaced, worksheets rebuilt
+# 6 the checks, printed. Safe to run again: each step does nothing when there is nothing to do.
+# Needs what go-live.sh needs, plus DATABASE_URL in .env and the Supabase CLI.
+set -euo pipefail
+
+main() {
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+LIVE=$(grep -E '^DATABASE_URL=' "$REPO/.env" | cut -d= -f2- | tr -d "\"'")
+E="$REPO/bin/engine"
+say() { printf '\n==> %s\n' "$*"; }
+
+say "1/6 main"
+git -C "$REPO" checkout main && git -C "$REPO" pull --ff-only origin main
+(cd "$REPO/packages/engine" && uv sync -q)
+
+say "2/6 migrations onto the live database"
+(cd "$REPO" && supabase db push --db-url "$LIVE" --yes)
+
+say "3/6 the engine server"
+"$REPO/deploy/go-live.sh"
+
+say "4/6 seed rows"
+"$E" load
+
+say "5/6 the bank and the worksheets"
+"$E" bank relabel
+"$E" bank refill
+"$E" library build
+
+say "6/6 checks"
+"$E" library check
+"$E" bank taxonomy
+"$E" audit || true   # prints what waits on a person (approvals, the guessable levels); see HANDOFF
+}
+
+main "$@"
