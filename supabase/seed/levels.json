@@ -4,112 +4,140 @@
       "band": "G1",
       "level": "Lm",
       "rung_codes": [
-        "R1"
+        "R19"
       ],
-      "foundational_rung_code": "R1",
-      "probe_rung_code": "R4"
+      "foundational_rung_code": "R19",
+      "probe_rung_code": "R21"
     },
     {
       "band": "G1",
       "level": "L0",
       "rung_codes": [
-        "R2",
-        "R3"
+        "R19",
+        "R20",
+        "R23"
       ],
-      "foundational_rung_code": "R1",
-      "probe_rung_code": "R4"
+      "foundational_rung_code": "R19",
+      "probe_rung_code": "R21"
     },
     {
       "band": "G1",
       "level": "Lp",
       "rung_codes": [
-        "R4"
+        "R21",
+        "R22",
+        "R23",
+        "R24"
       ],
-      "foundational_rung_code": "R1",
-      "probe_rung_code": "R4"
+      "foundational_rung_code": "R19",
+      "probe_rung_code": "R21"
     },
     {
       "band": "G2",
       "level": "Lm",
       "rung_codes": [
-        "R3",
-        "R4"
+        "R20",
+        "R23",
+        "R21",
+        "R22",
+        "R24"
       ],
-      "foundational_rung_code": "R3",
-      "probe_rung_code": "R9"
+      "foundational_rung_code": "R20",
+      "probe_rung_code": "R25"
     },
     {
       "band": "G2",
       "level": "L0",
       "rung_codes": [
-        "R5",
-        "R6",
+        "R21",
+        "R22",
+        "R23",
+        "R24",
         "R7"
       ],
-      "foundational_rung_code": "R3",
-      "probe_rung_code": "R9"
+      "foundational_rung_code": "R20",
+      "probe_rung_code": "R25"
     },
     {
       "band": "G2",
       "level": "Lp",
       "rung_codes": [
-        "R9"
+        "R25",
+        "R26",
+        "R27",
+        "R29",
+        "R30",
+        "R31"
       ],
-      "foundational_rung_code": "R3",
-      "probe_rung_code": "R9"
+      "foundational_rung_code": "R20",
+      "probe_rung_code": "R25"
     },
     {
       "band": "G3",
       "level": "Lm",
       "rung_codes": [
-        "R5",
-        "R6",
+        "R21",
+        "R22",
+        "R23",
+        "R24",
         "R7"
       ],
-      "foundational_rung_code": "R5",
-      "probe_rung_code": "R12"
+      "foundational_rung_code": "R21",
+      "probe_rung_code": "R32"
     },
     {
       "band": "G3",
       "level": "L0",
       "rung_codes": [
-        "R9",
-        "R10",
+        "R25",
+        "R26",
+        "R27",
+        "R29",
+        "R30",
+        "R31",
         "R11"
       ],
-      "foundational_rung_code": "R5",
-      "probe_rung_code": "R12"
+      "foundational_rung_code": "R21",
+      "probe_rung_code": "R32"
     },
     {
       "band": "G3",
       "level": "Lp",
       "rung_codes": [
-        "R12",
+        "R32",
+        "R33",
+        "R28",
         "R13"
       ],
-      "foundational_rung_code": "R5",
-      "probe_rung_code": "R12"
+      "foundational_rung_code": "R21",
+      "probe_rung_code": "R32"
     },
     {
       "band": "G4",
       "level": "Lm",
       "rung_codes": [
-        "R9",
-        "R10",
+        "R25",
+        "R26",
+        "R27",
+        "R29",
+        "R30",
+        "R31",
         "R11"
       ],
-      "foundational_rung_code": "R9",
+      "foundational_rung_code": "R25",
       "probe_rung_code": "R13"
     },
     {
       "band": "G4",
       "level": "L0",
       "rung_codes": [
-        "R12",
+        "R32",
+        "R33",
+        "R28",
         "R13",
         "R14"
       ],
-      "foundational_rung_code": "R9",
+      "foundational_rung_code": "R25",
       "probe_rung_code": "R13"
     },
     {
@@ -118,7 +146,7 @@
       "rung_codes": [
         "R13"
       ],
-      "foundational_rung_code": "R9",
+      "foundational_rung_code": "R25",
       "probe_rung_code": "R13"
     }
   ]

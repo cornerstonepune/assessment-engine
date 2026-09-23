@@ -258,7 +258,7 @@ map the same"*, *"Mixed back can also be a part of advanced only"* (ADR 0034). A
 | Slice | Goal file | Green means |
 |---|---|---|
 | L1 | `goals/s13-levels-by-taxonomy.yaml` | fifteen calculation skills, one operation and digit shape each; Easy–Hard straight calculation, Advance mixed; all 269 cases placed; the bank re-homed, none lost; worksheets one skill and level each |
-| L2 | `goals/s14-graph-by-skill.yaml` | a child's graph, the Children screens and `level_rule` read the fifteen skills; the replaced rungs and their seed rows removed |
+| L2 | `goals/s14-graph-by-skill.yaml` | a child's graph, next paper and class grid read the fifteen skills: an answer counts on its question's skill (`evidence_placed`); old papers' sums placed by the bank's rule; `level_rule` names the new rungs. The replaced rungs stay as rows only because recorded answers and retired sets name them |
 | L3 | `goals/s15-answer-boxes.yaml` | as many answer boxes as the answer has digits (Aseem to confirm: it tells the child the answer's size); more working space, most where a question takes two steps |
 
 ## Now: the website as the teacher's week — six areas, one at a time (Nimish, 2026-09-23)

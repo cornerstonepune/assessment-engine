@@ -15,13 +15,12 @@ never change. Running it again moves nothing.
 
 from collections import Counter
 
-from engine.assess import taxonomy, verify
+from engine.assess import placing, tags
+from engine.assess.items import Item
 from engine.core import loaders
 from engine.w1_bank import cases
 
 ACTOR = "engine (taxonomy-shaped skills)"
-CALCULATION = ("bare_sum", "column_grid")
-STRAIGHT = ("Hard", "Medium", "Easy")  # hardest first: a carry onto a zero is Hard even if it is one carry
 
 
 def replaced(seed=None):
@@ -35,31 +34,10 @@ def replaced(seed=None):
 
 def shaped(conn):
     """The skills in use that have a shape, with their levels' checks and rung."""
-    rows = conn.execute(
-        "select code, rung_code, version, difficulty from skill_set where status <> 'retired' order by code"
-    ).fetchall()
-    return [r for r in rows if any("within" in lv.get("check", {}) for lv in r["difficulty"].values())]
-
-
-def place(fmt, tags, skills, case_matches):
-    """(skill, level) for one question, or None. Raises when two skills' shapes both hold it — a map defect."""
-    home = [s for s in skills if taxonomy.matches(_shape(s), fmt, tags)]
-    if len(home) > 1:
-        raise ValueError(f"two skills hold the same question: {', '.join(s['code'] for s in home)}")
-    if not home:
-        return None
-    s = home[0]
-    order = STRAIGHT if fmt in CALCULATION else ()
-    for level in (*order, "Advance"):
-        check = s["difficulty"].get(level, {}).get("check")
-        if check and not verify.dimension_problems(tags, check, fmt, case_matches):
-            return s, level
-    return None
-
-
-def _shape(skill):
-    return next(
-        lv["check"]["within"] for lv in skill["difficulty"].values() if "within" in lv.get("check", {})
+    return placing.shaped(
+        conn.execute(
+            "select code, rung_code, version, difficulty from skill_set where status <> 'retired' order by code"
+        ).fetchall()
     )
 
 
@@ -82,7 +60,7 @@ def rehome(conn, actor=ACTOR):
         " where status = 'active' and skill_set_code = any(%s)",
         (old,),
     ).fetchall():
-        home = place(r["fmt"], r["tags"], skills, case_matches)
+        home = placing.place(r["fmt"], r["tags"], skills, case_matches)
         if home is None:
             conn.execute(
                 "insert into item_feedback (tenant_id, item_id, actor, verdict, note) values (%s,%s,%s,'retire',%s)",
@@ -107,4 +85,29 @@ def rehome(conn, actor=ACTOR):
         " and skill_set_code = any(%s)",
         (old,),
     )
-    return {"retired_sets": retired, "moved": moved, "no_place": no_place}
+    return {
+        "retired_sets": retired,
+        "moved": moved,
+        "no_place": no_place,
+        "old_papers": _old_papers(conn, skills, case_matches),
+    }
+
+
+def _old_papers(conn, skills, case_matches):
+    """An old paper's sums (W3, `legacy`) onto the skill whose shape they have, as `legacy.rung_for` now files
+    them: the rung their answers count on in a child's graph. Returns how many moved."""
+    n = 0
+    for r in conn.execute(
+        "select id, rung_code, spec from item where source = 'legacy' and spec ? 'a' and spec ? 'b' and spec ? 'op'"
+    ).fetchall():
+        sp = r["spec"]
+        if sp["op"] not in ("+", "-") or (sp["op"] == "-" and sp["a"] < sp["b"]):
+            continue
+        t = tags.derive(
+            Item("", "", "", [], "", "bare_sum", False, "", {"a": sp["a"], "b": sp["b"], "op": sp["op"]}, [])
+        )
+        home = placing.place("bare_sum", t, skills, case_matches)
+        if home and home[0]["rung_code"] != r["rung_code"]:
+            conn.execute("update item set rung_code = %s where id = %s", (home[0]["rung_code"], r["id"]))
+            n += 1
+    return n

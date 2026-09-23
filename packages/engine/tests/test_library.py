@@ -108,9 +108,9 @@ def _unit(conn, code="SUB.2D2D", d="Hard"):
 def test_building_makes_every_level_ready_and_building_again_changes_nothing(conn):
     conn.execute("delete from sheet_template where source = 'library'")  # from nothing; rolled back after
     first = library.build(conn)
-    levels = conn.execute("select count(*) as n from skill_set, jsonb_object_keys(difficulty)").fetchone()[
-        "n"
-    ]
+    levels = conn.execute(
+        "select count(*) as n from skill_set, jsonb_object_keys(difficulty) where status <> 'retired'"
+    ).fetchone()["n"]
     assert first["made"] >= levels * 10
     units, problems = library.check(conn)
     assert problems == {}

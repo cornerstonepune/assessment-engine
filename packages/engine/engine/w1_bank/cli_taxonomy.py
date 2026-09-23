@@ -67,6 +67,7 @@ def register(bank_app: typer.Typer) -> None:
         typer.echo(
             f"  {'would retire' if dry_run else 'retired'} {len(out['retired_sets'])} skill sets"
             f" · moved {sum(out['moved'].values())} questions · no place {sum(out['no_place'].values())}"
+            f" · {out['old_papers']} old papers' sums onto their skill"
         )
 
     @bank_app.command("levels")

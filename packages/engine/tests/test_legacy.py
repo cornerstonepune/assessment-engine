@@ -4,6 +4,7 @@ stubbed: what is under test is everything code does around it."""
 
 import json
 import os
+import pathlib
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -33,21 +34,29 @@ def test_parse_expr(text, expect):
     assert legacy.parse_expr(text) == expect
 
 
+SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed"
+# the skills and cases as seeded: where an old paper's sum goes, placed as the bank's own questions are (ADR 0034)
+WHERE = (
+    json.loads((SEED / "skill_sets.json").read_text())["skill_sets"],
+    {c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]},
+)
+
+
 @pytest.mark.parametrize(
     "op, a, b, rung",
     [
-        ("+", 42, 16, "R4"),
-        ("+", 46, 38, "R5"),
-        ("-", 52, 26, "R6"),
-        ("-", 70, 38, "R6"),
-        ("+", 286, 457, "R9"),
-        ("-", 425, 38, "R9"),
-        ("-", 500, 247, "R10"),
-        ("+", 2345, 1678, "R12"),
+        ("+", 42, 16, "R22"),  # 2-digit + 2-digit
+        ("+", 46, 38, "R22"),
+        ("-", 52, 26, "R24"),  # 2-digit − 2-digit
+        ("-", 70, 38, "R24"),
+        ("+", 286, 457, "R27"),  # 3-digit + 3-digit
+        ("-", 425, 38, "R30"),  # 3-digit − 2-digit
+        ("-", 500, 247, "R31"),  # 3-digit − 3-digit
+        ("+", 2345, 1678, "R32"),  # 4-digit addition
     ],
 )
 def test_rung_from_shape(op, a, b, rung):
-    assert legacy.rung_for(op, a, b) == rung
+    assert legacy.rung_for(op, a, b, WHERE) == rung
 
 
 def _spec(kind="bare"):
@@ -211,7 +220,9 @@ def test_a_typed_sign_and_a_lost_digit_are_named_as_aseem_named_them():
     assert m("62413", {"M_FACT_PM10": 62423}, "62423") == ("wrong", ["M_FACT_PM10"])
     # entering a comparison question stores the other sign as its predicted mistake
     item = legacy._template_item(
-        {"code": "T"}, {"n": 1, "kind": "missing", "rung": "R11", "question": "456 ___ 465", "answer": "<"}
+        {"code": "T"},
+        {"n": 1, "kind": "missing", "rung": "R11", "question": "456 ___ 465", "answer": "<"},
+        WHERE,
     )
     assert item["responses"][0]["misconceptions"] == {"M_COMPARE_REVERSED": ">"}
 
@@ -711,11 +722,12 @@ def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
     columns — so a child who cannot add within 10 would have been recorded as failing at place
     value. The Cambridge Level D paper is entirely single digits, and it is the paper the weakest
     child in the school sat."""
-    assert legacy.rung_for("+", 4, 3) == "R1"  # adds within 10
-    assert legacy.rung_for("+", 7, 5) == "R2"  # crosses 10
-    assert legacy.rung_for("-", 9, 4) == "R3"  # subtracts within 20
-    assert legacy.rung_for("+", 23, 4) == "R4"  # and two digits still read as two digits
-    assert legacy.rung_for("+", 148, 7) == "R9"
+    assert legacy.rung_for("+", 4, 3, WHERE) == "R19"  # 1-digit + 1-digit
+    assert legacy.rung_for("+", 7, 5, WHERE) == "R19"  # the answer two digits, still one-digit numbers
+    assert legacy.rung_for("-", 9, 4, WHERE) == "R20"  # 1-digit − 1-digit
+    assert legacy.rung_for("+", 23, 4, WHERE) == "R21"  # and two digits still read as two digits
+    assert legacy.rung_for("+", 148, 7, WHERE) == "R25"
+    assert legacy.rung_for("×", 14, 3, WHERE) is None  # off the addition and subtraction skills
 
 
 # ---- the scan, as a person is shown it

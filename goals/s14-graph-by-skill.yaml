@@ -1,0 +1,24 @@
+name: s14-graph-by-skill
+goal: >
+  A child's graph, next paper and class grid read the fifteen calculation skills: every answer counts on the skill
+  of the question it answered — the bank's and an old paper's, placed by one rule from the question's own numbers —
+  so what a child lags in is named by operation and digit shape ("2-digit − 2-digit"), and the next paper is drawn
+  from that skill's own levels. Nothing a child wrote is rewritten.
+
+# Written 2026-09-23 (ADR 0034), after s13 moved the questions: without this the graph still grouped answers by the
+# old ladder rungs, which no skill in use carries, and a child's next paper found nothing to work on.
+says:
+  - words: "this might also change how we show skills and child map accoding to skills"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_never_seen_before
+  - words: "we dont need to rebuild the bank right ? just map the same"
+    proved_by: packages/engine/tests/test_legacy.py::test_rung_from_shape
+manual:
+  - "On live, once merged: `bin/update-live`, then `bin/engine bank rehome` (old papers' sums onto their skill) and `bin/engine graph`."
+scenarios: []
+criteria:
+  - name: an answer counts on its question's skill; the next paper finds the weak skills
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus_paper.py tests/test_legacy.py tests/test_rehome.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

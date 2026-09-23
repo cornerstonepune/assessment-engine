@@ -10,7 +10,7 @@ import pathlib
 
 import pytest
 
-from engine.assess import tags
+from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
 from engine.core import db
 from engine.w1_bank import cases, rehome
@@ -28,7 +28,7 @@ CALCULATION = {"bare_sum", "column_grid"}
 
 
 def _place(fmt, spec):
-    got = rehome.place(
+    got = placing.place(
         fmt, tags.derive(Item("x", "x", "R0", [], "P", fmt, False, "", spec, [])), SKILLS, MATCHES
     )
     return got and (got[0]["code"], got[1])
@@ -56,8 +56,8 @@ def test_no_two_skills_hold_one_question_and_no_level_names_a_case_its_numbers_c
     for s in SKILLS:
         for level, lv in s["difficulty"].items():
             for c in lv["check"]["cases"]:
-                rehome.taxonomy.within(MATCHES[c], lv["check"]["within"])  # raises on a contradiction
-    shapes = [rehome._shape(s) for s in SKILLS]
+                taxonomy.within(MATCHES[c], lv["check"]["within"])  # raises on a contradiction
+    shapes = [placing.shape(s) for s in SKILLS]
     for a in (23, 5, 402, 4382):
         for b in (45, 7, 185):
             for op in "+-":
@@ -66,7 +66,7 @@ def test_no_two_skills_hold_one_question_and_no_level_names_a_case_its_numbers_c
                 t = tags.derive(
                     Item("x", "x", "R0", [], "P", "column_grid", False, "", {"a": a, "b": b, "op": op}, [])
                 )
-                assert sum(rehome.taxonomy.matches(sh, "column_grid", t) for sh in shapes) <= 1, (a, op, b)
+                assert sum(taxonomy.matches(sh, "column_grid", t) for sh in shapes) <= 1, (a, op, b)
 
 
 def test_every_replaced_skill_set_is_named_in_the_seed():

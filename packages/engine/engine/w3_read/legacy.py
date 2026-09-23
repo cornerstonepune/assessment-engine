@@ -16,7 +16,8 @@ import numpy as np
 
 from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
-from engine.assess import tags
+from engine.assess import placing, tags
+from engine.assess.items import Item
 from engine.assess.ladder import RUNGS
 from engine.core import db
 from engine.w3_read import profiles, reading, render_pdf
@@ -37,42 +38,40 @@ def parse_expr(text):
     return (m.group(2), int(m.group(1)), int(m.group(3))) if m else None
 
 
-def rung_for(op, a, b):
-    """Which ladder rung a bare sum exercises, from its shape alone. Mirrors the taxonomy: digits
-    and where the regrouping falls, not the grade the paper was set for."""
-    width = max(len(str(a)), len(str(b)))
-    cols = tags._regroup_columns(op, a, b)
-    if op == "×":
-        return None  # off the addition/subtraction ladder (manifest.md: no multiplication rung yet)
-    if a < 10 and b < 10:
-        # A one-digit sum is not a two-digit column sum with a blank in front of it. The shape rule
-        # below reads "4 + 3" as width 2 without regrouping and files it under R4, which would tell
-        # the engine a child who cannot add within 10 has failed at place-value columns. The
-        # Cambridge Level D paper is entirely these, and it is the paper the weakest child sat.
-        return ("R1" if a + b <= 10 else "R2") if op == "+" else "R3"
-    if width <= 2:
-        return "R4" if not cols else ("R5" if op == "+" else "R6")
-    if width == 3:
-        if op == "-" and tags._pattern(op, a, b, cols) == "ACROSS_ZERO":
-            return "R10"
-        return "R9" if cols else "R4"  # columns without regrouping is R4's idea at any width
-    return "R12"
+def where_they_go(conn):
+    """The skills in use and the taxonomy's cases: what `rung_for` places a sum by (ADR 0034)."""
+    skills = conn.execute(
+        "select code, rung_code, difficulty from skill_set where status <> 'retired'"
+    ).fetchall()
+    return skills, {r["code"]: r["match"] for r in conn.execute("select code, match from taxonomy_case")}
+
+
+def rung_for(op, a, b, where):
+    """The rung of the skill a bare sum practises, from its numbers alone — the one skill whose operation and
+    digit shape it has (`assess/placing.py`), exactly as the bank's own questions are placed; None off them."""
+    if op == "×" or (op == "-" and a < b):
+        return None
+    t = tags.derive(Item("", "", "", [], "", "bare_sum", False, "", {"a": a, "b": b, "op": op}, []))
+    home = placing.place("bare_sum", t, *where)
+    return home[0]["rung_code"] if home else None
 
 
 def skill_for(rung, op=None):
+    if op in _SKILL_FOR_OP:
+        return _SKILL_FOR_OP[op]  # a sum is addition's, a difference subtraction's, on whichever skill
     if rung not in RUNGS:
         # A rung added as rows and never as Python — M1, multiplication (W1 gate 3). This module
         # maps the addition/subtraction ladder, so a paper on one of those rungs names its own
         # skill rather than having one invented here.
         raise ValueError(f"rung {rung!r} is off the addition/subtraction ladder; give the item a skill")
     skills = RUNGS[rung]["skills"]
-    return _SKILL_FOR_OP.get(op) if op in _SKILL_FOR_OP and _SKILL_FOR_OP[op] in skills else skills[0]
+    return skills[0]
 
 
 # ---- the paper, entered once
 
 
-def _template_item(paper, it):
+def _template_item(paper, it, where):
     """One printed question as an item row: operands, the right answer, and — for a bare sum —
     the wrong answers each misconception would produce, so marking is a lookup."""
     kind = it.get("kind", "bare")
@@ -84,7 +83,7 @@ def _template_item(paper, it):
         spec |= {"op": op, "a": a, "b": b}
         answer = it.get("answer", M.compute(op, a, b))
         predictions = M.predict(op, a, b)
-        rung = it.get("rung") or rung_for(op, a, b)
+        rung = it.get("rung") or rung_for(op, a, b, where)
         if rung is None:
             raise ValueError(
                 f"item {it['n']}{it.get('part', '')}: {it['expr']!r} is not on the ladder; give it a rung"
@@ -118,9 +117,9 @@ def load_paper(conn, path):
     question. Re-running with a corrected file updates the rows. Returns the template id."""
     paper = json.loads(Path(path).read_text())
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    ids = []
+    ids, where = [], where_they_go(conn)
     for it in paper["items"]:
-        t = _template_item(paper, it)
+        t = _template_item(paper, it, where)
         row = conn.execute(
             "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem,"
             " spec, responses, source, status)"
