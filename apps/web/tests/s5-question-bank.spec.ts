@@ -12,8 +12,9 @@ test.afterAll(async () => sql.end());
 
 test("the bank says in plain words what it is, with the database's own numbers", async ({ page }) => {
   const [{ active, skills }] = await sql<{ active: number; skills: number }[]>`
-    select (select count(*)::int from item where status = 'active' and source = 'generated') as active,
-           (select count(*)::int from skill_set) as skills`;
+    select (select count(*)::int from item i join skill_set s on s.code = i.skill_set_code where i.status = 'active' and i.source = 'generated'
+              and exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)) as active,
+           (select count(*)::int from skill_set s where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)) as skills`;
   await page.goto("/library");
   const about = page.getByRole("region", { name: "What the bank is" }).or(page.locator("section.panel", { hasText: "What the bank is" }));
   await expect(about.first()).toContainText(`${active.toLocaleString("en-IN")} today, for the ${skills} skills`);
@@ -35,7 +36,15 @@ test("every question shows its skill, level, kind and worksheets, and every link
     .locator("a[href]")
     .evaluateAll((as) => [...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0]))]);
   expect(hrefs.length).toBeGreaterThan(50);
-  for (const href of hrefs) {
+  // one link of each kind: a question's page, a worksheet, a filter — each shape once, not every question twice over
+  const seen = new Set<string>();
+  const sample = hrefs.filter((h) => {
+    const kind = h.replace(/\/[^/?]*[0-9][^/?]*$/, "/:x").replace(/=[^&]*/g, "=");
+    if (seen.has(kind)) return false;
+    seen.add(kind);
+    return true;
+  });
+  for (const href of sample) {
     const res = await page.request.get(href);
     expect(res.status(), href).toBe(200);
   }

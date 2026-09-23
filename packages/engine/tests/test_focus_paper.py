@@ -185,3 +185,11 @@ def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill(conn):
     p = focus_paper.plan(conn, str(cid), WEEK)
     assert [(a["skill_set"], a["level"]) for a in p["areas"]] == [("ADD.2D2D", "Advance")]
     assert "ready to move up" in p["areas"][0]["why"] or "a step up" in p["areas"][0]["why"]
+
+
+def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper(conn, child):
+    """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication"."""
+    conn.execute("update topic set taught = false where code = 'ADDSUB'")
+    assert focus_paper.plan(conn, child, WEEK)["areas"] == []
+    with pytest.raises(ValueError, match="no skill set"):
+        focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.1D", "level": "Easy", "n": 3}])

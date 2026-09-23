@@ -1,0 +1,25 @@
+name: v1-only-what-is-taught
+goal: >
+  The site and every child's paper show only what the school teaches: a topic is taught or not, and a skill is taught
+  exactly when it holds a case of the taxonomy the school gave — so nothing of the taxonomy is ever hidden, and nothing
+  outside it (multiplication, explaining a procedure) shows before it is taught. An approval, once given, is withdrawn
+  only by a person changing a skill's words or levels — never by the engine keeping its own lists up to date.
+
+# Written 2026-09-23, before the work. Nimish, the same day.
+says:
+  - words: "I'm surprised we haven't even started teaching multiplication"
+    proved_by: packages/engine/tests/test_topics.py::test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught
+  - words: "we haven't even started teaching multiplication"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper
+  - words: "it is still showing 10 skills for me to approve. When I have given you the whole taxonomy, why do we need another approval?"
+    proved_by: packages/engine/tests/test_approval.py::test_the_engine_keeping_the_mistake_list_up_to_date_never_withdraws_an_approval
+manual:
+  - "On live, once merged: `bin/update-live`, `bin/engine load`, then approve the skills once on Curriculum → Read and approve."
+scenarios: []
+criteria:
+  - name: taught topics and approvals, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_topics.py tests/test_approval.py tests/test_focus_paper.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

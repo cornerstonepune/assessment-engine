@@ -69,6 +69,7 @@ export async function chargesTable(): Promise<ChargesTable> {
   };
 }
 
+/** The skills the school teaches — a topic not taught yet is not on any screen (goals/v1-only-what-is-taught.yaml). */
 export async function skillSets(): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
@@ -85,6 +86,7 @@ export async function skillSets(): Promise<SkillSet[]> {
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
     order by r.ladder_order nulls last, s.code`;
 }
 
@@ -250,44 +252,13 @@ export async function childHeader(id: string, actor: string): Promise<ChildRow |
   return rows.find((c) => c.id === id);
 }
 
-export type RungState = {
-  rung_code: string;
-  ladder_order: number | null;
-  descriptor: string;
-  skill_code: string | null;
-  skill_name: string | null;
-  state: string | null;
-  n_events: number;
-  n_correct: number;
-  repeating_misconception: string | null;
-  last_seen: string | null;
-};
-
-// The band's ladder (its three levels) plus any rung the child has evidence on; rungs no paper
-// has touched stay "not enough yet" with nothing behind them, which is the honest reading.
-// One row per rung × skill: a rung like "3-digit ±" carries addition and subtraction separately.
-export async function childMap(id: string): Promise<RungState[]> {
-  return sql<RungState[]>`
-    with ladder as (
-      select unnest(l.rung_codes) as rung_code from level_rule l join child c on c.band = l.band where c.id = ${id}::uuid
-      union select rung_code from child_skill_state where child_id = ${id}::uuid
-    )
-    select r.code as rung_code, r.ladder_order, r.descriptor, s.skill_code, k.name as skill_name, s.state,
-           coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
-           s.repeating_misconception, s.last_seen
-    from ladder x
-    join rung r on r.code = x.rung_code
-    left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code
-    left join skill k on k.tenant_id = s.tenant_id and k.code = s.skill_code
-    order by r.ladder_order nulls last, r.code, s.skill_code`;
-}
-
 export type NextStep = { code: string; name: string; rung_code: string; difficulty: string | null; rule: string; targets: string[] };
 
 export async function childNext(id: string): Promise<NextStep[]> {
   return sql<NextStep[]>`
     select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
     from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
+    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
     order by s.code`;
 }
 
@@ -340,7 +311,7 @@ export type Evidence = {
 // opened up to the work it rests on.
 export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
-    select e.rung_code, e.skill_code, t.key ->> 'date' as date, t.key ->> 'title' as paper, i.item_key,
+    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, t.key ->> 'title' as paper, i.item_key,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,

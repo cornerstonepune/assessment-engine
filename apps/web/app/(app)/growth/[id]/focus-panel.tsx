@@ -7,7 +7,7 @@ import { Panel, Pill } from "@/components/shell";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
 import { approveNextPaper } from "../actions";
-import { fmtDate } from "./graph";
+import { fmtDate } from "./answers";
 
 type Question = { item_key: string; text: string; fmt: string; shows_mistake: boolean };
 type Area = { skill_set: string; name: string; level: string; right: number; answered: number; why: string; questions: Question[] };

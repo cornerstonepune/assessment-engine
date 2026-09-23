@@ -149,7 +149,7 @@ test("approving a skill records who did it, by name", async ({ page }) => {
 
 test("the bank's grid holds exactly what the database holds, and a cell opens those questions", async ({ page }) => {
   const [{ total, n, name }] = await sql<{ total: number; n: number; name: string }[]>`
-    select (select count(*)::int from item where status = 'active' and source = 'generated') as total,
+    select (select count(*)::int from item where status = 'active' and source = 'generated' and exists (select 1 from skill_set s join topic t on t.code = s.topic_code and t.taught where s.code = item.skill_set_code)) as total,
            (select count(*)::int from item where status = 'active' and source = 'generated'
               and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard') as n,
            (select name from skill_set where code = 'SUB.2D2D') as name`;
@@ -176,7 +176,7 @@ test("every question in the list shows its answer and opens its own page", async
 // "undefined + undefined" because the screen only knew four.
 test("every kind of question in the bank is drawn with its own numbers", async ({ page }) => {
   const kinds = await sql<{ fmt: string }[]>`
-    select distinct fmt from item where status = 'active' and source = 'generated' order by fmt`;
+    select distinct fmt from item where status = 'active' and source = 'generated' and exists (select 1 from skill_set s join topic t on t.code = s.topic_code and t.taught where s.code = item.skill_set_code) order by fmt`;
   for (const { fmt } of kinds) {
     await page.goto(`/library?fmt=${fmt}`);
     const question = page.locator("#questions tbody tr").first().locator("td").first();

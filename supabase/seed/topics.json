@@ -4,37 +4,51 @@
       "code": "ADDSUB",
       "subject": "NUM",
       "name": "Addition & subtraction",
-      "skill_sets": ["ADD.1D1D", "SUB.1D1D", "ADD.2D1D", "ADD.2D2D", "SUB.2D1D", "SUB.2D2D", "ADD.3D1D", "ADD.3D2D", "ADD.3D3D", "ADD.MANY", "SUB.3D1D", "SUB.3D2D", "SUB.3D3D", "ADD.4D", "SUB.4D"]
-    },
-    {
-      "code": "SENSE",
-      "subject": "NUM",
-      "name": "Number sense & strategies",
-      "skill_sets": ["MENTAL.BRIDGE_EQ", "EQUALITY.INVERSE", "MISSING.DIGIT", "STRATEGY.EFFICIENT"]
-    },
-    {
-      "code": "ESTIMATE",
-      "subject": "NUM",
-      "name": "Estimation",
-      "skill_sets": ["ESTIMATE.ROUND10", "ESTIMATE.HUNDRED"]
-    },
-    {
-      "code": "WORD",
-      "subject": "NUM",
-      "name": "Word problems",
-      "skill_sets": ["WORD.1_2STEP", "WORD.BUDGET"]
+      "taught": true,
+      "skill_sets": [
+        "ADD.1D1D",
+        "SUB.1D1D",
+        "ADD.2D1D",
+        "ADD.2D2D",
+        "SUB.2D1D",
+        "SUB.2D2D",
+        "ADD.3D1D",
+        "ADD.3D2D",
+        "ADD.3D3D",
+        "ADD.MANY",
+        "SUB.3D1D",
+        "SUB.3D2D",
+        "SUB.3D3D",
+        "ADD.4D",
+        "SUB.4D",
+        "MENTAL.BRIDGE_EQ",
+        "EQUALITY.INVERSE",
+        "MISSING.DIGIT",
+        "STRATEGY.EFFICIENT",
+        "ESTIMATE.ROUND10",
+        "ESTIMATE.HUNDRED",
+        "WORD.1_2STEP",
+        "WORD.BUDGET",
+        "REASON.FIND_MISTAKE"
+      ]
     },
     {
       "code": "REASON",
       "subject": "NUM",
       "name": "Reasoning",
-      "skill_sets": ["REASON.EXPLAIN", "REASON.FIND_MISTAKE"]
+      "taught": false,
+      "skill_sets": [
+        "REASON.EXPLAIN"
+      ]
     },
     {
       "code": "MUL",
       "subject": "NUM",
       "name": "Multiplication",
-      "skill_sets": ["MUL.1D"]
+      "taught": false,
+      "skill_sets": [
+        "MUL.1D"
+      ]
     }
   ]
 }

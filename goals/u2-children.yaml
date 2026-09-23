@@ -11,9 +11,9 @@ says:
   - words: "grade → class grid of children × skills in red/amber/green/grey"
     proved_by: apps/web/tests/u2-children.spec.ts::each grade opens on its classes, and a class is its children against every step in red, amber, green or grey
   - words: "a child's page with a one-line summary"
-    proved_by: apps/web/tests/u2-children.spec.ts::a child's page opens on one plain sentence that counts what the graph says
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page opens on one plain sentence that counts what their answers show
   - words: "their knowledge graph, repeated mistakes"
-    proved_by: apps/web/tests/u2-children.spec.ts::a child's page shows their knowledge graph and every mistake that repeats, and how often
+    proved_by: apps/web/tests/u2-children.spec.ts::a child's page shows what their answers show and every mistake that repeats, and how often
   - words: "the next paper proposed with an Approve button"
     proved_by: apps/web/tests/u2-children.spec.ts::the engine proposes the next paper and a teacher approves it, once, in their own name
   - words: "The teacher always approves"

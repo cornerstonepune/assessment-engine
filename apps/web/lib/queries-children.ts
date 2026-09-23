@@ -30,29 +30,24 @@ export type GridChild = { id: string; roll_no: string; first_name: string; state
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
 
-/** The class's steps — its grades' ladders, each rung once for every skill it carries, and any step a child has
- *  answers on — in the shared tree's order: topic by topic, each skill easy to hard; and each child's state on each.
- *  Names through pii.read_child. */
-export async function classGrid(section: string, actor: string): Promise<{ steps: Step[]; children: GridChild[] }> {
-  const [steps, children, states] = await Promise.all([
+/** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill
+ *  any child in the class has a checked answer on, in the shared tree's order — topic by topic, easy to hard — and
+ *  each child's state and score on each. A skill no child has answered is not a column of grey: it is named once,
+ *  in `notYet`. Names through pii.read_child. */
+export async function classGrid(
+  section: string,
+  actor: string,
+): Promise<{ steps: Step[]; children: GridChild[]; notYet: string[] }> {
+  const [steps, children, states, notYet] = await Promise.all([
     sql<Step[]>`
-      with rungs as (
-        select unnest(l.rung_codes) as rung_code from level_rule l
-        where l.band in (select band from child where section = ${section} and active)
-        union select s.rung_code from child_skill_state s join child c on c.id = s.child_id
-        where c.section = ${section} and c.active
-      ), pairs as (
-        select k as skill_code, r.code as rung_code from rungs x join rung r on r.code = x.rung_code, unnest(r.skill_codes) k
-        union select s.skill_code, s.rung_code from child_skill_state s join child c on c.id = s.child_id
-        where c.section = ${section} and c.active
-      )
-      select p.skill_code, coalesce(k.name, p.skill_code) as skill_name, p.rung_code,
-             coalesce(ss.name, r.descriptor) as descriptor, coalesce(t.name, 'Other') as topic_name
-      from pairs p join rung r on r.code = p.rung_code
-      left join lateral (select name from skill where code = p.skill_code limit 1) k on true
-      left join lateral (select name, topic_code from skill_set where rung_code = p.rung_code limit 1) ss on true
-      left join topic t on t.code = ss.topic_code
-      order by t.ord nulls last, r.ladder_order nulls last, r.code, p.skill_code`,
+      select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.name as topic_name,
+             t.ord, r.ladder_order
+      from child_skill_state s join child c on c.id = s.child_id
+      join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
+      join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      where c.section = ${section} and c.active and s.n_events > 0
+      order by t.ord, r.ladder_order nulls last, r.code`,
     sql<{ id: string; roll_no: string; first_name: string }[]>`
       select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
       where c.active and c.section = ${section}
@@ -60,6 +55,14 @@ export async function classGrid(section: string, actor: string): Promise<{ steps
     sql<{ child_id: string; skill_code: string; rung_code: string; state: string; n_events: number; n_correct: number }[]>`
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
+    sql<{ name: string }[]>`
+      select ss.name from skill_set ss
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
+      where r.band in (select band from child where section = ${section} and active)
+        and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
+                        where c.section = ${section} and c.active and s.rung_code = r.code and s.n_events > 0)
+      order by t.ord, r.ladder_order nulls last`,
   ]);
   return {
     steps,
@@ -67,16 +70,46 @@ export async function classGrid(section: string, actor: string): Promise<{ steps
       ...c,
       states: Object.fromEntries(states.filter((s) => s.child_id === c.id).map((s) => [stepKey(s), s])),
     })),
+    notYet: notYet.map((n) => n.name),
   };
 }
 
-/** The one sentence a child's page opens on: the steps their graph shows, counted by colour, red first. */
-export function summary(name: string, states: (string | null)[]): string {
+export type ChildSkill = {
+  code: string;
+  name: string;
+  topic: string;
+  rung_code: string;
+  skill_code: string | null;
+  state: string | null;
+  n_events: number;
+  n_correct: number;
+  repeating_misconception: string | null;
+  last_seen: string | null;
+};
+
+/** A child's taught skills: those of their grade, and any other a checked answer of theirs landed on — each with the
+ *  graph's state and score, in the shared tree's order. A skill with no answers has no state. */
+export async function childSkills(id: string): Promise<ChildSkill[]> {
+  return sql<ChildSkill[]>`
+    select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, s.state,
+           coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
+           s.repeating_misconception, s.last_seen
+    from skill_set ss
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
+    left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code and s.skill_code = any(r.skill_codes)
+    where r.band = (select band from child where id = ${id}::uuid) or s.n_events > 0
+    order by t.ord, r.ladder_order nulls last, ss.code`;
+}
+
+/** The one sentence a child's page opens on: the skills their checked answers reach, counted by colour, red first;
+ *  then how many have too few answers to say, and how many of their grade's skills no paper has reached yet. */
+export function summary(name: string, assessed: (string | null)[], notYet: number): string {
+  if (!assessed.length) return `${name} has no checked answers yet; this fills in once a paper is read and checked.`;
   const n: Record<Rag, number> = { red: 0, amber: 0, green: 0, grey: 0 };
-  for (const s of states) n[rag(s)] += 1;
-  if (n.grey === states.length) return `${name} has no checked answers yet; the graph fills in once a paper is read and checked.`;
-  const steps = (k: number) => `${k} step${k === 1 ? "" : "s"}`;
-  // the first count says "step"; the rest are read against it
+  for (const s of assessed) n[rag(s)] += 1;
+  const skills = (k: number) => `${k} skill${k === 1 ? "" : "s"}`;
+  // the first count says "skill"; the rest are read against it
   const said = (
     [
       ["red", "needs help on"],
@@ -85,10 +118,12 @@ export function summary(name: string, states: (string | null)[]): string {
     ] as const
   )
     .filter(([c]) => n[c])
-    .map(([c, words], i) => `${words} ${i ? n[c] : steps(n[c])}`);
+    .map(([c, words], i) => `${words} ${i ? n[c] : skills(n[c])}`);
   const joined = said.length > 1 ? `${said.slice(0, -1).join(", ")} and ${said.at(-1)}` : said[0];
-  const grey = n.grey ? `; ${steps(n.grey)} ${n.grey === 1 ? "has" : "have"} too few answers to say` : "";
-  return `${name} ${joined}${grey}.`;
+  const few = n.grey ? `${skills(n.grey)} ${n.grey === 1 ? "has" : "have"} too few answers to say` : "";
+  const lead = joined ? `${name} ${joined}` : `${name} has answers on ${skills(n.grey)}, too few to say yet`;
+  const rest = [joined && few, notYet ? `${skills(notYet)} of the grade not assessed yet` : ""].filter(Boolean);
+  return `${lead}${rest.length ? `; ${rest.join("; ")}` : ""}.`;
 }
 
 export type Repeated = { code: string; name: string; skill_name: string; descriptor: string; rung_code: string; skill_code: string; times: number };
