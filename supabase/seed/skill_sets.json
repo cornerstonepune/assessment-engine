@@ -1810,6 +1810,7 @@
       "formats": [
         "column_grid",
         "bare_sum",
+        "missing_number",
         "find_mistake"
       ],
       "misconception_codes": [
@@ -1871,7 +1872,7 @@
           }
         },
         "Advance": {
-          "words": "Mixed: the level's own sums and finding the mistake.",
+          "words": "Mixed: the level's own sums, a number missing among three (35 + □ + 18 = 80), and finding the mistake.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1883,6 +1884,7 @@
               "AA4",
               "AA7",
               "AA8",
+              "M06",
               "X05"
             ]
           }
