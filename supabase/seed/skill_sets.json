@@ -1868,7 +1868,7 @@
           }
         },
         "Hard": {
-          "words": "Three 3-digit numbers, four or more numbers, or a column that carries 2: 256 + 348 + 179.",
+          "words": "Three 3-digit or 4-digit numbers, four or more numbers, or a column that carries 2: 256 + 348 + 179.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1878,6 +1878,7 @@
             },
             "cases": [
               "AA4",
+              "AA9",
               "AA7",
               "AA8"
             ]
@@ -1894,6 +1895,7 @@
             },
             "cases": [
               "AA4",
+              "AA9",
               "AA7",
               "AA8",
               "M06",

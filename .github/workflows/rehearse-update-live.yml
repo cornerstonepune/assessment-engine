@@ -54,18 +54,25 @@ jobs:
           psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
       - name: the copy's rows, every one of live's
         run: |
-          pg_dump "$LIVE" --format=custom --data-only --schema=public --schema=pii --no-owner --no-privileges --file=/tmp/live.dump
+          tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"
+          psql "$COPY" -tAc "$tables" | LC_ALL=C sort > /tmp/copy.tables
+          psql "$LIVE" -tAc "$tables" | LC_ALL=C sort > /tmp/live.tables
+          extra=$(LC_ALL=C comm -13 /tmp/copy.tables /tmp/live.tables)
+          if [ -n "$extra" ]; then echo "::warning::on live but made by no migration (rule 9), not copied: $(echo $extra)"; fi
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (select 'truncate table ' || string_agg(format('%I.%I', schemaname, tablename), ', ') || ' cascade' from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
+          pg_dump "$LIVE" --format=custom --data-only --no-owner --no-privileges $(LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | sed 's/^/--table=/') --file=/tmp/live.dump
           pg_restore --data-only --disable-triggers --no-owner --no-privileges --exit-on-error --dbname="$COPY" /tmp/live.dump
           rm /tmp/live.dump
-          q=$(psql "$LIVE" -tAc "select string_agg(format('select %L as t, count(*) as n from %I.%I', schemaname || '.' || tablename, schemaname, tablename), ' union all ' order by tablename) from pg_tables where schemaname in ('public', 'pii')")
-          psql "$LIVE" -tA -F ' ' -c "$q order by t" > /tmp/live.counts
-          psql "$COPY" -tA -F ' ' -c "$q order by t" > /tmp/copy.counts
+          LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$LIVE" -tAc "select count(*) from $t")"; done > /tmp/live.counts
+          LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$COPY" -tAc "select count(*) from $t")"; done > /tmp/copy.counts
           diff /tmp/live.counts /tmp/copy.counts
           echo "copied: $(wc -l < /tmp/live.counts) tables, $(awk '{s+=$2} END {print s}' /tmp/copy.counts) rows, every count equal to live"
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true
+      - name: stories the labeller cannot name (their text; questions hold no names)
+        run: |
+          psql "$COPY" -c "select item_key, skill_set_code, stem, spec from item where fmt = 'word_1step' and not (tags ? 'structure') order by item_key limit 25"
       - name: rehearse on the copy — bin/update-live steps 4-6
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |

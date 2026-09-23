@@ -130,7 +130,7 @@ def test_only_advance_mixes_kinds_of_question(conn):
 
 def test_every_taxonomy_case_has_a_place(conn):
     where = cases.placed(conn)
-    assert len(where) == 269
+    assert len(where) == 270
     assert [c for c, _, _, state in where if state == "unplaced"] == []
     assert {s for c, s, _, state in where if state == "pattern"} == {"5.1", "5.2"}
 
@@ -225,3 +225,10 @@ def test_a_refused_rehome_names_every_kind_of_question_without_a_place_at_once()
     assert rehome.unplaced(rows) == (
         "2 word_1step SEPARATE_START (e.g. WP1-a); 1 missing_number SUB (e.g. MISSING.NUM-c)"
     )
+
+
+def test_three_four_digit_numbers_are_added_in_adding_three_or_more_numbers():
+    """The old 4-digit skill's 4428 + 1364 + 3797: 111 of them had no case on live (AA9, added for them)."""
+    for layout, fmt in (("column", "column_grid"), ("horizontal", "bare_sum")):
+        spec = {"addends": [4428, 1364, 3797], "op": "+", "layout": layout}
+        assert _place(fmt, spec) == ("ADD.MANY", "Hard")
