@@ -68,7 +68,7 @@ test("a teacher can reach every section from the menu, and the menu says where t
   const sections = [
     ["Today", "Today"],
     ["Children", "Children"],
-    ["Marking", "Capture & Mark"],
+    ["Marking", "Marking"],
     ["Papers", "Worksheets"],
     ["Question bank", "Question bank"],
     ["Curriculum", "Skill Map"],

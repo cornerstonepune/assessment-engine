@@ -55,11 +55,16 @@ export default async function CheckAnswers({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Stage 3 · Read"
+        stage="Marking · check answers"
         title="Check the answers"
         sub="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
       />
       <Body>
+        <p className="mb-4">
+          <Link href="/capture" className="chip">
+            ← Marking
+          </Link>
+        </p>
         {q.error === "engine" ? (
           <Notice tone="terracotta">The engine could not be reached, so that answer was not saved. Try it again.</Notice>
         ) : null}

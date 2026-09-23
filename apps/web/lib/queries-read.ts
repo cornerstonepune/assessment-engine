@@ -33,6 +33,13 @@ export type PaperRow = {
   // The sheet's score: answers marked right, of every answer marked right, wrong or blank.
   n_right: number;
   n_scored: number;
+  // Where each answer stands (answer_standing, the engine's one definition): settled by the engine, checked by a
+  // person, or still waiting for one.
+  n_engine: number;
+  n_person: number;
+  n_waiting: number;
+  // The worksheet this copy is of — the same printed paper across children — and its name.
+  worksheet: string;
 };
 
 const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow[]>`
@@ -56,7 +63,11 @@ const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow
            where c.sheet_instance_id = si.id and c.superseded_by is null and r.status = 'correct') as n_right,
          (select count(*)::int from item_result r join capture c on c.id = r.capture_id
            where c.sheet_instance_id = si.id and c.superseded_by is null
-             and r.status in ('correct', 'wrong', 'blank')) as n_scored
+             and r.status in ('correct', 'wrong', 'blank')) as n_scored,
+         (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'engine') as n_engine,
+         (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'person') as n_person,
+         (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'waiting') as n_waiting,
+         coalesce(t.code, t.batch_id, t.key ->> 'title', si.qr_code) as worksheet
   from sheet_instance si
   join sheet_template t on t.id = si.sheet_template_id
   join child ch on ch.id = si.child_id, lateral pii.read_child(si.child_id, ${actor}) p

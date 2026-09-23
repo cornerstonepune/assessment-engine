@@ -84,7 +84,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
   ]);
   for (const [label, heading] of [
     ["Children", "Children"],
-    ["Marking", "Capture & Mark"],
+    ["Marking", "Marking"],
     ["Papers", "Worksheets"],
     ["Curriculum", "Skill Map"],
     ["Question bank", "Question bank"],

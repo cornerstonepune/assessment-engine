@@ -25,8 +25,7 @@ export default async function ChildrenPage() {
         {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : null}
         <div className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
           {grades.map((band) => (
-            <section key={band} aria-label={gradeWords(band)}>
-              <Panel title={gradeWords(band)} aside={`${rows.filter((r) => r.band === band).length} class${rows.filter((r) => r.band === band).length === 1 ? "" : "es"}`}>
+            <Panel key={band} label={gradeWords(band)} title={gradeWords(band)} aside={`${rows.filter((r) => r.band === band).length} class${rows.filter((r) => r.band === band).length === 1 ? "" : "es"}`}>
                 <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                   {rows
                     .filter((r) => r.band === band)
@@ -59,8 +58,7 @@ export default async function ChildrenPage() {
                       );
                     })}
                 </ul>
-              </Panel>
-            </section>
+            </Panel>
           ))}
           <p className="note">
             The colours count the steps the children have answers on, from checked papers only: red is a repeating

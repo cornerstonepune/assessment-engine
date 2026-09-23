@@ -3,7 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-09-23, night — U2 Children built (start here)
+## 2026-09-23, night — U3 Marking built (start here)
+
+U3 is on branch `claude/gallant-cray-zvj5ey` (STATE, "U3 — Marking"). **Next: U4 Papers** — write
+`goals/u4-papers.yaml` and its tests first; U4 owns the Papers layout fault on a phone (`s3`). **On live, after
+merge:** `bin/update-live` applies migration `20260930090000_where_each_answer_stands.sql` (a view, and
+`resolve_result` recording who judged); then open Marking. `bin/engine read waiting` now also prints "checked by a
+person".
+
+## 2026-09-23, night — U2 Children built
 
 U2 is on branch `claude/gallant-cray-zvj5ey` (STATE, "U2 — Children"). **Next: U3 Marking** — write
 `goals/u3-marking.yaml` and its tests first. **On live, after merge:** nothing to migrate; `bin/update-live` as

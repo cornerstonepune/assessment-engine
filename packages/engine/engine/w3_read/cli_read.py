@@ -223,14 +223,16 @@ def read_waiting() -> None:
             "     then 'read cleanly; the judgement is the teacher''s'"
             "   else '(read before reasons were recorded)' end as why,"
             " count(*) as n"
-            " from item_result r join capture c on c.id = r.capture_id"
-            " where c.superseded_by is null and r.status in ('unreadable','needs_teacher')"
+            " from answer_standing s join item_result r on r.id = s.item_result_id"
+            " where s.standing = 'waiting'"
             " group by 1 order by 2 desc"
         ).fetchall()
+        # where each answer stands: the one definition the Marking screen counts from too (answer_standing)
         totals = conn.execute(
             "select count(*) as all_answers,"
-            " count(*) filter (where r.status in ('correct','wrong','blank')) as settled"
-            " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
+            " count(*) filter (where standing = 'engine') as engine,"
+            " count(*) filter (where standing = 'person') as person"
+            " from answer_standing"
         ).fetchone()
 
     waiting = sum(r["n"] for r in rows)
@@ -247,9 +249,9 @@ def read_waiting() -> None:
         counted[key] = counted.get(key, 0) + r["n"]
     for why, n in sorted(counted.items(), key=lambda kv: -kv[1]):
         typer.echo(f"    {n:>4}  ({n / waiting:>3.0%})  {why}")
-    typer.echo(
-        f"\n  settled by the engine  {totals['settled']}  ({totals['settled'] / totals['all_answers']:.0%})"
-    )
+    every = totals["all_answers"] or 1
+    typer.echo(f"\n  settled by the engine  {totals['engine']}  ({totals['engine'] / every:.0%})")
+    typer.echo(f"  checked by a person   {totals['person']}  ({totals['person'] / every:.0%})")
 
 
 @read_app.command("coverage")

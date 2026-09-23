@@ -63,6 +63,7 @@ test("confirming the reader's guess settles the answer in the person's name, and
 test("typing what the child wrote marks it, and a blank is one press", async ({ page }) => {
   const rows = await sql<{ id: string }[]>`
     select r.id ${LIVE} and r.status = 'unreadable' and r.state = 'candidate' order by r.id desc limit 2`;
+  test.skip(rows.length < 2, "fewer than two unclear readings wait on the copy");
   const [typed, empty] = rows;
   const before = await Promise.all(rows.map((r) => keep(r.id)));
   try {
@@ -242,7 +243,7 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
   await page.goto("/capture");
   await page.getByRole("table").filter({ has: page.getByRole("link") }).first().getByRole("link").first().click();
   const first = new URL(page.url()).searchParams.get("child");
-  await page.getByRole("link", { name: /^Next student to check: / }).click();
+  await page.getByRole("link", { name: /^Next child to check: / }).click();
   await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
   await expect(page.getByRole("table").first().locator("tbody tr").first()).toBeVisible();
 });

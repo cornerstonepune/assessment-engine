@@ -9,8 +9,7 @@ import { fmtDate } from "./graph";
 /** `opens`: the steps whose answers the graph can open (a skill and rung with answers from a read paper). */
 export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set<string> }) {
   return (
-    <section aria-label="Repeated mistakes">
-      <Panel title="Repeated mistakes" aside="the same mistake on one step, twice or more">
+    <Panel label="Repeated mistakes" title="Repeated mistakes" aside="the same mistake on one step, twice or more">
         {rows.length === 0 ? (
           <p className="note">No mistake has come back twice on the checked papers.</p>
         ) : (
@@ -30,8 +29,7 @@ export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set
             ))}
           </ul>
         )}
-      </Panel>
-    </section>
+    </Panel>
   );
 }
 
@@ -47,8 +45,7 @@ export function TheirPapers({
   staff: Record<string, string>;
 }) {
   return (
-    <section aria-label="Their papers">
-      <Panel title="Their papers" aside={`${sheets.length}`}>
+    <Panel label="Their papers" title="Their papers" aside={`${sheets.length}`}>
         {sheets.length === 0 ? (
           <p className="note">No paper has been made for this child or read from them yet.</p>
         ) : (
@@ -81,7 +78,6 @@ export function TheirPapers({
         )}
         {failed > 0 ? <p className="note mt-3">{failed} read{failed === 1 ? "" : "s"} failed and count for nothing.</p> : null}
         <p className="note mt-3">The scans stay on the school&rsquo;s drive; what the child wrote is shown under each step.</p>
-      </Panel>
-    </section>
+    </Panel>
   );
 }

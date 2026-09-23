@@ -245,3 +245,12 @@ test("a child's page lists every paper made for them or read from them, with its
     await expect(it).toContainText(r.approved_by ? `approved by ${TEST_STAFF.name}` : "waiting for a teacher to approve");
   }
 });
+
+test("the class and a child's page fit a phone, with the class's own answers on them", async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 860 });
+  for (const url of ["/growth", `/growth/class/${SECTION}`, `/growth/${ids.Asha}`]) {
+    await page.goto(url, { waitUntil: "networkidle" });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `${url} must not scroll sideways`).toBeLessThanOrEqual(1);
+  }
+});
