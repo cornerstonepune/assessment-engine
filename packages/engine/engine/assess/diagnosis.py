@@ -62,18 +62,21 @@ def _why(code):
     return Response("why", "text", None, rubric=f"Names the mistake: {name[1] if name else code}")
 
 
-def _spread(rng, draw, what, tries=80):
+def _spread(rng, draw, what, tries=80, enough=10):
     """One of `tries` drawn candidates, its column chosen evenly among the columns the candidates' first wrong
     digit falls in. Asked "which column is the first wrong digit in?", a child who ticks the same box every time
     must not score: drawn as they come, a carry of 2 was always in the tens and a smaller-from-larger slip in the
     ones 83 times in 100 (`engine audit`, 2026-09-23). A mistake that can only ever show in one column (a
     dropped final carry) still does; a level mixes it with others."""
-    by = {}
+    by, kept = {}, 0
     for _ in range(tries):
         got = draw()
         if got is not None:
             col, cand = got
             by.setdefault(col, []).append(cand)
+            kept += 1
+            if kept == enough:  # ten candidates see every column a mistake commonly shows, and stay quick
+                break
     if not by:
         raise RuntimeError(f"no question shows {what}")
     return rng.choice(by[rng.choice(sorted(by))])
