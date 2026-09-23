@@ -28,6 +28,8 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run ruff format --check engine tests
       - run: uv run ruff check engine tests
+      # A paper is printed through Chromium (assess/render.py); the test that scans printed papers needs it.
+      - run: uv run playwright install --with-deps chromium
       - run: uv run pytest -q
 
   web:
