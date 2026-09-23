@@ -121,8 +121,9 @@ export type PrintedPaper = {
   rendered: boolean;
   pages: number;
   week: string;
-  difficulty: Difficulty;
+  difficulty: Difficulty | null; // none on a paper chosen from a child's own work: each area has its own
   skill_set_name: string;
+  source: string; // 'library', 'generated', or 'focus' — chosen from one child's own work (step 11)
   n_items: number;
   roll_no: string | null;
   section: string | null;
@@ -142,7 +143,10 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
   const rows = await sql<PrintedPaper[]>`
     select si.qr_code, si.print_status, si.approved_by, si.pdf_path is not null as rendered,
            coalesce((si.key ->> 'pages')::int, (st.key ->> 'pages')::int, 1) as pages,
-           coalesce(si.week, st.week) as week, st.difficulty, s.name as skill_set_name,
+           coalesce(si.week, st.week) as week, st.difficulty, st.source,
+           coalesce(s.name, (select string_agg(distinct s2.name, ' · ') from item i2
+              join skill_set s2 on s2.tenant_id = i2.tenant_id and s2.code = i2.skill_set_code
+              where i2.id = any(st.item_ids))) as skill_set_name,
            coalesce(array_length(st.item_ids, 1), 0) as n_items, c.roll_no, coalesce(si.section, c.section) as section,
            coalesce(p.kind, si.kind) as kind, p.rule_fired, p.override_reason, st.code as worksheet,
            (select count(*)::int from sheet_template w where w.source = 'library' and w.retired_at is null
@@ -152,10 +156,10 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
            (select t.value::int from threshold t where t.key = 'exposure.days') as window_days
     from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
-    join skill_set s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code
+    left join skill_set s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code
     left join child c on c.id = coalesce(si.child_id, st.child_id)
     left join prescription p on p.sheet_instance_id = si.id
-    where si.qr_code = ${qr} and st.source in ('generated', 'library')`;
+    where si.qr_code = ${qr} and st.source in ('generated', 'library', 'focus')`;
   return rows[0];
 }
 

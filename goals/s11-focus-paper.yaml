@@ -1,0 +1,46 @@
+name: s11-focus-paper
+goal: >
+  A child's next paper is chosen from the child's own skill graph. The areas the child lags in —
+  a repeated mistake, fewer than half right, or not yet four in five — are read from the graph that
+  the checked papers built, weakest first, at most three. Each area is one skill set of the bank, at
+  a level set by how often the child was right. The paper is twelve questions drawn at random from
+  the bank's active questions for those areas, none the child has seen, the questions that can show
+  the child's own repeated mistake first. It prints with its QR like any other paper and is read and
+  marked like any other. The child's Growth page shows, in plain words, which areas were chosen and
+  why, the questions that will be on the paper, and a button that makes it.
+
+# Written 2026-09-23, before the work. Nimish: "based on the skill set evaluation, the system should be
+# able to create an assessment that's very specific to the child", then: "After 34 evaluations, the
+# system is able to see that there are certain areas where the child lags. Based on some simple, smart
+# logic, the system is able to go ahead and choose random questions from the skill bank that it already
+# has. That's that." — "ensure that these kinds of things are available even on the UI for better
+# understanding. Again, do not complicate this thing. These are like modules."
+says:
+  - words: "the system is able to see that there are certain areas where the child lags"
+    proved_by: packages/engine/tests/test_focus.py::test_a_skill_the_child_lags_in_becomes_an_area_to_work_on
+  - words: "Based on some simple, smart logic"
+    proved_by: packages/engine/tests/test_focus.py::test_the_weakest_areas_come_first_at_a_level_set_by_how_often_the_child_was_right
+  - words: "choose random questions from the skill bank that it already has"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_random_bank_questions_from_the_weak_areas_at_their_level_never_seen_before
+  - words: "an assessment that's very specific to the child"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_questions_that_can_show_the_childs_own_repeated_mistake_come_first
+  - words: "just say addition, subtraction"
+    proved_by: packages/engine/tests/test_focus.py::test_a_weak_subtraction_on_an_addition_rung_is_worked_on_as_subtraction
+  - words: "ensure that these kinds of things are available even on the UI for better understanding"
+    proved_by: apps/web/tests/s11-focus-paper.spec.ts::a child's page says which areas the next paper works on and why, and makes it
+manual:
+  - "On live, once merged: `bin/engine load` (the new config row), then open a checked child's Growth page."
+scenarios: []
+criteria:
+  - name: the areas and the paper, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus.py tests/test_focus_paper.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
+  - name: the child's page shows the plan and makes the paper, on the copy
+    run: cd apps/web && npx playwright test tests/s11-focus-paper.spec.ts
+    expect: "passed"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

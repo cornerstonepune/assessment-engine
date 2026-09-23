@@ -57,14 +57,14 @@
     },
     {
       "code": "N5", "workflow": "W2", "name": "Each child's next paper",
-      "does": "Chooses each child's skill set and level from their graph — up at 80% right, down under 50% aimed at the named mistake — with the reason in one line.",
+      "does": "Chooses each child's next paper from their own graph: the areas they lag in, weakest first and at most three, each a skill set at a level set by how often they were right, then twelve random bank questions they have not seen, the ones that can show their repeated mistake first. The class's weekly paper still takes its skill set from the teacher.",
       "who": "code",
       "built": "live",
       "takes": ["child_skill_state", "evidence_event"],
-      "gives": ["prescription"],
-      "files": ["engine/w2_print/prescribe.py"],
-      "commands": ["engine week prescribe"],
-      "screens": ["/worksheets"],
+      "gives": ["prescription", "sheet_instance"],
+      "files": ["engine/w2_print/prescribe.py", "engine/w2_print/focus_paper.py"],
+      "commands": ["engine week prescribe", "engine week focus"],
+      "screens": ["/worksheets", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject: the rule reads states and levels, not maths."}
     },
     {
@@ -162,6 +162,7 @@
   "handovers": [
     {"from": "engine/w2_print/library.py", "to": "engine/w1_bank/inventory.py", "why": "A worksheet is dealt from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/inventory.py", "why": "A child's paper is built from the bank's questions, each read back as the question it is."},
+    {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/inventory.py", "why": "A paper chosen from a child's graph is drawn from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."}
   ],
   "ceilings": {

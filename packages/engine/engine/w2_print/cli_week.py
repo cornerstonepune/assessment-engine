@@ -6,7 +6,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db, roster
-from engine.w2_print import assemble, prescribe
+from engine.w2_print import assemble, focus_paper, prescribe
 
 week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
 
@@ -80,3 +80,28 @@ def week_approve(
         f"  {out['sheets']} sheets approved by {out['approved_by']}"
         f" — {out['named']} named, {out['spares']} spare"
     )
+
+
+@week_app.command("focus")
+def week_focus(
+    section: str,
+    first_name: str,
+    week: str,
+    make: bool = typer.Option(False, "--make", help="Print the paper; without it only the plan is shown"),
+    by: str = typer.Option("", "--by", help="Who is making it (names are read through the logging accessor)"),
+) -> None:
+    """One child's next paper, chosen from their own graph: the areas they lag in and why, the questions."""
+    with db.connect() as conn:
+        child = str(roster.find(conn, section, first_name, by or "cli"))
+        if make:
+            p = focus_paper.make(conn, child, week, by or "cli")
+            conn.commit()
+        else:
+            p = focus_paper.plan(conn, child, week)
+    if not p["areas"]:
+        typer.echo("  nothing to work on: no area this child lags in yet")
+        return
+    for a in p["areas"]:
+        typer.echo(f"  {a['name']} — {a['level']} · {len(a['questions'])} questions · {a['why']}")
+    if make:
+        typer.echo(f"  printed {p['questions']} questions · QR {p['qr']} · {p['pdf_path']}")

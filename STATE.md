@@ -3201,3 +3201,31 @@ live**: this session had no live credentials. Children's names and papers were n
   `test_no_code_refers_to_something_that_does_not_exist`). Document lines no case counts: §10.2 addition and
   subtraction words, solving without keywords, writing the number sentence, same story different question;
   §11's "carry written but not added" and "forgotten exchange" folded into X03 and X07.
+
+## The next paper chosen from the child's own graph — goal s11-focus-paper (2026-09-23)
+
+Nimish: *"After 34 evaluations, the system is able to see that there are certain areas where the child lags.
+Based on some simple, smart logic, the system is able to go ahead and choose random questions from the skill bank
+that it already has."* Built as three modules, on the copy (no live access from this session):
+
+- **`assess/focus.py`** (pure): the graph's lagging rows (`patterned_error`, `emerging`, `practising`), weakest
+  first, at most three (`config.focus.most`); each worked on in the bank's skill set for that skill — on its rung,
+  else the nearest within `config.focus.reach` rungs, else a set on the rung that uses the skill — at Easy below
+  `next_sheet.demote_below`, else Medium. 3-digit subtraction answers on R9 go to SUB.3D.ZERO, not ADD.3D.REG: the
+  next-paper fault queued in HANDOFF, fixed for this paper. `tests/test_focus.py` 5 passed.
+- **`w2_print/focus_paper.py`**: `plan` draws 12 (`assemble.items_per_sheet`) active questions, split over the
+  areas, at random seeded by child and week (the page and the print are one plan), none in `item_exposure`, the
+  area's own skill first and the questions that can show the child's repeated mistake before the rest; `make`
+  prints it as a `sheet_template` (source `focus`, migration `20260929090000`), the child's `sheet_instance` and QR,
+  the questions recorded as seen. `engine week focus <section> <first name> <week> [--make]`; API
+  `GET|POST /child/{id}/focus`. `tests/test_focus_paper.py` 3 passed.
+- **The Growth page** (`/growth/[id]`): the "Next papers" panel, which showed the rung-grouped `next_difficulty`,
+  is replaced by "Next paper, from their own work" — each area, its level, why in one sentence, the questions, and
+  "Make this paper"; the paper opens on `/worksheets/[qr]`. `apps/web/tests/s11-focus-paper.spec.ts` 1 passed on
+  the copy (production build, signed in).
+- Checks: `bin/check` 12 passed; `engine promises` "every promise has its command"; engine suite 940 passed with
+  the same 7 failures as before (2 the orphan codes, 5 needing the children's papers or `pdfunite`); web `tsc` and
+  `eslint app lib components tests` clean.
+- **Not changed:** the class's weekly paper (`engine week prescribe`, `/worksheets`) still takes one skill set from
+  the teacher and `next_difficulty` still groups by rung; steps 9 (combined questions) and 10 (mixed papers) are
+  not built.

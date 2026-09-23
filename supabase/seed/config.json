@@ -97,6 +97,14 @@
       }
     },
     {
+      "key": "focus",
+      "description": "A child's next paper chosen from their graph (goal s11-focus-paper): at most `most` areas the child lags in, and an area is worked on in a skill set at most `reach` rungs from where the child showed it. Where Easy ends is the threshold next_sheet.demote_below.",
+      "value": {
+        "most": 3,
+        "reach": 2
+      }
+    },
+    {
       "key": "skills.by_operation",
       "value": {
         "+": "NUM.OPS.01",

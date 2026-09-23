@@ -114,7 +114,7 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
     [
       "Tests",
       <>
-        {p.skill_set_name} · <Pill tone="monsoon">{p.difficulty}</Pill>
+        {p.skill_set_name} · <Pill tone="monsoon">{p.difficulty ?? "each at the child's own level"}</Pill>
         {p.rule_fired ? (
           <span className="note block">
             {RULE_WORDS[p.rule_fired] ?? p.rule_fired}
@@ -125,7 +125,9 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
     ],
     [
       "Questions",
-      p.worksheet ? (
+      p.source === "focus" ? (
+        `${p.n_items} chosen from this child's own checked papers — the areas they lag in, at their level, none they had been given before`
+      ) : p.worksheet ? (
         <>
           Worksheet <Link href={`/worksheets/${p.worksheet}`}>{p.worksheet}</Link> from the library, one of {p.worksheets} at this
           level —{" "}
