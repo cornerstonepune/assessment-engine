@@ -304,8 +304,10 @@ test("removing a question retires it in the database and it stops being offered"
 // ---------------------------------------------------------------- worksheets
 
 test("a paper opens from its code: the page as printed, how it was drawn, and its whole key", async ({ page }) => {
-  const [paper] = await sql<{ qr: string; section: string; week: string; kind: string; n: number; pool: number }[]>`
-    select si.qr_code as qr, c.section, p.week, p.kind, array_length(st.item_ids, 1) as n,
+  const [paper] = await sql<
+    { qr: string; section: string; week: string; kind: string; n: number; pool: number; source: string; code: string }[]
+  >`
+    select si.qr_code as qr, c.section, p.week, p.kind, array_length(st.item_ids, 1) as n, st.source, st.code,
            (select count(*)::int from item i where i.status = 'active' and i.source = 'generated'
               and i.skill_set_code = st.skill_set_code and i.difficulty = st.difficulty) as pool
     from prescription p
@@ -320,7 +322,14 @@ test("a paper opens from its code: the page as printed, how it was drawn, and it
   await page.getByRole("link", { name: paper.qr, exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Paper ${paper.qr}`);
   await expect(page.getByRole("table", { name: "Answer key" }).locator("tbody tr")).toHaveCount(paper.n);
-  await expect(page.getByText(`${paper.n} picked at random from ${paper.pool.toLocaleString("en-IN")}`)).toBeVisible();
+  // a library worksheet says which one it is; a paper generated before the library, the pool it was drawn from
+  await expect(
+    page.getByText(
+      paper.source === "library"
+        ? `Worksheet ${paper.code} from the library, one of`
+        : `${paper.n} picked at random from ${paper.pool.toLocaleString("en-IN")}`,
+    ),
+  ).toBeVisible();
 
   // The page itself, QR and all, comes from the PDF the engine rendered — not a second drawing.
   const printed = page.getByRole("img", { name: `Page 1 of paper ${paper.qr}, as printed` });
@@ -357,7 +366,8 @@ test("every child's paper has its own code, and no two children share questions"
   const week = page.getByRole("table", { name: "Each child's paper this week" });
   await expect(week.locator("tbody tr").first()).toBeVisible();
   const codes = await week.locator("tbody tr td:nth-child(4)").allInnerTexts();
-  const real = codes.filter((c) => /^CS[0-9A-F]{6}$/.test(c.trim()));
+  // a cell reads "CS1A2B3C · R22-H03": the paper's own code, then the library worksheet it is
+  const real = codes.map((c) => c.match(/\bCS[0-9A-F]{6}\b/)?.[0]).filter((c): c is string => !!c);
   expect(real.length).toBeGreaterThan(0);
   expect(new Set(real).size).toBe(real.length);
 
@@ -412,16 +422,16 @@ test("approving the pack marks the papers printed", async ({ page }) => {
   // Everything the approval writes is put back, the approver included: a paper that is not printed
   // must not name someone as having approved it.
   const codes = await sql<{ id: string; print_status: string; approved_by: string | null; approved_at: Date | null }[]>`
-    select si.id, si.print_status, si.approved_by, si.approved_at from sheet_instance si
-    join sheet_template st on st.id = si.sheet_template_id where st.week = 'T2W1'`;
+    select id, print_status, approved_by, approved_at from sheet_instance
+    where section = 'G3' and week = 'T2W1' and kind = 'practice'`;
   try {
     await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
     await page.getByRole("button", { name: "Approve and print" }).click();
     await expect(page.getByRole("status")).toContainText("Approved");
 
     const [{ n }] = await sql<{ n: number }[]>`
-      select count(*)::int as n from sheet_instance si join sheet_template st on st.id = si.sheet_template_id
-      where st.week = 'T2W1' and si.print_status = 'printed'`;
+      select count(*)::int as n from sheet_instance
+      where section = 'G3' and week = 'T2W1' and kind = 'practice' and print_status = 'printed'`;
     expect(n).toBeGreaterThan(0);
     await expect(page.getByRole("table", { name: "Each child's paper this week" })).toContainText("printed");
   } finally {
@@ -436,9 +446,10 @@ test("spare copies are listed and carry no child's name", async ({ page }) => {
   await page.goto("/worksheets?section=G3&week=T2W1&kind=practice");
   const panel = page.locator("section").filter({ hasText: "Spare copies" });
   await expect(panel).toContainText(/CS[0-9A-F]{6}/);
+  // every copy listed as a spare is one made for no child
+  const shown = (await panel.innerText()).match(/\bCS[0-9A-F]{6}\b/g) ?? [];
   const [{ named }] = await sql<{ named: number }[]>`
-    select count(*)::int as named from sheet_instance si join sheet_template st on st.id = si.sheet_template_id
-    where st.week = 'T2W1' and st.child_id is null and si.child_id is not null`;
+    select count(*)::int as named from sheet_instance where qr_code = any(${shown}) and child_id is not null`;
   expect(named).toBe(0);
 });
 

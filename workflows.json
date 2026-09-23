@@ -64,7 +64,7 @@
       "gives": ["prescription", "sheet_instance"],
       "files": ["engine/w2_print/prescribe.py", "engine/w2_print/focus_paper.py"],
       "commands": ["engine week prescribe", "engine week focus"],
-      "screens": ["/worksheets", "/growth/[id]"],
+      "screens": ["/make", "/make/[section]", "/make/custom", "/worksheets", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject: the rule reads states and levels, not maths."}
     },
     {

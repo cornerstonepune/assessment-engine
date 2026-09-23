@@ -32,11 +32,11 @@ export default async function Today() {
             action="Sign them off"
           />
           <Card
-            title="Next papers to approve"
+            title="Home papers to approve"
             n={w.nextPapers}
-            words="children whose checked work shows a skill to work on, with no next paper approved this week"
-            href="/growth"
-            action="See the children"
+            words="children whose checked work gives the engine a home paper to propose, not yet approved this week"
+            href="/make"
+            action="Approve them"
           />
           <Card title="Class papers to approve" n={packs} words="papers the engine proposed for a class, waiting for you before they print">
             <ul className="grid gap-1 text-[13.5px]">

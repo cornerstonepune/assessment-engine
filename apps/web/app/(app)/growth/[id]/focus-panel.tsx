@@ -67,7 +67,10 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
             <button className="btn" type="submit">Approve this paper</button>
-            <p className="note mt-2">Approving prints it in your name as {name}&rsquo;s paper for this week.</p>
+            <p className="note mt-2">
+              Approving prints it in your name as {name}&rsquo;s paper for this week.{" "}
+              <Link href={`/make/custom?child=${childId}`}>Choose a different paper</Link>
+            </p>
           </form>
         </>
       )}

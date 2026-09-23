@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { EngineDown, engineSend } from "@/lib/engine";
+import { makePaper } from "@/lib/next-paper";
 
 const UUID = /^[0-9a-f-]{36}$/;
 
@@ -39,11 +39,8 @@ export async function approveNextPaper(formData: FormData): Promise<void> {
   const id = String(formData.get("child_id") ?? "");
   const week = String(formData.get("week") ?? "");
   if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week)) redirect("/growth");
-  const res = await engineSend(`/child/${id}/focus`, { week, by: me.email });
+  const qr = await makePaper(id, week, me.email);
   revalidatePath(`/growth/${id}`);
   // already approved this week (a second click, or a colleague first): the page shows who approved it
-  if (res.status === 409) redirect(`/growth/${id}`);
-  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was changed.`);
-  const made = (await res.json()) as { qr: string };
-  redirect(`/growth/${id}?paper=${made.qr}`);
+  redirect(qr ? `/growth/${id}?paper=${qr}` : `/growth/${id}`);
 }

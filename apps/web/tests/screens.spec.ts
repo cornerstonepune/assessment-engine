@@ -37,7 +37,7 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Today", "Children", "Marking", "Papers", "Curriculum", "Question bank"]) {
+  for (const label of ["Today", "Children", "Marking", "Make papers", "Papers", "Curriculum", "Question bank"]) {
     await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });

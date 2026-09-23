@@ -17,12 +17,19 @@ says:
     proved_by: packages/engine/tests/test_focus_paper.py::test_a_teacher_asks_for_any_skills_at_any_levels_and_how_many_and_the_engine_makes_it
   - words: "let's think about how this one engine can be where we can generate the assessments"
     proved_by: packages/engine/tests/api/test_paper_routes.py::test_a_teacher_previews_a_paper_then_it_prints_in_their_name
+  - words: "There will be one more tab where the teacher has the capacity to now custom-generate assessments based on the areas where the child is lacking"
+    proved_by: apps/web/tests/m2-make-papers.spec.ts::a teacher chooses skills, a level each and how many, sees the questions, and approves the paper
+  - words: "for the children for whom everything has been done, we should have the whole skill map, and we should have the capability to generate the right home assessments for them"
+    proved_by: apps/web/tests/m2-make-papers.spec.ts::each class's home papers are proposed from each child's own map, one skill each, and approved in one click
 manual:
   - "On live, once merged: `bin/update-live` then `bin/engine load` (the home rule is a config row)."
 scenarios: []
 criteria:
   - name: the home rule, stretch and custom papers, on the copy
     run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus.py tests/test_focus_paper.py tests/api/test_paper_routes.py
+    expect: "passed"
+  - name: Make papers, on the copy
+    run: cd apps/web && npx playwright test tests/m2-make-papers.spec.ts
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check
