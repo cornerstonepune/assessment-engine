@@ -71,7 +71,7 @@ grep -E '^(DATABASE_URL|ENGINE_KEY|TENANT_SLUG)=' "$REPO/.env" > "$WORK/env"
 "${SSH[@]}" 'umask 077 && cat > ~/assessment-engine/.env' < "$WORK/env"
 "$REPO/packages/engine/.venv/bin/python" - > "$WORK/scans" <<'PY'
 import os
-from engine import db
+from engine.core import db
 with db.connect() as conn:
     for r in conn.execute("select distinct path from capture where superseded_by is null"):
         print(os.path.relpath(os.path.expanduser(r["path"]), os.path.expanduser("~/cornerstone/assessments")))
@@ -83,7 +83,7 @@ COPYFILE_DISABLE=1 tar --no-xattrs -C ~/cornerstone/assessments -cf - -T "$WORK/
 # and the printed packs the question-bank screens show, by the paths their rows record
 "$REPO/packages/engine/.venv/bin/python" - "$REPO/data/packs" > "$WORK/packs" <<'PACKS'
 import os, sys
-from engine import db
+from engine.core import db
 with db.connect() as conn:
     for r in conn.execute("select pdf_path from sheet_instance where pdf_path is not null"):
         if r["pdf_path"].startswith(sys.argv[1]) and os.path.exists(r["pdf_path"]):
