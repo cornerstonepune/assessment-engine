@@ -116,8 +116,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
-            <section id="ladder" aria-label="Knowledge graph" className="scroll-mt-6">
-              <Panel title="Knowledge graph" aside="each skill's steps, from checked answers only">
+            <Panel id="ladder" label="Knowledge graph" title="Knowledge graph" aside="each skill's steps, from checked answers only">
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">
                   <Legend state="secure">got it</Legend>
                   <Legend state="stretch_ready">ready to move up</Legend>
@@ -136,8 +135,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
                   three checked answers. Red: a mistake matched twice, or under half right. Amber: practising, not yet
                   four in five. Green: four in five across two papers; six answers at that rate is ready to move up.
                 </p>
-              </Panel>
-            </section>
+            </Panel>
 
             <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 

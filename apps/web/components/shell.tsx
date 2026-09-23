@@ -71,9 +71,12 @@ export function Body({ children }: { children: ReactNode }) {
   return <div className="flex-1 px-5 pt-[22px] pb-8 md:px-9">{children}</div>;
 }
 
-export function Panel({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
+// `label` names the panel as a region for a screen reader (and a test); `id` makes it a link target. The panel is
+// the grid item itself — never wrap it to name it: a wrapper loses `.panel`'s min-width and a wide table then
+// pushes a phone's page sideways.
+export function Panel({ title, aside, label, id, children }: { title: string; aside?: ReactNode; label?: string; id?: string; children: ReactNode }) {
   return (
-    <section className="panel">
+    <section className={`panel${id ? " scroll-mt-6" : ""}`} aria-label={label} id={id}>
       <div className="panel-head">
         <h2 className="text-[16px]">{title}</h2>
         {aside ? <div className="fact text-[11px] text-basalt/55">{aside}</div> : null}

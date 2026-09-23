@@ -3294,3 +3294,28 @@ session (Postgres 16, 27 migrations, `engine load`, `engine bank refill` → 16,
   a phone" — real layout faults on Curriculum and Papers, owned by U5 and U4. Engine: `test_goal` audit, `test_loaders`
   (23 mistake codes only on live, drafts unratified), `test_profiles`, `test_read_again` (need scans), `test_week`
   multiplication pack (`pdfunite` not installed in the container).
+
+## U3 — Marking (2026-09-23)
+
+Goal `goals/u3-marking.yaml`, written with its tests before the code. On the same cloud copy as U2.
+- **Where each answer stands is now the engine's one definition** — migration
+  `20260930090000_where_each_answer_stands.sql`: the view `answer_standing` puts every answer on a live read in
+  exactly one place — *waiting* (status unreadable / needs_teacher), *person* (a `read_correction` exists: a person
+  typed, confirmed or judged it), *engine* (otherwise) — and says whether it is signed off. `engine read waiting` and
+  the Marking screen both count from it (`tests/test_answer_standing.py` 3 passed).
+- **Fixed at the cause:** `resolve_result` (the Right / Wrong / Blank on a paper's page and a child's page) left no
+  record of who judged, so a person's judgement looked like the engine's mark; it now writes the same
+  `read_correction` row the queue's judgement always wrote. **Judgements made through it before this migration left
+  no row and count as the engine's** — nothing records who made them, so nothing guesses.
+- **`/capture` is Marking:** the queue of answers to check first, with its count and one click; papers in, answers
+  settled by the engine, checked by a person, still waiting, papers to sign off; the same read **by class**, **by
+  child** (the default, as before) and **by worksheet** (every child's copy of one paper); how the reader is doing.
+  Check answers and a paper's page sit inside it (menu, "← Marking").
+- **Found and fixed on the way:** naming a panel by wrapping it in a `<section>` lost `.panel`'s `min-width: 0`, and a
+  wide table then pushed a phone's page sideways (U2's Children pages had the same wrapper). `Panel` now takes
+  `label` and `id` itself; U2 and U3 each gained a test that their pages fit a phone *with their own data on them*.
+  `screens` "phone /capture/<paper>" matched a missing scan by the console text, which never holds the address; it
+  now reads the message's location. The s4 typing test crashed on an empty copy; it now skips as its siblings do.
+- `apps/web/tests/u3-marking.spec.ts` 5 passed; s4 (all but the one needing a real scan) passed; `bin/check` green;
+  `tsc`, `eslint` clean. Engine: 950 passed; the same five environment-only failures as U2 (audit on a fresh copy,
+  mistake codes only on live, scans, `pdfunite`). Web: the same five failing on unchanged main as U2 (STATE, U2).

@@ -29,8 +29,7 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
   const week = isoWeek();
   const p = await plan(childId, week);
   return (
-    <section aria-label={TITLE}>
-    <Panel title={TITLE} aside={typeof p === "string" || p.approved ? undefined : `${p.n} questions`}>
+    <Panel title={TITLE} label={TITLE} aside={typeof p === "string" || p.approved ? undefined : `${p.n} questions`}>
       {typeof p === "string" ? (
         <p className="note">{p}</p>
       ) : p.approved ? (
@@ -78,6 +77,5 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
         that can show the repeating mistake first.
       </p>
     </Panel>
-    </section>
   );
 }

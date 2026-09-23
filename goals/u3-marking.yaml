@@ -1,0 +1,38 @@
+name: u3-marking
+goal: >
+  Marking is one area: Capture & Mark and Check answers together. It shows papers in and, for every answer on them,
+  where it stands — settled by the engine, checked by a person, or still waiting — by class, by child and by
+  worksheet, each count from the engine's one definition (answer_standing); the one-click queue of answers to check
+  sits inside it with its count; each paper shows its score once nothing on it waits; and it says how the reader is
+  doing.
+
+# Written 2026-09-23, before the work (BUILD-ORDER, "the website as the teacher's week", U3). Nimish's words: the
+# queue (2026-09-21), the decision that every sheet is covered and scored (BUILD-ORDER, 2026-09-21, night), and
+# navigation and approval (2026-09-23).
+says:
+  - words: "this UI is important as navigation and ease of approval is important"
+    proved_by: apps/web/tests/u3-marking.spec.ts::marking is one area, and says how many papers are in and where every answer stands
+  - words: "each answer either settled by the engine or validated by a person"
+    proved_by: apps/web/tests/u3-marking.spec.ts::by class, by child and by worksheet, each count is where the engine says each answer stands
+  - words: "each answer either settled by the engine or validated by a person"
+    proved_by: packages/engine/tests/test_answer_standing.py::test_each_answer_is_waiting_settled_by_the_engine_or_checked_by_a_person
+  - words: "I'm not even able to see what all validations you need from our side"
+    proved_by: apps/web/tests/u3-marking.spec.ts::the queue of answers to check sits inside marking with its count, one click away
+  - words: "each sheet gets its score"
+    proved_by: apps/web/tests/u3-marking.spec.ts::a paper shows its score once nothing on it waits
+manual:
+  - "On live, once merged: open Marking; switch between by class, by child and by worksheet; open Check answers."
+scenarios: []
+criteria:
+  - name: Marking, on the copy
+    run: cd apps/web && npx playwright test tests/u3-marking.spec.ts
+    expect: "passed"
+  - name: the queue and Today still count what the engine counts
+    run: cd apps/web && npx playwright test tests/u1-today.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: a person's judgement is recorded as theirs, and each answer stands in one place
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_answer_standing.py -q
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

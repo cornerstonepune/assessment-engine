@@ -74,7 +74,7 @@ test("every menu page opens within three seconds of its click", async ({ page })
   for (const [label, heading] of [
     ["Today", "Today"],
     ["Children", "Children"],
-    ["Marking", "Capture & Mark"],
+    ["Marking", "Marking"],
     ["Papers", "Worksheets"],
     ["Question bank", "Question bank"],
     ["Curriculum", "Skill Map"],

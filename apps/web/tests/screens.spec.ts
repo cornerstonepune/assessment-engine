@@ -7,7 +7,7 @@ const ROUTES: [string, string][] = [
   ["/", "Skill Map"],
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
-  ["/capture", "Capture & Mark"],
+  ["/capture", "Marking"],
   ["/growth", "Children"],
   ["/home", "Home Assignments"],
 ];
@@ -89,7 +89,14 @@ for (const { name, width, height } of SIZES) {
     const errors: string[] = [];
     // The page images come from the engine, which is not running in CI. A missing image is a
     // broken <img>, not a broken screen, so those are the one thing not counted here.
-    page.on("console", (m) => m.type() === "error" && !m.text().includes("/api/scan/") && errors.push(m.text()));
+    // A failed image names its address in the message's location, not its text.
+    page.on(
+      "console",
+      (m) =>
+        m.type() === "error" &&
+        ![m.text(), m.location().url].some((t) => t.includes("/api/scan/")) &&
+        errors.push(`${m.text()} ${m.location().url}`),
+    );
     await page.setViewportSize({ width, height });
     await page.goto("/capture", { waitUntil: "networkidle" });
     // Capture & Mark lists students; a student lists their papers (Nimish, 2026-09-22).
