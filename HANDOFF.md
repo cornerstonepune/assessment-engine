@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, night — the Grade 2 scan is library worksheets; the live update is rehearsed in GitHub
+
+The Grade 2 scan (Drive 1eBcFq8…, read as text through Drive): 11 copies of library worksheets — R8-H02 ×4,
+R8-H01 ×4 (3 pages each), R2-E12 ×2, R5-H14 ×1 (2 pages). A library worksheet's QR is its code, the same on
+every child's copy; no roll is printed, only a handwritten Name. `engine read file` now names such a copy as its
+worksheet and cuts a run of copies at the worksheet's length. **Not built: reading those copies' answers** —
+nothing ties a library copy to a child but the written name, and reading a name is a PII decision (rule 6)
+for Nimish: (a) a person picks the child for each copy on the website, (b) a class list's order, or (c) the
+reader reads the name band. `rehearse update-live` (GitHub, workflow_dispatch) copies live into the runner,
+runs update-live's data steps there and must end clean; it never writes live. Applying to live is
+`bin/update-live`, run by a person — the auto-mode classifier refused an unattended write to live.
+
 ## 2026-09-23, later — live rehome refused 131 word problems; the seed was missing three story types
 
 After #45 live's rehome refused 131 `WP1` one-step stories: "start unknown" / "change unknown" stories (W02, W03,

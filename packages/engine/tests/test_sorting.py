@@ -32,6 +32,13 @@ def test_pages_group_by_their_code_and_a_page_with_none_joins_the_paper_before_i
     ]
 
 
+def test_copies_of_one_worksheet_in_a_row_are_cut_at_its_length_and_a_missing_code_starts_the_next_copy():
+    three = {"R8-H02": 3}.get
+    got = sorting.group(["R8-H02"] * 6 + [None, "R8-H02", "R8-H02"], lambda c: three(c, 0))
+    assert [p["pages"] for p in got] == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    assert got[2] == {"qr": "R8-H02", "pages": [7, 8, 9], "unread": [7]}
+
+
 def _printed(tmp_path, qr, n):
     rng = random.Random(qr)
     qs = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0]) for _ in range(n)]
@@ -102,3 +109,32 @@ def test_a_code_the_database_printed_names_its_child_and_paper_and_one_it_did_no
         and first["sheet"]["paper"] == "Practice"
     )
     assert second["qr"] == "CS00BBBB" and second["ours"] and second["sheet"] is None
+
+
+def test_a_class_of_library_worksheet_copies_sorts_into_one_paper_per_child(conn, tmp_path):
+    """The Grade 2 scan of 2026-09-23: every copy of worksheet R8-H02 carries the code R8-H02. Two copies, and a
+    copy of another worksheet between, come out as three papers, each named as the worksheet it is."""
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()
+    if not tenant or not conn.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
+        pytest.skip("needs the seed loaded on the copy")
+    for code in ("R8-H02", "R5-H14"):
+        conn.execute(
+            "insert into sheet_template (tenant_id, band, week, source, code, skill_set_code, difficulty)"
+            " values (%s, 'G2', 'library', 'library', %s, 'ADD.2D2D', 'Hard')",
+            (tenant["id"], code),
+        )
+    a1, b, a2 = (_printed(tmp_path / str(i), code, n) for i, (code, n) in enumerate(
+        [("R8-H02", 30), ("R5-H14", 12), ("R8-H02", 30)]
+    ))  # fmt: skip
+    scan = _scanned([a1, b, a2], tmp_path / "class.pdf")
+    length = len(pymupdf.open(a1))
+    papers = sorting.sort_file(
+        conn, scan, pages_of=lambda code: len(pymupdf.open(a1 if code == "R8-H02" else b))
+    )
+    assert [(p["qr"], len(p["pages"])) for p in papers] == [
+        ("R8-H02", length),
+        ("R5-H14", 1),
+        ("R8-H02", length),
+    ]
+    assert all(p["worksheet"] and p["ours"] and not p["sheet"] for p in papers)
+    assert papers[0]["worksheet"]["level"] == "Hard"
