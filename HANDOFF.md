@@ -20,7 +20,10 @@ fails on an unapplied migration, answers off the shown skills, a stale graph, a 
 nothing written; `GET /child/{id}/focus/paper.pdf`, `POST /child/{id}/paper/plan.pdf`, web `/api/see/[child]`, linked
 from the child page, each /make/[section] row and /make/custom. Tested: its text equals the printed paper's but the QR.
 Marking: an "Answers read" column and a Total row under by class, by child and by worksheet, so engine + person +
-waiting visibly add up to the answers read (u3-marking spec asserts it). Next: `engine read file` (QR scans).
+waiting visibly add up to the answers read (u3-marking spec asserts it). `engine read file <pdf>` (N8, read only): each page's QR (corner marks first, as marking does; else the page as
+scanned), pages grouped per paper, each code looked up in sheet_instance. Reading the answers of a paper the
+engine printed is NOT built — `legacy import` reads only papers entered as `legacy paper`. Next: Nimish runs
+`read file` on the Grade 2 scan (Drive 1eBcFq8…, 31 MB); what its codes are decides the reader to build.
 
 ## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
 

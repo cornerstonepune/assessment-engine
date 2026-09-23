@@ -7,7 +7,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db
-from engine.w3_read import external, legacy, marking, profiles, reread
+from engine.w3_read import external, legacy, marking, profiles, reread, sorting
 from engine.w3_read.cli_learn import register as register_learn
 
 read_app = typer.Typer(help="W3 — read papers and place them on the skill graph", no_args_is_help=True)
@@ -350,6 +350,34 @@ def read_stencil(form: str = typer.Option("", "--form", help="one printed form; 
             f"  {f:<14} p{page}  {used} of {len(found)} copies aligned (inliers {min(inliers)}-{max(inliers)}),"
             f" {sum(1 for w in read['words'] if not w['hand'])} printed words, {len(boxes)} boxes"
         )
+
+
+@read_app.command("file")
+def read_file(path: str) -> None:
+    """One scanned file of many papers, sorted by the QR on each page: which pages are whose paper, and which
+    pages carry no code this system printed. Reads only — no answer is read and nothing is written."""
+    with db.connect() as conn:
+        papers = sorting.sort_file(conn, path)
+        conn.rollback()
+    for p in papers:
+        pages = f"p{p['pages'][0]}" + (f"–{p['pages'][-1]}" if len(p["pages"]) > 1 else "")
+        s = p["sheet"]
+        if s:
+            who = f"{s['section']} roll {s['roll_no']}" if s["roll_no"] else "no child"
+            seen = f", already read {s['captures']}×" if s["captures"] else ""
+            what = f"{p['qr']}  {who} · {s['kind']} · {s['paper'] or s['source']} · {s['questions']} questions{seen}"
+        elif p["qr"]:
+            what = f"{p['qr']}  " + (
+                "not in sheet_instance" if p["ours"] else "not a code this system prints"
+            )
+        else:
+            what = "no QR read"
+        flag = f"  (no QR on p{', p'.join(map(str, p['unread']))})" if p["qr"] and p["unread"] else ""
+        typer.echo(f"  {pages:<9}{what}{flag}")
+    found = sum(1 for p in papers if p["sheet"])
+    typer.echo(
+        f"  {sum(len(p['pages']) for p in papers)} pages · {len(papers)} papers · {found} found in sheet_instance"
+    )
 
 
 register_learn(read_app)
