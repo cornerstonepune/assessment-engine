@@ -30,6 +30,7 @@ say "3/6 the engine server"
 
 say "4/6 seed rows"
 "$E" load
+"$E" bank levels --apply   # load never rewrites a skill that exists; a changed level reaches it only here
 
 say "5/6 the bank, the worksheets, each child's skills"
 "$E" bank relabel

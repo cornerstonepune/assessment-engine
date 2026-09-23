@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-23, late night — what the rehearsal on a copy of live found
+
+`rehearse update-live` (GitHub) copies live into its runner (47 tables, 89,973 rows, every count equal) and runs
+the update there. It found: (1) live holds `item_placement`, which no migration makes (rule 9) — not copied, for
+Nimish to explain or drop; (2) `engine load` never rewrites an existing skill set, so tonight's level changes (M06,
+W02/W03/W06, AA9) reach live only through `engine bank levels --apply` — now in update-live after `load`, and
+the 15 skills it changes wait for approval then; (3) 111 sums of three 4-digit numbers had no case — AA9 added, not
+from the team's taxonomy, for Aseem; (4) 20 old model-written stories ("…had 353 mangoes and sold 26…") whose
+story shape no template names — rehome now moves such a question to the skill its numbers give and retires it
+with the reason, instead of stopping; it still stops for a question no skill's numbers hold.
+
 ## 2026-09-23, night — the Grade 2 scan is library worksheets; the live update is rehearsed in GitHub
 
 The Grade 2 scan (Drive 1eBcFq8…, read as text through Drive): 11 copies of library worksheets — R8-H02 ×4,

@@ -232,3 +232,23 @@ def test_three_four_digit_numbers_are_added_in_adding_three_or_more_numbers():
     for layout, fmt in (("column", "column_grid"), ("horizontal", "bare_sum")):
         spec = {"addends": [4428, 1364, 3797], "op": "+", "layout": layout}
         assert _place(fmt, spec) == ("ADD.MANY", "Hard")
+
+
+def test_an_old_story_whose_shape_is_unnamed_goes_to_its_skill_retired_and_only_a_question_no_skill_holds_stops():
+    """Live held 20 model-written stories ('A shopkeeper had 353 mangoes and sold 26 of them…') whose shape no
+    template names: 353 − 26 is plainly 3-digit − 2-digit, but no level can say which story it is."""
+    story = tags.derive(
+        Item("x", "x", "R8", [], "A", "word_1step", False, "", {"a": 353, "b": 26, "op": "-"}, [])
+    )
+    assert "structure" not in story
+    six = tags.derive(
+        Item("x", "x", "R0", [], "P", "column_grid", False, "", {"a": 12345, "b": 1, "op": "+"}, [])
+    )
+    rows = [
+        {"item_key": "story", "fmt": "word_1step", "tags": story},
+        {"item_key": "sum", "fmt": "column_grid", "tags": six},
+    ]
+    moves, unlevelled, homeless = rehome.sort_out(rows, SKILLS, MATCHES)
+    assert not moves
+    assert [(r["item_key"], s["code"]) for r, s in unlevelled] == [("story", "SUB.3D2D")]
+    assert [r["item_key"] for r, _ in homeless] == ["sum"]
