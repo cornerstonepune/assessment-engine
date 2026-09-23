@@ -21,7 +21,7 @@ pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DAT
 SET, DIFF = "TEST.MODEL.PATH", "Hard"  # 3-digit minus 2-digit, one exchange
 # The model's path is for a level with a plain rule (op, digits, regroups). Since step 8h every real
 # addition and subtraction level is made of taxonomy cases and filled by `refill`, so these tests give
-# the model's path a skill set of its own — the rule SUB.2D.EXCH Hard had before, on the same rung —
+# the model's path a skill set of its own — 3-digit minus 2-digit with one exchange, on SUB.3D2D's rung —
 # inside each test's transaction, where no stored question can disagree with it; rolled back after.
 RULE = {"op": "-", "digits": [3, 2], "regroups": [1]}
 
@@ -33,7 +33,7 @@ def conn():
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
             " difficulty, status) select tenant_id, %s, rung_code, 'the model path, under test', learning_objective,"
             " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified'"
-            " from skill_set where code = 'SUB.2D.EXCH'",
+            " from skill_set where code = 'SUB.3D2D'",
             (
                 SET,
                 json.dumps(
@@ -196,7 +196,6 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
         r["code"]: set(r["levels"])
         for r in conn.execute(
             "select code, array(select jsonb_object_keys(difficulty)) as levels from skill_set"
-            " where status <> 'retired'"
         )
     }
     assert len(table) == sum(len(v) for v in defined.values())
@@ -246,13 +245,8 @@ NATIVE_UNITS = [
     ("WORD.BUDGET", "Medium"),
     ("WORD.BUDGET", "Hard"),
     ("WORD.BUDGET", "Advance"),
-    # WORD.1_2STEP, ADDSUB.4D.ADV, STRATEGY.EFFICIENT and REASON.FIND_MISTAKE are made of taxonomy
-    # cases since step 8h and are filled by `refill` — `tests/test_taxonomy.py`, `tests/test_new_kinds.py`.
-    # ADD.1D.WITHIN10 Advance (missing_number, add_missing_addend, hi=10) is not here: its true
-    # ceiling is 24 (STATE.md, "W1 gate 2, chunk B") — "sums to 10" has only so many (a, b)
-    # pairs, and the real bank already holds all of them; the same class of shortfall as above.
-    # ADD.1D.BRIDGE10 Advance (number_line_jumps, hi=20) is deliberately not here: that
-    # generator's second jump needs hi >= 54 (see items.number_line_jumps) — see the test below.
+    # The calculation skills, WORD.1_2STEP, STRATEGY.EFFICIENT and REASON.FIND_MISTAKE are made of taxonomy
+    # cases and filled by `refill` — `tests/test_taxonomy.py`, `tests/test_new_kinds.py`, `tests/test_rehome.py`.
     # REASON.EXPLAIN (X1) is deliberately not here — see NATIVE_GENERATORS' comment in bank.py.
 ]
 

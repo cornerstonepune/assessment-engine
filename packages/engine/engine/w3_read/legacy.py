@@ -18,7 +18,6 @@ from engine.adapters import llm, ocr
 from engine.assess import misconceptions as M
 from engine.assess import placing, tags
 from engine.assess.items import Item
-from engine.assess.ladder import RUNGS
 from engine.core import db
 from engine.w3_read import profiles, reading, render_pdf
 from engine.w3_read.marking import _MINUS, UNTRUSTED, mark_read, normalise_answer
@@ -39,11 +38,14 @@ def parse_expr(text):
 
 
 def where_they_go(conn):
-    """The skills in use and the taxonomy's cases: what `rung_for` places a sum by (ADR 0034)."""
-    skills = conn.execute(
-        "select code, rung_code, difficulty from skill_set where status <> 'retired'"
-    ).fetchall()
-    return skills, {r["code"]: r["match"] for r in conn.execute("select code, match from taxonomy_case")}
+    """The skills, the taxonomy's cases and each rung's skills: what `rung_for` and `skill_for` read (ADR 0034)."""
+    skills = conn.execute("select code, rung_code, difficulty from skill_set").fetchall()
+    cases = {r["code"]: r["match"] for r in conn.execute("select code, match from taxonomy_case")}
+    return (
+        skills,
+        cases,
+        {r["code"]: r["skill_codes"] for r in conn.execute("select code, skill_codes from rung")},
+    )
 
 
 def rung_for(op, a, b, where):
@@ -52,20 +54,17 @@ def rung_for(op, a, b, where):
     if op == "×" or (op == "-" and a < b):
         return None
     t = tags.derive(Item("", "", "", [], "", "bare_sum", False, "", {"a": a, "b": b, "op": op}, []))
-    home = placing.place("bare_sum", t, *where)
+    home = placing.place("bare_sum", t, *where[:2])
     return home[0]["rung_code"] if home else None
 
 
-def skill_for(rung, op=None):
+def skill_for(rung, op, rung_skills):
+    """The skill an old paper's question counts on: addition's or subtraction's for a sum, else its rung's."""
     if op in _SKILL_FOR_OP:
-        return _SKILL_FOR_OP[op]  # a sum is addition's, a difference subtraction's, on whichever skill
-    if rung not in RUNGS:
-        # A rung added as rows and never as Python — M1, multiplication (W1 gate 3). This module
-        # maps the addition/subtraction ladder, so a paper on one of those rungs names its own
-        # skill rather than having one invented here.
-        raise ValueError(f"rung {rung!r} is off the addition/subtraction ladder; give the item a skill")
-    skills = RUNGS[rung]["skills"]
-    return skills[0]
+        return _SKILL_FOR_OP[op]
+    if not rung_skills.get(rung):
+        raise ValueError(f"rung {rung!r} names no skill; give the item a skill")
+    return rung_skills[rung][0]
 
 
 # ---- the paper, entered once
@@ -95,7 +94,7 @@ def _template_item(paper, it, where):
         if rung is None:
             raise ValueError(f"item {it['n']}{it.get('part', '')} has no expr and no rung")
     spec["answer"] = answer
-    spec["skill"] = it.get("skill") or skill_for(rung, spec.get("op"))
+    spec["skill"] = it.get("skill") or skill_for(rung, spec.get("op"), where[2])
     spec["page"] = it.get("page", 1)
     signal = {"bare": "Procedural", "word": "Application", "missing": "Conceptual", "text": "Stretch"}[kind]
     return {
@@ -659,7 +658,7 @@ def child_map(conn, child_id):
     ).fetchall()
     nxt = conn.execute(
         "select s.code, s.rung_code, n.difficulty, n.rule, n.targets from skill_set s,"
-        " lateral next_difficulty(%s, s.code) n where s.status <> 'retired' order by s.code",
+        " lateral next_difficulty(%s, s.code) n order by s.code",
         (child_id,),
     ).fetchall()
     pending = conn.execute(

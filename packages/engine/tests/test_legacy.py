@@ -39,6 +39,7 @@ SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed"
 WHERE = (
     json.loads((SEED / "skill_sets.json").read_text())["skill_sets"],
     {c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]},
+    {r["code"]: r["skill_codes"] for r in json.loads((SEED / "rungs.json").read_text())["rungs"]},
 )
 
 
@@ -438,10 +439,10 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
         (child,),
     ).fetchall()
     # Four rows on one rung: one right, two wrong, one blank. Asserted as a tally and not as a
-    # sequence, because the query orders by rung_code and every row here is R5 — Postgres may hand
+    # sequence, because the query orders by rung_code and every row here is R22 — Postgres may hand
     # them back in any order within that. This assertion used to be a list and failed about one run
     # in three, which is what made three other tests look flaky (STATE.md, 2026-09-20).
-    assert [e["rung_code"] for e in ev] == ["R5"] * 4
+    assert [e["rung_code"] for e in ev] == ["R22"] * 4  # 2-digit + 2-digit, placed by the numbers (ADR 0034)
     assert sorted((e["correct"] is None, e["correct"]) for e in ev) == [
         (False, False),
         (False, False),
@@ -454,11 +455,12 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
         for r in conn.execute("select * from child_skill_state where child_id = %s", (child,)).fetchall()
     }
     assert (
-        states["R5"]["state"] == "patterned_error" and states["R5"]["repeating_misconception"] == "M_NOCARRY"
+        states["R22"]["state"] == "patterned_error"
+        and states["R22"]["repeating_misconception"] == "M_NOCARRY"
     )
-    assert (states["R5"]["n_events"], states["R5"]["n_correct"]) == (3, 1)
+    assert (states["R22"]["n_events"], states["R22"]["n_correct"]) == (3, 1)
 
-    # 1 of 3 on R5 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
+    # 1 of 3 on R22 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
     assert graph.next_difficulty(conn, child, "ADD.2D2D") == ("Easy", "from_state", ["M_NOCARRY"])
 
     # a person settles the row the machine could not; the map is rebuilt from it

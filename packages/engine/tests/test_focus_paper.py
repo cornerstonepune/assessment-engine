@@ -88,7 +88,10 @@ def test_questions_that_can_show_the_childs_own_repeated_mistake_come_first(conn
     area = focus_paper.plan(conn, child, WEEK)["areas"][0]
     assert area["mistake"] == "M_SMALL_FROM_LARGE"
     assert "the same mistake more than once" in area["why"]
-    assert all(q["shows_mistake"] for q in area["questions"]), area["questions"]
+    # the ones that can show it come first; the level's own numbers decide whether any can (3-digit − 3-digit
+    # Easy has no exchange, so taking the smaller digit from the larger cannot happen on it)
+    shows = [q["shows_mistake"] for q in area["questions"]]
+    assert shows == sorted(shows, reverse=True), area["questions"]
 
 
 def test_making_the_paper_prints_it_with_its_qr_and_the_child_is_not_given_those_questions_again(conn, child):

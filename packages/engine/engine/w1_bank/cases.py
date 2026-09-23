@@ -93,7 +93,7 @@ def outside_their_level(conn):
     a rule its kind has since corrected (`verify.key_problems`)."""
     regions = {
         (s["code"], band): spec.get("check", {})
-        for s in conn.execute("select code, difficulty from skill_set where status <> 'retired'").fetchall()
+        for s in conn.execute("select code, difficulty from skill_set").fetchall()
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
@@ -116,7 +116,7 @@ def placed(conn):
     row = conn.execute("select value from config where key = 'taxonomy.across_levels'").fetchone()
     across = set((row["value"] if row else {}).get("sections", []))
     named = defaultdict(list)
-    for s in conn.execute("select code, difficulty from skill_set where status <> 'retired' order by code"):
+    for s in conn.execute("select code, difficulty from skill_set order by code"):
         for level, spec in s["difficulty"].items():
             for c in spec.get("check", {}).get("cases", []):
                 named[c].append((s["code"], level))

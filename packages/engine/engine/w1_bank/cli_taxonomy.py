@@ -54,8 +54,8 @@ def register(bank_app: typer.Typer) -> None:
 
     @bank_app.command("rehome")
     def bank_rehome(dry_run: bool = typer.Option(False, "--dry-run", help="Count, change nothing")) -> None:
-        """Retire the skill sets the seed says are replaced and move their questions to the taxonomy-shaped
-        skill and level each one is. Nothing is regenerated; a question with no place is retired, saying why."""
+        """Move every question of the old ladder's skill sets to the taxonomy-shaped skill and level its numbers
+        put it in, old papers' sums with them, then remove the old skill sets and rungs. Nothing is regenerated."""
         with db.connect() as conn:
             out = rehome.rehome(conn)
             if dry_run:
@@ -65,9 +65,9 @@ def register(bank_app: typer.Typer) -> None:
         for (code, level), n in sorted(out["moved"].items()):
             typer.echo(f"  {code:<12} {level:<8} {n:>5}")
         typer.echo(
-            f"  {'would retire' if dry_run else 'retired'} {len(out['retired_sets'])} skill sets"
-            f" · moved {sum(out['moved'].values())} questions · no place {sum(out['no_place'].values())}"
-            f" · {out['old_papers']} old papers' sums onto their skill"
+            f"  moved {sum(out['moved'].values())} questions · {out['old_papers']} old papers' sums onto their skill"
+            f" · {'would remove' if dry_run else 'removed'} {len(out['removed_sets'])} skill sets"
+            f" and {len(out['removed_rungs'])} rungs"
         )
 
     @bank_app.command("levels")

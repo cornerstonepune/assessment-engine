@@ -46,7 +46,7 @@ def coverage(conn):
         "   select skill_set_code, difficulty, count(*) as n from item"
         "   where status = 'active' group by skill_set_code, difficulty"
         " ) i on i.skill_set_code = s.code and i.difficulty = d.difficulty"
-        " where s.status <> 'retired' and s.difficulty ? d.difficulty"
+        " where s.difficulty ? d.difficulty"
         " order by s.code, d.ord"
     ).fetchall()
 

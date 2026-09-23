@@ -118,7 +118,7 @@
       "part": "a",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R31",
       "answer": 40,
       "question": "452 − 236. Regroup 452 into 400 + 40 + 12.  452 = 400 + [ ] + 12"
     },
@@ -127,7 +127,7 @@
       "part": "b",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R31",
       "answer": 12,
       "question": "452 = 400 + 40 + [ ]"
     },
@@ -136,7 +136,6 @@
       "part": "c",
       "page": 1,
       "kind": "word",
-      "rung": "R9",
       "expr": "452 - 236",
       "question": "452 − 236 = [ ]"
     },
@@ -198,7 +197,6 @@
       "part": "a",
       "page": 2,
       "kind": "word",
-      "rung": "R9",
       "expr": "763 - 427",
       "question": "763 children attend Blue Haven School. 427 of them are girls. How many boys attend the school?"
     },
@@ -207,7 +205,6 @@
       "part": "b",
       "page": 2,
       "kind": "word",
-      "rung": "R9",
       "expr": "763 - 38",
       "question": "Today 38 children are away. How many children are in school today?"
     },
@@ -222,7 +219,6 @@
       "n": 10,
       "page": 2,
       "kind": "word",
-      "rung": "R9",
       "expr": "742 + 168",
       "question": "Use each of the digits 2, 4 and 7 once to make a 3-digit number. Add 168 to your number. What is the largest total you can make?"
     }

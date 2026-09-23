@@ -26,11 +26,17 @@ been used to define the levels.
   A case the shape contradicts is refused when the level is read, not silently empty.
 - **Every case has a place**: in a level, or — §5, the carry and exchange patterns — as the rule the levels
   climb (`config: taxonomy.across_levels`). `engine bank taxonomy` counts it.
-- **The bank is re-homed, not rebuilt** (`engine bank rehome`): the replaced skill sets are retired, kept as
-  rows so every printed paper and every answer still names them; each of their questions moves to the one
-  skill whose shape it has and the hardest straight level it is a case of (Advance for any other kind). Like its
-  tags (ADR 0030), where a question belongs is recomputed from what it is. A question with no place is retired
-  with the reason. Levels whose numbers run out keep their ceiling (`min_items`).
+- **The bank is re-homed, not rebuilt, and the old ladder leaves** (`engine bank rehome`): every question of a
+  replaced skill set moves to the one skill whose shape it has and the hardest straight level it is a case of
+  (Advance for any other kind); an old paper's sums move to their skill's rung, placed by the same rule
+  (`assess/placing.py`). Then the replaced skill sets, their rule history, the library worksheets never handed
+  out and the rungs nothing names are deleted. Like its tags (ADR 0030), where a question belongs is recomputed
+  from what it is. A question with no place stops the run. Levels whose numbers run out keep their ceiling
+  (`min_items`).
+- **A child's answers count on their question's skill** (`evidence_placed`): recorded answers are never
+  rewritten (rule 4); the graph reads each one's rung through the question it answered. The Python copy of
+  the ladder (`assess/ladder.py`), the prototype's blueprints and builder, and `coverage_target` (per-rung tag
+  targets the cases replaced) are removed.
 
 ## Rejected
 
@@ -41,6 +47,7 @@ been used to define the levels.
 
 ## Consequences
 
-- The graph still groups answers by the old rungs until the children's graphs move to the new skills (L2).
+- A worksheet printed from an old skill set keeps its questions and names the set it was made for; that name no
+  longer has a row.
 - The fifteen skills arrive as drafts: a person approves each once on the Skill Map.
 - Which grade a skill belongs to, and where one level ends, are the school's to confirm; they are rows.

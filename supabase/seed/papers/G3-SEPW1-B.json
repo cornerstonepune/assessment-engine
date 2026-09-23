@@ -115,7 +115,7 @@
       "part": "a",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 40,
       "question": "246 = 200 +"
     },
@@ -124,7 +124,7 @@
       "part": "b",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 6,
       "question": "246 = 200 +"
     },
@@ -133,7 +133,7 @@
       "part": "c",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 30,
       "question": "132 = 100 +"
     },
@@ -142,7 +142,7 @@
       "part": "d",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 2,
       "question": "132 = 100 +"
     },
@@ -151,7 +151,7 @@
       "part": "e",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 300,
       "question": "total ="
     },
@@ -160,7 +160,7 @@
       "part": "f",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 70,
       "question": "total ="
     },
@@ -169,7 +169,7 @@
       "part": "g",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 8,
       "question": "total ="
     },
@@ -178,7 +178,7 @@
       "part": "h",
       "page": 1,
       "kind": "missing",
-      "rung": "R9",
+      "rung": "R27",
       "answer": 378,
       "question": "total ="
     },

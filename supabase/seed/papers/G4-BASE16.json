@@ -17,7 +17,7 @@
     {"n": 8, "page": 1, "kind": "bare", "rung": "M1", "skill": "NUM.OPS.04", "answer": 12, "question": "144 ÷ 12 ="},
     {"n": 9, "page": 1, "kind": "bare", "rung": "R11", "skill": "NUM.FRAC.01", "answer": 4, "question": "What is half of 8?"},
     {"n": 10, "page": 1, "kind": "missing", "rung": "R11", "skill": "NUM.FRAC.01", "answer": "1/2", "question": "Which is bigger: 1/2 or 1/4?"},
-    {"n": 11, "page": 1, "kind": "word", "rung": "R9", "answer": 137, "question": "A vendor had 500 apples. He sold 235 in the morning and 128 in the afternoon. How many apples are left?"},
+    {"n": 11, "page": 1, "kind": "word", "rung": "R31", "answer": 137, "question": "A vendor had 500 apples. He sold 235 in the morning and 128 in the afternoon. How many apples are left?"},
     {"n": 12, "page": 1, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "expr": "6 x 12", "question": "There are 6 boxes with 12 pencils in each box. How many pencils are there in total?"},
     {"n": 13, "page": 2, "kind": "text", "rung": "X2", "answer": 3556, "question": "Priya subtracted 5,432 - 1,876 and got 3,656. Is she correct? If not, find her mistake and write the correct answer."},
     {"n": 14, "page": 2, "kind": "bare", "rung": "R11", "skill": "NUM.PV.03", "answer": 4600, "question": "Round 4,563 to the nearest 100:"},
