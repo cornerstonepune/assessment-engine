@@ -139,7 +139,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
               </Panel>
             </section>
 
-            <RepeatedMistakes rows={mistakes} />
+            <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 
             <div id="needs-you" className="grid gap-[18px]">
               {person.length > 0 ? (

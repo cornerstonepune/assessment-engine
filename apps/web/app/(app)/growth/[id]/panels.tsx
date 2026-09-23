@@ -6,7 +6,8 @@ import { PURPOSE, type ChildSheet, type Repeated } from "@/lib/queries-children"
 import type { Paper } from "@/lib/queries";
 import { fmtDate } from "./graph";
 
-export function RepeatedMistakes({ rows }: { rows: Repeated[] }) {
+/** `opens`: the steps whose answers the graph can open (a skill and rung with answers from a read paper). */
+export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set<string> }) {
   return (
     <section aria-label="Repeated mistakes">
       <Panel title="Repeated mistakes" aside="the same mistake on one step, twice or more">
@@ -19,9 +20,11 @@ export function RepeatedMistakes({ rows }: { rows: Repeated[] }) {
                 <div className="text-basalt">{m.name}</div>
                 <div className="mt-1 text-[12.5px] text-basalt/62">
                   {m.skill_name} · {m.descriptor} · {m.times} times
-                  <a href={`#ans-${m.rung_code}-${m.skill_code}`} className="ml-2">
-                    the answers
-                  </a>
+                  {opens.has(`${m.rung_code}|${m.skill_code}`) ? (
+                    <a href={`#ans-${m.rung_code}-${m.skill_code}`} className="ml-2">
+                      the answers
+                    </a>
+                  ) : null}
                 </div>
               </li>
             ))}
