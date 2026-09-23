@@ -267,3 +267,19 @@ test("the class and a child's page fit a phone, with the class's own answers on 
     expect(overflow, `${url} must not scroll sideways`).toBeLessThanOrEqual(1);
   }
 });
+
+test("a class reads the shared tree, topic by topic, each skill by its name, in the Curriculum's order", async ({ page }) => {
+  const topics = await sql<{ name: string }[]>`
+    select t.name from topic t where exists (
+      select 1 from skill_set s join level_rule l on s.rung_code = any(l.rung_codes)
+      where s.topic_code = t.code and l.band = 'G2') order by t.ord`;
+  await page.goto(`/growth/class/${SECTION}`);
+  const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
+  const heads = await grid.locator("thead tr").first().locator("th").allInnerTexts();
+  // after the "Child" column, the topics in their order (a topic shows only if the class has a step in it)
+  const shown = heads.slice(1).map((h) => h.trim().toLowerCase());
+  expect(shown).toEqual(topics.map((t) => t.name.toLowerCase()).filter((t) => shown.includes(t)));
+  expect(shown.length).toBeGreaterThan(0);
+  const [{ name }] = await sql<{ name: string }[]>`select name from skill_set where code = 'ADD.2D2D'`;
+  await expect(grid.locator("thead tr").nth(1)).toContainText(name);
+});

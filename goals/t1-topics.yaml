@@ -14,6 +14,8 @@ says:
     proved_by: apps/web/tests/u5-curriculum.spec.ts::each grade's skills sit under their topics, in the topics' order, each topic with its own skills
   - words: "If we don't need paper and curriculum, minimize the number of tabs. The flow should be extremely intuitive."
     proved_by: apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are
+  - words: "That should be the view on papers, the view on children"
+    proved_by: apps/web/tests/u2-children.spec.ts::a class reads the shared tree, topic by topic, each skill by its name, in the Curriculum's order
 manual:
   - "Aseem and Nimish confirm which skills sit in which topic (supabase/seed/topics.json)."
   - "On live, once merged: `bin/update-live`, `bin/engine load`, then `bin/engine library check` — every level it names is filled or removed."

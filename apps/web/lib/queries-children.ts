@@ -25,13 +25,14 @@ export async function classes(): Promise<ClassRow[]> {
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */
-export type Step = { skill_code: string; skill_name: string; rung_code: string; descriptor: string };
+export type Step = { skill_code: string; skill_name: string; rung_code: string; descriptor: string; topic_name: string };
 export type GridChild = { id: string; roll_no: string; first_name: string; states: Record<string, { state: string; n_events: number; n_correct: number }> };
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
 
 /** The class's steps — its grades' ladders, each rung once for every skill it carries, and any step a child has
- *  answers on — skill by skill, easy to hard; and each child's state on each. Names through pii.read_child. */
+ *  answers on — in the shared tree's order: topic by topic, each skill easy to hard; and each child's state on each.
+ *  Names through pii.read_child. */
 export async function classGrid(section: string, actor: string): Promise<{ steps: Step[]; children: GridChild[] }> {
   const [steps, children, states] = await Promise.all([
     sql<Step[]>`
@@ -45,10 +46,13 @@ export async function classGrid(section: string, actor: string): Promise<{ steps
         union select s.skill_code, s.rung_code from child_skill_state s join child c on c.id = s.child_id
         where c.section = ${section} and c.active
       )
-      select p.skill_code, coalesce(k.name, p.skill_code) as skill_name, p.rung_code, r.descriptor
+      select p.skill_code, coalesce(k.name, p.skill_code) as skill_name, p.rung_code,
+             coalesce(ss.name, r.descriptor) as descriptor, coalesce(t.name, 'Other') as topic_name
       from pairs p join rung r on r.code = p.rung_code
       left join lateral (select name from skill where code = p.skill_code limit 1) k on true
-      order by p.skill_code, r.ladder_order nulls last, r.code`,
+      left join lateral (select name, topic_code from skill_set where rung_code = p.rung_code limit 1) ss on true
+      left join topic t on t.code = ss.topic_code
+      order by t.ord nulls last, r.ladder_order nulls last, r.code, p.skill_code`,
     sql<{ id: string; roll_no: string; first_name: string }[]>`
       select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
       where c.active and c.section = ${section}
