@@ -23,7 +23,7 @@ PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_P
 def _skill_sets(conn):
     return conn.execute(
         "select code, rung_code, status, formats, difficulty, misconception_codes as curated"
-        " from skill_set order by code"
+        " from skill_set where status <> 'retired' order by code"
     ).fetchall()
 
 

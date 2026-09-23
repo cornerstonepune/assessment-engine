@@ -7,7 +7,7 @@ from collections import Counter
 import typer
 
 from engine.core import db
-from engine.w1_bank import cases, labels, refill
+from engine.w1_bank import cases, labels, refill, rehome
 
 
 def register(bank_app: typer.Typer) -> None:
@@ -40,6 +40,33 @@ def register(bank_app: typer.Typer) -> None:
         by = Counter(r["state"] for r in rows)
         typer.echo(
             f"  {len(rows)} cases · {by['covered']} covered · {by['missing']} missing · {by['thin']} thin"
+        )
+        with db.connect() as conn:
+            where = cases.placed(conn)
+        for code, section, _, state in where:
+            if state == "unplaced":
+                typer.echo(f"  {code:<4} §{section:<5} unplaced: no level in use names it")
+        on = Counter(state for *_, state in where)
+        typer.echo(
+            f"  {len(where)} cases · {on['placed']} placed in a level · {on['pattern']} patterns the levels climb"
+            f" · {on['unplaced']} unplaced"
+        )
+
+    @bank_app.command("rehome")
+    def bank_rehome(dry_run: bool = typer.Option(False, "--dry-run", help="Count, change nothing")) -> None:
+        """Retire the skill sets the seed says are replaced and move their questions to the taxonomy-shaped
+        skill and level each one is. Nothing is regenerated; a question with no place is retired, saying why."""
+        with db.connect() as conn:
+            out = rehome.rehome(conn)
+            if dry_run:
+                conn.rollback()
+            else:
+                conn.commit()
+        for (code, level), n in sorted(out["moved"].items()):
+            typer.echo(f"  {code:<12} {level:<8} {n:>5}")
+        typer.echo(
+            f"  {'would retire' if dry_run else 'retired'} {len(out['retired_sets'])} skill sets"
+            f" · moved {sum(out['moved'].values())} questions · no place {sum(out['no_place'].values())}"
         )
 
     @bank_app.command("levels")

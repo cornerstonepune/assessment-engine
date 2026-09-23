@@ -51,13 +51,13 @@ def test_fill_calls_bank_fill_with_the_requests_own_values(client, monkeypatch):
         ),
     )
     r = client.post(
-        "/bank/fill", headers=HEADERS, json={"skill_set": "ADD.2D.REG", "difficulty": "Hard", "count": 5}
+        "/bank/fill", headers=HEADERS, json={"skill_set": "ADD.2D2D", "difficulty": "Hard", "count": 5}
     )
     assert r.status_code == 200
     body = r.json()
     assert body["accepted_item_keys"] == ["k1", "k2"]
     assert body["counts"] == {"asked": 5, "accepted": 5}
-    assert seen == [("ADD.2D.REG", "Hard", 5)]
+    assert seen == [("ADD.2D2D", "Hard", 5)]
 
 
 def test_a_retried_call_with_the_same_key_does_not_ask_the_model_again(client, monkeypatch):
@@ -65,7 +65,7 @@ def test_a_retried_call_with_the_same_key_does_not_ask_the_model_again(client, m
     monkeypatch.setattr(
         bank, "fill", lambda conn, code, difficulty, n: calls.append(1) or ({"accepted": len(calls)}, {}, [])
     )
-    body = {"skill_set": "ADD.2D.REG", "difficulty": "Hard", "count": 5}
+    body = {"skill_set": "ADD.2D2D", "difficulty": "Hard", "count": 5}
     headers = {**HEADERS, "Idempotency-Key": "fill-1"}
     r1 = client.post("/bank/fill", headers=headers, json=body)
     r2 = client.post("/bank/fill", headers=headers, json=body)
@@ -129,7 +129,7 @@ def test_review_reports_what_a_person_must_look_at_without_retiring_anything(cli
     r = client.post(
         "/bank/review",
         headers=HEADERS,
-        json={"skill_set": "SUB.2D.EXCH", "difficulty": "Hard", "reviewer": "pedagogy_review"},
+        json={"skill_set": "SUB.2D2D", "difficulty": "Hard", "reviewer": "pedagogy_review"},
     )
     assert r.status_code == 200
     assert (r.json()["judged"], r.json()["not_passed"]) == (2, 1)
@@ -143,7 +143,7 @@ def test_review_rejects_an_unknown_reviewer_before_spending_anything(client, mon
     r = client.post(
         "/bank/review",
         headers=HEADERS,
-        json={"skill_set": "SUB.2D.EXCH", "difficulty": "Hard", "reviewer": "vibes"},
+        json={"skill_set": "SUB.2D2D", "difficulty": "Hard", "reviewer": "vibes"},
     )
     assert r.status_code == 422
 

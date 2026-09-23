@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-const ROUTES = ["/", "/worksheets", "/library", "/capture", "/growth", "/home", "/skill-sets/SUB.2D.EXCH"];
+const ROUTES = ["/", "/worksheets", "/library", "/capture", "/growth", "/home", "/skill-sets/SUB.2D2D"];
 
 for (const route of ROUTES) {
   test(`no session: ${route} sends you to sign in`, async ({ page }) => {

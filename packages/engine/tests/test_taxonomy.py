@@ -154,6 +154,49 @@ def test_matches_reads_lists_ranges_and_alternatives():
     assert not taxonomy.matches({"regroup_at": "ONES"}, "bare_sum", t)  # a tag it does not carry fails
 
 
+def test_a_case_within_a_skills_shape_holds_only_questions_of_that_shape():
+    """A skill is one operation and one digit shape (goals/s13-levels-by-taxonomy.yaml): a case that does not
+    fix the digits — a story, a forgotten carry — is that case *on this skill's numbers* inside the skill."""
+    shape = {"operation": "ADD", "num_operands": 2, "operand_1_digits": 2, "operand_2_digits": 2}
+    story = {"fmt": "word_1step", "structure": "JOIN_RESULT"}
+    inside = taxonomy.within(story, shape)
+    two = {
+        "operation": "ADD",
+        "num_operands": 2,
+        "operand_1_digits": 2,
+        "operand_2_digits": 2,
+        "structure": "JOIN_RESULT",
+    }
+    three = dict(two, operand_1_digits=3)
+    assert taxonomy.matches(inside, "word_1step", two)
+    assert not taxonomy.matches(inside, "word_1step", three)
+    assert taxonomy.within([story, {"fmt": "bare_sum"}], shape)[1]["operand_2_digits"] == 2
+    assert taxonomy.within(story, None) == story
+    # a case that fixes a digit the shape contradicts can never be on this skill: said, not silently dropped
+    with pytest.raises(ValueError, match="operand_1_digits"):
+        taxonomy.within({"operand_1_digits": 3}, shape)
+    with pytest.raises(ValueError, match="operand_1_digits"):
+        taxonomy.within({"operand_1_digits": {"gte": 3}}, shape)
+    # the narrower condition wins where it satisfies the other: 4 digits inside "4 or more", 3 numbers in "3 or more"
+    assert taxonomy.within({"digits_max": {"gte": 4}}, {"digits_max": 4})["digits_max"] == 4
+    assert taxonomy.within({"num_operands": 3}, {"num_operands": {"gte": 3}})["num_operands"] == 3
+    assert taxonomy.within({"num_operands": {"gte": 4}}, {"num_operands": {"gte": 3}})["num_operands"] == {
+        "gte": 4
+    }
+    with pytest.raises(ValueError):
+        taxonomy.within({"digits_max": {"lte": 2}}, {"digits_max": {"gte": 3}})
+
+
+def test_a_level_with_a_shape_refuses_a_question_of_another_shape_even_when_it_is_one_of_its_cases():
+    from engine.assess import verify
+
+    check = {"within": {"operation": "ADD", "operand_1_digits": 2, "operand_2_digits": 2}, "cases": ["W01"]}
+    matches = {"W01": {"fmt": "word_1step", "structure": "JOIN_RESULT"}}
+    ok = {"operation": "ADD", "operand_1_digits": 2, "operand_2_digits": 2, "structure": "JOIN_RESULT"}
+    assert verify.dimension_problems(ok, check, "word_1step", matches) == []
+    assert verify.dimension_problems(dict(ok, operand_1_digits=3), check, "word_1step", matches) != []
+
+
 @pytest.fixture
 def conn():
     # CI has no database: the tests that need one skip there, the pure ones above still run
@@ -239,36 +282,32 @@ def test_level_with_quotas_draws_each_case_its_own_shortfall_and_spills_only_wha
 def test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out(conn):
     from engine.w1_bank import refill
 
-    before = conn.execute("select difficulty from skill_set where code = 'SUB.3D.ZERO'").fetchone()[
-        "difficulty"
-    ]
+    before = conn.execute("select difficulty from skill_set where code = 'SUB.3D3D'").fetchone()["difficulty"]
     # 507 − 8 has hundreds of numbers left; 7 − 7 has nine, all already in the bank
     level = {"words": before["Easy"]["words"], "check": {"cases": ["S20", "S03"]}}
     conn.execute(
-        "update skill_set set difficulty = %s where code = 'SUB.3D.ZERO'",
+        "update skill_set set difficulty = %s where code = 'SUB.3D3D'",
         (json.dumps(dict(before, Easy=level)),),
     )
     total = conn.execute(
-        "select count(*) as n from item where status = 'active' and skill_set_code = 'SUB.3D.ZERO'"
+        "select count(*) as n from item where status = 'active' and skill_set_code = 'SUB.3D3D'"
         " and difficulty = 'Easy'"
     ).fetchone()["n"]
-    first = refill.top_up(conn, "SUB.3D.ZERO", "Easy", total + 40)
+    first = refill.top_up(conn, "SUB.3D3D", "Easy", total + 40)
     assert first >= 40
-    assert refill.top_up(conn, "SUB.3D.ZERO", "Easy", total + 40) == 0
+    assert refill.top_up(conn, "SUB.3D3D", "Easy", total + 40) == 0
 
 
 def test_fill_cases_fills_a_level_evenly_and_says_which_case_made_each_question(conn):
     from engine.w1_bank import refill
 
-    before = conn.execute("select difficulty from skill_set where code = 'ADD.2D.REG'").fetchone()[
-        "difficulty"
-    ]
+    before = conn.execute("select difficulty from skill_set where code = 'ADD.2D2D'").fetchone()["difficulty"]
     level = dict(before["Easy"], check={"cases": ["A10", "A11", "A12", "A13"]})
     conn.execute(
-        "update skill_set set difficulty = %s where code = 'ADD.2D.REG'",
+        "update skill_set set difficulty = %s where code = 'ADD.2D2D'",
         (json.dumps(dict(before, Easy=level)),),
     )
-    counts, per_case, items = refill.fill_cases(conn, "ADD.2D.REG", "Easy", 20)
+    counts, per_case, items = refill.fill_cases(conn, "ADD.2D2D", "Easy", 20)
     assert counts["accepted"] == 20 and per_case == {"A10": 5, "A11": 5, "A12": 5, "A13": 5}
     stored = conn.execute(
         "select generator, fmt, tags, skill_codes from item where item_key = any(%s)",

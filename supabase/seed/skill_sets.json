@@ -1862,6 +1862,1593 @@
           }
         }
       }
+    },
+    {
+      "code": "ADD.1D1D",
+      "rung_code": "R19",
+      "name": "1-digit + 1-digit",
+      "learning_objective": "Adds two 1-digit numbers, in columns and in a line, the answer one digit or two.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "number_line_jumps"
+      ],
+      "misconception_codes": [
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADD.1D.WITHIN10",
+        "ADD.1D.BRIDGE10"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "The answer stays one digit, in columns and in a line, adding zero too: 3 + 4, 0 + 6.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "A01",
+              "A03",
+              "A05"
+            ]
+          },
+          "min_items": 108
+        },
+        "Medium": {
+          "words": "The answer becomes two digits: 8 + 7, 9 + 6.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "A02",
+              "A04"
+            ]
+          },
+          "min_items": 90
+        },
+        "Advance": {
+          "words": "Mixed: a missing number, a story, making ten on a number line (8 + 7 → 8 + 2 + 5), and the level's own sums: 5 + □ = 12.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "A02",
+              "A04",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "K02"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.1D1D",
+      "rung_code": "R20",
+      "name": "1-digit − 1-digit",
+      "learning_objective": "Takes a 1-digit number from a 1-digit number, in columns and in a line.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP"
+      ],
+      "replaces": [
+        "SUB.1D.WITHIN20"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "The answer more than zero, in columns and in a line: 9 − 4.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S01",
+              "S02"
+            ]
+          },
+          "min_items": 72
+        },
+        "Medium": {
+          "words": "The answer is zero, or zero is taken away: 7 − 7, 6 − 0.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S03",
+              "S04"
+            ]
+          },
+          "min_items": 36
+        },
+        "Advance": {
+          "words": "Mixed: a missing number, a story, and the level's own sums: 9 − □ = 5.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 1,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S03",
+              "S04",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11"
+            ]
+          },
+          "min_items": 108
+        }
+      }
+    },
+    {
+      "code": "ADD.2D1D",
+      "rung_code": "R21",
+      "name": "2-digit + 1-digit",
+      "learning_objective": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADDSUB.2D.NOREG",
+        "ADD.2D.REG"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No carry, in columns and in a line, either number first, adding zero too: 43 + 5, 5 + 43, 45 + 0.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "A06",
+              "A07",
+              "A08",
+              "A09",
+              "AZ1",
+              "AZ2"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A carry into the tens, the answer stays 2 digits: 47 + 6.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "A10",
+              "A11",
+              "A12",
+              "A13"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "The carry makes a 3-digit answer: 96 + 8.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "A14",
+              "A15",
+              "A16"
+            ]
+          },
+          "min_items": 180
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "A14",
+              "A15",
+              "A16",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X01",
+              "X03",
+              "L1a"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.2D2D",
+      "rung_code": "R22",
+      "name": "2-digit + 2-digit",
+      "learning_objective": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake",
+        "estimate_then_calc"
+      ],
+      "misconception_codes": [
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADDSUB.2D.NOREG",
+        "ADD.2D.REG"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No carry, in columns and in a line: 23 + 45.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "A17",
+              "A18"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A carry from the ones only: 27 + 36.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "A19",
+              "A20"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "A carry from the tens, or from both columns, so the answer passes 100: 61 + 42, 68 + 47.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "A21",
+              "A22",
+              "A23",
+              "A24"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, finding the mistake, estimating first.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "A21",
+              "A22",
+              "A23",
+              "A24",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X03",
+              "X04",
+              "R01"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.2D1D",
+      "rung_code": "R23",
+      "name": "2-digit − 1-digit",
+      "learning_objective": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADDSUB.2D.NOREG",
+        "SUB.2D.EXCH",
+        "SUB.1D.WITHIN20"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange, in columns and in a line: 47 − 5.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S05",
+              "S06",
+              "SZ1"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "An exchange, the answer stays 2 digits: 43 − 7.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S07",
+              "S08"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "An exchange, the answer becomes 1 digit: 13 − 7.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S09",
+              "S10"
+            ]
+          },
+          "min_items": 72
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S09",
+              "S10",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X07",
+              "L1s"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.2D2D",
+      "rung_code": "R24",
+      "name": "2-digit − 2-digit",
+      "learning_objective": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake",
+        "estimate_then_calc"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADDSUB.2D.NOREG",
+        "SUB.2D.EXCH"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange, in columns and in a line: 68 − 25, 45 − 45.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S11",
+              "S12",
+              "S13",
+              "S14"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "An exchange from the tens, the answer stays 2 digits: 52 − 27.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S15",
+              "S16",
+              "SZ8"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "An exchange, the answer becomes 1 digit: 42 − 37.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S17"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, finding the mistake, estimating first.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S17",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X07",
+              "X08",
+              "R02"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.3D1D",
+      "rung_code": "R25",
+      "name": "3-digit + 1-digit",
+      "learning_objective": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADD.3D.REG"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No carry, either number first: 342 + 5, 5 + 342.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "A25",
+              "A26",
+              "A27",
+              "A28"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A carry from the ones only: 347 + 6.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "A29",
+              "A30",
+              "A31",
+              "A32"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "The carry ripples one more place, or through the 9s to a new digit: 399 + 4, 999 + 7.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "A33",
+              "A34",
+              "A35",
+              "A36"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "A33",
+              "A34",
+              "A35",
+              "A36",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X01",
+              "X06",
+              "L2a",
+              "L5"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.3D2D",
+      "rung_code": "R26",
+      "name": "3-digit + 2-digit",
+      "learning_objective": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADD.3D.REG"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No carry, either number first: 345 + 23, 23 + 345.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 2
+            },
+            "cases": [
+              "A37",
+              "A38",
+              "A39",
+              "A40"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One carry, from the ones or from the tens: 347 + 25, 372 + 64.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 2
+            },
+            "cases": [
+              "A41",
+              "A42",
+              "A43",
+              "A44",
+              "A45",
+              "A46",
+              "A47",
+              "A48"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Carries from both columns, or a 4-digit answer: 368 + 57, 965 + 78.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 2
+            },
+            "cases": [
+              "A49",
+              "A50",
+              "A51",
+              "A52",
+              "A53",
+              "A54",
+              "A55",
+              "A56"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 3,
+              "digits_min": 2
+            },
+            "cases": [
+              "A49",
+              "A50",
+              "A51",
+              "A52",
+              "A53",
+              "A54",
+              "A55",
+              "A56",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X01",
+              "X02",
+              "X03",
+              "L3a"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.3D3D",
+      "rung_code": "R27",
+      "name": "3-digit + 3-digit",
+      "learning_objective": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_ALIGN_LEFT",
+        "M_CARRY_SKIP",
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NOCARRY",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADD.3D.REG",
+        "ADDSUB.4D.ADV"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No carry, in columns and in a line: 243 + 514.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "A57",
+              "A58"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One carry — from the ones, the tens or the hundreds — or an inside zero: 247 + 315, 405 + 302.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "A59",
+              "A60",
+              "A61",
+              "A62",
+              "A63",
+              "A64",
+              "AZ3",
+              "AZ4"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Two or three carries, a carry onto a zero, or zeros kept in the answer: 678 + 457, 395 + 205.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "A65",
+              "A66",
+              "A67",
+              "A68",
+              "A69",
+              "A70",
+              "A71",
+              "A72",
+              "AZ5",
+              "AZ6",
+              "AZ8"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "A65",
+              "A66",
+              "A67",
+              "A68",
+              "A69",
+              "A70",
+              "A71",
+              "A72",
+              "AZ5",
+              "AZ6",
+              "AZ8",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X03",
+              "X04",
+              "X06"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.MANY",
+      "rung_code": "R28",
+      "name": "Adding three or more numbers",
+      "learning_objective": "Adds three or more numbers lined up by the ones, where a column can carry 2 or more.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM10",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADD.MULTI.SMALL",
+        "ADDSUB.4D.ADV"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Three 2-digit numbers, no carry: 21 + 34 + 12.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": {
+                "gte": 3
+              }
+            },
+            "cases": [
+              "AA2"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "Three numbers with a carry, or of different lengths: 8 + 7 + 9, 45 + 7 + 123.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": {
+                "gte": 3
+              }
+            },
+            "cases": [
+              "AA1",
+              "AA3",
+              "AA5",
+              "AA6"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Three 3-digit numbers, four or more numbers, or a column that carries 2: 256 + 348 + 179.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": {
+                "gte": 3
+              }
+            },
+            "cases": [
+              "AA4",
+              "AA7",
+              "AA8"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: the level's own sums and finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": {
+                "gte": 3
+              }
+            },
+            "cases": [
+              "AA4",
+              "AA7",
+              "AA8",
+              "X05"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.3D1D",
+      "rung_code": "R29",
+      "name": "3-digit − 1-digit",
+      "learning_objective": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "replaces": [
+        "SUB.3D.ZERO"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange: 347 − 5.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S18",
+              "S19"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "An exchange from the tens: 342 − 5.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S20"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "An exchange across a zero, or the answer loses a digit: 402 − 5, 100 − 3.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S21",
+              "S23"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "S21",
+              "S23",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X07",
+              "X08",
+              "L2s"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.3D2D",
+      "rung_code": "R30",
+      "name": "3-digit − 2-digit",
+      "learning_objective": "Takes a 2-digit number from a 3-digit number, exchanging in one column or two.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "replaces": [
+        "SUB.3D.ZERO"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange: 345 − 23.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S24",
+              "S25"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One exchange, in the ones or in the tens: 342 − 27, 318 − 52.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S26",
+              "S27",
+              "S31"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Exchanges in both columns, across zeros, or the answer loses digits: 342 − 78, 402 − 37, 105 − 97.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S28",
+              "S29",
+              "S32",
+              "S33",
+              "SZ7"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "S28",
+              "S29",
+              "S32",
+              "S33",
+              "SZ7",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X07",
+              "X08",
+              "X09",
+              "L3s"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.3D3D",
+      "rung_code": "R31",
+      "name": "3-digit − 3-digit",
+      "learning_objective": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "replaces": [
+        "SUB.3D.ZERO",
+        "ADDSUB.4D.ADV"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange: 764 − 231.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "S34",
+              "S35",
+              "SZ2"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One exchange, in the ones or in the tens, or a zero inside a number: 742 − 318, 605 − 302.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "S36",
+              "S37",
+              "S38",
+              "S39",
+              "SZ3",
+              "SZ4"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Exchanges one after the other, across zeros, or the answer loses digits: 352 − 178, 402 − 185, 503 − 498.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "S40",
+              "S41",
+              "S42",
+              "S44",
+              "S45",
+              "SZ5",
+              "SZ6",
+              "SZ9"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 3,
+              "operand_2_digits": 3
+            },
+            "cases": [
+              "S40",
+              "S41",
+              "S42",
+              "S44",
+              "S45",
+              "SZ5",
+              "SZ6",
+              "SZ9",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X07",
+              "X08",
+              "X09"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "ADD.4D",
+      "rung_code": "R32",
+      "name": "4-digit addition",
+      "learning_objective": "Adds a 4-digit number and another, in columns and in a line, whatever the carries.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_CONCAT",
+        "M_DROP_CARRYOUT",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
+      ],
+      "replaces": [
+        "ADDSUB.4D.ADV"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two 4-digit numbers, in columns and in a line: 4382 + 2415.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 4
+            },
+            "cases": [
+              "AN1",
+              "AN2"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A 4-digit number and a shorter one, either first: 4382 + 57.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 4
+            },
+            "cases": [
+              "AN3",
+              "AN4",
+              "AN5"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "A carry that ripples through 9s, a 5-digit answer, or several zeros: 4999 + 6, 7865 + 4378.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 4
+            },
+            "cases": [
+              "AN6",
+              "AN7",
+              "AZ7"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "ADD",
+              "num_operands": 2,
+              "digits_max": 4
+            },
+            "cases": [
+              "AN6",
+              "AN7",
+              "AZ7",
+              "M01",
+              "M02",
+              "M03",
+              "M04",
+              "M05",
+              "W01",
+              "W07",
+              "W10",
+              "X06",
+              "L4a",
+              "L6a"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "SUB.4D",
+      "rung_code": "R33",
+      "name": "4-digit subtraction",
+      "learning_objective": "Takes a number from a 4-digit number, exchanging through one zero or several.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "column_grid",
+        "bare_sum",
+        "missing_number",
+        "word_1step",
+        "find_mistake"
+      ],
+      "misconception_codes": [
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_NO_DECREMENT",
+        "M_SMALL_FROM_LARGE",
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE"
+      ],
+      "replaces": [
+        "ADDSUB.4D.ADV"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two 4-digit numbers, in columns and in a line: 7865 − 4321.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 4
+            },
+            "cases": [
+              "SN1",
+              "SN2"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "A 4-digit number minus a shorter one: 4382 − 57.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 4
+            },
+            "cases": [
+              "SN3",
+              "SN4"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "An exchange through several zeros, from a 4-digit number: 5000 − 1476, 1000 − 3, 1000 − 45.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 4
+            },
+            "cases": [
+              "SN5",
+              "S22",
+              "S30",
+              "S43"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "Mixed: missing numbers, stories, lining up, finding the mistake.",
+          "check": {
+            "within": {
+              "operation": "SUB",
+              "num_operands": 2,
+              "operand_1_digits": 4
+            },
+            "cases": [
+              "SN5",
+              "S22",
+              "S30",
+              "S43",
+              "M21",
+              "M22",
+              "M23",
+              "M24",
+              "M25",
+              "W04",
+              "W05",
+              "W08",
+              "W09",
+              "W11",
+              "X08",
+              "X09",
+              "L4s",
+              "L6s"
+            ]
+          }
+        }
+      }
     }
   ]
 }

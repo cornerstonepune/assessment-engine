@@ -62,17 +62,37 @@ def _why(code):
     return Response("why", "text", None, rubric=f"Names the mistake: {name[1] if name else code}")
 
 
+def _spread(rng, draw, what, tries=80):
+    """One of `tries` drawn candidates, its column chosen evenly among the columns the candidates' first wrong
+    digit falls in. Asked "which column is the first wrong digit in?", a child who ticks the same box every time
+    must not score: drawn as they come, a carry of 2 was always in the tens and a smaller-from-larger slip in the
+    ones 83 times in 100 (`engine audit`, 2026-09-23). A mistake that can only ever show in one column (a
+    dropped final carry) still does; a level mixes it with others."""
+    by = {}
+    for _ in range(tries):
+        got = draw()
+        if got is not None:
+            col, cand = got
+            by.setdefault(col, []).append(cand)
+    if not by:
+        raise RuntimeError(f"no question shows {what}")
+    return rng.choice(by[rng.choice(sorted(by))])
+
+
 def _column(rng, code, op, digits):
     """A two-number calculation in columns whose answer this mistake would get wrong."""
-    for _ in range(400):
+
+    def draw():
         if op == "+":
             a, b = sample_add(rng, digits, digits, {1, 2, 3})
         else:
             a, b = sample_sub(rng, digits, digits, {1, 2}, across_zero=code in ACROSS_ZERO)
         mis = M.predict(op, a, b)
-        if code in mis:
-            return a, b, mis
-    raise RuntimeError(f"no {digits}-digit {op} question shows {code}")
+        if code not in mis:
+            return None
+        return _first_wrong_column(M.compute(op, a, b), mis[code]), (a, b, mis)
+
+    return _spread(rng, draw, f"{digits}-digit {op} with {code}")
 
 
 def _aligned(rng, code, op, digits):
@@ -89,13 +109,17 @@ def _shaped(rng, code, name):
     """(stem, spec, responses) for the mistakes that are not column slips."""
     shape = SHAPES[code]
     if shape == "three":
-        for _ in range(400):
-            xs = [rng.randint(56, 99) for _ in range(3)]
+
+        def draw():
+            # 2-digit numbers carry 2 out of the ones; 3-digit ones can carry 2 out of the tens instead
+            lo, hi = rng.choice([(56, 99), (156, 499)])
+            xs = [rng.randint(lo, hi) for _ in range(3)]
             wrong = M.carry_always_one(xs)
-            if wrong and all(x % 10 for x in xs):
-                break
-        else:
-            raise RuntimeError("no three numbers need a carry of 2")
+            if not wrong or not all(x % 10 for x in xs):
+                return None
+            return _first_wrong_column(sum(xs), wrong), (xs, wrong)
+
+        xs, wrong = _spread(rng, draw, "three numbers that need a carry of 2")
         right = sum(xs)
         stem = f"{name} added {' + '.join(map(str, xs))} in columns and wrote {wrong}. That is not right."
         spec = dict(addends=xs, op="+", layout="column", wrong=wrong, planted=code)
@@ -163,7 +187,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
         raise ValueError(f"{code} is not a mistake a worked answer can show")
     if code in SHAPES:
         stem, spec, rs = _shaped(rng, code, name)
-        return _item("FTM", "X2", "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
+        return _item("FTM", rung, "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
     if code in ALIGNED:
         a, b, mis = _aligned(rng, code, op, max(digits, 2))
     else:
@@ -191,7 +215,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
     )
     return _item(
         "FTM",
-        "X2",
+        rung,  # the rung of the skill it practises: X2 on its own, a calculation skill's rung in its Advance
         "Conceptual",
         "find_mistake",
         stem,

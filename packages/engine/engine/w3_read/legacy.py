@@ -660,7 +660,7 @@ def child_map(conn, child_id):
     ).fetchall()
     nxt = conn.execute(
         "select s.code, s.rung_code, n.difficulty, n.rule, n.targets from skill_set s,"
-        " lateral next_difficulty(%s, s.code) n order by s.code",
+        " lateral next_difficulty(%s, s.code) n where s.status <> 'retired' order by s.code",
         (child_id,),
     ).fetchall()
     pending = conn.execute(

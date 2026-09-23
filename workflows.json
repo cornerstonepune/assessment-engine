@@ -26,8 +26,8 @@
       "built": "live",
       "takes": ["skill_set", "taxonomy_case"],
       "gives": ["item"],
-      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py"],
-      "commands": ["engine bank fill", "engine bank refill", "engine bank taxonomy", "engine bank relabel"],
+      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/rehome.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py"],
+      "commands": ["engine bank fill", "engine bank refill", "engine bank rehome", "engine bank taxonomy", "engine bank relabel"],
       "screens": ["/library", "/library/[key]", "/api/question/[key]"],
       "subject": {"any": false, "note": "Maths only: questions are generated and their answers computed by arithmetic code (engine/assess). A subject whose answers cannot be computed needs a person-approved key per question, which this step does not have."}
     },

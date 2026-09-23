@@ -36,11 +36,9 @@ def coverage(conn):
     total). Both are rows, so the gate stays checkable without a code exception, and a school with a
     different class register moves it by changing one number."""
     need = _class_need(conn)
+    # every level a skill in use defines — a skill may have fewer than four (1-digit − 1-digit has no Hard)
     return conn.execute(
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
-        " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, %s) as target" % need
-        if False
-        else "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
         " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, " + str(need) + ") as target"
         " from skill_set s"
         " cross join (values ('Easy',1),('Medium',2),('Hard',3),('Advance',4)) as d(difficulty, ord)"
@@ -48,6 +46,7 @@ def coverage(conn):
         "   select skill_set_code, difficulty, count(*) as n from item"
         "   where status = 'active' group by skill_set_code, difficulty"
         " ) i on i.skill_set_code = s.code and i.difficulty = d.difficulty"
+        " where s.status <> 'retired' and s.difficulty ? d.difficulty"
         " order by s.code, d.ord"
     ).fetchall()
 

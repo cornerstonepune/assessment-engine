@@ -19,32 +19,32 @@ goal: >
 # refilled and the skills approved.
 scenarios:
   - name: Grade 1 addition within 10 prints sums in columns as well as in a line
-    skill_set: ADD.1D.WITHIN10
+    skill_set: ADD.1D1D
     difficulty: Medium
     n: 20
     cases: [A01, A03]
   - name: 3-digit addition, Easy — the 1-digit number first and second, carries rippling through 9s
-    skill_set: ADD.3D.REG
+    skill_set: ADD.3D3D
     difficulty: Easy
     n: 48
     cases: [A25, A27, A29, A31, A33, A35]
   - name: 3-digit addition, Medium — the 2-digit number first and second, a 4-digit answer
-    skill_set: ADD.3D.REG
+    skill_set: ADD.3D3D
     difficulty: Medium
     n: 48
     cases: [A39, A51, A53, A55]
   - name: 2-digit addition and subtraction without regrouping, Easy — subtraction in columns too
-    skill_set: ADDSUB.2D.NOREG
+    skill_set: ADD.2D2D
     difficulty: Easy
     n: 28
     cases: [A06, S05, S06]
   - name: 2-digit addition without regrouping, Advance — the shorter number first
-    skill_set: ADDSUB.2D.NOREG
+    skill_set: ADD.2D2D
     difficulty: Advance
     n: 24
     cases: [A08, A09]
   - name: subtraction across zero, Easy — 3-digit minus 1-digit, across one zero and several
-    skill_set: SUB.3D.ZERO
+    skill_set: SUB.3D3D
     difficulty: Easy
     n: 36
     cases: [S18, S20, S21, S23]
@@ -58,7 +58,7 @@ scenarios:
     difficulty: Medium
     n: 20
   - name: three or more numbers, Easy — three single digits, a column that carries 2
-    skill_set: ADD.MULTI.SMALL
+    skill_set: ADD.MANY
     difficulty: Easy
     n: 20
     cases: [AA1]

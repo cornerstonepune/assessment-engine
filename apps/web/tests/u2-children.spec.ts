@@ -104,7 +104,7 @@ test.beforeAll(async () => {
   ids = await testClass();
   await clearUp();
   // the class's own paper for the week, proposed by the engine and not yet approved
-  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D.EXCH" });
+  await engine("/week/prescribe", { section: SECTION, week: WEEK, skill_set: "SUB.2D2D" });
   await engine("/week/assemble", { section: SECTION, week: WEEK });
 });
 test.afterAll(async () => {

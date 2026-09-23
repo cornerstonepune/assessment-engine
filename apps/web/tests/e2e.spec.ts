@@ -88,16 +88,16 @@ test("a teacher can reach every section from the menu, and the menu says where t
 test("the skill map's counts are the real number of questions in the bank", async ({ page }) => {
   await page.goto("/");
   const [{ n, outcome }] = await sql<{ n: number; outcome: string }[]>`
-    select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D.EXCH') as outcome
-    from item where status = 'active' and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard'`;
+    select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome
+    from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`;
   const row = page.getByRole("row").filter({ hasText: outcome });
   await expect(row).toContainText(`${n} questions`);
 });
 
 test("a count on the skill map opens exactly those questions", async ({ page }) => {
   const [{ n, name }] = await sql<{ n: number; name: string }[]>`
-    select count(*)::int as n, (select name from skill_set where code = 'SUB.2D.EXCH') as name from item
-    where status = 'active' and source = 'generated' and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard'`;
+    select count(*)::int as n, (select name from skill_set where code = 'SUB.2D2D') as name from item
+    where status = 'active' and source = 'generated' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`;
   await page.goto("/");
   await page.getByRole("link", { name: `${name}, Hard: ${n} questions` }).click();
   await expect(page).toHaveURL(/set=SUB\.2D\.EXCH&difficulty=Hard/);
@@ -105,7 +105,7 @@ test("a count on the skill map opens exactly those questions", async ({ page }) 
 });
 
 test("a skill on the map opens its own page", async ({ page }) => {
-  const [{ outcome }] = await sql<{ outcome: string }[]>`select learning_objective as outcome from skill_set where code = 'SUB.2D.EXCH'`;
+  const [{ outcome }] = await sql<{ outcome: string }[]>`select learning_objective as outcome from skill_set where code = 'SUB.2D2D'`;
   await page.goto("/");
   await page.getByRole("link", { name: outcome }).click();
   await expect(page).toHaveURL(/skill-sets\/SUB\.2D\.EXCH/);
@@ -115,21 +115,21 @@ test("a skill on the map opens its own page", async ({ page }) => {
 // ---------------------------------------------------------------- approving a skill
 
 test("approving a skill records who did it, by name", async ({ page }) => {
-  const [before] = await sql`select status, ratified_by from skill_set where code = 'ADD.3D.REG'`;
+  const [before] = await sql`select status, ratified_by from skill_set where code = 'ADD.3D3D'`;
   try {
     // The test makes its own starting state. Status alone changes no content, so the versioning
     // trigger does not fire.
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = 'ADD.3D.REG'`;
-    await page.goto("/skill-sets/ADD.3D.REG");
+    await sql`update skill_set set status = 'draft', ratified_by = null where code = 'ADD.3D3D'`;
+    await page.goto("/skill-sets/ADD.3D3D");
     await page.getByRole("button", { name: "Approve as written" }).click();
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [after] = await sql<{ status: string; ratified_by: string }[]>`
-      select status, ratified_by from skill_set where code = 'ADD.3D.REG'`;
+      select status, ratified_by from skill_set where code = 'ADD.3D3D'`;
     expect(after.status).toBe("ratified");
     expect(after.ratified_by).toBe("End-to-end test");
   } finally {
     await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by}
-              where code = 'ADD.3D.REG'`;
+              where code = 'ADD.3D3D'`;
   }
 });
 
@@ -139,8 +139,8 @@ test("the bank's grid holds exactly what the database holds, and a cell opens th
   const [{ total, n, name }] = await sql<{ total: number; n: number; name: string }[]>`
     select (select count(*)::int from item where status = 'active' and source = 'generated') as total,
            (select count(*)::int from item where status = 'active' and source = 'generated'
-              and skill_set_code = 'SUB.2D.EXCH' and difficulty = 'Hard') as n,
-           (select name from skill_set where code = 'SUB.2D.EXCH') as name`;
+              and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard') as n,
+           (select name from skill_set where code = 'SUB.2D2D') as name`;
   await page.goto("/library");
   await expect(page.getByText(`${total.toLocaleString("en-IN")} questions ready to print`)).toBeVisible();
   const cell = page.getByRole("link", { name: `${name}, Hard: ${n} questions` });
@@ -151,7 +151,7 @@ test("the bank's grid holds exactly what the database holds, and a cell opens th
 });
 
 test("every question in the list shows its answer and opens its own page", async ({ page }) => {
-  await page.goto("/library?set=SUB.2D.EXCH&difficulty=Hard");
+  await page.goto("/library?set=SUB.2D2D&difficulty=Hard");
   const rows = page.locator("#questions tbody tr");
   for (const row of (await rows.all()).slice(0, 5)) {
     await expect(row.locator("td").nth(1)).toHaveText(/\d+/); // the answer
@@ -258,9 +258,9 @@ test("correcting a question's wording saves a new question and retires the old o
 
 test("removing a question retires it in the database and it stops being offered", async ({ page }) => {
   const levels = ["Easy", "Medium", "Hard", "Advance"];
-  const worksheets = await Promise.all(levels.map((d) => libraryOf(sql, "SUB.2D.EXCH", d)));
+  const worksheets = await Promise.all(levels.map((d) => libraryOf(sql, "SUB.2D2D", d)));
   try {
-    await page.goto("/library?set=SUB.2D.EXCH");
+    await page.goto("/library?set=SUB.2D2D");
     await page.locator("#questions tbody tr").first().locator("td").first().getByRole("link").click();
     await page.locator('input[name="note"]').fill(MARK);
     await page.getByRole("button", { name: "Remove this question" }).click();
@@ -281,7 +281,7 @@ test("removing a question retires it in the database and it stops being offered"
     expect(retired.status).toBe("retired");
     expect(retired.actor).toBeTruthy();
   } finally {
-    for (const [i, d] of levels.entries()) await restoreLibrary(sql, "SUB.2D.EXCH", d, worksheets[i]);
+    for (const [i, d] of levels.entries()) await restoreLibrary(sql, "SUB.2D2D", d, worksheets[i]);
     await sql`update item set status = 'active' where id in (
       select item_id from item_feedback where note = ${MARK})`;
     await sql`delete from item_feedback where note = ${MARK}`;

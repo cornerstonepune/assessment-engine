@@ -19,6 +19,11 @@ def matches(conn, codes=None):
     return {r["code"]: r["match"] for r in rows}
 
 
+def for_level(conn, check):
+    """{case code: match} for one level's cases, each on the level's own numbers when its skill has a shape."""
+    return {c: taxonomy.within(m, check.get("within")) for c, m in matches(conn, check["cases"]).items()}
+
+
 def of(fmt, tags, all_matches):
     """The taxonomy cases a question is, as measured: every case whose match its tags satisfy."""
     return sorted(c for c, m in all_matches.items() if taxonomy.matches(m, fmt, tags))
@@ -88,7 +93,7 @@ def outside_their_level(conn):
     a rule its kind has since corrected (`verify.key_problems`)."""
     regions = {
         (s["code"], band): spec.get("check", {})
-        for s in conn.execute("select code, difficulty from skill_set").fetchall()
+        for s in conn.execute("select code, difficulty from skill_set where status <> 'retired'").fetchall()
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
@@ -101,4 +106,25 @@ def outside_their_level(conn):
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
         if why := why + verify.key_problems(r["fmt"], r["spec"]):
             out.append(dict(r, why=why))
+    return out
+
+
+def placed(conn):
+    """Where every taxonomy case sits among the levels in use (goals/s13-levels-by-taxonomy.yaml): the levels
+    that name it, or — for a section the `taxonomy.across_levels` row names — the rule those levels climb.
+    Returns [(code, section, [(skill, level), ...], 'placed' | 'pattern' | 'unplaced')], in the document's order."""
+    row = conn.execute("select value from config where key = 'taxonomy.across_levels'").fetchone()
+    across = set((row["value"] if row else {}).get("sections", []))
+    named = defaultdict(list)
+    for s in conn.execute("select code, difficulty from skill_set where status <> 'retired' order by code"):
+        for level, spec in s["difficulty"].items():
+            for c in spec.get("check", {}).get("cases", []):
+                named[c].append((s["code"], level))
+    out = []
+    for c in conn.execute(
+        "select code, section from taxonomy_case order by string_to_array(section, '.')::int[], code"
+    ):
+        where = named.get(c["code"], [])
+        state = "placed" if where else ("pattern" if c["section"] in across else "unplaced")
+        out.append((c["code"], c["section"], where, state))
     return out

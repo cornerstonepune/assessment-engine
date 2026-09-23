@@ -31,8 +31,10 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
     ).fetchall()
     if not children:
         raise ValueError(f"no active children in section {section!r}")
-    if not conn.execute("select 1 from skill_set where code = %s", (skill_set,)).fetchone():
-        raise ValueError(f"no skill set {skill_set!r}")
+    if not conn.execute(
+        "select 1 from skill_set where code = %s and status <> 'retired'", (skill_set,)
+    ).fetchone():
+        raise ValueError(f"no skill set {skill_set!r} in use (retired or unknown)")
 
     defaults = _config(conn, "prescribe.band_default", {})
     out = []

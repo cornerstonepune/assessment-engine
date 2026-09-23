@@ -14,7 +14,7 @@ from engine.core import db
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SECTION, WEEK, SET = "APISEC", "api-week", "SUB.2D.EXCH"
+SECTION, WEEK, SET = "APISEC", "api-week", "SUB.2D2D"
 KEY = "test-engine-key"
 
 

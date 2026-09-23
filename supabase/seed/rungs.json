@@ -199,6 +199,152 @@
         "NUM.PV.03",
         "NUM.PRB.03"
       ]
+    },
+    {
+      "code": "R19",
+      "band": "G1",
+      "ladder_order": 21,
+      "descriptor": "Adds two 1-digit numbers, in columns and in a line, the answer one digit or two.",
+      "skill_codes": [
+        "NUM.OPS.01"
+      ]
+    },
+    {
+      "code": "R20",
+      "band": "G1",
+      "ladder_order": 22,
+      "descriptor": "Takes a 1-digit number from a 1-digit number, in columns and in a line.",
+      "skill_codes": [
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R21",
+      "band": "G2",
+      "ladder_order": 23,
+      "descriptor": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R22",
+      "band": "G2",
+      "ladder_order": 24,
+      "descriptor": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R23",
+      "band": "G2",
+      "ladder_order": 25,
+      "descriptor": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R24",
+      "band": "G2",
+      "ladder_order": 26,
+      "descriptor": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R25",
+      "band": "G3",
+      "ladder_order": 27,
+      "descriptor": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R26",
+      "band": "G3",
+      "ladder_order": 28,
+      "descriptor": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R27",
+      "band": "G3",
+      "ladder_order": 29,
+      "descriptor": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R28",
+      "band": "G3",
+      "ladder_order": 30,
+      "descriptor": "Adds three or more numbers lined up by the ones, where a column can carry 2 or more.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R29",
+      "band": "G3",
+      "ladder_order": 31,
+      "descriptor": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "skill_codes": [
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R30",
+      "band": "G3",
+      "ladder_order": 32,
+      "descriptor": "Takes a 2-digit number from a 3-digit number, exchanging in one column or two.",
+      "skill_codes": [
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R31",
+      "band": "G3",
+      "ladder_order": 33,
+      "descriptor": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R32",
+      "band": "G4",
+      "ladder_order": 34,
+      "descriptor": "Adds a 4-digit number and another, in columns and in a line, whatever the carries.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
+    },
+    {
+      "code": "R33",
+      "band": "G4",
+      "ladder_order": 35,
+      "descriptor": "Takes a number from a 4-digit number, exchanging through one zero or several.",
+      "skill_codes": [
+        "NUM.OPS.01",
+        "NUM.OPS.02"
+      ]
     }
   ]
 }

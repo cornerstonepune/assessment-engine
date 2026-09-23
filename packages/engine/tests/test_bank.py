@@ -191,17 +191,26 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
     table = inventory.coverage(conn)
     # Every skill_set x every difficulty band, zeros included. Derived, not hardcoded: adding a
     # skill set is a row (W1 gate 3 added multiplication that way), and this must not need an edit.
-    sets = conn.execute("select count(*) as n from skill_set").fetchone()["n"]
-    assert len(table) == sets * 4
+    # every level of every skill in use; a retired skill set builds nothing and is not counted (s13)
+    defined = {
+        r["code"]: set(r["levels"])
+        for r in conn.execute(
+            "select code, array(select jsonb_object_keys(difficulty)) as levels from skill_set"
+            " where status <> 'retired'"
+        )
+    }
+    assert len(table) == sum(len(v) for v in defined.values())
     row = next(r for r in table if r["code"] == SET and r["difficulty"] == DIFF)
     assert row["n"] >= 3
-    # Every skill set must report all four bands, zeros included — the point of the grid is that
-    # an empty unit is a visible 0, not a missing row. (No cell is empty any more, so this is
+    # Every skill set must report every level it defines, zeros included — the point of the grid is
+    # that an empty unit is a visible 0, not a missing row. (No cell is empty any more, so this is
     # asserted on the shape rather than on any one unit staying at zero.)
     by_code = {}
     for r in table:
         by_code.setdefault(r["code"], []).append(r["difficulty"])
-    assert all(set(v) == {"Easy", "Medium", "Hard", "Advance"} for v in by_code.values())
+    assert by_code == {
+        c: sorted(v, key=["Easy", "Medium", "Hard", "Advance"].index) for c, v in defined.items()
+    }
     assert all(isinstance(r["n"], int) and r["n"] >= 0 for r in table)
 
 
@@ -211,13 +220,13 @@ def test_coverage_targets_what_a_class_needs_and_a_units_own_ceiling_when_it_has
     need = inventory._class_need(conn)
     assert need == 216, "16 children at 12 questions with 2 spares"
     rows = {(r["code"], r["difficulty"]): r for r in inventory.coverage(conn)}
-    assert rows[("SUB.2D.EXCH", "Hard")]["target"] == need
-    small = rows[("ADD.1D.WITHIN10", "Easy")]
-    assert small["target"] < need, "a rung whose numbers run out keeps its measured ceiling"
+    assert rows[("SUB.2D2D", "Hard")]["target"] == need
+    small = rows[("ADD.1D1D", "Easy")]
+    assert small["target"] < need, "a level whose numbers run out keeps its measured ceiling"
     assert (
         small["target"]
         == conn.execute(
-            "select (difficulty -> 'Easy' ->> 'min_items')::int as n from skill_set where code = 'ADD.1D.WITHIN10'"
+            "select (difficulty -> 'Easy' ->> 'min_items')::int as n from skill_set where code = 'ADD.1D1D'"
         ).fetchone()["n"]
     )
 

@@ -16,7 +16,7 @@ from engine.w1_bank import spec
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-SET = "SUB.2D.EXCH"
+SET = "SUB.2D2D"
 PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_PREDICTORS) for c in table}
 
 
@@ -57,7 +57,7 @@ def mistake(name, a, b, writes, visible="answer_lookup", correct=None):
 
 
 def test_a_bands_numbers_obey_its_rule(conn):
-    check = {"op": "-", "digits": [3, 2], "regroups": [1]}  # SUB.2D.EXCH Hard's rule before step 8h
+    check = {"op": "-", "digits": [3, 2], "regroups": [1]}  # SUB.2D2D Hard's rule before step 8h
     pairs = bands.pairs(check, 30)
     assert len(pairs) == 30
     assert all(op == "-" and a > b and len(str(a)) == 3 and len(str(b)) == 2 for op, a, b in pairs)
@@ -216,7 +216,7 @@ def test_an_outcome_is_one_sentence_without_codes_or_jargon():
     assert any("one sentence" in p for p in spec.outcome_problems("Adds within 10. Reads = as balance."))
     assert any(
         "code" in p
-        for p in spec.outcome_problems("Adds two numbers as rung R5 of ADD.2D.REG requires them to.")
+        for p in spec.outcome_problems("Adds two numbers as rung R5 of ADD.2D2D requires them to.")
     )
     assert any(
         "planted" in p

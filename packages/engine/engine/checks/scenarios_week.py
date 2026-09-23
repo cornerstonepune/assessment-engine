@@ -10,7 +10,7 @@ from engine.w2_print import assemble, prescribe
 
 SECTION = "GOALSEC"
 WEEK = "goal-week"
-SET = "SUB.2D.EXCH"
+SET = "SUB.2D2D"
 
 
 def _config(conn, key, default):

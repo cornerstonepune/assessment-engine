@@ -204,7 +204,7 @@ def test_fill_labels_a_budget_problem_with_the_skills_it_uses(conn):
 def test_fill_labels_3_digit_addition_with_addition_alone(conn):
     from engine.w1_bank import refill
 
-    _, _, items = refill.fill_cases(conn, "ADD.3D.REG", "Medium", 16, dry_run=True)
+    _, _, items = refill.fill_cases(conn, "ADD.3D3D", "Medium", 16, dry_run=True)
     assert items and {tuple(it.skills) for it in items if it.fmt in ("column_grid", "bare_sum")} == {
         ("NUM.OPS.01",)
     }
@@ -328,7 +328,7 @@ def test_confirm_an_unexplained_wrong_answer_or_a_blank_counts_once_against_the_
 
 def test_confirm_a_one_skill_question_counts_exactly_as_it_did_before(conn):
     labels.relabel(conn)
-    q = _item(conn, "skill_set_code = 'ADD.2D.REG' and fmt = 'column_grid'")
+    q = _item(conn, "skill_set_code = 'ADD.2D2D' and fmt = 'column_grid'")
     child = _paper(conn, [(q["id"], "wrong", ["M_NOCARRY"])])
     conn.execute("select confirm_results(%s, 'a test')", (child,))
     assert q["skill_codes"] == ["NUM.OPS.01"]
