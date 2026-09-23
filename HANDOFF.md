@@ -14,7 +14,9 @@ no skill. Now the text is solved into a, b, op (or addends) and measured as a ne
 ADD.MANY's Advance (a seed change, so ADD.MANY waits for approval again). **On live, in this order:**
 `bin/engine load && bin/engine bank relabel && bin/engine bank rehome && bin/engine graph` — relabel before rehome,
 since rehome places by stored tags. Marking G2 484 = 30 papers' printed questions, each counted once (checked).
-Next: update-live order + `engine check live`, See the paper, Marking totals row, `engine read file`.
+`bin/update-live` now runs relabel → rehome → refill → library → graph and ends with `engine live data` (read only;
+fails on an unapplied migration, answers off the shown skills, a stale graph, a question counted twice).
+Next: See the paper, Marking totals row, `engine read file`.
 
 ## 2026-09-23, evening — levels by taxonomy, old ladder gone, Curriculum a tree (start here)
 
