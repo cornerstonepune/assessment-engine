@@ -6,7 +6,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db, roster
-from engine.w2_print import assemble, focus_paper, prescribe
+from engine.w2_print import assemble, focus_paper, pack, prescribe
 
 week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
 
@@ -24,7 +24,7 @@ def week_prescribe(
     section: str,
     week: str,
     skill_set: str = typer.Option(..., "--set", help="What was taught — the teacher's declaration"),
-    kind: str = typer.Option("practice", "--kind", help="practice | assessment | home"),
+    kind: str = typer.Option("practice", "--kind", help="practice | assessment"),
 ) -> None:
     """Choose each child's difficulty for the week, and say which rule chose it."""
     with db.connect() as conn:
@@ -74,12 +74,20 @@ def week_approve(
     """N7's gate by hand, for an operator without the screen. The database refuses a printed sheet
     that cannot say who allowed it, so this is the only way it reaches a child."""
     with db.connect() as conn:
-        out = assemble.approve(conn, section, week, kind, by)
+        out = pack.approve(conn, section, week, kind, by)
         conn.commit()
     typer.echo(
         f"  {out['sheets']} sheets approved by {out['approved_by']}"
         f" — {out['named']} named, {out['spares']} spare"
     )
+
+
+@week_app.command("pack")
+def week_pack(section: str, week: str, kind: str = typer.Option("practice", "--kind")) -> None:
+    """The approved pack as one PDF, in handout order; refused while any paper in it waits for a teacher."""
+    with db.connect() as conn:
+        out = pack.pdf(conn, section, week, kind, db.REPO_ROOT / "data" / "packs")
+    typer.echo(f"  {out}")
 
 
 @week_app.command("focus")

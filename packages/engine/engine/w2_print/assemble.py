@@ -10,7 +10,6 @@ for one child, its page geometry, is kept on that child's sheet instance.
 import hashlib
 import json
 import shutil
-import subprocess
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -19,6 +18,7 @@ from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db, roster
 from engine.w1_bank.inventory import item_from_row
+from engine.w2_print import pack
 
 
 def _config(conn, key, default):
@@ -94,7 +94,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     if not rx:
         raise ValueError(f"no prescriptions for {section} {week} {kind} — run prescribe first")
 
-    pack = {"section": section, "week": week, "kind": kind}  # the pack every paper here belongs to
+    into = {"section": section, "week": week, "kind": kind}  # the pack every paper here belongs to
     given: set = set()  # worksheets handed out this week
     used: set = set()  # their questions — no two children share one
     built, short = [], []
@@ -121,7 +121,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
             continue
         given.add(w["id"])
         used.update(w["item_ids"])
-        built.append(_hand_out(conn, tenant, pack, p, w))
+        built.append(_hand_out(conn, tenant, into, p, w))
 
     spares = []
     for difficulty in sorted({p["difficulty"] for p in rx}):
@@ -143,20 +143,20 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
                 "roll_no": f"spare {n}",
                 "rule_fired": "spare",
             }
-            spares.append(_hand_out(conn, tenant, pack, spare, w))
+            spares.append(_hand_out(conn, tenant, into, spare, w))
 
     return {"sheets": built, "spares": spares, "short": short}
 
 
-def _hand_out(conn, tenant, pack, p, w):
+def _hand_out(conn, tenant, into, p, w):
     """One library worksheet given to one child, or kept as a spare: a new sheet instance — the code on
     the page — pointing at the worksheet, which is never edited."""
     # The section is in the code because two classes can be handed the same worksheet in one week.
-    qr = _qr(w["id"], p["child_id"], pack["section"], p["roll_no"], pack["week"], pack["kind"])
+    qr = _qr(w["id"], p["child_id"], into["section"], p["roll_no"], into["week"], into["kind"])
     instance = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind)"
         " values (%s,%s,%s,%s,%s,%s,%s) returning id, qr_code",
-        (tenant, qr, w["id"], p["child_id"], pack["week"], pack["section"], pack["kind"]),
+        (tenant, qr, w["id"], p["child_id"], into["week"], into["section"], into["kind"]),
     ).fetchone()
     if p["id"]:
         conn.execute(
@@ -172,7 +172,7 @@ def _hand_out(conn, tenant, pack, p, w):
             "insert into item_exposure (tenant_id, child_id, item_id, week)"
             " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id"
             " on conflict (tenant_id, child_id, item_id) do nothing",
-            (tenant, p["child_id"], pack["week"], list(w["item_ids"])),
+            (tenant, p["child_id"], into["week"], list(w["item_ids"])),
         )
     # `item.times_used` is NOT written here. It is a derived number — how often a question has been
     # handed out, which `item_exposure` already records row by row — and writing it from the hot path
@@ -193,6 +193,31 @@ def _hand_out(conn, tenant, pack, p, w):
         "rule": p["rule_fired"],
         "item_rows": [rows[i] for i in w["item_ids"]],
     }
+
+
+def made(conn, section: str, week: str, kind: str = "practice") -> dict:
+    """The pack already made for a class's week, in handout order, shaped as `for_week` returns it — so a pack is
+    drawn as it was made. Rendering never assembles again: that handed every child a second paper."""
+    papers = pack.papers(conn, section, week, kind)
+    if not papers:
+        raise ValueError(f"no papers made for {section} {week} {kind} — assemble first")
+    detail = {
+        r["qr_code"]: r
+        for r in conn.execute(
+            "select si.qr_code, si.id as instance_id, st.band, st.code, st.skill_set_code, st.difficulty, st.item_ids"
+            " from sheet_instance si join sheet_template st on st.id = si.sheet_template_id where si.qr_code = any(%s)",
+            ([p["qr_code"] for p in papers],),
+        )
+    }
+    ids = list({i for d in detail.values() for i in d["item_ids"]})
+    rows = {r["id"]: r for r in conn.execute("select * from item where id = any(%s)", (ids,))}
+    out = {"sheets": [], "spares": [], "short": []}
+    for p in papers:
+        d = detail[p["qr_code"]]
+        sheet = {**d, "qr": p["qr_code"], "child_id": p["child_id"], "roll_no": p["roll_no"]}
+        sheet["item_rows"] = [rows[i] for i in d["item_ids"]]
+        out["sheets" if p["child_id"] else "spares"].append(sheet)
+    return out
 
 
 def label(name, s, kind):
@@ -231,45 +256,10 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
             pdfs.append(str(outdir / f"{s['qr']}.pdf"))
             s["pages"] = key["pages"]
 
-    pack = outdir / f"{week}_pack.pdf"
-    subprocess.run(["pdfunite", *pdfs, str(pack)], check=True)
+    merged = pack.merge(pdfs, outdir / f"{week}_pack.pdf")
     return {
-        "pack": str(pack),
+        "pack": str(merged),
         "sheets": len(built["sheets"]),
         "spares": len(built["spares"]),
         "pages": sum(s["pages"] for s in sheets),
-    }
-
-
-def approve(conn, section: str, week: str, kind: str = "practice", by: str = "") -> dict:
-    """A person says the week may be printed, and their name goes on every sheet in it.
-
-    One tap for a class (N7): the teacher's attention is the scarcest thing in the school, so this
-    is per week and not per sheet. The database refuses a printed sheet with no approver
-    (`sheet_instance_printed_needs_approver`), which is what makes this a gate and not a label.
-    """
-    if not by:
-        raise ValueError("an approval must name a person — that is the whole point of it")
-    # A paper handed out from the library knows its own week, class and pack; a paper generated
-    # before step 7 is found, as it always was, through its own template's week.
-    rows = conn.execute(
-        "update sheet_instance si set print_status = 'printed', printed_at = now(),"
-        " approved_by = %s, approved_at = now(), updated_at = now()"
-        " where si.print_status = 'new' and ("
-        "   (si.week = %s and si.section = %s and si.kind = %s)"
-        "   or si.sheet_template_id in ("
-        "     select st.id from sheet_template st left join child c on c.id = st.child_id"
-        "     where st.source = 'generated' and st.week = %s and (c.section = %s or st.child_id is null)))"
-        " returning si.qr_code, si.child_id",
-        (by, week, section, kind, week, section),
-    ).fetchall()
-    return {
-        "section": section,
-        "week": week,
-        "kind": kind,
-        "approved_by": by,
-        "sheets": len(rows),
-        "named": sum(1 for r in rows if r["child_id"]),
-        "spares": sum(1 for r in rows if not r["child_id"]),
-        "qr_codes": [r["qr_code"] for r in rows],
     }

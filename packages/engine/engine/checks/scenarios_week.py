@@ -6,7 +6,7 @@ the rows the real path writes, which is the only way to catch what the parts' ow
 """
 
 from engine.core import db
-from engine.w2_print import assemble, prescribe
+from engine.w2_print import assemble, pack, prescribe
 
 SECTION = "GOALSEC"
 WEEK = "goal-week"
@@ -272,7 +272,7 @@ def nothing_prints_until_a_person_approves(conn, sc):
         pass
     conn.execute("rollback to savepoint no_approver")
 
-    out = assemble.approve(conn, SECTION, WEEK, "practice", "a test")
+    out = pack.approve(conn, SECTION, WEEK, "practice", "a test")
     rows = conn.execute(
         "select print_status, approved_by from sheet_instance where qr_code = any(%s)", (qrs,)
     ).fetchall()

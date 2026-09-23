@@ -86,8 +86,8 @@
       "built": "partly",
       "takes": ["sheet_instance"],
       "gives": ["papers marked printed"],
-      "files": [],
-      "commands": [],
+      "files": ["engine/w2_print/pack.py"],
+      "commands": ["engine week approve", "engine week pack"],
       "screens": ["/worksheets", "/today", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
     },

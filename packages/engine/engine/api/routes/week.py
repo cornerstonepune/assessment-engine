@@ -8,6 +8,7 @@ which is what the CLI and the tests call too. F2 forwards answers; it never comp
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Response
+from fastapi.responses import FileResponse
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
@@ -22,7 +23,7 @@ from engine.api.models import (
     WeekRenderResponse,
 )
 from engine.core import db
-from engine.w2_print import assemble, prescribe
+from engine.w2_print import assemble, pack, prescribe
 from engine.w3_read import legacy
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -100,7 +101,7 @@ def render_week(
     key = idempotency_key or derive_key(body.model_dump())
 
     def run():
-        built = assemble.for_week(conn, body.section, body.week, body.kind)
+        built = assemble.made(conn, body.section, body.week, body.kind)
         out = assemble.render(conn, built, db.REPO_ROOT / body.out, body.week, body.actor, body.kind)
         return {
             "section": body.section,
@@ -124,15 +125,30 @@ def approve_week(
     conn=Depends(get_conn),
     tenant_id: str = Depends(get_tenant_id),
 ):
-    """The human gate, over HTTP so the app and a flow use one implementation. A second call
-    approves nothing further: only sheets still `new` move."""
-    key = idempotency_key or derive_key(body.model_dump())
+    """The human gate, over HTTP so the app and a flow use one implementation. Approving is safe to repeat —
+    only sheets still `new` move — so a call without an Idempotency-Key simply runs. Keyed on its body, as the
+    other routes are, a teacher approving a pack remade since an earlier approval was handed that earlier answer
+    and nothing moved; a key sent by a retrying flow still returns the first answer."""
 
     def run():
-        return assemble.approve(conn, body.section, body.week, body.kind, body.by)
+        return pack.approve(conn, body.section, body.week, body.kind, body.by)
 
-    result, already = run_idempotent(conn, tenant_id, "week_approve", key, body.model_dump(), run)
+    if not idempotency_key:
+        return {**run(), "already": False}
+    result, already = run_idempotent(conn, tenant_id, "week_approve", idempotency_key, body.model_dump(), run)
     return {**result, "already": already}
+
+
+@router.get("/week/{section}/{week}/{kind}/pack.pdf")
+def pack_pdf(section: str, week: str, kind: str, conn=Depends(get_conn)) -> FileResponse:
+    """The approved pack as one PDF for the Papers page to hand on. Refused, in words, while it waits."""
+    try:
+        out = pack.pdf(conn, section, week, kind, db.REPO_ROOT / "data" / "packs")
+    except LookupError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except (PermissionError, FileNotFoundError) as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
+    return FileResponse(out, media_type="application/pdf", filename=out.name)
 
 
 @router.get("/sheet/{qr}/page/{page_no}.jpg")
