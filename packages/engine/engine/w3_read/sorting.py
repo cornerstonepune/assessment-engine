@@ -53,7 +53,25 @@ def group(codes: list[str | None], length=lambda code: 0) -> list[dict]:
         else:
             last["pages"].append(n)
             last["unread"].append(n)
-    return out
+    # A page with no code read, after a copy already whole, was guessed above as a copy of the worksheet before
+    # it. Where the copy after it is short by exactly those pages, they are its first pages: on 2026-09-23 page 27
+    # was R5-H14's first page, and taken for another R2-E12 it would have been marked against R2-E12's questions.
+    merged = []
+    for p in out:
+        prev = merged[-1] if merged else None
+        need = p["qr"] and length(p["qr"])
+        if (
+            prev and need and prev["pages"] == prev["unread"] and prev["pages"][-1] + 1 == p["pages"][0]
+            and len(prev["pages"]) + len(p["pages"]) == need
+        ):  # fmt: skip
+            merged[-1] = {
+                "qr": p["qr"],
+                "pages": prev["pages"] + p["pages"],
+                "unread": prev["unread"] + p["unread"],
+            }
+        else:
+            merged.append(p)
+    return merged
 
 
 def worksheets(conn, codes) -> dict:
