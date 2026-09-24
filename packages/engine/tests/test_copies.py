@@ -172,3 +172,17 @@ def test_a_question_whose_number_is_not_found_on_the_page_takes_its_page_from_th
     assert "8" in by_key and 8 not in unread
     assert by_key["8"]["spec"]["page"] == words[8][0]
     assert by_key["8"]["spec"]["question"].split()[:4] == words[8][1].split()[:4]
+
+
+def test_a_copy_cut_where_the_server_cannot_see_it_moves_to_where_the_scans_live(tmp_path, monkeypatch):
+    """2026-09-24: the first copies were cut inside the repository, which the server does not mount; the next read
+    moves each to `~/cornerstone/assessments/copies` rather than cutting it again, so its bytes — and so the
+    capture it was read into — stay the same."""
+    monkeypatch.setattr(copies, "CUT", tmp_path / "assessments" / "copies")
+    monkeypatch.setattr(copies, "WAS_CUT", tmp_path / "repo" / "data" / "scans")
+    old = tmp_path / "repo" / "data" / "scans" / "class" / "copy01-R8-H02.pdf"
+    old.parent.mkdir(parents=True)
+    old.write_bytes(b"%PDF the copy as first cut")
+    moved = copies._cut(tmp_path / "class.pdf", [1, 2, 3], "copy01-R8-H02.pdf")
+    assert moved == tmp_path / "assessments" / "copies" / "class" / "copy01-R8-H02.pdf"
+    assert moved.read_bytes() == b"%PDF the copy as first cut" and not old.exists()

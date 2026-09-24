@@ -12,18 +12,26 @@ is on, and the band of page 1 above question 1 — the name — which the reader
 """
 
 import json
+import shutil
 from pathlib import Path
 
 import pymupdf
 
 from engine.core import db, roster
 from engine.w2_print import library
-from engine.w3_read import legacy, sorting
+from engine.w3_read import legacy, read_eval, sorting
 
-CUT = db.REPO_ROOT / "data" / "scans"
+# Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
+# a copy cut anywhere else can be read here but never shown on the approval screens.
+CUT = Path(read_eval.ASSESSMENTS).expanduser() / "copies"
+WAS_CUT = (
+    db.REPO_ROOT / "data" / "scans"
+)  # where the first copies were cut, 2026-09-24; moved on their next read
 SKIP = {"", "?", "-"}
-STOPS = {"working", "Answer"}
-NAME_BAND = 0.17  # the library page's name line ends at 13% of the page (`render.py`, the header); a margin over it  # the labels printed under a question, where its words end
+STOPS = {"working", "Answer"}  # the labels printed under a question, where its words end
+NAME_BAND = (
+    0.17  # the library page's name line ends at 13% of the page (`render.py`, the header); a margin over it
+)
 
 
 def printed(path) -> tuple[dict, float]:
@@ -127,9 +135,18 @@ def _child(conn, section, who, actor):
     return r["id"]
 
 
+def _home(path) -> str:
+    """A path as `capture.path` records one: from the home folder, so it resolves on the server as on this Mac."""
+    return str(Path(path).resolve()).replace(str(Path.home()), "~")
+
+
 def _cut(scan, pages, name):
     """The copy's pages as a file of their own — once: a second run reads the same file, so nothing is read twice."""
     out = CUT / Path(scan).stem / name
+    was = WAS_CUT / Path(scan).stem / name
+    if was.exists() and not out.exists():
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(was, out)
     if not out.exists():
         out.parent.mkdir(parents=True, exist_ok=True)
         src, doc = pymupdf.open(scan), pymupdf.open()
@@ -185,6 +202,11 @@ def read(conn, scan, section, names, actor, pages_of=None):
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
         cut = _cut(scan, copy["pages"], f"copy{k:02d}-{code}.pdf")
         s = legacy.import_scan(conn, str(cut), code, cid, actor, rows=(template, by_key))
+        # a copy read before it moved (`WAS_CUT`): its reading now points at where it lives
+        conn.execute(
+            "update capture set path = %s where id = %s and path <> %s",
+            (_home(cut), s["capture_id"], _home(cut)),
+        )
         # The page each answer was read on, kept with its reading: a worksheet question's page is not in the
         # bank's row (`paper`), and the approval screens show the photograph of that page. Only where missing.
         for it in by_key.values():

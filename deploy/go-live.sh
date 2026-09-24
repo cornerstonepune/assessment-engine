@@ -80,11 +80,16 @@ say "5/7 the two settings, and the scans the engine has read"
 grep -E '^(DATABASE_URL|ENGINE_KEY|TENANT_SLUG)=' "$REPO/.env" > "$WORK/env"
 "${SSH[@]}" 'umask 077 && cat > ~/assessment-engine/.env' < "$WORK/env"
 "$REPO/packages/engine/.venv/bin/python" - > "$WORK/scans" <<'PY'
-import os
+import os, sys
 from engine.core import db
+home = os.path.expanduser("~/cornerstone/assessments")
 with db.connect() as conn:
     for r in conn.execute("select distinct path from capture where superseded_by is null"):
-        print(os.path.relpath(os.path.expanduser(r["path"]), os.path.expanduser("~/cornerstone/assessments")))
+        rel = os.path.relpath(os.path.expanduser(r["path"]), home)
+        if rel.startswith(".."):  # the server mounts only ~/cornerstone/assessments: this one cannot be shown there
+            print(f"not sent, it is outside ~/cornerstone/assessments: {r['path']}", file=sys.stderr)
+        elif os.path.exists(os.path.join(home, rel)):
+            print(rel)
 PY
 echo "$(wc -l < "$WORK/scans" | tr -d ' ') scans"
 COPYFILE_DISABLE=1 tar --no-xattrs -C ~/cornerstone/assessments -cf - -T "$WORK/scans" \
