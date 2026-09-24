@@ -111,8 +111,15 @@ def read(conn, scan, section, names, actor, pages_of=None):
     own = [p for p in papers if p["sheet"] and p["sheet"]["source"] == "library" and p["sheet"]["child_id"]]
     bare = [p for p in papers if p["worksheet"] and not p["sheet"]]
     if len(names) != len(bare):
+        found = [
+            f"copy {k}: pages {p['pages'][0]}–{p['pages'][-1]}, {p['qr']}"
+            + (f", {len(p['pages'])} of its {p['length']} pages" if len(p["pages"]) != p["length"] else "")
+            + (f", no code read on page {', '.join(map(str, p['unread']))}" if p["unread"] else "")
+            for k, p in enumerate(bare, 1)
+        ]
         raise ValueError(
-            f"the file holds {len(bare)} copies of library worksheets with no child's code; {len(names)} names given"
+            f"the file holds {len(bare)} copies of library worksheets with no child's code; {len(names)} names"
+            " given — one name (or ?) per copy, in this order:\n  " + "\n  ".join(found)
         )
     who = dict(
         zip(

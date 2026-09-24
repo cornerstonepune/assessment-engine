@@ -147,7 +147,7 @@ def test_a_copy_left_unnamed_is_skipped_and_the_wrong_number_of_names_is_refused
     _child(conn, tenant, "43", "Chitra")
     scan = _scanned([pdf, pdf], tmp_path / "class.pdf")
     length = lambda c: len(pymupdf.open(pdf))  # noqa: E731
-    with pytest.raises(ValueError, match="2 copies"):
+    with pytest.raises(ValueError, match=r"2 copies(.|\n)*copy 2: pages \d+–\d+, R8-H9"):
         copies.read(conn, scan, SECTION, ["Chitra"], "test", pages_of=length)
     with pytest.raises(ValueError, match="0 children called 'Nobody'"):
         copies.read(conn, scan, SECTION, ["Nobody", "?"], "test", pages_of=length)
