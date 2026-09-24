@@ -274,12 +274,20 @@ export type PendingResult = {
   working: string;
   status: string;
   misconception_codes: string[];
+  capture_id: string;
+  paper_id: string;
+  page: number;
+  box: number[] | null;
 };
 
 export async function pendingResults(id: string): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
-    select r.id, coalesce(t.key ->> 'title', t.code) as paper, t.key ->> 'date' as date, i.item_key,
-           i.spec ->> 'question' as question, i.responses -> 0 ->> 'answer' as answer,
+    select r.id, coalesce(t.key ->> 'title', t.code) as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
+           i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, i.responses -> 0 ->> 'answer' as answer,
+           r.capture_id, si.id as paper_id,
+           coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
+           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
+                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
@@ -290,7 +298,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     where si.child_id = ${id}::uuid and r.state = 'candidate' and c.superseded_by is null
-    order by t.key ->> 'date', i.item_key`;
+    order by t.key ->> 'date', si.id, page, i.item_key`;
 }
 
 export type Evidence = {

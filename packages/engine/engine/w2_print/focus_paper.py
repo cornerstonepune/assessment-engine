@@ -36,7 +36,10 @@ WHY = {
     "stretch_ready": "ready to move up",
     "asked": "chosen by a teacher",
 }
-HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by their teacher"}
+HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by their educator"}
+# What the paper says it is, at the top of the page: a paper chosen from a child's graph is the one sent home
+# (Nimish, 2026-09-24: "it needs to be explicitly written as home assessment").
+TITLE = {"focus": "Home assessment", "custom": "Practice"}
 MOST_ASKED = 40
 PREVIEW = (
     "PREVIEW"  # the QR a paper seen before approval carries: no sheet has it, so a stray copy never reads
@@ -278,11 +281,13 @@ def _render(conn, child_id, week, actor, kind, p, ids, qr, outdir):
     """The paper as it prints, into `outdir` as `<qr>.pdf`; returns its key. Approving and seeing it both come here."""
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     rows = {str(r["id"]): r for r in conn.execute("select * from item where id = any(%s::uuid[])", (ids,))}
-    title = "Practice on: " + " · ".join(a["name"] for a in p["areas"])
+    title = f"{TITLE[kind]}: " + " · ".join(a["name"] for a in p["areas"])
     sheet = Sheet(qr, band, "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
     name = roster.names(conn, [child_id], actor).get(child_id, "")
     with sync_playwright() as pw:
-        return render_sheet(sheet, outdir, week_label=f"{name or 'Practice'} · {HOW[kind]}", pw=pw)
+        return render_sheet(
+            sheet, outdir, week_label=f"{name or TITLE[kind]} · {TITLE[kind]}, {HOW[kind]}", pw=pw
+        )
 
 
 def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> bytes:

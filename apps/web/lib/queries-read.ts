@@ -149,7 +149,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
   return sql<CaptureAnswer[]>`
     select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
-           coalesce((i.spec ->> 'page')::int, 1) as page,
+           coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
@@ -252,7 +252,7 @@ export async function checkQueue(): Promise<QueueEntry[]> {
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
-    order by t.key ->> 'date' desc nulls last, ch.roll_no, si.id, coalesce((i.spec ->> 'page')::int, 1),
+    order by t.key ->> 'date' desc nulls last, ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
              nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int, i.item_key`;
 }
 
@@ -270,7 +270,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
   const rows = await sql<CheckItem[]>`
     select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
-           coalesce((i.spec ->> 'page')::int, 1) as page,
+           coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,

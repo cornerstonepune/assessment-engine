@@ -1,7 +1,8 @@
 // The child's next paper, chosen from their own ladder (goals/s11-focus-paper.yaml, u2-children.yaml). The engine
-// proposes (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas, why, the
-// questions — and a teacher approves it with one button, which prints it in their name. Once a week: an approved
-// paper is shown with who approved it, and no second one is offered.
+// proposes (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas, at what
+// level, why; its questions are one press away, on the paper as it prints ("See the paper"). A teacher approves it
+// with one button, which prints it in their name. Once a week: an approved paper is shown with who approved it, and
+// no second one is offered.
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { EngineDown, engineGet } from "@/lib/engine";
@@ -50,17 +51,14 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
                 <Link href={`/skill-sets/${a.skill_set}`} className="text-basalt no-underline hover:underline">{a.name}</Link>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <Pill tone="monsoon">{a.level}</Pill>
-                  <span className="text-[12px] text-basalt/62">{a.questions.length} questions</span>
+                  <span className="text-[12px] text-basalt/62">
+                    {a.questions.length} questions
+                    {a.questions.some((q) => q.shows_mistake)
+                      ? ` · ${a.questions.filter((q) => q.shows_mistake).length} can show the mistake`
+                      : ""}
+                  </span>
                 </div>
                 <div className="mt-1 text-[12.5px] text-terracotta">{a.why}</div>
-                <ul className="mt-2 grid gap-1 text-[12.5px] text-basalt/80">
-                  {a.questions.map((q) => (
-                    <li key={q.item_key}>
-                      <Link href={`/library/${q.item_key}`} className="text-basalt/80 no-underline hover:underline">{q.text}</Link>
-                      {q.shows_mistake ? <span className="ml-1 text-terracotta">· can show the mistake</span> : null}
-                    </li>
-                  ))}
-                </ul>
               </li>
             ))}
           </ol>
@@ -68,7 +66,7 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
             <button className="btn" type="submit">Approve this paper</button>{" "}
-            <a href={seeHref(childId, week)} target="_blank" rel="noreferrer" className="ml-3">
+            <a href={seeHref(childId, week)} target="_blank" rel="noreferrer" className="btn secondary ml-2">
               See the paper
             </a>
             <p className="note mt-2">
