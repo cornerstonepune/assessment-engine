@@ -3339,3 +3339,21 @@ ADR 0034; goals `s13-levels-by-taxonomy`, `s14-graph-by-skill`, `s15-answer-boxe
   (1-digit − 1-digit has no Hard). Skill tables scroll inside themselves on a phone (s2 and s3 phone faults fixed).
 - Engine suite: only the environment-only failures named under U2. Web: 87 passed; `e2e` "no two children share
   questions", `s4` "the queue counts", `s7` "names the worksheet" still need live's data, as on main before.
+
+## S16 — a printed paper is read in its boxes; a photographed page keeps its pixels (2026-09-24)
+
+Goal `s16-read-the-boxes` (`bin/engine goal s16-read-the-boxes`). Nimish, on Advika's 24 Sep paper: "reading some
+numbers from the working while you have only designed it as a working section" — and "150 dpi, and that is 4 pixels".
+- **Read where it printed** (`w3_read/boxes.py`, `assess/geometry.py`): the scan is lined up with the PDF it came from
+  (ORB + RANSAC, ≥ 60 inliers, no corner marks needed), each answer's boxes cut out at the recorded place, only that
+  strip handed to the reader. Blank, inked-box count and "working written in" are pixel counts. A reading stands only
+  when its digits equal the inked boxes. Papers without a geometry (the teachers' old papers) keep the old reader.
+- **The photograph's own pixels** (`render_pdf.photo`): a phone scan is a 2000–3000 px photo letterboxed on an A4 PDF
+  page; drawing it at 150 dpi halved it. `sorting.qr_of` decodes with zxing-cpp over five looks × three binarizers,
+  then OpenCV. On the real 24 Sep file (16 pages): **3 → 13 of 16** codes read here; the rest fall to the printed code.
+- `cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_sorting.py` → `13 passed`
+  (five new: every box digit read and no working digit; working is the third signal; a count mismatch waits; a blurred
+  compressed code reads; a page that is not the paper does not line up). Full engine suite green here (database tests
+  skip: no local copy). `bin/check` → green (render.py 419 → 394 by moving the geometry record out; ceiling unchanged).
+- **Not verified on live**: no Textract here (the sandbox's AWS key is invalid) and no route to the live database. The
+  24 Sep papers are read on the Mac or the server after merge; then a child-wise table from `copies.tally`.

@@ -62,3 +62,42 @@ def render(path, dpi: int = DPI, max_pixels: int = 0, long_side: int = 0):
             rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
             pages.append(cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
     return pages
+
+
+# A phone's "scan" is a photograph wrapped in a PDF page: 2000-3000 pixels across, placed on an A4 page with
+# white bands where the shapes differ. Drawing that page at 150 dpi throws half the photograph away — the
+# QR on it went from about 8 pixels a module to 4, and 13 of 16 codes on the 2026-09-24 file stopped
+# reading. The photograph itself is what a code or a box is read from.
+def photo(path, page_no=1):
+    """One page as the pixels it holds: the photograph inside a scan's PDF page, at its own size, with
+    where it sits on the page as (left, top, right, bottom) fractions; a drawn page, or an image file, whole."""
+    path = str(path)
+    if path.lower().endswith((".jpg", ".jpeg", ".png")):
+        return cv2.imread(path), (0.0, 0.0, 1.0, 1.0)
+    with pymupdf.open(path) as doc:
+        page = doc[page_no - 1]
+        images = page.get_images()
+        rects = page.get_image_rects(images[0][0]) if len(images) == 1 else []
+        if len(rects) == 1 and abs(rects[0]) >= 0.8 * abs(page.rect):
+            pix = pymupdf.Pixmap(doc, images[0][0])
+            if pix.n - pix.alpha != 3 or pix.alpha:
+                pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
+            rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
+            r, p = rects[0], page.rect
+            frame = (r.x0 / p.width, r.y0 / p.height, r.x1 / p.width, r.y1 / p.height)
+            return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), frame
+        zoom = 254 / 72  # a drawn page at a photograph's own resolution, near enough
+        pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), colorspace=pymupdf.csRGB)
+        rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
+        return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), (0.0, 0.0, 1.0, 1.0)
+
+
+def photos(path):
+    """Every page of a file as `photo` gives it, in order, one at a time."""
+    if str(path).lower().endswith((".jpg", ".jpeg", ".png")):
+        yield photo(path)[0]
+        return
+    with pymupdf.open(str(path)) as doc:
+        n = len(doc)
+    for i in range(1, n + 1):
+        yield photo(path, i)[0]

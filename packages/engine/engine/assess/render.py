@@ -15,6 +15,7 @@ import segno
 from playwright.sync_api import sync_playwright
 
 from engine.assess.answer_space import _cells, _grid, _op, _text, _ticks, _work
+from engine.assess.geometry import GEOM_JS
 
 MM = 25.4 / 96.0  # CSS px -> mm
 
@@ -266,7 +267,9 @@ def _literal(text):
 
 
 def sheet_html(sheet, week_label="Week __"):
-    qr = segno.make(sheet.sheet_id, error="m", micro=False)
+    # the most error correction there is: a phone's scan smears the code's squares, and a child writes the
+    # date across it (2026-09-24) — a 30% loss still reads, and an eight-character code fits in the smallest QR either way
+    qr = segno.make(sheet.sheet_id, error="h", micro=False)
     buf = io.BytesIO()
     qr.save(buf, kind="svg", scale=4, border=1)
     svg = base64.b64encode(buf.getvalue()).decode()
@@ -321,24 +324,6 @@ def sheet_html(sheet, week_label="Week __"):
   src.remove();
 }})();
 </script></body></html>"""
-
-
-GEOM_JS = """
-() => {
-  const mm = 25.4/96;
-  const pages=[...document.querySelectorAll('.page')]; const out=[];
-  pages.forEach((pg,pi)=>{
-    const pr=pg.getBoundingClientRect();
-    pg.querySelectorAll('[data-r]').forEach(el=>{
-      const r=el.getBoundingClientRect();
-      out.push({page:pi+1, item:el.dataset.i, resp:el.dataset.r, k:+el.dataset.k, opt:el.dataset.opt||null,
-        kind: el.classList.contains('tick')?'tick':(el.classList.contains('textbox')?'text':'digit'),
-        x:(r.left-pr.left)*mm, y:(r.top-pr.top)*mm, w:r.width*mm, h:r.height*mm});
-    });
-  });
-  return {pages: pages.length, cells: out};
-}
-"""
 
 
 def render_sheet(sheet, outdir, week_label="Week __", pw=None):

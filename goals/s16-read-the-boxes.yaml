@@ -1,0 +1,37 @@
+name: s16-read-the-boxes
+goal: >
+  A paper this system printed is read where it was printed: the page is lined up with the page it came from
+  (the four corner marks), every answer box is cut out at the position the printer recorded, and only what is
+  inside the boxes is handed to the reader. A number written in the working space is never taken as the answer.
+  Whether a box is blank, and how many boxes hold ink, are decided by counting pixels, not by asking the reader.
+  Ink in the working space is the third signal (rule 5), not an answer. The code on a scanned page is read from
+  the page at its own resolution, with a decoder that survives a scanner's blur and compression, and the code
+  printed beside it is the fallback. Nothing here touches the teachers' old papers, which keep the reader they had.
+
+# Written 2026-09-24, before the work. Nimish, on Advika's paper: "You are essentially reading some numbers from
+# the working while you have only designed it as a working section. The children have written proper answers in
+# the boxes, but you are not even able to read that." On the QR: "you can't be reading the one … 150 dpi, and that
+# is 4 pixels. These are the formats that we are building." And from the 23 Sep brainstorm he pointed back to:
+# "Compose, don't build" — read the paper the way a form reader does, by position.
+says:
+  - words: "The children have written proper answers in the boxes"
+    proved_by: packages/engine/tests/test_boxes.py::test_every_digit_in_a_box_is_read_and_nothing_in_the_working_is
+  - words: "reading some numbers from the working while you have only designed it as a working section"
+    proved_by: packages/engine/tests/test_boxes.py::test_working_is_the_third_signal_never_the_answer
+  - words: "you can't be reading the one"
+    proved_by: packages/engine/tests/test_boxes.py::test_the_code_on_a_blurred_and_compressed_scan_is_still_read
+  - words: "you should be able to now read most of the questions"
+    proved_by: packages/engine/tests/test_boxes.py::test_a_reading_with_as_many_digits_as_inked_boxes_stands_and_one_without_waits
+manual:
+  - "On live, once merged: `bin/engine read file <scan> --read` on the 24 Sep scan from the server; then Marking."
+scenarios: []
+criteria:
+  - name: boxes read by position, on a scan made from a printed paper
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_sorting.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
+  - name: the engine's own test suite
+    run: cd packages/engine && .venv/bin/python -m pytest
+    expect: "passed"

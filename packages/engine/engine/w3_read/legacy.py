@@ -546,6 +546,7 @@ def import_scan(
             "page_numbers": page_numbers,
             "images": images,
             "masks": masks,
+            "file_pages": pages,  # which page of the file each image is, for reading it at its own pixels
         }
         for pg in reading.read_pages(conn, scan, cli, child_id):
             page_no, jpeg, readings = pg["page_no"], pg["jpeg"], pg["readings"]

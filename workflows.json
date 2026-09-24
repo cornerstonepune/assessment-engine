@@ -110,7 +110,7 @@
       "built": "live",
       "takes": ["capture", "item"],
       "gives": ["item_result", "read_correction", "child_reading_profile"],
-      "files": ["engine/w3_read/reading.py", "engine/w3_read/marking.py", "engine/w3_read/profiles.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
+      "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/marking.py", "engine/w3_read/profiles.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
       "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval"],
       "screens": ["/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
       "subject": {"any": false, "note": "The loop — notebook, trust per kind, a person's check — is any subject's. The reader reads numbers only, and marking is a lookup against computed answers: a subject answered in words would reach a person every time."}

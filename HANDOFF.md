@@ -3,6 +3,34 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-24, evening — a printed paper is read in its boxes; a photographed page keeps its pixels (W3 N8, N9)
+
+- Nimish, on Advika's 24 Sep paper: "You are essentially reading some numbers from the working while you have
+  only designed it as a working section. The children have written proper answers in the boxes." Root cause:
+  every scan went through the old-paper reader (`ocr.answers_for`), which finds a question's printed words and
+  takes the handwritten number nearest — on a paper with a working box under each question, the working. The
+  renderer had always recorded where every box prints (`<pdf>.key.json`, `geometry`); nothing read by it.
+- `w3_read/boxes.py`: a paper this system printed is lined up with the page it printed from (ORB + RANSAC against
+  the PDF drawn at 254 dpi, no corner marks needed — a phone scan app cuts them off), each answer's boxes are cut
+  out where recorded and only that strip, its printed lines painted out, goes to the reader. Code decides blank
+  (pixel count), how many boxes hold ink, and whether the working space was written in (rule 5's third signal,
+  now recorded in the geometry as `kind: work`). A reading stands only when its digit count equals the inked box
+  count. `reading.read_pages` takes this path whenever the paper carries `geometry` + `printed` (`copies.paper`
+  sets both from the key beside the PDF); a page that will not line up falls back to the old reader and says so.
+- The 24 Sep file itself (fetched here from Achal's link-shared Drive file, never into the repo): 16 photographed
+  pages, each 2000–3000 px, each a photo letterboxed on an A4 PDF page. Drawn at 150 dpi the QR fell to ~4 px a
+  module: OpenCV read 3 of 16. `render_pdf.photo` now hands back the photograph's own pixels; `sorting.qr_of`
+  tries zxing-cpp over the corner as it is, ×2, ×3, ×4 softened, three binarizers, then the old detector:
+  **13 of 16** here. The last three (pages 14–16) go to the printed-code fallback (#64, Textract, on the server).
+  QRs now print with the most error correction (`error="h"`); the code is still the smallest QR.
+- Not run on live: this sandbox has no Textract (its AWS key is invalid) and no route to the live database, so the
+  proof is the synthetic scan (`tests/test_boxes.py`, goal `s16-read-the-boxes`) plus the QR count on the real
+  file. Next: `bin/engine read file ~/Downloads/"24 sept.pdf" --read` on the Mac (or the server) after merge,
+  then Marking; then a child-wise table from `copies.tally`.
+- Still to build so nobody pastes commands (task 4): `POST /read/file` taking a Drive link, the engine fetching
+  the file to `~/cornerstone/assessments/inbox`, sorting and reading it; a "Read a scan" form on the site; the
+  n8n Drive-folder trigger calling the same endpoint (`n8n/workflows/f3-read-scans.json`).
+
 ## 2026-09-24, later — a library worksheet prints for children, one code each (W2 N6, W3 N8)
 
 - Nimish: "when you generate a worksheet for a child; that should be unique qr having the child and worksheet
