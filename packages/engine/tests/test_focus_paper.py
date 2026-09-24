@@ -224,3 +224,24 @@ def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper(conn, child):
     assert focus_paper.plan(conn, child, WEEK)["areas"] == []
     with pytest.raises(ValueError, match="no skill set"):
         focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.1D", "level": "Easy", "n": 3}])
+
+
+def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_or_below(conn):
+    """`skill_set.level_band`: a level named there belongs to that grade, any other to the skill's own."""
+    s = conn.execute(
+        "select s.code, r.band from skill_set s join rung r on r.code = s.rung_code"
+        " where r.band = 'G2' and s.difficulty ? 'Easy' and s.difficulty ? 'Hard' limit 1"
+    ).fetchone()
+    if not s:
+        pytest.skip("needs a Grade 2 skill with Easy and Hard on the copy")
+    conn.execute(
+        'update skill_set set level_band = \'{"Easy": "G1", "Medium": "G1"}\' where code = %s', (s["code"],)
+    )
+    g1, g2 = focus_paper._levels(conn, "G1")[s["code"]], focus_paper._levels(conn, "G2")[s["code"]]
+    assert "Easy" in g1 and "Hard" not in g1 and "Advance" not in g1
+    assert {"Easy", "Hard"} <= set(g2), "a Grade 2 child may still be given the levels Grade 1 teaches"
+    assert focus_paper._levels(conn)[s["code"]] == tuple(
+        conn.execute("select difficulty from skill_set where code = %s", (s["code"],)).fetchone()[
+            "difficulty"
+        ]
+    )

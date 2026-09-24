@@ -5,6 +5,8 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import {
   DIFFICULTIES,
+  GRADE_GROUPS,
+  gradeOf,
   gradeWords,
   levelsOf,
   skillSets,
@@ -14,7 +16,7 @@ import { mistakeBook } from "@/lib/queries-bank";
 import { levelExamples, skillKinds, skillMistakes } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
-import { approveSkills } from "./actions";
+import { approveSkills, saveGrades } from "./actions";
 
 type Props = {
   params: Promise<{ code: string }>;
@@ -105,6 +107,31 @@ export default async function SkillPage({ params, searchParams }: Props) {
         </div>
 
         <div className="grid gap-[18px]">
+          <Panel title="Which grade each level belongs to" aside="each level to one grade; a child is given a level of their grade or below">
+            {q.grades ? <Notice tone="neem">Saved: each level is now taught in the grade shown.</Notice> : null}
+            <form action={saveGrades} className="flex flex-wrap items-end gap-4">
+              <input type="hidden" name="code" value={s.code} />
+              {levelsOf(s).map((d) => (
+                <label key={d} className="grid gap-1 text-[13px]">
+                  <span className="label">{d}</span>
+                  <select name={`grade:${d}`} defaultValue={gradeOf(s, d)} className="border border-basalt/20 bg-white px-2 py-1">
+                    {GRADE_GROUPS.filter(([b]) => /^G\d$/.test(b) || b === s.band).map(([b, words]) => (
+                      <option key={b} value={b}>
+                        {words}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+              <button className="btn secondary" type="submit">
+                Save the grades
+              </button>
+            </form>
+            <p className="note mt-2">
+              A level in another grade shows under that grade on the Curriculum too. Moving a level does not change its
+              words, so the skill keeps its approval.
+            </p>
+          </Panel>
           <Panel
             title="At each level"
             aside="the level in words, and a real question from the bank"

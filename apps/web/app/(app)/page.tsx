@@ -1,12 +1,11 @@
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-import { DIFFICULTIES, GRADE_GROUPS } from "@/lib/queries";
+import { DIFFICULTIES, GRADE_GROUPS, gradeOf, type Difficulty } from "@/lib/queries";
 import { type CurriculumSkill, curriculum } from "@/lib/queries-curriculum";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
-const sum = (xs: Partial<Record<string, number>>) => Object.values(xs).reduce<number>((n, v) => n + (v ?? 0), 0);
 const fmt = (n: number) => n.toLocaleString("en-IN");
 
 // Curriculum — the shared tree (goals/t1-topics.yaml, u5-curriculum.yaml): grade → subject → topic → skill, as what a
@@ -42,18 +41,21 @@ export default async function CurriculumPage({ searchParams }: Props) {
         </p>
         <div className="grid gap-[18px]">
           {GRADE_GROUPS.map(([band, words]) => {
-            const group = skills.filter((s) => s.band === band);
+            // A skill stands under every grade one of its levels belongs to, with those levels only.
+            const inGrade = (s: CurriculumSkill) => DIFFICULTIES.filter((d) => s.difficulty[d] && gradeOf(s, d) === band);
+            const group = skills.filter((s) => inGrade(s).length);
             if (!group.length) return null;
             const topics = [...new Map(group.map((s) => [s.topic_code ?? "", s])).values()].sort(
               (a, b) => (a.topic_ord ?? 99) - (b.topic_ord ?? 99),
             );
-            const counts = `${group.length} ${group.length === 1 ? "skill" : "skills"} · ${fmt(group.reduce((n, s) => n + sum(s.counts), 0))} questions · ${fmt(group.reduce((n, s) => n + sum(s.worksheets), 0))} worksheets`;
+            const count = (xs: Partial<Record<string, number>>, s: CurriculumSkill) => inGrade(s).reduce((n, d) => n + (xs[d] ?? 0), 0);
+            const counts = `${group.length} ${group.length === 1 ? "skill" : "skills"} · ${fmt(group.reduce((n, s) => n + count(s.counts, s), 0))} questions · ${fmt(group.reduce((n, s) => n + count(s.worksheets, s), 0))} worksheets`;
             return (
               <Panel key={band} title={words} label={words} aside={counts}>
                 <div className="mb-2 font-heading text-[14px] text-basalt/70">{subject}</div>
                 <div className="grid gap-3">
                   {topics.map((t) => (
-                    <Topic key={t.topic_code ?? ""} name={t.topic_name ?? "Other"} skills={group.filter((s) => s.topic_code === t.topic_code)} />
+                    <Topic key={t.topic_code ?? ""} name={t.topic_name ?? "Other"} band={band} skills={group.filter((s) => s.topic_code === t.topic_code)} />
                   ))}
                 </div>
               </Panel>
@@ -65,7 +67,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
   );
 }
 
-function Topic({ name, skills }: { name: string; skills: CurriculumSkill[] }) {
+function Topic({ name, band, skills }: { name: string; band: string; skills: CurriculumSkill[] }) {
   const waiting = skills.filter((s) => s.status !== "ratified").length;
   return (
     <details open data-topic={name} className="rounded-md border border-basalt/10 bg-chalk/40 px-3 py-2">
@@ -82,15 +84,16 @@ function Topic({ name, skills }: { name: string; skills: CurriculumSkill[] }) {
       </summary>
       <div className="mt-2 grid gap-2">
         {skills.map((s) => (
-          <SkillNode key={s.code} s={s} />
+          <SkillNode key={s.code} s={s} band={band} />
         ))}
       </div>
     </details>
   );
 }
 
-function SkillNode({ s }: { s: CurriculumSkill }) {
-  const levels = DIFFICULTIES.filter((d) => s.difficulty[d]);
+function SkillNode({ s, band }: { s: CurriculumSkill; band: string }) {
+  const levels: Difficulty[] = DIFFICULTIES.filter((d) => s.difficulty[d] && gradeOf(s, d) === band);
+  const elsewhere = DIFFICULTIES.filter((d) => s.difficulty[d] && gradeOf(s, d) !== band);
   return (
     <details role="group" aria-label={s.learning_objective} className="rounded-md border border-basalt/15 bg-white px-3 py-2">
       <summary className="cursor-pointer text-[14px]">
@@ -99,6 +102,11 @@ function SkillNode({ s }: { s: CurriculumSkill }) {
           {s.name}
           {s.status === "ratified" ? <Pill tone="neem">approved</Pill> : <Pill tone="bamboo">waiting for approval</Pill>}
           <Link href={`/skill-sets/${s.code}`}>Read, edit and approve</Link>
+          {elsewhere.length ? (
+            <span className="text-basalt/55">
+              · {elsewhere.map((d) => `${d} in ${GRADE_GROUPS.find(([b]) => b === gradeOf(s, d))?.[1] ?? gradeOf(s, d)}`).join(", ")}
+            </span>
+          ) : null}
         </span>
       </summary>
       <ul className="mt-3 grid gap-3" aria-label={`Levels of ${s.name}`}>

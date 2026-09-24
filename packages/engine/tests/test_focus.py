@@ -134,3 +134,19 @@ def test_a_stretch_takes_the_hardest_level_the_skill_defines_up_to_its_target():
 
 def test_a_child_with_too_little_work_gets_no_home_paper():
     assert home([row("NUM.OPS.01", "R5", "not_enough_yet", 1, 2)], CATALOG, HOME, LEVELS) == []
+
+
+def test_a_child_is_given_only_the_levels_of_their_own_grade_or_below():
+    """Nimish, 2026-09-24: a skill's levels can belong to different grades, each to one. A Grade 1 child lagging
+    on 2-digit + 2-digit, whose Easy and Medium are Grade 1's and Hard and Advance Grade 2's, works on it at Medium
+    at most; a skill with no level of their grade is not theirs to work on, and the next weakest is."""
+    graph = [
+        row("NUM.OPS.02", "R6", "emerging", 1, 8),  # weakest, but SUB.2D2D has no Grade 1 level
+        row("NUM.OPS.01", "R5", "practising", 7, 10),
+    ]
+    grade_1 = {"ADD.2D2D": ("Easy", "Medium"), "SUB.2D2D": ()}
+    assert [(a.skill_set, a.level) for a in areas(graph, CATALOG, RULE, grade_1)] == [("ADD.2D2D", "Medium")]
+    assert [a.skill_set for a in home(graph, CATALOG, {**RULE, "stretch": {}}, grade_1)] == ["ADD.2D2D"]
+    # a level the share asks for that the child's grade does not hold gives way to the nearest one it does
+    only_hard = {"ADD.2D2D": ("Hard",), "SUB.2D2D": ()}
+    assert [a.level for a in areas(graph, CATALOG, RULE, only_hard)] == ["Hard"]
