@@ -8,7 +8,7 @@ reader's guess for whatever is left doubted.
 """
 
 from engine.adapters import ocr
-from engine.w3_read import profiles, second_reader, stencil
+from engine.w3_read import boxes, profiles, render_pdf, second_reader, stencil
 
 
 def read_pages(conn, scan, cli, child_id, notes=None, second=True):
@@ -26,8 +26,9 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
     if notes.get("floor"):
         cfg = {**cfg, "min_confidence": float(notes["floor"])}
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
+    file_pages = scan.get("file_pages") or list(range(1, len(images) + 1))
     out = []
-    for page_no, jpeg in zip(page_numbers, images):
+    for page_no, jpeg, file_page in zip(page_numbers, images, file_pages):
         spec = page_specs.get(page_no) or {}
         fraction = (masks or {}).get(page_no, spec.get("mask", 0))
         jpeg = legacy.mask_name_band(jpeg, fraction)
@@ -51,22 +52,42 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
         # The paper says where its answers live (rule 1): only a paper that prints a box per answer
         # hands the reader its boxes. On an underline paper a stray rectangle is not a field.
         jpeg = ocr.mask_red_pen(jpeg, cfg)
-        readings = stencil.read_page(
-            jpeg,
-            questions,
-            cfg,
-            cli,
-            form=paper.get("printed_as", paper_code),
-            page_no=page_no,
-            symbolic=legacy.symbolic_slots(by_key),
-            use_boxes=paper.get("fields") == "boxes",
-            reread=legacy.second_look(path, page_no, fraction, cfg, cli),
-        )
+        readings, how = None, ""
+        if paper.get("geometry") and paper.get("printed"):
+            # A paper this system printed: every box's place is recorded, so the boxes are cut out and read
+            # where they are, and nothing outside them — the working — can be taken as the answer.
+            wanted = {
+                k: (it["item_key"], (it["responses"][0] or {}).get("rid", "ans"))
+                for k, it in by_key.items()
+                if it["spec"].get("page", 1) == page_no
+            }
+            img, frame = render_pdf.photo(path, file_page)
+            readings = boxes.read_page(
+                img, page_no, paper["printed"], paper["geometry"], wanted, cli, cfg, frame=frame
+            )
+            how = (
+                "read in its boxes"
+                if readings is not None
+                else "did not line up with the paper it printed from"
+            )
+        if readings is None:
+            readings = stencil.read_page(
+                jpeg,
+                questions,
+                cfg,
+                cli,
+                form=paper.get("printed_as", paper_code),
+                page_no=page_no,
+                symbolic=legacy.symbolic_slots(by_key),
+                use_boxes=paper.get("fields") in ("boxes", "cells"),
+                reread=legacy.second_look(path, page_no, fraction, cfg, cli),
+            )
         readings = profiles.apply(readings, notes, lambda k: (by_key.get(k) or {}).get("fmt", ""))
-        note = ""
+        note = how
         if second:
             file_page = page_no if len(page_numbers) > 1 or page_no == 1 else 1
-            readings, note = second_reader.propose(conn, readings, path, file_page, notes, cfg)
+            readings, proposed = second_reader.propose(conn, readings, path, file_page, notes, cfg)
+            note = "; ".join(n for n in (how, proposed) if n)
         flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
         out.append(
             {

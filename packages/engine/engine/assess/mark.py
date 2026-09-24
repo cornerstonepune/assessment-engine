@@ -98,7 +98,7 @@ def read_qr(canon):
 def crop_cells(canon, key, page):
     """Yield (geometry_record, crop_bgr) for every response cell on this page."""
     for g in key["geometry"]:
-        if g["page"] != page:
+        if g["page"] != page or g.get("kind") == "work":  # a working space is not a response cell
             continue
         pad = 0.6  # mm inside the border so the printed box line is excluded
         x0, y0 = int((g["x"] + pad) * PPM), int((g["y"] + pad) * PPM)
@@ -282,7 +282,7 @@ def write_fake_answers(page_png, key, page, rng, out_path, error_rate=0.25):
     items = {i["item_id"]: i for i in key["items"]}
     resp_cells = {}
     for g in key["geometry"]:
-        if g["page"] == page:
+        if g["page"] == page and g.get("kind") != "work":
             resp_cells.setdefault((g["item"], g["resp"]), []).append(g)
     for (iid, rid), cells in resp_cells.items():
         r = next(x for x in items[iid]["responses"] if x["rid"] == rid)

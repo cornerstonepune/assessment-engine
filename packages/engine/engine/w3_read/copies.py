@@ -62,14 +62,19 @@ def printed(path) -> tuple[dict, float]:
     return out, round(band, 3)
 
 
+def _geometry(pdf) -> list:
+    """Where every box prints, from the key the renderer wrote beside the PDF; [] where there is none."""
+    key = Path(pdf).with_suffix(".key.json")
+    if not key.exists():
+        return []
+    return json.loads(key.read_text(encoding="utf-8")).get("geometry", [])
+
+
 def _pages_in_key(pdf) -> dict:
     """{item_key: the page its answer boxes print on}, from the key the renderer wrote beside the PDF — the page
     as it was drawn, not as it is read back."""
-    key = Path(pdf).with_suffix(".key.json")
-    if not key.exists():
-        return {}
     pages = {}
-    for cell in json.loads(key.read_text(encoding="utf-8")).get("geometry", []):
+    for cell in _geometry(pdf):
         pages[cell["item"]] = min(pages.get(cell["item"], cell["page"]), cell["page"])
     return pages
 
@@ -120,6 +125,10 @@ def paper(conn, code, pdf=None):
         by_key[str(n)] = {**it, "spec": spec}
     pages = max([p for p, _ in words.values()] + list(drawn.values()) + [len(pymupdf.open(pdf))])
     key = {"code": code, "fields": "boxes", "pages": [{"n": p, "mask": band if p == 1 else 0} for p in range(1, pages + 1)]}  # fmt: skip
+    geometry = _geometry(pdf)
+    if geometry:
+        # the renderer's own record of where each box is: the scan is read in those boxes (`boxes.read_page`)
+        key |= {"fields": "cells", "geometry": geometry, "printed": str(pdf)}
     return {"id": t["id"], "tenant_id": t["tenant_id"], "key": key}, by_key, unread
 
 

@@ -13,6 +13,7 @@ import re
 
 import cv2
 import pymupdf
+import zxingcpp
 
 from engine.adapters import ocr
 from engine.assess import mark
@@ -22,8 +23,37 @@ OURS = re.compile(r"^CS[0-9A-F]{6}$")
 WORKSHEET = re.compile(r"^[RMX]\d{1,2}-[EMHA]\d{2,3}$")  # the library's codes, as the website checks them
 
 
+_QR = zxingcpp.BarcodeFormat.QRCode
+_BINARIZERS = (
+    zxingcpp.Binarizer.LocalAverage,
+    zxingcpp.Binarizer.GlobalHistogram,
+    zxingcpp.Binarizer.FixedThreshold,
+)
+
+
+def _looks(img):
+    """The page, and the corner the QR prints in, as a decoder can best see them: as they are, then drawn two
+    and three times larger, then four times and softened. On the 16 photographed pages of 2026-09-24 the corner
+    as it came read 11, two and three times larger 12, four times softened 13 — each variant finds a page the
+    others miss, and the union is what is tried."""
+    h, w = img.shape[:2]
+    corner = img[: int(h * 0.2), int(w * 0.55) :]
+    g = cv2.cvtColor(corner, cv2.COLOR_BGR2GRAY)
+    yield corner
+    for s in (2, 3):
+        yield cv2.resize(g, None, fx=s, fy=s, interpolation=cv2.INTER_CUBIC)
+    yield cv2.GaussianBlur(cv2.resize(g, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC), (0, 0), 3.2)
+    yield img
+
+
 def qr_of(img) -> str | None:
-    """The QR code on one page, or None."""
+    """The QR code on one page, or None. zxing first (it decodes a code OpenCV's detector gives up on: 8 of
+    the 16 pages of 2026-09-24 against 3), in every look `_looks` gives, then the old detector."""
+    for look in _looks(img):
+        for binarizer in _BINARIZERS:
+            found = zxingcpp.read_barcodes(look, formats=_QR, binarizer=binarizer)
+            if found and found[0].text:
+                return found[0].text
     canon, _ = mark.deskew(img)
     if canon is not None and (code := mark.read_qr(canon)):
         return code
@@ -123,7 +153,7 @@ def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
     neither. Pages are drawn at the resolution the reader uses (`render_pdf.DPI`). `pages_of(code)` is a library
     worksheet's length in pages, by default its printed PDF's (`library.pdf`); a child's own paper is as long as
     it printed (`sheet_instance.key`). `read_text(img)` gives a page's lines of text, for a QR that will not scan."""
-    images = render_pdf.render(path)
+    images = list(render_pdf.photos(path))  # each page at its own pixels: a code is read from the photograph
     codes = [qr_of(img) for img in images]
     if any(c is None for c in codes):
         # a QR the scan spoiled: the same code is printed beside it in words, read with the page's text
