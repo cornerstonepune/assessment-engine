@@ -1,4 +1,5 @@
 import Link from "@/components/link";
+import { LIBRARY_CODE } from "./[qr]/library-sheet";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
 import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } from "@/lib/queries";
 import { approvePack, overrideChild } from "./actions";
@@ -120,7 +121,12 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                           {r.worksheet ? (
                             <>
                               {" · "}
-                              <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link>
+                              {/* only a library worksheet has a page of its own; an old paper's name is just its name */}
+                              {LIBRARY_CODE.test(r.worksheet) ? (
+                                <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link>
+                              ) : (
+                                r.worksheet
+                              )}
                             </>
                           ) : null}
                         </>

@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "@/components/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Answers, KIND, Mistakes, Question } from "@/components/question";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { RULE_WORDS } from "@/lib/queries";
+import { sql } from "@/lib/db";
 import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
@@ -16,7 +17,14 @@ export default async function PaperPage({ params }: Props) {
   const { qr } = await params;
   // A library worksheet (R22-H07) or a child's printed paper (CS + six hex): one address for both.
   if (LIBRARY_CODE.test(qr)) return <LibraryWorksheetPage code={qr} />;
-  if (!/^CS[0-9A-F]{6}$/.test(qr)) notFound();
+  if (!/^CS[0-9A-F]{6}$/.test(qr)) {
+    // A paper that carries no printed code of ours — one sat before QR codes, or a library copy read by the name on
+    // it — has a code of its own (`LEGACY-…`) and opens as the paper read: its answers and its pages.
+    if (!/^[A-Za-z0-9-]{1,80}$/.test(qr)) notFound();
+    const [found] = await sql<{ id: string }[]>`select id from sheet_instance where qr_code = ${qr}`;
+    if (found) redirect(`/capture/${found.id}`);
+    notFound();
+  }
   const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));
   if (!p) notFound();
   const back = p.section ? `/worksheets?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/worksheets";

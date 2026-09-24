@@ -44,6 +44,8 @@ export type LibraryWorksheet = {
   code: string;
   skill_set_code: string;
   skill: string;
+  /** False for a worksheet of a skill set since replaced (ADR 0034): it has no skill page to go back to. */
+  skill_live: boolean;
   outcome: string;
   band: string;
   difficulty: Difficulty;
@@ -54,7 +56,7 @@ export type LibraryWorksheet = {
 
 export async function libraryWorksheet(code: string): Promise<LibraryWorksheet | undefined> {
   const rows = await sql<LibraryWorksheet[]>`
-    select t.code, t.skill_set_code, coalesce(s.name, t.skill_set_code) as skill,
+    select t.code, t.skill_set_code, coalesce(s.name, t.skill_set_code) as skill, s.code is not null as skill_live,
            coalesce(s.learning_objective, '') as outcome, t.band, t.difficulty,
            s.difficulty -> t.difficulty ->> 'words' as level_words, t.created_at, t.retired_at
     -- a worksheet printed from a skill set since replaced (ADR 0034) still opens, under the name it was made for
