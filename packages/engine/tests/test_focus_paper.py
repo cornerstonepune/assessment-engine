@@ -125,6 +125,7 @@ def test_a_paper_is_seen_exactly_as_it_will_print_before_anyone_approves_it_and_
     made = focus_paper.make(conn, child, WEEK, actor="test")
     printed = _text(Path(made["pdf_path"]).read_bytes())
     assert _text(seen).replace(focus_paper.PREVIEW, made["qr"]) == printed, "only the QR differs"
+    assert "Home assessment" in printed, "a paper sent home says so on the page (Nimish, 2026-09-24)"
 
 
 def test_a_paper_a_teacher_asks_for_is_seen_before_it_is_approved_and_one_the_bank_cannot_fill_is_refused(

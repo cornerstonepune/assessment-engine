@@ -185,6 +185,14 @@ def read(conn, scan, section, names, actor, pages_of=None):
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
         cut = _cut(scan, copy["pages"], f"copy{k:02d}-{code}.pdf")
         s = legacy.import_scan(conn, str(cut), code, cid, actor, rows=(template, by_key))
+        # The page each answer was read on, kept with its reading: a worksheet question's page is not in the
+        # bank's row (`paper`), and the approval screens show the photograph of that page. Only where missing.
+        for it in by_key.values():
+            conn.execute(
+                "update item_result set raw_read = (raw_read::jsonb || jsonb_build_object('page', %s::int))::text"
+                " where capture_id = %s and item_id = %s and raw_read is not null and not (raw_read::jsonb ? 'page')",
+                (it["spec"]["page"], s["capture_id"], it["id"]),
+            )
         answers = s.get("already_results") if s.get("already") else len(s["results"])
         out.append({**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
                     "capture_id": s["capture_id"], "notes": [n for n in s["notes"] if n]})  # fmt: skip

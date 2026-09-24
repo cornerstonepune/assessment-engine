@@ -91,10 +91,17 @@ export default async function ChildPage({ params, searchParams }: Props) {
                 <Panel title="Needs you to settle" aside={`${person.length} answer${person.length === 1 ? "" : "s"} the marker could not check`}>
                   <ul className="grid gap-3">
                     {person.map((p) => (
-                      <li key={p.id} className="grid gap-3 border border-basalt/12 p-4 md:grid-cols-[minmax(0,1fr)_auto]">
+                      <li key={p.id} className="grid gap-3 border border-basalt/12 p-4 md:grid-cols-[240px_minmax(0,1fr)_auto]">
+                        {/* What the child wrote, as the photograph shows it: a person settles an answer by looking at it. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/scan/${p.capture_id}/${p.page}${p.box?.length === 4 ? `?box=${p.box.join(",")}` : ""}`}
+                          alt={`What the child wrote, page ${p.page}`}
+                          className="max-h-[170px] w-full border border-basalt/14 bg-chalk object-contain"
+                        />
                         <div className="min-w-0">
                           <div className="label">
-                            {fmtDate(p.date)} · question {p.item_key.split("/").pop()}
+                            {fmtDate(p.date)} · {p.paper} · page {p.page} · question {p.item_key.split("/").pop()}
                           </div>
                           <div className="mt-1 text-[14px] leading-snug">{p.question}</div>
                           <div className="mt-2 flex flex-wrap items-baseline gap-x-2 text-[13px]">
@@ -105,6 +112,9 @@ export default async function ChildPage({ params, searchParams }: Props) {
                           <div className="note mt-1">
                             {p.status === "needs_teacher" ? "Not a number the marker can check — read the work and decide." : "The handwriting could not be read."}
                           </div>
+                          <Link href={`/capture/${p.paper_id}#a-${p.id}`} className="mt-1 inline-block text-[12.5px]">
+                            Open the whole paper
+                          </Link>
                         </div>
                         <form action={resolveOne} className="flex flex-wrap gap-2 self-center">
                           <input type="hidden" name="result_id" value={p.id} />
