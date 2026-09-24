@@ -49,7 +49,17 @@ jobs:
       - name: the copy's schema, from the migrations
         run: |
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create role anon nologin; create role authenticated nologin; create role service_role nologin;"
-          for f in supabase/migrations/*.sql; do psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; done
+          # Live as it is: the migrations live has applied, then the tables someone made there by hand (rule 9 —
+          # `item_placement` stopped rehome on 2026-09-24 and a copy without it did not), then the migrations
+          # `bin/update-live` pushes.
+          applied=$(psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations")
+          for f in supabase/migrations/*.sql; do v=$(basename "$f" | cut -d_ -f1); if echo "$applied" | grep -qx "$v"; then psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; fi; done
+          tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"
+          for t in $(LC_ALL=C comm -13 <(psql "$COPY" -tAc "$tables" | LC_ALL=C sort) <(psql "$LIVE" -tAc "$tables" | LC_ALL=C sort)); do
+            echo "::warning::on live but made by no migration (rule 9), copied as live has it: $t"
+            pg_dump "$LIVE" --schema-only --no-owner --no-privileges --table="$t" | psql "$COPY" -q -v ON_ERROR_STOP=1 >/dev/null
+          done
+          for f in supabase/migrations/*.sql; do v=$(basename "$f" | cut -d_ -f1); if ! echo "$applied" | grep -qx "$v"; then psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; fi; done
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create schema supabase_migrations; create table supabase_migrations.schema_migrations (version text primary key);"
           psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
       - name: the copy's rows, every one of live's
@@ -58,7 +68,7 @@ jobs:
           psql "$COPY" -tAc "$tables" | LC_ALL=C sort > /tmp/copy.tables
           psql "$LIVE" -tAc "$tables" | LC_ALL=C sort > /tmp/live.tables
           extra=$(LC_ALL=C comm -13 /tmp/copy.tables /tmp/live.tables)
-          if [ -n "$extra" ]; then echo "::warning::on live but made by no migration (rule 9), not copied: $(echo $extra)"; fi
+          if [ -n "$extra" ]; then echo "::error::on live and not on the copy: $(echo $extra)"; exit 1; fi
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (select 'truncate table ' || string_agg(format('%I.%I', schemaname, tablename), ', ') || ' cascade' from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
           pg_dump "$LIVE" --format=custom --data-only --no-owner --no-privileges $(LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | sed 's/^/--table=/') --file=/tmp/live.dump
           pg_restore --data-only --disable-triggers --no-owner --no-privileges --exit-on-error --dbname="$COPY" /tmp/live.dump

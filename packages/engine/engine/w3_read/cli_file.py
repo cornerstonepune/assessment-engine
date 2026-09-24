@@ -59,7 +59,11 @@ def read_file(
 def _read_copies(path, names, section, actor):
     """Each copy's line names the child by roll number, never by name (rule 6)."""
     with db.connect() as conn:
-        done = copies.read(conn, path, section, names, actor)
+        try:
+            done = copies.read(conn, path, section, names, actor)
+        except (ValueError, LookupError) as refused:
+            typer.echo(f"  nothing read: {refused}", err=True)
+            raise typer.Exit(1)
         rolls = {
             str(r["id"]): r["roll_no"]
             for r in conn.execute(
