@@ -11,6 +11,7 @@ The worksheet is entered from the page it prints (`library.pdf`): each question'
 is on, and the band of page 1 above question 1 — the name — which the reader never sees.
 """
 
+import json
 from pathlib import Path
 
 import pymupdf
@@ -21,22 +22,26 @@ from engine.w3_read import legacy, sorting
 
 CUT = db.REPO_ROOT / "data" / "scans"
 SKIP = {"", "?", "-"}
-STOPS = {"working", "Answer"}  # the labels printed under a question, where its words end
+STOPS = {"working", "Answer"}
+NAME_BAND = 0.17  # the library page's name line ends at 13% of the page (`render.py`, the header); a margin over it  # the labels printed under a question, where its words end
 
 
 def printed(path) -> tuple[dict, float]:
     """{question number: (page, its printed words)}, and the fraction of page 1 above question 1.
 
     A question's number is printed alone at the left margin and its words start to the right of it, down to
-    the first "working" or "Answer" label, or the next question, or the footer."""
+    the first "working" or "Answer" label, or the next question, or the footer. Numbers are found top to bottom
+    as they sit on the page, not in the order the PDF happens to store its text."""
     out, n, band = {}, 1, 0.0
     for p, page in enumerate(pymupdf.open(path), 1):
         words = sorted(page.get_text("words"), key=lambda w: (w[5], w[6], w[7]))
+        if not words:
+            continue
         margin = min(w[0] for w in words)
         foot = max((w[1] for w in words if w[4] == "Cornerstone"), default=page.rect.height)
         starts = []
-        for w in words:
-            if w[4] == str(n) and w[0] - margin < 2 and w[1] < foot:
+        for w in sorted(words, key=lambda w: (round(w[1]), w[0])):
+            if w[4].rstrip(".") == str(n) and w[0] - margin < 2 and w[1] < foot:
                 starts.append((n, w))
                 n += 1
         for k, (q, w) in enumerate(starts):
@@ -49,32 +54,63 @@ def printed(path) -> tuple[dict, float]:
     return out, round(band, 3)
 
 
+def _pages_in_key(pdf) -> dict:
+    """{item_key: the page its answer boxes print on}, from the key the renderer wrote beside the PDF — the page
+    as it was drawn, not as it is read back."""
+    key = Path(pdf).with_suffix(".key.json")
+    if not key.exists():
+        return {}
+    pages = {}
+    for cell in json.loads(key.read_text(encoding="utf-8")).get("geometry", []):
+        pages[cell["item"]] = min(pages.get(cell["item"], cell["page"]), cell["page"])
+    return pages
+
+
+def _words(it) -> str:
+    """A question's own words, where its printed ones were not found: the story, or the sum."""
+    sp = it["spec"] or {}
+    if it["stem"]:
+        return it["stem"]
+    return f"{sp['a']} {sp['op']} {sp['b']}" if {"a", "b", "op"} <= set(sp) else ""
+
+
 def paper(conn, code, pdf=None):
     """A library worksheet as `legacy.import_scan` reads a paper: (template, {slot: question}), and the questions
-    it does not read — one asking for more than one number, which a person marks. `pdf`: the copy as it was
-    printed for its child, where that file is kept; else the worksheet as the library prints it."""
+    it does not read — one asking for more than one number, or one whose page is not known, which a person marks.
+    `pdf`: the copy as it was printed for its child, where that file is kept; else the worksheet as the library
+    prints it."""
     t = conn.execute(
         "select id, tenant_id, item_ids from sheet_template where source = 'library' and code = %s", (code,)
     ).fetchone()
     if not t:
         raise LookupError(f"no worksheet {code}")
-    words, band = printed(pdf or library.pdf(conn, code))
+    pdf = pdf or library.pdf(conn, code)
+    words, band = printed(pdf)
+    band = band or NAME_BAND  # question 1 not found: still never show the reader the name
+    drawn = _pages_in_key(pdf)
     rows = {
         r["id"]: r
         for r in conn.execute(
-            "select id, item_key, fmt, spec, responses from item where id = any(%s)", (t["item_ids"],)
+            "select id, item_key, fmt, stem, spec, responses from item where id = any(%s)", (t["item_ids"],)
         )
     }
     by_key, unread = {}, []
     for n, iid in enumerate(t["item_ids"], 1):
-        it, (page, text) = rows[iid], words[n]
-        first = it["responses"][0]
-        if len(it["responses"]) > 1 or first.get("kind") != "digits":
+        it = rows[iid]
+        found_page, text = words.get(n, (None, ""))
+        page, first = drawn.get(it["item_key"], found_page), it["responses"][0]
+        if len(it["responses"]) > 1 or first.get("kind") != "digits" or page is None:
             unread.append(n)
             continue
-        spec = {**it["spec"], "kind": "bare", "question": text, "page": page, "answer": first["answer"]}
+        spec = {
+            **it["spec"],
+            "kind": "bare",
+            "question": text or _words(it),
+            "page": page,
+            "answer": first["answer"],
+        }
         by_key[str(n)] = {**it, "spec": spec}
-    pages = max(p for p, _ in words.values())
+    pages = max([p for p, _ in words.values()] + list(drawn.values()) + [len(pymupdf.open(pdf))])
     key = {"code": code, "fields": "boxes", "pages": [{"n": p, "mask": band if p == 1 else 0} for p in range(1, pages + 1)]}  # fmt: skip
     return {"id": t["id"], "tenant_id": t["tenant_id"], "key": key}, by_key, unread
 
