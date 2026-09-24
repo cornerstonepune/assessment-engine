@@ -65,6 +65,8 @@ test("a worksheet shows its twelve questions with their answers, and prints", as
   await expect(rows).toHaveCount(12);
   const first = await rows.first().getByRole("link").getAttribute("href");
   expect(first).toMatch(/^\/library\//);
+  // Printed for children, each copy its own code — never a pile of copies no row says are whose.
+  await expect(page.getByRole("button", { name: "Print for the children ticked (PDF)" })).toBeVisible();
   const pdf = await page.request.get("/api/worksheet/R22-H03");
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");

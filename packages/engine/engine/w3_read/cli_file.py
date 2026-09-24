@@ -13,19 +13,20 @@ def read_file(
     names: str = typer.Option(
         "",
         "--names",
-        help="One per library worksheet copy, in file order: a first name, a roll number, or ? to skip",
+        help="One per copy printed bare (no child's code), in file order: a first name, a roll number, or ?",
     ),
     section: str = typer.Option("", "--section", help="G2, G3 … — whose class list the names are in"),
+    read: bool = typer.Option(False, "--read", help="Read and mark every copy whose code names its child"),
     actor: str = typer.Option("engine-cli", "--actor"),
 ) -> None:
     """One scanned file of many papers, sorted by the QR on each page: which pages are whose paper, and which
     pages carry no code this system printed. Without --names it reads only — no answer is read and nothing is
-    written. With --names each library worksheet copy is read and marked for its child, every answer waiting on
-    Marking for a person to sign off."""
-    if names:
-        if not section:
-            raise typer.BadParameter("say whose class list the names are in with --section")
-        return _read_copies(path, [n for n in names.split(",")], section, actor)
+    written. With --read every copy printed for a child is read and marked for that child; --names says whose
+    each copy printed bare is. Every answer waits on Marking for a person to sign off."""
+    if names and not section:
+        raise typer.BadParameter("say whose class list the names are in with --section")
+    if names or read:
+        return _read_copies(path, [n for n in names.split(",") if names], section, actor)
     with db.connect() as conn:
         papers = sorting.sort_file(conn, path)
         conn.rollback()
@@ -75,11 +76,12 @@ def _read_copies(path, names, section, actor):
             t = copies.tally(conn, c["capture_id"])
             waiting += t["waiting"]
             again = "  (read before: nothing new)" if c["already"] else ""
+            how = "by its code" if c["by_code"] else "by name"
             unread = (
                 f", questions {', '.join(map(str, c['unread']))} for a person to mark" if c["unread"] else ""
             )
             typer.echo(
-                f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  {section} roll {rolls[str(c['child_id'])]:<3}"
+                f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  roll {rolls[str(c['child_id'])]:<3} ({how})"
                 f" {c['answers']} answers: {t['right'] + t['right_waiting']} read right, {t['wrong']} wrong,"
                 f" {t['blank']} blank{unread}{again}"
             )
