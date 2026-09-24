@@ -278,7 +278,7 @@ export type PendingResult = {
 
 export async function pendingResults(id: string): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
-    select r.id, t.key ->> 'title' as paper, t.key ->> 'date' as date, i.item_key,
+    select r.id, coalesce(t.key ->> 'title', t.code) as paper, t.key ->> 'date' as date, i.item_key,
            i.spec ->> 'question' as question, i.responses -> 0 ->> 'answer' as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
@@ -311,7 +311,7 @@ export type Evidence = {
 // opened up to the work it rests on.
 export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
-    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, t.key ->> 'title' as paper, i.item_key,
+    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, coalesce(t.key ->> 'title', t.code) as paper, i.item_key,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
@@ -331,7 +331,7 @@ export type Paper = { id: string; sheet: string; title: string; date: string | n
 
 export async function childPapers(id: string): Promise<Paper[]> {
   return sql<Paper[]>`
-    select c.id, si.id as sheet, t.key ->> 'title' as title, t.key ->> 'date' as date, c.pages, c.status,
+    select c.id, si.id as sheet, coalesce(t.key ->> 'title', t.code) as title, t.key ->> 'date' as date, c.pages, c.status,
            (select text from narrative_observation n where n.capture_id = c.id order by n.created_at desc limit 1) as narrative,
            (select count(*)::int from item_result r where r.capture_id = c.id) as n_results,
            (select count(*)::int from item_result r where r.capture_id = c.id and r.state = 'confirmed') as n_confirmed

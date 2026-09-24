@@ -163,7 +163,7 @@ export type ChildSheet = {
 /** Every paper made for the child or read from them, newest first: its purpose, who approved it, what was read. */
 export async function childSheets(id: string): Promise<ChildSheet[]> {
   return sql<ChildSheet[]>`
-    select si.id, si.qr_code, si.kind, coalesce(si.week, st.week) as week, st.key ->> 'title' as title,
+    select si.id, si.qr_code, si.kind, coalesce(si.week, st.week) as week, coalesce(st.key ->> 'title', st.code) as title,
            st.key ->> 'date' as date, si.print_status, si.approved_by, si.approved_at,
            (select count(*)::int from item_result r join capture c on c.id = r.capture_id
              where c.sheet_instance_id = si.id and c.superseded_by is null) as n_results,

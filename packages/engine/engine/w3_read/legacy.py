@@ -452,7 +452,7 @@ def worked_on(conn, capture_id):
 
 
 def import_scan(
-    conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False
+    conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False, rows=None
 ):
     """One scan of one child's paper → capture, item_result rows (candidate), and optionally a
     narrative_observation. Returns a summary a person can read before confirming.
@@ -461,7 +461,7 @@ def import_scan(
     existing capture rather than a second one — the September batch's double count (HANDOFF.md)
     was two `legacy import` runs over the same file, each making its own candidates. A prior
     attempt that errored retries into that same row instead of leaving a third."""
-    template, by_key = paper_rows(conn, paper_code)
+    template, by_key = rows or paper_rows(conn, paper_code)  # `rows`: a library worksheet (`copies.paper`)
     paper = template["key"]
     tenant = template["tenant_id"]
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
@@ -560,14 +560,15 @@ def import_scan(
                 status, codes, working, read = mark_read(
                     it["spec"], it["responses"][0], read, trust.get(it["fmt"], UNTRUSTED)
                 )
+                rid = it["responses"][0].get("rid", "a")
                 conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"
-                    " values (%s,%s,%s,'a',%s,%s,%s,%s,'candidate')"
+                    " values (%s,%s,%s,%s,%s,%s,%s,%s,'candidate')"
                     " on conflict (capture_id, item_id, rid) do update set raw_read = excluded.raw_read,"
                     " status = excluded.status, misconception_codes = excluded.misconception_codes,"
                     " working_shown = excluded.working_shown, updated_at = now()",
-                    (tenant, capture, it["id"], json.dumps(read), status, codes, working),
+                    (tenant, capture, it["id"], rid, json.dumps(read), status, codes, working),
                 )
                 summary["results"].append(
                     {

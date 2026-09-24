@@ -44,7 +44,7 @@ export type PaperRow = {
 
 const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow[]>`
   select si.id, si.child_id, p.first_name, ch.section, ch.roll_no, t.batch_id as paper,
-         t.key ->> 'title' as title, t.key ->> 'date' as date,
+         coalesce(t.key ->> 'title', t.code) as title, t.key ->> 'date' as date,
          coalesce(jsonb_array_length(t.key -> 'pages'), 1) as pages,
          (select count(*)::int from capture c
            where c.sheet_instance_id = si.id and c.superseded_by is null) as files,
@@ -283,7 +283,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
-           si.id as paper_id, p.first_name, t.key ->> 'title' as paper_title, t.key ->> 'date' as sat,
+           si.id as paper_id, p.first_name, coalesce(t.key ->> 'title', t.code) as paper_title, t.key ->> 'date' as sat,
            nullif(r.raw_read::jsonb ->> 'guess', '') as guess
     from item_result r
     join capture c on c.id = r.capture_id

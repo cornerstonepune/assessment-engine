@@ -42,7 +42,7 @@ def mark(spec, response, read):
         return "unreadable", [], working
     if state == "not_visible":
         return "needs_teacher", [], working
-    if spec["kind"] == "text":
+    if spec.get("kind") == "text":  # a bank question carries no kind: it asks for a number
         if state == "blank" and not answer:
             return "blank", [], working
         # The judgement a "find the mistake" question asks for ("is Achal correct?") is not

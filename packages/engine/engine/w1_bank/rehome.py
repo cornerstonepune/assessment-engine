@@ -6,9 +6,9 @@ taxonomy's own cases on those numbers. The seed says which old skill sets each n
 Nothing is regenerated. Where a question belongs follows from what it is — its measured tags — and the map
 (`assess/placing.py`), exactly as its taxonomy cases do (ADR 0030): every question of an old skill set, in use or
 retired, moves to its skill and level; an old paper's sums move to their skill's rung. Then the old skill sets,
-their rule history, the library worksheets never handed out, and the old rungs nothing names any more are
-deleted. A worksheet already printed keeps its questions and says which skill set it was made for; a child's
-recorded answers are never touched (rule 4) — the graph reads them through their questions
+their rule history and the old rungs nothing names any more are deleted, and their library worksheets retired:
+a worksheet keeps its questions and says which skill set it was made for, since a copy may be in a child's
+hands. A child's recorded answers are never touched (rule 4) — the graph reads them through their questions
 (`evidence_placed`). A question with no place stops the run and names itself: the map is wrong, and nothing is
 deleted until it is right. Running it again changes nothing.
 """
@@ -93,9 +93,11 @@ def rehome(conn):
             (r["tenant_id"], r["id"], ACTOR, UNLEVELLED),
         )
     old_papers = _old_papers(conn, skills, case_matches)
+    # Retired, never deleted: a library copy records no sheet_instance, so nothing says a worksheet was never
+    # handed out — R2-E12 and R5-H14 were in children's hands on 2026-09-23 — and its copies are read by its code.
     conn.execute(
-        "delete from sheet_template t where t.source = 'library' and t.skill_set_code = any(%s)"
-        " and not exists (select 1 from sheet_instance si where si.sheet_template_id = t.id)",
+        "update sheet_template set retired_at = coalesce(retired_at, now())"
+        " where source = 'library' and skill_set_code = any(%s)",
         (old,),
     )
     rungs = [

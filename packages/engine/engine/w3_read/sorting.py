@@ -61,9 +61,9 @@ def worksheets(conn, codes) -> dict:
     return {
         r["code"]: dict(r)
         for r in conn.execute(
-            "select t.code, s.name as skill, t.difficulty as level, t.band,"
+            "select t.code, coalesce(s.name, t.skill_set_code) as skill, t.difficulty as level, t.band,"
             "       coalesce(array_length(t.item_ids, 1), 0) as questions"
-            " from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
+            " from sheet_template t left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
             " where t.source = 'library' and t.code = any(%s)",
             (list(codes),),
         )
