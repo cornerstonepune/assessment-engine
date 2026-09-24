@@ -25,7 +25,17 @@ AWS=(aws --profile cornerstone --region "$REGION")
 say() { printf '\n==> %s\n' "$*"; }
 
 say "1/7 the server"
-if ! "${AWS[@]}" lightsail get-instance --instance-name "$NAME" >/dev/null 2>&1; then
+# Only "it does not exist" creates a server. Any other failure — Amazon unreachable, a broken TLS connection, an
+# expired key — stops here: taken for "not found", it once led straight to creating a second, paid server.
+exists() { # $1 the get- command, $2… its arguments: 0 found, 1 not found, stops on anything else
+  local out
+  if out=$("${AWS[@]}" lightsail "$@" 2>&1 >/dev/null); then return 0; fi
+  if grep -q "NotFoundException\|DoesNotExist" <<<"$out"; then return 1; fi
+  echo "Amazon did not answer ($1): $out" >&2
+  echo "Nothing was changed. Check the network (a VPN or firewall can cut the connection) and run this again." >&2
+  exit 1
+}
+if ! exists get-instance --instance-name "$NAME"; then
   BUNDLE=$("${AWS[@]}" lightsail get-bundles --output text \
     --query "bundles[?isActive && ramSizeInGb==\`2.0\` && contains(supportedPlatforms,'LINUX_UNIX') && !contains(bundleId,'ipv6')].bundleId | [0]")
   BLUEPRINT=$("${AWS[@]}" lightsail get-blueprints --output text \
@@ -37,7 +47,7 @@ fi
 until [ "$("${AWS[@]}" lightsail get-instance-state --instance-name "$NAME" --query state.name --output text)" = running ]; do
   sleep 5
 done
-if ! "${AWS[@]}" lightsail get-static-ip --static-ip-name "$NAME-ip" >/dev/null 2>&1; then
+if ! exists get-static-ip --static-ip-name "$NAME-ip"; then
   "${AWS[@]}" lightsail allocate-static-ip --static-ip-name "$NAME-ip" >/dev/null
   "${AWS[@]}" lightsail attach-static-ip --static-ip-name "$NAME-ip" --instance-name "$NAME" >/dev/null
 fi
