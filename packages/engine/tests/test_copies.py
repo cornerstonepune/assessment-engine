@@ -65,6 +65,26 @@ def _child(conn, tenant, roll, name):
 SECTION = f"T{uuid.uuid4().hex[:4]}"
 
 
+def stand_in_reader(conn, ids, monkeypatch):
+    """The reader, stood in for: question 1 read right, question 2 read wrong, every other one read blank."""
+    keys = {r["id"]: r["responses"][0]["answer"] for r in conn.execute(
+        "select id, responses from item where id = any(%s)", (ids,)
+    )}  # fmt: skip
+    monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
+    monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
+    wrote = {"1": keys[ids[0]], "2": str(int(keys[ids[1]]) + 1)}
+
+    def answers(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
+        return {
+            s: {"child_answer": wrote.get(s, ""), "answer_state": "written" if s in wrote else "blank",
+                "confidence": 99.0, "working_shown": "none"}
+            for s in slots
+        }  # fmt: skip
+
+    monkeypatch.setattr(ocr, "answers_for", answers)
+    monkeypatch.setattr(second_reader, "propose", lambda conn, r, *a, **k: (r, ""))
+
+
 def test_each_question_is_found_on_its_page_in_its_printed_words_and_the_name_band_stops_above_question_1(
     conn, worksheet
 ):
@@ -87,23 +107,7 @@ def test_two_copies_land_on_the_two_children_named_each_answer_marked_against_it
 ):
     tenant, code, ids, pdf = worksheet
     one, two = _child(conn, tenant, "41", "Asha"), _child(conn, tenant, "42", "Bina")
-    keys = {r["id"]: r["responses"][0]["answer"] for r in conn.execute(
-        "select id, responses from item where id = any(%s)", (ids,)
-    )}  # fmt: skip
-    # Question 1 right, question 2 wrong, every other one left blank, on both copies.
-    monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
-    monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
-    wrote = {"1": keys[ids[0]], "2": str(int(keys[ids[1]]) + 1)}
-
-    def answers(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
-        return {
-            s: {"child_answer": wrote.get(s, ""), "answer_state": "written" if s in wrote else "blank",
-                "confidence": 99.0, "working_shown": "none"}
-            for s in slots
-        }  # fmt: skip
-
-    monkeypatch.setattr(ocr, "answers_for", answers)
-    monkeypatch.setattr(second_reader, "propose", lambda conn, r, *a, **k: (r, ""))
+    stand_in_reader(conn, ids, monkeypatch)
     scan = _scanned([pdf, pdf], tmp_path / "class.pdf")
 
     got = copies.read(conn, scan, SECTION, ["Asha", "42"], "test", pages_of=lambda c: len(pymupdf.open(pdf)))

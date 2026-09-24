@@ -74,9 +74,9 @@
       "built": "live",
       "takes": ["prescription", "item"],
       "gives": ["sheet_template", "sheet_instance"],
-      "files": ["engine/w2_print/library.py", "engine/w2_print/assemble.py", "engine/w2_print/cli_library.py", "engine/w2_print/cli_week.py"],
+      "files": ["engine/w2_print/library.py", "engine/w2_print/assemble.py", "engine/w2_print/handout.py", "engine/w2_print/cli_library.py", "engine/w2_print/cli_week.py"],
       "commands": ["engine library build", "engine library check", "engine week assemble"],
-      "screens": ["/worksheets", "/worksheets/[qr]", "/worksheets/taxonomy", "/api/worksheet/[code]", "/api/paper/[qr]/[page]"],
+      "screens": ["/worksheets", "/worksheets/[qr]", "/worksheets/taxonomy", "/api/worksheet/[code]", "/api/worksheet/[code]/for", "/api/paper/[qr]/[page]"],
       "subject": {"any": false, "note": "The library and packing are any subject's; how each kind of question is drawn on paper (engine/assess/render.py) is maths."}
     },
     {

@@ -49,15 +49,16 @@ def printed(path) -> tuple[dict, float]:
     return out, round(band, 3)
 
 
-def paper(conn, code):
+def paper(conn, code, pdf=None):
     """A library worksheet as `legacy.import_scan` reads a paper: (template, {slot: question}), and the questions
-    it does not read — one asking for more than one number, which a person marks."""
+    it does not read — one asking for more than one number, which a person marks. `pdf`: the copy as it was
+    printed for its child, where that file is kept; else the worksheet as the library prints it."""
     t = conn.execute(
         "select id, tenant_id, item_ids from sheet_template where source = 'library' and code = %s", (code,)
     ).fetchone()
     if not t:
         raise LookupError(f"no worksheet {code}")
-    words, band = printed(library.pdf(conn, code))
+    words, band = printed(pdf or library.pdf(conn, code))
     rows = {
         r["id"]: r
         for r in conn.execute(
@@ -103,23 +104,44 @@ def _cut(scan, pages, name):
 
 
 def read(conn, scan, section, names, actor, pages_of=None):
-    """Each library worksheet copy in the file, in order, read for the child named for it ("?" leaves one unread).
-    → one dict per copy: its pages, code, child, answers read and the questions a person marks."""
-    found = [p for p in sorting.sort_file(conn, scan, pages_of) if p["worksheet"]]
-    if len(names) != len(found):
+    """Every library worksheet copy in the file, in order, read for its child: a copy printed for a child
+    (`handout`, Make papers) by the code on it; a copy printed bare by the name said for it, in file order ("?"
+    leaves one unread). → one dict per copy: its pages, code, child, answers read, questions a person marks."""
+    papers = sorting.sort_file(conn, scan, pages_of)
+    own = [p for p in papers if p["sheet"] and p["sheet"]["source"] == "library" and p["sheet"]["child_id"]]
+    bare = [p for p in papers if p["worksheet"] and not p["sheet"]]
+    if len(names) != len(bare):
         raise ValueError(
-            f"the file holds {len(found)} copies of library worksheets; {len(names)} names given"
+            f"the file holds {len(bare)} copies of library worksheets with no child's code; {len(names)} names given"
         )
-    who = [None if n.strip() in SKIP else _child(conn, section, n.strip(), actor) for n in names]
+    who = dict(
+        zip(
+            map(id, bare),
+            (None if n.strip() in SKIP else _child(conn, section, n.strip(), actor) for n in names),
+        )
+    )
     out = []
-    for k, (copy, cid) in enumerate(zip(found, who), 1):
-        row = {"copy": k, "pages": copy["pages"], "code": copy["qr"], "child_id": cid, "answers": 0}
+    for k, copy in enumerate((p for p in papers if p in own or id(p) in who), 1):
+        mine = copy["sheet"]
+        cid = mine["child_id"] if mine else who[id(copy)]
+        code = mine["code"] if mine else copy["qr"]
+        row = {
+            "copy": k,
+            "pages": copy["pages"],
+            "code": code,
+            "child_id": cid,
+            "answers": 0,
+            "by_code": bool(mine),
+        }
         if cid is None:
             out.append({**row, "skipped": True})
             continue
-        template, by_key, unread = paper(conn, copy["qr"])
-        cut = _cut(scan, copy["pages"], f"copy{k:02d}-{copy['qr']}.pdf")
-        s = legacy.import_scan(conn, str(cut), copy["qr"], cid, actor, rows=(template, by_key))
+        kept = mine and mine["pdf_path"] and Path(mine["pdf_path"]).exists()
+        template, by_key, unread = paper(conn, code, mine["pdf_path"] if kept else None)
+        if mine:
+            template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
+        cut = _cut(scan, copy["pages"], f"copy{k:02d}-{code}.pdf")
+        s = legacy.import_scan(conn, str(cut), code, cid, actor, rows=(template, by_key))
         answers = s.get("already_results") if s.get("already") else len(s["results"])
         out.append({**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
                     "capture_id": s["capture_id"], "notes": [n for n in s["notes"] if n]})  # fmt: skip

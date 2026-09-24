@@ -467,7 +467,7 @@ def import_scan(
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}
 
     stale_id = None
-    qr = f"LEGACY-{paper_code}-{str(child_id)[:8]}"
+    qr = template.get("qr") or f"LEGACY-{paper_code}-{str(child_id)[:8]}"  # a printed copy's own code
     instance = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
         " values (%s,%s,%s,%s,'returned') on conflict (tenant_id, qr_code) do update set updated_at = now()"

@@ -87,7 +87,7 @@ def sort_file(conn, path, pages_of=None) -> list[dict]:
     known = {
         r["qr_code"]: dict(r)
         for r in conn.execute(
-            "select si.qr_code, si.kind, si.week, ch.band, ch.section, ch.roll_no, t.source,"
+            "select si.qr_code, si.kind, si.week, si.child_id, si.pdf_path, ch.band, ch.section, ch.roll_no, t.source, t.code,"
             "       coalesce(t.key ->> 'title', t.code, t.batch_id) as paper,"
             "       coalesce(array_length(t.item_ids, 1), 0) as questions,"
             "       (select count(*) from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)"

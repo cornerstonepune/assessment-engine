@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-24, later — a library worksheet prints for children, one code each (W2 N6, W3 N8)
+
+- Nimish: "when you generate a worksheet for a child; that should be unique qr having the child and worksheet
+  code; else how will the whole system work". Make papers already did (`assemble._hand_out`); the worksheet
+  page's "Print this worksheet" button did not — it printed the bare worksheet, the same code on every copy and
+  no row saying whose, which is how the 2026-09-23 Grade 2 papers were made.
+- The worksheet page now prints for the children ticked (`handout.for_children`, `POST /worksheet/{code}/for.pdf`,
+  `/api/worksheet/[code]/for`): one copy each with its own `CS` code, recorded for the child (`custom` purpose,
+  `item_exposure`), approved in the educator's name. The bare worksheet stays as "See the worksheet", to look at.
+- `engine read file <pdf> --read` reads every copy whose code names its child, no names said; `--names` only for
+  copies printed bare. The answers land on the child's own printed copy.
+
 ## 2026-09-24 — library worksheet copies read for the child named on them (W3, N8)
 
 - `engine read file <pdf> --section G2 --names "A,B,?,7,…"` — one entry per library worksheet copy in file
