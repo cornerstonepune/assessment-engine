@@ -98,7 +98,7 @@
       "built": "partly",
       "takes": ["scans"],
       "gives": ["capture"],
-      "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py", "engine/w3_read/copies.py", "engine/w3_read/cli_file.py"],
+      "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py", "engine/w3_read/copies.py", "engine/w3_read/cli_file.py", "engine/w3_read/inbox.py"],
       "commands": ["engine read stencil", "engine read file"],
       "screens": ["/capture"],
       "subject": {"any": true, "note": "Any subject. Scans enter from this Mac; a phone photo arriving on its own (Drive folder, QR) is not built."}

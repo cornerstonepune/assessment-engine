@@ -224,3 +224,13 @@ class WeekApproveResponse(BaseModel):
     spares: int
     qr_codes: list[str]
     already: bool = False
+
+
+class ReadFileRequest(BaseModel):
+    url: str  # a Google Drive link to the scanned file; the file itself never travels through here
+    actor: str
+
+
+class ReadFileResponse(BaseModel):
+    run_id: str  # `/runs/{id}` says how the reading went; the papers appear on Marking as they are read
+    pages: int

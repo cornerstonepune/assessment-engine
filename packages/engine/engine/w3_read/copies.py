@@ -186,6 +186,8 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
     papers = sorting.sort_file(conn, scan, pages_of, read_text)
     own = [p for p in papers if p["sheet"] and p["sheet"]["source"] == "library" and p["sheet"]["child_id"]]
     bare = [p for p in papers if p["worksheet"] and not p["sheet"]]
+    if names is None:  # nobody here to say whose a bare copy is (the inbox): it is reported, never guessed
+        names = ["?"] * len(bare)
     if len(names) != len(bare):
         found = [
             f"copy {k}: pages {p['pages'][0]}–{p['pages'][-1]}, {p['qr']}"
@@ -222,7 +224,9 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
             "by_code": bool(mine),
         }
         if cid is None:
-            out.append({**row, "skipped": True})
+            out.append(
+                {**row, "skipped": True, "why": "printed with no child's code; say whose it is to read it"}
+            )
             continue
         kept = mine and mine["pdf_path"] and Path(mine["pdf_path"]).exists()
         template, by_key, unread = paper(conn, code, mine["pdf_path"] if kept else None)

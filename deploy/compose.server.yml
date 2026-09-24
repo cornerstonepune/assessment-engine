@@ -15,7 +15,8 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      - ${HOME}/cornerstone/assessments:/root/cornerstone/assessments:ro
+      # read-write: a scan arriving by link (`/read/file`) is saved under assessments/inbox
+      - ${HOME}/cornerstone/assessments:/root/cornerstone/assessments
       - ${HOME}/.aws:/root/.aws:ro
       # sheet_instance.pdf_path records where a pack was rendered — an absolute path on the Mac that
       # rendered it. The copies sit at that same path inside the container, so the rows stay true.

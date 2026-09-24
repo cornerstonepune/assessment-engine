@@ -5,7 +5,8 @@ to this HTTP layer: it orchestrates, it does not decide)."""
 
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Response
+import pymupdf
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Response
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
@@ -18,8 +19,10 @@ from engine.api.models import (
     IngestResponse,
     MarkRequest,
     MarkResponse,
+    ReadFileRequest,
+    ReadFileResponse,
 )
-from engine.w3_read import legacy, marking
+from engine.w3_read import inbox, legacy, marking
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -127,3 +130,25 @@ def capture_page(capture_id: str, page_no: int, box: str = "", conn=Depends(get_
     if want is not None and len(want) != 4:
         raise HTTPException(status_code=400, detail="box must be left,top,right,bottom")
     return Response(content=legacy.page_crop(path, page_no, want), media_type="image/jpeg")
+
+
+@router.post("/read/file", response_model=ReadFileResponse)
+def read_file(
+    body: ReadFileRequest,
+    background: BackgroundTasks,
+    conn=Depends(get_conn),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """N8: a scan arrives as a Drive link. The file is fetched into the engine's inbox now, and read after this
+    answers (`inbox.read`, its own connection): sorting sixteen photographed pages and reading every box on them
+    takes minutes, and the caller — the site, or the n8n Drive flow — waits seconds. Whose the answers are is the
+    code on each page's; a copy printed bare is reported, never guessed."""
+    try:
+        path = inbox.fetch(body.url)
+    except ValueError as why:
+        raise HTTPException(status_code=400, detail=str(why)) from why
+    with pymupdf.open(path) as doc:
+        pages = len(doc)
+    run_id = inbox.start(conn, tenant_id, path, body.actor)
+    background.add_task(inbox.read, run_id, path, body.actor)
+    return {"run_id": run_id, "pages": pages}
