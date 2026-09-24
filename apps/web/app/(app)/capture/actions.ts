@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { EngineDown, enginePost } from "@/lib/engine";
+import { EngineDown, enginePost, engineSend } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
 // The validation queue sends its answers here too; after one is settled it goes back to the queue,
@@ -14,6 +14,33 @@ const back = (formData: FormData) => {
   const next = String(formData.get("next") ?? "");
   return QUEUE.test(next) ? next : null;
 };
+
+/** A scan, by its Drive link, read without anyone at a terminal (N8, `POST /read/file`).
+ *
+ * The link is all that travels: the engine fetches the file into its own inbox, sorts the pages by
+ * the code on each and reads every box on every copy printed for a child, after it has answered —
+ * the papers appear on this page as they are read. The engine says in words why it will not take a
+ * link, and that is what the person sees. */
+export async function readScan(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const url = String(formData.get("url") ?? "")
+    .trim()
+    .slice(0, 400);
+  if (!/^https:\/\/drive\.google\.com\//.test(url)) redirect("/capture?read=not-a-link");
+  try {
+    const res = await engineSend("/read/file", { url, actor: me.email });
+    if (!res.ok) {
+      const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "";
+      redirect(`/capture?read=refused&why=${encodeURIComponent(why.slice(0, 200))}`);
+    }
+    const { pages } = (await res.json()) as { pages: number };
+    revalidatePath("/capture");
+    redirect(`/capture?read=started&pages=${Number(pages) || 0}`);
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    redirect("/capture?read=engine");
+  }
+}
 
 /** A person says what the child actually wrote.
  *

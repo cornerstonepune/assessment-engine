@@ -3357,3 +3357,7 @@ numbers from the working while you have only designed it as a working section" �
   skip: no local copy). `bin/check` → green (render.py 419 → 394 by moving the geometry record out; ceiling unchanged).
 - **Not verified on live**: no Textract here (the sandbox's AWS key is invalid) and no route to the live database. The
   24 Sep papers are read on the Mac or the server after merge; then a child-wise table from `copies.tally`.
+- **A scan arrives by link** (`w3_read/inbox.py`, `POST /read/file`, Marking's "Read a scan" form, n8n `f3-read-scans`):
+  fetched into `~/cornerstone/assessments/inbox`, a `flow_run` answered at once, read after answering.
+  `cd packages/engine && .venv/bin/python -m pytest tests/test_inbox.py` → `7 passed` (link forms, inbox naming, only
+  a PDF taken, the route answers at once and starts the reading, a refusal in words). `tsc`, `eslint` clean.

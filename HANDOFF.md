@@ -27,9 +27,14 @@ is verified. This file only says where the last session stopped.
   proof is the synthetic scan (`tests/test_boxes.py`, goal `s16-read-the-boxes`) plus the QR count on the real
   file. Next: `bin/engine read file ~/Downloads/"24 sept.pdf" --read` on the Mac (or the server) after merge,
   then Marking; then a child-wise table from `copies.tally`.
-- Still to build so nobody pastes commands (task 4): `POST /read/file` taking a Drive link, the engine fetching
-  the file to `~/cornerstone/assessments/inbox`, sorting and reading it; a "Read a scan" form on the site; the
-  n8n Drive-folder trigger calling the same endpoint (`n8n/workflows/f3-read-scans.json`).
+- **A scan arrives on its own** (N8, `w3_read/inbox.py`, `POST /read/file`): a Drive link in, the engine fetches
+  the file to `~/cornerstone/assessments/inbox` (the server mounts that folder read-write now), answers at once with
+  a `flow_run` id, and after answering sorts the pages by code and reads every copy printed for a child
+  (`copies.read` with `names=None`: a bare copy is reported, never guessed). Marking has a "Read a scan" form
+  (`readScan` in `capture/actions.ts`); `n8n/workflows/f3-read-scans.json` is the Drive-folder trigger calling the
+  same route. To connect n8n: a Drive credential on the trigger, the engine's public address and key on the request.
+  The file must be shared "anyone with the link" for the engine to fetch it, as Achal's are; otherwise the engine
+  says so in words. Not run on live: `tests/test_inbox.py` stands the download and the reading in.
 
 ## 2026-09-24, later — a library worksheet prints for children, one code each (W2 N6, W3 N8)
 

@@ -1,0 +1,98 @@
+{
+  "name": "F3 — read scans",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "content": "F3 — read scans (W3, N8).\\n\\nA scan lands in the school's Drive folder; this flow hands the engine its link and nothing else. The engine fetches the file into its inbox, sorts the pages by the code on each, reads every box on every copy printed for a child, and puts the answers on Marking (`POST /read/file`, `w3_read/inbox.py`).\\n\\nNo decision is made here — not whose paper a page is, not what a box says (CLAUDE.md rule 3). A copy printed with no child's code is reported on Marking, never guessed.\\n\\nTo connect: a Google Drive credential on the trigger, the folder Achal uploads to as `folderToWatch`, and the engine's public address and key on the request node.",
+        "height": 340,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-620, 420],
+      "id": "note",
+      "name": "What this is"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [-620, 200],
+      "id": "a-scan-landed",
+      "name": "A scan landed in the folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GOOGLE_DRIVE",
+          "name": "school drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://engine:8000/read/file",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ url: 'https://drive.google.com/file/d/' + $json.id + '/view', actor: 'drive' }) }}",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.id }}-read-scan"
+            }
+          ]
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-180, 200],
+      "id": "read-the-scan",
+      "name": "Read the scan",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "ENGINE_KEY",
+          "name": "engine key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "A scan landed in the folder": {
+      "main": [
+        [
+          {
+            "node": "Read the scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
