@@ -5,23 +5,63 @@ import { rag, type Rag } from "./rag";
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
 // states are the engine's (`rebuild_child_skill_state`); nothing here decides one.
 
-export type ClassRow = { band: string; section: string; n: number; cells: Record<Rag, number> };
+export type ClassRow = {
+  band: string;
+  section: string;
+  n: number;
+  /** Children, not skills: each child counted once, in the colour of the skill they most need help on. */
+  kids: Record<Rag, number>;
+  /** The skills the most children need help on, and how many. */
+  weakest: { name: string; n: number }[];
+  /** Answers read from the class's papers that wait for a person. */
+  waiting: number;
+  /** The last day a paper of the class was read. */
+  last_read: string | null;
+};
 
-/** Each class on roll with its grade, and how many of its children's seen steps are in each colour. */
+const WORST: Rag[] = ["red", "amber", "green", "grey"];
+
+/** Each class on roll with its grade: how many of its children stand in each colour (a child in the colour of the
+ *  skill they most need help on, grey with no checked answers), the skills the most children need help on, what
+ *  waits on Marking, and when a paper was last read. Taught skills only — as the child's own page shows them. */
 export async function classes(): Promise<ClassRow[]> {
-  const rows = await sql<{ band: string; section: string; n: number; states: Record<string, number> | null }[]>`
-    select c.band, c.section, count(distinct c.id)::int as n,
-           (select json_object_agg(state, k) from (
-              select s.state, count(*)::int as k from child_skill_state s join child x on x.id = s.child_id
-              where x.active and x.section = c.section and x.band = c.band group by s.state) t) as states
-    from child c where c.active
-    group by c.band, c.section
-    order by c.band, c.section`;
-  return rows.map((r) => {
-    const cells: Record<Rag, number> = { red: 0, amber: 0, green: 0, grey: 0 };
-    for (const [state, k] of Object.entries(r.states ?? {})) cells[rag(state)] += k;
-    return { band: r.band, section: r.section, n: r.n, cells };
-  });
+  const [kids, weak] = await Promise.all([
+    sql<{ band: string; section: string; states: string[] | null; waiting: number; last_read: string | null }[]>`
+      select c.band, c.section,
+             (select array_agg(s.state) from child_skill_state s
+               where s.child_id = c.id and exists (
+                 select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+                 where ss.rung_code = s.rung_code and t.taught)) as states,
+             (select count(*)::int from item_result r join capture k on k.id = r.capture_id
+                join sheet_instance si on si.id = k.sheet_instance_id
+               where si.child_id = c.id and r.state = 'candidate' and k.superseded_by is null) as waiting,
+             (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
+               where si.child_id = c.id and k.superseded_by is null) as last_read
+      from child c where c.active order by c.band, c.section`,
+    sql<{ section: string; name: string; n: number }[]>`
+      select c.section, ss.name, count(distinct c.id)::int as n
+      from child_skill_state s join child c on c.id = s.child_id and c.active
+      join skill_set ss on ss.rung_code = s.rung_code
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      where s.state in ('patterned_error', 'emerging')
+      group by c.section, ss.name order by c.section, n desc, ss.name`,
+  ]);
+  const out = new Map<string, ClassRow>();
+  for (const k of kids) {
+    const row = out.get(k.section) ?? {
+      band: k.band, section: k.section, n: 0, kids: { red: 0, amber: 0, green: 0, grey: 0 },
+      weakest: weak.filter((w) => w.section === k.section).slice(0, 3).map(({ name, n }) => ({ name, n })),
+      waiting: 0, last_read: null,
+    }; // prettier-ignore
+    const colours = new Set((k.states ?? []).map((st) => rag(st)));
+    const worst = WORST.find((c) => c !== "grey" && colours.has(c)) ?? "grey";
+    row.n += 1;
+    row.kids[worst] += 1;
+    row.waiting += k.waiting;
+    if (k.last_read && (!row.last_read || k.last_read > row.last_read)) row.last_read = k.last_read;
+    out.set(k.section, row);
+  }
+  return [...out.values()];
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */

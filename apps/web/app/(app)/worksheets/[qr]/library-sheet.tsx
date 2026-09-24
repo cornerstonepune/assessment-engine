@@ -39,19 +39,25 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
           </Notice>
         ) : null}
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
-          <Link href={`/skill-sets/${w.skill_set_code}?level=${w.difficulty}#worksheets`} className="chip">
-            ← {w.skill} · {w.difficulty}
-          </Link>
-          <Link href={`/worksheets?set=${w.skill_set_code}&level=${w.difficulty}#library`} className="chip">
-            All worksheets
-          </Link>
+          {w.skill_live ? (
+            <>
+              <Link href={`/skill-sets/${w.skill_set_code}?level=${w.difficulty}#worksheets`} className="chip">
+                ← {w.skill} · {w.difficulty}
+              </Link>
+              <Link href={`/worksheets?set=${w.skill_set_code}&level=${w.difficulty}#library`} className="chip">
+                All worksheets
+              </Link>
+            </>
+          ) : (
+            <span className="chip">Made for a skill set since replaced: its questions now sit on today&rsquo;s skills</span>
+          )}
           {/* To look at, not to hand out: every copy of it carries the same code, and no row says whose it is. */}
           <a href={`/api/worksheet/${w.code}`} className="chip" target="_blank" rel="noopener">
             See the worksheet
           </a>
         </div>
 
-        <PrintFor code={w.code} kids={kids} />
+        {w.retired_at ? null : <PrintFor code={w.code} kids={kids} />}
 
         <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_320px]">
           <Panel title="Its questions, as the child meets them" aside={`${questions.length} questions`}>
