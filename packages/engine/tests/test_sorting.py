@@ -39,6 +39,20 @@ def test_copies_of_one_worksheet_in_a_row_are_cut_at_its_length_and_a_missing_co
     assert got[2] == {"qr": "R8-H02", "pages": [7, 8, 9], "unread": [7]}
 
 
+def test_a_first_page_whose_code_did_not_read_belongs_to_the_copy_after_it_when_that_copy_is_short_by_it():
+    """The Grade 2 scan of 2026-09-23: page 27 (R5-H14's first page) read no code, after a whole R2-E12 copy."""
+    two = {"R2-E12": 2, "R5-H14": 2}.get
+    got = sorting.group(["R2-E12", "R2-E12", None, "R5-H14", "R2-E12", "R2-E12"], lambda c: two(c, 0))
+    assert [(p["qr"], p["pages"], p["unread"]) for p in got] == [
+        ("R2-E12", [1, 2], []),
+        ("R5-H14", [3, 4], [3]),
+        ("R2-E12", [5, 6], []),
+    ]
+    # A whole copy after it takes nothing: the page stays the copy it was taken for, flagged.
+    got = sorting.group(["R2-E12", "R2-E12", None, "R2-E12", "R2-E12", "R2-E12"], lambda c: two(c, 0))
+    assert [p["pages"] for p in got] == [[1, 2], [3, 4], [5, 6]]
+
+
 def _printed(tmp_path, qr, n):
     rng = random.Random(qr)
     qs = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0]) for _ in range(n)]
