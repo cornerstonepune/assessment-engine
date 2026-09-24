@@ -98,7 +98,7 @@
       "built": "partly",
       "takes": ["scans"],
       "gives": ["capture"],
-      "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py"],
+      "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py", "engine/w3_read/copies.py", "engine/w3_read/cli_file.py"],
       "commands": ["engine read stencil", "engine read file"],
       "screens": ["/capture"],
       "subject": {"any": true, "note": "Any subject. Scans enter from this Mac; a phone photo arriving on its own (Drive folder, QR) is not built."}
@@ -164,7 +164,8 @@
     {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/inventory.py", "why": "A child's paper is built from the bank's questions, each read back as the question it is."},
     {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/inventory.py", "why": "A paper chosen from a child's graph is drawn from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."},
-    {"from": "engine/w3_read/sorting.py", "to": "engine/w2_print/library.py", "why": "A scanned library worksheet is counted off in copies as long as the worksheet prints."}
+    {"from": "engine/w3_read/sorting.py", "to": "engine/w2_print/library.py", "why": "A scanned library worksheet is counted off in copies as long as the worksheet prints."},
+    {"from": "engine/w3_read/copies.py", "to": "engine/w2_print/library.py", "why": "A library worksheet copy is read against the page the worksheet prints: its questions' words, their pages, the name band."}
   ],
   "ceilings": {
     "limit": 400,

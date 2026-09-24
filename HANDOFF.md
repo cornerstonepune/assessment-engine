@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-24 — library worksheet copies read for the child named on them (W3, N8)
+
+- `engine read file <pdf> --section G2 --names "A,B,?,7,…"` — one entry per library worksheet copy in file
+  order (a first name, a roll number, or `?` to skip). Every name is found in the class list before anything is
+  read; each copy is cut into `data/scans/<scan>/copyNN-<code>.pdf` and read and marked by `legacy.import_scan`
+  against the worksheet as it prints (`copies.printed`: each question's words and page, the name band masked).
+  Every answer waits on Marking for a person; the line per copy names the child by roll, never by name.
+- Root cause fixed on the way: `bank rehome` deleted old-ladder library worksheets "never handed out" — but a
+  library copy records no sheet_instance, so it could not know. R2-E12 and R5-H14 were in children's hands on
+  2026-09-23. They are now retired, never deleted; `sorting` and `library.pdf` read a worksheet whose skill set is
+  gone. `mark` no longer needs a `kind` on the question (a bank question has none); an answer keeps its own rid.
+- The 2026-09-23 Grade 2 scan: 11 copies (R8-H02 ×4, R8-H01 ×4, R2-E12 ×2, R5-H14 ×1). The names came from
+  Drive's text of the file, never written to the repo; five copies wait on Nimish (three names unclear, two
+  blank). Not run on live — Nimish runs it on the Mac after `bin/update-live`.
+
 ## 2026-09-24, for the morning — the update is proven on a copy of live; run it on live
 
 `rehearse update-live` run 6 (GitHub Actions 35913118685): a copy of live (47 tables, 89,973 rows, every count

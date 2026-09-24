@@ -278,8 +278,9 @@ def pdf(conn, code):
     if path.exists():
         return path
     t = conn.execute(
-        "select t.id, t.band, t.difficulty, t.variant, t.item_ids, s.name from sheet_template t"
-        " join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
+        "select t.id, t.band, t.difficulty, t.variant, t.item_ids, coalesce(s.name, t.skill_set_code) as name"
+        " from sheet_template t"
+        " left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
         " where t.source = 'library' and t.code = %s",
         (code,),
     ).fetchone()
