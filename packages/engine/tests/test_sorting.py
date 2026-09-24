@@ -152,3 +152,19 @@ def test_a_class_of_library_worksheet_copies_sorts_into_one_paper_per_child(conn
     ]
     assert all(p["worksheet"] and p["ours"] and not p["sheet"] for p in papers)
     assert papers[0]["worksheet"]["level"] == "Hard"
+
+
+def test_a_code_printed_in_words_is_matched_to_the_code_printed_allowing_for_misread_letters():
+    """2026-09-24: of sixteen one-page papers the QR scanned on three; the code printed beside it reads through."""
+    mine = ["CS56DB32", "CSDEEED5", "CS3DB381"]
+    assert sorting.printed_code(["Show your working · CS560832 · p1/1"], mine) == "CS56DB32"
+    assert sorting.printed_code(["CSDEEEDS"], mine) == "CSDEEED5"
+    assert sorting.printed_code(["C S 3DB381 p1/1"], mine) == "CS3DB381"
+    assert sorting.printed_code(["no code here", "CS999999"], mine) is None
+    assert sorting.printed_code(["CS56DB32", "CS3DB381"], mine) is None, "two papers on one page: nobody's"
+
+
+def test_a_page_with_no_code_after_a_childs_whole_paper_is_nobodys_never_the_next_copy_of_it():
+    one = {"CS00AAAA": 1, "R8-H02": 3}.get
+    got = sorting.group(["CS00AAAA", None, "CS00BBBB"], lambda c: one(c, 0))
+    assert [(p["qr"], p["pages"]) for p in got] == [("CS00AAAA", [1]), (None, [2]), ("CS00BBBB", [3])]

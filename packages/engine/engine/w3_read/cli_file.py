@@ -75,7 +75,9 @@ def _read_copies(path, names, section, actor):
         for c in done:
             pages = f"p{c['pages'][0]}–{c['pages'][-1]}"
             if c.get("skipped"):
-                typer.echo(f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  not read: no child named")
+                typer.echo(
+                    f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  not read: {c.get('why', 'no child named')}"
+                )
                 continue
             t = copies.tally(conn, c["capture_id"])
             waiting += t["waiting"]

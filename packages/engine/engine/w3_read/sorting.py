@@ -14,6 +14,7 @@ import re
 import cv2
 import pymupdf
 
+from engine.adapters import ocr
 from engine.assess import mark
 from engine.w3_read import render_pdf
 
@@ -35,6 +36,33 @@ def qr_of(img) -> str | None:
     return None
 
 
+# Letters a reader mistakes for one another in a printed code (a scan's "CS56DB32" is read "CS560832"): folded alike
+# on both sides, the printed code and a code this system printed still meet.
+_FOLD = str.maketrans(
+    {"O": "0", "Q": "0", "D": "0", "S": "5", "I": "1", "L": "1", "B": "8", "G": "6", "Z": "2"}
+)
+_SEEN = re.compile(r"C\s*[S5]\s*([0-9A-Z]{6})")
+
+
+def printed_code(lines, known) -> str | None:
+    """The code printed as words under a page's QR (`CS3DB381`), read from the page's text where the QR itself
+    would not scan: the one code this system printed that a code on the page matches, allowing for the letters a
+    reader mistakes (`_FOLD`). None when nothing matches, or two different printed codes do (a double scan)."""
+    folded = {}
+    for k in known:
+        folded.setdefault(k[2:].translate(_FOLD), set()).add(k)
+    found = set()
+    for line in lines:
+        for m in _SEEN.finditer(line.upper()):
+            found |= folded.get(m.group(1).translate(_FOLD), set())
+    return found.pop() if len(found) == 1 else None
+
+
+def _text_of(img, cli):
+    ok, jpg = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    return [line["text"] for line in ocr.read(jpg.tobytes(), cli)["lines"]]
+
+
 def group(codes: list[str | None], length=lambda code: 0) -> list[dict]:
     """Pages in file order → papers: a run of pages with one code is one paper; a page with no code joins the
     paper before it, flagged, since a sheet's later pages carry the same code and a missing one is a bad scan.
@@ -47,9 +75,10 @@ def group(codes: list[str | None], length=lambda code: 0) -> list[dict]:
         if code and last and last["qr"] == code and not full:
             last["pages"].append(n)
         elif code or not last or full:
-            out.append(
-                {"qr": code or (last and full and last["qr"]), "pages": [n], "unread": [] if code else [n]}
-            )
+            # a page with no code after a whole copy is taken for another copy of the same library worksheet —
+            # never for another child's own paper, whose code is theirs alone
+            guess = last and full and WORKSHEET.match(last["qr"] or "") and last["qr"]
+            out.append({"qr": code or guess or None, "pages": [n], "unread": [] if code else [n]})
         else:
             last["pages"].append(n)
             last["unread"].append(n)
@@ -88,18 +117,35 @@ def worksheets(conn, codes) -> dict:
     }
 
 
-def sort_file(conn, path, pages_of=None) -> list[dict]:
+def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
     """Each paper in the file: its pages, its QR, and whose paper the database says it is — a child's own sheet
     (`sheet`), a library worksheet (`worksheet`, whose copy it is being written on it, not in the code), or
     neither. Pages are drawn at the resolution the reader uses (`render_pdf.DPI`). `pages_of(code)` is a library
-    worksheet's length in pages, by default its printed PDF's (`library.pdf`)."""
-    codes = [qr_of(img) for img in render_pdf.render(path)]
+    worksheet's length in pages, by default its printed PDF's (`library.pdf`); a child's own paper is as long as
+    it printed (`sheet_instance.key`). `read_text(img)` gives a page's lines of text, for a QR that will not scan."""
+    images = render_pdf.render(path)
+    codes = [qr_of(img) for img in images]
+    if any(c is None for c in codes):
+        # a QR the scan spoiled: the same code is printed beside it in words, read with the page's text
+        mine = [
+            r["qr_code"] for r in conn.execute("select qr_code from sheet_instance where qr_code like 'CS%%'")
+        ]
+        read_text = read_text or (lambda img, cli=ocr.client(): _text_of(img, cli))
+        codes = [c or printed_code(read_text(img), mine) for c, img in zip(codes, images)]
     library = worksheets(conn, {c for c in codes if c and WORKSHEET.match(c)})
     if pages_of is None:
         from engine.w2_print import library as printed
 
         pages_of = lambda code: len(pymupdf.open(printed.pdf(conn, code)))  # noqa: E731
     length = {c: pages_of(c) for c in library}
+    length |= {
+        r["qr_code"]: r["pages"]
+        for r in conn.execute(
+            "select qr_code, (key ->> 'pages')::int as pages from sheet_instance"
+            " where qr_code = any(%s) and key ? 'pages'",
+            ([c for c in codes if c and OURS.match(c)],),
+        )
+    }
     papers = group(codes, lambda c: length.get(c, 0))
     codes = [p["qr"] for p in papers if p["qr"]]
     known = {

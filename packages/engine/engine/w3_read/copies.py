@@ -140,6 +140,20 @@ def _home(path) -> str:
     return str(Path(path).resolve()).replace(str(Path.home()), "~")
 
 
+def _replaces(conn, capture_id, scan):
+    """A copy read afresh from the same scan — cut again after better sorting — stands in for the reading of the
+    same paper made from it before: that one is superseded (rule 4: kept, no longer read), unless a person has
+    already worked on it, which stays as they left it."""
+    stem = Path(scan).stem
+    for old in conn.execute(
+        "select c.id from capture c where c.sheet_instance_id = (select sheet_instance_id from capture where id = %s)"
+        " and c.id <> %s and c.superseded_by is null and (c.path like %s or c.path like %s)",
+        (capture_id, capture_id, _home(CUT / stem) + "/%", _home(WAS_CUT / stem) + "/%"),
+    ).fetchall():
+        if not legacy.worked_on(conn, old["id"]):
+            conn.execute("update capture set superseded_by = %s where id = %s", (capture_id, old["id"]))
+
+
 def _cut(scan, pages, name):
     """The copy's pages as a file of their own — once: a second run reads the same file, so nothing is read twice."""
     out = CUT / Path(scan).stem / name
@@ -156,11 +170,11 @@ def _cut(scan, pages, name):
     return out
 
 
-def read(conn, scan, section, names, actor, pages_of=None):
+def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
     """Every library worksheet copy in the file, in order, read for its child: a copy printed for a child
     (`handout`, Make papers) by the code on it; a copy printed bare by the name said for it, in file order ("?"
     leaves one unread). → one dict per copy: its pages, code, child, answers read, questions a person marks."""
-    papers = sorting.sort_file(conn, scan, pages_of)
+    papers = sorting.sort_file(conn, scan, pages_of, read_text)
     own = [p for p in papers if p["sheet"] and p["sheet"]["source"] == "library" and p["sheet"]["child_id"]]
     bare = [p for p in papers if p["worksheet"] and not p["sheet"]]
     if len(names) != len(bare):
@@ -181,7 +195,12 @@ def read(conn, scan, section, names, actor, pages_of=None):
         )
     )
     out = []
-    for k, copy in enumerate((p for p in papers if p in own or id(p) in who), 1):
+    lost = [p for p in papers if not p["qr"]]  # no code on the page, QR or print: whose it is cannot be said
+    for k, copy in enumerate((p for p in papers if p in own or id(p) in who or p in lost), 1):
+        if not copy["qr"]:
+            out.append({"copy": k, "pages": copy["pages"], "code": "?", "child_id": None, "answers": 0,
+                        "by_code": False, "skipped": True, "why": "no code could be read on the page"})  # fmt: skip
+            continue
         mine = copy["sheet"]
         cid = mine["child_id"] if mine else who[id(copy)]
         code = mine["code"] if mine else copy["qr"]
@@ -200,8 +219,11 @@ def read(conn, scan, section, names, actor, pages_of=None):
         template, by_key, unread = paper(conn, code, mine["pdf_path"] if kept else None)
         if mine:
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
-        cut = _cut(scan, copy["pages"], f"copy{k:02d}-{code}.pdf")
+        # a child's own paper is named by where it starts, so a file read again, sorted better, cuts it afresh
+        name = f"copy{k:02d}-p{copy['pages'][0]}-{code}.pdf" if mine else f"copy{k:02d}-{code}.pdf"
+        cut = _cut(scan, copy["pages"], name)
         s = legacy.import_scan(conn, str(cut), code, cid, actor, rows=(template, by_key))
+        _replaces(conn, s["capture_id"], scan)
         # a copy read before it moved (`WAS_CUT`): its reading now points at where it lives
         conn.execute(
             "update capture set path = %s where id = %s and path <> %s",
