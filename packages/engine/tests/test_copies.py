@@ -151,3 +151,24 @@ def test_a_copy_left_unnamed_is_skipped_and_the_wrong_number_of_names_is_refused
         copies.read(conn, scan, SECTION, ["Chitra"], "test", pages_of=length)
     with pytest.raises(ValueError, match="0 children called 'Nobody'"):
         copies.read(conn, scan, SECTION, ["Nobody", "?"], "test", pages_of=length)
+
+
+def test_a_question_whose_number_is_not_found_on_the_page_takes_its_page_from_the_key_the_renderer_wrote(
+    conn, worksheet, monkeypatch
+):
+    """`nothing read: 8` on 2026-09-24: question 8's number was not found on the printed page. The page each
+    question prints on is in the key written beside the PDF; the question's words are its own."""
+    _, code, ids, pdf = worksheet
+    words, band = copies.printed(pdf)
+    drawn = copies._pages_in_key(pdf)
+    keys = {
+        r["id"]: r["item_key"]
+        for r in conn.execute("select id, item_key from item where id = any(%s)", (ids,))
+    }
+    assert {n: drawn[keys[i]] for n, i in enumerate(ids, 1)} == {n: p for n, (p, _) in words.items()}
+
+    monkeypatch.setattr(copies, "printed", lambda path: ({n: w for n, w in words.items() if n != 8}, band))
+    _, by_key, unread = copies.paper(conn, code)
+    assert "8" in by_key and 8 not in unread
+    assert by_key["8"]["spec"]["page"] == words[8][0]
+    assert by_key["8"]["spec"]["question"].split()[:4] == words[8][1].split()[:4]
