@@ -67,3 +67,37 @@ def test_a_scan_of_copies_printed_for_children_reads_each_onto_its_child_with_no
     assert all(r["qr_code"].startswith("CS") for r in landed), (
         "the answers are on the copy printed for the child"
     )
+
+
+def test_a_paper_whose_qr_will_not_scan_is_read_by_the_code_printed_beside_it_and_a_second_read_replaces_the_first(
+    conn, worksheet, tmp_path, monkeypatch
+):
+    """2026-09-24: the QR scanned on 3 of 16 one-page papers, and each unread page was joined to the paper before
+    it. The code printed in words beside the QR finds each paper its child; reading the file again stands in for
+    the earlier reading of the same paper, never beside it."""
+    from engine.w3_read import sorting
+
+    tenant, code, ids, _ = worksheet
+    kids = [_child(conn, tenant, "55", "Ira"), _child(conn, tenant, "56", "Jaya")]
+    printed = handout.for_children(conn, code, kids, WEEK, "educator@school", tmp_path / "print")
+    stand_in_reader(conn, ids, monkeypatch)
+    scan = _scanned([printed], tmp_path / "class.pdf")
+    real = sorting.qr_of
+    pages = len(pymupdf.open(printed)) // 2
+    seen = iter(range(10_000))
+    # the second child's QR is spoiled on every page; their code still reads in words
+    monkeypatch.setattr(
+        sorting, "qr_of", lambda img: None if next(seen) % (2 * pages) >= pages else real(img)
+    )
+    second = [real(img) for img in sorting.render_pdf.render(printed)][pages]
+    words = lambda img: [f"Show your working · {second}"]  # noqa: E731
+    first = copies.read(conn, scan, "", [], "test", read_text=words)
+    assert {c["child_id"] for c in first if not c.get("skipped")} == set(kids)
+    assert all(c["by_code"] for c in first if not c.get("skipped"))
+    copies.read(conn, scan, "", [], "test", read_text=words)  # read again: nothing added beside it
+    live = conn.execute(
+        "select si.child_id, count(*) as n from capture c join sheet_instance si on si.id = c.sheet_instance_id"
+        " where si.child_id = any(%s) and c.superseded_by is null group by 1",
+        (kids,),
+    ).fetchall()
+    assert sorted(r["n"] for r in live) == [1, 1], "each child's paper read once"
