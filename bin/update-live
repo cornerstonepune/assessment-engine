@@ -9,6 +9,7 @@
 #   worksheets rebuilt, each child's skills rebuilt from their answers (engine graph)
 # 6 the checks, printed; `engine live data` fails the run when the rows and the pages disagree.
 # Safe to run again: each step does nothing when there is nothing to do.
+# --no-server skips step 3, for when Amazon cannot be reached: the database steps do not need the server.
 # Needs what go-live.sh needs, plus DATABASE_URL in .env and the Supabase CLI.
 set -euo pipefail
 
@@ -26,7 +27,11 @@ say "2/6 migrations onto the live database"
 (cd "$REPO" && supabase db push --db-url "$LIVE" --yes)
 
 say "3/6 the engine server"
-"$REPO/deploy/go-live.sh"
+if [ "${1:-}" = "--no-server" ]; then
+  echo "skipped (--no-server): the server keeps the code it has; run this again without it to bring it up to date"
+else
+  "$REPO/deploy/go-live.sh"
+fi
 
 say "4/6 seed rows"
 "$E" load
