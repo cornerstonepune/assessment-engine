@@ -9,6 +9,10 @@ export type Band = { words: string; check: Record<string, unknown> };
 /** The levels a skill defines, in order: most have all four, some fewer (1-digit − 1-digit has no Hard). */
 export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) => DIFFICULTIES.filter((d) => s.difficulty[d]);
 
+/** The grade a skill's level belongs to: one grade each — named in `level_band`, else the skill's own. */
+export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
+  s.level_band?.[d] ?? s.band;
+
 export type SkillSet = {
   code: string;
   rung_code: string;
@@ -22,6 +26,8 @@ export type SkillSet = {
   ratified_by: string | null;
   updated_at: string;
   band: string;
+  /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
+  level_band: Partial<Record<Difficulty, string>>;
   descriptor: string;
   skill_codes: string[];
   version: number;
@@ -74,7 +80,8 @@ export async function skillSets(): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
-           r.band, r.descriptor, r.skill_codes, s.topic_code, t.name as topic_name, t.ord as topic_ord,
+           r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, r.descriptor, r.skill_codes, s.topic_code,
+           t.name as topic_name, t.ord as topic_ord,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active'

@@ -128,11 +128,28 @@ def _where_it_shows(conn, area, levels) -> focus.Area:
     return area
 
 
-def _levels(conn) -> dict:
-    return {
-        r["code"]: tuple(r["difficulty"] or {})
-        for r in conn.execute("select code, difficulty from skill_set")
-    }
+def _grade(band) -> int:
+    """A band's place among the grades: G1 → 1; reasoning's "G2+" → 2."""
+    digits = "".join(ch for ch in str(band or "") if ch.isdigit())
+    return int(digits) if digits else 0
+
+
+def _levels(conn, band=None) -> dict:
+    """{skill set: its levels}. With a child's band, only the levels of that child's grade or below: each level
+    belongs to one grade (`skill_set.level_band`, else the skill's own), and a child is never given a level of a
+    grade above their own — a Grade 1 child meets 2-digit + 1-digit only at the levels Grade 1 teaches."""
+    out = {}
+    for r in conn.execute(
+        "select s.code, s.difficulty, s.level_band, r.band from skill_set s"
+        " left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+    ):
+        defined = tuple(r["difficulty"] or {})
+        if band is not None:
+            defined = tuple(
+                d for d in defined if _grade((r["level_band"] or {}).get(d) or r["band"]) <= _grade(band)
+            )
+        out[r["code"]] = defined
+    return out
 
 
 def _asked(conn, states, ask) -> list:
@@ -172,7 +189,8 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
         chosen = _asked(conn, states, ask)
     else:
         n = int(_config(conn, "assemble.items_per_sheet", 12))
-        levels = _levels(conn)
+        band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
+        levels = _levels(conn, band)
         chosen = [
             (_where_it_shows(conn, a, levels), n)
             for a in focus.home(states, catalog(conn), rule(conn), levels)

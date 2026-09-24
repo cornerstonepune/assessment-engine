@@ -69,3 +69,25 @@ export async function approveSkills(formData: FormData): Promise<void> {
   // Only back to the map or a skill page: a return address from a form is never trusted to leave the site.
   redirect(`${/^\/(skill-sets\/[A-Z0-9._]+)?$/.test(back) ? back : "/"}?approved=${approved.length}`);
 }
+
+/** A person says which grade teaches each level of a skill — one grade each (Nimish, 2026-09-24). Kept in its own
+ *  column, not in the level's words: it moves where the level is taught, not what it asks, so the approval stays.
+ *  A level in the skill's own grade is not written down; only one moved elsewhere is. */
+export async function saveGrades(formData: FormData): Promise<void> {
+  await requireStaff();
+  const code = String(formData.get("code") ?? "");
+  if (!CODE.test(code)) redirect("/");
+  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; band: string }[]>`
+    select s.difficulty, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    where s.code = ${code}`;
+  if (!row) redirect("/");
+  const moved = Object.fromEntries(
+    levelsOf(row)
+      .map((d) => [d, String(formData.get(`grade:${d}`) ?? "")] as const)
+      .filter(([, g]) => /^G[1-9]\+?$/.test(g) && g !== row.band),
+  );
+  await sql`update skill_set set level_band = ${sql.json(moved as never)} where code = ${code}`;
+  revalidatePath("/");
+  revalidatePath(`/skill-sets/${code}`);
+  redirect(`/skill-sets/${code}?grades=1`);
+}

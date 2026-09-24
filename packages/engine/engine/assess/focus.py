@@ -53,8 +53,10 @@ def _weakness(a):
     return (LAGGING.index(a.state), a.right / a.answered if a.answered else 0.0, a.skill_set)
 
 
-def areas(states, catalog, rule):
-    """The areas to work on, weakest first. `states` are the child's graph rows."""
+def areas(states, catalog, rule, levels=None):
+    """The areas to work on, weakest first. `states` are the child's graph rows. `levels`, when given, is the
+    levels of each skill set this child may be given: a lagging child's level is the hardest of those no harder
+    than the one their share calls for, and a skill set with none is not theirs to work on."""
     best = {}
     for s in states:
         if s["state"] not in LAGGING:
@@ -64,6 +66,10 @@ def areas(states, catalog, rule):
             continue
         share = s["n_correct"] / s["n_events"] if s["n_events"] else 0.0
         level = "Easy" if share < rule["easy_below"] else "Medium"
+        if levels is not None:
+            level = _at_most(level, levels.get(code, ())) or _easiest(levels.get(code, ()))
+            if not level:
+                continue
         area = Area(
             code,
             s["skill_code"],
@@ -88,10 +94,15 @@ def _at_most(level, defined):
     return below[-1] if below else None
 
 
+def _easiest(defined):
+    """The easiest level a skill set defines, or None."""
+    return next((d for d in LEVELS if d in defined), None)
+
+
 def home(states, catalog, rule, levels):
     """The one area a child's home paper works on: the weakest they lag in, or, when they lag nowhere, their
     strongest skill one level up. `levels` is each skill set's defined levels. Empty when the graph shows neither."""
-    weak = areas(states, catalog, {**rule, "most": 1})
+    weak = areas(states, catalog, {**rule, "most": 1}, levels)
     if weak:
         return weak
     strong = []
