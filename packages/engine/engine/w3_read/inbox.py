@@ -86,6 +86,10 @@ def read(run_id: str, path: Path, actor: str) -> list[dict]:
             conn.execute(
                 "update flow_run set status = 'error', error = %s, finished_at = now(), updated_at = now()"
                 " where id = %s",
-                (str(e)[:2000], run_id),
+                (f"{type(e).__name__}: {e}"[:2000], run_id),
             )
+            # Committed before the exception leaves: `db.connect` rolls back on the way out of a failure, and took
+            # this record with it — the first live run said "running" for 25 minutes after it had died on
+            # `ConfigParseError` (2026-09-25).
+            conn.commit()
             raise

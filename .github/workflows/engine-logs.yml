@@ -31,6 +31,9 @@ jobs:
           echo "== containers"; $S 'sudo docker ps --format "{{.Names}} {{.Status}}"'
           echo "== processes in the engine"; $S 'sudo docker top deploy-engine-1 -o pid,etime,pcpu,rss,args' || true
           echo "== memory"; $S 'free -m'
+          # the reader's key file, its shape only: every value masked, line ends shown as $ so a stray space shows
+          echo "== ~/.aws/credentials (values masked)"
+          $S "sed -E 's/=.*/= <set>/' ~/.aws/credentials | cat -A" || true
           echo "== reading runs, last day"
           cat > runs.py <<'PY'
           from engine.core import db
