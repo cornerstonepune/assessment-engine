@@ -134,3 +134,48 @@ def test_a_scans_copies_are_given_by_roll_number_never_by_name(client, monkeypat
     r = c.get("/read/scan/24 sept.pdf/copies")
     assert r.status_code == 200 and r.json() == [row] and seen == ["24 sept.pdf"]
     assert "name" not in r.text
+
+
+class _Tx:
+    """A connection that keeps what was committed and throws away the rest, as `db.connect` does on a failure."""
+
+    def __init__(self, kept):
+        self.kept, self.pending = kept, []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, kind, *rest):
+        if kind is None:
+            self.commit()
+        self.pending = []  # rolled back
+
+    def execute(self, sql, params=None):
+        self.pending.append((sql, params))
+        return self
+
+    def commit(self):
+        self.kept += self.pending
+        self.pending = []
+
+    def rollback(self):
+        self.pending = []
+
+
+def test_a_reading_that_fails_says_why_on_its_run(tmp_path, monkeypatch):
+    """2026-09-25: the reading died on the server's unreadable AWS credentials and its run said "running" for
+    25 minutes — the error was written, then rolled back with the failure."""
+    kept = []
+    monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Tx(kept))
+
+    def broken(*a, **k):
+        raise RuntimeError("Unable to parse config file: /root/.aws/credentials")
+
+    monkeypatch.setattr(copies, "read", broken)
+    with pytest.raises(RuntimeError):
+        inbox.read(RUN, tmp_path / "24 sept.pdf", "achal@school")
+    [(sql, params)] = kept
+    assert "status = 'error'" in sql and params == (
+        "RuntimeError: Unable to parse config file: /root/.aws/credentials",
+        RUN,
+    )
