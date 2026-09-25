@@ -48,6 +48,26 @@ jobs:
           git archive --format=tar HEAD | $S 'tar -x -C ~/assessment-engine.new'
           # the server's own settings go across to the new copy; they are never in git
           $S 'cp ~/assessment-engine/.env ~/assessment-engine.new/.env && rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
+      - name: wait for scans being read
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        # Restarting the engine kills a reading in progress (2026-09-25: the first live read of the 24 Sep scan
+        # never finished — a deploy restarted the engine under it). A run started in the last hour and still
+        # "running" is waited for, up to 30 minutes; one older than that died with an earlier engine.
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          cat > running.py <<'PY'
+          from engine.core import db
+          with db.connect() as c:
+              sql = "select count(*) as n from flow_run where status = 'running' and started_at > now() - interval '1 hour'"
+              print(c.execute(sql).fetchone()["n"])
+          PY
+          for _ in $(seq 60); do
+            n=$($S "sudo docker exec -i deploy-engine-1 python -" < running.py 2>/dev/null || echo 0)
+            [ "$n" = 0 ] && exit 0
+            echo "$n scan(s) still being read; waiting"
+            sleep 30
+          done
+          echo "::warning::a reading was still running after 30 minutes; deploying anyway"
       - name: start the engine
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         run: |

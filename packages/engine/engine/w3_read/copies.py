@@ -269,3 +269,27 @@ def tally(conn, capture_id) -> dict:
         " from item_result where capture_id = %s",
         (capture_id,),
     ).fetchone()
+
+
+def of_scan(conn, name: str) -> list[dict]:
+    """Every copy read from one scanned file, in file order, as its child's class and roll number (never a name,
+    rule 6), the worksheet, and what the engine made of its answers (`tally`): the per-child score of a scan, for
+    whoever needs it without the database — a person on the site, or a session through the engine's API."""
+    stem = Path(name).stem
+    rows = conn.execute(
+        "select c.id as capture_id, c.path, ch.section, ch.roll_no, coalesce(t.code, t.batch_id) as code,"
+        " (select count(*) from item_result r where r.capture_id = c.id) as answers"
+        " from capture c join sheet_instance si on si.id = c.sheet_instance_id"
+        " join sheet_template t on t.id = si.sheet_template_id left join child ch on ch.id = si.child_id"
+        " where c.superseded_by is null and (c.path like %s or c.path like %s) order by c.path",
+        (_home(CUT / stem) + "/%", _home(WAS_CUT / stem) + "/%"),
+    ).fetchall()
+    out = []
+    for r in rows:
+        t = tally(conn, r["capture_id"])
+        unclear = t["waiting"] - t["right_waiting"] - t["wrong"] - t["blank"]
+        out.append({"copy": Path(r["path"]).name.split("-")[0], "section": r["section"], "roll_no": r["roll_no"],
+                    "code": r["code"], "capture_id": str(r["capture_id"]), "answers": r["answers"],
+                    "right": t["right"] + t["right_waiting"], "wrong": t["wrong"], "blank": t["blank"],
+                    "unclear": max(0, unclear), "waiting": t["waiting"]})  # fmt: skip
+    return out
