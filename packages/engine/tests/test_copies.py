@@ -129,6 +129,12 @@ def test_two_copies_land_on_the_two_children_named_each_answer_marked_against_it
         )
     cut = sorted((tmp_path / "scans").rglob("*.pdf"))
     assert [len(pymupdf.open(p)) for p in cut] == [len(pymupdf.open(pdf))] * 2
+    # the scan's score, per child by roll number — what `/read/scan/{name}/copies` gives
+    score = copies.of_scan(conn, scan)
+    assert [(s["roll_no"], s["code"], s["right"], s["wrong"], s["blank"]) for s in score] == [
+        ("41", code, 1, 1, 10),
+        ("42", code, 1, 1, 10),
+    ]
 
     again = copies.read(
         conn, scan, SECTION, ["Asha", "42"], "test", pages_of=lambda c: len(pymupdf.open(pdf))

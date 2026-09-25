@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from engine.api import deps
 from engine.api.app import app
-from engine.w3_read import inbox
+from engine.w3_read import copies, inbox
 
 KEY = "test-engine-key"
 LINKS = [
@@ -123,3 +123,14 @@ def test_a_link_the_engine_will_not_take_is_refused_in_words(client, monkeypatch
     monkeypatch.setattr(inbox, "fetch", refuse)
     r = c.post("/read/file", json={"url": "https://example.com/x.pdf", "actor": "achal@school"})
     assert r.status_code == 400 and r.json()["detail"] == "that is not a Google Drive link to a file"
+
+
+def test_a_scans_copies_are_given_by_roll_number_never_by_name(client, monkeypatch):
+    c, _ = client
+    seen = []
+    row = {"copy": "copy01", "section": "G3", "roll_no": "1", "code": "R31-H02", "capture_id": RUN, "answers": 12,
+           "right": 9, "wrong": 2, "blank": 1, "unclear": 0, "waiting": 12}  # fmt: skip
+    monkeypatch.setattr(copies, "of_scan", lambda conn, name: seen.append(name) or [row])
+    r = c.get("/read/scan/24 sept.pdf/copies")
+    assert r.status_code == 200 and r.json() == [row] and seen == ["24 sept.pdf"]
+    assert "name" not in r.text

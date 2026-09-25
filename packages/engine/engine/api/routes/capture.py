@@ -22,7 +22,7 @@ from engine.api.models import (
     ReadFileRequest,
     ReadFileResponse,
 )
-from engine.w3_read import inbox, legacy, marking
+from engine.w3_read import copies, inbox, legacy, marking
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -151,3 +151,9 @@ def read_file(
     run_id = inbox.start(tenant_id, path, body.actor)
     background.add_task(inbox.read, run_id, path, body.actor)
     return {"run_id": run_id, "pages": pages}
+
+
+@router.get("/read/scan/{name}/copies")
+def scan_copies(name: str, conn=Depends(get_conn)) -> list[dict]:
+    """Every copy read from one scanned file, and each child's score by roll number (`copies.of_scan`)."""
+    return copies.of_scan(conn, name)
