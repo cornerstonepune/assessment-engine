@@ -1,0 +1,67 @@
+# The engine server takes a merge's code as the website does. Vercel deploys main on every merge; before this,
+# the engine changed only when `deploy/go-live.sh` ran on Nimish's Mac, from whatever that Mac had checked out —
+# on 2026-09-25 the server was still running code from before the box reader and `/read/file` were merged.
+#
+# Does what go-live.sh steps 4 and 6 do, from the merged commit: the code, exactly as committed, onto the
+# server, and the engine rebuilt and restarted. The server's settings (.env, the reader's AWS key) and its scans
+# stay as they are: they are the server's, put there once by go-live.sh, never carried by a deploy.
+#
+# Needs two repository secrets: LIGHTSAIL_SSH_KEY (Lightsail → Account → SSH keys → the Mumbai default key) and
+# LIGHTSAIL_HOST (the server's static address).
+name: deploy engine
+on:
+  push:
+    branches: [main]
+    paths: ["packages/engine/**", "deploy/**", ".github/workflows/deploy-engine.yml"]
+  workflow_dispatch:
+
+concurrency: { group: deploy-engine, cancel-in-progress: false }
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the secrets are set
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          if [ -z "$KEY" ] || [ -z "$HOST" ]; then
+            echo "::error::LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST must be set under Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: the code, exactly as committed
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S 'rm -rf ~/assessment-engine.new && mkdir -p ~/assessment-engine.new'
+          git archive --format=tar HEAD | $S 'tar -x -C ~/assessment-engine.new'
+          # the server's own settings go across to the new copy; they are never in git
+          $S 'cp ~/assessment-engine/.env ~/assessment-engine.new/.env && rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
+      - name: start the engine
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          # where the packs were recorded as rendered: read off the running engine, as go-live.sh set it
+          PACKS=$($S "sudo docker inspect deploy-engine-1 --format '{{range .Mounts}}{{if eq .Source \"/home/ubuntu/cornerstone/packs\"}}{{.Destination}}{{end}}{{end}}'" || true)
+          ENGINE_HOST="${HOST//./-}.sslip.io"
+          $S "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$ENGINE_HOST HOME=/home/ubuntu PACKS_AS_RECORDED='${PACKS:-/unused/packs}' docker compose -f compose.server.yml up -d --build"
+          for _ in $(seq 60); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://$ENGINE_HOST/health")" = 200 ]; then
+              echo "the engine is online at https://$ENGINE_HOST ($(git rev-parse --short HEAD))"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::the engine did not come up"
+          exit 1
