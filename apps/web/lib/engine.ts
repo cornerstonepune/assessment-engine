@@ -39,7 +39,11 @@ export async function engineGet(path: string): Promise<Response> {
 export async function engineImage(path: string): Promise<Response> {
   try {
     const res = await engineGet(path);
-    if (!res.ok) return new Response("not found on this machine", { status: res.status });
+    if (!res.ok) {
+      const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "not found on this machine";
+      if (!/\.(jpg|png)(\?|$)/.test(path)) return new Response(why, { status: res.status });
+      return said(why.startsWith("the scan is not on this machine") ? "The scan is not on the server yet." : "The engine has no picture for this.", why);
+    }
     return new Response(res.body, {
       headers: {
         "content-type": res.headers.get("content-type") ?? "image/jpeg",
@@ -47,8 +51,23 @@ export async function engineImage(path: string): Promise<Response> {
       },
     });
   } catch (e) {
-    return new Response(e instanceof EngineDown ? e.message : "could not fetch the page", { status: 503 });
+    const why = e instanceof EngineDown ? e.message : "could not fetch the page";
+    if (!/\.(jpg|png)(\?|$)/.test(path)) return new Response(why, { status: 503 });
+    return said("The engine is not answering.", why);
   }
+}
+
+/** Why there is no picture, as a picture: an <img> cannot show a sentence, and a broken-image icon told
+ *  Nimish nothing (2026-09-25, a paper read on the Mac before the server had its scan). Shown to staff
+ *  only — the route has already checked who is asking. */
+function said(headline: string, detail = ""): Response {
+  const esc = (s: string) => s.replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c] ?? c);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="120" viewBox="0 0 640 120">
+  <rect width="640" height="120" fill="#f4f1ea" stroke="#c9c2b4"/>
+  <text x="20" y="48" font-family="Georgia, serif" font-size="20" fill="#2a2622">${esc(headline)}</text>
+  <text x="20" y="80" font-family="system-ui, sans-serif" font-size="13" fill="#6b645a">${esc(detail.slice(0, 90))}</text>
+</svg>`;
+  return new Response(svg, { status: 200, headers: { "content-type": "image/svg+xml", "cache-control": "no-store" } });
 }
 
 /** A POST whose whole answer the caller reads, status and body — for a call where a refusal is
