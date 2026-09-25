@@ -56,41 +56,62 @@ def test_a_different_file_of_the_same_name_keeps_both(tmp_path, monkeypatch):
     assert first == again and other != first and other.parent == first.parent
 
 
+RUN = "11111111-1111-1111-1111-111111111111"
+
+
 class _Conn:
-    def __init__(self):
-        self.sql = []
+    """A connection that says when its transaction ended: `db.connect` commits on leaving its block."""
+
+    def __init__(self, log):
+        self.log = log
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.log.append("run committed")
 
     def execute(self, sql, params=None):
-        self.sql.append((sql, params))
+        self.log.append(sql.split(" (")[0])
         return self
 
     def fetchone(self):
-        return {"id": "11111111-1111-1111-1111-111111111111"}
+        return {"id": RUN}
+
+
+def test_the_run_is_committed_on_its_own_before_the_reading_starts(tmp_path, monkeypatch):
+    """2026-09-25, the first live run: FastAPI runs a background task BEFORE the request's own transaction
+    commits, so a run written on the request's connection was invisible for the whole reading ("no run")."""
+    log = []
+    monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Conn(log))
+    assert inbox.start("tenant-1", tmp_path / "24 sept.pdf", "achal@school") == RUN
+    assert log == ["insert into flow_run", "run committed"]
 
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
     monkeypatch.setenv("ENGINE_KEY", KEY)
-    conn = _Conn()
-    app.dependency_overrides[deps.get_conn] = lambda: (yield conn)
+    app.dependency_overrides[deps.get_conn] = lambda: (yield None)
     app.dependency_overrides[deps.get_tenant_id] = lambda: "tenant-1"
     with TestClient(app, headers={"X-Engine-Key": KEY}) as c:
-        yield c, conn
+        yield c, None
     app.dependency_overrides.clear()
 
 
 def test_the_route_fetches_the_file_answers_at_once_and_reads_it_after(client, tmp_path, monkeypatch):
-    c, conn = client
+    c, _ = client
     scan = tmp_path / "24 sept.pdf"
     scan.write_bytes(_pdf(16))
-    read = []
+    order = []
     monkeypatch.setattr(inbox, "fetch", lambda url: scan)
-    monkeypatch.setattr(inbox, "read", lambda run_id, path, actor: read.append((run_id, path, actor)))
+    monkeypatch.setattr(
+        inbox, "start", lambda tenant, path, actor: order.append(("start", tenant, actor)) or RUN
+    )
+    monkeypatch.setattr(inbox, "read", lambda run_id, path, actor: order.append(("read", run_id, path)))
     r = c.post("/read/file", json={"url": LINKS[0], "actor": "achal@school"})
     assert r.status_code == 200, r.text
-    assert r.json() == {"run_id": "11111111-1111-1111-1111-111111111111", "pages": 16}
-    assert read == [("11111111-1111-1111-1111-111111111111", scan, "achal@school")]
-    assert any("insert into flow_run" in sql and params[1] == inbox.FLOW for sql, params in conn.sql)
+    assert r.json() == {"run_id": RUN, "pages": 16}
+    assert order == [("start", "tenant-1", "achal@school"), ("read", RUN, scan)]
 
 
 def test_a_link_the_engine_will_not_take_is_refused_in_words(client, monkeypatch):
