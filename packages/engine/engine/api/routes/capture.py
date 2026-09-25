@@ -136,7 +136,6 @@ def capture_page(capture_id: str, page_no: int, box: str = "", conn=Depends(get_
 def read_file(
     body: ReadFileRequest,
     background: BackgroundTasks,
-    conn=Depends(get_conn),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """N8: a scan arrives as a Drive link. The file is fetched into the engine's inbox now, and read after this
@@ -149,6 +148,6 @@ def read_file(
         raise HTTPException(status_code=400, detail=str(why)) from why
     with pymupdf.open(path) as doc:
         pages = len(doc)
-    run_id = inbox.start(conn, tenant_id, path, body.actor)
+    run_id = inbox.start(tenant_id, path, body.actor)
     background.add_task(inbox.read, run_id, path, body.actor)
     return {"run_id": run_id, "pages": pages}

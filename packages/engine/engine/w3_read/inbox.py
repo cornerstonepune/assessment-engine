@@ -56,14 +56,18 @@ def fetch(url: str, download=_download) -> Path:
     return out
 
 
-def start(conn, tenant, path: Path, actor: str) -> str:
-    """The run a person or a flow can look at (`/runs/{id}`): what the engine is doing with this file."""
-    return str(
-        conn.execute(
-            "insert into flow_run (tenant_id, flow, trigger) values (%s, %s, %s) returning id",
-            (tenant, FLOW, f"{actor}: {path.name}"),
-        ).fetchone()["id"]
-    )
+def start(tenant, path: Path, actor: str) -> str:
+    """The run a person or a flow can look at (`/runs/{id}`): what the engine is doing with this file. Written and
+    committed on its own connection, before the reading starts: FastAPI runs a background task BEFORE the
+    request's own transaction commits (2026-09-25, the first live run: `/runs/{id}` said "no run" for minutes,
+    and the reading could not mark a row it could not see)."""
+    with db.connect() as conn:
+        return str(
+            conn.execute(
+                "insert into flow_run (tenant_id, flow, trigger) values (%s, %s, %s) returning id",
+                (tenant, FLOW, f"{actor}: {path.name}"),
+            ).fetchone()["id"]
+        )
 
 
 def read(run_id: str, path: Path, actor: str) -> list[dict]:
