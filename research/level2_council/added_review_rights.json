@@ -1,0 +1,124 @@
+{
+ "seat": "rights",
+ "verdicts": [
+  {
+   "id": "uses-a-taught-word-in-own-sentence",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-in-the-second-language",
+   "verdict": "accept",
+   "reason": "Good for a child whose home language is not English: a record that values another language rather than penalising it."
+  },
+  {
+   "id": "asks-what-exactly-was-not-understood",
+   "verdict": "edit",
+   "reason": "'Did not understand any of it' pictures the lost child, a plain truth for a child new to the school's language, not a contrast; the look-alike is the whole-topic question.",
+   "edit": {
+    "counter_example": "Asks the educator to explain the whole topic again from the start."
+   }
+  },
+  {
+   "id": "works-through-own-wrong-answer-with-the-class",
+   "verdict": "edit",
+   "reason": "As written an educator can send a child to the board with their error to earn the record, which is exposure, not courage; the child's own offer is the evidence.",
+   "edit": {
+    "statement": "Volunteers to work through their own wrong answer on the board with the class, saying where it went wrong.",
+    "adult_sees": "The educator hears the offer come from the child, then sees them at the board pointing to the step that went wrong.",
+    "counter_example": "Works through the wrong answer at the board because the educator called them up."
+   }
+  },
+  {
+   "id": "names-something-they-want-to-learn",
+   "verdict": "accept"
+  },
+  {
+   "id": "makes-something-for-a-particular-person",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-one-object-as-another-in-pretend-play",
+   "verdict": "edit",
+   "reason": "Symbolic play is also a diagnostic screening item, so keep it a creative act any child can show; 'tells a playmate' shuts out a child playing alone or without speech.",
+   "edit": {
+    "statement": "Uses one object as another in pretend play, such as a block as a phone, and shows or tells what it stands for.",
+    "adult_sees": "The educator sees the object used as something else and the child make plain, by word or action, what it is now."
+   }
+  },
+  {
+   "id": "makes-or-repairs-something-someone-asked-for",
+   "verdict": "accept"
+  },
+  {
+   "id": "makes-an-original-artwork-to-a-theme",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-instructions-for-a-classmate-to-draw",
+   "verdict": "edit",
+   "reason": "The artefact would file a classmate's 'wrong' drawing in another child's record; file the child's own instruction sheet only, and let 'writes' admit dictation for a child who cannot handwrite.",
+   "edit": {
+    "statement": "Writes or dictates step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing does not match what was meant.",
+    "adult_sees": "The educator sees the steps, the drawing they produced and the step rewritten after it; the filed artefact is the child's own instruction sheet, not the classmate's drawing."
+   }
+  },
+  {
+   "id": "takes-a-full-turn-in-an-outdoor-game",
+   "verdict": "edit",
+   "reason": "The counter pictures the child who sits out, a choice and for some children a need, as the contrast; the look-alike is joining the field without taking the turn.",
+   "edit": {
+    "counter_example": "Runs onto the field with the others and stands watching them take the turn."
+   }
+  },
+  {
+   "id": "says-stop-in-words",
+   "verdict": "edit",
+   "reason": "'When pushed or grabbed at' makes every record a record of being handled roughly, which is the anti-bullying process's matter, not evidence; 'in words' shuts out a signing child.",
+   "edit": {
+    "statement": "Tells a classmate 'stop' or 'I am still using it', in words or signs, when the classmate reaches for or takes what they are using.",
+    "adult_sees": "The educator hears or sees the words or sign given to the classmate before any adult steps in; the note holds the child's words, never the incident or the classmate."
+   }
+  },
+  {
+   "id": "says-work-will-be-late-before-the-deadline",
+   "verdict": "accept",
+   "reason": "Good replacement for the retired line: the asking is the evidence and no reason need be given or filed."
+  },
+  {
+   "id": "takes-on-part-of-a-classmates-share",
+   "verdict": "edit",
+   "reason": "Each record here implies a classmate who could not finish, for reasons that may be home or health; note the part taken on, never the classmate or the reason.",
+   "edit": {
+    "adult_sees": "The educator sees the extra part done and hears the team told; the note names the part taken on, not the classmate or why they could not finish."
+   }
+  },
+  {
+   "id": "brings-an-absent-teammate-up-to-date",
+   "verdict": "accept"
+  },
+  {
+   "id": "proposes-a-break-in-a-heated-argument",
+   "verdict": "edit",
+   "reason": "Every record here is also a record of an argument at raised voices; the note must hold the proposal alone, never the argument's subject or the others in it.",
+   "edit": {
+    "adult_sees": "The educator hears the break proposed with a time to return and sees the argument pause; the note holds the proposal, not the argument or who was in it."
+   }
+  },
+  {
+   "id": "turns-off-a-tap-or-light-left-on",
+   "verdict": "accept"
+  },
+  {
+   "id": "picks-up-litter-not-their-own",
+   "verdict": "accept"
+  },
+  {
+   "id": "votes-and-accepts-the-result",
+   "verdict": "accept"
+  },
+  {
+   "id": "handles-a-living-thing-gently",
+   "verdict": "accept"
+  }
+ ]
+}

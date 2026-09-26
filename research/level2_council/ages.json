@@ -1,0 +1,163 @@
+{
+ "counts-objects-one-to-one": {
+  "from_age": 4
+ },
+ "reads-a-familiar-word": {
+  "from_age": 6,
+  "why": "Reading a word from its letters alone, with no picture, is a Grade 1 skill; before six a child recognises words by picture and by memory of where they saw them."
+ },
+ "exchanges-ten-ones": {
+  "from_age": 7,
+  "why": "Seeing ten ones as one unit called a ten is Grade 2 place value; a younger child counts the rod as one more block, however well they count to ten."
+ },
+ "retells-a-story-in-order": {
+  "from_age": 5
+ },
+ "sorts-by-a-stated-rule": {
+  "from_age": 4
+ },
+ "writes-name-and-numerals": {
+  "from_age": 5
+ },
+ "uses-a-taught-word-in-own-sentence": {
+  "from_age": 4
+ },
+ "asks-why-about-something-seen": {
+  "from_age": 3
+ },
+ "predicts-then-checks": {
+  "from_age": 4
+ },
+ "gives-a-reason-for-a-choice": {
+  "from_age": 4
+ },
+ "notices-a-difference-between-two-things": {
+  "from_age": 4
+ },
+ "changes-a-guess-when-shown": {
+  "from_age": 5
+ },
+ "puts-events-in-cause-order": {
+  "from_age": 5
+ },
+ "chooses-an-activity-and-finishes-it": {
+  "from_age": 3
+ },
+ "asks-for-help-after-trying": {
+  "from_age": 4
+ },
+ "says-what-they-learned-today": {
+  "from_age": 5
+ },
+ "fixes-own-work-after-a-hint": {
+  "from_age": 4
+ },
+ "puts-materials-back-ready-for-next": {
+  "from_age": 3
+ },
+ "tries-again-after-a-fail": {
+  "from_age": 3
+ },
+ "names-something-they-want-to-learn": {
+  "from_age": 4
+ },
+ "builds-something-from-a-plan-in-mind": {
+  "from_age": 4
+ },
+ "solves-a-practical-problem-with-materials": {
+  "from_age": 4
+ },
+ "draws-to-show-an-idea": {
+  "from_age": 4
+ },
+ "invents-a-rule-for-a-game": {
+  "from_age": 5
+ },
+ "makes-a-second-version": {
+  "from_age": 4
+ },
+ "uses-a-tool-for-its-purpose": {
+  "from_age": 4
+ },
+ "makes-something-for-a-particular-person": {
+  "from_age": 3
+ },
+ "uses-one-object-as-another-in-pretend-play": {
+  "from_age": 3
+ },
+ "tells-news-in-full-sentences": {
+  "from_age": 3
+ },
+ "listens-and-responds-to-a-peer": {
+  "from_age": 4
+ },
+ "asks-to-join-and-accepts-no": {
+  "from_age": 4
+ },
+ "shows-work-and-explains-it": {
+  "from_age": 3
+ },
+ "uses-words-to-settle-a-dispute": {
+  "from_age": 4
+ },
+ "operates-a-simple-device-for-a-purpose": {
+  "from_age": 3
+ },
+ "follows-a-sequence-of-instructions": {
+  "from_age": 4
+ },
+ "gives-instructions-to-move-a-friend": {
+  "from_age": 5
+ },
+ "sorts-real-from-pretend": {
+  "from_age": 5
+ },
+ "asks-before-using-someone-elses-thing": {
+  "from_age": 3
+ },
+ "says-what-they-are-feeling-and-chooses": {
+  "from_age": 4
+ },
+ "waits-for-a-turn-without-a-reminder": {
+  "from_age": 4
+ },
+ "comforts-a-classmate": {
+  "from_age": 3
+ },
+ "manages-own-things": {
+  "from_age": 4
+ },
+ "returns-to-play-after-a-small-hurt": {
+  "from_age": 3
+ },
+ "takes-a-full-turn-in-an-outdoor-game": {
+  "from_age": 3
+ },
+ "says-stop-in-words": {
+  "from_age": 3
+ },
+ "cares-for-a-plant-or-animal": {
+  "from_age": 4
+ },
+ "sorts-waste-into-the-right-bin": {
+  "from_age": 4
+ },
+ "shares-without-being-asked": {
+  "from_age": 3
+ },
+ "says-what-is-fair-in-a-game": {
+  "from_age": 5
+ },
+ "turns-off-a-tap-or-light-left-on": {
+  "from_age": 4
+ },
+ "picks-up-litter-not-their-own": {
+  "from_age": 3
+ },
+ "votes-and-accepts-the-result": {
+  "from_age": 4
+ },
+ "handles-a-living-thing-gently": {
+  "from_age": 3
+ }
+}

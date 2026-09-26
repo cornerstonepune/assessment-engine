@@ -144,6 +144,22 @@ Outcome after the rules: 94 accepted, 20 added, 90 edited, 8 retired.
 - **rights** · `self-and-relationships`: wrong — Honest that regulation is unobservable, but wrong to point at a TGMD-style checklist: a motor-milestone screen is health data taken by a professional with consent, not a school capability record.
 - **rights** · `society-ethics-and-planet`: honest — Honest and right about the Foundational overlap with kind; merging would also stop one act producing two records in the file.
 
+## The added rows, checked again by two seats
+
+- **development** · `reads-in-the-second-language` → edit: 'Second language' names a different construct for a Marathi-home child than for an English-home child; anchoring on 'not their home language' makes one line measure one thing.
+- **development** · `works-through-own-wrong-answer-with-the-class` → edit: As worded it is met when the educator sends the child to the board; 'unafraid' needs the offer to come from the child, the prompted case being the over-count.
+- **development** · `takes-on-part-of-a-classmates-share` → edit: 'When they cannot finish it' asks the observer to judge the classmate's capacity; the classmate saying so is the visible trigger and separates help from covering for a free rider.
+- **development**: accepted 17 of 20 added rows as written
+- **rights** · `asks-what-exactly-was-not-understood` → edit: 'Did not understand any of it' pictures the lost child, a plain truth for a child new to the school's language, not a contrast; the look-alike is the whole-topic question.
+- **rights** · `works-through-own-wrong-answer-with-the-class` → edit: As written an educator can send a child to the board with their error to earn the record, which is exposure, not courage; the child's own offer is the evidence.
+- **rights** · `uses-one-object-as-another-in-pretend-play` → edit: Symbolic play is also a diagnostic screening item, so keep it a creative act any child can show; 'tells a playmate' shuts out a child playing alone or without speech.
+- **rights** · `writes-instructions-for-a-classmate-to-draw` → edit: The artefact would file a classmate's 'wrong' drawing in another child's record; file the child's own instruction sheet only, and let 'writes' admit dictation for a child who cannot handwrite.
+- **rights** · `takes-a-full-turn-in-an-outdoor-game` → edit: The counter pictures the child who sits out, a choice and for some children a need, as the contrast; the look-alike is joining the field without taking the turn.
+- **rights** · `says-stop-in-words` → edit: 'When pushed or grabbed at' makes every record a record of being handled roughly, which is the anti-bullying process's matter, not evidence; 'in words' shuts out a signing child.
+- **rights** · `takes-on-part-of-a-classmates-share` → edit: Each record here implies a classmate who could not finish, for reasons that may be home or health; note the part taken on, never the classmate or the reason.
+- **rights** · `proposes-a-break-in-a-heated-argument` → edit: Every record here is also a record of an argument at raised voices; the note must hold the proposal alone, never the argument's subject or the others in it.
+- **rights**: accepted 12 of 20 added rows as written
+
 ## Every row that changed, or that a seat questioned
 
 Seats: E educator, P parent, D development, R rights. Rule numbers are in the script's docstring.
@@ -171,13 +187,13 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
   - statement: ~~Completes a short timed set of practice questions in the time given and checks one answer before handing in.~~ → Completes a short timed practice set within the time allotted to them and re-works one answer in the margin before handing in.
   - adult_sees: ~~The educator sees the set finished in time and one answer visibly re-checked.~~ → The educator sees the set finished within the child's allotted time and one answer worked a second time in the margin.
   - counter_example: ~~Finishes early and hands in without looking back at any answer.~~ → Finishes early and sits with the sheet untouched until time is called.
-- **`reads-in-the-second-language`** → added (chair). chair add: educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage.
-- **`asks-what-exactly-was-not-understood`** → added (chair). chair add: parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks.
+- **`reads-in-the-second-language`** → added (chair). chair add: educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage. Revised on the seats' second look: development: anchored on a language that is not the child's home language, so one line measures one thing.
+- **`asks-what-exactly-was-not-understood`** → added (chair). chair add: parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks. Revised on the seats' second look: rights: the counter no longer pictures the lost child; the look-alike is the whole-topic question.
 ### knowledge-and-academic-mastery · middle
 
 - **`uses-a-technical-term-correctly`** → edited (R4). D edit: The over-count is parroting, the term used correctly by rote; the draft's counter is a plain failure, not a look-alike.
   - counter_example: ~~Uses the term in a sentence that does not fit its meaning.~~ → Uses the term correctly in a rehearsed sentence and cannot give a plain-words version when asked.
-- **`works-through-own-wrong-answer-with-the-class`** → added (chair). chair add: parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability.
+- **`works-through-own-wrong-answer-with-the-class`** → added (chair). chair add: parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability. Revised on the seats' second look: development and rights, independently: the offer must come from the child; being sent to the board is exposure, not courage.
 ### knowledge-and-academic-mastery · secondary
 
 - **`solves-an-unseen-board-style-problem`** → edited (chair). D edit: Captured as a test, so 'says why' cannot be heard; the reason must be written to be evidence. · E edit: In a test nobody speaks; 'says why' cannot be captured under exam rules, so the reason must be written on the paper. · chair edit: educator and development seats, identical: in a test nobody speaks, so the reason is written.
@@ -261,7 +277,7 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
 - **`invents-a-rule-for-a-game`** → edited (chair). R edit: 'Changes rules mid-game to win' reads a motive into a small child and files cheating as the contrast; the look-alike is a rule announced but not played. · P edit: 'to win' reads a four-year-old's motive and calls them a cheat; the near-miss is a rule announced after the round has started. · chair edit: rights seat's counter: a rule proposed but not played is the near-miss; both seats removed the motive.
   - counter_example: ~~Changes rules mid-game to win.~~ → Proposes a new rule and then plays the round by the old rules.
 - **`makes-something-for-a-particular-person`** → added (chair). chair add: parent: creation had no kind line at any stage; making for someone else is the earliest form a parent would recognise.
-- **`uses-one-object-as-another-in-pretend-play`** → added (chair). chair add: development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show.
+- **`uses-one-object-as-another-in-pretend-play`** → added (chair). chair add: development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show. Revised on the seats' second look: rights: 'shows or tells', so a child playing alone or without speech can show it.
 ### creation-and-problem-solving · preparatory
 
 - **`writes-an-original-story-or-poem`** → edited (R4). E edit: A poem has no 'problem and ending'; two educators would disagree over a poem. Keep the sentence to a story.
@@ -356,7 +372,7 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
 - **`handles-a-device-with-care`** → retired (chair). R edit: 'Carried with two hands' excludes a child with a limb difference or a child using a walking aid; 'securely, as shown' is the observable that every child can meet. · E skip: Below Grade 4 there is no device to handle; what is left is putting shared materials back, already recorded under learning-and-agency. · chair skip: educator's skip stands: below Grade 4 there is no device to handle, and care of shared materials is already recorded under learning-and-agency (both the parent and the educator named the duplicate).
 ### technology-and-ai · preparatory
 
-- **`writes-instructions-for-a-classmate-to-draw`** → added (chair). chair add: development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game.
+- **`writes-instructions-for-a-classmate-to-draw`** → added (chair). chair add: development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game. Revised on the seats' second look: rights: dictation admitted; the filed artefact is the child's own sheet, never the classmate's drawing.
 ### technology-and-ai · middle
 
 - **`verifies-an-ai-output-and-finds-an-error`** → edited (chair). D edit: As drafted it needs an error to exist; claim-by-claim checking against a source is observable on every occasion and is the actual skill. · E edit: As written it needs the tool to have erred that day; checking every claim against a source is visible whether or not it did. · chair edit: both seats: checking claim by claim is observable whether or not the tool erred; development's wording names the source.
@@ -394,8 +410,8 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
 - **`runs-jumps-and-balances-in-play`** → retired (R1). R skip: A motor-milestone checklist on video is a health screen of a small child's body, not capability evidence; it excludes a child with a physical disability and is kept ten years. · D edit: A three-item motor checklist is an observation note; filming children outdoors is heavier than the evidence, and the bundle of three skills should be recorded item by item. · E edit: The PE educator sees this in a session and notes each movement; filming thirty children for a count of three is not the lightest. · P edit: A video of my small child's body in play, kept ten years, for a movement any educator can see in a moment; a dated note is enough.
 - **`returns-to-play-after-a-small-hurt`** → edited (R4). R edit: Sitting out after a hurt is a child's own choice, not a failing to list against them; the look-alike is a return steered by an adult, not the child's own.
   - counter_example: ~~Sits out for the rest of the session after a small hurt.~~ → Returns to play only when an adult walks them back to the game.
-- **`takes-a-full-turn-in-an-outdoor-game`** → added (chair). chair add: rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line.
-- **`says-stop-in-words`** → added (chair). chair add: development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that.
+- **`takes-a-full-turn-in-an-outdoor-game`** → added (chair). chair add: rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line. Revised on the seats' second look: rights: the counter no longer pictures the child who sits out.
+- **`says-stop-in-words`** → added (chair). chair add: development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that. Revised on the seats' second look: rights: the trigger is a classmate reaching for what the child is using, not being handled roughly; words or signs; the note never holds the incident.
 ### self-and-relationships · preparatory
 
 - **`uses-a-strategy-before-acting`** → edited (R4). R edit: Each record here also records a conflict; the note must hold the strategy alone, never the incident or the other child, or the file becomes a conflict log.
@@ -437,7 +453,7 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
   - adult_sees: ~~The educator reads the record of attempts across the weeks.~~ → The educator reads the goal and attempt entries spanning four or more weeks, a record of what was done, never a body measure.
 - **`asks-a-trusted-adult-for-help`** → retired (R1). R skip: A child's disclosure of a personal difficulty to a trusted adult is confidential and may be about home; it must go to safeguarding, never to a file parents read. · D skip: 'Before it affects their work' is a counterfactual no observer can see, and the evidence is a private disclosure; help-seeking is real but this is not a recordable occasion. · E skip: Happens in private, not where I can see it; and the counter-example makes me grade a child on when they confided. Not a routine record. · P skip: A dated record that my child had 'a personal difficulty', kept ten years, is a confidence, not evidence; the help-seeking belongs with that adult, not in the file.
 - **`says-work-will-be-late-before-the-deadline`** → added (chair). chair add: educator: the observable core of the retired trusted-adult line, asking before it affects work, with nothing private disclosed.
-- **`takes-on-part-of-a-classmates-share`** → added (chair). chair add: parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years.
+- **`takes-on-part-of-a-classmates-share`** → added (chair). chair add: parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years. Revised on the seats' second look: development: the classmate saying so is the visible trigger; rights: the note names the part taken on, never the classmate or why.
 ### self-and-relationships · secondary
 
 - **`mediates-between-two-others`** → edited (R4). R edit: The note must not carry two other children's dispute into the mediator's ten-year file; the mediation is the evidence, the dispute and its parties are not.
@@ -455,7 +471,7 @@ Seats: E educator, P parent, D development, R rights. Rule numbers are in the sc
   - capture_mode: ~~self_voice~~ → artefact
 - **`supports-a-peer-and-knows-when-to-involve-an-adult`** → retired (R1). R skip: Evidence here is another child's private difficulty, learned by asking that child; peer support in serious matters is a safeguarding domain, not a capability record. · D edit: 'Knows when' is a mind read and 'over time' a pattern; adult_sees rests on hearsay. The observable moment is the bringing-in, with the peer's knowledge. · E skip: I would learn of this second-hand or only when it goes wrong; 'knows when' cannot be seen. Not something to record routinely. · P skip: 'Knows when' is a mind-read, and the record names another child's serious difficulty; a safeguarding moment is handled by people, never filed as routine evidence.
 - **`brings-an-absent-teammate-up-to-date`** → added (chair). chair add: parent and rights, in near-identical words: a kind act toward a peer that names no one's trouble, in place of the retired peer-difficulty line.
-- **`proposes-a-break-in-a-heated-argument`** → added (chair). chair add: development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms.
+- **`proposes-a-break-in-a-heated-argument`** → added (chair). chair add: development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms. Revised on the seats' second look: rights: the note holds the proposal, not the argument or who was in it.
 ### society-ethics-and-planet · foundational
 
 - **`sorts-waste-into-the-right-bin`** → edited (R4). E edit: Bins are used after snack and at clean-up, not in circle; the setting should be one educators recognise and adult_sees should say when to look.

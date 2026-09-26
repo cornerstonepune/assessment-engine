@@ -35,7 +35,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "reads-a-familiar-word",
@@ -66,7 +67,9 @@
          "counter_example": "Says the word from memory of the story while looking at the picture.",
          "capture_mode": "audio"
         }
-       }
+       },
+       "from_age": 6,
+       "from_age_why": "Reading a word from its letters alone, with no picture, is a Grade 1 skill; before six a child recognises words by picture and by memory of where they saw them."
       },
       {
        "id": "exchanges-ten-ones",
@@ -90,7 +93,9 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 7,
+       "from_age_why": "Seeing ten ones as one unit called a ten is Grade 2 place value; a younger child counts the rod as one more block, however well they count to ten."
       },
       {
        "id": "retells-a-story-in-order",
@@ -118,7 +123,8 @@
         "before": {
          "capture_mode": "audio"
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "sorts-by-a-stated-rule",
@@ -142,7 +148,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "writes-name-and-numerals",
@@ -173,7 +180,8 @@
          "statement": "Writes their own name and the numerals one to nine legibly on paper without a model to copy.",
          "adult_sees": "The educator sees the writing done with no model in view."
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "uses-a-taught-word-in-own-sentence",
@@ -194,7 +202,8 @@
          "chair add: development: oral vocabulary is the strongest foundational knowledge marker and the only one a Nursery child can show; the cell was all print and number."
         ],
         "before": {}
-       }
+       },
+       "from_age": 4
       }
      ]
     },
@@ -362,9 +371,9 @@
       },
       {
        "id": "reads-in-the-second-language",
-       "statement": "Reads a short passage aloud in the second language taught in class and answers one question about it in that language.",
-       "adult_sees": "The educator hears the reading and the answer both in the second language, in that language's lesson.",
-       "counter_example": "Reads the passage aloud and answers the question in English.",
+       "statement": "Reads a short passage aloud in a taught language that is not their home language and answers one question in it.",
+       "adult_sees": "The educator hears the reading and the answer both in that language, in its lesson.",
+       "counter_example": "Sounds out the passage correctly, then gives the answer in the language they speak at home.",
        "capture_mode": "observation",
        "setting": "lesson",
        "words": [
@@ -376,7 +385,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage."
+         "chair add: educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage. Revised on the seats' second look: development: anchored on a language that is not the child's home language, so one line measures one thing."
         ],
         "before": {}
        }
@@ -385,7 +394,7 @@
        "id": "asks-what-exactly-was-not-understood",
        "statement": "Asks a question in a lesson that names the exact part they did not understand.",
        "adult_sees": "The educator hears the question point to one step, one word or one line, not to the whole topic.",
-       "counter_example": "Says they did not understand any of it, or asks the educator to repeat everything.",
+       "counter_example": "Asks the educator to explain the whole topic again from the start.",
        "capture_mode": "observation",
        "setting": "lesson",
        "words": [
@@ -398,7 +407,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks."
+         "chair add: parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks. Revised on the seats' second look: rights: the counter no longer pictures the lost child; the look-alike is the whole-topic question."
         ],
         "before": {}
        }
@@ -559,9 +568,9 @@
       },
       {
        "id": "works-through-own-wrong-answer-with-the-class",
-       "statement": "Works through their own wrong answer on the board with the class, saying where it went wrong.",
-       "adult_sees": "The educator sees the child at the board pointing to the step that went wrong, with the class watching.",
-       "counter_example": "Corrects the answer silently in their own book after the educator shows the method.",
+       "statement": "Volunteers to work through their own wrong answer on the board with the class, saying where it went wrong.",
+       "adult_sees": "The educator hears the offer come from the child, then sees them at the board pointing to the step that went wrong.",
+       "counter_example": "Works through the wrong answer at the board because the educator called them up.",
        "capture_mode": "observation",
        "setting": "lesson",
        "words": [
@@ -574,7 +583,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability."
+         "chair add: parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability. Revised on the seats' second look: development and rights, independently: the offer must come from the child; being sent to the board is exposure, not courage."
         ],
         "before": {}
        }
@@ -788,7 +797,8 @@
         "before": {
          "counter_example": "Asks a question the educator has just answered."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "predicts-then-checks",
@@ -812,7 +822,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "gives-a-reason-for-a-choice",
@@ -836,7 +847,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "notices-a-difference-between-two-things",
@@ -860,7 +872,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "changes-a-guess-when-shown",
@@ -885,7 +898,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "puts-events-in-cause-order",
@@ -913,7 +927,8 @@
         "before": {
          "capture_mode": "audio"
         }
-       }
+       },
+       "from_age": 5
       }
      ]
     },
@@ -1444,7 +1459,8 @@
          "statement": "Chooses an activity at free-choice time and stays with it until it is finished.",
          "adult_sees": "The educator sees the activity chosen unprompted and brought to an end."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "asks-for-help-after-trying",
@@ -1469,7 +1485,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "says-what-they-learned-today",
@@ -1498,7 +1515,8 @@
         "before": {
          "capture_mode": "self_voice"
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "fixes-own-work-after-a-hint",
@@ -1522,7 +1540,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "puts-materials-back-ready-for-next",
@@ -1550,7 +1569,8 @@
          "chair accept: the development seat would move care of materials to society; the educator and parent found the society row the duplicate, and 'without being told' is the agency. One owner: learning-and-agency."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "tries-again-after-a-fail",
@@ -1578,7 +1598,8 @@
         "before": {
          "counter_example": "Leaves the activity after the first failure."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "names-something-they-want-to-learn",
@@ -1600,7 +1621,8 @@
          "chair add: development: goal-setting had no seed at this stage; a self-named skill is its four-to-seven-year form."
         ],
         "before": {}
-       }
+       },
+       "from_age": 4
       }
      ]
     },
@@ -2134,7 +2156,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "solves-a-practical-problem-with-materials",
@@ -2159,7 +2182,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "draws-to-show-an-idea",
@@ -2183,7 +2207,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "invents-a-rule-for-a-game",
@@ -2214,7 +2239,8 @@
         "before": {
          "counter_example": "Changes rules mid-game to win."
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "makes-a-second-version",
@@ -2238,7 +2264,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "uses-a-tool-for-its-purpose",
@@ -2262,7 +2289,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "makes-something-for-a-particular-person",
@@ -2284,12 +2312,13 @@
          "chair add: parent: creation had no kind line at any stage; making for someone else is the earliest form a parent would recognise."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "uses-one-object-as-another-in-pretend-play",
-       "statement": "Uses one object as another in pretend play, such as a block as a phone, and tells a playmate what it stands for.",
-       "adult_sees": "The educator sees the object used as something else and hears the child say what it is now.",
+       "statement": "Uses one object as another in pretend play, such as a block as a phone, and shows or tells what it stands for.",
+       "adult_sees": "The educator sees the object used as something else and the child make plain, by word or action, what it is now.",
        "counter_example": "Uses a toy phone as a phone.",
        "capture_mode": "observation",
        "setting": "play",
@@ -2303,10 +2332,11 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show."
+         "chair add: development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show. Revised on the seats' second look: rights: 'shows or tells', so a child playing alone or without speech can show it."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       }
      ]
     },
@@ -2896,7 +2926,8 @@
          "adult_sees": "The educator hears two connected sentences and sees the circle follow.",
          "capture_mode": "audio"
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "listens-and-responds-to-a-peer",
@@ -2921,7 +2952,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "asks-to-join-and-accepts-no",
@@ -2946,7 +2978,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "takes-turns-in-a-pair-task",
@@ -2998,7 +3031,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "uses-words-to-settle-a-dispute",
@@ -3032,7 +3066,8 @@
          "adult_sees": "The educator hears the proposal and sees the dispute end.",
          "counter_example": "Grabs or hits to settle the dispute."
         }
-       }
+       },
+       "from_age": 4
       }
      ]
     },
@@ -3598,7 +3633,8 @@
          "statement": "Operates a simple device for a purpose, such as playing a recorded story or photographing their work, with an adult present.",
          "adult_sees": "The educator sees the device used for the stated purpose and put down after."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "follows-a-sequence-of-instructions",
@@ -3629,7 +3665,8 @@
          "statement": "Follows a three-step sequence of instructions in order, such as in an unplugged coding game.",
          "adult_sees": "The educator sees the three steps done in the order given."
         }
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "gives-instructions-to-move-a-friend",
@@ -3660,7 +3697,8 @@
           "kind"
          ]
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "sorts-real-from-pretend",
@@ -3688,7 +3726,8 @@
         "before": {
          "capture_mode": "audio"
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "asks-before-using-someone-elses-thing",
@@ -3719,7 +3758,8 @@
          "adult_sees": "The educator hears the ask before the object is touched.",
          "counter_example": "Takes it while the classmate is away."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "handles-a-device-with-care",
@@ -3905,8 +3945,8 @@
       },
       {
        "id": "writes-instructions-for-a-classmate-to-draw",
-       "statement": "Writes step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing comes out wrong.",
-       "adult_sees": "The educator sees the written steps, the classmate's drawing, and the step rewritten after it.",
+       "statement": "Writes or dictates step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing does not match what was meant.",
+       "adult_sees": "The educator sees the steps, the drawing they produced and the step rewritten after it; the filed artefact is the child's own instruction sheet, not the classmate's drawing.",
        "counter_example": "Draws the figure for the classmate instead of rewriting the step.",
        "capture_mode": "artefact",
        "setting": "lesson",
@@ -3919,7 +3959,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game."
+         "chair add: development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game. Revised on the seats' second look: rights: dictation admitted; the filed artefact is the child's own sheet, never the classmate's drawing."
         ],
         "before": {}
        }
@@ -4315,7 +4355,8 @@
          "adult_sees": "The educator hears the child's own words and sees the choice made.",
          "statement": "Says what they are feeling in a hard moment, in their own words, and chooses something to do about it."
         }
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "waits-for-a-turn-without-a-reminder",
@@ -4339,7 +4380,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "comforts-a-classmate",
@@ -4371,7 +4413,8 @@
         "before": {
          "counter_example": "Reports the classmate to an adult to get them in trouble."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "manages-own-things",
@@ -4403,7 +4446,8 @@
          "adult_sees": "The educator sees the routine done without a didi.",
          "counter_example": "Waits for a didi to do it."
         }
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "runs-jumps-and-balances-in-play",
@@ -4461,13 +4505,14 @@
         "before": {
          "counter_example": "Sits out for the rest of the session after a small hurt."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "takes-a-full-turn-in-an-outdoor-game",
        "statement": "Takes a full turn in an outdoor running or climbing game, moving in the way their own body moves.",
        "adult_sees": "The educator sees the child take the turn from start to finish, with any aid they use.",
-       "counter_example": "Watches the game from the side until the turn passes to someone else.",
+       "counter_example": "Runs onto the field with the others and stands watching them take the turn.",
        "capture_mode": "observation",
        "setting": "outdoors",
        "words": [
@@ -4480,15 +4525,16 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line."
+         "chair add: rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line. Revised on the seats' second look: rights: the counter no longer pictures the child who sits out."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "says-stop-in-words",
-       "statement": "Tells a classmate 'stop' or 'I am still using it' in words when pushed or grabbed at, before an adult steps in.",
-       "adult_sees": "The educator hears the words said to the classmate before any adult steps in; the note holds the child's words, not the incident.",
+       "statement": "Tells a classmate 'stop' or 'I am still using it', in words or signs, when the classmate reaches for or takes what they are using.",
+       "adult_sees": "The educator hears or sees the words or sign given to the classmate before any adult steps in; the note holds the child's words, never the incident or the classmate.",
        "counter_example": "Says 'stop' only after the educator has told the classmate to stop.",
        "capture_mode": "observation",
        "setting": "play",
@@ -4501,10 +4547,11 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that."
+         "chair add: development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that. Revised on the seats' second look: rights: the trigger is a classmate reaching for what the child is using, not being handled roughly; words or signs; the note never holds the incident."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       }
      ]
     },
@@ -4915,8 +4962,8 @@
       },
       {
        "id": "takes-on-part-of-a-classmates-share",
-       "statement": "Takes on part of a classmate's share of a team task when they cannot finish it, and tells the team.",
-       "adult_sees": "The educator sees the extra part done and hears the team told.",
+       "statement": "Takes on part of a classmate's share of a team task after the classmate says they cannot finish it, and tells the team.",
+       "adult_sees": "The educator hears the classmate say so, sees the extra part done and hears the team told; the note names the part taken on, not the classmate or why.",
        "counter_example": "Does the whole task alone without telling the team.",
        "capture_mode": "observation",
        "setting": "project",
@@ -4929,7 +4976,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years."
+         "chair add: parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years. Revised on the seats' second look: development: the classmate saying so is the visible trigger; rights: the note names the part taken on, never the classmate or why."
         ],
         "before": {}
        }
@@ -5141,7 +5188,7 @@
       {
        "id": "proposes-a-break-in-a-heated-argument",
        "statement": "Stops an argument that has reached raised voices by proposing a break and a time to return to it.",
-       "adult_sees": "The educator hears the break proposed with a time to return, and sees the argument pause.",
+       "adult_sees": "The educator hears the break proposed with a time to return and sees the argument pause; the note holds the proposal, not the argument or who was in it.",
        "counter_example": "Walks away from the argument without a word about returning.",
        "capture_mode": "observation",
        "setting": "project",
@@ -5155,7 +5202,7 @@
         "outcome": "added",
         "rule": "chair",
         "notes": [
-         "chair add: development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms."
+         "chair add: development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms. Revised on the seats' second look: rights: the note holds the proposal, not the argument or who was in it."
         ],
         "before": {}
        }
@@ -5201,7 +5248,8 @@
         "rule": "R6",
         "notes": [],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "sorts-waste-into-the-right-bin",
@@ -5230,7 +5278,8 @@
          "setting": "circle",
          "adult_sees": "The educator sees the right bin chosen unprompted."
         }
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "shares-without-being-asked",
@@ -5258,7 +5307,8 @@
         "before": {
          "statement": "Shares a material or a snack with a classmate who has none, without being asked."
         }
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "notices-someone-elses-need",
@@ -5320,7 +5370,8 @@
          "statement": "Says what would be fair when a game or a share is in dispute, such as taking turns.",
          "adult_sees": "The educator hears a fairness that applies to everyone."
         }
-       }
+       },
+       "from_age": 5
       },
       {
        "id": "keeps-a-shared-space-tidy",
@@ -5370,7 +5421,8 @@
          "chair add: educator: after the two duplicate lines were retired the cell held only sharing and care; water and light are things a Nursery child can act on."
         ],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "picks-up-litter-not-their-own",
@@ -5391,7 +5443,8 @@
          "chair add: educator: distinct from sorting waste into the right bin; acting for a shared space one did not dirty."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       },
       {
        "id": "votes-and-accepts-the-result",
@@ -5413,7 +5466,8 @@
          "chair add: development: accepting a group decision that went against you is the four-to-seven-year-old's first civic act; the cell had care and sharing but no group decision."
         ],
         "before": {}
-       }
+       },
+       "from_age": 4
       },
       {
        "id": "handles-a-living-thing-gently",
@@ -5434,7 +5488,8 @@
          "chair add: development: the planet appeared only as the class plant and the bins; care for a wild living thing is distinct and reachable at three."
         ],
         "before": {}
-       }
+       },
+       "from_age": 3
       }
      ]
     },

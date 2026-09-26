@@ -3430,5 +3430,9 @@ Research only: no engine claim changes, no gate moved (W3, step 6).
   `needs chair 0 · dangling grows_from 0`.
 - **What the numbers are:** the seats' acceptance is measure 4 of the proposal's eval, a proxy; the founders' acceptance
   (measure 3) is not yet measured. The 8 retired rows stay in the file, struck through, for a founder to restore.
-- **Not verified:** that the founders agree with any of it; that the `from_age` values (when added) are right; that the
+- **Command:** the same run with `--ages research/level2_council/ages.json --added-reviews research/level2_council/added_review_development.json research/level2_council/added_review_rights.json`
+- **Output:** every one of the 53 live Foundational rows carries `from_age` (17 at three, 25 at four, 9 at five, one at six, one at seven,
+  the development seat's judgement, not a citation); the 20 added rows were checked again by the development seat (17 as written,
+  3 edited) and the rights seat (12 as written, 8 edited), and the chair took every edit.
+- **Not verified:** that the founders agree with any of it; that the `from_age` values are right (one seat's judgement); that the
   banned-word list catches paraphrase (the rights seat found it does not, and rewrote by hand).

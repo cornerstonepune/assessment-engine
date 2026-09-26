@@ -360,16 +360,16 @@
    "capability_id": "knowledge-and-academic-mastery",
    "stage_id": "preparatory",
    "id": "reads-in-the-second-language",
-   "statement": "Reads a short passage aloud in the second language taught in class and answers one question about it in that language.",
-   "adult_sees": "The educator hears the reading and the answer both in the second language, in that language's lesson.",
+   "statement": "Reads a short passage aloud in a taught language that is not their home language and answers one question in it.",
+   "adult_sees": "The educator hears the reading and the answer both in that language, in its lesson.",
    "setting": "lesson",
    "capture_mode": "observation",
    "words": [
     "capable"
    ],
-   "counter_example": "Reads the passage aloud and answers the question in English.",
+   "counter_example": "Sounds out the passage correctly, then gives the answer in the language they speak at home.",
    "grows_from": "reads-a-familiar-word",
-   "reason": "educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage."
+   "reason": "educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage. Revised on the seats' second look: development: anchored on a language that is not the child's home language, so one line measures one thing."
   },
   {
    "capability_id": "knowledge-and-academic-mastery",
@@ -383,25 +383,25 @@
     "unafraid",
     "capable"
    ],
-   "counter_example": "Says they did not understand any of it, or asks the educator to repeat everything.",
+   "counter_example": "Asks the educator to explain the whole topic again from the start.",
    "grows_from": "sorts-by-a-stated-rule",
-   "reason": "parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks."
+   "reason": "parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks. Revised on the seats' second look: rights: the counter no longer pictures the lost child; the look-alike is the whole-topic question."
   },
   {
    "capability_id": "knowledge-and-academic-mastery",
    "stage_id": "middle",
    "id": "works-through-own-wrong-answer-with-the-class",
-   "statement": "Works through their own wrong answer on the board with the class, saying where it went wrong.",
-   "adult_sees": "The educator sees the child at the board pointing to the step that went wrong, with the class watching.",
+   "statement": "Volunteers to work through their own wrong answer on the board with the class, saying where it went wrong.",
+   "adult_sees": "The educator hears the offer come from the child, then sees them at the board pointing to the step that went wrong.",
    "setting": "lesson",
    "capture_mode": "observation",
    "words": [
     "unafraid",
     "capable"
    ],
-   "counter_example": "Corrects the answer silently in their own book after the educator shows the method.",
+   "counter_example": "Works through the wrong answer at the board because the educator called them up.",
    "grows_from": "asks-what-exactly-was-not-understood",
-   "reason": "parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability."
+   "reason": "parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability. Revised on the seats' second look: development and rights, independently: the offer must come from the child; being sent to the board is exposure, not courage."
   },
   {
    "capability_id": "creation-and-problem-solving",
@@ -447,9 +447,9 @@
     "capable",
     "unafraid"
    ],
-   "counter_example": "Watches the game from the side until the turn passes to someone else.",
+   "counter_example": "Runs onto the field with the others and stands watching them take the turn.",
    "grows_from": "",
-   "reason": "rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line."
+   "reason": "rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line. Revised on the seats' second look: rights: the counter no longer pictures the child who sits out."
   },
   {
    "capability_id": "self-and-relationships",
@@ -471,8 +471,8 @@
    "capability_id": "self-and-relationships",
    "stage_id": "middle",
    "id": "takes-on-part-of-a-classmates-share",
-   "statement": "Takes on part of a classmate's share of a team task when they cannot finish it, and tells the team.",
-   "adult_sees": "The educator sees the extra part done and hears the team told.",
+   "statement": "Takes on part of a classmate's share of a team task after the classmate says they cannot finish it, and tells the team.",
+   "adult_sees": "The educator hears the classmate say so, sees the extra part done and hears the team told; the note names the part taken on, not the classmate or why.",
    "setting": "project",
    "capture_mode": "observation",
    "words": [
@@ -480,7 +480,7 @@
    ],
    "counter_example": "Does the whole task alone without telling the team.",
    "grows_from": "includes-a-child-left-out",
-   "reason": "parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years."
+   "reason": "parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years. Revised on the seats' second look: development: the classmate saying so is the visible trigger; rights: the note names the part taken on, never the classmate or why."
   },
   {
    "capability_id": "self-and-relationships",
@@ -564,8 +564,8 @@
    "capability_id": "creation-and-problem-solving",
    "stage_id": "foundational",
    "id": "uses-one-object-as-another-in-pretend-play",
-   "statement": "Uses one object as another in pretend play, such as a block as a phone, and tells a playmate what it stands for.",
-   "adult_sees": "The educator sees the object used as something else and hears the child say what it is now.",
+   "statement": "Uses one object as another in pretend play, such as a block as a phone, and shows or tells what it stands for.",
+   "adult_sees": "The educator sees the object used as something else and the child make plain, by word or action, what it is now.",
    "setting": "play",
    "capture_mode": "observation",
    "words": [
@@ -574,7 +574,7 @@
    ],
    "counter_example": "Uses a toy phone as a phone.",
    "grows_from": "",
-   "reason": "development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show."
+   "reason": "development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show. Revised on the seats' second look: rights: 'shows or tells', so a child playing alone or without speech can show it."
   },
   {
    "capability_id": "creation-and-problem-solving",
@@ -596,8 +596,8 @@
    "capability_id": "technology-and-ai",
    "stage_id": "preparatory",
    "id": "writes-instructions-for-a-classmate-to-draw",
-   "statement": "Writes step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing comes out wrong.",
-   "adult_sees": "The educator sees the written steps, the classmate's drawing, and the step rewritten after it.",
+   "statement": "Writes or dictates step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing does not match what was meant.",
+   "adult_sees": "The educator sees the steps, the drawing they produced and the step rewritten after it; the filed artefact is the child's own instruction sheet, not the classmate's drawing.",
    "setting": "lesson",
    "capture_mode": "artefact",
    "words": [
@@ -605,14 +605,14 @@
    ],
    "counter_example": "Draws the figure for the classmate instead of rewriting the step.",
    "grows_from": "gives-instructions-to-move-a-friend",
-   "reason": "development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game."
+   "reason": "development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game. Revised on the seats' second look: rights: dictation admitted; the filed artefact is the child's own sheet, never the classmate's drawing."
   },
   {
    "capability_id": "self-and-relationships",
    "stage_id": "foundational",
    "id": "says-stop-in-words",
-   "statement": "Tells a classmate 'stop' or 'I am still using it' in words when pushed or grabbed at, before an adult steps in.",
-   "adult_sees": "The educator hears the words said to the classmate before any adult steps in; the note holds the child's words, not the incident.",
+   "statement": "Tells a classmate 'stop' or 'I am still using it', in words or signs, when the classmate reaches for or takes what they are using.",
+   "adult_sees": "The educator hears or sees the words or sign given to the classmate before any adult steps in; the note holds the child's words, never the incident or the classmate.",
    "setting": "play",
    "capture_mode": "observation",
    "words": [
@@ -620,14 +620,14 @@
    ],
    "counter_example": "Says 'stop' only after the educator has told the classmate to stop.",
    "grows_from": "",
-   "reason": "development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that."
+   "reason": "development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that. Revised on the seats' second look: rights: the trigger is a classmate reaching for what the child is using, not being handled roughly; words or signs; the note never holds the incident."
   },
   {
    "capability_id": "self-and-relationships",
    "stage_id": "secondary",
    "id": "proposes-a-break-in-a-heated-argument",
    "statement": "Stops an argument that has reached raised voices by proposing a break and a time to return to it.",
-   "adult_sees": "The educator hears the break proposed with a time to return, and sees the argument pause.",
+   "adult_sees": "The educator hears the break proposed with a time to return and sees the argument pause; the note holds the proposal, not the argument or who was in it.",
    "setting": "project",
    "capture_mode": "observation",
    "words": [
@@ -636,7 +636,7 @@
    ],
    "counter_example": "Walks away from the argument without a word about returning.",
    "grows_from": "repairs-a-relationship-after-a-conflict",
-   "reason": "development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms."
+   "reason": "development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms. Revised on the seats' second look: rights: the note holds the proposal, not the argument or who was in it."
   },
   {
    "capability_id": "society-ethics-and-planet",

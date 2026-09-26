@@ -25,8 +25,10 @@ is verified. This file only says where the last session stopped.
   (nine cells hold only observation notes, and the seats say that is honest); V5 also reports overlap across capabilities.
   Both in `research/level2_validate.py` and proposal §5. Nimish has not seen these two changes; he should say if he
   disagrees.
-- **Pending when this entry was written:** the development seat's `from_age` per Foundational row and both the development
-  and rights seats' check of the 20 added rows; they land in the JSON and the sitting document by the same scripts.
+- **Done after the first commit of v2:** every Foundational row carries the development seat's earliest fair age (`from_age`,
+  shown in the sitting document as "from age N"); the 20 added rows were checked again by the development and rights seats and
+  the chair took every edit (`research/level2_council/ages.json`, `added_review_*.json`). The whole of v2 reproduces from the
+  v1 draft (commit 82cbdb8) by the one command in `STATE.md`.
 
 ## 2026-09-26 — where step 1 stands, and exactly what the next session does
 
