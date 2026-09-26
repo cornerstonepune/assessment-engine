@@ -3470,3 +3470,25 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - Peak reading both scans' codes: **747 → 244 MB**, codes identical page for page (24 Sep 13/16, 23 Sep 29/30).
 - `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
   (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.
+
+## The curriculum spine as one graph, with a clickable map (2026-09-26, ADR 0037 proposed)
+
+- **Claim:** the school's spine, three words down to the engine's rungs, is one checked graph: every edge names two nodes
+  that exist; every NCF-SE goal and competency feeds a capability; every competency has grades; every NCERT outcome and
+  every school unit has a competency or a written reason.
+- **Command:** `python3 research/spine_build.py`
+- **Output:** `nodes 2504 · edges 13437 · seats ['arts', 'foundational', 'language', 'math', 'science', 'social']` … `every edge names
+  two nodes that exist; every goal and competency feeds a capability; every competency has grades; every outcome and unit
+  has a competency or a reason`. Layers: 3 words, 8 capabilities, 204 behaviours, 208 NCF goals, 606 NCF competencies
+  (foundational 69, preparatory 127, middle 185, secondary 225), 729 NCERT outcomes (Classes 1–10), 439 school units,
+  244 skills, 26 rungs, 7 platforms. Generated links: feeds 1818, expects 1563, evidences 1434, builds toward 986.
+- **Command:** `python3 research/spine_council/check_seat.py research/spine_council/<seat>.json` → `OK` for all seven files.
+- **Command:** `python3 research/spine_import.py --ncf <NCF-SE text> --elementary <NCERT 2017 PDF> --secondary <NCERT 2019 PDF>`
+  rebuilds `docs/spine/sources/` (the PDFs are not committed; their URLs are in the script). NCF-SE's nested minimum
+  standards in art and PE (LS-2) keep their own ids; the first import had dropped 49 of them.
+- **Page:** `python3 research/spine_page.py` renders `docs/spine/index.html` (not committed): map, node view with its
+  neuron diagram, tree, by-grade view, search. Checked at 390 px and 1280 px, no sideways scroll; tree opens three levels.
+- **Not verified:** that the generated links are right (the curriculum team's pass decides); NCERT extraction folds a few
+  sub-points and truncates a few rows (the seats name them); NCERT has no Hindi or Marathi outcomes in these files; 30
+  school units and 6 NCERT outcomes carry a reason instead of a competency.
+

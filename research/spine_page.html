@@ -197,7 +197,7 @@ function groups(edges,end,W){const g={};edges.forEach(e=>{const other=N[end==='f
  const order=['word','capability','behaviour','stage','grade','subject','goal','competency','outcome','unit','skill','rung','platform'];
  return Object.values(g).sort((a,b)=>order.indexOf(a.layer)-order.indexOf(b.layer)).map(x=>{x.rows.sort((a,b)=>(a.e.rank||9)-(b.e.rank||9)||String(a.n.grade||a.n.stage||'').localeCompare(String(b.n.grade||b.n.stage||''))||a.n.label.localeCompare(b.n.label));return grp(`${W[x.kind]||x.kind} · ${PL[x.layer]}`,x.rows,x.by)}).join('')||'<div class="meta">nothing yet</div>'}
 // ---- tree
-function kids(id){const n=N[id];const out=[];const add=(arr,pick)=>arr.forEach(e=>{const o=N[pick(e)];if(o)out.push(o)});
+function kids(id){const n=N[id]||VN[id];if(!n)return [];const out=[];const add=(arr,pick)=>arr.forEach(e=>{const o=N[pick(e)];if(o)out.push(o)});
  if(n.layer==='word'){const caps={};(IN[id]||[]).forEach(e=>{const b=N[e.from];(IN[b.id]||[]).forEach(f=>{if(f.kind==='shown_by')caps[f.from]=(caps[f.from]||0)+1})});return Object.keys(caps).map(c=>N[c])}
  if(n.layer==='capability'){return D.nodes.filter(x=>x.layer==='stage').map(s=>({id:'v.'+id+'.'+s.id,layer:'stage',label:s.label+' behaviours',virtual:[id,s.id]})).concat(D.nodes.filter(x=>x.layer==='subject'&&(IN[id]||[]).some(e=>e.kind==='feeds'&&N[e.from].subject&&('subject.'+({foundational:'foundational'}[N[e.from].subject]||N[e.from].subject))===x.id)).map(s=>({id:'w.'+id+'.'+s.id,layer:'subject',label:s.label+' competencies that feed it',virtual2:[id,s.id]})))}
  if(n.virtual){const [cap,st]=n.virtual;return (OUT[cap]||[]).filter(e=>e.kind==='shown_by'&&N[e.to].stage===st.replace('stage.','')).map(e=>N[e.to])}
