@@ -3,6 +3,45 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26 — where step 1 stands, and exactly what the next session does
+
+**Order:** `BUILD-ORDER.md`, "ten steps" (agreed 2026-09-25/26). We are on **step 1**; its goal is
+`goals/s17-step1-reread-both-scans.yaml`, written with Nimish before any work. Nothing else is built until it is green.
+
+**Done and live (step 0 — the session operates without Nimish):**
+- Every merge to main deploys the engine (`.github/workflows/deploy-engine.yml`, secrets `LIGHTSAIL_SSH_KEY`,
+  `LIGHTSAIL_HOST`); a deploy waits for scans being read. `engine-logs.yml` (run by hand) shows the server's
+  containers, memory, the reader key file's shape (masked), recent read runs and the engine log.
+- The session reaches the engine at `$ENGINE_URL` with `X-Engine-Key: $ENGINE_KEY` (environment settings):
+  `POST /read/file {url, actor, again}` reads a Drive scan (the run is `/runs/{id}`; a failure or a restart says so
+  on the run), `GET /read/scan/{name}/copies` gives per-copy scores by roll, `GET /capture/{id}/readings` gives each
+  answer's state and why it waits, `GET /worksheet/{code}/geometry` where its boxes print. The sandbox cannot reach
+  Postgres (port 5432 is not HTTPS); everything live goes through the engine.
+- n8n **F3 — read scans** is active (https://cornerstoneschool.app.n8n.cloud/workflow/8FI9HPbPz9LNgcC0): a file
+  created in Drive folder `1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val` is POSTed to `/read/file`. Credentials: "Google Drive
+  account", "Header Auth account" (X-Engine-Key).
+- The server's reader key: `~/.aws/credentials`, profile `[cornerstone]`, IAM user `cornerstone-textract`.
+
+**Step 1, where it stopped:** the 24 Sep scan (Drive `13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6`) read on live with
+`again=true` — 16 of 16 copies on their children (was 3) — but 132 of 192 answers "unclear". Cause, from
+`/readings`: on the curved phone photos a printed box line lands ~1–2 mm off the key's place; `boxes.strip` paints
+lines out at the key's place and misses them, so Textract reads them as `X`/`E`/`B`/`1` and `boxes.ink` counts them.
+**Next:** in `w3_read/boxes.py`, re-align the printed blank locally around each answer (a few mm, template match)
+and remove every printed pixel (the blank, dilated) before the ink count and the strip; a synthetic bent-page test
+first (`test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader`); prove it here on the real
+scan (`/worksheet/{code}/geometry` + `/worksheet/{code}.pdf` + the Drive file + Textract, all reachable from the
+sandbox) and show Nimish before/after counts **before** merging; then re-read 24 Sep, then 23 Sep (Drive
+`1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1`), then the child-wise table. The 23 Sep copies were printed bare: a re-read
+keeps the child a person named (`copies._named_before`).
+
+**Owed to Nimish, not code:** the Textract key `cornerstone-textract` was pasted in chat on 2026-09-24 and never
+rotated — rotate it (new access key → server `~/.aws/credentials` via Lightsail SSH `nano`, and the environment's
+`AWS_*`), then delete the old one. His Jev key (`TYPESAFE_API_KEY`, host `api.typesafe.ai`) is in the environment
+settings and reaches a new session; Jev is step 8.
+
+**Working rule Nimish set (2026-09-26):** say what each PR is for, and why, before starting work; nothing is
+developed without a goal file agreed first.
+
 ## 2026-09-24, evening — a printed paper is read in its boxes; a photographed page keeps its pixels (W3 N8, N9)
 
 - Nimish, on Advika's 24 Sep paper: "You are essentially reading some numbers from the working while you have
