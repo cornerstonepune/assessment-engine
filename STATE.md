@@ -3395,3 +3395,18 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - Peak reading both scans' codes: **747 → 244 MB**, codes identical page for page (24 Sep 13/16, 23 Sep 29/30).
 - `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
   (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.
+
+## Step 1 on live — both scans re-read with PaddleOCR (2026-09-26)
+
+`POST /read/file {again: true}`, runs `2eecaacc` (24 Sep) and `a5186848` (23 Sep), both `ok`, no restart.
+- **24 Sep: 147 of 192 settled** (125 read, 22 blank; the goal's floor 144; this morning 80). 16 of 16 copies on a
+  child; 168 of 192 answers read in their boxes. 13 readings saw a non-digit: most the child's own (mirror-written
+  digits, a pencil dot between boxes); "T210" and "174-" look like a printed dashed line — both went to a person.
+  The three that stood ("6.73", "3:22", "3.22" → 673, 322, 322) match the session's gold.
+- **23 Sep: 55 of 108 settled (51%)** — under the floor. These papers were printed before L3 (23 Sep 10:08 UTC):
+  their answer rows have more boxes than digits, so they do not line up with today's worksheet PDFs and 87 of 108
+  answers fell back to the old whole-page reader. One old-reader reading ("81") came from printed words; it waits
+  for a person (the kind is not trusted), so it did not count.
+- Waiting for a person, printed papers: **300 → 288** (unreadable 167 → 85; read right but kind untrusted 50 → 108;
+  wrong 39 → 51; blank 34 → 36). A better reader moves answers from typing to one click; the count is held by the
+  rules of ADR 0029/0032 (every wrong and blank, and rights until a kind is trusted), not by the reader.

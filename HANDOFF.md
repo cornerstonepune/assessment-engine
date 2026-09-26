@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, night (last) — step 1 on live: 24 Sep passes, 23 Sep does not; goal s17 not green
+
+PaddleOCR (#78) and the memory fix (#79) are live. 24 Sep: 147/192 settled (floor 144), 16/16 on a child.
+23 Sep: 55/108 — its papers were printed before L3's one-box-per-digit layout, so they do not line up with today's
+worksheet PDFs and fall back to the old reader. **Decision owed by Nimish** (STATE.md, "Step 1 on live"): rebuild
+23 Sep's as-printed layout, find the boxes on the page instead, or leave that one batch to people. Also still his:
+confirm `docs/adr/0035-bench/gold.json`; whether to change the trust rules (they, not the reader, set how many answers
+wait: 727 now); rotate the Textract key.
+
 ## 2026-09-26, night (later) — PaddleOCR merged (#78) and deployed; the engine ran out of memory reading 24 Sep
 
 The live re-read (run 816cfc35) died: the kernel killed the engine itself at 1.29 GB — as it had three times before
