@@ -1,6 +1,8 @@
 # 0035 — The school operating system grows from the engine's spine; the three architecture documents are read through it
 
 Date: 2026-09-26
+Goal: none — a design proposal that builds nothing; each organ it proposes starts with its own goal file when
+its turn comes after W4 (CLAUDE.md rule 12)
 Status: **proposed** — needs Nimish's ratification. Until then, BUILD-ORDER and ADRs 0001–0034 bind as before.
 Source: `docs/school-os-council-2026-09-26.md` (the council's synthesis), whose research is in
 `research/research_notes/School operating system council/`.
