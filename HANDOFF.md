@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, evening — step 1: off-the-shelf digit readers benchmarked on the real boxes (ADR 0035, proposed)
+
+Nimish: benchmark TrOCR, PaddleOCR and an MNIST/EMNIST classifier against Textract on the real 24 Sep box crops
+before building reader logic; use the winner; don't write our own; show him before merging. Harness, gold and every
+reading: `docs/adr/0035-bench/` (crops stay out of git). 133 answers with a sure gold (the session's, by eye —
+not yet a person's).
+- **PaddleOCR (detect + recognise) wins**: 85% exact vs Textract 70% on the same uncleaned crops; @0.90 it stands
+  behind 102 with 1 wrong, Textract 66 with 0. MNIST/EMNIST per box (55–74%, 24–25 wrong stood behind) and TrOCR
+  (61% cleaned, 2% uncleaned) are out.
+- **Our own `boxes.strip` cleaning is the biggest defect**: removing print grown 0.8 mm eats pencil on the lines
+  (8→3, 6→",", a 3 below its box → 2). Textract alone goes 51% → 70% exact when given the uncleaned crop.
+- Goal measure (settled of 192): today 81; Paddle uncleaned @0.90 119; copies 01–02 (not lining up) cap it at 168.
+  **The 144 floor is not reached by a reader change alone.**
+- **Waiting on Nimish before any code:** (1) accept ADR 0035 or not; (2) confirm the gold (`gold.json`,
+  `copy07_q09`, `copy10_q02` first); (3) Paddle alone @0.90, or Paddle+Textract agreeing (0 wrong, 45 more to a
+  person). Then: the adapter (tests first), `strip` hands the reader the photograph, PaddlePaddle's memory on
+  Lightsail measured, then copies 01–02's line-up.
+
 ## 2026-09-26, later — step 1: the box reader on a bent page; Textract is now the ceiling (not merged)
 
 Branch `claude/gallant-cray-zvj5ey`, draft PR. Goal `s17` is **not green**.
