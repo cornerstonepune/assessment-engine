@@ -1,6 +1,7 @@
 """Step 3 — a library worksheet as it prints (ADR 0026). Thin: rendering is `library.pdf`, which
 draws the worksheet with the same renderer as a child's paper the first time it is asked for."""
 
+import json
 import re
 import uuid
 
@@ -30,6 +31,20 @@ def worksheet_pdf(code: str, conn=Depends(get_conn)) -> FileResponse:
     return FileResponse(
         path, media_type="application/pdf", filename=f"{code}.pdf", content_disposition_type="inline"
     )
+
+
+@router.get("/worksheet/{code}/geometry")
+def worksheet_geometry(code: str, conn=Depends(get_conn)) -> dict:
+    """Where every box and working space of a worksheet prints (`<pdf>.key.json`'s geometry, no answers): what
+    the box reader cuts a scan by, for whoever is improving it without the server's disk."""
+    if not CODE.match(code):
+        raise HTTPException(status_code=404, detail="no such worksheet")
+    try:
+        path = library.pdf(conn, code)
+    except LookupError as missing:
+        raise HTTPException(status_code=404, detail=str(missing)) from missing
+    key = json.loads(path.with_suffix(".key.json").read_text(encoding="utf-8"))
+    return {"code": code, "pages": key.get("pages"), "geometry": key.get("geometry", [])}
 
 
 class ForChildren(BaseModel):
