@@ -32,7 +32,9 @@ jobs:
       - run: uv run playwright install --with-deps chromium
       # The digit reader's models (ADR 0035, ~135 MB): test_digits and test_boxes run the real reader.
       - uses: actions/cache@v4
-        with: { path: ~/.paddlex/official_models, key: paddlex-${{ hashFiles('packages/engine/uv.lock') }} }
+        with:
+          path: ~/.paddlex/official_models
+          key: paddlex-${{ hashFiles('packages/engine/uv.lock') }}
       - run: uv run pytest -q
 
   web:
