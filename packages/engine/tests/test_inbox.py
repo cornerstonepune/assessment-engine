@@ -107,11 +107,20 @@ def test_the_route_fetches_the_file_answers_at_once_and_reads_it_after(client, t
     monkeypatch.setattr(
         inbox, "start", lambda tenant, path, actor: order.append(("start", tenant, actor)) or RUN
     )
-    monkeypatch.setattr(inbox, "read", lambda run_id, path, actor: order.append(("read", run_id, path)))
+    monkeypatch.setattr(
+        inbox, "read", lambda run_id, path, actor, again=False: order.append(("read", run_id, path, again))
+    )
     r = c.post("/read/file", json={"url": LINKS[0], "actor": "achal@school"})
     assert r.status_code == 200, r.text
     assert r.json() == {"run_id": RUN, "pages": 16}
-    assert order == [("start", "tenant-1", "achal@school"), ("read", RUN, scan)]
+    assert order == [("start", "tenant-1", "achal@school"), ("read", RUN, scan, False)]
+    # read again with a better reader: every copy no person has worked on is read afresh
+    order.clear()
+    assert (
+        c.post("/read/file", json={"url": LINKS[0], "actor": "achal@school", "again": True}).status_code
+        == 200
+    )
+    assert order[-1] == ("read", RUN, scan, True)
 
 
 def test_a_link_the_engine_will_not_take_is_refused_in_words(client, monkeypatch):
@@ -179,3 +188,34 @@ def test_a_reading_that_fails_says_why_on_its_run(tmp_path, monkeypatch):
         "RuntimeError: Unable to parse config file: /root/.aws/credentials",
         RUN,
     )
+
+
+def test_a_reading_the_engine_was_killed_under_says_so_when_it_starts_again(monkeypatch):
+    """2026-09-25 and 26: two readings died under a deploy and said "running" until someone looked."""
+    seen = []
+
+    class _Conn:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            pass
+
+        def execute(self, sql, params=None):
+            seen.append((sql, params))
+            return type("R", (), {"rowcount": 2})()
+
+    monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Conn())
+    assert inbox.orphaned() == 2
+    [(sql, params)] = seen
+    assert "status = 'error'" in sql and "status = 'running'" in sql and params == (inbox.FLOW,)
+
+
+def test_a_copys_readings_say_why_each_answer_waits(client, monkeypatch):
+    c, _ = client
+    row = {"item": "WP2-1", "status": "needs_teacher", "answer_state": "illegible",
+           "why": "3 boxes hold ink but the reader saw 42", "child_answer": "", "guess": "42", "confidence": 91.0,
+           "boxes": 3, "inked": 3, "seen": [{"text": "42", "confidence": 91.0}], "working_shown": "none"}  # fmt: skip
+    monkeypatch.setattr(copies, "readings", lambda conn, capture_id: [row])
+    r = c.get(f"/capture/{RUN}/readings")
+    assert r.status_code == 200 and r.json() == [row]

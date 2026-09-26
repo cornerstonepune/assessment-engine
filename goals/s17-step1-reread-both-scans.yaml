@@ -1,0 +1,46 @@
+name: s17-step1-reread-both-scans
+goal: >
+  Step 1 of the build order (BUILD-ORDER.md, "ten steps"): the 23 Sep Grade 2 scan and the 24 Sep Grade 3 scan are
+  both read by the box reader on the live engine, every copy on its child, and a child-wise table comes from one
+  command. On a phone-photographed page — curved, so a printed box line lands a millimetre or two from where the
+  key says — the reader sees only the child's pencil: the printed page is lined up again locally around each
+  answer and everything the paper printed is removed before the reader looks. No reading carries a printed line
+  as a letter or a digit. An answer the reader still cannot make out goes to a person with its reason, never
+  guessed. Nothing a person has already signed off is touched.
+
+# Written 2026-09-26, before the work, with Nimish ("I'm not letting you develop anything without a proper goal").
+# Measured before: the first box-reader run on the live 24 Sep scan (run 8fcb8240) put 16 of 16 copies on their
+# children but left 132 of 192 answers "unclear"; GET /capture/{id}/readings showed why — what the reader saw held
+# the box lines (`X`, `E`, `B`, `pte`, `1/P/3`) beside the digits, and inked-box counts included the lines.
+says:
+  - words: "the system should be able to read the QR codes well"
+    proved_by: packages/engine/tests/test_boxes.py::test_the_code_on_a_blurred_and_compressed_scan_is_still_read
+  - words: "You are essentially reading some numbers from the working"
+    proved_by: packages/engine/tests/test_boxes.py::test_every_digit_in_a_box_is_read_and_nothing_in_the_working_is
+manual:
+  - "FIRST THING NEXT SESSION, before any code: write test_boxes.py::test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader (failing), then add to says: words 'If the answer has been in the designated place, it should be able to read the answers' proved_by that test."
+  - "Nimish validates the re-read answers on Marking; his corrections are step 2's first gold set."
+scenarios:
+  - name: a bent page, synthetic
+    request: >
+      A printed worksheet, digits written in its answer boxes and different digits in its working, photographed
+      as a phone does it — tilted, curved (a smooth warp moving box lines up to 2 mm), softened, compressed.
+    check: every box digit read exactly; no working digit; no reading holds a character that is not the child's;
+      blanks blank. 100%, over at least 5 warps.
+  - name: the real 24 Sep scan, on live
+    request: POST /read/file with again=true for Drive file 13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6
+    check: >
+      16 of 16 copies on a child (GET /read/scan/24 sept.pdf/copies); across GET /capture/{id}/readings, no `seen`
+      holds a letter from a printed line, and the answers read with confidence (written or blank) are at least
+      75% of all answers — up from 30%. The 75% is a floor set before the work, not a promise the reader is
+      right: whether each reading is right is measured when Nimish validates (step 2).
+  - name: the real 23 Sep scan, on live
+    request: POST /read/file with again=true for Drive file 1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1
+    check: every copy a person named keeps its child (copies._named_before); the same two checks as 24 Sep.
+criteria:
+  - name: the box reader, on synthetic scans including bent ones
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_sorting.py tests/test_inbox.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

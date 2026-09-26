@@ -149,7 +149,7 @@ def read_file(
     with pymupdf.open(path) as doc:
         pages = len(doc)
     run_id = inbox.start(tenant_id, path, body.actor)
-    background.add_task(inbox.read, run_id, path, body.actor)
+    background.add_task(inbox.read, run_id, path, body.actor, body.again)
     return {"run_id": run_id, "pages": pages}
 
 
@@ -157,3 +157,9 @@ def read_file(
 def scan_copies(name: str, conn=Depends(get_conn)) -> list[dict]:
     """Every copy read from one scanned file, and each child's score by roll number (`copies.of_scan`)."""
     return copies.of_scan(conn, name)
+
+
+@router.get("/capture/{capture_id}/readings")
+def capture_readings(capture_id: str, conn=Depends(get_conn)) -> list[dict]:
+    """How the reader left every answer on one copy, and why each waits (`copies.readings`)."""
+    return copies.readings(conn, capture_id)
