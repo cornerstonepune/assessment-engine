@@ -27,6 +27,8 @@ import json
 import sys
 from collections import Counter, defaultdict
 
+from level2_council_log import write_log
+
 SEATS = ["rights", "development", "educator", "parent"]  # the order R5 falls back to
 FIELDS = [
     "statement",
@@ -92,6 +94,16 @@ def main():
     ap.add_argument("--chair")
     ap.add_argument("--out", required=True)
     ap.add_argument("--log", required=True)
+    ap.add_argument(
+        "--ages",
+        help="development seat's earliest fair age per Foundational row: {id: {from_age, why}}",
+    )
+    ap.add_argument(
+        "--added-reviews",
+        nargs="*",
+        default=[],
+        help="seats' verdicts on the added rows, logged for the founders",
+    )
     a = ap.parse_args()
     doc = json.load(open(a.draft))
     seats = load(a.seats)
@@ -131,7 +143,13 @@ def main():
                         "skip": "retired",
                     }[c["verdict"]]
                     edits = (
-                        {**edits, **{f: ("chair", val) for f, val in c.get("edit", {}).items()}}
+                        {
+                            **edits,
+                            **{
+                                f: ("chair", val)
+                                for f, val in c.get("edit", {}).items()
+                            },
+                        }
                         if c["verdict"] == "edit"
                         else {}
                     )
@@ -201,6 +219,14 @@ def main():
                         row["council"]["notes"],
                     )
                 )
+    ages = json.load(open(a.ages)) if a.ages else {}
+    for cap in doc["capabilities"]:
+        for st in cap["stages"]:
+            for b in st["behaviours"]:
+                if b["id"] in ages and b.get("status") != "retired":
+                    b["from_age"] = int(ages[b["id"]]["from_age"])
+                    if ages[b["id"]].get("why"):
+                        b["from_age_why"] = ages[b["id"]]["why"]
     # re-point grows_from that named a retired row
     dangling = []
     for cap in doc["capabilities"]:
@@ -248,6 +274,17 @@ def main():
         "dangling_grows_from": len(dangling),
     }
     json.dump(doc, open(a.out, "w"), indent=1, ensure_ascii=False)
+    added_reviews = [json.load(open(p)) for p in a.added_reviews]
+    doc["council"]["added_reviews"] = {
+        r["seat"]: {v["id"]: v["verdict"] for v in r["verdicts"]} for r in added_reviews
+    }
+    doc["council"]["from_age_rows"] = sum(
+        1
+        for c in doc["capabilities"]
+        for s in c["stages"]
+        for b in s["behaviours"]
+        if "from_age" in b
+    )
     write_log(
         a.log,
         doc,
@@ -260,6 +297,7 @@ def main():
         could_not,
         objections,
         notes_to_founders,
+        added_reviews,
     )
     print("outcomes", dict(outcomes), "rules", dict(rules))
     for s in SEATS:
@@ -273,100 +311,6 @@ def main():
         f"needs chair {len(needs)} · dangling grows_from {len(dangling)} · missing proposed {len(missing)} · duplicates named {len(duplicates)}"
     )
     return 1 if (needs or dangling) else 0
-
-
-def write_log(
-    path,
-    doc,
-    seats,
-    log,
-    needs,
-    dangling,
-    missing,
-    duplicates,
-    could_not,
-    objections,
-    notes_to_founders,
-):
-    L = [
-        "# The council's changes to the Level 2 draft",
-        "",
-        "26 September 2026 · four seats (educator, parent, developmental and measurement expert, child-rights and safeguarding) · "
-        "reconciled by `research/level2_council.py`; the rules are in its docstring · the seats' full verdicts are in `research/level2_council/`",
-        "",
-    ]
-    c = doc["council"]
-    L += [
-        "## Numbers",
-        "",
-        "| Seat | Accepted as written | Edited | Skipped |",
-        "|---|---|---|---|",
-    ]
-    for s in SEATS:
-        if s in c["per_seat"]:
-            k = c["per_seat"][s]
-            n = sum(k.values())
-            L.append(
-                f"| {s} | {k.get('accept', 0)} ({100 * k.get('accept', 0) / n:.0f}%) | {k.get('edit', 0)} | {k.get('skip', 0)} |"
-            )
-    L += [
-        "",
-        "Outcome after the rules: "
-        + ", ".join(f"{v} {k}" for k, v in sorted(c["outcomes"].items()))
-        + ".",
-        "",
-    ]
-    L += ["## What each seat would say across the table", ""]
-    for s in SEATS:
-        if s in notes_to_founders:
-            L += [f"**{s}.** {notes_to_founders[s]}", ""]
-            for o in objections.get(s, []):
-                L.append(f"- {o}")
-            L.append("")
-    if needs:
-        L += [
-            "## For the chair: one seat skipped, or two seats edited the same field",
-            "",
-        ]
-        for cap, st, i, rule, notes in needs:
-            L.append(f"- `{cap}/{st}/{i}` ({rule}): " + " · ".join(notes))
-        L.append("")
-    if dangling:
-        L += ["## For the chair: grows_from naming a retired row", ""]
-        L += [f"- `{cap}/{st}/{i}` grew from `{g}`" for cap, st, i, g in dangling] + [
-            ""
-        ]
-    if missing:
-        L += ["## What the seats say the cells lack (not added by the script)", ""]
-        for s, cap, st, m in missing:
-            L.append(
-                f"- **{s}** · `{cap}/{st}`: {m['statement']} — *{m.get('why', '')}*"
-            )
-        L.append("")
-    if duplicates:
-        L += ["## Pairs a seat says record the same evidence", ""]
-        L += [f"- **{s}**: `{p[0]}` and `{p[1]}`" for s, p in duplicates] + [""]
-    if could_not:
-        L += ["## The draft's own could_not entries, judged", ""]
-        L += [
-            f"- **{s}** · `{cn.get('capability_id')}`: {cn.get('verdict')} — {cn.get('reason', '')}"
-            for s, cn in could_not
-        ] + [""]
-    L += [
-        "## Every row that changed, or that a seat questioned",
-        "",
-        "Seats: E educator, P parent, D development, R rights. Rule numbers are in the script's docstring.",
-        "",
-    ]
-    cur = None
-    for cap, st, i, outcome, rule, before, b, notes in log:
-        if (cap, st) != cur:
-            cur = (cap, st)
-            L += [f"### {cap} · {st}", ""]
-        L.append(f"- **`{i}`** → {outcome} ({rule}). " + " · ".join(notes))
-        for f, old in before.items():
-            L.append(f"  - {f}: ~~{old}~~ → {b.get(f)}")
-    open(path, "w").write("\n".join(L) + "\n")
 
 
 if __name__ == "__main__":

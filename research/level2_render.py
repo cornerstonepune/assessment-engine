@@ -119,7 +119,8 @@ def main(src, dst):
                     str(n) if not retired else "—",
                     s(b["statement"]),
                     s(b["adult_sees"]),
-                    f"{b['setting']} · {MODE.get(b['capture_mode'], b['capture_mode'])}",
+                    f"{b['setting']} · {MODE.get(b['capture_mode'], b['capture_mode'])}"
+                    + (f" · from age {b['from_age']}" if b.get("from_age") else ""),
                     ", ".join(b["words"]),
                     s(b["counter_example"]),
                     b["grows_from"] or "—",
