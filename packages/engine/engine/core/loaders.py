@@ -43,7 +43,12 @@ THRESHOLDS = [
     ("exposure.days", 21, "days", "An item a child has seen within this window is not reused"),
     ("item.flag_low_p", 0.20, "proportion", "Below this p_correct the item may be mis-levelled"),
     ("item.flag_high_p", 0.95, "proportion", "Above this p_correct the item may be too easy"),
-    ("read.auto_confirm_above", 0.90, "confidence", "Cell reads above this skip the confirm queue"),
+    (
+        "read.auto_confirm_above",
+        0.90,
+        "confidence",
+        "A digit in its boxes read this surely stands (ADR 0035)",
+    ),
     (
         "read.route_above_overturn",
         0.25,

@@ -4,21 +4,29 @@ goal: >
   both read by the box reader on the live engine, every copy on its child, and a child-wise table comes from one
   command. On a phone-photographed page — curved, so a printed box line lands a millimetre or two from where the
   key says — the reader sees only the child's pencil: the printed page is lined up again locally around each
-  answer and everything the paper printed is removed before the reader looks. No reading carries a printed line
-  as a letter or a digit. An answer the reader still cannot make out goes to a person with its reason, never
-  guessed. Nothing a person has already signed off is touched.
+  answer; code counts ink and blanks with everything the paper printed removed, and the digit reader (PaddleOCR,
+  ADR 0035) is handed each answer's boxes as photographed, because removing the print took the pencil on the lines
+  with it. No reading carries a printed line as a letter or a digit. An answer the reader is less than 90% sure
+  of goes to a person with its reason and its guess, never guessed into the graph. Nothing a person has already
+  signed off is touched.
 
 # Written 2026-09-26, before the work, with Nimish ("I'm not letting you develop anything without a proper goal").
 # Measured before: the first box-reader run on the live 24 Sep scan (run 8fcb8240) put 16 of 16 copies on their
 # children but left 132 of 192 answers "unclear"; GET /capture/{id}/readings showed why — what the reader saw held
 # the box lines (`X`, `E`, `B`, `pte`, `1/P/3`) beside the digits, and inked-box counts included the lines.
+# 2026-09-26, evening: Nimish accepted ADR 0035 ("Accept ADR 0035, Paddle alone at 0.90, build it") after the
+# benchmark of off-the-shelf readers on the real boxes; the reader and what it is handed changed, the bar did not.
 says:
   - words: "the system should be able to read the QR codes well"
     proved_by: packages/engine/tests/test_boxes.py::test_the_code_on_a_blurred_and_compressed_scan_is_still_read
   - words: "You are essentially reading some numbers from the working"
     proved_by: packages/engine/tests/test_boxes.py::test_every_digit_in_a_box_is_read_and_nothing_in_the_working_is
   - words: "If the answer has been in the designated place, it should be able to read the answers"
-    proved_by: packages/engine/tests/test_boxes.py::test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader
+    proved_by: packages/engine/tests/test_boxes.py::test_a_bent_page_is_read_in_its_boxes
+  - words: "Accept ADR 0035, Paddle alone at 0.90, build it"
+    proved_by: packages/engine/tests/test_boxes.py::test_the_real_reader_on_a_bent_page_stands_behind_nothing_wrong
+  - words: "don't write our own reader"
+    proved_by: packages/engine/tests/test_digits.py::test_digits_in_their_boxes_are_read_with_the_lines_left_in
 manual:
   - "Nimish validates the re-read answers on Marking; his corrections are step 2's first gold set."
 scenarios:
@@ -40,7 +48,7 @@ scenarios:
     check: every copy a person named keeps its child (copies._named_before); the same two checks as 24 Sep.
 criteria:
   - name: the box reader, on synthetic scans including bent ones
-    run: cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_sorting.py tests/test_inbox.py
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_digits.py tests/test_sorting.py tests/test_inbox.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

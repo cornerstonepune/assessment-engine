@@ -3361,3 +3361,24 @@ numbers from the working while you have only designed it as a working section" �
   fetched into `~/cornerstone/assessments/inbox`, a `flow_run` answered at once, read after answering.
   `cd packages/engine && .venv/bin/python -m pytest tests/test_inbox.py` → `7 passed` (link forms, inbox naming, only
   a PDF taken, the route answers at once and starts the reading, a refusal in words). `tsc`, `eslint` clean.
+
+## S17 — the digit reader: PaddleOCR in its boxes, off the shelf (ADR 0035, 2026-09-26)
+
+Goal `s17-step1-reread-both-scans` (step 1), **not green**: the live re-read of 24 Sep and 23 Sep has not run yet.
+Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it."
+- **The reader** (`adapters/digits.py`): PaddleOCR 3.7 (PP-OCRv6 medium detect + recognise), in a process of its own
+  started by the first answer and ended after 60 s idle; a killed reader is started again once, then the run says so.
+  Floor: `read.auto_confirm_above` (0.90). Textract stays for printed codes and old papers.
+- **What it is handed** (`boxes.photo`): the settled run of boxes as photographed, 2 mm around it, its own edge repeated
+  1 mm. The cleaned strip is gone: it cut the pencil lying on the lines (8→3, 3→2). Code still counts ink on the
+  cleaned mask. Two words are one pencil read twice only when one covers the other's middle.
+- **Measured on the real 24 Sep file, production path** (133 answers with a sure gold, the session's, not a person's):
+  125 read exactly, 112 stand at 0.90, 2 wrong (`copy07_q09` 145→195, `copy10_q02` 419→919). Before: Textract on the
+  cleaned strip, 68 exact, 64 stand, 6 wrong. Harness: `docs/adr/0035-bench/`.
+- **The server image** (built here, `packages/engine/Dockerfile`): 3.95 GB (was 2.38; the server has 21 GB free); the
+  models are baked in and read with no network. Under a 1,060 MB cap (the server's available memory): 158 answers in
+  53 s, the reader's peak 707 MB (437 MB its own), the engine's 57 MB. The server: 2 CPUs, 1.9 GB, no swap.
+- One OpenCV: the engine now depends on `opencv-contrib-python` (4.10), the build PaddleX pins; the two packages wrote
+  the same `cv2` folder. Engine suite on 4.10: `857 passed, 246 skipped`.
+- `cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_digits.py` → `23 passed`.
+  `bin/check` → `13 passed`. `uv lock --check` → clean.

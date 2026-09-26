@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, night — step 1: PaddleOCR built in (ADR 0035 accepted); not merged, not live
+
+Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it." Built on `claude/gallant-cray-zvj5ey` (PR #78); see STATE.md
+"S17". Production path on the real 24 Sep answers: 125/133 exact, 112 stand at 0.90, 2 wrong. The image was built and
+run here under the server's memory: reader peak 707 MB, in its own process, gone after 60 s idle.
+- **Next, in order:** merge (deploys); `POST /read/file {again: true}` for 24 Sep (Drive `13Zsrf3…`) then 23 Sep
+  (`1eBcFq8…`); read `/read/scan/{name}/copies` and `/capture/{id}/readings`; the goal's floor is 144 of 192 settled
+  and copies 01–02 of 24 Sep (24 answers) do not line up — that is the next cause to fix, in `boxes.line_up`.
+- **Still owed by Nimish:** confirm `docs/adr/0035-bench/gold.json` (the two wrong readings first); rotate the
+  Textract key.
+- Ruled out by measurement this session (ADR 0035): MNIST/EMNIST per box, TrOCR, Paddle tiny/mobile models, one box at
+  a time, a recogniser-only second look (adds a wrong answer), crops wider than 2 mm.
+
 ## 2026-09-26, evening — step 1: off-the-shelf digit readers benchmarked on the real boxes (ADR 0035, proposed)
 
 Nimish: benchmark TrOCR, PaddleOCR and an MNIST/EMNIST classifier against Textract on the real 24 Sep box crops

@@ -1,7 +1,7 @@
 # 0035 — Which reader reads a digit in a box: benchmarked on the real 24 Sep crops
 
 Date: 2026-09-26
-Status: **proposed — shown to Nimish before anything merges**
+Status: **accepted** — Nimish, 2026-09-26: *"Accept ADR 0035, Paddle alone at 0.90, build it."*
 Goal: goals/s17-step1-reread-both-scans.yaml
 Harness: `docs/adr/0035-bench/` (scripts, the gold, every reader's reading of every answer; no crops — rule 6)
 
@@ -65,7 +65,7 @@ On the goal's own measure (blanks plus readings that stand, of all 192): today 8
    not MNIST's: 24–25 wrong readings stood behind at 0.70. TrOCR is an English line reader: it turns a strip of
    digits into words ("super-mass express" for 1210) and reads the box lines as text.
 
-## Decision (proposed)
+## Decision
 
 - **PaddleOCR (detect + recognise, `en`) becomes the reader of digits in boxes**, on the uncleaned run of settled
   boxes, standing at 0.90 under the same count rule; a reading below that goes to a person, as now. It runs
@@ -89,6 +89,26 @@ On the goal's own measure (blanks plus readings that stand, of all 192): today 8
 - **The server**: PaddlePaddle on the Lightsail box (memory, CPU time per page) is not measured here; nor is
   its time per page. Both are measured before the adapter is merged.
 - Copies 01–02 not lining up is a separate cause, not touched by any reader.
+
+## As built (2026-09-26, night)
+
+- `adapters/digits.py`: PaddleOCR (PP-OCRv6 medium detect + recognise, `en`, oneDNN off) in **a process of its own**,
+  started by the first answer to read, ended after 60 s idle. The server has 2 CPUs and 1.9 GB with no swap, and the
+  loaded reader holds ~440 MB the kernel cannot page out; apart, its memory comes back after each scan, and if the
+  machine runs out the kernel stops the reader, not the engine: it is started again once, then the run says so.
+- The floor is the existing row `read.auto_confirm_above` (0.90), never read until now, rather than a new one.
+- `boxes.photo`: the settled run as photographed, 2 mm around, **its own edge repeated 1 mm**. Code still counts ink
+  and blanks on the cleaned mask. Two words are one pencil read twice only when one covers the other's middle: the
+  reader pads each number, so side-by-side digits overlap at their edges (the old 30% rule read "5","4" as one).
+- **Measured through the production code** on the same 133 answers: 125 exact, 112 stand at 0.90, 2 wrong (the two
+  above). The 1 mm edge took exact from 115 to 125 and standing from 103 to 112 with the same two wrong; it was
+  chosen on these same 133 answers, so the 23 Sep scan is its first independent check.
+- **The server image**, built and run here: 3.95 GB (2.38 before; 21 GB free on the server); models baked in, read
+  with no network; under a 1,060 MB cap, 158 answers in 53 s, the reader's peak 707 MB, the engine's 57 MB.
+- One OpenCV: the engine moved to `opencv-contrib-python` 4.10, the build PaddleX pins — the two packages had written
+  the same `cv2` folder. The engine suite passes on it.
+- Measured while building and **not** taken: one box at a time (79 or 67 exact against 125), a recogniser-only second
+  look under the floor (+9 standing, +1 wrong: 971 read 471), crops of 3, 4 or 6 mm (more wrong or far fewer standing).
 
 ## Rejected
 

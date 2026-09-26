@@ -7,10 +7,11 @@ the reader. This is what a form reader does, and what the old-paper reader (`ocr
 because nobody knew where those papers' answers lived: it took the handwritten number nearest the printed
 question, which on 2026-09-24 was the child's working.
 
-What code decides here, and the reader is never asked: whether a box is blank (a count of dark pixels), how
-many boxes hold ink (the same), whether the working space was written in (the third signal, rule 5). The
-reader is asked one thing — which digits are in this strip of boxes — and its answer stands only when it has
-exactly as many digits as boxes hold ink.
+What code decides here, and the reader is never asked: whether a box is blank (a count of dark pixels, the
+paper's own print taken out), how many boxes hold ink (the same), whether the working space was written in
+(the third signal, rule 5). The reader (`adapters/digits.py`, ADR 0035) is asked one thing — which digits are
+in this run of boxes, handed to it as photographed, print and all — and its answer stands only when it has
+exactly as many digits as boxes hold ink and it is at least as sure as the floor.
 
 Lining up is by the printed page's own features (ORB, RANSAC; `stencil.homography`), not by the corner marks:
 a phone's "scan" app crops the page tight and the marks are the first thing it cuts off (every page of the
@@ -24,7 +25,7 @@ import cv2
 import numpy as np
 import pymupdf
 
-from engine.adapters import ocr
+from engine.adapters import digits
 from engine.assess.geometry import cells_of
 from engine.w3_read import stencil
 
@@ -38,7 +39,9 @@ INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the li
 INK = 0.012
 WORK_INK = 0.004  # this much of the working space written on is the third signal (rule 5)
 WORK_INSIDE = 1.5  # mm: the working box's dashed border and its printed label stay outside the measure
-MARGIN = 4  # mm of white around a strip: Textract is a document reader, and a bare word comes back in bits
+AROUND = 2  # mm of the photograph around a run of boxes handed to the reader, as ADR 0035 measured it
+QUIET = 1  # mm of that crop's own edge repeated around it: the reader's detector wants still space about a
+# number, and on 24 Sep this took 115 of 133 answers read exactly to 125, with the same two wrong (ADR 0035)
 MIN_INLIERS = 60  # fewer matched features than this and the page is not the one it claims to be
 SIDE = 2000  # the long side features are matched at, as `stencil` does
 
@@ -147,23 +150,18 @@ def ink(is_dark, printed, g, inside=INSIDE):
     return float((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], box)).mean())
 
 
-def strip(canon, printed, cells, is_dark):
-    """The run of one answer's settled boxes, every pixel the paper printed there removed and every pixel that
-    is not pencil made white: what the reader sees — the child's pencil on clean paper, nothing else. On
-    24 Sep the grain and grey of a phone photo left in the boxes made a 3 read as "B"."""
-    box = (
-        min(_px(c)[0] for c in cells),
-        min(_px(c)[1] for c in cells),
-        max(_px(c)[2] for c in cells),
-        max(_px(c)[3] for c in cells),
-    )
-    x0, y0, x1, y1 = box
-    patch = canon[y0:y1, x0:x1].copy()
-    pencil = cv2.dilate(is_dark[y0:y1, x0:x1].astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
-    patch[_theirs(printed, cells, box) | ~pencil] = 255
-    m = MARGIN * PPM
-    patch = cv2.copyMakeBorder(patch, m, m, m, m, cv2.BORDER_CONSTANT, value=(255, 255, 255))
-    return cv2.imencode(".jpg", patch, [cv2.IMWRITE_JPEG_QUALITY, 92])[1].tobytes()
+def photo(canon, cells):
+    """The run of one answer's settled boxes as photographed, AROUND mm about it: what the reader sees. Not
+    cleaned — taking the print out took the pencil lying on it too, and on 24 Sep every reader then stood
+    behind the same wrong number (an 8 on its box's side read 3, a 3 below its box read 2; ADR 0035)."""
+    m = round(AROUND * PPM)
+    x0 = max(0, min(_px(c)[0] for c in cells) - m)
+    y0 = max(0, min(_px(c)[1] for c in cells) - m)
+    x1 = min(W, max(_px(c)[2] for c in cells) + m)
+    y1 = min(H, max(_px(c)[3] for c in cells) + m)
+    q = round(QUIET * PPM)
+    crop = cv2.copyMakeBorder(canon[y0:y1, x0:x1], q, q, q, q, cv2.BORDER_REPLICATE)
+    return cv2.imencode(".png", crop)[1].tobytes()
 
 
 def _back(M, cells, shape, frame):
@@ -183,9 +181,10 @@ def _back(M, cells, shape, frame):
 
 
 def _overlap(a, b):
-    """Two words over the same pencil: their spans across the strip share most of the narrower one."""
-    shared = min(a["x"] + a["w"], b["x"] + b["w"]) - max(a["x"], b["x"])
-    return shared > 0.3 * min(a["w"], b["w"])
+    """Two words over the same pencil: one's span across the strip covers the other's middle. Not any overlap:
+    the digit reader pads each number it finds, so two digits side by side overlap at their edges."""
+    mid = lambda w: w["x"] + w["w"] / 2  # noqa: E731
+    return a["x"] <= mid(b) <= a["x"] + a["w"] or b["x"] <= mid(a) <= b["x"] + b["w"]
 
 
 def readings(words):
@@ -228,7 +227,7 @@ def decide(words, inked, floor):
     return digits, conf, ""
 
 
-def read_page(img, page_no, pdf, geometry, wanted, cli, cfg, frame=(0, 0, 1, 1)):
+def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1)):
     """One page of a scan → {slot: reading} in the shape `ocr.answers_for` gives, or None when the page will
     not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page."""
     canon, M = line_up(img, pdf, page_no)
@@ -254,18 +253,16 @@ def read_page(img, page_no, pdf, geometry, wanted, cli, cfg, frame=(0, 0, 1, 1))
         if not inked:
             out[slot] = {**base, "child_answer": "", "answer_state": "blank", "why": "", "confidence": 100.0}
             continue
-        words = sorted(
-            (w for w in ocr.read(strip(canon, printed, run, is_dark), cli)["words"]), key=lambda w: w["x"]
-        )
+        words = sorted(digits.read(photo(canon, run))["words"], key=lambda w: w["x"])
         seen = [{"text": w["text"], "confidence": round(float(w["confidence"]), 1)} for w in words]
-        digits, confidence, doubt = decide(words, inked, cfg["min_confidence"])
+        said, confidence, doubt = decide(words, inked, cfg["min_confidence"])
         out[slot] = {
             **base,
             "seen": seen,
-            "child_answer": "" if doubt else digits,
+            "child_answer": "" if doubt else said,
             "answer_state": "illegible" if doubt else "written",
             "why": doubt,
-            "guess": digits if doubt else "",
+            "guess": said if doubt else "",
             "confidence": confidence,
         }
     return out
