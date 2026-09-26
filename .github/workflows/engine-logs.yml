@@ -32,6 +32,9 @@ jobs:
           echo "== processes in the engine"; $S 'sudo docker top deploy-engine-1 -o pid,etime,pcpu,rss,args' || true
           echo "== memory"; $S 'free -m'
           # what a new dependency must fit in (ADR 0035: the digit reader's size and memory are measured before merge)
+          echo "== restarts and the kernel's kills"
+          $S "sudo docker inspect deploy-engine-1 --format 'oom_killed={{.State.OOMKilled}} restarts={{.RestartCount}} started={{.State.StartedAt}} exit={{.State.ExitCode}}'" || true
+          $S "sudo dmesg -T 2>/dev/null | grep -iE 'out of memory|oom-kill|killed process' | tail -12" || true
           echo "== machine"; $S 'nproc; uname -m; df -h / | tail -1; sudo docker images --format "{{.Repository}} {{.Size}}"'
           # the reader's key file, its shape only: every value masked, line ends shown as $ so a stray space shows
           echo "== ~/.aws/credentials (values masked)"
