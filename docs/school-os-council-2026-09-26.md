@@ -85,8 +85,10 @@ trusted, never by quietly retraining itself.
 - *"Minimise physical evaluation."* Keep the paper. Remove the clerical marking and form-filling around it.
   Every documented backlash was against screen-first schooling.
 - *"Save teachers significant time."* That happens only by retiring whole tasks. The one high-quality trial
-  found about 25 minutes a week saved on one assisted task. The large figures quoted in the documents are
-  projections, not measurements.
+  found about 25 minutes a week saved on one assisted task. The consolidated report's planning figure is
+  about half an hour a week for each retired stream. With marking, data entry, materials, reports and parent
+  messages all retired, that makes **two to four hours per teacher per week**. The figure is assembled from
+  those measurements, not measured itself. England's five hours a week is the stretch target.
 - *"Self-learning."* It will be narrower, more auditable and slower than the documents imply. With a few
   hundred children most school-wide patterns stay uncertain (section 8).
 - *The PRD and the Student OS specification.* Both are generic architectures. Where they contradict decisions
@@ -353,8 +355,9 @@ system.
 **The queue, designed against automation bias.** These rules come from seat 7's evidence.
 
 - Lowest confidence first.
-- Blind seeds: confident items mixed in unannounced. The step 4 queue already mixes in one confident answer
-  per paper, and that is exactly this.
+- Blind seeds: confident items mixed in unannounced. The live queue already mixes one confident answer into
+  each paper. But its screen says "the engine was sure of this one" and shows the engine's reading first, so
+  today it is an announced spot-check, not a blind seed.
 - Decide-then-compare on a fixed sample.
 - Every disagreement between model and code, or between two reads, routed to a person.
 - Show information, not a recommendation: the crop and the recomputed truth, never a green tick.
@@ -364,6 +367,18 @@ system.
 
 **The minutes budget.** Blueprint v2's pilot rule is adopted. If the queue costs more than 5 minutes a day for
 a week, or more than a third of items are corrected, the upstream step is fixed. The bar is never lowered.
+
+**The queue is the one design object everything rests on.** The consolidated report's conclusion makes the
+point well. The confirm queue carries five jobs at once:
+
+- meeting the data law's duty of accuracy;
+- providing the oversight the EU AI Act specifies;
+- producing the labels that self-learning depends on;
+- saving or spending teacher time;
+- keeping teachers diagnosing every day.
+
+A queue that decays into a rubber stamp fails all five at once, silently, with teachers' names on the
+errors. So the queue deserves more design care than any model inside it.
 
 **Autonomy is earned per decision class, not by the calendar.** The council adopts the Student OS
 specification's autonomy ladder: record, suggest, guarded automation, adaptive workflow, closed-loop,
@@ -529,7 +544,7 @@ that is where teachers put the time they saved.
 **Unchanged.** `BUILD-ORDER.md`, its sequence and its gates. W3 step 6 continues. No code, prompt,
 migration, endpoint or screen for any new organ starts before W4 closes.
 
-**Six things to fold into the steps already planned** (no new workflow):
+**Seven things to fold into the steps already planned** (no new workflow):
 
 1. **W4's parent report (step 11) is HPC-shaped.**
    - Competency levels plus a narrative; the child against their own earlier self; the yardstick named.
@@ -539,8 +554,10 @@ migration, endpoint or screen for any new organ starts before W4 closes.
    The Foundational framework allows worksheets as the child's work, but not tests. So Grade 1–2 papers
    should be framed and reported as practice artefacts, not assessments. This is a question for Aseem and
    Achal before W4 is written.
-2. **The queue (step 4, live) gains decide-then-compare** on a small fixed sample, and records time spent. The
-   blind spot-check already exists.
+2. **The live queue's spot-check becomes blind.** It should look like any other answer and ask for the
+   person's reading before showing the engine's. A small fixed sample of doubtful answers gets the same
+   decide-then-compare treatment. The queue records the time spent on each answer. The per-child confidence
+   floor, measured from at least ten checks per child, already exists (ADR 0032).
 3. **"Not enough evidence yet"** must appear on the child page wherever the counted floor is not met. Check
    the six-state rules against this.
 4. **Easy, Medium, Hard and Advance are measured complexity, not measured difficulty.** The region rules
@@ -551,6 +568,12 @@ migration, endpoint or screen for any new organ starts before W4 closes.
    every other claim.
 6. **ADR 0035 (proposed) records the rejected alternatives** from the three documents. That way a later
    session reading `docs/sources/` does not act on LangGraph, Neo4j, Temporal or Jev by mistake.
+7. **Three measurements turn borrowed evidence into Cornerstone's own:**
+   - a seeded-error study of how well teachers perform as the check;
+   - a gold set of young children's handwriting and teachers' speech, stratified by grade and language;
+   - a reference-week time-use survey.
+
+   The report found no school or vendor that has published the first two for children this young.
 
 **After W4, the order of new organs the council proposes:**
 

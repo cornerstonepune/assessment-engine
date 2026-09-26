@@ -20,6 +20,10 @@ is verified. This file only says where the last session stopped.
   the founders can take. The first is the board (CBSE or State Board), which decides the report format.
 - **Waiting on Aseem and Achal, before W4 is written:** under NCF-FS, Grade 1–2 papers should be framed and
   reported as practice artefacts with no marks to parents (synthesis, section 11, item 1).
+- **Found in the code while cross-checking, for W3's queue.** The live queue's spot-check is announced. The screen
+  says "the engine was sure of this one" and shows the reading first (`capture/check/page.tsx`,
+  `lib/queries-read.ts`). So it measures agreement, not automation bias. The council recommends making it blind
+  (synthesis, section 11, item 2). Nothing was changed.
 - **Unverified and flagged:**
   - Kriyo's domain redirecting elsewhere (one seat's finding);
   - the DPDP Rules' dates, read from a mirror of the Gazette;
