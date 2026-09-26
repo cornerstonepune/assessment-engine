@@ -209,3 +209,13 @@ def test_a_reading_the_engine_was_killed_under_says_so_when_it_starts_again(monk
     assert inbox.orphaned() == 2
     [(sql, params)] = seen
     assert "status = 'error'" in sql and "status = 'running'" in sql and params == (inbox.FLOW,)
+
+
+def test_a_copys_readings_say_why_each_answer_waits(client, monkeypatch):
+    c, _ = client
+    row = {"item": "WP2-1", "status": "needs_teacher", "answer_state": "illegible",
+           "why": "3 boxes hold ink but the reader saw 42", "child_answer": "", "guess": "42", "confidence": 91.0,
+           "boxes": 3, "inked": 3, "seen": [{"text": "42", "confidence": 91.0}], "working_shown": "none"}  # fmt: skip
+    monkeypatch.setattr(copies, "readings", lambda conn, capture_id: [row])
+    r = c.get(f"/capture/{RUN}/readings")
+    assert r.status_code == 200 and r.json() == [row]
