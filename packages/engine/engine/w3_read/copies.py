@@ -179,14 +179,31 @@ def _cut(scan, pages, name):
     return out
 
 
-def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
+def _named_before(conn, scan, name, code):
+    """The child a person already said a bare copy was — the live reading of the same copy of the same scan,
+    cut under the same name — or None. A copy printed with no child's code is attributed once, by a person;
+    reading it again never asks again."""
+    r = conn.execute(
+        "select si.child_id from capture c join sheet_instance si on si.id = c.sheet_instance_id"
+        " join sheet_template t on t.id = si.sheet_template_id"
+        " where c.superseded_by is null and (c.path = %s or c.path = %s) and coalesce(t.code, t.batch_id) = %s"
+        " order by c.created_at desc limit 1",
+        (_home(CUT / Path(scan).stem / name), _home(WAS_CUT / Path(scan).stem / name), code),
+    ).fetchone()
+    return r["child_id"] if r else None
+
+
+def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again=False):
     """Every library worksheet copy in the file, in order, read for its child: a copy printed for a child
     (`handout`, Make papers) by the code on it; a copy printed bare by the name said for it, in file order ("?"
-    leaves one unread). → one dict per copy: its pages, code, child, answers read, questions a person marks."""
+    leaves one unread), or — `names` None — by the child a person named for it before (`_named_before`).
+    `again`: a copy read before is read afresh (a better reader), unless a person has already worked on it.
+    → one dict per copy: its pages, code, child, answers read, questions a person marks."""
     papers = sorting.sort_file(conn, scan, pages_of, read_text)
     own = [p for p in papers if p["sheet"] and p["sheet"]["source"] == "library" and p["sheet"]["child_id"]]
     bare = [p for p in papers if p["worksheet"] and not p["sheet"]]
-    if names is None:  # nobody here to say whose a bare copy is (the inbox): it is reported, never guessed
+    named = names is not None
+    if not named:  # nobody here to say whose a bare copy is (the inbox): a person's earlier word, or reported
         names = ["?"] * len(bare)
     if len(names) != len(bare):
         found = [
@@ -215,6 +232,10 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
         mine = copy["sheet"]
         cid = mine["child_id"] if mine else who[id(copy)]
         code = mine["code"] if mine else copy["qr"]
+        # a child's own paper is named by where it starts, so a file read again, sorted better, cuts it afresh
+        name = f"copy{k:02d}-p{copy['pages'][0]}-{code}.pdf" if mine else f"copy{k:02d}-{code}.pdf"
+        if cid is None and not mine and not named:
+            cid = _named_before(conn, scan, name, code)
         row = {
             "copy": k,
             "pages": copy["pages"],
@@ -232,10 +253,8 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None):
         template, by_key, unread = paper(conn, code, mine["pdf_path"] if kept else None)
         if mine:
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
-        # a child's own paper is named by where it starts, so a file read again, sorted better, cuts it afresh
-        name = f"copy{k:02d}-p{copy['pages'][0]}-{code}.pdf" if mine else f"copy{k:02d}-{code}.pdf"
         cut = _cut(scan, copy["pages"], name)
-        s = legacy.import_scan(conn, str(cut), code, cid, actor, rows=(template, by_key))
+        s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))
         _replaces(conn, s["capture_id"], scan)
         # a copy read before it moved (`WAS_CUT`): its reading now points at where it lives
         conn.execute(

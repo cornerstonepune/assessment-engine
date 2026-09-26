@@ -70,12 +70,12 @@ def start(tenant, path: Path, actor: str) -> str:
         )
 
 
-def read(run_id: str, path: Path, actor: str) -> list[dict]:
+def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]:
     """Every copy in the file read for its child, on its own connection (this runs after the request that
     accepted the file has answered), the run marked ok or error with what happened."""
     with db.connect() as conn:
         try:
-            out = copies.read(conn, str(path), "", None, actor)
+            out = copies.read(conn, str(path), "", None, actor, again=again)
             conn.execute(
                 "update flow_run set status = 'ok', finished_at = now(), updated_at = now() where id = %s",
                 (run_id,),

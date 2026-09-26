@@ -229,6 +229,7 @@ class WeekApproveResponse(BaseModel):
 class ReadFileRequest(BaseModel):
     url: str  # a Google Drive link to the scanned file; the file itself never travels through here
     actor: str
+    again: bool = False  # read afresh every copy no person has worked on (a better reader)
 
 
 class ReadFileResponse(BaseModel):

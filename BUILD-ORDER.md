@@ -5,6 +5,33 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Now: ten steps, in this order — agreed with Nimish 2026-09-25/26 (this section is the current order)
+
+Nimish, 2026-09-25: *"Let's first align on the set of developments now that need to happen in sequence and what
+will be the goal for each of these steps"* — and on 2026-09-26: *"get ahead and do all of these things really
+fast."* A step is done when its goal command is green **on live, run by the session, not by Nimish**; the next
+starts only then (step 3 may sit in "collecting data" without blocking 4–6).
+
+Every step, without exception: the goal file first (his words, each with the test that proves it); tests before
+code for anything with a branch or a parser; every bug found gets a test that pins it before it is fixed; small
+PRs; `bin/check` green; merged means deployed (`.github/workflows/deploy-engine.yml`).
+
+| # | Step | Green means |
+|---|---|---|
+| 0 | **The session operates without Nimish** | a scan is read, its result seen and the engine deployed with nobody at a terminal: deploy on merge, a run says ok or its exact error, per-copy scores from `GET /read/scan/{name}/copies`, the server's state from `engine-logs.yml` — **done 2026-09-25** |
+| 1 | **Re-read with the box reader** | every copy of the 23 and 24 Sep scans lands on its child, read in its boxes; a child-wise table from one command; nothing a person already signed off is touched |
+| 2 | **Validation that teaches** | every answer a person checks stores its box crop and label; Marking shows the reader's accuracy by day and by kind of question |
+| 3 | **Our own digit reader** | ADR "every stage learns, behind a gate"; a model trained on people's checks votes with Textract; a new version replaces the old only when it beats it on held-back answers with no more wrong readings it stood behind; fewer answers reach a person week on week |
+| 4 | **Routine intake** | a scan dropped in the Drive folder is on Marking with nobody acting; every wrong and blank goes to a person; 15% of a trusted kind's right answers are spot-checked (a config row) |
+| 5 | **Teacher flow** | one live walkthrough passes as a test: choose or create a paper → print → scan → validate → the child's graph → the next paper suggested |
+| 6 | **Workflow page** | live counts per step — printed, scanned, read, waiting, signed off, stuck — each checked against its own query; the next engines slot in as rows |
+| 7 | **The bank learns** | a question's real difficulty, distractors nobody picks, and wrong answers no named mistake explains become proposals a person approves |
+| 8 | **Jev** | an adapter behind the prompt rows and an eval harness; adopted per decision (N4, skill matching, the reviewers, naming mistakes) only where it beats the current model on the same gold set |
+| 9 | **The rest of the end-to-end** | N4 the week's declaration, N7 the approval loop, W4 class card, home sheet, parent note, reports |
+
+What only Nimish can supply, asked for when the step needs it: the reader's key on the server (step 1), his
+validation time (step 2), the n8n Google Drive sign-in (step 4), the Jev key (step 8).
+
 ## Now: five steps, in this order — agreed with Nimish 2026-09-21, afternoon
 
 Nimish opened the live website and it failed him: the Question bank never opened, the Skill Map

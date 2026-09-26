@@ -140,6 +140,13 @@ def test_two_copies_land_on_the_two_children_named_each_answer_marked_against_it
         conn, scan, SECTION, ["Asha", "42"], "test", pages_of=lambda c: len(pymupdf.open(pdf))
     )
     assert [c["already"] for c in again] == [True, True]
+    # read afresh by a better reader, with nobody there to name them: each copy keeps the child a person named
+    first = {c["child_id"]: c["capture_id"] for c in again}
+    afresh = copies.read(
+        conn, scan, SECTION, None, "test", pages_of=lambda c: len(pymupdf.open(pdf)), again=True
+    )
+    assert [(c["child_id"], c.get("skipped", False)) for c in afresh] == [(one, False), (two, False)]
+    assert all(c["capture_id"] != first[c["child_id"]] for c in afresh), "read afresh, not the old reading"
     n = conn.execute(
         "select count(*) as n from capture c join sheet_instance si on si.id = c.sheet_instance_id"
         " where si.child_id = any(%s) and c.superseded_by is null",

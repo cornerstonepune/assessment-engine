@@ -107,11 +107,20 @@ def test_the_route_fetches_the_file_answers_at_once_and_reads_it_after(client, t
     monkeypatch.setattr(
         inbox, "start", lambda tenant, path, actor: order.append(("start", tenant, actor)) or RUN
     )
-    monkeypatch.setattr(inbox, "read", lambda run_id, path, actor: order.append(("read", run_id, path)))
+    monkeypatch.setattr(
+        inbox, "read", lambda run_id, path, actor, again=False: order.append(("read", run_id, path, again))
+    )
     r = c.post("/read/file", json={"url": LINKS[0], "actor": "achal@school"})
     assert r.status_code == 200, r.text
     assert r.json() == {"run_id": RUN, "pages": 16}
-    assert order == [("start", "tenant-1", "achal@school"), ("read", RUN, scan)]
+    assert order == [("start", "tenant-1", "achal@school"), ("read", RUN, scan, False)]
+    # read again with a better reader: every copy no person has worked on is read afresh
+    order.clear()
+    assert (
+        c.post("/read/file", json={"url": LINKS[0], "actor": "achal@school", "again": True}).status_code
+        == 200
+    )
+    assert order[-1] == ("read", RUN, scan, True)
 
 
 def test_a_link_the_engine_will_not_take_is_refused_in_words(client, monkeypatch):
