@@ -1,0 +1,192 @@
+<title>Cornerstone Spine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#FAFAF6;--ink:#17211C;--muted:#5E6B65;--line:#D8DED8;--panel:#F1F4F0;--panel2:#E6ECE6;--accent:#0E6B67;--focus:#0E6B67;
+ --word:#6E3B66;--capability:#0E6B67;--behaviour:#2F6B2A;--goal:#8A5A12;--competency:#A8661A;--outcome:#1F5FA8;--unit:#3E6FB0;--skill:#7A2E2E;--rung:#7A2E2E;--grade:#4A5560;--stage:#4A5560;--subject:#4A5560;--platform:#5C6B2A;
+ --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A}
+*{box-sizing:border-box;min-width:0}
+.wrap,.cols>*,.col,.grp,.row,.focus{max-width:100%}
+.row .l,.focus .lab,.focus .txt,.meta,footer,.mono{overflow-wrap:anywhere}
+.top input{max-width:100%;width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 48px}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;background:none;border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--ink)}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:3;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.top h1{font-family:var(--display);font-weight:800;font-size:20px;margin:0 8px 0 0;letter-spacing:-.01em}
+.top input{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);min-width:220px;flex:1 1 220px;max-width:420px}
+.views{display:flex;gap:6px}
+.views button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wrap{max-width:1180px;margin:0 auto}
+.chip{display:inline-block;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:4px;border:1px solid currentColor;margin-right:6px;white-space:nowrap;vertical-align:middle}
+.k-word{color:var(--word)}.k-capability{color:var(--capability)}.k-behaviour{color:var(--behaviour)}.k-goal{color:var(--goal)}.k-competency{color:var(--competency)}.k-outcome{color:var(--outcome)}.k-unit{color:var(--unit)}.k-skill{color:var(--skill)}.k-rung{color:var(--rung)}.k-grade{color:var(--grade)}.k-stage{color:var(--stage)}.k-subject{color:var(--subject)}.k-platform{color:var(--platform)}
+.meta{color:var(--muted);font-size:13px}
+.mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
+/* map */
+.map{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:22px 0}
+@media (max-width:900px){.map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.layer{background:var(--panel);border-radius:8px;padding:12px 12px 10px;cursor:pointer;border:1px solid transparent}
+.layer:hover{border-color:var(--ink)}
+.layer .n{font-family:var(--display);font-weight:800;font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.layer .t{font-family:var(--display);font-weight:700;margin-top:6px}
+.layer .d{font-size:12px;color:var(--muted);margin-top:4px}
+.arrowrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;font-size:12px;color:var(--muted);text-align:center}
+@media (max-width:900px){.arrowrow{display:none}}
+.starts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 20px}
+.starts button{background:var(--panel)}
+.lede{max-width:70ch;font-size:16px;margin:18px 0 6px}
+/* explorer */
+.trail{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin:14px 0 10px;font-size:13px}
+.trail button{border:none;padding:2px 6px;color:var(--muted)}
+.trail button:hover{color:var(--ink)}
+.trail .sep{color:var(--line)}
+.focus{background:var(--panel);border-left:4px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:16px}
+.focus .lab{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.2;text-wrap:balance;margin:6px 0 4px}
+.focus .txt{max-width:80ch}
+.focus .chips{margin-top:8px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.col h2{font-family:var(--display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:700}
+.grp{margin-bottom:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.grp .h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:var(--panel);font-family:var(--display);font-weight:700;font-size:13px;cursor:pointer}
+.grp .h .by{font-weight:500;color:var(--muted);font-size:12px;font-family:var(--body)}
+.grp .h .by.gen{color:var(--competency)}
+.row{display:block;width:100%;text-align:left;border:none;border-top:1px solid var(--line);border-radius:0;padding:8px 12px;background:none}
+.row:hover{background:var(--panel)}
+.row .l{display:block}
+.row .s{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.more{border:none;border-top:1px solid var(--line);border-radius:0;width:100%;text-align:center;color:var(--accent);padding:6px;background:none}
+/* tree */
+.tree ul{list-style:none;margin:0;padding-left:18px;border-left:1px solid var(--line)}
+.tree>ul{padding-left:0;border:none}
+.tree li{margin:2px 0}
+.tree .tg{display:inline-flex;gap:8px;align-items:baseline;border:none;padding:4px 6px;text-align:left;border-radius:6px}
+.tree .tg:hover{background:var(--panel)}
+.tree .tw{display:inline-block;width:12px;color:var(--muted);font-family:var(--mono)}
+.tree .cnt{color:var(--muted);font-size:12px}
+/* grade */
+.gsel{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.gsel button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.gcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.gcard{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.gcard h3{font-family:var(--display);font-size:15px;margin:0 0 6px}
+.gcard .row{border-top:none;padding:4px 0}
+.search{position:absolute;background:var(--bg);border:1px solid var(--line);border-radius:8px;max-height:60vh;overflow:auto;z-index:5;width:min(560px,92vw);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.search .row{border-top:none}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+[hidden]{display:none!important}
+</style>
+<div class="wrap">
+<div class="top"><h1>Cornerstone Spine</h1><div class="views"><button id="v-map" aria-pressed="true">Map</button><button id="v-tree">Tree</button><button id="v-grade">By grade</button></div><div style="position:relative;flex:1 1 220px"><input id="q" placeholder="find anything: a grade, a word, a skill, a competency…" aria-label="Search"><div id="results" class="search" hidden></div></div></div>
+
+<section id="map">
+<p class="lede">The school's spine: three words at the top, the engine's skills at the bottom, and every layer between clickable. Click a layer to list it, or start from a word, a capability or a grade.</p>
+<div class="map" id="layers"></div>
+<div class="arrowrow"><span>evidenced by ↓</span><span>shown by ↓</span><span>fed by ↓</span><span>expected in ↓</span><span>builds ↓</span><span>tested by worksheets</span></div>
+<div class="starts" id="starts"></div>
+<p class="meta" id="legend"></p>
+<div id="notes"></div>
+</section>
+
+<section id="explore" hidden>
+<div class="trail" id="trail"></div>
+<div class="focus" id="focus"></div>
+<div class="cols"><div class="col"><h2>Comes from</h2><div id="in"></div></div><div class="col"><h2>Leads to</h2><div id="out"></div></div></div>
+</section>
+
+<section id="tree" hidden>
+<p class="lede">The same spine as a tree. Click a line to open what sits under it.</p>
+<div class="tree" id="treeroot"></div>
+</section>
+
+<section id="grade" hidden>
+<div class="gsel" id="gsel"></div>
+<div id="gview"></div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+<script id="spine" type="application/json">__SPINE__</script>
+<script>
+const D=JSON.parse(document.getElementById('spine').textContent);
+const N={};D.nodes.forEach(n=>N[n.id]=n);
+const OUT={},IN={};D.edges.forEach(e=>{(OUT[e.from]=OUT[e.from]||[]).push(e);(IN[e.to]=IN[e.to]||[]).push(e)});
+const LAYER={word:'Word',capability:'Capability',behaviour:'Behaviour',goal:'Curricular goal',competency:'Competency',outcome:'Grade outcome',unit:'School unit',skill:'Skill',rung:'Rung',grade:'Grade',stage:'Stage',subject:'Subject',platform:'Platform'};
+const PL={word:'words',capability:'capabilities',behaviour:'behaviours',goal:'curricular goals',competency:'competencies',outcome:'grade outcomes',unit:'school units',skill:'skills',rung:'rungs',grade:'grades',stage:'stages',subject:'subjects',platform:'platforms'};
+// how each edge reads from each end
+const OUTW={shown_by:'is shown by',evidence_for:'is evidence for',feeds:'builds the capability',has_competency:'breaks into',sets:'sets',at_stage:'belongs to',expects:'expects',evidences:'is evidence of',builds_toward:'builds toward',builds:'builds the skill',tests:'tests',tracked_in:'tracked in',taught_in:'taught in',has_unit:'has the unit',practises:'practises',has_grade:'has the grade',at_grade:'sits at'};
+const INW={shown_by:'shows the capability',evidence_for:'evidenced by',feeds:'fed by',has_competency:'part of the goal',sets:'set by',at_stage:'at this stage',expects:'expected in',evidences:'evidenced by',builds_toward:'built toward by',builds:'built by',tests:'tested by',tracked_in:'tracks',taught_in:'teaches',has_unit:'in the subject',practises:'practised on',has_grade:'in the stage',at_grade:'holds'};
+const BY={imported:'imported',school:"the school's own map",council:'the council of 26 Sep',survey:'the platform survey',seat:'generated by a subject seat'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const chip=(k,t)=>`<span class="chip k-${k}">${esc(t||LAYER[k]||k)}</span>`;
+function sub(n){const p=[];if(n.stage)p.push(n.stage);if(n.grade)p.push(n.grade.replace('G','Grade '));if(n.bands)p.push(n.bands.join(' '));if(n.subject&&n.layer!=='subject')p.push(n.subject.replace(/-/g,' '));if(n.area)p.push(n.area);if(n.capture)p.push(n.capture.replace('_',' '));if(n.from_age)p.push('from age '+n.from_age);if(n.domain)p.push(n.domain);if(n.code)p.push(n.code);return p.join(' · ')}
+let trail=[];
+const views=['map','tree','grade'];
+function show(v){views.concat(['explore']).forEach(x=>document.getElementById(x).hidden=(x!==v));views.forEach(x=>{const b=document.getElementById('v-'+x);if(b)b.setAttribute('aria-pressed',String(x===v))});window.scrollTo({top:0})}
+document.getElementById('v-map').onclick=()=>show('map');document.getElementById('v-tree').onclick=()=>{buildTree();show('tree')};document.getElementById('v-grade').onclick=()=>{show('grade');if(!document.getElementById('gview').innerHTML)pickGrade('G3')};
+// ---- map
+const ORDER=['word','capability','behaviour','competency','outcome','skill'];
+const DESC={word:'what the graduate is',capability:'from the graduate profile',behaviour:'one occasion an educator sees and records',competency:'NCF-SE 2023, per subject per stage (plus '+(D.layers.goal||0)+' curricular goals)',outcome:'NCERT, per class 1–10, and '+(D.layers.unit||0)+' school units for Grades 1–4',skill:"the school's skill map; "+(D.layers.rung||0)+' rungs the worksheets test'};
+document.getElementById('layers').innerHTML=ORDER.map(l=>`<div class="layer" data-layer="${l}" tabindex="0" role="button"><div class="n k-${l}">${D.layers[l]||0}</div><div class="t">${esc(PL[l])}</div><div class="d">${esc(DESC[l])}</div></div>`).join('');
+document.querySelectorAll('.layer').forEach(el=>{const go=()=>listLayer(el.dataset.layer);el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+const starts=[['word.capable','capable'],['word.kind','kind'],['word.unafraid','unafraid'],['stage.foundational','Foundational'],['stage.preparatory','Preparatory'],['stage.middle','Middle'],['stage.secondary','Secondary'],['subject.mathematics','Mathematics'],['subject.language','Language'],['subject.science','Science'],['subject.social-science','Social science']];
+document.getElementById('starts').innerHTML='<span class="meta" style="align-self:center">Start from:</span>'+starts.map(([id,l])=>`<button data-go="${id}">${esc(l)}</button>`).join('');
+document.getElementById('legend').innerHTML='Links marked <b>generated</b> were proposed by a subject seat from the texts and are for the curriculum team to accept, edit or reject; the rest are imported from NCF-SE 2023 and NCERT, or come from the school\'s own maps. Nodes: '+D.nodes.length+' · links: '+D.edges.length+'.';
+document.body.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){focus(b.dataset.go)}});
+function listLayer(layer){const items=D.nodes.filter(n=>n.layer===layer);const groups={};items.forEach(n=>{const k=n.stage||n.grade||n.subject||'all';(groups[k]=groups[k]||[]).push(n)});
+ trail=[];document.getElementById('trail').innerHTML=`<span class="meta">All ${esc(PL[layer])}</span>`;
+ document.getElementById('focus').innerHTML=`${chip(layer)}<div class="lab">${items.length} ${esc(PL[layer])}</div><div class="meta">${esc(DESC[layer]||'')}</div>`;
+ document.getElementById('in').innerHTML='';document.getElementById('out').innerHTML=Object.entries(groups).map(([k,arr])=>grp(k.replace(/-/g,' '),arr.map(n=>({n})),null,'')).join('');show('explore')}
+// ---- explorer
+function grp(title,rows,by,extra){const id='g'+Math.random().toString(36).slice(2,8);const lim=14;const rowsHtml=rows.slice(0,lim).map(r=>rowHtml(r.n,r.e)).join('');const more=rows.length>lim?`<button class="more" data-more="${id}">show all ${rows.length}</button>`:'';const byH=by?`<span class="by ${by.startsWith('seat')?'gen':''}">${esc(by.startsWith('seat')?'generated · '+by.slice(5):BY[by]||by)}</span>`:'';
+ return `<div class="grp" id="${id}"><div class="h"><span>${esc(title)} <span class="meta">${rows.length}</span></span>${byH}</div><div class="rows">${rowsHtml}</div>${more}<div class="rest" hidden>${rows.slice(lim).map(r=>rowHtml(r.n,r.e)).join('')}</div></div>`}
+function rowHtml(n,e){return `<button class="row" data-go="${n.id}">${chip(n.layer)}<span class="l">${esc(n.label)}</span>${sub(n)?`<span class="s">${esc(sub(n))}</span>`:''}</button>`}
+document.body.addEventListener('click',e=>{const m=e.target.closest('[data-more]');if(m){const g=document.getElementById(m.dataset.more);g.querySelector('.rest').hidden=false;m.remove()}});
+function focus(id){const n=N[id];if(!n)return;const i=trail.indexOf(id);if(i>=0)trail=trail.slice(0,i+1);else trail.push(id);if(trail.length>12)trail=trail.slice(-12);
+ document.getElementById('trail').innerHTML=trail.map((t,k)=>`${k?'<span class="sep">›</span>':''}<button data-go="${t}">${esc(N[t].label.length>42?N[t].label.slice(0,40)+'…':N[t].label)}</button>`).join('');
+ const chips=[chip(n.layer)];if(n.stage)chips.push(chip('stage',n.stage));if(n.grade)chips.push(chip('grade',n.grade.replace('G','Grade ')));if(n.subject&&n.layer!=='subject')chips.push(chip('subject',n.subject.replace(/-/g,' ')));if(n.area)chips.push(chip('subject',n.area));if(n.from_age)chips.push(chip('grade','from age '+n.from_age));if(n.council)chips.push(chip('behaviour',n.council));
+ let extra='';if(n.counter)extra+=`<div class="meta" style="margin-top:6px"><b>Not evidence when:</b> ${esc(n.counter)}</div>`;if(n.capture)extra+=`<div class="meta">Captured as ${esc(n.capture.replace('_',' '))} · in ${esc(n.setting)}</div>`;if(n.samples)extra+=`<div class="meta" style="margin-top:6px"><b>${n.objectives} objectives, such as:</b> ${esc(n.samples.join(' · '))}</div>`;if(n.why)extra+=`<div class="meta" style="margin-top:6px"><b>No competency:</b> ${esc(n.why)}</div>`;if(n.src)extra+=`<div class="mono" style="margin-top:6px">source: ${esc(n.src)}</div>`;
+ document.getElementById('focus').innerHTML=`<div class="chips">${chips.join('')}</div><div class="lab">${esc(n.label)}</div>${n.text?`<div class="txt">${esc(n.text)}</div>`:''}${extra}<div class="mono" style="margin-top:6px">${esc(n.id)}</div>`;
+ document.getElementById('in').innerHTML=groups(IN[id]||[],'from',INW);document.getElementById('out').innerHTML=groups(OUT[id]||[],'to',OUTW);
+ try{history.replaceState(null,'','#'+id)}catch(_){}
+ show('explore')}
+function groups(edges,end,W){const g={};edges.forEach(e=>{const other=N[end==='from'?e.from:e.to];if(!other)return;const key=e.kind+'|'+other.layer+'|'+(e.by.split(':')[0]);(g[key]=g[key]||{rows:[],by:e.by,kind:e.kind,layer:other.layer}).rows.push({n:other,e})});
+ const order=['word','capability','behaviour','stage','grade','subject','goal','competency','outcome','unit','skill','rung','platform'];
+ return Object.values(g).sort((a,b)=>order.indexOf(a.layer)-order.indexOf(b.layer)).map(x=>{x.rows.sort((a,b)=>(a.e.rank||9)-(b.e.rank||9)||String(a.n.grade||a.n.stage||'').localeCompare(String(b.n.grade||b.n.stage||''))||a.n.label.localeCompare(b.n.label));return grp(`${W[x.kind]||x.kind} · ${PL[x.layer]}`,x.rows,x.by)}).join('')||'<div class="meta">nothing yet</div>'}
+// ---- tree
+function kids(id){const n=N[id];const out=[];const add=(arr,pick)=>arr.forEach(e=>{const o=N[pick(e)];if(o)out.push(o)});
+ if(n.layer==='word'){const caps={};(IN[id]||[]).forEach(e=>{const b=N[e.from];(IN[b.id]||[]).forEach(f=>{if(f.kind==='shown_by')caps[f.from]=(caps[f.from]||0)+1})});return Object.keys(caps).map(c=>N[c])}
+ if(n.layer==='capability'){return D.nodes.filter(x=>x.layer==='stage').map(s=>({id:'v.'+id+'.'+s.id,layer:'stage',label:s.label+' behaviours',virtual:[id,s.id]})).concat(D.nodes.filter(x=>x.layer==='subject'&&(IN[id]||[]).some(e=>e.kind==='feeds'&&N[e.from].subject&&('subject.'+({foundational:'foundational'}[N[e.from].subject]||N[e.from].subject))===x.id)).map(s=>({id:'w.'+id+'.'+s.id,layer:'subject',label:s.label+' competencies that feed it',virtual2:[id,s.id]})))}
+ if(n.virtual){const [cap,st]=n.virtual;return (OUT[cap]||[]).filter(e=>e.kind==='shown_by'&&N[e.to].stage===st.replace('stage.','')).map(e=>N[e.to])}
+ if(n.virtual2){const [cap,sj]=n.virtual2;return (IN[cap]||[]).filter(e=>e.kind==='feeds'&&'subject.'+N[e.from].subject===sj).map(e=>N[e.from])}
+ if(n.layer==='goal'){add(OUT[id]||[],e=>e.kind==='has_competency'?e.to:null);return out}
+ if(n.layer==='competency'){add(IN[id]||[],e=>(e.kind==='evidences'||e.kind==='builds_toward')?e.from:null);return out}
+ if(n.layer==='unit'){add(OUT[id]||[],e=>e.kind==='builds'?e.to:null);return out}
+ if(n.layer==='skill'){add(IN[id]||[],e=>e.kind==='tests'?e.from:null);return out}
+ if(n.layer==='stage'){add(OUT[id]||[],e=>e.kind==='has_grade'?e.to:null);return out}
+ if(n.layer==='grade'){add(OUT[id]||[],e=>e.kind==='expects'&&N[e.to].layer==='competency'?e.to:null);return out}
+ if(n.layer==='subject'){add(OUT[id]||[],e=>e.kind==='sets'&&N[e.to].layer==='goal'?e.to:null);return out}
+ return out}
+function buildTree(){const root=document.getElementById('treeroot');if(root.innerHTML)return;root.innerHTML='<ul>'+D.nodes.filter(n=>n.layer==='word').map(n=>li(n)).join('')+'</ul>'}
+const VN={};function li(n){if(n.virtual||n.virtual2)VN[n.id]=n;const k=kids(n.id).length;return `<li><button class="tg" data-tree="${n.id}"><span class="tw">${k?'+':'·'}</span>${chip(n.layer)}<span>${esc(n.label)}</span><span class="cnt">${k?k:''}</span></button><button class="tg" data-go="${n.id}" title="open">↗</button></li>`}
+document.body.addEventListener('click',e=>{const b=e.target.closest('[data-tree]');if(!b)return;const id=b.dataset.tree;const node=N[id]||VN[id];const li_=b.parentElement;let ul=li_.querySelector(':scope>ul');if(ul){ul.hidden=!ul.hidden;b.querySelector('.tw').textContent=ul.hidden?'+':'−';return}
+ const ks=kids(id);if(!ks.length)return;ul=document.createElement('ul');ul.innerHTML=ks.slice(0,80).map(x=>li(x)).join('')+(ks.length>80?`<li class="meta">and ${ks.length-80} more · open the node to see all</li>`:'');li_.appendChild(ul);b.querySelector('.tw').textContent='−'});
+// ---- grade view
+const GRADES=['N','K1','K2','G1','G2','G3','G4','G5','G6','G7','G8','G9','G10'];
+document.getElementById('gsel').innerHTML=GRADES.map(g=>`<button data-grade="${g}">${esc(N['grade.'+g].label)}</button>`).join('');
+document.body.addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(b)pickGrade(b.dataset.grade)});
+function pickGrade(g){document.querySelectorAll('[data-grade]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.grade===g)));const id='grade.'+g;const bySub={};(OUT[id]||[]).forEach(e=>{const n=N[e.to];if(!n)return;const s=n.subject||(n.layer==='skill'?'skills':n.layer==='rung'?'the engine\'s ladder':'other');(bySub[s]=bySub[s]||{competency:[],outcome:[],unit:[],skill:[],rung:[]})[n.layer]?.push(n)});
+ const order=['mathematics','language','science','world-around-us','social-science','individuals-in-society','environmental-education','art','physical-education','vocational','foundational','computing','routines','skills',"the engine's ladder",'other'];
+ document.getElementById('gview').innerHTML=`<p class="lede">${esc(N[id].label)}: what NCF-SE expects, what NCERT expects in the class, what the school teaches, what the engine tracks.</p><div class="gcols">`+Object.entries(bySub).sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0])).map(([s,x])=>`<div class="gcard"><h3>${esc(s.replace(/-/g,' '))}</h3>${['competency','outcome','unit','skill','rung'].filter(l=>x[l].length).map(l=>`<div class="meta" style="margin-top:6px">${x[l].length} ${esc(PL[l])}</div>`+x[l].slice(0,6).map(n=>rowHtml(n)).join('')+(x[l].length>6?`<button class="row meta" data-go="${id}">… all ${x[l].length} from the grade's node</button>`:'')).join('')}</div>`).join('')+'</div>'}
+// ---- search
+const q=document.getElementById('q'),res=document.getElementById('results');
+q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();if(v.length<2){res.hidden=true;return}const hits=D.nodes.filter(n=>n.label.toLowerCase().includes(v)||(n.text||'').toLowerCase().includes(v)||n.id.toLowerCase().includes(v)).slice(0,30);res.innerHTML=hits.map(n=>rowHtml(n)).join('')||'<div class="row meta">nothing found</div>';res.hidden=false});
+document.body.addEventListener('click',e=>{if(!e.target.closest('#results')&&e.target!==q)res.hidden=true;if(e.target.closest('#results [data-go]')){res.hidden=true;q.value=''}});
+document.getElementById('notes').innerHTML=Object.entries(D.notes||{}).filter(([k,v])=>v&&v.length).map(([k,v])=>`<div class="grp"><div class="h"><span>notes from the ${esc(k)} seat</span><span class="by gen">generated · for the curriculum team</span></div>${v.map(t=>`<div class="row" style="cursor:default">${esc(t)}</div>`).join('')}</div>`).join('');
+document.getElementById('foot').innerHTML=`Built ${esc(D.built)} from: ${D.sources.map(esc).join(' · ')}. Seats that generated the crosswalks: ${esc((D.seats||[]).join(', ')||'none yet')}. The file behind this page is <span class="mono">docs/spine/spine.json</span>; the checks that built it are <span class="mono">research/spine_build.py</span>.`;
+// deep link
+const h=(location.hash||'').slice(1);if(h&&N[h])focus(h);
+</script>
