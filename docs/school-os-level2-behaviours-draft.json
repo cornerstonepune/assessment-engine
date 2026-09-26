@@ -1,0 +1,2646 @@
+{
+ "produced": "2026-09-26, by hand in the council session with the ratified prompt (docs/school-os-proposal-capability-behaviours.md §3); not by the engine",
+ "prompt": {
+  "purpose": "capability_behaviours",
+  "version": 1
+ },
+ "capabilities": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "name": "Knowledge & academic mastery",
+   "observable_at_16": "Strong conceptual and procedural command of core subjects; can perform under examination conditions.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "counts-objects-one-to-one",
+       "statement": "Counts a set of objects up to ten, touching each once and saying one number for each.",
+       "adult_sees": "The educator watches the child's finger and voice keep step through the set.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Recites numbers to ten faster than the finger moves, skipping or double-touching objects.",
+       "grows_from": ""
+      },
+      {
+       "id": "reads-a-familiar-word",
+       "statement": "Reads a familiar word aloud from a picture book with the picture covered.",
+       "adult_sees": "The educator covers the picture and hears the word read from the letters.",
+       "setting": "lesson",
+       "capture_mode": "audio",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says the word from memory of the story while looking at the picture.",
+       "grows_from": ""
+      },
+      {
+       "id": "exchanges-ten-ones",
+       "statement": "Exchanges ten single blocks for one ten-rod when asked how many tens are in a pile.",
+       "adult_sees": "The educator sees the child make the exchange and name the rod as one ten.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Moves blocks into a row of ten without naming it as one ten.",
+       "grows_from": ""
+      },
+      {
+       "id": "retells-a-story-in-order",
+       "statement": "Retells a story just heard with its beginning, middle and end in the right order.",
+       "adult_sees": "The educator hears the events come in the order the story had them.",
+       "setting": "circle",
+       "capture_mode": "audio",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Names characters from the story without the events in order.",
+       "grows_from": ""
+      },
+      {
+       "id": "sorts-by-a-stated-rule",
+       "statement": "Sorts a mixed set of objects by a rule the educator names, and says the rule back.",
+       "adult_sees": "The educator sees the sort match the rule and hears the child state it.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Sorts by a rule of their own and cannot say what it was.",
+       "grows_from": ""
+      },
+      {
+       "id": "writes-name-and-numerals",
+       "statement": "Writes their own name and the numerals one to nine legibly on paper without a model to copy.",
+       "adult_sees": "The educator sees the writing done with no model in view.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Traces the name over a dotted model.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "adds-with-regrouping",
+       "statement": "Adds two three-digit numbers with regrouping on paper, showing the exchange in the working.",
+       "adult_sees": "The educator sees the carried ten written in the working, not only the total.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes the correct total with no working shown.",
+       "grows_from": "exchanges-ten-ones"
+      },
+      {
+       "id": "reads-and-answers-a-passage",
+       "statement": "Reads a grade-level passage aloud and answers a question whose answer is stated in the text.",
+       "adult_sees": "The educator hears the reading and sees the child point to where the text says it.",
+       "setting": "lesson",
+       "capture_mode": "audio",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Answers from general knowledge without pointing to where the text says it.",
+       "grows_from": "reads-a-familiar-word"
+      },
+      {
+       "id": "explains-a-fact-with-a-because",
+       "statement": "Explains a science or geography fact just taught in their own words, with a because.",
+       "adult_sees": "The educator hears the fact restated differently from the book, with a reason attached.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Repeats the textbook sentence word for word.",
+       "grows_from": "sorts-by-a-stated-rule"
+      },
+      {
+       "id": "uses-a-measuring-tool",
+       "statement": "Measures a length or a volume with the right tool and records it with its unit.",
+       "adult_sees": "The educator sees the tool chosen fit the quantity and the unit written beside the number.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes a number without a unit or with the wrong tool's unit.",
+       "grows_from": "exchanges-ten-ones"
+      },
+      {
+       "id": "completes-a-timed-set",
+       "statement": "Completes a short timed set of practice questions in the time given and checks one answer before handing in.",
+       "adult_sees": "The educator sees the set finished in time and one answer visibly re-checked.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Finishes early and hands in without looking back at any answer.",
+       "grows_from": "writes-name-and-numerals"
+      },
+      {
+       "id": "writes-a-paragraph-with-a-main-idea",
+       "statement": "Writes a paragraph of four or more sentences on one topic, with a first sentence that says what it is about.",
+       "adult_sees": "The educator reads a first sentence that announces the topic and sentences that stay on it.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes four sentences on four different things.",
+       "grows_from": "retells-a-story-in-order"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "solves-a-multi-step-problem",
+       "statement": "Solves a problem needing three or more steps, laying out each step so another student could follow it.",
+       "adult_sees": "The educator can follow the working from the first step to the answer without asking.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Reaches the right answer with steps missing or out of order.",
+       "grows_from": "adds-with-regrouping"
+      },
+      {
+       "id": "summarises-a-chapter",
+       "statement": "Summarises a textbook chapter in ten sentences that keep its main claims and drop its examples.",
+       "adult_sees": "The educator reads claims in the child's words and no copied examples.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Copies the chapter's first sentences in order.",
+       "grows_from": "reads-and-answers-a-passage"
+      },
+      {
+       "id": "uses-a-technical-term-correctly",
+       "statement": "Uses a subject's technical term correctly in an explanation, and gives a plain-words version when asked.",
+       "adult_sees": "The educator hears the term fit its meaning and a plain version follow on request.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses the term in a sentence that does not fit its meaning.",
+       "grows_from": "explains-a-fact-with-a-because"
+      },
+      {
+       "id": "records-an-experiment",
+       "statement": "Records an experiment's method, readings and result in a table, with units, on the day it is done.",
+       "adult_sees": "The educator sees the table filled during the practical, units included.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes the expected result before taking the readings.",
+       "grows_from": "uses-a-measuring-tool"
+      },
+      {
+       "id": "sits-a-full-length-test",
+       "statement": "Sits a full-period written test under exam rules and attempts every question, showing working where asked.",
+       "adult_sees": "The educator sees every question attempted and working where the paper asks for it.",
+       "setting": "practice",
+       "capture_mode": "test",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Leaves the last questions blank with time remaining.",
+       "grows_from": "completes-a-timed-set"
+      },
+      {
+       "id": "writes-an-explanatory-essay",
+       "statement": "Writes an essay of several paragraphs that explains a process or event using facts from the unit.",
+       "adult_sees": "The educator reads paragraphs that each carry a different part of the explanation.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes several paragraphs that restate one point.",
+       "grows_from": "writes-a-paragraph-with-a-main-idea"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "solves-an-unseen-board-style-problem",
+       "statement": "Solves an unseen problem in the board's format by choosing which method applies, and says why that method.",
+       "adult_sees": "The educator sees a method chosen to fit the problem and a reason given for the choice.",
+       "setting": "practice",
+       "capture_mode": "test",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Applies the method just practised whether or not it fits.",
+       "grows_from": "solves-a-multi-step-problem"
+      },
+      {
+       "id": "reads-a-primary-source",
+       "statement": "Reads a primary source or a research abstract and states its claim and its evidence separately.",
+       "adult_sees": "The educator sees the claim and the evidence written as two separate things.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Summarises the source's topic without separating claim from evidence.",
+       "grows_from": "summarises-a-chapter"
+      },
+      {
+       "id": "teaches-a-concept-to-a-younger-student",
+       "statement": "Teaches a concept from their own subject to a younger student, using two different explanations.",
+       "adult_sees": "The educator hears the second explanation differ from the first when the first does not land.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Reads their notes aloud to the younger student.",
+       "grows_from": "uses-a-technical-term-correctly"
+      },
+      {
+       "id": "derives-a-result-from-first-principles",
+       "statement": "Derives a formula or result from first principles on paper, rather than quoting it.",
+       "adult_sees": "The educator sees the derivation start from definitions, not from the formula.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Quotes the formula and substitutes numbers.",
+       "grows_from": "records-an-experiment"
+      },
+      {
+       "id": "performs-under-board-exam-conditions",
+       "statement": "Completes a full board-pattern examination under exam conditions, managing time across all sections.",
+       "adult_sees": "The educator sees every section attempted within the time.",
+       "setting": "practice",
+       "capture_mode": "test",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Runs out of time with a whole section unattempted.",
+       "grows_from": "sits-a-full-length-test"
+      },
+      {
+       "id": "writes-an-extended-argument-with-sources",
+       "statement": "Writes an extended piece that argues a position using sources cited by name.",
+       "adult_sees": "The educator sees named sources and a position that rests on them.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Asserts a position with no source or with an invented one.",
+       "grows_from": "writes-an-explanatory-essay"
+      }
+     ]
+    }
+   ],
+   "could_not": []
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "name": "Thinking & reasoning",
+   "observable_at_16": "Defines problems, evaluates evidence, reasons quantitatively and changes position when evidence warrants.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "asks-why-about-something-seen",
+       "statement": "Asks a why question about something just seen or heard, such as why the ice melted.",
+       "adult_sees": "The educator hears a why that follows from the moment, not from a book.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Asks a question the educator has just answered.",
+       "grows_from": ""
+      },
+      {
+       "id": "predicts-then-checks",
+       "statement": "Says what will happen before a simple test, such as which object will sink, and then checks.",
+       "adult_sees": "The educator hears the prediction before the object touches the water.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says the answer after seeing the result.",
+       "grows_from": ""
+      },
+      {
+       "id": "gives-a-reason-for-a-choice",
+       "statement": "Gives a reason for a choice when asked, such as why this block goes on the bottom.",
+       "adult_sees": "The educator hears a reason that refers to the block, not just to wanting it.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says 'because' and repeats the choice.",
+       "grows_from": ""
+      },
+      {
+       "id": "notices-a-difference-between-two-things",
+       "statement": "Points out one way two things are the same and one way they differ.",
+       "adult_sees": "The educator hears both a likeness and a difference named.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Names only what each thing is.",
+       "grows_from": ""
+      },
+      {
+       "id": "changes-a-guess-when-shown",
+       "statement": "Changes a guess after seeing a result that does not match it, and says so.",
+       "adult_sees": "The educator hears the child say the guess was wrong and give the new one.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Repeats the first guess after seeing the result.",
+       "grows_from": ""
+      },
+      {
+       "id": "puts-events-in-cause-order",
+       "statement": "Says which of two events happened first and which one made the other happen, in a story or a game.",
+       "adult_sees": "The educator hears the order and the cause both stated.",
+       "setting": "circle",
+       "capture_mode": "audio",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Lists both events without saying which caused which.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "asks-a-question-that-can-be-tested",
+       "statement": "Turns a wondering into a question that can be tested in class, such as does the plant grow faster near the window.",
+       "adult_sees": "The educator hears a question the class could actually set up and answer.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Asks a question no one in the room could test.",
+       "grows_from": "asks-why-about-something-seen"
+      },
+      {
+       "id": "records-a-prediction-and-result",
+       "statement": "Writes a prediction before an investigation and the result after, and states whether they matched.",
+       "adult_sees": "The educator sees the prediction dated before the result.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes the prediction after the result is known.",
+       "grows_from": "predicts-then-checks"
+      },
+      {
+       "id": "gives-evidence-for-a-claim",
+       "statement": "Backs a claim with one piece of evidence from something read, measured or observed.",
+       "adult_sees": "The educator hears or reads the evidence named beside the claim.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Backs a claim with 'everyone knows'.",
+       "grows_from": "gives-a-reason-for-a-choice"
+      },
+      {
+       "id": "spots-a-pattern-in-data",
+       "statement": "Spots a pattern in a table or chart, such as one column larger in every row, and says what it might mean.",
+       "adult_sees": "The educator hears the pattern described and a meaning offered.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Reads single values from the chart without a pattern.",
+       "grows_from": "notices-a-difference-between-two-things"
+      },
+      {
+       "id": "revises-an-answer-with-a-stated-reason",
+       "statement": "Changes an answer after new evidence and writes the reason for the change beside it.",
+       "adult_sees": "The educator sees the old answer, the new one and the reason, all visible.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Rubs out the first answer so the change is invisible.",
+       "grows_from": "changes-a-guess-when-shown"
+      },
+      {
+       "id": "separates-fact-from-opinion",
+       "statement": "Sorts statements about a topic into facts and opinions and explains one sorting.",
+       "adult_sees": "The educator sees the sort and hears one placement justified.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Sorts by whether the statement agrees with their own view.",
+       "grows_from": "puts-events-in-cause-order"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "designs-a-fair-test",
+       "statement": "Designs a fair test with one thing changed and the rest kept the same, and names what is kept the same.",
+       "adult_sees": "The educator sees one variable changed and the controls listed.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Changes two things at once and reports a result.",
+       "grows_from": "asks-a-question-that-can-be-tested"
+      },
+      {
+       "id": "judges-a-source",
+       "statement": "Judges whether a source is trustworthy by who wrote it, when and why, before using it.",
+       "adult_sees": "The educator sees the author, date and purpose noted before the source is cited.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses the first search result without saying who wrote it.",
+       "grows_from": "gives-evidence-for-a-claim"
+      },
+      {
+       "id": "estimates-before-calculating",
+       "statement": "Estimates the size of an answer before calculating and uses the estimate to catch an error.",
+       "adult_sees": "The educator sees the estimate written first and an error caught by it.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Calculates first and accepts any answer.",
+       "grows_from": "spots-a-pattern-in-data"
+      },
+      {
+       "id": "states-an-assumption",
+       "statement": "Names an assumption in an argument, their own or another's, and says what changes if it is false.",
+       "adult_sees": "The educator hears the assumption named and its consequence traced.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Labels a disagreement as 'just an opinion'.",
+       "grows_from": "separates-fact-from-opinion"
+      },
+      {
+       "id": "concedes-a-point-in-a-debate",
+       "statement": "Concedes a point in a discussion when the other side's evidence is stronger, and says which evidence moved them.",
+       "adult_sees": "The educator hears the concession and the evidence named.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Goes quiet rather than saying which point stood.",
+       "grows_from": "revises-an-answer-with-a-stated-reason"
+      },
+      {
+       "id": "quantifies-a-claim",
+       "statement": "Puts a number on a claim, such as how much faster, and says how it was measured.",
+       "adult_sees": "The educator sees the number and the measurement it rests on.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says 'much faster' without a measurement.",
+       "grows_from": "records-a-prediction-and-result"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "defines-a-problem-before-solving",
+       "statement": "Writes a problem statement that says what is known, what is asked and what would count as solved, before starting.",
+       "adult_sees": "The educator sees the statement written before any working.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Starts computing before saying what the question is.",
+       "grows_from": "designs-a-fair-test"
+      },
+      {
+       "id": "weighs-conflicting-evidence",
+       "statement": "Weighs two sources that disagree and explains in writing which to trust more and why.",
+       "adult_sees": "The educator reads both sources named and a reasoned choice between them.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Picks the source that agrees with their first view.",
+       "grows_from": "judges-a-source"
+      },
+      {
+       "id": "checks-a-result-two-ways",
+       "statement": "Checks a result by a second method or a limiting case and reports the check alongside the answer.",
+       "adult_sees": "The educator sees the second method or the limiting case beside the answer.",
+       "setting": "practice",
+       "capture_mode": "sheet",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Reports the answer with a note that it 'seems right'.",
+       "grows_from": "estimates-before-calculating"
+      },
+      {
+       "id": "reasons-from-a-model-to-a-prediction",
+       "statement": "Uses a model or a formula to predict a case not yet seen, then compares with a measurement.",
+       "adult_sees": "The educator sees the prediction made before the measurement and the comparison after.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Fits a model to data already seen and stops.",
+       "grows_from": "quantifies-a-claim"
+      },
+      {
+       "id": "changes-position-in-writing",
+       "statement": "Records a change of position on a question in writing, stating the evidence that changed it.",
+       "adult_sees": "The educator reads the earlier position, the later one and the evidence between.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Presents the final position as if it had been held from the start.",
+       "grows_from": "concedes-a-point-in-a-debate"
+      },
+      {
+       "id": "identifies-the-flaw-in-an-argument",
+       "statement": "Identifies the specific flaw in a flawed argument, such as a sample too small or a cause confused with a correlation.",
+       "adult_sees": "The educator hears the flaw named precisely.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Calls the argument 'wrong' without naming the flaw.",
+       "grows_from": "states-an-assumption"
+      }
+     ]
+    }
+   ],
+   "could_not": []
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "name": "Learning & agency",
+   "observable_at_16": "Sets goals, researches independently, seeks feedback, reflects and improves.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "chooses-an-activity-and-finishes-it",
+       "statement": "Chooses an activity at free-choice time and stays with it until it is finished.",
+       "adult_sees": "The educator sees the activity chosen unprompted and brought to an end.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Moves to a new activity each time an adult looks away.",
+       "grows_from": ""
+      },
+      {
+       "id": "asks-for-help-after-trying",
+       "statement": "Tries a task on their own first and then asks for help with the specific part that is hard.",
+       "adult_sees": "The educator sees an attempt before the request and hears the hard part named.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Asks for help before touching the task.",
+       "grows_from": ""
+      },
+      {
+       "id": "says-what-they-learned-today",
+       "statement": "Tells an adult one thing they learned or could do today that they could not do before.",
+       "adult_sees": "The educator hears a learning named, not an activity listed.",
+       "setting": "circle",
+       "capture_mode": "self_voice",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Names an activity done today without what was learned.",
+       "grows_from": ""
+      },
+      {
+       "id": "fixes-own-work-after-a-hint",
+       "statement": "Fixes a mistake in their own work after one hint, without the adult doing it for them.",
+       "adult_sees": "The educator gives one hint and sees the child make the correction.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Waits for the adult to correct it.",
+       "grows_from": ""
+      },
+      {
+       "id": "puts-materials-back-ready-for-next",
+       "statement": "Puts materials back where they belong so the next child can use them, without being told.",
+       "adult_sees": "The educator sees the materials returned to their place unprompted.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Puts materials away only when asked by name.",
+       "grows_from": ""
+      },
+      {
+       "id": "tries-again-after-a-fail",
+       "statement": "Tries again, in the same session, at something that failed the first time, such as a tower or a jump.",
+       "adult_sees": "The educator sees the second attempt follow the first failure.",
+       "setting": "outdoors",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid"
+       ],
+       "counter_example": "Leaves the activity after the first failure.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "sets-a-goal-for-the-week",
+       "statement": "Writes one learning goal for the week, in their own words, and checks it off or not on Friday.",
+       "adult_sees": "The educator reads a goal in the child's words and sees it reviewed on Friday.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Copies the class goal from the board.",
+       "grows_from": "chooses-an-activity-and-finishes-it"
+      },
+      {
+       "id": "uses-a-resource-before-asking",
+       "statement": "Looks up an answer in a book, chart or dictionary before asking the educator.",
+       "adult_sees": "The educator sees the resource opened before the hand goes up.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Asks the educator the spelling of a word on the word wall.",
+       "grows_from": "asks-for-help-after-trying"
+      },
+      {
+       "id": "names-what-was-hard-and-why",
+       "statement": "Names, in a reflection, what was hard about a task and one thing to do differently next time.",
+       "adult_sees": "The educator reads or hears a specific difficulty and a specific change.",
+       "setting": "lesson",
+       "capture_mode": "self_voice",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes 'it was easy' or 'it was hard' without a why.",
+       "grows_from": "says-what-they-learned-today"
+      },
+      {
+       "id": "uses-feedback-in-the-next-draft",
+       "statement": "Uses a written comment from the educator to change the next draft, and can point to the change.",
+       "adult_sees": "The educator sees the commented point changed in the next draft.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Rewrites the draft without touching the point commented on.",
+       "grows_from": "fixes-own-work-after-a-hint"
+      },
+      {
+       "id": "keeps-own-record-of-practice",
+       "statement": "Keeps their own record of practice sheets done and skills mastered, and updates it unprompted.",
+       "adult_sees": "The educator sees the record current without having asked.",
+       "setting": "practice",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Fills the record only when the educator checks it.",
+       "grows_from": "puts-materials-back-ready-for-next"
+      },
+      {
+       "id": "chooses-a-harder-version-when-offered",
+       "statement": "Chooses the harder version of a task when offered a choice, and attempts it.",
+       "adult_sees": "The educator sees the harder version taken and worked on.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Chooses the harder version and hands it in blank.",
+       "grows_from": "tries-again-after-a-fail"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "plans-a-multi-week-project",
+       "statement": "Breaks a multi-week project into steps with dates and ticks them off as they are done.",
+       "adult_sees": "The educator sees the plan dated at the start and ticked as the weeks pass.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes the plan on the last day.",
+       "grows_from": "sets-a-goal-for-the-week"
+      },
+      {
+       "id": "finds-and-cites-two-sources-alone",
+       "statement": "Finds two sources on a topic without help and notes where each was found.",
+       "adult_sees": "The educator sees two sources located by the child and their origins noted.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses one source and cites it as two.",
+       "grows_from": "uses-a-resource-before-asking"
+      },
+      {
+       "id": "asks-for-specific-feedback",
+       "statement": "Asks a peer or educator for feedback on one named aspect of their work before it is due.",
+       "adult_sees": "The educator hears the aspect named in the request.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Asks 'is this good?' about the whole piece.",
+       "grows_from": "names-what-was-hard-and-why"
+      },
+      {
+       "id": "self-marks-against-a-rubric",
+       "statement": "Marks their own work against the rubric before submitting and notes where it falls short.",
+       "adult_sees": "The educator sees the self-marking with at least one shortfall named.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Awards full marks on every line.",
+       "grows_from": "uses-feedback-in-the-next-draft"
+      },
+      {
+       "id": "monitors-own-progress-on-the-map",
+       "statement": "Reads their own skill map, names a gap, and chooses practice for it.",
+       "adult_sees": "The educator sees the gap named and the practice chosen to match it.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Practises only skills already secure.",
+       "grows_from": "keeps-own-record-of-practice"
+      },
+      {
+       "id": "persists-through-a-failed-attempt",
+       "statement": "Keeps working on a problem after a first attempt fails, trying a different approach within the session.",
+       "adult_sees": "The educator sees a second, different approach follow the failed one.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid"
+       ],
+       "counter_example": "Repeats the same failed approach three times.",
+       "grows_from": "chooses-a-harder-version-when-offered"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "runs-an-independent-study",
+       "statement": "Carries an independent study from a question to a finished product over a term, meeting their own milestones.",
+       "adult_sees": "The educator sees milestones set by the child and met through the term.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Completes the study in the last week.",
+       "grows_from": "plans-a-multi-week-project"
+      },
+      {
+       "id": "evaluates-own-sources",
+       "statement": "Reviews their own bibliography and drops or replaces an unreliable source, saying why.",
+       "adult_sees": "The educator sees a source removed and the reason recorded.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Adds sources to lengthen the list.",
+       "grows_from": "finds-and-cites-two-sources-alone"
+      },
+      {
+       "id": "seeks-expert-feedback-outside-school",
+       "statement": "Seeks feedback from someone outside school with relevant expertise and reports what they learned from it.",
+       "adult_sees": "The educator sees the expert's feedback and the change it led to.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Reports the feedback without any change made.",
+       "grows_from": "asks-for-specific-feedback"
+      },
+      {
+       "id": "sets-own-standard-above-the-rubric",
+       "statement": "States a standard for their work above the rubric's, and shows where the work meets it.",
+       "adult_sees": "The educator reads a standard the rubric did not ask for and sees it met.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Restates the rubric as their standard.",
+       "grows_from": "self-marks-against-a-rubric"
+      },
+      {
+       "id": "teaches-themself-a-tool-or-topic",
+       "statement": "Learns an unfamiliar tool or topic from documentation or a course on their own, and demonstrates it.",
+       "adult_sees": "The educator sees the tool used or the topic applied, not described.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Watches a tutorial and describes it without using the tool.",
+       "grows_from": "monitors-own-progress-on-the-map"
+      },
+      {
+       "id": "recovers-from-a-public-setback",
+       "statement": "Returns to a piece of work after a public setback, such as a lost debate or a failed demonstration, and improves it.",
+       "adult_sees": "The educator sees the work taken up again and changed after the setback.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid"
+       ],
+       "counter_example": "Drops the piece after the setback.",
+       "grows_from": "persists-through-a-failed-attempt"
+      }
+     ]
+    }
+   ],
+   "could_not": []
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "name": "Creation & problem solving",
+   "observable_at_16": "Turns ideas into experiments, prototypes, designs, investigations and useful outputs.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "builds-something-from-a-plan-in-mind",
+       "statement": "Builds something with blocks or junk that matches a plan said aloud beforehand.",
+       "adult_sees": "The educator hears the plan first and sees the build match it.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Names what the finished pile is after building it.",
+       "grows_from": ""
+      },
+      {
+       "id": "solves-a-practical-problem-with-materials",
+       "statement": "Solves a practical problem, such as a bridge that falls, by changing the materials or the design.",
+       "adult_sees": "The educator sees the change made by the child and the bridge stand.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Asks an adult to fix the bridge.",
+       "grows_from": ""
+      },
+      {
+       "id": "draws-to-show-an-idea",
+       "statement": "Draws a picture that shows an idea or a plan and explains what each part is.",
+       "adult_sees": "The educator hears each part of the drawing named for what it does.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Draws and says it is 'just a drawing'.",
+       "grows_from": ""
+      },
+      {
+       "id": "invents-a-rule-for-a-game",
+       "statement": "Invents a new rule for a familiar game and plays a round with it.",
+       "adult_sees": "The educator hears the rule proposed before play and sees it kept.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Changes rules mid-game to win.",
+       "grows_from": ""
+      },
+      {
+       "id": "makes-a-second-version",
+       "statement": "Makes a second version of something made, and says what is different.",
+       "adult_sees": "The educator sees two versions and hears the difference named.",
+       "setting": "play",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Makes the same thing again.",
+       "grows_from": ""
+      },
+      {
+       "id": "uses-a-tool-for-its-purpose",
+       "statement": "Uses a simple tool, such as scissors, a hole punch or a magnifier, for its purpose without help.",
+       "adult_sees": "The educator sees the tool used as intended with no hand over hand.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Holds the tool and asks an adult to use it.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "makes-a-model-that-works",
+       "statement": "Makes a model or device that does what it was meant to do, such as a lever that lifts a load.",
+       "adult_sees": "The educator sees the model do its job.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Presents a model that looks right and does not work.",
+       "grows_from": "builds-something-from-a-plan-in-mind"
+      },
+      {
+       "id": "tests-and-improves-a-design",
+       "statement": "Tests a design, records what failed and changes one thing before testing again.",
+       "adult_sees": "The educator sees the failure recorded and one change made.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Changes everything after a failure.",
+       "grows_from": "solves-a-practical-problem-with-materials"
+      },
+      {
+       "id": "plans-a-make-with-a-list",
+       "statement": "Writes a materials list and a step plan before making something, and follows it.",
+       "adult_sees": "The educator sees the list and plan written first and the make follow them.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes the list after making.",
+       "grows_from": "draws-to-show-an-idea"
+      },
+      {
+       "id": "writes-an-original-story-or-poem",
+       "statement": "Writes an original story or poem with a beginning, a problem and an ending.",
+       "adult_sees": "The educator reads a plot of the child's own with all three parts.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Retells a known story with the names changed.",
+       "grows_from": "invents-a-rule-for-a-game"
+      },
+      {
+       "id": "presents-a-made-thing-and-what-changed",
+       "statement": "Presents a made thing to the class and says what changed from the first version and why.",
+       "adult_sees": "The educator hears the change and its reason.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Shows the thing without saying what was changed.",
+       "grows_from": "makes-a-second-version"
+      },
+      {
+       "id": "chooses-a-tool-for-a-job",
+       "statement": "Chooses the right tool for a job from several available, and says why that one.",
+       "adult_sees": "The educator hears the reason for the tool chosen.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses whatever tool is nearest.",
+       "grows_from": "uses-a-tool-for-its-purpose"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "builds-a-prototype-to-a-brief",
+       "statement": "Builds a prototype that meets a written brief with constraints, such as a budget or a size limit.",
+       "adult_sees": "The educator checks the prototype against each constraint in the brief.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Builds something impressive that ignores the constraints.",
+       "grows_from": "makes-a-model-that-works"
+      },
+      {
+       "id": "runs-an-iteration-log",
+       "statement": "Keeps an iteration log across several tests with what changed and what the results were.",
+       "adult_sees": "The educator reads several entries, each with a change and a result.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Records the final version only.",
+       "grows_from": "tests-and-improves-a-design"
+      },
+      {
+       "id": "codes-a-program-that-solves-a-task",
+       "statement": "Writes a program that solves a set task, and fixes it when a test input breaks it.",
+       "adult_sees": "The educator sees the program fail on an input and be fixed by the child.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Copies a program and cannot change it when it breaks.",
+       "grows_from": "chooses-a-tool-for-a-job"
+      },
+      {
+       "id": "produces-a-piece-for-a-real-audience",
+       "statement": "Produces a piece of writing, art or media for a real audience outside the class, such as younger children or parents.",
+       "adult_sees": "The educator sees the piece reach its audience.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Produces a piece only the educator sees.",
+       "grows_from": "writes-an-original-story-or-poem"
+      },
+      {
+       "id": "pitches-a-solution-with-trade-offs",
+       "statement": "Pitches a solution to a problem and names one trade-off it makes.",
+       "adult_sees": "The educator hears the trade-off named in the pitch.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Pitches the solution as having no downside.",
+       "grows_from": "presents-a-made-thing-and-what-changed"
+      },
+      {
+       "id": "investigates-an-open-question",
+       "statement": "Carries out an investigation of an open question with a method they designed, and reports what was found.",
+       "adult_sees": "The educator sees a method of the child's own and a finding, expected or not.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Follows a worksheet method and reports the expected answer.",
+       "grows_from": "plans-a-make-with-a-list"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "delivers-a-project-to-a-client-brief",
+       "statement": "Delivers a project to a brief from someone outside school and incorporates their feedback.",
+       "adult_sees": "The educator sees the outside brief, the delivery and the feedback acted on.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Delivers to their own brief.",
+       "grows_from": "builds-a-prototype-to-a-brief"
+      },
+      {
+       "id": "documents-a-build-so-others-can-repeat-it",
+       "statement": "Documents a build or an experiment so another student repeats it without asking questions.",
+       "adult_sees": "The educator sees another student repeat it from the document alone.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Documents it so only they can repeat it.",
+       "grows_from": "runs-an-iteration-log"
+      },
+      {
+       "id": "builds-software-with-tests",
+       "statement": "Builds a piece of software with tests, and shows a test catching a bug.",
+       "adult_sees": "The educator sees a test fail on a bug and pass after the fix.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Shows working software with no tests.",
+       "grows_from": "codes-a-program-that-solves-a-task"
+      },
+      {
+       "id": "exhibits-work-publicly",
+       "statement": "Exhibits or performs a piece of work publicly and answers questions about it.",
+       "adult_sees": "The educator sees the work shown and questions taken.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Exhibits the work and leaves before questions.",
+       "grows_from": "produces-a-piece-for-a-real-audience"
+      },
+      {
+       "id": "completes-an-apprenticeship-task",
+       "statement": "Completes a real task in an internship or apprenticeship placement, confirmed by the host.",
+       "adult_sees": "The educator sees the host's confirmation of a task done.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Attends the placement without a completed task.",
+       "grows_from": "pitches-a-solution-with-trade-offs"
+      },
+      {
+       "id": "designs-and-runs-an-original-investigation",
+       "statement": "Designs and runs an original investigation, from question to method to findings, and presents it.",
+       "adult_sees": "The educator sees the question, method and findings all the child's own.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Repeats a textbook investigation.",
+       "grows_from": "investigates-an-open-question"
+      }
+     ]
+    }
+   ],
+   "could_not": [
+    {
+     "reason": "stage_unclear",
+     "detail": "Secondary behaviours assume placements, exhibitions and outside briefs that the school has not yet defined; they should be read as what the programme must make possible."
+    }
+   ]
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "name": "Communication & collaboration",
+   "observable_at_16": "Writes, speaks, presents, listens, negotiates and contributes reliably to teams.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "tells-news-in-full-sentences",
+       "statement": "Tells the circle a piece of news in two or more full sentences that others can follow.",
+       "adult_sees": "The educator hears two connected sentences and sees the circle follow.",
+       "setting": "circle",
+       "capture_mode": "audio",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Says one word and stops when asked more.",
+       "grows_from": ""
+      },
+      {
+       "id": "listens-and-responds-to-a-peer",
+       "statement": "Listens to a classmate and says something back about what they said.",
+       "adult_sees": "The educator hears the response refer to the classmate's words.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Waits for their own turn without responding.",
+       "grows_from": ""
+      },
+      {
+       "id": "asks-to-join-and-accepts-no",
+       "statement": "Asks to join a game, and accepts a no or joins in the way agreed.",
+       "adult_sees": "The educator sees the ask and the answer respected.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Pushes into the game without asking.",
+       "grows_from": ""
+      },
+      {
+       "id": "takes-turns-in-a-pair-task",
+       "statement": "Takes turns in a pair task, such as passing the crayon, without an adult managing it.",
+       "adult_sees": "The educator sees the turns pass with no adult counting.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Takes turns only when an adult counts.",
+       "grows_from": ""
+      },
+      {
+       "id": "shows-work-and-explains-it",
+       "statement": "Shows a drawing or a build to the class and explains what it is.",
+       "adult_sees": "The educator hears the explanation reach the class.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Holds up the work silently.",
+       "grows_from": ""
+      },
+      {
+       "id": "uses-words-to-settle-a-dispute",
+       "statement": "Uses words to settle a dispute over a toy or a turn, such as proposing a swap.",
+       "adult_sees": "The educator hears the proposal and sees the dispute end.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Grabs or hits to settle the dispute.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "gives-a-short-prepared-talk",
+       "statement": "Gives a two-minute prepared talk to the class with a beginning and an end.",
+       "adult_sees": "The educator hears a shaped talk delivered to the room.",
+       "setting": "lesson",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Reads the talk from the page without looking up.",
+       "grows_from": "tells-news-in-full-sentences"
+      },
+      {
+       "id": "builds-on-a-peer-idea",
+       "statement": "Adds to a classmate's idea in discussion, naming whose idea it builds on.",
+       "adult_sees": "The educator hears the classmate credited and the idea extended.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Presents the classmate's idea as their own.",
+       "grows_from": "listens-and-responds-to-a-peer"
+      },
+      {
+       "id": "negotiates-roles-in-a-group",
+       "statement": "Agrees roles with a group before a task starts and takes the role agreed.",
+       "adult_sees": "The educator sees the roles agreed first and kept.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Takes the role they want and leaves the rest.",
+       "grows_from": "asks-to-join-and-accepts-no"
+      },
+      {
+       "id": "writes-a-letter-for-a-purpose",
+       "statement": "Writes a letter or message to a real person for a purpose, such as a request or a thank you.",
+       "adult_sees": "The educator reads a named recipient and a clear purpose.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes a letter to no one in particular.",
+       "grows_from": "takes-turns-in-a-pair-task"
+      },
+      {
+       "id": "explains-a-method-to-a-peer",
+       "statement": "Explains their method to a classmate who is stuck, without giving the answer.",
+       "adult_sees": "The educator hears the method explained and the answer withheld.",
+       "setting": "practice",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Tells the classmate the answer.",
+       "grows_from": "shows-work-and-explains-it"
+      },
+      {
+       "id": "disagrees-politely-with-a-reason",
+       "statement": "Disagrees with a classmate's answer politely, giving a reason.",
+       "adult_sees": "The educator hears the disagreement and its reason, without heat.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "kind"
+       ],
+       "counter_example": "Says 'you're wrong' without a reason.",
+       "grows_from": "uses-words-to-settle-a-dispute"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "presents-with-a-visual-aid",
+       "statement": "Presents to an audience using a visual aid they made, and answers a question from the floor.",
+       "adult_sees": "The educator sees the aid used and a question answered.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Reads slides aloud and takes no questions.",
+       "grows_from": "gives-a-short-prepared-talk"
+      },
+      {
+       "id": "leads-a-discussion-fairly",
+       "statement": "Leads a small-group discussion so that every member speaks, and summarises what was agreed.",
+       "adult_sees": "The educator sees every member speak and hears the summary.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Speaks most and summarises their own view.",
+       "grows_from": "builds-on-a-peer-idea"
+      },
+      {
+       "id": "resolves-a-group-conflict-by-agreement",
+       "statement": "Resolves a disagreement in a group task by proposing an option both sides accept.",
+       "adult_sees": "The educator sees the option proposed and both sides carry on.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Reports the disagreement to the educator to settle.",
+       "grows_from": "negotiates-roles-in-a-group"
+      },
+      {
+       "id": "writes-for-a-named-audience",
+       "statement": "Writes a piece in a register suited to a named audience, such as a report for the head or a guide for Grade 3.",
+       "adult_sees": "The educator reads a register that fits the audience named.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes in the same register for every audience.",
+       "grows_from": "writes-a-letter-for-a-purpose"
+      },
+      {
+       "id": "gives-usable-peer-feedback",
+       "statement": "Gives a classmate written feedback with one strength and one specific change to make.",
+       "adult_sees": "The educator reads a strength and a change the classmate could act on.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Writes 'good job' or 'needs work'.",
+       "grows_from": "explains-a-method-to-a-peer"
+      },
+      {
+       "id": "argues-a-side-in-a-debate",
+       "statement": "Argues an assigned side in a structured debate, including a side they do not hold, with evidence.",
+       "adult_sees": "The educator hears evidence used for the assigned side.",
+       "setting": "lesson",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Refuses to argue a side they do not hold.",
+       "grows_from": "disagrees-politely-with-a-reason"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "presents-to-an-outside-audience",
+       "statement": "Presents work to an audience outside school, such as parents, a partner organisation or a competition panel, and handles questions.",
+       "adult_sees": "The educator sees the outside audience and questions handled.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Presents only to classmates.",
+       "grows_from": "presents-with-a-visual-aid"
+      },
+      {
+       "id": "facilitates-a-meeting-with-an-agenda",
+       "statement": "Runs a meeting with an agenda and leaves it with actions assigned to named people.",
+       "adult_sees": "The educator reads the agenda and the actions with names.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Holds a meeting with no record of what was decided.",
+       "grows_from": "leads-a-discussion-fairly"
+      },
+      {
+       "id": "negotiates-an-outcome-with-adults",
+       "statement": "Negotiates an outcome with adults, such as a change to a school routine, presenting a case and accepting conditions.",
+       "adult_sees": "The educator sees the case made and conditions accepted.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Complains about the routine without proposing a case.",
+       "grows_from": "resolves-a-group-conflict-by-agreement"
+      },
+      {
+       "id": "writes-a-formal-document",
+       "statement": "Writes a formal document, such as a proposal, a report or an application, that a stranger could act on.",
+       "adult_sees": "The educator gives the document to someone uninvolved and sees them act on it.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes a document that needs the author present to explain it.",
+       "grows_from": "writes-for-a-named-audience"
+      },
+      {
+       "id": "mentors-a-younger-student-over-time",
+       "statement": "Mentors a younger student over several weeks and records what they worked on together.",
+       "adult_sees": "The educator sees the record of sessions and what each covered.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Meets the younger student once.",
+       "grows_from": "gives-usable-peer-feedback"
+      },
+      {
+       "id": "restates-an-opposing-view-before-answering",
+       "statement": "Restates an opposing view to its holder's satisfaction before answering it, in a discussion.",
+       "adult_sees": "The educator hears the holder agree the restatement is fair.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Answers an opposing view without restating it.",
+       "grows_from": "argues-a-side-in-a-debate"
+      }
+     ]
+    }
+   ],
+   "could_not": [
+    {
+     "reason": "other",
+     "detail": "Word tags follow the draft meanings of capable, kind and unafraid in the proposal; if the founders' meanings differ, the tags should be re-read against them."
+    }
+   ]
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "name": "Technology & AI",
+   "observable_at_16": "Uses digital tools productively; verifies AI outputs; understands bias, privacy, provenance and limitations.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "operates-a-simple-device-for-a-purpose",
+       "statement": "Operates a simple device for a purpose, such as playing a recorded story or photographing their work, with an adult present.",
+       "adult_sees": "The educator sees the device used for the stated purpose and put down after.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Taps a device at random.",
+       "grows_from": ""
+      },
+      {
+       "id": "follows-a-sequence-of-instructions",
+       "statement": "Follows a three-step sequence of instructions in order, such as in an unplugged coding game.",
+       "adult_sees": "The educator sees the three steps done in the order given.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Does the steps in a different order.",
+       "grows_from": ""
+      },
+      {
+       "id": "gives-instructions-to-move-a-friend",
+       "statement": "Gives a classmate step-by-step instructions to move across a grid, and corrects one wrong step.",
+       "adult_sees": "The educator hears the steps and sees one corrected.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Says 'go there' and points.",
+       "grows_from": ""
+      },
+      {
+       "id": "sorts-real-from-pretend",
+       "statement": "Says whether a picture or a story is real or made up, and gives one reason.",
+       "adult_sees": "The educator hears the judgement and a reason for it.",
+       "setting": "circle",
+       "capture_mode": "audio",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says real or pretend without a reason.",
+       "grows_from": ""
+      },
+      {
+       "id": "asks-before-using-someone-elses-thing",
+       "statement": "Asks before using a classmate's device, drawing or belongings.",
+       "adult_sees": "The educator hears the ask before the object is touched.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Takes it while the classmate is away.",
+       "grows_from": ""
+      },
+      {
+       "id": "handles-a-device-with-care",
+       "statement": "Carries and puts away a shared device carefully, as shown.",
+       "adult_sees": "The educator sees the device carried with two hands and returned to its place.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Drops or leaves the device on the floor.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "uses-a-tool-to-produce-work",
+       "statement": "Uses a digital tool to produce a piece of work, such as a typed paragraph or a chart from data they collected.",
+       "adult_sees": "The educator sees the finished piece made with the tool.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses the tool to play during work time.",
+       "grows_from": "operates-a-simple-device-for-a-purpose"
+      },
+      {
+       "id": "writes-and-debugs-a-short-program",
+       "statement": "Writes a short block-based program and fixes it when it does not do what was intended.",
+       "adult_sees": "The educator sees the program misbehave and the child change it until it works.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Runs a sample program without changing it.",
+       "grows_from": "follows-a-sequence-of-instructions"
+      },
+      {
+       "id": "explains-what-an-algorithm-does",
+       "statement": "Explains in plain words what a short set of instructions or program will do before running it.",
+       "adult_sees": "The educator hears the prediction before the run.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Runs it and then describes what happened.",
+       "grows_from": "gives-instructions-to-move-a-friend"
+      },
+      {
+       "id": "checks-an-ai-or-search-answer",
+       "statement": "Checks an answer from a search or an AI tool against a book or a second source before using it.",
+       "adult_sees": "The educator sees the second source opened before the answer is used.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Copies the first answer given.",
+       "grows_from": "sorts-real-from-pretend"
+      },
+      {
+       "id": "keeps-personal-details-private-online",
+       "statement": "Says what should not be shared online, such as full name, address or school, and applies it in a task.",
+       "adult_sees": "The educator sees the private fields left out in the task.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Types their full name and address into a form without asking.",
+       "grows_from": "asks-before-using-someone-elses-thing"
+      },
+      {
+       "id": "credits-a-source-for-an-image-or-fact",
+       "statement": "Names where an image or fact came from when using it in their work.",
+       "adult_sees": "The educator sees the source named beside the image or fact.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Uses an image with no source.",
+       "grows_from": "handles-a-device-with-care"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "chooses-the-right-tool-for-a-task",
+       "statement": "Chooses a digital tool suited to a task, such as a spreadsheet for data, and justifies the choice.",
+       "adult_sees": "The educator hears the justification and sees the tool fit.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Uses the same tool for everything.",
+       "grows_from": "uses-a-tool-to-produce-work"
+      },
+      {
+       "id": "writes-a-text-program-with-a-loop-and-a-condition",
+       "statement": "Writes a text-based program with a loop and a condition that solves a set problem.",
+       "adult_sees": "The educator sees the loop and condition in the code and the problem solved.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Writes straight-line code with no loop.",
+       "grows_from": "writes-and-debugs-a-short-program"
+      },
+      {
+       "id": "verifies-an-ai-output-and-finds-an-error",
+       "statement": "Uses an AI tool for a task and finds and corrects one error in its output, showing how it was checked.",
+       "adult_sees": "The educator sees the error marked and the check that found it.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Submits the AI output unchanged.",
+       "grows_from": "checks-an-ai-or-search-answer"
+      },
+      {
+       "id": "explains-how-a-recommendation-or-bias-arises",
+       "statement": "Explains, with an example, how an app's recommendation or an AI answer can be biased by its data.",
+       "adult_sees": "The educator hears a concrete example, not a slogan.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says 'AI is biased' without an example.",
+       "grows_from": "explains-what-an-algorithm-does"
+      },
+      {
+       "id": "manages-own-privacy-settings",
+       "statement": "Sets privacy settings on a school account as taught and explains what each setting protects.",
+       "adult_sees": "The educator sees the settings set and hears each one explained.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Leaves defaults and cannot say what they do.",
+       "grows_from": "keeps-personal-details-private-online"
+      },
+      {
+       "id": "attributes-ai-help-in-own-work",
+       "statement": "States where AI was used in their work and where it was not, when handing it in.",
+       "adult_sees": "The educator reads the attribution on the submitted work.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Hands in AI-assisted work as fully their own.",
+       "grows_from": "credits-a-source-for-an-image-or-fact"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "builds-a-working-digital-product",
+       "statement": "Builds a working digital product, such as a website, app or automation, for a real user, and gets their feedback.",
+       "adult_sees": "The educator sees the user use it and the feedback recorded.",
+       "setting": "project",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Builds a demo no one uses.",
+       "grows_from": "chooses-the-right-tool-for-a-task"
+      },
+      {
+       "id": "writes-a-program-using-data-and-libraries",
+       "statement": "Writes a program that reads real data, uses a library, and produces a checked result.",
+       "adult_sees": "The educator sees the check that the result is right.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Produces output with no check that it is right.",
+       "grows_from": "writes-a-text-program-with-a-loop-and-a-condition"
+      },
+      {
+       "id": "uses-ai-with-a-verification-log",
+       "statement": "Uses AI in a piece of work with a log of prompts, what was kept, what was rejected and why.",
+       "adult_sees": "The educator reads the log beside the work.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Uses AI and describes it as 'research'.",
+       "grows_from": "verifies-an-ai-output-and-finds-an-error"
+      },
+      {
+       "id": "evaluates-a-technology-for-harm-and-benefit",
+       "statement": "Evaluates a technology's benefits and harms for a named group, with evidence, and takes a position.",
+       "adult_sees": "The educator reads the weighing and the position taken.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Lists benefits and harms without weighing them.",
+       "grows_from": "explains-how-a-recommendation-or-bias-arises"
+      },
+      {
+       "id": "does-a-task-without-ai-they-could-do-with-it",
+       "statement": "Completes a task without AI that they could have done with it, and explains what doing it alone showed.",
+       "adult_sees": "The educator sees the task done unaided and hears what it showed.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Uses AI and reports the task as done alone.",
+       "grows_from": "attributes-ai-help-in-own-work"
+      },
+      {
+       "id": "protects-others-data",
+       "statement": "Handles other people's data in a project according to a stated rule, such as consent and deletion, and shows the rule was followed.",
+       "adult_sees": "The educator sees the rule stated and evidence it was kept.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Collects classmates' data without telling them.",
+       "grows_from": "manages-own-privacy-settings"
+      }
+     ]
+    }
+   ],
+   "could_not": [
+    {
+     "reason": "no_observable_form",
+     "detail": "Below Grade 4 the school puts no screen in front of a child, so the Foundational behaviours are unplugged proxies: sequencing, giving instructions, real versus pretend, care of a shared device."
+    }
+   ]
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "name": "Self & relationships",
+   "observable_at_16": "Shows resilience, emotional regulation, physical competence, empathy and responsible independence.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "says-what-they-are-feeling-and-chooses",
+       "statement": "Says what they are feeling in a hard moment, in their own words, and chooses something to do about it.",
+       "adult_sees": "The educator hears the child's own words and sees the choice made.",
+       "setting": "circle",
+       "capture_mode": "self_voice",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Is told by an adult what they are feeling and repeats it.",
+       "grows_from": ""
+      },
+      {
+       "id": "waits-for-a-turn-without-a-reminder",
+       "statement": "Waits for a turn on the slide or with a toy without a reminder from an adult.",
+       "adult_sees": "The educator sees the wait with no adult prompt.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Waits only after an adult says their name.",
+       "grows_from": ""
+      },
+      {
+       "id": "comforts-a-classmate",
+       "statement": "Notices a classmate who is hurt or crying and does something for them, such as fetching an adult or sitting with them.",
+       "adult_sees": "The educator sees the noticing and the act that follows.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Reports the classmate to an adult to get them in trouble.",
+       "grows_from": ""
+      },
+      {
+       "id": "manages-own-things",
+       "statement": "Manages their own bag, bottle and shoes at arrival and departure without help.",
+       "adult_sees": "The educator sees the routine done without a didi.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Waits for a didi to do it.",
+       "grows_from": ""
+      },
+      {
+       "id": "runs-jumps-and-balances-in-play",
+       "statement": "Runs, jumps with two feet together and balances on one foot for a count of three during play.",
+       "adult_sees": "The educator sees each movement done without a hand held.",
+       "setting": "outdoors",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Does the movement only with a hand held.",
+       "grows_from": ""
+      },
+      {
+       "id": "returns-to-play-after-a-small-hurt",
+       "statement": "Returns to play after a small hurt or a lost game, once looked after.",
+       "adult_sees": "The educator sees the child back in play in the same session.",
+       "setting": "outdoors",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid"
+       ],
+       "counter_example": "Sits out for the rest of the session after a small hurt.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "uses-a-strategy-before-acting",
+       "statement": "Uses a strategy learned in class, such as breathing or stepping away, before responding in a conflict.",
+       "adult_sees": "The educator sees the strategy used in the moment, before the response.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Names the strategy afterwards but did not use it.",
+       "grows_from": "says-what-they-are-feeling-and-chooses"
+      },
+      {
+       "id": "keeps-an-agreement-made-with-a-classmate",
+       "statement": "Keeps an agreement made with a classmate, such as a swap or a promise, without an adult enforcing it.",
+       "adult_sees": "The educator sees the agreement honoured with no adult involved.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Keeps the agreement only when reminded.",
+       "grows_from": "waits-for-a-turn-without-a-reminder"
+      },
+      {
+       "id": "includes-a-child-left-out",
+       "statement": "Invites a child who is left out into a game or a group, unprompted.",
+       "adult_sees": "The educator sees the invitation come from the child.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Invites the child when an adult asks the group to.",
+       "grows_from": "comforts-a-classmate"
+      },
+      {
+       "id": "carries-out-a-class-responsibility",
+       "statement": "Carries out a class responsibility, such as plants or the library corner, for a week without reminders.",
+       "adult_sees": "The educator sees the job done each day unprompted.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Does the job on the first day only.",
+       "grows_from": "manages-own-things"
+      },
+      {
+       "id": "learns-a-new-physical-skill-through-practice",
+       "statement": "Learns a new physical skill, such as skipping or catching, by practising over several sessions and shows it.",
+       "adult_sees": "The educator sees the skill shown after the practice sessions.",
+       "setting": "outdoors",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Avoids the skill after the first failed try.",
+       "grows_from": "runs-jumps-and-balances-in-play"
+      },
+      {
+       "id": "accepts-a-loss-and-congratulates",
+       "statement": "Accepts losing a game or a contest and congratulates the winner.",
+       "adult_sees": "The educator hears the congratulation given to the winner.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Blames the rules or the referee.",
+       "grows_from": "returns-to-play-after-a-small-hurt"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "repairs-a-relationship-after-a-conflict",
+       "statement": "Goes back to a classmate after a conflict to apologise or to sort it out, without being sent.",
+       "adult_sees": "The educator sees the approach made unprompted.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Avoids the classmate for the rest of the week.",
+       "grows_from": "uses-a-strategy-before-acting"
+      },
+      {
+       "id": "keeps-a-commitment-to-a-team",
+       "statement": "Keeps a commitment to a team, such as attending practice or delivering their part, across a term.",
+       "adult_sees": "The educator sees the attendance or the part delivered through the term.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Drops out when it stops being fun.",
+       "grows_from": "keeps-an-agreement-made-with-a-classmate"
+      },
+      {
+       "id": "speaks-up-for-a-classmate",
+       "statement": "Speaks up when a classmate is being excluded or mocked, in the moment.",
+       "adult_sees": "The educator hears the intervention as it happens.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Laughs along and says later they did not agree.",
+       "grows_from": "includes-a-child-left-out"
+      },
+      {
+       "id": "manages-own-schedule-for-a-week",
+       "statement": "Manages their own deadlines and materials for a week using a planner, with no missed submissions.",
+       "adult_sees": "The educator sees the planner used and nothing missed.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Submits late and cites the planner.",
+       "grows_from": "carries-out-a-class-responsibility"
+      },
+      {
+       "id": "trains-for-a-physical-goal",
+       "statement": "Sets a physical goal, such as a distance or a routine, trains for it over weeks and records the attempts.",
+       "adult_sees": "The educator reads the record of attempts across the weeks.",
+       "setting": "outdoors",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Records one attempt on the last day.",
+       "grows_from": "learns-a-new-physical-skill-through-practice"
+      },
+      {
+       "id": "asks-a-trusted-adult-for-help",
+       "statement": "Asks a trusted adult for help with a personal difficulty before it affects their work.",
+       "adult_sees": "The adult approached records that the ask came before any missed work.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid"
+       ],
+       "counter_example": "Mentions the difficulty only after a missed deadline.",
+       "grows_from": "accepts-a-loss-and-congratulates"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "mediates-between-two-others",
+       "statement": "Mediates between two classmates in conflict so that both agree a way forward.",
+       "adult_sees": "The educator sees both classmates accept the way forward.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Takes one side.",
+       "grows_from": "repairs-a-relationship-after-a-conflict"
+      },
+      {
+       "id": "leads-a-team-through-a-setback",
+       "statement": "Leads a team through a setback, such as a failed event, by re-planning with the team.",
+       "adult_sees": "The educator sees the re-plan made with the team present.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Assigns blame and re-plans alone.",
+       "grows_from": "keeps-a-commitment-to-a-team"
+      },
+      {
+       "id": "raises-an-unfairness-through-a-channel",
+       "statement": "Raises an unfairness affecting others through a school channel, such as council, and follows it through.",
+       "adult_sees": "The educator sees the matter raised in the channel and followed up.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Complains privately and lets it drop.",
+       "grows_from": "speaks-up-for-a-classmate"
+      },
+      {
+       "id": "balances-load-across-exams-and-projects",
+       "statement": "Plans a term with exams and projects so both are delivered, and adjusts the plan when something slips.",
+       "adult_sees": "The educator sees the plan, the adjustment and both delivered.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Drops the project to pass the exam.",
+       "grows_from": "manages-own-schedule-for-a-week"
+      },
+      {
+       "id": "reflects-on-a-physical-practice-kept-through-a-year",
+       "statement": "Reflects at year end on a physical practice kept through the year, with the record of it.",
+       "adult_sees": "The educator hears the reflection and sees the record.",
+       "setting": "outdoors",
+       "capture_mode": "self_voice",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Joins for the season and stops.",
+       "grows_from": "trains-for-a-physical-goal"
+      },
+      {
+       "id": "supports-a-peer-and-knows-when-to-involve-an-adult",
+       "statement": "Supports a peer through a difficulty over time and knows when to bring in an adult.",
+       "adult_sees": "The educator learns of the support from the peer or sees the adult brought in at the right time.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Keeps a peer's serious difficulty secret from every adult.",
+       "grows_from": "asks-a-trusted-adult-for-help"
+      }
+     ]
+    }
+   ],
+   "could_not": [
+    {
+     "reason": "other",
+     "detail": "Emotional regulation is written only as actions a person could see; the regulation itself is not observable. The physical behaviours are placeholders for a movement checklist the school should adopt, such as TGMD-style criteria, which this prompt cannot author."
+    }
+   ]
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "name": "Society, ethics & planet",
+   "observable_at_16": "Can examine trade-offs, understand systems and consider consequences beyond the self.",
+   "stages": [
+    {
+     "stage_id": "foundational",
+     "behaviours": [
+      {
+       "id": "cares-for-a-plant-or-animal",
+       "statement": "Waters a plant or feeds the class animal on their day, and checks it is alright.",
+       "adult_sees": "The educator sees the care given and the check made.",
+       "setting": "outdoors",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Waters it when an adult hands over the can.",
+       "grows_from": ""
+      },
+      {
+       "id": "sorts-waste-into-the-right-bin",
+       "statement": "Puts waste into the right bin, wet, dry or paper, without prompting.",
+       "adult_sees": "The educator sees the right bin chosen unprompted.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Puts waste in the nearest bin.",
+       "grows_from": ""
+      },
+      {
+       "id": "shares-without-being-asked",
+       "statement": "Shares a material or a snack with a classmate who has none, without being asked.",
+       "adult_sees": "The educator sees the share come from the child.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Shares after an adult says 'share'.",
+       "grows_from": ""
+      },
+      {
+       "id": "notices-someone-elses-need",
+       "statement": "Notices that a classmate or a younger child needs something and gets it for them.",
+       "adult_sees": "The educator sees the need met without an adult pointing it out.",
+       "setting": "play",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Notices and tells an adult only when asked.",
+       "grows_from": ""
+      },
+      {
+       "id": "says-what-is-fair-in-a-game",
+       "statement": "Says what would be fair when a game or a share is in dispute, such as taking turns.",
+       "adult_sees": "The educator hears a fairness that applies to everyone.",
+       "setting": "play",
+       "capture_mode": "audio",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Says fair means getting their own way.",
+       "grows_from": ""
+      },
+      {
+       "id": "keeps-a-shared-space-tidy",
+       "statement": "Leaves a shared space, such as the reading corner, tidy for the next group.",
+       "adult_sees": "The educator sees the space left ready.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Tidies only their own spot.",
+       "grows_from": ""
+      }
+     ]
+    },
+    {
+     "stage_id": "preparatory",
+     "behaviours": [
+      {
+       "id": "measures-something-about-the-campus",
+       "statement": "Measures or counts something about the campus, such as water used or plants grown, and reports it.",
+       "adult_sees": "The educator sees the measurement taken and the report.",
+       "setting": "outdoors",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Guesses the number.",
+       "grows_from": "cares-for-a-plant-or-animal"
+      },
+      {
+       "id": "reduces-waste-in-a-class-project",
+       "statement": "Proposes and carries out one way to reduce waste in a class activity and checks whether it worked.",
+       "adult_sees": "The educator sees the change made and the check afterwards.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Proposes a way and does not try it.",
+       "grows_from": "sorts-waste-into-the-right-bin"
+      },
+      {
+       "id": "explains-a-rule-by-its-reason",
+       "statement": "Explains a school or class rule by the reason for it, not just 'because it is the rule'.",
+       "adult_sees": "The educator hears the reason, not the rule repeated.",
+       "setting": "circle",
+       "capture_mode": "observation",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Says the rule is the rule.",
+       "grows_from": "says-what-is-fair-in-a-game"
+      },
+      {
+       "id": "considers-who-else-is-affected",
+       "statement": "Names who else is affected by a decision in a story or a class choice, beyond themselves.",
+       "adult_sees": "The educator hears others named and how they are affected.",
+       "setting": "lesson",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Names only how it affects them.",
+       "grows_from": "notices-someone-elses-need"
+      },
+      {
+       "id": "does-a-service-task-outside-the-class",
+       "statement": "Does a task that helps someone outside the class, such as reading to younger children, and reports it.",
+       "adult_sees": "The educator sees the task done and the report.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind"
+       ],
+       "counter_example": "Is assigned the task and leaves early.",
+       "grows_from": "shares-without-being-asked"
+      },
+      {
+       "id": "keeps-a-promise-to-the-group",
+       "statement": "Keeps a promise made to the group, such as bringing materials, and says so if it cannot be kept.",
+       "adult_sees": "The educator sees the promise kept, or hears it explained in time.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Forgets the promise and says nothing.",
+       "grows_from": "keeps-a-shared-space-tidy"
+      }
+     ]
+    },
+    {
+     "stage_id": "middle",
+     "behaviours": [
+      {
+       "id": "investigates-a-local-issue-with-data",
+       "statement": "Investigates a local issue, such as traffic or water at school, with data they collected, and presents findings.",
+       "adult_sees": "The educator sees the findings rest on data the child collected.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Presents findings from the internet as their own.",
+       "grows_from": "measures-something-about-the-campus"
+      },
+      {
+       "id": "weighs-a-trade-off-in-a-real-decision",
+       "statement": "Weighs a trade-off in a real decision, such as cost against waste, and recommends with reasons.",
+       "adult_sees": "The educator reads both sides of the trade-off and the recommendation.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Recommends the option with no downside named.",
+       "grows_from": "reduces-waste-in-a-class-project"
+      },
+      {
+       "id": "argues-both-sides-of-a-civic-question",
+       "statement": "States the strongest case for each side of a civic question before giving their own view.",
+       "adult_sees": "The educator hears each side made well before the child's view.",
+       "setting": "lesson",
+       "capture_mode": "video_clip",
+       "words": [
+        "capable",
+        "unafraid"
+       ],
+       "counter_example": "Gives their own view and a token version of the other side.",
+       "grows_from": "explains-a-rule-by-its-reason"
+      },
+      {
+       "id": "changes-a-plan-that-would-harm-others",
+       "statement": "Changes a plan after seeing that it would harm someone else, and says why.",
+       "adult_sees": "The educator sees the change and hears the reason.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Keeps the plan and apologises later.",
+       "grows_from": "considers-who-else-is-affected"
+      },
+      {
+       "id": "organises-a-service-activity",
+       "statement": "Organises a service activity with classmates, from plan to delivery, for people outside school.",
+       "adult_sees": "The educator sees the plan, the delivery and the people served.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Joins a service activity organised by adults.",
+       "grows_from": "does-a-service-task-outside-the-class"
+      },
+      {
+       "id": "owns-a-mistake-that-affected-others",
+       "statement": "Owns a mistake that affected others, tells those affected and puts it right.",
+       "adult_sees": "The educator sees those affected told and the repair made.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "kind"
+       ],
+       "counter_example": "Puts it right quietly without telling those affected.",
+       "grows_from": "keeps-a-promise-to-the-group"
+      }
+     ]
+    },
+    {
+     "stage_id": "secondary",
+     "behaviours": [
+      {
+       "id": "models-a-system-with-feedback",
+       "statement": "Models a system, such as the school's water or a market, with its feedback loops, and uses it to explain an outcome.",
+       "adult_sees": "The educator sees feedback loops in the model and an outcome explained by them.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "capable"
+       ],
+       "counter_example": "Draws a diagram with arrows and no feedback.",
+       "grows_from": "investigates-a-local-issue-with-data"
+      },
+      {
+       "id": "applies-an-ethical-framework-to-a-dilemma",
+       "statement": "Applies an ethical framework to a real dilemma, names the trade-offs, decides and defends it.",
+       "adult_sees": "The educator reads the framework applied, the trade-offs and the defence.",
+       "setting": "lesson",
+       "capture_mode": "artefact",
+       "words": [
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Decides on instinct and adds a framework label.",
+       "grows_from": "weighs-a-trade-off-in-a-real-decision"
+      },
+      {
+       "id": "engages-a-public-body-or-community",
+       "statement": "Engages a public body, business or community group on an issue, with a documented exchange.",
+       "adult_sees": "The educator sees the exchange documented.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "unafraid",
+        "capable"
+       ],
+       "counter_example": "Writes a letter that is never sent.",
+       "grows_from": "argues-both-sides-of-a-civic-question"
+      },
+      {
+       "id": "changes-a-habit-on-evidence-of-harm",
+       "statement": "Changes a personal habit on evidence of its harm to others or the environment, and keeps the change for a term.",
+       "adult_sees": "The educator hears the evidence named and sees the change kept.",
+       "setting": "home",
+       "capture_mode": "self_voice",
+       "words": [
+        "kind",
+        "unafraid"
+       ],
+       "counter_example": "Pledges the change publicly and stops within a week.",
+       "grows_from": "changes-a-plan-that-would-harm-others"
+      },
+      {
+       "id": "leads-a-sustained-service-commitment",
+       "statement": "Leads a service commitment over a term, with a record of what changed for the people served.",
+       "adult_sees": "The educator reads the record of what changed for those served.",
+       "setting": "project",
+       "capture_mode": "artefact",
+       "words": [
+        "kind",
+        "capable"
+       ],
+       "counter_example": "Runs a one-day event and reports it as sustained.",
+       "grows_from": "organises-a-service-activity"
+      },
+      {
+       "id": "accounts-for-a-public-role",
+       "statement": "Holds a public role in the school, such as council or event lead, and accounts for decisions to those affected.",
+       "adult_sees": "The educator sees the accounting made to those affected.",
+       "setting": "project",
+       "capture_mode": "observation",
+       "words": [
+        "unafraid",
+        "capable",
+        "kind"
+       ],
+       "counter_example": "Holds the role and reports to adults only.",
+       "grows_from": "owns-a-mistake-that-affected-others"
+      }
+     ]
+    }
+   ],
+   "could_not": [
+    {
+     "reason": "capability_too_broad",
+     "detail": "At the Foundational stage 'consequences beyond the self' can only show as sharing, tidying and care, which overlap with kind behaviours under self-and-relationships; the founders may merge or move them."
+    }
+   ]
+  }
+ ]
+}

@@ -3,6 +3,30 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, later — Level 2 of the spine ratified; the founders' draft produced; the platform survey running (no gate moved)
+
+- Nimish read the council's synthesis and the answers to its six questions, and ratified the Level 2 proposal
+  (`docs/school-os-proposal-capability-behaviours.md`: prompt row, validator, eval, sitting, goal draft). Logged in
+  `DECISIONS-LOG.md`. Nothing under `packages/`, `supabase/`, `apps/` or `n8n/` changed; W3 step 6 continues.
+- **The founders' draft exists:** `docs/school-os-level2-behaviours-draft.md` (192 behaviours, 32 cells) with its
+  machine copy `docs/school-os-level2-behaviours-draft.json`. Produced by hand with the ratified prompt, not by the
+  engine; checked by `research/level2_validate.py` (first pass 25/32 cells, one regeneration, then 32/32). The three
+  words carry the proposal's draft meanings until the founders write theirs.
+- **Waiting on the founders:** the sitting (Accept · Edit · Skip per behaviour, two founders split by capability); their
+  own one-line meanings of capable, kind and unafraid. The sitting's edits are the golden set for the engine's run.
+- **Running:** the subject-platform survey, three seats (maths and coding; language and literacy; science and social
+  science) in `research/research_notes/Subject learning platforms survey/`, scoring candidates on the buying rules
+  (no per-skill export, no purchase; hints only; pseudonymous accounts). A writer consolidates them into
+  `research/reports/Subject learning platforms survey.md`.
+- **Recommended and standing unless Nimish objects** (his "I am aligned" followed these): CBSE from Grade 6, not 7;
+  Cambridge objectives as the grain for Grades 1–5 and NCERT outcomes as the coverage target; school tablets in school
+  for Grades 4–6, home optional, nothing screen-based below Grade 4; bought software capped near five percent of the
+  fee (an assumption to check); three signature experiences as archetypes: investigate, make, argue.
+- **Read yesterday's NeoSapien recordings** (2026-09-25 afternoon). Two facts change the design: Jev already routes a
+  child's question at run time on the other platform, with pre-built fillers covering latency; and the founders
+  disagree on where personalised learning happens (home tablet vs school), on what "personalised" means, and on
+  what the day optimises. Section 12 of the synthesis lists the founder decisions still open.
+
 ## 2026-09-26 — the school operating system council: research, synthesis, a proposed ADR (no gate moved)
 
 - Nimish asked for a council on the whole school operating system, of which this engine is one part. He brought

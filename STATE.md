@@ -3381,3 +3381,25 @@ Research and design only: no engine claim changes, and no gate moved (W3, step 6
 - **Not verified by a command:** the seats' figures are their readings of sources they opened. The chair
   re-checked three claims against the notes and corrected the synthesis: the tutoring study was of university
   undergraduates, the DPDP 18-month date, and CBSE's weekly observation guidance.
+
+## Level 2 of the spine — the founders' draft, validated by a command (2026-09-26)
+
+Design only: no engine claim changes, no gate moved (W3, step 6).
+
+- The draft holds 192 behaviours in 32 cells and every cell passes the proposal's nine checks.
+  Check: `python3 research/level2_validate.py docs/school-os-level2-behaviours-draft.json` →
+  ```
+  behaviours 192 · cells 32 · cells passing 32/32
+    foundational capable=35  kind=16  unafraid=13
+    preparatory  capable=42  kind=14  unafraid=11
+    middle       capable=41  kind=11  unafraid=18
+    secondary    capable=45  kind=14  unafraid=16
+  every stage passes V1–V9
+  ```
+- First-pass validity, recorded for the eval's baseline: 25 of 32 cells on the first run; seven failures (three
+  "behind", one "weight", one "always", two single-mode cells); one regeneration by hand; 32 of 32 on the second run.
+  The "behind" and "weight" hits were false positives of the crude banned-word check on "the reason behind it" and
+  "lifts a weight"; the check is kept crude on purpose (a row a founder can tune) and the sentences were rephrased.
+- **Not verified:** the founders' acceptance rate, which the sitting produces; coverage of the profile's eight
+  "observable at 16" sentences, which a person maps once at the sitting. Both are eval numbers 2 and 3 and stay
+  unrecorded until then.
