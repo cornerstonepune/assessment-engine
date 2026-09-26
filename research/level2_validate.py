@@ -2,25 +2,169 @@
 """The Level 2 validator of docs/school-os-proposal-capability-behaviours.md §5, as code, so the draft's
 validity is a command: python3 research/level2_validate.py docs/school-os-level2-behaviours-draft.json
 Exit 0 when every stage passes; 1 otherwise, with each failure named. No model is called."""
-import json, re, sys
+
+import json
+import re
+import sys
 from itertools import combinations
 
 STAGES = ["foundational", "preparatory", "middle", "secondary"]
-MODES = {"observation", "artefact", "audio", "video_clip", "rubric", "sheet", "test", "self_voice", "peer_comment", "parent_voice"}
-ALLOWED = {"foundational": MODES - {"test"}, "preparatory": MODES, "middle": MODES, "secondary": MODES}
+MODES = {
+    "observation",
+    "artefact",
+    "audio",
+    "video_clip",
+    "rubric",
+    "sheet",
+    "test",
+    "self_voice",
+    "peer_comment",
+    "parent_voice",
+}
+ALLOWED = {
+    "foundational": MODES - {"test"},
+    "preparatory": MODES,
+    "middle": MODES,
+    "secondary": MODES,
+}
 SETTINGS = {"lesson", "practice", "project", "circle", "play", "outdoors", "home"}
 WORDS = {"capable", "kind", "unafraid"}
 REASONS = {"no_observable_form", "capability_too_broad", "stage_unclear", "other"}
-NOT_A_VERB = {"the", "a", "an", "is", "are", "has", "have", "child", "she", "he", "they", "i", "it", "this", "that", "their", "often", "always"}
-FREQUENCY = {"often", "always", "usually", "consistently", "never", "regularly", "sometimes", "rarely"}
-BANNED = {  # a row in the engine; here a list, grouped as the proposal groups it
-    "feeling or state": ["happy", "sad", "anxious", "angry", "confident", "motivated", "bored", "upset", "scared", "afraid", "nervous", "excited", "frustrated", "shy", "enjoys", "loves", "likes", "feels", "calm"],
-    "label": ["lazy", "gifted", "weak", "slow", "bright", "naughty", "hyperactive", "disruptive", "talented", "intelligent", "smart", "clever", "struggling"],
-    "body": ["weight", "bmi", "fat", "thin", "height", "appearance", "overweight", "skinny"],
-    "comparison": ["better than", "best", "top", "behind", "rank", "ahead of", "fastest", "cleverest", "first in class"],
-    "diagnosis": ["adhd", "autism", "autistic", "dyslexia", "dyslexic", "disorder", "depression", "depressed"],
+NOT_A_VERB = {
+    "the",
+    "a",
+    "an",
+    "is",
+    "are",
+    "has",
+    "have",
+    "child",
+    "she",
+    "he",
+    "they",
+    "i",
+    "it",
+    "this",
+    "that",
+    "their",
+    "often",
+    "always",
 }
-STOP = {"a", "an", "the", "and", "or", "of", "to", "in", "on", "for", "with", "as", "such", "at", "by", "it", "its", "their", "them", "they", "that", "this", "is", "are", "be", "when", "from", "one", "two", "without", "before", "after", "own", "not"}
+FREQUENCY = {
+    "often",
+    "always",
+    "usually",
+    "consistently",
+    "never",
+    "regularly",
+    "sometimes",
+    "rarely",
+}
+BANNED = {  # a row in the engine; here a list, grouped as the proposal groups it
+    "feeling or state": [
+        "happy",
+        "sad",
+        "anxious",
+        "angry",
+        "confident",
+        "motivated",
+        "bored",
+        "upset",
+        "scared",
+        "afraid",
+        "nervous",
+        "excited",
+        "frustrated",
+        "shy",
+        "enjoys",
+        "loves",
+        "likes",
+        "feels",
+        "calm",
+    ],
+    "label": [
+        "lazy",
+        "gifted",
+        "weak",
+        "slow",
+        "bright",
+        "naughty",
+        "hyperactive",
+        "disruptive",
+        "talented",
+        "intelligent",
+        "smart",
+        "clever",
+        "struggling",
+    ],
+    "body": [
+        "weight",
+        "bmi",
+        "fat",
+        "thin",
+        "height",
+        "appearance",
+        "overweight",
+        "skinny",
+    ],
+    "comparison": [
+        "better than",
+        "best",
+        "top",
+        "behind",
+        "rank",
+        "ahead of",
+        "fastest",
+        "cleverest",
+        "first in class",
+    ],
+    "diagnosis": [
+        "adhd",
+        "autism",
+        "autistic",
+        "dyslexia",
+        "dyslexic",
+        "disorder",
+        "depression",
+        "depressed",
+    ],
+}
+STOP = {
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "of",
+    "to",
+    "in",
+    "on",
+    "for",
+    "with",
+    "as",
+    "such",
+    "at",
+    "by",
+    "it",
+    "its",
+    "their",
+    "them",
+    "they",
+    "that",
+    "this",
+    "is",
+    "are",
+    "be",
+    "when",
+    "from",
+    "one",
+    "two",
+    "without",
+    "before",
+    "after",
+    "own",
+    "not",
+}
 ID_RE = re.compile(r"^[a-z][a-z0-9-]{3,60}$")
 
 
@@ -45,7 +189,7 @@ def banned_in(text):
 
 def main(path):
     doc = json.load(open(path))
-    fails = []          # (check, capability, stage, detail)
+    fails = []  # (check, capability, stage, detail)
     failed_stages = set()
 
     def fail(check, cap, stage, detail):
@@ -63,7 +207,9 @@ def main(path):
         statements = []  # (stage, id, statement)
         for s in stages:
             sid = s["stage_id"]
-            bs = s.get("behaviours", [])
+            bs = [
+                b for b in s.get("behaviours", []) if b.get("status") != "retired"
+            ]  # a retired row stays in the file, out of the checks
             if not 5 <= len(bs) <= 8:
                 fail("V1", cid, sid, f"{len(bs)} behaviours")
             modes = set()
@@ -91,13 +237,22 @@ def main(path):
                 if freq:
                     fail("V2", cid, sid, f"{b['id']}: frequency word {sorted(freq)}")
                 # V3 banned words, on every field an educator reads
-                for field, text in (("statement", st), ("adult_sees", sees), ("counter_example", ce)):
+                for field, text in (
+                    ("statement", st),
+                    ("adult_sees", sees),
+                    ("counter_example", ce),
+                ):
                     hits = banned_in(text)
                     if hits:
                         fail("V3", cid, sid, f"{b['id']}.{field}: {hits}")
                 # V4 modes and settings
                 if b["capture_mode"] not in ALLOWED[sid]:
-                    fail("V4", cid, sid, f"{b['id']}: mode {b['capture_mode']} not allowed at {sid}")
+                    fail(
+                        "V4",
+                        cid,
+                        sid,
+                        f"{b['id']}: mode {b['capture_mode']} not allowed at {sid}",
+                    )
                 modes.add(b["capture_mode"])
                 if b["setting"] not in SETTINGS:
                     fail("V4", cid, sid, f"{b['id']}: setting {b['setting']}")
@@ -105,7 +260,12 @@ def main(path):
                 if sid == STAGES[0] and b["grows_from"]:
                     fail("V5", cid, sid, f"{b['id']}: grows_from at first stage")
                 if sid != STAGES[0] and b["grows_from"] not in prev_ids:
-                    fail("V5", cid, sid, f"{b['id']}: grows_from {b['grows_from']!r} not in previous stage")
+                    fail(
+                        "V5",
+                        cid,
+                        sid,
+                        f"{b['id']}: grows_from {b['grows_from']!r} not in previous stage",
+                    )
                 # V6 words
                 ws = set(b["words"])
                 if not ws or not ws <= WORDS:
@@ -114,11 +274,22 @@ def main(path):
                     word_count[sid][w] += 1
                 # V7 counter-example
                 if re.match(r"^(does not|do not|doesn't|don't)\b", ce.lower()):
-                    fail("V7", cid, sid, f"{b['id']}: counter-example is a bare negation")
+                    fail(
+                        "V7", cid, sid, f"{b['id']}: counter-example is a bare negation"
+                    )
                 if jaccard(st, ce) >= 0.6:
-                    fail("V7", cid, sid, f"{b['id']}: counter-example overlaps statement {jaccard(st, ce):.2f}")
+                    fail(
+                        "V7",
+                        cid,
+                        sid,
+                        f"{b['id']}: counter-example overlaps statement {jaccard(st, ce):.2f}",
+                    )
                 # V8 school's words
-                for field, text in (("statement", st), ("adult_sees", sees), ("counter_example", ce)):
+                for field, text in (
+                    ("statement", st),
+                    ("adult_sees", sees),
+                    ("counter_example", ce),
+                ):
                     if re.search(r"\bteachers?\b", text.lower()):
                         fail("V8", cid, sid, f"{b['id']}.{field}: 'teacher'")
                 statements.append((sid, b["id"], st))
@@ -142,12 +313,34 @@ def main(path):
     for sid in STAGES:
         for w in WORDS:
             if word_count[sid][w] < 8:
-                fails.append(("V6", "-", sid, f"{w} on only {word_count[sid][w]} behaviours"))
-    total = sum(len(s["behaviours"]) for c in doc["capabilities"] for s in c["stages"])
+                fails.append(
+                    ("V6", "-", sid, f"{w} on only {word_count[sid][w]} behaviours")
+                )
+    total = sum(
+        1
+        for c in doc["capabilities"]
+        for s in c["stages"]
+        for b in s["behaviours"]
+        if b.get("status") != "retired"
+    )
+    retired = sum(
+        1
+        for c in doc["capabilities"]
+        for s in c["stages"]
+        for b in s["behaviours"]
+        if b.get("status") == "retired"
+    )
     cells = len(doc["capabilities"]) * len(STAGES)
-    print(f"behaviours {total} · cells {cells} · cells passing {cells - len(failed_stages)}/{cells}")
+    print(
+        f"behaviours {total} live"
+        + (f" ({retired} retired)" if retired else "")
+        + f" · cells {cells} · cells passing {cells - len(failed_stages)}/{cells}"
+    )
     for sid in STAGES:
-        print(f"  {sid:<12} " + "  ".join(f"{w}={word_count[sid][w]}" for w in sorted(WORDS)))
+        print(
+            f"  {sid:<12} "
+            + "  ".join(f"{w}={word_count[sid][w]}" for w in sorted(WORDS))
+        )
     if fails:
         print(f"FAILURES {len(fails)}")
         for f in fails:
@@ -158,4 +351,10 @@ def main(path):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "docs/school-os-level2-behaviours-draft.json"))
+    sys.exit(
+        main(
+            sys.argv[1]
+            if len(sys.argv) > 1
+            else "docs/school-os-level2-behaviours-draft.json"
+        )
+    )

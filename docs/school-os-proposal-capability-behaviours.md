@@ -166,6 +166,14 @@ Three numbers, all from rows, none from a model judging a model:
 3. **Acceptance in the founders' sitting**: per cell, the share of behaviours accepted unedited, edited,
    and skipped. This is the number Nimish asked for ("the 10–20% changes will then be through editing"). It
    is measured, not assumed, and it is reported per capability and per stage so a weak cell is visible.
+4. **Acceptance in the council's review**, recorded separately and never in place of 3. On 2026-09-26 Nimish
+   asked that the first pass on the draft not wait for the founders: a council of four seats (educator,
+   parent, developmental and measurement expert, child-rights and safeguarding), each reading every line from
+   its own life, marks Accept, Edit or Skip with a reason; code reconciles the verdicts by stated rules
+   (`research/level2_council.py`, its docstring is the rules) and keeps every retired row visible so a
+   founder can restore it. Per seat and per cell, the share accepted as written is a *proxy* for measure 3:
+   it says how far a careful reader outside the founders trusts the draft, not how far the founders do. The
+   founders' pass then runs on the reviewed draft, and only its acceptance is the eval.
 
 Activation: version 1 activates once its baseline is recorded in `DECISIONS-LOG.md`. A version 2 replaces
 it only if it matches or beats it on first-pass validity and, re-run on the cells the founders edited most,
@@ -181,6 +189,13 @@ disagree on is marked `contested`, like the graph, and the third settles it.
 
 Size: 32 cells, roughly 200 behaviours. At half a minute each, about 100 minutes for one person. Split
 by capability between two founders, it is one sitting each, which is how the 17 skill sets were ratified.
+
+**Before the founders sit, the council's pass** (§6, measure 4) has already read every line, and the sitting
+document carries each seat's verdict beside the row and a change log of every edit and retirement with its
+reason (`docs/school-os-level2-council-changes.md`). The founders' time then goes where the seats disagreed
+or changed something, though every row remains theirs to accept, edit or skip. When the engine organ exists,
+the same four seats become four prompt rows (`review_behaviour_<seat>`), each with its own eval against the
+founders' decisions, and the reconciliation rules move from the script into code the audit checks.
 
 ## 8. Where it sits, and what runs first
 
