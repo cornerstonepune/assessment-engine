@@ -188,3 +188,24 @@ def test_a_reading_that_fails_says_why_on_its_run(tmp_path, monkeypatch):
         "RuntimeError: Unable to parse config file: /root/.aws/credentials",
         RUN,
     )
+
+
+def test_a_reading_the_engine_was_killed_under_says_so_when_it_starts_again(monkeypatch):
+    """2026-09-25 and 26: two readings died under a deploy and said "running" until someone looked."""
+    seen = []
+
+    class _Conn:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            pass
+
+        def execute(self, sql, params=None):
+            seen.append((sql, params))
+            return type("R", (), {"rowcount": 2})()
+
+    monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Conn())
+    assert inbox.orphaned() == 2
+    [(sql, params)] = seen
+    assert "status = 'error'" in sql and "status = 'running'" in sql and params == (inbox.FLOW,)
