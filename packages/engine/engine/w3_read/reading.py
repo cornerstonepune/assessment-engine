@@ -7,7 +7,7 @@ child's own confidence floor; the notebook's flags (a routed kind, a confused di
 reader's guess for whatever is left doubted.
 """
 
-from engine.adapters import ocr
+from engine.adapters import digits, ocr
 from engine.w3_read import boxes, profiles, render_pdf, second_reader, stencil
 
 
@@ -62,8 +62,10 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
                 if it["spec"].get("page", 1) == page_no
             }
             img, frame = render_pdf.photo(path, file_page)
+            # the digit reader's own floor (ADR 0035): a child's notebook floor was measured on Textract's scale
+            floor = digits.settings(conn)
             readings = boxes.read_page(
-                img, page_no, paper["printed"], paper["geometry"], wanted, cli, cfg, frame=frame
+                img, page_no, paper["printed"], paper["geometry"], wanted, {**cfg, **floor}, frame=frame
             )
             how = (
                 "read in its boxes"

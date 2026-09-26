@@ -3,6 +3,59 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, night — step 1: PaddleOCR built in (ADR 0035 accepted); not merged, not live
+
+Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it." Built on `claude/gallant-cray-zvj5ey` (PR #78); see STATE.md
+"S17". Production path on the real 24 Sep answers: 125/133 exact, 112 stand at 0.90, 2 wrong. The image was built and
+run here under the server's memory: reader peak 707 MB, in its own process, gone after 60 s idle.
+- **Next, in order:** merge (deploys); `POST /read/file {again: true}` for 24 Sep (Drive `13Zsrf3…`) then 23 Sep
+  (`1eBcFq8…`); read `/read/scan/{name}/copies` and `/capture/{id}/readings`; the goal's floor is 144 of 192 settled
+  and copies 01–02 of 24 Sep (24 answers) do not line up — that is the next cause to fix, in `boxes.line_up`.
+- **Still owed by Nimish:** confirm `docs/adr/0035-bench/gold.json` (the two wrong readings first); rotate the
+  Textract key.
+- Ruled out by measurement this session (ADR 0035): MNIST/EMNIST per box, TrOCR, Paddle tiny/mobile models, one box at
+  a time, a recogniser-only second look (adds a wrong answer), crops wider than 2 mm.
+
+## 2026-09-26, evening — step 1: off-the-shelf digit readers benchmarked on the real boxes (ADR 0035, proposed)
+
+Nimish: benchmark TrOCR, PaddleOCR and an MNIST/EMNIST classifier against Textract on the real 24 Sep box crops
+before building reader logic; use the winner; don't write our own; show him before merging. Harness, gold and every
+reading: `docs/adr/0035-bench/` (crops stay out of git). 133 answers with a sure gold (the session's, by eye —
+not yet a person's).
+- **PaddleOCR (detect + recognise) wins**: 85% exact vs Textract 70% on the same uncleaned crops; @0.90 it stands
+  behind 102 with 1 wrong, Textract 66 with 0. MNIST/EMNIST per box (55–74%, 24–25 wrong stood behind) and TrOCR
+  (61% cleaned, 2% uncleaned) are out.
+- **Our own `boxes.strip` cleaning is the biggest defect**: removing print grown 0.8 mm eats pencil on the lines
+  (8→3, 6→",", a 3 below its box → 2). Textract alone goes 51% → 70% exact when given the uncleaned crop.
+- Goal measure (settled of 192): today 81; Paddle uncleaned @0.90 119; copies 01–02 (not lining up) cap it at 168.
+  **The 144 floor is not reached by a reader change alone.**
+- **Waiting on Nimish before any code:** (1) accept ADR 0035 or not; (2) confirm the gold (`gold.json`,
+  `copy07_q09`, `copy10_q02` first); (3) Paddle alone @0.90, or Paddle+Textract agreeing (0 wrong, 45 more to a
+  person). Then: the adapter (tests first), `strip` hands the reader the photograph, PaddlePaddle's memory on
+  Lightsail measured, then copies 01–02's line-up.
+
+## 2026-09-26, later — step 1: the box reader on a bent page; Textract is now the ceiling (not merged)
+
+Branch `claude/gallant-cray-zvj5ey`, draft PR. Goal `s17` is **not green**.
+- Test first: `test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader` (5 smooth warps
+  up to 2 mm) failed on main exactly as live did (an empty box "illegible", its shifted lines counted as ink).
+- `boxes.py`: each answer's run of boxes is re-found around its recorded place (template match of the blank
+  page's print, ±3 mm; `settle`); every printed pixel there, grown 0.8 mm, is removed before the ink count and
+  from the strip; the strip is pencil on white, nothing else (`is_dark`). Box by box re-finding was tried and
+  dropped: one printed square is too little to match on and jumped 1–2 mm wrong.
+- Found on the real scan, second cause: Textract reads one pencil twice — "1405" tagged PRINTED over 1, 4, 0, 5
+  tagged HANDWRITING — and the two were joined into eight digits. `readings`/`decide`: overlapping words are
+  alternatives; a reading stands when every reading as long as the inked boxes agrees; disagreement goes to a
+  person with both. Test: `test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_wait`.
+- Measured here on the real 24 Sep file (same pages, same PDFs, same Textract; harness in the session scratchpad,
+  not the repo): answers settled (written or blank) **43 → 80 of 192**. The goal's floor is 144.
+- What is left, measured: 56 answers where Textract returns fewer digits than boxes hold ink (a 4 read "L", a 6
+  "b", a 3 "B"/"P"), 23 under the confidence floor, 8 read as letters only, 1 disagreement; 24 on pages 1–2,
+  which match their worksheet with 37–40 features against the 60 required.
+- **Decision for Nimish:** Textract is a document reader and will not reach 75% on digits in boxes. The fix at
+  the cause is a digit reader per box (the box is known to the tenth of a mm), voting with Textract — that is
+  step 3's work, so the order needs his word before it is pulled forward.
+
 ## 2026-09-26 — where step 1 stands, and exactly what the next session does
 
 **Order:** `BUILD-ORDER.md`, "ten steps" (agreed 2026-09-25/26). We are on **step 1**; its goal is

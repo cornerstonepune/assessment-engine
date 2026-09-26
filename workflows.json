@@ -155,7 +155,7 @@
   "shared": [
     {"code": "assess", "name": "The maths library", "does": "Pure code with no database: makes, measures, draws and marks every kind of question. W1, W2 and W3 all use it.", "folder": "engine/assess", "subject": {"any": false, "note": "All maths. A new subject brings its own library beside this one."}},
     {"code": "core", "name": "The base", "does": "The one database connection, the seed loader, and the class list every workflow reads.", "folder": "engine/core", "subject": {"any": true, "note": ""}},
-    {"code": "adapters", "name": "Outside services", "does": "The only two files that talk to a service outside: the text model, and Amazon's handwriting reader.", "folder": "engine/adapters", "subject": {"any": true, "note": ""}},
+    {"code": "adapters", "name": "Outside services", "does": "The only files that talk to something outside the engine: the text model, Amazon's handwriting reader, and the digit reader run in a process of its own (ADR 0035).", "folder": "engine/adapters", "subject": {"any": true, "note": ""}},
     {"code": "checks", "name": "The proofs", "does": "Every invariant over every row, a goal's commands and scenarios, the live site's health.", "folder": "engine/checks", "subject": {"any": true, "note": ""}},
     {"code": "doors", "name": "The front doors", "does": "The command line and the web service the website and n8n call — thin, each command handing straight to a workflow.", "folder": "engine/api", "files": ["engine/cli.py"], "subject": {"any": true, "note": ""}}
   ],
