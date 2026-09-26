@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, night (later) — PaddleOCR merged (#78) and deployed; the engine ran out of memory reading 24 Sep
+
+The live re-read (run 816cfc35) died: the kernel killed the engine itself at 1.29 GB — as it had three times before
+PaddleOCR. Fixed at the cause on `claude/waiting-breakdown` (STATE.md, "no longer runs out of memory"): 747 → 244 MB.
+**Next:** merge, deploy, `POST /read/file {again: true}` for 24 Sep then 23 Sep, child-wise table. Waiting before
+the re-read (engine-logs, read only): 739 — old papers 439 (140 right-but-untrusted, 133 unreadable, 99 wrong, 48
+blank, 19 unsure), printed library copies 300 (167 unreadable, 50, 39, 34, 10).
+
 ## 2026-09-26, night — step 1: PaddleOCR built in (ADR 0035 accepted); not merged, not live
 
 Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it." Built on `claude/gallant-cray-zvj5ey` (PR #78); see STATE.md

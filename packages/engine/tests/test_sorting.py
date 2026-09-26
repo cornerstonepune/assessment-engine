@@ -5,8 +5,11 @@ pixels, tilted a little, and wrapped back into a PDF of photographs, as a school
 the two joined into one file, the second child's paper first page last.
 """
 
+import json
 import os
 import random
+import subprocess
+import sys
 import uuid
 
 import cv2
@@ -86,6 +89,46 @@ def test_every_page_of_a_scanned_file_is_read_by_its_qr(scan):
     codes = [sorting.qr_of(img) for img in render_pdf.render(scan)]
     assert codes[0] == "CS00AAAA" and set(codes) == {"CS00AAAA", "CS00BBBB"}, codes
     assert codes == sorted(codes), "each paper's pages together, in file order"
+
+
+def _photographs(out, n, size=(2800, 2000)):
+    """A file of `n` phone photographs as large as the 24 Sep ones (~2000 x 2800), each on its own PDF page."""
+    doc = pymupdf.open()
+    rng = np.random.default_rng(2)
+    for _ in range(n):
+        img = rng.integers(200, 255, (*size, 3), dtype=np.uint8)
+        page = doc.new_page(width=595, height=842)
+        page.insert_image(
+            page.rect, stream=cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 60])[1].tobytes()
+        )
+    doc.save(out)
+    return out
+
+
+def _peak(path):
+    """→ (the codes read, the most memory a process reading them held): measured in a process of its own, so
+    what MuPDF keeps outside Python is counted too."""
+    probe = (
+        "import json, resource, sys; from engine.w3_read import sorting; c = sorting.codes(sys.argv[1]);"
+        " print(json.dumps([c, resource.getrusage(resource.RUSAGE_SELF).ru_maxrss]))"
+    )
+    out = subprocess.run([sys.executable, "-c", probe, str(path)], capture_output=True, text=True, check=True)
+    found, kb = json.loads(out.stdout.strip().splitlines()[-1])
+    return found, kb * 1024
+
+
+def test_a_files_codes_are_read_one_page_at_a_time(tmp_path):
+    """On 2026-09-26 the engine was killed for memory four times reading the 24 Sep file: its 16 photographs
+    were held at once to read their codes (750 MB), and MuPDF kept every decoded page besides (another 250 MB),
+    on a server of 1.9 GB with no swap. Read a page at a time, each page more
+    leaves less than a third of itself behind."""
+    two, small = _peak(_photographs(tmp_path / "two.pdf", 2))
+    ten, large = _peak(_photographs(tmp_path / "ten.pdf", 10))
+    assert two == [None] * 2 and ten == [None] * 10
+    page = 2800 * 2000 * 3  # one decoded photograph; held, each of eight more pages would add all of it
+    assert large - small < 8 * page / 3, (
+        f"{small / 2**20:.0f} MB for two pages, {large / 2**20:.0f} MB for ten"
+    )
 
 
 @pytest.fixture

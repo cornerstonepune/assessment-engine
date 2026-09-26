@@ -61,7 +61,15 @@ def render(path, dpi: int = DPI, max_pixels: int = 0, long_side: int = 0):
             pix = page.get_pixmap(matrix=matrix, colorspace=pymupdf.csRGB)
             rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
             pages.append(cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+    _let_go()
     return pages
+
+
+def _let_go():
+    """Empty MuPDF's own store of the images it decoded. Once a page is our array it is never asked for again,
+    but the store kept each one, up to 256 MB: reading the 24 Sep file held 500 MB where a page at a time needs
+    230, beside a digit reader, on a server of 1.9 GB with no swap (2026-09-26)."""
+    pymupdf.TOOLS.store_shrink(100)
 
 
 # A phone's "scan" is a photograph wrapped in a PDF page: 2000-3000 pixels across, placed on an A4 page with
@@ -85,11 +93,15 @@ def photo(path, page_no=1):
             rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
             r, p = rects[0], page.rect
             frame = (r.x0 / p.width, r.y0 / p.height, r.x1 / p.width, r.y1 / p.height)
-            return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), frame
+            out = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), frame
+            _let_go()
+            return out
         zoom = 254 / 72  # a drawn page at a photograph's own resolution, near enough
         pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), colorspace=pymupdf.csRGB)
         rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
-        return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), (0.0, 0.0, 1.0, 1.0)
+        out = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), (0.0, 0.0, 1.0, 1.0)
+        _let_go()
+        return out
 
 
 def photos(path):
