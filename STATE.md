@@ -3403,3 +3403,14 @@ Design only: no engine claim changes, no gate moved (W3, step 6).
 - **Not verified:** the founders' acceptance rate, which the sitting produces; coverage of the profile's eight
   "observable at 16" sentences, which a person maps once at the sitting. Both are eval numbers 2 and 3 and stay
   unrecorded until then.
+
+## The subject-platform survey — three seats and one report (2026-09-26)
+
+Research only: no engine claim changes, no gate moved (W3, step 6).
+
+- Three seats' notes and one consolidated report exist.
+  Check: `ls "research/research_notes/Subject learning platforms survey/" | wc -l` → `3`;
+  `wc -w "research/reports/Subject learning platforms survey.md"` → `12917`
+- **Not verified by a command:** every vendor fact is the seats' reading of pages they opened on 2026-09-26, with
+  blocked pages named as gaps; prices are the vendors' published US prices; the cost roll-up is arithmetic on them.
+  Nothing has been bought, trialled or contracted.

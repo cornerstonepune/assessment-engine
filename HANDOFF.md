@@ -14,10 +14,15 @@ is verified. This file only says where the last session stopped.
   words carry the proposal's draft meanings until the founders write theirs.
 - **Waiting on the founders:** the sitting (Accept · Edit · Skip per behaviour, two founders split by capability); their
   own one-line meanings of capable, kind and unafraid. The sitting's edits are the golden set for the engine's run.
-- **Running:** the subject-platform survey, three seats (maths and coding; language and literacy; science and social
-  science) in `research/research_notes/Subject learning platforms survey/`, scoring candidates on the buying rules
-  (no per-skill export, no purchase; hints only; pseudonymous accounts). A writer consolidates them into
-  `research/reports/Subject learning platforms survey.md`.
+- **Done: the subject-platform survey.** Three seats' notes in `research/research_notes/Subject learning platforms
+  survey/` and the consolidated report `research/reports/Subject learning platforms survey.md` ("Buy the exports,
+  keep the judgement", about 12,900 words, 225 citations). Of about seventy candidates, seven let a per-child,
+  per-skill result leave the vendor: Khan Academy's Districts tier, IXL, Code.org, Lexia, Quill, Kahoot and No More
+  Marking. Shortlists per subject with the conditions to confirm before purchase; social science gets no adaptive
+  practice at all; no export anywhere carries the three signals, so every import is score-only and the paper
+  diagnostic stays. The priced shortlist for 200 children is roughly $11,000 to $13,000 a year before IXL, Mindspark
+  and No More Marking quotes: an assembled figure, not a quotation. Kriyo's website domain, flagged earlier, is still
+  to be checked by Nimish.
 - **Recommended and standing unless Nimish objects** (his "I am aligned" followed these): CBSE from Grade 6, not 7;
   Cambridge objectives as the grain for Grades 1–5 and NCERT outcomes as the coverage target; school tablets in school
   for Grades 4–6, home optional, nothing screen-based below Grade 4; bought software capped near five percent of the
