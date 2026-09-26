@@ -1,0 +1,4592 @@
+{
+ "seat": "language",
+ "competency_capabilities": [
+  {
+   "id": "ncf.lang.r1.P.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-1.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.CG-3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.CG-4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.CG-5",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-5.1",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-5.2",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.5",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "technology-and-ai",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.CG-4",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-4.2",
+   "capabilities": [
+    "learning-and-agency",
+    "technology-and-ai"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.CG-5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "technology-and-ai"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.4",
+   "capabilities": [
+    "technology-and-ai",
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.CG-3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-3.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-3.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.5",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.CG-3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.CG-4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.P.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.4",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-2.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-2.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-3.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.CG-6",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "technology-and-ai"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.4",
+   "capabilities": [
+    "technology-and-ai",
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.CG-2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.CG-1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.CG-3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.M.C-3.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-1.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.CG-2",
+   "capabilities": [
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.CG-4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.CG-5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  }
+ ],
+ "competency_grades": [
+  {
+   "id": "ncf.lang.r1.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.02",
+    "ncert.eng.3.05",
+    "ncert.eng.3.06",
+    "ncert.eng.3.08",
+    "ncert.eng.4.02",
+    "ncert.eng.4.03",
+    "ncert.eng.4.05",
+    "ncert.eng.5.03",
+    "ncert.eng.5.05",
+    "ncert.eng.5.06",
+    "ncert.eng.7.04",
+    "ncert.eng.8.03",
+    "ncert.eng.8.04"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.4.18"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-1.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.01",
+    "ncert.eng.3.02",
+    "ncert.eng.4.01",
+    "ncert.eng.4.02",
+    "ncert.eng.4.18",
+    "ncert.eng.5.02",
+    "ncert.eng.5.17",
+    "ncert.eng.6.01",
+    "ncert.eng.7.03",
+    "ncert.eng.8.05",
+    "ncert.eng.8.10"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.04",
+    "ncert.eng.4.06",
+    "ncert.eng.4.09",
+    "ncert.eng.5.09"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-2.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.04",
+    "ncert.eng.3.05",
+    "ncert.eng.3.12",
+    "ncert.eng.4.04",
+    "ncert.eng.4.06",
+    "ncert.eng.4.17",
+    "ncert.eng.5.01",
+    "ncert.eng.5.04",
+    "ncert.eng.5.08",
+    "ncert.eng.5.16",
+    "ncert.eng.5.18"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.13",
+    "ncert.eng.4.15",
+    "ncert.eng.5.13"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.13",
+    "ncert.eng.4.04",
+    "ncert.eng.4.05",
+    "ncert.eng.4.18",
+    "ncert.eng.5.01",
+    "ncert.eng.5.04",
+    "ncert.eng.5.13",
+    "ncert.eng.5.14",
+    "ncert.eng.5.17",
+    "ncert.eng.5.18"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.4.14",
+    "ncert.eng.5.14",
+    "ncert.eng.5.15"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-3.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.07",
+    "ncert.eng.3.08",
+    "ncert.eng.3.09",
+    "ncert.eng.3.11",
+    "ncert.eng.4.11",
+    "ncert.eng.4.13",
+    "ncert.eng.4.16",
+    "ncert.eng.5.06",
+    "ncert.eng.5.10",
+    "ncert.eng.5.12"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.10",
+    "ncert.eng.4.08",
+    "ncert.eng.4.09",
+    "ncert.eng.4.10",
+    "ncert.eng.5.07",
+    "ncert.eng.5.11",
+    "ncert.eng.6.08",
+    "ncert.eng.7.13",
+    "ncert.eng.9.19"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-4.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.3.14"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.P.C-5.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r1.P.C-5.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.eng.5.04"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.6.03",
+    "ncert.eng.6.04",
+    "ncert.eng.6.05",
+    "ncert.eng.6.06",
+    "ncert.eng.6.07",
+    "ncert.eng.7.01",
+    "ncert.eng.7.05",
+    "ncert.eng.7.06",
+    "ncert.eng.7.08",
+    "ncert.eng.7.09",
+    "ncert.eng.7.12",
+    "ncert.eng.8.01",
+    "ncert.eng.8.08",
+    "ncert.eng.8.13",
+    "ncert.eng.8.14",
+    "ncert.eng.8.22",
+    "ncert.eng.9.07",
+    "ncert.eng.10.21"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.5.05",
+    "ncert.eng.8.02"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.7.04",
+    "ncert.eng.7.07",
+    "ncert.eng.8.03",
+    "ncert.eng.8.09"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.4.14",
+    "ncert.eng.5.15",
+    "ncert.eng.6.10",
+    "ncert.eng.6.13",
+    "ncert.eng.6.14",
+    "ncert.eng.6.15",
+    "ncert.eng.7.16",
+    "ncert.eng.7.17",
+    "ncert.eng.8.18",
+    "ncert.eng.8.20",
+    "ncert.eng.8.21",
+    "ncert.eng.8.23",
+    "ncert.eng.9.09"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-1.5",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.6.05",
+    "ncert.eng.7.02",
+    "ncert.eng.8.16"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.8.12",
+    "ncert.eng.9.18",
+    "ncert.eng.9.22",
+    "ncert.eng.10.09",
+    "ncert.eng.10.25",
+    "ncert.eng.10.26",
+    "ncert.eng.10.27"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-2.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.5.17",
+    "ncert.eng.6.01",
+    "ncert.eng.7.03",
+    "ncert.eng.7.06",
+    "ncert.eng.7.10",
+    "ncert.eng.7.18",
+    "ncert.eng.8.05",
+    "ncert.eng.8.06",
+    "ncert.eng.8.08",
+    "ncert.eng.8.10",
+    "ncert.eng.8.11",
+    "ncert.eng.8.15"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.6.08",
+    "ncert.eng.6.09",
+    "ncert.eng.6.12",
+    "ncert.eng.7.15",
+    "ncert.eng.8.07",
+    "ncert.eng.8.19",
+    "ncert.eng.8.21",
+    "ncert.eng.9.12",
+    "ncert.eng.9.16",
+    "ncert.eng.9.17",
+    "ncert.eng.10.20",
+    "ncert.eng.10.22",
+    "ncert.eng.10.23"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-3.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.6.10",
+    "ncert.eng.6.14",
+    "ncert.eng.7.18",
+    "ncert.eng.7.19",
+    "ncert.eng.8.11",
+    "ncert.eng.8.22",
+    "ncert.eng.8.24"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.6.16",
+    "ncert.eng.7.10",
+    "ncert.eng.7.21",
+    "ncert.eng.8.15",
+    "ncert.eng.8.16",
+    "ncert.eng.8.26"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-4.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.5.11",
+    "ncert.eng.6.06",
+    "ncert.eng.6.11",
+    "ncert.eng.7.11",
+    "ncert.eng.7.12",
+    "ncert.eng.7.14",
+    "ncert.eng.8.17",
+    "ncert.eng.8.18",
+    "ncert.eng.9.19",
+    "ncert.eng.10.16",
+    "ncert.eng.10.18"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.4.07",
+    "ncert.eng.5.02",
+    "ncert.eng.6.02"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.M.C-5.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.eng.4.07",
+    "ncert.eng.4.08",
+    "ncert.eng.6.02",
+    "ncert.eng.8.07"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.8.04",
+    "ncert.eng.9.03",
+    "ncert.eng.9.04",
+    "ncert.eng.9.05",
+    "ncert.eng.9.14",
+    "ncert.eng.9.24",
+    "ncert.eng.10.03",
+    "ncert.eng.10.04",
+    "ncert.eng.10.05",
+    "ncert.eng.10.06",
+    "ncert.eng.10.17",
+    "ncert.eng.10.24",
+    "ncert.eng.10.25",
+    "ncert.eng.10.33"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.09",
+    "ncert.eng.9.14",
+    "ncert.eng.9.15",
+    "ncert.eng.9.18",
+    "ncert.eng.9.24",
+    "ncert.eng.9.28",
+    "ncert.eng.10.04",
+    "ncert.eng.10.11",
+    "ncert.eng.10.12",
+    "ncert.eng.10.13",
+    "ncert.eng.10.17",
+    "ncert.eng.10.24",
+    "ncert.eng.10.26"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.10",
+    "ncert.eng.9.11",
+    "ncert.eng.10.12",
+    "ncert.eng.10.13",
+    "ncert.eng.10.30"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-1.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.10.31"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.20",
+    "ncert.eng.9.21",
+    "ncert.eng.10.08"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.02",
+    "ncert.eng.9.06",
+    "ncert.eng.9.08",
+    "ncert.eng.9.20",
+    "ncert.eng.9.21",
+    "ncert.eng.9.22",
+    "ncert.eng.10.02",
+    "ncert.eng.10.07",
+    "ncert.eng.10.08",
+    "ncert.eng.10.09",
+    "ncert.eng.10.15",
+    "ncert.eng.10.27",
+    "ncert.eng.10.28",
+    "ncert.eng.10.32"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-2.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.11",
+    "ncert.eng.9.23",
+    "ncert.eng.10.28",
+    "ncert.eng.10.30"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.01",
+    "ncert.eng.9.02",
+    "ncert.eng.9.07",
+    "ncert.eng.9.08",
+    "ncert.eng.9.13",
+    "ncert.eng.9.15",
+    "ncert.eng.10.01",
+    "ncert.eng.10.02",
+    "ncert.eng.10.07",
+    "ncert.eng.10.10",
+    "ncert.eng.10.14",
+    "ncert.eng.10.16",
+    "ncert.eng.10.19",
+    "ncert.eng.10.21",
+    "ncert.eng.10.23",
+    "ncert.eng.10.29"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.05",
+    "ncert.eng.10.05",
+    "ncert.eng.10.10",
+    "ncert.eng.10.19",
+    "ncert.eng.10.33"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.27",
+    "ncert.eng.10.06",
+    "ncert.eng.10.31"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.28",
+    "ncert.eng.10.15",
+    "ncert.eng.10.32"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.eng.9.27"
+   ]
+  },
+  {
+   "id": "ncf.lang.r1.S.C-4.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-1.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.2",
+   "grades": [
+    "G3",
+    "G4"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-2.5",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-3.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-1.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-4.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-5.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.M.C-6.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-1.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-2.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r2.S.C-3.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-2.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.lang.r3.S.C-5.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  }
+ ],
+ "ncert_competencies": [
+  {
+   "id": "ncert.eng.1.01",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.02",
+   "competencies": [
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.03",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.04",
+   "competencies": [
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.05",
+   "competencies": [
+    "ncf.fnd.F.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.06",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.07",
+   "competencies": [
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.08",
+   "competencies": [
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.09",
+   "competencies": [
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.10",
+   "competencies": [
+    "ncf.fnd.F.C-9.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.11",
+   "competencies": [
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.12",
+   "competencies": [
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.13",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.14",
+   "competencies": [
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.1.15",
+   "competencies": [
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.01",
+   "competencies": [
+    "ncf.fnd.F.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.02",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-10.5"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.03",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-10.5"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.04",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.05",
+   "competencies": [
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.06",
+   "competencies": [
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.07",
+   "competencies": [
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.08",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-10.7"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.09",
+   "competencies": [
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.10",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.11",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.2.12",
+   "competencies": [
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.01",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.02",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.03",
+   "competencies": [
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.04",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.05",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1",
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.06",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.07",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.08",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.09",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.10",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.11",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.12",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.13",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.lang.r1.P.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.3.14",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.01",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.02",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.03",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.04",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.05",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.06",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.07",
+   "competencies": [
+    "ncf.lang.r1.M.C-5.2",
+    "ncf.lang.r1.M.C-5.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.08",
+   "competencies": [
+    "ncf.lang.r1.M.C-5.3",
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.09",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.10",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.11",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.12",
+   "competencies": [
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.13",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.14",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.15",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.16",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.17",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.4.18",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.2",
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.01",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.02",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.03",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.04",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.05",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.2",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.06",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.07",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.08",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.09",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.10",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.11",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.12",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.13",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.lang.r1.P.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.14",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.lang.r1.P.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.15",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.16",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.17",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.5.18",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.01",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.3",
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.02",
+   "competencies": [
+    "ncf.lang.r1.M.C-5.2",
+    "ncf.lang.r1.M.C-5.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.03",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.04",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.05",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.06",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2",
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.07",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.08",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.09",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.10",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4",
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.11",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.12",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.13",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.14",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4",
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.15",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.6.16",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.01",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.02",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.1",
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.03",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.3",
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.04",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1",
+    "ncf.lang.r1.M.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.05",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.06",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.07",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.08",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.09",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.10",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.11",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.12",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.13",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.14",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.15",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.16",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.17",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.18",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.3",
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.19",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.7.20",
+   "competencies": [],
+   "why": "an input (a visit to a language laboratory), not something a child does that a competency describes"
+  },
+  {
+   "id": "ncert.eng.7.21",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.01",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.02",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.03",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.1",
+    "ncf.lang.r1.M.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.04",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.P.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.05",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.06",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.07",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1",
+    "ncf.lang.r1.M.C-5.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.08",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.09",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.10",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.3",
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.11",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.2",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.12",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.13",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.14",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.15",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1",
+    "ncf.lang.r1.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.16",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1",
+    "ncf.lang.r1.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.17",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.18",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2",
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.19",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.20",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.21",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4",
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.22",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.23",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.24",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.8.25",
+   "competencies": [],
+   "why": "an input (a visit to a language laboratory), not something a child does that a competency describes"
+  },
+  {
+   "id": "ncert.eng.8.26",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.01",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.02",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.03",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.04",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.05",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.06",
+   "competencies": [
+    "ncf.fnd.F.C-10.4",
+    "ncf.lang.r1.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.07",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1",
+    "ncf.lang.r1.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.08",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.09",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.2",
+    "ncf.lang.r1.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.10",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.11",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.3",
+    "ncf.lang.r1.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.12",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.13",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.14",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.2",
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.15",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.16",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.17",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.18",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.2",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.19",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2",
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.20",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.21",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.1",
+    "ncf.lang.r1.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.22",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.M.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.23",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.24",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.25",
+   "competencies": [],
+   "why": "Indian Sign Language for inclusion of hearing-impaired peers; NCF-SE's R1/R2/R3 rows carry no sign-language competency"
+  },
+  {
+   "id": "ncert.eng.9.26",
+   "competencies": [],
+   "why": "an accommodation (Braille, tactile material, a scribe) through which the reading and writing rows are accessed, not a competency of its own"
+  },
+  {
+   "id": "ncert.eng.9.27",
+   "competencies": [
+    "ncf.lang.r1.S.C-4.1",
+    "ncf.lang.r1.S.C-4.4"
+   ]
+  },
+  {
+   "id": "ncert.eng.9.28",
+   "competencies": [
+    "ncf.lang.r1.S.C-4.2",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.01",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.02",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.03",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.04",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.05",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.2",
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.06",
+   "competencies": [
+    "ncf.lang.r1.S.C-4.1",
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.07",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1",
+    "ncf.lang.r1.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.08",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.09",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.M.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.10",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1",
+    "ncf.lang.r1.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.11",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.12",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.3",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.13",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.3",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.14",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.15",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.16",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.17",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.2",
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.18",
+   "competencies": [
+    "ncf.lang.r1.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.19",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.2",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.20",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.21",
+   "competencies": [
+    "ncf.lang.r1.M.C-1.1",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.22",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.23",
+   "competencies": [
+    "ncf.lang.r1.M.C-3.1",
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.24",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.25",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.2",
+    "ncf.lang.r1.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.26",
+   "competencies": [
+    "ncf.lang.r1.M.C-2.2",
+    "ncf.lang.r1.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.27",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.2",
+    "ncf.lang.r1.M.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.28",
+   "competencies": [
+    "ncf.lang.r1.S.C-2.3",
+    "ncf.lang.r1.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.29",
+   "competencies": [
+    "ncf.lang.r1.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.30",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.3",
+    "ncf.lang.r1.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.31",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.4",
+    "ncf.lang.r1.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.32",
+   "competencies": [
+    "ncf.lang.r1.S.C-4.2",
+    "ncf.lang.r1.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.33",
+   "competencies": [
+    "ncf.lang.r1.S.C-1.1",
+    "ncf.lang.r1.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.eng.10.34",
+   "competencies": [],
+   "why": "Indian Sign Language for inclusion of hearing-impaired peers; NCF-SE's R1/R2/R3 rows carry no sign-language competency"
+  },
+  {
+   "id": "ncert.eng.10.35",
+   "competencies": [],
+   "why": "an accommodation (Braille, tactile material, a scribe) through which the reading and writing rows are accessed, not a competency of its own"
+  }
+ ],
+ "unit_competencies": [
+  {
+   "id": "unit.037",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.038",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "unit.039",
+   "competencies": [
+    "ncf.fnd.F.C-10.6",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.040",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.048",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "unit.049",
+   "competencies": [
+    "ncf.fnd.F.C-10.6",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-9.1"
+   ]
+  },
+  {
+   "id": "unit.050",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.051",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.8"
+   ]
+  },
+  {
+   "id": "unit.052",
+   "competencies": [
+    "ncf.fnd.F.C-10.6",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-10.8"
+   ]
+  },
+  {
+   "id": "unit.041",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.042",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.043",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.044",
+   "competencies": [
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.045",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.046",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.047",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "unit.053",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.054",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.055",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.056",
+   "competencies": [
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.057",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.058",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.2"
+   ]
+  },
+  {
+   "id": "unit.059",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.060",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.061",
+   "competencies": [
+    "ncf.fnd.F.C-10.9",
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.6"
+   ]
+  },
+  {
+   "id": "unit.062",
+   "competencies": [],
+   "why": "a weekly play routine whose stated aims (experiential learning, creativity, collaboration, problem-solving) are not language competencies; it is filed under literacy on the timetable only"
+  },
+  {
+   "id": "unit.063",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.9",
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "unit.064",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6",
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "unit.065",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.066",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.067",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.068",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.069",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.070",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-9.2"
+   ]
+  },
+  {
+   "id": "unit.071",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "unit.072",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.073",
+   "competencies": [
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.074",
+   "competencies": [
+    "ncf.fnd.F.C-9.3",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.075",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.076",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.077",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.078",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.079",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.080",
+   "competencies": [
+    "ncf.fnd.F.C-9.3",
+    "ncf.fnd.F.C-9.6",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.081",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.082",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.083",
+   "competencies": [
+    "ncf.fnd.F.C-9.3",
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.084",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.085",
+   "competencies": [
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.086",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.199",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.200",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.4"
+   ]
+  },
+  {
+   "id": "unit.201",
+   "competencies": [
+    "ncf.fnd.F.C-10.6",
+    "ncf.fnd.F.C-9.2"
+   ]
+  },
+  {
+   "id": "unit.202",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.212",
+   "competencies": [
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.7"
+   ]
+  },
+  {
+   "id": "unit.213",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.214",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.215",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.fnd.F.C-10.8",
+    "ncf.fnd.F.C-10.2"
+   ]
+  },
+  {
+   "id": "unit.216",
+   "competencies": [
+    "ncf.fnd.F.C-10.6",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.203",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.204",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.205",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.206",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.207",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.208",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.209",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.210",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.211",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.4"
+   ]
+  },
+  {
+   "id": "unit.217",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.218",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.219",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.220",
+   "competencies": [
+    "ncf.fnd.F.C-10.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.221",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-10.1"
+   ]
+  },
+  {
+   "id": "unit.222",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.223",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.224",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.225",
+   "competencies": [
+    "ncf.fnd.F.C-10.3",
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "unit.226",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-5.2"
+   ]
+  },
+  {
+   "id": "unit.227",
+   "competencies": [
+    "ncf.fnd.F.C-10.7",
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.228",
+   "competencies": [
+    "ncf.fnd.F.C-10.9",
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.229",
+   "competencies": [],
+   "why": "a weekly play routine whose stated aims (experiential learning, creativity, collaboration, problem-solving) are not language competencies; it is filed under literacy on the timetable only"
+  },
+  {
+   "id": "unit.230",
+   "competencies": [
+    "ncf.fnd.F.C-10.5",
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.231",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.232",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.233",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.234",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-11.1"
+   ]
+  },
+  {
+   "id": "unit.235",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.236",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.237",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-9.2",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.238",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.3"
+   ]
+  },
+  {
+   "id": "unit.239",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.240",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.241",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.242",
+   "competencies": [
+    "ncf.fnd.F.C-9.3",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "unit.243",
+   "competencies": [
+    "ncf.fnd.F.C-9.7",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "unit.244",
+   "competencies": [
+    "ncf.fnd.F.C-9.1",
+    "ncf.fnd.F.C-11.2",
+    "ncf.fnd.F.C-9.2"
+   ]
+  },
+  {
+   "id": "unit.323",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-5.2"
+   ]
+  },
+  {
+   "id": "unit.324",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.1",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "unit.325",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.1",
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.326",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.327",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.328",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-1.2",
+    "ncf.lang.r1.P.C-3.3"
+   ]
+  },
+  {
+   "id": "unit.329",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-3.2"
+   ]
+  },
+  {
+   "id": "unit.330",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.1",
+    "ncf.lang.r1.P.C-3.3",
+    "ncf.lang.r1.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.331",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.332",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-3.2"
+   ]
+  },
+  {
+   "id": "unit.333",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.334",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.335",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-2.3",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.336",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-4.1",
+    "ncf.lang.r2.P.C-1.2"
+   ]
+  },
+  {
+   "id": "unit.337",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.4",
+    "ncf.lang.r2.P.C-3.2",
+    "ncf.lang.r2.P.C-3.1"
+   ]
+  },
+  {
+   "id": "unit.338",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-1.4",
+    "ncf.lang.r2.P.C-3.3"
+   ]
+  },
+  {
+   "id": "unit.339",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.340",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-1.2",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.341",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-4.1",
+    "ncf.lang.r2.P.C-3.2"
+   ]
+  },
+  {
+   "id": "unit.342",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.M.C-3.1",
+    "ncf.lang.r2.P.C-3.1"
+   ]
+  },
+  {
+   "id": "unit.343",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-1.4",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.344",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.372",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "unit.373",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4"
+   ]
+  },
+  {
+   "id": "unit.374",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-5.1"
+   ]
+  },
+  {
+   "id": "unit.375",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-4.2"
+   ]
+  },
+  {
+   "id": "unit.376",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.377",
+   "competencies": [],
+   "why": "a weekly play routine whose stated aims (experiential learning, creativity, collaboration, problem-solving) are not language competencies; it is filed under literacy on the timetable only"
+  },
+  {
+   "id": "unit.378",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.379",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.380",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.381",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.382",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.2",
+    "ncf.lang.r2.P.C-3.3"
+   ]
+  },
+  {
+   "id": "unit.383",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.384",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-2.3",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.385",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.M.C-3.1",
+    "ncf.lang.r2.P.C-3.1"
+   ]
+  },
+  {
+   "id": "unit.386",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.387",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.388",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.3",
+    "ncf.lang.r2.M.C-5.1"
+   ]
+  },
+  {
+   "id": "unit.389",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.390",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.2",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.391",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-1.3",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.392",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.393",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.lang.r2.P.C-4.1",
+    "ncf.lang.r2.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.394",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1"
+   ]
+  },
+  {
+   "id": "unit.396",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.397",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.398",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.400",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.402",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.403",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.404",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1"
+   ]
+  },
+  {
+   "id": "unit.405",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.407",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.409",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.410",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.411",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1",
+    "ncf.lang.r3.M.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.412",
+   "competencies": [
+    "ncf.lang.r3.S.C-5.1"
+   ]
+  },
+  {
+   "id": "unit.395",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.3",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.399",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.1",
+    "ncf.lang.r2.P.C-2.4"
+   ]
+  },
+  {
+   "id": "unit.401",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.2",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.406",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.1",
+    "ncf.lang.r2.P.C-2.4"
+   ]
+  },
+  {
+   "id": "unit.408",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.1",
+    "ncf.lang.r2.P.C-2.4"
+   ]
+  },
+  {
+   "id": "unit.413",
+   "competencies": [
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.414",
+   "competencies": [
+    "ncf.lang.r2.P.C-4.1",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.415",
+   "competencies": [
+    "ncf.lang.r2.P.C-4.1",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.416",
+   "competencies": [
+    "ncf.lang.r2.P.C-3.2",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.417",
+   "competencies": [
+    "ncf.lang.r2.P.C-3.1",
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.418",
+   "competencies": [
+    "ncf.lang.r2.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.419",
+   "competencies": [
+    "ncf.lang.r2.M.C-5.1",
+    "ncf.lang.r2.P.C-2.2",
+    "ncf.lang.r2.P.C-4.1"
+   ]
+  }
+ ],
+ "notes": [
+  "Which language is R1, R2 and R3 is the founders' decision: here English→R1 (foundational CG-10 'Language 1' rows for G1–G2), Hindi→R2 (foundational CG-11 'Language 2' rows for G1–G2), Marathi→R2 for its content units and R3 for its Grade-4 script units; every id can be re-pointed wholesale.",
+  "NCF has no preparatory-stage R3 rows (a third language starts at Grade 6) and no R2 row for beginning a script after Grade 2, so the 14 Grade-4 Marathi script units (मुळाक्षरे, स्वरचिन्ह, सोळाखडी, जोडाक्षरे, अंकलेखन) sit on r3.S.C-5.1 (script and phonetics) and r3.M.C-2.1 (reading words) by text, two stages above the children; if Marathi becomes R2, re-point them to r2.P.C-2.1 and C-2.2.",
+  "The NCERT file holds English outcomes only, so every R2 and R3 row has an empty ncert list (NCERT's Hindi outcomes and Maharashtra's Marathi ones would fill them), and five R1 rows have no NCERT outcome at all: r1.P.C-5.1 library borrowing, r1.M.C-1.5 audio-visual content, r1.M.C-5.1 the phonetics and script of English, r1.S.C-4.3 language and identity, r1.S.C-4.5 tribal and regional languages.",
+  "NCERT keeps assessing reading aloud with pause and intonation up to class 10 (eng 3.03, 4.12, 7.02, 9.06) while NCF places fluency only at the foundational stage (fnd C-10.4), and R1 has no grammar, vocabulary, conversation or oral-presentation row after the preparatory stage, so some class 6–10 outcomes point at foundational or preparatory rows (fnd C-10.4; r1.P.C-1.1, C-1.3, C-4.1) and class 9–10 grammar at r1.M.C-3.1.",
+  "The school's G2 English (Roald Dahl novels, letters and emails, playscripts, book reviews) and G1–G2 Hindi (paragraph, dialogue and letter writing) run a stage ahead of the foundational rows they are mapped to; Play-Based Learning (units 062, 229, 377) and NCERT's language-lab visits, Sign Language and Braille outcomes are left empty with a why."
+ ]
+}

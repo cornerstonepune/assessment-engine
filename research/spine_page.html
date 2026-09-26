@@ -78,6 +78,27 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .search .row{border-top:none}
 footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 [hidden]{display:none!important}
+
+.neuron{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);gap:18px 40px;align-items:center;margin:4px 0 22px}
+@media (max-width:760px){.neuron{grid-template-columns:minmax(0,1fr);gap:14px}}
+.neuron .wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.nside{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.nside.left{align-items:flex-end}.nside.right{align-items:flex-start}
+@media (max-width:760px){.nside.left,.nside.right{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center}}
+.pill{display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;border:1.5px solid currentColor;border-radius:999px;padding:5px 14px;background:var(--bg);max-width:100%}
+.pill b{font-family:var(--display);font-size:14px;line-height:1.2}
+.pill small{font-size:11px;color:var(--muted)}
+.pill:hover{background:var(--panel)}
+.ncore{position:relative;z-index:1;background:var(--panel);border:2px solid var(--accent);border-radius:14px;padding:14px 16px;text-align:center}
+.ncore .lab{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.nempty{font-size:12px;color:var(--muted)}
+.flash{animation:fl 1.2s ease-out}
+@keyframes fl{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion: reduce){.flash{animation:none}}
+details.notes{margin-top:18px;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+details.notes summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:14px}
+details.notes ul{margin:8px 0 0;padding-left:18px;font-size:13px}
+details.notes li{margin:4px 0}
 </style>
 <div class="wrap">
 <div class="top"><h1>Cornerstone Spine</h1><div class="views"><button id="v-map" aria-pressed="true">Map</button><button id="v-tree">Tree</button><button id="v-grade">By grade</button></div><div style="position:relative;flex:1 1 220px"><input id="q" placeholder="find anything: a grade, a word, a skill, a competency…" aria-label="Search"><div id="results" class="search" hidden></div></div></div>
@@ -93,6 +114,7 @@ footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font-si
 
 <section id="explore" hidden>
 <div class="trail" id="trail"></div>
+<div class="neuron" id="neuron"><svg class="wires" id="wires" aria-hidden="true"></svg><div class="nside left" id="nin"></div><div class="ncore" id="ncore"></div><div class="nside right" id="nout"></div></div>
 <div class="focus" id="focus"></div>
 <div class="cols"><div class="col"><h2>Comes from</h2><div id="in"></div></div><div class="col"><h2>Leads to</h2><div id="out"></div></div></div>
 </section>
@@ -134,9 +156,9 @@ document.getElementById('layers').innerHTML=ORDER.map(l=>`<div class="layer" dat
 document.querySelectorAll('.layer').forEach(el=>{const go=()=>listLayer(el.dataset.layer);el.onclick=go;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
 const starts=[['word.capable','capable'],['word.kind','kind'],['word.unafraid','unafraid'],['stage.foundational','Foundational'],['stage.preparatory','Preparatory'],['stage.middle','Middle'],['stage.secondary','Secondary'],['subject.mathematics','Mathematics'],['subject.language','Language'],['subject.science','Science'],['subject.social-science','Social science']];
 document.getElementById('starts').innerHTML='<span class="meta" style="align-self:center">Start from:</span>'+starts.map(([id,l])=>`<button data-go="${id}">${esc(l)}</button>`).join('');
-document.getElementById('legend').innerHTML='Links marked <b>generated</b> were proposed by a subject seat from the texts and are for the curriculum team to accept, edit or reject; the rest are imported from NCF-SE 2023 and NCERT, or come from the school\'s own maps. Nodes: '+D.nodes.length+' · links: '+D.edges.length+'.';
+document.getElementById('legend').innerHTML='<b>Amber</b> links are proposals from a subject seat, for the curriculum team to accept, edit or reject. The rest come from NCF-SE 2023, NCERT or the school\'s own maps. '+D.nodes.length+' nodes · '+D.edges.length+' links.';
 document.body.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){focus(b.dataset.go)}});
-function listLayer(layer){const items=D.nodes.filter(n=>n.layer===layer);const groups={};items.forEach(n=>{const k=n.stage||n.grade||n.subject||'all';(groups[k]=groups[k]||[]).push(n)});
+function listLayer(layer){document.getElementById('neuron').hidden=true;const items=D.nodes.filter(n=>n.layer===layer);const groups={};items.forEach(n=>{const k=n.stage||n.grade||n.subject||'all';(groups[k]=groups[k]||[]).push(n)});
  trail=[];document.getElementById('trail').innerHTML=`<span class="meta">All ${esc(PL[layer])}</span>`;
  document.getElementById('focus').innerHTML=`${chip(layer)}<div class="lab">${items.length} ${esc(PL[layer])}</div><div class="meta">${esc(DESC[layer]||'')}</div>`;
  document.getElementById('in').innerHTML='';document.getElementById('out').innerHTML=Object.entries(groups).map(([k,arr])=>grp(k.replace(/-/g,' '),arr.map(n=>({n})),null,'')).join('');show('explore')}
@@ -145,14 +167,32 @@ function grp(title,rows,by,extra){const id='g'+Math.random().toString(36).slice(
  return `<div class="grp" id="${id}"><div class="h"><span>${esc(title)} <span class="meta">${rows.length}</span></span>${byH}</div><div class="rows">${rowsHtml}</div>${more}<div class="rest" hidden>${rows.slice(lim).map(r=>rowHtml(r.n,r.e)).join('')}</div></div>`}
 function rowHtml(n,e){return `<button class="row" data-go="${n.id}">${chip(n.layer)}<span class="l">${esc(n.label)}</span>${sub(n)?`<span class="s">${esc(sub(n))}</span>`:''}</button>`}
 document.body.addEventListener('click',e=>{const m=e.target.closest('[data-more]');if(m){const g=document.getElementById(m.dataset.more);g.querySelector('.rest').hidden=false;m.remove()}});
-function focus(id){const n=N[id];if(!n)return;const i=trail.indexOf(id);if(i>=0)trail=trail.slice(0,i+1);else trail.push(id);if(trail.length>12)trail=trail.slice(-12);
+function focus(id){const n=N[id];if(!n)return;document.getElementById('neuron').hidden=false;const i=trail.indexOf(id);if(i>=0)trail=trail.slice(0,i+1);else trail.push(id);if(trail.length>12)trail=trail.slice(-12);
  document.getElementById('trail').innerHTML=trail.map((t,k)=>`${k?'<span class="sep">›</span>':''}<button data-go="${t}">${esc(N[t].label.length>42?N[t].label.slice(0,40)+'…':N[t].label)}</button>`).join('');
  const chips=[chip(n.layer)];if(n.stage)chips.push(chip('stage',n.stage));if(n.grade)chips.push(chip('grade',n.grade.replace('G','Grade ')));if(n.subject&&n.layer!=='subject')chips.push(chip('subject',n.subject.replace(/-/g,' ')));if(n.area)chips.push(chip('subject',n.area));if(n.from_age)chips.push(chip('grade','from age '+n.from_age));if(n.council)chips.push(chip('behaviour',n.council));
- let extra='';if(n.counter)extra+=`<div class="meta" style="margin-top:6px"><b>Not evidence when:</b> ${esc(n.counter)}</div>`;if(n.capture)extra+=`<div class="meta">Captured as ${esc(n.capture.replace('_',' '))} · in ${esc(n.setting)}</div>`;if(n.samples)extra+=`<div class="meta" style="margin-top:6px"><b>${n.objectives} objectives, such as:</b> ${esc(n.samples.join(' · '))}</div>`;if(n.why)extra+=`<div class="meta" style="margin-top:6px"><b>No competency:</b> ${esc(n.why)}</div>`;if(n.src)extra+=`<div class="mono" style="margin-top:6px">source: ${esc(n.src)}</div>`;
- document.getElementById('focus').innerHTML=`<div class="chips">${chips.join('')}</div><div class="lab">${esc(n.label)}</div>${n.text?`<div class="txt">${esc(n.text)}</div>`:''}${extra}<div class="mono" style="margin-top:6px">${esc(n.id)}</div>`;
- document.getElementById('in').innerHTML=groups(IN[id]||[],'from',INW);document.getElementById('out').innerHTML=groups(OUT[id]||[],'to',OUTW);
+ let extra='';if(n.counter)extra+=`<div class="meta" style="margin-top:6px"><b>Not evidence when:</b> ${esc(n.counter)}</div>`;if(n.capture)extra+=`<div class="meta">Captured as ${esc(n.capture.replace('_',' '))} · in ${esc(n.setting)}</div>`;if(n.samples)extra+=`<div class="meta" style="margin-top:6px"><b>${n.objectives} objectives, such as:</b> ${esc(n.samples.join(' · '))}</div>`;if(n.why)extra+=`<div class="meta" style="margin-top:6px"><b>No competency:</b> ${esc(n.why)}</div>`;if(n.relabelled)extra+=`<div class="meta" style="margin-top:6px"><b>Relabelled:</b> ${esc(n.relabelled)}</div>`;if(n.src)extra+=`<div class="mono" style="margin-top:6px">source: ${esc(n.src)}</div>`;
+ document.getElementById('focus').innerHTML=`<div class="chips">${chips.join('')}</div>${n.text?`<div class="txt">${esc(n.text)}</div>`:''}${extra}<div class="mono" style="margin-top:6px">${esc(n.id)}</div>`;
+ const gin=groupsOf(IN[id]||[],'from',INW),gout=groupsOf(OUT[id]||[],'to',OUTW);
+ document.getElementById('in').innerHTML=gin.map(x=>grpX(x,'in')).join('')||'<div class="meta">nothing</div>';document.getElementById('out').innerHTML=gout.map(x=>grpX(x,'out')).join('')||'<div class="meta">nothing</div>';
+ neuron(n,gin,gout);
  try{history.replaceState(null,'','#'+id)}catch(_){}
- show('explore')}
+ show('explore');requestAnimationFrame(wires)}
+function groupsOf(edges,end,W){const g={};edges.forEach(e=>{const other=N[end==='from'?e.from:e.to];if(!other)return;const key=e.kind+'|'+other.layer+'|'+(e.by.split(':')[0]);(g[key]=g[key]||{rows:[],by:e.by,kind:e.kind,layer:other.layer,title:W[e.kind]||e.kind}).rows.push({n:other,e})});
+ const order=['word','capability','behaviour','stage','grade','subject','goal','competency','outcome','unit','skill','rung','platform'];
+ return Object.values(g).sort((a,b)=>order.indexOf(a.layer)-order.indexOf(b.layer)).map((x,i)=>{x.rows.sort((a,b)=>(a.e.rank||9)-(b.e.rank||9)||String(a.n.grade||a.n.stage||'').localeCompare(String(b.n.grade||b.n.stage||''))||a.n.label.localeCompare(b.n.label));x.key=end+i;return x})}
+function grpX(x,side){return grp(`${x.title} · ${PL[x.layer]}`,x.rows,x.by).replace('<div class="grp" id=','<div class="grp" data-key="'+(side==='in'?'from':'to')+x.key.replace(/^(from|to)/,'')+'" id=')}
+function neuron(n,gin,gout){const cap=a=>a.slice(0,7);const pill=(x,side)=>`<button class="pill k-${x.layer}" data-jump="${side}${x.key.replace(/^(from|to)/,'')}"><b>${x.rows.length} ${esc(x.rows.length===1?LAYER[x.layer].toLowerCase():PL[x.layer])}</b><small>${esc(x.title)}${x.by.startsWith('seat')?' · proposed':''}</small></button>`;
+ const more=(a,side)=>a.length>7?`<span class="nempty">+${a.length-7} more groups below</span>`:'';
+ document.getElementById('nin').innerHTML=cap(gin).map(x=>pill(x,'from')).join('')+more(gin)||'<span class="nempty">nothing comes into this</span>';
+ document.getElementById('nout').innerHTML=cap(gout).map(x=>pill(x,'to')).join('')+more(gout)||'<span class="nempty">nothing leads out of this</span>';
+ document.getElementById('ncore').innerHTML=`${chip(n.layer)}<div class="lab">${esc(n.label)}</div>`;requestAnimationFrame(wires)}
+function wires(){const box=document.getElementById('neuron');if(!box||box.offsetParent===null)return;const svg=document.getElementById('wires');const b=box.getBoundingClientRect();const core=document.getElementById('ncore').getBoundingClientRect();const stacked=getComputedStyle(box).gridTemplateColumns.split(' ').length<3;let d='';
+ box.querySelectorAll('.pill').forEach(p=>{const r=p.getBoundingClientRect();const left=p.closest('.left')!==null;const col=getComputedStyle(p).color;let x1,y1,x2,y2;
+  if(stacked){x1=r.left+r.width/2-b.left;y1=(left?r.bottom:r.top)-b.top;x2=core.left+core.width/2-b.left;y2=(left?core.top:core.bottom)-b.top;const my=(y1+y2)/2;d+=`<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" stroke="${col}"/>`}
+  else{x1=(left?r.right:r.left)-b.left;y1=r.top+r.height/2-b.top;x2=(left?core.left:core.right)-b.left;y2=core.top+core.height/2-b.top;const mx=(x1+x2)/2;d+=`<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="${col}"/>`}});
+ svg.setAttribute('viewBox',`0 0 ${b.width} ${b.height}`);svg.innerHTML=`<g fill="none" stroke-width="1.6" opacity=".55">${d}</g>`}
+window.addEventListener('resize',()=>requestAnimationFrame(wires));
+document.body.addEventListener('click',e=>{const p=e.target.closest('[data-jump]');if(!p)return;const g=document.querySelector(`[data-key="${p.dataset.jump}"]`);if(g){g.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});g.classList.remove('flash');void g.offsetWidth;g.classList.add('flash')}});
 function groups(edges,end,W){const g={};edges.forEach(e=>{const other=N[end==='from'?e.from:e.to];if(!other)return;const key=e.kind+'|'+other.layer+'|'+(e.by.split(':')[0]);(g[key]=g[key]||{rows:[],by:e.by,kind:e.kind,layer:other.layer}).rows.push({n:other,e})});
  const order=['word','capability','behaviour','stage','grade','subject','goal','competency','outcome','unit','skill','rung','platform'];
  return Object.values(g).sort((a,b)=>order.indexOf(a.layer)-order.indexOf(b.layer)).map(x=>{x.rows.sort((a,b)=>(a.e.rank||9)-(b.e.rank||9)||String(a.n.grade||a.n.stage||'').localeCompare(String(b.n.grade||b.n.stage||''))||a.n.label.localeCompare(b.n.label));return grp(`${W[x.kind]||x.kind} · ${PL[x.layer]}`,x.rows,x.by)}).join('')||'<div class="meta">nothing yet</div>'}
@@ -185,7 +225,8 @@ function pickGrade(g){document.querySelectorAll('[data-grade]').forEach(b=>b.set
 const q=document.getElementById('q'),res=document.getElementById('results');
 q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();if(v.length<2){res.hidden=true;return}const hits=D.nodes.filter(n=>n.label.toLowerCase().includes(v)||(n.text||'').toLowerCase().includes(v)||n.id.toLowerCase().includes(v)).slice(0,30);res.innerHTML=hits.map(n=>rowHtml(n)).join('')||'<div class="row meta">nothing found</div>';res.hidden=false});
 document.body.addEventListener('click',e=>{if(!e.target.closest('#results')&&e.target!==q)res.hidden=true;if(e.target.closest('#results [data-go]')){res.hidden=true;q.value=''}});
-document.getElementById('notes').innerHTML=Object.entries(D.notes||{}).filter(([k,v])=>v&&v.length).map(([k,v])=>`<div class="grp"><div class="h"><span>notes from the ${esc(k)} seat</span><span class="by gen">generated · for the curriculum team</span></div>${v.map(t=>`<div class="row" style="cursor:default">${esc(t)}</div>`).join('')}</div>`).join('');
+const allNotes=Object.entries(D.notes||{}).filter(([k,v])=>v&&v.length);
+document.getElementById('notes').innerHTML=allNotes.length?`<details class="notes"><summary>What the mapping found · ${allNotes.reduce((a,[k,v])=>a+v.length,0)} notes for the curriculum team</summary>${allNotes.map(([k,v])=>`<div class="meta" style="margin-top:10px"><b>${esc(k)}</b></div><ul>${v.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`).join('')}</details>`:'';
 document.getElementById('foot').innerHTML=`Built ${esc(D.built)} from: ${D.sources.map(esc).join(' · ')}. Seats that generated the crosswalks: ${esc((D.seats||[]).join(', ')||'none yet')}. The file behind this page is <span class="mono">docs/spine/spine.json</span>; the checks that built it are <span class="mono">research/spine_build.py</span>.`;
 // deep link
 const h=(location.hash||'').slice(1);if(h&&N[h])focus(h);
