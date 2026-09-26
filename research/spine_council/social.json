@@ -1,0 +1,2726 @@
+{
+ "seat": "social",
+ "competency_capabilities": [
+  {
+   "id": "ncf.sst.M.CG-1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-1.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-1.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-3.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-4.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-5.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-5.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-6",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-7",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-8",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-9",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-9.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-10",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-10.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.CG-11",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-3.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-3.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.6",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-6",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-7",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-8",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.CG-9",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-9.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.society.S.CG-1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.society.S.CG-2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-2.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.society.S.CG-3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-3.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-3.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  }
+ ],
+ "competency_grades": [
+  {
+   "id": "ncf.sst.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.09",
+    "ncert.sst.6.16",
+    "ncert.sst.7.13",
+    "ncert.sst.8.10"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.04",
+    "ncert.sst.6.05",
+    "ncert.sst.6.07",
+    "ncert.sst.7.01",
+    "ncert.sst.8.03",
+    "ncert.sst.8.10"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.13",
+    "ncert.sst.7.16",
+    "ncert.sst.8.11",
+    "ncert.sst.8.15"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.08",
+    "ncert.sst.6.17",
+    "ncert.sst.7.19",
+    "ncert.sst.7.20"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-3.1",
+   "grades": [
+    "G6"
+   ],
+   "ncert": [
+    "ncert.sst.6.11",
+    "ncert.sst.6.13"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-3.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.8.13",
+    "ncert.sst.8.14",
+    "ncert.sst.8.28"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.22",
+    "ncert.sst.6.24",
+    "ncert.sst.7.30",
+    "ncert.sst.7.32",
+    "ncert.sst.8.26"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.7.30",
+    "ncert.sst.8.26",
+    "ncert.sst.8.29",
+    "ncert.sst.8.30"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-5.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.20",
+    "ncert.sst.6.21",
+    "ncert.sst.7.22",
+    "ncert.sst.7.27",
+    "ncert.sst.8.28"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-5.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.19",
+    "ncert.sst.7.21",
+    "ncert.sst.8.17",
+    "ncert.sst.8.22"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.1",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.sst.6.03",
+    "ncert.sst.7.01",
+    "ncert.sst.7.02",
+    "ncert.sst.7.04",
+    "ncert.sst.7.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.2",
+   "grades": [
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.8.02",
+    "ncert.sst.8.05",
+    "ncert.sst.8.06",
+    "ncert.sst.8.08"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.3",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.7.07",
+    "ncert.sst.7.10",
+    "ncert.sst.8.07"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-6.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.25",
+    "ncert.sst.7.11",
+    "ncert.sst.7.12",
+    "ncert.sst.7.15",
+    "ncert.sst.8.09"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.18",
+    "ncert.sst.6.19",
+    "ncert.sst.7.18",
+    "ncert.sst.8.18"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.2",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.sst.6.06",
+    "ncert.sst.7.08"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-7.3",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.sst.6.15",
+    "ncert.sst.6.17",
+    "ncert.sst.7.19"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.7.21",
+    "ncert.sst.8.21"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.2",
+   "grades": [
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.8.19",
+    "ncert.sst.8.20",
+    "ncert.sst.8.21"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-8.3",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.sst.6.22",
+    "ncert.sst.6.23",
+    "ncert.sst.6.24",
+    "ncert.sst.7.24"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-9.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.7.31",
+    "ncert.sst.7.32",
+    "ncert.sst.7.33",
+    "ncert.sst.8.01",
+    "ncert.sst.8.30"
+   ]
+  },
+  {
+   "id": "ncf.sst.M.C-10.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.sst.6.12",
+    "ncert.sst.6.15",
+    "ncert.sst.7.18"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.04",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.02",
+    "ncert.sst.10.03"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01",
+    "ncert.sst.10.03"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-1.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.sst.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.04",
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.2",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.01"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-2.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.05",
+    "ncert.sst.10.01",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.2",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.3",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.10.02",
+    "ncert.sst.10.03"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.04",
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-4.6",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.04",
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.02",
+    "ncert.sst.10.01",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.05",
+    "ncert.sst.10.01"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-5.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.05",
+    "ncert.sst.10.02",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.05",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-6.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.10.01"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.3",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.02",
+    "ncert.sst.10.04",
+    "ncert.sst.10.05"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-7.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.02",
+    "ncert.sst.10.01",
+    "ncert.sst.10.03"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.01",
+    "ncert.sst.9.03",
+    "ncert.sst.10.01"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.02",
+    "ncert.sst.10.03"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.4",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.01",
+    "ncert.sst.10.02",
+    "ncert.sst.10.04"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-8.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.9.04",
+    "ncert.sst.10.01",
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.sst.S.C-9.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.sst.10.02"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.04"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.2",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.05"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.3",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.04"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-1.4",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.02",
+    "ncert.sst.9.05"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-2.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-2.2",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-3.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.04"
+   ]
+  },
+  {
+   "id": "ncf.society.S.C-3.2",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.sst.9.03",
+    "ncert.sst.9.04"
+   ]
+  }
+ ],
+ "ncert_competencies": [
+  {
+   "id": "ncert.sst.6.01",
+   "competencies": [
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.02",
+   "competencies": [
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.03",
+   "competencies": [
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.04",
+   "competencies": [
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.05",
+   "competencies": [
+    "ncf.sst.M.C-1.2",
+    "ncf.sst.M.C-7.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.06",
+   "competencies": [
+    "ncf.sst.M.C-7.2",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.07",
+   "competencies": [
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.08",
+   "competencies": [
+    "ncf.sst.M.C-2.2",
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.09",
+   "competencies": [
+    "ncf.sst.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.10",
+   "competencies": [
+    "ncf.sst.M.C-1.2",
+    "ncf.sst.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.11",
+   "competencies": [
+    "ncf.sst.M.C-3.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.12",
+   "competencies": [
+    "ncf.sst.M.C-10.1",
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.13",
+   "competencies": [
+    "ncf.sst.M.C-3.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.14",
+   "competencies": [
+    "ncf.sst.M.C-1.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.15",
+   "competencies": [
+    "ncf.sst.M.C-7.3",
+    "ncf.sst.M.C-10.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.16",
+   "competencies": [
+    "ncf.sst.M.C-1.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.17",
+   "competencies": [
+    "ncf.sst.M.C-2.2",
+    "ncf.sst.M.C-7.3",
+    "ncf.sst.M.C-10.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.18",
+   "competencies": [
+    "ncf.sst.M.C-7.1",
+    "ncf.sst.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.19",
+   "competencies": [
+    "ncf.sst.M.C-7.1",
+    "ncf.sst.M.C-7.3",
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.20",
+   "competencies": [
+    "ncf.sst.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.21",
+   "competencies": [
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.22",
+   "competencies": [
+    "ncf.sst.M.C-8.3",
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.23",
+   "competencies": [
+    "ncf.sst.M.C-8.3",
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.24",
+   "competencies": [
+    "ncf.sst.M.C-8.3",
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.6.25",
+   "competencies": [
+    "ncf.sst.M.C-6.4",
+    "ncf.sst.M.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.01",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.02",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.03",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.04",
+   "competencies": [
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.05",
+   "competencies": [
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.06",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.07",
+   "competencies": [
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.08",
+   "competencies": [
+    "ncf.sst.M.C-7.2",
+    "ncf.sst.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.09",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.10",
+   "competencies": [
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.11",
+   "competencies": [
+    "ncf.sst.M.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.12",
+   "competencies": [
+    "ncf.sst.M.C-6.4",
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.13",
+   "competencies": [
+    "ncf.sst.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.14",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.15",
+   "competencies": [
+    "ncf.sst.M.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.16",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.17",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-4.2",
+    "ncf.sst.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.18",
+   "competencies": [
+    "ncf.sst.M.C-7.1",
+    "ncf.sst.M.C-10.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.19",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-7.3",
+    "ncf.sst.M.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.20",
+   "competencies": [
+    "ncf.sst.M.C-1.1",
+    "ncf.sst.M.C-2.2",
+    "ncf.sst.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.21",
+   "competencies": [
+    "ncf.sst.M.C-5.2",
+    "ncf.sst.M.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.22",
+   "competencies": [
+    "ncf.sst.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.23",
+   "competencies": [
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-5.2",
+    "ncf.sst.M.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.24",
+   "competencies": [
+    "ncf.sst.M.C-8.3",
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.25",
+   "competencies": [
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.26",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.27",
+   "competencies": [
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.28",
+   "competencies": [
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.29",
+   "competencies": [
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.30",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.31",
+   "competencies": [
+    "ncf.sst.M.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.32",
+   "competencies": [
+    "ncf.sst.M.C-9.1",
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.7.33",
+   "competencies": [
+    "ncf.sst.M.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.01",
+   "competencies": [
+    "ncf.sst.M.C-9.1",
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.02",
+   "competencies": [
+    "ncf.sst.M.C-6.2",
+    "ncf.sst.M.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.03",
+   "competencies": [
+    "ncf.sst.M.C-1.2",
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.04",
+   "competencies": [
+    "ncf.sst.M.C-6.1",
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.05",
+   "competencies": [
+    "ncf.sst.M.C-6.2",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.06",
+   "competencies": [
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.07",
+   "competencies": [
+    "ncf.sst.M.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.08",
+   "competencies": [
+    "ncf.sst.M.C-6.2",
+    "ncf.sst.M.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.09",
+   "competencies": [
+    "ncf.sst.M.C-6.4",
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.10",
+   "competencies": [
+    "ncf.sst.M.C-1.2",
+    "ncf.sst.M.C-1.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.11",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.12",
+   "competencies": [
+    "ncf.sst.M.C-6.4",
+    "ncf.sst.M.C-2.2",
+    "ncf.sst.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.13",
+   "competencies": [
+    "ncf.sst.M.C-3.2",
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.14",
+   "competencies": [
+    "ncf.sst.M.C-3.2",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.15",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.16",
+   "competencies": [
+    "ncf.sst.M.C-2.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.17",
+   "competencies": [
+    "ncf.sst.M.C-5.2",
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.18",
+   "competencies": [
+    "ncf.sst.M.C-7.1",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.19",
+   "competencies": [
+    "ncf.sst.M.C-8.2",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.20",
+   "competencies": [
+    "ncf.sst.M.C-8.2",
+    "ncf.sst.M.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.21",
+   "competencies": [
+    "ncf.sst.M.C-8.1",
+    "ncf.sst.M.C-8.2",
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.22",
+   "competencies": [
+    "ncf.sst.M.C-5.2",
+    "ncf.sst.M.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.23",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.24",
+   "competencies": [
+    "ncf.sst.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.25",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.26",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.27",
+   "competencies": [
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.28",
+   "competencies": [
+    "ncf.sst.M.C-5.1",
+    "ncf.sst.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.29",
+   "competencies": [
+    "ncf.sst.M.C-4.2",
+    "ncf.sst.M.C-4.1",
+    "ncf.sst.M.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.8.30",
+   "competencies": [
+    "ncf.sst.M.C-4.2",
+    "ncf.sst.M.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.9.01",
+   "competencies": [
+    "ncf.sst.S.C-4.1",
+    "ncf.sst.S.C-8.1",
+    "ncf.sst.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.sst.9.02",
+   "competencies": [
+    "ncf.sst.S.C-4.1",
+    "ncf.sst.S.C-7.4",
+    "ncf.sst.S.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.9.03",
+   "competencies": [
+    "ncf.sst.S.C-4.4",
+    "ncf.sst.S.C-1.1",
+    "ncf.sst.S.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.9.04",
+   "competencies": [
+    "ncf.sst.S.C-4.5",
+    "ncf.sst.S.C-4.6",
+    "ncf.sst.S.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.sst.9.05",
+   "competencies": [
+    "ncf.sst.S.C-6.3",
+    "ncf.sst.S.C-6.2",
+    "ncf.society.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.10.01",
+   "competencies": [
+    "ncf.sst.S.C-7.1",
+    "ncf.sst.S.C-2.4",
+    "ncf.sst.S.C-4.6"
+   ]
+  },
+  {
+   "id": "ncert.sst.10.02",
+   "competencies": [
+    "ncf.sst.S.C-4.4",
+    "ncf.sst.S.C-5.4",
+    "ncf.sst.S.C-7.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.10.03",
+   "competencies": [
+    "ncf.sst.S.C-7.4",
+    "ncf.sst.S.C-4.4",
+    "ncf.sst.S.C-8.5"
+   ]
+  },
+  {
+   "id": "ncert.sst.10.04",
+   "competencies": [
+    "ncf.sst.S.C-4.5",
+    "ncf.sst.S.C-3.1",
+    "ncf.sst.S.C-8.2"
+   ]
+  },
+  {
+   "id": "ncert.sst.10.05",
+   "competencies": [
+    "ncf.sst.S.C-6.1",
+    "ncf.sst.S.C-6.3",
+    "ncf.sst.S.C-7.3"
+   ]
+  }
+ ],
+ "unit_competencies": [
+  {
+   "id": "unit.115",
+   "competencies": [],
+   "why": "Header row of the Visual Arts strand (18 objectives) filed under Global perspectives; not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.116",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.117",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.118",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.119",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.120",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.121",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.122",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.123",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.124",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.125",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.126",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.127",
+   "competencies": [
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-1.1",
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.128",
+   "competencies": [
+    "ncf.fnd.F.C-4.1",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.129",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "unit.130",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.131",
+   "competencies": [
+    "ncf.fnd.F.C-2.2",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.132",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.fnd.F.C-4.1",
+    "ncf.fnd.F.C-8.10"
+   ]
+  },
+  {
+   "id": "unit.133",
+   "competencies": [
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.134",
+   "competencies": [
+    "ncf.fnd.F.C-7.1",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.135",
+   "competencies": [
+    "ncf.fnd.F.C-2.2",
+    "ncf.fnd.F.C-12.5",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.136",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-12.5"
+   ]
+  },
+  {
+   "id": "unit.137",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.138",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.139",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.140",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.141",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.142",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.143",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.144",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.145",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.146",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.147",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.148",
+   "competencies": [
+    "ncf.fnd.F.C-12.5",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.149",
+   "competencies": [
+    "ncf.fnd.F.C-7.2",
+    "ncf.fnd.F.C-8.2"
+   ]
+  },
+  {
+   "id": "unit.150",
+   "competencies": [
+    "ncf.fnd.F.C-7.1",
+    "ncf.fnd.F.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.151",
+   "competencies": [
+    "ncf.fnd.F.C-7.1",
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-6.1"
+   ]
+  },
+  {
+   "id": "unit.152",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-1.2",
+    "ncf.fnd.F.C-12.5"
+   ]
+  },
+  {
+   "id": "unit.153",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-2.2",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.154",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.fnd.F.C-9.5",
+    "ncf.world.P.C-4.7"
+   ]
+  },
+  {
+   "id": "unit.155",
+   "competencies": [
+    "ncf.world.P.C-2.1",
+    "ncf.world.P.C-2.3",
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.156",
+   "competencies": [],
+   "why": "Record merges two units, 'World Heroes & Role Models' and 'Project & Celebration' (G1); fix at source, then map as unit.306 and unit.307 are."
+  },
+  {
+   "id": "unit.268",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.269",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.270",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.271",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.272",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.273",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.274",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.275",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.276",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.277",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.278",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.279",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.280",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.281",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.282",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.283",
+   "competencies": [
+    "ncf.fnd.F.C-2.2",
+    "ncf.fnd.F.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.284",
+   "competencies": [
+    "ncf.fnd.F.C-7.1",
+    "ncf.fnd.F.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.285",
+   "competencies": [
+    "ncf.fnd.F.C-2.2",
+    "ncf.fnd.F.C-8.8"
+   ]
+  },
+  {
+   "id": "unit.286",
+   "competencies": [],
+   "why": "Record merges two units, 'Physical Features of India' and 'Early Humans' (G2; the second duplicates unit.287); fix at source. Physical Features of India would map to ncf.fnd.F.C-7.1 and ncf.fnd.F.C-2.2."
+  },
+  {
+   "id": "unit.287",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.288",
+   "competencies": [
+    "ncf.fnd.F.C-7.3",
+    "ncf.fnd.F.C-7.2"
+   ]
+  },
+  {
+   "id": "unit.289",
+   "competencies": [
+    "ncf.fnd.F.C-7.2",
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "unit.290",
+   "competencies": [
+    "ncf.fnd.F.C-8.11",
+    "ncf.fnd.F.C-9.5"
+   ]
+  },
+  {
+   "id": "unit.291",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.292",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.293",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.294",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.295",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.296",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.297",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.298",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.299",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.300",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.301",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.302",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives; not social science. Belongs to the arts seat (Visual Arts)."
+  },
+  {
+   "id": "unit.303",
+   "competencies": [
+    "ncf.world.P.C-4.3",
+    "ncf.world.P.C-4.4",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.304",
+   "competencies": [
+    "ncf.world.P.C-4.3",
+    "ncf.world.P.C-2.2",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.305",
+   "competencies": [
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-5.2",
+    "ncf.fnd.F.C-8.8"
+   ]
+  },
+  {
+   "id": "unit.306",
+   "competencies": [
+    "ncf.fnd.F.C-9.5",
+    "ncf.fnd.F.C-4.6"
+   ]
+  },
+  {
+   "id": "unit.307",
+   "competencies": [
+    "ncf.world.P.C-6.2",
+    "ncf.world.P.C-6.1",
+    "ncf.fnd.F.C-12.5"
+   ]
+  },
+  {
+   "id": "unit.367",
+   "competencies": [
+    "ncf.world.P.C-4.7",
+    "ncf.world.P.C-6.1"
+   ]
+  },
+  {
+   "id": "unit.420",
+   "competencies": [],
+   "why": "Header row of the Visual Arts strand for G4 (6 objectives), name garbled ('Visual Visual artss'); filed under Global perspectives; not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.421",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.422",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.423",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.424",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.425",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.426",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.432",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.433",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.434",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.435",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.436",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.437",
+   "competencies": [],
+   "why": "Visual-arts unit filed under Global perspectives, and its name is garbled by a find-and-replace ('Visual arts' written over 'Art'); not social science. Belongs to the arts seat."
+  },
+  {
+   "id": "unit.438",
+   "competencies": [],
+   "why": "Name garbled by a find-and-replace ('EVisual artsh' for 'Earth'); recoverable as 'Natural Resources' (G4), a repeat of unit.303. Fix at source, then map to ncf.world.P.C-4.3 and ncf.world.P.C-4.4."
+  }
+ ],
+ "notes": [
+  "66 of the 97 'Global perspectives' units are not social science: 63 are Visual Arts units (unit.115-126, 137-147, 268-282, 291-302, 420-437; 420-437 also carry a find-and-replace garbling 'Visual arts' over 'Art'), unit.156 and unit.286 each merge two units into one record, unit.438 is 'Natural Resources' (G4) with 'Earth' garbled; all left unmapped with the reason in 'why'.",
+  "The school teaches geography and history in G1-G2 (states of India, continents, early humans, farming, trade) a stage ahead of NCF, whose foundational rows carry neither subject; those units are pinned to cognitive and socio-emotional rows (F.C-7.1, C-2.2, C-8.8, C-4.1, C-9.5) and the fit is weak. A better crosswalk needs either the preparatory World Around Us rows applied to G1-G2 or a school-defined target.",
+  "NCF's preparatory stage has no history or civics strand: World Around Us has no row for heroes, leaders, national symbols or inventions. The school's units on these are pinned to the nearest rows, C-2.3 (change over time as told by elders and local stories), C-2.1 (human-made systems) and C-4.7 (values and dispositions).",
+  "NCERT's 2019 secondary outcomes are five process bundles per class built on the CBSE syllabus. They give no evidence for NCF S.C-1.4 (indigenous knowledge systems, left empty) and only thin evidence for S.C-1.2, S.C-8.3 and S.C-9.1 (ancient India's chronology, economy and contributions). Grade 9 'Individuals in Society' has no NCERT outcomes of its own; its rows are evidenced by the class-9 process outcomes 9.02-9.05 only.",
+  "NCERT class-6 outcomes 6.01-6.03 (stars, planets, satellites; zones of the earth; day, night and seasons) sit on the science boundary and are mapped to M.C-6.1 (natural phenomena) as the nearest social-science row; the science seat may also claim them. 6.08 (superstitions about eclipses) is read as M.C-2.2, the continued prevalence of beliefs, examined against M.C-6.1."
+ ]
+}

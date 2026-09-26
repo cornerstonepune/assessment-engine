@@ -3362,6 +3362,81 @@ numbers from the working while you have only designed it as a working section" �
   `cd packages/engine && .venv/bin/python -m pytest tests/test_inbox.py` → `7 passed` (link forms, inbox naming, only
   a PDF taken, the route answers at once and starts the reading, a refusal in words). `tsc`, `eslint` clean.
 
+
+## The school operating system council — research and synthesis (2026-09-26)
+
+Research and design only: no engine claim changes, and no gate moved (W3, step 6).
+
+- Nine seats' notes exist, each ending in one council-position section.
+  Check: `grep -c -i "^## Council position" "research/research_notes/School operating system council/"*.md` →
+  `1` for each of the nine files.
+- The consolidated report, "Own the evidence, amplify the teacher", is about 10,000 words and cites 218 of those
+  sources. Check: `wc -w "research/reports/School operating system council.md"` → `10160`
+- The notes cite 625 distinct links, each opened by a seat. The seats could not open some primary sources; those
+  claims are marked unverified in the notes and kept out of the synthesis's rulings.
+  Check: `cat "research/research_notes/School operating system council/"*.md | grep -oE "https?://[^) >\"]+" | sort -u | wc -l` → `625`
+- The synthesis and the proposed ADR exist.
+  Check: `wc -w docs/school-os-council-2026-09-26.md docs/adr/0036-the-school-os-grows-from-the-engines-spine.md`
+  → `7665`, `801`.
+- **Not verified by a command:** the seats' figures are their readings of sources they opened. The chair
+  re-checked three claims against the notes and corrected the synthesis: the tutoring study was of university
+  undergraduates, the DPDP 18-month date, and CBSE's weekly observation guidance.
+
+## Level 2 of the spine — the founders' draft, validated by a command (2026-09-26)
+
+Design only: no engine claim changes, no gate moved (W3, step 6).
+
+- The draft holds 192 behaviours in 32 cells and every cell passes the proposal's nine checks.
+  Check: `python3 research/level2_validate.py docs/school-os-level2-behaviours-draft.json` →
+  ```
+  behaviours 192 · cells 32 · cells passing 32/32
+    foundational capable=35  kind=16  unafraid=13
+    preparatory  capable=42  kind=14  unafraid=11
+    middle       capable=41  kind=11  unafraid=18
+    secondary    capable=45  kind=14  unafraid=16
+  every stage passes V1–V9
+  ```
+- First-pass validity, recorded for the eval's baseline: 25 of 32 cells on the first run; seven failures (three
+  "behind", one "weight", one "always", two single-mode cells); one regeneration by hand; 32 of 32 on the second run.
+  The "behind" and "weight" hits were false positives of the crude banned-word check on "the reason behind it" and
+  "lifts a weight"; the check is kept crude on purpose (a row a founder can tune) and the sentences were rephrased.
+- **Not verified:** the founders' acceptance rate, which the sitting produces; coverage of the profile's eight
+  "observable at 16" sentences, which a person maps once at the sitting. Both are eval numbers 2 and 3 and stay
+  unrecorded until then.
+
+## The subject-platform survey — three seats and one report (2026-09-26)
+
+Research only: no engine claim changes, no gate moved (W3, step 6).
+
+- Three seats' notes and one consolidated report exist.
+  Check: `ls "research/research_notes/Subject learning platforms survey/" | wc -l` → `3`;
+  `wc -w "research/reports/Subject learning platforms survey.md"` → `12917`
+- **Not verified by a command:** every vendor fact is the seats' reading of pages they opened on 2026-09-26, with
+  blocked pages named as gaps; prices are the vendors' published US prices; the cost roll-up is arithmetic on them.
+  Nothing has been bought, trialled or contracted.
+
+## Level 2 draft, v2 — after the four-seat council (2026-09-26)
+
+- **Claim:** every live row of the reviewed draft passes the validator; the council's verdicts were reconciled by rules in code,
+  not by hand; every change is logged with its reason.
+- **Command:** `python3 research/level2_validate.py docs/school-os-level2-behaviours-draft.json`
+- **Output:** `behaviours 204 live (8 retired) · cells 32 · cells passing 32/32 … cells with one capture mode (reported, V4): 9 …
+  every stage passes V1–V9`. Words per stage: Foundational capable 39 · kind 16 · unafraid 18; Preparatory 45 · 13 · 11;
+  Middle 45 · 13 · 20; Secondary 46 · 15 · 16.
+- **Command:** `python3 research/level2_council.py --draft docs/school-os-level2-behaviours-draft.json --seats research/level2_council/{educator,parent,development,rights}.json --chair research/level2_council/chair.json --out /tmp/v2.json --log /tmp/log.md`
+  (run on the v1 draft, commit 82cbdb8, to reproduce v2)
+- **Output:** `outcomes {'accepted': 94, 'edited': 90, 'added': 20, 'retired': 8} rules {'R6': 93, 'R4': 43, 'chair': 42, 'R5': 11, 'R1': 3}`;
+  accepted as written per seat: rights 149/192 (78%), development 148 (77%), educator 145 (76%), parent 159 (83%);
+  `needs chair 0 · dangling grows_from 0`.
+- **What the numbers are:** the seats' acceptance is measure 4 of the proposal's eval, a proxy; the founders' acceptance
+  (measure 3) is not yet measured. The 8 retired rows stay in the file, struck through, for a founder to restore.
+- **Command:** the same run with `--ages research/level2_council/ages.json --added-reviews research/level2_council/added_review_development.json research/level2_council/added_review_rights.json`
+- **Output:** every one of the 53 live Foundational rows carries `from_age` (17 at three, 25 at four, 9 at five, one at six, one at seven,
+  the development seat's judgement, not a citation); the 20 added rows were checked again by the development seat (17 as written,
+  3 edited) and the rights seat (12 as written, 8 edited), and the chair took every edit.
+- **Not verified:** that the founders agree with any of it; that the `from_age` values are right (one seat's judgement); that the
+  banned-word list catches paraphrase (the rights seat found it does not, and rewrote by hand).
+
 ## S17 — the digit reader: PaddleOCR in its boxes, off the shelf (ADR 0035, 2026-09-26)
 
 Goal `s17-step1-reread-both-scans` (step 1), **not green**: the live re-read of 24 Sep and 23 Sep has not run yet.
@@ -3395,3 +3470,25 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - Peak reading both scans' codes: **747 → 244 MB**, codes identical page for page (24 Sep 13/16, 23 Sep 29/30).
 - `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
   (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.
+
+## The curriculum spine as one graph, with a clickable map (2026-09-26, ADR 0037 proposed)
+
+- **Claim:** the school's spine, three words down to the engine's rungs, is one checked graph: every edge names two nodes
+  that exist; every NCF-SE goal and competency feeds a capability; every competency has grades; every NCERT outcome and
+  every school unit has a competency or a written reason.
+- **Command:** `python3 research/spine_build.py`
+- **Output:** `nodes 2504 · edges 13437 · seats ['arts', 'foundational', 'language', 'math', 'science', 'social']` … `every edge names
+  two nodes that exist; every goal and competency feeds a capability; every competency has grades; every outcome and unit
+  has a competency or a reason`. Layers: 3 words, 8 capabilities, 204 behaviours, 208 NCF goals, 606 NCF competencies
+  (foundational 69, preparatory 127, middle 185, secondary 225), 729 NCERT outcomes (Classes 1–10), 439 school units,
+  244 skills, 26 rungs, 7 platforms. Generated links: feeds 1818, expects 1563, evidences 1434, builds toward 986.
+- **Command:** `python3 research/spine_council/check_seat.py research/spine_council/<seat>.json` → `OK` for all seven files.
+- **Command:** `python3 research/spine_import.py --ncf <NCF-SE text> --elementary <NCERT 2017 PDF> --secondary <NCERT 2019 PDF>`
+  rebuilds `docs/spine/sources/` (the PDFs are not committed; their URLs are in the script). NCF-SE's nested minimum
+  standards in art and PE (LS-2) keep their own ids; the first import had dropped 49 of them.
+- **Page:** `python3 research/spine_page.py` renders `docs/spine/index.html` (not committed): map, node view with its
+  neuron diagram, tree, by-grade view, search. Checked at 390 px and 1280 px, no sideways scroll; tree opens three levels.
+- **Not verified:** that the generated links are right (the curriculum team's pass decides); NCERT extraction folds a few
+  sub-points and truncates a few rows (the seats name them); NCERT has no Hindi or Marathi outcomes in these files; 30
+  school units and 6 NCERT outcomes carry a reason instead of a competency.
+

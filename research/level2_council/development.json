@@ -1,0 +1,1457 @@
+{
+ "seat": "development",
+ "verdicts": [
+  {
+   "id": "counts-objects-one-to-one",
+   "verdict": "accept",
+   "reason": "One-to-one correspondence to ten is a clean four-to-five-year marker; low inference; the counter names the real over-count (rote recitation)."
+  },
+  {
+   "id": "reads-a-familiar-word",
+   "verdict": "accept",
+   "reason": "Decoding with the picture covered is the right discrimination; note it is a Grade 1 to 2 behaviour, not a Nursery one."
+  },
+  {
+   "id": "exchanges-ten-ones",
+   "verdict": "accept",
+   "reason": "Concrete place value at six to seven; the naming of the rod as one ten is what separates it from lining up blocks."
+  },
+  {
+   "id": "retells-a-story-in-order",
+   "verdict": "accept",
+   "reason": "Sequenced retelling at five to six; low inference."
+  },
+  {
+   "id": "sorts-by-a-stated-rule",
+   "verdict": "accept",
+   "reason": "Saying the rule back is what makes the sort evidence of classification rather than of matching."
+  },
+  {
+   "id": "writes-name-and-numerals",
+   "verdict": "edit",
+   "reason": "'Legibly' is a rating word two observers will score differently; a read-back by a second adult is the agreement test.",
+   "edit": {
+    "statement": "Writes their own name and the numerals one to nine from memory so that another adult reads them back correctly.",
+    "adult_sees": "The educator sees no model in view and a second adult reads the name and numerals back without help."
+   }
+  },
+  {
+   "id": "adds-with-regrouping",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-and-answers-a-passage",
+   "verdict": "accept",
+   "reason": "Pointing to where the text says it separates comprehension from general knowledge; good agreement test."
+  },
+  {
+   "id": "explains-a-fact-with-a-because",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-measuring-tool",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-a-timed-set",
+   "verdict": "edit",
+   "reason": "'Checks one answer' is invisible unless it leaves a mark; a tick or a correction on the sheet is what two educators can both see.",
+   "edit": {
+    "statement": "Completes a short timed practice set in the time given, then ticks or corrects at least one answer before handing in.",
+    "adult_sees": "The educator sees the set finished within the time and a tick or a correction made after the last question was answered.",
+    "counter_example": "Finishes early and sits with the sheet untouched until time is called."
+   }
+  },
+  {
+   "id": "writes-a-paragraph-with-a-main-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-multi-step-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "summarises-a-chapter",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-technical-term-correctly",
+   "verdict": "edit",
+   "reason": "The over-count is parroting, the term used correctly by rote; the draft's counter is a plain failure, not a look-alike.",
+   "edit": {
+    "counter_example": "Uses the term correctly in a rehearsed sentence and cannot give a plain-words version when asked."
+   }
+  },
+  {
+   "id": "records-an-experiment",
+   "verdict": "accept"
+  },
+  {
+   "id": "sits-a-full-length-test",
+   "verdict": "accept",
+   "reason": "Fair as exam behaviour at 11 to 14; the counter is the right discrimination. Its lineage is 'the same, longer' (see notes)."
+  },
+  {
+   "id": "writes-an-explanatory-essay",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-an-unseen-board-style-problem",
+   "verdict": "edit",
+   "reason": "Captured as a test, so 'says why' cannot be heard; the reason must be written to be evidence.",
+   "edit": {
+    "statement": "Solves an unseen problem in the board's format by choosing which method applies, and writes one line on why that method.",
+    "adult_sees": "The educator reads a method that fits the problem and a written line giving the reason for choosing it."
+   }
+  },
+  {
+   "id": "reads-a-primary-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-a-concept-to-a-younger-student",
+   "verdict": "edit",
+   "reason": "Two explanations heard is an observation note; a video of a younger child is heavier than the evidence needs.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "derives-a-result-from-first-principles",
+   "verdict": "accept",
+   "reason": "Right for 14 to 16; note it has no earlier step in this capability and should be declared new rather than grown from recording an experiment."
+  },
+  {
+   "id": "performs-under-board-exam-conditions",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-extended-argument-with-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-why-about-something-seen",
+   "verdict": "edit",
+   "reason": "The over-count at three to five is the serial 'why' that ignores the answer; the draft's counter names a different, rarer confusion.",
+   "edit": {
+    "counter_example": "Asks 'why' again to each answer without waiting to hear it, as a way of keeping the adult talking."
+   }
+  },
+  {
+   "id": "predicts-then-checks",
+   "verdict": "accept",
+   "reason": "Prediction before the event is the four-to-five-year form of hypothesis; the timing rule in adult_sees is exactly right."
+  },
+  {
+   "id": "gives-a-reason-for-a-choice",
+   "verdict": "accept",
+   "reason": "The counter ('because' plus the choice repeated) is the discrimination observers actually need at this age."
+  },
+  {
+   "id": "notices-a-difference-between-two-things",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-guess-when-shown",
+   "verdict": "accept",
+   "reason": "Saying the guess was wrong is a five-to-six-year behaviour; it will often be the same moment as predicts-then-checks (see notes)."
+  },
+  {
+   "id": "puts-events-in-cause-order",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-a-question-that-can-be-tested",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-a-prediction-and-result",
+   "verdict": "accept",
+   "reason": "The dated prediction is a genuine step from the spoken one; the counter is the exact over-count."
+  },
+  {
+   "id": "gives-evidence-for-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "spots-a-pattern-in-data",
+   "verdict": "edit",
+   "reason": "The behaviour is spoken ('says what it might mean'; the adult hears); an artefact holds the chart, not the reasoning.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "revises-an-answer-with-a-stated-reason",
+   "verdict": "accept",
+   "reason": "Written revision fits a sheet; leaving the old answer visible is the right discrimination."
+  },
+  {
+   "id": "separates-fact-from-opinion",
+   "verdict": "accept",
+   "reason": "Fair at nine to eleven; the counter (sorting by agreement) is exactly the confusion. Its lineage from cause-ordering is not real (see notes)."
+  },
+  {
+   "id": "designs-a-fair-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "judges-a-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "estimates-before-calculating",
+   "verdict": "edit",
+   "reason": "As drafted it can only be recorded when an error happens to occur; comparing the result with the estimate is observable every time.",
+   "edit": {
+    "statement": "Estimates the size of an answer before calculating and writes whether the calculated result agrees with the estimate.",
+    "adult_sees": "The educator sees the estimate written first and a note beside the result saying whether they agree.",
+    "counter_example": "Writes an estimate after the calculation that matches the answer exactly."
+   }
+  },
+  {
+   "id": "states-an-assumption",
+   "verdict": "edit",
+   "reason": "The actual confusion is a conclusion mistaken for an assumption; 'just an opinion' is unrelated to the behaviour.",
+   "edit": {
+    "counter_example": "Restates the argument's conclusion and calls it the assumption."
+   }
+  },
+  {
+   "id": "concedes-a-point-in-a-debate",
+   "verdict": "edit",
+   "reason": "Social surrender looks like concession; the discrimination observers need is evidence named versus argument abandoned.",
+   "edit": {
+    "counter_example": "Says 'fine, you win' to end the exchange without naming any evidence."
+   }
+  },
+  {
+   "id": "quantifies-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "defines-a-problem-before-solving",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-conflicting-evidence",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-a-result-two-ways",
+   "verdict": "accept"
+  },
+  {
+   "id": "reasons-from-a-model-to-a-prediction",
+   "verdict": "accept",
+   "reason": "Prediction before measurement, then comparison, is the 14 to 16 form of predicts-then-checks; a genuine chain across all four stages."
+  },
+  {
+   "id": "changes-position-in-writing",
+   "verdict": "accept"
+  },
+  {
+   "id": "identifies-the-flaw-in-an-argument",
+   "verdict": "edit",
+   "reason": "Capture is artefact but adult_sees says 'hears'; align them so the record is the written naming of the flaw.",
+   "edit": {
+    "adult_sees": "The educator reads the flaw named precisely in the child's written response, such as the sample size or cause confused with correlation."
+   }
+  },
+  {
+   "id": "chooses-an-activity-and-finishes-it",
+   "verdict": "edit",
+   "reason": "'Finished' has no agreed meaning for open block play; anchoring on activities with a natural end gives two observers the same stopping point.",
+   "edit": {
+    "statement": "Chooses an activity with an end point, such as a puzzle or a painting, at free-choice time and stays with it to the end.",
+    "adult_sees": "The educator sees the activity chosen unprompted and the puzzle completed or the painting declared done by the child."
+   }
+  },
+  {
+   "id": "asks-for-help-after-trying",
+   "verdict": "accept",
+   "reason": "Attempt first, then a named hard part: two visible events, no mind read; the counter is the exact over-count."
+  },
+  {
+   "id": "says-what-they-learned-today",
+   "verdict": "accept",
+   "reason": "Fits self_voice as a reflection. Rare before five; a Nursery child will show it seldom, which is age, not the child."
+  },
+  {
+   "id": "fixes-own-work-after-a-hint",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-materials-back-ready-for-next",
+   "verdict": "skip",
+   "reason": "Care of shared materials is not learning or agency and duplicates keeps-a-shared-space-tidy under society; give the slot a learning behaviour (see missing)."
+  },
+  {
+   "id": "tries-again-after-a-fail",
+   "verdict": "edit",
+   "reason": "The over-count is the prompted retry; leaving the activity is a non-example, not a look-alike.",
+   "edit": {
+    "counter_example": "Tries again after an adult says 'try once more'."
+   }
+  },
+  {
+   "id": "sets-a-goal-for-the-week",
+   "verdict": "accept",
+   "reason": "The Friday check is the occasion; the artefact carries Monday's goal. Fair at eight to eleven with scaffolding."
+  },
+  {
+   "id": "uses-a-resource-before-asking",
+   "verdict": "accept"
+  },
+  {
+   "id": "names-what-was-hard-and-why",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-feedback-in-the-next-draft",
+   "verdict": "accept",
+   "reason": "Pointing to the change is the agreement test; genuine step from fixing after a hint."
+  },
+  {
+   "id": "keeps-own-record-of-practice",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-harder-version-when-offered",
+   "verdict": "accept",
+   "reason": "The counter (taken and handed in blank) is exactly the discrimination; genuine step from trying again."
+  },
+  {
+   "id": "plans-a-multi-week-project",
+   "verdict": "accept",
+   "reason": "The dated plan is one occasion; the ticking is a pattern the artefact carries. Filed again as self's manages-own-schedule (see duplicates)."
+  },
+  {
+   "id": "finds-and-cites-two-sources-alone",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-for-specific-feedback",
+   "verdict": "accept",
+   "reason": "Naming the aspect is the genuine step from naming what was hard; low inference."
+  },
+  {
+   "id": "self-marks-against-a-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "monitors-own-progress-on-the-map",
+   "verdict": "accept"
+  },
+  {
+   "id": "persists-through-a-failed-attempt",
+   "verdict": "accept",
+   "reason": "A different approach within the session is the right discrimination from stubborn repetition."
+  },
+  {
+   "id": "runs-an-independent-study",
+   "verdict": "edit",
+   "reason": "'Over a term, meeting milestones' is a pattern, not an occasion; the moment is the presentation with the dated plan, which also separates it from creation's investigation.",
+   "edit": {
+    "statement": "Presents the finished product of a term-long independent study alongside the milestone plan set at the start, with dates met marked.",
+    "adult_sees": "The educator sees the product, the plan dated from the start of the term and the milestones ticked as met.",
+    "counter_example": "Presents the product with a plan written in the final week."
+   }
+  },
+  {
+   "id": "evaluates-own-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "seeks-expert-feedback-outside-school",
+   "verdict": "accept"
+  },
+  {
+   "id": "sets-own-standard-above-the-rubric",
+   "verdict": "accept",
+   "reason": "A genuinely new capacity at 14 to 16, not self-marking made harder; the counter is right."
+  },
+  {
+   "id": "teaches-themself-a-tool-or-topic",
+   "verdict": "edit",
+   "reason": "The evidence is a demonstration the educator watches; a note holds it, video is heavier than needed.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "recovers-from-a-public-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-something-from-a-plan-in-mind",
+   "verdict": "accept",
+   "reason": "Plan before build appears at about four; the counter (naming the pile afterwards) is exactly the over-count."
+  },
+  {
+   "id": "solves-a-practical-problem-with-materials",
+   "verdict": "accept"
+  },
+  {
+   "id": "draws-to-show-an-idea",
+   "verdict": "accept",
+   "reason": "Sound at four to six; will often be the same moment as communication's shows-work-and-explains-it (see duplicates)."
+  },
+  {
+   "id": "invents-a-rule-for-a-game",
+   "verdict": "accept",
+   "reason": "Five to seven; keeping the rule for a round separates invention from opportunism."
+  },
+  {
+   "id": "makes-a-second-version",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-for-its-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "makes-a-model-that-works",
+   "verdict": "accept"
+  },
+  {
+   "id": "tests-and-improves-a-design",
+   "verdict": "accept",
+   "reason": "Changing one thing is control of variables at eight to eleven, fair with teaching; the counter is right."
+  },
+  {
+   "id": "plans-a-make-with-a-list",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-original-story-or-poem",
+   "verdict": "accept"
+  },
+  {
+   "id": "presents-a-made-thing-and-what-changed",
+   "verdict": "edit",
+   "reason": "The evidence is a change and its reason spoken; an observation note holds that, video adds nothing two educators need.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "chooses-a-tool-for-a-job",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-prototype-to-a-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-iteration-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "codes-a-program-that-solves-a-task",
+   "verdict": "skip",
+   "reason": "Coding is already technology's middle-stage evidence (writes-a-text-program-with-a-loop-and-a-condition); one program would be filed twice. Keep it there."
+  },
+  {
+   "id": "produces-a-piece-for-a-real-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "pitches-a-solution-with-trade-offs",
+   "verdict": "edit",
+   "reason": "A named trade-off is heard once and noted; video is heavier than the evidence.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "investigates-an-open-question",
+   "verdict": "accept",
+   "reason": "Own method plus a finding, expected or not, is the right discrimination; filed again under society (see duplicates)."
+  },
+  {
+   "id": "delivers-a-project-to-a-client-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "documents-a-build-so-others-can-repeat-it",
+   "verdict": "accept",
+   "reason": "Another student repeating it from the document alone is the strongest agreement test in this capability."
+  },
+  {
+   "id": "builds-software-with-tests",
+   "verdict": "accept"
+  },
+  {
+   "id": "exhibits-work-publicly",
+   "verdict": "edit",
+   "reason": "As drafted it duplicates communication's presents-to-an-outside-audience; the creation-specific act is revising the work after public response.",
+   "edit": {
+    "statement": "Exhibits or performs a piece of work publicly and changes something in it after a question or comment from the audience.",
+    "adult_sees": "The educator sees the audience's question or comment and the change made to the piece afterwards.",
+    "counter_example": "Answers the audience's questions and leaves the piece as it was.",
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "completes-an-apprenticeship-task",
+   "verdict": "accept",
+   "reason": "Third-party attestation is a legitimate artefact; note it grows from pitching only by setting, not by development."
+  },
+  {
+   "id": "designs-and-runs-an-original-investigation",
+   "verdict": "accept"
+  },
+  {
+   "id": "tells-news-in-full-sentences",
+   "verdict": "accept",
+   "reason": "Two connected sentences is reachable by three and a half; 'others can follow' is judged by the circle's response, which is visible."
+  },
+  {
+   "id": "listens-and-responds-to-a-peer",
+   "verdict": "accept",
+   "reason": "The response referring to the classmate's words is the discrimination from turn-waiting; low inference."
+  },
+  {
+   "id": "asks-to-join-and-accepts-no",
+   "verdict": "accept"
+  },
+  {
+   "id": "takes-turns-in-a-pair-task",
+   "verdict": "accept",
+   "reason": "Sound at three to five; the same moment is filed as self's waits-for-a-turn (see duplicates)."
+  },
+  {
+   "id": "shows-work-and-explains-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-words-to-settle-a-dispute",
+   "verdict": "accept",
+   "reason": "Proposing a swap is a five-year form of negotiation; filed again as society's says-what-is-fair (see duplicates)."
+  },
+  {
+   "id": "gives-a-short-prepared-talk",
+   "verdict": "accept",
+   "reason": "A performance construct; video fits it, even though heavy."
+  },
+  {
+   "id": "builds-on-a-peer-idea",
+   "verdict": "accept",
+   "reason": "Crediting the classmate makes the building visible; a genuine step from responding."
+  },
+  {
+   "id": "negotiates-roles-in-a-group",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-letter-for-a-purpose",
+   "verdict": "accept",
+   "reason": "Fine, though a Grade 2 child can already do it; its lineage from turn-taking is not real (see notes)."
+  },
+  {
+   "id": "explains-a-method-to-a-peer",
+   "verdict": "accept",
+   "reason": "Withholding the answer is the exact discrimination and is visible."
+  },
+  {
+   "id": "disagrees-politely-with-a-reason",
+   "verdict": "edit",
+   "reason": "'Politely' is a rating word observers score differently; a reason aimed at the answer rather than the person is what both can hear.",
+   "edit": {
+    "statement": "Disagrees with a classmate's answer by giving a reason that addresses the answer, not the classmate.",
+    "adult_sees": "The educator hears a reason about the answer itself and no remark about the classmate."
+   }
+  },
+  {
+   "id": "presents-with-a-visual-aid",
+   "verdict": "accept"
+  },
+  {
+   "id": "leads-a-discussion-fairly",
+   "verdict": "accept",
+   "reason": "Every member speaking and a summary of what was agreed are both countable; a genuine step from building on one idea."
+  },
+  {
+   "id": "resolves-a-group-conflict-by-agreement",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-for-a-named-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-usable-peer-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-a-side-in-a-debate",
+   "verdict": "edit",
+   "reason": "Refusing is a non-example; the over-count is a fluent assigned-side speech with nothing behind it.",
+   "edit": {
+    "counter_example": "Speaks for the assigned side with assertions and no evidence."
+   }
+  },
+  {
+   "id": "presents-to-an-outside-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "facilitates-a-meeting-with-an-agenda",
+   "verdict": "accept",
+   "reason": "Agenda plus named actions is a genuine step beyond leading a discussion, not the same made harder."
+  },
+  {
+   "id": "negotiates-an-outcome-with-adults",
+   "verdict": "accept",
+   "reason": "Accepting conditions is what separates negotiation from lobbying; right for 14 to 16."
+  },
+  {
+   "id": "writes-a-formal-document",
+   "verdict": "accept",
+   "reason": "A stranger acting on it is a real external test of the construct."
+  },
+  {
+   "id": "mentors-a-younger-student-over-time",
+   "verdict": "edit",
+   "reason": "'Over several weeks' is a pattern, not one occasion; the session with its dated log is the moment an educator can record.",
+   "edit": {
+    "statement": "Runs a mentoring session with a younger student and adds it to a log that shows earlier dated sessions.",
+    "adult_sees": "The educator sees the session take place and the log with earlier dated entries for the same student.",
+    "counter_example": "Logs a first meeting as mentoring."
+   }
+  },
+  {
+   "id": "restates-an-opposing-view-before-answering",
+   "verdict": "accept",
+   "reason": "The holder saying the restatement is fair is the strongest agreement test in the draft."
+  },
+  {
+   "id": "operates-a-simple-device-for-a-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "follows-a-sequence-of-instructions",
+   "verdict": "accept",
+   "reason": "Three ordered steps is a four-to-six-year marker and a real precursor of sequencing in code."
+  },
+  {
+   "id": "gives-instructions-to-move-a-friend",
+   "verdict": "accept",
+   "reason": "Correcting one wrong step is the early form of debugging; five to seven."
+  },
+  {
+   "id": "sorts-real-from-pretend",
+   "verdict": "accept",
+   "reason": "The real-pretend distinction with a reason consolidates at about five; a genuine root for source-checking later."
+  },
+  {
+   "id": "asks-before-using-someone-elses-thing",
+   "verdict": "accept",
+   "reason": "A consent proxy rather than technology, which the could_not admits; observable and fair at three."
+  },
+  {
+   "id": "handles-a-device-with-care",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-to-produce-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-and-debugs-a-short-program",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-what-an-algorithm-does",
+   "verdict": "accept",
+   "reason": "Prediction before the run is the right discrimination and the one unplugged behaviour Grade 3 can show."
+  },
+  {
+   "id": "checks-an-ai-or-search-answer",
+   "verdict": "accept",
+   "reason": "Opening a second source before use is visible; a genuine step from real-versus-pretend."
+  },
+  {
+   "id": "keeps-personal-details-private-online",
+   "verdict": "accept"
+  },
+  {
+   "id": "credits-a-source-for-an-image-or-fact",
+   "verdict": "accept",
+   "reason": "Fine as a behaviour; its lineage from device care is not real (see notes)."
+  },
+  {
+   "id": "chooses-the-right-tool-for-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-text-program-with-a-loop-and-a-condition",
+   "verdict": "accept"
+  },
+  {
+   "id": "verifies-an-ai-output-and-finds-an-error",
+   "verdict": "edit",
+   "reason": "As drafted it needs an error to exist; claim-by-claim checking against a source is observable on every occasion and is the actual skill.",
+   "edit": {
+    "statement": "Checks an AI tool's output claim by claim against a source, marking each claim confirmed or corrected and naming the source used.",
+    "adult_sees": "The educator sees each claim marked confirmed or corrected and the source used written beside the marks.",
+    "counter_example": "Marks every claim confirmed without opening a source."
+   }
+  },
+  {
+   "id": "explains-how-a-recommendation-or-bias-arises",
+   "verdict": "accept",
+   "reason": "A concrete example versus a slogan is exactly the discrimination; fair at 12 to 14."
+  },
+  {
+   "id": "manages-own-privacy-settings",
+   "verdict": "accept"
+  },
+  {
+   "id": "attributes-ai-help-in-own-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-working-digital-product",
+   "verdict": "edit",
+   "reason": "The evidence is the user's recorded feedback; filming another person using it is heavier than needed and adds nothing to agreement.",
+   "edit": {
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "writes-a-program-using-data-and-libraries",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-ai-with-a-verification-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "evaluates-a-technology-for-harm-and-benefit",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-task-without-ai-they-could-do-with-it",
+   "verdict": "edit",
+   "reason": "Captured as artefact but the telling part is spoken; a written reflection makes the artefact hold all the evidence.",
+   "edit": {
+    "statement": "Completes a task without AI that they could have done with it, and writes two lines on what doing it alone showed.",
+    "adult_sees": "The educator sees the task done unaided and reads the two lines beneath it."
+   }
+  },
+  {
+   "id": "protects-others-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-they-are-feeling-and-chooses",
+   "verdict": "edit",
+   "reason": "'A hard moment' is the observer's inference; name the visible trigger. Recording a distressed child's voice is heavier than a note, not lighter evidence.",
+   "edit": {
+    "statement": "Names what they feel after a fall, a dispute or a lost game, in their own words, and chooses what to do next.",
+    "adult_sees": "The educator hears the child's own word for it and sees the child pick an action, such as a drink of water or sitting out one turn.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "waits-for-a-turn-without-a-reminder",
+   "verdict": "accept",
+   "reason": "Impulse control at three to five, visible; the same moment is filed as communication's takes-turns (see duplicates)."
+  },
+  {
+   "id": "comforts-a-classmate",
+   "verdict": "edit",
+   "reason": "Onlooking is what observers over-count as comforting; 'to get them in trouble' is a mind read and not a look-alike.",
+   "edit": {
+    "counter_example": "Gathers with others to look at the crying classmate and drifts away when the adult arrives."
+   }
+  },
+  {
+   "id": "manages-own-things",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-jumps-and-balances-in-play",
+   "verdict": "edit",
+   "reason": "A three-item motor checklist is an observation note; filming children outdoors is heavier than the evidence, and the bundle of three skills should be recorded item by item.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "returns-to-play-after-a-small-hurt",
+   "verdict": "accept",
+   "reason": "Recovery within the session is the observable form of resilience at this age; 'once looked after' keeps the adult's role visible."
+  },
+  {
+   "id": "uses-a-strategy-before-acting",
+   "verdict": "accept",
+   "reason": "Stepping away is visible; breathing less so, which educators should know. The counter is right."
+  },
+  {
+   "id": "keeps-an-agreement-made-with-a-classmate",
+   "verdict": "accept",
+   "reason": "Sound; filed again as society's keeps-a-promise-to-the-group (see duplicates)."
+  },
+  {
+   "id": "includes-a-child-left-out",
+   "verdict": "edit",
+   "reason": "'Left out' asks the observer to judge another child's state; a child alone at the edge of the game is what both educators can see.",
+   "edit": {
+    "statement": "Invites a child standing alone at the edge of a game or group to join, before any adult suggests it.",
+    "adult_sees": "The educator sees the child alone at the edge and the invitation come from the classmate first."
+   }
+  },
+  {
+   "id": "carries-out-a-class-responsibility",
+   "verdict": "edit",
+   "reason": "'For a week without reminders' is a pattern, which the record builds; one unprompted day is the occasion.",
+   "edit": {
+    "statement": "Does their class job, such as the plants or the library corner, on a day no one has reminded them.",
+    "adult_sees": "The educator sees the job done before anyone mentions it that day.",
+    "counter_example": "Does the job after the educator glances at the job chart."
+   }
+  },
+  {
+   "id": "learns-a-new-physical-skill-through-practice",
+   "verdict": "edit",
+   "reason": "'Over several sessions' is a pattern; the day the skill first works is the occasion, with earlier notes as the trail. Video is heavier than needed.",
+   "edit": {
+    "statement": "Shows a physical skill, such as skipping or catching, on the day it first works, after practice sessions the educator logged.",
+    "adult_sees": "The educator sees the skill performed and has earlier dated notes of the practice attempts.",
+    "counter_example": "Shows a skill they arrived at school already able to do.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "accepts-a-loss-and-congratulates",
+   "verdict": "accept"
+  },
+  {
+   "id": "repairs-a-relationship-after-a-conflict",
+   "verdict": "edit",
+   "reason": "The prompted apology is the over-count; avoiding the classmate is a non-example.",
+   "edit": {
+    "counter_example": "Says sorry to the classmate after the educator sends them to."
+   }
+  },
+  {
+   "id": "keeps-a-commitment-to-a-team",
+   "verdict": "edit",
+   "reason": "'Across a term' is a pattern; the record builds it from dated deliveries, each of which is one observable occasion.",
+   "edit": {
+    "statement": "Delivers their agreed part to a team, such as attending a practice or handing in a section, on the date the team set.",
+    "adult_sees": "The educator sees the team's plan with the date and the part delivered on it.",
+    "counter_example": "Delivers the part after the educator chases it."
+   }
+  },
+  {
+   "id": "speaks-up-for-a-classmate",
+   "verdict": "accept",
+   "reason": "Mocking and exclusion are audible and visible; 'in the moment' is the right discrimination from later disapproval."
+  },
+  {
+   "id": "manages-own-schedule-for-a-week",
+   "verdict": "edit",
+   "reason": "'A week with no missed submissions' is a pattern; the planner entry plus the on-time submission is the occasion.",
+   "edit": {
+    "statement": "Hands in a piece of work on its due date with the deadline written in their own planner the week before.",
+    "adult_sees": "The educator sees the planner entry dated at least a week earlier and the work in on the day.",
+    "counter_example": "Hands work in on time with a planner filled in that morning."
+   }
+  },
+  {
+   "id": "trains-for-a-physical-goal",
+   "verdict": "edit",
+   "reason": "'Over weeks' is a pattern; the occasion is the showing of the dated record, which carries the pattern.",
+   "edit": {
+    "statement": "Shows a training record for a physical goal, such as a distance or a routine, with attempts dated across at least four weeks.",
+    "adult_sees": "The educator reads the goal and attempt entries whose dates span four or more weeks."
+   }
+  },
+  {
+   "id": "asks-a-trusted-adult-for-help",
+   "verdict": "skip",
+   "reason": "'Before it affects their work' is a counterfactual no observer can see, and the evidence is a private disclosure; help-seeking is real but this is not a recordable occasion."
+  },
+  {
+   "id": "mediates-between-two-others",
+   "verdict": "accept",
+   "reason": "Both parties accepting the way forward is the agreement test; a genuine step from repairing one's own conflicts."
+  },
+  {
+   "id": "leads-a-team-through-a-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "raises-an-unfairness-through-a-channel",
+   "verdict": "accept"
+  },
+  {
+   "id": "balances-load-across-exams-and-projects",
+   "verdict": "edit",
+   "reason": "'So both are delivered' is a term's outcome, not an occasion; the plan with a dated adjustment is what one moment shows.",
+   "edit": {
+    "statement": "Shows a term plan that holds both exam preparation and a project, with a dated change made after something slipped.",
+    "adult_sees": "The educator reads the plan, the dated change and what prompted it.",
+    "counter_example": "Shows a plan written after the term ended."
+   }
+  },
+  {
+   "id": "reflects-on-a-physical-practice-kept-through-a-year",
+   "verdict": "edit",
+   "reason": "'Joins for the season and stops' is not a look-alike of reflecting; reflection without a record is the over-count.",
+   "edit": {
+    "counter_example": "Speaks about the practice in general terms with no record to show."
+   }
+  },
+  {
+   "id": "supports-a-peer-and-knows-when-to-involve-an-adult",
+   "verdict": "edit",
+   "reason": "'Knows when' is a mind read and 'over time' a pattern; adult_sees rests on hearsay. The observable moment is the bringing-in, with the peer's knowledge.",
+   "edit": {
+    "statement": "Brings a peer who has a difficulty to an adult, having told the peer first that they would.",
+    "adult_sees": "The educator is approached by both and hears from the peer that they were told beforehand.",
+    "counter_example": "Listens to the peer for weeks and brings no adult in."
+   }
+  },
+  {
+   "id": "cares-for-a-plant-or-animal",
+   "verdict": "accept",
+   "reason": "The check afterwards separates care from a chore; the counter (adult hands over the can) is exactly the over-count."
+  },
+  {
+   "id": "sorts-waste-into-the-right-bin",
+   "verdict": "accept"
+  },
+  {
+   "id": "shares-without-being-asked",
+   "verdict": "accept"
+  },
+  {
+   "id": "notices-someone-elses-need",
+   "verdict": "edit",
+   "reason": "As drafted it records the same evidence as shares-without-being-asked; help to a younger child is distinct and shows 'beyond the self' at four to seven.",
+   "edit": {
+    "statement": "Helps a younger child with a task, such as opening a bottle or a bag, before any adult asks.",
+    "adult_sees": "The educator sees the help given to the younger child before any adult points to the need.",
+    "counter_example": "Opens the bottle for the younger child after an adult asks the group to help."
+   }
+  },
+  {
+   "id": "says-what-is-fair-in-a-game",
+   "verdict": "accept",
+   "reason": "A fairness that applies to everyone is the right discrimination; the same moment is filed as communication's uses-words-to-settle-a-dispute (see duplicates)."
+  },
+  {
+   "id": "keeps-a-shared-space-tidy",
+   "verdict": "accept",
+   "reason": "Belongs here rather than under learning; the counter (only their own spot) is exactly the discrimination."
+  },
+  {
+   "id": "measures-something-about-the-campus",
+   "verdict": "accept"
+  },
+  {
+   "id": "reduces-waste-in-a-class-project",
+   "verdict": "accept",
+   "reason": "Proposing, doing and checking are three visible acts; a genuine step from sorting waste."
+  },
+  {
+   "id": "explains-a-rule-by-its-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "considers-who-else-is-affected",
+   "verdict": "accept",
+   "reason": "Naming others affected is perspective-taking at eight to eleven, fair and visible."
+  },
+  {
+   "id": "does-a-service-task-outside-the-class",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-a-promise-to-the-group",
+   "verdict": "accept",
+   "reason": "Saying so in time when it cannot be kept is the element that distinguishes this from self's keeps-an-agreement; keep that element."
+  },
+  {
+   "id": "investigates-a-local-issue-with-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-a-trade-off-in-a-real-decision",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-both-sides-of-a-civic-question",
+   "verdict": "edit",
+   "reason": "Two cases made before the child's own view is heard once and noted; video is heavier than needed.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "changes-a-plan-that-would-harm-others",
+   "verdict": "accept",
+   "reason": "The stated reason makes the realisation visible; the counter (apologise later) is exactly the discrimination."
+  },
+  {
+   "id": "organises-a-service-activity",
+   "verdict": "accept"
+  },
+  {
+   "id": "owns-a-mistake-that-affected-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "models-a-system-with-feedback",
+   "verdict": "accept",
+   "reason": "Feedback loops used to explain an outcome is right for 15 to 16 with teaching; the counter (arrows without feedback) is precise."
+  },
+  {
+   "id": "applies-an-ethical-framework-to-a-dilemma",
+   "verdict": "accept"
+  },
+  {
+   "id": "engages-a-public-body-or-community",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-habit-on-evidence-of-harm",
+   "verdict": "edit",
+   "reason": "A home habit kept for a term is self-report of private conduct, not observation; a dated log the child shows is the occasion, and it need not be at home.",
+   "edit": {
+    "statement": "Shows a dated log of a habit changed after presenting evidence of its harm, with entries across at least a month.",
+    "adult_sees": "The educator sees the evidence presented earlier and reads log entries whose dates span a month or more.",
+    "counter_example": "Pledges the change publicly and shows a log begun the day before.",
+    "capture_mode": "artefact",
+    "setting": "project"
+   }
+  },
+  {
+   "id": "leads-a-sustained-service-commitment",
+   "verdict": "edit",
+   "reason": "'Over a term' is a pattern; the presentation of the dated record is the occasion an educator can record.",
+   "edit": {
+    "statement": "Presents the term's record of a service commitment they led, showing what changed for the people served.",
+    "adult_sees": "The educator reads dated entries across the term and a stated change for those served."
+   }
+  },
+  {
+   "id": "accounts-for-a-public-role",
+   "verdict": "accept"
+  }
+ ],
+ "cells": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Uses a word taught this week in a sentence of their own about something in the room.",
+     "adult_sees": "The educator hears the new word used correctly in a sentence the child made, not the one the class practised.",
+     "counter_example": "Repeats the example sentence the class chanted with the word.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "capable"
+     ],
+     "why": "Oral vocabulary is the strongest foundational knowledge marker and the only one a Nursery child can show; the cell is all print and number."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Three of six (reads a word, exchanges ten ones, writes numerals) are Grade 1 to 2 behaviours; a three-to-five-year-old can show only counting, retelling and sorting. Mark the earliest fair age on each, or split the band."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "grows_from is weak here: measuring grows from counting (counts-objects-one-to-one), not from exchanging tens; a timed set does not grow from writing one's name; explaining with a because does not grow from sorting. These are new constructs and should say so."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "middle",
+   "missing": [],
+   "duplicates": [],
+   "notes": "sits-a-full-length-test is completes-a-timed-set made longer, not a new capacity; the genuine step at 11 to 14 is allocating time across questions, which appears only at secondary."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "Two of six are examination performance, which the capability's wording allows, but performs-under-board-exam-conditions is again 'the same, longer'; the genuine step is the time management it names, so the statement should lead with that."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "stage_id": "foundational",
+   "missing": [],
+   "duplicates": [],
+   "notes": "predicts-then-checks and changes-a-guess-when-shown will often be one sink-or-float moment recorded twice; tell educators to record one or the other per moment. Otherwise the best foundational cell in the draft: all six reachable by five, all low inference."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "separates-fact-from-opinion does not grow from ordering causes; it is a new construct at nine to eleven and should be declared so. Quantitative reasoning has one behaviour here (the pattern), thin for the Investigate stage."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "stage_id": "middle",
+   "missing": [],
+   "duplicates": [],
+   "notes": "states-an-assumption with its counterfactual is at the edge for 11 to 12 and fair by 13 to 14; expect first records late in the stage, which is age, not the child. estimates and quantifies have weak lineages (pattern, prediction); both are new quantitative constructs."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Names something they want to learn to do, such as tying laces or writing a letter, and asks to be shown.",
+     "adult_sees": "The educator hears the skill named by the child and the request to be shown it.",
+     "counter_example": "Picks a skill from a list the educator reads out.",
+     "capture_mode": "observation",
+     "setting": "play",
+     "words": [
+      "capable",
+      "unafraid"
+     ],
+     "why": "Goal-setting has no seed at this stage, so sets-a-goal-for-the-week grows from nothing; a self-named skill is its four-to-seven-year form."
+    }
+   ],
+   "duplicates": [
+    [
+     "puts-materials-back-ready-for-next",
+     "keeps-a-shared-space-tidy"
+    ]
+   ],
+   "notes": "Reflection and self-named goals appear from about five; Nursery children will mostly show choosing, trying and asking for help. That is normal development and the report to parents should say so."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "keeps-own-record-of-practice grows from tidying in the draft; it grows from nothing earlier and should say so. Otherwise a distinct, well-covered cell: goal, resource, reflection, feedback, record, challenge."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "middle",
+   "missing": [],
+   "duplicates": [
+    [
+     "plans-a-multi-week-project",
+     "manages-own-schedule-for-a-week"
+    ]
+   ],
+   "notes": "plans-a-multi-week-project and self's manages-own-schedule-for-a-week will be the same dated planner; decide which capability owns planning."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [
+    [
+     "runs-an-independent-study",
+     "designs-and-runs-an-original-investigation"
+    ]
+   ],
+   "notes": "runs-an-independent-study, creation's designs-and-runs-an-original-investigation and thinking's defines-a-problem-before-solving will all be filed from one Grade 10 project; the edit here makes this one about self-management so the three record different evidence."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Uses one object as another in pretend play, such as a block as a phone, and tells a playmate what it stands for.",
+     "adult_sees": "The educator hears the child name what the object stands for and sees it used that way in the play.",
+     "counter_example": "Uses a toy phone as a phone.",
+     "capture_mode": "observation",
+     "setting": "play",
+     "words": [
+      "capable",
+      "unafraid"
+     ],
+     "why": "Symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show; the cell starts at about four."
+    }
+   ],
+   "duplicates": [
+    [
+     "draws-to-show-an-idea",
+     "shows-work-and-explains-it"
+    ]
+   ],
+   "notes": "Coverage is all construction and nothing here is reachable at three. Pretend substitution fills that and gives a genuine root for later invention."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "tests-and-improves and presents-a-made-thing-and-what-changed are one iteration seen twice (doing it, then telling it); keep both only if the second is recorded from a different occasion."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Makes an original artwork, composition or performance piece to a set theme and explains one choice made in it.",
+     "adult_sees": "The educator sees the piece meet the theme and hears one choice in it explained by the child.",
+     "counter_example": "Copies a piece found online and explains the original artist's choice.",
+     "capture_mode": "artefact",
+     "setting": "lesson",
+     "words": [
+      "capable",
+      "unafraid"
+     ],
+     "why": "The arts vanish after preparatory's story or poem; creation at 11 to 14 is more than prototypes and code."
+    }
+   ],
+   "duplicates": [
+    [
+     "codes-a-program-that-solves-a-task",
+     "writes-a-text-program-with-a-loop-and-a-condition"
+    ],
+    [
+     "investigates-an-open-question",
+     "investigates-a-local-issue-with-data"
+    ]
+   ],
+   "notes": "codes-a-program grows from chooses-a-tool-for-a-job and investigates-an-open-question from plans-a-make; neither is a developmental lineage."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [
+    [
+     "exhibits-work-publicly",
+     "presents-to-an-outside-audience"
+    ]
+   ],
+   "notes": "completes-an-apprenticeship-task is a new setting, not a step, and depends on placements the could_not rightly flags. builds-software-with-tests and technology's writes-a-program-using-data-and-libraries will often be one program."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "foundational",
+   "missing": [],
+   "duplicates": [
+    [
+     "takes-turns-in-a-pair-task",
+     "waits-for-a-turn-without-a-reminder"
+    ],
+    [
+     "uses-words-to-settle-a-dispute",
+     "says-what-is-fair-in-a-game"
+    ]
+   ],
+   "notes": "A good three-to-six cell: all six reachable by four and low inference. Two are filed again under self and society; assign each moment to one capability."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "writes-a-letter-for-a-purpose grows from turn-taking in the draft; it grows from tells-news-in-full-sentences. Six distinct constructs: talk, build, negotiate, write, explain, disagree."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "presents-to-an-outside-audience is presents-with-a-visual-aid with a different audience, not a new capacity; the genuine step at 14 to 16 is handling hostile or expert questions, which the statement could name."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "foundational",
+   "missing": [],
+   "duplicates": [],
+   "notes": "Honest unplugged proxies; sequencing and instruction-giving are real four-to-seven precursors of programming. Nothing here is technology at three, which the could_not admits."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "preparatory",
+   "missing": [
+    {
+     "statement": "Writes step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing comes out wrong.",
+     "adult_sees": "The educator sees the written steps followed by the classmate and one step rewritten after the mismatch.",
+     "counter_example": "Tells the classmate what to draw while they draw it.",
+     "capture_mode": "artefact",
+     "setting": "lesson",
+     "words": [
+      "capable"
+     ],
+     "why": "Gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Screens begin at Grade 4, so five of six are unobservable for the whole of Grade 3; only explains-what-an-algorithm-does can be unplugged. Add unplugged behaviours or state that this cell opens in Grade 4. credits-a-source grows from device care in the draft; it grows from nothing earlier."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [
+    [
+     "builds-software-with-tests",
+     "writes-a-program-using-data-and-libraries"
+    ]
+   ],
+   "notes": "A strong cell developmentally; the two program behaviours across creation and technology will often be one program, so agree which capability files it."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Tells a classmate 'stop' or 'I am still using it' in words when pushed or grabbed at, before an adult steps in.",
+     "adult_sees": "The educator hears the words said to the classmate before any adult intervenes.",
+     "counter_example": "Says 'stop' to the classmate after the educator tells them to use their words.",
+     "capture_mode": "observation",
+     "setting": "play",
+     "words": [
+      "unafraid"
+     ],
+     "why": "Nothing in the cell is the three-to-six-year-old holding their own ground in words; 'unafraid' at this age is exactly that."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Coverage is fair (label, wait, comfort, self-care, motor, recover) but every 'unafraid' item is recovery; assertion is the missing one. runs-jumps-and-balances bundles three skills into one yes-or-no record."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [
+    [
+     "keeps-an-agreement-made-with-a-classmate",
+     "keeps-a-promise-to-the-group"
+    ]
+   ],
+   "notes": "Two of six were written as a week or several sessions; both edits move them to the one day on which the pattern shows."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "missing": [],
+   "duplicates": [],
+   "notes": "With asks-a-trusted-adult skipped, supports-a-peer at secondary needs a new root; comforts-a-classmate to includes-a-child-left-out to speaks-up-for-a-classmate is the natural line. Three of six here were terms or weeks, not occasions."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "secondary",
+   "missing": [
+    {
+     "statement": "Stops an argument that has reached raised voices by proposing a break and a time to return to it.",
+     "adult_sees": "The educator hears the proposal made while voices are raised and sees the group part and return at the time named.",
+     "counter_example": "Walks out of the argument with no word about returning.",
+     "capture_mode": "observation",
+     "setting": "project",
+     "words": [
+      "kind",
+      "capable"
+     ],
+     "why": "Emotional regulation, named in the capability, has no secondary behaviour; this is its 14-to-16 form in observable terms."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Five of six in this cell were written as a term or a year; the edits move each to the moment where a dated artefact shows the pattern."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Votes in a class choice and goes along with the result when their choice loses.",
+     "adult_sees": "The educator sees the vote cast and the child join the chosen activity after their own choice lost.",
+     "counter_example": "Joins the chosen activity when their own choice won.",
+     "capture_mode": "observation",
+     "setting": "circle",
+     "words": [
+      "kind",
+      "unafraid"
+     ],
+     "why": "Accepting a group decision that went against you is the four-to-seven-year-old's first civic act; the cell has care and sharing but no group decision."
+    },
+    {
+     "statement": "Handles a living thing found outdoors, such as a snail or a worm, gently and puts it back where it was.",
+     "adult_sees": "The educator sees the creature held without squeezing and returned to the spot it came from.",
+     "counter_example": "Puts the snail in a jar to keep.",
+     "capture_mode": "observation",
+     "setting": "outdoors",
+     "words": [
+      "kind"
+     ],
+     "why": "The planet appears only as the class plant and the bins; care for a wild living thing is distinct and reachable at three."
+    }
+   ],
+   "duplicates": [
+    [
+     "shares-without-being-asked",
+     "notices-someone-elses-need"
+    ]
+   ],
+   "notes": "As drafted the cell is five: sharing and noticing a need are one moment (fixed by the edit). Two others are filed again under learning and communication; the could_not says so and is right."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "measures-something-about-the-campus grows from watering a plant only by setting; it is knowledge's measuring behaviour pointed at the campus. Fine, but the lineage is not developmental."
+  }
+ ],
+ "could_not": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "verdict": "missing",
+   "reason": "An empty could_not hides two real limits: examination performance has no observable form before preparatory, and the foundational cell is two age bands (three to five, six to eight) in one."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "verdict": "honest",
+   "reason": "Empty is fair here: every element of the 16-year-old's thinking has a plausible proto-form at each stage, and the chain from predicts-then-checks to reasons-from-a-model is genuine."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "verdict": "missing",
+   "reason": "Should have said that goal-setting and reflection have no form before about five, so the Nursery half of foundational can show only choosing, trying and asking for help."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "verdict": "honest",
+   "reason": "Right: the secondary cell assumes placements, exhibitions and outside briefs. It should have added that nothing in foundational is reachable at three."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "verdict": "honest",
+   "reason": "Honest but not a could_not: it flags word tags, which the founders will re-read anyway. Nothing in this capability lacked an observable form, so an empty list would have been as honest."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "verdict": "honest",
+   "reason": "Right about foundational; incomplete, because the same no-screen rule empties five of six preparatory behaviours for Grade 3, which it should have said."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "verdict": "honest",
+   "reason": "Right on both counts. It should also have said that resilience and commitment 'over time' cannot be one occasion, which is why five behaviours here needed rewriting."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "verdict": "honest",
+   "reason": "Honest and right; the overlap it names is with learning-and-agency and communication as much as with self-and-relationships."
+  }
+ ],
+ "objections": [
+  "The Foundational stage runs from three to eight, so one set of six behaviours is either out of reach for Nursery (reading with the picture covered, exchanging tens, writing numerals, reflecting on what was learned) or trivial for Grade 2, and every young child will show 'not yet' on half of most cells by design; split it into three-to-five and six-to-eight, or mark each foundational behaviour with the earliest age at which it is fair to expect.",
+  "About fifteen behaviours, most under Self, Society and Learning, are written as patterns over a week, a term or a year ('across a term', 'for a week without reminders', 'kept through the year'), which is the frequency rule re-entering by the back door and turns the record into a summary judgement instead of one dated observation; each should be the single moment at which a dated artefact makes the pattern visible, as my edits show.",
+  "Roughly a dozen behaviours record the same moment under two capabilities (tidying, turn-taking, keeping a promise, settling a dispute, coding a program, presenting publicly, running an investigation), so one occasion will be filed twice and the profile will be inflated on kind and on investigation; give each moment one owner and fill the vacated slots with the constructs the draft lacks: pretend play, oral vocabulary, a class vote, a child holding their ground in words, and emotional regulation at 14 to 16."
+ ],
+ "note_to_founders": "This draft is better than most instruments I have reviewed: the sentences are behaviours, the counter-examples mostly teach the right discrimination, and the thinking chain from predicting at four to testing a model at sixteen is a real developmental sequence. Three things I would fix before your own pass. First, the age band: a stage from three to eight is two developmental worlds, and unless you split it or mark the earliest fair age on each foundational line, parents of a Nursery child will read a page of 'not yet' that says nothing about their child. Second, the patterns: whenever a line says 'over a term' or 'for a week', an educator is being asked to summarise, which is exactly the judgement the one-occasion rule was written to keep out of the record; I have rewritten those so the occasion is the moment a dated log or plan is shown, and the pattern lives in the record where it belongs. Third, double filing: about a dozen moments sit under two capabilities, so the same afternoon will count twice and the capability profile will lie; decide one owner per moment and use the freed slots for what is missing, chiefly pretend play, oral vocabulary and a three-year-old saying 'stop' in words. I skipped only three lines: a duplicate, a program filed twice, and a private disclosure to a trusted adult that no observer can judge and that should not be a routine record. The could_not entries are honest as far as they go; knowledge and learning should have had one each, and technology's should have said that Grade 3, with no screen, cannot show five of its six preparatory behaviours. Finally, be plain with educators that a behaviour first seen at six is not late: the stage sets the ceiling, not the age at which a child should reach it."
+}

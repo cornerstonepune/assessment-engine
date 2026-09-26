@@ -1,0 +1,1177 @@
+{
+ "seat": "rights",
+ "verdicts": [
+  {
+   "id": "counts-objects-one-to-one",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-a-familiar-word",
+   "verdict": "accept"
+  },
+  {
+   "id": "exchanges-ten-ones",
+   "verdict": "accept"
+  },
+  {
+   "id": "retells-a-story-in-order",
+   "verdict": "accept"
+  },
+  {
+   "id": "sorts-by-a-stated-rule",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-name-and-numerals",
+   "verdict": "edit",
+   "reason": "'Legibly on paper' makes handwriting the gate; a child with a motor disability, or one writing in another script, shows the same knowledge with tiles or in their script.",
+   "edit": {
+    "statement": "Writes or forms their own name and the numerals one to nine, on paper or with letter and number tiles, without a model to copy.",
+    "adult_sees": "The educator sees the name and numerals produced, in any script the child is learning, with no model in view."
+   }
+  },
+  {
+   "id": "adds-with-regrouping",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-and-answers-a-passage",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-fact-with-a-because",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-measuring-tool",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-a-timed-set",
+   "verdict": "edit",
+   "reason": "'In the time given' fixes one limit for all; a child with an agreed extra-time accommodation must be able to earn this within their own time.",
+   "edit": {
+    "statement": "Completes a short timed set of practice questions within the time allotted to them and checks one answer before handing in.",
+    "adult_sees": "The educator sees the set finished within the child's allotted time and one answer visibly re-checked."
+   }
+  },
+  {
+   "id": "writes-a-paragraph-with-a-main-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-multi-step-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "summarises-a-chapter",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-technical-term-correctly",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-an-experiment",
+   "verdict": "accept"
+  },
+  {
+   "id": "sits-a-full-length-test",
+   "verdict": "accept",
+   "reason": "Acceptable only if 'exam rules' include the child's agreed accommodations; see the cell note."
+  },
+  {
+   "id": "writes-an-explanatory-essay",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-an-unseen-board-style-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-a-primary-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-a-concept-to-a-younger-student",
+   "verdict": "edit",
+   "reason": "A video puts a younger child, who gave no consent, into another child's ten-year record; the educator hears both explanations directly, and the note carries no other child's name.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator hears the second explanation differ from the first when the first does not land, and notes it without the younger child's name."
+   }
+  },
+  {
+   "id": "derives-a-result-from-first-principles",
+   "verdict": "accept"
+  },
+  {
+   "id": "performs-under-board-exam-conditions",
+   "verdict": "accept",
+   "reason": "Read 'exam conditions' as including the child's agreed accommodations, as the board itself does."
+  },
+  {
+   "id": "writes-an-extended-argument-with-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-why-about-something-seen",
+   "verdict": "accept"
+  },
+  {
+   "id": "predicts-then-checks",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-a-reason-for-a-choice",
+   "verdict": "accept"
+  },
+  {
+   "id": "notices-a-difference-between-two-things",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-guess-when-shown",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-events-in-cause-order",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-a-question-that-can-be-tested",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-a-prediction-and-result",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-evidence-for-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "spots-a-pattern-in-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "revises-an-answer-with-a-stated-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "separates-fact-from-opinion",
+   "verdict": "accept"
+  },
+  {
+   "id": "designs-a-fair-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "judges-a-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "estimates-before-calculating",
+   "verdict": "accept"
+  },
+  {
+   "id": "states-an-assumption",
+   "verdict": "accept"
+  },
+  {
+   "id": "concedes-a-point-in-a-debate",
+   "verdict": "accept"
+  },
+  {
+   "id": "quantifies-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "defines-a-problem-before-solving",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-conflicting-evidence",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-a-result-two-ways",
+   "verdict": "accept"
+  },
+  {
+   "id": "reasons-from-a-model-to-a-prediction",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-position-in-writing",
+   "verdict": "accept",
+   "reason": "Good unafraid evidence; keep the filed questions academic, so the artefact never holds a child's religious or political position. See the cell note."
+  },
+  {
+   "id": "identifies-the-flaw-in-an-argument",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-an-activity-and-finishes-it",
+   "verdict": "edit",
+   "reason": "The counter describes flitting 'each time an adult looks away': attention by paraphrase and a motive read into a small child; the look-alike is a finished but assigned activity.",
+   "edit": {
+    "counter_example": "Finishes an activity the educator assigned rather than one they chose themselves."
+   }
+  },
+  {
+   "id": "asks-for-help-after-trying",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-they-learned-today",
+   "verdict": "edit",
+   "reason": "A recording of a child under eight is identifiable data needing verifiable parental consent (DPDP Act; verify detail), kept ten years; the educator's note of the words holds this.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "fixes-own-work-after-a-hint",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-materials-back-ready-for-next",
+   "verdict": "accept"
+  },
+  {
+   "id": "tries-again-after-a-fail",
+   "verdict": "accept"
+  },
+  {
+   "id": "sets-a-goal-for-the-week",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-resource-before-asking",
+   "verdict": "accept"
+  },
+  {
+   "id": "names-what-was-hard-and-why",
+   "verdict": "edit",
+   "reason": "A child's recorded words about what they find hard, filed ten years, become a self-written deficit record; note that a difficulty and a change were named, not the words.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator reads or hears a specific difficulty and a specific change, and notes that both were named rather than filing the words."
+   }
+  },
+  {
+   "id": "uses-feedback-in-the-next-draft",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-own-record-of-practice",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-harder-version-when-offered",
+   "verdict": "accept"
+  },
+  {
+   "id": "plans-a-multi-week-project",
+   "verdict": "accept"
+  },
+  {
+   "id": "finds-and-cites-two-sources-alone",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-for-specific-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "self-marks-against-a-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "monitors-own-progress-on-the-map",
+   "verdict": "accept",
+   "reason": "Good: a child reading their own skill map is the child's right of access to their own record, in practice."
+  },
+  {
+   "id": "persists-through-a-failed-attempt",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-independent-study",
+   "verdict": "accept"
+  },
+  {
+   "id": "evaluates-own-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "seeks-expert-feedback-outside-school",
+   "verdict": "edit",
+   "reason": "A minor approaching an outside adult must go through a contact the school knows (safeguarding), and the school should offer such contacts so this does not depend on family networks.",
+   "edit": {
+    "statement": "Seeks feedback from someone outside school with relevant expertise, through a contact the school knows of, and reports what they learned from it.",
+    "adult_sees": "The educator knows who was approached and how, and sees the expert's feedback and the change it led to."
+   }
+  },
+  {
+   "id": "sets-own-standard-above-the-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-themself-a-tool-or-topic",
+   "verdict": "accept"
+  },
+  {
+   "id": "recovers-from-a-public-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-something-from-a-plan-in-mind",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-practical-problem-with-materials",
+   "verdict": "accept"
+  },
+  {
+   "id": "draws-to-show-an-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "invents-a-rule-for-a-game",
+   "verdict": "edit",
+   "reason": "'Changes rules mid-game to win' reads a motive into a small child and files cheating as the contrast; the look-alike is a rule announced but not played.",
+   "edit": {
+    "counter_example": "Proposes a new rule and then plays the round by the old rules."
+   }
+  },
+  {
+   "id": "makes-a-second-version",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-for-its-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "makes-a-model-that-works",
+   "verdict": "accept"
+  },
+  {
+   "id": "tests-and-improves-a-design",
+   "verdict": "accept"
+  },
+  {
+   "id": "plans-a-make-with-a-list",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-original-story-or-poem",
+   "verdict": "accept"
+  },
+  {
+   "id": "presents-a-made-thing-and-what-changed",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-tool-for-a-job",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-prototype-to-a-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-iteration-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "codes-a-program-that-solves-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "produces-a-piece-for-a-real-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "pitches-a-solution-with-trade-offs",
+   "verdict": "accept"
+  },
+  {
+   "id": "investigates-an-open-question",
+   "verdict": "accept"
+  },
+  {
+   "id": "delivers-a-project-to-a-client-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "documents-a-build-so-others-can-repeat-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-software-with-tests",
+   "verdict": "accept"
+  },
+  {
+   "id": "exhibits-work-publicly",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-an-apprenticeship-task",
+   "verdict": "edit",
+   "reason": "Placements for 14–16-year-olds need school vetting of the host, supervision and hours limits (adolescent-labour rules; verify), and must not depend on which families have contacts.",
+   "edit": {
+    "statement": "Completes a real task in a school-arranged and supervised internship or apprenticeship placement, confirmed by the host.",
+    "adult_sees": "The educator sees the host's confirmation of a task done, at a placement the school vetted and supervises."
+   }
+  },
+  {
+   "id": "designs-and-runs-an-original-investigation",
+   "verdict": "accept"
+  },
+  {
+   "id": "tells-news-in-full-sentences",
+   "verdict": "edit",
+   "reason": "Audio of a small child's news files home life for ten years, and 'full sentences' must not mean English only; the educator's note holds the two connected sentences.",
+   "edit": {
+    "statement": "Tells the circle something that happened, in two or more connected sentences in a language they speak, so that listeners can follow.",
+    "adult_sees": "The educator hears two connected sentences, in whichever language the child uses, and sees the circle follow.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "listens-and-responds-to-a-peer",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-to-join-and-accepts-no",
+   "verdict": "accept"
+  },
+  {
+   "id": "takes-turns-in-a-pair-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "shows-work-and-explains-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-words-to-settle-a-dispute",
+   "verdict": "edit",
+   "reason": "'Words' shuts out a signing or non-speaking child, and a counter naming grabbing or hitting invites an incident note into a capability file; the look-alike is words without a proposal.",
+   "edit": {
+    "statement": "Uses words or signs to settle a dispute over a toy or a turn, such as proposing a swap.",
+    "adult_sees": "The educator hears or sees the proposal made and sees the dispute end.",
+    "counter_example": "Repeats 'mine' louder and louder until an adult steps in."
+   }
+  },
+  {
+   "id": "gives-a-short-prepared-talk",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-on-a-peer-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "negotiates-roles-in-a-group",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-letter-for-a-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-method-to-a-peer",
+   "verdict": "accept"
+  },
+  {
+   "id": "disagrees-politely-with-a-reason",
+   "verdict": "edit",
+   "reason": "'Politely' and 'without heat' judge manner and mood, which differ by culture and neurotype and are read into the child; the observable is a reason given and a reply allowed.",
+   "edit": {
+    "statement": "Disagrees with a classmate's answer, gives a reason, and lets the classmate reply.",
+    "adult_sees": "The educator hears the disagreement and its reason addressed to the answer, not to the classmate, and the classmate given the floor."
+   }
+  },
+  {
+   "id": "presents-with-a-visual-aid",
+   "verdict": "accept"
+  },
+  {
+   "id": "leads-a-discussion-fairly",
+   "verdict": "accept"
+  },
+  {
+   "id": "resolves-a-group-conflict-by-agreement",
+   "verdict": "edit",
+   "reason": "A counter that names going to the educator teaches children that asking an adult costs them credit; safeguarding needs the opposite; the look-alike is giving way to end the argument.",
+   "edit": {
+    "counter_example": "Gives way to the louder side so that the task can go on."
+   }
+  },
+  {
+   "id": "writes-for-a-named-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-usable-peer-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-a-side-in-a-debate",
+   "verdict": "edit",
+   "reason": "'A side they do not hold' makes the educator infer and file the child's beliefs; a video of a child arguing a view, kept ten years, reads as their own.",
+   "edit": {
+    "statement": "Argues the side assigned to them in a structured debate, using evidence for it, whichever side that is.",
+    "adult_sees": "The educator hears evidence used for the assigned side and notes that the side was assigned.",
+    "counter_example": "Asks to swap sides before the debate and argues the side they asked for.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "presents-to-an-outside-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "facilitates-a-meeting-with-an-agenda",
+   "verdict": "accept",
+   "reason": "The filed meeting record names other children; store it with their names covered."
+  },
+  {
+   "id": "negotiates-an-outcome-with-adults",
+   "verdict": "edit",
+   "reason": "'Accepting conditions' makes compliance the evidence, so a child who argues the adults into a better outcome earns nothing; the observable is a case made and an agreement reached.",
+   "edit": {
+    "statement": "Negotiates an outcome with adults, such as a change to a school routine, presenting a case and reaching an agreed outcome with them.",
+    "adult_sees": "The educator sees the case made, the adults' response answered, and an outcome both sides state as agreed."
+   }
+  },
+  {
+   "id": "writes-a-formal-document",
+   "verdict": "accept"
+  },
+  {
+   "id": "mentors-a-younger-student-over-time",
+   "verdict": "edit",
+   "reason": "A standing older–younger pairing over weeks needs adult supervision (safeguarding), and the younger child's name and difficulties must not sit in the mentor's ten-year file.",
+   "edit": {
+    "statement": "Mentors a younger student over several weeks in a pairing the school set up and supervises, and records what they worked on together.",
+    "adult_sees": "The educator sees the record of sessions and what each covered, kept without the younger child's name or their difficulties."
+   }
+  },
+  {
+   "id": "restates-an-opposing-view-before-answering",
+   "verdict": "accept"
+  },
+  {
+   "id": "operates-a-simple-device-for-a-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "follows-a-sequence-of-instructions",
+   "verdict": "edit",
+   "reason": "As written, a child new to the school's language fails a sequencing behaviour for not understanding the words; the instructions must be in a language the child understands.",
+   "edit": {
+    "statement": "Follows a three-step sequence of instructions, given in a language they understand, in order, such as in an unplugged coding game.",
+    "adult_sees": "The educator gives the steps in a language the child understands and sees the three done in the order given."
+   }
+  },
+  {
+   "id": "gives-instructions-to-move-a-friend",
+   "verdict": "accept"
+  },
+  {
+   "id": "sorts-real-from-pretend",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-before-using-someone-elses-thing",
+   "verdict": "accept"
+  },
+  {
+   "id": "handles-a-device-with-care",
+   "verdict": "edit",
+   "reason": "'Carried with two hands' excludes a child with a limb difference or a child using a walking aid; 'securely, as shown' is the observable that every child can meet.",
+   "edit": {
+    "adult_sees": "The educator sees the device carried securely in the way shown and returned to its place."
+   }
+  },
+  {
+   "id": "uses-a-tool-to-produce-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-and-debugs-a-short-program",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-what-an-algorithm-does",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-an-ai-or-search-answer",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-personal-details-private-online",
+   "verdict": "accept",
+   "reason": "Good: this is the rule the school must also keep about the child; see the cell note."
+  },
+  {
+   "id": "credits-a-source-for-an-image-or-fact",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-the-right-tool-for-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-text-program-with-a-loop-and-a-condition",
+   "verdict": "accept"
+  },
+  {
+   "id": "verifies-an-ai-output-and-finds-an-error",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-how-a-recommendation-or-bias-arises",
+   "verdict": "accept"
+  },
+  {
+   "id": "manages-own-privacy-settings",
+   "verdict": "accept"
+  },
+  {
+   "id": "attributes-ai-help-in-own-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-working-digital-product",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-program-using-data-and-libraries",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-ai-with-a-verification-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "evaluates-a-technology-for-harm-and-benefit",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-task-without-ai-they-could-do-with-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "protects-others-data",
+   "verdict": "accept",
+   "reason": "Good: the school's own handling of these records should meet the rule it asks of the child here."
+  },
+  {
+   "id": "says-what-they-are-feeling-and-chooses",
+   "verdict": "edit",
+   "reason": "Recording a small child's words in a hard moment files feelings, often with home causes, for ten years; note only the choice; a disclosure is safeguarding, not evidence.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator hears a feeling named in the child's own words and sees the choice made; the note records the choice, never the words or the cause."
+   }
+  },
+  {
+   "id": "waits-for-a-turn-without-a-reminder",
+   "verdict": "accept"
+  },
+  {
+   "id": "comforts-a-classmate",
+   "verdict": "edit",
+   "reason": "'To get them in trouble' reads a motive into a small child and casts telling an adult as suspect, which safeguarding must never do; the look-alike is crowding to look.",
+   "edit": {
+    "counter_example": "Joins the crowd around the hurt classmate to look, without doing anything for them."
+   }
+  },
+  {
+   "id": "manages-own-things",
+   "verdict": "edit",
+   "reason": "'Without help' bars a child who uses an aid or adaptation from ever earning independence; independence means doing it with one's own aids and no adult doing it for them.",
+   "edit": {
+    "statement": "Manages their own bag, bottle and shoes at arrival and departure without an adult doing it for them, using any aids they have.",
+    "adult_sees": "The educator sees the routine done by the child, with their own aids if any, and no adult doing it for them."
+   }
+  },
+  {
+   "id": "runs-jumps-and-balances-in-play",
+   "verdict": "skip",
+   "reason": "A motor-milestone checklist on video is a health screen of a small child's body, not capability evidence; it excludes a child with a physical disability and is kept ten years."
+  },
+  {
+   "id": "returns-to-play-after-a-small-hurt",
+   "verdict": "edit",
+   "reason": "Sitting out after a hurt is a child's own choice, not a failing to list against them; the look-alike is a return steered by an adult, not the child's own.",
+   "edit": {
+    "counter_example": "Returns to play only when an adult walks them back to the game."
+   }
+  },
+  {
+   "id": "uses-a-strategy-before-acting",
+   "verdict": "edit",
+   "reason": "Each record here also records a conflict; the note must hold the strategy alone, never the incident or the other child, or the file becomes a conflict log.",
+   "edit": {
+    "adult_sees": "The educator sees the strategy used in the moment, before the response, and notes the strategy alone, not the conflict or who else was in it."
+   }
+  },
+  {
+   "id": "keeps-an-agreement-made-with-a-classmate",
+   "verdict": "accept"
+  },
+  {
+   "id": "includes-a-child-left-out",
+   "verdict": "accept"
+  },
+  {
+   "id": "carries-out-a-class-responsibility",
+   "verdict": "edit",
+   "reason": "'Without reminders' bars a child who needs and uses a memory aid, a disability-linked need, from ever earning this; using one's own way of remembering is the independence.",
+   "edit": {
+    "statement": "Carries out a class responsibility, such as plants or the library corner, every day for a week, using their own way of remembering.",
+    "adult_sees": "The educator sees the job done each day with no adult prompting it, whatever memory aid the child uses."
+   }
+  },
+  {
+   "id": "learns-a-new-physical-skill-through-practice",
+   "verdict": "edit",
+   "reason": "Video of a child's body across sessions is heavy identifiable data kept ten years and needs consent (DPDP Act); the educator seeing the skill shown holds this.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "accepts-a-loss-and-congratulates",
+   "verdict": "accept"
+  },
+  {
+   "id": "repairs-a-relationship-after-a-conflict",
+   "verdict": "edit",
+   "reason": "Every record here also records a conflict; note the repair alone; and a counter that has educators track who avoids whom for a week is surveillance of friendships.",
+   "edit": {
+    "adult_sees": "The educator sees the approach made unprompted and notes the repair alone, not the conflict or the classmate.",
+    "counter_example": "Apologises when the educator stands beside them and waits for it."
+   }
+  },
+  {
+   "id": "keeps-a-commitment-to-a-team",
+   "verdict": "edit",
+   "reason": "'Drops out when it stops being fun' reads a motive into leaving; a child may leave for illness, caring duties, transport or money the school never sees.",
+   "edit": {
+    "counter_example": "Attends the sessions but leaves their part for others to deliver."
+   }
+  },
+  {
+   "id": "speaks-up-for-a-classmate",
+   "verdict": "edit",
+   "reason": "The note must hold the speaking up, never the bullying incident or the children in it, which belong to the anti-bullying process; the counter should not picture children laughing along.",
+   "edit": {
+    "adult_sees": "The educator hears the intervention as it happens and notes the speaking up alone; the mocking itself goes to the school's own process, not this record.",
+    "counter_example": "Joins the classmate's side once an adult has already stepped in."
+   }
+  },
+  {
+   "id": "manages-own-schedule-for-a-week",
+   "verdict": "accept"
+  },
+  {
+   "id": "trains-for-a-physical-goal",
+   "verdict": "edit",
+   "reason": "A 'physical goal' can become a body-shape or scale goal for a twelve-year-old, a known harm; the record must hold what the child can do, never a body measure.",
+   "edit": {
+    "statement": "Sets a physical goal about what they can do, such as a distance or a routine, trains for it over weeks and records the attempts.",
+    "adult_sees": "The educator reads the record of attempts across the weeks, a record of what was done, never a body measure."
+   }
+  },
+  {
+   "id": "asks-a-trusted-adult-for-help",
+   "verdict": "skip",
+   "reason": "A child's disclosure of a personal difficulty to a trusted adult is confidential and may be about home; it must go to safeguarding, never to a file parents read."
+  },
+  {
+   "id": "mediates-between-two-others",
+   "verdict": "edit",
+   "reason": "The note must not carry two other children's dispute into the mediator's ten-year file; the mediation is the evidence, the dispute and its parties are not.",
+   "edit": {
+    "adult_sees": "The educator sees both classmates accept the way forward and notes the mediation alone, not the dispute or who was in it."
+   }
+  },
+  {
+   "id": "leads-a-team-through-a-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "raises-an-unfairness-through-a-channel",
+   "verdict": "edit",
+   "reason": "A child's complaint about the school must never sit as content in their own file for future staff; note the act only; a concern about an adult is safeguarding.",
+   "edit": {
+    "adult_sees": "The educator sees the matter raised in the channel and followed up, and notes the raising, not the complaint's content; a concern about an adult goes to the safeguarding lead instead."
+   }
+  },
+  {
+   "id": "balances-load-across-exams-and-projects",
+   "verdict": "accept"
+  },
+  {
+   "id": "reflects-on-a-physical-practice-kept-through-a-year",
+   "verdict": "accept",
+   "reason": "Self_voice at 14 to 16 is the child's own account of their own practice; fine, provided the year's record holds what was done and no body measures."
+  },
+  {
+   "id": "supports-a-peer-and-knows-when-to-involve-an-adult",
+   "verdict": "skip",
+   "reason": "Evidence here is another child's private difficulty, learned by asking that child; peer support in serious matters is a safeguarding domain, not a capability record."
+  },
+  {
+   "id": "cares-for-a-plant-or-animal",
+   "verdict": "accept"
+  },
+  {
+   "id": "sorts-waste-into-the-right-bin",
+   "verdict": "accept"
+  },
+  {
+   "id": "shares-without-being-asked",
+   "verdict": "edit",
+   "reason": "Snack-sharing crosses allergy and family dietary rules, and 'a classmate who has none' turns another child's missing food, a home matter, into a note; materials carry neither risk.",
+   "edit": {
+    "statement": "Shares a material, such as crayons or blocks, with a classmate who has none, without being asked."
+   }
+  },
+  {
+   "id": "notices-someone-elses-need",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-is-fair-in-a-game",
+   "verdict": "edit",
+   "reason": "An audio recording of a playground dispute puts other children's voices into one child's file without their consent; the educator hearing the fairness proposed holds this.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "keeps-a-shared-space-tidy",
+   "verdict": "accept"
+  },
+  {
+   "id": "measures-something-about-the-campus",
+   "verdict": "accept"
+  },
+  {
+   "id": "reduces-waste-in-a-class-project",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-rule-by-its-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "considers-who-else-is-affected",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-service-task-outside-the-class",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-a-promise-to-the-group",
+   "verdict": "edit",
+   "reason": "'Bringing materials' makes the promise depend on what a home can supply, so a child who cannot is read against the family; a part of the task does not.",
+   "edit": {
+    "statement": "Keeps a promise made to the group, such as doing their part of a task, and says so in time if it cannot be kept."
+   }
+  },
+  {
+   "id": "investigates-a-local-issue-with-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-a-trade-off-in-a-real-decision",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-both-sides-of-a-civic-question",
+   "verdict": "edit",
+   "reason": "A video of a twelve-year-old's own view on a civic question, kept ten years, is a record of a child's politics; note the two cases made, not the view.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator hears each side made well before the child's view, and notes the two cases made, not the view the child gave."
+   }
+  },
+  {
+   "id": "changes-a-plan-that-would-harm-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "organises-a-service-activity",
+   "verdict": "edit",
+   "reason": "The artefact must not carry photographs or names of the people served, who are third parties and often in a vulnerable position; describe the service, not the persons.",
+   "edit": {
+    "adult_sees": "The educator sees the plan and the delivery, with the people served described and not photographed or named."
+   }
+  },
+  {
+   "id": "owns-a-mistake-that-affected-others",
+   "verdict": "edit",
+   "reason": "A record of owning a mistake also files the mistake for ten years; the note holds the owning and the repair, not what went wrong or who was affected.",
+   "edit": {
+    "adult_sees": "The educator sees those affected told and the repair made, and notes the owning and the repair, not the mistake's detail or who was affected."
+   }
+  },
+  {
+   "id": "models-a-system-with-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "applies-an-ethical-framework-to-a-dilemma",
+   "verdict": "accept",
+   "reason": "Acceptable if the dilemma set for filing never requires the child to state a religious or political belief; see the cell note."
+  },
+  {
+   "id": "engages-a-public-body-or-community",
+   "verdict": "edit",
+   "reason": "A minor's approach to an outside body goes through the school and carries no home details; the filed exchange must not become a record of the child's politics.",
+   "edit": {
+    "statement": "Engages a public body, business or community group on an issue through the school, with a documented exchange.",
+    "adult_sees": "The educator sees the exchange documented, sent through the school and carrying no home address or personal details of the child."
+   }
+  },
+  {
+   "id": "changes-a-habit-on-evidence-of-harm",
+   "verdict": "edit",
+   "reason": "A 'personal habit' at home puts the family's diet, consumption or the child's health on file and needs home surveillance to verify; a school habit is seen by the educator.",
+   "edit": {
+    "statement": "Changes a habit of their own at school, such as printing or plastic use, on evidence of its harm, and keeps the change a term.",
+    "adult_sees": "The educator hears the evidence named and sees the changed habit kept at school through the term.",
+    "capture_mode": "observation",
+    "setting": "project"
+   }
+  },
+  {
+   "id": "leads-a-sustained-service-commitment",
+   "verdict": "edit",
+   "reason": "The people served are third parties, often in a vulnerable position; their names and circumstances must not enter a child's school file, so the record describes change, not persons.",
+   "edit": {
+    "adult_sees": "The educator reads the record of what changed for those served, written without their names or private circumstances."
+   }
+  },
+  {
+   "id": "accounts-for-a-public-role",
+   "verdict": "accept"
+  }
+ ],
+ "cells": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "Every sheet, timed set and test in this capability must be read with the child's agreed accommodations (extra time, reader, scribe), which India's disability law asks of schools (RPWD Act 2016; verify the exam-specific rules). 'Grade-level passage' should mean any language the school teaches, not English alone."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "'Exam rules' and 'exam conditions' include the child's own accommodations, as the board's do; otherwise a child with a disability earns none of the six exam-shaped records across three stages. The two exam records also add nothing a mark sheet does not already hold."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "changes-position-in-writing and weighs-conflicting-evidence file a child's written positions as artefacts; keep the filed questions academic, and never let a child's religious or political view be the content of a ten-year record."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "names-what-was-hard-and-why is the child's own account of their own difficulty; at this age the child should know it is kept and be able to ask for it to be removed, which a recorded self_voice makes harder than an educator's note."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "seeks-expert-feedback-outside-school and teaches-themself-a-tool-or-topic assume contacts, devices and time at home; the school should supply the contacts and the devices so these records do not track family means."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "completes-an-apprenticeship-task and delivers-a-project-to-a-client-brief put 14 to 16-year-olds in contact with outside adults; the school vets hosts and clients, supervises, and never lets a record depend on a family's own contacts."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "foundational",
+   "missing": [],
+   "duplicates": [],
+   "notes": "Five of the six earliest communication records depend on speech; a child who signs, uses a device or is new to the school's language must be able to earn each in their own mode and language, or the file starts thin and stays thin."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "facilitates-a-meeting-with-an-agenda and mentors-a-younger-student-over-time produce artefacts naming other children; store them with names covered or replaced by ids, as the school's own rule for its tables requires."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [],
+   "notes": "keeps-personal-details-private-online and credits-a-source are the rights the school itself must model: a child taught not to type their name into a form will notice if the school films them without asking."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Takes a full turn in an outdoor running or climbing game, moving in the way their own body moves.",
+     "adult_sees": "The educator sees the child take the whole turn in the game without being carried through it by an adult.",
+     "counter_example": "Runs onto the field with the others and stands watching them take the turn.",
+     "capture_mode": "observation",
+     "setting": "outdoors",
+     "words": [
+      "capable",
+      "unafraid"
+     ],
+     "why": "Physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video."
+    }
+   ],
+   "duplicates": [
+    [
+     "comforts-a-classmate",
+     "notices-someone-elses-need"
+    ]
+   ],
+   "notes": "Four of six here are earned only 'without a reminder', 'without help' or in a 'hard moment'; the cell reads as a compliance-and-composure checklist for three-year-olds, and it is the one parents will read most closely."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Says they need a pause during a task, takes it in the agreed way, and returns to the task.",
+     "adult_sees": "The educator hears the request for a pause, sees it taken as agreed, and sees the return to the task.",
+     "counter_example": "Takes a pause when the educator suggests one rather than asking for it themselves.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "capable",
+      "unafraid"
+     ],
+     "why": "Help-seeking and self-management a child can show without disclosing anything private, in place of the trusted-adult disclosure."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Five of six records here also record a conflict, an exclusion, a setback or a personal difficulty; each note must hold the child's act alone, naming no incident and no other child."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "secondary",
+   "missing": [
+    {
+     "statement": "Brings a teammate who missed a session up to date on what the team agreed, without being asked to.",
+     "adult_sees": "The educator hears the teammate brought up to date, or sees the note passed, with no adult having arranged it.",
+     "counter_example": "Tells the teammate what they missed only when the educator asks the team to.",
+     "capture_mode": "observation",
+     "setting": "project",
+     "words": [
+      "kind",
+      "capable"
+     ],
+     "why": "Kindness at this age shown in ordinary team life, with no other child's private difficulty as the evidence."
+    }
+   ],
+   "duplicates": [],
+   "notes": "Peer support in serious matters and complaints about adults are safeguarding paths, not evidence; the school's safeguarding policy, not this list, must say what happens when a child tells."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "missing": [],
+   "duplicates": [],
+   "notes": "shares-without-being-asked and notices-someone-elses-need both make another child's want the occasion of a record; the note names the act, never the child who lacked."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "preparatory",
+   "missing": [],
+   "duplicates": [
+    [
+     "keeps-an-agreement-made-with-a-classmate",
+     "keeps-a-promise-to-the-group"
+    ]
+   ],
+   "notes": "One kept promise would produce two records in two capabilities; merge or make the group promise distinct."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "secondary",
+   "missing": [],
+   "duplicates": [],
+   "notes": "engages-a-public-body, applies-an-ethical-framework and changes-a-habit all reach into a child's convictions or private life; keep filed content to reasoning and school-visible acts, and never a child's religion, politics, diet or health."
+  }
+ ],
+ "could_not": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "verdict": "missing",
+   "reason": "Nothing says the six sheet and test behaviours are read with a child's agreed accommodations; without that, a child with a disability earns none of them across three stages."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "verdict": "honest",
+   "reason": "Nothing in this capability needed flagging from a rights seat; an empty could_not is fair here."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "verdict": "missing",
+   "reason": "The Secondary behaviours assume outside experts, devices and time at home that not every family has; the model named this for Creation and stayed silent here."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "verdict": "honest",
+   "reason": "Honest and right; placements and outside briefs also bring safeguarding and equity duties the school must define along with the programme."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "verdict": "honest",
+   "reason": "Honest; the tag caveat is fair, though from this seat the larger silence is that every early behaviour assumes speech and the school's language."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "verdict": "honest",
+   "reason": "Honest and right: unplugged proxies below Grade 4 respect the no-screen rule; the privacy behaviours here are the ones the school itself must model."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "verdict": "wrong",
+   "reason": "Honest that regulation is unobservable, but wrong to point at a TGMD-style checklist: a motor-milestone screen is health data taken by a professional with consent, not a school capability record."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "verdict": "honest",
+   "reason": "Honest and right about the Foundational overlap with kind; merging would also stop one act producing two records in the file."
+  }
+ ],
+ "objections": [
+  "Recording is the default where a note would do: audio, video and self_voice of children as young as three, of their feelings, bodies at play, home news and playground disputes, each needing verifiable parental consent under the DPDP Act and sitting identifiably in a file for ten years.",
+  "In Self & relationships and Society nearly every kind or unafraid record is also a record of the conflict, hurt, exclusion, mistake or private difficulty that occasioned it, sometimes another child's; without a rule that a note holds the child's act alone, naming no incident and no other child, the file becomes a ten-year conflict log, and two lines turn confidential disclosures into routine evidence.",
+  "Around a dozen behaviours can be earned only by a child who speaks, writes by hand, moves typically, works to a fixed time or needs no reminders, so a child with a disability, another first language or an executive-function difference accumulates absences across all eight capabilities that will later be read as deficit."
+ ],
+ "note_to_founders": "The draft is careful with words, and the banned list did its job: almost every sentence describes an act. What no word-list can catch is what the record becomes. A file kept ten years of a child's good moments is also, in the kind and unafraid behaviours, a file of the hard moments that occasioned them, and in a few lines a file of other children's hard moments. Decide three things before the first record is made. One: a note holds the child's act and nothing else, no incident, no cause, no other child's name, and anything a child tells an adult about themselves or about a peer in trouble goes to your safeguarding lead and never into this system; I have skipped the two lines that would make a disclosure into evidence. Two: a recording (audio, video, self_voice) is the justified exception, taken under parental consent given for a stated purpose, never of a child under eight's feelings or body, and from the Preparatory stage the child knows what is kept in their own voice and can ask for it to be removed; the draft rightly uses no peer_comment or parent_voice, and I would keep it so. Three: every behaviour can be shown in the child's own language, mode and aids, with their agreed accommodations, and the school supplies the contacts, devices and materials, so that no line quietly measures the family instead of the child. Write down your answers to 'why ten years', who may see a record, what a parent may correct, and what a child takes with them or has deleted when they leave; the DPDP Act will ask you these (verify the current rules for schools), and so will the first parent who reads a line about a hard morning in a report about their four-year-old."
+}
