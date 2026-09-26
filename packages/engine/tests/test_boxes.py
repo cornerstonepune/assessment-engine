@@ -236,3 +236,92 @@ def test_a_page_that_is_not_this_paper_does_not_line_up(paper, tmp_path, reader)
     cv2.putText(other, "not a paper", (200, 1400), FONT, 4, (0, 0, 0), 8)
     scan = _scanned(other, tmp_path / "scan.pdf")
     assert _read(paper, scan, reader) is None
+
+
+def _bent(img, seed, mm=2.0):
+    """A page photographed on a desk, not scanned flat: a smooth warp no one straight map undoes, moving the
+    printed lines up to `mm` from where the key says they are (the 24 Sep phone photographs, 1-2 mm)."""
+    rng = random.Random(seed)
+    h, w = img.shape[:2]
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+    a, b = (rng.uniform(0.6, 1.0) * mm / 2**0.5 * boxes.PPM for _ in range(2))  # together at most `mm`
+    f, g = rng.uniform(0.5, 1.0), rng.uniform(0.5, 1.0)  # a curl: up to one wave across the page
+    p, q = rng.uniform(0, 2 * np.pi), rng.uniform(0, 2 * np.pi)
+    dx = a * np.sin(2 * np.pi * f * ys / h + p)
+    dy = b * np.sin(2 * np.pi * g * xs / w + q)
+    return cv2.remap(img, xs + dx, ys + dy, cv2.INTER_LINEAR, borderValue=(255, 255, 255))
+
+
+def _longest_run(mask, axis):
+    """The longest unbroken run of dark pixels along `axis` anywhere in `mask`."""
+    m = mask if axis == 0 else mask.T
+    best = 0
+    for col in m.T:
+        run = 0
+        for v in col:
+            run = run + 1 if v else 0
+            best = max(best, run)
+    return best
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader(
+    paper, tmp_path, reader, seed
+):
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    answers = {ids[n - 1]: "" if n == 4 else _fits(key, n, seed) for n in range(1, 7)}
+    working = {ids[0]: "99", ids[1]: "321", ids[4]: "13"}
+    scan = _scanned(_bent(_filled(paper, answers, working), seed), tmp_path / "scan.pdf")
+
+    got = _read(paper, scan, reader)
+    assert got is not None
+    assert {k: r["child_answer"] for k, r in got.items()} == {
+        str(n): answers[i] for n, i in enumerate(ids, 1)
+    }, {k: (r["answer_state"], r["inked"], r.get("why"), r.get("seen")) for k, r in got.items()}
+    assert got["4"]["answer_state"] == "blank"
+    # no printed line reaches the reader: a box is 8.4 x 10 mm and a child's digit here 4.9 x 7 mm, so a dark
+    # run as tall as a box or wider than a digit in what the reader is handed is the paper's, not the child's
+    for im in reader.handed:
+        dark = im < 140
+        assert _longest_run(dark, 0) < 8.5 * boxes.PPM and _longest_run(dark, 1) < 6.5 * boxes.PPM
+
+
+def _twice(real, whole=None):
+    """A reader that, as Textract did on every page of 24 Sep, hands back the same pencil twice: once as one
+    word over the whole strip (`whole`, or what it read) and once digit by digit underneath it."""
+
+    def read(image_bytes, cli=None):
+        page = real(image_bytes)
+        ws = page["words"]
+        if len(ws) < 2:
+            return page
+        x0, x1 = ws[0]["x"], ws[-1]["x"] + ws[-1]["w"]
+        text = whole(ws) if whole else "".join(w["text"] for w in ws)
+        over = {"text": text, "confidence": 95.0, "hand": False, "x": x0, "y": 0.3, "w": x1 - x0, "h": 0.5}
+        return {**page, "words": [over, *ws]}
+
+    return read
+
+
+def test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_wait(
+    paper, tmp_path, reader, monkeypatch
+):
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    wrote = {ids[n - 1]: _fits(key, n) for n in range(1, 7)}
+    scan = _scanned(_filled(paper, wrote, {}), tmp_path / "scan.pdf")
+
+    monkeypatch.setattr(ocr, "read", _twice(reader.read))
+    got = _read(paper, scan, reader)
+    assert {k: r["child_answer"] for k, r in got.items()} == {str(n): wrote[i] for n, i in enumerate(ids, 1)}
+
+    def one_off(ws):  # the whole-strip reading says a different first digit
+        return str((int(ws[0]["text"]) + 1) % 10) + "".join(w["text"] for w in ws[1:])
+
+    monkeypatch.setattr(ocr, "read", _twice(reader.read, one_off))
+    got = _read(paper, scan, reader)
+    for n, i in enumerate(ids, 1):
+        r = got[str(n)]
+        assert r["answer_state"] == "illegible" and r["child_answer"] == ""
+        assert wrote[i] in r["why"] and "disagree" in r["why"], r["why"]

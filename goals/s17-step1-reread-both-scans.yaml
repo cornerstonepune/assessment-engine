@@ -17,8 +17,9 @@ says:
     proved_by: packages/engine/tests/test_boxes.py::test_the_code_on_a_blurred_and_compressed_scan_is_still_read
   - words: "You are essentially reading some numbers from the working"
     proved_by: packages/engine/tests/test_boxes.py::test_every_digit_in_a_box_is_read_and_nothing_in_the_working_is
+  - words: "If the answer has been in the designated place, it should be able to read the answers"
+    proved_by: packages/engine/tests/test_boxes.py::test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader
 manual:
-  - "FIRST THING NEXT SESSION, before any code: write test_boxes.py::test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader (failing), then add to says: words 'If the answer has been in the designated place, it should be able to read the answers' proved_by that test."
   - "Nimish validates the re-read answers on Marking; his corrections are step 2's first gold set."
 scenarios:
   - name: a bent page, synthetic

@@ -30,7 +30,9 @@ from engine.w3_read import stencil
 
 PPM = 10  # pixels per mm the scan is drawn at in the printed page's frame: 254 dpi, a phone scan's own
 W, H = 210 * PPM, 297 * PPM
-EDGE = 0.8  # mm each side of a printed box line painted out before the reader sees the strip
+EDGE = 0.8  # mm each printed pixel is grown by before it is removed: the line, its blur and its JPEG halo
+SEEK = 3.0  # mm a run of boxes is looked for around its recorded place: a curved phone photo moves it 1-2 mm
+PRINTED = 140  # grey under this on the blank page is the paper's own print
 INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the line itself never counts
 # A pencil digit fills 3-15% of its cell; JPEG noise and a shadow on white, measured under 0.3%.
 INK = 0.012
@@ -76,14 +78,59 @@ def line_up(img, pdf, page_no):
     return canon, M
 
 
-def dark(canon, printed):
-    """Where the page is written on: darker than its own surroundings, so a shadow across a photograph is
-    not ink and a faint pencil on a bright page is — and not where the paper itself prints (`printed`, the
-    blank page in the same frame): a box's line and the word "working" are the paper's, never the child's."""
+def dark(canon):
+    """Where the page is marked: darker than its own surroundings, so a shadow across a photograph is not ink
+    and a faint pencil on a bright page is. The paper's own print is taken out per answer, where it settled
+    (`_theirs`), never at the key's place: on a bent page that is a millimetre or two off."""
     g = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
     background = cv2.blur(g, (8 * PPM, 8 * PPM))
-    theirs = cv2.dilate((printed < 140).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
-    return (g < background * 0.72) & ~theirs
+    return g < background * 0.72
+
+
+def _shift(c, d):
+    return {**c, "x": c["x"] + d[0] / PPM, "y": c["y"] + d[1] / PPM}
+
+
+def _find(grey, printed, cells, seek):
+    """→ (dx, dy) pixels: where the printed `cells` sit on the scan, found by matching the blank page's print
+    around them against the scan within `seek` mm. No print to match (a flat patch): (0, 0)."""
+    pad, s = int(1.5 * PPM), int(seek * PPM)
+    x0 = min(_px(c)[0] for c in cells) - pad
+    y0 = min(_px(c)[1] for c in cells) - pad
+    x1 = max(_px(c)[2] for c in cells) + pad
+    y1 = max(_px(c)[3] for c in cells) + pad
+    if x0 - s < 0 or y0 - s < 0 or x1 + s > W or y1 + s > H:
+        return 0, 0
+    tpl = printed[y0:y1, x0:x1]
+    if tpl.std() < 5:
+        return 0, 0
+    score = cv2.matchTemplate(grey[y0 - s : y1 + s, x0 - s : x1 + s], tpl, cv2.TM_CCOEFF_NORMED)
+    _, _, _, (bx, by) = cv2.minMaxLoc(score)
+    return bx - s, by - s
+
+
+def settle(grey, printed, cells):
+    """The recorded cells moved together to where their run printed on this scan (it may sit a few mm off on a
+    curved photograph). Not box by box: one printed square is too little to match on, and jumps."""
+    d = _find(grey, printed, cells, SEEK)
+    return [{**_shift(c, d), "from": (c["x"], c["y"])} for c in cells]
+
+
+def _theirs(printed, cells, box):
+    """The paper's own print around settled `cells`, grown by EDGE, in the frame of `box` (x0, y0, x1, y1)."""
+    x0, y0, x1, y1 = box
+    mask = np.zeros((y1 - y0, x1 - x0), np.uint8)
+    pad = int(1.5 * PPM)
+    for c in cells:
+        fx, fy = c["from"]
+        dx, dy = round((c["x"] - fx) * PPM), round((c["y"] - fy) * PPM)
+        a0, b0, a1, b1 = _px(c)
+        a0, b0, a1, b1 = max(a0 - pad, x0), max(b0 - pad, y0), min(a1 + pad, x1), min(b1 + pad, y1)
+        src = printed[max(0, b0 - dy) : max(0, b1 - dy), max(0, a0 - dx) : max(0, a1 - dx)] < PRINTED
+        h, w = src.shape
+        mask[b0 - y0 : b0 - y0 + h, a0 - x0 : a0 - x0 + w] |= src.astype(np.uint8)
+    e = 2 * max(1, int(EDGE * PPM)) + 1
+    return cv2.dilate(mask, np.ones((e, e), np.uint8)) > 0
 
 
 def _px(g, inside=0.0):
@@ -93,25 +140,27 @@ def _px(g, inside=0.0):
     return max(0, x0), max(0, y0), min(W, max(x0 + 1, x1)), min(H, max(y0 + 1, y1))
 
 
-def ink(is_dark, g, inside=INSIDE):
-    x0, y0, x1, y1 = _px(g, inside)
-    return float(is_dark[y0:y1, x0:x1].mean())
+def ink(is_dark, printed, g, inside=INSIDE):
+    """How much of a settled cell, `inside` mm in from its line, is marked by anything but the paper."""
+    box = _px(g, inside)
+    x0, y0, x1, y1 = box
+    return float((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], box)).mean())
 
 
-def strip(canon, cells):
-    """The run of one answer's boxes, their printed lines painted out, white all round: what the reader sees."""
-    x0 = min(_px(c)[0] for c in cells)
-    y0 = min(_px(c)[1] for c in cells)
-    x1 = max(_px(c)[2] for c in cells)
-    y1 = max(_px(c)[3] for c in cells)
+def strip(canon, printed, cells, is_dark):
+    """The run of one answer's settled boxes, every pixel the paper printed there removed and every pixel that
+    is not pencil made white: what the reader sees — the child's pencil on clean paper, nothing else. On
+    24 Sep the grain and grey of a phone photo left in the boxes made a 3 read as "B"."""
+    box = (
+        min(_px(c)[0] for c in cells),
+        min(_px(c)[1] for c in cells),
+        max(_px(c)[2] for c in cells),
+        max(_px(c)[3] for c in cells),
+    )
+    x0, y0, x1, y1 = box
     patch = canon[y0:y1, x0:x1].copy()
-    e = max(1, int(EDGE * PPM))
-    for c in cells:
-        cx0, cy0, cx1, cy1 = (v - o for v, o in zip(_px(c), (x0, y0, x0, y0)))
-        patch[max(0, cy0 - e) : cy0 + e, :] = 255
-        patch[max(0, cy1 - e) : cy1 + e, :] = 255
-        patch[:, max(0, cx0 - e) : cx0 + e] = 255
-        patch[:, max(0, cx1 - e) : cx1 + e] = 255
+    pencil = cv2.dilate(is_dark[y0:y1, x0:x1].astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+    patch[_theirs(printed, cells, box) | ~pencil] = 255
     m = MARGIN * PPM
     patch = cv2.copyMakeBorder(patch, m, m, m, m, cv2.BORDER_CONSTANT, value=(255, 255, 255))
     return cv2.imencode(".jpg", patch, [cv2.IMWRITE_JPEG_QUALITY, 92])[1].tobytes()
@@ -133,41 +182,83 @@ def _back(M, cells, shape, frame):
     return [round(float(max(0, v)), 4) for v in (left, top, min(1, right), min(1, bottom))]
 
 
+def _overlap(a, b):
+    """Two words over the same pencil: their spans across the strip share most of the narrower one."""
+    shared = min(a["x"] + a["w"], b["x"] + b["w"]) - max(a["x"], b["x"])
+    return shared > 0.3 * min(a["w"], b["w"])
+
+
+def readings(words):
+    """→ [(digits, confidence)], one per way the reader's words tile the strip.
+
+    Textract reads one pencil twice: on 24 Sep a strip holding 1 4 0 5 came back as the word "1405" tagged
+    printed AND as 1, 4, 0, 5 tagged handwriting, over the same pixels — joined, "14051405", eight digits
+    for four boxes, and every such answer went to a person. Words over the same place are alternatives, not
+    a sequence: each reading is a largest set of words no two of which overlap, read left to right."""
+    words = sorted(words, key=lambda w: w["x"])[:14]
+    n, out = len(words), []
+    clash = [[_overlap(words[i], words[j]) for j in range(n)] for i in range(n)]
+    for mask in range(1, 1 << n):
+        pick = [i for i in range(n) if mask >> i & 1]
+        if any(clash[i][j] for i in pick for j in pick if i < j):
+            continue
+        if any(not mask >> j & 1 and not any(clash[j][i] for i in pick) for j in range(n)):
+            continue  # not the largest: a word that overlaps none of these was left out
+        digits = "".join(re.sub(r"\D", "", words[i]["text"]) for i in pick)
+        out.append((digits, min(float(words[i]["confidence"]) for i in pick)))
+    return out
+
+
+def decide(words, inked, floor):
+    """→ (digits, confidence, doubt): the reading as many digits long as boxes hold ink, when every such
+    reading agrees; otherwise a doubt in words, with the best reading as the guess."""
+    found = readings(words)
+    if not found or not any(d for d, _ in found):
+        return "", 0.0, "ink in the box but no number"
+    fits = [r for r in found if len(r[0]) == inked]
+    if not fits:
+        digits, conf = max(found, key=lambda r: r[1])
+        return digits, conf, f"{inked} boxes hold ink but the reader saw {digits}"
+    said = sorted({d for d, _ in fits})
+    digits, conf = max(fits, key=lambda r: r[1])
+    if len(said) > 1:
+        return digits, conf, "the reader's readings disagree: " + " / ".join(said)
+    if conf < floor:
+        return digits, conf, "under the confidence floor"
+    return digits, conf, ""
+
+
 def read_page(img, page_no, pdf, geometry, wanted, cli, cfg, frame=(0, 0, 1, 1)):
     """One page of a scan → {slot: reading} in the shape `ocr.answers_for` gives, or None when the page will
     not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page."""
     canon, M = line_up(img, pdf, page_no)
     if canon is None:
         return None
-    is_dark = dark(canon, blank(str(pdf), page_no))
+    printed = blank(str(pdf), page_no)
+    grey = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
+    is_dark = dark(canon)
     runs, works = cells_of(geometry, page_no)
     out = {}
     for slot, (item_key, rid) in wanted.items():
         run = runs.get((item_key, rid))
         if not run:
             continue
-        inked = sum(ink(is_dark, c) > INK for c in run)
-        working = (
-            "partial"
-            if any(ink(is_dark, w, WORK_INSIDE) > WORK_INK for w in works.get(item_key, []))
-            else "none"
-        )
         box = _back(M, run, img.shape, frame)
+        run = settle(grey, printed, run)
+        inked = sum(ink(is_dark, printed, c) > INK for c in run)
+        spaces = [settle(grey, printed, [w])[0] for w in works.get(item_key, [])]
+        working = (
+            "partial" if any(ink(is_dark, printed, w, WORK_INSIDE) > WORK_INK for w in spaces) else "none"
+        )
         base = {"working_shown": working, "box": box, "boxes": len(run), "inked": inked, "seen": []}
         if not inked:
             out[slot] = {**base, "child_answer": "", "answer_state": "blank", "why": "", "confidence": 100.0}
             continue
-        words = sorted((w for w in ocr.read(strip(canon, run), cli)["words"]), key=lambda w: w["x"])
-        digits = "".join(re.sub(r"\D", "", w["text"]) for w in words)
+        words = sorted(
+            (w for w in ocr.read(strip(canon, printed, run, is_dark), cli)["words"]), key=lambda w: w["x"]
+        )
         seen = [{"text": w["text"], "confidence": round(float(w["confidence"]), 1)} for w in words]
-        confidence = min((float(w["confidence"]) for w in words), default=0.0)
-        doubt = ""
-        if not digits:
-            doubt = "ink in the box but no number"
-        elif len(digits) != inked:
-            doubt = f"{inked} boxes hold ink but the reader saw {digits}"
-        elif confidence < cfg["min_confidence"]:
-            doubt = "under the confidence floor"
+        digits, confidence, doubt = decide(words, inked, cfg["min_confidence"])
         out[slot] = {
             **base,
             "seen": seen,

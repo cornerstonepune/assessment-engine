@@ -3,6 +3,28 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, later — step 1: the box reader on a bent page; Textract is now the ceiling (not merged)
+
+Branch `claude/gallant-cray-zvj5ey`, draft PR. Goal `s17` is **not green**.
+- Test first: `test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader` (5 smooth warps
+  up to 2 mm) failed on main exactly as live did (an empty box "illegible", its shifted lines counted as ink).
+- `boxes.py`: each answer's run of boxes is re-found around its recorded place (template match of the blank
+  page's print, ±3 mm; `settle`); every printed pixel there, grown 0.8 mm, is removed before the ink count and
+  from the strip; the strip is pencil on white, nothing else (`is_dark`). Box by box re-finding was tried and
+  dropped: one printed square is too little to match on and jumped 1–2 mm wrong.
+- Found on the real scan, second cause: Textract reads one pencil twice — "1405" tagged PRINTED over 1, 4, 0, 5
+  tagged HANDWRITING — and the two were joined into eight digits. `readings`/`decide`: overlapping words are
+  alternatives; a reading stands when every reading as long as the inked boxes agrees; disagreement goes to a
+  person with both. Test: `test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_wait`.
+- Measured here on the real 24 Sep file (same pages, same PDFs, same Textract; harness in the session scratchpad,
+  not the repo): answers settled (written or blank) **43 → 80 of 192**. The goal's floor is 144.
+- What is left, measured: 56 answers where Textract returns fewer digits than boxes hold ink (a 4 read "L", a 6
+  "b", a 3 "B"/"P"), 23 under the confidence floor, 8 read as letters only, 1 disagreement; 24 on pages 1–2,
+  which match their worksheet with 37–40 features against the 60 required.
+- **Decision for Nimish:** Textract is a document reader and will not reach 75% on digits in boxes. The fix at
+  the cause is a digit reader per box (the box is known to the tenth of a mm), voting with Textract — that is
+  step 3's work, so the order needs his word before it is pulled forward.
+
 ## 2026-09-26 — where step 1 stands, and exactly what the next session does
 
 **Order:** `BUILD-ORDER.md`, "ten steps" (agreed 2026-09-25/26). We are on **step 1**; its goal is
