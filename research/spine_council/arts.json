@@ -3427,7 +3427,10 @@
     "G9",
     "G10"
    ],
-   "ncert": []
+   "ncert": [
+    "ncert.hpe.9.15",
+    "ncert.hpe.10.06"
+   ]
   },
   {
    "id": "ncf.pe.S.C-3.4",
@@ -4824,7 +4827,8 @@
    "id": "ncert.hpe.9.15",
    "competencies": [
     "ncf.pe.S.C-3.2",
-    "ncf.pe.S.C-3.4"
+    "ncf.pe.S.C-3.4",
+    "ncf.pe.S.C-3.3"
    ]
   },
   {
@@ -4870,7 +4874,8 @@
    "id": "ncert.hpe.10.06",
    "competencies": [
     "ncf.pe.S.C-3.2",
-    "ncf.pe.S.C-3.4"
+    "ncf.pe.S.C-3.4",
+    "ncf.pe.S.C-3.3"
    ]
   },
   {
