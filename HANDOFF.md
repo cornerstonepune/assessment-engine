@@ -3,6 +3,28 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26 — the school operating system council: research, synthesis, a proposed ADR (no gate moved)
+
+- Nimish asked for a council on the whole school operating system, of which this engine is one part. He brought
+  three documents, now in `docs/sources/`: Blueprint v2, the Student OS and Jev specification (PDF plus its
+  extracted text), and the SchoolOS PRD. **W3, step 6 is unchanged; nothing under `packages/`, `supabase/`,
+  `apps/` or `n8n/` was touched.**
+- Nine research seats wrote sourced notes: `research/research_notes/School operating system council/` 1–9, each
+  ending in a council position. One writer consolidated them into
+  `research/reports/School operating system council.md`.
+- The chair's synthesis is `docs/school-os-council-2026-09-26.md`. It keeps Blueprint v2 as the house reference
+  with five amendments: no second runtime, no run-time agent, a decision registry without Jev, counted mastery
+  rules as the truth, and gating by decision class. It proposes the order of new organs after W4. Its rejected
+  alternatives are recorded in **ADR 0035, status proposed**.
+- **Waiting on Nimish:** ratify, or change, ADR 0035 and the synthesis. Section 12 lists the nine decisions only
+  the founders can take. The first is the board (CBSE or State Board), which decides the report format.
+- **Waiting on Aseem and Achal, before W4 is written:** under NCF-FS, Grade 1–2 papers should be framed and
+  reported as practice artefacts with no marks to parents (synthesis, section 11, item 1).
+- **Unverified and flagged:**
+  - Kriyo's domain redirecting elsewhere (one seat's finding);
+  - the DPDP Rules' dates, read from a mirror of the Gazette;
+  - the EU Regulation number deferring Annex III duties to 2 December 2027.
+
 ## 2026-09-24, evening — a printed paper is read in its boxes; a photographed page keeps its pixels (W3 N8, N9)
 
 - Nimish, on Advika's 24 Sep paper: "You are essentially reading some numbers from the working while you have

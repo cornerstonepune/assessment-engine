@@ -3361,3 +3361,21 @@ numbers from the working while you have only designed it as a working section" �
   fetched into `~/cornerstone/assessments/inbox`, a `flow_run` answered at once, read after answering.
   `cd packages/engine && .venv/bin/python -m pytest tests/test_inbox.py` → `7 passed` (link forms, inbox naming, only
   a PDF taken, the route answers at once and starts the reading, a refusal in words). `tsc`, `eslint` clean.
+
+
+## The school operating system council — research and synthesis (2026-09-26)
+
+Research and design only: no engine claim changes, and no gate moved (W3, step 6).
+
+- Nine seats' notes exist, each ending in one council-position section.
+  Check: `grep -c -i "^## Council position" "research/research_notes/School operating system council/"*.md` →
+  `1` for each of the nine files.
+- The notes cite 625 distinct links, each opened by a seat. The seats could not open some primary sources; those
+  claims are marked unverified in the notes and kept out of the synthesis's rulings.
+  Check: `cat "research/research_notes/School operating system council/"*.md | grep -oE "https?://[^) >\"]+" | sort -u | wc -l` → `625`
+- The synthesis and the proposed ADR exist.
+  Check: `wc -w docs/school-os-council-2026-09-26.md docs/adr/0035-the-school-os-grows-from-the-engines-spine.md`
+  → `7391`, `801`.
+- **Not verified by a command:** the seats' figures are their readings of sources they opened. The chair
+  re-checked three claims against the notes and corrected the synthesis: the tutoring study was of university
+  undergraduates, the DPDP 18-month date, and CBSE's weekly observation guidance.
