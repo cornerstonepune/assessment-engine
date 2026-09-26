@@ -312,3 +312,29 @@ def of_scan(conn, name: str) -> list[dict]:
                     "right": t["right"] + t["right_waiting"], "wrong": t["wrong"], "blank": t["blank"],
                     "unclear": max(0, unclear), "waiting": t["waiting"]})  # fmt: skip
     return out
+
+
+def readings(conn, capture_id) -> list[dict]:
+    """Every answer on one read copy as the reader left it — its state, why it waits, how many boxes the paper
+    printed and how many held ink, what the reader saw — with no name and no image: what someone improving the
+    reader needs to see why answers came back unclear, through the engine's API."""
+    rows = conn.execute(
+        "select split_part(i.item_key, '/', 3) as slot, i.item_key, r.status, r.raw_read::jsonb as raw"
+        " from item_result r join item i on i.id = r.item_id where r.capture_id = %s order by i.item_key",
+        (capture_id,),
+    ).fetchall()
+    keep = (
+        "answer_state",
+        "why",
+        "child_answer",
+        "guess",
+        "confidence",
+        "boxes",
+        "inked",
+        "seen",
+        "working_shown",
+    )
+    return [
+        {"item": r["item_key"], "status": r["status"], **{k: (r["raw"] or {}).get(k) for k in keep}}
+        for r in rows
+    ]
