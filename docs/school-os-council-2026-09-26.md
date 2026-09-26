@@ -566,7 +566,7 @@ migration, endpoint or screen for any new organ starts before W4 closes.
 5. **Before any observation work, two things.** A consent and lawful-basis design under DPDP. A two-week
    teacher time-use baseline (a reference-week survey), so "time returned" can be proved by a command like
    every other claim.
-6. **ADR 0035 (proposed) records the rejected alternatives** from the three documents. That way a later
+6. **ADR 0036 (proposed) records the rejected alternatives** from the three documents. That way a later
    session reading `docs/sources/` does not act on LangGraph, Neo4j, Temporal, or Jev as the orchestrator, by
    mistake.
 7. **Three measurements turn borrowed evidence into Cornerstone's own:**

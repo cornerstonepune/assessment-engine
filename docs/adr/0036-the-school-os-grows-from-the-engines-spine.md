@@ -1,4 +1,4 @@
-# 0035 — The school operating system grows from the engine's spine; the three architecture documents are read through it
+# 0036 — The school operating system grows from the engine's spine; the three architecture documents are read through it
 
 Date: 2026-09-26
 Goal: none — a design proposal that builds nothing; each organ it proposes starts with its own goal file when

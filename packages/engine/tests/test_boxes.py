@@ -2,9 +2,10 @@
 
 A paper is printed exactly as the engine prints one (`render_sheet`), digits are written into some of its
 answer boxes and DIFFERENT digits into its working spaces, and the page is "scanned" the way a phone's scan app
-hands it over on 2026-09-24: tilted, its top cut off (no corner marks), softened and JPEG-compressed. The
-reader is stood in for by a stand-in that recognises the digits it is handed by their shape alone, so the test
-is about which pixels reach the reader — the boxes and nothing else — and what code decides around it.
+hands it over on 2026-09-24: tilted, its top cut off (no corner marks), softened and JPEG-compressed. Most
+tests stand a shape-matcher in for the reader, so they are about which pixels reach it — each answer's boxes as
+photographed, never the working (ADR 0035) — and what code decides around it; the bent-page tests at the end
+run the real reader (`adapters/digits.py`).
 """
 
 import random
@@ -15,7 +16,7 @@ import numpy as np
 import pymupdf
 import pytest
 
-from engine.adapters import ocr
+from engine.adapters import digits, ocr
 from engine.assess import geometry, items
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
@@ -136,7 +137,7 @@ class StandIn:
 @pytest.fixture
 def reader(monkeypatch):
     stand_in = StandIn()
-    monkeypatch.setattr(ocr, "read", stand_in.read)
+    monkeypatch.setattr(digits, "read", stand_in.read)
     return stand_in
 
 
@@ -144,7 +145,7 @@ def _read(paper, scan, reader, cfg=None):
     pdf, key = paper
     img, frame = render_pdf.photo(scan, 1)
     wanted = {str(n): (it["item_id"], "ans") for n, it in enumerate(key["items"], 1)}
-    return boxes.read_page(img, 1, pdf, key["geometry"], wanted, None, cfg or ocr.settings(), frame=frame)
+    return boxes.read_page(img, 1, pdf, key["geometry"], wanted, cfg or ocr.settings(), frame=frame)
 
 
 def _fits(key, n, seed=0):
@@ -177,7 +178,7 @@ def test_every_digit_in_a_box_is_read_and_nothing_in_the_working_is(paper, tmp_p
     # working space — the working digits never reach it
     assert len(reader.handed) == 5
     tallest = max(im.shape[0] for im in reader.handed)
-    assert tallest < (key["geometry"][0]["h"] + 2 * boxes.MARGIN + 2) * boxes.PPM
+    assert tallest < (key["geometry"][0]["h"] + 2 * (boxes.AROUND + boxes.QUIET) + 2) * boxes.PPM
     for k, r in got.items():
         assert r["boxes"] == _boxes(key, int(k)) and r["inked"] == len(answers[ids[int(k) - 1]])
         assert 0 <= r["box"][0] < r["box"][2] <= 1 and 0 <= r["box"][1] < r["box"][3] <= 1
@@ -213,7 +214,7 @@ def test_a_reading_with_as_many_digits_as_inked_boxes_stands_and_one_without_wai
         page = real(image_bytes)
         return {**page, "words": page["words"][:2]}  # a reader that drops the third digit of every answer
 
-    monkeypatch.setattr(ocr, "read", two_at_most)
+    monkeypatch.setattr(digits, "read", two_at_most)
     got = _read(paper, scan, reader)
     s, l = got[str(short)], got[str(long)]  # noqa: E741
     assert s["answer_state"] == "written" and s["child_answer"] == wrote[ids[short - 1]]
@@ -236,3 +237,128 @@ def test_a_page_that_is_not_this_paper_does_not_line_up(paper, tmp_path, reader)
     cv2.putText(other, "not a paper", (200, 1400), FONT, 4, (0, 0, 0), 8)
     scan = _scanned(other, tmp_path / "scan.pdf")
     assert _read(paper, scan, reader) is None
+
+
+def _bent(img, seed, mm=2.0):
+    """A page photographed on a desk, not scanned flat: a smooth warp no one straight map undoes, moving the
+    printed lines up to `mm` from where the key says they are (the 24 Sep phone photographs, 1-2 mm)."""
+    rng = random.Random(seed)
+    h, w = img.shape[:2]
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+    a, b = (rng.uniform(0.6, 1.0) * mm / 2**0.5 * boxes.PPM for _ in range(2))  # together at most `mm`
+    f, g = rng.uniform(0.5, 1.0), rng.uniform(0.5, 1.0)  # a curl: up to one wave across the page
+    p, q = rng.uniform(0, 2 * np.pi), rng.uniform(0, 2 * np.pi)
+    dx = a * np.sin(2 * np.pi * f * ys / h + p)
+    dy = b * np.sin(2 * np.pi * g * xs / w + q)
+    return cv2.remap(img, xs + dx, ys + dy, cv2.INTER_LINEAR, borderValue=(255, 255, 255))
+
+
+def _crossing(paper, answers):
+    """As `_filled`, but every digit a third of a box to the right and a quarter below: over its box's printed
+    lines, as a child's 8 and 3 were on 24 Sep."""
+    pdf, key = paper
+    img = render_pdf.render(pdf, dpi=boxes.PPM * 25.4)[0]
+    for (item, _rid), run in _cells(key)[0].items():
+        for cell, ch in zip(run, answers.get(item, "").rjust(len(run))):
+            if ch.strip():
+                over = {**cell, "x": cell["x"] + cell["w"] / 3, "y": cell["y"] + cell["h"] / 4}
+                _write(img, over, ch, boxes.PPM)
+    return img
+
+
+def _really(paper, scan):
+    """Read with the real reader at the engine's own floor."""
+    return _read(paper, scan, None, {**ocr.settings(), **digits.settings(None)})
+
+
+def _bent_page(paper, tmp_path, seed):
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    answers = {ids[n - 1]: "" if n == 4 else _fits(key, n, seed) for n in range(1, 7)}
+    working = {ids[0]: "99", ids[1]: "321", ids[4]: "13"}
+    scan = _scanned(_bent(_filled(paper, answers, working), seed), tmp_path / "scan.pdf")
+    return {str(n): answers[i] for n, i in enumerate(ids, 1)}, scan
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_a_bent_page_is_read_in_its_boxes(paper, tmp_path, reader, seed):
+    """Which pixels reach the reader on a curved photograph: each answer's boxes, re-found where they printed,
+    and nothing of the working — every digit read, every blank blank."""
+    wrote, scan = _bent_page(paper, tmp_path, seed)
+    got = _read(paper, scan, reader)
+    assert got is not None
+    assert {k: r["child_answer"] for k, r in got.items()} == wrote, {
+        k: (r["answer_state"], r["inked"], r.get("why"), r.get("seen")) for k, r in got.items()
+    }
+    assert got["4"]["answer_state"] == "blank"
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_the_real_reader_on_a_bent_page_stands_behind_nothing_wrong(paper, tmp_path, seed):
+    """The real reader (ADR 0035): what it stands behind is what was written; what it is less sure of than the
+    floor goes to a person with its guess — on 24 Sep 112 of 133 stood and 2 were wrong; here none may be."""
+    wrote, scan = _bent_page(paper, tmp_path, seed)
+    got = _really(paper, scan)
+    for k, r in got.items():
+        if r["answer_state"] == "written":
+            assert r["child_answer"] == wrote[k], (k, r)
+        elif r["answer_state"] == "blank":
+            assert wrote[k] == "", (k, r)
+        else:
+            assert r["why"] and r["guess"] == wrote[k], (
+                k,
+                r,
+            )  # "563" read "5 63" at 88.5: to a person, right guess
+    assert got["4"]["answer_state"] == "blank"
+    assert sum(r["answer_state"] == "written" for r in got.values()) >= 4, got
+
+
+def test_a_digit_written_over_its_box_line_reaches_the_reader_whole(paper, tmp_path):
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    answers = {ids[n - 1]: _fits(key, n, 9) for n in range(1, 7)}
+    scan = _scanned(_bent(_crossing(paper, answers), 3), tmp_path / "scan.pdf")
+    got = _really(paper, scan)
+    assert {k: r["child_answer"] for k, r in got.items()} == {
+        str(n): answers[i] for n, i in enumerate(ids, 1)
+    }, {k: (r["answer_state"], r["inked"], r.get("why"), r.get("seen")) for k, r in got.items()}
+
+
+def _twice(real, whole=None):
+    """A reader that, as Textract did on every page of 24 Sep, hands back the same pencil twice: once as one
+    word over the whole strip (`whole`, or what it read) and once digit by digit underneath it."""
+
+    def read(image_bytes, cli=None):
+        page = real(image_bytes)
+        ws = page["words"]
+        if len(ws) < 2:
+            return page
+        x0, x1 = ws[0]["x"], ws[-1]["x"] + ws[-1]["w"]
+        text = whole(ws) if whole else "".join(w["text"] for w in ws)
+        over = {"text": text, "confidence": 95.0, "hand": False, "x": x0, "y": 0.3, "w": x1 - x0, "h": 0.5}
+        return {**page, "words": [over, *ws]}
+
+    return read
+
+
+def test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_wait(
+    paper, tmp_path, reader, monkeypatch
+):
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    wrote = {ids[n - 1]: _fits(key, n) for n in range(1, 7)}
+    scan = _scanned(_filled(paper, wrote, {}), tmp_path / "scan.pdf")
+
+    monkeypatch.setattr(digits, "read", _twice(reader.read))
+    got = _read(paper, scan, reader)
+    assert {k: r["child_answer"] for k, r in got.items()} == {str(n): wrote[i] for n, i in enumerate(ids, 1)}
+
+    def one_off(ws):  # the whole-strip reading says a different first digit
+        return str((int(ws[0]["text"]) + 1) % 10) + "".join(w["text"] for w in ws[1:])
+
+    monkeypatch.setattr(digits, "read", _twice(reader.read, one_off))
+    got = _read(paper, scan, reader)
+    for n, i in enumerate(ids, 1):
+        r = got[str(n)]
+        assert r["answer_state"] == "illegible" and r["child_answer"] == ""
+        assert wrote[i] in r["why"] and "disagree" in r["why"], r["why"]

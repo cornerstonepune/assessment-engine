@@ -3,6 +3,67 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, night (later) — PaddleOCR merged (#78) and deployed; the engine ran out of memory reading 24 Sep
+
+The live re-read (run 816cfc35) died: the kernel killed the engine itself at 1.29 GB — as it had three times before
+PaddleOCR. Fixed at the cause on `claude/waiting-breakdown` (STATE.md, "no longer runs out of memory"): 747 → 244 MB.
+**Next:** merge, deploy, `POST /read/file {again: true}` for 24 Sep then 23 Sep, child-wise table. Waiting before
+the re-read (engine-logs, read only): 739 — old papers 439 (140 right-but-untrusted, 133 unreadable, 99 wrong, 48
+blank, 19 unsure), printed library copies 300 (167 unreadable, 50, 39, 34, 10).
+
+## 2026-09-26, night — step 1: PaddleOCR built in (ADR 0035 accepted); not merged, not live
+
+Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it." Built on `claude/gallant-cray-zvj5ey` (PR #78); see STATE.md
+"S17". Production path on the real 24 Sep answers: 125/133 exact, 112 stand at 0.90, 2 wrong. The image was built and
+run here under the server's memory: reader peak 707 MB, in its own process, gone after 60 s idle.
+- **Next, in order:** merge (deploys); `POST /read/file {again: true}` for 24 Sep (Drive `13Zsrf3…`) then 23 Sep
+  (`1eBcFq8…`); read `/read/scan/{name}/copies` and `/capture/{id}/readings`; the goal's floor is 144 of 192 settled
+  and copies 01–02 of 24 Sep (24 answers) do not line up — that is the next cause to fix, in `boxes.line_up`.
+- **Still owed by Nimish:** confirm `docs/adr/0035-bench/gold.json` (the two wrong readings first); rotate the
+  Textract key.
+- Ruled out by measurement this session (ADR 0035): MNIST/EMNIST per box, TrOCR, Paddle tiny/mobile models, one box at
+  a time, a recogniser-only second look (adds a wrong answer), crops wider than 2 mm.
+
+## 2026-09-26, evening — step 1: off-the-shelf digit readers benchmarked on the real boxes (ADR 0035, proposed)
+
+Nimish: benchmark TrOCR, PaddleOCR and an MNIST/EMNIST classifier against Textract on the real 24 Sep box crops
+before building reader logic; use the winner; don't write our own; show him before merging. Harness, gold and every
+reading: `docs/adr/0035-bench/` (crops stay out of git). 133 answers with a sure gold (the session's, by eye —
+not yet a person's).
+- **PaddleOCR (detect + recognise) wins**: 85% exact vs Textract 70% on the same uncleaned crops; @0.90 it stands
+  behind 102 with 1 wrong, Textract 66 with 0. MNIST/EMNIST per box (55–74%, 24–25 wrong stood behind) and TrOCR
+  (61% cleaned, 2% uncleaned) are out.
+- **Our own `boxes.strip` cleaning is the biggest defect**: removing print grown 0.8 mm eats pencil on the lines
+  (8→3, 6→",", a 3 below its box → 2). Textract alone goes 51% → 70% exact when given the uncleaned crop.
+- Goal measure (settled of 192): today 81; Paddle uncleaned @0.90 119; copies 01–02 (not lining up) cap it at 168.
+  **The 144 floor is not reached by a reader change alone.**
+- **Waiting on Nimish before any code:** (1) accept ADR 0035 or not; (2) confirm the gold (`gold.json`,
+  `copy07_q09`, `copy10_q02` first); (3) Paddle alone @0.90, or Paddle+Textract agreeing (0 wrong, 45 more to a
+  person). Then: the adapter (tests first), `strip` hands the reader the photograph, PaddlePaddle's memory on
+  Lightsail measured, then copies 01–02's line-up.
+
+## 2026-09-26, later — step 1: the box reader on a bent page; Textract is now the ceiling (not merged)
+
+Branch `claude/gallant-cray-zvj5ey`, draft PR. Goal `s17` is **not green**.
+- Test first: `test_a_bent_page_is_read_in_its_boxes_and_no_printed_line_reaches_the_reader` (5 smooth warps
+  up to 2 mm) failed on main exactly as live did (an empty box "illegible", its shifted lines counted as ink).
+- `boxes.py`: each answer's run of boxes is re-found around its recorded place (template match of the blank
+  page's print, ±3 mm; `settle`); every printed pixel there, grown 0.8 mm, is removed before the ink count and
+  from the strip; the strip is pencil on white, nothing else (`is_dark`). Box by box re-finding was tried and
+  dropped: one printed square is too little to match on and jumped 1–2 mm wrong.
+- Found on the real scan, second cause: Textract reads one pencil twice — "1405" tagged PRINTED over 1, 4, 0, 5
+  tagged HANDWRITING — and the two were joined into eight digits. `readings`/`decide`: overlapping words are
+  alternatives; a reading stands when every reading as long as the inked boxes agrees; disagreement goes to a
+  person with both. Test: `test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_wait`.
+- Measured here on the real 24 Sep file (same pages, same PDFs, same Textract; harness in the session scratchpad,
+  not the repo): answers settled (written or blank) **43 → 80 of 192**. The goal's floor is 144.
+- What is left, measured: 56 answers where Textract returns fewer digits than boxes hold ink (a 4 read "L", a 6
+  "b", a 3 "B"/"P"), 23 under the confidence floor, 8 read as letters only, 1 disagreement; 24 on pages 1–2,
+  which match their worksheet with 37–40 features against the 60 required.
+- **Decision for Nimish:** Textract is a document reader and will not reach 75% on digits in boxes. The fix at
+  the cause is a digit reader per box (the box is known to the tenth of a mm), voting with Textract — that is
+  step 3's work, so the order needs his word before it is pulled forward.
+
 ## 2026-09-26, evening — the council's pass on the Level 2 draft (no step moved)
 
 - Nimish: "you are the best judge … run a council of three to four agents of different kinds, considering parents, teachers,
@@ -73,7 +134,7 @@ developed without a goal file agreed first.
 - **Against main's ten-step order (above):** this PR is research and design, not development; it moves no step, adds no
   goal file, and touches nothing under `packages/`, `supabase/`, `apps/` or `n8n/`. Its documents still say "W3, step 6"
   where they were written; read that as "no step of the current order".
-- **Jev, revised.** The synthesis and ADR 0035 first said "a decision registry, no Jev"; Nimish pushed back (the other
+- **Jev, revised.** The synthesis and ADR 0036 first said "a decision registry, no Jev"; Nimish pushed back (the other
   platform already routes a child's question with it at run time), and the position now recorded is: Jev is the
   registry's first provider for text-in, choose-from-a-list decisions at volume, behind the same gates and graduation
   as every decision; never the handwriting reader; ids only; a data-processing contract first. Main's handoff says Jev
@@ -118,8 +179,8 @@ developed without a goal file agreed first.
 - The chair's synthesis is `docs/school-os-council-2026-09-26.md`. It keeps Blueprint v2 as the house reference
   with five amendments: no second runtime, no run-time agent, a decision registry without Jev, counted mastery
   rules as the truth, and gating by decision class. It proposes the order of new organs after W4. Its rejected
-  alternatives are recorded in **ADR 0035, status proposed**.
-- **Waiting on Nimish:** ratify, or change, ADR 0035 and the synthesis. Section 12 lists the nine decisions only
+  alternatives are recorded in **ADR 0036, status proposed**.
+- **Waiting on Nimish:** ratify, or change, ADR 0036 and the synthesis. Section 12 lists the nine decisions only
   the founders can take. The first is the board (CBSE or State Board), which decides the report format.
 - **Waiting on Aseem and Achal, before W4 is written:** under NCF-FS, Grade 1–2 papers should be framed and
   reported as practice artefacts with no marks to parents (synthesis, section 11, item 1).

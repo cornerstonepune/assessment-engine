@@ -58,12 +58,19 @@ def qr_of(img) -> str | None:
     if canon is not None and (code := mark.read_qr(canon)):
         return code
     det = cv2.QRCodeDetector()
-    for scale in (1.0, 0.5, 2.0):
-        im = img if scale == 1.0 else cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    # the page as it is and halved, and the corner the code prints in doubled — never the whole page doubled:
+    # that alone took 240 MB a page, and the engine was killed for memory reading 24 Sep (2026-09-26)
+    h, w = img.shape[:2]
+    corner = img[: int(h * 0.2), int(w * 0.55) :]
+    for im in (img, cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA), _doubled(corner)):
         code, _, _ = det.detectAndDecode(im)
         if code:
             return code
     return None
+
+
+def _doubled(img):
+    return cv2.resize(img, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_AREA)
 
 
 # Letters a reader mistakes for one another in a printed code (a scan's "CS56DB32" is read "CS560832"): folded alike
@@ -147,22 +154,30 @@ def worksheets(conn, codes) -> dict:
     }
 
 
+def codes(path):
+    """Each page's QR, read from the photograph one page at a time and let go. Held all at once, the 24 Sep
+    file's 16 photographs took 750 MB, and the engine was killed for memory reading it (2026-09-26)."""
+    return [qr_of(img) for img in render_pdf.photos(path)]
+
+
 def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
     """Each paper in the file: its pages, its QR, and whose paper the database says it is — a child's own sheet
     (`sheet`), a library worksheet (`worksheet`, whose copy it is being written on it, not in the code), or
     neither. Pages are drawn at the resolution the reader uses (`render_pdf.DPI`). `pages_of(code)` is a library
     worksheet's length in pages, by default its printed PDF's (`library.pdf`); a child's own paper is as long as
     it printed (`sheet_instance.key`). `read_text(img)` gives a page's lines of text, for a QR that will not scan."""
-    images = list(render_pdf.photos(path))  # each page at its own pixels: a code is read from the photograph
-    codes = [qr_of(img) for img in images]
-    if any(c is None for c in codes):
-        # a QR the scan spoiled: the same code is printed beside it in words, read with the page's text
+    found = codes(path)  # each page at its own pixels: a code is read from the photograph
+    if any(c is None for c in found):
+        # a QR the scan spoiled: the same code is printed beside it in words, read with the page's text — only
+        # those pages are drawn again
         mine = [
             r["qr_code"] for r in conn.execute("select qr_code from sheet_instance where qr_code like 'CS%%'")
         ]
         read_text = read_text or (lambda img, cli=ocr.client(): _text_of(img, cli))
-        codes = [c or printed_code(read_text(img), mine) for c, img in zip(codes, images)]
-    library = worksheets(conn, {c for c in codes if c and WORKSHEET.match(c)})
+        found = [
+            c or printed_code(read_text(render_pdf.photo(path, n)[0]), mine) for n, c in enumerate(found, 1)
+        ]
+    library = worksheets(conn, {c for c in found if c and WORKSHEET.match(c)})
     if pages_of is None:
         from engine.w2_print import library as printed
 
@@ -173,11 +188,11 @@ def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
         for r in conn.execute(
             "select qr_code, (key ->> 'pages')::int as pages from sheet_instance"
             " where qr_code = any(%s) and key ? 'pages'",
-            ([c for c in codes if c and OURS.match(c)],),
+            ([c for c in found if c and OURS.match(c)],),
         )
     }
-    papers = group(codes, lambda c: length.get(c, 0))
-    codes = [p["qr"] for p in papers if p["qr"]]
+    papers = group(found, lambda c: length.get(c, 0))
+    qrs = [p["qr"] for p in papers if p["qr"]]
     known = {
         r["qr_code"]: dict(r)
         for r in conn.execute(
@@ -188,7 +203,7 @@ def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
             "         as captures"
             " from sheet_instance si join sheet_template t on t.id = si.sheet_template_id"
             " left join child ch on ch.id = si.child_id where si.qr_code = any(%s)",
-            (codes,),
+            (qrs,),
         )
     }
     for p in papers:

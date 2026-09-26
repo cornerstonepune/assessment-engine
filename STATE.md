@@ -3376,7 +3376,7 @@ Research and design only: no engine claim changes, and no gate moved (W3, step 6
   claims are marked unverified in the notes and kept out of the synthesis's rulings.
   Check: `cat "research/research_notes/School operating system council/"*.md | grep -oE "https?://[^) >\"]+" | sort -u | wc -l` → `625`
 - The synthesis and the proposed ADR exist.
-  Check: `wc -w docs/school-os-council-2026-09-26.md docs/adr/0035-the-school-os-grows-from-the-engines-spine.md`
+  Check: `wc -w docs/school-os-council-2026-09-26.md docs/adr/0036-the-school-os-grows-from-the-engines-spine.md`
   → `7665`, `801`.
 - **Not verified by a command:** the seats' figures are their readings of sources they opened. The chair
   re-checked three claims against the notes and corrected the synthesis: the tutoring study was of university
@@ -3436,3 +3436,37 @@ Research only: no engine claim changes, no gate moved (W3, step 6).
   3 edited) and the rights seat (12 as written, 8 edited), and the chair took every edit.
 - **Not verified:** that the founders agree with any of it; that the `from_age` values are right (one seat's judgement); that the
   banned-word list catches paraphrase (the rights seat found it does not, and rewrote by hand).
+
+## S17 — the digit reader: PaddleOCR in its boxes, off the shelf (ADR 0035, 2026-09-26)
+
+Goal `s17-step1-reread-both-scans` (step 1), **not green**: the live re-read of 24 Sep and 23 Sep has not run yet.
+Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it."
+- **The reader** (`adapters/digits.py`): PaddleOCR 3.7 (PP-OCRv6 medium detect + recognise), in a process of its own
+  started by the first answer and ended after 60 s idle; a killed reader is started again once, then the run says so.
+  Floor: `read.auto_confirm_above` (0.90). Textract stays for printed codes and old papers.
+- **What it is handed** (`boxes.photo`): the settled run of boxes as photographed, 2 mm around it, its own edge repeated
+  1 mm. The cleaned strip is gone: it cut the pencil lying on the lines (8→3, 3→2). Code still counts ink on the
+  cleaned mask. Two words are one pencil read twice only when one covers the other's middle.
+- **Measured on the real 24 Sep file, production path** (133 answers with a sure gold, the session's, not a person's):
+  125 read exactly, 112 stand at 0.90, 2 wrong (`copy07_q09` 145→195, `copy10_q02` 419→919). Before: Textract on the
+  cleaned strip, 68 exact, 64 stand, 6 wrong. Harness: `docs/adr/0035-bench/`.
+- **The server image** (built here, `packages/engine/Dockerfile`): 3.95 GB (was 2.38; the server has 21 GB free); the
+  models are baked in and read with no network. Under a 1,060 MB cap (the server's available memory): 158 answers in
+  53 s, the reader's peak 707 MB (437 MB its own), the engine's 57 MB. The server: 2 CPUs, 1.9 GB, no swap.
+- One OpenCV: the engine now depends on `opencv-contrib-python` (4.10), the build PaddleX pins; the two packages wrote
+  the same `cv2` folder. Engine suite on 4.10: `857 passed, 246 skipped`.
+- `cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_digits.py` → `23 passed`.
+  `bin/check` → `13 passed`. `uv lock --check` → clean.
+
+## The engine no longer runs out of memory reading a scan (2026-09-26)
+
+The first live read after PaddleOCR merged ended "the engine restarted": the kernel killed the engine (`uvicorn`,
+1.29 GB), not the reader. It had done so three times before PaddleOCR (25 Sep 08:11, 26 Sep 05:35 and 06:25, ~960 MB
+each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Measured here on the real files:
+- `sorting.sort_file` held every photograph at once to read their codes: 750 MB for 24 Sep. Now `sorting.codes`
+  reads a page and lets it go; a page whose QR fails is drawn again only for its printed code.
+- OpenCV's detector on the whole page doubled: 240 MB a page. Now the corner is doubled, the page never.
+- MuPDF kept every decoded page in its own store (~250 MB): `render_pdf._let_go` empties it after each page.
+- Peak reading both scans' codes: **747 → 244 MB**, codes identical page for page (24 Sep 13/16, 23 Sep 29/30).
+- `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
+  (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.

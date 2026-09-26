@@ -1,4 +1,4 @@
-# 0036 — The curriculum spine is one graph: imported where a body has decided, generated where it has not, every generated link flagged
+# 0037 — The curriculum spine is one graph: imported where a body has decided, generated where it has not, every generated link flagged
 
 Date: 2026-09-26
 Goal: none — a design artefact (`docs/spine/spine.json` and the page rendered from it); the organ that holds it
@@ -40,7 +40,7 @@ own maps in `supabase/seed/registry.json` (units, skills, rungs). Nothing joined
 |---|---|---|
 | A spreadsheet per subject | the usual way | no cross-links between subjects and capabilities; drifts from the sources within a term |
 | Generate the competencies with a model | the first reading of "generate everything" | NCF-SE and NCERT have decided them; a model paraphrasing a board's competency is a defect (ADR 0010: code, or here a body, enumerates; a model writes language only where nobody has) |
-| A graph database for the spine | the Student OS document | ADR 0035: Postgres closure table when the organ exists; until then a file a program checks |
+| A graph database for the spine | the Student OS document | ADR 0036: Postgres closure table when the organ exists; until then a file a program checks |
 | A strict tree | the words "decision tree" | a competency feeds several capabilities and a unit builds several skills; the spine is a directed graph read as a tree from any node |
 | Hand-map the crosswalks first | caution | 1,700-odd links; the team's time goes to accepting or editing a proposal, not to a blank sheet |
 
