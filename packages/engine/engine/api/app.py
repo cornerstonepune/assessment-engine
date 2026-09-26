@@ -4,13 +4,27 @@ model, runs it through `run_idempotent`, and shapes the result. No route contain
 every decision is the function it calls, which is also what the CLI calls, which is also what the
 tests in `tests/` already cover. This file only wires."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
 from engine.api.routes import bank, capture, children, focus, graph, library, runs, week
+from engine.w3_read import inbox
 
-app = FastAPI(title="Cornerstone engine")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # a scan being read when the engine stopped was read by the process that stopped: say so on its run
+    try:
+        inbox.orphaned()
+    except Exception:  # no database at start (tests, a first boot): nothing was running
+        pass
+    yield
+
+
+app = FastAPI(title="Cornerstone engine", lifespan=lifespan)
 
 app.include_router(runs.health_router)
 app.include_router(runs.runs_router)

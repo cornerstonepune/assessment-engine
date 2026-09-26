@@ -93,3 +93,16 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
             # `ConfigParseError` (2026-09-25).
             conn.commit()
             raise
+
+
+def orphaned() -> int:
+    """Every reading still marked running when the engine starts was killed by the restart — it ran in this
+    process, and this process is new. Marked so, instead of "running" forever (2026-09-25 and 26: two readings
+    died under a deploy and said "running" until someone looked at the server). → how many were marked."""
+    with db.connect() as conn:
+        return conn.execute(
+            "update flow_run set status = 'error', finished_at = now(), updated_at = now(),"
+            " error = 'the engine restarted while this scan was being read; read it again'"
+            " where flow = %s and status = 'running'",
+            (FLOW,),
+        ).rowcount
