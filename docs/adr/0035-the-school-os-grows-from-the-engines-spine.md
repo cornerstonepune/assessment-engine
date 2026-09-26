@@ -29,9 +29,16 @@ a routing proxy, or Jev.
 2. **No autonomous agent at run time.** Observation extraction is one fixed-shape call. Curriculum co-editing
    is a tool the curriculum team drives, not an agent acting on records. This amends Blueprint v2's two
    agents.
-3. **A decision registry, but no Jev.** The registry generalises what exists: prompt rows, the gold set and
-   measured overturn rates. Jev stays out until it reads images or a real-time need appears, and only after a
-   data-protection review. The revisit triggers in `research/2026-09-21-typesafe-jev-system-one.md` stand.
+3. **A decision registry, with Jev as its first provider for text-in decisions.** The registry generalises
+   what exists: prompt rows, the gold set and measured overturn rates. Jev serves the decisions that are "read
+   this text, choose from these options" at volume: routing an observation to a child, competency and stream;
+   naming the mistake behind a wrong answer that code cannot reproduce; tagging generated questions and lessons
+   to competencies; checking generated pedagogy against constraints; checking each report line against its
+   evidence; a second net for safeguarding flags, routed to a person. Four lines hold: Jev never reads
+   handwriting (it reads no images, ADR 0019 stands); code keeps every exact job; each decision starts in
+   shadow and acts alone only after beating our own gold set; Jev receives ids, never names, under a
+   data-processing contract. *Revised 2026-09-26 after Nimish's pushback; the first draft said "no Jev", on
+   the 2026-09-21 research that measured it against today's assessment prompts alone.*
 4. **Counted mastery rules stay the truth.** Ratings with uncertainty sit beside them from W4 on. Bayesian
    knowledge tracing runs in shadow only; deep knowledge tracing is never used at this scale.
 5. **Gate by decision class** (the synthesis, section 6):
@@ -59,13 +66,13 @@ W4 closes.
 | Exponential decay of behaviour tags, half-life 90 days | PRD | No behaviour score should exist to decay; notes are dated, and a pattern needs recurrence across adults |
 | Self-hosted Faster-Whisper on a GPU | PRD | A GPU to run; weaker on Indian languages than hosted Indic models |
 | ArUco corners, DataMatrix and a Typst renderer | PRD | Phone scan apps crop corners; alignment to the printed PDF works without them, and the renderer exists |
-| Jev as the "nervous system" | Student OS | It reads no images and writes no text; the one fitting job cost ₹39 in total |
+| Jev as the "nervous system": the source of truth or the orchestrator | Student OS | Jev is a provider behind the decision registry, not the store or the runtime; the Student OS document itself says it should be neither |
 
 ## Revisit when
 
 - a step needs a model to choose between tools at run time;
 - the registry reaches a size a Postgres closure table cannot serve in under a second;
-- Jev or a similar decision model reads images and beats the gold set with no more silently-wrong answers;
+- Jev or a similar decision model reads images and beats the gold set with no more silently-wrong answers, at which point the handwriting line above is revisited;
 - more than about 500 children give a skill enough responses to fit knowledge-tracing parameters.
 
 ## Consequences

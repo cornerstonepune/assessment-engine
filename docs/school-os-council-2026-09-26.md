@@ -192,8 +192,8 @@ checks rather than by intent.
 ## 3. The three documents and this repository, reconciled
 
 **Standing.** Blueprint v2 is the house document, and it mostly agrees with what was built. The council
-proposes that it **stays the reference, with the five amendments below.** The Student OS specification and
-the SchoolOS PRD become background.
+proposes that it **stays the reference, with the four amendments below** (a fifth, dropping Jev, was
+withdrawn after Nimish's pushback). The Student OS specification and the SchoolOS PRD become background.
 
 Two quality notes on those two background documents:
 
@@ -208,7 +208,7 @@ Two quality notes on those two background documents:
 | 2 | Graph store | Postgres closure table | Postgres plus Neo4j | Neo4j or Memgraph | Postgres closure table | **Postgres.** 244 skills and 849 milestones is small, and joins do not cross databases. |
 | 3 | Human gate | Gate everything | Approve what is consequential; an autonomy ladder | Only below 85% confidence or ±2.5σ from the child's average | Right answers settle alone; wrong and blank wait (ADR 0029); per-child floors (ADR 0032) | **By decision class (section 6).** Reject the 85% and ±2.5σ rules. |
 | 4 | Mastery model | pyBKT as an offline experiment | Its own state engine | pyBKT as the engine | Counted rules (the level-rule and threshold rows) | **Counted rules stay the truth.** Add ratings with uncertainty nightly; knowledge tracing in shadow only; never deep models. |
-| 5 | Decision service | A `decide()` interface; Jev first provider | Jev as the "nervous system" | — | Researched 21 September: not now | **Amend the Blueprint: build the decision registry, drop Jev.** The registry already exists in all but name: prompt rows, the gold set and overturn rates. Jev stays out until it reads images or a real-time need appears, and only after a data-protection review. |
+| 5 | Decision service | A `decide()` interface; Jev first provider | Jev as the "nervous system" | — | Researched 21 September: not now | **Keep the Blueprint: the decision registry, with Jev as its first provider for text-in decisions.** The registry already exists in all but name: prompt rows, the gold set and overturn rates. Jev serves the choose-from-a-list decisions at volume (routing observations, naming mistakes code cannot reproduce, tagging content, checking pedagogy and report lines) behind the same gates and graduation as every decision; never the handwriting reader; ids only; a data-processing contract first. *Revised after Nimish's pushback: the first draft said "drop Jev".* |
 | 6 | Agents | Two: curriculum co-editor and observation extractor | Only inside bounded workflows | Loops for question generation | None (ADR 0006) | **Amend the Blueprint: none at run time.** Observation extraction is one structured call. Curriculum co-editing is a tool the curriculum team drives, not an agent acting on records. |
 | 7 | Model routing and cost | Batch calls, caching, a cost line | — | A four-tier routing proxy with a semantic cache | One adapter per service, pinned model ids, a fallback list, cost per run | **Keep the repository's.** Pinned ids matter: a silent model change voids every accuracy measurement. Publish rupees per child per term. |
 | 8 | Behaviour over time | Recency weighting; "contested" when adults disagree | Evidence-weighted over time | Exponential decay with a 90-day half-life | — | **There is no behaviour score to decay.** Notes are dated. A pattern needs two adults or two contexts, is written by a teacher, and lapses unless re-confirmed. The 90-day figure has no evidence behind it. |
@@ -567,7 +567,8 @@ migration, endpoint or screen for any new organ starts before W4 closes.
    teacher time-use baseline (a reference-week survey), so "time returned" can be proved by a command like
    every other claim.
 6. **ADR 0035 (proposed) records the rejected alternatives** from the three documents. That way a later
-   session reading `docs/sources/` does not act on LangGraph, Neo4j, Temporal or Jev by mistake.
+   session reading `docs/sources/` does not act on LangGraph, Neo4j, Temporal, or Jev as the orchestrator, by
+   mistake.
 7. **Three measurements turn borrowed evidence into Cornerstone's own:**
    - a seeded-error study of how well teachers perform as the check;
    - a gold set of young children's handwriting and teachers' speech, stratified by grade and language;
