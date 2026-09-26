@@ -197,7 +197,9 @@ def main(path):
         failed_stages.add((cap, stage))
 
     word_count = {s: {w: 0 for w in WORDS} for s in STAGES}
+    single_mode_cells = []
     all_ids = {}
+    all_statements = []  # (capability, (id, statement)) for the cross-capability report
     for cap in doc["capabilities"]:
         cid = cap["capability_id"]
         stages = cap.get("stages", [])
@@ -293,8 +295,11 @@ def main(path):
                     if re.search(r"\bteachers?\b", text.lower()):
                         fail("V8", cid, sid, f"{b['id']}.{field}: 'teacher'")
                 statements.append((sid, b["id"], st))
-            if len(modes) < 2:
-                fail("V4", cid, sid, f"only {sorted(modes)} capture modes")
+                all_statements.append((cid, (b["id"], st)))
+            if (
+                len(modes) < 2
+            ):  # reported, not failed: the council of 2026-09-26 found the floor forced recordings of small children where a dated note is the honest evidence
+                single_mode_cells.append(f"{cid}/{sid}: {sorted(modes)}")
             prev_ids = ids_here
         # V5 duplicates across the capability
         for (s1, i1, t1), (s2, i2, t2) in combinations(statements, 2):
@@ -309,6 +314,19 @@ def main(path):
             for e in cn:
                 if e.get("reason") not in REASONS or not e.get("detail"):
                     fail("V9", cid, "-", f"could_not entry {e}")
+    # V5 across capabilities: the same moment under two owners is reported, not failed (council of 2026-09-26)
+    cross = []
+    for (c1, t1), (c2, t2) in combinations(all_statements, 2):
+        if c1 != c2 and jaccard(t1[1], t2[1]) >= 0.5:
+            cross.append(
+                f"{t1[0]} ({c1}) and {t2[0]} ({c2}): {jaccard(t1[1], t2[1]):.2f}"
+            )
+    if cross:
+        print(
+            f"  pairs across capabilities with overlap >= 0.5 (reported, V5): {len(cross)}"
+        )
+        for c in cross:
+            print("   ", c)
     # V6 coverage per stage
     for sid in STAGES:
         for w in WORDS:
@@ -341,6 +359,10 @@ def main(path):
             f"  {sid:<12} "
             + "  ".join(f"{w}={word_count[sid][w]}" for w in sorted(WORDS))
         )
+    if single_mode_cells:
+        print(f"  cells with one capture mode (reported, V4): {len(single_mode_cells)}")
+        for c in single_mode_cells:
+            print("   ", c)
     if fails:
         print(f"FAILURES {len(fails)}")
         for f in fails:

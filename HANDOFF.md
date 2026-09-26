@@ -3,6 +3,31 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-26, evening — the council's pass on the Level 2 draft (no step moved)
+
+- Nimish: "you are the best judge … run a council of three to four agents of different kinds, considering parents, teachers,
+  actual behavioral outcome experts … let's not wait for that dependency, and let's do it." Four seats (educator, parent,
+  developmental and measurement expert, child-rights and safeguarding) each marked all 192 behaviours Accept · Edit · Skip
+  with reasons (`research/level2_council/*.json`, brief in `brief.md`). Reconciled by `research/level2_council.py` (rules
+  R1–R6 in its docstring; the chair's 42 decisions and 20 additions in `chair.json`, each with a reason). Result: 94 rows
+  stand as written, 90 edited, 8 retired (struck through in the sitting document, restorable), 20 added; 204 live; validator
+  32/32. Change log with every seat's reason: `docs/school-os-level2-council-changes.md`. The sitting document now carries
+  each seat's verdict beside every row (`docs/school-os-level2-behaviours-draft.md`, rendered from the JSON by
+  `research/level2_render.py`; never edit the markdown by hand).
+- **What the founders now do:** their own pass, on v2, is still the eval (proposal §6, measure 3). The council's acceptance
+  (76–83% as written) is measure 4, a proxy, recorded in `STATE.md`. Their time goes first to the rows marked edited,
+  retired or added, and to the eleven design rules the seats raised (proposal §9): one record is one dated occasion; a note
+  holds the act alone; a note is the default and a recording the consented exception; every behaviour reachable in the
+  child's own language and aids; counter-examples are read by parents; the earliest fair age on Foundational rows; one
+  moment, one owner; Marathi and Hindi; kind and unafraid thin at Preparatory and Middle; parent_voice and peer_comment
+  unused by choice; Grade 3 under the no-screen rule.
+- **Two validator rules changed on the council's finding, deliberately:** V4's two-modes-per-cell floor is now a report
+  (nine cells hold only observation notes, and the seats say that is honest); V5 also reports overlap across capabilities.
+  Both in `research/level2_validate.py` and proposal §5. Nimish has not seen these two changes; he should say if he
+  disagrees.
+- **Pending when this entry was written:** the development seat's `from_age` per Foundational row and both the development
+  and rights seats' check of the 20 added rows; they land in the JSON and the sitting document by the same scripts.
+
 ## 2026-09-26 — where step 1 stands, and exactly what the next session does
 
 **Order:** `BUILD-ORDER.md`, "ten steps" (agreed 2026-09-25/26). We are on **step 1**; its goal is

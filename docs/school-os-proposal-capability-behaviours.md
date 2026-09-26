@@ -146,7 +146,7 @@ never a third call (the loop is code, not an agent, ADR 0006). Every reply and e
 | V1 | Four stages present; 5–8 behaviours in each; ids unique across the capability | regenerate the stage |
 | V2 | Form: statement ≤ 25 words, starts with a verb (first token not an article, pronoun or "is"), one sentence, no "etc.", no frequency words (often, always, usually, consistently, never) | regenerate the stage, naming the sentence |
 | V3 | Banned list (a row): feelings and states (happy, sad, anxious, confident, motivated, bored, upset…), labels (lazy, gifted, weak, slow, bright, naughty, hyperactive, disruptive…), body (weight, BMI, fat, thin, height, appearance), comparison (better than, best, top, behind, rank, ahead of), diagnosis words | regenerate the stage; the found word named |
-| V4 | capture_mode allowed at that stage: Foundational never `test`; `sheet` at Foundational only as an artefact; at least two distinct modes per stage | regenerate the stage |
+| V4 | capture_mode allowed at that stage: Foundational never `test`; `sheet` at Foundational only as an artefact. Cells with a single capture mode are reported, not failed: the council of 2026-09-26 (educator and rights seats, independently) showed that a floor of two modes forces recordings of small children where a dated note is the honest evidence; the mode mix per cell is for the founders to read | regenerate the stage; the mode mix reported |
 | V5 | Progression: no two statements within the capability with word-overlap above 0.6 after normalising; every grows_from at stages 2–4 names an id from the previous stage; stage 1 grows_from empty | regenerate the later stage |
 | V6 | Words: every behaviour tagged with ≥ 1 word (schema) and, across the eight capabilities at each stage, each of the three words on ≥ 8 behaviours | reported, not regenerated: a gap for the founders |
 | V7 | counter_example is not the statement negated ("does not…") and shares < 0.6 overlap with it | regenerate the stage |
@@ -239,7 +239,30 @@ criteria:
     expect: "no approved behaviour contains a banned word"
 ```
 
-## 9. What this does not do
+## 9. What the council's pass adds to the design (2026-09-26)
+
+Four seats read every line of the first draft (§6, measure 4). Beyond the row-by-row verdicts in
+`docs/school-os-level2-council-changes.md`, each raised a rule the prompt, the validator or the record must
+carry. Where it landed:
+
+| Raised by | The rule | Where it lands |
+|---|---|---|
+| educator, development | **One record is one dated occasion, or one dated artefact shown.** A behaviour over a week or a term is written as the moment a dated plan, log or record makes the pattern visible; the pattern lives in the record, never in the educator's memory. Fifteen rows were rewritten so. | prompt v2 candidate (a sentence after "It is one occasion, not a habit"); V2 gains a check for "over a week / a term / a year / several sessions" |
+| rights | **A note holds the child's act alone.** No incident, no cause, no other child's name. What a child tells an adult about themselves or a peer in trouble goes to the safeguarding lead, never into this system. Two rows retired. | the record's rule, for the Scribe and the observation screen; prompt v2 candidate for `adult_sees` |
+| educator, rights | **A dated note is the default; a recording is the consented exception.** Audio, video and a child's own voice only for set pieces (a debate, an outside presentation, movement), never of a child under eight's feelings or body, under parental consent for a stated purpose. Twenty-five rows moved to a note. | V4's two-modes floor removed (§5); `capture_mode` row gains a `consent` column |
+| rights, development | **Every behaviour is reachable in the child's own language, mode and aids.** "In a language they understand", "with their own aids", tiles or another script, the child's allotted time on a sheet or test. | prompt v2 candidate (a NEVER: a gate that only a speaking, typically moving, hand-writing child can pass); accommodations apply to `sheet` and `test` by rule |
+| parent, rights | **Counter-examples are read by parents.** The near-miss an educator honestly confuses, never a motive, never a portrait of a bad child, and never telling an adult as the lesser act. Twenty-one counters rewritten. | prompt v2 candidate for `counter_example` |
+| development | **The Foundational stage is two developmental worlds** (three to five, six to eight). Each Foundational behaviour carries the earliest age at which it is fair to expect it, so a Nursery page is not a page of "not yet". | `from_age` on Foundational rows, supplied by the development seat; the sitting shows it |
+| educator, parent, development | **One moment, one owner.** The same act filed under two capabilities inflates the profile. Five rows retired, seven re-worded to the act their capability adds, nine pairs kept with the reason written down. | V5 reports cross-capability overlap; the founders' pass sees the pairs kept |
+| educator | **Marathi and Hindi exist.** A third of a Pune timetable is the second and third language; the draft knew English and maths. One row added; which languages, from which stage, is the founders' decision. | founders' decision; then prompt v1 re-run for knowledge |
+| parent | **Kind and unafraid are thin outside two capabilities.** After the council's additions: Foundational kind 16 · unafraid 18; Preparatory kind 13 · unafraid 11; Middle kind 13 · unafraid 20; Secondary kind 15 · unafraid 16, of 45–50 rows a stage. | reported by the validator (V6); the founders decide whether to add or to say plainly where the two words are evidenced |
+| parent, rights | **`parent_voice` and `peer_comment` are never used**, and the rights seat would keep it so. | a stated choice, not an omission; revisit only with a consent design |
+| development, educator | **Grade 3 sits under the no-screen rule** and cannot show five of six Technology behaviours at Preparatory. | one unplugged row added; the founders say whether the no-screen line is Grade 3 inclusive; technology's `could_not` to say so |
+
+None of this changes prompt version 1, which Nimish ratified and which produced the draft; the candidates
+above are version 2, to be evaluated against the founders' edits as §6 says.
+
+## 10. What this does not do
 
 It does not measure a child. Behaviours are the vocabulary the Scribe tags observations with and the HPC
 reports against; the evidence floors (how many observations, from how many adults, before a behaviour is

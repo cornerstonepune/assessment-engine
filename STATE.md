@@ -3414,3 +3414,21 @@ Research only: no engine claim changes, no gate moved (W3, step 6).
 - **Not verified by a command:** every vendor fact is the seats' reading of pages they opened on 2026-09-26, with
   blocked pages named as gaps; prices are the vendors' published US prices; the cost roll-up is arithmetic on them.
   Nothing has been bought, trialled or contracted.
+
+## Level 2 draft, v2 — after the four-seat council (2026-09-26)
+
+- **Claim:** every live row of the reviewed draft passes the validator; the council's verdicts were reconciled by rules in code,
+  not by hand; every change is logged with its reason.
+- **Command:** `python3 research/level2_validate.py docs/school-os-level2-behaviours-draft.json`
+- **Output:** `behaviours 204 live (8 retired) · cells 32 · cells passing 32/32 … cells with one capture mode (reported, V4): 9 …
+  every stage passes V1–V9`. Words per stage: Foundational capable 39 · kind 16 · unafraid 18; Preparatory 45 · 13 · 11;
+  Middle 45 · 13 · 20; Secondary 46 · 15 · 16.
+- **Command:** `python3 research/level2_council.py --draft docs/school-os-level2-behaviours-draft.json --seats research/level2_council/{educator,parent,development,rights}.json --chair research/level2_council/chair.json --out /tmp/v2.json --log /tmp/log.md`
+  (run on the v1 draft, commit 82cbdb8, to reproduce v2)
+- **Output:** `outcomes {'accepted': 94, 'edited': 90, 'added': 20, 'retired': 8} rules {'R6': 93, 'R4': 43, 'chair': 42, 'R5': 11, 'R1': 3}`;
+  accepted as written per seat: rights 149/192 (78%), development 148 (77%), educator 145 (76%), parent 159 (83%);
+  `needs chair 0 · dangling grows_from 0`.
+- **What the numbers are:** the seats' acceptance is measure 4 of the proposal's eval, a proxy; the founders' acceptance
+  (measure 3) is not yet measured. The 8 retired rows stay in the file, struck through, for a founder to restore.
+- **Not verified:** that the founders agree with any of it; that the `from_age` values (when added) are right; that the
+  banned-word list catches paraphrase (the rights seat found it does not, and rewrote by hand).

@@ -131,7 +131,7 @@ def main():
                         "skip": "retired",
                     }[c["verdict"]]
                     edits = (
-                        {f: ("chair", val) for f, val in c.get("edit", {}).items()}
+                        {**edits, **{f: ("chair", val) for f, val in c.get("edit", {}).items()}}
                         if c["verdict"] == "edit"
                         else {}
                     )
