@@ -63,8 +63,9 @@ trusted, never by quietly retraining itself.
 5. **Counted, readable mastery rules stay the truth.** Learned models sit beside them as measured, advisory
    layers: ratings for item difficulty and child level now, knowledge tracing in shadow. Deep models are never
    used at this scale.
-6. **Paper and people for children; no tests before Grade 3; no screen facing a child under 8.** India's own
-   Foundational framework calls tests for ages 3–8 "completely inappropriate".
+6. **Paper and people for children: no tests before Grade 3, and no AI facing a child under 8.** India's own
+   Foundational framework calls tests for ages 3–8 "completely inappropriate". Brookings (January 2026)
+   judged that generative AI's risks to young children's development outweigh its benefits today.
 7. **Nothing scores a child's emotions, body or "risk".** The EU has banned emotion inference in education
    since February 2025. India's data law forbids behavioural monitoring of children, except where a school
    needs it for education or safety.
@@ -82,7 +83,7 @@ trusted, never by quietly retraining itself.
 - *"Every data point helps."* Only confirmed, labelled data helps. Unconfirmed data is noise. Some data must
   never be collected: emotion, body measures in the learning record, continuous behaviour tracking.
 - *"Minimise physical evaluation."* Keep the paper. Remove the clerical marking and form-filling around it.
-  Every documented backlash was against screen-first schooling of young children.
+  Every documented backlash was against screen-first schooling.
 - *"Save teachers significant time."* That happens only by retiring whole tasks. The one high-quality trial
   found about 25 minutes a week saved on one assisted task. The large figures quoted in the documents are
   projections, not measurements.
