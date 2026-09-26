@@ -3382,3 +3382,16 @@ Nimish: "Accept ADR 0035, Paddle alone at 0.90, build it."
   the same `cv2` folder. Engine suite on 4.10: `857 passed, 246 skipped`.
 - `cd packages/engine && .venv/bin/python -m pytest tests/test_boxes.py tests/test_digits.py` → `23 passed`.
   `bin/check` → `13 passed`. `uv lock --check` → clean.
+
+## The engine no longer runs out of memory reading a scan (2026-09-26)
+
+The first live read after PaddleOCR merged ended "the engine restarted": the kernel killed the engine (`uvicorn`,
+1.29 GB), not the reader. It had done so three times before PaddleOCR (25 Sep 08:11, 26 Sep 05:35 and 06:25, ~960 MB
+each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Measured here on the real files:
+- `sorting.sort_file` held every photograph at once to read their codes: 750 MB for 24 Sep. Now `sorting.codes`
+  reads a page and lets it go; a page whose QR fails is drawn again only for its printed code.
+- OpenCV's detector on the whole page doubled: 240 MB a page. Now the corner is doubled, the page never.
+- MuPDF kept every decoded page in its own store (~250 MB): `render_pdf._let_go` empties it after each page.
+- Peak reading both scans' codes: **747 → 244 MB**, codes identical page for page (24 Sep 13/16, 23 Sep 29/30).
+- `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
+  (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.
