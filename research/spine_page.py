@@ -2,7 +2,7 @@
 """Renders docs/spine/index.html: the clickable spine page with docs/spine/spine.json inlined.
 python3 research/spine_page.py"""
 
-import json, sys
+import json
 from pathlib import Path
 
 R = Path(__file__).resolve().parents[1]

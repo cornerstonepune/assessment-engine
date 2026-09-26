@@ -6,7 +6,10 @@ outcome and every school unit has a competency or a stated reason. No model is c
 python3 research/spine_build.py            # writes docs/spine/spine.json and prints the counts; exit 1 on a failed check
 """
 
-import json, re, sys, collections
+import collections
+import json
+import re
+import sys
 from pathlib import Path
 
 R = Path(__file__).resolve().parents[1]
@@ -325,8 +328,8 @@ def main():
         for x in s.get("competency_grades", []):
             for g in x["grades"]:
                 edge(f"grade.{g}", x["id"], "expects", by)
-            for l in x.get("ncert", []):
-                edge(l, x["id"], "evidences", by)
+            for lo_id in x.get("ncert", []):
+                edge(lo_id, x["id"], "evidences", by)
         for x in s.get("ncert_competencies", []):
             for c in x["competencies"]:
                 edge(x["id"], c, "evidences", by)
