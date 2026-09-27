@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-27 — brainstorm: the curriculum skeleton, and provenance as a rule (no step moved, nothing built)
+
+- Nimish asked for a cleaner structure below the subjects: one outcome per subject and grade, combining Cambridge and
+  CBSE/NCERT (best of both to Grade 6; CBSE the minimum from Grade 7), prerequisites, fortnights, three activity options per
+  outcome, a video slot, lesson plans drawn from the card, and child tracking. Then: "nothing needs to be fabricated … run a
+  validation agent … as part of the backend itself … anyone can trace back". Brainstorm page:
+  `docs/brainstorms/2026-09-27-curriculum-skeleton.html` (published as https://claude.ai/artifact/XY5Pvbwd4vjSTgj1K2R6mE).
+- **Verified, not asserted:** `research/spine_verify.py` finds NCF-SE 814/814 lines in the document and NCERT 729/729 outcomes
+  on their stated page; Cambridge Primary Science 0097 (Sept 2020 edition), 297/297 objectives, parsed in the scratchpad only,
+  from a copy hosted on a school website. Not yet imported: the other Cambridge frameworks, Lower Secondary, IGCSE, the CBSE
+  Classes 9–10 curriculum.
+- **Open, waiting on Nimish:** grade N = Cambridge Stage N? (the school's Grade 2 science units teach Stage 3 lines by keyword
+  match); a pilot slice (Science and Maths, Grade 2); two levels only; the fortnight as the unit and how many in a year; one
+  signing lead per subject; the official Cambridge PDFs from the school's support-site login and the CBSE baseline year.
+- **Nothing to build until those are answered.** The proposal: one `official_line` table for every board, school `outcome`
+  rows that cite lines clause by clause, a code validator plus a second-model flagger plus a person's signature, and a trace
+  from any mark to the official page.
+
 ## 2026-09-26, night — the curriculum spine as one graph and a clickable map (PR #73; no step moved)
 
 - Nimish: "do the whole exercise and even finish the next two steps of mapping NCERT and the grade-wise thing … build the
