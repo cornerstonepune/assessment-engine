@@ -80,6 +80,10 @@
         "gemini-3.7-flash": {
           "in": 0,
           "out": 0
+        },
+        "jev-latest": {
+          "in": 3.7,
+          "out": 0
         }
       }
     },

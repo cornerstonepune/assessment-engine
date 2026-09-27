@@ -1,0 +1,95 @@
+"""The only module that talks to Jev, TypeSafe's decision model (ADR 0036).
+
+Jev answers a question fixed in advance with one of up to 255 named options and a probability for each; it never
+writes text and never sees an image. It is used where the engine needs a judgement code cannot compute; anything
+code can compute stays code — asked whether 45 is a right answer to 81 − 46, Jev said 0.47 (2026-09-27).
+
+One call is: the active prompt row for a purpose (its text is the instructions, `json_schema.type` the kind of
+answer, `model` the model) → the options the caller names → `POST /v1/systemone` → a flow_run row either way.
+Callers get the options ranked by probability; an answer that is not one of the options is refused.
+"""
+
+import json
+import os
+import urllib.error
+import urllib.request
+
+from engine.adapters import llm
+from engine.core import db
+
+ENDPOINT = "https://api.typesafe.ai/v1/systemone"
+MAX_OPTIONS = 255  # the service's own limit on one choice
+TIMEOUT_S = 30
+ATTEMPTS = 3
+
+
+class JevError(RuntimeError):
+    pass
+
+
+def _post(body, key=None):
+    key = os.environ.get("TYPESAFE_API_KEY", "") if key is None else key
+    if not key:
+        raise JevError("no TYPESAFE_API_KEY in the engine's environment: Jev cannot be asked")
+    req = urllib.request.Request(
+        ENDPOINT,
+        data=json.dumps(body).encode(),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+    )
+    last = None
+    for _ in range(ATTEMPTS):  # the service answers 5xx now and then; the same request then succeeds
+        try:
+            with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:
+                return json.load(r)
+        except (urllib.error.URLError, TimeoutError) as e:
+            last = e
+            if isinstance(e, urllib.error.HTTPError) and e.code < 500:
+                break
+    raise JevError(f"Jev did not answer: {last}")
+
+
+def ask(row, state, options, post=_post):
+    """One decision → {"choice", "ranked": [(option, p), …] best first, "model", "tokens_in", "tokens_out"}.
+    `row`: a prompt row (text, model, json_schema); `state`: what Jev is shown; `options`: {name: meaning}."""
+    if len(options) > MAX_OPTIONS:
+        raise JevError(f"{len(options)} options; Jev takes at most {MAX_OPTIONS} in one choice")
+    kind = (row.get("json_schema") or {}).get("type", "choice")
+    question = {"type": kind, "instructions": row["text"].format(**state), "criteria": options}
+    reply = post({"model": row["model"], "state": state, "questions": {"decision": question}})
+    answer = reply["answers"]["decision"]
+    probabilities = answer.get("probabilities") or {}
+    if answer.get("choice") not in options or set(probabilities) - set(options):
+        raise JevError(f"Jev answered {answer.get('choice')!r}, which is not one of the options it was given")
+    usage = reply.get("usage") or {}
+    return {
+        "choice": answer["choice"],
+        "ranked": sorted(probabilities.items(), key=lambda kv: -kv[1]),
+        "model": reply.get("model", row["model"]),
+        "tokens_in": usage.get("input_tokens"),
+        "tokens_out": usage.get("output_tokens"),
+    }
+
+
+def decide(conn, purpose, state, options, post=_post):
+    """`ask` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
+    row = llm.active_prompt(conn, purpose)
+    run = conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger) select id, %s, 'engine' from tenant where slug = %s"
+        " returning id",
+        (purpose, db.tenant_slug()),
+    ).fetchone()["id"]
+    try:
+        out = ask(row, state, options, post)
+    except (JevError, KeyError) as e:
+        conn.execute(
+            "update flow_run set finished_at = clock_timestamp(), status = 'error', error = %s where id = %s",
+            (str(e), run),
+        )
+        raise
+    cost = llm._cost_inr(conn, row["model"], out["tokens_in"], out["tokens_out"])
+    conn.execute(
+        "update flow_run set finished_at = clock_timestamp(), status = 'ok', model = %s, tokens_in = %s,"
+        " tokens_out = %s, cost_inr = %s where id = %s",
+        (out["model"], out["tokens_in"], out["tokens_out"], cost, run),
+    )
+    return {**out, "prompt_id": row["id"], "flow_run_id": run}
