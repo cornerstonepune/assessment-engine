@@ -66,7 +66,12 @@ def ncf_rows(text_path):
     def flush():
         nonlocal cur
         if cur:
-            cur["text"] = re.sub(r"\s+", " ", " ".join(cur.pop("buf"))).strip(" .")
+            joined = ""
+            for line in cur.pop(
+                "buf"
+            ):  # a line ending in a hyphen continues the word on the next line
+                joined += line if joined.endswith("-") or not joined else " " + line
+            cur["text"] = re.sub(r"\s+", " ", joined).strip(" .")
             rows.append(cur)
             cur = None
 
@@ -246,6 +251,9 @@ def _items(text, bullet):
     )
     items = []
     for p in re.split(bullet, text)[1:]:
+        p = re.sub(
+            r"-\s*\n\s*", "-", p
+        )  # a line ending in a hyphen continues the word on the next line
         p = re.sub(r"\s*\n\s*", " ", p).strip()
         p = re.sub(r"\s*[–-]\s*[–-]\s*", " – ", p)
         p = re.sub(r"\s*[\uf000-\uf8ff]\s*", " – ", p)

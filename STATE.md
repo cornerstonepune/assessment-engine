@@ -3491,4 +3491,7 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - **Not verified:** that the generated links are right (the curriculum team's pass decides); NCERT extraction folds a few
   sub-points and truncates a few rows (the seats name them); NCERT has no Hindi or Marathi outcomes in these files; 30
   school units and 6 NCERT outcomes carry a reason instead of a competency.
+- **Provenance check (2026-09-27):** `python3 research/spine_verify.py --ncf <NCF-SE text> --elementary <NCERT 2017 PDF> --secondary <NCERT 2019 PDF>`
+  → `NCF-SE rows found word for word in the source: 814/814` · `NCERT outcomes found word for word on their stated page: 729/729`.
+  The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
 
