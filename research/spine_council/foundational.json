@@ -1,0 +1,1361 @@
+{
+ "seat": "foundational",
+ "competency_capabilities": [
+  {
+   "id": "ncf.fnd.F.CG-1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.1",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.2",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.3",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.4",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.5",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-1.6",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.5",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-2.6",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-3",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-3.1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-3.2",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-3.3",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-3.4",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-4",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.1",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.2",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.5",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.6",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-4.7",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-5.1",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-6",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-6.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-7",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-7.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-7.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-7.3",
+   "capabilities": [
+    "technology-and-ai",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-8",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.6",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.7",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.8",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.9",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.10",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.11",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.12",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.13",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.14",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-9",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.1",
+   "capabilities": [
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.3",
+   "capabilities": [
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.5",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.6",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.7",
+   "capabilities": [
+    "communication-and-collaboration",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-10",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.6",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.7",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.8",
+   "capabilities": [
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.9",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-11",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-11.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-11.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-12",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-12.1",
+   "capabilities": [
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-12.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-12.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-12.4",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-12.5",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.CG-13",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-13.1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-13.2",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-13.3",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-13.4",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  }
+ ],
+ "competency_grades": [
+  {
+   "id": "ncf.fnd.F.C-1.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-1.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-1.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-1.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-1.5",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-1.6",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.5",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-2.6",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-3.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-3.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-3.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-3.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.5",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.6",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-4.7",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-5.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-6.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-7.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-7.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-7.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-8.1",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.01"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.07"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.3",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.01",
+    "ncert.math.1.02"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.4",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.02",
+    "ncert.math.2.01"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.5",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.04",
+    "ncert.math.2.01",
+    "ncert.math.1.08"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.6",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.03",
+    "ncert.math.2.01"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.7",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-8.8",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.05",
+    "ncert.math.2.02"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.9",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.06",
+    "ncert.math.2.03",
+    "ncert.math.2.04"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.10",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.2.05",
+    "ncert.math.2.06"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.11",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.2.01"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.12",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.05",
+    "ncert.eng.2.07",
+    "ncert.eng.2.11"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.13",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.math.1.03",
+    "ncert.math.2.07"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-8.14",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-9.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.05",
+    "ncert.eng.2.01"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.2",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-9.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.12",
+    "ncert.eng.1.10",
+    "ncert.eng.2.06"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.4",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.09",
+    "ncert.eng.1.11",
+    "ncert.eng.2.09"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.5",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.07",
+    "ncert.eng.1.08",
+    "ncert.eng.1.06"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-9.6",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-9.7",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.01",
+    "ncert.eng.1.02",
+    "ncert.eng.1.13"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.1",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.14"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-10.3",
+   "grades": [
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.1.03",
+    "ncert.eng.1.04",
+    "ncert.eng.1.15"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.4",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-10.5",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.2.02",
+    "ncert.eng.2.03",
+    "ncert.eng.2.04"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.6",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-10.7",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-10.8",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": [
+    "ncert.eng.2.12",
+    "ncert.eng.2.05"
+   ]
+  },
+  {
+   "id": "ncf.fnd.F.C-10.9",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-11.1",
+   "grades": [
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-11.2",
+   "grades": [
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-12.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-12.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-12.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-12.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-12.5",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-13.1",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-13.2",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-13.3",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.fnd.F.C-13.4",
+   "grades": [
+    "N",
+    "K1",
+    "K2",
+    "G1",
+    "G2"
+   ],
+   "ncert": []
+  }
+ ],
+ "ncert_competencies": [],
+ "unit_competencies": [],
+ "notes": [
+  "Source parsing: CG-13 and C-13.1–13.4 carry area 'Aesthetic and Cultural Development' but are the NCF's 'Positive Learning Habits' (not a domain; the heading is glued to the end of C-12.5's text); a footnote is glued into C-11.2 and its text is cut at '(from C'; CG-9 carries a footnote mark ('languages1'). Fix at source before these texts reach a screen.",
+  "Languages: the NCF's Language 1 (CG-10) is taken as English, the medium, and Language 2 (CG-11) as Marathi/Hindi, so ncert.eng.* attaches to CG-9/CG-10 rows and none to CG-11 (the NCERT file has no Marathi or Hindi). For many children the home language is the reverse; the school should confirm, and also fix when the second script starts (C-11.1 given K2–G2, C-11.2 G1–G2).",
+  "Grades: developmental competencies (domains 1–7, 12, 13 and oral language) span N–G2 as the NCF's own outcome ladders do; where a text names an attainment (counting to 99, two-digit sums, reading passages, a paragraph, a second script) the grades are where the competency as worded is shown (K2 or G1 onwards) and its N/K1 precursors are not listed.",
+  "NCERT Classes 1–2 has no outcome for multiplication/division (C-8.7), reading fluency, poems or informational text (C-10.4, 10.6, 10.7), print concepts (C-10.2), composing songs (C-9.2) or narrating stories (C-9.6); its Class 2 writing ceiling is a sentence (eng.2.12) where the NCF asks a paragraph (C-10.8): the NCF is the higher bar. ncert.math.1.01 fuses two outcomes (classifying; counting to 20) and ncert.math.2.01 fuses six; the math seat should split them.",
+  "C-7.3 is the only foundational row feeding technology-and-ai; the NCF-FS means everyday and learning tools (scissors, magnifier, balance) before digital ones, so it should not be read as a screen competency."
+ ]
+}

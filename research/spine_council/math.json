@@ -1,0 +1,2823 @@
+{
+ "seat": "math",
+ "competency_capabilities": [
+  {
+   "id": "ncf.math.P.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.5",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.6",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.7",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.CG-4",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-4.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-4.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.P.CG-5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.6",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.5",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-5",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-5.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-5.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-6",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-6.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-7",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-7.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-7.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-8",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-8.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-8.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-9",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-9.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-9.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.M.CG-10",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-10.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-1.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-2.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.6",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-5.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-6",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-6.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-6.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-7",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.4",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-8",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-9",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "technology-and-ai"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.4",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning",
+    "technology-and-ai"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-10",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-10.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-10.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.math.S.CG-11",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-11.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  }
+ ],
+ "competency_grades": [
+  {
+   "id": "ncf.math.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.01",
+    "ncert.math.5.01"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.4.02",
+    "ncert.math.5.02"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.01",
+    "ncert.math.3.02",
+    "ncert.math.3.03",
+    "ncert.math.3.08",
+    "ncert.math.4.01",
+    "ncert.math.4.10",
+    "ncert.math.5.01"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-1.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.10",
+    "ncert.math.4.10",
+    "ncert.math.5.06"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.04",
+    "ncert.math.4.03",
+    "ncert.math.5.03"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.P.C-2.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.4.03",
+    "ncert.math.4.11",
+    "ncert.math.5.03",
+    "ncert.math.6.12"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-2.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.04",
+    "ncert.math.3.10",
+    "ncert.math.4.03",
+    "ncert.math.4.11"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4"
+   ],
+   "ncert": [
+    "ncert.math.3.05",
+    "ncert.math.3.06",
+    "ncert.math.3.07"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.06",
+    "ncert.math.3.07",
+    "ncert.math.3.09",
+    "ncert.math.4.06",
+    "ncert.math.4.07",
+    "ncert.math.4.08",
+    "ncert.math.4.09",
+    "ncert.math.5.05"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.3",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.05",
+    "ncert.math.4.05",
+    "ncert.math.5.04"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.4",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.4.04"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.5",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.05",
+    "ncert.math.4.04",
+    "ncert.math.4.06",
+    "ncert.math.5.05"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.6",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.4.04"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-3.7",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.08",
+    "ncert.math.4.09"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.3.01",
+    "ncert.math.3.02",
+    "ncert.math.3.03",
+    "ncert.math.4.01"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-4.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.P.C-4.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": [
+    "ncert.math.4.01",
+    "ncert.math.5.01"
+   ]
+  },
+  {
+   "id": "ncf.math.P.C-5.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.01",
+    "ncert.math.7.06",
+    "ncert.math.8.05"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.02",
+    "ncert.math.6.03",
+    "ncert.math.8.01",
+    "ncert.math.8.03",
+    "ncert.math.8.04"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.math.6.04",
+    "ncert.math.7.01"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.03",
+    "ncert.math.6.04",
+    "ncert.math.7.05",
+    "ncert.math.8.01",
+    "ncert.math.8.02",
+    "ncert.math.8.04"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.5",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.7.10",
+    "ncert.math.7.11",
+    "ncert.math.8.10"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-1.6",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.05",
+    "ncert.math.6.06",
+    "ncert.math.6.08",
+    "ncert.math.6.09",
+    "ncert.math.7.02",
+    "ncert.math.7.03",
+    "ncert.math.7.04",
+    "ncert.math.7.05",
+    "ncert.math.7.09",
+    "ncert.math.8.11"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7"
+   ],
+   "ncert": [
+    "ncert.math.6.07"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.07",
+    "ncert.math.7.08",
+    "ncert.math.8.07",
+    "ncert.math.8.08",
+    "ncert.math.8.09"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.4",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.7.07",
+    "ncert.math.8.06"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-2.5",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.8.06"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.10",
+    "ncert.math.6.12",
+    "ncert.math.6.13",
+    "ncert.math.6.14",
+    "ncert.math.6.15",
+    "ncert.math.6.16"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.10",
+    "ncert.math.6.11",
+    "ncert.math.6.13",
+    "ncert.math.6.14",
+    "ncert.math.7.12",
+    "ncert.math.7.13",
+    "ncert.math.7.14",
+    "ncert.math.8.12",
+    "ncert.math.8.13"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.15",
+    "ncert.math.6.16",
+    "ncert.math.8.14",
+    "ncert.math.8.15",
+    "ncert.math.8.19"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.7.16",
+    "ncert.math.8.16"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-3.5",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.7.15"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.6.17",
+    "ncert.math.7.17",
+    "ncert.math.8.17",
+    "ncert.math.8.18"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-4.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-4.4",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-5.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.7.18",
+    "ncert.math.7.19",
+    "ncert.math.8.20"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-5.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.3.11",
+    "ncert.math.4.12",
+    "ncert.math.5.07",
+    "ncert.math.6.18",
+    "ncert.math.7.20"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-6.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.8.01",
+    "ncert.math.8.03",
+    "ncert.math.8.13",
+    "ncert.math.8.15",
+    "ncert.math.8.20"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-7.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.math.8.06"
+   ]
+  },
+  {
+   "id": "ncf.math.M.C-7.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-8.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-8.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-9.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-9.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.M.C-10.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.01",
+    "ncert.math.10.01"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-2.1",
+   "grades": [
+    "G9"
+   ],
+   "ncert": [
+    "ncert.math.9.01"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.02",
+    "ncert.math.10.02"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.03",
+    "ncert.math.10.03",
+    "ncert.math.10.04",
+    "ncert.math.10.05"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-3.3",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.10.04"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.04",
+    "ncert.math.10.06",
+    "ncert.math.10.07"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.05",
+    "ncert.math.10.07"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.05",
+    "ncert.math.10.09"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-4.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.03",
+    "ncert.math.9.08",
+    "ncert.math.10.02",
+    "ncert.math.10.03"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-4.6",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.10.08"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-5.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.06"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-5.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.8.19",
+    "ncert.math.9.12",
+    "ncert.math.10.12"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-6.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.09",
+    "ncert.math.9.10",
+    "ncert.math.10.13"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-6.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.11"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.07",
+    "ncert.math.10.01",
+    "ncert.math.10.10",
+    "ncert.math.10.11"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.02"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.05",
+    "ncert.math.10.09"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-7.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.07",
+    "ncert.math.10.10"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.10",
+    "ncert.math.9.13",
+    "ncert.math.10.05",
+    "ncert.math.10.08"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.12",
+    "ncert.math.10.12"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-8.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-9.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.13",
+    "ncert.math.10.12"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.10.01",
+    "ncert.math.10.11"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.math.9.13"
+   ]
+  },
+  {
+   "id": "ncf.math.S.C-9.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-10.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-10.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.math.S.C-11.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  }
+ ],
+ "ncert_competencies": [
+  {
+   "id": "ncert.math.1.01",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-8.3",
+    "ncf.fnd.F.C-8.8"
+   ]
+  },
+  {
+   "id": "ncert.math.1.02",
+   "competencies": [
+    "ncf.fnd.F.C-8.3",
+    "ncf.fnd.F.C-8.4",
+    "ncf.fnd.F.C-8.5"
+   ]
+  },
+  {
+   "id": "ncert.math.1.03",
+   "competencies": [
+    "ncf.fnd.F.C-8.6",
+    "ncf.fnd.F.C-8.13"
+   ]
+  },
+  {
+   "id": "ncert.math.1.04",
+   "competencies": [
+    "ncf.fnd.F.C-8.5"
+   ]
+  },
+  {
+   "id": "ncert.math.1.05",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "ncert.math.1.06",
+   "competencies": [
+    "ncf.fnd.F.C-8.9"
+   ]
+  },
+  {
+   "id": "ncert.math.1.07",
+   "competencies": [
+    "ncf.fnd.F.C-8.2"
+   ]
+  },
+  {
+   "id": "ncert.math.1.08",
+   "competencies": [
+    "ncf.fnd.F.C-8.5"
+   ]
+  },
+  {
+   "id": "ncert.math.2.01",
+   "competencies": [
+    "ncf.fnd.F.C-8.5",
+    "ncf.fnd.F.C-8.6",
+    "ncf.fnd.F.C-8.11"
+   ]
+  },
+  {
+   "id": "ncert.math.2.02",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "ncert.math.2.03",
+   "competencies": [
+    "ncf.fnd.F.C-8.9"
+   ]
+  },
+  {
+   "id": "ncert.math.2.04",
+   "competencies": [
+    "ncf.fnd.F.C-8.9"
+   ]
+  },
+  {
+   "id": "ncert.math.2.05",
+   "competencies": [
+    "ncf.fnd.F.C-8.10"
+   ]
+  },
+  {
+   "id": "ncert.math.2.06",
+   "competencies": [
+    "ncf.fnd.F.C-8.10"
+   ]
+  },
+  {
+   "id": "ncert.math.2.07",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.math.3.01",
+   "competencies": [
+    "ncf.math.P.C-1.1",
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.3.02",
+   "competencies": [
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.3.03",
+   "competencies": [
+    "ncf.math.P.C-4.1",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.math.3.04",
+   "competencies": [
+    "ncf.math.P.C-2.1",
+    "ncf.math.P.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.math.3.05",
+   "competencies": [
+    "ncf.math.P.C-3.1",
+    "ncf.math.P.C-3.5",
+    "ncf.math.P.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.3.06",
+   "competencies": [
+    "ncf.math.P.C-3.1",
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.3.07",
+   "competencies": [
+    "ncf.math.P.C-3.1",
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.3.08",
+   "competencies": [
+    "ncf.math.P.C-3.7",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.math.3.09",
+   "competencies": [
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.3.10",
+   "competencies": [
+    "ncf.math.P.C-1.4",
+    "ncf.math.P.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.math.3.11",
+   "competencies": [
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.math.4.01",
+   "competencies": [
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.1",
+    "ncf.math.P.C-4.3"
+   ]
+  },
+  {
+   "id": "ncert.math.4.02",
+   "competencies": [
+    "ncf.math.P.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.math.4.03",
+   "competencies": [
+    "ncf.math.P.C-2.1",
+    "ncf.math.P.C-2.3",
+    "ncf.math.P.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.math.4.04",
+   "competencies": [
+    "ncf.math.P.C-3.4",
+    "ncf.math.P.C-3.5",
+    "ncf.math.P.C-3.6"
+   ]
+  },
+  {
+   "id": "ncert.math.4.05",
+   "competencies": [
+    "ncf.math.P.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.4.06",
+   "competencies": [
+    "ncf.math.P.C-3.5",
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.4.07",
+   "competencies": [
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.4.08",
+   "competencies": [
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.4.09",
+   "competencies": [
+    "ncf.math.P.C-3.2",
+    "ncf.math.P.C-3.7"
+   ]
+  },
+  {
+   "id": "ncert.math.4.10",
+   "competencies": [
+    "ncf.math.P.C-1.4",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.math.4.11",
+   "competencies": [
+    "ncf.math.P.C-2.3",
+    "ncf.math.P.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.math.4.12",
+   "competencies": [
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.math.5.01",
+   "competencies": [
+    "ncf.math.P.C-1.1",
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.3"
+   ]
+  },
+  {
+   "id": "ncert.math.5.02",
+   "competencies": [
+    "ncf.math.P.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.math.5.03",
+   "competencies": [
+    "ncf.math.P.C-2.1",
+    "ncf.math.P.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.5.04",
+   "competencies": [
+    "ncf.math.P.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.5.05",
+   "competencies": [
+    "ncf.math.P.C-3.5",
+    "ncf.math.P.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.5.06",
+   "competencies": [
+    "ncf.math.P.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.math.5.07",
+   "competencies": [
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.01",
+   "competencies": [
+    "ncf.math.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.math.6.02",
+   "competencies": [
+    "ncf.math.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.03",
+   "competencies": [
+    "ncf.math.M.C-1.2",
+    "ncf.math.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.math.6.04",
+   "competencies": [
+    "ncf.math.M.C-1.3",
+    "ncf.math.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.math.6.05",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.6.06",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.6.07",
+   "competencies": [
+    "ncf.math.M.C-2.2",
+    "ncf.math.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.6.08",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.6.09",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.6.10",
+   "competencies": [
+    "ncf.math.M.C-3.1",
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.11",
+   "competencies": [
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.12",
+   "competencies": [
+    "ncf.math.P.C-2.3",
+    "ncf.math.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.math.6.13",
+   "competencies": [
+    "ncf.math.M.C-3.1",
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.14",
+   "competencies": [
+    "ncf.math.M.C-3.1",
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.6.15",
+   "competencies": [
+    "ncf.math.M.C-3.1",
+    "ncf.math.M.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.6.16",
+   "competencies": [
+    "ncf.math.M.C-3.3",
+    "ncf.math.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.math.6.17",
+   "competencies": [
+    "ncf.math.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.6.18",
+   "competencies": [
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.math.7.01",
+   "competencies": [
+    "ncf.math.M.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.math.7.02",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.7.03",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.7.04",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.7.05",
+   "competencies": [
+    "ncf.math.M.C-1.4",
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.7.06",
+   "competencies": [
+    "ncf.math.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.math.7.07",
+   "competencies": [
+    "ncf.math.M.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.math.7.08",
+   "competencies": [
+    "ncf.math.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.7.09",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.7.10",
+   "competencies": [
+    "ncf.math.M.C-1.5"
+   ]
+  },
+  {
+   "id": "ncert.math.7.11",
+   "competencies": [
+    "ncf.math.M.C-1.5"
+   ]
+  },
+  {
+   "id": "ncert.math.7.12",
+   "competencies": [
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.7.13",
+   "competencies": [
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.7.14",
+   "competencies": [
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.7.15",
+   "competencies": [
+    "ncf.math.M.C-3.5"
+   ]
+  },
+  {
+   "id": "ncert.math.7.16",
+   "competencies": [
+    "ncf.math.M.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.math.7.17",
+   "competencies": [
+    "ncf.math.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.7.18",
+   "competencies": [
+    "ncf.math.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.math.7.19",
+   "competencies": [
+    "ncf.math.M.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.math.7.20",
+   "competencies": [
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.math.8.01",
+   "competencies": [
+    "ncf.math.M.C-1.4",
+    "ncf.math.M.C-1.2",
+    "ncf.math.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.02",
+   "competencies": [
+    "ncf.math.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.math.8.03",
+   "competencies": [
+    "ncf.math.M.C-1.2",
+    "ncf.math.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.04",
+   "competencies": [
+    "ncf.math.M.C-1.2",
+    "ncf.math.M.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.math.8.05",
+   "competencies": [
+    "ncf.math.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.06",
+   "competencies": [
+    "ncf.math.M.C-2.4",
+    "ncf.math.M.C-2.5",
+    "ncf.math.M.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.07",
+   "competencies": [
+    "ncf.math.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.8.08",
+   "competencies": [
+    "ncf.math.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.8.09",
+   "competencies": [
+    "ncf.math.M.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.math.8.10",
+   "competencies": [
+    "ncf.math.M.C-1.5"
+   ]
+  },
+  {
+   "id": "ncert.math.8.11",
+   "competencies": [
+    "ncf.math.M.C-1.6"
+   ]
+  },
+  {
+   "id": "ncert.math.8.12",
+   "competencies": [
+    "ncf.math.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.8.13",
+   "competencies": [
+    "ncf.math.M.C-3.2",
+    "ncf.math.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.14",
+   "competencies": [
+    "ncf.math.M.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.8.15",
+   "competencies": [
+    "ncf.math.M.C-3.3",
+    "ncf.math.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.16",
+   "competencies": [
+    "ncf.math.M.C-3.4"
+   ]
+  },
+  {
+   "id": "ncert.math.8.17",
+   "competencies": [
+    "ncf.math.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.18",
+   "competencies": [
+    "ncf.math.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.8.19",
+   "competencies": [
+    "ncf.math.S.C-5.2",
+    "ncf.math.M.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.math.8.20",
+   "competencies": [
+    "ncf.math.M.C-5.1",
+    "ncf.math.M.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.01",
+   "competencies": [
+    "ncf.math.S.C-1.1",
+    "ncf.math.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.02",
+   "competencies": [
+    "ncf.math.S.C-3.1",
+    "ncf.math.S.C-7.2"
+   ]
+  },
+  {
+   "id": "ncert.math.9.03",
+   "competencies": [
+    "ncf.math.S.C-3.2",
+    "ncf.math.S.C-4.5"
+   ]
+  },
+  {
+   "id": "ncert.math.9.04",
+   "competencies": [
+    "ncf.math.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.05",
+   "competencies": [
+    "ncf.math.S.C-7.3",
+    "ncf.math.S.C-4.2",
+    "ncf.math.S.C-4.3"
+   ]
+  },
+  {
+   "id": "ncert.math.9.06",
+   "competencies": [
+    "ncf.math.S.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.07",
+   "competencies": [
+    "ncf.math.S.C-7.4",
+    "ncf.math.S.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.08",
+   "competencies": [
+    "ncf.math.S.C-4.5"
+   ]
+  },
+  {
+   "id": "ncert.math.9.09",
+   "competencies": [
+    "ncf.math.S.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.10",
+   "competencies": [
+    "ncf.math.S.C-6.1",
+    "ncf.math.S.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.math.9.11",
+   "competencies": [
+    "ncf.math.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.math.9.12",
+   "competencies": [
+    "ncf.math.S.C-5.2",
+    "ncf.math.S.C-8.2"
+   ]
+  },
+  {
+   "id": "ncert.math.9.13",
+   "competencies": [
+    "ncf.math.S.C-9.3",
+    "ncf.math.S.C-9.1",
+    "ncf.math.S.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.math.10.01",
+   "competencies": [
+    "ncf.math.S.C-1.1",
+    "ncf.math.S.C-7.1",
+    "ncf.math.S.C-9.2"
+   ]
+  },
+  {
+   "id": "ncert.math.10.02",
+   "competencies": [
+    "ncf.math.S.C-3.1",
+    "ncf.math.S.C-4.5"
+   ]
+  },
+  {
+   "id": "ncert.math.10.03",
+   "competencies": [
+    "ncf.math.S.C-3.2",
+    "ncf.math.S.C-4.5"
+   ]
+  },
+  {
+   "id": "ncert.math.10.04",
+   "competencies": [
+    "ncf.math.S.C-3.3",
+    "ncf.math.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.10.05",
+   "competencies": [
+    "ncf.math.S.C-8.1",
+    "ncf.math.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.math.10.06",
+   "competencies": [
+    "ncf.math.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.math.10.07",
+   "competencies": [
+    "ncf.math.S.C-4.1",
+    "ncf.math.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.math.10.08",
+   "competencies": [
+    "ncf.math.S.C-4.6",
+    "ncf.math.S.C-8.1"
+   ]
+  },
+  {
+   "id": "ncert.math.10.09",
+   "competencies": [
+    "ncf.math.S.C-4.3",
+    "ncf.math.S.C-7.3"
+   ]
+  },
+  {
+   "id": "ncert.math.10.10",
+   "competencies": [
+    "ncf.math.S.C-7.4",
+    "ncf.math.S.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.math.10.11",
+   "competencies": [
+    "ncf.math.S.C-7.1",
+    "ncf.math.S.C-9.2"
+   ]
+  },
+  {
+   "id": "ncert.math.10.12",
+   "competencies": [
+    "ncf.math.S.C-5.2",
+    "ncf.math.S.C-8.2",
+    "ncf.math.S.C-9.1"
+   ]
+  },
+  {
+   "id": "ncert.math.10.13",
+   "competencies": [
+    "ncf.math.S.C-6.1"
+   ]
+  }
+ ],
+ "unit_competencies": [
+  {
+   "id": "unit.001",
+   "competencies": [
+    "ncf.fnd.F.C-8.3",
+    "ncf.fnd.F.C-8.5",
+    "ncf.fnd.F.C-8.4"
+   ]
+  },
+  {
+   "id": "unit.002",
+   "competencies": [
+    "ncf.fnd.F.C-8.6",
+    "ncf.fnd.F.C-8.13"
+   ]
+  },
+  {
+   "id": "unit.003",
+   "competencies": [
+    "ncf.fnd.F.C-8.11",
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.004",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "unit.005",
+   "competencies": [
+    "ncf.fnd.F.C-8.9",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "unit.006",
+   "competencies": [
+    "ncf.fnd.F.C-8.10"
+   ]
+  },
+  {
+   "id": "unit.007",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.008",
+   "competencies": [
+    "ncf.fnd.F.C-8.5",
+    "ncf.fnd.F.C-8.4",
+    "ncf.math.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.009",
+   "competencies": [
+    "ncf.fnd.F.C-8.7",
+    "ncf.fnd.F.C-8.3"
+   ]
+  },
+  {
+   "id": "unit.010",
+   "competencies": [
+    "ncf.fnd.F.C-8.7"
+   ]
+  },
+  {
+   "id": "unit.011",
+   "competencies": [
+    "ncf.math.P.C-1.2",
+    "ncf.fnd.F.C-8.7"
+   ]
+  },
+  {
+   "id": "unit.012",
+   "competencies": [
+    "ncf.fnd.F.C-8.9",
+    "ncf.math.P.C-3.1",
+    "ncf.math.P.C-3.5"
+   ]
+  },
+  {
+   "id": "unit.013",
+   "competencies": [
+    "ncf.fnd.F.C-8.9",
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.014",
+   "competencies": [
+    "ncf.fnd.F.C-8.10"
+   ]
+  },
+  {
+   "id": "unit.015",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-8.13",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.016",
+   "competencies": [
+    "ncf.fnd.F.C-8.2",
+    "ncf.fnd.F.C-8.13"
+   ]
+  },
+  {
+   "id": "unit.017",
+   "competencies": [
+    "ncf.fnd.F.C-7.2",
+    "ncf.fnd.F.C-8.12",
+    "ncf.math.S.C-6.2"
+   ]
+  },
+  {
+   "id": "unit.018",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.2"
+   ]
+  },
+  {
+   "id": "unit.019",
+   "competencies": [],
+   "why": "A fortnightly quiz is an assessment routine, not a competency; it evidences whichever unit it tests (its 'builds confidence' objective is the foundational seat's F.C-8.14)."
+  },
+  {
+   "id": "unit.020",
+   "competencies": [
+    "ncf.math.P.C-4.3",
+    "ncf.fnd.F.C-8.6",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.021",
+   "competencies": [
+    "ncf.math.P.C-4.1",
+    "ncf.fnd.F.C-8.13"
+   ]
+  },
+  {
+   "id": "unit.022",
+   "competencies": [
+    "ncf.fnd.F.C-8.11",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.023",
+   "competencies": [],
+   "why": "A celebration (Ganit Diwas, 22 December), not a unit; its puzzle stations touch P.C-4.1 and its Ramanujan tribute anticipates the middle-stage M.C-9.2."
+  },
+  {
+   "id": "unit.024",
+   "competencies": [],
+   "why": "A celebration (International Math Day / Pi Day, 14 March), not a unit; its problem-solving and math art touch P.C-4.1 and M.C-4.3 only incidentally."
+  },
+  {
+   "id": "unit.025",
+   "competencies": [
+    "ncf.math.P.C-1.1",
+    "ncf.fnd.F.C-8.5",
+    "ncf.math.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.182",
+   "competencies": [
+    "ncf.fnd.F.C-8.5",
+    "ncf.fnd.F.C-8.4",
+    "ncf.math.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.183",
+   "competencies": [
+    "ncf.fnd.F.C-8.7",
+    "ncf.math.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.184",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-8.12"
+   ]
+  },
+  {
+   "id": "unit.185",
+   "competencies": [
+    "ncf.fnd.F.C-7.2",
+    "ncf.fnd.F.C-8.12",
+    "ncf.math.S.C-6.2"
+   ]
+  },
+  {
+   "id": "unit.186",
+   "competencies": [
+    "ncf.math.P.C-1.1",
+    "ncf.math.P.C-4.3",
+    "ncf.fnd.F.C-8.5"
+   ]
+  },
+  {
+   "id": "unit.187",
+   "competencies": [
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.3",
+    "ncf.fnd.F.C-8.7"
+   ]
+  },
+  {
+   "id": "unit.188",
+   "competencies": [
+    "ncf.math.P.C-2.2",
+    "ncf.fnd.F.C-8.8"
+   ]
+  },
+  {
+   "id": "unit.189",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.math.M.C-5.2"
+   ]
+  },
+  {
+   "id": "unit.190",
+   "competencies": [
+    "ncf.math.P.C-2.3",
+    "ncf.fnd.F.C-8.8"
+   ]
+  },
+  {
+   "id": "unit.191",
+   "competencies": [
+    "ncf.math.P.C-1.4",
+    "ncf.fnd.F.C-8.2",
+    "ncf.math.P.C-2.4"
+   ]
+  },
+  {
+   "id": "unit.192",
+   "competencies": [
+    "ncf.math.P.C-4.1",
+    "ncf.math.P.C-4.3",
+    "ncf.fnd.F.C-8.13"
+   ]
+  },
+  {
+   "id": "unit.313",
+   "competencies": [
+    "ncf.math.P.C-1.1",
+    "ncf.math.P.C-1.4",
+    "ncf.math.M.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.314",
+   "competencies": [
+    "ncf.math.P.C-3.2",
+    "ncf.math.P.C-3.7"
+   ]
+  },
+  {
+   "id": "unit.315",
+   "competencies": [
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-4.3",
+    "ncf.math.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.316",
+   "competencies": [
+    "ncf.math.P.C-4.2",
+    "ncf.math.S.C-6.2"
+   ]
+  },
+  {
+   "id": "unit.317",
+   "competencies": [
+    "ncf.math.P.C-1.3",
+    "ncf.math.P.C-1.4",
+    "ncf.math.P.C-4.3"
+   ]
+  },
+  {
+   "id": "unit.318",
+   "competencies": [
+    "ncf.math.P.C-2.1",
+    "ncf.math.P.C-2.4",
+    "ncf.math.P.C-2.3"
+   ]
+  },
+  {
+   "id": "unit.370",
+   "competencies": [
+    "ncf.math.P.C-2.2"
+   ]
+  }
+ ],
+ "notes": [
+  "NCF-SE 2023 preparatory mathematics has no data-handling or probability goal, though NCERT Classes 3-5 (3.11, 4.12, 5.07) and the school's units 189, 017, 185, 316 teach them; they point to the nearest local row first, then to the later-stage row that is the content (M.C-5.2 data, S.C-6.2 probability). NCERT 8.19 (surface area/volume) likewise has no middle-stage NCF row and points to S.C-5.2.",
+  "The school runs ahead of NCF foundational: numbers to 200 in G1 (unit.008) and to 1,000 in G2 (unit.182) against NCF's 99 (F.C-8.5) and NCERT Class 2; fractions in G1-G2 (unit.011) have no foundational row (nearest: equal sharing F.C-8.7); negative numbers at G3-4 (unit.313) are the middle-stage M.C-1.3.",
+  "NCERT extraction artefacts: 7.03 and 8.08 are continuation fragments of 7.02 and 8.07 (fraction/expression symbols lost), 8.03 and 9.07 are truncated, 7.09 lost its ratios; each is mapped by the outcome it continues. NCF P.C-5.1 and M.C-10.1 texts carry stray section numbers '3.4.1.2' / '3.4.1.3'.",
+  "NCF secondary C-4.2 and C-7.3 are near-duplicates (both 'proves theorems using Euclid's axioms'); NCERT 9.05 evidences both. NCERT math has no outcome for location/maps (P.C-2.2), history of mathematics (P.C-5.1, M.CG-9, S.CG-10), tiling/fractals (M.C-4.3, M.C-4.4), Baudhayana-Pythagoras (M.C-4.2), numerical equality (M.C-2.1), computational thinking (M.CG-8, S.C-9.4) or optimisation (S.C-8.3), so those rows carry empty ncert lists.",
+  "unit.370's title is corrupted ('PVisual arts 2', 'quVisual artser-turns': a find/replace of 'art' hit 'Part' and 'quarter') and duplicates unit.188 for G4. unit.019/023/024 (fortnightly quiz, Ganit Diwas, Pi Day) are routines/celebrations left empty with a why; the bank visit (022), mental-math (020) and Olympiad (021) sessions carry numeracy objectives and are mapped."
+ ]
+}

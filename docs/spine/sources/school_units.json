@@ -1,0 +1,6122 @@
+[
+{
+"subject": "Numeracy",
+"unit": "Numbers & Place Value",
+"bands": [
+"G1"
+],
+"n": 6,
+"samples": [
+"Counting to 100 (forwards and backwards)",
+"Reading and writing 2-digit numbers",
+"Understanding tens and ones"
+],
+"id": "unit.001"
+},
+{
+"subject": "Numeracy",
+"unit": "Addition & Subtraction",
+"bands": [
+"G1",
+"G2"
+],
+"n": 12,
+"samples": [
+"Addition facts within 20",
+"Subtraction facts within 20",
+"Using number bonds for efficient addition"
+],
+"id": "unit.002"
+},
+{
+"subject": "Numeracy",
+"unit": "Money",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 18,
+"samples": [
+"Recognising coins and notes",
+"Writing amounts in figures (₹ / £ as per usage)",
+"Making totals with coins"
+],
+"id": "unit.003"
+},
+{
+"subject": "Numeracy",
+"unit": "Shapes & Geometry",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Identifying 2D shapes: square, circle, triangle, rectangle, hexagon, pentagon",
+"Identifying 3D shapes: cube, cuboid, sphere, cone, cylinder",
+"Understanding properties of shapes (faces, edges, vertices)"
+],
+"id": "unit.004"
+},
+{
+"subject": "Numeracy",
+"unit": "Measurement – Length & Mass",
+"bands": [
+"G1",
+"G2"
+],
+"n": 10,
+"samples": [
+"Comparing lengths (longer / shorter)",
+"Measuring length using non-standard units",
+"Introduction to standard units: centimetres (cm) and metres (m)"
+],
+"id": "unit.005"
+},
+{
+"subject": "Numeracy",
+"unit": "Time",
+"bands": [
+"G1",
+"G2"
+],
+"n": 10,
+"samples": [
+"Naming days of the week and months of the year",
+"Sequencing events in order",
+"Reading time to the hour and half-hour"
+],
+"id": "unit.006"
+},
+{
+"subject": "Numeracy",
+"unit": "Data Handling – Sorting & Categorising",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Classifying objects based on attributes",
+"Using tally marks for counting",
+"Creating simple lists"
+],
+"id": "unit.007"
+},
+{
+"subject": "Numeracy",
+"unit": "Numbers Beyond 100",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Counting, reading and writing numbers up to 200 (or school-specific limit)",
+"Understanding place value: hundreds, tens and ones",
+"Comparing and ordering 3-digit numbers"
+],
+"id": "unit.008"
+},
+{
+"subject": "Numeracy",
+"unit": "Multiplication",
+"bands": [
+"G1"
+],
+"n": 6,
+"samples": [
+"Understanding multiplication as repeated addition",
+"Skip counting in 2s, 5s, and 10s",
+"Using arrays to represent multiplication"
+],
+"id": "unit.009"
+},
+{
+"subject": "Numeracy",
+"unit": "Division",
+"bands": [
+"G1"
+],
+"n": 4,
+"samples": [
+"Understanding division as sharing and grouping",
+"Division facts for 2, 5, and 10",
+"Using arrays and equal groups for division"
+],
+"id": "unit.010"
+},
+{
+"subject": "Numeracy",
+"unit": "Fractions",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 17,
+"samples": [
+"Understanding halves, quarters, and thirds",
+"Identifying fractions of shapes",
+"Finding fractions of small quantities (visual and practical)"
+],
+"id": "unit.011"
+},
+{
+"subject": "Numeracy",
+"unit": "Measurement – Capacity & Volume",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 16,
+"samples": [
+"Comparing capacities (full/empty, more/less)",
+"Introduction to litres (L) and millilitres (ml)",
+"Estimating and measuring capacity"
+],
+"id": "unit.012"
+},
+{
+"subject": "Numeracy",
+"unit": "Measurement – Temperature",
+"bands": [
+"G1"
+],
+"n": 3,
+"samples": [
+"Reading temperature using simple thermometers",
+"Understanding hot, warm, cool, and cold",
+"Introduction to the Celsius scale (°C)"
+],
+"id": "unit.013"
+},
+{
+"subject": "Numeracy",
+"unit": "Time – Extended",
+"bands": [
+"G1"
+],
+"n": 4,
+"samples": [
+"Reading time to quarter past and quarter to",
+"Measuring short durations of time",
+"Using a simple timetable"
+],
+"id": "unit.014"
+},
+{
+"subject": "Numeracy",
+"unit": "Data Handling – Charts & Graphs",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Collecting information",
+"Organising data using tally charts",
+"Making and interpreting pictographs"
+],
+"id": "unit.015"
+},
+{
+"subject": "Numeracy",
+"unit": "Patterns & Reasoning (Integrated Across Units)",
+"bands": [
+"G1"
+],
+"n": 4,
+"samples": [
+"Identifying rules and continuing number patterns",
+"Recognising shape patterns and repeating sequences",
+"Reasoning using numbers and shapes"
+],
+"id": "unit.016"
+},
+{
+"subject": "Numeracy",
+"unit": "Probability (Introductory Level – Requested Unit)",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Understanding events that are certain, likely, unlikely, or impossible",
+"Using probability vocabulary: always, sometimes, never",
+"Conducting simple experiments (rolling a cube, picking objects from a bag)"
+],
+"id": "unit.017"
+},
+{
+"subject": "Numeracy",
+"unit": "Symmetry, Position & Movement",
+"bands": [
+"G1"
+],
+"n": 11,
+"samples": [
+"Identifying lines of symmetry in shapes",
+"Creating symmetrical patterns",
+"Completing mirror-image drawings"
+],
+"id": "unit.018"
+},
+{
+"subject": "Numeracy",
+"unit": "Quiz _Every alternate week",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"Reinforces concepts",
+"Builds confidence & recall",
+"Reinforces concepts /"
+],
+"id": "unit.019"
+},
+{
+"subject": "Numeracy",
+"unit": "Weekly Mental Math Sessions",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"Speed building",
+"Mental strategies for operations",
+"Speed building /"
+],
+"id": "unit.020"
+},
+{
+"subject": "Numeracy",
+"unit": "Olympiad Math Sessions",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"Enhance problem-solving skills.",
+"Practice mock tests to build confidence and exam readiness",
+"Enhance problem-solving skills. /"
+],
+"id": "unit.021"
+},
+{
+"subject": "Numeracy",
+"unit": "Field Visit to a Bank",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Real-life handling of money",
+"Understanding transaction processes",
+"Linking math to daily life"
+],
+"id": "unit.022"
+},
+{
+"subject": "Numeracy",
+"unit": "Celebrating Ganit Diwas (22 December)",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"Tribute to Srinivasa Ramanujan",
+"Special math challenges, puzzles & stations",
+"Tribute to Srinivasa Ramanujan /"
+],
+"id": "unit.023"
+},
+{
+"subject": "Numeracy",
+"unit": "International Math Day (14 March – Pi Day)",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"School-wide math activities",
+"Fun problem-solving",
+"Math art, exhibitions & games"
+],
+"id": "unit.024"
+},
+{
+"subject": "Numeracy",
+"unit": "Projects",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 50,
+"samples": [
+"1️⃣ Project 1 – Place Value City",
+"Build a “city” using number cards where buildings represent hundreds, tens, and ones.",
+"Focus: Place value, hundreds, tens, ones / / 2️⃣ Project 2 – Money Market"
+],
+"id": "unit.025"
+},
+{
+"subject": "Science",
+"unit": "Environments and Habitats",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"1.1 Habitats /",
+"1.2 Plants in different habitats /",
+"1.3 Animals in different habitats /"
+],
+"id": "unit.026"
+},
+{
+"subject": "Science",
+"unit": "Forces and Movement",
+"bands": [
+"G1"
+],
+"n": 4,
+"samples": [
+"2.1 Forces around us /",
+"2.2 Changing shape /",
+"2.3 Changing speed /"
+],
+"id": "unit.027"
+},
+{
+"subject": "Science",
+"unit": "Getting Materials Right",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"3.1 Natural and made materials /",
+"3.2 Properties of materials /",
+"3.3 Using the right material /"
+],
+"id": "unit.028"
+},
+{
+"subject": "Science",
+"unit": "Humans and Animals Grow",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"4.1 Comparing animals /",
+"4.2 Growing /",
+"4.3 Inheriting characteristics /"
+],
+"id": "unit.029"
+},
+{
+"subject": "Science",
+"unit": "Light",
+"bands": [
+"G1",
+"G3",
+"G4"
+],
+"n": 15,
+"samples": [
+"5.1 Light sources /",
+"5.2 Darkness /",
+"5.3 The Sun appears to move"
+],
+"id": "unit.030"
+},
+{
+"subject": "Science",
+"unit": "Electricity",
+"bands": [
+"G1",
+"G3",
+"G4"
+],
+"n": 13,
+"samples": [
+"6.1 What is electricity? /",
+"6.2 Keeping safe with electricity /",
+"6.3 Making circuits"
+],
+"id": "unit.031"
+},
+{
+"subject": "Science",
+"unit": "Science Week",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"A week-long celebration where students engage in hands-on experiments and exploratory science activities.",
+"A week-long celebration where students engage in hands-on experiments and exploratory science activities.",
+"A week-long celebration where students engage in hands-on experiments and exploratory science activities."
+],
+"id": "unit.032"
+},
+{
+"subject": "Science",
+"unit": "National Science Day – Tribute to C.V. Raman",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Students honour C.V. Raman’s legacy through activities highlighting the Raman Effect and India’s scientific contributions.",
+"Students honour C.V. Raman’s legacy through activities highlighting the Raman Effect and India’s scientific contributions.",
+"Students honour C.V. Raman’s legacy through activities highlighting the Raman Effect and India’s scientific contributions."
+],
+"id": "unit.033"
+},
+{
+"subject": "Science",
+"unit": "Field Visit – Science Park",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Provides experiential learning through interactive science exhibits that extend understanding beyond the classroom.",
+"Provides experiential learning through interactive science exhibits that extend understanding beyond the classroom.",
+"Provides experiential learning through interactive science exhibits that extend understanding beyond the classroom."
+],
+"id": "unit.034"
+},
+{
+"subject": "Science",
+"unit": "Field Visit – Space Park",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Offers exposure to space science and astronomy through immersive models and space-themed installations.",
+"Offers exposure to space science and astronomy through immersive models and space-themed installations.",
+"Offers exposure to space science and astronomy through immersive models and space-themed installations."
+],
+"id": "unit.035"
+},
+{
+"subject": "Science",
+"unit": "Science Projects",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 52,
+"samples": [
+"Encourages inquiry, creativity, critical thinking, and application of scientific concepts through student-led projects. /",
+"Amazing Seeds",
+"Observe seed diversity & plant growth /"
+],
+"id": "unit.036"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 1 – Friends and families",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Stories about family and friendships; familiar‑theme fiction texts",
+"Writing: Write a story about family/friends; write poems about things a friend or family member says / does",
+"Speaking"
+],
+"id": "unit.037"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 2 – Badges",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Non‑fiction explanation texts — instructions, processes (“How to be a Science Champion”, “How to Blow Bubbles”, “How to Mix Oil and Water”, etc.)",
+"Writing: Write instructions for experiments or activities; write flowchart or step‑by‑step instructions; information text / report based on text read",
+"Speaking"
+],
+"id": "unit.038"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 3 – All About Sounds",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Poems and poems/word‑play with sound patterns — rhymes, chants, repetitive‑sound poems",
+"Writing: Write a chant or rhyming poem; poems with rhyming patterns / sound‑play",
+"Speaking"
+],
+"id": "unit.039"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 4 – Long, Long Ago",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Traditional / folk / cultural tales — fiction stories from different cultures (“traditional tales from different cultures”)",
+"Writing: Write alternate endings to stories; write circular stories or variations; creative writing based on traditional tales",
+"Speaking"
+],
+"id": "unit.040"
+},
+{
+"subject": "Phonics",
+"unit": "Revision",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Level 3 long vowels + consonant blends"
+],
+"id": "unit.041"
+},
+{
+"subject": "Phonics",
+"unit": "R-controlled Vowels",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"ar, or, ur, er"
+],
+"id": "unit.042"
+},
+{
+"subject": "Phonics",
+"unit": "Vowel Teams",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"ow (/ow/), oi (/oi/), ear (/ear/), air (/air/), ure (/yur/)"
+],
+"id": "unit.043"
+},
+{
+"subject": "Phonics",
+"unit": "Syllable Work",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"open/closed syllables"
+],
+"id": "unit.044"
+},
+{
+"subject": "Phonics",
+"unit": "Polysyllabic Words",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"reading 2–3 syllable words"
+],
+"id": "unit.045"
+},
+{
+"subject": "Phonics",
+"unit": "Adjacent Consonants",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"CCVC, CVCC"
+],
+"id": "unit.046"
+},
+{
+"subject": "Phonics",
+"unit": "Tricky Words",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"my, you, they, here, all, are, said, so, have",
+"like, come, some, were, there, little, one, do, when, out, what"
+],
+"id": "unit.047"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 5 – Computers and Robots",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Non‑fiction / informational texts — explanations about computers, robots, drones; technology‑based explanation texts",
+"Writing: Write instructions for using or designing a robot; write an explanatory/information text about a robot or technology topic",
+"Speaking"
+],
+"id": "unit.048"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 6 – On a Journey",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Poems / rhythmic poems about journeys, travel, movement — poems with structure and rhythm",
+"Writing: Write a shape poem; write a poem with repeating / rhythmic pattern; creative poem write‑ups based on travel/journey themes",
+"Speaking"
+],
+"id": "unit.049"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 7 – Stories by Well‑Known Authors",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Fiction stories written by well-known authors (varied fiction) — stories for children with familiar themes and engaging plots",
+"Writing: Write an ending to a story; write an original story (fiction / animal / character-based) inspired by readings",
+"Speaking"
+],
+"id": "unit.050"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 8 – Underwater Life",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Non‑fiction / information texts about sea life — fish, whales, coral reefs, sea creatures; factual texts about underwater ecosystems & animals",
+"Writing: Information reports on sea life / habitats; write descriptions, charts, or informational text based on reading; organise facts and present them clearly",
+"Speaking"
+],
+"id": "unit.051"
+},
+{
+"subject": "Literacy - English",
+"unit": "Unit 9 – Creatures Everywhere",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Reading: Poetry / humorous poems / animal-themed poems / rhyming poems / fun poems about animals and nature",
+"Writing: Write setting descriptions; write verse for a poem; write odes / creative poems about animals or nature",
+"Speaking"
+],
+"id": "unit.052"
+},
+{
+"subject": "Phonics",
+"unit": "Level 4 Alternative Spellings",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"ai/ay",
+"ee/ea",
+"oa/ow"
+],
+"id": "unit.053"
+},
+{
+"subject": "Phonics",
+"unit": "More vowel teams",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"ou (/ow/), ue/ew (/oo/, /yoo/)"
+],
+"id": "unit.054"
+},
+{
+"subject": "Phonics",
+"unit": "Split digraphs",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"a_e, e_e, o_e, i_e, u_e"
+],
+"id": "unit.055"
+},
+{
+"subject": "Phonics",
+"unit": "Advanced Blending",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"CCVCC"
+],
+"id": "unit.056"
+},
+{
+"subject": "Phonics",
+"unit": "Spelling Bee (Weekly)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Builds vocabulary and strengthens spelling accuracy"
+],
+"id": "unit.057"
+},
+{
+"subject": "Phonics",
+"unit": "Dictation (Weekly)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Enhances listening skills and reinforces correct spellings"
+],
+"id": "unit.058"
+},
+{
+"subject": "Phonics",
+"unit": "Reading Project (Weekly)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Develops comprehension and promotes independent reading habits"
+],
+"id": "unit.059"
+},
+{
+"subject": "Phonics",
+"unit": "News Magazine – RobinAge",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Encourages awareness of current events in a child-friendly manner"
+],
+"id": "unit.060"
+},
+{
+"subject": "Phonics",
+"unit": "Reading Time – Different Genres (Twice a Week)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Exposes learners to a wide variety of text types and enriches linguistic understanding"
+],
+"id": "unit.061"
+},
+{
+"subject": "Phonics",
+"unit": "Play-Based Learning (Weekly)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Supports experiential learning and boosts creativity, collaboration, and problem-solving"
+],
+"id": "unit.062"
+},
+{
+"subject": "Phonics",
+"unit": "Novel Reading – Nate the Great Series (Weekly)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+"Builds extended reading stamina and nurtures deeper engagement with narrative texts"
+],
+"id": "unit.063"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "खेल के मैदान में...",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: सरल वाक्य संरचना, शब्दावली",
+"Subject Enrichment Activity: चित्रकथा पढ़ना और चित्रों पर कहानी बनाना",
+"Critical Thinking Skills: चित्र और कहानी से अनुमान लगाना"
+],
+"id": "unit.064"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "चित्रकथा",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: शब्दार्थ, वाक्य निर्माण",
+"Subject Enrichment Activity: चित्रों पर कहानी लेखन",
+"Critical Thinking Skills: कथानक और पात्रों की पहचान"
+],
+"id": "unit.065"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "वर्णमाला — दोहराना",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: स्वर, व्यंजन, मात्राएँ",
+"Subject Enrichment Activity: अक्षर लेखन अभ्यास",
+"Critical Thinking Skills: उच्चारण और स्वर पहचान"
+],
+"id": "unit.066"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "गीत — चंदा मामा",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: तुकांत, शब्दावली",
+"Subject Enrichment Activity: गीत पढ़ना और गायन",
+"Critical Thinking Skills: कविता के भाव और लय पहचान"
+],
+"id": "unit.067"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "स्वर और उनकी मात्राओं की पहचान",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: मात्राएँ, बारहखड़ी",
+"Subject Enrichment Activity: अक्षर-चित्र मिलाकर लेखन",
+"Critical Thinking Skills: सही अक्षर/मात्रा पहचान"
+],
+"id": "unit.068"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "चित्रकथा — मछलियों की होशियारी",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: वाक्य संरचना, शब्दावली",
+"Subject Enrichment Activity: कहानी का पुनर्लेखन",
+"Critical Thinking Skills: कथा से संदेश पहचानना"
+],
+"id": "unit.069"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "गीत — पाँवों आलू का",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: तुकांत, शब्द चयन",
+"Subject Enrichment Activity: कविता लेखन",
+"Critical Thinking Skills: भाव और अर्थ समझना"
+],
+"id": "unit.070"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "चित्रकथा — माँ की रसोई",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: सरल वाक्य, शब्दावली",
+"Subject Enrichment Activity: चित्र वर्णन और लेखन",
+"Critical Thinking Skills: कथा से निष्कर्ष निकालना"
+],
+"id": "unit.071"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "एक नाम और (Separate Grammar Unit)",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: समान शब्दों के दो अर्थ",
+"Subject Enrichment Activity: शब्द से दो वाक्य बनाना",
+"Critical Thinking Skills: संदर्भ अनुसार अर्थ चुनना"
+],
+"id": "unit.072"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "उलटे अर्थवाले शब्द",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: विलोम शब्द",
+"Subject Enrichment Activity: शब्द–जोड़ी मिलान",
+"Critical Thinking Skills: विपरीतार्थक संकल्पना समझना"
+],
+"id": "unit.073"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "मैं — मेरा परिवार",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: लिंग, वचन, शब्दावली",
+"Subject Enrichment Activity: परिवार का चित्र व परिचय लेखन",
+"Critical Thinking Skills: अपने और दूसरों के परिवार की तुलना करना"
+],
+"id": "unit.074"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "खेल गीत — रेल का खेल",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: तुकांत शब्द, वर्ण–प्रवाह",
+"Subject Enrichment Activity: गीत पाठ, ताल के साथ गायन",
+"Critical Thinking Skills: गीत का भाव पहचानना"
+],
+"id": "unit.075"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "गीत — कछुआ राजा",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: मात्रा अभ्यास, वर्णों का सही प्रयोग",
+"Subject Enrichment Activity: कविता वाचन, चित्र–आधारित कथा",
+"Critical Thinking Skills: मुख्य संदेश व भाव पहचानना"
+],
+"id": "unit.076"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "क्ष, त्र, ज्ञ, श्र — संयुक्ताक्षर",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: संयुक्ताक्षर, अक्षर–संयोजन",
+"Subject Enrichment Activity: अक्षर लिखना व शब्द बनाना",
+"Critical Thinking Skills: अक्षर–ध्वनि का विश्लेषण"
+],
+"id": "unit.077"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "दो व्यंजन साथ–साथ / व्यंजनों के चिन्ह",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: व्यंजन संरचना, हलंत चिन्ह",
+"Subject Enrichment Activity: शब्द–निर्माण गतिविधियाँ",
+"Critical Thinking Skills: शब्दों में व्यंजन पहचान"
+],
+"id": "unit.078"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "र के बहुत-से रूप / आओ गिरें",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: र के रूप, शब्द परिवर्तन",
+"Subject Enrichment Activity: र-युक्त शब्द बनाना",
+"Critical Thinking Skills: रूपों का अर्थ व प्रयोग पहचान"
+],
+"id": "unit.079"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "चित्र-वर्णन / पढ़ने की बारी / दृश्य शब्दावली",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: वाक्य संरचना, शब्दावली",
+"Subject Enrichment Activity: चित्र देखकर कहानी बनाना",
+"Critical Thinking Skills: दृश्य से अर्थ निकालना"
+],
+"id": "unit.080"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "भाषा–खेल / इन्हें भी जानो",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: संज्ञा–लिंग, वाचन कौशल, शब्द–प्रयोग",
+"Subject Enrichment Activity: शब्द–खेल, मिलान गतिविधियाँ",
+"Critical Thinking Skills: शब्दार्थ और प्रयोग को जोड़ना"
+],
+"id": "unit.081"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "खेल–खेल में / चित्र–पट्ट",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: वाक्य निर्माण",
+"Subject Enrichment Activity: चित्र और शब्द मिलाकर कहानी",
+"Critical Thinking Skills: तार्किक संबंध पहचान"
+],
+"id": "unit.082"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "आओ कुछ करें / सोचो और बताओ",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: संवाद लेखन, वाक्य संरचना",
+"Subject Enrichment Activity: समूह गतिविधियाँ और भूमिका–अभिनय",
+"Critical Thinking Skills: अवलोकन, तुलना और विचार साझा करना"
+],
+"id": "unit.083"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "एक–अनेक",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: एकवचन–बहुवचन",
+"Subject Enrichment Activity: अनेक शब्दों से वाक्य बनाना",
+"Critical Thinking Skills: संख्या परिवर्तन पहचानना"
+],
+"id": "unit.084"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "लड़का–लड़की",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: लिंग भेद (पुल्लिंग–स्त्रीलिंग)",
+"Subject Enrichment Activity: शब्द बदलकर वाक्य लिखना",
+"Critical Thinking Skills: लिंग रूप पहचानना"
+],
+"id": "unit.085"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "शब्द–अर्थ",
+"bands": [
+"G1"
+],
+"n": 5,
+"samples": [
+"Grammar: शब्दों के अर्थ व प्रयोग",
+"Subject Enrichment Activity: चित्र के अनुसार सही शब्द चुनना",
+"Critical Thinking Skills: अर्थ–प्रसंग समझना"
+],
+"id": "unit.086"
+},
+{
+"subject": "Home Science",
+"unit": "Stitching & Weaving Science",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 24,
+"samples": [
+"Title: Introduction to Fabrics",
+"Focus: Identify different fabrics used in daily life",
+"Key Concepts: Fabrics, daily life"
+],
+"id": "unit.087"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Understanding Tools / • Focus: Identify basic stitching and weaving tools / • Key Concepts: Tools, weaving",
+"bands": [
+"G1",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.088"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Basic Stitching – Running Stitch / • Focus: Learn and practice running stitch / • Key Concepts: Stitching technique",
+"bands": [
+"G1",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.089"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Introduction to Weaving – Paper Weaving / • Focus: Understand weaving (over-under pattern) / • Key Concepts: Weaving pattern",
+"bands": [
+"G1",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.090"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Fabric Weaving on Cardboard Loom / • Focus: Practice fabric weaving with yarn / • Key Concepts: Weaving practice",
+"bands": [
+"G1",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.091"
+},
+{
+"subject": "Home Science",
+"unit": "Cooking Science",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 24,
+"samples": [
+"Title: Introduction to Food and Cooking",
+"Focus: Identify food sources and basic kitchen safety",
+"Key Concepts: Food sources, safety"
+],
+"id": "unit.092"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Healthy Eating Habits / • Focus: Understand balanced diets and nutrition / • Key Concepts: Nutrition, healthy eating",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.093"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Fruits and Vegetables / • Focus: Identify common fruits and vegetables in India / • Key Concepts: Fruits, vegetables",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.094"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Grains and Pulses / • Focus: Identify staple foods and their role in nutrition / • Key Concepts: Grains, pulses",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.095"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Dairy and Proteins / • Focus: Identify protein-rich foods and their importance / • Key Concepts: Dairy, proteins",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.096"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Stitching a Simple Pouch / • Focus: Use stitching to join fabric and create a basic usable item / • Key Concepts: Running stitch, joining fabrics, decoration (buttons/fabric paint)",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.097"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Decorative Stitches / • Focus: Learn whip and cross stitches; add decorative elements / • Key Concepts: Whip stitch, cross stitch, embroidery, name/pattern designs",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.098"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Traditional Indian Textiles / • Focus: Recognize Indian handloom and textile arts; understand cultural value / • Key Concepts: Bandhani, Khadi, Banarasi, color and pattern, cultural relevance",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.099"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Culmination & Celebration / • Focus: Showcase learning; reflect on process and skills gained / • Key Concepts: Stitching & weaving exhibition, oral presentation, peer feedback, storytelling",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.100"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Food Preservation / • Focus: Explore methods to preserve food / • Key Concepts: Preservation, techniques",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.101"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Festive Foods / • Focus: Understand cultural importance of festive foods / • Key Concepts: Food, culture",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.102"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Review and Assessment / • Focus: Consolidate learning through projects and reflection / • Key Concepts: Assessment, consolidation",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.103"
+},
+{
+"subject": "Primary Computing",
+"unit": "Algorithms",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: What is an algorithm?",
+"Key Concepts: Everyday sequences, instructions"
+],
+"id": "unit.104"
+},
+{
+"subject": "Primary Computing",
+"unit": "Bee-Bot :",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Programming basics",
+"Key Concepts: Directional language, commands"
+],
+"id": "unit.105"
+},
+{
+"subject": "Primary Computing",
+"unit": "Sequencing & Logic",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Sequencing & prediction",
+"Key Concepts: Logical steps, outcomes"
+],
+"id": "unit.106"
+},
+{
+"subject": "Primary Computing",
+"unit": "Debugging",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Debugging",
+"Key Concepts: Error detection, correction"
+],
+"id": "unit.107"
+},
+{
+"subject": "Primary Computing",
+"unit": "Using Data",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Data handling",
+"Key Concepts: Sorting, categorizing, interpreting"
+],
+"id": "unit.108"
+},
+{
+"subject": "Primary Computing",
+"unit": "Collecting Data",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Surveys & recording",
+"Key Concepts: Questioning, tallying, input methods"
+],
+"id": "unit.109"
+},
+{
+"subject": "Primary Computing",
+"unit": "Get Connected",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Networks",
+"Key Concepts: Devices, connections, communication"
+],
+"id": "unit.110"
+},
+{
+"subject": "Primary Computing",
+"unit": "Introducing the Internet",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Online basics",
+"Key Concepts: Web, browsers, safety"
+],
+"id": "unit.111"
+},
+{
+"subject": "Primary Computing",
+"unit": "Types of Technology",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Hardware types",
+"Key Concepts: Input/output devices"
+],
+"id": "unit.112"
+},
+{
+"subject": "Primary Computing",
+"unit": "Ins and Outs",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Components",
+"Key Concepts: Ports, peripherals"
+],
+"id": "unit.113"
+},
+{
+"subject": "Primary Computing",
+"unit": "Bots Everywhere!",
+"bands": [
+"G1"
+],
+"n": 2,
+"samples": [
+"Focus: Automation",
+"Key Concepts: Robots, sensors, real-world tech"
+],
+"id": "unit.114"
+},
+{
+"subject": "Global perspectives",
+"unit": "Visual Arts",
+"bands": [
+"G1",
+"G2",
+"G3"
+],
+"n": 18,
+"samples": [
+"Title: Introduction to Visual Arts & Exploration",
+"Focus: Connect art to everyday life through observation and sketching",
+"Key Concepts: Observation, sketching"
+],
+"id": "unit.115"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Elements of Line / • Focus: Identify and use various line types to express emotions / • Key Concepts: Lines, expression",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.116"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Shapes in Nature and Art / • Focus: Recognize and use geometric/organic shapes in compositions / • Key Concepts: Shapes, compositions",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.117"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Colour Carnival – Primary Colours / • Focus: Understand primary colours and mixing to create secondary colours / • Key Concepts: Primary & secondary colours, mixing",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.118"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Secondary Colours and Colour Play / • Focus: Mix and apply secondary colours independently / • Key Concepts: Colour mixing, creativity",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.119"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Warm and Cool Colours / • Focus: Use colour temperature to express mood / • Key Concepts: Warm/cool colours, mood",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.120"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exploring Texture – Natural & Created / • Focus: Identify and represent tactile and visual textures / • Key Concepts: Texture, representation",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.121"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Lines and Textures in Nature – Leaf Art / • Focus: Capture natural line and texture patterns / • Key Concepts: Observation, natural patterns",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.122"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exploring Patterns – Repetition & Rhythm / • Focus: Create visual patterns through repetition / • Key Concepts: Patterns, rhythm",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.123"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Drawing Techniques – Shading and Texture / • Focus: Learn pencil shading techniques (hatching, cross-hatching, stippling) / • Key Concepts: Shading, texture",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.124"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Drawing from Observation – Still Life / • Focus: Observe and sketch real objects accurately / • Key Concepts: Observation, drawing",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.125"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Shape and Story – Abstract Faces / • Focus: Create expressive portraits using shapes and abstraction / • Key Concepts: Shapes, abstraction, expression",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.126"
+},
+{
+"subject": "Global perspectives",
+"unit": "Geography",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 18,
+"samples": [
+"Title: My Home and My School",
+"Focus: Identify rooms in a house and areas of school",
+"Key Concepts: Home, school"
+],
+"id": "unit.127"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: My Neighbourhood / • Focus: Recognize local places and their functions / • Key Concepts: Local places, function",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.128"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Directions and Landmarks / • Focus: Understand near/far, left/right, and basic directions / • Key Concepts: Directions, landmarks",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.129"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Maps and Symbols / • Focus: Understand simple maps and symbols / • Key Concepts: Maps, symbols",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.130"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Our Country – India / • Focus: Recognize map of India, major cities, states / • Key Concepts: India, cities, states",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.131"
+},
+{
+"subject": "Global perspectives",
+"unit": "History",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 18,
+"samples": [
+"Title: What is History?",
+"Focus: Differentiate between past and present; identify personal history events",
+"Key Concepts: Past, present"
+],
+"id": "unit.132"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: My Family History / • Focus: Identify family members from past generations / • Key Concepts: Family, generations",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.133"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Changes Over Time – Home and School / • Focus: Compare life at home and school now vs past / • Key Concepts: Comparison, change",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.134"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: National Symbols and Identity / • Focus: Recognize key Indian symbols and their history / • Key Concepts: Symbols, identity",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.135"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Great Leaders of India / • Focus: Identify leaders like Gandhi, Nehru, Ambedkar / • Key Concepts: Leaders, history",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.136"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Storytelling with Art – My Favourite Animal / • Focus: Express ideas and imagination through drawing / • Key Concepts: Storytelling, creativity",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.137"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: 3D Art – Clay Creatures / • Focus: Explore 3D form and tactile creativity / • Key Concepts: 3D form, tactile creativity",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.138"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Mixed Media – Dream Collage / • Focus: Layer materials to communicate feelings and dreams / • Key Concepts: Mixed media, expression",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.139"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Craftwork – Paper Weaving / • Focus: Develop fine motor skills and pattern recognition / • Key Concepts: Paper weaving, fine motor skills",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.140"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Folk Art – Warli Story Scenes / • Focus: Explore traditional Indian art and storytelling / • Key Concepts: Folk art, storytelling",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.141"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Printing Techniques – Stamp a Garden / • Focus: Discover printmaking patterns and textures / • Key Concepts: Printing, patterns, textures",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.142"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Textural Art – Nature Rubbing Collage / • Focus: Use natural textures to create layered collages / • Key Concepts: Texture, collage",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.143"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Symmetry Magic – Butterfly Prints / • Focus: Understand symmetry in art and nature / • Key Concepts: Symmetry, patterns",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.144"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: My Favourite Animal (Reinforcement) / • Focus: Represent animals using shapes and lines / • Key Concepts: Shapes, lines, representation",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.145"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Paper Play – Folding, Tearing, Cutting / • Focus: Build fine motor skills through paper craft / • Key Concepts: Paper craft, fine motor skills",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.146"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Inspired by Artists – Henri Matisse / • Focus: Create abstract collages inspired by Matisse’s cutouts / • Key Concepts: Abstract art, collage",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.147"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Our Festivals and Culture / • Focus: Understand major Indian festivals and customs / • Key Concepts: Festivals, culture",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.148"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Weather and Seasons / • Focus: Identify Indian seasons and their features / • Key Concepts: Seasons, weather",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.149"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Landforms of India / • Focus: Identify mountains, rivers, plains, and deserts / • Key Concepts: Landforms, geography",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.150"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Plants and Animals Around Us / • Focus: Classify domestic, wild, and farm animals / • Key Concepts: Plants, animals, classification",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.151"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Local History (Pune) / • Focus: Identify important local landmarks and history / • Key Concepts: Place, heritage / / / / / /",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.152"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Occupations Then and Now / • Focus: Understand how work has changed over time / • Key Concepts: Work, change / / / /",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.153"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Historical Stories & Legends / • Focus: Listen and respond to stories from the past / • Key Concepts: Stories, values / /",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.154"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Inventions That Changed Life / • Focus: Recognize simple inventions and their importance / • Key Concepts: Innovation, progress / /",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.155"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: World Heroes & Role Models / • Focus: Learn about inspiring people and their values / • Key Concepts: Leadership, values / / • Title: Project & Celebration / • Focus: Express learning creatively through projects and sharing / • Key Concepts: Reflection, expression",
+"bands": [
+"G1"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.156"
+},
+{
+"subject": "Routines",
+"unit": "News Reading",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Builds confidence, awareness of current events, and clear communication",
+"Builds confidence, awareness of current events, and clear communication",
+"Builds confidence, awareness of current events, and clear communication"
+],
+"id": "unit.157"
+},
+{
+"subject": "Routines",
+"unit": "Assembly Participation",
+"bands": [
+"G1",
+"G2",
+"G3"
+],
+"n": 3,
+"samples": [
+"Encourages public speaking, discipline, and a sense of community",
+"Encourages public speaking, discipline, and a sense of community",
+"Encourages public speaking, discipline, and a sense of community"
+],
+"id": "unit.158"
+},
+{
+"subject": "Routines",
+"unit": "Home Period",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Develops responsibility, routine awareness, and independence",
+"Develops responsibility, routine awareness, and independence",
+"Develops responsibility, routine awareness, and independence"
+],
+"id": "unit.159"
+},
+{
+"subject": "Routines",
+"unit": "Word of the Day",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Enhances daily vocabulary and language usage",
+"Enhances daily vocabulary and language usage",
+"Enhances daily vocabulary and language usage"
+],
+"id": "unit.160"
+},
+{
+"subject": "Routines",
+"unit": "Quiz Class",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Strengthens recall, listening skills, and healthy competition",
+"Strengthens recall, listening skills, and healthy competition",
+"Strengthens recall, listening skills, and healthy competition"
+],
+"id": "unit.161"
+},
+{
+"subject": "Routines",
+"unit": "Reading Time",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Improves comprehension, focus, and love for reading",
+"Improves comprehension, focus, and love for reading",
+"Improves comprehension, focus, and love for reading"
+],
+"id": "unit.162"
+},
+{
+"subject": "Routines",
+"unit": "Mental Math Class",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Builds speed, accuracy, and number confidence",
+"Builds speed, accuracy, and number confidence",
+"Builds speed, accuracy, and number confidence"
+],
+"id": "unit.163"
+},
+{
+"subject": "Routines",
+"unit": "Evaluation",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Helps track progress and identify learning needs",
+"Helps track progress and identify learning needs",
+"Helps track progress and identify learning needs"
+],
+"id": "unit.164"
+},
+{
+"subject": "Routines",
+"unit": "Think Outside the Box",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Encourages creativity, critical thinking, and innovation",
+"Encourages creativity, critical thinking, and innovation",
+"Encourages creativity, critical thinking, and innovation"
+],
+"id": "unit.165"
+},
+{
+"subject": "Routines",
+"unit": "No Screen Day",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Promotes hands-on learning and real-world engagement",
+"Promotes hands-on learning and real-world engagement",
+"Promotes hands-on learning and real-world engagement"
+],
+"id": "unit.166"
+},
+{
+"subject": "Routines",
+"unit": "Reading Project",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Develops comprehension, expression, and presentation skills",
+"Develops comprehension, expression, and presentation skills",
+"Develops comprehension, expression, and presentation skills"
+],
+"id": "unit.167"
+},
+{
+"subject": "Routines",
+"unit": "Daily Journal",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Encourages reflection, writing fluency, and emotional expression",
+"Encourages reflection, writing fluency, and emotional expression",
+"Encourages reflection, writing fluency, and emotional expression"
+],
+"id": "unit.168"
+},
+{
+"subject": "Routines",
+"unit": "Unscramble Activities",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Improves spelling, vocabulary, and logical thinking",
+"Improves spelling, vocabulary, and logical thinking",
+"Improves spelling, vocabulary, and logical thinking"
+],
+"id": "unit.169"
+},
+{
+"subject": "Routines",
+"unit": "Word Search",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Strengthens visual scanning and word recognition",
+"Strengthens visual scanning and word recognition",
+"Strengthens visual scanning and word recognition"
+],
+"id": "unit.170"
+},
+{
+"subject": "Routines",
+"unit": "Fun Riddles",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Enhances reasoning, curiosity, and lateral thinking",
+"Enhances reasoning, curiosity, and lateral thinking",
+"Enhances reasoning, curiosity, and lateral thinking"
+],
+"id": "unit.171"
+},
+{
+"subject": "Routines",
+"unit": "Memory Drawing",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Builds observation skills, memory, and attention to detail",
+"Builds observation skills, memory, and attention to detail",
+"Builds observation skills, memory, and attention to detail"
+],
+"id": "unit.172"
+},
+{
+"subject": "Routines",
+"unit": "Spelling Bee",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Improves spelling accuracy and language confidence",
+"Improves spelling accuracy and language confidence",
+"Improves spelling accuracy and language confidence"
+],
+"id": "unit.173"
+},
+{
+"subject": "Routines",
+"unit": "Theme-Based Learnings",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Connects concepts across subjects meaningfully",
+"Connects concepts across subjects meaningfully",
+"Connects concepts across subjects meaningfully"
+],
+"id": "unit.174"
+},
+{
+"subject": "Routines",
+"unit": "Sports Classes",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Develop physical fitness, teamwork, and discipline",
+"Develop physical fitness, teamwork, and discipline",
+"Develop physical fitness, teamwork, and discipline"
+],
+"id": "unit.175"
+},
+{
+"subject": "Routines",
+"unit": "No Uniform Day",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Encourages self-expression and individuality",
+"Encourages self-expression and individuality",
+"Encourages self-expression and individuality"
+],
+"id": "unit.176"
+},
+{
+"subject": "Routines",
+"unit": "Olympiad Mock Test Exposure",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Familiarizes students with competitive formats and thinking skills",
+"Familiarizes students with competitive formats and thinking skills",
+"Familiarizes students with competitive formats and thinking skills"
+],
+"id": "unit.177"
+},
+{
+"subject": "Routines",
+"unit": "Magazine Exposure – Champak",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Enhances Hindi reading interest and moral understanding",
+"Enhances Hindi reading interest and moral understanding",
+"Enhances Hindi reading interest and moral understanding"
+],
+"id": "unit.178"
+},
+{
+"subject": "Routines",
+"unit": "Magazine Exposure – RobinAge",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Builds English reading skills and real-world awareness",
+"Builds English reading skills and real-world awareness",
+"Builds English reading skills and real-world awareness"
+],
+"id": "unit.179"
+},
+{
+"subject": "Routines",
+"unit": "Novel Reading",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Develops sustained reading habits and deeper comprehension",
+"Develops sustained reading habits and deeper comprehension",
+"Develops sustained reading habits and deeper comprehension"
+],
+"id": "unit.180"
+},
+{
+"subject": "Routines",
+"unit": "Block Time",
+"bands": [
+"G1",
+"G2",
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Encourages creativity, collaboration, and problem-solving",
+"Encourages creativity, collaboration, and problem-solving",
+"Encourages creativity, collaboration, and problem-solving"
+],
+"id": "unit.181"
+},
+{
+"subject": "Numeracy",
+"unit": "Numbers to 1000",
+"bands": [
+"G2"
+],
+"n": 7,
+"samples": [
+"Read, write and represent numbers up to 1,000",
+"Understand extended place value: hundreds, tens and ones",
+"Compare and order numbers using <, >, ="
+],
+"id": "unit.182"
+},
+{
+"subject": "Numeracy",
+"unit": "Multiplication & Division",
+"bands": [
+"G2"
+],
+"n": 7,
+"samples": [
+"Recall multiplication facts for 2, 3, 4, 5 and 10 times tables",
+"Understand multiplication as repeated addition",
+"Understand division as grouping and sharing"
+],
+"id": "unit.183"
+},
+{
+"subject": "Numeracy",
+"unit": "Shapes & Geometry – Part 1 (2D & 3D Shapes)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Identify properties of 2D shapes (sides, vertices, right angles)",
+"Identify and name 3D shapes (faces, edges, vertices)",
+"Sort and classify shapes based on features"
+],
+"id": "unit.184"
+},
+{
+"subject": "Numeracy",
+"unit": "Probability (Introductory) – Term 1 Conceptual Module",
+"bands": [
+"G2"
+],
+"n": 4,
+"samples": [
+"Understand events that are certain, likely, unlikely or impossible",
+"Use probability vocabulary such as maybe, chance and chance scales",
+"Compare simple outcomes (e.g., rolling a die, picking a bead)"
+],
+"id": "unit.185"
+},
+{
+"subject": "Numeracy",
+"unit": "Numbers & Place Value – Extended",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Work with numbers up to 10,000 (if extension is followed)",
+"Understand and use Roman numerals (optional extension)",
+"Round numbers to the nearest 10, 100 (and 1,000 if extended)"
+],
+"id": "unit.186"
+},
+{
+"subject": "Numeracy",
+"unit": "Multiplication & Division – Extended & Application",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Recall multiplication facts up to 10 × 10",
+"Multiply 2-digit numbers by 1-digit numbers using partitioning, grid/area model, and expanded layouts",
+"Divide using grouping, number lines, and simple short-division logic"
+],
+"id": "unit.187"
+},
+{
+"subject": "Numeracy",
+"unit": "Position & Movement (Geometry – Part 2)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 10,
+"samples": [
+"Use directional vocabulary: left, right, clockwise, anti-clockwise",
+"Understand quarter-turns, half-turns, and full-turns",
+"Describe movement along grids and pathways"
+],
+"id": "unit.188"
+},
+{
+"subject": "Numeracy",
+"unit": "Data Handling (Statistics)",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Collect data using tallies and surveys",
+"Represent data using pictograms, bar charts, and tables",
+"Interpret charts to identify largest/smallest categories and differences"
+],
+"id": "unit.189"
+},
+{
+"subject": "Numeracy",
+"unit": "Symmetry",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 15,
+"samples": [
+"Identify lines of symmetry in 2D shapes",
+"Complete symmetrical figures accurately",
+"Recognise shapes with more than one line of symmetry"
+],
+"id": "unit.190"
+},
+{
+"subject": "Numeracy",
+"unit": "Patterns & Algebraic Thinking",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Identify growing and repeating number patterns",
+"Understand and apply simple function rules (e.g., add 3 each time)",
+"Use input–output rule tables"
+],
+"id": "unit.191"
+},
+{
+"subject": "Numeracy",
+"unit": "Problem Solving & Reasoning",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 15,
+"samples": [
+"Use diagrams, bar models, and charts to solve problems",
+"Choose appropriate operations for given problems",
+"Estimate and check answers for reasonableness"
+],
+"id": "unit.192"
+},
+{
+"subject": "Science",
+"unit": "Plants Are Living Things",
+"bands": [
+"G2"
+],
+"n": 4,
+"samples": [
+"1.1 Alive or not alive? /",
+"1.2 Plant parts /",
+"1.3 Plants and light /"
+],
+"id": "unit.193"
+},
+{
+"subject": "Science",
+"unit": "Mixing Materials",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"2.1 Solids, liquids and gases /",
+"2.2 Separating mixtures /",
+"2.3 Dissolving /"
+],
+"id": "unit.194"
+},
+{
+"subject": "Science",
+"unit": "Light and Shadows",
+"bands": [
+"G2"
+],
+"n": 4,
+"samples": [
+"3.1 Shadows /",
+"3.2 Changing shadows /",
+"3.3 Transparent materials /"
+],
+"id": "unit.195"
+},
+{
+"subject": "Science",
+"unit": "Staying Alive",
+"bands": [
+"G2"
+],
+"n": 4,
+"samples": [
+"4.1 Human organs /",
+"4.2 Animal groups and different life cycles /",
+"4.3 Food chains /"
+],
+"id": "unit.196"
+},
+{
+"subject": "Science",
+"unit": "Forces and Magnets",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"5.1 Forces and forcemeters /",
+"5.2 Gravity /",
+"5.3 Friction /"
+],
+"id": "unit.197"
+},
+{
+"subject": "Science",
+"unit": "The Earth and the Moon",
+"bands": [
+"G2"
+],
+"n": 3,
+"samples": [
+"6.1 The shape of the Earth, Sun and Moon /",
+"6.2 The Moon /",
+"6.3 The phases of the Moon"
+],
+"id": "unit.198"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 1 – Story Writing with Roald Dahl",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Stories by Roald Dahl (e.g., Matilda, Danny the Champion of the World, Charlie and the Chocolate Factory) /",
+"Writing: Write a story based on a Roald Dahl character /",
+"Speaking"
+],
+"id": "unit.199"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 2 – Let’s Have a Party",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Instructions (recipes, party games), invitations, cards, contents/index pages /",
+"Writing: Write invitations, recipes, instructions for games /",
+"Speaking"
+],
+"id": "unit.200"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 3 – Poems from Around the World",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Poems from different cultures (e.g., haikus, “Dancing Poinciana”, “Hurricane”) /",
+"Writing: Write short poems, new verses, haikus /",
+"Speaking"
+],
+"id": "unit.201"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 4 – Myths and Legends",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Traditional myths and legends /",
+"Writing: Plan & write a myth/legend, storyboard planning /",
+"Speaking"
+],
+"id": "unit.202"
+},
+{
+"subject": "Phonics",
+"unit": "Consonant Digraph",
+"bands": [
+"G2"
+],
+"n": 4,
+"samples": [
+"‘ch’ saying /c/",
+"‘ch’ saying /sh/",
+"‘ph’ saying /f/"
+],
+"id": "unit.203"
+},
+{
+"subject": "Phonics",
+"unit": "Vowel Digraph",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"‘ea’ saying /e/",
+"‘ie’ saying /ee/",
+"‘aw’ saying /or/"
+],
+"id": "unit.204"
+},
+{
+"subject": "Phonics",
+"unit": "R-controlled Vowel",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"‘ir’ saying /ur/"
+],
+"id": "unit.205"
+},
+{
+"subject": "Phonics",
+"unit": "Tricky Vowel",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"‘y’ saying /ee/"
+],
+"id": "unit.206"
+},
+{
+"subject": "Phonics",
+"unit": "Soft Sound Grammar",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"‘c’ saying /s/",
+"‘g’ saying /j/"
+],
+"id": "unit.207"
+},
+{
+"subject": "Phonics",
+"unit": "Spelling Rule – Plurals",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"Adding –s and –es"
+],
+"id": "unit.208"
+},
+{
+"subject": "Phonics",
+"unit": "Spelling Rule – Past Tense",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"Adding –ed"
+],
+"id": "unit.209"
+},
+{
+"subject": "Phonics",
+"unit": "Spelling Rule – Adjectives",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"Adding –er and –est"
+],
+"id": "unit.210"
+},
+{
+"subject": "Phonics",
+"unit": "Tricky words",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"oh, water, people, looked, do, when, where, could, should, would, their, asked, called"
+],
+"id": "unit.211"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 5 – Writing to Each Other",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Letters, emails, postcards (formal & informal)",
+"Writing: Write letters/emails for given context",
+"Speaking"
+],
+"id": "unit.212"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 6 – Bringing Stories Alive",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Playscripts / stories converted into plays",
+"Writing: Rewrite story as playscript, add dialogue, write full playscript",
+"Speaking"
+],
+"id": "unit.213"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 7 – Going on an Adventure",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Adventure stories (fictional & imaginative)",
+"Writing: Write adventure story, character portrait, book review",
+"Speaking"
+],
+"id": "unit.214"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 8 – Wonderful World",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Non-fiction texts (fact files, contents/index pages, library catalogues, country/season info)",
+"Writing: Information texts, structured content, headings/subheadings",
+"Speaking"
+],
+"id": "unit.215"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 9 – Laughing Allowed",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"Reading: Poetry and wordplay: shape poems, limericks, rhyming poems, tongue twisters",
+"Writing: Write poems (shape/limerick/creative), poem reviews",
+"Speaking"
+],
+"id": "unit.216"
+},
+{
+"subject": "Phonics",
+"unit": "Long Vowel",
+"bands": [
+"G2"
+],
+"n": 6,
+"samples": [
+"‘ue’ saying /oo/",
+"‘ue’ saying /yoo/",
+"‘ew’ saying /oo/"
+],
+"id": "unit.217"
+},
+{
+"subject": "Phonics",
+"unit": "Diphthong – Long O",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"‘ow’ saying /oa/"
+],
+"id": "unit.218"
+},
+{
+"subject": "Phonics",
+"unit": "Diphthong – AIR family",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"‘ear’ saying /air/",
+"‘are’ saying /air/"
+],
+"id": "unit.219"
+},
+{
+"subject": "Phonics",
+"unit": "Consonant Ending",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"‘tch’ saying /ch/"
+],
+"id": "unit.220"
+},
+{
+"subject": "Phonics",
+"unit": "Magic-e Rule",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"Unspoken ‘e’"
+],
+"id": "unit.221"
+},
+{
+"subject": "Phonics",
+"unit": "Spelling Rule",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Adding –ing",
+"Adding –er (agent nouns)"
+],
+"id": "unit.222"
+},
+{
+"subject": "Phonics",
+"unit": "Prefix Rule",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+"Adding un"
+],
+"id": "unit.223"
+},
+{
+"subject": "Literacy - English",
+"unit": "Spelling Bee (Weekly)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Builds vocabulary and strengthens spelling accuracy",
+"Builds vocabulary and strengthens spelling accuracy"
+],
+"id": "unit.224"
+},
+{
+"subject": "Literacy - English",
+"unit": "Dictation (Weekly)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Enhances listening skills and reinforces correct spellings",
+"Enhances listening skills and reinforces correct spellings"
+],
+"id": "unit.225"
+},
+{
+"subject": "Literacy - English",
+"unit": "Reading Project (Weekly)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Develops comprehension and promotes independent reading habits",
+"Develops comprehension and promotes independent reading habits"
+],
+"id": "unit.226"
+},
+{
+"subject": "Literacy - English",
+"unit": "News Magazine – RobinAge",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Encourages awareness of current events in a child-friendly manner",
+"Encourages awareness of current events in a child-friendly manner"
+],
+"id": "unit.227"
+},
+{
+"subject": "Literacy - English",
+"unit": "Reading Time – Different Genres (Twice a Week)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Exposes learners to a wide variety of text types and enriches linguistic understanding",
+"Exposes learners to a wide variety of text types and enriches linguistic understanding"
+],
+"id": "unit.228"
+},
+{
+"subject": "Literacy - English",
+"unit": "Play-Based Learning (Weekly)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Supports experiential learning and boosts creativity, collaboration, and problem-solving",
+"Supports experiential learning and boosts creativity, collaboration, and problem-solving"
+],
+"id": "unit.229"
+},
+{
+"subject": "Literacy - English",
+"unit": "Novel Reading – Nate the Great Series (Weekly)",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"Builds extended reading stamina and nurtures deeper engagement with narrative texts",
+"Builds extended reading stamina and nurtures deeper engagement with narrative texts"
+],
+"id": "unit.230"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सवेरा (कविता)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: सर्वनाम, समान शब्द, नाम शब्द /",
+"विषय संबंधी गतिविधियाँ: कविता-लेखन, चित्र-निर्माण /",
+"गहन चिंतन कौशल: प्राकृतिक दृश्यों पर प्रतिक्रिया और तर्क अभिव्यक्ति /"
+],
+"id": "unit.231"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "नीलम परी (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: संयुक्त शब्द, विशेषण, नाम की जगह शब्द /",
+"विषय संबंधी गतिविधियाँ: कहानी-वाचन, अनुश्रवण-लेखन, चित्र-चयन /",
+"गहन चिंतन कौशल: पात्र को उपयुक्त नाम देना और प्रतिक्रिया लिखना /"
+],
+"id": "unit.232"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "मीठा झगड़ा (कविता)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समान अर्थवाले शब्द, शब्द-निर्माण, विशेषण, पूर्ण वाक्य /",
+"विषय संबंधी गतिविधियाँ: संवाद, जानकारी, अनुश्रवण-लेखन /",
+"गहन चिंतन कौशल: विशेषता की समझ और परिणामों पर चिंतन /"
+],
+"id": "unit.233"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "बदल गई सुहानी (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: लघुता-लंबाई, काम शब्द, प, म, य, र के रूप, एक-अनेक /",
+"विषय संबंधी गतिविधियाँ: संवाद-लेखन, ग्राफ़ बनाना /",
+"गहन चिंतन कौशल: गंभीरता को समझना और प्रतिक्रिया देना /"
+],
+"id": "unit.234"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "रचना बच्चे (चित्रकथा)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: शब्द-निर्माण, लघुता-लंबाई, मात्रा /",
+"विषय संबंधी गतिविधियाँ: अभिनय, जानकारी, संदेश लेखन /",
+"गहन चिंतन कौशल: स्थिति विशेष पर प्रतिक्रिया देना /"
+],
+"id": "unit.235"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सरसों की गंध (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विशेषण, शब्द-निर्माण, कामवाले शब्द /",
+"विषय संबंधी गतिविधियाँ: गीत-निर्माण, अनुश्रवण, चित्र-चयन /",
+"गहन चिंतन कौशल: स्थिति पर अपनी प्रतिक्रिया प्रस्तुत करना /"
+],
+"id": "unit.236"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "जाड़े की धूप (कविता)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: शब्दों के जोड़े, उनके अर्थ, क्ष, त्र, ज्ञ /",
+"विषय संबंधी गतिविधियाँ: कविता लेखन, चित्र-निर्माण /",
+"गहन चिंतन कौशल: विशेषता की समझ और परिणामों पर चिंतन /"
+],
+"id": "unit.237"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "अब हम दोस्त हैं (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: एक-अनेक, रचनात्मक व्यंजन, विलोम-निवेदन /",
+"विषय संबंधी गतिविधियाँ: विचार-आभिव्यक्ति, कहानी-पत्र लेखन, चार्ट बनाना, अनुच्छेद-लेखन /",
+"गहन चिंतन कौशल: बच्चों को चिंतन और तर्क सहित प्रतिक्रिया देने के लिए प्रेरित करना /"
+],
+"id": "unit.238"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "जैसी हूँ मैं अच्छी हूँ (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: अनुस्वार, विसर्ग, भाषाओं के शब्द, नाम की जगह आनेवाले शब्द, विशेषता बतानेवाले शब्द /",
+"विषय संबंधी गतिविधियाँ: अनुच्छेद-लेखन, सूची-निर्माण, रंग भरकर चित्र के साथ लेखन /",
+"गहन चिंतन कौशल: बच्चों से स्थिति विशेष पर प्रतिक्रिया की अपेक्षा करना /"
+],
+"id": "unit.239"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "भालू का नाम (कहानी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: संज्ञा-लिंग, समान अर्थवाले शब्द, गिनती, झ, छ, ठ-ठ, र-र, विशेषता बतानेवाले शब्द /",
+"विषय संबंधी गतिविधियाँ: कहानी-लेखन, चित्र बनाना, प्रश्नों के उत्तर देना, गतिविधियाँ /",
+"गहन चिंतन कौशल: बच्चों को संपादित घटना पर प्रतिक्रिया देने के लिए प्रेरित करना /"
+],
+"id": "unit.240"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "कहां जाएं हम... (कविता)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समान शब्दावली, एक-अनेक, पर्यायवाची, नाम की जगह आनेवाले शब्द, विशेषण शब्द /",
+"विषय संबंधी गतिविधियाँ: पौधारोपण, सूचना लेखन, जानवरों के नाम /",
+"गहन चिंतन कौशल: बच्चों की गंभीरता को समझकर उनकी प्रतिक्रिया देना /"
+],
+"id": "unit.241"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "होली के रंग (वार्तालाप)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: र, अरेबिक शब्दों के लिए एक शब्द, एक-अनेक, विशेषता बतानेवाले शब्दों से वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: होली की कहानी, चित्र में रंग भरना, प्रश्न-उत्तर लेखन, कविता-लेखन /",
+"गहन चिंतन कौशल: बच्चों को विशेषता की उपयोगविधि समझाकर अनुभवों पर प्रतिक्रिया देने हेतु प्रेरित करना /"
+],
+"id": "unit.242"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "कहानी फलों की (जानकारी)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: उलटे अर्थवाले शब्द, झ, छ, विशेषता बतानेवाले शब्द, नामवाचक-भाववाचक शब्द, वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: फलों की चार्ट बनाना, कहानी बनाना, चित्र बनाना, नाम लिखना /",
+"गहन चिंतन कौशल: बच्चों को कल्पनाशील गतिविधियों में प्रतिक्रिया देने एवं तर्क अभिव्यक्त करने हेतु प्रेरित करना /"
+],
+"id": "unit.243"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "परंपरागत खेल (कविता)",
+"bands": [
+"G2"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समान शब्दावली, एक-अनेक, ने, वाक्य-निर्माण, काल /",
+"विषय संबंधी गतिविधियाँ: प्रिय खेल के बारे में लेखन, कविता-लेखन, घर के अंदर खेले जानेवाले खेलों की जानकारी /",
+"गहन चिंतन कौशल: बच्चों को अनुभवों के बारे में चिंतन तथा प्रतिक्रिया देने हेतु प्रेरित करना /"
+],
+"id": "unit.244"
+},
+{
+"subject": "Primary Computing",
+"unit": "Everyday Algorithms",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Real-life sequences",
+"Key Concepts: Step-by-step instructions"
+],
+"id": "unit.245"
+},
+{
+"subject": "Primary Computing",
+"unit": "Inputs and Outputs",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Device interaction",
+"Key Concepts: Input/output examples"
+],
+"id": "unit.246"
+},
+{
+"subject": "Primary Computing",
+"unit": "Introducing Scratch",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Visual coding",
+"Key Concepts: Blocks, sprites, commands"
+],
+"id": "unit.247"
+},
+{
+"subject": "Primary Computing",
+"unit": "Moving and Changing Sprites",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Animation basics",
+"Key Concepts: Motion, looks, events"
+],
+"id": "unit.248"
+},
+{
+"subject": "Primary Computing",
+"unit": "Clear and Concise Programs",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Code clarity",
+"Key Concepts: Sequence, simplicity"
+],
+"id": "unit.249"
+},
+{
+"subject": "Primary Computing",
+"unit": "Introducing the micro:bit",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Physical computing",
+"Key Concepts: Inputs, outputs, LED display"
+],
+"id": "unit.250"
+},
+{
+"subject": "Primary Computing",
+"unit": "How Data Can Help Us",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Data use",
+"Key Concepts: Patterns, decisions"
+],
+"id": "unit.251"
+},
+{
+"subject": "Primary Computing",
+"unit": "Super Spreadsheets",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Organizing data",
+"Key Concepts: Rows, columns, charts"
+],
+"id": "unit.252"
+},
+{
+"subject": "Primary Computing",
+"unit": "Networks Everywhere!",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Connectivity",
+"Key Concepts: Devices, communication"
+],
+"id": "unit.253"
+},
+{
+"subject": "Primary Computing",
+"unit": "Secret Ciphers",
+"bands": [
+"G2"
+],
+"n": 2,
+"samples": [
+"Focus: Encryption",
+"Key Concepts: Codes, privacy"
+],
+"id": "unit.254"
+},
+{
+"subject": "Home Science",
+"unit": "Journey of Fabric / • Cotton harvesting, spinning, dyeing / • Transformation from raw material to cloth",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.255"
+},
+{
+"subject": "Home Science",
+"unit": "Fibres in Our Lives / • Uses of fabric: clothing, furniture, daily items / • Seasonal relevance",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.256"
+},
+{
+"subject": "Home Science",
+"unit": "Types of Weaving Techniques / • Over-under weaving / • Pattern formation",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.257"
+},
+{
+"subject": "Home Science",
+"unit": "Traditional Indian Weaves / • Famous weaves: Bandhani, Kanchipuram, Ikat / • Cultural significance",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.258"
+},
+{
+"subject": "Home Science",
+"unit": "Advanced Stitching Techniques / • Blanket stitch, Back stitch, Running stitch, Cross stitch / • Safe needle handling, precision",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.259"
+},
+{
+"subject": "Home Science",
+"unit": "Dyeing & Color in Textiles / • Natural vs synthetic dyes / • Color mixing",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.260"
+},
+{
+"subject": "Home Science",
+"unit": "Stitching to Join / • Fastening two cloth pieces / • Functional stitching",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.261"
+},
+{
+"subject": "Home Science",
+"unit": "Stitching in Our Community / • Tailors, designers, textile workers / • Real-world applications",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.262"
+},
+{
+"subject": "Home Science",
+"unit": "Designing with Fabric / • Create final stitched or woven product / • Showcase creativity",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.263"
+},
+{
+"subject": "Home Science",
+"unit": "Decorative Stitches & Embroidery / • Basic embroidery: star, chain, seed stitch / • Practice symmetry and patterns",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.264"
+},
+{
+"subject": "Home Science",
+"unit": "Mending & Repair / • Fixing tears, buttons / • Practical life skills",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.265"
+},
+{
+"subject": "Home Science",
+"unit": "Recycling & Upcycling Fabric / • Eco-friendly fabric reuse / • Sustainable craft",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.266"
+},
+{
+"subject": "Home Science",
+"unit": "• Title: Culmination & Celebration / • Focus: Showcase learning and reflect on process / • Key Concepts: Reflection, presentation",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.267"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exploring Shapes / • Focus: Recognize and use geometric and organic shapes / • Key Concepts: Shape, geometric, organic, form",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.268"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Pattern Play / • Focus: Create repeating patterns using shapes and lines / • Key Concepts: Pattern, repetition, sequence",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.269"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Patterns in Culture / • Focus: Explore patterns from different cultures / • Key Concepts: Pattern, symmetry, cultural art",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.270"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Drawing with Patterns / • Focus: Combine line, shape, and pattern in artwork / • Key Concepts: Composition, pattern, space",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.271"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Artist Study – Line & Pattern / • Focus: Explore artists using line and pattern / • Key Concepts: Style, artist inspiration, design",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.272"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Colour Wheel / • Focus: Understand primary and secondary colors / • Key Concepts: Primary colors, secondary colors, mixing",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.273"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Warm and Cool Colours / • Focus: Explore temperature of colors / • Key Concepts: Warm colors, cool colors, contrast",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.274"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Mood in Art / • Focus: Express emotions using color and shape / • Key Concepts: Emotion, color, expression",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.275"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Artist Study – Starry Night / • Focus: Explore use of color and brush strokes in art / • Key Concepts: Brushstroke, texture, movement",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.276"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Colour Reflection / • Focus: Reflect and discuss artwork / • Key Concepts: Observation, reflection, art vocabulary",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.277"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exploring Texture / • Focus: Identify and feel different textures / • Key Concepts: Texture, rough, smooth, soft, hard",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.278"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Texture Collage / • Focus: Create artwork using textured materials / • Key Concepts: Collage, materials, surface",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.279"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Visual Texture Drawing / • Focus: Represent texture using drawing techniques / • Key Concepts: Lines, shading, visual texture",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.280"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Artist Study – Jungle Art / • Focus: Explore layered texture in nature-inspired art / • Key Concepts: Layering, nature, composition",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.281"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Texture in Nature / • Focus: Observe and create textures from natural objects / • Key Concepts: Natural texture, print, pattern",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.282"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: States of India (Intro) / • Focus: Understand that India is divided into states and identify own state / • Key Concepts: Country, states, political map",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.283"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Continents and Oceans / • Focus: Recognize Earth is divided into land (continents) and water (oceans) / • Key Concepts: Continents, oceans, land, water",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.284"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Asia and India’s Place / • Focus: Identify Asia as a continent and understand India is part of Asia / • Key Concepts: Continent, Asia, location, world map",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.285"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Physical Features of India / • Focus: Identify different landforms in India / • Key Concepts: Mountains, plains, deserts, plateaus\" / \"• Title: Early Humans / • Focus: Understand how early humans lived / • Key Concepts: Survival, early life",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.286"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Early Humans / • Focus: Understand how early humans lived / • Key Concepts: Survival, early life / / /",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.287"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Discovery of Fire & Tools / • Focus: Recognize importance of early inventions / • Key Concepts: Invention, tools /",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.288"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Agriculture Begins / • Focus: Understand how farming started / • Key Concepts: Farming, settlement / /",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.289"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Trade and Exchange / • Focus: Understand how people exchanged goods / • Key Concepts: Trade, barter / /",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.290"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Clay and Dough Work / • Focus: Explore basic sculpting techniques / • Key Concepts: Shape, form, modelling",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.291"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Junk Sculpture / • Focus: Create sculptures using recycled materials / • Key Concepts: Reuse, structure, creativity",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.292"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Japanese Fish Kites / • Focus: Explore cultural craft through pattern and form / • Key Concepts: Culture, pattern, movement",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.293"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: African Masks / • Focus: Design expressive masks using shapes and colors / • Key Concepts: Expression, symmetry, culture",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.294"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Aboriginal Dot Art / • Focus: Create art using dot techniques and storytelling / • Key Concepts: Pattern, symbols, storytelling",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.295"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Mexican Papel Picado / • Focus: Explore paper cutting and symmetry / • Key Concepts: Symmetry, design, craft",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.296"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Scandinavian Weaving / • Focus: Learn basic weaving techniques / • Key Concepts: Pattern, weaving, texture",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.297"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Art Around the World / • Focus: Reflect on global art forms / • Key Concepts: Culture, diversity, connection",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.298"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Portfolio Building / • Focus: Organize and reflect on artwork / • Key Concepts: Reflection, selection, growth",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.299"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Final Artwork Project / • Focus: Create a personal artwork using learned skills / • Key Concepts: Creativity, integration, expression",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.300"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exhibition Preparation / • Focus: Prepare artwork for display / • Key Concepts: Presentation, display, curation",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.301"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Art Exhibition / • Focus: Present and celebrate artwork / • Key Concepts: Expression, confidence, appreciation",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.302"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Natural Resources / • Focus: Identify basic resources provided by Earth and their uses / • Key Concepts: Water, air, soil, natural resources",
+"bands": [
+"G2",
+"G3"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.303"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Land Use / • Focus: Understand how land is used by people / • Key Concepts: Farming, housing, roads, land use",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.304"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Maps and Directions / • Focus: Understand basic map skills and directions / • Key Concepts: Map, symbols, directions, location",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.305"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: World Heroes & Role Models / • Focus: Learn about inspiring people and their values / • Key Concepts: Leadership, values /",
+"bands": [
+"G2"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.306"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Project & Celebration / • Focus: Express learning creatively through projects and sharing / • Key Concepts: Reflection, expression",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"",
+"",
+""
+],
+"id": "unit.307"
+},
+{
+"subject": "Routines",
+"unit": "Expanded Sentences",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"Strengthens sentence construction, vocabulary use, and writing fluency",
+"Strengthens sentence construction, vocabulary use, and writing fluency",
+"Strengthens sentence construction, vocabulary use, and writing fluency"
+],
+"id": "unit.308"
+},
+{
+"subject": "Routines",
+"unit": "Crossword",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"Enhances spelling, word recognition, and problem-solving skills",
+"Enhances spelling, word recognition, and problem-solving skills",
+"Enhances spelling, word recognition, and problem-solving skills"
+],
+"id": "unit.309"
+},
+{
+"subject": "Routines",
+"unit": "Short Essay",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"Develops coherent thinking, writing organization, and expression of ideas",
+"Develops coherent thinking, writing organization, and expression of ideas",
+"Develops coherent thinking, writing organization, and expression of ideas"
+],
+"id": "unit.310"
+},
+{
+"subject": "Routines",
+"unit": "Doodle & Describe",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"Encourages creativity, observation, and descriptive writing skills",
+"Encourages creativity, observation, and descriptive writing skills",
+"Encourages creativity, observation, and descriptive writing skills"
+],
+"id": "unit.311"
+},
+{
+"subject": "Routines",
+"unit": "Mini Science Observation",
+"bands": [
+"G2",
+"G3",
+"G4"
+],
+"n": 3,
+"samples": [
+"Builds curiosity, observation skills, and understanding of scientific processes",
+"Builds curiosity, observation skills, and understanding of scientific processes",
+"Builds curiosity, observation skills, and understanding of scientific processes"
+],
+"id": "unit.312"
+},
+{
+"subject": "Numeracy",
+"unit": "Numbers and the Number System",
+"bands": [
+"G3",
+"G4"
+],
+"n": 6,
+"samples": [
+"Counting and sequences (extending patterns, rules, forward/backward counting)",
+"Negative numbers (values below zero, number lines, ordering)",
+"Place value (reading/writing large numbers, partitioning, rounding)"
+],
+"id": "unit.313"
+},
+{
+"subject": "Numeracy",
+"unit": "Time and Timetables",
+"bands": [
+"G3",
+"G4"
+],
+"n": 12,
+"samples": [
+"Reading analogue/digital clocks",
+"Understanding am/pm",
+"Calculating durations"
+],
+"id": "unit.314"
+},
+{
+"subject": "Numeracy",
+"unit": "Addition and Subtraction of Whole Numbers",
+"bands": [
+"G3",
+"G4"
+],
+"n": 6,
+"samples": [
+"Missing numbers in equations",
+"Addition & subtraction strategies (mental/written)",
+"Generalising odd & even numbers"
+],
+"id": "unit.315"
+},
+{
+"subject": "Numeracy",
+"unit": "Probability",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Certain/likely/unlikely/impossible events",
+"Describing outcomes",
+"Certain/likely/unlikely/impossible events"
+],
+"id": "unit.316"
+},
+{
+"subject": "Numeracy",
+"unit": "Multiplication, Multiples and Factors",
+"bands": [
+"G3",
+"G4"
+],
+"n": 6,
+"samples": [
+"Tables, multiples and factors",
+"Mental strategies",
+"Formal methods for multiplication"
+],
+"id": "unit.317"
+},
+{
+"subject": "Numeracy",
+"unit": "2D Shapes",
+"bands": [
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"Naming 2D shapes",
+"Tessellation patterns",
+"Lines of symmetry"
+],
+"id": "unit.318"
+},
+{
+"subject": "Science",
+"unit": "Living Things",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"1.1 Bones and skeletons /",
+"1.2 Why we need a skeleton /",
+"1.3 Skeletons and movement /"
+],
+"id": "unit.319"
+},
+{
+"subject": "Science",
+"unit": "Energy",
+"bands": [
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"2.1 Energy around us /",
+"2.2 Energy transfers /",
+"2.3 Energy changes /"
+],
+"id": "unit.320"
+},
+{
+"subject": "Science",
+"unit": "Materials",
+"bands": [
+"G3",
+"G4"
+],
+"n": 8,
+"samples": [
+"3.1 Materials, substances and particles /",
+"3.2 How do solids and liquids behave? /",
+"3.3 Melting and solidifying /"
+],
+"id": "unit.321"
+},
+{
+"subject": "Science",
+"unit": "Earth and its Habitats",
+"bands": [
+"G3"
+],
+"n": 4,
+"samples": [
+"4.1 The structure of the Earth /",
+"4.2 Volcanoes /",
+"4.3 Earthquakes /"
+],
+"id": "unit.322"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 1 – Storybook",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: The Legend of Spud Murphy, When the Sea Turned to Silver, Book description /",
+"Writing: Story introduction, alternative beginnings /",
+"Speaking"
+],
+"id": "unit.323"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 2 – Going Deep",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: A Handy Handbook of Habitats, Our Wonderful World, Contents & Index pages /",
+"Writing: Information pages, summaries, index/contents page /",
+"Speaking"
+],
+"id": "unit.324"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 3 – Mind Pictures",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: Old English kennings & riddles, “Dad Mum”, “The Colours Live”, “What Is Blue?”",
+"Writing: Kenning poems, colour poems",
+"Speaking"
+],
+"id": "unit.325"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 4 – Just Imagine",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: Harry’s Mad, Doctor Dolittle – Chapter VIII, The Frog and the Scorpion /",
+"Writing: Alternative endings, retell fables, own story /",
+"Speaking"
+],
+"id": "unit.326"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 6 – Sensational Poems / Let’s Perform",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: The Jumblies, The Sparrow’s Quest, Play-script /",
+"Writing: Shape poems, creative poetry, play-scripts /",
+"Speaking"
+],
+"id": "unit.327"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 7 – What Would You Do?",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: The Kite Fighters, The Butterfly Lion, Cool! /",
+"Writing: Summaries, character profiles, dialogues, play/scripts /",
+"Speaking"
+],
+"id": "unit.328"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 8 – Food for Thought",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: Indian lassi recipe, Lassi‑licious advert, Super Chef & Cook with Josh reviews, “This is me” /",
+"Writing: Advertisements, profiles, persuasive texts, instructions /",
+"Speaking"
+],
+"id": "unit.329"
+},
+{
+"subject": "Literacy",
+"unit": "Unit 9 – Poems to Ponder",
+"bands": [
+"G3",
+"G4"
+],
+"n": 10,
+"samples": [
+"Reading: The Mist, Rooster and Hens, Silver /",
+"Writing: Compose own poems, add stanzas /",
+"Speaking"
+],
+"id": "unit.330"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "आया वसंत (कविता)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: पर्यायवाची, समान उच्चार वाले शब्द, विलोम, है-है प्रयोग /",
+"विषय संबंधी गतिविधियाँ: अनुच्छेद लेखन, कविता-लेखन, चित्र-निर्माण, वसंतोत्सव का आयोजन /",
+"गहन चिंतन कौशल: काल्पनिक स्थितियों में प्रतिक्रिया देने और स्वयं तक अभिव्यक्त करने की प्रेरणा /"
+],
+"id": "unit.331"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "पापा की सुंदर गेंद (कहानी)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: भाव के रूप, उ-ऊ, च-छ, सजा, शब्द-निर्माण /",
+"विषय संबंधी गतिविधियाँ: कहानी का अंत बदलना, चित्र-निर्माण, खेल के नियम /",
+"गहन चिंतन कौशल: विषय पर मुखर प्रतिक्रिया देने की प्रेरणा /"
+],
+"id": "unit.332"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "हर झंडा कुछ कहता है (जानकारी)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: वचन, सर्वनाम, लिंग /",
+"विषय संबंधी गतिविधियाँ: कविता-लेखन, अनुच्छेद-लेखन, जानकारी, चित्र-निर्माण /",
+"गहन चिंतन कौशल: विषय की उपयोगिता और अनुपयुक्तता पर चिंतन /"
+],
+"id": "unit.333"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सारी दुनिया मेरी है (कविता)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: वर्ण-विच्छेद, समानार्थक, वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: मानसिक प्रोजेक्ट्स, पत्र-लेखन, कविता-लेखन /",
+"गहन चिंतन कौशल: विषय पर मुखर प्रतिक्रिया देने की प्रेरणा /"
+],
+"id": "unit.334"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "अकल का पुरस्कार (कहानी)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: पर्यायवाची, क्रिया, सूचक शब्द, अनेकार्थक, में-में का प्रयोग /",
+"विषय संबंधी गतिविधियाँ: वाक्य-लेखन, कहानी-पठन, वार्तालाप /",
+"गहन चिंतन कौशल: विषय पर प्रतिक्रिया देने की अपेक्षा /"
+],
+"id": "unit.335"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "गोल-गोल संसार (चित्रकथा)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: चित्र-विचार, गिनती, वचन, सुंदरतम-दुर्वचन, व्यंजन, विशेषण /",
+"विषय संबंधी गतिविधियाँ: सूची-निर्माण, विभिन्न आकारों की पहचान, गतिविधियाँ /",
+"गहन चिंतन कौशल: काल्पनिक स्थितियों में प्रतिक्रिया देने की प्रेरणा /"
+],
+"id": "unit.336"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सुदनबीरा कावेली (वार्तालाप)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: लिंग, क्रिया, समान उच्चार वाले शब्द, सर्वनाम, कर्म-क्रिया /",
+"विषय संबंधी गतिविधियाँ: चर्चा, स्लोगन लेखन, निबंध, चित्र-निर्माण /",
+"गहन चिंतन कौशल: विषय विशेष पर प्रतिक्रिया देने की प्रेरणा /"
+],
+"id": "unit.337"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "कुछ कर दिखलाएँगे (कविता)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विलोम, ही, तो, यदि, भी का प्रयोग, समानार्थक /",
+"विषय संबंधी गतिविधियाँ: स्टोरीबोर्ड, रोल प्ले, गतिविधि आधारित लेखन /",
+"गहन चिंतन कौशल: उपलब्धियों को समझकर प्रतिक्रिया देना /"
+],
+"id": "unit.338"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "बल्लू हाथी का बालस्वर (नाटक)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: अनुस्वार-अनुनासिक, जातिवाचक संज्ञा, क्रिया, व के रूप, काल /",
+"विषय संबंधी गतिविधियाँ: चर्चा, कहानी-लेखन, अभिनय, दृश्यावली-निर्माण /",
+"गहन चिंतन कौशल: कथा पर प्रतिक्रिया देना /"
+],
+"id": "unit.339"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "ऐसे मिली सजा (कहानी)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: पंचवाच्य, वचन, विशेषण, योजक /",
+"विषय संबंधी गतिविधियाँ: चार्ट पेपर गतिविधि, जानकारी, चर्चा /",
+"गहन चिंतन कौशल: विश्लेषण द्वारा निष्कर्ष निकालना /"
+],
+"id": "unit.340"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "क्या सीखा आपने (जानकारी)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: अनेक शब्दों के लिए एक शब्द, अनुप्रविष्ट शब्द, शब्द-निर्माण, लिंग /",
+"विषय संबंधी गतिविधियाँ: चित्र-निर्माण, सूचना बोर्ड, चर्चा /",
+"गहन चिंतन कौशल: निष्कर्ष निकालना और समझना /"
+],
+"id": "unit.341"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "एक दिन लाल किले में (पत्र)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: नहीं, क्या, क्या नहीं, अयोग्य शब्द, शब्द बनाना, व के रूप, विशेषण, वचन /",
+"विषय संबंधी गतिविधियाँ: पर्यटनस्थल भ्रमण, पत्र-लेखन, आत्मकथा, बायोडाटा /",
+"गहन चिंतन कौशल: स्थान विशेष का महत्व समझना /"
+],
+"id": "unit.342"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "धरती से सागर तक (विज्ञान-कथा)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विलोम, क्रिया, भाववाचक संज्ञा /",
+"विषय संबंधी गतिविधियाँ: केस स्टडी, चर्चा, चित्र-निर्माण /",
+"गहन चिंतन कौशल: परिणामों पर चिंतन और प्रतिक्रिया /"
+],
+"id": "unit.343"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "चिड़िया का गीत (कविता)",
+"bands": [
+"G3"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: पंचवाच्य, समान तुकवाले शब्द, शब्द-कोश निर्माण, पक्षियों की आवाज़ /",
+"विषय संबंधी गतिविधियाँ: कविता-पाठन, गान लेखन, चित्र-निर्माण, श्लोक लेखन /",
+"गहन चिंतन कौशल: विश्लेषण द्वारा निष्कर्ष निकालना /"
+],
+"id": "unit.344"
+},
+{
+"subject": "Primary Computing",
+"unit": "Precise Algorithms",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Accuracy in steps",
+"Key Concepts: Clear instructions",
+"Focus: Accuracy in steps"
+],
+"id": "unit.345"
+},
+{
+"subject": "Primary Computing",
+"unit": "Debugging Programs",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Fixing errors",
+"Key Concepts: Identify and correct bugs",
+"Focus: Fixing errors"
+],
+"id": "unit.346"
+},
+{
+"subject": "Primary Computing",
+"unit": "Animal Animations",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Creative coding",
+"Key Concepts: Motion, loops, events",
+"Focus: Creative coding"
+],
+"id": "unit.347"
+},
+{
+"subject": "Primary Computing",
+"unit": "Repeat, Repeat, Repeat",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Loops",
+"Key Concepts: Efficiency, repetition",
+"Focus: Loops"
+],
+"id": "unit.348"
+},
+{
+"subject": "Primary Computing",
+"unit": "Data All Around",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Everyday data",
+"Key Concepts: Collection, use",
+"Focus: Everyday data"
+],
+"id": "unit.349"
+},
+{
+"subject": "Primary Computing",
+"unit": "Problem Solvers",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Data-driven decisions",
+"Key Concepts: Patterns, solutions",
+"Focus: Data-driven decisions"
+],
+"id": "unit.350"
+},
+{
+"subject": "Primary Computing",
+"unit": "Presenting Data",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Visual display",
+"Key Concepts: Charts, graphs",
+"Focus: Visual display"
+],
+"id": "unit.351"
+},
+{
+"subject": "Primary Computing",
+"unit": "Connect to a Network",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Network basics",
+"Key Concepts: Devices, connections",
+"Focus: Network basics"
+],
+"id": "unit.352"
+},
+{
+"subject": "Primary Computing",
+"unit": "Why Have a Network?",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Purpose of networks",
+"Key Concepts: Sharing, communication",
+"Focus: Purpose of networks"
+],
+"id": "unit.353"
+},
+{
+"subject": "Primary Computing",
+"unit": "Hardware and Software",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: System components",
+"Key Concepts: Physical vs digital",
+"Focus: System components"
+],
+"id": "unit.354"
+},
+{
+"subject": "Primary Computing",
+"unit": "Different Types of Computer",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Device variety",
+"Key Concepts: Uses, features",
+"Focus: Device variety"
+],
+"id": "unit.355"
+},
+{
+"subject": "Primary Computing",
+"unit": "Computers, Humans and Robots",
+"bands": [
+"G3",
+"G4"
+],
+"n": 4,
+"samples": [
+"Focus: Interaction",
+"Key Concepts: Automation, AI",
+"Focus: Interaction"
+],
+"id": "unit.356"
+},
+{
+"subject": "Visual Arts",
+"unit": "Geography",
+"bands": [
+"G3",
+"G4"
+],
+"n": 6,
+"samples": [
+"Title: India on the Globe",
+"Focus: Identify India on the globe and understand its location",
+"Key Concepts: Globe, Earth, location, land, water"
+],
+"id": "unit.357"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: States of India (Intro) / • Focus: Understand that India is divided into states and identify own state / • Key Concepts: Country, states, political map",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.358"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Continents and Oceans / • Focus: Recognize Earth is divided into land (continents) and water (oceans) / • Key Concepts: Continents, oceans, land, water",
+"bands": [
+"G3"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.359"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Asia and India’s Place / • Focus: Identify Asia as a continent and understand India is part of Asia / • Key Concepts: Continent, Asia, location, world map",
+"bands": [
+"G3"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.360"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Physical Features of India / • Focus: Identify different landforms in India / • Key Concepts: Mountains, plains, deserts, plateaus\" /",
+"bands": [
+"G3"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.361"
+},
+{
+"subject": "Visual Arts",
+"unit": "History",
+"bands": [
+"G3",
+"G4"
+],
+"n": 6,
+"samples": [
+"Title: Toys from the Past",
+"Focus: Explore how toys and play have changed",
+"Key Concepts: Change, childhood /"
+],
+"id": "unit.362"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Early Humans / • Focus: Understand how early humans lived / • Key Concepts: Survival, early life / / /",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.363"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Discovery of Fire & Tools / • Focus: Recognize importance of early inventions / • Key Concepts: Invention, tools /",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.364"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Agriculture Begins / • Focus: Understand how farming started / • Key Concepts: Farming, settlement / /",
+"bands": [
+"G3"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.365"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Trade and Exchange / • Focus: Understand how people exchanged goods / • Key Concepts: Trade, barter / /",
+"bands": [
+"G3"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.366"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: World Heroes & Role Models / • Focus: Learn about inspiring people and their values / • Key Concepts: Leadership, value",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"",
+""
+],
+"id": "unit.367"
+},
+{
+"subject": "Routines",
+"unit": "Sudoku",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"Improves logical reasoning, pattern recognition, and problem-solving",
+"Improves logical reasoning, pattern recognition, and problem-solving"
+],
+"id": "unit.368"
+},
+{
+"subject": "Routines",
+"unit": "Dialogue Writing",
+"bands": [
+"G3",
+"G4"
+],
+"n": 2,
+"samples": [
+"Enhances communication, imagination, and understanding of conversational context",
+"Enhances communication, imagination, and understanding of conversational context"
+],
+"id": "unit.369"
+},
+{
+"subject": "Numeracy",
+"unit": "Position & Movement (Geometry – PVisual arts 2)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"Use directional vocabulary: left, right, clockwise, anti-clockwise",
+"Understand quVisual artser-turns, half-turns, and full-turns",
+"Describe movement along grids and pathways"
+],
+"id": "unit.370"
+},
+{
+"subject": "Science",
+"unit": "and its Habitats",
+"bands": [
+"G4"
+],
+"n": 4,
+"samples": [
+"4.1 The structure of the /",
+"4.2 Volcanoes /",
+"4.3 Earthquakes /"
+],
+"id": "unit.371"
+},
+{
+"subject": "Literacy",
+"unit": "Spelling Bee (Weekly)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Builds vocabulary and strengthens spelling accuracy"
+],
+"id": "unit.372"
+},
+{
+"subject": "Literacy",
+"unit": "Dictation (Weekly)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Enhances listening skills and reinforces correct spellings"
+],
+"id": "unit.373"
+},
+{
+"subject": "Literacy",
+"unit": "Reading Project (Weekly)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Develops comprehension and promotes independent reading habits"
+],
+"id": "unit.374"
+},
+{
+"subject": "Literacy",
+"unit": "News Magazine – RobinAge",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Encourages awareness of current events in a child-friendly manner"
+],
+"id": "unit.375"
+},
+{
+"subject": "Literacy",
+"unit": "Reading Time – Different Genres (Twice a Week)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Exposes learners to a wide variety of text types and enriches linguistic understanding"
+],
+"id": "unit.376"
+},
+{
+"subject": "Literacy",
+"unit": "Play-Based Learning (Weekly)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Supports experiential learning and boosts creativity, collaboration, and problem-solving"
+],
+"id": "unit.377"
+},
+{
+"subject": "Literacy",
+"unit": "Novel Reading – Nate the Great Series (Weekly)",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Builds extended reading stamina and nurtures deeper engagement with narrative texts"
+],
+"id": "unit.378"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "नया उजियारा (कविता)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समानार्थक शब्द, ‘ऋ’ के रूप, संज्ञा /",
+"विषय संबंधी गतिविधियाँ: अनुच्छेद लेखन, साक्षात्कार, कविता-पाठ /",
+"गहन चिंतन कौशल: बच्चों को किसी स्थिति पर अपनी प्रतिक्रिया प्रस्तुत करने हेतु प्रेरित करना /"
+],
+"id": "unit.379"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सिक्के का भभूत(कहानी)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विलोम, वचन, संज्ञा, संज्ञा के भेद, अनेक शब्दों के लिए एक शब्द, मुहावरे /",
+"विषय संबंधी गतिविधियाँ: आत्माभिव्यक्ति, कहानी-लेखन, सूची-निर्माण /",
+"गहन चिंतन कौशल: तर्क-वितर्क करना तथा वैज्ञानिक सोच विकसित करना, समझ और सूझबूझ से काम लेना /"
+],
+"id": "unit.380"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "जब मैं पढ़ता था (आत्मकथा के अंश)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विलोम, लिंग, अनेकार्थी शब्द, सर्वनाम /",
+"विषय संबंधी गतिविधियाँ: संस्मरण लेखन, सुलेख, चर्चा, प्रस्तुतीकरण /",
+"गहन चिंतन कौशल: बच्चों को संपन्नित घटना पर प्रतिक्रिया देने के लिए प्रेरित करना /"
+],
+"id": "unit.381"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "फूलों का नगर (कहानी)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समूहवाची शब्द, ‘र’ के रूप, विशेषण /",
+"विषय संबंधी गतिविधियाँ: पोस्टर निर्माण, स्लोगन लेखन, विचार-अभिव्यक्ति, जानकारी संग्रह, कहानी-लेखन /",
+"गहन चिंतन कौशल: काल्पनिक स्थितियों में प्रतिक्रिया देने एवं स्वयं के तर्क अभिव्यक्त करने हेतु प्रेरित करना /"
+],
+"id": "unit.382"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "खिड़की मेरे कमरे की (स्वानुभव कविता)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: वर्ण-विच्छेद, पर्यायवाची शब्द, क्रिया, वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: कविता-लेखन, कविता-वाचन एवं श्रवण /",
+"गहन चिंतन कौशल: वस्तु विशेष की उपयोगिता समझने तथा उसकी अनुपस्थिति के परिणामों पर चिंतन और प्रतिक्रिया देना /"
+],
+"id": "unit.383"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "दो बैलों की कथा (साहित्यिक कहानी)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: विलोम, संयुक्त व्यंजन, योजक-चिह्न, ‘कि-की’ का प्रयोग, विशेषण /",
+"विषय संबंधी गतिविधियाँ: अनुभव वाचन, शैक्षिक भ्रमण, परियोजना कार्य, कहानी संकलन /",
+"गहन चिंतन कौशल: काल्पनिक स्थितियों में प्रतिक्रिया देने एवं स्वयं के तर्क अभिव्यक्त करने हेतु प्रेरित करना /"
+],
+"id": "unit.384"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सेहत है अनमोल (पत्र)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: अनेक शब्दों के लिए एक शब्द, नुक्ता, प्रश्न-निर्माण /",
+"विषय संबंधी गतिविधियाँ: अनौपचारिक पत्र लेखन, चर्चा, स्वास्थ्य शिविर का आयोजन, अनुच्छेद लेखन /",
+"गहन चिंतन कौशल: स्थिति की गंभीरता को समझकर अपनी प्रतिक्रिया देना /"
+],
+"id": "unit.385"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "सम्मान की रक्षा (चित्रकथा)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: शब्द-निर्माण, ‘का-की-के’ का प्रयोग, विराम-चिह्न, एकार्थक प्रतीत होने वाले शब्द /",
+"विषय संबंधी गतिविधियाँ: संवाद लेखन, जानकारी संग्रह, चित्रकथा को कहानी रूप में लिखना /",
+"गहन चिंतन कौशल: स्थिति विशेष पर प्रतिक्रिया देने के लिए प्रेरित करना /"
+],
+"id": "unit.386"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "स्वाभाविक दान (कविता)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: समान तुक वाले शब्द, वर्ण-विच्छेद, शब्दकोश क्रम, वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: जानकारी संग्रह, परियोजना कार्य, कविता लेखन एवं प्रस्तुति /",
+"गहन चिंतन कौशल: वस्तु विशेष की उपयोगिता समझने तथा उसकी अनुपस्थिति के परिणामों पर चिंतन और प्रतिक्रिया देना /"
+],
+"id": "unit.387"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "और माटी निहाल हो गई (साहस/महिला सशक्तिकरण)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: शब्द-निर्माण, लिंग भेद, काल, काल परिवर्तन, वाक्य-निर्माण /",
+"विषय संबंधी गतिविधियाँ: कहानी का अंत बदलना, कहानी लेखन, संवाद आधारित वीडियो देखना /",
+"गहन चिंतन कौशल: व्यक्ति विशेष की उपयोगिता समझना तथा परिवर्तित परिस्थितियों पर प्रतिक्रिया देना /"
+],
+"id": "unit.388"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "जन्मदिन के बहाने (कहानी)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: अनेकार्थी शब्द, लिंग, सर्वनाम, है–हैं / थी–थीं /",
+"विषय संबंधी गतिविधियाँ: उपहार निर्माण, चार्ट निर्माण, घटना लेखन /",
+"गहन चिंतन कौशल: स्थिति विशेष पर प्रतिक्रिया व्यक्त करना /"
+],
+"id": "unit.389"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "आसमान में जैसे तारे (त्योहार कविता)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: तुकांत शब्द, पर्यायवाची शब्द, वर्ण-विच्छेद /",
+"विषय संबंधी गतिविधियाँ: कविता गायन, जानकारी संग्रह, साक्षात्कार, परियोजना, पोस्टर एवं स्लोगन लेखन /",
+"गहन चिंतन कौशल: चिंतन और तर्क सहित प्रतिक्रिया देना /"
+],
+"id": "unit.390"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "यात्रा जो पूरी न हो सकी (यात्रा-कथा)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: संज्ञा–सर्वनाम, पर्यायवाची शब्द, ‘र’ के रूप, विशेषण शब्दों से वाक्य निर्माण, विशेषण से भाववाचक संज्ञा बनाना /",
+"विषय संबंधी गतिविधियाँ: जानकारी संग्रह, एल्बम बनाना, शैक्षिक भ्रमण, अनुभव वाचन /",
+"गहन चिंतन कौशल: चिंतन और तर्क सहित प्रतिक्रिया देना /"
+],
+"id": "unit.391"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "माँ का प्यार (नाटक)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: र–रू, भूतकाल भिन्नार्थक शब्द, विलोम, क्रियाविशेषण, योजक, अपठित गद्यांश /",
+"विषय संबंधी गतिविधियाँ: पत्र लेखन, अनुच्छेद लेखन, कहानी लेखन, नाट्य प्रस्तुति /",
+"गहन चिंतन कौशल: संभावित स्थितियों में प्रतिक्रिया देना एवं स्वयं को अभिव्यक्त करना /"
+],
+"id": "unit.392"
+},
+{
+"subject": "Literacy - Hindi",
+"unit": "बुलबुलों की गिनती (आविष्कार कथा)",
+"bands": [
+"G4"
+],
+"n": 5,
+"samples": [
+"व्याकरण-बिंदु: पर्यायवाची, नुक्ता, शब्द-परिवार, वचन, क्रियाविशेषण, कर्ता, कर्म, क्रिया /",
+"विषय संबंधी गतिविधियाँ: चार्ट निर्माण, जानकारी संग्रह, प्रश्न-मंच का आयोजन /",
+"गहन चिंतन कौशल: किसी समस्या पर चिंतन कर उचित निवारण ढूँढ़ना तथा अपने तर्क प्रस्तुत करना /"
+],
+"id": "unit.393"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "मुळाक्षरे",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"/ * व्याकरण-बिंदू: स्वर व व्यंजने, अक्षरओळख / / * विषय संबंधी कृती: अक्षरकार्ड खेळ, अक्षर जुळवा, चित्र-अक्षर जुळवा / / * गहन चिंतन कौशल्य: निरीक्षण व ओळख कौशल्य विकसित करणे / / * पाठ-उद्दिष्ट: मराठी मुळाक्षरांची ओळख करून देणे / / * शिक्षणाची उपलब्धी: विद्यार्थी मुळाक्षरे ओळखतील व योग्य उच्चार करतील. / / /"
+],
+"id": "unit.394"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "माझे कुटुंब",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: नाम, नातेसंबंधांची ओळख / / * विषय संबंधी कृती: कुटुंब वृक्ष तयार करणे, स्वतःच्या कुटुंबाचे चित्र काढणे / / * गहन चिंतन कौशल्य: कुटुंबातील सदस्यांच्या भूमिकांचे आकलन / / * पाठ-उद्दिष्ट: कुटुंबाचे महत्त्व समजून घेणे / / * शिक्षणाची उपलब्धी: विद्यार्थी आपल्या कुटुंबाविषयी आत्मविश्वासाने बोलतील."
+],
+"id": "unit.395"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "स्वरचिन्ह नसलेले शब्द /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: साधे शब्दवाचन / / * विषय संबंधी कृती: शब्दवाचन, शब्दकार्ड खेळ / / * गहन चिंतन कौशल्य: अक्षर व ध्वनी यांचा संबंध समजून घेणे / / * पाठ-उद्दिष्ट: स्वरचिन्ह नसलेल्या शब्दांचे वाचन / / * शिक्षणाची उपलब्धी: विद्यार्थी सोपे शब्द वाचतील व लिहितील."
+],
+"id": "unit.396"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "आ’ चे स्वरचिन्ह /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: ा मात्रा / / * विषय संबंधी कृती: शब्दलेखन, चित्रांवरून शब्द तयार करणे / / * गहन चिंतन कौशल्य: शब्दांतील बदल ओळखणे / / * पाठ-उद्दिष्ट: ‘आ’ स्वरचिन्हाचा वापर समजणे / / * शिक्षणाची उपलब्धी: विद्यार्थी ‘आ’ ची मात्रा असलेले शब्द वाचतील व लिहितील."
+],
+"id": "unit.397"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘इ’ आणि ‘ई’ चे स्वरचिन्ह /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: ि व ी मात्रा / / * विषय संबंधी कृती: शब्दवाचन, शब्दांची तुलना / / * गहन चिंतन कौशल्य: ध्वनीतील फरक ओळखणे / / * पाठ-उद्दिष्ट: ‘इ’ व ‘ई’ स्वरचिन्हांचा योग्य वापर / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य मात्रा वापरून शब्द लिहितील."
+],
+"id": "unit.398"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "पोपट (कविता) /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: शब्दसंग्रह / / * विषय संबंधी कृती: कविता गायन, चित्रकला, अभिनय / / * गहन चिंतन कौशल्य: कल्पनाशक्ती व अभिव्यक्ती / / * पाठ-उद्दिष्ट: कविता रसग्रहण व पाठांतर / / * शिक्षणाची उपलब्धी: विद्यार्थी कविता सादर करतील व अर्थ समजावून सांगतील. /"
+],
+"id": "unit.399"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘उ’ आणि ‘ऊ’ चे स्वरचिन्ह",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: ु व ू मात्रा / / * विषय संबंधी कृती: शब्दवाचन, वर्गीकरण / / * गहन चिंतन कौशल्य: निरीक्षण व तुलना / / * पाठ-उद्दिष्ट: ‘उ’ व ‘ऊ’ स्वरचिन्हांची ओळख / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य शब्दरचना करतील."
+],
+"id": "unit.400"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "लोभी कुत्रा (बोधकथा) /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: नाम, क्रियापदे / / * विषय संबंधी कृती: गोष्ट सांगणे, भूमिकानाट्य / / * गहन चिंतन कौशल्य: परिणामांचा विचार करणे / / * पाठ-उद्दिष्ट: लोभाचे दुष्परिणाम समजणे / / * शिक्षणाची उपलब्धी: विद्यार्थी गोष्टीतील बोध सांगतील."
+],
+"id": "unit.401"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘ऋ’ चे स्वरचिन्ह /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: ृ मात्रा / / * विषय संबंधी कृती: शब्दवाचन, शब्दसंग्रह निर्मिती / / * गहन चिंतन कौशल्य: नवीन शब्द समजून घेणे / / * पाठ-उद्दिष्ट: ‘ऋ’ स्वरचिन्हाची ओळख / / * शिक्षणाची उपलब्धी: विद्यार्थी ‘ऋ’ असलेले शब्द ओळखतील."
+],
+"id": "unit.402"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘ए’ चे स्वरचिन्ह /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: े मात्रा / / * विषय संबंधी कृती: शब्दलेखन, चित्रांवरून शब्द / / * गहन चिंतन कौशल्य: शब्दनिर्मिती / / * पाठ-उद्दिष्ट: ‘ए’ स्वरचिन्हाचा वापर / / * शिक्षणाची उपलब्धी: विद्यार्थी ‘ए’ मात्रा असलेले शब्द वाचतील."
+],
+"id": "unit.403"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "11. अॅ चे स्वरचिन्ह",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: अॅ स्वराचा वापर / / * विषय संबंधी कृती: शब्दओळख, उच्चार सराव / / * गहन चिंतन कौशल्य: ध्वनीतील सूक्ष्म फरक समजणे / / * पाठ-उद्दिष्ट: अॅ स्वराचे ज्ञान / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य उच्चार करतील."
+],
+"id": "unit.404"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘ओ’, ‘औ’ आणि ‘ऑ’ चे स्वरचिन्ह /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: ो, ौ व ऑ / / * विषय संबंधी कृती: शब्दवाचन, चित्र-जुळवा / / * गहन चिंतन कौशल्य: तुलना व वर्गीकरण / / * पाठ-उद्दिष्ट: विविध स्वरचिन्हांची ओळख / / * शिक्षणाची उपलब्धी: विद्यार्थी स्वरचिन्हांचा योग्य वापर करतील."
+],
+"id": "unit.405"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "चिऊताई (कविता) /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: शब्दसंग्रह / / * विषय संबंधी कृती: कविता गायन, चित्रनिर्मिती / / * गहन चिंतन कौशल्य: निरीक्षण व कल्पनाशक्ती / / * पाठ-उद्दिष्ट: निसर्ग व पक्ष्यांबद्दल प्रेम निर्माण करणे / / * शिक्षणाची उपलब्धी: विद्यार्थी कविता सादर करतील."
+],
+"id": "unit.406"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "अनुस्वार आणि विसर्ग",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: अनुस्वार, विसर्ग / / * विषय संबंधी कृती: शब्दवाचन, लेखन सराव / / * गहन चिंतन कौशल्य: भाषिक अचूकता / / * पाठ-उद्दिष्ट: अनुस्वार व विसर्गाचा योग्य वापर / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य शब्दलेखन करतील."
+],
+"id": "unit.407"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "झोपाळा (कविता) /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: शब्दसंपदा / / * विषय संबंधी कृती: कविता गायन, अभिनय / / * गहन चिंतन कौशल्य: भावना व्यक्त करणे / / * पाठ-उद्दिष्ट: आनंद व कल्पनाशक्ती वाढवणे / / * शिक्षणाची उपलब्धी: विद्यार्थी कविता भावपूर्ण म्हणतील."
+],
+"id": "unit.408"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "सोळाखडी /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: अक्षर व मात्रा सराव / / * विषय संबंधी कृती: वाचन, लेखन, तक्ते तयार करणे / / * गहन चिंतन कौशल्य: नमुने ओळखणे / / * पाठ-उद्दिष्ट: अक्षर-मात्रांचे दृढीकरण / / * शिक्षणाची उपलब्धी: विद्यार्थी सोळाखडी सहज वाचतील"
+],
+"id": "unit.409"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "जोड व्यंजने आणि जोडाक्षरे /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: संयुक्त अक्षरे / / * विषय संबंधी कृती: शब्दनिर्मिती, वाचन / / * गहन चिंतन कौशल्य: अक्षररचना समजणे / / * पाठ-उद्दिष्ट: जोडाक्षरांची ओळख / / * शिक्षणाची उपलब्धी: विद्यार्थी जोडाक्षरयुक्त शब्द वाचतील."
+],
+"id": "unit.410"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "‘र’ ची मात्रा",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: रफार, रकार / / * विषय संबंधी कृती: शब्दवाचन, लेखन / / * गहन चिंतन कौशल्य: भाषिक अचूकता / / * पाठ-उद्दिष्ट: ‘र’ च्या मात्रांचा योग्य वापर / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य शब्दलेखन करतील."
+],
+"id": "unit.411"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "अंकलेखन /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: अंक लिहिणे, संख्या खेळ / / * गहन चिंतन कौशल्य: क्रम व मोजणी समजणे / / * पाठ-उद्दिष्ट: अंकलेखन कौशल्य विकसित करणे / / * शिक्षणाची उपलब्धी: विद्यार्थी अंक अचूक लिहितील. /"
+],
+"id": "unit.412"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "आपले शरीर /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: शरीराचे भाग ओळखा, लेबलिंग / / * गहन चिंतन कौशल्य: स्वतःची जाणीव / / * पाठ-उद्दिष्ट: शरीराच्या अवयवांची माहिती / / * शिक्षणाची उपलब्धी: विद्यार्थी शरीराचे प्रमुख भाग ओळखतील."
+],
+"id": "unit.413"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "दिशा-ऋतू-महिने-दिवस",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: दिनदर्शिका तयार करणे, चर्चा / / * गहन चिंतन कौशल्य: कालबोध व अवकाशबोध / / * पाठ-उद्दिष्ट: वेळ व वातावरणाची जाणीव / / * शिक्षणाची उपलब्धी: विद्यार्थी दिवस, महिने व ऋतू सांगतील."
+],
+"id": "unit.414"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "कोण-काय करतात? /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* व्याकरण-बिंदू: क्रियापदे / / * विषय संबंधी कृती: चित्रवर्णन, वाक्य तयार करणे / / * गहन चिंतन कौशल्य: निरीक्षण व विश्लेषण / / * पाठ-उद्दिष्ट: कृती व व्यवसायांची ओळख / / * शिक्षणाची उपलब्धी: विद्यार्थी योग्य क्रियापदे वापरतील."
+],
+"id": "unit.415"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "वाढदिवस /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: शुभेच्छापत्र तयार करणे / / * गहन चिंतन कौशल्य: सामाजिक संबंध समजणे / / * पाठ-उद्दिष्ट: आनंद वाटण्याचे महत्त्व / / * शिक्षणाची उपलब्धी: विद्यार्थी वाढदिवसाविषयी बोलतील व लिहितील."
+],
+"id": "unit.416"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "माझा आवडता सण – दिवाळी",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: दिवाळी सजावट, अनुच्छेद लेखन / / * गहन चिंतन कौशल्य: सांस्कृतिक जाणीव / / * पाठ-उद्दिष्ट: भारतीय सणांचे महत्त्व समजणे / / * शिक्षणाची उपलब्धी: विद्यार्थी दिवाळीविषयी माहिती सांगतील."
+],
+"id": "unit.417"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "बाजार",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"* विषय संबंधी कृती: भूमिकानाट्य, खरेदी-विक्री खेळ / / * गहन चिंतन कौशल्य: निर्णयक्षमता व व्यवहारज्ञान / / * पाठ-उद्दिष्ट: दैनंदिन जीवनातील व्यवहार समजणे / / * शिक्षणाची उपलब्धी: विद्यार्थी बाजारातील व्यवहार समजावून सांगतील."
+],
+"id": "unit.418"
+},
+{
+"subject": "Literacy - Marathi",
+"unit": "व्याकरण",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"✿ वचन / * एकवचन व अनेकवचन यांची ओळख व वापर / / ✿ विरुद्धार्थी / * विरुद्ध अर्थाचे शब्द समजून वापरणे / / ✿ लिंग / * पुल्लिंग, स्त्रीलिंग व नपुंसकलिंग ओळखणे / / ✿ विरामचिन्ह / * योग्य विरामचिन्हांचा वापर करणे / / ✿ वाक्यरचना / * योग्य व अर्थपूर्ण वाक्य तयार करणे"
+],
+"id": "unit.419"
+},
+{
+"subject": "Global perspectives",
+"unit": "Visual Visual artss",
+"bands": [
+"G4"
+],
+"n": 6,
+"samples": [
+"Title: Lines Around Us",
+"Focus: Identify and explore different types of lines",
+"Key Concepts: Line, thick/thin, straight/curved, pattern"
+],
+"id": "unit.420"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Patterns in Culture / • Focus: Explore patterns from different cultures / • Key Concepts: Pattern, symmetry, cultural Visual arts",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.421"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Drawing with Patterns / • Focus: Combine line, shape, and pattern in Visual artswork / • Key Concepts: Composition, pattern, space",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.422"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Visual artsist Study – Line & Pattern / • Focus: Explore Visual artsists using line and pattern / • Key Concepts: Style, Visual artsist inspiration, design",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.423"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Mood in Visual arts / • Focus: Express emotions using color and shape / • Key Concepts: Emotion, color, expression",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.424"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Visual artsist Study – Starry Night / • Focus: Explore use of color and brush strokes in Visual arts / • Key Concepts: Brushstroke, texture, movement",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.425"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Colour Reflection / • Focus: Reflect and discuss Visual artswork / • Key Concepts: Observation, reflection, Visual arts vocabulary",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.426"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Continents and Oceans / • Focus: Recognize EVisual artsh is divided into land (continents) and water (oceans) / • Key Concepts: Continents, oceans, land, water",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.427"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Asia and India’s Place / • Focus: Identify Asia as a continent and understand India is pVisual arts of Asia / • Key Concepts: Continent, Asia, location, world map",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.428"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Physical Features of India / • Focus: Identify different landforms in India / • Key Concepts: Mountains, plains, deserts, plateaus\" / \"• Title: Early Humans / • Focus: Understand how early humans lived / • Key Concepts: Survival, early life",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.429"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Agriculture Begins / • Focus: Understand how farming stVisual artsed / • Key Concepts: Farming, settlement / /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.430"
+},
+{
+"subject": "Visual Arts",
+"unit": "• Title: Trade and Exchange / • Focus: Understand how people exchanged goods / • Key Concepts: Trade, bVisual artser / /",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.431"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Aboriginal Dot Visual arts / • Focus: Create Visual arts using dot techniques and storytelling / • Key Concepts: Pattern, symbols, storytelling",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.432"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Visual arts Around the World / • Focus: Reflect on global Visual arts forms / • Key Concepts: Culture, diversity, connection",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.433"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Portfolio Building / • Focus: Organize and reflect on Visual artswork / • Key Concepts: Reflection, selection, growth",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.434"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Final Visual artswork Project / • Focus: Create a personal Visual artswork using learned skills / • Key Concepts: Creativity, integration, expression",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.435"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Exhibition Preparation / • Focus: Prepare Visual artswork for display / • Key Concepts: Presentation, display, curation",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.436"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Visual arts Exhibition / • Focus: Present and celebrate Visual artswork / • Key Concepts: Expression, confidence, appreciation",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.437"
+},
+{
+"subject": "Global perspectives",
+"unit": "• Title: Natural Resources / • Focus: Identify basic resources provided by EVisual artsh and their uses / • Key Concepts: Water, air, soil, natural resources",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+""
+],
+"id": "unit.438"
+},
+{
+"subject": "Routines",
+"unit": "Assembly PVisual artsicipation",
+"bands": [
+"G4"
+],
+"n": 1,
+"samples": [
+"Encourages public speaking, discipline, and a sense of community"
+],
+"id": "unit.439"
+}
+]

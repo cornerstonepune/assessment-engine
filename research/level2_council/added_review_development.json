@@ -1,0 +1,116 @@
+{
+ "seat": "development",
+ "verdicts": [
+  {
+   "id": "uses-a-taught-word-in-own-sentence",
+   "verdict": "accept",
+   "reason": "Reachable at four; the counter (the educator's teaching sentence repeated) is exactly the over-count."
+  },
+  {
+   "id": "reads-in-the-second-language",
+   "verdict": "edit",
+   "reason": "'Second language' names a different construct for a Marathi-home child than for an English-home child; anchoring on 'not their home language' makes one line measure one thing.",
+   "edit": {
+    "statement": "Reads a short passage aloud in a taught language that is not their home language and answers one question in it.",
+    "adult_sees": "The educator hears the reading and the answer both in that language, in its lesson.",
+    "counter_example": "Sounds out the passage correctly, then gives the answer in the language they speak at home."
+   }
+  },
+  {
+   "id": "asks-what-exactly-was-not-understood",
+   "verdict": "accept",
+   "reason": "Sound at eight to eleven and low inference; note its grows_from (sorting by a rule) is not a lineage, this is a new metacognitive construct."
+  },
+  {
+   "id": "works-through-own-wrong-answer-with-the-class",
+   "verdict": "edit",
+   "reason": "As worded it is met when the educator sends the child to the board; 'unafraid' needs the offer to come from the child, the prompted case being the over-count.",
+   "edit": {
+    "statement": "Volunteers their own wrong answer for the class to work through on the board, and says where it went wrong.",
+    "adult_sees": "The educator hears the child offer the answer before being asked and sees them point to the step that went wrong.",
+    "counter_example": "Works through their wrong answer at the board after the educator calls them up."
+   }
+  },
+  {
+   "id": "names-something-they-want-to-learn",
+   "verdict": "accept",
+   "reason": "Four-to-seven-year form of goal-setting; gives sets-a-goal-for-the-week a real root."
+  },
+  {
+   "id": "makes-something-for-a-particular-person",
+   "verdict": "accept",
+   "reason": "Reachable at three, distinct from every other foundational make, and the counter (whole class asked) is the right discrimination."
+  },
+  {
+   "id": "uses-one-object-as-another-in-pretend-play",
+   "verdict": "accept",
+   "reason": "The one creation behaviour a three-year-old reliably shows; the chair's adult_sees is more precise than mine."
+  },
+  {
+   "id": "makes-or-repairs-something-someone-asked-for",
+   "verdict": "accept",
+   "reason": "Distinct from the brief-with-constraints prototype; handing it over working is the observable end point, and the counter is exactly the over-count."
+  },
+  {
+   "id": "makes-an-original-artwork-to-a-theme",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-instructions-for-a-classmate-to-draw",
+   "verdict": "accept",
+   "reason": "Written algorithm plus one revision is a genuine step from the spoken grid game; observable without a screen."
+  },
+  {
+   "id": "takes-a-full-turn-in-an-outdoor-game",
+   "verdict": "accept",
+   "reason": "Inclusive and observable, but it records participation, so every child ceilings at three; physical competence now has no developmental marker at this stage, which a movement checklist recorded item by item could supply elsewhere."
+  },
+  {
+   "id": "says-stop-in-words",
+   "verdict": "accept",
+   "reason": "Reachable at three; the chair's note that the record holds the child's words, not the incident, is the right measurement discipline."
+  },
+  {
+   "id": "says-work-will-be-late-before-the-deadline",
+   "verdict": "accept",
+   "reason": "One visible occasion, nothing private; a genuine step from keeping an agreement to renegotiating one in time."
+  },
+  {
+   "id": "takes-on-part-of-a-classmates-share",
+   "verdict": "edit",
+   "reason": "'When they cannot finish it' asks the observer to judge the classmate's capacity; the classmate saying so is the visible trigger and separates help from covering for a free rider.",
+   "edit": {
+    "statement": "Takes on part of a classmate's share of a team task after the classmate says they cannot finish it, and tells the team.",
+    "adult_sees": "The educator hears the classmate say so, sees the extra part done and hears the team told."
+   }
+  },
+  {
+   "id": "brings-an-absent-teammate-up-to-date",
+   "verdict": "accept",
+   "reason": "Observable and safe to keep; developmentally reachable by nine or ten, so it sits low for 14 to 16 and could move to middle."
+  },
+  {
+   "id": "proposes-a-break-in-a-heated-argument",
+   "verdict": "accept",
+   "reason": "Regulation during, not repair after; a genuine step from repairs-a-relationship-after-a-conflict."
+  },
+  {
+   "id": "turns-off-a-tap-or-light-left-on",
+   "verdict": "accept",
+   "reason": "Reachable at four, unprompted action is visible, and the counter (after the educator points) is the exact over-count."
+  },
+  {
+   "id": "picks-up-litter-not-their-own",
+   "verdict": "accept",
+   "reason": "Reachable at three and distinct from bin-sorting; the educator usually sees who dropped what."
+  },
+  {
+   "id": "votes-and-accepts-the-result",
+   "verdict": "accept"
+  },
+  {
+   "id": "handles-a-living-thing-gently",
+   "verdict": "accept"
+  }
+ ]
+}

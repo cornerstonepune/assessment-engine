@@ -1,0 +1,1189 @@
+{
+ "seat": "parent",
+ "verdicts": [
+  {
+   "id": "counts-objects-one-to-one",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-a-familiar-word",
+   "verdict": "accept"
+  },
+  {
+   "id": "exchanges-ten-ones",
+   "verdict": "accept",
+   "reason": "'ten-rod' is classroom language but the sentence explains itself; the school's own word 'exchange' is there."
+  },
+  {
+   "id": "retells-a-story-in-order",
+   "verdict": "accept"
+  },
+  {
+   "id": "sorts-by-a-stated-rule",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-name-and-numerals",
+   "verdict": "accept"
+  },
+  {
+   "id": "adds-with-regrouping",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-and-answers-a-passage",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-fact-with-a-because",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-measuring-tool",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-a-timed-set",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-paragraph-with-a-main-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-multi-step-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "summarises-a-chapter",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-technical-term-correctly",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-an-experiment",
+   "verdict": "accept"
+  },
+  {
+   "id": "sits-a-full-length-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-explanatory-essay",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-an-unseen-board-style-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "reads-a-primary-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-a-concept-to-a-younger-student",
+   "verdict": "accept"
+  },
+  {
+   "id": "derives-a-result-from-first-principles",
+   "verdict": "accept"
+  },
+  {
+   "id": "performs-under-board-exam-conditions",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-extended-argument-with-sources",
+   "verdict": "edit",
+   "reason": "'an invented one' accuses my child of fabricating a source; the near-miss an educator meets is sources listed but never used.",
+   "edit": {
+    "counter_example": "Lists sources at the end that the argument itself never uses."
+   }
+  },
+  {
+   "id": "asks-why-about-something-seen",
+   "verdict": "accept"
+  },
+  {
+   "id": "predicts-then-checks",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-a-reason-for-a-choice",
+   "verdict": "accept"
+  },
+  {
+   "id": "notices-a-difference-between-two-things",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-guess-when-shown",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-events-in-cause-order",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-a-question-that-can-be-tested",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-a-prediction-and-result",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-evidence-for-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "spots-a-pattern-in-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "revises-an-answer-with-a-stated-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "separates-fact-from-opinion",
+   "verdict": "accept"
+  },
+  {
+   "id": "designs-a-fair-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "judges-a-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "estimates-before-calculating",
+   "verdict": "accept"
+  },
+  {
+   "id": "states-an-assumption",
+   "verdict": "accept"
+  },
+  {
+   "id": "concedes-a-point-in-a-debate",
+   "verdict": "accept"
+  },
+  {
+   "id": "quantifies-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "defines-a-problem-before-solving",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-conflicting-evidence",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-a-result-two-ways",
+   "verdict": "edit",
+   "reason": "'limiting case' is a mathematician's phrase; 'an extreme case' says the same to a parent at first reading.",
+   "edit": {
+    "statement": "Checks a result by a second method or by trying an extreme case, and reports the check alongside the answer.",
+    "adult_sees": "The educator sees the second method or the extreme case written beside the answer."
+   }
+  },
+  {
+   "id": "reasons-from-a-model-to-a-prediction",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-position-in-writing",
+   "verdict": "accept"
+  },
+  {
+   "id": "identifies-the-flaw-in-an-argument",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-an-activity-and-finishes-it",
+   "verdict": "edit",
+   "reason": "'each time an adult looks away' paints a three-year-old as sneaky; the honest near-miss is staying only while the educator sits there.",
+   "edit": {
+    "counter_example": "Stays with the activity while the educator sits beside them and leaves when the educator moves on."
+   }
+  },
+  {
+   "id": "asks-for-help-after-trying",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-they-learned-today",
+   "verdict": "accept"
+  },
+  {
+   "id": "fixes-own-work-after-a-hint",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-materials-back-ready-for-next",
+   "verdict": "accept"
+  },
+  {
+   "id": "tries-again-after-a-fail",
+   "verdict": "accept"
+  },
+  {
+   "id": "sets-a-goal-for-the-week",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-resource-before-asking",
+   "verdict": "accept"
+  },
+  {
+   "id": "names-what-was-hard-and-why",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-feedback-in-the-next-draft",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-own-record-of-practice",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-harder-version-when-offered",
+   "verdict": "accept"
+  },
+  {
+   "id": "plans-a-multi-week-project",
+   "verdict": "accept"
+  },
+  {
+   "id": "finds-and-cites-two-sources-alone",
+   "verdict": "edit",
+   "reason": "'cites it as two' accuses a twelve-year-old of faking a bibliography; the honest near-miss is two sources that someone else found.",
+   "edit": {
+    "counter_example": "Notes two sources that were both handed to them by the educator."
+   }
+  },
+  {
+   "id": "asks-for-specific-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "self-marks-against-a-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "monitors-own-progress-on-the-map",
+   "verdict": "accept",
+   "reason": "'The map' is the school's own artefact; fine as long as parents can see the same map."
+  },
+  {
+   "id": "persists-through-a-failed-attempt",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-independent-study",
+   "verdict": "accept"
+  },
+  {
+   "id": "evaluates-own-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "seeks-expert-feedback-outside-school",
+   "verdict": "edit",
+   "reason": "As written it rewards the child whose family knows an expert; say the school may make the introduction so every child can earn this line.",
+   "edit": {
+    "statement": "Seeks feedback from an expert outside school, found by the child or introduced by the school, and reports what they learned from it."
+   }
+  },
+  {
+   "id": "sets-own-standard-above-the-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-themself-a-tool-or-topic",
+   "verdict": "accept"
+  },
+  {
+   "id": "recovers-from-a-public-setback",
+   "verdict": "accept",
+   "reason": "Records that my child came back after a public failure; I would want that line in the file."
+  },
+  {
+   "id": "builds-something-from-a-plan-in-mind",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-practical-problem-with-materials",
+   "verdict": "accept"
+  },
+  {
+   "id": "draws-to-show-an-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "invents-a-rule-for-a-game",
+   "verdict": "edit",
+   "reason": "'to win' reads a four-year-old's motive and calls them a cheat; the near-miss is a rule announced after the round has started.",
+   "edit": {
+    "counter_example": "Announces a new rule after the round has already started."
+   }
+  },
+  {
+   "id": "makes-a-second-version",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-for-its-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "makes-a-model-that-works",
+   "verdict": "accept"
+  },
+  {
+   "id": "tests-and-improves-a-design",
+   "verdict": "accept"
+  },
+  {
+   "id": "plans-a-make-with-a-list",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-original-story-or-poem",
+   "verdict": "accept"
+  },
+  {
+   "id": "presents-a-made-thing-and-what-changed",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-tool-for-a-job",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-prototype-to-a-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-iteration-log",
+   "verdict": "accept",
+   "reason": "'Iteration log' is jargon, but the sentence itself says what it is: what changed and what happened."
+  },
+  {
+   "id": "codes-a-program-that-solves-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "produces-a-piece-for-a-real-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "pitches-a-solution-with-trade-offs",
+   "verdict": "accept"
+  },
+  {
+   "id": "investigates-an-open-question",
+   "verdict": "accept"
+  },
+  {
+   "id": "delivers-a-project-to-a-client-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "documents-a-build-so-others-can-repeat-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-software-with-tests",
+   "verdict": "accept"
+  },
+  {
+   "id": "exhibits-work-publicly",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-an-apprenticeship-task",
+   "verdict": "accept",
+   "reason": "Clear and I would want it recorded; a parent will ask who arranges the placement and who keeps my child safe there."
+  },
+  {
+   "id": "designs-and-runs-an-original-investigation",
+   "verdict": "accept"
+  },
+  {
+   "id": "tells-news-in-full-sentences",
+   "verdict": "edit",
+   "reason": "The evidence is two connected sentences, not what the news was; an audio file of my child's home news, kept ten years, is more than the school needs.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "listens-and-responds-to-a-peer",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-to-join-and-accepts-no",
+   "verdict": "accept"
+  },
+  {
+   "id": "takes-turns-in-a-pair-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "shows-work-and-explains-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-words-to-settle-a-dispute",
+   "verdict": "edit",
+   "reason": "'Grabs or hits' is not a look-alike, it is an accusation a parent will read; the near-miss is the dispute ending with no words used.",
+   "edit": {
+    "counter_example": "Hands the toy over without a word and walks away."
+   }
+  },
+  {
+   "id": "gives-a-short-prepared-talk",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-on-a-peer-idea",
+   "verdict": "edit",
+   "reason": "'as their own' accuses an eight-year-old of stealing an idea; repeating it without adding anything is the honest near-miss.",
+   "edit": {
+    "counter_example": "Repeats the classmate's idea in other words without adding to it."
+   }
+  },
+  {
+   "id": "negotiates-roles-in-a-group",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-letter-for-a-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-method-to-a-peer",
+   "verdict": "accept"
+  },
+  {
+   "id": "disagrees-politely-with-a-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "presents-with-a-visual-aid",
+   "verdict": "accept"
+  },
+  {
+   "id": "leads-a-discussion-fairly",
+   "verdict": "accept"
+  },
+  {
+   "id": "resolves-a-group-conflict-by-agreement",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-for-a-named-audience",
+   "verdict": "edit",
+   "reason": "'register' is a linguist's word; 'tone' says the same thing to a parent at first reading.",
+   "edit": {
+    "statement": "Writes a piece in a tone suited to a named audience, such as a report for the head or a guide for Grade 3.",
+    "adult_sees": "The educator reads a tone that fits the audience named.",
+    "counter_example": "Writes in the same tone for every audience."
+   }
+  },
+  {
+   "id": "gives-usable-peer-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-a-side-in-a-debate",
+   "verdict": "edit",
+   "reason": "A child who will not argue against their conscience must not be the not-evidence example parents read; the near-miss is a side argued without evidence.",
+   "edit": {
+    "counter_example": "Argues the assigned side with opinions and no evidence."
+   }
+  },
+  {
+   "id": "presents-to-an-outside-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "facilitates-a-meeting-with-an-agenda",
+   "verdict": "accept"
+  },
+  {
+   "id": "negotiates-an-outcome-with-adults",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-formal-document",
+   "verdict": "accept"
+  },
+  {
+   "id": "mentors-a-younger-student-over-time",
+   "verdict": "accept"
+  },
+  {
+   "id": "restates-an-opposing-view-before-answering",
+   "verdict": "accept"
+  },
+  {
+   "id": "operates-a-simple-device-for-a-purpose",
+   "verdict": "edit",
+   "reason": "The school promises no screen below Grade 4; a parent reading 'photographing their work' will ask which promise holds, so say screen-free.",
+   "edit": {
+    "statement": "Operates a simple screen-free device, such as a story player or a torch, for a stated purpose, with an adult present.",
+    "adult_sees": "The educator sees the device used for the purpose the child stated and put down afterwards."
+   }
+  },
+  {
+   "id": "follows-a-sequence-of-instructions",
+   "verdict": "edit",
+   "reason": "'unplugged coding game' is staff-room talk; 'played without a screen' tells a parent of a five-year-old what they most want to know.",
+   "edit": {
+    "statement": "Follows a three-step sequence of instructions in order, such as in a coding game played without a screen."
+   }
+  },
+  {
+   "id": "gives-instructions-to-move-a-friend",
+   "verdict": "edit",
+   "reason": "Directing a classmate across a grid is not kindness in the founders' meaning; tagging it kind pads the kind column my child's report draws on.",
+   "edit": {
+    "words": [
+     "capable"
+    ]
+   }
+  },
+  {
+   "id": "sorts-real-from-pretend",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-before-using-someone-elses-thing",
+   "verdict": "edit",
+   "reason": "'Takes it while the classmate is away' reads as theft against a four-year-old; asking after already picking it up is the honest near-miss.",
+   "edit": {
+    "counter_example": "Asks only after already picking the thing up."
+   }
+  },
+  {
+   "id": "handles-a-device-with-care",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-to-produce-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-and-debugs-a-short-program",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-what-an-algorithm-does",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-an-ai-or-search-answer",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-personal-details-private-online",
+   "verdict": "accept"
+  },
+  {
+   "id": "credits-a-source-for-an-image-or-fact",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-the-right-tool-for-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-text-program-with-a-loop-and-a-condition",
+   "verdict": "accept"
+  },
+  {
+   "id": "verifies-an-ai-output-and-finds-an-error",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-how-a-recommendation-or-bias-arises",
+   "verdict": "accept"
+  },
+  {
+   "id": "manages-own-privacy-settings",
+   "verdict": "accept"
+  },
+  {
+   "id": "attributes-ai-help-in-own-work",
+   "verdict": "edit",
+   "reason": "'as fully their own' is a dishonesty charge a parent will read; the near-miss is an attribution too vague to use.",
+   "edit": {
+    "counter_example": "Writes 'used AI' on the cover sheet with no indication of where."
+   }
+  },
+  {
+   "id": "builds-a-working-digital-product",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-program-using-data-and-libraries",
+   "verdict": "edit",
+   "reason": "'uses a library' means books to a parent; 'ready-made code library' is understood at first reading.",
+   "edit": {
+    "statement": "Writes a program that reads real data, uses a ready-made code library, and produces a checked result."
+   }
+  },
+  {
+   "id": "uses-ai-with-a-verification-log",
+   "verdict": "edit",
+   "reason": "'describes it as research' implies my child disguised the AI use; the honest near-miss is an incomplete log.",
+   "edit": {
+    "counter_example": "Keeps the prompts but not what was rejected or why."
+   }
+  },
+  {
+   "id": "evaluates-a-technology-for-harm-and-benefit",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-task-without-ai-they-could-do-with-it",
+   "verdict": "edit",
+   "reason": "'reports the task as done alone' accuses of lying; the near-miss is doing it unaided only because the rule said so, with nothing learned said.",
+   "edit": {
+    "counter_example": "Does the task unaided because AI was not allowed, and says nothing about what it showed."
+   }
+  },
+  {
+   "id": "protects-others-data",
+   "verdict": "edit",
+   "reason": "'Collects classmates' data without telling them' is a breach, not a look-alike; the near-miss is a rule stated and then not fully kept.",
+   "edit": {
+    "counter_example": "States a consent rule at the start and keeps the data after the project ends."
+   }
+  },
+  {
+   "id": "says-what-they-are-feeling-and-chooses",
+   "verdict": "edit",
+   "reason": "My four-year-old's words about their feelings, recorded in their own voice and kept ten years, are not the school's to hold; note the choice, not the words.",
+   "edit": {
+    "statement": "Says in their own words what is bothering them in a hard moment and chooses something to do about it.",
+    "adult_sees": "The educator hears the trouble named and sees the choice made, and notes the choice, not the words.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "waits-for-a-turn-without-a-reminder",
+   "verdict": "accept"
+  },
+  {
+   "id": "comforts-a-classmate",
+   "verdict": "edit",
+   "reason": "'to get them in trouble' reads a four-year-old's motive and accuses; the near-miss is noticing aloud and doing nothing for the classmate.",
+   "edit": {
+    "counter_example": "Tells the room that a classmate is crying and goes back to their own game."
+   }
+  },
+  {
+   "id": "manages-own-things",
+   "verdict": "edit",
+   "reason": "'didi' assumes every home sends a helper and marks the children whose homes do; that word does not belong in a ten-year record.",
+   "edit": {
+    "adult_sees": "The educator sees the bag, bottle and shoes handled with no adult's hands on them.",
+    "counter_example": "Holds out a foot for an adult to put the shoe on."
+   }
+  },
+  {
+   "id": "runs-jumps-and-balances-in-play",
+   "verdict": "edit",
+   "reason": "A video of my small child's body in play, kept ten years, for a movement any educator can see in a moment; a dated note is enough.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "returns-to-play-after-a-small-hurt",
+   "verdict": "accept",
+   "reason": "'Once looked after' is the right touch; a parent reads care, not toughening up."
+  },
+  {
+   "id": "uses-a-strategy-before-acting",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-an-agreement-made-with-a-classmate",
+   "verdict": "accept"
+  },
+  {
+   "id": "includes-a-child-left-out",
+   "verdict": "accept"
+  },
+  {
+   "id": "carries-out-a-class-responsibility",
+   "verdict": "accept"
+  },
+  {
+   "id": "learns-a-new-physical-skill-through-practice",
+   "verdict": "edit",
+   "reason": "As with the Foundational movement line: a dated note that the skill was shown after practice holds this; no video of my child's body is needed.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "accepts-a-loss-and-congratulates",
+   "verdict": "edit",
+   "reason": "'Blames the rules or the referee' is a portrait of a bad loser, not a look-alike; the near-miss is a congratulation given on instruction.",
+   "edit": {
+    "counter_example": "Shakes the winner's hand only when an adult tells the players to."
+   }
+  },
+  {
+   "id": "repairs-a-relationship-after-a-conflict",
+   "verdict": "accept",
+   "reason": "Records that my child had a conflict, but what it records is going back to mend it; I would sign that."
+  },
+  {
+   "id": "keeps-a-commitment-to-a-team",
+   "verdict": "edit",
+   "reason": "'when it stops being fun' judges a twelve-year-old's reasons; attendance without the promised part is the honest near-miss.",
+   "edit": {
+    "counter_example": "Attends every practice but the part they promised is never delivered."
+   }
+  },
+  {
+   "id": "speaks-up-for-a-classmate",
+   "verdict": "edit",
+   "reason": "'Laughs along' files my child as complicit; the near-miss an educator actually confuses is speaking up after the moment instead of in it.",
+   "edit": {
+    "counter_example": "Tells the educator afterwards that it was unfair, once the moment has passed."
+   }
+  },
+  {
+   "id": "manages-own-schedule-for-a-week",
+   "verdict": "accept"
+  },
+  {
+   "id": "trains-for-a-physical-goal",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-a-trusted-adult-for-help",
+   "verdict": "skip",
+   "reason": "A dated record that my child had 'a personal difficulty', kept ten years, is a confidence, not evidence; the help-seeking belongs with that adult, not in the file."
+  },
+  {
+   "id": "mediates-between-two-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "leads-a-team-through-a-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "raises-an-unfairness-through-a-channel",
+   "verdict": "accept"
+  },
+  {
+   "id": "balances-load-across-exams-and-projects",
+   "verdict": "accept"
+  },
+  {
+   "id": "reflects-on-a-physical-practice-kept-through-a-year",
+   "verdict": "accept"
+  },
+  {
+   "id": "supports-a-peer-and-knows-when-to-involve-an-adult",
+   "verdict": "skip",
+   "reason": "'Knows when' is a mind-read, and the record names another child's serious difficulty; a safeguarding moment is handled by people, never filed as routine evidence."
+  },
+  {
+   "id": "cares-for-a-plant-or-animal",
+   "verdict": "accept"
+  },
+  {
+   "id": "sorts-waste-into-the-right-bin",
+   "verdict": "accept"
+  },
+  {
+   "id": "shares-without-being-asked",
+   "verdict": "accept"
+  },
+  {
+   "id": "notices-someone-elses-need",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-is-fair-in-a-game",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-a-shared-space-tidy",
+   "verdict": "accept"
+  },
+  {
+   "id": "measures-something-about-the-campus",
+   "verdict": "accept"
+  },
+  {
+   "id": "reduces-waste-in-a-class-project",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-rule-by-its-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "considers-who-else-is-affected",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-service-task-outside-the-class",
+   "verdict": "edit",
+   "reason": "'Is assigned the task and leaves early' reads as skiving; the near-miss is help given inside the class and counted as service outside it.",
+   "edit": {
+    "counter_example": "Helps a classmate inside the class and reports it as service."
+   }
+  },
+  {
+   "id": "keeps-a-promise-to-the-group",
+   "verdict": "accept"
+  },
+  {
+   "id": "investigates-a-local-issue-with-data",
+   "verdict": "edit",
+   "reason": "'from the internet as their own' is a plagiarism charge; the near-miss is published data standing in for the child's own.",
+   "edit": {
+    "counter_example": "Presents findings from a published survey with no data of their own."
+   }
+  },
+  {
+   "id": "weighs-a-trade-off-in-a-real-decision",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-both-sides-of-a-civic-question",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-plan-that-would-harm-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "organises-a-service-activity",
+   "verdict": "accept"
+  },
+  {
+   "id": "owns-a-mistake-that-affected-others",
+   "verdict": "accept",
+   "reason": "The line records a mistake, but what it records is owning it and putting it right; that is what I want kept."
+  },
+  {
+   "id": "models-a-system-with-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "applies-an-ethical-framework-to-a-dilemma",
+   "verdict": "accept"
+  },
+  {
+   "id": "engages-a-public-body-or-community",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-habit-on-evidence-of-harm",
+   "verdict": "edit",
+   "reason": "What my child does at home is not the school's to record, and the evidence would be my child's word on our household; keep it to school.",
+   "edit": {
+    "statement": "Changes something they do at school, such as printing or single-use packaging, after seeing evidence of its harm, and names the evidence.",
+    "adult_sees": "The educator sees the changed practice at school and hears the evidence named.",
+    "counter_example": "Announces the change publicly and does the old thing the next week.",
+    "capture_mode": "observation",
+    "setting": "project"
+   }
+  },
+  {
+   "id": "leads-a-sustained-service-commitment",
+   "verdict": "accept"
+  },
+  {
+   "id": "accounts-for-a-public-role",
+   "verdict": "accept"
+  }
+ ],
+ "cells": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "foundational",
+   "notes": "All six are capable-only and read as a Grade 1 report card, which is fair for this capability; it matters because most other capabilities lean the same way."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "missing": [
+    {
+     "statement": "Asks a question in a lesson that names the exact part they did not understand.",
+     "adult_sees": "The educator hears the specific point named, not a general 'I don't get it'.",
+     "counter_example": "Says 'I don't get it' about the whole lesson.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "unafraid",
+      "capable"
+     ],
+     "why": "Nothing here records asking when lost, which is the profile's own 'I don't know how yet'; the cell is six curriculum checks."
+    }
+   ],
+   "notes": "Six clear lines a parent understands; not one of them is evidence of kind, and unafraid appears nowhere in the cell."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Works through their own wrong answer on the board with the class, saying where it went wrong.",
+     "adult_sees": "The educator sees the mistake left visible on the board and hears the child locate it.",
+     "counter_example": "Puts up a corrected answer with the mistake already rubbed out.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "unafraid",
+      "capable"
+     ],
+     "why": "The school's own meaning of unafraid, a wrong answer treated as information in front of others, has no line in this capability."
+    }
+   ]
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Makes something for a particular person, such as a card or a model, and gives it to them saying who it is for.",
+     "adult_sees": "The educator hears the person named while it is being made and sees it handed over.",
+     "counter_example": "Makes a card when the whole class makes cards, with no one named.",
+     "capture_mode": "observation",
+     "setting": "play",
+     "words": [
+      "kind",
+      "capable"
+     ],
+     "why": "Creation has no kind line at any stage; making for someone else is the earliest form a parent would recognise."
+    }
+   ]
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Makes or repairs something that someone in the school asked for, and hands it over working.",
+     "adult_sees": "The educator sees the request, the thing made or mended, and it handed to the person who asked.",
+     "counter_example": "Makes something for the class display that nobody asked for.",
+     "capture_mode": "artefact",
+     "setting": "project",
+     "words": [
+      "kind",
+      "capable"
+     ],
+     "why": "A make that answers someone's real need is creation in the school's second word, and the capability never records one."
+    }
+   ],
+   "duplicates": [
+    [
+     "codes-a-program-that-solves-a-task",
+     "writes-a-text-program-with-a-loop-and-a-condition"
+    ],
+    [
+     "pitches-a-solution-with-trade-offs",
+     "weighs-a-trade-off-in-a-real-decision"
+    ],
+    [
+     "produces-a-piece-for-a-real-audience",
+     "writes-for-a-named-audience"
+    ]
+   ],
+   "notes": "A parent will read the same program and the same trade-off twice under two headings; keep one of each pair or make them visibly different."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "secondary",
+   "duplicates": [
+    [
+     "exhibits-work-publicly",
+     "presents-to-an-outside-audience"
+    ],
+    [
+     "designs-and-runs-an-original-investigation",
+     "runs-an-independent-study"
+    ],
+    [
+     "builds-software-with-tests",
+     "writes-a-program-using-data-and-libraries"
+    ]
+   ],
+   "notes": "Three of the six have a twin in another capability recording the same evidence; a Grade 10 report would show the same exhibition or study twice."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "foundational",
+   "notes": "Kind and unafraid are honoured here as well as anywhere in the draft; the one audio line was the child's home news, which I have moved to a written note."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "foundational",
+   "duplicates": [
+    [
+     "handles-a-device-with-care",
+     "puts-materials-back-ready-for-next"
+    ]
+   ],
+   "notes": "Two of the six (asking before using a classmate's thing, carrying a device carefully) are manners, not technology; a parent reading 'Technology & AI' above them is puzzled."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "foundational",
+   "notes": "This cell holds the two lines I most want changed: a recording of my child's words about their feelings, and a 'didi'; both are edited above."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "preparatory",
+   "duplicates": [
+    [
+     "keeps-an-agreement-made-with-a-classmate",
+     "keeps-a-promise-to-the-group"
+    ]
+   ]
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Takes on part of a classmate's share of a team task when they cannot finish it, and tells the team.",
+     "adult_sees": "The educator sees the extra part done by the child and hears the team told.",
+     "counter_example": "Finishes their own part early and waits for the others.",
+     "capture_mode": "observation",
+     "setting": "project",
+     "words": [
+      "kind"
+     ],
+     "why": "With the private-difficulty line retired, the cell needs a kind act that costs something and is safe to keep for ten years."
+    }
+   ],
+   "duplicates": [
+    [
+     "repairs-a-relationship-after-a-conflict",
+     "owns-a-mistake-that-affected-others"
+    ]
+   ],
+   "notes": "Retiring 'asks a trusted adult for help' leaves five; the school should still teach and expect help-seeking, just not file it."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "secondary",
+   "missing": [
+    {
+     "statement": "Checks on a classmate who has been away and brings them up to date on what they missed.",
+     "adult_sees": "The educator sees the classmate approached and the catch-up given, unasked.",
+     "counter_example": "Posts the class notes to the whole group when asked to.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "kind"
+     ],
+     "why": "Replaces the retired peer-difficulty line with a kind act toward a peer that names no one's trouble."
+    }
+   ],
+   "duplicates": [
+    [
+     "mediates-between-two-others",
+     "resolves-a-group-conflict-by-agreement"
+    ]
+   ],
+   "notes": "Retiring the peer-difficulty line leaves five; what a sixteen-year-old does when a friend is in serious trouble is for the safeguarding lead, not the evidence file."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "duplicates": [
+    [
+     "shares-without-being-asked",
+     "notices-someone-elses-need"
+    ],
+    [
+     "keeps-a-shared-space-tidy",
+     "puts-materials-back-ready-for-next"
+    ],
+    [
+     "says-what-is-fair-in-a-game",
+     "uses-words-to-settle-a-dispute"
+    ],
+    [
+     "notices-someone-elses-need",
+     "comforts-a-classmate"
+    ]
+   ],
+   "notes": "The could_not is right: a parent would read the same act of sharing or tidying twice under two headings; merge rather than keep both."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "secondary",
+   "notes": "The draft's only 'home' line was here; the same idea at school is fine, at home it makes my child's word the evidence about our household."
+  }
+ ],
+ "could_not": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "verdict": "missing",
+   "reason": "Nothing declared, yet in 24 lines kind appears once and unafraid only as exam-sitting; the model should have said this capability has no kind form as written."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "verdict": "honest",
+   "reason": "Empty is fair: every line is a thing my child did, and I understood all but one at first reading."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "verdict": "honest",
+   "reason": "Empty is fair; the one thing worth declaring is that 'the map' and 'the rubric' are school artefacts parents must be able to see."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "verdict": "honest",
+   "reason": "Right to say placements, exhibitions and outside briefs are the school's to arrange; a parent will ask who finds the host and who keeps the child safe there."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "verdict": "honest",
+   "reason": "Right, and this is the one capability whose word tags treat kind as seriously as capable."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "verdict": "honest",
+   "reason": "Right and welcome: a parent of a five-year-old wants 'no screen' in as many words; two of the proxies are manners rather than technology."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "verdict": "missing",
+   "reason": "It worries about a movement checklist while the real gap goes unsaid: lines that would keep my child's feelings or private troubles, and another child's, for ten years."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "verdict": "honest",
+   "reason": "Right: the Foundational six overlap with kind lines under self-and-relationships and elsewhere, and a parent would read the same act twice."
+  }
+ ],
+ "objections": [
+  "The three words are not honoured equally: at every stage capable sits on 35 to 45 of the 48 lines and about half carry it alone, while kind sits on 11 to 16 and is nearly absent from four of the eight capabilities, so my child's report will be an academic report with a thin kindness column.",
+  "Many counter-examples are written as if no parent will read them ('grabs or hits', 'to get them in trouble', 'hands in AI-assisted work as fully their own', 'refuses to argue a side they do not hold'): portraits of a bad child rather than the near-miss an educator honestly confuses.",
+  "Four lines make the school the keeper of what is not its to keep: a four-year-old's recorded words about their feelings, 'a personal difficulty', another child's 'serious difficulty', and a habit at home, while 'didi' assumes what kind of home my child comes from."
+ ],
+ "note_to_founders": "I read all 192 and understood nearly every one at first sight, which is more than I can say for most school documents, and I would sign most of them into my child's file as they stand. Three things before your own pass. First, the three words are not equal here: at every stage capable sits on 35 to 45 of the 48 lines and about half carry it alone, while kind sits on 11 to 16 and is nearly absent from Knowledge, Thinking, Learning and Creation, so the report you send me will be a strong academic report with a thin column for the child you say you are raising; either add kind and unafraid lines to those capabilities (I have offered six) or tell parents plainly that those two words are evidenced mainly in two areas. Second, the counter-examples read as if no parent will ever see them, and we will: 'grabs or hits', 'to get them in trouble', 'hands in AI-assisted work as fully their own', 'refuses to argue a side they do not hold' are portraits of a bad child, not the near-miss an educator honestly confuses, and I have rewritten the ones that read as accusations. Third, keep the file to what happened at school: do not record my four-year-old's words about their feelings in their own voice, do not file 'a personal difficulty' or 'a peer's serious difficulty' as routine evidence, do not reach into home habits, and do not assume every child comes with a didi. Two smaller things: parent_voice is never used, so nothing I see at home counts, which I can accept but you should say is a choice; and a handful of words (register, limiting case, unplugged, library) need their plain version in whatever the parent reads."
+}

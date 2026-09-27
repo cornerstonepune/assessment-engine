@@ -1,0 +1,233 @@
+<title>Curriculum Skeleton</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#FAFAF6;--ink:#17211C;--muted:#5E6B65;--line:#D8DED8;--panel:#F1F4F0;--official:#1F5FA8;--official-bg:#EAF1FA;--school:#0E6B67;--school-bg:#E6F2F0;--draft:#9A5B12;--draft-bg:#FBF1E3;--person:#6E3B66;--focus:#0E6B67;
+ --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--official:#8FB8F5;--official-bg:#15243A;--school:#55B8B2;--school-bg:#12302D;--draft:#E6B36A;--draft-bg:#33261A;--person:#C58BBB;--focus:#55B8B2}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--official:#8FB8F5;--official-bg:#15243A;--school:#55B8B2;--school-bg:#12302D;--draft:#E6B36A;--draft-bg:#33261A;--person:#C58BBB;--focus:#55B8B2}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(28px,4.4vw,42px);font-weight:800;letter-spacing:-.015em}
+h2{font-size:22px;font-weight:800;margin-top:48px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:15px;font-weight:600}
+p{max-width:68ch;margin:8px 0}
+.meta{color:var(--muted);font-size:13px}
+.mono{font-family:var(--mono);font-size:12.5px}
+.rule{font-size:18px;margin:10px 0 0;max-width:60ch}
+.key{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 0;font-size:13px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.d-off{background:var(--official)}.d-sch{background:var(--school)}.d-dr{background:var(--draft)}.d-per{background:var(--person)}
+/* chain */
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:16px 0 4px}
+.link{display:flex;flex-direction:column;justify-content:center;padding:8px 12px;border-radius:8px;background:var(--panel);min-width:96px}
+.link b{font-family:var(--display);font-size:14px}
+.link small{color:var(--muted);font-size:11.5px}
+.link.agreed{background:var(--school-bg)}
+.link.heart{background:var(--ink);color:var(--bg)}
+.link.heart small{color:var(--bg);opacity:.75}
+.arrow{align-self:center;color:var(--muted)}
+.bracket{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+/* tables */
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-family:var(--display);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+/* the card */
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+.card-h{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;padding:14px 18px;background:var(--panel)}
+.card-h h3{font-size:18px}
+.card-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:0}
+@media (max-width:820px){.card-b{grid-template-columns:minmax(0,1fr)}}
+.col{padding:16px 18px}
+.col+.col{border-left:1px solid var(--line)}
+@media (max-width:820px){.col+.col{border-left:0;border-top:1px solid var(--line)}}
+.lab{font-family:var(--display);font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.lab:first-child{margin-top:0}
+.off{background:var(--official-bg);border-left:3px solid var(--official);padding:8px 10px;border-radius:0 6px 6px 0;margin:6px 0}
+.off .c{font-family:var(--mono);font-size:12px;color:var(--official);font-weight:500}
+.off .src{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.none{border-left:3px dashed var(--line);padding:6px 10px;margin:6px 0;color:var(--muted);font-size:13.5px}
+.gen{background:var(--draft-bg);border-left:3px solid var(--draft);padding:8px 10px;border-radius:0 6px 6px 0;margin:6px 0}
+.badge{display:inline-block;font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.04em;padding:1px 7px;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.b-dr{color:var(--draft)}.b-off{color:var(--official)}.b-sch{color:var(--school)}.b-per{color:var(--person)}
+.cite{font-family:var(--mono);font-size:11.5px;color:var(--official);white-space:nowrap}
+.acts{display:grid;gap:8px}
+.act{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.act h4{margin:0 0 4px;font-family:var(--display);font-size:14px}
+.act dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:3px 10px;margin:6px 0 0;font-size:13px}
+.act dt{color:var(--muted)}
+.act dd{margin:0}
+.slot{border:1.5px dashed var(--line);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:13px;margin-top:8px}
+/* tables grid */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.grid{grid-template-columns:minmax(0,1fr)}}
+.t{border:1px solid var(--line);border-radius:8px;padding:10px 12px;border-top:3px solid var(--school)}
+.t.ref{border-top-color:var(--official);grid-column:1/-1}
+.t.ref ul{display:flex;flex-wrap:wrap;gap:4px 22px;padding-left:16px}
+.t.ref li{margin-right:6px}.t.kid{border-top-color:var(--person)}.t.mach{border-top-color:var(--draft)}
+.t h3{font-family:var(--mono);font-size:13.5px;font-weight:500}
+.t p{font-size:13px;margin:4px 0 6px;color:var(--muted)}
+.t ul{margin:0;padding-left:16px;font-family:var(--mono);font-size:12px;line-height:1.55}
+.grp{font-family:var(--display);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 0}
+/* validator */
+.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:820px){.layers{grid-template-columns:minmax(0,1fr)}}
+.layer{border-radius:8px;padding:12px 14px;background:var(--panel)}
+.layer h3{display:flex;gap:8px;align-items:center}
+.layer ul{margin:8px 0 0;padding-left:18px;font-size:13.5px}
+.layer li{margin:3px 0}
+ol.flow{margin:12px 0 0;padding-left:0;list-style:none;display:grid;gap:6px;counter-reset:f}
+ol.flow li{display:grid;grid-template-columns:28px minmax(0,1fr) max-content;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);counter-increment:f}
+ol.flow li::before{content:counter(f);font-family:var(--mono);color:var(--muted);font-size:12px}
+.who{font-size:12px}
+ul.find{padding-left:18px}
+ul.find li{margin:8px 0;max-width:80ch}
+ol.q{padding-left:20px}
+ol.q li{margin:8px 0;max-width:80ch}
+footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+a{color:var(--official)}
+</style>
+<div class="wrap">
+<p class="meta">Cornerstone · brainstorm · 27 September 2026 · nothing here is built</p>
+<h1>Curriculum Skeleton</h1>
+<p class="rule">Every outcome the school teaches rests on an official line, quoted word for word, with its document and page. A line that cannot be traced does not get approved.</p>
+<div class="key"><span><i class="dot d-off"></i>official text, verbatim</span><span><i class="dot d-sch"></i>the school's own record</span><span><i class="dot d-dr"></i>generated, not yet validated</span><span><i class="dot d-per"></i>a person decides</span></div>
+
+<h2>The chain</h2>
+<div class="chain">
+ <div class="link agreed"><b>3 words</b><small>capable · kind · unafraid</small></div><span class="arrow">→</span>
+ <div class="link agreed"><b>8 capabilities</b><small>graduate profile</small></div><span class="arrow">→</span>
+ <div class="link agreed"><b>Subject</b><small>maths, science…</small></div><span class="arrow">→</span>
+ <div class="link"><b>Grade</b><small>Nursery to 10</small></div><span class="arrow">→</span>
+ <div class="link heart"><b>Outcome</b><small>the unit of everything</small></div><span class="arrow">→</span>
+ <div class="link"><b>Base · Advanced</b><small>two levels</small></div><span class="arrow">→</span>
+ <div class="link"><b>Activities</b><small>3 options, 1 chosen</small></div><span class="arrow">→</span>
+ <div class="link"><b>Fortnight</b><small>one fixed order</small></div><span class="arrow">→</span>
+ <div class="link"><b>Lesson</b><small>drawn from the card</small></div><span class="arrow">→</span>
+ <div class="link"><b>Evidence</b><small>sheet · note · rubric</small></div><span class="arrow">→</span>
+ <div class="link"><b>Child</b><small>not yet · base · advanced</small></div>
+</div>
+<div class="bracket"><span class="badge b-sch">agreed</span> the first three links are the spine you approved. Everything to the right of Subject is this brainstorm.</div>
+
+<h2>Which official text each grade rests on</h2>
+<div class="tbl"><table>
+<thead><tr><th>Grades</th><th>Backbone</th><th>Must also cover</th><th>May add, marked as added</th></tr></thead>
+<tbody>
+<tr><td><b>1–6</b></td><td>Cambridge Primary objectives (Stages 1–6)</td><td>NCERT outcomes for the class</td><td>nothing outside the two</td></tr>
+<tr><td><b>7–8</b></td><td>NCERT outcomes: the CBSE minimum</td><td>NCF-SE competencies for the Middle stage</td><td>Cambridge Lower Secondary objectives (Stages 7–9) where stronger</td></tr>
+<tr><td><b>9–10</b></td><td>CBSE curriculum for the year: the board exam</td><td>NCERT Secondary outcomes</td><td>Cambridge IGCSE content, as enrichment, not examined</td></tr>
+</tbody></table></div>
+<p class="meta">IGCSE covers Grades 9–10 only. Below that, Cambridge's programmes are Cambridge Primary and Cambridge Lower Secondary.</p>
+
+<h2>One outcome card · Science · Grade 2 · Forces</h2>
+<div class="card">
+ <div class="card-h"><h3>Pushes and pulls change how things move and their shape</h3><span class="meta">illustrative card for this brainstorm · the engine would draft it</span></div>
+ <div class="card-b">
+  <div class="col">
+   <div class="lab">Rests on these official lines</div>
+   <div class="off"><span class="c">2Pf.01</span> Know that forces can change the movement of an object.<span class="src">Cambridge Primary Science 0097 framework (published Sept 2020), Stage 2, PDF p.17</span></div>
+   <div class="off"><span class="c">2Pf.02</span> Know that forces can change the shape of an object.<span class="src">same, p.17</span></div>
+   <div class="off"><span class="c">2Pf.03</span> Recognise that things will only speed up, slow down or change direction when something else causes them to do so.<span class="src">same, p.17</span></div>
+   <div class="off"><span class="c">NCF-SE C-7.2</span> Observes and understands cause and effect relationships in nature by forming simple hypotheses and uses observations to explain their hypotheses<span class="src">NCF-SE 2023, Foundational Stage, curricular goal CG-7</span></div>
+   <div class="none">NCERT sets no science outcome for Class 2: "in classes III to V, it is introduced as a separate curricular area and in I and II, the related concerns are integrated with language and mathematics." <span class="src">NCERT, Learning Outcomes at the Elementary Stage (2017), EVS introduction, PDF p.93</span></div>
+   <div class="lab">Needs first · Stage 1</div>
+   <div class="off"><span class="c">1Pf.01</span> Explore, talk about and describe the movement of familiar objects.<span class="src">Cambridge 0097, PDF p.15</span></div>
+   <div class="off"><span class="c">1Pf.02</span> Describe pushes and pulls as forces.<span class="src">Cambridge 0097, PDF p.15</span></div>
+   <div class="lab">Leads to · Stage 3</div>
+   <div class="off"><span class="c">3Pf.01</span> Know that forces can be measured with a forcemeter.<span class="src">Cambridge 0097, PDF p.19</span></div>
+  </div>
+  <div class="col">
+   <div class="lab">The school's articulation <span class="badge b-dr">generated · not validated</span></div>
+   <div class="gen"><b>Outcome.</b> Shows that a push or a pull can start, stop, speed up, slow down or turn a moving object, and can change an object's shape. <span class="cite">2Pf.01 2Pf.02 2Pf.03</span></div>
+   <div class="gen"><b>Base.</b> Pushes and pulls familiar objects and says what changed: it moved, stopped, turned or changed shape. <span class="cite">1Pf.02 2Pf.01 2Pf.02</span></div>
+   <div class="gen"><b>Advanced.</b> Says what a push will do before trying it, then says whether the result matched. <span class="cite">2TWSp.02 2TWSa.01</span></div>
+   <p class="meta">Each clause carries the code it rests on. 2TWSp.02 reads "Make predictions about what they think will happen." 2TWSa.01 reads "Describe what happened during an enquiry and if it matched their predictions." (Cambridge 0097, p.16)</p>
+   <div class="lab">Three activity options <span class="badge b-dr">generated · school-designed</span></div>
+   <div class="acts">
+    <div class="act"><h4>1 · Ramp race</h4><dl><dt>Do</dt><dd>Roll toy cars down a ramp; push softer, harder; put a block in the way.</dd><dt>Materials</dt><dd>4 ramps (boards or books), toy cars, blocks, chalk</dd><dt>Logistics</dt><dd>groups of 4 · 30 min · floor space</dd><dt>Observe for</dt><dd>says "push" or "pull" <span class="cite">1Pf.02</span>; predicts before pushing <span class="cite">2TWSp.02</span>; notices the car turns only when something acts on it <span class="cite">2Pf.03</span></dd></dl></div>
+    <div class="act"><h4>2 · Dough press</h4><dl><dt>Do</dt><dd>Press, pull and twist dough; draw it before and after.</dd><dt>Materials</dt><dd>dough, mats, drawing sheet</dd><dt>Observe for</dt><dd>says the push or pull changed the shape <span class="cite">2Pf.02</span></dd></dl></div>
+    <div class="act"><h4>3 · Trolley and rope, outdoors</h4><dl><dt>Do</dt><dd>Push a loaded trolley, pull a rope; which needs a bigger push?</dd><dt>Observe for</dt><dd>says what made it start, stop or turn <span class="cite">2Pf.01 2Pf.03</span></dd></dl></div>
+   </div>
+   <div class="slot">Video · empty · upload the team's recording, or request a generated one. Either is reviewed before an educator sees it.</div>
+   <div class="lab">Placed in</div>
+   <p class="meta" style="margin:0">Term 2 · fortnight 9 of the year (example) · after the Stage 1 lines above are taught</p>
+  </div>
+ </div>
+</div>
+<p class="meta">Activities may be the school's own design, and they are marked so. Outcome, base and advanced may only restate official lines: every clause cites a code, or it is flagged.</p>
+
+<h2>The tables behind it</h2>
+<p class="grp">Official text · imported, never edited</p>
+<div class="grid">
+ <div class="t ref"><h3>official_line</h3><p>One row per official line, from every board.</p><ul><li>source · NCF-SE, NCERT, CBSE, Cambridge Primary, Lower Secondary, IGCSE</li><li>document · edition · page</li><li>code · subject · grade or stage</li><li>text, word for word</li></ul></div>
+</div>
+<p class="grp">The school's own · versioned, signed</p>
+<div class="grid">
+ <div class="t"><h3>outcome</h3><p>The unit of everything.</p><ul><li>subject · grade · strand</li><li>order within the grade</li><li>statement · base · advanced</li><li>status · version · signed_by</li></ul></div>
+ <div class="t"><h3>outcome_line</h3><p>Which official lines it rests on, clause by clause.</p><ul><li>outcome · clause</li><li>official_line</li></ul></div>
+ <div class="t"><h3>outcome_needs</h3><p>What must be taught first.</p><ul><li>outcome</li><li>needs outcome</li></ul></div>
+ <div class="t"><h3>outcome_capability</h3><p>Up the spine to the three words.</p><ul><li>outcome · capability</li></ul></div>
+ <div class="t"><h3>activity</h3><p>Three options per outcome, one chosen.</p><ul><li>outcome · kind (activity, game, event, real situation)</li><li>steps · materials · logistics · minutes</li><li>observe_for, each with a code</li><li>provenance · option · chosen</li></ul></div>
+ <div class="t"><h3>media</h3><p>The video slot.</p><ul><li>activity · kind · link</li><li>made_by (team, generated) · reviewed</li></ul></div>
+ <div class="t"><h3>plan</h3><p>The year, fortnight by fortnight; movable.</p><ul><li>year · grade · subject</li><li>fortnight · outcome · order</li></ul></div>
+ <div class="t"><h3>timetable</h3><p>How much time a subject gets.</p><ul><li>grade · subject · periods per week</li></ul></div>
+ <div class="t"><h3>mark_line</h3><p>Every question or rubric line.</p><ul><li>item · outcome · level (base, advanced)</li></ul></div>
+</div>
+<p class="grp">The child · the engine's existing record</p>
+<div class="grid">
+ <div class="t kid"><h3>evidence</h3><p>Exists today, append-only.</p><ul><li>child · mark_line or activity</li><li>blank · wrong · wrong with working · right</li><li>date · by whom</li></ul></div>
+ <div class="t kid"><h3>child_outcome</h3><p>Computed from evidence by a counted rule.</p><ul><li>child · outcome</li><li>not yet · base · advanced</li></ul></div>
+</div>
+<p class="grp">The machine</p>
+<div class="grid">
+ <div class="t mach"><h3>prompt</h3><p>Exists today. One master prompt per subject, versioned, with its score.</p><ul><li>purpose · subject · version · text</li></ul></div>
+ <div class="t mach"><h3>check_log</h3><p>Every validation, kept.</p><ul><li>what · rule · pass or flag</li><li>signed_by · date</li></ul></div>
+</div>
+
+<h2>The validator, part of the backend</h2>
+<div class="layers">
+ <div class="layer"><h3><span class="badge b-sch">code</span> checks every time</h3><ul><li>Every cited code exists.</li><li>Its text matches the official document on its page, word for word.</li><li>Every official line for the grade is cited, or marked "not taught" with a reason.</li><li>Nothing is planned before what it needs.</li><li>The plan fits the timetable.</li><li>Every mark line names an outcome and a level.</li></ul></div>
+ <div class="layer"><h3><span class="badge b-dr">second model</span> flags only</h3><ul><li>A different prompt from the one that drafts.</li><li>Does any clause say more than its cited lines?</li><li>Is any clause uncited?</li><li>It never approves. Its flags go to a person.</li></ul></div>
+ <div class="layer"><h3><span class="badge b-per">person</span> signs</h3><ul><li>The subject's curriculum lead clears each flag and signs the outcome.</li><li>Nothing reaches an educator unsigned.</li><li>Trace: any mark in a child's record, to the question, to the outcome, to the official line and page.</li></ul></div>
+</div>
+
+<h2>Who does what</h2>
+<ol class="flow">
+ <li><span>Import every official line with document and page</span><span class="who badge b-sch">code</span></li>
+ <li><span>Verify each line word for word against the document</span><span class="who badge b-sch">code</span></li>
+ <li><span>Draft the outcomes for one subject and grade from its lines</span><span class="who badge b-dr">model</span></li>
+ <li><span>Check citations and coverage; flag unsupported clauses</span><span class="who badge b-dr">code + second model</span></li>
+ <li><span>Edit ten to twenty percent and sign</span><span class="who badge b-per">curriculum team</span></li>
+ <li><span>Draft three activities per outcome</span><span class="who badge b-dr">model</span></li>
+ <li><span>Choose one, edit, add the video</span><span class="who badge b-per">curriculum team</span></li>
+ <li><span>Order into fortnights, needs first; the team can move them</span><span class="who badge b-sch">code, then team</span></li>
+ <li><span>Fit to the timetable</span><span class="who badge b-sch">code</span></li>
+ <li><span>Lesson plans assembled from the chosen cards</span><span class="who badge b-sch">code</span></li>
+ <li><span>Teach, record evidence</span><span class="who badge b-per">educator</span></li>
+ <li><span>Each child's status per outcome, from counted evidence</span><span class="who badge b-sch">code</span></li>
+</ol>
+
+<h2>Found while checking</h2>
+<ul class="find">
+ <li><b>Everything imported so far is verbatim.</b> NCF-SE 2023: 814 of 814 lines found in the document. NCERT outcomes, Classes 1–10: 729 of 729 found on their stated page. Cambridge Primary Science: 297 of 297 objectives found in the framework.</li>
+ <li><b>Not yet in:</b> Cambridge Primary English, Global Perspectives and Computing; the current Cambridge Primary Maths; Cambridge Lower Secondary; IGCSE; the CBSE curriculum for Classes 9–10 (downloaded, not imported). The Maths framework on disk uses an older code style (2Nc6), so it is probably a pre-2020 edition.</li>
+ <li><b>The Cambridge Science copy</b> came from a school website that hosts Cambridge's PDF. The official copy sits behind your Cambridge support-site login; the system should use that one.</li>
+ <li><b>Your Grade 2 science units teach Cambridge Stage 3.</b> Forcemeters (3Pf.01), gravity (3Pf.02), friction (3Pf.03), shadows (3Ps.02), food chains (3Be.01) and solids, liquids and gases (3Cm.01) are all Stage 3 lines. This is a keyword match; a person should confirm it.</li>
+ <li><b>For Grade 2 science, Cambridge is the only grade-level source.</b> NCERT has none for Classes 1–2, and NCF-SE sets competencies per stage, not per grade.</li>
+</ul>
+
+<h2>Questions for you</h2>
+<ol class="q">
+ <li><b>Grade and stage.</b> Should Grade N teach Cambridge Stage N? Today Grade 2 science teaches Stage 3.</li>
+ <li><b>A pilot slice.</b> Take Science and Maths in Grade 2 end to end first, before scaling to all subjects?</li>
+ <li><b>Two levels.</b> Base and advanced only, with no third level?</li>
+ <li><b>The fortnight.</b> Is it the planning unit for every subject, languages and arts included? How many teaching fortnights are in your year?</li>
+ <li><b>Who signs.</b> One curriculum lead per subject, whose sign-off is recorded?</li>
+ <li><b>The documents.</b> Can someone download the official Cambridge frameworks from your support-site login, and which CBSE year is the baseline?</li>
+</ol>
+<footer>Sources quoted: Cambridge Primary Science 0097 Curriculum Framework (published September 2020); NCF-SE 2023; NCERT, Learning Outcomes at the Elementary Stage (2017). Verification: research/spine_verify.py in the assessment-engine repository. The school's articulation and the activities above were written for this brainstorm and are marked as generated.</footer>
+</div>

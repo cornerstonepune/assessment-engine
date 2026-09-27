@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cornerstone Blueprint</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#f5f6f8; --surface:#ffffff; --ink:#1a2430; --ink-soft:#4a5866; --ink-faint:#71808f;
+    --line:#dde2e8; --line-soft:#e8ecf0;
+    --accent:#c47a14; --accent-soft:#fdf3e2;
+    --code:#0e7f72; --code-soft:#e2f4f1;
+    --ai:#2467c4; --ai-soft:#e6eefb;
+    --agent:#7047d1; --agent-soft:#efe9fb;
+    --decide:#b8306e; --decide-soft:#fae6f0;
+    --warn:#b3401f; --warn-soft:#fbeae4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161c; --surface:#1a2028; --ink:#e8ecf1; --ink-soft:#aeb9c4; --ink-faint:#7e8b98;
+      --line:#2c353f; --line-soft:#232b34;
+      --accent:#e8a63c; --accent-soft:#33270f;
+      --code:#3cbfae; --code-soft:#0f2f2b;
+      --ai:#6ba0e8; --ai-soft:#152540;
+      --agent:#a184e8; --agent-soft:#241a3d;
+      --decide:#e86ba6; --decide-soft:#3a1226;
+      --warn:#e07a52; --warn-soft:#361a10;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161c; --surface:#1a2028; --ink:#e8ecf1; --ink-soft:#aeb9c4; --ink-faint:#7e8b98;
+    --line:#2c353f; --line-soft:#232b34;
+    --accent:#e8a63c; --accent-soft:#33270f;
+    --code:#3cbfae; --code-soft:#0f2f2b;
+    --ai:#6ba0e8; --ai-soft:#152540;
+    --agent:#a184e8; --agent-soft:#241a3d;
+    --decide:#e86ba6; --decide-soft:#3a1226;
+    --warn:#e07a52; --warn-soft:#361a10;
+    color-scheme: dark;
+  }
+
+  body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;font-size:15.5px;line-height:1.55;padding-inline:clamp(16px,3.5vw,44px);padding-block:0 64px;}
+  .wrap{max-width:1320px;margin:0 auto;}
+  h1,h2,h3{font-family:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;text-wrap:balance;margin:0;}
+  h1{font-size:clamp(34px,5vw,54px);font-weight:800;line-height:1.05;letter-spacing:-.01em;}
+  h2{font-size:clamp(21px,2.6vw,27px);font-weight:800;}
+  h3{font-size:16px;font-weight:600;}
+  p{margin:0;}
+  a{color:var(--ai);text-decoration-thickness:1px;text-underline-offset:2px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92em;}
+  .eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);}
+
+  header.top{padding-block:44px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);}
+  .lede{max-width:74ch;color:var(--ink-soft);font-size:17px;}
+  nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  nav.toc a{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;}
+  nav.toc a:hover{border-color:var(--accent);}
+
+  section{padding-block:34px 8px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .sec-head .n{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--accent);font-size:14px;flex:none;}
+  .sec-sub{color:var(--ink-soft);max-width:82ch;margin-top:4px;}
+
+  .chip{display:inline-block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:500;letter-spacing:.06em;border-radius:4px;padding:1.5px 7px;white-space:nowrap;vertical-align:1px;}
+  .ch-code{background:var(--code-soft);color:var(--code);}
+  .ch-ai{background:var(--ai-soft);color:var(--ai);}
+  .ch-agent{background:var(--agent-soft);color:var(--agent);}
+  .ch-gate{background:var(--accent-soft);color:var(--accent);}
+  .ch-decide{background:var(--decide-soft);color:var(--decide);}
+  .legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin:14px 0 4px;font-size:13.5px;color:var(--ink-soft);}
+  .legend > span{display:flex;align-items:center;gap:7px;}
+
+  ul.tight{margin:14px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:90ch;}
+  ul.tight li::marker{color:var(--accent);}
+  ul.tight b{font-weight:600;}
+
+  .tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);}
+  table{border-collapse:collapse;width:100%;min-width:880px;font-size:13.5px;}
+  th{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-align:left;font-weight:500;padding:11px 14px;border-bottom:1px solid var(--line);}
+  td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.5;}
+  tr:last-child td{border-bottom:none;}
+  td.en{font-weight:600;white-space:nowrap;}
+  td .sub{display:block;color:var(--ink-faint);font-size:12px;font-weight:400;margin-top:2px;white-space:normal;}
+  .num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+  .yes{color:var(--code);font-weight:600;}
+  .no{color:var(--warn);font-weight:600;}
+
+  .doctrine{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:16px;counter-reset:doc;}
+  .doc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 18px;font-size:13.8px;color:var(--ink-soft);}
+  .doc b{color:var(--ink);font-weight:600;display:block;margin-bottom:3px;}
+  .doc .k{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--accent);font-size:12px;margin-right:8px;}
+
+  .callout{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:16px;max-width:920px;font-size:15px;}
+  .callout b{font-weight:600;}
+  .callout.rose{background:var(--decide-soft);}
+
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;}
+  .fstep{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:500;white-space:nowrap;}
+  .fstep.hot{border-color:var(--accent);background:var(--accent-soft);}
+  .farrow{color:var(--ink-faint);flex:none;font-size:13px;}
+
+  pre.schema{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0 0;overflow-x:auto;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.7;color:var(--ink-soft);}
+  pre.schema b{color:var(--ink);font-weight:600;}
+
+  footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-faint);display:flex;flex-direction:column;gap:8px;}
+  footer a{color:var(--ink-soft);}
+
+  @media (max-width:640px){ table{min-width:840px;} header.top{padding-block:30px 20px;} }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Cornerstone Learning OS · Build reference v2.0 · 26 Sep 2026</div>
+  <h1>Cornerstone Blueprint</h1>
+  <p class="lede">The single reference the whole operating system is built around. It merges the platform architecture (v1.1), the Engine Room, and the Decision Fabric into one document and <b>supersedes all three as the build reference</b>. If a Claude Code session, a founder, or a future developer needs one document, it is this one.</p>
+  <nav class="toc">
+    <a href="#doctrine">Doctrine</a><a href="#engines">Engines</a><a href="#fabric">Decision fabric</a><a href="#data">Data model</a><a href="#graph">Knowledge graph</a><a href="#loops">Loops</a><a href="#stack">Orchestration &amp; stack</a><a href="#voice">Voice flow</a><a href="#phases">Phases</a><a href="#verify">Verification</a><a href="#open">Open items</a>
+  </nav>
+</header>
+
+<section id="doctrine">
+  <div class="sec-head"><span class="n">01</span><h2>Doctrine — ten rules that outrank everything below</h2></div>
+  <p class="sec-sub">Any future proposal that violates one of these needs an explicit founder decision, not a quiet exception.</p>
+  <div class="doctrine">
+    <div class="doc"><b><span class="k">D1</span>One bloodstream</b>A single Postgres (Supabase, Mumbai) every organ reads and writes. <span class="mono">tenant_id</span> + RLS on every table from day zero. "How is this child doing?" is a join, and joins don't cross databases.</div>
+    <div class="doc"><b><span class="k">D2</span>Organs, not chatter</b>Modules own their tables, never reach into another's, exchange typed events (<span class="mono">evidence.confirmed</span>), and expose abilities as tools. Agents coordinate through shared state — the blackboard — never by talking to each other.</div>
+    <div class="doc"><b><span class="k">D3</span>Five primitives</b>Every step is CODE, AI STEP, DECIDE, AGENT, or GATE. The test: a rule a coordinator could write on paper is CODE; a bounded judgment is DECIDE; only a path that can't be known in advance is an AGENT. The system has exactly two agents.</div>
+    <div class="doc"><b><span class="k">D4</span>Drafts, never silent decisions</b>Nothing reaches a child, parent, record, or coordinator decision without its gate. Every generated artefact carries "drafted by the system, confirmed by [name] on [date]". No trail → not switched on.</div>
+    <div class="doc"><b><span class="k">D5</span>Nothing hard-coded</b>Every structural fact — bands, subjects, scales, traits, report forms, frameworks, prompts, decisions, flows — is a table row. Adding Grade 5 or a new framework is data entry, never a code change.</div>
+    <div class="doc"><b><span class="k">D6</span>Intelligence upstream</b>Spend AI at design time so run time is mostly lookups. Misconception-tagged distractors, approved pedagogy, alias tables, golden sets: assets compound; API calls don't. Expect tokens-per-child to fall each term.</div>
+    <div class="doc"><b><span class="k">D7</span>Reviewer-minutes are the constraint</b>Every gate is a diff (Accept · Edit · Skip), built once as one shared confirm component. Decision confidence triages what deserves human attention. Approval grain matches human capacity (topics, not 1,750 objectives).</div>
+    <div class="doc"><b><span class="k">D8</span>Derived data is disposable</b>Evidence is append-only; the graph and coverage are pure functions of it, rebuilt nightly, TRUNCATE-able any time. The graph reads confirmed evidence only.</div>
+    <div class="doc"><b><span class="k">D9</span>Loops write back</b>The system learns only through write-backs to versioned assets — prompts, thresholds, edges, priors, golden sets. State improves; the runtime stays dumb and auditable. No self-modifying agents.</div>
+    <div class="doc"><b><span class="k">D10</span>Children are protected by architecture</b>PII in its own schema with roles, retention and an access log. Pseudonymised tokens only to any external AI service. Safeguarding concerns route synchronously to coordinator + head, bypassing every queue. Isolated observations never become permanent labels.</div>
+  </div>
+</section>
+
+<section id="engines">
+  <div class="sec-head"><span class="n">02</span><h2>The eight engines</h2></div>
+  <div class="legend">
+    <span><span class="chip ch-code">CODE</span> deterministic</span>
+    <span><span class="chip ch-ai">AI STEP</span> generative, fixed point</span>
+    <span><span class="chip ch-decide">DECIDE</span> typed decision + confidence</span>
+    <span><span class="chip ch-agent">AGENT</span> model owns the path</span>
+    <span><span class="chip ch-gate">GATE</span> human approves</span>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Engine</th><th>What runs</th><th>Gate</th><th>Rhythm</th></tr></thead>
+      <tbody>
+        <tr><td class="en">1 · Curriculum<span class="sub">pedagogy per outcome × level</span></td><td>Master prompt per subject + skill map → activity, logistics, observation points, NCERT links, <b>misconception-tagged items and <span class="mono">precedes</span> edges as required outputs</b> <span class="chip ch-ai">AI STEP</span> overnight batch · co-editing interface for the curriculum team <span class="chip ch-agent">AGENT</span> (1 of 2)</td><td><span class="chip ch-gate">GATE</span> team, per topic → lock + version</td><td>Before term</td></tr>
+        <tr><td class="en">2 · Question bank</td><td>Bulk generation from locked curriculum <span class="chip ch-ai">AI STEP</span> · answer keys machine-verified (SymPy for maths) <span class="chip ch-code">CODE</span> · every distractor carries its misconception tag</td><td><span class="chip ch-gate">GATE</span> same approval → reusable asset</td><td>Before term</td></tr>
+        <tr><td class="en">3 · Assessment assembly</td><td>Roster × approved bank → paper + name + QR → PDF <span class="chip ch-code">CODE</span>. Four level-variants first pass; unique papers only for follow-up sets. Zero runtime AI.</td><td><span class="chip ch-gate">GATE</span> teacher, before print</td><td>On demand, seconds</td></tr>
+        <tr><td class="en">4 · Evaluation</td><td>QR routes scan <span class="chip ch-code">CODE</span> · bubbles via OMR <span class="chip ch-code">CODE</span> · vision extracts handwritten working as text <span class="chip ch-ai">AI STEP</span> · error type on open work / evidence sufficient? / needs review? <span class="chip ch-decide">DECIDE</span> · MCQ misconception = tag lookup <span class="chip ch-code">CODE</span> · weekly per-child pattern summary <span class="chip ch-ai">AI STEP</span></td><td><span class="chip ch-gate">GATE</span> teacher confirms before graph</td><td>Nightly batch</td></tr>
+        <tr><td class="en">5 · Observation</td><td>ASR, roster as keyterms <span class="chip ch-ai">AI STEP</span> · name rules, alias table first <span class="chip ch-code">CODE</span> · residual name match <span class="chip ch-decide">DECIDE</span> · extraction into evidence / practice / logistics / affect <span class="chip ch-agent">AGENT</span> (2 of 2) · enter-state? review? recurring? routing <span class="chip ch-decide">DECIDE</span></td><td><span class="chip ch-gate">GATE</span> confirm queue &lt;2 min</td><td>Same evening</td></tr>
+        <tr><td class="en">6 · Recommendation</td><td>Graph query → deepest insecure prerequisite → assemble from tagged bank <span class="chip ch-code">CODE</span> · reinforcement revisits scheduled by FSRS <span class="chip ch-code">CODE</span></td><td><span class="chip ch-gate">GATE</span> teacher → print</td><td>On demand</td></tr>
+        <tr><td class="en">7 · Reports &amp; handover</td><td>Narrative from confirmed evidence only <span class="chip ch-ai">AI STEP</span> · every line checked against its cited evidence <span class="chip ch-decide">DECIDE</span> · assembly + provenance <span class="chip ch-code">CODE</span></td><td><span class="chip ch-gate">GATE</span> teacher line-by-line · coordinator releases</td><td>Termly</td></tr>
+        <tr><td class="en">8 · Timetable &amp; tasks</td><td>FET constraint solver + yearly roadmap → timetables, task lists, check-ins <span class="chip ch-code">CODE</span></td><td><span class="chip ch-gate">GATE</span> coordinator</td><td>Fortnightly</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sec-sub" style="margin-top:12px">Safeguarding is the one path that waits for nothing: a detected concern routes synchronously to coordinator + head into the <span class="mono">concern</span> organ — before any queue, any batch, any gate.</p>
+</section>
+
+<section id="fabric">
+  <div class="sec-head"><span class="n">03</span><h2>The decision fabric</h2></div>
+  <p class="sec-sub">Bounded judgments — too fuzzy for code, too narrow for a generative model — go through one interface. TypeSafe's Jev (released 19 Sep 2026; typed Noul/Choice/Score outputs with calibrated confidence; text-only; vendor figures $0.042/M input, 70–500 ms, unvalidated on our workload) is the first provider, never a dependency.</p>
+  <pre class="schema"><b>decide</b>(decision_id, state, evidence) → { answer, confidence, model, model_version, instruction_version, timestamp }
+providers: <b>jev</b> | <b>claude-structured</b> | <b>rules</b> | <b>human</b>   — caller never knows which answered
+
+<b>decision registry</b> (a table, like everything): decision_id · engine · question_type (noul|choice|score)
+  · input_schema · possible_outputs · instruction_version · confidence thresholds (autonomous|review|manual)
+  · human_gate · fallback · evaluation_dataset (golden set) · owner · created/updated</pre>
+  <ul class="tight">
+    <li><b>Confidence policy:</b> high confidence + low consequence → automate and log · high + consequential → only if policy permits · medium → teacher/coordinator review · low → fallback or manual · conflicting evidence → escalate · <b>sensitive developmental inference → never auto-persisted</b>, regardless of confidence.</li>
+    <li><b>Graduation rule:</b> every decision-id is advisory until it beats its golden set on our own data. Teacher overrides are the labels. Golden set #1 exists today: Maya ma'am's voice notes.</li>
+    <li><b>Where the fabric runs:</b> observation fan-out, residual name matching, open-response error classification, report-line verification, attention scoring (advisory). <b>Where it doesn't:</b> assessment triggers, orchestration paths, approvals, mastery interpretation, curriculum quality — those are rules, thresholds and gates by D3.</li>
+    <li><b>Privacy (D10):</b> external decision APIs see <span class="mono">C-142</span>, never a name. DPDP diligence before any child data reaches production use of a new vendor.</li>
+  </ul>
+</section>
+
+<section id="data">
+  <div class="sec-head"><span class="n">04</span><h2>Data model — the four rings</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Ring</th><th>Contains</th><th>Rule</th></tr></thead>
+      <tbody>
+        <tr><td class="en">A · Source of truth</td><td>registry, roster, planning, evidence, decision registry, prompts, intervention library</td><td>Append/approve only; each exposes abilities as tools</td></tr>
+        <tr><td class="en">B · Derived</td><td>graph, coverage, report drafts</td><td>Pure function of A; nightly rebuild; disposable (D8)</td></tr>
+        <tr><td class="en">C · Adapters</td><td>asr, llm, <b>decide</b>, vision, whatsapp, kriyo, fet, storage</td><td>One file each behind an interface — where "swappable" lives</td></tr>
+        <tr><td class="en">D · Flows</td><td>evening-extract, tomorrow-plan, fortnight-draft, worksheet-set, parent-brief, saturday-agenda</td><td>Goal + tools + versioned prompt; human confirm before any write</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <pre class="schema"><b>Registry</b> (CASE 1.1-shaped): node · node_code (with history — old codes resolve) · typed tables
+  (skill / milestone / objective / activity / report_item / trait) · subject/strand + alias tables
+  · level_set, level · association (isChildOf | isPartOf | <b>precedes</b> | isRelatedTo | exactMatchOf | isTranslationOf)
+  · node_closure (materialised, rebuilt on publish) · registry_change → registry_version (snapshot per publication)
+
+<b>Evidence</b> (xAPI-shaped): evidence_event (child, skill_node, level, correct, polarity, channel,
+  <b>observed_at vs stored_at</b>, authority, state ∈ candidate|confirmed|superseded, registry_version, raw_ref)
+  · artefact (photo/audio/work sample) · work_cycle · trait_episode · child_reflection · support_plan
+  · evidence_event.language + child.home_languages[] (isTranslationOf unions into one competence)
+
+<b>Operations</b>: assignment(valid_from, valid_to) · day_override · confirm (one queue, every flow)
+  · identity (aliases + collision list) · concern (pii schema, synchronous escalation ladder)
+  · pii (separate schema, roles, retention, access_log) · flow_run (cost + dead-man check) · event log</pre>
+  <ul class="tight">
+    <li><b>Graph honesty rules</b> (thresholds in tables, not code): no mastery estimate below minimum evidence (default ≥3 events, ≥2 observers/contexts — otherwise "not enough yet"); every cell shows n-events / n-observers / last-seen; adult disagreement = <span class="mono">contested</span>, never averaged; recency weighting; April handover marks prior-year estimates "prior" with a fresh-eyes window; Saturday observer-bias report per teacher.</li>
+    <li><b>Roles</b> (RLS written before Phase 2 ships a name): lead teacher · assistant educator · coordinator · founder/head · parent (own children, confirmed evidence only, via report output — never raw rows or comparisons). Every agent tool call runs as the acting user, never a service account.</li>
+    <li><b>Loader contract</b> (from the verified cleanup): expand 65 glob crosswalk patterns; strip/report 69 dangling + 23 non-ID tokens; <span class="mono">UNIQUE(grade_band, subject, name)</span> for 164 duplicate unit names; alias tables absorb 12 dirty subjects and 31→~15 strands; three incomparable milestone scales each declare their level_set; 989 activities have nullable rubrics; 28 orphan skills ship as the Phase 0 coverage report. Idempotent: re-run = zero diff.</li>
+  </ul>
+</section>
+
+<section id="graph">
+  <div class="sec-head"><span class="n">05</span><h2>The knowledge graph in use</h2></div>
+  <div class="flow">
+    <span class="fstep">fails 3-digit subtraction</span><span class="farrow">→</span>
+    <span class="fstep">error tag: regrouping</span><span class="farrow">→</span>
+    <span class="fstep">graph: is place value secure?</span><span class="farrow">→</span>
+    <span class="fstep hot">target the deepest insecure prerequisite</span>
+  </div>
+  <ul class="tight">
+    <li><b>Diagnosis descends</b> along <span class="mono">precedes</span>: remediation targets the actual gap, not more worksheets on the surface skill. <b>Readiness ascends</b>: "ready for Grade 3" = coverage over the Grade-2 frontier; the handover report falls out of the same query.</li>
+    <li><b>Edges are curriculum content</b>: drafted by AI at authoring, approved by the council like any other object (engine 1's required output), later audited by evidence — reliable co-failure of X and Y proposes an edge.</li>
+    <li><b>Child state is an overlay on this graph</b>, per level_set, never averaged across scales. No graph database: the Postgres closure table answers every query at this scale.</li>
+  </ul>
+</section>
+
+<section id="loops">
+  <div class="sec-head"><span class="n">06</span><h2>The four loops — how the brain learns (D9)</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Loop</th><th>Cycle</th><th>Write-back (the learning)</th></tr></thead>
+      <tbody>
+        <tr><td class="en">L1 · Mastery<span class="sub">per child, weekly</span></td><td>assess → diagnose via graph → intervene → reassess → update state</td><td>Longitudinal per-child evidence — the Kundli, earned not asserted</td></tr>
+        <tr><td class="en">L2 · Curriculum<span class="sub">per topic, termly</span></td><td>pedagogy → classroom → teacher voice feedback → "did the activity achieve its outcome?" → revision proposals</td><td>Pedagogy proven in our classrooms; framed as feedback on curriculum, never surveillance of teachers</td></tr>
+        <tr><td class="en">L3 · Intervention<span class="sub">per error type, ongoing</span></td><td>validated intervention library (seeded from proven practice, e.g. Teaching at the Right Level) → assign → record error × intervention × observed improvement</td><td>Effectiveness priors per error type and age band — observed improvement stored separately from causal claims</td></tr>
+        <tr><td class="en">L4 · Calibration<span class="sub">per decision-id, weekly</span></td><td>teacher overrides → golden sets grow → thresholds validated → advisory→autonomous graduation → drift watch</td><td>Measured trust — the licence to automate more each term without automating blind</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="sec-head"><span class="n">07</span><h2>Orchestration &amp; stack</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Choice</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="en">App</td><td>Next.js + TypeScript, server-rendered</td><td>Survives flaky 4G; one toolchain end-to-end</td></tr>
+        <tr><td class="en">Store</td><td>Supabase Postgres, Mumbai <span class="mono">ap-south-1</span></td><td>tenant_id + RLS day zero; PITR + rehearsed restore; private media bucket, signed URLs, retention job</td></tr>
+        <tr><td class="en">Flow core</td><td><b>LangGraph-TS — front-runner, decided by spike</b></td><td>Durable Postgres checkpointing + pause-for-human interrupts map 1:1 onto gates; code-first suits a Claude Code dev cycle. Phase 2 spike: evening-extract built on LangGraph-TS vs n8n-orchestrated, judged on write-test-diff-rollback speed. Loser keeps the edges.</td></tr>
+        <tr><td class="en">Edge triggers</td><td>n8n</td><td>Webhooks (WhatsApp → queue), retries, integrations; prompts never live in nodes — always the DB</td></tr>
+        <tr><td class="en">Agents (2)</td><td>Claude Agent SDK behind the <span class="mono">llm</span> adapter</td><td>Curriculum co-editor; observation extractor</td></tr>
+        <tr><td class="en">Decisions</td><td>Jev behind <span class="mono">decide()</span>; claude-structured fallback</td><td>Section 03; early access via TypeSafe or Vercel AI Gateway</td></tr>
+        <tr><td class="en">Bulk generation</td><td>Claude Batch API + prompt caching, overnight</td><td>Roughly half price batched; shared skill-map context cached (verify current pricing)</td></tr>
+        <tr><td class="en">Speech</td><td>Sarvam saaras:v4, roster keyterms ≤50</td><td>~₹30/hr, India-hosted; measure our own classroom WER in week 1 of the pilot</td></tr>
+        <tr><td class="en">Marking</td><td>OMRChecker (bubbles) + vision model (handwriting)</td><td>Compose, don't build; Jev is never the OCR engine</td></tr>
+        <tr><td class="en">Scheduling maths</td><td>FET (timetables) · FSRS (spaced reinforcement) · SymPy (key verification) · pyBKT (offline mastery experiment, Phase 4+)</td><td>All open source; verify TS-port maturity where used in-process</td></tr>
+        <tr><td class="en">Parent channel</td><td>Kriyo, unchanged until Phase 7</td><td>Reconciliation via <span class="mono">external_ref</span>, never overwrite-on-import; export/read API still unconfirmed with account manager</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><b>Rejected, on principle or scale:</b> free-form multi-agent crews (CrewAI/AutoGen-style — coordination via conversation is unauditable in a child-records system); Temporal (operational overkill for one non-technical founder + AI); graph databases (closure table wins); Taskade-class horizontal SaaS as a home for school data (copy its expose-abilities-as-MCP pattern instead); Indian school ERPs as platforms (no APIs, no competency model — Kriyo stays a channel, not a brain).</div>
+</section>
+
+<section id="voice">
+  <div class="sec-head"><span class="n">08</span><h2>The voice flow — pilot flow, fully specified</h2></div>
+  <div class="flow">
+    <span class="fstep">1 · teacher records (WhatsApp / one button)</span><span class="farrow">→</span>
+    <span class="fstep">2 · context pack: timetable + <span class="mono">day_override</span> + rosters + aliases</span><span class="farrow">→</span>
+    <span class="fstep">3 · ASR, roster keyterms</span><span class="farrow">→</span>
+    <span class="fstep">4 · names: code rules → DECIDE residue; collisions never auto-resolve</span><span class="farrow">→</span>
+    <span class="fstep">5 · AGENT extracts 4 streams</span><span class="farrow">→</span>
+    <span class="fstep">6 · DECIDE: enter-state / review / recurring per instance</span><span class="farrow">→</span>
+    <span class="fstep hot">7 · confirm queue &lt;2 min, confidence-sorted</span><span class="farrow">→</span>
+    <span class="fstep">8 · write; nightly rebuild; tomorrow's draft</span>
+  </div>
+  <ul class="tight">
+    <li>Every confirmation writes back to the alias table, and the teacher gets a 5-line "what the system now knows about your class this week" — a teacher who sees nothing come back stops on day four.</li>
+    <li>Unconfirmed rows move to the coordinator view after 48 h; both adults in a room record under their own names; an absent child cannot receive an instance; safeguarding bypasses everything, synchronously.</li>
+  </ul>
+</section>
+
+<section id="phases">
+  <div class="sec-head"><span class="n">09</span><h2>Phases — build the organism backwards</h2></div>
+  <p class="sec-sub">Evidence first (the pilot is live), assessment second, curriculum generation last — it needs classroom evidence behind it, and its reviewers are the scarcest people. Registry stays step zero: everything keys on its IDs. ~28–37 focused weeks; effort estimates are the least reliable numbers in this document.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>Ships</th><th>Child data</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr><td class="num">0</td><td>Postgres + idempotent loader + closure + four lenses + orphan report + fake-Grade-5 test + job-health page. <b>Item schema carries the misconception field from day one.</b></td><td>none</td><td class="num">2–3 wk</td></tr>
+        <tr><td class="num">1</td><td>Registry editing via <span class="mono">confirm</span> → publish + snapshot · export job · <b>decision registry + <span class="mono">decide()</span> stub (rules provider only)</b></td><td>none</td><td class="num">2 wk</td></tr>
+        <tr><td class="num">2</td><td>Roster, enrolment, <span class="mono">day_override</span>, Kriyo reconciliation, FET, context packs, role policies, WhatsApp verification started · <b>runner spike: LangGraph-TS vs n8n → flow core chosen</b> · agent scaffold</td><td>names</td><td class="num">2–3 wk</td></tr>
+        <tr><td class="num">3</td><td><span class="mono">evening-extract</span> (one teacher, one class) with DECIDE steps + confidence-sorted queue · <b>eval harness + golden sets from day one</b> (Maya's notes = set #1; Jev benchmarked here, pseudonymised) · artefacts + work cycles · <span class="mono">concern</span> path · media bucket + retention · PITR restore rehearsed</td><td>yes</td><td class="num">4–6 wk</td></tr>
+        <tr><td class="num">4</td><td>Graph v0: heatmap, not-secure-at-band, unobserved-4-weeks · pyBKT as offline experiment against threshold rules</td><td>yes</td><td class="num">3 wk</td></tr>
+        <tr><td class="num">5</td><td>Planning + coverage + <span class="mono">tomorrow-plan</span> / <span class="mono">fortnight-draft</span> flows</td><td>yes</td><td class="num">3 wk</td></tr>
+        <tr><td class="num">6</td><td>Assessment engine: assembly (CODE) + evaluation pipeline (OMR, vision, DECIDE error classification) + SymPy key verification + FSRS reinforcement scheduling · Aseem's prototype absorbed</td><td>yes</td><td class="num">6–9 wk</td></tr>
+        <tr><td class="num">7</td><td>Reports + Learning Stories + handover (prior/current split) + report-line DECIDE check + parent view via Kriyo · parents-as-channel decided</td><td>yes</td><td class="num">3–4 wk</td></tr>
+        <tr><td class="num">8</td><td>Curriculum content engine: batch pedagogy generation + co-editing agent + <b><span class="mono">precedes</span> edges and misconception tags as required, council-gated outputs</b></td><td>no (content)</td><td class="num">4–6 wk</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="verify">
+  <div class="sec-head"><span class="n">10</span><h2>Verification — how we know it works</h2></div>
+  <ul class="tight">
+    <li><b>Structural:</b> loader idempotence (re-run = zero diff, exact counts, zero dangling refs) · fake-Grade-5 test — adding a grade via screens only; any code change = design failed · Playwright screenshot per lens at desktop + 400px · retired codes resolve on cold load · evidence written before a publish still resolves its old descriptor · graph TRUNCATE + rebuild is byte-identical.</li>
+    <li><b>Intelligence:</b> <span class="mono">gold</span> table + CLI from Phase 3 day one — ASR WER, name-resolution precision/recall, extraction F1 on every prompt change; per-decision golden sets with calibration audit (does 0.9 confidence mean right 9 times in 10 <i>on our data</i>?); drift watch on every decision-id.</li>
+    <li><b>Human:</b> pilot stop rules — confirm queue &gt;5 min/day for a week or &gt;⅓ items corrected → fix the prompt or observables, never lower the bar · Saturday observer-bias report · <span class="mono">flow_run</span> cost line on the job-health page, so tokens-per-child is a graph we watch falling.</li>
+  </ul>
+</section>
+
+<section id="open">
+  <div class="sec-head"><span class="n">11</span><h2>Open items — the honest register</h2></div>
+  <ul class="tight">
+    <li><b>Unvalidated numbers:</b> all Jev figures (vendor-run, six days old); Sarvam WER on real classroom audio; Batch/caching pricing; every effort estimate, Phase 6 especially; running cost budget (belongs on the job-health page).</li>
+    <li><b>Unconfirmed externals:</b> Kriyo export/read API; TypeSafe early access, India latency and DPDP posture; WhatsApp Business verification timeline.</li>
+    <li><b>Undecided (founders):</b> pseudonymisation-only rule ratified as policy → then Jev benchmark · runner spike result · curriculum approval grain (topic proposed) · teacher-side channel (WhatsApp vs Kriyo) · which teacher/class is second into the pilot · parents-as-observation-channel (Phase 7).</li>
+    <li><b>The standing risk, unchanged since v1.1:</b> the sixteen open decisions across the older docs remain unanswered, and the Skill Map still hasn't been reviewed by the school. Phase 1 exists to move that review into the tool. No architecture fixes an unreviewed curriculum.</li>
+  </ul>
+  <div class="callout rose"><b>The moat, restated once:</b> anyone can rent Jev, Claude, and Postgres. The compounding assets — a misconception-tagged bank aligned to our skill map, pedagogy proven in our classrooms, per-child longitudinal evidence, and golden sets that let automation earn trust decision by decision — exist only here, and every loop above makes them richer. Engines can be rebuilt; the assets are Cornerstone.</div>
+</section>
+
+<footer>
+  <div><b>Supersedes</b> as build reference: <span class="mono">design/platform-architecture-v1.md</span> (v1.1), <span class="mono">design/engine-room-pov.md</span>, <span class="mono">design/decision-fabric-jev.md</span> — all remain as background and rationale.</div>
+  <div><b>References:</b> <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic — Building Effective Agents</a> · <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">TypeSafe — System One &amp; Jev</a> · <a href="https://docs.typesafe.ai/concepts/system-one">TypeSafe docs</a> · <a href="https://docs.langchain.com/oss/python/langgraph/persistence">LangGraph persistence &amp; HITL</a> · <a href="https://platform.claude.com/docs/en/build-with-claude/batch-processing">Claude Batch API</a> · <a href="https://github.com/udayraj123/OMRChecker">OMRChecker</a> · <a href="https://github.com/CAHLR/pyBKT">pyBKT</a> · <a href="https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm">FSRS</a> · 1EdTech CASE 1.1 · IEEE 9274.1.1 (xAPI). Vendor figures unvalidated on our workload.</div>
+  <div>Cornerstone Learning OS · Build reference v2.0 · 26 Sep 2026 · Changes to this document go through the same gate as everything else: propose, review, version.</div>
+</footer>
+
+</div>
+
+</body>
+</html>
