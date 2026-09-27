@@ -1,0 +1,35 @@
+[
+{
+"key": "ncf",
+"title": "National Curriculum Framework for School Education 2023",
+"publisher": "NCERT",
+"edition": "First Edition, October 2024 (the imprint page; the file name says August 2023)",
+"url": "https://ncert.nic.in/pdf/NCFSE-2023-August_2023.pdf",
+"bytes": 47030865,
+"sha256": "0e2c5a1ddb48f758a5e9f867258da40d57f9f236b37fc7f8022261973425f099",
+"read_as": "the PDF's text layer: PyMuPDF 1.28.2, each page's get_text(), pages joined by a newline",
+"used_for": "Part C curricular goals and competencies (docs/spine/sources/ncf_se_2023_competencies.json)"
+},
+{
+"key": "elementary",
+"title": "Learning Outcomes at the Elementary Stage",
+"publisher": "NCERT",
+"edition": "First Edition, April 2017",
+"url": "https://ncert.nic.in/pdf/publication/otherpublications/tilops101.pdf",
+"bytes": 16481419,
+"sha256": "18024190d8d8a7b0516bf6bcab14dc209f4751b91acb0b0c952e2c27b4ac3317",
+"read_as": "the PDF, page by page (PyMuPDF)",
+"used_for": "Classes 1-8 learning outcomes (docs/spine/sources/ncert_learning_outcomes.json)"
+},
+{
+"key": "secondary",
+"title": "Learning Outcomes at the Secondary Stage",
+"publisher": "NCERT",
+"edition": "First Edition, December 2019",
+"url": "https://ncert.nic.in/pdf/publication/otherpublications/learning_outcomes.pdf",
+"bytes": 5616795,
+"sha256": "6ca96ce70fc0b7df5a2687fe1b5353a111ea528520d588ce027dcd40d2fa337a",
+"read_as": "the PDF, page by page (PyMuPDF)",
+"used_for": "Classes 9-10 learning outcomes (docs/spine/sources/ncert_learning_outcomes.json)"
+}
+]

@@ -3491,7 +3491,18 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - **Not verified:** that the generated links are right (the curriculum team's pass decides); NCERT extraction folds a few
   sub-points and truncates a few rows (the seats name them); NCERT has no Hindi or Marathi outcomes in these files; 30
   school units and 6 NCERT outcomes carry a reason instead of a competency.
-- **Provenance check (2026-09-27):** `python3 research/spine_verify.py --ncf <NCF-SE text> --elementary <NCERT 2017 PDF> --secondary <NCERT 2019 PDF>`
-  → `NCF-SE rows found word for word in the source: 814/814` · `NCERT outcomes found word for word on their stated page: 729/729`.
-  The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
+- **Provenance check (2026-09-27, wired in the same day):** `python3 research/spine_verify.py` runs from any directory. It
+  fetches NCERT's three PDFs from ncert.nic.in into data/spine_sources/ and refuses any whose sha256 differs from
+  `docs/spine/sources/official_documents.json`. Output: `NCF-SE rows found in full, word for word, in the source:
+  814/814` · `NCERT outcomes found in full, word for word, on their stated page: 729/729`.
+  - It now compares whole rows. The first version compared only the first 120 and 80 characters, so a changed word late
+    in a long row would have passed; the longest rows are 2,227 and 1,238 characters.
+  - A lone hyphen counts as punctuation, not as a word: NCERT's "etc.:-" in Class 1 Maths outcome 7.
+  - Held by `goals/spine-traceable.yaml`: `bin/engine done spine-traceable` → the three sentences PROVED. Its "NOT DONE"
+    comes only from this container not reaching the live database; there is no migration.
+  - CI's engine job runs the same tests on every PR, with the PDFs cached under their fingerprints.
+  - The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
+- **The spine rebuilds byte for byte (2026-09-27):** `python3 research/spine_import.py && python3 research/spine_build.py`
+  leaves `docs/spine/sources/` unchanged, and `spine.json` is identical under any PYTHONHASHSEED. The unit→skill links
+  were written in a set's order; they are now sorted.
 

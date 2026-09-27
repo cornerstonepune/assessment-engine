@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-27, after #73 merged: the provenance check wired in; the next objective put to Nimish (no step moved)
+
+- **Next session: read `docs/brainstorms/2026-09-27-curriculum-skeleton.md`, starting at "27 Sep, after the merge".**
+  Nimish's new asks cover: Grades 1–7 in detail; the school's own additions; a Cambridge skills gap check; and whether
+  application-based teaching fits the hours, with the school day that follows. Agree the objective with him before any
+  work; he asked for that in so many words.
+- The provenance check now runs anywhere and is wired in. `python3 research/spine_verify.py` fetches NCERT's PDFs and
+  refuses a changed file. It compares whole rows: 814/814 and 729/729. `goals/spine-traceable.yaml` holds it, and CI
+  runs it on every PR.
+- The spine build is now deterministic; unit→skill links had been emitted in set order.
+
 ## 2026-09-27 — brainstorm: the curriculum skeleton, and provenance as a rule (no step moved, nothing built)
 
 - **To resume this discussion in a new session, read `docs/brainstorms/2026-09-27-curriculum-skeleton.md` first.** It holds
