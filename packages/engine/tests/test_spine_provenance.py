@@ -4,15 +4,23 @@ Nimish, 2026-09-27: "Tomorrow, anyone can trace back and say that we have not ma
 imported into docs/spine/sources/ is looked up, in full and word for word, in the published document it cites, and that
 document must be the very copy the import read: its address and fingerprint are in
 docs/spine/sources/official_documents.json. research/spine_verify.py does the looking; these tests run it as anyone
-would, from a directory that is not the repository, and show that it catches a changed word and a changed file. The
-first run downloads NCERT's three PDFs (about 69 MB) into data/spine_sources/; later runs reuse them.
+would, from a directory that is not the repository, and show that it catches a changed word and a changed file and
+asks again when the publisher drops a connection. The first run downloads NCERT's three PDFs (about 69 MB) into
+data/spine_sources/; later runs reuse them.
 """
 
+import hashlib
 import importlib.util
+import io
 import json
+import re
 import subprocess
 import sys
+import time
+import urllib.error
+from pathlib import Path
 
+import pymupdf
 import pytest
 
 from engine.core import db
@@ -58,10 +66,15 @@ def test_a_line_changed_by_one_word_is_caught(tmp_path):
         assert f"not found: {row_id}" in run.stdout
 
 
-def test_a_publisher_file_that_is_not_the_copy_the_import_read_is_refused(tmp_path, monkeypatch):
+def load_sources():
     spec = importlib.util.spec_from_file_location("spine_sources", RESEARCH / "spine_sources.py")
     sources = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(sources)
+    return sources
+
+
+def test_a_publisher_file_that_is_not_the_copy_the_import_read_is_refused(tmp_path, monkeypatch):
+    sources = load_sources()
     published = tmp_path / "published.pdf"
     published.write_bytes(b"%PDF-1.4 a later edition")
     (tmp_path / "official_documents.json").write_text(
@@ -71,3 +84,49 @@ def test_a_publisher_file_that_is_not_the_copy_the_import_read_is_refused(tmp_pa
     monkeypatch.setattr(sources, "DATA", tmp_path / "data")
     with pytest.raises(SystemExit, match="is not the copy the import read"):
         sources.fetch()
+
+
+def publisher(tmp_path, monkeypatch, sources, replies):
+    """A publisher at an https address whose answers, in turn, are `replies`: an error is raised, bytes are served."""
+    doc = pymupdf.open()
+    doc.new_page().insert_text((72, 72), "Curricular Goal 1")
+    pdf = doc.tobytes()
+    url = "https://ncert.nic.in/pdf/ncf.pdf"
+    (tmp_path / "official_documents.json").write_text(
+        json.dumps([{"key": "ncf", "url": url, "sha256": hashlib.sha256(pdf).hexdigest()}])
+    )
+    monkeypatch.setattr(sources, "DOCS", tmp_path / "official_documents.json")
+    monkeypatch.setattr(sources, "DATA", tmp_path / "data")
+    waits = []
+    monkeypatch.setattr(time, "sleep", waits.append)
+
+    def urlopen(req, timeout):
+        assert req.full_url == url
+        reply = replies.pop(0)
+        if isinstance(reply, Exception):
+            raise reply
+        return io.BytesIO(pdf)
+
+    monkeypatch.setattr(sources.urllib.request, "urlopen", urlopen)
+    return url, waits
+
+
+def reset():
+    return urllib.error.URLError(ConnectionResetError(104, "Connection reset by peer"))
+
+
+def test_a_publisher_that_drops_the_connection_is_asked_again(tmp_path, monkeypatch):
+    """ncert.nic.in reset CI's first TLS handshake on 2026-09-27 and served the same file seconds later."""
+    sources = load_sources()
+    _, waits = publisher(tmp_path, monkeypatch, sources, [reset(), reset(), "served"])
+    got = sources.fetch()
+    assert "Curricular Goal 1" in Path(got["ncf"]).read_text(encoding="utf-8")
+    assert waits == [2, 4]
+
+
+def test_a_publisher_that_never_answers_stops_the_run_naming_its_address(tmp_path, monkeypatch):
+    sources = load_sources()
+    url, waits = publisher(tmp_path, monkeypatch, sources, [reset() for _ in range(5)])
+    with pytest.raises(SystemExit, match=f"{re.escape(url)} could not be downloaded in 5 attempts"):
+        sources.fetch()
+    assert waits == [2, 4, 8, 16]

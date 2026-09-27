@@ -3501,6 +3501,9 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
   - Held by `goals/spine-traceable.yaml`: `bin/engine done spine-traceable` → the three sentences PROVED. Its "NOT DONE"
     comes only from this container not reaching the live database; there is no migration.
   - CI's engine job runs the same tests on every PR, with the PDFs cached under their fingerprints.
+  - CI's first run, with nothing cached, failed: ncert.nic.in reset the TLS handshake, and served the same file to the
+    next test seconds later. A failed request is now made again after 2, 4, 8 and 16 s; the fifth failure stops the run,
+    naming the address. `pytest tests/test_spine_provenance.py` → 5 passed, two of them pinning this.
   - The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
 - **The spine rebuilds byte for byte (2026-09-27):** `python3 research/spine_import.py && python3 research/spine_build.py`
   leaves `docs/spine/sources/` unchanged, and `spine.json` is identical under any PYTHONHASHSEED. The unit→skill links

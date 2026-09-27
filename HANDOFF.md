@@ -11,7 +11,8 @@ is verified. This file only says where the last session stopped.
   work; he asked for that in so many words.
 - The provenance check now runs anywhere and is wired in. `python3 research/spine_verify.py` fetches NCERT's PDFs and
   refuses a changed file. It compares whole rows: 814/814 and 729/729. `goals/spine-traceable.yaml` holds it, and CI
-  runs it on every PR.
+  runs it on every PR. CI's first run failed when ncert.nic.in dropped a connection; the fetch now asks again (after
+  2, 4, 8 and 16 s) before it gives up.
 - The spine build is now deterministic; unit→skill links had been emitted in set order.
 
 ## 2026-09-27 — brainstorm: the curriculum skeleton, and provenance as a rule (no step moved, nothing built)
