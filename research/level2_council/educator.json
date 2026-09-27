@@ -1,0 +1,1257 @@
+{
+ "seat": "educator",
+ "verdicts": [
+  {
+   "id": "counts-objects-one-to-one",
+   "verdict": "accept",
+   "reason": "adult_sees tells me exactly what to watch: finger and voice keeping step. Seen daily at the maths corner."
+  },
+  {
+   "id": "reads-a-familiar-word",
+   "verdict": "edit",
+   "reason": "Covering a picture is staging; word cards and labels are already on the wall. One word read is a tick in a note, not an audio file.",
+   "edit": {
+    "statement": "Reads a familiar word aloud from a word card or a label that has no picture beside it.",
+    "adult_sees": "The educator points to a word on the word wall or a label and hears it read from its letters.",
+    "counter_example": "Names the label by where it hangs and cannot read the same word on a card held elsewhere.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "exchanges-ten-ones",
+   "verdict": "accept",
+   "reason": "Uses the school's word, exchange; base-ten blocks are ordinary Grade 1-2 practice."
+  },
+  {
+   "id": "retells-a-story-in-order",
+   "verdict": "edit",
+   "reason": "Audio of one child in a circle of thirty is not realistic; a dated note naming the three events in order holds this.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "sorts-by-a-stated-rule",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-name-and-numerals",
+   "verdict": "accept"
+  },
+  {
+   "id": "adds-with-regrouping",
+   "verdict": "accept",
+   "reason": "Regrouping is the school's word; the counter-example is exactly the sheet I would over-count."
+  },
+  {
+   "id": "reads-and-answers-a-passage",
+   "verdict": "edit",
+   "reason": "Audio cannot hold a finger pointing at the text; have the child read the line out, and the recording holds all of it.",
+   "edit": {
+    "statement": "Reads a grade-level passage aloud and answers a question whose answer is stated in the text, reading out the line that says it.",
+    "adult_sees": "The educator hears the passage read, the answer given, and the line from the text read out as its source.",
+    "counter_example": "Answers from general knowledge and cannot find the line in the text."
+   }
+  },
+  {
+   "id": "explains-a-fact-with-a-because",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-measuring-tool",
+   "verdict": "accept"
+  },
+  {
+   "id": "completes-a-timed-set",
+   "verdict": "edit",
+   "reason": "With thirty sheets I cannot see a child 'check' an answer; a re-worked answer in the margin is visible to any colleague.",
+   "edit": {
+    "statement": "Completes a short timed practice set in the time given and re-works one answer in the margin before handing in.",
+    "adult_sees": "The educator sees the set finished within the time and one answer worked a second time in the margin.",
+    "counter_example": "Writes a tick beside every answer in the last minute without re-working any."
+   }
+  },
+  {
+   "id": "writes-a-paragraph-with-a-main-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-multi-step-problem",
+   "verdict": "accept"
+  },
+  {
+   "id": "summarises-a-chapter",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-technical-term-correctly",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-an-experiment",
+   "verdict": "accept",
+   "reason": "'On the day it is done' is the detail that makes this checkable; the counter-example is the real lab habit."
+  },
+  {
+   "id": "sits-a-full-length-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-explanatory-essay",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-an-unseen-board-style-problem",
+   "verdict": "edit",
+   "reason": "In a test nobody speaks; 'says why' cannot be captured under exam rules, so the reason must be written on the paper.",
+   "edit": {
+    "statement": "Solves an unseen problem in the board's format by choosing which method applies, and writes one line on why that method.",
+    "adult_sees": "The educator sees a method chosen to fit the problem and a written line giving the reason for the choice."
+   }
+  },
+  {
+   "id": "reads-a-primary-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-a-concept-to-a-younger-student",
+   "verdict": "edit",
+   "reason": "A note that the second explanation differed from the first holds this; filming a younger child's lesson is heavy and not the lightest mode.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "derives-a-result-from-first-principles",
+   "verdict": "accept"
+  },
+  {
+   "id": "performs-under-board-exam-conditions",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-extended-argument-with-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-why-about-something-seen",
+   "verdict": "accept"
+  },
+  {
+   "id": "predicts-then-checks",
+   "verdict": "accept",
+   "reason": "adult_sees pins the moment: the prediction must come before the object touches the water. Easy to agree on."
+  },
+  {
+   "id": "gives-a-reason-for-a-choice",
+   "verdict": "accept",
+   "reason": "The counter-example, 'because' and the choice repeated, is exactly what I hear from a four-year-old."
+  },
+  {
+   "id": "notices-a-difference-between-two-things",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-guess-when-shown",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-events-in-cause-order",
+   "verdict": "edit",
+   "reason": "Audio in circle time is not realistic with thirty children; a note that the order and the cause were both stated holds it.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "asks-a-question-that-can-be-tested",
+   "verdict": "accept"
+  },
+  {
+   "id": "records-a-prediction-and-result",
+   "verdict": "accept",
+   "reason": "'Dated before the result' tells me exactly what to check on the page."
+  },
+  {
+   "id": "gives-evidence-for-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "spots-a-pattern-in-data",
+   "verdict": "edit",
+   "reason": "The evidence is what the child says about the chart, not the chart; a note holds the words, an artefact does not.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "revises-an-answer-with-a-stated-reason",
+   "verdict": "accept",
+   "reason": "Rubbing out the first answer is the real habit; the counter-example names it."
+  },
+  {
+   "id": "separates-fact-from-opinion",
+   "verdict": "accept"
+  },
+  {
+   "id": "designs-a-fair-test",
+   "verdict": "accept"
+  },
+  {
+   "id": "judges-a-source",
+   "verdict": "accept"
+  },
+  {
+   "id": "estimates-before-calculating",
+   "verdict": "edit",
+   "reason": "As written I can only record it on the day an error happens to occur; the estimate and the comparison are visible on every sheet.",
+   "edit": {
+    "statement": "Writes an estimate before calculating and compares the final answer with it, marking whether the two agree.",
+    "adult_sees": "The educator sees the estimate written above the working and a tick or a note comparing it with the answer.",
+    "counter_example": "Writes the estimate after the answer, copied from it."
+   }
+  },
+  {
+   "id": "states-an-assumption",
+   "verdict": "accept"
+  },
+  {
+   "id": "concedes-a-point-in-a-debate",
+   "verdict": "accept"
+  },
+  {
+   "id": "quantifies-a-claim",
+   "verdict": "accept"
+  },
+  {
+   "id": "defines-a-problem-before-solving",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-conflicting-evidence",
+   "verdict": "accept"
+  },
+  {
+   "id": "checks-a-result-two-ways",
+   "verdict": "accept"
+  },
+  {
+   "id": "reasons-from-a-model-to-a-prediction",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-position-in-writing",
+   "verdict": "accept"
+  },
+  {
+   "id": "identifies-the-flaw-in-an-argument",
+   "verdict": "edit",
+   "reason": "The draft says I hear the flaw but files an artefact; in a class discussion the note is the capture, in an exercise the page.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator hears or reads the flaw named precisely, such as the sample size or a cause confused with a correlation."
+   }
+  },
+  {
+   "id": "chooses-an-activity-and-finishes-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-for-help-after-trying",
+   "verdict": "accept",
+   "reason": "I see the attempt and hear the hard part named; the counter-example is the child whose hand is up before the pencil is."
+  },
+  {
+   "id": "says-what-they-learned-today",
+   "verdict": "edit",
+   "reason": "Recording each child's voice in an end-of-day circle is not realistic; a note quoting the one thing named holds it.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "fixes-own-work-after-a-hint",
+   "verdict": "accept"
+  },
+  {
+   "id": "puts-materials-back-ready-for-next",
+   "verdict": "accept"
+  },
+  {
+   "id": "tries-again-after-a-fail",
+   "verdict": "accept"
+  },
+  {
+   "id": "sets-a-goal-for-the-week",
+   "verdict": "edit",
+   "reason": "'Checks it off or not' is unclear; say what I record: the Friday mark against a goal written on Monday.",
+   "edit": {
+    "statement": "Writes one learning goal for the week in their own words and marks on Friday whether it was met."
+   }
+  },
+  {
+   "id": "uses-a-resource-before-asking",
+   "verdict": "accept",
+   "reason": "The counter-example, asking me a spelling that is on the word wall, is the daily reality."
+  },
+  {
+   "id": "names-what-was-hard-and-why",
+   "verdict": "edit",
+   "reason": "Grade 3-5 reflections are written in the notebook; the page is the lightest capture, not a voice recording of each child.",
+   "edit": {
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "uses-feedback-in-the-next-draft",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-own-record-of-practice",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-a-harder-version-when-offered",
+   "verdict": "edit",
+   "reason": "The school's difficulty words are Easy, Medium, Hard and Advance; use them so every educator means the same thing by 'harder'.",
+   "edit": {
+    "statement": "Chooses the Hard or Advance version of a task when offered a choice of difficulty, and attempts it.",
+    "adult_sees": "The educator sees the Hard or Advance sheet taken from the choice offered and worked on."
+   }
+  },
+  {
+   "id": "plans-a-multi-week-project",
+   "verdict": "edit",
+   "reason": "'As the weeks pass' is not one occasion; the record is a check-in where the dated plan shows which steps are ticked.",
+   "edit": {
+    "statement": "Breaks a multi-week project into dated steps at the start and shows, at a check-in, the steps done so far ticked.",
+    "adult_sees": "The educator sees the plan dated from the start of the project, with the steps completed so far ticked, at a check-in."
+   }
+  },
+  {
+   "id": "finds-and-cites-two-sources-alone",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-for-specific-feedback",
+   "verdict": "accept",
+   "reason": "'Is this good?' about the whole piece is exactly the confusion; the named aspect is what I listen for."
+  },
+  {
+   "id": "self-marks-against-a-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "monitors-own-progress-on-the-map",
+   "verdict": "accept"
+  },
+  {
+   "id": "persists-through-a-failed-attempt",
+   "verdict": "accept"
+  },
+  {
+   "id": "runs-an-independent-study",
+   "verdict": "edit",
+   "reason": "A term is not one occasion; the record is the finished study with the child's own dated milestones beside it.",
+   "edit": {
+    "statement": "Completes an independent study from question to finished product and shows the milestones they set with the date each was met.",
+    "adult_sees": "The educator sees the finished study and, beside it, the child's own milestones with the dates they were met."
+   }
+  },
+  {
+   "id": "evaluates-own-sources",
+   "verdict": "accept"
+  },
+  {
+   "id": "seeks-expert-feedback-outside-school",
+   "verdict": "accept"
+  },
+  {
+   "id": "sets-own-standard-above-the-rubric",
+   "verdict": "accept"
+  },
+  {
+   "id": "teaches-themself-a-tool-or-topic",
+   "verdict": "edit",
+   "reason": "Seeing the tool used or the topic applied is an observation; a clip adds nothing a dated note does not hold.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "recovers-from-a-public-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-something-from-a-plan-in-mind",
+   "verdict": "accept"
+  },
+  {
+   "id": "solves-a-practical-problem-with-materials",
+   "verdict": "accept"
+  },
+  {
+   "id": "draws-to-show-an-idea",
+   "verdict": "accept"
+  },
+  {
+   "id": "invents-a-rule-for-a-game",
+   "verdict": "accept",
+   "reason": "'Changes rules mid-game to win' is the exact confusion on the playground."
+  },
+  {
+   "id": "makes-a-second-version",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-tool-for-its-purpose",
+   "verdict": "accept",
+   "reason": "'No hand over hand' tells me precisely what counts."
+  },
+  {
+   "id": "makes-a-model-that-works",
+   "verdict": "accept"
+  },
+  {
+   "id": "tests-and-improves-a-design",
+   "verdict": "accept"
+  },
+  {
+   "id": "plans-a-make-with-a-list",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-an-original-story-or-poem",
+   "verdict": "edit",
+   "reason": "A poem has no 'problem and ending'; two educators would disagree over a poem. Keep the sentence to a story.",
+   "edit": {
+    "statement": "Writes an original story of their own with a beginning, a problem and an ending."
+   }
+  },
+  {
+   "id": "presents-a-made-thing-and-what-changed",
+   "verdict": "edit",
+   "reason": "Hearing the change and its reason is a note; filming every child's show-and-tell in a class of thirty is not the lightest mode.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "chooses-a-tool-for-a-job",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-prototype-to-a-brief",
+   "verdict": "accept",
+   "reason": "Checking against each constraint in the brief is something two educators would agree on."
+  },
+  {
+   "id": "runs-an-iteration-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "codes-a-program-that-solves-a-task",
+   "verdict": "edit",
+   "reason": "The evidence is the fix happening when an input breaks it, which I watch; the code alone does not show it, and this separates it from technology's program line.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "produces-a-piece-for-a-real-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "pitches-a-solution-with-trade-offs",
+   "verdict": "edit",
+   "reason": "A note that the trade-off was named holds this; video is heavy for a routine class pitch.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "investigates-an-open-question",
+   "verdict": "accept"
+  },
+  {
+   "id": "delivers-a-project-to-a-client-brief",
+   "verdict": "accept"
+  },
+  {
+   "id": "documents-a-build-so-others-can-repeat-it",
+   "verdict": "accept",
+   "reason": "Handing the document to another student is a check I would actually run in the lab."
+  },
+  {
+   "id": "builds-software-with-tests",
+   "verdict": "accept"
+  },
+  {
+   "id": "exhibits-work-publicly",
+   "verdict": "edit",
+   "reason": "As drafted it is the same moment as presents-to-an-outside-audience; make it about the made piece, and a note holds it.",
+   "edit": {
+    "statement": "Exhibits a made piece at a public showing and explains one design decision to a visitor who asks about it.",
+    "adult_sees": "The educator hears a design decision explained to a visitor at the child's exhibit.",
+    "counter_example": "Stands beside the exhibit and lets a group-mate answer every visitor.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "completes-an-apprenticeship-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "designs-and-runs-an-original-investigation",
+   "verdict": "accept"
+  },
+  {
+   "id": "tells-news-in-full-sentences",
+   "verdict": "edit",
+   "reason": "Audio in circle time is not realistic, and I cannot judge 'the circle follows'; two connected sentences with no prompt between them I can.",
+   "edit": {
+    "adult_sees": "The educator hears two connected sentences about one piece of news, with no prompt between them.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "listens-and-responds-to-a-peer",
+   "verdict": "accept"
+  },
+  {
+   "id": "asks-to-join-and-accepts-no",
+   "verdict": "accept"
+  },
+  {
+   "id": "takes-turns-in-a-pair-task",
+   "verdict": "accept",
+   "reason": "'No adult counting' is the detail that makes two educators agree."
+  },
+  {
+   "id": "shows-work-and-explains-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-words-to-settle-a-dispute",
+   "verdict": "edit",
+   "reason": "Grabbing does not look like using words; the confusion I actually make is a child who uses words to wear the other down.",
+   "edit": {
+    "counter_example": "Repeats 'give it to me' louder until the other child gives in."
+   }
+  },
+  {
+   "id": "gives-a-short-prepared-talk",
+   "verdict": "edit",
+   "reason": "Thirty talks a term cannot all be filmed; a note that the talk had a beginning and an end holds this.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "builds-on-a-peer-idea",
+   "verdict": "accept",
+   "reason": "Naming whose idea it builds on is audible and unambiguous."
+  },
+  {
+   "id": "negotiates-roles-in-a-group",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-letter-for-a-purpose",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-method-to-a-peer",
+   "verdict": "accept",
+   "reason": "'Without giving the answer' is what I listen for; the counter-example is the daily one."
+  },
+  {
+   "id": "disagrees-politely-with-a-reason",
+   "verdict": "accept"
+  },
+  {
+   "id": "presents-with-a-visual-aid",
+   "verdict": "edit",
+   "reason": "A note that the aid was used and a question answered holds this; a clip is not the lightest mode.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "leads-a-discussion-fairly",
+   "verdict": "accept"
+  },
+  {
+   "id": "resolves-a-group-conflict-by-agreement",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-for-a-named-audience",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-usable-peer-feedback",
+   "verdict": "accept",
+   "reason": "'Good job' or 'needs work' is exactly what Grade 6-8 peer feedback looks like without this line."
+  },
+  {
+   "id": "argues-a-side-in-a-debate",
+   "verdict": "accept",
+   "reason": "A structured debate is a set piece; a clip is justified here."
+  },
+  {
+   "id": "presents-to-an-outside-audience",
+   "verdict": "accept",
+   "reason": "A rare, public set piece; a clip is worth its weight here."
+  },
+  {
+   "id": "facilitates-a-meeting-with-an-agenda",
+   "verdict": "accept"
+  },
+  {
+   "id": "negotiates-an-outcome-with-adults",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-formal-document",
+   "verdict": "accept",
+   "reason": "Handing it to someone uninvolved is a check I would run once a term."
+  },
+  {
+   "id": "mentors-a-younger-student-over-time",
+   "verdict": "accept",
+   "reason": "The session record is the child's own artefact, so the weeks do not have to live in my head."
+  },
+  {
+   "id": "restates-an-opposing-view-before-answering",
+   "verdict": "accept",
+   "reason": "The holder saying the restatement is fair is audible; two educators would agree."
+  },
+  {
+   "id": "operates-a-simple-device-for-a-purpose",
+   "verdict": "edit",
+   "reason": "The school has no screen below Grade 4 and a camera has a screen; name a screen-free device so nobody hands over a phone.",
+   "edit": {
+    "statement": "Operates a screen-free device for a purpose, such as playing a recorded story on the class player, with an adult present.",
+    "adult_sees": "The educator sees the player used for the stated purpose, with no screen involved, and put down after."
+   }
+  },
+  {
+   "id": "follows-a-sequence-of-instructions",
+   "verdict": "accept"
+  },
+  {
+   "id": "gives-instructions-to-move-a-friend",
+   "verdict": "accept",
+   "reason": "'Go there' and pointing is the exact confusion on the floor grid."
+  },
+  {
+   "id": "sorts-real-from-pretend",
+   "verdict": "edit",
+   "reason": "Audio in circle time is not realistic; a note of the judgement and the reason given holds it.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "asks-before-using-someone-elses-thing",
+   "verdict": "edit",
+   "reason": "Children below Grade 4 have no device at school; name what they actually have, or the line reads as if they do.",
+   "edit": {
+    "statement": "Asks before using a classmate's crayons, drawing or belongings.",
+    "adult_sees": "The educator hears the ask before the crayons or the drawing are touched."
+   }
+  },
+  {
+   "id": "handles-a-device-with-care",
+   "verdict": "skip",
+   "reason": "Below Grade 4 there is no device to handle; what is left is putting shared materials back, already recorded under learning-and-agency."
+  },
+  {
+   "id": "uses-a-tool-to-produce-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-and-debugs-a-short-program",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-what-an-algorithm-does",
+   "verdict": "accept",
+   "reason": "The prediction before the run is easy to hear and to agree on."
+  },
+  {
+   "id": "checks-an-ai-or-search-answer",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-personal-details-private-online",
+   "verdict": "accept"
+  },
+  {
+   "id": "credits-a-source-for-an-image-or-fact",
+   "verdict": "accept"
+  },
+  {
+   "id": "chooses-the-right-tool-for-a-task",
+   "verdict": "accept"
+  },
+  {
+   "id": "writes-a-text-program-with-a-loop-and-a-condition",
+   "verdict": "accept"
+  },
+  {
+   "id": "verifies-an-ai-output-and-finds-an-error",
+   "verdict": "edit",
+   "reason": "As written it needs the tool to have erred that day; checking every claim against a source is visible whether or not it did.",
+   "edit": {
+    "statement": "Checks an AI tool's output for a task against a source and marks each claim as confirmed or corrected.",
+    "adult_sees": "The educator sees each claim in the output marked, and the source used to check it named beside it.",
+    "counter_example": "Marks every claim confirmed without opening any source."
+   }
+  },
+  {
+   "id": "explains-how-a-recommendation-or-bias-arises",
+   "verdict": "accept",
+   "reason": "'A concrete example, not a slogan' tells me what to listen for."
+  },
+  {
+   "id": "manages-own-privacy-settings",
+   "verdict": "accept"
+  },
+  {
+   "id": "attributes-ai-help-in-own-work",
+   "verdict": "accept"
+  },
+  {
+   "id": "builds-a-working-digital-product",
+   "verdict": "edit",
+   "reason": "The evidence is the product and the user's recorded feedback, both artefacts; a clip of someone using it is not the lightest mode.",
+   "edit": {
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "writes-a-program-using-data-and-libraries",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-ai-with-a-verification-log",
+   "verdict": "accept"
+  },
+  {
+   "id": "evaluates-a-technology-for-harm-and-benefit",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-task-without-ai-they-could-do-with-it",
+   "verdict": "accept"
+  },
+  {
+   "id": "protects-others-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "says-what-they-are-feeling-and-chooses",
+   "verdict": "edit",
+   "reason": "In a hard moment I am with the child, not recording them; a dated note written afterwards is the only realistic capture.",
+   "edit": {
+    "capture_mode": "observation",
+    "adult_sees": "The educator hears the child name the feeling in their own words and sees what the child then chooses to do."
+   }
+  },
+  {
+   "id": "waits-for-a-turn-without-a-reminder",
+   "verdict": "accept"
+  },
+  {
+   "id": "comforts-a-classmate",
+   "verdict": "edit",
+   "reason": "'To get them in trouble' is a motive I cannot see; the look-alike I confuse is telling an adult and walking away.",
+   "edit": {
+    "counter_example": "Tells an adult about the crying classmate and goes straight back to their own game."
+   }
+  },
+  {
+   "id": "manages-own-things",
+   "verdict": "accept",
+   "reason": "Seen every morning at the door; 'without a didi' is how we would actually say it."
+  },
+  {
+   "id": "runs-jumps-and-balances-in-play",
+   "verdict": "edit",
+   "reason": "The PE educator sees this in a session and notes each movement; filming thirty children for a count of three is not the lightest.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "returns-to-play-after-a-small-hurt",
+   "verdict": "accept"
+  },
+  {
+   "id": "uses-a-strategy-before-acting",
+   "verdict": "accept",
+   "reason": "Stepping away or breathing is visible in the moment; the counter-example is the child who names it afterwards."
+  },
+  {
+   "id": "keeps-an-agreement-made-with-a-classmate",
+   "verdict": "accept"
+  },
+  {
+   "id": "includes-a-child-left-out",
+   "verdict": "accept"
+  },
+  {
+   "id": "carries-out-a-class-responsibility",
+   "verdict": "edit",
+   "reason": "A week is not one occasion and I cannot hold seven days in my head; record the day it was done unprompted, and the records show the week.",
+   "edit": {
+    "statement": "Does their class responsibility, such as watering the plants or the library corner, on a day when nobody reminded them.",
+    "adult_sees": "The educator sees the job done before anyone has mentioned it that day.",
+    "counter_example": "Does the job after the educator asks aloud whose turn it is."
+   }
+  },
+  {
+   "id": "learns-a-new-physical-skill-through-practice",
+   "verdict": "edit",
+   "reason": "'Over several sessions' is not one occasion; the occasion is the day the skill is shown, set against the earlier record.",
+   "edit": {
+    "statement": "Shows a physical skill, such as skipping or catching, that an earlier record shows they could not yet do.",
+    "adult_sees": "The educator sees the skill done unaided and finds the earlier note saying the child could not yet do it.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "accepts-a-loss-and-congratulates",
+   "verdict": "accept"
+  },
+  {
+   "id": "repairs-a-relationship-after-a-conflict",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-a-commitment-to-a-team",
+   "verdict": "edit",
+   "reason": "A term is not one occasion; I record each day the commitment was kept, and the term shows in the run of records.",
+   "edit": {
+    "statement": "Delivers their agreed part to a team, or turns up to its practice, on the day agreed with no reminder.",
+    "adult_sees": "The educator sees the part delivered or the child present on the agreed day before anyone has chased them.",
+    "counter_example": "Delivers the part after the team lead has chased them twice.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "speaks-up-for-a-classmate",
+   "verdict": "accept",
+   "reason": "'Laughs along and says later they did not agree' is the confusion I would make."
+  },
+  {
+   "id": "manages-own-schedule-for-a-week",
+   "verdict": "accept",
+   "reason": "The planner and the submission list are checked once at the week's end; that is one occasion."
+  },
+  {
+   "id": "trains-for-a-physical-goal",
+   "verdict": "accept",
+   "reason": "The child's dated record of attempts is the artefact; the weeks live on the page, not in my memory."
+  },
+  {
+   "id": "asks-a-trusted-adult-for-help",
+   "verdict": "skip",
+   "reason": "Happens in private, not where I can see it; and the counter-example makes me grade a child on when they confided. Not a routine record."
+  },
+  {
+   "id": "mediates-between-two-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "leads-a-team-through-a-setback",
+   "verdict": "accept"
+  },
+  {
+   "id": "raises-an-unfairness-through-a-channel",
+   "verdict": "accept"
+  },
+  {
+   "id": "balances-load-across-exams-and-projects",
+   "verdict": "accept"
+  },
+  {
+   "id": "reflects-on-a-physical-practice-kept-through-a-year",
+   "verdict": "edit",
+   "reason": "A year is not one occasion; the occasion is the review where the child shows their own record, and the record is the lightest capture.",
+   "edit": {
+    "statement": "Brings their own dated record of a physical practice kept across the year and names one change in it.",
+    "adult_sees": "The educator sees the child's own dated record and hears one change named from it.",
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "supports-a-peer-and-knows-when-to-involve-an-adult",
+   "verdict": "skip",
+   "reason": "I would learn of this second-hand or only when it goes wrong; 'knows when' cannot be seen. Not something to record routinely."
+  },
+  {
+   "id": "cares-for-a-plant-or-animal",
+   "verdict": "accept",
+   "reason": "'When an adult hands over the can' is the exact over-count."
+  },
+  {
+   "id": "sorts-waste-into-the-right-bin",
+   "verdict": "edit",
+   "reason": "Bins are used after snack and at clean-up, not in circle; the setting should be one educators recognise and adult_sees should say when to look.",
+   "edit": {
+    "setting": "play",
+    "adult_sees": "The educator watches the bins after snack and sees the right one chosen with nobody pointing."
+   }
+  },
+  {
+   "id": "shares-without-being-asked",
+   "verdict": "accept"
+  },
+  {
+   "id": "notices-someone-elses-need",
+   "verdict": "skip",
+   "reason": "Same moment as shares-without-being-asked in this cell and comforts-a-classmate under self-and-relationships; one act would be filed three times."
+  },
+  {
+   "id": "says-what-is-fair-in-a-game",
+   "verdict": "edit",
+   "reason": "Nobody records audio in the playground; a note of the fairness the child proposed holds it.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "keeps-a-shared-space-tidy",
+   "verdict": "skip",
+   "reason": "Same moment as puts-materials-back-ready-for-next under learning-and-agency; a colleague and I would file one tidy-up twice."
+  },
+  {
+   "id": "measures-something-about-the-campus",
+   "verdict": "accept"
+  },
+  {
+   "id": "reduces-waste-in-a-class-project",
+   "verdict": "accept"
+  },
+  {
+   "id": "explains-a-rule-by-its-reason",
+   "verdict": "accept",
+   "reason": "'The rule is the rule' is what I hear; the reason is easy to tell from it."
+  },
+  {
+   "id": "considers-who-else-is-affected",
+   "verdict": "accept"
+  },
+  {
+   "id": "does-a-service-task-outside-the-class",
+   "verdict": "accept"
+  },
+  {
+   "id": "keeps-a-promise-to-the-group",
+   "verdict": "accept",
+   "reason": "'Says so if it cannot be kept' is a distinct, audible thing; it earns its place beside the agreement line under self-and-relationships."
+  },
+  {
+   "id": "investigates-a-local-issue-with-data",
+   "verdict": "accept"
+  },
+  {
+   "id": "weighs-a-trade-off-in-a-real-decision",
+   "verdict": "accept"
+  },
+  {
+   "id": "argues-both-sides-of-a-civic-question",
+   "verdict": "edit",
+   "reason": "This is a lesson discussion, not a staged debate; a note that both sides were made before the child's own view holds it.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "changes-a-plan-that-would-harm-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "organises-a-service-activity",
+   "verdict": "accept"
+  },
+  {
+   "id": "owns-a-mistake-that-affected-others",
+   "verdict": "accept"
+  },
+  {
+   "id": "models-a-system-with-feedback",
+   "verdict": "accept"
+  },
+  {
+   "id": "applies-an-ethical-framework-to-a-dilemma",
+   "verdict": "accept"
+  },
+  {
+   "id": "engages-a-public-body-or-community",
+   "verdict": "accept"
+  },
+  {
+   "id": "changes-a-habit-on-evidence-of-harm",
+   "verdict": "skip",
+   "reason": "Nothing here happens where an educator can see it, and a term is not one occasion; it rests on the child's own claim about home."
+  },
+  {
+   "id": "leads-a-sustained-service-commitment",
+   "verdict": "accept",
+   "reason": "The record of what changed for the people served is the child's artefact; one occasion to read it."
+  },
+  {
+   "id": "accounts-for-a-public-role",
+   "verdict": "accept"
+  }
+ ],
+ "cells": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "missing": [
+    {
+     "statement": "Reads a short passage aloud in the second language taught in class and answers one question about it in that language.",
+     "adult_sees": "The educator hears the passage read and the answer given in the same language, not switched to English.",
+     "counter_example": "Reads the passage aloud and gives the answer in English.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "capable"
+     ],
+     "why": "The cell is English and maths only; in an Indian school a second and third language take a third of the timetable."
+    }
+   ],
+   "notes": "Grades 3-5 in Pune carry Marathi and Hindi as well as English; as drafted the cell reads as an English-medium report card."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "secondary",
+   "duplicates": [
+    [
+     "teaches-a-concept-to-a-younger-student",
+     "mentors-a-younger-student-over-time"
+    ]
+   ],
+   "notes": "One mentoring session would be filed under both; decide which capability owns the younger-student work."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "foundational",
+   "duplicates": [
+    [
+     "puts-materials-back-ready-for-next",
+     "keeps-a-shared-space-tidy"
+    ],
+    [
+     "tries-again-after-a-fail",
+     "solves-a-practical-problem-with-materials"
+    ]
+   ],
+   "notes": "A fallen tower rebuilt a different way is both a second try and a design change; I would record the one moment twice."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "middle",
+   "duplicates": [
+    [
+     "investigates-an-open-question",
+     "investigates-a-local-issue-with-data"
+    ],
+    [
+     "produces-a-piece-for-a-real-audience",
+     "writes-for-a-named-audience"
+    ]
+   ],
+   "notes": "One Grade 7 project on water at school would satisfy both investigation lines; a guide for Grade 3 satisfies both audience lines. With codes-a-program moved to observation it now differs from technology's program line."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "secondary",
+   "duplicates": [
+    [
+     "exhibits-work-publicly",
+     "presents-to-an-outside-audience"
+    ]
+   ],
+   "notes": "builds-software-with-tests and technology's writes-a-program-using-data-and-libraries would be met by one project; watch for double filing."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "foundational",
+   "duplicates": [
+    [
+     "takes-turns-in-a-pair-task",
+     "waits-for-a-turn-without-a-reminder"
+    ],
+    [
+     "uses-words-to-settle-a-dispute",
+     "says-what-is-fair-in-a-game"
+    ]
+   ],
+   "notes": "Turn-taking without an adult is written twice, once here and once under self-and-relationships; a swap proposed in a dispute is also 'what is fair'."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "stage_id": "secondary",
+   "duplicates": [
+    [
+     "negotiates-an-outcome-with-adults",
+     "raises-an-unfairness-through-a-channel"
+    ]
+   ],
+   "notes": "A case made to the council for a routine change is the same evidence under both."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "foundational",
+   "duplicates": [
+    [
+     "operates-a-simple-device-for-a-purpose",
+     "handles-a-device-with-care"
+    ]
+   ],
+   "notes": "With no screen below Grade 4 this cell is really following and giving instructions plus care of belongings; five lines is enough, do not pad it."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "preparatory",
+   "notes": "Grade 3 is under the no-screen rule, so five of the six here can only be shown from Grade 4; Grade 3 educators should not be asked to record them."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "preparatory",
+   "duplicates": [
+    [
+     "keeps-an-agreement-made-with-a-classmate",
+     "keeps-a-promise-to-the-group"
+    ]
+   ],
+   "notes": "Same stage, same moment; I kept the society line because 'says so if it cannot be kept' is a distinct thing to hear."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "missing": [
+    {
+     "statement": "Tells the educator before a deadline that a piece of work will be late and proposes a new date.",
+     "adult_sees": "The educator hears the request before the deadline has passed, with a date offered by the child.",
+     "counter_example": "Explains after the deadline why the work was late.",
+     "capture_mode": "observation",
+     "setting": "lesson",
+     "words": [
+      "unafraid",
+      "capable"
+     ],
+     "why": "The observable core of the skipped asks-a-trusted-adult-for-help: asking before it affects work, with nothing private disclosed."
+    }
+   ],
+   "duplicates": [
+    [
+     "repairs-a-relationship-after-a-conflict",
+     "owns-a-mistake-that-affected-others"
+    ]
+   ],
+   "notes": "Going back to apologise for a mistake that hurt the group is one act under two capabilities."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "missing": [
+    {
+     "statement": "Turns off a tap left running or a light left on in an empty room, with nobody asking.",
+     "adult_sees": "The educator sees the tap or the switch turned off by the child with no adult pointing to it.",
+     "counter_example": "Turns off the tap after the educator calls out that it is running.",
+     "capture_mode": "observation",
+     "setting": "play",
+     "words": [
+      "kind",
+      "capable"
+     ],
+     "why": "After two skips the cell holds only sharing and care; nothing about water or light, which a Nursery child can act on."
+    },
+    {
+     "statement": "Picks up litter that is not their own from the playground and puts it in the bin.",
+     "adult_sees": "The educator sees the child pick up a wrapper they did not drop and carry it to the bin.",
+     "counter_example": "Picks up their own wrapper when the educator looks their way.",
+     "capture_mode": "observation",
+     "setting": "outdoors",
+     "words": [
+      "kind"
+     ],
+     "why": "Distinct from sorting waste into the right bin: acting for a shared space one did not dirty."
+    }
+   ],
+   "duplicates": [
+    [
+     "shares-without-being-asked",
+     "notices-someone-elses-need"
+    ]
+   ],
+   "notes": "The could_not is right that this cell collapses into kindness; the two added lines are the planet part a Grade 1 child can actually show."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "preparatory",
+   "duplicates": [
+    [
+     "uses-a-measuring-tool",
+     "measures-something-about-the-campus"
+    ]
+   ],
+   "notes": "One measurement of water used in the garden, with its unit, would be filed under both."
+  }
+ ],
+ "could_not": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "verdict": "missing",
+   "reason": "Nothing said, yet the cells cover English, maths and a little science only; it should have said one capability cannot hold every subject, and that second and third languages are absent."
+  },
+  {
+   "capability_id": "thinking-and-reasoning",
+   "verdict": "honest",
+   "reason": "Empty, and I found nothing an educator would demand it confess; these cells are the most classroom-ready in the draft."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "verdict": "honest",
+   "reason": "Empty, fairly. It leans on a skill map, rubrics and a planner the school has promised; that is a dependency, not a gap."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "verdict": "honest",
+   "reason": "Right: placements, outside briefs and exhibitions must exist before the Grade 9-10 lines can be seen, and the note says so plainly."
+  },
+  {
+   "capability_id": "communication-and-collaboration",
+   "verdict": "honest",
+   "reason": "A caveat about word tags rather than a gap; honest and harmless."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "verdict": "honest",
+   "reason": "Right about no screen below Grade 4, but the draft then puts a camera and a classmate's device into the foundational cell, and forgets Grade 3 sits under the same rule."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "verdict": "honest",
+   "reason": "Right that regulation itself is not visible and that physical skills need a movement checklist the PE educator can hold; both are true in a room."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "verdict": "honest",
+   "reason": "Right: I found the same overlap and skipped two foundational lines for it; merge rather than pad, and add the water, light and litter lines instead."
+  }
+ ],
+ "objections": [
+  "About a dozen behaviours name a week, several sessions, a term or a year as the thing to record; no educator with thirty children can hold that as one dated occasion, so write the day and let the records show the pattern.",
+  "Thirteen video clips and seven audio recordings are asked for moments a dated note holds; in a circle or a playground of thirty the phone comes out and the moment is gone, so observation should be the default and clips kept for set pieces and movement.",
+  "Fourteen pairs across capabilities record the same moment twice (turn-taking, tidying, promises, investigations, public presenting), so one act would count for two capabilities and the record would say more than the child did."
+ ],
+ "note_to_founders": "Most of this I could see in an ordinary week, and the counter-examples are better than I expected: the draft knows what over-counting looks like. Three things before your pass. First, decide what one record is. The draft keeps sliding from a moment to a week, a term, a year, and I cannot carry a term in my head with thirty children; where the child keeps a dated artefact (a plan, a log, a training record) one record of that artefact is fine, but where it is my memory of seven days it is not, so let me write the day and let your system show the pattern. Second, the capture modes were chosen for the evidence and not for the room: a dated note is what I will actually write; keep clips for the debate, the outside presentation and movement, and stop asking for audio in circle time. Third, a few lines are not classroom evidence at all: a private disclosure to a trusted adult, a habit kept at home, a peer supported in confidence. I have skipped them, not because they are untrue but because I will not see them and should not file them. Beyond that: adult_sees mostly repeats the statement; tell me when to stand by the bins, which group to sit with, what to look for on the sheet. Use your own difficulty words, keep Grade 3 under the no-screen rule, and remember that in Pune a third of my timetable is Marathi and Hindi, which this draft does not know exists."
+}

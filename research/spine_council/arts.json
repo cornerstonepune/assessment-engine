@@ -1,0 +1,5474 @@
+{
+ "seat": "arts",
+ "competency_capabilities": [
+  {
+   "id": "ncf.art.visual.P.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.CG-3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-3.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.P.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.CG-3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-3.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.P.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.CG-3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-3.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.P.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.CG-3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-3.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.P.C-4.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.ls2.P.C-1.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-2.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-3.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-3.2",
+   "capabilities": [
+    "learning-and-agency",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-2.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-3.1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-3.2",
+   "capabilities": [
+    "learning-and-agency",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-2.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-3.1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-3.2",
+   "capabilities": [
+    "learning-and-agency",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-1.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-2.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-3.1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-3.2",
+   "capabilities": [
+    "learning-and-agency",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-4.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-4.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.ls2.M.C-1.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.CG-1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-1.1",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-1.2",
+   "capabilities": [
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-3.1",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.CG-1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-1.1",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-1.2",
+   "capabilities": [
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-3.1",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.CG-1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-1.1",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-1.2",
+   "capabilities": [
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-3.1",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.CG-1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-1.1",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-1.2",
+   "capabilities": [
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.CG-2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-2.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-2.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.CG-3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-3.1",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-3.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.CG-4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-4.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-4.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.art.ls2.S.C-1.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.CG-3",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-3.1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-3.2",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-3.3",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-3.4",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.CG-4",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-4.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-4.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-4.3",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-4.4",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-4.5",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.CG-5",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-5.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-5.2",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.CG-6",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-6.1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.CG-1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.2",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.3",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.CG-2",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.1",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "society-ethics-and-planet",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.3",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.4",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.5",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.CG-1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.1",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.2",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.3",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.5",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-1.6",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.CG-2",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.1",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.2",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.3",
+   "capabilities": [
+    "communication-and-collaboration",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.5",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-2.6",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.CG-3",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-3.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-3.2",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.CG-4",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-4.1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.CG-5",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-5.1",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-5.2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.M.C-5.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.1",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "communication-and-collaboration",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.5",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-2",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.1",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.2",
+   "capabilities": [
+    "communication-and-collaboration",
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.3",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "society-ethics-and-planet",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.4",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.5",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.6",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-3",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.1",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.2",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.3",
+   "capabilities": [
+    "self-and-relationships",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.4",
+   "capabilities": [
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-4",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.1",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.2",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.3",
+   "capabilities": [
+    "learning-and-agency",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-5",
+   "capabilities": [
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.2",
+   "capabilities": [
+    "self-and-relationships",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.4",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-6",
+   "capabilities": [
+    "self-and-relationships",
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "thinking-and-reasoning",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "self-and-relationships",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.4",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "society-ethics-and-planet",
+    "self-and-relationships"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.CG-7",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.1",
+   "capabilities": [
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.2",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.3",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "learning-and-agency",
+    "society-ethics-and-planet"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.4",
+   "capabilities": [
+    "learning-and-agency",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.CG-1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-1.2",
+   "capabilities": [
+    "learning-and-agency",
+    "thinking-and-reasoning",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-1.3",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.CG-2",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-2.1",
+   "capabilities": [
+    "society-ethics-and-planet",
+    "communication-and-collaboration",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-2.2",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-2.3",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.CG-3",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-3.1",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.CG-4",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-4.1",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.CG-1",
+   "capabilities": [
+    "knowledge-and-academic-mastery",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.C-1.1",
+   "capabilities": [
+    "creation-and-problem-solving",
+    "knowledge-and-academic-mastery"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.C-1.2",
+   "capabilities": [
+    "thinking-and-reasoning",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.CG-2",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.C-2.1",
+   "capabilities": [
+    "self-and-relationships",
+    "learning-and-agency",
+    "communication-and-collaboration"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.CG-3",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  },
+  {
+   "id": "ncf.voc.S.C-3.1",
+   "capabilities": [
+    "self-and-relationships",
+    "creation-and-problem-solving"
+   ]
+  }
+ ],
+ "competency_grades": [
+  {
+   "id": "ncf.art.visual.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-2.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-3.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.P.C-4.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-2.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-3.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.P.C-4.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-2.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-3.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.P.C-4.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-2.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-3.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.P.C-4.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.ls2.P.C-1.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.14",
+    "ncert.art.9.14"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-2.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.05",
+    "ncert.art.10.13",
+    "ncert.art.9.05",
+    "ncert.art.9.13"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.M.C-3.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.07",
+    "ncert.art.10.09",
+    "ncert.art.9.07",
+    "ncert.art.9.09"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-2.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-3.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.83"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.82"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.9.37"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.47",
+    "ncert.art.9.36"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-2.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.43",
+    "ncert.art.9.35"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-3.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.39",
+    "ncert.art.9.30"
+   ]
+  },
+  {
+   "id": "ncf.art.music.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.9.21",
+    "ncert.art.9.34"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.M.C-2.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.63"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-3.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.10.59",
+    "ncert.art.9.55"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.M.C-4.2",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": [
+    "ncert.art.9.46"
+   ]
+  },
+  {
+   "id": "ncf.art.ls2.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.01",
+    "ncert.art.10.08",
+    "ncert.art.9.01",
+    "ncert.art.9.08"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.09",
+    "ncert.art.9.09"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.02",
+    "ncert.art.10.03",
+    "ncert.art.10.11",
+    "ncert.art.10.12",
+    "ncert.art.10.42",
+    "ncert.art.9.02",
+    "ncert.art.9.03",
+    "ncert.art.9.11",
+    "ncert.art.9.12"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-2.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.visual.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.04",
+    "ncert.art.10.05",
+    "ncert.art.10.11",
+    "ncert.art.9.04",
+    "ncert.art.9.05",
+    "ncert.art.9.11"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.10",
+    "ncert.art.9.10"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.01",
+    "ncert.art.10.06",
+    "ncert.art.10.10",
+    "ncert.art.10.14",
+    "ncert.art.9.01",
+    "ncert.art.9.06",
+    "ncert.art.9.10",
+    "ncert.art.9.14",
+    "ncert.art.9.19",
+    "ncert.art.9.20",
+    "ncert.art.9.44",
+    "ncert.art.9.45"
+   ]
+  },
+  {
+   "id": "ncf.art.visual.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.03",
+    "ncert.art.10.06",
+    "ncert.art.10.07",
+    "ncert.art.10.08",
+    "ncert.art.9.03",
+    "ncert.art.9.06",
+    "ncert.art.9.07",
+    "ncert.art.9.08"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.78",
+    "ncert.art.9.66"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.theatre.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.66",
+    "ncert.art.10.67",
+    "ncert.art.10.69",
+    "ncert.art.10.70",
+    "ncert.art.10.71",
+    "ncert.art.10.72",
+    "ncert.art.10.73",
+    "ncert.art.10.74",
+    "ncert.art.10.75",
+    "ncert.art.10.76",
+    "ncert.art.9.59",
+    "ncert.art.9.60",
+    "ncert.art.9.61",
+    "ncert.art.9.62",
+    "ncert.art.9.63",
+    "ncert.art.9.64",
+    "ncert.art.9.65"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-2.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.77",
+    "ncert.art.10.80",
+    "ncert.art.9.68"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.67",
+    "ncert.art.10.72",
+    "ncert.art.10.73",
+    "ncert.art.10.75",
+    "ncert.art.10.76",
+    "ncert.art.10.81",
+    "ncert.art.9.60",
+    "ncert.art.9.62",
+    "ncert.art.9.65",
+    "ncert.art.9.69"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.64",
+    "ncert.art.10.65",
+    "ncert.art.10.68",
+    "ncert.art.9.59"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.65",
+    "ncert.art.10.78",
+    "ncert.art.10.79",
+    "ncert.art.10.82",
+    "ncert.art.10.83",
+    "ncert.art.9.66",
+    "ncert.art.9.67"
+   ]
+  },
+  {
+   "id": "ncf.art.theatre.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.64",
+    "ncert.art.10.68",
+    "ncert.art.10.70",
+    "ncert.art.10.71",
+    "ncert.art.10.77",
+    "ncert.art.10.79",
+    "ncert.art.10.80",
+    "ncert.art.9.63",
+    "ncert.art.9.67",
+    "ncert.art.9.68"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.music.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.21",
+    "ncert.art.10.48"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.15",
+    "ncert.art.10.18",
+    "ncert.art.10.19",
+    "ncert.art.10.23",
+    "ncert.art.10.24",
+    "ncert.art.10.32",
+    "ncert.art.10.33",
+    "ncert.art.10.36",
+    "ncert.art.10.37",
+    "ncert.art.10.38",
+    "ncert.art.10.39",
+    "ncert.art.10.40",
+    "ncert.art.10.42",
+    "ncert.art.10.46",
+    "ncert.art.9.15",
+    "ncert.art.9.18",
+    "ncert.art.9.22",
+    "ncert.art.9.26",
+    "ncert.art.9.27",
+    "ncert.art.9.28",
+    "ncert.art.9.29",
+    "ncert.art.9.30",
+    "ncert.art.9.31",
+    "ncert.art.9.33"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-2.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.44",
+    "ncert.art.10.45",
+    "ncert.art.9.32"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.16",
+    "ncert.art.10.25",
+    "ncert.art.10.26",
+    "ncert.art.10.29",
+    "ncert.art.10.30",
+    "ncert.art.10.31",
+    "ncert.art.10.32",
+    "ncert.art.10.35",
+    "ncert.art.10.36",
+    "ncert.art.10.37",
+    "ncert.art.9.16",
+    "ncert.art.9.22",
+    "ncert.art.9.25",
+    "ncert.art.9.26",
+    "ncert.art.9.27",
+    "ncert.art.9.28",
+    "ncert.art.9.29",
+    "ncert.art.9.31"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.20",
+    "ncert.art.10.25",
+    "ncert.art.10.27",
+    "ncert.art.10.28",
+    "ncert.art.10.29",
+    "ncert.art.10.31",
+    "ncert.art.9.22",
+    "ncert.art.9.23",
+    "ncert.art.9.25"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.17",
+    "ncert.art.10.19",
+    "ncert.art.10.20",
+    "ncert.art.10.22",
+    "ncert.art.10.24",
+    "ncert.art.10.27",
+    "ncert.art.10.33",
+    "ncert.art.10.34",
+    "ncert.art.10.41",
+    "ncert.art.10.47",
+    "ncert.art.10.48",
+    "ncert.art.9.17",
+    "ncert.art.9.19",
+    "ncert.art.9.20",
+    "ncert.art.9.23",
+    "ncert.art.9.24",
+    "ncert.art.9.34"
+   ]
+  },
+  {
+   "id": "ncf.art.music.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.21",
+    "ncert.art.10.35",
+    "ncert.art.10.40",
+    "ncert.art.10.44",
+    "ncert.art.10.45",
+    "ncert.art.9.21",
+    "ncert.art.9.24",
+    "ncert.art.9.32"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.art.dance.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.61",
+    "ncert.art.9.57"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.51",
+    "ncert.art.10.52",
+    "ncert.art.10.53",
+    "ncert.art.10.55",
+    "ncert.art.10.58",
+    "ncert.art.10.59",
+    "ncert.art.10.60",
+    "ncert.art.9.38",
+    "ncert.art.9.40",
+    "ncert.art.9.41",
+    "ncert.art.9.49",
+    "ncert.art.9.50",
+    "ncert.art.9.51",
+    "ncert.art.9.53",
+    "ncert.art.9.55"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-2.2",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.9.56"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.49",
+    "ncert.art.10.50",
+    "ncert.art.10.51",
+    "ncert.art.10.52",
+    "ncert.art.10.53",
+    "ncert.art.10.55",
+    "ncert.art.9.39",
+    "ncert.art.9.47",
+    "ncert.art.9.50",
+    "ncert.art.9.51",
+    "ncert.art.9.52",
+    "ncert.art.9.53"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.28",
+    "ncert.art.10.50",
+    "ncert.art.9.47",
+    "ncert.art.9.52"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.22",
+    "ncert.art.10.54",
+    "ncert.art.10.56",
+    "ncert.art.10.62",
+    "ncert.art.9.42",
+    "ncert.art.9.43",
+    "ncert.art.9.44",
+    "ncert.art.9.45",
+    "ncert.art.9.54",
+    "ncert.art.9.58"
+   ]
+  },
+  {
+   "id": "ncf.art.dance.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.57",
+    "ncert.art.9.48",
+    "ncert.art.9.56"
+   ]
+  },
+  {
+   "id": "ncf.art.ls2.S.C-1.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.art.10.54",
+    "ncert.art.10.56",
+    "ncert.art.10.57",
+    "ncert.art.10.62",
+    "ncert.art.9.42",
+    "ncert.art.9.43",
+    "ncert.art.9.46",
+    "ncert.art.9.54",
+    "ncert.art.9.58"
+   ]
+  },
+  {
+   "id": "ncf.pe.P.C-3.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-3.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-3.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-3.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-4.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-4.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-4.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-4.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-4.5",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-5.1",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-5.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.P.C-6.1",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.2",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-1.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.1",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.2",
+   "grades": [
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.3",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.4",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.ls2.P.C-2.5",
+   "grades": [
+    "G3",
+    "G4",
+    "G5"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.3",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.4",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.5",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-1.6",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.3",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.4",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.5",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-2.6",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-3.1",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-3.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-5.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-5.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.M.C-5.3",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.06",
+    "ncert.hpe.9.09",
+    "ncert.hpe.9.11"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-1.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.06"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.08",
+    "ncert.hpe.9.13"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-1.5",
+   "grades": [
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-2.1",
+   "grades": [
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.05"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.12"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.05",
+    "ncert.hpe.9.11",
+    "ncert.hpe.9.14"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.12"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.5",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.09",
+    "ncert.hpe.10.14",
+    "ncert.hpe.9.08",
+    "ncert.hpe.9.12",
+    "ncert.hpe.9.14",
+    "ncert.hpe.9.16"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-2.6",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-3.1",
+   "grades": [
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-3.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.06",
+    "ncert.hpe.9.15"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.15",
+    "ncert.hpe.10.06"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-3.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.06",
+    "ncert.hpe.9.15",
+    "ncert.hpe.9.16"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.10"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.02",
+    "ncert.hpe.9.10"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-4.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-5.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.03",
+    "ncert.hpe.10.04",
+    "ncert.hpe.10.05",
+    "ncert.hpe.10.07"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.07"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.03"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-5.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.pe.S.C-6.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.10",
+    "ncert.hpe.10.13",
+    "ncert.hpe.10.14",
+    "ncert.hpe.9.01",
+    "ncert.hpe.9.03"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.01",
+    "ncert.hpe.10.02",
+    "ncert.hpe.10.10",
+    "ncert.hpe.10.13",
+    "ncert.hpe.9.02",
+    "ncert.hpe.9.04"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.11"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-6.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.03"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.07"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.9.13"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.3",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.08",
+    "ncert.hpe.10.09",
+    "ncert.hpe.9.07"
+   ]
+  },
+  {
+   "id": "ncf.pe.S.C-7.4",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": [
+    "ncert.hpe.10.09",
+    "ncert.hpe.9.08"
+   ]
+  },
+  {
+   "id": "ncf.voc.M.C-1.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-1.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-1.3",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-2.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-2.2",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-2.3",
+   "grades": [
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-3.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.M.C-4.1",
+   "grades": [
+    "G6",
+    "G7",
+    "G8"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.S.C-1.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.S.C-1.2",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.S.C-2.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  },
+  {
+   "id": "ncf.voc.S.C-3.1",
+   "grades": [
+    "G9",
+    "G10"
+   ],
+   "ncert": []
+  }
+ ],
+ "ncert_competencies": [
+  {
+   "id": "ncert.art.9.01",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.02",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.03",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.04",
+   "competencies": [
+    "ncf.art.visual.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.05",
+   "competencies": [
+    "ncf.art.visual.S.C-3.1",
+    "ncf.art.visual.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.06",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.07",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.08",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.09",
+   "competencies": [
+    "ncf.art.visual.S.C-1.2",
+    "ncf.art.visual.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.10",
+   "competencies": [
+    "ncf.art.visual.S.C-3.2",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.11",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1",
+    "ncf.art.visual.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.12",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.13",
+   "competencies": [
+    "ncf.art.visual.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.14",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.15",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.16",
+   "competencies": [
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.17",
+   "competencies": [
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.18",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.19",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.20",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.21",
+   "competencies": [
+    "ncf.art.music.S.C-4.2",
+    "ncf.art.music.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.22",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-3.2",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.23",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.24",
+   "competencies": [
+    "ncf.art.music.S.C-4.2",
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.25",
+   "competencies": [
+    "ncf.art.music.S.C-3.2",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.26",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.27",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.28",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.29",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.30",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.31",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.32",
+   "competencies": [
+    "ncf.art.music.S.C-2.2",
+    "ncf.art.music.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.33",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.34",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.35",
+   "competencies": [
+    "ncf.art.music.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.36",
+   "competencies": [
+    "ncf.art.music.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.37",
+   "competencies": [
+    "ncf.art.music.M.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.38",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.39",
+   "competencies": [
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.40",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.41",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.42",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.ls2.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.art.9.43",
+   "competencies": [
+    "ncf.art.ls2.S.C-1.3",
+    "ncf.art.dance.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.44",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.45",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.46",
+   "competencies": [
+    "ncf.art.ls2.S.C-1.3",
+    "ncf.art.dance.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.47",
+   "competencies": [
+    "ncf.art.dance.S.C-3.2",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.48",
+   "competencies": [
+    "ncf.art.dance.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.49",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.50",
+   "competencies": [
+    "ncf.art.dance.S.C-3.1",
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.51",
+   "competencies": [
+    "ncf.art.dance.S.C-3.1",
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.52",
+   "competencies": [
+    "ncf.art.dance.S.C-3.2",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.53",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.54",
+   "competencies": [
+    "ncf.art.ls2.S.C-1.3",
+    "ncf.art.dance.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.55",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.56",
+   "competencies": [
+    "ncf.art.dance.S.C-2.2",
+    "ncf.art.dance.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.57",
+   "competencies": [
+    "ncf.art.dance.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.58",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.ls2.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.art.9.59",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.2",
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.60",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.61",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.62",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.63",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.64",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.65",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.66",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.1",
+    "ncf.art.theatre.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.67",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.9.68",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.art.9.69",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.01",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.02",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.03",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.04",
+   "competencies": [
+    "ncf.art.visual.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.05",
+   "competencies": [
+    "ncf.art.visual.S.C-3.1",
+    "ncf.art.visual.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.06",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.07",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.08",
+   "competencies": [
+    "ncf.art.visual.S.C-4.2",
+    "ncf.art.visual.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.09",
+   "competencies": [
+    "ncf.art.visual.S.C-1.2",
+    "ncf.art.visual.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.10",
+   "competencies": [
+    "ncf.art.visual.S.C-3.2",
+    "ncf.art.visual.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.11",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1",
+    "ncf.art.visual.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.12",
+   "competencies": [
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.13",
+   "competencies": [
+    "ncf.art.visual.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.14",
+   "competencies": [
+    "ncf.art.visual.S.C-4.1",
+    "ncf.art.visual.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.15",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.16",
+   "competencies": [
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.17",
+   "competencies": [
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.18",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.19",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.20",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.21",
+   "competencies": [
+    "ncf.art.music.S.C-1.2",
+    "ncf.art.music.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.22",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.dance.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.23",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.24",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.25",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.26",
+   "competencies": [
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.27",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.28",
+   "competencies": [
+    "ncf.art.music.S.C-3.2",
+    "ncf.art.dance.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.29",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.30",
+   "competencies": [
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.31",
+   "competencies": [
+    "ncf.art.music.S.C-3.2",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.32",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.33",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.34",
+   "competencies": [
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.35",
+   "competencies": [
+    "ncf.art.music.S.C-4.2",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.36",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.37",
+   "competencies": [
+    "ncf.art.music.S.C-3.1",
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.38",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.39",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.40",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.music.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.41",
+   "competencies": [
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.42",
+   "competencies": [
+    "ncf.art.music.S.C-2.1",
+    "ncf.art.visual.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.43",
+   "competencies": [
+    "ncf.art.music.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.44",
+   "competencies": [
+    "ncf.art.music.S.C-2.2",
+    "ncf.art.music.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.45",
+   "competencies": [
+    "ncf.art.music.S.C-4.2",
+    "ncf.art.music.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.46",
+   "competencies": [
+    "ncf.art.music.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.47",
+   "competencies": [
+    "ncf.art.music.S.C-4.1",
+    "ncf.art.music.M.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.48",
+   "competencies": [
+    "ncf.art.music.S.C-1.2",
+    "ncf.art.music.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.49",
+   "competencies": [
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.50",
+   "competencies": [
+    "ncf.art.dance.S.C-3.2",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.51",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.52",
+   "competencies": [
+    "ncf.art.dance.S.C-3.1",
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.53",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.54",
+   "competencies": [
+    "ncf.art.ls2.S.C-1.3",
+    "ncf.art.dance.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.55",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.56",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.ls2.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.art.10.57",
+   "competencies": [
+    "ncf.art.ls2.S.C-1.3",
+    "ncf.art.dance.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.58",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.59",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1",
+    "ncf.art.dance.M.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.60",
+   "competencies": [
+    "ncf.art.dance.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.61",
+   "competencies": [
+    "ncf.art.dance.S.C-1.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.62",
+   "competencies": [
+    "ncf.art.dance.S.C-4.1",
+    "ncf.art.ls2.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.art.10.63",
+   "competencies": [
+    "ncf.art.dance.M.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.64",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.2",
+    "ncf.art.theatre.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.65",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.2",
+    "ncf.art.theatre.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.66",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.67",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.68",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-3.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.69",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.70",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.71",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.72",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.73",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.74",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.75",
+   "competencies": [
+    "ncf.art.theatre.S.C-2.1",
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.76",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.1",
+    "ncf.art.theatre.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.77",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.78",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.1",
+    "ncf.art.theatre.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.79",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.80",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.2",
+    "ncf.art.theatre.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.81",
+   "competencies": [
+    "ncf.art.theatre.S.C-3.1"
+   ]
+  },
+  {
+   "id": "ncert.art.10.82",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.1",
+    "ncf.art.theatre.M.C-4.2"
+   ]
+  },
+  {
+   "id": "ncert.art.10.83",
+   "competencies": [
+    "ncf.art.theatre.S.C-4.1",
+    "ncf.art.theatre.M.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.01",
+   "competencies": [
+    "ncf.pe.S.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.02",
+   "competencies": [
+    "ncf.pe.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.03",
+   "competencies": [
+    "ncf.pe.S.C-6.1",
+    "ncf.pe.S.C-6.4"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.04",
+   "competencies": [
+    "ncf.pe.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.05",
+   "competencies": [
+    "ncf.pe.S.C-2.3",
+    "ncf.pe.S.C-2.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.06",
+   "competencies": [
+    "ncf.pe.S.C-1.1",
+    "ncf.pe.S.C-1.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.07",
+   "competencies": [
+    "ncf.pe.S.C-7.3",
+    "ncf.pe.S.C-7.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.08",
+   "competencies": [
+    "ncf.pe.S.C-7.4",
+    "ncf.pe.S.C-2.5"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.09",
+   "competencies": [
+    "ncf.pe.S.C-1.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.10",
+   "competencies": [
+    "ncf.pe.S.C-4.2",
+    "ncf.pe.S.C-4.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.11",
+   "competencies": [
+    "ncf.pe.S.C-1.1",
+    "ncf.pe.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.12",
+   "competencies": [
+    "ncf.pe.S.C-2.5",
+    "ncf.pe.S.C-2.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.13",
+   "competencies": [
+    "ncf.pe.S.C-7.2",
+    "ncf.pe.S.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.14",
+   "competencies": [
+    "ncf.pe.S.C-2.5",
+    "ncf.pe.S.C-2.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.15",
+   "competencies": [
+    "ncf.pe.S.C-3.2",
+    "ncf.pe.S.C-3.4",
+    "ncf.pe.S.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.9.16",
+   "competencies": [
+    "ncf.pe.S.C-3.4",
+    "ncf.pe.S.C-2.5"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.01",
+   "competencies": [
+    "ncf.pe.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.02",
+   "competencies": [
+    "ncf.pe.S.C-4.2",
+    "ncf.pe.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.03",
+   "competencies": [
+    "ncf.pe.S.C-5.1",
+    "ncf.pe.S.C-5.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.04",
+   "competencies": [
+    "ncf.pe.S.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.05",
+   "competencies": [
+    "ncf.pe.S.C-5.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.06",
+   "competencies": [
+    "ncf.pe.S.C-3.2",
+    "ncf.pe.S.C-3.4",
+    "ncf.pe.S.C-3.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.07",
+   "competencies": [
+    "ncf.pe.S.C-5.1",
+    "ncf.pe.S.C-5.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.08",
+   "competencies": [
+    "ncf.pe.S.C-7.3",
+    "ncf.pe.S.C-1.4"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.09",
+   "competencies": [
+    "ncf.pe.S.C-7.3",
+    "ncf.pe.S.C-7.4",
+    "ncf.pe.S.C-2.5"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.10",
+   "competencies": [
+    "ncf.pe.S.C-6.2",
+    "ncf.pe.S.C-6.1"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.11",
+   "competencies": [
+    "ncf.pe.S.C-6.3"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.12",
+   "competencies": [
+    "ncf.pe.S.C-2.4"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.13",
+   "competencies": [
+    "ncf.pe.S.C-6.1",
+    "ncf.pe.S.C-6.2"
+   ]
+  },
+  {
+   "id": "ncert.hpe.10.14",
+   "competencies": [
+    "ncf.pe.S.C-6.1",
+    "ncf.pe.S.C-2.5"
+   ]
+  }
+ ],
+ "unit_competencies": [
+  {
+   "id": "unit.104",
+   "competencies": [
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-13.1"
+   ]
+  },
+  {
+   "id": "unit.105",
+   "competencies": [
+    "ncf.fnd.F.C-8.8",
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.114",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.109",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.107",
+   "competencies": [
+    "ncf.fnd.F.C-7.2",
+    "ncf.fnd.F.C-13.1"
+   ]
+  },
+  {
+   "id": "unit.110",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.113",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.111",
+   "competencies": [
+    "ncf.fnd.F.C-7.3",
+    "ncf.fnd.F.C-1.6"
+   ]
+  },
+  {
+   "id": "unit.106",
+   "competencies": [
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-7.2"
+   ]
+  },
+  {
+   "id": "unit.112",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.108",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-7.1"
+   ]
+  },
+  {
+   "id": "unit.249",
+   "competencies": [
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-13.1"
+   ]
+  },
+  {
+   "id": "unit.245",
+   "competencies": [
+    "ncf.fnd.F.C-9.4",
+    "ncf.fnd.F.C-13.1"
+   ]
+  },
+  {
+   "id": "unit.251",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-8.2"
+   ]
+  },
+  {
+   "id": "unit.246",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.247",
+   "competencies": [
+    "ncf.fnd.F.C-7.3",
+    "ncf.fnd.F.C-13.1"
+   ]
+  },
+  {
+   "id": "unit.250",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.248",
+   "competencies": [
+    "ncf.fnd.F.C-7.3",
+    "ncf.fnd.F.C-12.1"
+   ]
+  },
+  {
+   "id": "unit.253",
+   "competencies": [
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.254",
+   "competencies": [
+    "ncf.fnd.F.C-8.2",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.252",
+   "competencies": [
+    "ncf.fnd.F.C-8.1",
+    "ncf.fnd.F.C-7.3"
+   ]
+  },
+  {
+   "id": "unit.347",
+   "competencies": [
+    "ncf.math.P.CG-4",
+    "ncf.art.visual.P.C-2.1"
+   ]
+  },
+  {
+   "id": "unit.356",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; automation and AI have no preparatory-stage row"
+  },
+  {
+   "id": "unit.352",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; networks have no NCF row"
+  },
+  {
+   "id": "unit.349",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; NCF preparatory mathematics has no data-handling competency"
+  },
+  {
+   "id": "unit.346",
+   "competencies": [
+    "ncf.math.P.CG-4"
+   ]
+  },
+  {
+   "id": "unit.355",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; device types have no NCF row"
+  },
+  {
+   "id": "unit.354",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; hardware/software have no NCF row"
+  },
+  {
+   "id": "unit.345",
+   "competencies": [
+    "ncf.math.P.CG-4"
+   ]
+  },
+  {
+   "id": "unit.351",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; NCF preparatory mathematics has no data-handling or graphing competency"
+  },
+  {
+   "id": "unit.350",
+   "competencies": [
+    "ncf.math.P.CG-4"
+   ]
+  },
+  {
+   "id": "unit.348",
+   "competencies": [
+    "ncf.math.P.CG-4"
+   ]
+  },
+  {
+   "id": "unit.353",
+   "competencies": [],
+   "why": "computing is the school's own strand, outside NCF-SE; networks have no NCF row"
+  },
+  {
+   "id": "unit.158",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.fnd.F.C-9.6"
+   ]
+  },
+  {
+   "id": "unit.439",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3"
+   ]
+  },
+  {
+   "id": "unit.181",
+   "competencies": [],
+   "why": "free construction play, a routine rather than a subject; not taught or assessed as a competency"
+  },
+  {
+   "id": "unit.168",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.fnd.F.C-10.8"
+   ]
+  },
+  {
+   "id": "unit.164",
+   "competencies": [],
+   "why": "an assessment routine (tracking progress), not a subject"
+  },
+  {
+   "id": "unit.171",
+   "competencies": [],
+   "why": "a thinking warm-up routine (riddles), not a subject"
+  },
+  {
+   "id": "unit.159",
+   "competencies": [],
+   "why": "a class-management period, not a subject"
+  },
+  {
+   "id": "unit.178",
+   "competencies": [
+    "ncf.lang.r2.P.C-2.5",
+    "ncf.lang.r2.P.C-2.4",
+    "ncf.fnd.F.C-11.2"
+   ]
+  },
+  {
+   "id": "unit.179",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.fnd.F.C-10.7"
+   ]
+  },
+  {
+   "id": "unit.172",
+   "competencies": [
+    "ncf.art.visual.P.C-2.1",
+    "ncf.fnd.F.C-12.1",
+    "ncf.fnd.F.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.163",
+   "competencies": [
+    "ncf.math.P.C-4.3",
+    "ncf.math.P.C-1.3",
+    "ncf.fnd.F.C-8.6"
+   ]
+  },
+  {
+   "id": "unit.157",
+   "competencies": [
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.fnd.F.C-10.7"
+   ]
+  },
+  {
+   "id": "unit.166",
+   "competencies": [],
+   "why": "a whole-school day (no screens), not a subject"
+  },
+  {
+   "id": "unit.176",
+   "competencies": [],
+   "why": "a whole-school day (no uniform), not a subject"
+  },
+  {
+   "id": "unit.180",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.1",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.177",
+   "competencies": [],
+   "why": "test-format familiarisation, not a subject"
+  },
+  {
+   "id": "unit.161",
+   "competencies": [],
+   "why": "a general-knowledge quiz routine, not a subject"
+  },
+  {
+   "id": "unit.167",
+   "competencies": [
+    "ncf.lang.r1.P.C-2.2",
+    "ncf.lang.r1.P.C-1.3",
+    "ncf.fnd.F.C-10.5"
+   ]
+  },
+  {
+   "id": "unit.162",
+   "competencies": [
+    "ncf.lang.r1.P.C-5.2",
+    "ncf.lang.r1.P.C-2.1",
+    "ncf.fnd.F.C-10.9"
+   ]
+  },
+  {
+   "id": "unit.173",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.175",
+   "competencies": [
+    "ncf.pe.P.C-3.1",
+    "ncf.pe.P.C-4.1",
+    "ncf.fnd.F.C-3.2"
+   ]
+  },
+  {
+   "id": "unit.174",
+   "competencies": [],
+   "why": "cross-subject integration, not a subject of its own"
+  },
+  {
+   "id": "unit.165",
+   "competencies": [],
+   "why": "a creativity routine, not a subject"
+  },
+  {
+   "id": "unit.169",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.170",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.160",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.fnd.F.C-9.7"
+   ]
+  },
+  {
+   "id": "unit.309",
+   "competencies": [
+    "ncf.lang.r1.P.C-4.1",
+    "ncf.fnd.F.C-10.3"
+   ]
+  },
+  {
+   "id": "unit.311",
+   "competencies": [
+    "ncf.art.visual.P.C-2.1",
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.fnd.F.C-12.1"
+   ]
+  },
+  {
+   "id": "unit.308",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.4",
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.fnd.F.C-10.8"
+   ]
+  },
+  {
+   "id": "unit.312",
+   "competencies": [
+    "ncf.world.P.C-6.1",
+    "ncf.world.P.C-7.1",
+    "ncf.fnd.F.C-7.2"
+   ]
+  },
+  {
+   "id": "unit.310",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.1",
+    "ncf.lang.r1.P.C-3.2",
+    "ncf.fnd.F.C-10.8"
+   ]
+  },
+  {
+   "id": "unit.369",
+   "competencies": [
+    "ncf.lang.r1.P.C-3.3"
+   ]
+  },
+  {
+   "id": "unit.368",
+   "competencies": [
+    "ncf.math.P.C-4.1"
+   ]
+  },
+  {
+   "id": "unit.357",
+   "competencies": [
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.359",
+   "competencies": [
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.427",
+   "competencies": [
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-1.1"
+   ]
+  },
+  {
+   "id": "unit.360",
+   "competencies": [
+    "ncf.world.P.C-5.3"
+   ]
+  },
+  {
+   "id": "unit.428",
+   "competencies": [
+    "ncf.world.P.C-5.3"
+   ]
+  },
+  {
+   "id": "unit.361",
+   "competencies": [
+    "ncf.world.P.C-1.1",
+    "ncf.world.P.C-5.3"
+   ]
+  },
+  {
+   "id": "unit.429",
+   "competencies": [
+    "ncf.world.P.C-1.1",
+    "ncf.world.P.C-5.3",
+    "ncf.world.P.C-2.3"
+   ]
+  },
+  {
+   "id": "unit.358",
+   "competencies": [
+    "ncf.world.P.C-5.3"
+   ]
+  },
+  {
+   "id": "unit.362",
+   "competencies": [
+    "ncf.world.P.C-2.3"
+   ]
+  },
+  {
+   "id": "unit.363",
+   "competencies": [
+    "ncf.world.P.C-2.3"
+   ]
+  },
+  {
+   "id": "unit.364",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-7.2"
+   ]
+  },
+  {
+   "id": "unit.365",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.430",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-2.2"
+   ]
+  },
+  {
+   "id": "unit.366",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-1.4"
+   ]
+  },
+  {
+   "id": "unit.431",
+   "competencies": [
+    "ncf.world.P.C-2.3",
+    "ncf.world.P.C-1.4"
+   ]
+  }
+ ],
+ "notes": [
+  "The 15 'Visual Arts' units are Grade 3-4 geography and history (globe, continents, states of India, early humans, agriculture, trade), not art: a global 'art'->'Visual arts' replacement in the source also corrupted words ('PVisual artsicipation', 'EVisual artsh', 'bVisual artser'); they are mapped by their text to World Around Us rows, and the school's actual visual-arts programme is absent from the unit map except the Memory Drawing and Doodle & Describe routines.",
+  "NCF preparatory PE rows carry both nested standards, LS-1 (CG-3..6) and LS-2 (CG-1..2), which repeat each other almost verbatim and are mapped identically; LS-2's own CG-3 (mental engagement, C-3.1/3.2) collided with LS-1's CG-3 id and is missing from ncf_competencies.json.",
+  "NCERT has no art or HPE outcomes below Class 9, so every preparatory and middle competency has an empty ncert list; 25 Class 9-10 art outcomes (care of materials and instruments, self-confidence, teamwork values, artists' lives, planning-to-performance) state what NCF-SE places in the middle stage and are mapped to those middle C rows, which therefore carry Class 9-10 evidence.",
+  "Vocational education has no preparatory rows and no NCERT outcomes; Primary Computing G3-4 units on algorithms, loops, debugging and data-driven problem solving map to ncf.math.P.CG-4 (the only NCF row naming computational thinking, no C fits), while networks, hardware, AI and data-handling units get no competency because NCF preparatory mathematics has no data-handling row.",
+  "Champak (Hindi reading) is mapped to R2 preparatory rows on the assumption that English is R1 at the school; if Hindi is R3 there is no preparatory R3 row to use. G1-2 bands of computing and routines use foundational domain rows (excluded from the graded lists as instructed), so mixed-band units carry one foundational and one preparatory target."
+ ]
+}

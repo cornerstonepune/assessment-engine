@@ -1,0 +1,729 @@
+{
+ "decisions": [
+  {
+   "id": "handles-a-device-with-care",
+   "verdict": "skip",
+   "reason": "educator's skip stands: below Grade 4 there is no device to handle, and care of shared materials is already recorded under learning-and-agency (both the parent and the educator named the duplicate)."
+  },
+  {
+   "id": "notices-someone-elses-need",
+   "verdict": "skip",
+   "reason": "educator's skip stands: the same moment as shares-without-being-asked in this cell and comforts-a-classmate under self-and-relationships; one act would be filed three times."
+  },
+  {
+   "id": "keeps-a-shared-space-tidy",
+   "verdict": "skip",
+   "reason": "educator's skip stands: the same tidy-up as puts-materials-back-ready-for-next under learning-and-agency."
+  },
+  {
+   "id": "changes-a-habit-on-evidence-of-harm",
+   "verdict": "edit",
+   "reason": "the educator skipped a home habit over a term; the parent and rights seats offered a school-visible version, which meets every objection: the occasion is the day the change is made and the evidence named.",
+   "edit": {
+    "statement": "Changes something they do at school, such as printing or single-use packaging, after seeing evidence of its harm, and names the evidence.",
+    "adult_sees": "The educator sees the changed practice at school and hears the evidence named.",
+    "setting": "project",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "argues-a-side-in-a-debate",
+   "verdict": "edit",
+   "reason": "parent's counter: the near-miss is arguing without evidence; the rights seat's swap wording could still lead an educator to note the child's wish about sides.",
+   "edit": {
+    "counter_example": "Argues the assigned side with opinions and no evidence."
+   }
+  },
+  {
+   "id": "carries-out-a-class-responsibility",
+   "verdict": "edit",
+   "reason": "merged: the educator's one occasion (a day nobody reminded them) with the rights seat's memory aid.",
+   "edit": {
+    "statement": "Does their class responsibility, such as watering the plants, on a day when nobody reminded them, using their own way of remembering.",
+    "adult_sees": "The educator sees the job done before anyone has mentioned it that day, whatever memory aid the child uses."
+   }
+  },
+  {
+   "id": "chooses-an-activity-and-finishes-it",
+   "verdict": "edit",
+   "reason": "rights seat's counter: the distinctive feature is the child's own choice, so the look-alike is finishing an assigned activity.",
+   "edit": {
+    "counter_example": "Finishes an activity the educator assigned rather than one they chose themselves."
+   }
+  },
+  {
+   "id": "comforts-a-classmate",
+   "verdict": "edit",
+   "reason": "rights seat's counter: telling an adult must never be cast as the lesser act (safeguarding); the look-alike is crowding to look.",
+   "edit": {
+    "counter_example": "Joins the crowd around the hurt classmate to look, without doing anything for them."
+   }
+  },
+  {
+   "id": "completes-a-timed-set",
+   "verdict": "edit",
+   "reason": "merged: the educator's visible re-working in the margin with the rights seat's allotted time (accommodations).",
+   "edit": {
+    "statement": "Completes a short timed practice set within the time allotted to them and re-works one answer in the margin before handing in.",
+    "adult_sees": "The educator sees the set finished within the child's allotted time and one answer worked a second time in the margin."
+   }
+  },
+  {
+   "id": "follows-a-sequence-of-instructions",
+   "verdict": "edit",
+   "reason": "merged: the parent's plain words for unplugged with the rights seat's language the child understands.",
+   "edit": {
+    "statement": "Follows a three-step sequence of instructions, given in a language they understand, in order, such as in a coding game played without a screen."
+   }
+  },
+  {
+   "id": "invents-a-rule-for-a-game",
+   "verdict": "edit",
+   "reason": "rights seat's counter: a rule proposed but not played is the near-miss; both seats removed the motive.",
+   "edit": {
+    "counter_example": "Proposes a new rule and then plays the round by the old rules."
+   }
+  },
+  {
+   "id": "keeps-a-commitment-to-a-team",
+   "verdict": "edit",
+   "reason": "parent and rights converge: attends but leaves the promised part undelivered.",
+   "edit": {
+    "counter_example": "Attends the sessions but leaves their part for others to deliver."
+   }
+  },
+  {
+   "id": "manages-own-things",
+   "verdict": "edit",
+   "reason": "merged: the parent's concrete things with the rights seat's own aids.",
+   "edit": {
+    "adult_sees": "The educator sees the bag, bottle and shoes handled by the child, with their own aids if any, and no adult's hands on them."
+   }
+  },
+  {
+   "id": "names-what-was-hard-and-why",
+   "verdict": "edit",
+   "reason": "rights seat's mode: the record holds that a difficulty and a change were named, not the child's words; the notebook page stays the child's.",
+   "edit": {
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "operates-a-simple-device-for-a-purpose",
+   "verdict": "edit",
+   "reason": "parent's wording: plain words, a screen-free example a parent recognises; both seats agree on screen-free.",
+   "edit": {
+    "statement": "Operates a simple screen-free device, such as a story player or a torch, for a stated purpose, with an adult present.",
+    "adult_sees": "The educator sees the device used for the purpose the child stated and put down afterwards."
+   }
+  },
+  {
+   "id": "says-what-they-are-feeling-and-chooses",
+   "verdict": "edit",
+   "reason": "parent and rights converge: the note records the choice, never the words or the cause.",
+   "edit": {
+    "adult_sees": "The educator hears a feeling named in the child's own words and sees the choice made; the note records the choice, never the words or the cause."
+   }
+  },
+  {
+   "id": "seeks-expert-feedback-outside-school",
+   "verdict": "edit",
+   "reason": "merged: the parent's school-introduced expert with the rights seat's contact the school knows.",
+   "edit": {
+    "statement": "Seeks feedback from an expert outside school, found by the child or introduced by the school and known to it, and reports what they learned."
+   }
+  },
+  {
+   "id": "speaks-up-for-a-classmate",
+   "verdict": "edit",
+   "reason": "rights seat's counter: telling the educator afterwards must not be the lesser act; the look-alike is joining once an adult has stepped in.",
+   "edit": {
+    "counter_example": "Joins the classmate's side once an adult has already stepped in."
+   }
+  },
+  {
+   "id": "tells-news-in-full-sentences",
+   "verdict": "edit",
+   "reason": "merged: the educator's no prompt between the sentences with the rights seat's whichever language the child uses.",
+   "edit": {
+    "adult_sees": "The educator hears two connected sentences about one piece of news, in whichever language the child uses, with no prompt between them."
+   }
+  },
+  {
+   "id": "uses-words-to-settle-a-dispute",
+   "verdict": "edit",
+   "reason": "educator's counter: the confusion an educator actually makes; both seats removed the incident wording.",
+   "edit": {
+    "counter_example": "Repeats 'give it to me' louder until the other child gives in."
+   }
+  },
+  {
+   "id": "keeps-a-promise-to-the-group",
+   "verdict": "skip",
+   "reason": "one promise kept, two rows: keeps-an-agreement-made-with-a-classmate under self-and-relationships records the same act."
+  },
+  {
+   "id": "takes-turns-in-a-pair-task",
+   "verdict": "skip",
+   "reason": "one turn taken, two rows: waits-for-a-turn-without-a-reminder under self-and-relationships records the same act."
+  },
+  {
+   "id": "codes-a-program-that-solves-a-task",
+   "verdict": "edit",
+   "reason": "the same program as writes-a-text-program-with-a-loop-and-a-condition under technology; re-worded to the act creation adds, fixing it when a test input breaks it.",
+   "edit": {
+    "statement": "Fixes a program of their own when a test input breaks it, and shows the failing input and the change made.",
+    "adult_sees": "The educator sees the input that broke the program and the line changed to fix it.",
+    "counter_example": "Deletes the failing test input so the program passes."
+   }
+  },
+  {
+   "id": "exhibits-work-publicly",
+   "verdict": "edit",
+   "reason": "the same moment as presents-to-an-outside-audience under communication; re-worded to the act creation adds, finishing the work to exhibition standard.",
+   "edit": {
+    "statement": "Finishes a piece of work to exhibition standard and labels it with what it is and what changed from the first version.",
+    "adult_sees": "The educator sees the finished piece and its label naming the change from the first version.",
+    "counter_example": "Shows the first version with a label saying it is finished.",
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "investigates-a-local-issue-with-data",
+   "verdict": "edit",
+   "reason": "the same investigation as investigates-an-open-question under creation; re-worded to the civic act, presenting findings to those who can act.",
+   "edit": {
+    "statement": "Collects data on a local issue, such as traffic or water at school, and presents the findings to those who can act on them.",
+    "adult_sees": "The educator sees the findings presented to a person or body who can act on the issue, not only to the class.",
+    "counter_example": "Presents the findings to the class only, with no one who could act on them in the room."
+   }
+  },
+  {
+   "id": "measures-something-about-the-campus",
+   "verdict": "edit",
+   "reason": "the same measurement as uses-a-measuring-tool under knowledge; re-worded to the civic act, reporting a figure about the school's own use.",
+   "edit": {
+    "statement": "Reports a figure they measured about the school's use of water, paper or power, and says how they measured it.",
+    "adult_sees": "The educator hears the figure, what it is about, and how it was measured.",
+    "counter_example": "Reports a figure found online about schools in general."
+   }
+  },
+  {
+   "id": "weighs-a-trade-off-in-a-real-decision",
+   "verdict": "edit",
+   "reason": "the same trade-off as pitches-a-solution-with-trade-offs under creation; re-worded to the ethical act, both sides and who bears the cost.",
+   "edit": {
+    "statement": "Sets out both sides of a real decision, such as cost against waste, before recommending one, and names who bears the cost.",
+    "adult_sees": "The educator reads both sides set out and the person or group who bears the cost named."
+   }
+  },
+  {
+   "id": "produces-a-piece-for-a-real-audience",
+   "verdict": "edit",
+   "reason": "writing for an audience is writes-for-a-named-audience under communication; creation keeps art, media and performance.",
+   "edit": {
+    "statement": "Produces a piece of art, media or performance for a real audience outside the class, such as younger children or parents.",
+    "adult_sees": "The educator sees the piece reach the audience it was made for.",
+    "counter_example": "Makes the piece for the class display only."
+   }
+  },
+  {
+   "id": "says-what-is-fair-in-a-game",
+   "verdict": "edit",
+   "reason": "close to uses-words-to-settle-a-dispute under communication; re-worded to the ethical act, fairness for everyone including a child not their friend.",
+   "edit": {
+    "statement": "Says what would be fair for everyone when a share or a turn is in dispute, including a child who is not their friend.",
+    "adult_sees": "The educator hears a fairness that applies to everyone, including a child the speaker was not playing with."
+   }
+  },
+  {
+   "id": "writes-name-and-numerals",
+   "verdict": "edit",
+   "reason": "merged: the development seat's read-back by a second adult replaces 'legibly'; the rights seat's tiles and any script open it to every child.",
+   "edit": {
+    "statement": "Writes or forms their own name and the numerals one to nine, on paper or with tiles, from memory, so another adult reads them back.",
+    "adult_sees": "The educator sees no model in view and a second adult reads the name and numerals back, in any script the child is learning."
+   }
+  },
+  {
+   "id": "solves-an-unseen-board-style-problem",
+   "verdict": "edit",
+   "reason": "educator and development seats, identical: in a test nobody speaks, so the reason is written.",
+   "edit": {
+    "statement": "Solves an unseen problem in the board's format by choosing which method applies, and writes one line on why that method.",
+    "adult_sees": "The educator reads a method that fits the problem and a written line giving the reason for choosing it."
+   }
+  },
+  {
+   "id": "estimates-before-calculating",
+   "verdict": "edit",
+   "reason": "both seats: the comparison is observable every time, not only when an error happens; development's statement and counter, educator's concrete adult_sees.",
+   "edit": {
+    "statement": "Estimates the size of an answer before calculating and writes whether the calculated result agrees with the estimate.",
+    "adult_sees": "The educator sees the estimate written above the working and a tick or a note comparing it with the answer.",
+    "counter_example": "Writes an estimate after the calculation that matches the answer exactly."
+   }
+  },
+  {
+   "id": "identifies-the-flaw-in-an-argument",
+   "verdict": "edit",
+   "reason": "artefact kept: the record is the written naming of the flaw, which a second reader can check; the development seat's adult_sees aligns with it.",
+   "edit": {
+    "adult_sees": "The educator reads the flaw named precisely in the child's written response, such as the sample size or cause confused with correlation.",
+    "capture_mode": "artefact"
+   }
+  },
+  {
+   "id": "runs-an-independent-study",
+   "verdict": "edit",
+   "reason": "both seats: a term is a pattern; the occasion is the finished study shown with the dated milestones. Educator's statement, development's counter.",
+   "edit": {
+    "statement": "Completes an independent study from question to finished product and shows the milestones they set with the date each was met.",
+    "adult_sees": "The educator sees the finished study and, beside it, the child's own milestones with the dates they were met.",
+    "counter_example": "Presents the product with a plan written in the final week."
+   }
+  },
+  {
+   "id": "disagrees-politely-with-a-reason",
+   "verdict": "edit",
+   "reason": "merged: 'politely' and 'without heat' judge manner (rights, development); the observable is a reason about the answer and the classmate allowed to reply.",
+   "edit": {
+    "statement": "Disagrees with a classmate's answer by giving a reason that addresses the answer, not the classmate, and lets the classmate reply.",
+    "adult_sees": "The educator hears the disagreement and its reason addressed to the answer, not to the classmate, and the classmate given the floor."
+   }
+  },
+  {
+   "id": "mentors-a-younger-student-over-time",
+   "verdict": "edit",
+   "reason": "merged: development's one session added to a dated log; rights' school-set pairing and no younger child's name or difficulties in the record.",
+   "edit": {
+    "statement": "Runs a mentoring session with a younger student, in a pairing the school set up, and adds it to a log of earlier dated sessions.",
+    "adult_sees": "The educator sees the session take place and the log with earlier dated entries, kept without the younger child's name or difficulties.",
+    "counter_example": "Logs a first meeting as mentoring."
+   }
+  },
+  {
+   "id": "verifies-an-ai-output-and-finds-an-error",
+   "verdict": "edit",
+   "reason": "both seats: checking claim by claim is observable whether or not the tool erred; development's wording names the source.",
+   "edit": {
+    "statement": "Checks an AI tool's output claim by claim against a source, marking each claim confirmed or corrected and naming the source used.",
+    "adult_sees": "The educator sees each claim marked confirmed or corrected and the source used written beside the marks.",
+    "counter_example": "Marks every claim confirmed without opening a source."
+   }
+  },
+  {
+   "id": "learns-a-new-physical-skill-through-practice",
+   "verdict": "edit",
+   "reason": "all four seats moved video to a note; the educator's one occasion (the skill shown, an earlier note saying not yet) with development's counter.",
+   "edit": {
+    "statement": "Shows a physical skill, such as skipping or catching, that an earlier record shows they could not yet do.",
+    "adult_sees": "The educator sees the skill done unaided and finds the earlier note saying the child could not yet do it.",
+    "counter_example": "Shows a skill they arrived at school already able to do.",
+    "capture_mode": "observation"
+   }
+  },
+  {
+   "id": "repairs-a-relationship-after-a-conflict",
+   "verdict": "edit",
+   "reason": "rights and development converge on the prompted apology as the over-count; the week-long avoidance counter was surveillance of friendships.",
+   "edit": {
+    "counter_example": "Apologises when the educator stands beside them and waits for it."
+   }
+  },
+  {
+   "id": "trains-for-a-physical-goal",
+   "verdict": "edit",
+   "reason": "merged: development's dated record across four weeks as the occasion; rights' goal about what the child can do, never a body measure.",
+   "edit": {
+    "statement": "Shows a training record for a goal about what they can do, such as a distance, with attempts dated across four or more weeks.",
+    "adult_sees": "The educator reads the goal and attempt entries spanning four or more weeks, a record of what was done, never a body measure."
+   }
+  },
+  {
+   "id": "leads-a-sustained-service-commitment",
+   "verdict": "edit",
+   "reason": "merged: development's presented record as the occasion; rights' record written without the names or private circumstances of those served.",
+   "edit": {
+    "statement": "Presents the term's record of a service commitment they led, showing what changed for the people served.",
+    "adult_sees": "The educator reads dated entries across the term and a stated change for those served, written without their names or private circumstances."
+   }
+  },
+  {
+   "id": "puts-materials-back-ready-for-next",
+   "verdict": "accept",
+   "reason": "the development seat would move care of materials to society; the educator and parent found the society row the duplicate, and 'without being told' is the agency. One owner: learning-and-agency."
+  }
+ ],
+ "add": [
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "id": "reads-in-the-second-language",
+   "statement": "Reads a short passage aloud in a taught language that is not their home language and answers one question in it.",
+   "adult_sees": "The educator hears the reading and the answer both in that language, in its lesson.",
+   "setting": "lesson",
+   "capture_mode": "observation",
+   "words": [
+    "capable"
+   ],
+   "counter_example": "Sounds out the passage correctly, then gives the answer in the language they speak at home.",
+   "grows_from": "reads-a-familiar-word",
+   "reason": "educator: the cell was English and maths only; in a Pune school a second and third language take a third of the timetable. The founders decide which languages and from which stage. Revised on the seats' second look: development: anchored on a language that is not the child's home language, so one line measures one thing."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "preparatory",
+   "id": "asks-what-exactly-was-not-understood",
+   "statement": "Asks a question in a lesson that names the exact part they did not understand.",
+   "adult_sees": "The educator hears the question point to one step, one word or one line, not to the whole topic.",
+   "setting": "lesson",
+   "capture_mode": "observation",
+   "words": [
+    "unafraid",
+    "capable"
+   ],
+   "counter_example": "Asks the educator to explain the whole topic again from the start.",
+   "grows_from": "sorts-by-a-stated-rule",
+   "reason": "parent: the profile's own 'I don't know how to solve this yet' had no line in this capability; the cell was six curriculum checks. Revised on the seats' second look: rights: the counter no longer pictures the lost child; the look-alike is the whole-topic question."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "middle",
+   "id": "works-through-own-wrong-answer-with-the-class",
+   "statement": "Volunteers to work through their own wrong answer on the board with the class, saying where it went wrong.",
+   "adult_sees": "The educator hears the offer come from the child, then sees them at the board pointing to the step that went wrong.",
+   "setting": "lesson",
+   "capture_mode": "observation",
+   "words": [
+    "unafraid",
+    "capable"
+   ],
+   "counter_example": "Works through the wrong answer at the board because the educator called them up.",
+   "grows_from": "asks-what-exactly-was-not-understood",
+   "reason": "parent: the school's meaning of unafraid, a wrong answer treated as information in front of others, had no line in this capability. Revised on the seats' second look: development and rights, independently: the offer must come from the child; being sent to the board is exposure, not courage."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "foundational",
+   "id": "makes-something-for-a-particular-person",
+   "statement": "Makes something for a particular person, such as a card or a model, and gives it to them saying who it is for.",
+   "adult_sees": "The educator sees the thing handed over and hears who it is for.",
+   "setting": "play",
+   "capture_mode": "observation",
+   "words": [
+    "kind",
+    "capable"
+   ],
+   "counter_example": "Makes a card because the whole class was asked to make one.",
+   "grows_from": "",
+   "reason": "parent: creation had no kind line at any stage; making for someone else is the earliest form a parent would recognise."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "middle",
+   "id": "makes-or-repairs-something-someone-asked-for",
+   "statement": "Makes or repairs something that someone in the school asked for, and hands it over working.",
+   "adult_sees": "The educator sees the person who asked receive it and use it.",
+   "setting": "project",
+   "capture_mode": "artefact",
+   "words": [
+    "kind",
+    "capable"
+   ],
+   "counter_example": "Makes something to a brief the educator set for marks.",
+   "grows_from": "makes-a-model-that-works",
+   "reason": "parent: a make that answers someone's real need is creation in the school's second word, and the capability never recorded one."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "foundational",
+   "id": "takes-a-full-turn-in-an-outdoor-game",
+   "statement": "Takes a full turn in an outdoor running or climbing game, moving in the way their own body moves.",
+   "adult_sees": "The educator sees the child take the turn from start to finish, with any aid they use.",
+   "setting": "outdoors",
+   "capture_mode": "observation",
+   "words": [
+    "capable",
+    "unafraid"
+   ],
+   "counter_example": "Runs onto the field with the others and stands watching them take the turn.",
+   "grows_from": "",
+   "reason": "rights: physical competence shown as taking part with the body one has, open to a child with a disability, needing no milestone and no video; replaces the retired motor-milestone line. Revised on the seats' second look: rights: the counter no longer pictures the child who sits out."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "id": "says-work-will-be-late-before-the-deadline",
+   "statement": "Tells the educator before a deadline that a piece of work will be late and proposes a new date.",
+   "adult_sees": "The educator hears it before the date, with a new date offered.",
+   "setting": "lesson",
+   "capture_mode": "observation",
+   "words": [
+    "unafraid",
+    "capable"
+   ],
+   "counter_example": "Explains why the work is late after the deadline has passed.",
+   "grows_from": "keeps-an-agreement-made-with-a-classmate",
+   "reason": "educator: the observable core of the retired trusted-adult line, asking before it affects work, with nothing private disclosed."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "middle",
+   "id": "takes-on-part-of-a-classmates-share",
+   "statement": "Takes on part of a classmate's share of a team task after the classmate says they cannot finish it, and tells the team.",
+   "adult_sees": "The educator hears the classmate say so, sees the extra part done and hears the team told; the note names the part taken on, not the classmate or why.",
+   "setting": "project",
+   "capture_mode": "observation",
+   "words": [
+    "kind"
+   ],
+   "counter_example": "Does the whole task alone without telling the team.",
+   "grows_from": "includes-a-child-left-out",
+   "reason": "parent: with the private-difficulty line retired, the cell needed a kind act that costs something and is safe to keep for ten years. Revised on the seats' second look: development: the classmate saying so is the visible trigger; rights: the note names the part taken on, never the classmate or why."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "secondary",
+   "id": "brings-an-absent-teammate-up-to-date",
+   "statement": "Brings a classmate who missed a session up to date on what was agreed and what they missed, without being asked.",
+   "adult_sees": "The educator sees the catch-up happen before the next session, unprompted.",
+   "setting": "project",
+   "capture_mode": "observation",
+   "words": [
+    "kind",
+    "capable"
+   ],
+   "counter_example": "Forwards the notes when the classmate asks for them.",
+   "grows_from": "takes-on-part-of-a-classmates-share",
+   "reason": "parent and rights, in near-identical words: a kind act toward a peer that names no one's trouble, in place of the retired peer-difficulty line."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "id": "turns-off-a-tap-or-light-left-on",
+   "statement": "Turns off a tap left running or a light left on in an empty room, with nobody asking.",
+   "adult_sees": "The educator sees the tap or switch closed by the child before anyone speaks.",
+   "setting": "play",
+   "capture_mode": "observation",
+   "words": [
+    "kind",
+    "capable"
+   ],
+   "counter_example": "Turns it off when the educator points at it.",
+   "grows_from": "",
+   "reason": "educator: after the two duplicate lines were retired the cell held only sharing and care; water and light are things a Nursery child can act on."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "id": "picks-up-litter-not-their-own",
+   "statement": "Picks up litter that is not their own from the playground and puts it in the bin.",
+   "adult_sees": "The educator sees litter picked up that the child did not drop.",
+   "setting": "outdoors",
+   "capture_mode": "observation",
+   "words": [
+    "kind"
+   ],
+   "counter_example": "Puts their own wrapper in the bin.",
+   "grows_from": "",
+   "reason": "educator: distinct from sorting waste into the right bin; acting for a shared space one did not dirty."
+  },
+  {
+   "capability_id": "knowledge-and-academic-mastery",
+   "stage_id": "foundational",
+   "id": "uses-a-taught-word-in-own-sentence",
+   "statement": "Uses a word taught this week in a sentence of their own about something in the room.",
+   "adult_sees": "The educator hears the week's word in a sentence the child made, about a thing in view.",
+   "setting": "lesson",
+   "capture_mode": "observation",
+   "words": [
+    "capable"
+   ],
+   "counter_example": "Repeats the sentence the educator used to teach the word.",
+   "grows_from": "",
+   "reason": "development: oral vocabulary is the strongest foundational knowledge marker and the only one a Nursery child can show; the cell was all print and number."
+  },
+  {
+   "capability_id": "learning-and-agency",
+   "stage_id": "foundational",
+   "id": "names-something-they-want-to-learn",
+   "statement": "Names something they want to learn to do, such as tying laces or writing a letter, and asks to be shown.",
+   "adult_sees": "The educator hears the wish named and the request to be shown, unprompted.",
+   "setting": "play",
+   "capture_mode": "observation",
+   "words": [
+    "capable",
+    "unafraid"
+   ],
+   "counter_example": "Agrees to learn what the educator proposes.",
+   "grows_from": "",
+   "reason": "development: goal-setting had no seed at this stage; a self-named skill is its four-to-seven-year form."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "foundational",
+   "id": "uses-one-object-as-another-in-pretend-play",
+   "statement": "Uses one object as another in pretend play, such as a block as a phone, and shows or tells what it stands for.",
+   "adult_sees": "The educator sees the object used as something else and the child make plain, by word or action, what it is now.",
+   "setting": "play",
+   "capture_mode": "observation",
+   "words": [
+    "capable",
+    "unafraid"
+   ],
+   "counter_example": "Uses a toy phone as a phone.",
+   "grows_from": "",
+   "reason": "development: symbolic substitution is the three-to-five-year-old's core creative act and the only creation behaviour a three-year-old can reliably show. Revised on the seats' second look: rights: 'shows or tells', so a child playing alone or without speech can show it."
+  },
+  {
+   "capability_id": "creation-and-problem-solving",
+   "stage_id": "middle",
+   "id": "makes-an-original-artwork-to-a-theme",
+   "statement": "Makes an original artwork, composition or performance piece to a set theme and explains one choice made in it.",
+   "adult_sees": "The educator sees the piece and hears one choice in it explained.",
+   "setting": "project",
+   "capture_mode": "artefact",
+   "words": [
+    "capable",
+    "unafraid"
+   ],
+   "counter_example": "Copies a piece found online and explains the theme.",
+   "grows_from": "writes-an-original-story-or-poem",
+   "reason": "development: the arts vanished after the preparatory story or poem; creation at 11 to 14 is more than prototypes and code."
+  },
+  {
+   "capability_id": "technology-and-ai",
+   "stage_id": "preparatory",
+   "id": "writes-instructions-for-a-classmate-to-draw",
+   "statement": "Writes or dictates step-by-step instructions for a classmate to draw a figure, then changes a step when the drawing does not match what was meant.",
+   "adult_sees": "The educator sees the steps, the drawing they produced and the step rewritten after it; the filed artefact is the child's own instruction sheet, not the classmate's drawing.",
+   "setting": "lesson",
+   "capture_mode": "artefact",
+   "words": [
+    "capable"
+   ],
+   "counter_example": "Draws the figure for the classmate instead of rewriting the step.",
+   "grows_from": "gives-instructions-to-move-a-friend",
+   "reason": "development: gives Grade 3, which has no screen, an observable algorithm behaviour and a genuine step from the foundational grid game. Revised on the seats' second look: rights: dictation admitted; the filed artefact is the child's own sheet, never the classmate's drawing."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "foundational",
+   "id": "says-stop-in-words",
+   "statement": "Tells a classmate 'stop' or 'I am still using it', in words or signs, when the classmate reaches for or takes what they are using.",
+   "adult_sees": "The educator hears or sees the words or sign given to the classmate before any adult steps in; the note holds the child's words, never the incident or the classmate.",
+   "setting": "play",
+   "capture_mode": "observation",
+   "words": [
+    "unafraid"
+   ],
+   "counter_example": "Says 'stop' only after the educator has told the classmate to stop.",
+   "grows_from": "",
+   "reason": "development: nothing in the cell was the three-to-six-year-old holding their own ground in words; unafraid at this age is exactly that. Revised on the seats' second look: rights: the trigger is a classmate reaching for what the child is using, not being handled roughly; words or signs; the note never holds the incident."
+  },
+  {
+   "capability_id": "self-and-relationships",
+   "stage_id": "secondary",
+   "id": "proposes-a-break-in-a-heated-argument",
+   "statement": "Stops an argument that has reached raised voices by proposing a break and a time to return to it.",
+   "adult_sees": "The educator hears the break proposed with a time to return and sees the argument pause; the note holds the proposal, not the argument or who was in it.",
+   "setting": "project",
+   "capture_mode": "observation",
+   "words": [
+    "kind",
+    "capable"
+   ],
+   "counter_example": "Walks away from the argument without a word about returning.",
+   "grows_from": "repairs-a-relationship-after-a-conflict",
+   "reason": "development: emotional regulation, named in the capability, had no Secondary behaviour; this is its 14-to-16 form in observable terms. Revised on the seats' second look: rights: the note holds the proposal, not the argument or who was in it."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "id": "votes-and-accepts-the-result",
+   "statement": "Votes in a class choice and goes along with the result when their choice loses.",
+   "adult_sees": "The educator sees the vote cast and the child join the chosen activity after their choice lost.",
+   "setting": "circle",
+   "capture_mode": "observation",
+   "words": [
+    "kind",
+    "unafraid"
+   ],
+   "counter_example": "Joins the winning activity having voted for it.",
+   "grows_from": "",
+   "reason": "development: accepting a group decision that went against you is the four-to-seven-year-old's first civic act; the cell had care and sharing but no group decision."
+  },
+  {
+   "capability_id": "society-ethics-and-planet",
+   "stage_id": "foundational",
+   "id": "handles-a-living-thing-gently",
+   "statement": "Handles a living thing found outdoors, such as a snail or a worm, gently and puts it back where it was.",
+   "adult_sees": "The educator sees the creature handled without harm and returned to its place.",
+   "setting": "outdoors",
+   "capture_mode": "observation",
+   "words": [
+    "kind"
+   ],
+   "counter_example": "Keeps the creature in a box to show the class later.",
+   "grows_from": "",
+   "reason": "development: the planet appeared only as the class plant and the bins; care for a wild living thing is distinct and reachable at three."
+  }
+ ],
+ "regrow": {
+  "learns-a-new-physical-skill-through-practice": "takes-a-full-turn-in-an-outdoor-game",
+  "considers-who-else-is-affected": "shares-without-being-asked",
+  "credits-a-source-for-an-image-or-fact": "asks-before-using-someone-elses-thing",
+  "owns-a-mistake-that-affected-others": "considers-who-else-is-affected",
+  "writes-a-letter-for-a-purpose": "tells-news-in-full-sentences",
+  "sets-a-goal-for-the-week": "names-something-they-want-to-learn"
+ },
+ "notes": "Chair decisions on the seats' verdicts of 2026-09-26. Rules R1–R6 are in research/level2_council.py; every entry here overrides a rule for one row and says why.",
+ "kept_pairs": [
+  [
+   "builds-software-with-tests",
+   "writes-a-program-using-data-and-libraries",
+   "different acts: a test catching a bug; real data through a library. One rich artefact may evidence both, and then two behaviours were shown."
+  ],
+  [
+   "designs-and-runs-an-original-investigation",
+   "runs-an-independent-study",
+   "the learning row records milestones met on the way; the creation row records the method and findings."
+  ],
+  [
+   "mediates-between-two-others",
+   "resolves-a-group-conflict-by-agreement",
+   "different roles and stages: a third party mediating at Secondary; a party proposing an option at Middle."
+  ],
+  [
+   "mentors-a-younger-student-over-time",
+   "teaches-a-concept-to-a-younger-student",
+   "one occasion of teaching with two explanations; a recorded mentoring relationship."
+  ],
+  [
+   "negotiates-an-outcome-with-adults",
+   "raises-an-unfairness-through-a-channel",
+   "a case made and conditions accepted; advocacy for others followed through. They coincide only when a child negotiates for others, and then both were shown."
+  ],
+  [
+   "owns-a-mistake-that-affected-others",
+   "repairs-a-relationship-after-a-conflict",
+   "a mistake put right; a conflict returned to. Not every conflict is a mistake and not every mistake is a conflict."
+  ],
+  [
+   "solves-a-practical-problem-with-materials",
+   "tries-again-after-a-fail",
+   "changing the design is creation; trying the same way again is learning. The counter-examples say so."
+  ],
+  [
+   "plans-a-multi-week-project",
+   "manages-own-schedule-for-a-week",
+   "a project planned; one's own week managed. Different objects, and only the second is self-management."
+  ],
+  [
+   "draws-to-show-an-idea",
+   "shows-work-and-explains-it",
+   "an idea drawn before it is made (creation) and finished work shown and explained (communication)."
+  ]
+ ]
+}
