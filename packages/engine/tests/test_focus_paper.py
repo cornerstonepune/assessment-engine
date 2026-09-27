@@ -13,13 +13,13 @@ from engine.assess import graph
 from engine.core import db
 from engine.w2_print import focus_paper
 
-pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
-
 WEEK = "T3W1-focus-test"
 
 
 @pytest.fixture
 def conn():
+    if not os.getenv("DATABASE_URL"):
+        pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
         yield c
         c.rollback()
@@ -245,3 +245,16 @@ def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_
             "difficulty"
         ]
     )
+
+
+def test_every_paper_made_for_a_child_prints_as_a_home_assessment_and_says_who_chose_it():
+    """Nimish, 2026-09-27: "The home assessment part reads as 'home assessment.'" A paper an educator chooses for a
+    child instead of the proposed one is a different home assessment, not a "Practice" sheet."""
+    areas = ["Subtracting 2-digit numbers", "Adding 3-digit numbers"]
+    for kind in ("focus", "custom"):
+        title, label = focus_paper.heading(kind, areas, "Asha")
+        assert title == "Home assessment: Subtracting 2-digit numbers · Adding 3-digit numbers"
+        assert label.startswith("Asha · Home assessment, ")
+    assert focus_paper.heading("focus", areas, "Asha")[1].endswith("chosen from their own checked papers")
+    assert focus_paper.heading("custom", areas, "Asha")[1].endswith("chosen by their educator")
+    assert focus_paper.heading("focus", areas, None)[1].startswith("Home assessment · Home assessment")

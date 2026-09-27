@@ -49,13 +49,13 @@ export default async function CustomPaper({ searchParams }: Props) {
     <>
       <PageHeader
         stage="Make papers"
-        title={`A paper for ${child.first_name}`}
+        title={`A home assessment for ${child.first_name}`}
         sub="Choose up to four skills, a level for each, and how many questions. You see every question before it prints; the child has seen none of them."
       />
       <Body>
         <div className="mb-[18px] flex flex-wrap gap-3">
           <Link href={`/make/${encodeURIComponent(child.section)}`} className="chip">
-            ← {child.section} · home papers
+            ← {child.section} · home assessments
           </Link>
           <Link href={`/growth/${id}`} className="chip">
             {child.first_name}&rsquo;s map

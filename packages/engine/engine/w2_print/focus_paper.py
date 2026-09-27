@@ -39,7 +39,9 @@ WHY = {
 HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by their educator"}
 # What the paper says it is, at the top of the page: a paper chosen from a child's graph is the one sent home
 # (Nimish, 2026-09-24: "it needs to be explicitly written as home assessment").
-TITLE = {"focus": "Home assessment", "custom": "Practice"}
+# Nimish, 2026-09-27: "The home assessment part reads as 'home assessment.'" A paper an educator chooses instead of
+# the proposed one is a different home assessment, so both say so; the week label says who chose it.
+TITLE = "Home assessment"
 MOST_ASKED = 40
 PREVIEW = (
     "PREVIEW"  # the QR a paper seen before approval carries: no sheet has it, so a stray copy never reads
@@ -299,13 +301,16 @@ def _render(conn, child_id, week, actor, kind, p, ids, qr, outdir):
     """The paper as it prints, into `outdir` as `<qr>.pdf`; returns its key. Approving and seeing it both come here."""
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     rows = {str(r["id"]): r for r in conn.execute("select * from item where id = any(%s::uuid[])", (ids,))}
-    title = f"{TITLE[kind]}: " + " · ".join(a["name"] for a in p["areas"])
-    sheet = Sheet(qr, band, "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
     name = roster.names(conn, [child_id], actor).get(child_id, "")
+    title, label = heading(kind, [a["name"] for a in p["areas"]], name)
+    sheet = Sheet(qr, band, "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
     with sync_playwright() as pw:
-        return render_sheet(
-            sheet, outdir, week_label=f"{name or TITLE[kind]} · {TITLE[kind]}, {HOW[kind]}", pw=pw
-        )
+        return render_sheet(sheet, outdir, week_label=label, pw=pw)
+
+
+def heading(kind, areas, name):
+    """→ (the paper's title, the line under it): what a child's home assessment says at its top."""
+    return f"{TITLE}: " + " · ".join(areas), f"{name or TITLE} · {TITLE}, {HOW[kind]}"
 
 
 def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> bytes:
