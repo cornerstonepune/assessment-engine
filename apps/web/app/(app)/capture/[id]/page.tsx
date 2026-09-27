@@ -4,8 +4,9 @@ import { Bar, Body, MarkPill, Notice, PageHeader, Panel, Pill, Tile } from "@/co
 import { requireStaff } from "@/lib/auth";
 import { misconceptionNames, numSkills } from "@/lib/queries";
 import { held, paperAnswers, paperHeader, sameChildPapers, type CaptureAnswer } from "@/lib/queries-read";
-import { confirmPaper, correctRead, judgeRead } from "../actions";
+import { confirmPaper, correctRead, judgeRead, nameMistake } from "../actions";
 import { deadline } from "@/lib/deadline";
+import { EngineDown, engineGet } from "@/lib/engine";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -40,6 +41,19 @@ function reading(a: CaptureAnswer): string {
   return `There is writing here that the reader could not make out.${why}`;
 }
 
+// A wrong answer no named mistake explains, with Jev's shortlist and every named mistake of its operation
+// (`GET /capture/{id}/mistakes`, ADR 0036). The engine down is not the page down: nothing is offered then.
+type Unnamed = { answer: string; shortlist: [string, number][]; options: string[]; why: string };
+async function unnamedOn(captureId: string): Promise<Record<string, Unnamed>> {
+  try {
+    const res = await engineGet(`/capture/${captureId}/mistakes`);
+    return res.ok ? ((await res.json()) as Record<string, Unnamed>) : {};
+  } catch (e) {
+    if (e instanceof EngineDown) return {};
+    throw e;
+  }
+}
+
 // The three signals stay three (rule 5), and an answer nobody has settled is not one of them.
 const settled = (a: CaptureAnswer) => ["correct", "wrong", "blank"].includes(a.status);
 
@@ -48,12 +62,13 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [paper, answers, names, skills, siblings] = await deadline(Promise.all([
+  const [paper, answers, names, skills, siblings, unnamed] = await deadline(Promise.all([
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
     numSkills(),
     sameChildPapers(id),
+    unnamedOn(id),
   ]));
   if (!paper) notFound();
   const at = siblings.findIndex((s) => s.id === id);
@@ -172,7 +187,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
                   {yours.length ? (
                     <ul className="grid gap-4">
                       {yours.map((a) => (
-                        <AnswerCard key={a.id} a={a} paperId={id} names={names} />
+                        <AnswerCard key={a.id} a={a} paperId={id} names={names} unnamed={unnamed[a.id]} />
                       ))}
                     </ul>
                   ) : null}
@@ -183,7 +198,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
                       </summary>
                       <ul className="mt-3 grid gap-4">
                         {theirs.map((a) => (
-                          <AnswerCard key={a.id} a={a} paperId={id} names={names} />
+                          <AnswerCard key={a.id} a={a} paperId={id} names={names} unnamed={unnamed[a.id]} />
                         ))}
                       </ul>
                     </details>
@@ -244,7 +259,17 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
 
 // One answer: the patch of the photograph it was read from, what the engine made of it, and the
 // one thing a person is asked — what the child actually wrote.
-function AnswerCard({ a, paperId, names }: { a: CaptureAnswer; paperId: string; names: Record<string, string> }) {
+function AnswerCard({
+  a,
+  paperId,
+  names,
+  unnamed,
+}: {
+  a: CaptureAnswer;
+  paperId: string;
+  names: Record<string, string>;
+  unnamed?: Unnamed;
+}) {
   const box = a.box?.length === 4 ? `?box=${a.box.join(",")}` : "";
   const value = a.human_read ?? (a.read || a.guess) ?? ""; // a guess is offered back, filled in: one press if it is right
   // A held reading (ADR 0029) is confirmed in "What the child wrote", which keeps the engine's mark and
@@ -273,6 +298,7 @@ function AnswerCard({ a, paperId, names }: { a: CaptureAnswer; paperId: string; 
             <span className="fact ml-2 text-[11px] text-basalt/45">{a.misconception_codes.join(" ")}</span>
           </p>
         ) : null}
+        {unnamed && a.state !== "confirmed" ? <MistakePicker a={a} paperId={paperId} names={names} u={unnamed} /> : null}
         {a.state === "confirmed" ? null : (
           <>
             <form action={correctRead} className="mt-3 flex flex-wrap items-end gap-2">
@@ -318,5 +344,45 @@ function Glyph({ status, label }: { status: string; label: string }) {
       </span>
       <span className="fact mt-[2px] block text-[10px] text-basalt/55">{label}</span>
     </span>
+  );
+}
+
+
+// Wrong, and in a way no named mistake reproduces (goals/j2-name-the-mistake.yaml): Jev's three likeliest are one press
+// each, any other named mistake is in the list, and "none of these" is an answer too. Jev only proposes.
+function MistakePicker({ a, paperId, names, u }: { a: CaptureAnswer; paperId: string; names: Record<string, string>; u: Unnamed }) {
+  const listed = new Set(u.shortlist.map(([c]) => c));
+  const label = (c: string) => (c === "NONE" ? "None of these" : (names[c] ?? c));
+  return (
+    <div className="mt-3 border-l-2 border-terracotta/40 pl-3" aria-label={`Name the mistake for question ${a.slot}`}>
+      <p className="text-[12.5px]">
+        No named mistake makes {u.answer}. {u.shortlist.length ? "The likeliest, from Jev — you decide:" : u.why || "Which is it?"}
+      </p>
+      <form action={nameMistake} className="mt-2 flex flex-wrap items-center gap-2">
+        <input type="hidden" name="result_id" value={a.id} />
+        <input type="hidden" name="paper_id" value={paperId} />
+        <input type="hidden" name="proposed" value={JSON.stringify(u.shortlist)} />
+        {u.shortlist.map(([c, p]) => (
+          <button key={c} className="btn secondary" name="code" value={c} type="submit">
+            {label(c)} <span className="text-[11px] text-basalt/55">{Math.round(p * 100)}%</span>
+          </button>
+        ))}
+        {listed.has("NONE") ? null : (
+          <button className="btn secondary" name="code" value="NONE" type="submit">None of these</button>
+        )}
+      </form>
+      <form action={nameMistake} className="mt-2 flex flex-wrap items-center gap-2">
+        <input type="hidden" name="result_id" value={a.id} />
+        <input type="hidden" name="paper_id" value={paperId} />
+        <input type="hidden" name="proposed" value={JSON.stringify(u.shortlist)} />
+        <select className="select" name="code" aria-label={`Another mistake for question ${a.slot}`} defaultValue="">
+          <option value="" disabled>Another named mistake…</option>
+          {u.options.filter((c) => !listed.has(c) && c !== "NONE").map((c) => (
+            <option key={c} value={c}>{label(c)}</option>
+          ))}
+        </select>
+        <button className="btn secondary" type="submit">Name it</button>
+      </form>
+    </div>
   );
 }

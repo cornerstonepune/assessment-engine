@@ -43,7 +43,7 @@ def _one_sum(spec):
     )
 
 
-def shortlist(conn, spec, wrote, ask=jev.decide):
+def shortlist(conn, spec, wrote, ask=None):
     """→ [(code, p)] best first, at most three; None when there is nothing to ask: no answer, a right one, one code
     already explains, or a question that is not one + or − sum."""
     if not _one_sum(spec) or not str(wrote).strip().isdigit():
@@ -54,7 +54,7 @@ def shortlist(conn, spec, wrote, ask=jev.decide):
         or n in M.predict(spec["op"], spec["a"], spec["b"]).values()
     ):
         return None
-    out = ask(conn, PURPOSE, state(spec, str(wrote)), options(spec["op"]))
+    out = (ask or jev.decide)(conn, PURPOSE, state(spec, str(wrote)), options(spec["op"]))
     return [(c, round(p, 3)) for c, p in out["ranked"][:SHORTLIST]]
 
 
@@ -86,12 +86,12 @@ def _sum(rng, width):
     return (op, max(a, b), min(a, b)) if op == "-" else (op, a, b)
 
 
-def evaluate(conn, cases, ask=jev.decide):
+def evaluate(conn, cases, ask=None):
     """→ how Jev did on `cases`: first choice right, right among the shortlist, slips called NONE, and slips given a
     mistake they are not (the number that must stay 0)."""
     first = listed = slips_none = false_named = 0
     for c in cases:
-        out = ask(conn, PURPOSE, state(c, str(c["wrote"])), options(c["op"]))
+        out = (ask or jev.decide)(conn, PURPOSE, state(c, str(c["wrote"])), options(c["op"]))
         top = [code for code, _ in out["ranked"][:SHORTLIST]]
         first += top[0] == c["want"]
         listed += c["want"] in top

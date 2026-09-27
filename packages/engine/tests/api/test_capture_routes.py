@@ -195,3 +195,35 @@ def test_commit_a_different_child_with_the_same_explicit_key_still_only_runs_onc
     assert calls == ["c1"]  # c2 never reached confirm()
     assert r1.json()["already"] is False and r2.json()["already"] is True
     assert r2.json()["confirmed"] == r1.json()["confirmed"] == 1  # c2's request got c1's stored result
+
+
+# ---- naming a mistake (goals/j2-name-the-mistake.yaml)
+
+
+def test_a_papers_unexplained_wrong_answers_come_with_jevs_shortlist(client, monkeypatch):
+    seen = []
+    listed = {
+        "r1": {"answer": "93", "shortlist": [["NONE", 0.7]], "options": ["M_NOCARRY", "NONE"], "why": ""}
+    }
+    monkeypatch.setattr(marking, "unnamed", lambda conn, capture_id: seen.append(capture_id) or listed)
+    r = client.get("/capture/cap-1/mistakes", headers=HEADERS)
+    assert r.status_code == 200 and r.json() == listed and seen == ["cap-1"]
+    assert client.get("/capture/cap-1/mistakes").status_code == 401
+
+
+def test_a_person_names_a_mistake_and_a_refusal_says_why(client, monkeypatch):
+    seen = []
+
+    def name(conn, result_id, code, by, proposed):
+        seen.append((result_id, code, by, proposed))
+        if code == "M_SMALL_FROM_LARGE":
+            raise ValueError("'M_SMALL_FROM_LARGE' is not a named mistake of '+', nor NONE")
+        return {"code": code, "answer": "93"}
+
+    monkeypatch.setattr(marking, "name_mistake", name)
+    body = {"result_id": "r1", "code": "M_CARRY_SKIP", "by": "aseem", "proposed": [["M_CARRY_SKIP", 0.5]]}
+    r = client.post("/capture/mistake", headers=HEADERS, json=body)
+    assert r.status_code == 200 and r.json() == {"code": "M_CARRY_SKIP", "answer": "93"}
+    assert seen == [("r1", "M_CARRY_SKIP", "aseem", [["M_CARRY_SKIP", 0.5]])]
+    r = client.post("/capture/mistake", headers=HEADERS, json={**body, "code": "M_SMALL_FROM_LARGE"})
+    assert r.status_code == 409 and "not a named mistake" in r.json()["detail"]

@@ -122,3 +122,30 @@ export async function judgeOne(formData: FormData): Promise<void> {
   revalidatePath("/capture/check");
   redirect(next);
 }
+
+/** A person names the mistake behind a wrong answer no named mistake explains (goals/j2-name-the-mistake.yaml):
+ *  one press on Jev's shortlist, any other named mistake, or none of them. The engine keeps it against this reading
+ *  and it reaches the child's evidence when the paper is signed off. A refusal comes back in the engine's words. */
+export async function nameMistake(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("result_id") ?? "");
+  const paper = String(formData.get("paper_id") ?? "");
+  const code = String(formData.get("code") ?? "").slice(0, 80);
+  if (!UUID.test(id) || !UUID.test(paper) || !code) redirect("/capture");
+  let proposed: unknown = [];
+  try {
+    proposed = JSON.parse(String(formData.get("proposed") ?? "[]"));
+  } catch {
+    proposed = [];
+  }
+  let why = "";
+  try {
+    const res = await engineSend("/capture/mistake", { result_id: id, code, by: me.email, proposed });
+    if (!res.ok) why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? `refused (${res.status})`;
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    why = "the engine could not be reached";
+  }
+  revalidatePath(`/capture/${paper}`);
+  redirect(why ? `/capture/${paper}?error=${encodeURIComponent(why.slice(0, 200))}#a-${id}` : `/capture/${paper}#a-${id}`);
+}
