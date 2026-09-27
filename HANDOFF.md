@@ -5,6 +5,9 @@ is verified. This file only says where the last session stopped.
 
 ## 2026-09-27 — brainstorm: the curriculum skeleton, and provenance as a rule (no step moved, nothing built)
 
+- **To resume this discussion in a new session, read `docs/brainstorms/2026-09-27-curriculum-skeleton.md` first.** It holds
+  Nimish's asks in his words, the proposal, the verified facts and the six open questions.
+
 - Nimish asked for a cleaner structure below the subjects: one outcome per subject and grade, combining Cambridge and
   CBSE/NCERT (best of both to Grade 6; CBSE the minimum from Grade 7), prerequisites, fortnights, three activity options per
   outcome, a video slot, lesson plans drawn from the card, and child tracking. Then: "nothing needs to be fabricated … run a
