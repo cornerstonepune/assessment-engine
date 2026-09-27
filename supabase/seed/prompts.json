@@ -1454,7 +1454,7 @@
       "version": 1,
       "model": "jev-latest",
       "active": true,
-      "text_file": "mistake_guess.v1.txt",
+      "text_file": "prompts/mistake_guess.v1.txt",
       "json_schema": {
         "type": "choice"
       }
