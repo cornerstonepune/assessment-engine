@@ -196,3 +196,25 @@ def test_removing_a_question_retires_it_and_replaces_the_worksheet_it_was_on(cli
     assert library.check(conn)[1] == {}
     missing = client.post("/bank/item/NOPE-0/remove", headers=HEADERS, json={"by": "t@e.org", "note": ""})
     assert missing.status_code == 404
+
+
+def test_a_typed_story_is_shaped_over_http_and_a_person_gets_it_when_jev_is_down(client, monkeypatch):
+    """goals/j3-story-shape.yaml: the route answers what `story_shape.name` answers; Jev down is an answer, not a 500."""
+    from engine.adapters import jev
+
+    monkeypatch.setattr(
+        jev,
+        "decide",
+        lambda conn, p, s, options: {"choice": "COMPARE_LARGER", "ranked": [("COMPARE_LARGER", 0.93)]},
+    )
+    story = "Rohan has 26 marbles. Aditi has 15 marbles more than Rohan. How many marbles does Aditi have?"
+    r = client.post("/bank/story/shape", json={"story": story}, headers=HEADERS)
+    assert r.status_code == 200, r.text
+    assert (r.json()["shape"], r.json()["case"], r.json()["answer"]) == ("COMPARE_LARGER", "W10", 41)
+
+    def down(*a):
+        raise jev.JevError("no TYPESAFE_API_KEY in the engine's environment")
+
+    monkeypatch.setattr(jev, "decide", down)
+    r = client.post("/bank/story/shape", json={"story": story}, headers=HEADERS)
+    assert r.status_code == 200 and r.json()["shape"] is None and "TYPESAFE_API_KEY" in r.json()["why"]

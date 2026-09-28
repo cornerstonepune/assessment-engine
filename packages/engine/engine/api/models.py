@@ -133,6 +133,21 @@ class BankCoverageRow(BaseModel):
     shortfall: int
 
 
+class StoryShapeRequest(BaseModel):
+    story: str = Field(min_length=1, max_length=600)
+
+
+class StoryShapeResponse(BaseModel):
+    shape: str | None
+    case: str | None
+    sure: float | None
+    how: str | None
+    answer: int | None
+    placed: list[tuple[str, str]]
+    ranked: list[tuple[str, float]]
+    why: str
+
+
 class BankReviewRequest(BaseModel):
     skill_set: str
     difficulty: str

@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — a story in anyone's words is shaped, placed and keyed (goal j3; step 8's second Jev use)
+
+- `w1_bank/story_shape.py`, `engine bank shape "<story>"`, `POST /bank/story/shape`, `engine eval story_shape`. Jev picks the
+  shape; code does the case, the place, the numbers and the one-step key, and refuses a shape the numbers contradict.
+- Eval: 63/65 shapes, 0 wrong keys of 44, three runs. Owed on the server after merge: the seed load (prompt row, threshold)
+  and `bin/engine eval story_shape`. **Aseem:** "how many were not sold" — take-away or part-whole? "I think of a number,
+  take away 25, add 40, get 100" — CONSTRAINT or UNKNOWN_FIRST? The taxonomy allows both; they are Jev's only two misses.
+- Next Jev uses, by impact: parent-note sentences (with W4), near-duplicate questions, the working's method; reviewers
+  last (their gold is 6 cases each — too few to show one model beats another).
+
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
 - Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in

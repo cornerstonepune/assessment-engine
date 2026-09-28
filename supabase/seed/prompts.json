@@ -1458,6 +1458,16 @@
       "json_schema": {
         "type": "choice"
       }
+    },
+    {
+      "purpose": "story_shape",
+      "version": 1,
+      "model": "jev-latest",
+      "active": true,
+      "text_file": "prompts/story_shape.v1.txt",
+      "json_schema": {
+        "type": "choice"
+      }
     }
   ]
 }

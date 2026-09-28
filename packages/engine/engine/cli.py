@@ -12,7 +12,7 @@ from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
 from engine.core import db, loaders
-from engine.w1_bank import bank, mistake_guess, review, spec
+from engine.w1_bank import bank, mistake_guess, review, spec, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
@@ -139,6 +139,20 @@ def eval_(
         typer.echo(
             f"  {purpose}: {r['useful']} of the model's proposals survived as additions"
             f" over {len(r['rows'])} skill sets · {r['model']} · ₹{r['cost_inr']}"
+        )
+        return
+
+    if purpose == story_shape.PURPOSE:
+        with db.connect() as conn:
+            r = story_shape.evaluate(conn)
+            conn.commit()
+        for m in r["misses"]:
+            typer.echo(
+                f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
+            )
+        typer.echo(
+            f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
+            f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
         )
         return
 
