@@ -44,6 +44,12 @@ THRESHOLDS = [
     ("item.flag_low_p", 0.20, "proportion", "Below this p_correct the item may be mis-levelled"),
     ("item.flag_high_p", 0.95, "proportion", "Above this p_correct the item may be too easy"),
     (
+        "item.min_attempts",
+        10,
+        "count",
+        "Confirmed answers a question needs before its share right proposes anything",
+    ),
+    (
         "read.auto_confirm_above",
         0.90,
         "confidence",

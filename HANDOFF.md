@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 7, first half: a question's real difficulty proposes, a person decides (goal s21; PR open)
+
+- `item_stat` (ring B) is filled from confirmed answers (`learn.item_stats`, also by `engine graph`); a question far
+  off its level over `item.min_attempts` (10) answers becomes a `bank_proposal`; a person decides once
+  (`bank_decision`): remove (worksheets rebuilt) or keep — Nimish's choice. The Question bank page lists them.
+- **Next — step 7's second half, Nimish's ask:** an answer no named mistake explains becomes a new mistake, so the next
+  child who makes it is recognised: code searches column rules that reproduce confirmed unexplained answers; a rule
+  seen on two or more different questions is proposed; a person names and approves it; it then predicts like the 49.
+  Goal `s22-learned-mistakes`.
+
 ## 2026-09-28 — step 4: the spot-check is a share of a trusted kind's right answers (goal s20; PR open)
 
 - `marking.spot_check_rate` (threshold row, 0.15): once a kind is trusted, its right answers settle alone except that
