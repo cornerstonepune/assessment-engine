@@ -44,6 +44,48 @@
       "value": 2
     },
     {
+      "key": "render.layouts",
+      "description": "Every layout the renderer has printed, oldest first; the last is today's. A copy of a library worksheet is read in the one its page matches (goals/s18-read-as-printed.yaml), so a row is never edited or removed once a paper has printed in it — a change is a new row. boxes: 'cells' gives an answer the room its question set, 'digits' as many boxes as the right answer has digits (L3). work_mm: the working space's height for one to four lines of working; paired_work_mm: for questions printed side by side. qr_error: the QR's error correction.",
+      "value": [
+        {
+          "name": "2026-09-21",
+          "boxes": "cells",
+          "work_mm": [
+            11,
+            15,
+            20,
+            26
+          ],
+          "paired_work_mm": 9,
+          "qr_error": "m"
+        },
+        {
+          "name": "2026-09-23-L3",
+          "boxes": "digits",
+          "work_mm": [
+            14,
+            20,
+            26,
+            34
+          ],
+          "paired_work_mm": 12,
+          "qr_error": "m"
+        },
+        {
+          "name": "2026-09-24",
+          "boxes": "digits",
+          "work_mm": [
+            14,
+            20,
+            26,
+            34
+          ],
+          "paired_work_mm": 12,
+          "qr_error": "h"
+        }
+      ]
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [

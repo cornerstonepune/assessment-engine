@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 1: a copy is read in the layout it was printed in (goal s18, ADR 0040; PR open)
+
+- Nimish chose "Recover layout" for 23 Sep. Cause: the worksheet PDF is cached inside the container, which every deploy
+  rebuilds, so the pre-L3 layout (4 boxes an answer) was gone and 87 of 108 answers fell back to the old reader.
+- Built: `render.layouts` rows (three layouts since 2026-09-21), the renderer draws any (`assess/page_css.py` split out
+  of `render.py`, now off the frozen list), `library.printed`, `boxes.as_printed`, `copies._as_printed`. Every deploy now
+  runs `engine load --settings` with the deployed seed mounted, so settings and prompts (the `mistake_guess` prompt from
+  #84 too) are live on merge.
+- **Next, on merge:** the deploy loads the settings; then `POST /read/file {again: true}` for the 23 Sep file
+  (1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1) and check the floor (s17, s18). Then step 2.
+
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
 - Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in

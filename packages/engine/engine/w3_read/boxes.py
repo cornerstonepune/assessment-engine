@@ -18,8 +18,10 @@ a phone's "scan" app crops the page tight and the marks are the first thing it c
 2026-09-24 file). A page that will not line up is read as an old paper, and says so.
 """
 
+import json
 import re
 from functools import lru_cache
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -44,6 +46,9 @@ QUIET = 1  # mm of that crop's own edge repeated around it: the reader's detecto
 # number, and on 24 Sep this took 115 of 133 answers read exactly to 125, with the same two wrong (ADR 0035)
 MIN_INLIERS = 60  # fewer matched features than this and the page is not the one it claims to be
 SIDE = 2000  # the long side features are matched at, as `stencil` does
+COARSE = 5  # a page's print and marks are compared at PPM / COARSE: 2 px a mm, a box line still one pixel
+RULE = 6  # mm: a box's edge is 5.4–13 mm, a run of them longer; a pencil stroke across a box is shorter
+GROW = 1.5  # mm a mark and a printed line may sit apart and still be the same line: a curved photograph
 
 
 def _grey(img, side):
@@ -88,6 +93,67 @@ def dark(canon):
     g = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
     background = cv2.blur(g, (8 * PPM, 8 * PPM))
     return g < background * 0.72
+
+
+def agreement(img, pdf, page_no, where=None):
+    """How closely a photographed page's ruled lines (`_rules`) follow those `pdf` printed on that page, 0–1: of the
+    printed lines, how much is on the photograph, and of the photograph's, how much the print explains (their
+    harmonic mean), each within GROW mm, counted only `where` (a mask at PPM / COARSE; the whole page when None). A layout the page was
+    not printed in leaves boxes unexplained or missing. 0: the page does not line up with `pdf`."""
+    canon, _ = line_up(img, pdf, page_no)
+    if canon is None:
+        return 0.0
+    size = (W // COARSE, H // COARSE)
+    printed = cv2.resize(_rules(blank(str(pdf), page_no) < PRINTED), size, interpolation=cv2.INTER_AREA)
+    marked = cv2.resize(_rules(dark(canon)), size, interpolation=cv2.INTER_AREA)
+    if where is not None:
+        printed, marked = printed & where, marked & where
+    grow = np.ones((2 * int(GROW * PPM / COARSE) + 1,) * 2, np.uint8)
+    found = (printed & cv2.dilate(marked, grow)).sum() / max(1, printed.sum())
+    explained = (marked & cv2.dilate(printed, grow)).sum() / max(1, marked.sum())
+    return 0.0 if found + explained == 0 else float(2 * found * explained / (found + explained))
+
+
+def _rules(mask):
+    """The straight horizontal lines of a page, RULE mm or longer — the tops and bottoms of its answer boxes, its
+    rules — without its words or a child's pencil, whose strokes are shorter."""
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(RULE * PPM), 1))
+    return cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, kernel)
+
+
+def _answer_places(pdfs, page_no):
+    """Where any of `pdfs` prints an answer box on a page, grown by SEEK, as a mask at PPM / COARSE: the part of a
+    page layouts differ in. The text around them is the same in every layout, and only dilutes the difference."""
+    where = np.zeros((H // COARSE, W // COARSE), np.uint8)
+    pad = SEEK * PPM / COARSE
+    for pdf in pdfs:
+        key = Path(pdf).with_suffix(".key.json")
+        for c in json.loads(key.read_text(encoding="utf-8")).get("geometry", []) if key.exists() else []:
+            if c["page"] == page_no and c.get("kind") != "work":
+                x0, y0 = int(c["x"] * PPM / COARSE - pad), int(c["y"] * PPM / COARSE - pad)
+                x1, y1 = (
+                    int((c["x"] + c["w"]) * PPM / COARSE + pad),
+                    int((c["y"] + c["h"]) * PPM / COARSE + pad),
+                )
+                where[max(0, y0) : y1, max(0, x0) : x1] = 1
+    return where if where.any() else None
+
+
+def as_printed(pages, pdfs):
+    """Of the PDFs one worksheet has printed as (one per `render.layouts` row, goals/s18-read-as-printed.yaml), the
+    one a copy was printed from: among those with as many pages as the copy, the one its answer boxes agree with
+    most. `pages`: the copy's pages as photographed, in order."""
+    counted = {pdf: len(pymupdf.open(pdf)) for pdf in pdfs}
+    same = [pdf for pdf in pdfs if counted[pdf] == len(pages)] or list(pdfs)
+    if len(same) == 1:
+        return same[0]
+    where = {n: _answer_places(same, n) for n in range(1, len(pages) + 1)}
+    return max(
+        same,
+        key=lambda pdf: sum(
+            agreement(img, pdf, n, where[n]) for n, img in enumerate(pages[: counted[pdf]], 1)
+        ),
+    )
 
 
 def _shift(c, d):
