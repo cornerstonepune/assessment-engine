@@ -78,12 +78,6 @@ def _pairs(text):
     }
 
 
-def _own(item):
-    """The counts a skill's line may say: right of answered, and an improving skill's earlier and recent."""
-    own = {(item["right"], item["answered"])} if "answered" in item else set()
-    return own | {p for k in ("earlier", "recent") if k in item for p in _pairs(item[k])}
-
-
 def numbers_in(text):
     """(values written in digits, values written in words) — "9,000" is 9000, "sixty-one" 61, "nine thousand four
     hundred" 9400. A bare "a hundred" or "hundreds" is the place value's name, not a count, and is not a value.
@@ -132,25 +126,22 @@ def check(f, d):
         problems.append(f"working_on must have exactly one entry for each of {want}; it has {got}")
     if "[child]" not in d["summary"]:
         problems.append("the summary never says [child]")
-    if SECURE.search(d["summary"]):
-        problems.append(
-            "the summary never says what is secure or nearly secure: each skill's own line says it"
-        )
-    lists = {x["id"]: k for k in ("can_do", "nearly", "improving") for x in f[k]}
-    items = {x["id"]: x for k in ("can_do", "nearly", "improving") for x in f[k]}
-    for c in d["can_do"]:
-        k, t = lists.get(c["id"]), c["sentence"]
-        if c["id"] in items:
-            for pair in sorted(_pairs(t) - _own(items[c["id"]])):
+    # a skill's count and its state are code's, printed beside its line: v9 said "6 of 6" of a skill that was 4 of 4,
+    # three tries running, and v7's summary called an improving skill "now secure". The words say what the child can
+    # do; the page says how many and how sure
+    for where, t in [("the summary", d["summary"])] + [
+        (f"{c['id']}'s line", c["sentence"]) for c in d["can_do"]
+    ]:
+        for m in PAIR.finditer(t):
+            if _pairs(m.group(0)):
                 problems.append(
-                    f"{c['id']}'s line says {pair[0]} of {pair[1]}, which is not its own count: {t!r}"
+                    f"{where} gives the count {m.group(0)!r}; the page prints every count, so take it out"
                 )
-        if k == "can_do" and NEARLY.search(t):
-            problems.append(f"{c['id']} is secure, never nearly or not yet: {t!r}")
-        if k == "nearly" and not re.search(r"\bnearly secure\b", t, re.IGNORECASE):
-            problems.append(f"{c['id']} is nearly secure, and its line says so: {t!r}")
-        if k == "improving" and SECURE.search(t):
-            problems.append(f"{c['id']} is improving, not secure: {t!r}")
+        said = SECURE.search(t) or (where != "the summary" and NEARLY.search(t))
+        if said:
+            problems.append(
+                f"{where} says {said.group(0)!r}; the page shows how secure a skill is, so take it out"
+            )
     known = json.dumps(f, ensure_ascii=False)
     # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
     held = numbers_in(json.dumps({k: v for k, v in f.items() if k not in ("from", "to")}, ensure_ascii=False))
