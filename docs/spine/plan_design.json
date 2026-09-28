@@ -4,11 +4,15 @@
     "summer_weeks": 7,
     "diwali_weeks": 3,
     "weekday_holidays": 12,
-    "test_days": 20,
     "event_days": 20,
     "fortnight_days": 10,
     "saturday_minutes": 225
   },
+  "scenarios": [
+    {"id": "plan", "label": "Monday to Friday, with NCF-SE's 20 test days", "saturdays": false, "test_days": 20},
+    {"id": "sat", "label": "Add alternate Saturday half-days", "saturdays": true, "test_days": 20},
+    {"id": "both", "label": "Saturdays, and 8 test days instead of 20", "saturdays": true, "test_days": 8}
+  ],
   "day": {"start": "08:30", "end": "14:30", "community": 30, "breaks": 45, "instruction": 285},
   "modes": {
     "concept": {"label": "Concept", "what": "A new idea, introduced creatively: a hook, a story or a game; objects before pictures before symbols.", "group": "Whole group; ages can mix", "caps": ["cap.knowledge-and-academic-mastery", "cap.thinking-and-reasoning"]},
@@ -43,7 +47,7 @@
       "ncf": {"basis": "Table 4.2iv", "R1": "R1", "R2": "R2", "R3": "R3", "Maths": "Maths", "Science": "Science", "SS": "SS", "VE": "VE", "Arts": "Art", "Sport": "PE"}
     }
   },
-  "slot_names": {"R1": "R1 (English)", "R2": "R2 (Hindi; Marathi in Grade 4)", "R3": "R3", "Maths": "Maths", "TWAU": "Studio: The World Around Us", "Discover": "Discover (studio)", "Science": "Science", "SS": "Social Science", "VE": "Vocational: coding, AI, design, making", "Arts": "Arts", "Sport": "Sport", "Community": "Circle & close"},
+  "slot_names": {"R1": "English", "R2": "Hindi (Marathi in Grade 4)", "R3": "Third language", "Maths": "Maths", "TWAU": "The World Around Us (studio)", "Discover": "Discover (studio)", "Science": "Science", "SS": "Social Science", "VE": "Vocational: coding, AI, design, making", "Arts": "Arts", "Sport": "Sport", "Community": "Circle & close"},
   "school_subject": {"Numeracy": "Maths", "Literacy": "R1", "Literacy - English": "R1", "Phonics": "R1", "Literacy - Hindi": "R2", "Literacy - Marathi": "R2", "Science": "studio", "Global perspectives": "studio", "Primary Computing": "studio", "Home Science": "studio", "Visual Arts": "Arts", "Routines": "Community"},
   "studio_slot": {"G1-2": "Discover", "G3-5": "TWAU"},
   "corrected_subject": {"art": "Arts", "social-science": "studio"},

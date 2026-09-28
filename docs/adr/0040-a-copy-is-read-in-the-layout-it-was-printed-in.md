@@ -1,4 +1,4 @@
-# ADR 0038 — A copy is read in the layout it was printed in
+# ADR 0040 — A copy is read in the layout it was printed in
 
 **Status:** accepted (Nimish, 2026-09-28: "Recover layout (Recommended)")
 Goal: goals/s18-read-as-printed.yaml

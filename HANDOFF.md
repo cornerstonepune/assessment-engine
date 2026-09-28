@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-09-28 — step 1: a copy is read in the layout it was printed in (goal s18, ADR 0038; PR open)
+## 2026-09-28 — step 1: a copy is read in the layout it was printed in (goal s18, ADR 0040; PR open)
 
 - Nimish chose "Recover layout" for 23 Sep. Cause: the worksheet PDF is cached inside the container, which every deploy
   rebuilds, so the pre-L3 layout (4 boxes an answer) was gone and 87 of 108 answers fell back to the old reader.
@@ -13,6 +13,20 @@ is verified. This file only says where the last session stopped.
   #84 too) are live on merge.
 - **Next, on merge:** the deploy loads the settings; then `POST /read/file {again: true}` for the 23 Sep file
   (1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1) and check the floor (s17, s18). Then step 2.
+
+## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
+
+- Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in
+  the grade, when, how we check. Clicking anything shows its thread through them, with each link's source marked.
+  A grade's year is a grid of fortnights by subjects with the units' own names. The school day shows five parts by
+  grade.
+- Same link, version 3: https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg. Build it with
+  `python3 research/plan_build.py && python3 research/spine_page.py`. It is held by `goals/spine-readable.yaml`
+  (`bin/engine done spine-readable`).
+- The threads are worked out in `research/spine_links.py`, `spine_steps.py` and `spine_thread.py`; the scripts only
+  draw.
+- Next: his reaction. Open points for him are in the brief's "28 Sep, redesigned" section: routines paced like
+  syllabus, arts units named as briefs, and "CATs" still read as academics.
 
 ## 2026-09-28, later: the Plan view inside the spine (a brainstorm view, no step moved)
 
