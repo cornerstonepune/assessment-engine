@@ -1,0 +1,28 @@
+name: w4a-class-card
+goal: >
+  Friday's class card (N11), computed from each child's graph alone — no model: for every skill set the section has
+  evidence on, its children in the graph's own groups — ready to move up, secure, practising, emerging, reteach
+  (grouped by the named mistake each repeats, with its name), and not enough evidence yet — and, for every child, the
+  area their home paper will work on, exactly as W2 would make it (`assess.focus.home`), or "nothing lags" when it is a
+  stretch. It is kept as the week's `class_card` rows (Ring B: rebuilt, never edited) and the educator confirms it
+  once, by name (`class_card_confirmation`, append-only). A child with no checked evidence is named as such, never
+  dropped.
+
+# Written 2026-09-28, before the work: BUILD-ORDER step 9, "W4 class card". The goal of W4 as a whole is
+# goals/w4-close-the-loop.yaml (2026-09-21); this is its first chunk. The sentence per child and the parent note are
+# the next chunk (a Jev choice from sentences the school writes once — research/2026-09-27-jev-use-cases.md #6).
+says:
+  - words: "based on the skill set evaluation, the system should be able to create an assessment that's very specific to the child"
+    proved_by: packages/engine/tests/test_class_card.py::test_the_card_names_each_childs_home_area_as_w2_would_make_it
+  - words: "After 34 evaluations, the system is able to see that there are certain areas where the child lags."
+    proved_by: packages/engine/tests/test_class_card.py::test_the_card_groups_every_child_on_every_skill_from_the_graph_alone
+manual:
+  - "An educator opens a real section's card on the site and confirms it."
+scenarios: []
+criteria:
+  - name: the card, its rows, the confirmation, the route — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_class_card.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

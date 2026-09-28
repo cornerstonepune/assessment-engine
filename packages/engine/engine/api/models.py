@@ -249,6 +249,10 @@ class WeekRenderResponse(BaseModel):
     already: bool = False
 
 
+class CardConfirmRequest(BaseModel):
+    by: str = Field(min_length=1, max_length=200)
+
+
 class WeekApproveRequest(BaseModel):
     section: str
     week: str
