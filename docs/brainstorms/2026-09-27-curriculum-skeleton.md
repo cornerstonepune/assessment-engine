@@ -12,6 +12,34 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep, later: Nimish reframes the ask (outcome not yet agreed)
+
+His words (trimmed):
+- "I am not looking for the separate documents. I am looking for this in integration with the entire syllabus that we
+  made ... And how can we break it down into fortnightly plans?"
+- "Timetables are not sacrosanct; they are built with 80-90% conviction."
+- "I'm not looking for the actual timetable per se ... The number of hours that are required and the schedule that we
+  are suggesting: how does it work? ... the learning needs to happen the way we are designing the school": application-
+  based learning; concepts explained in a very innovative, creative way; time for assessment; customised assessments;
+  fluid class sizes by age and level; those slots every day; sports and arts time.
+- "how the composition changes with increasing grades and how the CATs part increases. How can that CATs part still
+  be powerful enough that ... we are able to achieve our objectives for the kind of children we want? Is the outcome
+  clear here?"
+
+Read as follows, pending his confirmation. "CATs" / "cat time" is probably "acads", meaning academics. The
+outcome is one model inside the spine, not a separate page, running:
+- from the outcomes, to the hours they need, to the fortnights they fall in;
+- to the daily learning modes: concept, level practice, customised check, application, sport and arts, community;
+- to how the mix of those modes shifts from Grade 1 to Grade 7.
+
+Found in the school's Drive on 28 Sep, to build on:
+- The Grade 1 Planning Sheet 2026 logs every activity's attendance by Level 1/2/3.
+- The Cambridge Grade 1 maths plans split each lesson into Beginners, Intermediate and Advanced.
+- The ICT plan for Grades 2–4 runs a shared 10-minute hook, 35 minutes of practice with one pathway per grade, and a
+  shared 15-minute evaluation.
+- A monthly Parent Day & Learning Showcase runs on portfolio stations.
+- No Grade 1–4 timetable was found; the "Time Table" folder shows empty.
+
 ## 28 Sep: his answers, and the indicative timetable
 
 - **Scope:** Grades 1–7 ("the first 7 standard curriculum is what I'm asking about").
