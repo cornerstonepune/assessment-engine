@@ -185,6 +185,30 @@ export function ReaderPanel({ r }: { r: ReaderReport }) {
             </table>
           </div>
         ) : null}
+        {r.days.length ? (
+          <div className="mt-3 min-w-0 overflow-x-auto">
+            <table className="grid">
+              <thead>
+                <tr>
+                  <th>Papers read on</th>
+                  <th className="text-right">Checked</th>
+                  <th className="text-right">Reader right</th>
+                  <th className="text-right">Gave up</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.days.map((d) => (
+                  <tr key={d.day}>
+                    <td>{d.day}</td>
+                    <td className="num">{d.checked}</td>
+                    <td className="num">{pct(d.right, d.stood_behind)}</td>
+                    <td className="num">{d.gave_up}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
     </Panel>
   );
 }
