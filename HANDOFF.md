@@ -36,6 +36,21 @@ is verified. This file only says where the last session stopped.
   rows that cite lines clause by clause, a code validator plus a second-model flagger plus a person's signature, and a trace
   from any mark to the official page.
 
+## 2026-09-27 — the order after step 1; Jev's first two uses; the home assessment's name (all in PRs, none merged)
+
+Nimish: engine first, then structure, then the screens (BUILD-ORDER, PR #81); no second-curriculum engine — a
+curriculum module will feed this one. "Build as many [Jev use cases] as you can where the impact is maximized."
+- **#81** docs: the order, `docs/design/teacher-flow.md`, `research/2026-09-27-jev-use-cases.md`.
+- **#82** "Home assessment" everywhere on the child's flow; a chosen paper prints as one too (`focus_paper.heading`).
+- **#84** ADR 0036 + `adapters/jev.py` + `w1_bank/mistake_guess`: eval 109–110/120 among three, 60/60 slips NONE.
+- **#85** (stacked on #84) Marking: name the mistake from Jev's shortlist; `mistake_named` (migration).
+- **Owed by Nimish:** `TYPESAFE_API_KEY` in the server's `.env`; merge order #81, #82, #84, #85.
+- **A local Postgres for DB tests** works in a cloud session: `postgres:17` in Docker, the three roles, every migration
+  in order, `engine load`; then `TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres`. On seed data
+  alone 77 DB tests fail on `main` and on these branches alike (they want a copy of live's rows) — compare lists, not counts.
+- **Next Jev uses, by impact:** the educator's week in words → skills (N4, with its form), `skill_match` with a gold,
+  parent-note sentences (with W4), near-duplicate questions, the working's method; the reviewers last (12-case gold).
+
 ## 2026-09-26, night — the curriculum spine as one graph and a clickable map (PR #73; no step moved)
 
 - Nimish: "do the whole exercise and even finish the next two steps of mapping NCERT and the grade-wise thing … build the
