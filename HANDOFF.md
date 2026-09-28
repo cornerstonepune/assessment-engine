@@ -3,12 +3,12 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-09-28, curriculum: the crosswalk designed as tables (ADR 0039 proposed, no step moved, nothing built)
+## 2026-09-28, curriculum: the crosswalk designed as tables (ADR 0041 proposed, no step moved, nothing built)
 
 - Nimish asked whether the spine is incomplete, and it is. He asked for each objective, per subject and grade, to say
   what NCF-SE says, what Cambridge says and what we say, turned into a written outcome at rubric level for all grades.
   He asked what tables would make that mapping accurate.
-- The design is `docs/adr/0039-the-curriculum-crosswalk-is-tables-of-statements-and-signed-claims.md`. Page:
+- The design is `docs/adr/0041-the-curriculum-crosswalk-is-tables-of-statements-and-signed-claims.md`. Page:
   https://claude.ai/artifact/KW1vV2p6c9Cxq6ThfTr2iR.
 - Every link and every text the school writes is a `claim`. A model may propose one; only an educator's
   `claim_decision` signs it.
@@ -18,6 +18,70 @@ is verified. This file only says where the last session stopped.
   - who signs each subject;
   - whether to pilot Grade 3 Maths now as data or move the tables up in BUILD-ORDER.
 - Nothing was migrated: BUILD-ORDER is on step 1, and ADR 0037 puts the spine's tables after the ten steps.
+
+## 2026-09-28 — a story in anyone's words is shaped, placed and keyed (goal j3; step 8's second Jev use)
+
+- `w1_bank/story_shape.py`, `engine bank shape "<story>"`, `POST /bank/story/shape`, `engine eval story_shape`. Jev picks the
+  shape; code does the case, the place, the numbers and the one-step key, and refuses a shape the numbers contradict.
+- Eval: 63/65 shapes, 0 wrong keys of 44, three runs. Owed on the server after merge: the seed load (prompt row, threshold)
+  and `bin/engine eval story_shape`. **Aseem:** "how many were not sold" — take-away or part-whole? "I think of a number,
+  take away 25, add 40, get 100" — CONSTRAINT or UNKNOWN_FIRST? The taxonomy allows both; they are Jev's only two misses.
+- Next Jev uses, by impact: parent-note sentences (with W4), near-duplicate questions, the working's method; reviewers
+  last (their gold is 6 cases each — too few to show one model beats another).
+
+## 2026-09-28 — N4, the week's declaration (goal n4-week-declaration; PR open)
+
+- An educator's note in their own words → Jev, one yes/no per skill set of the grade in one call (`week_skills` v1,
+  `adapters/jev.yes_no`) → ticked at `week.skill_yes_above` 0.5 → the educator confirms on /make/[section]/week →
+  `week_declaration` (append-only, latest stands). Eval on 24 gold notes: exact 20/24, precision 0.933, recall 0.933.
+- The gold notes were written by this session from the skill sets' words; replace them with real educators' notes.
+- The prompt row reaches live with #88's `engine load --settings` on deploy.
+
+## 2026-09-28 — step 7, second half: mistakes learned from children's answers (goal s22, ADR 0039; PR open)
+
+- Nimish: "Whenever there is an answer that the student writes which is not found in the answer list, the system should
+  create that as a mistake so that next time, when a child does that, that is found." Built: a space of column rules
+  (`assess/learned_rules.py`, 540 for adding, 504 for taking away) that holds every procedural named mistake — 20,267 of
+  20,267 answers on 6,000 sums; confirmed unexplained wrong answers are searched in it; a rule seen on 2+ different
+  questions is proposed (`learned.propose`); a person names and adopts it (`misconception` L_…, `learned_mistake`) or
+  rejects it; marking recognises adopted ones at reading, on a correction and on re-marking.
+- Found and fixed in passing (on #90's branch): tests expecting a trusted kind's right answer to settle alone failed
+  15% of runs once the spot-check existed — `every_kind_trusted` now sets the spot rate to 0.
+- Stacked: merges after #90 and #91.
+
+
+
+## 2026-09-28 — step 7, first half: a question's real difficulty proposes, a person decides (goal s21; PR open)
+
+- `item_stat` (ring B) is filled from confirmed answers (`learn.item_stats`, also by `engine graph`); a question far
+  off its level over `item.min_attempts` (10) answers becomes a `bank_proposal`; a person decides once
+  (`bank_decision`): remove (worksheets rebuilt) or keep — Nimish's choice. The Question bank page lists them.
+- **Next — step 7's second half, Nimish's ask:** an answer no named mistake explains becomes a new mistake, so the next
+  child who makes it is recognised: code searches column rules that reproduce confirmed unexplained answers; a rule
+  seen on two or more different questions is proposed; a person names and approves it; it then predicts like the 49.
+  Goal `s22-learned-mistakes`.
+
+
+
+## 2026-09-28 — step 4: the spot-check is a share of a trusted kind's right answers (goal s20; PR open)
+
+- `marking.spot_check_rate` (threshold row, 0.15): once a kind is trusted, its right answers settle alone except that
+  share, chosen by the answer's own ids so a re-read keeps the same sample (`marking.spot_checked`, `verdicts`, also in
+  `remark`). The verdict policy moved into `marking.verdicts`; `legacy.py` 672 → 670 lines (ceiling ratcheted).
+- **F3 found failing, never run on a file:** all 19 n8n executions since 2026-09-26 are the Drive poll refused
+  ("Quota exceeded … Requests per minute", consumer project 498586711441 — a shared project, not the school's use).
+  Nimish: give F3's Drive credential the school's own Google Cloud OAuth client. Then the live proof: a scan copied into
+  folder 1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val runs F3, and its copies are on Marking.
+
+
+## 2026-09-28 — step 2: what a check teaches (goal s19; PR open, merges after step 1's #88)
+
+- Built on Nimish's "continue the work": the view `answer_checked` is the one definition of a checked answer and its
+  label (the engine's `checked_rows` and Marking's `readerReport` had it twice); the reader keeps each answer's crop —
+  the pixels it read — beside the scans (`w3_read/crops.py`, `raw_read.crop`); Marking shows accuracy by the day papers
+  were read beside the table by kind. Fixed in passing: the website's `'[\s,]'` in a JS template is `[s,]` (it
+  stripped the letter s), now `[[:space:],]`.
+- **Next, on merge (after #88):** the re-read of 23 and 24 Sep keeps their crops; check Marking's by-day table on live.
 
 ## 2026-09-28 — step 1: a copy is read in the layout it was printed in (goal s18, ADR 0040; PR open)
 

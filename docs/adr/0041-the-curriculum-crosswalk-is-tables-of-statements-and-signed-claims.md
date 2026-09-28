@@ -1,4 +1,4 @@
-# 0039 — The curriculum crosswalk is tables: what others say verbatim, what we say, and claims a person signs
+# 0041 — The curriculum crosswalk is tables: what others say verbatim, what we say, and claims a person signs
 
 Date: 2026-09-28
 Goal: none — a design, not yet built. `goals/crosswalk-signed.yaml` is written with the build, when BUILD-ORDER

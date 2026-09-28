@@ -3,10 +3,12 @@ settles only once its kind is trusted, wrong and blank wait for a person — ADR
 reading (`correct`, a new `read_correction` row, the reader's own reading left untouched — rule 4),
 and marking again when the rule changes (`remark`). `legacy.py` reads papers in; this marks them."""
 
+import hashlib
 import json
 import re
 
 from engine.assess import misconceptions as M
+from engine.w1_bank import learned as learned_mistakes
 from engine.w1_bank import mistake_guess
 from engine.w3_read import profiles
 
@@ -23,7 +25,7 @@ def normalise_answer(text):
     return m.group(1) if m else t
 
 
-def mark(spec, response, read):
+def mark(spec, response, read, learned=()):
     """→ (status, misconception codes, working_shown). Blank, wrong and wrong-with-working stay
     three signals (rule 5): status carries the first two, working_shown the third.
 
@@ -83,6 +85,9 @@ def mark(spec, response, read):
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     if not codes and want is not None:
         codes = sorted(code for code, (rule, _, _) in M.ANSWER_RULES.items() if rule(int(want), n))
+    if not codes and learned and str(spec.get("a", "")).isdigit() and str(spec.get("b", "")).isdigit():
+        # a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)
+        codes = learned_mistakes.recognise(learned, spec.get("op"), int(spec["a"]), int(spec["b"]), n)
     return "wrong", codes, working
 
 
@@ -101,21 +106,52 @@ HELD = {
 }
 
 
-def mark_read(spec, response, read, gate=None):
+def spot_checked(capture_id, item_id, rate):
+    """Whether a trusted kind's right answer is one a person still checks (step 4, `marking.spot_check_rate`): a
+    fixed `rate` of them, chosen by the answer's own ids, so reading the same paper again picks the same ones."""
+    h = hashlib.md5(f"{capture_id}/{item_id}".encode()).digest()
+    return int.from_bytes(h[:8], "big") / 2**64 < rate
+
+
+def spot_rate(conn):
+    row = conn.execute("select value from threshold where key = 'marking.spot_check_rate'").fetchone()
+    return float(row["value"]) if row else 0.15
+
+
+def mark_read(spec, response, read, gate=None, spot=False, learned=()):
     """`mark` for the ENGINE's own reading → (status, codes, working, read). A wrong or a blank waits for
     a person: the reading is kept, offered as the guess, and the reason is recorded where the queue
     reads it. A person's reading goes through `mark` itself — what a person says was written stands.
 
     `gate` is this kind of question's standing against `marking.agreement_gate` (ADR 0032,
     `profiles.kind_trust`): until the reader's readings of a kind have matched people 95% of the time
-    over the last fifty checks, a right answer waits for a person too, its reading the one-click guess."""
-    status, codes, working = mark(spec, response, read)
+    over the last fifty checks, a right answer waits for a person too, its reading the one-click guess. Once it
+    is trusted, a right answer `spot` checked (`spot_checked`) still waits: the check that keeps the trust honest."""
+    status, codes, working = mark(spec, response, read, learned)
     if status == "correct" and gate and not gate["trusted"]:
         why = f"read as a right answer; a person checks every answer of this kind until the reader is trusted on it ({gate['right']} of the last {gate['n']} right)"
+        return "needs_teacher", [], working, {**read, "why": why, "guess": read.get("child_answer", "")}
+    if status == "correct" and spot:
+        why = (
+            "read as a right answer; spot-checked: a person checks a share of a trusted kind's right answers"
+        )
         return "needs_teacher", [], working, {**read, "why": why, "guess": read.get("child_answer", "")}
     if status not in HELD:
         return status, codes, working, read
     return "needs_teacher", [], working, {**read, "why": HELD[status], "guess": read.get("child_answer", "")}
+
+
+def verdicts(conn, capture_id):
+    """`mark_read` for the readings of one capture: (item, reading) → (status, codes, working, reading), each held
+    to its kind's standing (ADR 0032) and, once trusted, to the spot-check sample (step 4, `spot_checked`)."""
+    trust, rate, learned = profiles.kind_trust(conn), spot_rate(conn), learned_mistakes.rules(conn)
+
+    def judge(it, read):
+        spot = spot_checked(capture_id, it["id"], rate)
+        gate = trust.get(it["fmt"], UNTRUSTED)
+        return mark_read(it["spec"], it["responses"][0], read, gate, spot=spot, learned=learned)
+
+    return judge
 
 
 def _against_the_key(key, wrote):
@@ -161,7 +197,7 @@ def correct(conn, result_id, human_read, by):
     )
     text = (human_read or "").strip()
     reading = {**read, "child_answer": text, "answer_state": "written" if text else "blank"}
-    status, codes, working = mark(row["spec"], row["responses"][0], reading)
+    status, codes, working = mark(row["spec"], row["responses"][0], reading, learned_mistakes.rules(conn))
     if status == "wrong" and not codes:  # a mistake a person named on this very reading still stands
         codes = _named(conn, row["id"], text)
     conn.execute(
@@ -216,8 +252,8 @@ def remark(conn, child_id):
     a reading a later read superseded: it is history, and nothing else reads it either. A wrong or a
     blank the engine settled alone before ADR 0029 is held for a person here, its reading unchanged."""
     rows = conn.execute(
-        "select r.id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec, i.responses, i.fmt"
-        " from item_result r join item i on i.id = r.item_id"
+        "select r.id, r.capture_id, r.item_id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec,"
+        " i.responses, i.fmt from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
         " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null"
         " and c.superseded_by is null"
@@ -225,11 +261,13 @@ def remark(conn, child_id):
         (child_id,),
     ).fetchall()
     changed = 0
-    trust = profiles.kind_trust(conn)
+    trust, rate, learned = profiles.kind_trust(conn), spot_rate(conn), learned_mistakes.rules(conn)
     for r in rows:
         status, codes, working, read = mark_read(
-            r["spec"], r["responses"][0], json.loads(r["raw_read"]), trust.get(r["fmt"], UNTRUSTED)
-        )
+            r["spec"], r["responses"][0], json.loads(r["raw_read"]), trust.get(r["fmt"], UNTRUSTED),
+            spot=spot_checked(r["capture_id"], r["item_id"], rate),  # the same sample as when it was read
+            learned=learned,
+        )  # fmt: skip
         if (status, codes, working) != (r["status"], list(r["misconception_codes"]), r["working_shown"]):
             conn.execute(
                 "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"

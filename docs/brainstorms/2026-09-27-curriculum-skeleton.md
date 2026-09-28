@@ -12,7 +12,7 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
-## 28 Sep, last: the crosswalk as tables (ADR 0039, proposed)
+## 28 Sep, last: the crosswalk as tables (ADR 0041, proposed)
 
 Nimish: "most of this is where you are saying that it's not been linked, so it is incomplete, right? … for a certain
 learning objective: what does the NCF say, what does IGCSE say, and what are we going to say as a combination … That
@@ -20,7 +20,7 @@ essentially translates into the written skill outcome at a rubric level … for 
 this into a proper set of tables such that this mapping becomes accurate, how will you want to do it?"
 
 - **Answer:** yes, it is incomplete. No objective is linked to NCF-SE or Cambridge at the objective level, Cambridge
-  is not imported, and no table records a signature. The design is `docs/adr/0039-…`. Page:
+  is not imported, and no table records a signature. The design is `docs/adr/0041-…`. Page:
   https://claude.ai/artifact/KW1vV2p6c9Cxq6ThfTr2iR (source `docs/brainstorms/2026-09-28-crosswalk-tables.html`).
 - **The design has five zones:**
   - what others say, imported word for word;

@@ -12,7 +12,7 @@ from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
 from engine.core import db, loaders
-from engine.w1_bank import bank, mistake_guess, review, spec
+from engine.w1_bank import bank, mistake_guess, review, spec, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
@@ -90,11 +90,14 @@ def set_password(email: str) -> None:
 def graph_(
     child_id: str = typer.Option("", "--child", help="One child id; default every child with evidence"),
 ) -> None:
-    """Rebuild Ring B — child_skill_state — from confirmed evidence."""
+    """Rebuild Ring B — child_skill_state, and each question's item_stat — from confirmed evidence."""
+    from engine.w1_bank import learn
+
     with db.connect() as conn:
         n = graph.rebuild(conn, child_id or None)
+        questions = learn.item_stats(conn)
         conn.commit()
-    typer.echo(f"  {n} states")
+    typer.echo(f"  {n} states · {questions} questions with confirmed answers")
 
 
 @app.command("eval")
@@ -142,6 +145,20 @@ def eval_(
         )
         return
 
+    if purpose == story_shape.PURPOSE:
+        with db.connect() as conn:
+            r = story_shape.evaluate(conn)
+            conn.commit()
+        for m in r["misses"]:
+            typer.echo(
+                f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
+            )
+        typer.echo(
+            f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
+            f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
+        )
+        return
+
     if purpose == mistake_guess.PURPOSE:
         with db.connect() as conn:
             r = mistake_guess.evaluate(conn, mistake_guess.gold())
@@ -149,6 +166,20 @@ def eval_(
         typer.echo(
             f"  {purpose}: the right mistake first {r['first']}/{r['cases']}, among the three {r['listed']}/{r['cases']}"
             f" · slips called NONE {r['slips_none']}/{r['slips']} · slips given a mistake {r['false_named']}"
+        )
+        return
+
+    if purpose == "week_skills":
+        from engine.w2_print import week_note
+
+        with db.connect() as conn:
+            r = week_note.evaluate(conn)
+            conn.commit()
+        for m in r["misses"]:
+            typer.echo(f"  MISS  {m['note'][:70]}  wanted {m['want']}  ticked {m['got']}")
+        typer.echo(
+            f"  {purpose}: the exact skill sets on {r['exact']}/{r['n']} notes · precision {r['precision']}"
+            f" · recall {r['recall']}"
         )
         return
 

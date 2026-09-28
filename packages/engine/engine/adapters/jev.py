@@ -70,8 +70,46 @@ def ask(row, state, options, post=_post):
     }
 
 
+def yes_no(row, state, asks, post=_post):
+    """Many yes/no questions in one call → {"yes": {name: probability of yes}, "model", "tokens_in", "tokens_out"}.
+    `asks`: {name: what it is about}, each put into the row's text as {subject}; the row's `json_schema.criteria`
+    says what counts as yes and as no. An answer that is not a probability, or a name not asked, is refused."""
+    criteria = (row.get("json_schema") or {}).get("criteria")
+    questions = {
+        name: {"type": "noul", "instructions": row["text"].format(**state, subject=about)}
+        | ({"criteria": criteria} if criteria else {})
+        for name, about in asks.items()
+    }
+    reply = post({"model": row["model"], "state": state, "questions": questions})
+    answers = reply["answers"]
+    if set(answers) != set(asks):
+        raise JevError(f"Jev answered {sorted(answers)}, not the questions it was asked")
+    yes = {}
+    for name, a in answers.items():
+        p = a.get("noul")
+        if not isinstance(p, (int, float)) or not 0 <= p <= 1:
+            raise JevError(f"Jev's answer to {name!r} is not a probability: {a!r}")
+        yes[name] = float(p)
+    usage = reply.get("usage") or {}
+    return {
+        "yes": yes,
+        "model": reply.get("model", row["model"]),
+        "tokens_in": usage.get("input_tokens"),
+        "tokens_out": usage.get("output_tokens"),
+    }
+
+
+def decide_yes_no(conn, purpose, state, asks, post=_post):
+    """`yes_no` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
+    return _recorded(conn, purpose, lambda row: yes_no(row, state, asks, post))
+
+
 def decide(conn, purpose, state, options, post=_post):
     """`ask` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
+    return _recorded(conn, purpose, lambda row: ask(row, state, options, post))
+
+
+def _recorded(conn, purpose, call):
     row = llm.active_prompt(conn, purpose)
     run = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger) select id, %s, 'engine' from tenant where slug = %s"
@@ -79,7 +117,7 @@ def decide(conn, purpose, state, options, post=_post):
         (purpose, db.tenant_slug()),
     ).fetchone()["id"]
     try:
-        out = ask(row, state, options, post)
+        out = call(row)
     except (JevError, KeyError) as e:
         conn.execute(
             "update flow_run set finished_at = clock_timestamp(), status = 'error', error = %s where id = %s",

@@ -942,6 +942,26 @@ def test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
     assert marking.mark_read(_spec(), {"answer": 84}, read, marking.UNTRUSTED)[0] == "needs_teacher"
 
 
+def test_a_trusted_kinds_right_answers_are_spot_checked_at_the_rows_rate():
+    """Step 4, goals/s20-routine-intake.yaml: once a kind is trusted its right answers settle alone, except a
+    sample a person still checks — `marking.spot_check_rate` of them (15%), the same answers every time they are
+    read, so a re-read never moves one in or out of the sample."""
+    trusted = {"n": 50, "right": 50, "trusted": True}
+    read = {"child_answer": "84", "answer_state": "written", "confidence": 97.0}
+    picked = [marking.spot_checked(f"capture-{i // 12}", f"item-{i}", 0.15) for i in range(3000)]
+    assert 0.13 < sum(picked) / len(picked) < 0.17
+    assert picked == [marking.spot_checked(f"capture-{i // 12}", f"item-{i}", 0.15) for i in range(3000)]
+    assert not any(marking.spot_checked("c", f"i{i}", 0) for i in range(200))
+
+    status, _, _, held = marking.mark_read(_spec(), {"answer": 84}, read, trusted, spot=True)
+    assert (status, held["guess"]) == ("needs_teacher", "84")
+    assert held["why"].startswith("read as a right answer; spot-checked")
+    assert marking.mark_read(_spec(), {"answer": 84}, read, trusted, spot=False)[0] == "correct"
+    # a wrong or a blank waits for a person whether or not it is in the sample
+    wrong = {**read, "child_answer": "85"}
+    assert marking.mark_read(_spec(), {"answer": 84}, wrong, trusted, spot=False)[0] == "needs_teacher"
+
+
 @pytestmark_db
 def test_the_childs_notebook_changes_the_next_import_of_that_child(
     conn, child, tmp_path, monkeypatch, every_kind_trusted
