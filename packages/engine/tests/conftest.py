@@ -29,11 +29,14 @@ elif os.environ.get("DATABASE_URL"):
 @pytest.fixture
 def every_kind_trusted(monkeypatch):
     """ADR 0032's gate out of the way: every kind of question as if the reader had earned 95% on it, so
-    a test about marking or signing off measures that and not the reader's standing on the copy."""
-    from engine.w3_read import profiles
+    a test about marking or signing off measures that and not the reader's standing on the copy. The spot-check
+    (step 4) is set to none: its sample is keyed on ids a test makes afresh each run, so 15% of it would pick a
+    different answer to hold every time — its own test sets the rate it measures."""
+    from engine.w3_read import marking, profiles
 
     monkeypatch.setattr(
         profiles,
         "kind_trust",
         lambda conn, window=50: {f: {"n": 50, "right": 50, "trusted": True} for f in profiles.KIND_WORDS},
     )
+    monkeypatch.setattr(marking, "spot_rate", lambda conn: 0.0)
