@@ -1,0 +1,29 @@
+name: s21-real-difficulty
+goal: >
+  Step 7 of the build order, first half: a question's real difficulty comes from children's confirmed answers, and a
+  question whose results say it is far easier or far harder than its level becomes a proposal a person decides —
+  remove it from the bank (its worksheets are rebuilt, ADR 0026) or keep it. `item_stat` (ring B) holds each question's
+  attempts and share right, rebuilt from confirmed evidence; the bars are rows (`item.flag_low_p`, `item.flag_high_p`,
+  `item.min_attempts`); a proposal is decided once and kept (`bank_proposal`).
+
+# Written 2026-09-28, before the work, after Nimish chose for a question far off its level: "Remove or keep". A level
+# is defined by a rule the question is measured against (digits, regrouping), so moving the question would break that
+# rule; a pattern across a level is the level's rule to revisit, which people do. `item_stat` existed with nothing
+# filling it; `item.flag_low_p` 0.20 and `item.flag_high_p` 0.95 existed as rows with nothing reading them.
+# The other half of step 7 is Nimish's own ask, 2026-09-28: "Whenever there is an answer that the student writes which
+# is not found in the answer list, the system should create that as a mistake so that next time, when a child does
+# that, that is found." — goals/s22-learned-mistakes.yaml.
+says:
+  - words: "Remove or keep (Recommended)"
+    proved_by: packages/engine/tests/test_learn.py::test_a_question_far_off_its_level_is_proposed_once_and_a_person_removes_or_keeps_it
+  - words: "systems that become smarter with every other iteration"
+    proved_by: packages/engine/tests/test_learn.py::test_each_questions_share_right_comes_from_confirmed_answers_only
+manual: []
+scenarios: []
+criteria:
+  - name: stats, proposals, decisions
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_learn.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
