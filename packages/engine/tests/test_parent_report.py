@@ -377,3 +377,17 @@ def test_what_the_v5_eval_on_live_found_is_read_right_and_next_is_never_the_mode
 
     P.draft(conn, child, ask=ask)
     assert "next" not in seen[0], "what comes next is said by code on the page, never by the model"
+
+
+def test_what_the_v6_eval_on_live_refused_that_it_should_not_have(conn, child):
+    """2026-09-28, v6 on live, 8 of 10 — both refusals the check's: a "story problem" is a kind of question, not the
+    child's; "ten, twenty, thirty" is counting aloud, not a count. What the rules are for still holds."""
+    f = P.facts(conn, child)
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    assert said(at_home=["Make up a short story problem together about pocket money."]) == []
+    assert said(at_home=["Count in tens aloud together — ten, twenty, thirty — with spoons."]) == []
+    assert any("'problem'" in p for p in said(next_at_school="[child] has a problem with exchanging."))
+    assert any("the number 61" in p for p in said(next_at_school="[child] wrote sixty-one."))
