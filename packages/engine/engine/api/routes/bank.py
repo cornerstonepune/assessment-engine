@@ -9,6 +9,7 @@ from engine.api.models import (
     BankCorrectRequest,
     BankCorrectResponse,
     BankCoverageRow,
+    BankDecideRequest,
     BankFillRequest,
     BankFillResponse,
     BankRemoveRequest,
@@ -16,7 +17,7 @@ from engine.api.models import (
     BankReviewRequest,
     BankReviewResponse,
 )
-from engine.w1_bank import bank, inventory, question, review
+from engine.w1_bank import bank, inventory, learn, question, review
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -113,3 +114,22 @@ def remove_question(item_key: str, body: BankRemoveRequest, conn=Depends(get_con
         raise HTTPException(status_code=404, detail="no such question in the bank") from None
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from None
+
+
+@router.get("/bank/proposals")
+def proposals(conn=Depends(get_conn)) -> list[dict]:
+    """What children's confirmed answers propose for the bank, still undecided (`learn.refresh`, goals/s21): a
+    question far easier or harder than its level, with its evidence."""
+    return learn.refresh(conn)
+
+
+@router.post("/bank/proposal/{proposal_id}/decide")
+def decide(proposal_id: str, body: BankDecideRequest, conn=Depends(get_conn)) -> dict:
+    """A person decides a proposal once: remove or keep a question far off its level; adopt (named, in `note`) or
+    reject a mistake learned from children's answers."""
+    try:
+        return learn.decide(conn, proposal_id, body.verdict, body.by, body.note)
+    except LookupError:
+        raise HTTPException(status_code=404, detail="no such proposal") from None
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from None

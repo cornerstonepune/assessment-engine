@@ -125,6 +125,12 @@ class BankRemoveResponse(BaseModel):
     worksheets_retired: int
 
 
+class BankDecideRequest(BaseModel):
+    verdict: Literal["remove", "keep", "adopt", "reject"]
+    by: str = Field(min_length=1, max_length=200)
+    note: str = Field(default="", max_length=300)
+
+
 class BankCoverageRow(BaseModel):
     code: str
     difficulty: str

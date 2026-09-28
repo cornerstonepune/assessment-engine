@@ -90,11 +90,14 @@ def set_password(email: str) -> None:
 def graph_(
     child_id: str = typer.Option("", "--child", help="One child id; default every child with evidence"),
 ) -> None:
-    """Rebuild Ring B — child_skill_state — from confirmed evidence."""
+    """Rebuild Ring B — child_skill_state, and each question's item_stat — from confirmed evidence."""
+    from engine.w1_bank import learn
+
     with db.connect() as conn:
         n = graph.rebuild(conn, child_id or None)
+        questions = learn.item_stats(conn)
         conn.commit()
-    typer.echo(f"  {n} states")
+    typer.echo(f"  {n} states · {questions} questions with confirmed answers")
 
 
 @app.command("eval")
@@ -211,8 +214,13 @@ def eval_(
 @app.command()
 def load(
     check: bool = typer.Option(False, "--check", help="Load twice and fail if anything moved"),
+    settings: bool = typer.Option(False, "--settings", help="Only prompts, thresholds and config (a deploy)"),
 ) -> None:
     """Load the registry, ladder, levels, misconceptions, dimensions, prompts and thresholds."""
+    if settings:
+        for table, n in loaders.load_settings().items():
+            typer.echo(f"  {table:<9}  {n:>5}")
+        return
     counts = loaders.load_all()
     width = max(len(t) for t in counts)
     for table, n in counts.items():

@@ -12,7 +12,7 @@ name: deploy engine
 on:
   push:
     branches: [main]
-    paths: ["packages/engine/**", "deploy/**", ".github/workflows/deploy-engine.yml"]
+    paths: ["packages/engine/**", "deploy/**", "supabase/seed/**", ".github/workflows/deploy-engine.yml"]
   workflow_dispatch:
 
 concurrency: { group: deploy-engine, cancel-in-progress: false }
@@ -85,3 +85,8 @@ jobs:
           done
           echo "::error::the engine did not come up"
           exit 1
+      - name: the settings the code reads — prompts, thresholds, config — from the seed it was merged with
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S 'sudo docker exec deploy-engine-1 engine load --settings'

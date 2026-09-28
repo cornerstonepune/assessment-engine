@@ -196,3 +196,27 @@ def test_removing_a_question_retires_it_and_replaces_the_worksheet_it_was_on(cli
     assert library.check(conn)[1] == {}
     missing = client.post("/bank/item/NOPE-0/remove", headers=HEADERS, json={"by": "t@e.org", "note": ""})
     assert missing.status_code == 404
+
+
+def test_the_banks_proposals_are_listed_and_decided_once_over_http(client, conn):
+    """goals/s21-real-difficulty.yaml over HTTP: a question 20 of 20 right at Hard is listed with its evidence;
+    it is decided once — keep — and a second decision is refused with the reason."""
+    from tests.test_learn import _answered, _question, _tenant
+
+    tenant = _tenant(conn)
+    key = _question(conn, tenant)
+    _answered(conn, tenant, key, ["correct"] * 20)
+
+    listed = client.get("/bank/proposals", headers=HEADERS)
+    assert listed.status_code == 200
+    mine = next(p for p in listed.json() if p["subject"] == key)
+    assert mine["direction"] == "easier" and mine["evidence"]["n"] == 20
+
+    body = {"verdict": "keep", "by": "neha", "note": "a warm-up on purpose"}
+    assert (
+        client.post(f"/bank/proposal/{mine['id']}/decide", json=body, headers=HEADERS).json()["verdict"]
+        == "keep"
+    )
+    again = client.post(f"/bank/proposal/{mine['id']}/decide", json=body, headers=HEADERS)
+    assert again.status_code == 409 and "already decided" in again.json()["detail"]
+    assert key not in {p["subject"] for p in client.get("/bank/proposals", headers=HEADERS).json()}
