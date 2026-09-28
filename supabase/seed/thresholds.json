@@ -181,6 +181,12 @@
    "value": 0.5,
    "unit": "probability",
    "description": "A skill set Jev says the week's note covered at least this surely comes ticked (N4, goals/n4-week-declaration.yaml)"
+  },
+  {
+   "key": "story.shape_sure_above",
+   "value": 0.6,
+   "unit": "probability",
+   "description": "A story's shape Jev is at least this sure of is taken; below it a person names it (goals/j3-story-shape.yaml)"
   }
  ]
 }

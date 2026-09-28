@@ -16,8 +16,10 @@ from engine.api.models import (
     BankRemoveResponse,
     BankReviewRequest,
     BankReviewResponse,
+    StoryShapeRequest,
+    StoryShapeResponse,
 )
-from engine.w1_bank import bank, inventory, learn, question, review
+from engine.w1_bank import bank, inventory, learn, question, review, story_shape
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -38,6 +40,12 @@ def coverage(short_only: bool = False, conn=Depends(get_conn)):
         for r in inventory.coverage(conn)
     ]
     return [r for r in rows if r["shortfall"] > 0] if short_only else rows
+
+
+@router.post("/bank/story/shape", response_model=StoryShapeResponse)
+def story(body: StoryShapeRequest, conn=Depends(get_conn)):
+    """A story question typed by an educator → its shape, case, place and one-step answer; nothing is stored."""
+    return story_shape.name(conn, body.story)
 
 
 @router.post("/bank/review", response_model=BankReviewResponse)

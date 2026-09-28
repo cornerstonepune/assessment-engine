@@ -1472,6 +1472,16 @@
           "false": "The note does not mention this skill."
         }
       }
+    },
+    {
+      "purpose": "story_shape",
+      "version": 1,
+      "model": "jev-latest",
+      "active": true,
+      "text_file": "prompts/story_shape.v1.txt",
+      "json_schema": {
+        "type": "choice"
+      }
     }
   ]
 }
