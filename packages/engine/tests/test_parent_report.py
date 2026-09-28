@@ -501,3 +501,21 @@ def test_what_the_v8_eval_found_a_count_is_its_own_skills_and_the_words_are_a_pu
     assert any("gives the count" in p for p in said(summary="[child] went from 2 of 8 to 6 of 8."))
     assert any("a time" in p for p in said(summary="[child] improved from earlier in the month."))
     assert any("money" in p for p in said(at_home=["Use ten-pence and one-penny coins to make a number."]))
+
+
+def test_what_the_v10_eval_found_mastery_is_a_state_and_out_of_is_a_count(conn, child):
+    """v10 on live: 12 of 12 held, and read: "has mastered two-digit subtraction" of a skill only improving; "improved
+    from one correct answer out of four to three correct answers out of four"."""
+    f = P.facts(conn, child)
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    assert any("'mastered'" in p for p in said(summary="[child] has mastered subtraction."))
+    lines = _good(f)["can_do"]
+    first = lines[0]
+    counted = [
+        {**first, "sentence": "[child] improved from one correct answer out of four to three out of four."}
+    ]
+    assert any("gives the count" in p for p in said(can_do=counted + lines[1:]))
+    assert said(summary="[child] adds with care, one column at a time, and checks each answer.") == []
