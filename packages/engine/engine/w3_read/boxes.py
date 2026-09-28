@@ -227,9 +227,10 @@ def decide(words, inked, floor):
     return digits, conf, ""
 
 
-def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1)):
+def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep=None):
     """One page of a scan → {slot: reading} in the shape `ocr.answers_for` gives, or None when the page will
-    not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page."""
+    not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page.
+    `keep`: (slot, png) → path — each answer's crop, blank or written, kept as read (`crops.keeper`)."""
     canon, M = line_up(img, pdf, page_no)
     if canon is None:
         return None
@@ -250,10 +251,13 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1)):
             "partial" if any(ink(is_dark, printed, w, WORK_INSIDE) > WORK_INK for w in spaces) else "none"
         )
         base = {"working_shown": working, "box": box, "boxes": len(run), "inked": inked, "seen": []}
+        seen_as = photo(canon, run)
+        if keep:
+            base["crop"] = keep(slot, seen_as)
         if not inked:
             out[slot] = {**base, "child_answer": "", "answer_state": "blank", "why": "", "confidence": 100.0}
             continue
-        words = sorted(digits.read(photo(canon, run))["words"], key=lambda w: w["x"])
+        words = sorted(digits.read(seen_as)["words"], key=lambda w: w["x"])
         seen = [{"text": w["text"], "confidence": round(float(w["confidence"]), 1)} for w in words]
         said, confidence, doubt = decide(words, inked, cfg["min_confidence"])
         out[slot] = {

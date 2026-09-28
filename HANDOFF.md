@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 2: what a check teaches (goal s19; PR open, merges after step 1's #88)
+
+- Built on Nimish's "continue the work": the view `answer_checked` is the one definition of a checked answer and its
+  label (the engine's `checked_rows` and Marking's `readerReport` had it twice); the reader keeps each answer's crop —
+  the pixels it read — beside the scans (`w3_read/crops.py`, `raw_read.crop`); Marking shows accuracy by the day papers
+  were read beside the table by kind. Fixed in passing: the website's `'[\s,]'` in a JS template is `[s,]` (it
+  stripped the letter s), now `[[:space:],]`.
+- **Next, on merge (after #88):** the re-read of 23 and 24 Sep keeps their crops; check Marking's by-day table on live.
+
 ## 2026-09-28, later: the Plan view inside the spine (a brainstorm view, no step moved)
 
 - Nimish asked for one system, not separate documents. It shows how the syllabus becomes fortnights and a day of
