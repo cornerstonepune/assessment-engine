@@ -1,0 +1,12 @@
+#!/bin/sh
+# Compare the school's official Cambridge framework files with the copies the crosswalk was built from. From anywhere:
+#   ~/cornerstone/assessment-engine/bin/compare-cambridge ~/Downloads/<framework>.pdf [more files …]
+# Each file says which framework it is on its first page (0096 Maths, 0058 English, 0097 Science). The report lists
+# every objective that differs; the words go under data/, never committed, because the repository is public.
+here=$(cd "$(dirname "$0")/.." && pwd)
+python="$here/packages/engine/.venv/bin/python"
+if [ ! -x "$python" ]; then
+  echo "engine is not installed yet: cd $here/packages/engine && uv sync" >&2
+  exit 1
+fi
+exec "$python" "$here/research/crosswalk_compare.py" "$@"

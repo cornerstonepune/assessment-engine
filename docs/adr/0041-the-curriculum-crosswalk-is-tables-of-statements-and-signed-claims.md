@@ -420,6 +420,8 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 4. **Signatory.** Akanksha, for every subject, to start.
 5. **Build.** Start now, as data shaped exactly like these tables, from the documents in hand. The tables themselves
    (migrations) wait for their place in BUILD-ORDER.
+6. **Grade 1 is age 6.** Nimish, 28 Sep: "yeah grade 1 can be considered 6". Grade g is ages g+5 to g+6, as NCF-SE
+   puts it, so Grade 3 is age 8, where Cambridge's six stages over "aged 5 to 11" put Stage 4.
 
 ## Amended by the build, 28 Sep
 

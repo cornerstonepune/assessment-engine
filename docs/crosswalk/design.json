@@ -5,7 +5,7 @@
   "rule": "A grade is one year of age: Grade g is ages g+5 to g+6, so Grade 1 is ages 6 to 7.",
   "grade_1_from": 6,
   "why": "NCF-SE 2023, page 62: 'Foundational Stage (in two parts, that is 3 years of Anganbadi or pre-school + 2 years in primary school in Grades 1–2; both together covering ages 3–8), Preparatory Stage (Grades 3–5, covering ages 8–11), Middle Stage (Grades 6–8, covering ages 11–14)'. Three pre-school years from age 3 put Grade 1 at age 6.",
-  "open": "The school's own entry age for Grade 1 is Nimish's to confirm; changing grade_1_from moves every placement by the same amount."
+  "decided": "Nimish, 28 Sep: \"yeah grade 1 can be considered 6\"."
  },
  "steps": {
   "rule": "One step per year of age, from age 3 (playgroup) to age 12 (Grade 7). A step is where a child usually is at that age; a child's own step comes from their evidence, not their grade.",

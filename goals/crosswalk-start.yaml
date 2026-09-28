@@ -43,7 +43,7 @@ manual:
   - "Whether the drafting method thinks the way the school wants is for Nimish and Akanksha to say; the tests prove the method is applied the same way every time, not that it is right."
   - "Akanksha's decisions on the sample are hers to give. Until then every row is a proposal and counts for nothing."
   - "The Cambridge texts come from third-party copies; they are compared with the official files when the school has them (research/crosswalk_compare.py)."
-  - "A Cambridge stage's age is worked out (six stages over the printed 'aged 5 to 11'), and Grade 1 at age 6 follows NCF-SE; the school's own entry age is Nimish's to confirm."
+  - "A Cambridge stage's age is worked out (six stages over the printed 'aged 5 to 11'). Grade 1 at age 6 is Nimish's decision of 28 Sep, and it follows NCF-SE."
   - "The full rebuild, python3 research/crosswalk_build.py, downloads and fingerprints the PDFs; the tests read the tables it wrote."
 scenarios: []
 criteria:

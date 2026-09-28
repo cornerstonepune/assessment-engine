@@ -3576,14 +3576,18 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
   - It is a Google Sheet shared with Akanksha as editor on 28 Sep (`docs/crosswalk/review/math-number-8.sent.json`).
     Downloaded back as CSV, it has 41 rows and 0 cells different.
   - Her decisions come back with `python3 research/crosswalk_decisions.py MATH.NUMBER.8 <file.csv> --by Akanksha`.
-- **Compare with the official files:** `python3 research/crosswalk_compare.py CAM-PRI-MAT-0096 <file>` reads the file with
-  the same reader. On the copy itself → `296 the same, 0 changed, 0 only in the copy, 0 only in the official file`.
+- **Compare with the official files:** `~/cornerstone/assessment-engine/bin/compare-cambridge <file.pdf> …` runs from any
+  directory.
+  - It tells the framework from the file's first page and reads it with the same reader.
+  - It writes the differing words under `data/crosswalk_compare/`, never committed.
+  - On the three copies themselves → `296 the same, 0 changed` · `581 the same, 0 changed` · `311 the same, 0 changed`.
+  - On a machine without `data/crosswalk_statements/`, it reads the recorded copy again.
+  - A file that is not one of the three is refused by name.
 - **Tests:** `cd packages/engine && .venv/bin/python -m pytest tests/test_crosswalk.py` → `10 passed`. They read only the
   tracked tables; each of Nimish's ten sentences in `goals/crosswalk-start.yaml` names one.
 - **Not verified:**
   - that the drafts are right: Akanksha decides;
   - Cambridge's per-stage ages (inferred from the range);
-  - the school's Grade 1 entry age (NCF-SE's 6 assumed);
   - the 345 objectives waiting for a strand: occasions such as projects, quizzes and visits, and course-book units that
     mix reading and writing.
 - **Found in the school's objectives** (`supabase/seed/registry.json`, generated from the Skill Map Review, not edited
