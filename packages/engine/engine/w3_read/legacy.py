@@ -19,7 +19,7 @@ from engine.assess import misconceptions as M
 from engine.assess import placing, tags
 from engine.assess.items import Item
 from engine.core import db
-from engine.w3_read import reading, render_pdf
+from engine.w3_read import checked, reading, render_pdf
 from engine.w3_read.marking import _MINUS, normalise_answer, verdicts
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
@@ -436,21 +436,6 @@ def _page_resolution(summary, page_no, out):
     return f"{res['status']}: {res['saw']}{tail}"
 
 
-def worked_on(conn, capture_id):
-    """How many answers on this capture a person has signed off or corrected.
-
-    A re-read would supersede the capture that work hangs from, and every screen and the graph read
-    only live captures — so a better reader would quietly undo a teacher's work. The first version of
-    this guard counted sign-offs only, and a re-read took six of Nimish's corrections on a paper he
-    had not yet signed off. What a person has checked, a person has checked: it is not read again.
-    """
-    return conn.execute(
-        "select (select count(*) from item_result where capture_id = %s and state = 'confirmed')"
-        " + (select count(*) from read_correction where capture_id = %s) as n",
-        (capture_id, capture_id),
-    ).fetchone()["n"]
-
-
 def import_scan(
     conn, path, paper_code, child_id, actor, pages=None, masks=None, narrative=False, again=False, rows=None
 ):
@@ -481,18 +466,9 @@ def import_scan(
         " and superseded_by is null",
         (instance, file_sha256),
     ).fetchone()
-    signed = existing and worked_on(conn, existing["id"])
-    if signed and again:
-        return {
-            "capture_id": existing["id"],
-            "pages": existing["pages"],
-            "results": [],
-            "unmatched": [],
-            "notes": [f"a person has worked on this paper ({signed} answers): not read again"],
-            "already": True,
-            "already_results": signed,
-        }
-    if existing and again:
+    signed = existing and checked.worked_on(conn, existing["id"])
+    keep = signed if again else 0  # read into the same capture; only untouched answers change (`checked`)
+    if existing and again and not keep:
         # The scan is unchanged but the PAPER is not — `G2-CAM-A` went from 24 answer slots to the
         # 27 its page holds, and three answers per child had nowhere to land. Idempotency keys on
         # the file alone, so it reported "nothing to do" on a reading that was three answers short.
@@ -501,7 +477,7 @@ def import_scan(
         stale_id = existing["id"]
         existing = None
         conn.execute("update capture set superseded_by = id where id = %s", (stale_id,))
-    if existing and existing["status"] == "processed":
+    if existing and existing["status"] == "processed" and not keep:
         n = conn.execute(
             "select count(*) as n from item_result where capture_id = %s", (existing["id"],)
         ).fetchone()["n"]
@@ -535,6 +511,8 @@ def import_scan(
         conn.execute("update capture set superseded_by = %s where id = %s", (capture, stale_id))
 
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
+    if keep:
+        summary["notes"].append(f"{keep} answers a person checked kept as they left them")
     try:
         cli = ocr.client()
         judge = verdicts(conn, capture)
@@ -560,15 +538,19 @@ def import_scan(
                     continue
                 status, codes, working, read = judge(it, read)
                 rid = it["responses"][0].get("rid", "a")
-                conn.execute(
+                wrote = conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"
                     " values (%s,%s,%s,%s,%s,%s,%s,%s,'candidate')"
                     " on conflict (capture_id, item_id, rid) do update set raw_read = excluded.raw_read,"
                     " status = excluded.status, misconception_codes = excluded.misconception_codes,"
-                    " working_shown = excluded.working_shown, updated_at = now()",
+                    " working_shown = excluded.working_shown, updated_at = now()"
+                    + checked.UNTOUCHED
+                    + " returning id",
                     (tenant, capture, it["id"], rid, json.dumps(read), status, codes, working),
-                )
+                ).fetchone()
+                if not wrote:
+                    continue
                 summary["results"].append(
                     {
                         "item": key,

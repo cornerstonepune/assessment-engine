@@ -38,7 +38,7 @@
       "built": "live",
       "takes": ["scans on this Mac", "each old paper's answer key"],
       "gives": ["capture", "item_result"],
-      "files": ["engine/w3_read/legacy.py", "engine/w3_read/cli_legacy.py", "engine/w3_read/external.py", "engine/w3_read/stale.py", "engine/w3_read/reread.py"],
+      "files": ["engine/w3_read/legacy.py", "engine/w3_read/checked.py", "engine/w3_read/cli_legacy.py", "engine/w3_read/external.py", "engine/w3_read/stale.py", "engine/w3_read/reread.py"],
       "commands": ["engine legacy import", "engine legacy remark", "engine read again"],
       "screens": [],
       "subject": {"any": false, "note": "Maths only: each old paper's answer key is maths, and the reader reads numbers. Marking moved to marking.py (N9)."}
@@ -176,7 +176,7 @@
     "limit": 400,
     "frozen": {
       "engine/adapters/ocr.py": 1002,
-      "engine/w3_read/legacy.py": 670,
+      "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 640,
       "engine/core/loaders.py": 468,
       "engine/assess/misconceptions.py": 500,
