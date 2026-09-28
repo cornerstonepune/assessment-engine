@@ -557,6 +557,18 @@ def load_all() -> dict[str, int]:
         return db.counts(conn, FILLED_TABLES)
 
 
+def load_settings() -> dict[str, int]:
+    """Only the rows the engine reads as settings — prompts, thresholds, config — each upserted from its seed as
+    `load_all` does. Every deploy runs it (`engine load --settings`, deploy-engine.yml), so a setting merged with
+    the code that reads it is live with that code; the rest waits for `bin/update-live`."""
+    with db.connect() as conn:
+        t = _tenant(conn)
+        for step in (_prompts, _thresholds, _config):
+            step(conn, t)
+        conn.commit()
+        return db.counts(conn, ("prompt", "threshold", "config"))
+
+
 def orphans() -> dict[str, list[str]]:
     """Referential checks the schema cannot express, because the codes live in arrays."""
     with db.connect() as conn:

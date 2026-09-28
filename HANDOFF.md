@@ -13,6 +13,26 @@ is verified. This file only says where the last session stopped.
   Nimish: give F3's Drive credential the school's own Google Cloud OAuth client. Then the live proof: a scan copied into
   folder 1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val runs F3, and its copies are on Marking.
 
+## 2026-09-28 — step 2: what a check teaches (goal s19; PR open, merges after step 1's #88)
+
+- Built on Nimish's "continue the work": the view `answer_checked` is the one definition of a checked answer and its
+  label (the engine's `checked_rows` and Marking's `readerReport` had it twice); the reader keeps each answer's crop —
+  the pixels it read — beside the scans (`w3_read/crops.py`, `raw_read.crop`); Marking shows accuracy by the day papers
+  were read beside the table by kind. Fixed in passing: the website's `'[\s,]'` in a JS template is `[s,]` (it
+  stripped the letter s), now `[[:space:],]`.
+- **Next, on merge (after #88):** the re-read of 23 and 24 Sep keeps their crops; check Marking's by-day table on live.
+
+## 2026-09-28 — step 1: a copy is read in the layout it was printed in (goal s18, ADR 0040; PR open)
+
+- Nimish chose "Recover layout" for 23 Sep. Cause: the worksheet PDF is cached inside the container, which every deploy
+  rebuilds, so the pre-L3 layout (4 boxes an answer) was gone and 87 of 108 answers fell back to the old reader.
+- Built: `render.layouts` rows (three layouts since 2026-09-21), the renderer draws any (`assess/page_css.py` split out
+  of `render.py`, now off the frozen list), `library.printed`, `boxes.as_printed`, `copies._as_printed`. Every deploy now
+  runs `engine load --settings` with the deployed seed mounted, so settings and prompts (the `mistake_guess` prompt from
+  #84 too) are live on merge.
+- **Next, on merge:** the deploy loads the settings; then `POST /read/file {again: true}` for the 23 Sep file
+  (1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1) and check the floor (s17, s18). Then step 2.
+
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
 - Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in

@@ -19,7 +19,7 @@ import pymupdf
 
 from engine.core import db, roster
 from engine.w2_print import library
-from engine.w3_read import legacy, read_eval, sorting
+from engine.w3_read import boxes, legacy, read_eval, render_pdf, sorting
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
@@ -130,6 +130,16 @@ def paper(conn, code, pdf=None):
         # the renderer's own record of where each box is: the scan is read in those boxes (`boxes.read_page`)
         key |= {"fields": "cells", "geometry": geometry, "printed": str(pdf)}
     return {"id": t["id"], "tenant_id": t["tenant_id"], "key": key}, by_key, unread
+
+
+def _as_printed(conn, code, cut):
+    """The worksheet as this copy was printed, where no PDF of it was kept: of the layouts the worksheet has
+    printed in (`library.printed`), the one the copy's pages match (`boxes.as_printed`, goals/s18). On 23 Sep a
+    copy printed four boxes an answer; the worksheet prints two today."""
+    drawn = list(library.printed(conn, code).values())
+    if len(drawn) == 1:
+        return drawn[0]
+    return boxes.as_printed(list(render_pdf.photos(cut)), drawn)
 
 
 def _child(conn, section, who, actor):
@@ -250,10 +260,12 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
             )
             continue
         kept = mine and mine["pdf_path"] and Path(mine["pdf_path"]).exists()
-        template, by_key, unread = paper(conn, code, mine["pdf_path"] if kept else None)
+        cut = _cut(scan, copy["pages"], name)
+        template, by_key, unread = paper(
+            conn, code, mine["pdf_path"] if kept else _as_printed(conn, code, cut)
+        )
         if mine:
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
-        cut = _cut(scan, copy["pages"], name)
         s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))
         _replaces(conn, s["capture_id"], scan)
         # a copy read before it moved (`WAS_CUT`): its reading now points at where it lives

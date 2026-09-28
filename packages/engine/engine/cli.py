@@ -197,8 +197,13 @@ def eval_(
 @app.command()
 def load(
     check: bool = typer.Option(False, "--check", help="Load twice and fail if anything moved"),
+    settings: bool = typer.Option(False, "--settings", help="Only prompts, thresholds and config (a deploy)"),
 ) -> None:
     """Load the registry, ladder, levels, misconceptions, dimensions, prompts and thresholds."""
+    if settings:
+        for table, n in loaders.load_settings().items():
+            typer.echo(f"  {table:<9}  {n:>5}")
+        return
     counts = loaders.load_all()
     width = max(len(t) for t in counts)
     for table, n in counts.items():
