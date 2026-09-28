@@ -3525,6 +3525,17 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
   onto 16 fortnights and writes `docs/spine/plan.json`; `python3 research/spine_page.py` inlines it into the map.
   Items per grade: 479 · 448 · 397 · 426 (school objectives) · 37 · 72 · 89 (NCERT outcomes). The day and the modes
   are the proposal in `docs/spine/plan_design.json`.
+- **The spine page reads as one thread (2026-09-28, ADR 0038):**
+  - `cd packages/engine && .venv/bin/python -m pytest tests/test_spine_page.py` → `8 passed`. The tests hold
+    `goals/spine-readable.yaml`, whose five sentences are Nimish's words, each with its test.
+  - `python3 research/spine_page.py` → `rendered … 2565 KB`. The page holds 2,772 threads, one per item (per grade for
+    a unit), and 2,467 items open one.
+  - `python3 research/plan_build.py` now also writes each scenario's calendar and hours, the day by mode, and the year
+    paced fortnight by fortnight. A test proves the tracked `plan.json` is what its inputs build.
+  - The page loads with no script error on ten routes and has no sideways scroll at 390 px. Its chart colours pass
+    `validate_palette.js` in both themes: five parts for the day, and an ordinal ramp for the hour.
+  - 31 of the 637 items the plan places reach no capability (30 units and 1 NCERT outcome); each thread says why.
+  - Not verified: how the page reads to Nimish. That is `manual` in the goal.
 - **Indicative timetable data (2026-09-28):** `python3 research/timetable_data.py` prints `22/22 quotes found word for
   word on their cited page`. The quotes come from NCF-SE Part A Chapter 4, NCERT's EVS introduction and the graduate
   profile. The script writes them, with the NCERT outcome counts for Grades 1–7, into
