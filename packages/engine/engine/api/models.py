@@ -67,6 +67,13 @@ class CorrectRequest(BaseModel):
     by: str
 
 
+class NameMistakeRequest(BaseModel):
+    result_id: str
+    code: str = Field(min_length=1, max_length=80)
+    by: str = Field(min_length=1, max_length=200)
+    proposed: list[list] = []  # Jev's shortlist as the person saw it: [[code, chance], …]
+
+
 class CorrectResponse(BaseModel):
     status: str
     codes: list[str]

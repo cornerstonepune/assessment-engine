@@ -1,0 +1,25 @@
+name: j2-name-the-mistake
+goal: >
+  On Marking, a wrong answer no named mistake explains carries Jev's three likeliest named mistakes (or "none of
+  these"), each one press, with every other named mistake of its operation in a list beside them; Jev only proposes.
+  The person's pick is kept, append-only, against the reading it was named on: saving the same reading again keeps it,
+  a different reading is named afresh. It is marked on the answer and reaches the child's evidence when the paper is
+  signed off. Jev unreachable never stops the page: the answer is still named by hand.
+
+# Written 2026-09-27, before the work. Nimish: "Matching the child's wrong answer to that can be an efficient way of
+# choosing questions for the child" and "build as many as you can where the impact is maximized in this context."
+says:
+  - words: "Matching the child's wrong answer to that"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_shortlist
+  - words: "build as many as you can where the impact is maximized in this context"
+    proved_by: packages/engine/tests/api/test_capture_routes.py::test_a_person_names_a_mistake_and_a_refusal_says_why
+manual:
+  - "On live, once merged: the migration applies (migrate.yml); TYPESAFE_API_KEY in the server's .env (Nimish)."
+scenarios: []
+criteria:
+  - name: naming on a read paper, its evidence, and the routes — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_legacy.py tests/api/test_capture_routes.py tests/test_mistake_guess.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

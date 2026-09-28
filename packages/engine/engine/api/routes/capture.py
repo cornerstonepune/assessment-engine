@@ -19,6 +19,7 @@ from engine.api.models import (
     IngestResponse,
     MarkRequest,
     MarkResponse,
+    NameMistakeRequest,
     ReadFileRequest,
     ReadFileResponse,
 )
@@ -163,3 +164,18 @@ def scan_copies(name: str, conn=Depends(get_conn)) -> list[dict]:
 def capture_readings(capture_id: str, conn=Depends(get_conn)) -> list[dict]:
     """How the reader left every answer on one copy, and why each waits (`copies.readings`)."""
     return copies.readings(conn, capture_id)
+
+
+@router.get("/capture/{capture_id}/mistakes")
+def capture_mistakes(capture_id: str, conn=Depends(get_conn)) -> dict:
+    """Each wrong answer on one copy that no named mistake explains, with Jev's shortlist (`marking.unnamed`)."""
+    return marking.unnamed(conn, capture_id)
+
+
+@router.post("/capture/mistake")
+def name_mistake(body: NameMistakeRequest, conn=Depends(get_conn)) -> dict:
+    """A person names the mistake behind such an answer (`marking.name_mistake`); a refusal says why."""
+    try:
+        return marking.name_mistake(conn, body.result_id, body.code, body.by, body.proposed)
+    except ValueError as e:
+        raise HTTPException(409, str(e)) from e
