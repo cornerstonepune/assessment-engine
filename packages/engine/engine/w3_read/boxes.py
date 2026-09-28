@@ -42,6 +42,7 @@ INK = 0.012
 # A digit is written down its box; an educator's tick or a stray stroke lies across it. Measured on 23 Sep R8-H01 copy
 # 05: digits span 74–87% of their box's height, the tick in the box after them 23%, an empty box's specks 6%.
 DIGIT_TALL = 0.45
+EDGE_LINE = 0.9  # a column this much dark, top to bottom, at a cell's edge is the box's line
 WORK_INK = 0.004  # this much of the working space written on is the third signal (rule 5)
 WORK_INSIDE = 1.5  # mm: the working box's dashed border and its printed label stay outside the measure
 AROUND = 2  # mm of the photograph around a run of boxes handed to the reader, as ADR 0035 measured it
@@ -212,18 +213,39 @@ def _px(g, inside=0.0):
     return max(0, x0), max(0, y0), min(W, max(x0 + 1, x1)), min(H, max(y0 + 1, y1))
 
 
+def marks(is_dark, printed, g, inside=INSIDE):
+    """What is marked in a settled cell, `inside` mm in from its line, by anything but the paper: the paper's print
+    taken out where it settled (`_theirs`), and then the box's own line where it still shows — a column dark from
+    top to bottom at the cell's edge. On 23 Sep R8-H01 copy 05 an empty box's left line, a hair off where it printed,
+    was 3 columns 97-100% dark and nothing else: counted as a digit, "3 boxes hold ink but the reader saw 23"."""
+    x0, y0, x1, y1 = box = _px(g, inside)
+    m = is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], box)
+    return _edge_lines_out(m)
+
+
+def _edge_lines_out(m):
+    """`m` without the columns at its left and right edges that run (almost) its whole height: a box's line."""
+    full = m.mean(axis=0) >= EDGE_LINE if m.size else np.zeros(0, bool)
+    out = m.copy()
+    for cols in (range(len(full)), range(len(full) - 1, -1, -1)):
+        for c in cols:
+            if not full[c]:
+                break
+            out[:, c] = False
+    return out
+
+
 def ink(is_dark, printed, g, inside=INSIDE):
     """How much of a settled cell, `inside` mm in from its line, is marked by anything but the paper."""
-    box = _px(g, inside)
-    x0, y0, x1, y1 = box
-    return float((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], box)).mean())
+    m = marks(is_dark, printed, g, inside)
+    return float(m.mean()) if m.size else 0.0
 
 
 def tall(is_dark, printed, g, inside=INSIDE):
     """How much of a settled cell's height, `inside` mm in from its line, the marks in it span, top to bottom."""
-    x0, y0, x1, y1 = _px(g, inside)
-    rows = np.flatnonzero((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], (x0, y0, x1, y1))).any(axis=1))
-    return float((rows[-1] - rows[0] + 1) / max(1, y1 - y0)) if rows.size else 0.0
+    m = marks(is_dark, printed, g, inside)
+    rows = np.flatnonzero(m.any(axis=1))
+    return float((rows[-1] - rows[0] + 1) / max(1, m.shape[0])) if rows.size else 0.0
 
 
 def holds_digit(is_dark, printed, g):
