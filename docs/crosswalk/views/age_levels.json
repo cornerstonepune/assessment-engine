@@ -1,0 +1,367 @@
+[
+ {
+  "age": 3,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Foundational",
+    "ages": [
+     3,
+     8
+    ],
+    "printed": true
+   }
+  ]
+ },
+ {
+  "age": 4,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Foundational",
+    "ages": [
+     3,
+     8
+    ],
+    "printed": true
+   }
+  ]
+ },
+ {
+  "age": 5,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Foundational",
+    "ages": [
+     3,
+     8
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 1",
+    "ages": [
+     5,
+     6
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 1",
+    "ages": [
+     5,
+     6
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 1",
+    "ages": [
+     5,
+     6
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 6,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Foundational",
+    "ages": [
+     3,
+     8
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 1",
+    "ages": [
+     6,
+     7
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 2",
+    "ages": [
+     6,
+     7
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 2",
+    "ages": [
+     6,
+     7
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 2",
+    "ages": [
+     6,
+     7
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 7,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Foundational",
+    "ages": [
+     3,
+     8
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 2",
+    "ages": [
+     7,
+     8
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 3",
+    "ages": [
+     7,
+     8
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 3",
+    "ages": [
+     7,
+     8
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 3",
+    "ages": [
+     7,
+     8
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 8,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Preparatory",
+    "ages": [
+     8,
+     11
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 3",
+    "ages": [
+     8,
+     9
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 4",
+    "ages": [
+     8,
+     9
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 4",
+    "ages": [
+     8,
+     9
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 4",
+    "ages": [
+     8,
+     9
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 9,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Preparatory",
+    "ages": [
+     8,
+     11
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 4",
+    "ages": [
+     9,
+     10
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 5",
+    "ages": [
+     9,
+     10
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 5",
+    "ages": [
+     9,
+     10
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 5",
+    "ages": [
+     9,
+     10
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 10,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Preparatory",
+    "ages": [
+     8,
+     11
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 5",
+    "ages": [
+     10,
+     11
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-MAT-0096",
+    "level": "Stage 6",
+    "ages": [
+     10,
+     11
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-ENG-0058",
+    "level": "Stage 6",
+    "ages": [
+     10,
+     11
+    ],
+    "printed": false
+   },
+   {
+    "framework_code": "CAM-PRI-SCI-0097",
+    "level": "Stage 6",
+    "ages": [
+     10,
+     11
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 11,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Middle",
+    "ages": [
+     11,
+     14
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 6",
+    "ages": [
+     11,
+     12
+    ],
+    "printed": false
+   }
+  ]
+ },
+ {
+  "age": 12,
+  "levels": [
+   {
+    "framework_code": "NCF-SE-2023",
+    "level": "Middle",
+    "ages": [
+     11,
+     14
+    ],
+    "printed": true
+   },
+   {
+    "framework_code": "NCERT-LO-2017",
+    "level": "Class 7",
+    "ages": [
+     12,
+     13
+    ],
+    "printed": false
+   }
+  ]
+ }
+]

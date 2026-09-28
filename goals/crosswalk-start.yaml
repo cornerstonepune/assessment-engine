@@ -1,0 +1,55 @@
+name: crosswalk-start
+goal: >
+  The curriculum crosswalk starts from the documents in hand. Every statement of NCF-SE 2023, NCERT's learning outcomes
+  and the Cambridge Primary Mathematics, English and Science frameworks is a row with its document, page and level,
+  word for word; the Cambridge copies are recorded as copies, and the day the school's official files arrive one
+  command compares them statement by statement. Age is the anchor: every framework level carries the ages it prints or
+  how they were worked out, every strand is a ladder of one step per year of age, and every school objective sits at
+  its grade's age on a strand or waits for the drafting method. One drafting method, the prompt Nimish and Akanksha
+  align on, drafts what we say for each objective with a fixed way of thinking, and code refuses a draft that breaks
+  it. The first sample went to Akanksha as a sheet that asks only for a decision on each row, and her decisions come
+  back as signed claims; nothing counts as the school's word until she decides it.
+
+# Written 2026-09-28, before the build. Nimish, 2026-09-28: "Firstly, no approver needs to actually write. You can't
+# expect Akanksha or any teacher to be writing. You just need to articulate from your side and have a proper prompt
+# that we can align on, which creates these learning objectives in a certain way with a consistent thought process.
+# That needs to happen. Yes, we can have a sample which you can send to Akanksha, which becomes an approval mechanism
+# for the curriculum structure. At least start building the entire data structure and the information structure that
+# you have from the documents that you have already downloaded, even if they are not from the Cambridge official
+# website. Once I have that, we can just compare once I have the real documents also, but let's not shy away from
+# doing that." And earlier that day: "What should the child be able to do at what age should be our baseline."
+says:
+  - words: "start building the entire data structure and the information structure that you have from the documents that you have already downloaded"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_every_statement_in_the_documents_in_hand_is_a_row_with_its_page_level_and_document
+  - words: "even if they are not from the Cambridge official website"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_the_cambridge_copies_are_recorded_as_copies_with_their_address_and_fingerprint
+  - words: "we can just compare once I have the real documents also"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_a_copy_and_the_official_file_are_compared_statement_by_statement
+  - words: "What should the child be able to do at what age should be our baseline"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_age_is_the_anchor_every_level_and_step_has_ages_and_each_objective_sits_at_its_grades_age
+  - words: "the entire data structure"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_every_school_objective_is_placed_on_a_strand_or_waits_for_the_method_and_none_is_lost
+  - words: "have a proper prompt that we can align on, which creates these learning objectives in a certain way with a consistent thought process"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_the_drafting_method_is_one_prompt_and_a_draft_that_breaks_it_is_refused
+  - words: "a consistent thought process"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_every_cambridge_objective_at_the_steps_age_is_aligned_or_listed_as_not_covered
+  - words: "no approver needs to actually write"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_nobody_writes_the_sheet_asks_only_for_a_decision_and_only_the_signatory_decides
+  - words: "a sample which you can send to Akanksha, which becomes an approval mechanism for the curriculum structure"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_the_sample_sent_to_akanksha_becomes_the_approval_of_the_structure
+  - words: "You can't expect Akanksha or any teacher to be writing"
+    proved_by: packages/engine/tests/test_crosswalk.py::test_a_model_never_signs_every_claim_has_one_proposer_and_nothing_is_decided_yet
+manual:
+  - "Whether the drafting method thinks the way the school wants is for Nimish and Akanksha to say; the tests prove the method is applied the same way every time, not that it is right."
+  - "Akanksha's decisions on the sample are hers to give. Until then every row is a proposal and counts for nothing."
+  - "The Cambridge texts come from third-party copies; they are compared with the official files when the school has them (research/crosswalk_compare.py)."
+  - "A Cambridge stage's age is worked out (six stages over the printed 'aged 5 to 11'), and Grade 1 at age 6 follows NCF-SE; the school's own entry age is Nimish's to confirm."
+  - "The full rebuild, python3 research/crosswalk_build.py, downloads and fingerprints the PDFs; the tests read the tables it wrote."
+scenarios: []
+criteria:
+  - name: every statement placed, every age, the method's checks, the sheet and its decisions
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_crosswalk.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -1,8 +1,9 @@
 # 0041 — The curriculum crosswalk is tables: what others say verbatim, what we say, and claims a person signs
 
 Date: 2026-09-28
-Goal: none — a design, not yet built. `goals/crosswalk-signed.yaml` is written with the build, when BUILD-ORDER
-reaches it or Nimish moves it up (decision 5 below).
+Goal: goals/crosswalk-start.yaml
+The build started from the documents in hand (decision 5); `goals/crosswalk-signed.yaml` follows when the tables
+are migrated, when BUILD-ORDER reaches them or Nimish moves them up.
 Status: **proposed**. Nimish settled four of the five decisions on 28 Sep, and the rubric scale is recommended below
 for his yes (see the end).
 Source: the schema it extends, `supabase/migrations/20260917090000_ring_a.sql` and `20260921090000_full_registry.sql`;
@@ -348,8 +349,8 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 5. **Age, not grade number, lines frameworks up.** Each framework level carries the ages it prints, and each step
    the age a child is usually ready for it. A departure from a framework's age is a signed claim.
 6. **Complete means a command passes.** The goal for a strand passes only when:
-   - every objective has an approved statement, a signed NCF-SE alignment, and a signed Cambridge alignment or a signed
-     reason there is none;
+   - every objective has an approved statement, and for NCF-SE and for Cambridge a signed alignment or a signed
+     reason there is none at that age (NCF-SE's Preparatory Stage, for one, has no negative numbers);
    - every outcome has a signed descriptor at every level of its scale;
    - `framework_gap` is empty.
 
@@ -419,3 +420,61 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 4. **Signatory.** Akanksha, for every subject, to start.
 5. **Build.** Start now, as data shaped exactly like these tables, from the documents in hand. The tables themselves
    (migrations) wait for their place in BUILD-ORDER.
+
+## Amended by the build, 28 Sep
+
+Building the tables from the documents in hand (`research/crosswalk_build.py`, `docs/crosswalk/tables/`) showed what
+the design above left out. The tables are these, as amended:
+
+```sql
+alter table framework_document add column provenance text not null
+  check (provenance in ('publisher', 'third_party_copy'));   -- a copy found elsewhere is marked, and compared later
+alter table framework_level
+  add column age_basis text not null,        -- 'printed', or how the ages were worked out
+  add column quote text not null,            -- the framework's own words the ages rest on
+  add column pdf_page int not null;
+alter table framework_statement
+  add column printed_code text,              -- as printed: C-1.1 (unique only within a stage), *3Rw.01
+  add column items text[] not null default '{}',   -- a list printed under the statement ("Understand addition as:")
+  drop constraint framework_statement_kind_check,
+  add constraint framework_statement_kind_check check (kind in ('curricular_goal', 'competency', 'learning_outcome',
+    'learning_objective', 'characteristic', 'note', 'strand', 'substrand'));
+    -- characteristic: a way of working for all stages (Cambridge's Thinking and Working Mathematically);
+    -- note: a printed line under a heading ("By end of Stage 4 learners should have a secure understanding of phonics.")
+alter table progression add column cambridge_strands text[] not null default '{}';
+alter table claim add column rule text,      -- or the code that proposed it (a step per year of age)
+  drop constraint claim_check,
+  add constraint claim_one_proposer check (num_nonnulls(proposed_by, prompt_purpose, rule) = 1);
+alter table rubric_level
+  add column suggested_by text not null,     -- the engine's evidence that suggests it: "right at Hard"
+  add column reports_as text not null check (reports_as in ('Beginner', 'Proficient', 'Advanced'));
+
+create table no_alignment (                  -- a signed reason a framework has nothing for an objective at its age
+  tenant_id uuid not null references tenant(id) on delete cascade,
+  lo_code text not null,
+  framework_family text not null check (framework_family in ('NCF-SE', 'Cambridge')),
+  claim_id uuid not null references claim(id),   -- the reason is the claim's rationale
+  primary key (tenant_id, lo_code, framework_family)
+);
+create table gap_proposal (                  -- what to do with an official statement no objective covers
+  tenant_id uuid not null references tenant(id) on delete cascade,
+  statement_id uuid not null references framework_statement(id),
+  step_code text not null,
+  proposal text not null check (proposal in ('add_to', 'new')),   -- 'leave_out' is an exclusion
+  lo_code text,                              -- add_to: the objective it joins
+  what_we_say text,                          -- new: the new objective's sentence
+  claim_id uuid not null references claim(id),
+  primary key (tenant_id, statement_id, step_code)
+);
+-- view objective_waiting: the school's objectives with no objective_step yet, for the drafting method to place
+```
+
+This repository is public, and Cambridge permits "Registered centres … to copy material from this booklet for their own
+internal use". So a Cambridge statement's words are not in git. The tracked row keeps its code, stage, strand, page
+and `text_sha256`, a fingerprint of its words. The words are rebuilt into `data/` from the recorded copy by
+`research/crosswalk_cambridge.py`, and the build refuses words whose fingerprint differs. In the database (not
+public) `text` holds them. NCF-SE's and NCERT's words were already published in `docs/spine/sources/`.
+
+In the research data a row names what it refers to by code (`framework_code` and `statement_code`, `outcome_code`)
+where the database will hold ids, and the signatory is named; in the database she is her auth user id and her name
+stays in `pii`.

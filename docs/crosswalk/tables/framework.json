@@ -1,0 +1,8 @@
+[
+{"code": "NCF-SE-2023", "name": "National Curriculum Framework for School Education 2023", "publisher": "NCERT", "kind": "national", "edition": "First Edition, October 2024 (the imprint page; the file name says August 2023)"},
+{"code": "NCERT-LO-2017", "name": "Learning Outcomes at the Elementary Stage", "publisher": "NCERT", "kind": "national", "edition": "First Edition, April 2017"},
+{"code": "NCERT-LO-2019", "name": "Learning Outcomes at the Secondary Stage", "publisher": "NCERT", "kind": "national", "edition": "First Edition, December 2019"},
+{"code": "CAM-PRI-MAT-0096", "name": "Cambridge Primary Mathematics 0096 Curriculum Framework", "publisher": "Cambridge Assessment International Education", "kind": "international", "edition": "Version 2.1 (the file's own title: 'Cambridge Primary Mathematics 0096 Curriculum Framework v2.1'); cover: 'Published in September 2020 for first teaching in September 2021.'", "text_in_repo": false},
+{"code": "CAM-PRI-ENG-0058", "name": "Cambridge Primary English 0058 Curriculum Framework", "publisher": "Cambridge Assessment International Education", "kind": "international", "edition": "Version 2.1 (the file's own title: 'Cambridge Primary English 0058 Curriculum Framework v2.1'); cover: 'Published in September 2020 for first teaching in September 2021.'", "text_in_repo": false},
+{"code": "CAM-PRI-SCI-0097", "name": "Cambridge Primary Science 0097 Curriculum Framework", "publisher": "Cambridge Assessment International Education", "kind": "international", "edition": "Version 1; 'Copyright © UCLES September 2020'; cover: 'Published in September 2020 for first teaching in September 2021.'", "text_in_repo": false}
+]

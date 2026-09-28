@@ -1,0 +1,494 @@
+{
+ "_note": "The crosswalk's structure as rows (CLAUDE.md rule 1), read by research/crosswalk_build.py. Every row here is a proposal: it lands as a claim that is proposed, not signed, until the signatory decides it (ADR 0041). Drafted 28 Sep 2026.",
+ "made": "2026-09-28",
+ "grade_age": {
+  "rule": "A grade is one year of age: Grade g is ages g+5 to g+6, so Grade 1 is ages 6 to 7.",
+  "grade_1_from": 6,
+  "why": "NCF-SE 2023, page 62: 'Foundational Stage (in two parts, that is 3 years of Anganbadi or pre-school + 2 years in primary school in Grades 1–2; both together covering ages 3–8), Preparatory Stage (Grades 3–5, covering ages 8–11), Middle Stage (Grades 6–8, covering ages 11–14)'. Three pre-school years from age 3 put Grade 1 at age 6.",
+  "open": "The school's own entry age for Grade 1 is Nimish's to confirm; changing grade_1_from moves every placement by the same amount."
+ },
+ "steps": {
+  "rule": "One step per year of age, from age 3 (playgroup) to age 12 (Grade 7). A step is where a child usually is at that age; a child's own step comes from their evidence, not their grade.",
+  "from_age": 3,
+  "to_age": 12
+ },
+ "subjects": [
+  {
+   "code": "MATH",
+   "name": "Mathematics",
+   "school": [
+    "Numeracy"
+   ],
+   "ncf_se": [
+    "mathematics"
+   ],
+   "ncert": [
+    "math"
+   ],
+   "cambridge": "CAM-PRI-MAT-0096"
+  },
+  {
+   "code": "ENG",
+   "name": "English",
+   "school": [
+    "Literacy",
+    "Literacy - English",
+    "Phonics"
+   ],
+   "ncf_se": [
+    "language"
+   ],
+   "ncert": [
+    "eng"
+   ],
+   "cambridge": "CAM-PRI-ENG-0058"
+  },
+  {
+   "code": "SCI",
+   "name": "Science",
+   "school": [
+    "Science"
+   ],
+   "ncf_se": [
+    "world-around-us",
+    "science"
+   ],
+   "ncert": [
+    "evs",
+    "sci"
+   ],
+   "cambridge": "CAM-PRI-SCI-0097"
+  },
+  {
+   "code": "HIN",
+   "name": "Hindi",
+   "school": [
+    "Literacy - Hindi"
+   ],
+   "ncf_se": [
+    "language"
+   ],
+   "ncert": [],
+   "cambridge": null
+  },
+  {
+   "code": "MAR",
+   "name": "Marathi",
+   "school": [
+    "Literacy - Marathi"
+   ],
+   "ncf_se": [
+    "language"
+   ],
+   "ncert": [],
+   "cambridge": null
+  },
+  {
+   "code": "GP",
+   "name": "Global Perspectives",
+   "school": [
+    "Global perspectives"
+   ],
+   "ncf_se": [
+    "world-around-us",
+    "social-science"
+   ],
+   "ncert": [
+    "evs",
+    "sst"
+   ],
+   "cambridge": null
+  },
+  {
+   "code": "HSC",
+   "name": "Home Science",
+   "school": [
+    "Home Science"
+   ],
+   "ncf_se": [
+    "vocational"
+   ],
+   "ncert": [],
+   "cambridge": null
+  },
+  {
+   "code": "RTN",
+   "name": "Routines",
+   "school": [
+    "Routines"
+   ],
+   "ncf_se": [],
+   "ncert": [],
+   "cambridge": null
+  },
+  {
+   "code": "CMP",
+   "name": "Computing",
+   "school": [
+    "Primary Computing"
+   ],
+   "ncf_se": [],
+   "ncert": [],
+   "cambridge": null
+  },
+  {
+   "code": "ART",
+   "name": "Visual Arts",
+   "school": [
+    "Visual Arts"
+   ],
+   "ncf_se": [
+    "art"
+   ],
+   "ncert": [
+    "art"
+   ],
+   "cambridge": null
+  }
+ ],
+ "ncf_se_foundational": {
+  "_note": "NCF-SE sets the Foundational Stage (ages 3-8) by area of development, not by subject. Each area serves these subjects.",
+  "Physical Development": [
+   "RTN"
+  ],
+  "Socio-Emotional and Ethical Development": [
+   "RTN",
+   "GP"
+  ],
+  "Cognitive Development": [
+   "MATH",
+   "SCI",
+   "GP"
+  ],
+  "Language and Literacy Development": [
+   "ENG",
+   "HIN",
+   "MAR"
+  ],
+  "Aesthetic and Cultural Development": [
+   "ART"
+  ],
+  "Positive Learning Habits": [
+   "RTN"
+  ]
+ },
+ "progressions": [
+  {
+   "code": "MATH.NUMBER",
+   "subject": "MATH",
+   "strand": "Number",
+   "cambridge_strands": [
+    "Number"
+   ]
+  },
+  {
+   "code": "MATH.GEOMETRY",
+   "subject": "MATH",
+   "strand": "Geometry and Measure",
+   "cambridge_strands": [
+    "Geometry and Measure"
+   ]
+  },
+  {
+   "code": "MATH.DATA",
+   "subject": "MATH",
+   "strand": "Statistics and Probability",
+   "cambridge_strands": [
+    "Statistics and Probability"
+   ]
+  },
+  {
+   "code": "MATH.THINKING",
+   "subject": "MATH",
+   "strand": "Thinking and Working Mathematically",
+   "cambridge_strands": [
+    "Thinking and Working Mathematically"
+   ]
+  },
+  {
+   "code": "ENG.READING",
+   "subject": "ENG",
+   "strand": "Reading",
+   "cambridge_strands": [
+    "Reading"
+   ]
+  },
+  {
+   "code": "ENG.WRITING",
+   "subject": "ENG",
+   "strand": "Writing",
+   "cambridge_strands": [
+    "Writing"
+   ]
+  },
+  {
+   "code": "ENG.SPEAKING",
+   "subject": "ENG",
+   "strand": "Speaking and Listening",
+   "cambridge_strands": [
+    "Speaking and Listening"
+   ]
+  },
+  {
+   "code": "SCI.ENQUIRY",
+   "subject": "SCI",
+   "strand": "Thinking and Working Scientifically",
+   "cambridge_strands": [
+    "Thinking and Working Scientifically"
+   ]
+  },
+  {
+   "code": "SCI.BIOLOGY",
+   "subject": "SCI",
+   "strand": "Biology",
+   "cambridge_strands": [
+    "Biology"
+   ]
+  },
+  {
+   "code": "SCI.CHEMISTRY",
+   "subject": "SCI",
+   "strand": "Chemistry",
+   "cambridge_strands": [
+    "Chemistry"
+   ]
+  },
+  {
+   "code": "SCI.PHYSICS",
+   "subject": "SCI",
+   "strand": "Physics",
+   "cambridge_strands": [
+    "Physics"
+   ]
+  },
+  {
+   "code": "SCI.EARTH",
+   "subject": "SCI",
+   "strand": "Earth and Space",
+   "cambridge_strands": [
+    "Earth and Space"
+   ]
+  },
+  {
+   "code": "SCI.CONTEXT",
+   "subject": "SCI",
+   "strand": "Science in Context",
+   "cambridge_strands": [
+    "Science in Context"
+   ]
+  },
+  {
+   "code": "HIN.ALL",
+   "subject": "HIN",
+   "strand": "Hindi (strands not drawn: no framework with strands in hand)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "MAR.ALL",
+   "subject": "MAR",
+   "strand": "Marathi (strands not drawn: no framework with strands in hand)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "GP.ALL",
+   "subject": "GP",
+   "strand": "Global Perspectives (strands not drawn: the Cambridge framework is not in hand)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "HSC.ALL",
+   "subject": "HSC",
+   "strand": "Home Science (strands not drawn)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "RTN.ALL",
+   "subject": "RTN",
+   "strand": "Routines (strands not drawn)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "CMP.ALL",
+   "subject": "CMP",
+   "strand": "Computing (strands not drawn: the Cambridge framework is not in hand)",
+   "cambridge_strands": []
+  },
+  {
+   "code": "ART.ALL",
+   "subject": "ART",
+   "strand": "Visual Arts (strands not drawn)",
+   "cambridge_strands": []
+  }
+ ],
+ "unit_strand": {
+  "_note": "Where a school unit's objectives all belong to one strand, the unit places them. null: the unit mixes strands, or is an occasion (a project, a quiz, a visit, a day), so each objective is placed on its own by the drafting method. A subject with one progression places every objective there.",
+  "Numeracy": {
+   "2D Shapes": "MATH.GEOMETRY",
+   "Addition & Subtraction": "MATH.NUMBER",
+   "Addition and Subtraction of Whole Numbers": "MATH.NUMBER",
+   "Celebrating Ganit Diwas (22 December)": null,
+   "Data Handling (Statistics)": "MATH.DATA",
+   "Data Handling – Charts & Graphs": "MATH.DATA",
+   "Data Handling – Sorting & Categorising": "MATH.DATA",
+   "Division": "MATH.NUMBER",
+   "Field Visit to a Bank": null,
+   "Fractions": "MATH.NUMBER",
+   "International Math Day (14 March – Pi Day)": null,
+   "Measurement – Capacity & Volume": "MATH.GEOMETRY",
+   "Measurement – Length & Mass": "MATH.GEOMETRY",
+   "Measurement – Temperature": "MATH.GEOMETRY",
+   "Money": "MATH.NUMBER",
+   "Multiplication": "MATH.NUMBER",
+   "Multiplication & Division": "MATH.NUMBER",
+   "Multiplication & Division – Extended & Application": "MATH.NUMBER",
+   "Multiplication, Multiples and Factors": "MATH.NUMBER",
+   "Numbers & Place Value": "MATH.NUMBER",
+   "Numbers & Place Value – Extended": "MATH.NUMBER",
+   "Numbers Beyond 100": "MATH.NUMBER",
+   "Numbers and the Number System": "MATH.NUMBER",
+   "Numbers to 1000": "MATH.NUMBER",
+   "Olympiad Math Sessions": null,
+   "Patterns & Algebraic Thinking": "MATH.NUMBER",
+   "Patterns & Reasoning (Integrated Across Units)": "MATH.THINKING",
+   "Position & Movement (Geometry – PVisual arts 2)": "MATH.GEOMETRY",
+   "Position & Movement (Geometry – Part 2)": "MATH.GEOMETRY",
+   "Probability": "MATH.DATA",
+   "Probability (Introductory Level – Requested Unit)": "MATH.DATA",
+   "Probability (Introductory) – Term 1 Conceptual Module": "MATH.DATA",
+   "Problem Solving & Reasoning": "MATH.THINKING",
+   "Projects": null,
+   "Quiz _Every alternate week": null,
+   "Shapes & Geometry": "MATH.GEOMETRY",
+   "Shapes & Geometry – Part 1 (2D & 3D Shapes)": "MATH.GEOMETRY",
+   "Symmetry": "MATH.GEOMETRY",
+   "Symmetry, Position & Movement": "MATH.GEOMETRY",
+   "Time": "MATH.GEOMETRY",
+   "Time and Timetables": "MATH.GEOMETRY",
+   "Time – Extended": "MATH.GEOMETRY",
+   "Weekly Mental Math Sessions": "MATH.NUMBER"
+  },
+  "Science": {
+   "Earth and its Habitats": null,
+   "and its Habitats": null,
+   "Electricity": "SCI.PHYSICS",
+   "Energy": "SCI.PHYSICS",
+   "Environments and Habitats": "SCI.BIOLOGY",
+   "Field Visit – Science Park": null,
+   "Field Visit – Space Park": null,
+   "Forces and Magnets": "SCI.PHYSICS",
+   "Forces and Movement": "SCI.PHYSICS",
+   "Getting Materials Right": "SCI.CHEMISTRY",
+   "Humans and Animals Grow": "SCI.BIOLOGY",
+   "Light": "SCI.PHYSICS",
+   "Light and Shadows": "SCI.PHYSICS",
+   "Living Things": "SCI.BIOLOGY",
+   "Materials": "SCI.CHEMISTRY",
+   "Mixing Materials": "SCI.CHEMISTRY",
+   "National Science Day – Tribute to C.V. Raman": "SCI.CONTEXT",
+   "Plants Are Living Things": "SCI.BIOLOGY",
+   "Science Projects": null,
+   "Science Week": null,
+   "Staying Alive": "SCI.BIOLOGY",
+   "The Earth and the Moon": "SCI.EARTH"
+  },
+  "Phonics": {
+   "Adjacent Consonants": "ENG.READING",
+   "Advanced Blending": "ENG.READING",
+   "Consonant Digraph": "ENG.READING",
+   "Consonant Ending": "ENG.READING",
+   "Dictation (Weekly)": "ENG.WRITING",
+   "Diphthong – AIR family": "ENG.READING",
+   "Diphthong – Long O": "ENG.READING",
+   "Level 4 Alternative Spellings": "ENG.WRITING",
+   "Long Vowel": "ENG.READING",
+   "Magic-e Rule": "ENG.READING",
+   "More vowel teams": "ENG.READING",
+   "News Magazine – RobinAge": "ENG.READING",
+   "Novel Reading – Nate the Great Series (Weekly)": "ENG.READING",
+   "Play-Based Learning (Weekly)": null,
+   "Polysyllabic Words": "ENG.READING",
+   "Prefix Rule": "ENG.READING",
+   "R-controlled Vowel": "ENG.READING",
+   "R-controlled Vowels": "ENG.READING",
+   "Reading Project (Weekly)": "ENG.READING",
+   "Reading Time – Different Genres (Twice a Week)": "ENG.READING",
+   "Revision": null,
+   "Soft Sound Grammar": "ENG.READING",
+   "Spelling Bee (Weekly)": "ENG.WRITING",
+   "Spelling Rule": "ENG.WRITING",
+   "Spelling Rule – Adjectives": "ENG.WRITING",
+   "Spelling Rule – Past Tense": "ENG.WRITING",
+   "Spelling Rule – Plurals": "ENG.WRITING",
+   "Split digraphs": "ENG.READING",
+   "Syllable Work": "ENG.READING",
+   "Tricky Vowel": "ENG.READING",
+   "Tricky Words": "ENG.READING",
+   "Tricky words": "ENG.READING",
+   "Vowel Digraph": "ENG.READING",
+   "Vowel Teams": "ENG.READING"
+  },
+  "Literacy": {
+   "Dictation (Weekly)": "ENG.WRITING",
+   "News Magazine – RobinAge": "ENG.READING",
+   "Novel Reading – Nate the Great Series (Weekly)": "ENG.READING",
+   "Reading Project (Weekly)": "ENG.READING",
+   "Reading Time – Different Genres (Twice a Week)": "ENG.READING",
+   "Spelling Bee (Weekly)": "ENG.WRITING"
+  },
+  "Literacy - English": {
+   "Dictation (Weekly)": "ENG.WRITING",
+   "News Magazine – RobinAge": "ENG.READING",
+   "Novel Reading – Nate the Great Series (Weekly)": "ENG.READING",
+   "Reading Project (Weekly)": "ENG.READING",
+   "Reading Time – Different Genres (Twice a Week)": "ENG.READING",
+   "Spelling Bee (Weekly)": "ENG.WRITING"
+  }
+ },
+ "rubric": {
+  "scale": {
+   "code": "CS4",
+   "name": "Cornerstone four levels, reported on the Holistic Progress Card's three"
+  },
+  "levels": [
+   {
+    "ord": 1,
+    "code": "BEGINNING",
+    "label": "Beginning",
+    "meaning": "does parts of the step with help",
+    "suggested_by": "right at Easy",
+    "reports_as": "Beginner"
+   },
+   {
+    "ord": 2,
+    "code": "DEVELOPING",
+    "label": "Developing",
+    "meaning": "does it alone in simpler cases, with slips in harder ones",
+    "suggested_by": "right at Medium",
+    "reports_as": "Proficient"
+   },
+   {
+    "ord": 3,
+    "code": "SECURE",
+    "label": "Secure",
+    "meaning": "does what the step says, alone and consistently: the target, and the signal to move on",
+    "suggested_by": "right at Hard",
+    "reports_as": "Advanced"
+   },
+   {
+    "ord": 4,
+    "code": "EXTENDING",
+    "label": "Extending",
+    "meaning": "uses it in new problems, explains it, finds the mistake",
+    "suggested_by": "right at Advance",
+    "reports_as": "Advanced"
+   }
+  ],
+  "status": "recommended in ADR 0041, decision 2; waiting for Nimish's yes"
+ },
+ "signatory": {
+  "subject": "*",
+  "educator": "Akanksha",
+  "valid_from": "2026-09-28",
+  "why": "Nimish, 28 Sep: one signatory, Akanksha, for every subject to start; a subject gets its own by adding a row."
+ }
+}

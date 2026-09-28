@@ -1,0 +1,642 @@
+[
+ {
+  "step": "ART.ALL.8",
+  "objectives": 14,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ART.ALL.9",
+  "objectives": 14,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "CMP.ALL.6",
+  "objectives": 22,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "CMP.ALL.7",
+  "objectives": 20,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "CMP.ALL.8",
+  "objectives": 24,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "CMP.ALL.9",
+  "objectives": 24,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.READING.6",
+  "objectives": 14,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.READING.7",
+  "objectives": 30,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.READING.8",
+  "objectives": 4,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.READING.9",
+  "objectives": 4,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.WRITING.6",
+  "objectives": 7,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.WRITING.7",
+  "objectives": 7,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.WRITING.8",
+  "objectives": 2,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "ENG.WRITING.9",
+  "objectives": 2,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "GP.ALL.6",
+  "objectives": 57,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "GP.ALL.7",
+  "objectives": 62,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "GP.ALL.8",
+  "objectives": 44,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "GP.ALL.9",
+  "objectives": 44,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HIN.ALL.6",
+  "objectives": 115,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HIN.ALL.7",
+  "objectives": 70,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HIN.ALL.8",
+  "objectives": 70,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HIN.ALL.9",
+  "objectives": 75,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HSC.ALL.6",
+  "objectives": 27,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HSC.ALL.7",
+  "objectives": 32,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HSC.ALL.8",
+  "objectives": 32,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "HSC.ALL.9",
+  "objectives": 30,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MAR.ALL.9",
+  "objectives": 26,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.DATA.6",
+  "objectives": 15,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.DATA.7",
+  "objectives": 8,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.DATA.8",
+  "objectives": 6,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.DATA.9",
+  "objectives": 6,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.GEOMETRY.6",
+  "objectives": 38,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.GEOMETRY.7",
+  "objectives": 28,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.GEOMETRY.8",
+  "objectives": 24,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.GEOMETRY.9",
+  "objectives": 24,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.NUMBER.6",
+  "objectives": 41,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.NUMBER.7",
+  "objectives": 43,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.NUMBER.8",
+  "objectives": 30,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.NUMBER.9",
+  "objectives": 30,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.THINKING.6",
+  "objectives": 4,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.THINKING.7",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.THINKING.8",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "MATH.THINKING.9",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "RTN.ALL.6",
+  "objectives": 25,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "RTN.ALL.7",
+  "objectives": 30,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "RTN.ALL.8",
+  "objectives": 32,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "RTN.ALL.9",
+  "objectives": 32,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.BIOLOGY.6",
+  "objectives": 10,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.BIOLOGY.7",
+  "objectives": 8,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.BIOLOGY.8",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.BIOLOGY.9",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CHEMISTRY.6",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CHEMISTRY.7",
+  "objectives": 5,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CHEMISTRY.8",
+  "objectives": 4,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CHEMISTRY.9",
+  "objectives": 4,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CONTEXT.6",
+  "objectives": 1,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CONTEXT.7",
+  "objectives": 1,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CONTEXT.8",
+  "objectives": 1,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.CONTEXT.9",
+  "objectives": 1,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.EARTH.7",
+  "objectives": 3,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.PHYSICS.6",
+  "objectives": 10,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.PHYSICS.7",
+  "objectives": 9,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.PHYSICS.8",
+  "objectives": 15,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ },
+ {
+  "step": "SCI.PHYSICS.9",
+  "objectives": 15,
+  "placement_signed": 0,
+  "statement_approved": 0,
+  "ncf_se_signed": 0,
+  "cambridge_signed": 0,
+  "outcome_approved": false,
+  "rubric_complete": false
+ }
+]

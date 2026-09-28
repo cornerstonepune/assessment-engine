@@ -1,0 +1,374 @@
+{
+ "O01": [
+  "objective_step:LO-G3-0928",
+  "lo_statement:LO-G3-0928",
+  "alignment:LO-G3-0928:CAM-PRI-MAT-0096:3Nc.02",
+  "alignment:LO-G3-0928:CAM-PRI-MAT-0096:3Nc.05",
+  "alignment:LO-G3-0928:NCF-SE-2023:ncf.math.P.C-1.4",
+  "alignment:LO-G3-0928:NCERT-LO-2017:ncert.math.3.10",
+  "lo_capability:LO-G3-0928:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0928:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0928"
+ ],
+ "O02": [
+  "objective_step:LO-G3-0929",
+  "lo_statement:LO-G3-0929",
+  "alignment:LO-G3-0929:CAM-PRI-MAT-0096:4Np.04",
+  "alignment:LO-G3-0929:CAM-PRI-MAT-0096:4Nc.01",
+  "alignment:LO-G3-0929:CAM-PRI-MAT-0096:4Ni.01",
+  "no_alignment:LO-G3-0929:NCF-SE",
+  "lo_capability:LO-G3-0929:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0929"
+ ],
+ "O03": [
+  "objective_step:LO-G3-0930",
+  "lo_statement:LO-G3-0930",
+  "alignment:LO-G3-0930:CAM-PRI-MAT-0096:3Ni.01",
+  "alignment:LO-G3-0930:CAM-PRI-MAT-0096:3Np.01",
+  "alignment:LO-G3-0930:CAM-PRI-MAT-0096:3Np.03",
+  "alignment:LO-G3-0930:NCF-SE-2023:ncf.math.P.C-1.1",
+  "alignment:LO-G3-0930:NCERT-LO-2017:ncert.math.3.01",
+  "lo_capability:LO-G3-0930:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0930"
+ ],
+ "O04": [
+  "objective_step:LO-G3-0937",
+  "lo_statement:LO-G3-0937",
+  "alignment:LO-G3-0937:CAM-PRI-MAT-0096:3Nc.04",
+  "alignment:LO-G3-0937:CAM-PRI-MAT-0096:4Nc.03",
+  "alignment:LO-G3-0937:NCF-SE-2023:ncf.math.P.C-1.3",
+  "lo_capability:LO-G3-0937:thinking-and-reasoning",
+  "skill_set_objective:EQUALITY.INVERSE:LO-G3-0937",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0937"
+ ],
+ "O05": [
+  "objective_step:LO-G3-0938",
+  "lo_statement:LO-G3-0938",
+  "alignment:LO-G3-0938:CAM-PRI-MAT-0096:3Ni.04",
+  "alignment:LO-G3-0938:CAM-PRI-MAT-0096:4Ni.02",
+  "alignment:LO-G3-0938:CAM-PRI-MAT-0096:3Ni.03",
+  "alignment:LO-G3-0938:NCF-SE-2023:ncf.math.P.C-4.3",
+  "alignment:LO-G3-0938:NCERT-LO-2017:ncert.math.3.01",
+  "lo_capability:LO-G3-0938:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0938:thinking-and-reasoning",
+  "skill_set_objective:ADD.3D1D:LO-G3-0938",
+  "skill_set_objective:ADD.3D2D:LO-G3-0938",
+  "skill_set_objective:ADD.3D3D:LO-G3-0938",
+  "skill_set_objective:ADD.MANY:LO-G3-0938",
+  "skill_set_objective:SUB.3D1D:LO-G3-0938",
+  "skill_set_objective:SUB.3D2D:LO-G3-0938",
+  "skill_set_objective:SUB.3D3D:LO-G3-0938",
+  "skill_set_objective:MISSING.DIGIT:LO-G3-0938",
+  "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0938",
+  "skill_set_objective:REASON.FIND_MISTAKE:LO-G3-0938",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0938"
+ ],
+ "O06": [
+  "objective_step:LO-G3-0939",
+  "lo_statement:LO-G3-0939",
+  "alignment:LO-G3-0939:CAM-PRI-MAT-0096:4Nc.02",
+  "alignment:LO-G3-0939:CAM-PRI-MAT-0096:3Nc.03",
+  "alignment:LO-G3-0939:NCF-SE-2023:ncf.math.P.C-1.4",
+  "lo_capability:LO-G3-0939:thinking-and-reasoning",
+  "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0939",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0939"
+ ],
+ "O07": [
+  "objective_step:LO-G3-0942",
+  "lo_statement:LO-G3-0942",
+  "alignment:LO-G3-0942:CAM-PRI-MAT-0096:3Ni.07",
+  "alignment:LO-G3-0942:CAM-PRI-MAT-0096:3Ni.10",
+  "alignment:LO-G3-0942:CAM-PRI-MAT-0096:4Ni.07",
+  "alignment:LO-G3-0942:NCF-SE-2023:ncf.math.P.C-1.3",
+  "alignment:LO-G3-0942:NCERT-LO-2017:ncert.math.3.01",
+  "lo_capability:LO-G3-0942:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0942"
+ ],
+ "O08": [
+  "objective_step:LO-G3-0943",
+  "lo_statement:LO-G3-0943",
+  "alignment:LO-G3-0943:CAM-PRI-MAT-0096:3Ni.06",
+  "alignment:LO-G3-0943:CAM-PRI-MAT-0096:3Np.02",
+  "alignment:LO-G3-0943:CAM-PRI-MAT-0096:3Ni.08",
+  "alignment:LO-G3-0943:NCF-SE-2023:ncf.math.P.C-4.3",
+  "lo_capability:LO-G3-0943:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0943:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0943"
+ ],
+ "O09": [
+  "objective_step:LO-G3-0944",
+  "lo_statement:LO-G3-0944",
+  "alignment:LO-G3-0944:CAM-PRI-MAT-0096:4Ni.05",
+  "alignment:LO-G3-0944:CAM-PRI-MAT-0096:3Ni.08",
+  "alignment:LO-G3-0944:NCF-SE-2023:ncf.math.P.C-1.3",
+  "alignment:LO-G3-0944:NCERT-LO-2017:ncert.math.4.01",
+  "lo_capability:LO-G3-0944:knowledge-and-academic-mastery",
+  "skill_set_objective:MUL.1D:LO-G3-0944",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0944"
+ ],
+ "O10": [
+  "objective_step:LO-G3-0949",
+  "lo_statement:LO-G3-0949",
+  "alignment:LO-G3-0949:CAM-PRI-MAT-0096:3Nf.01",
+  "alignment:LO-G3-0949:CAM-PRI-MAT-0096:3Nf.02",
+  "alignment:LO-G3-0949:CAM-PRI-MAT-0096:4Nf.01",
+  "alignment:LO-G3-0949:NCF-SE-2023:ncf.math.P.C-1.2",
+  "alignment:LO-G3-0949:NCERT-LO-2017:ncert.math.4.02",
+  "lo_capability:LO-G3-0949:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0949"
+ ],
+ "O11": [
+  "objective_step:LO-G3-0950",
+  "lo_statement:LO-G3-0950",
+  "alignment:LO-G3-0950:NCF-SE-2023:ncf.math.P.C-1.2",
+  "alignment:LO-G3-0950:CAM-PRI-MAT-0096:3Nf.06",
+  "alignment:LO-G3-0950:CAM-PRI-MAT-0096:3Nf.08",
+  "lo_capability:LO-G3-0950:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0950"
+ ],
+ "O12": [
+  "objective_step:LO-G3-0951",
+  "lo_statement:LO-G3-0951",
+  "alignment:LO-G3-0951:CAM-PRI-MAT-0096:3Nf.05",
+  "alignment:LO-G3-0951:CAM-PRI-MAT-0096:3Nf.03",
+  "alignment:LO-G3-0951:CAM-PRI-MAT-0096:4Nf.03",
+  "alignment:LO-G3-0951:NCF-SE-2023:ncf.math.P.C-1.2",
+  "lo_capability:LO-G3-0951:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0951"
+ ],
+ "O13": [
+  "objective_step:LO-G3-0952",
+  "lo_statement:LO-G3-0952",
+  "alignment:LO-G3-0952:CAM-PRI-MAT-0096:4Ni.01",
+  "alignment:LO-G3-0952:CAM-PRI-MAT-0096:4Np.01",
+  "alignment:LO-G3-0952:CAM-PRI-MAT-0096:4Np.03",
+  "alignment:LO-G3-0952:NCF-SE-2023:ncf.math.P.C-1.1",
+  "lo_capability:LO-G3-0952:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0952"
+ ],
+ "O14": [
+  "objective_step:LO-G3-0953",
+  "lo_statement:LO-G3-0953",
+  "alignment:LO-G3-0953:NCF-SE-2023:ncf.math.P.C-5.1",
+  "no_alignment:LO-G3-0953:Cambridge",
+  "lo_capability:LO-G3-0953:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0953"
+ ],
+ "O15": [
+  "objective_step:LO-G3-0954",
+  "lo_statement:LO-G3-0954",
+  "alignment:LO-G3-0954:CAM-PRI-MAT-0096:3Np.05",
+  "alignment:LO-G3-0954:CAM-PRI-MAT-0096:4Np.05",
+  "alignment:LO-G3-0954:NCF-SE-2023:ncf.math.P.C-4.3",
+  "lo_capability:LO-G3-0954:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0954:thinking-and-reasoning",
+  "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0954",
+  "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0954",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0954"
+ ],
+ "O16": [
+  "objective_step:LO-G3-0955",
+  "lo_statement:LO-G3-0955",
+  "alignment:LO-G3-0955:CAM-PRI-MAT-0096:3Nc.05",
+  "alignment:LO-G3-0955:CAM-PRI-MAT-0096:4Nc.04",
+  "alignment:LO-G3-0955:NCF-SE-2023:ncf.math.P.C-1.4",
+  "lo_capability:LO-G3-0955:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0955"
+ ],
+ "O17": [
+  "objective_step:LO-G3-0956",
+  "lo_statement:LO-G3-0956",
+  "alignment:LO-G3-0956:CAM-PRI-MAT-0096:4Ni.04",
+  "alignment:LO-G3-0956:CAM-PRI-MAT-0096:3Ni.07",
+  "alignment:LO-G3-0956:NCF-SE-2023:ncf.math.P.C-1.3",
+  "alignment:LO-G3-0956:NCERT-LO-2017:ncert.math.3.01",
+  "lo_capability:LO-G3-0956:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0956"
+ ],
+ "O18": [
+  "objective_step:LO-G3-0957",
+  "lo_statement:LO-G3-0957",
+  "alignment:LO-G3-0957:CAM-PRI-MAT-0096:3Ni.06",
+  "alignment:LO-G3-0957:CAM-PRI-MAT-0096:3Ni.08",
+  "alignment:LO-G3-0957:NCF-SE-2023:ncf.math.P.C-1.3",
+  "alignment:LO-G3-0957:NCERT-LO-2017:ncert.math.4.01",
+  "lo_capability:LO-G3-0957:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0957:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0957"
+ ],
+ "O19": [
+  "objective_step:LO-G3-0958",
+  "lo_statement:LO-G3-0958",
+  "alignment:LO-G3-0958:CAM-PRI-MAT-0096:4Ni.06",
+  "alignment:LO-G3-0958:CAM-PRI-MAT-0096:3Ni.05",
+  "alignment:LO-G3-0958:CAM-PRI-MAT-0096:3Ni.09",
+  "alignment:LO-G3-0958:NCERT-LO-2017:ncert.math.3.01",
+  "alignment:LO-G3-0958:NCF-SE-2023:ncf.math.P.C-1.3",
+  "lo_capability:LO-G3-0958:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0958"
+ ],
+ "O20": [
+  "objective_step:LO-G3-0959",
+  "lo_statement:LO-G3-0959",
+  "alignment:LO-G3-0959:NCF-SE-2023:ncf.math.P.C-4.1",
+  "alignment:LO-G3-0959:NCERT-LO-2017:ncert.math.3.01",
+  "no_alignment:LO-G3-0959:Cambridge",
+  "lo_capability:LO-G3-0959:creation-and-problem-solving",
+  "lo_capability:LO-G3-0959:thinking-and-reasoning",
+  "skill_set_objective:WORD.1_2STEP:LO-G3-0959",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0959"
+ ],
+ "O21": [
+  "objective_step:LO-G3-0965",
+  "lo_statement:LO-G3-0965",
+  "alignment:LO-G3-0965:CAM-PRI-MAT-0096:3Nm.01",
+  "alignment:LO-G3-0965:NCERT-LO-2017:ncert.math.2.01",
+  "no_alignment:LO-G3-0965:NCF-SE",
+  "lo_capability:LO-G3-0965:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0965"
+ ],
+ "O22": [
+  "objective_step:LO-G3-0966",
+  "lo_statement:LO-G3-0966",
+  "alignment:LO-G3-0966:CAM-PRI-MAT-0096:3Nm.02",
+  "alignment:LO-G3-0966:NCERT-LO-2017:ncert.math.3.02",
+  "alignment:LO-G3-0966:NCF-SE-2023:ncf.math.P.C-1.3",
+  "lo_capability:LO-G3-0966:knowledge-and-academic-mastery",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0966"
+ ],
+ "O23": [
+  "objective_step:LO-G3-0967",
+  "lo_statement:LO-G3-0967",
+  "alignment:LO-G3-0967:NCF-SE-2023:ncf.math.P.C-4.1",
+  "alignment:LO-G3-0967:NCERT-LO-2017:ncert.math.3.03",
+  "alignment:LO-G3-0967:CAM-PRI-MAT-0096:3Nm.02",
+  "lo_capability:LO-G3-0967:creation-and-problem-solving",
+  "skill_set_objective:WORD.1_2STEP:LO-G3-0967",
+  "skill_set_objective:WORD.BUDGET:LO-G3-0967",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0967"
+ ],
+ "O24": [
+  "objective_step:LO-G3-0968",
+  "lo_statement:LO-G3-0968",
+  "alignment:LO-G3-0968:CAM-PRI-MAT-0096:3Nm.02",
+  "alignment:LO-G3-0968:NCF-SE-2023:ncf.math.P.C-4.1",
+  "alignment:LO-G3-0968:NCERT-LO-2017:ncert.math.3.03",
+  "lo_capability:LO-G3-0968:creation-and-problem-solving",
+  "lo_capability:LO-G3-0968:self-and-relationships",
+  "skill_set_objective:WORD.BUDGET:LO-G3-0968",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0968"
+ ],
+ "O25": [
+  "objective_step:LO-G3-0982",
+  "lo_statement:LO-G3-0982",
+  "alignment:LO-G3-0982:CAM-PRI-MAT-0096:3Nc.05",
+  "alignment:LO-G3-0982:CAM-PRI-MAT-0096:3Nc.06",
+  "alignment:LO-G3-0982:NCF-SE-2023:ncf.math.P.C-1.4",
+  "alignment:LO-G3-0982:NCERT-LO-2017:ncert.math.3.10",
+  "lo_capability:LO-G3-0982:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0982"
+ ],
+ "O26": [
+  "objective_step:LO-G3-0983",
+  "lo_statement:LO-G3-0983",
+  "alignment:LO-G3-0983:CAM-PRI-MAT-0096:3Nc.05",
+  "alignment:LO-G3-0983:NCF-SE-2023:ncf.math.P.C-1.4",
+  "lo_capability:LO-G3-0983:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0983"
+ ],
+ "O27": [
+  "objective_step:LO-G3-0984",
+  "lo_statement:LO-G3-0984",
+  "alignment:LO-G3-0984:CAM-PRI-MAT-0096:3Nc.04",
+  "no_alignment:LO-G3-0984:NCF-SE",
+  "lo_capability:LO-G3-0984:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0984"
+ ],
+ "O28": [
+  "objective_step:LO-G3-0985",
+  "lo_statement:LO-G3-0985",
+  "alignment:LO-G3-0985:CAM-PRI-MAT-0096:3Nc.05",
+  "alignment:LO-G3-0985:NCF-SE-2023:ncf.math.P.C-1.4",
+  "alignment:LO-G3-0985:NCERT-LO-2017:ncert.math.3.10",
+  "lo_capability:LO-G3-0985:thinking-and-reasoning",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0985"
+ ],
+ "O29": [
+  "objective_step:LO-G3-0993",
+  "lo_statement:LO-G3-0993",
+  "alignment:LO-G3-0993:NCF-SE-2023:ncf.math.P.C-1.3",
+  "alignment:LO-G3-0993:CAM-PRI-MAT-0096:4Ni.04",
+  "lo_capability:LO-G3-0993:knowledge-and-academic-mastery",
+  "lo_capability:LO-G3-0993:learning-and-agency",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0993"
+ ],
+ "O30": [
+  "objective_step:LO-G3-0994",
+  "lo_statement:LO-G3-0994",
+  "alignment:LO-G3-0994:NCF-SE-2023:ncf.math.P.C-4.3",
+  "alignment:LO-G3-0994:CAM-PRI-MAT-0096:3Ni.02",
+  "alignment:LO-G3-0994:CAM-PRI-MAT-0096:3Ni.03",
+  "lo_capability:LO-G3-0994:thinking-and-reasoning",
+  "skill_set_objective:MENTAL.BRIDGE_EQ:LO-G3-0994",
+  "skill_set_objective:STRATEGY.EFFICIENT:LO-G3-0994",
+  "outcome_objective:MATH.NUMBER.8:LO-G3-0994"
+ ],
+ "G01": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:3Nc.01"
+ ],
+ "G02": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:3Np.04"
+ ],
+ "G03": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Np.02"
+ ],
+ "G04": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Ni.03"
+ ],
+ "G05": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Ni.08"
+ ],
+ "G06": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:3Nf.04"
+ ],
+ "G07": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nf.02"
+ ],
+ "G08": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nf.04"
+ ],
+ "G09": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nf.07"
+ ],
+ "G10": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:3Nf.07"
+ ],
+ "G11": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nf.05"
+ ],
+ "G12": [
+  "gap_proposal:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nc.05"
+ ],
+ "G13": [
+  "gap_proposal:MATH.NUMBER.8:NCF-SE-2023:ncf.math.P.C-4.2"
+ ],
+ "G14": [
+  "exclusion:MATH.NUMBER.8:CAM-PRI-MAT-0096:4Nf.06"
+ ],
+ "R1": [
+  "progression_step:MATH.NUMBER.8",
+  "skill_outcome:MATH.NUMBER.8"
+ ],
+ "R2": [
+  "rubric_descriptor:MATH.NUMBER.8:BEGINNING"
+ ],
+ "R3": [
+  "rubric_descriptor:MATH.NUMBER.8:DEVELOPING"
+ ],
+ "R4": [
+  "rubric_descriptor:MATH.NUMBER.8:SECURE"
+ ],
+ "R5": [
+  "rubric_descriptor:MATH.NUMBER.8:EXTENDING"
+ ]
+}

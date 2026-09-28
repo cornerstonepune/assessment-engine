@@ -1,0 +1,6 @@
+[
+{"scale_code": "CS4", "ord": 1, "code": "BEGINNING", "label": "Beginning", "meaning": "does parts of the step with help", "suggested_by": "right at Easy", "reports_as": "Beginner"},
+{"scale_code": "CS4", "ord": 2, "code": "DEVELOPING", "label": "Developing", "meaning": "does it alone in simpler cases, with slips in harder ones", "suggested_by": "right at Medium", "reports_as": "Proficient"},
+{"scale_code": "CS4", "ord": 3, "code": "SECURE", "label": "Secure", "meaning": "does what the step says, alone and consistently: the target, and the signal to move on", "suggested_by": "right at Hard", "reports_as": "Advanced"},
+{"scale_code": "CS4", "ord": 4, "code": "EXTENDING", "label": "Extending", "meaning": "uses it in new problems, explains it, finds the mistake", "suggested_by": "right at Advance", "reports_as": "Advanced"}
+]

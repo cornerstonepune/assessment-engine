@@ -1,0 +1,10 @@
+{
+ "step": "MATH.NUMBER.8",
+ "sheet": "https://docs.google.com/spreadsheets/d/1QTkGjvVlYuph5uPf5VENPXenOx4wFnsSR3Kn-jCklc0/edit",
+ "drive_file_id": "1QTkGjvVlYuph5uPf5VENPXenOx4wFnsSR3Kn-jCklc0",
+ "made_from": "data/crosswalk_review/math-number-8.csv, by python3 research/crosswalk_sheet.py MATH.NUMBER.8",
+ "checked": "the Google Sheet downloaded back as CSV: 41 rows, 0 cells different from the file it was made from",
+ "shared_with": "Akanksha, as editor, 28 Sep 2026",
+ "rows": ["O02", "O03", "O05", "O06", "O11", "O14", "O16", "O17", "O20", "O23", "R1", "R2", "R3", "R4", "R5", "G02", "G05", "G10", "G13", "G14"],
+ "read_back": "download the sheet as CSV, then python3 research/crosswalk_decisions.py MATH.NUMBER.8 <file.csv> --by Akanksha"
+}

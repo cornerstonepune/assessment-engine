@@ -1,0 +1,730 @@
+{
+ "by_subject": [
+  {
+   "subject": "ART",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 10",
+   "statements": 83,
+   "covered": 0,
+   "gap": 83
+  },
+  {
+   "subject": "ART",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 9",
+   "statements": 69,
+   "covered": 0,
+   "gap": 69
+  },
+  {
+   "subject": "ART",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 5,
+   "covered": 0,
+   "gap": 5
+  },
+  {
+   "subject": "ART",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 35,
+   "covered": 0,
+   "gap": 35
+  },
+  {
+   "subject": "ART",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 35,
+   "covered": 0,
+   "gap": 35
+  },
+  {
+   "subject": "ART",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 35,
+   "covered": 0,
+   "gap": 35
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 1",
+   "statements": 90,
+   "covered": 0,
+   "gap": 90
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 2",
+   "statements": 99,
+   "covered": 0,
+   "gap": 99
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 3",
+   "statements": 102,
+   "covered": 0,
+   "gap": 102
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 4",
+   "statements": 106,
+   "covered": 0,
+   "gap": 106
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 5",
+   "statements": 92,
+   "covered": 0,
+   "gap": 92
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "CAM-PRI-ENG-0058",
+   "level": "Stage 6",
+   "statements": 92,
+   "covered": 0,
+   "gap": 92
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 1",
+   "statements": 15,
+   "covered": 0,
+   "gap": 15
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 2",
+   "statements": 12,
+   "covered": 0,
+   "gap": 12
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 3",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 4",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 5",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 6",
+   "statements": 16,
+   "covered": 0,
+   "gap": 16
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 7",
+   "statements": 21,
+   "covered": 0,
+   "gap": 21
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 8",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 10",
+   "statements": 35,
+   "covered": 0,
+   "gap": 35
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 9",
+   "statements": 28,
+   "covered": 0,
+   "gap": 28
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  },
+  {
+   "subject": "ENG",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 3",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 4",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 5",
+   "statements": 12,
+   "covered": 0,
+   "gap": 12
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 6",
+   "statements": 25,
+   "covered": 0,
+   "gap": 25
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 7",
+   "statements": 33,
+   "covered": 0,
+   "gap": 33
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 8",
+   "statements": 30,
+   "covered": 0,
+   "gap": 30
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 10",
+   "statements": 5,
+   "covered": 0,
+   "gap": 5
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 9",
+   "statements": 5,
+   "covered": 0,
+   "gap": 5
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 22,
+   "covered": 0,
+   "gap": 22
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 25,
+   "covered": 0,
+   "gap": 25
+  },
+  {
+   "subject": "GP",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 36,
+   "covered": 0,
+   "gap": 36
+  },
+  {
+   "subject": "HIN",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "HIN",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "HIN",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  },
+  {
+   "subject": "HIN",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "HSC",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 8,
+   "covered": 0,
+   "gap": 8
+  },
+  {
+   "subject": "HSC",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 4,
+   "covered": 0,
+   "gap": 4
+  },
+  {
+   "subject": "MAR",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "MAR",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "MAR",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  },
+  {
+   "subject": "MAR",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 34,
+   "covered": 0,
+   "gap": 34
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 1",
+   "statements": 36,
+   "covered": 0,
+   "gap": 36
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 2",
+   "statements": 48,
+   "covered": 0,
+   "gap": 48
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 3",
+   "statements": 53,
+   "covered": 0,
+   "gap": 53
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 4",
+   "statements": 46,
+   "covered": 0,
+   "gap": 46
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 5",
+   "statements": 51,
+   "covered": 0,
+   "gap": 51
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "Stage 6",
+   "statements": 54,
+   "covered": 0,
+   "gap": 54
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "CAM-PRI-MAT-0096",
+   "level": "all stages",
+   "statements": 8,
+   "covered": 0,
+   "gap": 8
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 1",
+   "statements": 8,
+   "covered": 0,
+   "gap": 8
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 2",
+   "statements": 7,
+   "covered": 0,
+   "gap": 7
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 3",
+   "statements": 11,
+   "covered": 0,
+   "gap": 11
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 4",
+   "statements": 12,
+   "covered": 0,
+   "gap": 12
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 5",
+   "statements": 7,
+   "covered": 0,
+   "gap": 7
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 6",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 7",
+   "statements": 20,
+   "covered": 0,
+   "gap": 20
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 8",
+   "statements": 20,
+   "covered": 0,
+   "gap": 20
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 10",
+   "statements": 13,
+   "covered": 0,
+   "gap": 13
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 9",
+   "statements": 13,
+   "covered": 0,
+   "gap": 13
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 17,
+   "covered": 0,
+   "gap": 17
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 30,
+   "covered": 0,
+   "gap": 30
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 19,
+   "covered": 0,
+   "gap": 19
+  },
+  {
+   "subject": "MATH",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 29,
+   "covered": 0,
+   "gap": 29
+  },
+  {
+   "subject": "RTN",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 29,
+   "covered": 0,
+   "gap": 29
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 1",
+   "statements": 35,
+   "covered": 0,
+   "gap": 35
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 2",
+   "statements": 44,
+   "covered": 0,
+   "gap": 44
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 3",
+   "statements": 51,
+   "covered": 0,
+   "gap": 51
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 4",
+   "statements": 63,
+   "covered": 0,
+   "gap": 63
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 5",
+   "statements": 59,
+   "covered": 0,
+   "gap": 59
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "CAM-PRI-SCI-0097",
+   "level": "Stage 6",
+   "statements": 59,
+   "covered": 0,
+   "gap": 59
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 3",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 4",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 5",
+   "statements": 12,
+   "covered": 0,
+   "gap": 12
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 6",
+   "statements": 13,
+   "covered": 0,
+   "gap": 13
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 7",
+   "statements": 15,
+   "covered": 0,
+   "gap": 15
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2017",
+   "level": "Class 8",
+   "statements": 14,
+   "covered": 0,
+   "gap": 14
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 10",
+   "statements": 18,
+   "covered": 0,
+   "gap": 18
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCERT-LO-2019",
+   "level": "Class 9",
+   "statements": 17,
+   "covered": 0,
+   "gap": 17
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCF-SE-2023",
+   "level": "Foundational",
+   "statements": 17,
+   "covered": 0,
+   "gap": 17
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCF-SE-2023",
+   "level": "Middle",
+   "statements": 27,
+   "covered": 0,
+   "gap": 27
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCF-SE-2023",
+   "level": "Preparatory",
+   "statements": 25,
+   "covered": 0,
+   "gap": 25
+  },
+  {
+   "subject": "SCI",
+   "framework_code": "NCF-SE-2023",
+   "level": "Secondary",
+   "statements": 26,
+   "covered": 0,
+   "gap": 26
+  }
+ ],
+ "no_school_subject": [
+  {
+   "framework_code": "NCERT-LO-2019",
+   "area": "hpe",
+   "statements": 30
+  },
+  {
+   "framework_code": "NCF-SE-2023",
+   "area": "environmental-education",
+   "statements": 5
+  },
+  {
+   "framework_code": "NCF-SE-2023",
+   "area": "individuals-in-society",
+   "statements": 8
+  },
+  {
+   "framework_code": "NCF-SE-2023",
+   "area": "physical-education",
+   "statements": 99
+  }
+ ]
+}

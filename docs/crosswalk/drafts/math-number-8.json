@@ -1,0 +1,1400 @@
+{
+ "step": "MATH.NUMBER.8",
+ "method": {
+  "purpose": "crosswalk_draft",
+  "version": 1
+ },
+ "drafted": "2026-09-28",
+ "note": "Drafted by following docs/crosswalk/drafting-method.md, version 1. Every row is a proposal until Akanksha decides it.",
+ "review_first": {
+  "why": "This first round has ten objectives, chosen so that every part of the method shows: each relation, an objective with nothing in NCF-SE at this age, one with nothing in Cambridge, one the school's map repeats, and one the engine's questions already test. Then the step's outcome, its four rubric lines, and five official statements no objective covers yet. Your decisions become the standard every later draft is checked against.",
+  "objectives": [
+   "LO-G3-0930",
+   "LO-G3-0929",
+   "LO-G3-0938",
+   "LO-G3-0939",
+   "LO-G3-0956",
+   "LO-G3-0950",
+   "LO-G3-0953",
+   "LO-G3-0959",
+   "LO-G3-0967",
+   "LO-G3-0955"
+  ],
+  "not_covered": [
+   "3Np.04",
+   "4Ni.08",
+   "3Nf.07",
+   "ncf.math.P.C-4.2",
+   "4Nf.06"
+  ]
+ },
+ "objectives": [
+  {
+   "lo_code": "LO-G3-0928",
+   "actions": [
+    "counts forward and back in steps",
+    "extends a sequence",
+    "says its rule"
+   ],
+   "overlaps": [
+    "LO-G3-0955",
+    "LO-G3-0982",
+    "LO-G3-0983"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.02",
+     "relation": "meets",
+     "reason": "'forward/backward counting' is Cambridge's 'Count on and count back in steps of constant size … from 0 to 1000'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.05",
+     "relation": "meets",
+     "reason": "'extending patterns, rules' is Cambridge's 'extend linear sequences, and describe the term-to-term rule'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "partly_meets",
+     "reason": "Ours extends counting sequences; NCF-SE also names odd, even and square numbers, powers of 2 and 10, and Virahanka–Fibonacci numbers."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.10",
+     "relation": "partly_meets",
+     "reason": "Ours covers 'extends patterns in … numbers'; NCERT's patterns in shapes belong to Geometry."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Counts on and back in steps of ones, tens and hundreds from any number up to 1000, and extends a number sequence, saying its rule, such as 'add 3 each time'.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0929",
+   "actions": [
+    "reads numbers below zero",
+    "places them on a number line",
+    "orders positive and negative numbers"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Np.04",
+     "relation": "meets",
+     "reason": "'ordering' negative numbers is Cambridge's 'compare and order positive and negative numbers, using the symbols =, > and <'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nc.01",
+     "relation": "meets",
+     "reason": "'number lines' below zero are Cambridge's counting on and back 'extending beyond zero to include negative numbers'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.01",
+     "relation": "partly_meets",
+     "reason": "Ours reads numbers 'below zero'; Cambridge also asks for numbers 'greater than 1000', which LO-G3-0952 covers."
+    }
+   ],
+   "no_ncf_reason": "NCF-SE's Preparatory Stage (ages 8–11) does not ask for negative numbers; it brings in 'zero and negative quantities as numbers' in the Middle Stage (ncf.math.M.C-1.3, ages 11–14).",
+   "no_cambridge_reason": null,
+   "what_we_say": "Reads and writes numbers below zero, such as −5 °C, places them on a number line, and compares and orders positive and negative numbers using =, > and <.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0930",
+   "actions": [
+    "reads and writes numbers",
+    "says what each digit is worth",
+    "partitions a number"
+   ],
+   "overlaps": [
+    "LO-G3-0952",
+    "LO-G3-0954"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.01",
+     "relation": "meets",
+     "reason": "'reading/writing large numbers' is Cambridge's 'read and write number names and whole numbers (from 0 to 1000)'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Np.01",
+     "relation": "meets",
+     "reason": "Place value is Cambridge's 'the value of each digit is determined by its position in that number (up to 3-digit numbers)'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Np.03",
+     "relation": "meets",
+     "reason": "'partitioning' is Cambridge's 'Compose, decompose and regroup 3-digit numbers, using hundreds, tens and ones'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.1",
+     "relation": "partly_meets",
+     "reason": "Ours reads, writes and partitions numbers to 1000; NCF-SE asks, across ages 8–11, for 'the Indian number system' and 'the names of very large numbers'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "partly_meets",
+     "reason": "Ours is NCERT's 'reads and writes numbers up to 999 using place value'; its adding, subtracting, tables and division sit in other objectives on this step."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Reads and writes numbers to 1000 in figures and words, says what each digit is worth, and partitions a 3-digit number into hundreds, tens and ones in more than one way.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0937",
+   "actions": [
+    "finds the missing number",
+    "uses the inverse operation",
+    "checks both sides are equal"
+   ],
+   "overlaps": [
+    "LO-G3-0985"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.04",
+     "relation": "meets",
+     "reason": "A missing number is Cambridge's 'an object to represent an unknown quantity in addition and subtraction calculations'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nc.03",
+     "relation": "meets",
+     "reason": "A box for the missing number is one of Cambridge's 'objects, shapes or symbols to represent unknown quantities'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "Finding a missing number uses 'the relationships among' the operations; NCF-SE's competency also covers tables and daily-life problems."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds the missing number in an addition or subtraction with numbers to 1000, such as 245 + □ = 400, using the inverse operation, and checks that both sides of = are the same.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": [
+    "EQUALITY.INVERSE"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0938",
+   "actions": [
+    "adds and subtracts mentally",
+    "adds and subtracts in columns",
+    "chooses a method",
+    "checks with an estimate"
+   ],
+   "overlaps": [
+    "LO-G3-0994"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.04",
+     "relation": "meets",
+     "reason": "Cambridge's 'Estimate, add and subtract whole numbers with up to three digits (regrouping of ones or tens)'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.02",
+     "relation": "meets",
+     "reason": "Ours exchanges in any column, as Cambridge's Stage 4 'Estimate, add and subtract whole numbers with up to three digits' does without Stage 3's limit to ones or tens."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.03",
+     "relation": "meets",
+     "reason": "A mental strategy uses Cambridge's 'complements of 100 and complements of multiples of 10 or 100'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.3",
+     "relation": "meets",
+     "reason": "'mental/written' is NCF-SE's 'Selects appropriate methods … such as mental computation, estimation, or paper-pencil calculation'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "partly_meets",
+     "reason": "Ours is NCERT's 'addition and subtraction of three digit numbers with and without regrouping'; its place value, tables and division sit in other objectives."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Adds and subtracts numbers to 1000 mentally, using complements and near-hundreds, and in columns, exchanging in any column including across zeros, choosing the quicker way and checking with an estimate.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": [
+    "ADD.3D1D",
+    "ADD.3D2D",
+    "ADD.3D3D",
+    "ADD.MANY",
+    "SUB.3D1D",
+    "SUB.3D2D",
+    "SUB.3D3D",
+    "MISSING.DIGIT",
+    "ESTIMATE.ROUND10",
+    "REASON.FIND_MISTAKE"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0939",
+   "actions": [
+    "sorts numbers into odd and even",
+    "explains what adding or subtracting odd and even numbers gives"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nc.02",
+     "relation": "meets",
+     "reason": "'Generalising odd & even numbers' is Cambridge's 'Recognise and explain generalisations when adding and subtracting combinations of even and odd numbers'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.03",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 sorts numbers 'using knowledge of even and odd numbers up to 10'; ours goes on to generalise."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's number patterns begin with 'odd numbers, even numbers'; it also names square numbers and powers."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Sorts numbers to 1000 into odd and even by their ones digit, and explains what happens when two odd, two even, or one odd and one even number are added or subtracted.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": [
+    "ESTIMATE.HUNDRED"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0942",
+   "actions": [
+    "says the times tables",
+    "finds multiples",
+    "finds factor pairs"
+   ],
+   "overlaps": [
+    "LO-G3-0956"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.07",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 lists the '1, 2, 3, 4, 5, 6, 8, 9 and 10 times tables'; ours takes every table to 10 × 10, the 7s included."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.10",
+     "relation": "meets",
+     "reason": "Multiples are Cambridge's 'Recognise multiples of 2, 5 and 10 (up to 1000)'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.07",
+     "relation": "meets",
+     "reason": "Factors are Cambridge's 'the relationship between multiples and factors'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'multiplication tables at least up to 10 × 10 (Pahade)'; the competency also covers the four operations in daily life."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "extends",
+     "reason": "NCERT asks for 'the multiplication facts (tables) of 2, 3, 4, 5 and 10'; ours asks for all of them."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Says and uses the times tables to 10 × 10 (Pahade), finds multiples of 2, 5 and 10 up to 1000, and finds the factor pairs of a number using the tables.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0943",
+   "actions": [
+    "multiplies by 10",
+    "multiplies by 2, 3, 4 and 5 mentally"
+   ],
+   "overlaps": [
+    "LO-G3-0994"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.06",
+     "relation": "meets",
+     "reason": "Splitting a number to multiply is Cambridge's 'the commutative and distributive properties of multiplication … use these to simplify calculations'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Np.02",
+     "relation": "meets",
+     "reason": "Multiplying by 10 mentally is Cambridge's 'Use knowledge of place value to multiply whole numbers by 10'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.08",
+     "relation": "partly_meets",
+     "reason": "Cambridge's 'multiply whole numbers up to 100 by 2, 3, 4 and 5' by any method; ours is the mental part."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.3",
+     "relation": "meets",
+     "reason": "'Mental strategies' is NCF-SE's 'mental computation … in accordance with the context'."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Multiplies mentally by 10 using place value, and by 2, 3, 4 and 5 by doubling or by splitting a number into tens and ones, such as 4 × 23 = 80 + 12.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0944",
+   "actions": [
+    "multiplies in columns",
+    "estimates first"
+   ],
+   "overlaps": [
+    "LO-G3-0957"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.05",
+     "relation": "meets",
+     "reason": "Cambridge's 'Estimate and multiply whole numbers up to 1000 by 1-digit whole numbers'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.08",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 multiplies 'up to 100 by 2, 3, 4 and 5'; ours multiplies 3-digit numbers by any 1-digit number."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'carries out the four basic operations with whole numbers'; ours is the written method for one of them."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.4.01",
+     "relation": "meets",
+     "reason": "NCERT's Class 4 'multiplies 2 and 3 digit numbers', a year earlier than NCERT places it."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Multiplies a 2- or 3-digit number by a 1-digit number in columns, carrying when a column's product is ten or more, after estimating the answer.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": [
+    "MUL.1D"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0949",
+   "actions": [
+    "shows a fraction as equal parts of a whole",
+    "explains why more parts are smaller"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.01",
+     "relation": "meets",
+     "reason": "'Parts of a whole' is Cambridge's 'fractions are several equal parts of an object or shape and all the parts, taken together, equal one whole'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.02",
+     "relation": "meets",
+     "reason": "Cambridge's 'the relationship between the whole and the parts depends on the relative size of each, regardless of their shape or orientation'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nf.01",
+     "relation": "meets",
+     "reason": "Cambridge's 'the more parts a whole is divided into, the smaller the parts become'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.2",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's fractions 'as parts of unit wholes'; its number lines and divisions are LO-G3-0950 and LO-G3-0951."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.4.02",
+     "relation": "meets",
+     "reason": "NCERT's Class 4 'identifies half, one-fourth, three-fourths of a whole', a year earlier than NCERT places it."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Shows and names a fraction as equal parts of a shape or object that together make one whole, such as three-quarters, and explains why more parts make each part smaller.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0950",
+   "actions": [
+    "places fractions on a number line",
+    "compares and orders them"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.2",
+     "relation": "meets",
+     "reason": "'Fractions on number lines' is NCF-SE's 'Represents and compares commonly used fractions … as locations on number lines'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.06",
+     "relation": "partly_meets",
+     "reason": "A number line shows Cambridge's 'two fractions can have an equivalent value (halves, quarters, fifths and tenths)'; the range comes from it."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.08",
+     "relation": "partly_meets",
+     "reason": "The line is one way to 'compare and order unit fractions and fractions with the same denominator'; Cambridge also asks for =, > and <."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Places halves, quarters, fifths and tenths on a number line from 0 to 1, and uses the line to compare and order fractions with the same denominator.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0951",
+   "actions": [
+    "finds a fraction of a quantity",
+    "shares into equal groups"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.05",
+     "relation": "meets",
+     "reason": "'½ of…, ¼ of…' is Cambridge's 'fractions (half, quarter, three-quarters, third and tenth) can act as operators'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nf.03",
+     "relation": "meets",
+     "reason": "Cambridge's 'fractions can describe equal parts of a quantity or set of objects'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nf.03",
+     "relation": "meets",
+     "reason": "Cambridge's Stage 4 'unit fractions can act as operators'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.2",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's fractions 'as divisions of whole numbers'; its number lines are LO-G3-0950."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds a half, quarter, three-quarters, third or tenth of a quantity or set of objects, such as ¾ of 12 sweets, by sharing into equal groups or dividing.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0952",
+   "actions": [
+    "reads and writes numbers to 10 000",
+    "partitions them",
+    "says what each digit is worth"
+   ],
+   "overlaps": [
+    "LO-G3-0930"
+   ],
+   "optional": "the school's title says 'if extension is followed'",
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.01",
+     "relation": "meets",
+     "reason": "Cambridge's 'Read and write number names and whole numbers greater than 1000'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Np.01",
+     "relation": "meets",
+     "reason": "Cambridge's 'the value of each digit in numbers is determined by its position in that number', with no limit on digits."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Np.03",
+     "relation": "meets",
+     "reason": "Cambridge's 'Compose, decompose and regroup whole numbers'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.1",
+     "relation": "partly_meets",
+     "reason": "A step towards NCF-SE's 'names of very large numbers' in 'the Indian number system'; lakh comes after 10 000."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Reads, writes and partitions numbers to 10 000 in figures and words, and says what each digit is worth.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0953",
+   "actions": [
+    "reads and writes Roman numerals",
+    "compares them with our place value system"
+   ],
+   "overlaps": [],
+   "optional": "the school's title says 'as per optional Cambridge extension'",
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-5.1",
+     "relation": "partly_meets",
+     "reason": "Setting Roman numerals beside our numerals shows what NCF-SE's 'development of zero in India and the Indian place value system' changed."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": "Roman numerals are not in Cambridge Primary Mathematics 0096 (Stages 1 to 6); the 'optional Cambridge extension' the school's title names is not in the current framework.",
+   "what_we_say": "Reads and writes numbers in Roman numerals, such as XIV, and compares them with the Indian place value system, which has a zero and needs no new symbols.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0954",
+   "actions": [
+    "rounds to the nearest 10, 100 and 1000",
+    "estimates before calculating"
+   ],
+   "overlaps": [
+    "LO-G3-0930"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Np.05",
+     "relation": "meets",
+     "reason": "Cambridge's 'Round 3-digit numbers to the nearest 10 or 100'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Np.05",
+     "relation": "partly_meets",
+     "reason": "Cambridge's Stage 4 rounds 'to the nearest 10, 100, 1000, 10 000 or 100 000'; ours stops at 1000."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.3",
+     "relation": "partly_meets",
+     "reason": "Rounding serves NCF-SE's 'estimation' as a method of computing; the competency also covers mental and written methods."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Rounds a 3-digit number to the nearest 10 or 100, and a 4-digit number to the nearest 1000, and uses rounding to estimate an answer before calculating.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": [
+    "ESTIMATE.ROUND10",
+    "ESTIMATE.HUNDRED"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0955",
+   "actions": [
+    "finds the rule of a sequence",
+    "finds the next and missing terms",
+    "makes a sequence from a rule"
+   ],
+   "overlaps": [
+    "LO-G3-0928",
+    "LO-G3-0982",
+    "LO-G3-0983",
+    "LO-G3-0985"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.05",
+     "relation": "meets",
+     "reason": "'Recognise patterns in sequences and apply number rules' is Cambridge's 'Recognise and extend linear sequences, and describe the term-to-term rule'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Nc.04",
+     "relation": "partly_meets",
+     "reason": "Cambridge's Stage 4 adds 'non-linear sequences'; ours keeps to linear ones."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'Recognises, describes, and extends simple number patterns'; it also names particular patterns such as square numbers."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds the rule of a linear sequence, such as 7, 11, 15, …, uses it to find the next and missing terms, and makes up a sequence from a given rule.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0956",
+   "actions": [
+    "recalls every fact to 10 × 10",
+    "derives a related fact"
+   ],
+   "overlaps": [
+    "LO-G3-0942",
+    "LO-G3-0993"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.04",
+     "relation": "meets",
+     "reason": "'Recall multiplication facts up to 10 × 10' is Cambridge's 'Know all times tables from 1 to 10'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.07",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 leaves out the 7 times table; ours includes it."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "meets",
+     "reason": "NCF-SE's 'knows addition and multiplication tables at least up to 10 × 10 (Pahade)'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "extends",
+     "reason": "NCERT's Class 3 asks for the tables 'of 2, 3, 4, 5 and 10'; ours asks for all ten."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Recalls every multiplication fact to 10 × 10 (Pahade) quickly, and uses a known fact to find a related one, such as 7 × 8 from 7 × 4.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0957",
+   "actions": [
+    "multiplies by partitioning",
+    "uses a grid or area model",
+    "uses an expanded layout",
+    "explains why they agree"
+   ],
+   "overlaps": [
+    "LO-G3-0943",
+    "LO-G3-0944"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.06",
+     "relation": "meets",
+     "reason": "Partitioning and the grid are Cambridge's 'the … distributive properties of multiplication … use these to simplify calculations'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.08",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 multiplies 'up to 100 by 2, 3, 4 and 5'; ours multiplies by any 1-digit number."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'Understands and visualises arithmetic operations'; the area model is one such picture."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.4.01",
+     "relation": "partly_meets",
+     "reason": "NCERT's Class 4 'multiplies 2 and 3 digit numbers'; ours is the 2-digit part."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Multiplies a 2-digit number by a 1-digit number by partitioning it into tens and ones, with a grid or area model and in an expanded layout, and explains why each way gives the same answer.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0958",
+   "actions": [
+    "divides by grouping",
+    "divides on a number line",
+    "uses short division",
+    "checks by multiplying"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.06",
+     "relation": "meets",
+     "reason": "Cambridge's 'Estimate and divide whole numbers up to 100 by 1-digit whole numbers'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.05",
+     "relation": "meets",
+     "reason": "Checking by multiplying is Cambridge's 'the relationship between multiplication and division'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.09",
+     "relation": "extends",
+     "reason": "Cambridge's Stage 3 divides 'by 2, 3, 4 and 5'; ours divides by any 1-digit number."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "partly_meets",
+     "reason": "NCERT's 'explains the meaning of division facts by equal grouping/sharing and finds it by repeated subtraction'; ours adds short division."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'relationships among' the operations, one of which is division."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Divides a number up to 100 by a 1-digit number by grouping, by jumping back on a number line and by short division, and checks the answer by multiplying.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0959",
+   "actions": [
+    "draws a bar model",
+    "chooses the operations",
+    "checks the answer makes sense"
+   ],
+   "overlaps": [
+    "LO-G3-0967"
+   ],
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.1",
+     "relation": "meets",
+     "reason": "Multi-step word problems are NCF-SE's 'daily-life problems involving one or more operations on whole numbers'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.01",
+     "relation": "partly_meets",
+     "reason": "NCERT's 'analyses and applies an appropriate number operation in the situation/ context'."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": "Cambridge 0096 has no word-problem objective in Number at Stages 3 and 4; it asks for problem solving through Thinking and Working Mathematically, which 'apply to all of the primary stages'.",
+   "what_we_say": "Solves word problems of two or more steps with numbers to 1000 by drawing a bar model of the story, choosing each operation from what happens in it, and checking the answer makes sense.",
+   "capability": {
+    "primary": "creation-and-problem-solving",
+    "secondary": "thinking-and-reasoning"
+   },
+   "skill_sets": [
+    "WORD.1_2STEP"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0965",
+   "actions": [
+    "reads and writes amounts in rupees and paise",
+    "makes an amount in more than one way",
+    "reads another currency's prices"
+   ],
+   "overlaps": [],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nm.01",
+     "relation": "meets",
+     "reason": "'international coin and value systems' is Cambridge's 'Interpret money notation for currencies that use a decimal point'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.2.01",
+     "relation": "extends",
+     "reason": "NCERT's Class 2 'represents an amount up to Rs. 100 using 3-4 notes and coins'; ours reads rupees and paise with a decimal point."
+    }
+   ],
+   "no_ncf_reason": "NCF-SE's Preparatory mathematics competencies do not name money; its daily-life problems (ncf.math.P.C-4.1) are met by LO-G3-0967.",
+   "no_cambridge_reason": null,
+   "what_we_say": "Reads and writes amounts in rupees and paise, such as ₹45.50, makes an amount from notes and coins in more than one way, and reads prices in another currency that uses a decimal point.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0966",
+   "actions": [
+    "adds and subtracts money",
+    "works out change"
+   ],
+   "overlaps": [
+    "LO-G3-0968"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nm.02",
+     "relation": "meets",
+     "reason": "Cambridge's 'Add and subtract amounts of money to give change'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.02",
+     "relation": "meets",
+     "reason": "NCERT's 'adds and subtracts small amounts of money with or without regrouping'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's 'applies the four basic operations on whole numbers to solve daily life problems'; money is one such."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Adds and subtracts amounts of money in rupees and paise, with and without exchanging, and finds the change from a note.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0967",
+   "actions": [
+    "solves buying and selling problems",
+    "totals a bill",
+    "finds change"
+   ],
+   "overlaps": [
+    "LO-G3-0959",
+    "LO-G3-0968"
+   ],
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.1",
+     "relation": "meets",
+     "reason": "NCF-SE's 'daily-life problems involving one or more operations on whole numbers'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.03",
+     "relation": "partly_meets",
+     "reason": "NCERT's 'makes rate charts and simple bills'; ours solves problems with them."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nm.02",
+     "relation": "partly_meets",
+     "reason": "Cambridge's 'Add and subtract amounts of money to give change', inside a story."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Solves one- and two-step problems about buying and selling in rupees, such as the total of a simple bill or the change from ₹500, choosing the operation from the story.",
+   "capability": {
+    "primary": "creation-and-problem-solving",
+    "secondary": null
+   },
+   "skill_sets": [
+    "WORD.1_2STEP",
+    "WORD.BUDGET"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0968",
+   "actions": [
+    "finds the change",
+    "plans spending a fixed amount"
+   ],
+   "overlaps": [
+    "LO-G3-0966",
+    "LO-G3-0967"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nm.02",
+     "relation": "meets",
+     "reason": "'change' is Cambridge's 'Add and subtract amounts of money to give change'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.1",
+     "relation": "partly_meets",
+     "reason": "Budgeting is one of NCF-SE's 'daily-life problems involving one or more operations'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.03",
+     "relation": "partly_meets",
+     "reason": "NCERT's 'simple bills'; ours plans spending before the bill."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds the change from a payment, and plans how to spend a fixed amount on a few items, saying how much is left after each one.",
+   "capability": {
+    "primary": "creation-and-problem-solving",
+    "secondary": "self-and-relationships"
+   },
+   "skill_sets": [
+    "WORD.BUDGET"
+   ]
+  },
+  {
+   "lo_code": "LO-G3-0982",
+   "actions": [
+    "identifies growing and repeating patterns",
+    "extends them"
+   ],
+   "overlaps": [
+    "LO-G3-0928",
+    "LO-G3-0955"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.05",
+     "relation": "meets",
+     "reason": "A growing pattern is Cambridge's linear sequence to 'Recognise and extend'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.06",
+     "relation": "partly_meets",
+     "reason": "Cambridge's 'spatial patterns formed from adding and subtracting a constant'; ours is the number pattern."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "meets",
+     "reason": "NCF-SE's 'Recognises, describes, and extends simple number patterns'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.10",
+     "relation": "meets",
+     "reason": "NCERT's 'extends patterns in simple shapes and numbers', the number part."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Identifies whether a number pattern grows, such as 3, 6, 9, 12, or repeats, such as 1, 2, 3, 1, 2, 3, and extends it.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0983",
+   "actions": [
+    "says a rule in words",
+    "uses a rule from any start"
+   ],
+   "overlaps": [
+    "LO-G3-0955"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.05",
+     "relation": "meets",
+     "reason": "'add 3 each time' is Cambridge's 'describe the term-to-term rule'."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "partly_meets",
+     "reason": "NCF-SE's patterns to be described and extended; ours is the rule that describes them."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Says the rule of a sequence in words, such as 'add 3 each time', and uses a given rule to write the next terms from any starting number.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0984",
+   "actions": [
+    "finds missing inputs and outputs",
+    "says the rule of a table"
+   ],
+   "overlaps": [
+    "LO-G3-0985"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.04",
+     "relation": "partly_meets",
+     "reason": "A missing input is an 'unknown quantity' in Cambridge's sense; Cambridge sets it in addition and subtraction calculations, not in a table."
+    }
+   ],
+   "no_ncf_reason": "NCF-SE's Preparatory competencies do not ask for rule tables; it brings in variables in the Middle Stage (ncf.math.M.C-2.2, ages 11–14).",
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds the missing inputs and outputs in a table for a one-step rule, such as 'multiply by 2', and says the rule from a completed table.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0985",
+   "actions": [
+    "finds missing numbers by the rule",
+    "checks against the neighbours"
+   ],
+   "overlaps": [
+    "LO-G3-0937",
+    "LO-G3-0955",
+    "LO-G3-0984"
+   ],
+   "alignments": [
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Nc.05",
+     "relation": "partly_meets",
+     "reason": "Filling a gap uses Cambridge's 'term-to-term rule'; ours also fills rule tables."
+    },
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.4",
+     "relation": "partly_meets",
+     "reason": "Filling a missing term is part of NCF-SE's 'extends simple number patterns'."
+    },
+    {
+     "framework_code": "NCERT-LO-2017",
+     "statement_code": "ncert.math.3.10",
+     "relation": "partly_meets",
+     "reason": "Part of NCERT's 'extends patterns in simple shapes and numbers'."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Finds missing numbers in a linear sequence or a rule table by working out the rule, and checks the answer against the numbers either side.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0993",
+   "actions": [
+    "recalls facts quickly",
+    "improves on their own time"
+   ],
+   "overlaps": [
+    "LO-G3-0956"
+   ],
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-1.3",
+     "relation": "partly_meets",
+     "reason": "Speed builds on NCF-SE's 'knows addition and multiplication tables at least up to 10 × 10 (Pahade)'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "4Ni.04",
+     "relation": "partly_meets",
+     "reason": "Cambridge's 'Know all times tables from 1 to 10'; ours adds the addition facts and the speed."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Recalls addition facts to 20 and multiplication facts to 10 × 10 quickly and accurately, and improves on their own earlier time.",
+   "capability": {
+    "primary": "knowledge-and-academic-mastery",
+    "secondary": "learning-and-agency"
+   },
+   "skill_sets": []
+  },
+  {
+   "lo_code": "LO-G3-0994",
+   "actions": [
+    "chooses a mental strategy",
+    "uses it",
+    "explains why it was quicker"
+   ],
+   "overlaps": [
+    "LO-G3-0938",
+    "LO-G3-0943"
+   ],
+   "alignments": [
+    {
+     "framework_code": "NCF-SE-2023",
+     "statement_code": "ncf.math.P.C-4.3",
+     "relation": "meets",
+     "reason": "NCF-SE's 'Selects appropriate methods … such as mental computation … in accordance with the context'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.02",
+     "relation": "meets",
+     "reason": "Cambridge's 'commutative and associative properties of addition … use these to simplify calculations'."
+    },
+    {
+     "framework_code": "CAM-PRI-MAT-0096",
+     "statement_code": "3Ni.03",
+     "relation": "meets",
+     "reason": "Bridging through 100 uses Cambridge's 'complements of 100'."
+    }
+   ],
+   "no_ncf_reason": null,
+   "no_cambridge_reason": null,
+   "what_we_say": "Chooses a mental strategy for a calculation, such as bridging through 100, adjusting a near-hundred or doubling, uses it, and explains why it was quicker than columns.",
+   "capability": {
+    "primary": "thinking-and-reasoning",
+    "secondary": null
+   },
+   "skill_sets": [
+    "MENTAL.BRIDGE_EQ",
+    "STRATEGY.EFFICIENT"
+   ]
+  }
+ ],
+ "outcome": {
+  "text": "Reads, writes, orders and rounds numbers to 1000, and to 10 000 where the school extends, including numbers below zero. Adds and subtracts 3-digit numbers mentally and in columns, recalls multiplication facts to 10 × 10, and multiplies and divides by a 1-digit number, checking with an estimate. Finds fractions of shapes, amounts and number lines, and uses money in rupees and paise. Solves problems of more than one step, and explains the rule behind a number pattern."
+ },
+ "descriptors": [
+  {
+   "level_code": "BEGINNING",
+   "text": "With materials or an educator's help, reads, writes and orders numbers to 1000, adds and subtracts 2-digit numbers, says the 2, 5 and 10 times tables, and finds a half or a quarter of a shape; a 3-digit calculation or a two-step problem needs support."
+  },
+  {
+   "level_code": "DEVELOPING",
+   "text": "Alone, reads, writes, orders and rounds numbers to 1000, adds and subtracts 3-digit numbers with one exchange, recalls most facts to 10 × 10 and finds a unit fraction of an amount; slips when exchanging across a zero, when multiplying by a 1-digit number, or in the second step of a problem."
+  },
+  {
+   "level_code": "SECURE",
+   "text": "Alone and consistently, does all the outcome asks: adds and subtracts 3-digit numbers with any exchange, including across zeros; multiplies and divides by a 1-digit number; finds fractions of shapes, amounts and number lines; works with money and change; solves two-step problems, checking each answer with an estimate."
+  },
+  {
+   "level_code": "EXTENDING",
+   "text": "Uses the step's number work in problems not seen before, chooses the quicker method and says why, explains why a strategy works, spots an answer that cannot be right by its size or by odd and even, and finds and corrects the mistake in a worked calculation."
+  }
+ ],
+ "not_covered": [
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "3Nc.01",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0954",
+   "reason": "'Estimate the number of objects or people (up to 1000)' is estimating, which LO-G3-0954 already does with calculations."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "3Np.04",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0930",
+   "reason": "Comparing and ordering 3-digit numbers with =, > and < belongs with reading and writing them; no objective on the step asks for it."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Np.02",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0943",
+   "reason": "Multiplying and dividing by 10 and 100 extends the mental multiplying by 10 that LO-G3-0943 does."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Ni.03",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0943",
+   "reason": "The associative property of multiplication is the reason doubling twice multiplies by 4, a strategy LO-G3-0943 uses."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Ni.08",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0942",
+   "reason": "Tests of divisibility by 2, 5, 10, 25, 50 and 100 come from multiples and factors; no Grade 3 or 4 objective asks for them."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "3Nf.04",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0951",
+   "reason": "A fraction as the numerator divided by the denominator is what finding ½ or ¼ of an amount does."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nf.02",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0951",
+   "reason": "The same idea for unit fractions and three-quarters, at this step's age."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nf.04",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0950",
+   "reason": "Equivalent fractions show on a number line as the same point."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nf.07",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0950",
+   "reason": "Comparing and ordering proper fractions extends what LO-G3-0950 does with the same denominator."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "3Nf.07",
+   "proposal": "new",
+   "what_we_say": "Adds and subtracts fractions with the same denominator within one whole, such as 2/5 + 1/5, and shows it on a number line or with a shape.",
+   "reason": "Neither Grade 3 nor Grade 4 of the school's map has adding or subtracting fractions; Cambridge asks for it at Stages 3 and 4."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nf.05",
+   "proposal": "add_to",
+   "lo_code": "new:3Nf.07",
+   "reason": "The Stage 4 version of the same objective, beyond one whole."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nc.05",
+   "proposal": "add_to",
+   "lo_code": "LO-G3-0982",
+   "reason": "Square numbers as a spatial pattern; NCF-SE's C-1.4 names square numbers among the patterns too."
+  },
+  {
+   "framework_code": "CAM-PRI-MAT-0096",
+   "statement_code": "4Nf.06",
+   "proposal": "leave_out",
+   "reason": "Percentages need tenths and hundredths first, and no Grade 3 or 4 objective has decimals; propose it when the age-9 step is drafted."
+  },
+  {
+   "framework_code": "NCF-SE-2023",
+   "statement_code": "ncf.math.P.C-4.2",
+   "proposal": "new",
+   "what_we_say": "Finds every way to choose or arrange a few things under a rule, such as all the pairs from four children, working in an order so that none is missed or counted twice.",
+   "reason": "NCF-SE asks for it in ages 8–11 and no Grade 3 or 4 objective has it."
+  }
+ ]
+}
