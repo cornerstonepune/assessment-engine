@@ -9,7 +9,7 @@ itself is not moved: a level is a rule its questions are measured against (digit
 level's questions are off, it is the rule people revisit.
 """
 
-from engine.w1_bank import question
+from engine.w1_bank import learned, question
 
 LOW, HIGH, MIN = ("item.flag_low_p", 0.20), ("item.flag_high_p", 0.95), ("item.min_attempts", 10)
 
@@ -59,24 +59,33 @@ def refresh(conn) -> list[dict]:
         "   and p.subject = i.item_key and p.direction = d.direction)",
         (high,),
     )
+    learned.propose(conn)  # rules children's unexplained answers point to (goals/s22-learned-mistakes.yaml)
     return conn.execute(
         "select p.id, p.kind, p.subject, p.direction, p.evidence, p.created_at from bank_proposal p"
         " where not exists (select 1 from bank_decision d where d.proposal_id = p.id) order by p.created_at, p.subject"
     ).fetchall()
 
 
+VERDICTS = {"mislevelled": ("remove", "keep"), "new_mistake": ("adopt", "reject")}
+
+
 def decide(conn, proposal_id, verdict, by, note="") -> dict:
-    """A person decides a proposal, once: `remove` takes the question out of the bank (its worksheets are rebuilt in
-    the same transaction), `keep` leaves it. Raises ValueError for a proposal already decided or a verdict unknown."""
-    if verdict not in ("remove", "keep"):
-        raise ValueError(f"a proposal is decided remove or keep, not {verdict!r}")
+    """A person decides a proposal, once. A question far off its level: `remove` takes it out of the bank (its
+    worksheets are rebuilt in the same transaction), `keep` leaves it. A mistake learned from children's answers:
+    `adopt` names it (`note` is its name) and it is recognised from then on, `reject` leaves it unknown. Raises
+    ValueError for a proposal already decided or a verdict that is not one of its kind's."""
     if not by:
         raise ValueError("a decision names the person deciding")
     p = conn.execute("select * from bank_proposal where id = %s", (proposal_id,)).fetchone()
     if not p:
         raise LookupError(f"no proposal {proposal_id}")
+    if verdict not in VERDICTS[p["kind"]]:
+        raise ValueError(
+            f"a {p['kind']} proposal is decided {' or '.join(VERDICTS[p['kind']])}, not {verdict!r}"
+        )
     if conn.execute("select 1 from bank_decision where proposal_id = %s", (proposal_id,)).fetchone():
         raise ValueError("this proposal is already decided")
+    code = learned.adopt(conn, p, by, note) if verdict == "adopt" else None
     if verdict == "remove":
         e = p["evidence"]
         why = note or f"far {p['direction']} than {e['difficulty']}: {e['correct']} of {e['n']} right"
@@ -85,4 +94,4 @@ def decide(conn, proposal_id, verdict, by, note="") -> dict:
         "insert into bank_decision (tenant_id, proposal_id, verdict, by, note) values (%s,%s,%s,%s,%s)",
         (p["tenant_id"], proposal_id, verdict, by, note),
     )
-    return {"proposal_id": proposal_id, "subject": p["subject"], "verdict": verdict}
+    return {"proposal_id": proposal_id, "subject": p["subject"], "verdict": verdict, "code": code}

@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 7, second half: mistakes learned from children's answers (goal s22, ADR 0039; PR open)
+
+- Nimish: "Whenever there is an answer that the student writes which is not found in the answer list, the system should
+  create that as a mistake so that next time, when a child does that, that is found." Built: a space of column rules
+  (`assess/learned_rules.py`, 540 for adding, 504 for taking away) that holds every procedural named mistake — 20,267 of
+  20,267 answers on 6,000 sums; confirmed unexplained wrong answers are searched in it; a rule seen on 2+ different
+  questions is proposed (`learned.propose`); a person names and adopts it (`misconception` L_…, `learned_mistake`) or
+  rejects it; marking recognises adopted ones at reading, on a correction and on re-marking.
+- Found and fixed in passing (on #90's branch): tests expecting a trusted kind's right answer to settle alone failed
+  15% of runs once the spot-check existed — `every_kind_trusted` now sets the spot rate to 0.
+- Stacked: merges after #90 and #91.
+
+
+
 ## 2026-09-28 — step 7, first half: a question's real difficulty proposes, a person decides (goal s21; PR open)
 
 - `item_stat` (ring B) is filled from confirmed answers (`learn.item_stats`, also by `engine graph`); a question far
@@ -13,6 +27,8 @@ is verified. This file only says where the last session stopped.
   seen on two or more different questions is proposed; a person names and approves it; it then predicts like the 49.
   Goal `s22-learned-mistakes`.
 
+
+
 ## 2026-09-28 — step 4: the spot-check is a share of a trusted kind's right answers (goal s20; PR open)
 
 - `marking.spot_check_rate` (threshold row, 0.15): once a kind is trusted, its right answers settle alone except that
@@ -22,6 +38,7 @@ is verified. This file only says where the last session stopped.
   ("Quota exceeded … Requests per minute", consumer project 498586711441 — a shared project, not the school's use).
   Nimish: give F3's Drive credential the school's own Google Cloud OAuth client. Then the live proof: a scan copied into
   folder 1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val runs F3, and its copies are on Marking.
+
 
 ## 2026-09-28 — step 2: what a check teaches (goal s19; PR open, merges after step 1's #88)
 
