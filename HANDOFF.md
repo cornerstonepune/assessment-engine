@@ -25,6 +25,7 @@ is verified. This file only says where the last session stopped.
   seen on two or more different questions is proposed; a person names and approves it; it then predicts like the 49.
   Goal `s22-learned-mistakes`.
 
+
 ## 2026-09-28 — step 4: the spot-check is a share of a trusted kind's right answers (goal s20; PR open)
 
 - `marking.spot_check_rate` (threshold row, 0.15): once a kind is trusted, its right answers settle alone except that
