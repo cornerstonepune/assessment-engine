@@ -160,6 +160,20 @@ class RunResponse(BaseModel):
     cost_inr: float | None
 
 
+class WeekNoteRequest(BaseModel):
+    section: str = Field(min_length=1, max_length=40)
+    note: str = Field(max_length=2000)
+
+
+class WeekDeclareRequest(BaseModel):
+    section: str = Field(min_length=1, max_length=40)
+    week: str = Field(min_length=1, max_length=40)
+    note: str = Field(default="", max_length=2000)
+    skill_sets: list[str] = Field(min_length=1)
+    by: str = Field(min_length=1, max_length=200)
+    proposed: list[dict] = Field(default_factory=list)
+
+
 class WeekPrescribeRequest(BaseModel):
     section: str
     week: str

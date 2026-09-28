@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — N4, the week's declaration (goal n4-week-declaration; PR open)
+
+- An educator's note in their own words → Jev, one yes/no per skill set of the grade in one call (`week_skills` v1,
+  `adapters/jev.yes_no`) → ticked at `week.skill_yes_above` 0.5 → the educator confirms on /make/[section]/week →
+  `week_declaration` (append-only, latest stands). Eval on 24 gold notes: exact 20/24, precision 0.933, recall 0.933.
+- The gold notes were written by this session from the skill sets' words; replace them with real educators' notes.
+- The prompt row reaches live with #88's `engine load --settings` on deploy.
+
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
 - Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in

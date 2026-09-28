@@ -56,6 +56,12 @@ THRESHOLDS = [
         "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above",
     ),
     ("marking.agreement_gate", 0.95, "proportion", "Agreement with teacher marking before marks are trusted"),
+    (
+        "week.skill_yes_above",
+        0.5,
+        "probability",
+        "A skill set Jev says the week's note covered at least this surely comes ticked (N4, goals/n4-week-declaration.yaml)",
+    ),
     # How the transcriber finds a child's answer on a page (ADR 0019). Every one of these was tuned
     # against a hand-read page, and every one is a property of how a PAPER is laid out rather than of
     # the code — so the next paper will want them different, and rule 1 says that is a row to edit,

@@ -17,13 +17,15 @@ from engine.api.models import (
     WeekApproveResponse,
     WeekAssembleRequest,
     WeekAssembleResponse,
+    WeekDeclareRequest,
+    WeekNoteRequest,
     WeekPrescribeRequest,
     WeekPrescribeResponse,
     WeekRenderRequest,
     WeekRenderResponse,
 )
 from engine.core import db
-from engine.w2_print import assemble, pack, prescribe
+from engine.w2_print import assemble, pack, prescribe, week_note
 from engine.w3_read import legacy
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -165,3 +167,41 @@ def sheet_page(qr: str, page_no: int, conn=Depends(get_conn)) -> Response:
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"the paper is not on this machine: {path}")
     return Response(content=legacy.page_crop(path, page_no), media_type="image/jpeg")
+
+
+@router.post("/week/declaration/propose")
+def propose_declaration(body: WeekNoteRequest, conn=Depends(get_conn)) -> dict:
+    """N4: an educator's note for the week → the grade's skill sets it covered, ticked where Jev is sure enough
+    (`week_note.propose`). Nothing is kept until the educator confirms."""
+    row = conn.execute(
+        "select band from child where section = %s and active limit 1", (body.section,)
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail=f"no class {body.section!r}")
+    return week_note.propose(conn, row["band"], body.note)
+
+
+@router.post("/week/declaration")
+def declare(body: WeekDeclareRequest, conn=Depends(get_conn)) -> dict:
+    """N4: what the educator confirms for their section's week is kept; the latest for a week stands."""
+    try:
+        row = week_note.confirm(
+            conn, body.section, body.week, body.note, body.skill_sets, body.by, body.proposed
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from None
+    return {
+        "id": str(row["id"]),
+        "section": body.section,
+        "week": body.week,
+        "skill_sets": sorted(body.skill_sets),
+    }
+
+
+@router.get("/week/{section}/{week}/declaration")
+def declaration(section: str, week: str, conn=Depends(get_conn)) -> dict:
+    """The week's declaration that stands, or 404 when none is declared."""
+    row = week_note.current(conn, section, week)
+    if not row:
+        raise HTTPException(status_code=404, detail="no declaration for this week")
+    return dict(row)

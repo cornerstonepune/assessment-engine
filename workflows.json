@@ -45,15 +45,15 @@
     },
     {
       "code": "N4", "workflow": "W2", "name": "The week's declaration",
-      "does": "The teacher says what was taught this week, and the engine proposes the week's skill sets for her to confirm.",
-      "who": "a model structures, the teacher confirms",
-      "built": "not built",
-      "takes": ["the teacher's note"],
+      "does": "The educator says in their own words what the class did this week; the engine proposes which of the grade's skill sets it covered (one yes/no each, Jev, ADR 0036) and the educator confirms or changes the ticks (goals/n4-week-declaration.yaml).",
+      "who": "Jev proposes, the educator confirms",
+      "built": "partly",
+      "takes": ["the educator's note"],
       "gives": ["the week's skill sets"],
-      "files": [],
-      "commands": [],
-      "screens": [],
-      "subject": {"any": true, "note": "Not built. Today a person names the week's skill set on the command line."}
+      "files": ["engine/w2_print/week_note.py"],
+      "commands": ["engine eval"],
+      "screens": ["/make/[section]/week"],
+      "subject": {"any": false, "note": "Maths: the skill sets asked about are the maths grade's; another subject brings its own skill sets and gold notes."}
     },
     {
       "code": "N5", "workflow": "W2", "name": "Each child's next paper",
