@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28, later: the Plan view inside the spine (a brainstorm view, no step moved)
+
+- Nimish asked for one system, not separate documents. It shows how the syllabus becomes fortnights and a day of
+  learning modes, how the mix shifts by grade, and whether the hours work.
+- It is now the Plan view of the spine map: https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg#plan. It is built by
+  `python3 research/plan_build.py && python3 research/spine_page.py`; the design lives in
+  `docs/spine/plan_design.json`.
+- Next: his reaction to the modes and weekly minutes. Then the generator that turns conditions into a timetable, and
+  Cambridge once the school's login gives the official frameworks.
+
 ## 2026-09-28: the indicative timetable, Grades 1–7 (a brainstorm page, no step moved)
 
 - Nimish answered the open points: Grades 1–7, IGCSE meaning Cambridge, "cat time" dropped, an Indian school

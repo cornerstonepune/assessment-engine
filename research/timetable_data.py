@@ -241,7 +241,8 @@ def counts():
     }
 
 
-def main():
+def verified():
+    """The official numbers whose quotes are found on their cited page, and the keys of any that are not."""
     paths = fetch()
     docs = {
         "ncf": pymupdf.open(DATA / "ncf.pdf"),
@@ -264,8 +265,13 @@ def main():
                 "value": value,
             }
         )
+    return {o["key"]: o for o in official}, missing
+
+
+def main():
+    official, missing = verified()
     out = {
-        "official": {o["key"]: o for o in official},
+        "official": official,
         "counts": counts(),
         "checked": f"{len(official)}/{len(OFFICIAL)} quotes found word for word on their cited page",
     }

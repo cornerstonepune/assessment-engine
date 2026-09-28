@@ -12,6 +12,27 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep, built: the Plan view inside the spine
+
+Nimish: "don't keep on waiting for me ... Just give me the final output." Built on the reading below, with "CATs"
+taken as academics.
+- **Where:** the spine map, Plan view: https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg (deep link `#plan`).
+  The map's explorer shows each school unit's and NCERT outcome's grade and fortnight.
+- **Built by:** `python3 research/plan_build.py`, which writes `docs/spine/plan.json` (22/22 official quotes found
+  on their page), then `python3 research/spine_page.py`.
+- **Inputs:** the syllabus is the school's map for Grades 1–4 and NCERT for Grades 5–7. The design is
+  `docs/spine/plan_design.json`: seven modes, the shape of an academic hour per stage, and weekly minutes. The design
+  is a proposal.
+
+What it shows at the defaults:
+- Academic time is about 219 minutes a day in Grades 1–2, 165 in Grades 3–5 and 173 in Grades 6–7.
+- NCERT outcomes go 37 → 72 → 89 from Grade 5 to 7, so hours per outcome fall from 13.1 to 4.6. The answer is how the
+  hour is used (concept, level practice, customised check, a personal paper each fortnight) and projects that carry
+  outcomes in groups.
+- The Grade 1 map has 120 studio objectives for 47 hours of Discover.
+- There are 16 fortnights (158 teaching days).
+- The separate timetable page (28 Sep) is superseded by this view.
+
 ## 28 Sep, later: Nimish reframes the ask (outcome not yet agreed)
 
 His words (trimmed):
