@@ -201,8 +201,17 @@ def draft(conn, child_id, ask=None, version=None):
     fix = ""
     for attempt in (1, 2):
         meta = {}
-        out = ask(conn, PURPOSE, {"grade": f["grade"], "facts": f, "fix": fix}, meta=meta, version=version)
-        problems = check(f, out)
+        try:
+            out = ask(
+                conn, PURPOSE, {"grade": f["grade"], "facts": f, "fix": fix}, meta=meta, version=version
+            )
+            problems = check(f, out)
+        except llm.LLMError as e:
+            # 2026-09-28, the first eval on live: a draft over its schema's length ended the whole run. A draft that
+            # breaks its schema has broken a rule like any other, and is sent back with what it broke.
+            if "failed its schema" not in str(e):
+                raise
+            out, problems = None, [str(e)]
         if not problems:
             break
         fix = "Your last answer broke these rules. Fix every one:\n- " + "\n- ".join(problems) + "\n"
@@ -280,7 +289,10 @@ def evaluate(conn, version, ask=None, limit=None):
     ).fetchall()[:limit]
     out = {"version": version, "n": 0, "passed": 0, "first_try": 0, "failures": [], "sample": None}
     for k in kids:
-        got = draft(conn, k["child_id"], ask=ask, version=version)
+        try:
+            got = draft(conn, k["child_id"], ask=ask, version=version)
+        except llm.LLMError as e:  # one child's failure is counted, never the end of the others'
+            got = {"problems": [str(e)]}
         if got is None:
             continue
         out["n"] += 1

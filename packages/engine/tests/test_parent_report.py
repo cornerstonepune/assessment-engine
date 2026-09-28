@@ -252,3 +252,30 @@ def test_the_report_over_http_is_written_kept_and_approved(conn, child, monkeypa
             assert client.get("/child/00000000-0000-0000-0000-000000000000/parent-report").status_code == 404
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a_draft_over_its_schema_is_sent_back_and_one_childs_failure_never_ends_the_eval(conn, child):
+    """2026-09-28, the first eval on live: one draft longer than its schema allows raised, and the eval of every other
+    child ended with it."""
+    asked = []
+
+    def long_once(conn, purpose, variables, meta=None, version=None):
+        asked.append(1)
+        if len(asked) == 1:
+            raise P.llm.LLMError("parent_report output failed its schema: '...' is too long")
+        return _good(variables["facts"])
+
+    got = P.draft(conn, child, ask=long_once)
+    assert got["attempts"] == 2 and got["problems"] == []
+    assert "failed its schema" in P.draft(conn, child, ask=lambda *a, **k: (_ for _ in ()).throw(
+        P.llm.LLMError("parent_report output failed its schema: too long")))["problems"][0]  # fmt: skip
+
+    def down(conn, purpose, variables, meta=None, version=None):
+        raise P.llm.LLMError("all models unavailable")
+
+    with pytest.raises(P.llm.LLMError):
+        P.draft(
+            conn, child, ask=down
+        )  # not a draft's fault: said, not counted as a draft that broke its facts
+    ev = P.evaluate(conn, None, ask=down)
+    assert ev["n"] >= 1 and ev["passed"] == 0 and len(ev["failures"]) == ev["n"]
