@@ -279,3 +279,27 @@ def test_a_draft_over_its_schema_is_sent_back_and_one_childs_failure_never_ends_
         )  # not a draft's fault: said, not counted as a draft that broke its facts
     ev = P.evaluate(conn, None, ask=down)
     assert ev["n"] >= 1 and ev["passed"] == 0 and len(ev["failures"]) == ev["n"]
+
+
+def test_what_the_first_eval_on_live_found_is_caught_or_let_through_as_it_should_be(conn, child):
+    """2026-09-28, `parent_report` v2 on live, 3 of 9: each cause pinned here."""
+    f = P.facts(conn, child)
+    ids = [x["id"] for k in ("can_do", "nearly", "improving") for x in f[k]]
+    assert len(ids) == len(set(ids)), "a skill set is said once, however many of its rung's skills are strong"
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    # a sentence's first word after a closing quote is not a name
+    assert said(at_home=["Tell the story: 'Some birds flew away.' Use buttons to act it out."]) == []
+    assert any("'Aarav'" in p for p in said(at_home=["Tell the story to Aarav and act it out."]))
+    # the school's own skill name is not the banned word; every other form of it is
+    assert said(next_at_school="The educator works on word problems with [child].") == []
+    assert any(
+        "'problems'" in p for p in said(next_at_school="The educator sees problems in [child]'s work.")
+    )
+    assert any("'struggles'" in p for p in said(next_at_school="[child] struggles with the exchange."))
+    # a practice sum the model made up is a number the facts do not hold
+    assert any(
+        "the number 25" in p for p in said(at_home=["Start with 25 take away 3, which needs no exchange."])
+    )

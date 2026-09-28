@@ -22,18 +22,19 @@ NEARLY = 0.8  # four in five right, waiting only on a second paper to be called 
 IMPROVED_BY = (
     0.25  # the recent half of a skill set's answers right this much more often than the earlier half
 )
+# every form a parent could read: "problems" slipped past "problem" on the first eval (2026-09-28)
 BANNED = (
-    "teacher",
-    "borrow",
-    "weak",
-    "poor",
-    "behind",
-    "struggling",
-    "problem",
-    "concern",
-    "fail",
-    "failure",
+    r"teachers?",
+    r"borrow\w*",
+    r"weak\w*",
+    r"poor\w*",
+    r"behind",
+    r"struggl\w*",
+    r"problems?",
+    r"concerns?\w*",
+    r"fail\w*",
 )
+SCHOOLS_OWN = re.compile(r"\bword[- ]problems?\b", re.IGNORECASE)  # the skill set's own name
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
 
@@ -111,20 +112,21 @@ def facts(conn, child_id):
     sets, rep = _sets(conn), report.build(conn, child_id)
     by_code = {s["code"]: s for s in sets.values()}
     stretch = {sets[r]["code"] for r in _states(conn, child_id, "stretch_ready") if r in sets}
+    # one entry per skill set: a rung holds several of the registry's skills, and each can be strong or practising
+    # on its own — the first eval listed ADD.2D2D twice, and held the words to a count they rightly would not repeat
+    strong = {}
+    for s in rep["strong"]:
+        if s["skill_set"] in by_code:
+            got = strong.setdefault(s["skill_set"], [0, 0])
+            got[0], got[1] = got[0] + s["right"], got[1] + s["answered"]
     can_do = [
-        _skill(
-            by_code[s["skill_set"]],
-            right=s["right"],
-            answered=s["answered"],
-            ready_to_move_up=s["skill_set"] in stretch,
-        )
-        for s in rep["strong"]
-        if s["skill_set"] in by_code
+        _skill(by_code[code], right=right, answered=n, ready_to_move_up=code in stretch)
+        for code, (right, n) in strong.items()
     ]
     nearly = [
         _skill(sets[r], right=right, answered=n)
         for r, (right, n) in _states(conn, child_id, "practising").items()
-        if r in sets and n >= 3 and right / n >= NEARLY
+        if r in sets and sets[r]["code"] not in strong and n >= 3 and right / n >= NEARLY
     ]
     said = {x["id"] for x in can_do + nearly}
     nxt = rep["next"] and by_code.get(rep["next"]["skill_set"])
@@ -167,15 +169,16 @@ def check(f, d):
     if "[child]" not in d["summary"]:
         problems.append("the summary never says [child]")
     known = json.dumps(f, ensure_ascii=False)
-    numbers = set(re.findall(r"\d+", known))
+    # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
+    numbers = set(re.findall(r"\d+", json.dumps({k: v for k, v in f.items() if k not in ("from", "to")})))
     words = set(re.findall(r"[A-Za-z]+", known)) | PLAIN_CAPS
     for t in _texts(d):
         for n in re.findall(r"\d+", t):
             if n not in numbers:
                 problems.append(f"the number {n} is not in the facts: {t!r}")
         for w in BANNED:
-            if re.search(rf"\b{w}\b", t, re.IGNORECASE):
-                problems.append(f"the word {w!r} is not the school's: {t!r}")
+            if m := re.search(rf"\b{w}\b", SCHOOLS_OWN.sub("", t), re.IGNORECASE):
+                problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
         if "%" in t or re.search(r"\bper ?cent", t, re.IGNORECASE):
             problems.append(f"a percentage: {t!r}")
         if "!" in t:
@@ -184,10 +187,14 @@ def check(f, d):
             problems.append(f"a code, {m.group(0)}: {t!r}")
         if others := [b for b in re.findall(r"\[[^\]]*\]", t) if b != "[child]"]:
             problems.append(f"a bracket other than [child], {others[0]}: {t!r}")
-        for sentence in re.split(r"(?<=[.!?:;])\s+", t.replace("[child]", "")):
-            for w in re.findall(r"[A-Za-z]+", sentence)[1:]:
-                if w[0].isupper() and w not in words:
-                    problems.append(f"{w!r} is a name or word the facts do not hold: {t!r}")
+        plain = t.replace("[child]", "")
+        for m in re.finditer(r"\b[A-Z][a-z]+\b", plain):
+            before = re.sub(r"[\s'\"‘’“”()\-—]+$", "", plain[: m.start()])
+            starts = (
+                not before or before[-1] in ".!?:;"
+            )  # a sentence's first word, even after a closing quote
+            if not starts and m.group(0) not in words:
+                problems.append(f"{m.group(0)!r} is a name or word the facts do not hold: {t!r}")
     return problems
 
 
