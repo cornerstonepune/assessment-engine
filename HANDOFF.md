@@ -17,7 +17,29 @@ is verified. This file only says where the last session stopped.
   - one rubric scale;
   - who signs each subject;
   - whether to pilot Grade 3 Maths now as data or move the tables up in BUILD-ORDER.
-- Nothing was migrated: BUILD-ORDER is on step 1, and ADR 0037 puts the spine's tables after the ten steps.
+- Nothing was migrated: the crosswalk is not one of BUILD-ORDER's ten steps, and ADR 0037 puts the spine's tables
+  after them.
+
+## 2026-09-28 — N12: a child's report from the graph, read back against Aseem's findings (goal w4b; stacked on #96)
+
+- `engine/w4_close/report.py`, `engine report child <id>`, `engine report gold`, `GET /report/{child_id}`. Strong,
+  faulty (each named mistake with the child's own example: question, what they wrote, the right answer), unexplained
+  wrongs per skill, next (W2's home area). No model. `focus_paper._words` is now public as `question_text`.
+- `goals/w4-close-the-loop.yaml`'s report criterion now runs `engine report gold` (the command that exists).
+- Owed: `bin/engine report gold` on the server — needs `engine gold confirm` of the transcription (Nimish).
+- Waiting on Nimish: the parent note / narrative — model-drafted wording per named mistake approved once by Aseem and
+  composed by code (proposed), or the workflow's "LLM one sentence per child".
+
+## 2026-09-28 — W4 starts: Friday's class card, from the graph alone (goal w4a; BUILD-ORDER step 9)
+
+- `engine/w4_close/card.py` (new workflow folder), `engine card build|confirm`, `GET /card/{section}/{week}`,
+  `POST /card/{section}/{week}/confirm`; migration `20261014090000_the_class_card.sql` (`class_card.groups`,
+  `class_card_confirmation`, append-only). Each child sits once per skill set, where weakest; reteach is grouped by the
+  named mistake repeated; the home area is W2's own (`focus_paper.home_area`, split out of `plan` unchanged).
+- Not verified locally: the home area on real data — the local copy has no bank, so W2's catalog is empty (the 9
+  focus-paper DB tests fail on main for the same reason). Run `bin/engine card build <section> <week>` on the server.
+- Next in W4: the sentence per child and the parent note (Jev chooses from sentences the school writes once — the engine
+  drafts them, Aseem approves), the card on the site, then N12 reports.
 
 ## 2026-09-28 — a story in anyone's words is shaped, placed and keyed (goal j3; step 8's second Jev use)
 

@@ -81,7 +81,7 @@ def catalog(conn) -> list[dict]:
     ]
 
 
-def _words(item):
+def question_text(item):
     """The question as a line of text: its stem, or for a bare sum its numbers (the page prints it in full)."""
     sp = item["spec"]
     if item["fmt"] == "missing_digit" and "c" in sp:
@@ -178,6 +178,20 @@ def _asked(conn, states, ask) -> list:
     return out
 
 
+def home_area(conn, child_id: str, states: list | None = None) -> list:
+    """[the one Area a child's home paper works on], at the level where its mistake shows — or [] when the graph shows
+    none. What `plan` draws a home paper from, and what Friday's class card names for each child."""
+    if states is None:
+        states = conn.execute(
+            "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
+            " from child_skill_state where child_id = %s",
+            (child_id,),
+        ).fetchall()
+    band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
+    levels = _levels(conn, band)
+    return [_where_it_shows(conn, a, levels) for a in focus.home(states, catalog(conn), rule(conn), levels)]
+
+
 def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
     """The areas and the questions for a paper for this child; nothing is written. Without `ask`, the home paper
     the graph proposes; with it, the areas a teacher asked for — refused, never padded, when the bank holds too
@@ -191,12 +205,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
         chosen = _asked(conn, states, ask)
     else:
         n = int(_config(conn, "assemble.items_per_sheet", 12))
-        band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
-        levels = _levels(conn, band)
-        chosen = [
-            (_where_it_shows(conn, a, levels), n)
-            for a in focus.home(states, catalog(conn), rule(conn), levels)
-        ]
+        chosen = [(a, n) for a in home_area(conn, child_id, states)]
     names = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
     mistakes = {r["code"]: r["name"] for r in conn.execute("select code, name from misconception")}
@@ -229,7 +238,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
                 "questions": [
                     {
                         "item_key": q["item_key"],
-                        "text": _words(q),
+                        "text": question_text(q),
                         "fmt": q["fmt"],
                         "shows_mistake": _can_show(q, area.mistake),
                         "id": str(q["id"]),

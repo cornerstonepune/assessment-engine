@@ -1,0 +1,29 @@
+name: w4b-report
+goal: >
+  A child's report in the shape of Aseem's (N12), computed from the child's confirmed evidence — no model: the strong
+  concepts (the skill sets the graph calls secure or ready to move up); each faulty concept, which is a named mistake
+  the child made, with how often and the child's own example — the question as printed, what they wrote, the right
+  answer; wrong answers no named mistake explains, counted per skill; and the area their home paper works on next
+  (W2's own choice). Only signed-off evidence from readings nobody superseded counts. `engine report gold` reads every
+  report back against Aseem's transcribed findings: every faulty concept he named that the papers hold is in the
+  report, nothing he called strong is faulty in it, and a finding the papers do not hold is counted apart, never
+  dropped.
+
+# Written 2026-09-28, before the work: BUILD-ORDER step 9, "reports"; goals/w4-close-the-loop.yaml's criterion "the
+# monthly report reaches Aseem's own findings for the five Grade 3 children". The narrative, the coordinator's approval
+# and the page a parent sees are later chunks; the narrative waits on Nimish's decision on model-written sentences.
+says:
+  - words: "After 34 evaluations, the system is able to see that there are certain areas where the child lags."
+    proved_by: packages/engine/tests/test_report.py::test_a_faulty_concept_comes_with_the_childs_own_example
+  - words: "whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: packages/engine/tests/test_report.py::test_the_report_reaches_aseems_finding_and_says_why_when_it_does_not
+manual:
+  - "On the server after merge: `bin/engine report gold` over the five Grade 3 children (needs `engine gold confirm` of the transcription — owed by Nimish)."
+scenarios: []
+criteria:
+  - name: the report from a real paper read, checked and signed off; read back against the gold — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_report.py tests/test_class_card.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
