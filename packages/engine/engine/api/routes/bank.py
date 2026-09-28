@@ -125,7 +125,8 @@ def proposals(conn=Depends(get_conn)) -> list[dict]:
 
 @router.post("/bank/proposal/{proposal_id}/decide")
 def decide(proposal_id: str, body: BankDecideRequest, conn=Depends(get_conn)) -> dict:
-    """A person decides a proposal once: remove the question (its worksheets are rebuilt) or keep it."""
+    """A person decides a proposal once: remove or keep a question far off its level; adopt (named, in `note`) or
+    reject a mistake learned from children's answers."""
     try:
         return learn.decide(conn, proposal_id, body.verdict, body.by, body.note)
     except LookupError:

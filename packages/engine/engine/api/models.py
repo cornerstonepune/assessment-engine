@@ -126,7 +126,7 @@ class BankRemoveResponse(BaseModel):
 
 
 class BankDecideRequest(BaseModel):
-    verdict: Literal["remove", "keep"]
+    verdict: Literal["remove", "keep", "adopt", "reject"]
     by: str = Field(min_length=1, max_length=200)
     note: str = Field(default="", max_length=300)
 

@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 7, second half: mistakes learned from children's answers (goal s22, ADR 0039; PR open)
+
+- Nimish: "Whenever there is an answer that the student writes which is not found in the answer list, the system should
+  create that as a mistake so that next time, when a child does that, that is found." Built: a space of column rules
+  (`assess/learned_rules.py`, 540 for adding, 504 for taking away) that holds every procedural named mistake — 20,267 of
+  20,267 answers on 6,000 sums; confirmed unexplained wrong answers are searched in it; a rule seen on 2+ different
+  questions is proposed (`learned.propose`); a person names and adopts it (`misconception` L_…, `learned_mistake`) or
+  rejects it; marking recognises adopted ones at reading, on a correction and on re-marking.
+- Found and fixed in passing (on #90's branch): tests expecting a trusted kind's right answer to settle alone failed
+  15% of runs once the spot-check existed — `every_kind_trusted` now sets the spot rate to 0.
+- Stacked: merges after #90 and #91.
+
 ## 2026-09-28 — step 7, first half: a question's real difficulty proposes, a person decides (goal s21; PR open)
 
 - `item_stat` (ring B) is filled from confirmed answers (`learn.item_stats`, also by `engine graph`); a question far

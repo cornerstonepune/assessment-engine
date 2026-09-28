@@ -1,0 +1,33 @@
+name: s22-learned-mistakes
+goal: >
+  Step 7 of the build order, second half, in Nimish's words: a wrong answer no named mistake explains becomes a mistake
+  the system knows, so the next child who makes it is recognised — on any question, not only the one it was seen on.
+  Code searches a fixed space of column rules (what each column writes, what it carries or borrows, whether the last
+  carry is written, how the numbers are lined up, whether the digits come out reversed) for the rules that reproduce
+  each confirmed wrong answer no mistake explains. A rule that reproduces such answers on at least
+  `mistake.learn_min_questions` different questions is proposed once, with its examples and its description in words;
+  a person names it and adopts it, or rejects it. An adopted rule is a named mistake like the 49: it joins the
+  vocabulary, and marking recognises it on every question it can occur on. A model never decides what a child did:
+  code finds and checks the rule, a person names it.
+
+# Written 2026-09-28, before the work. Nimish, on what should happen to a mistake no child makes: "Ideally, I want us
+# to get to a place where we have developed a skill itself. Whenever there is an answer that the student writes which
+# is not found in the answer list, the system should create that as a mistake so that next time, when a child does
+# that, that is found. This is exactly what I keep saying about self-improving systems or systems that become smarter
+# with every other iteration."
+says:
+  - words: "Whenever there is an answer that the student writes which is not found in the answer list, the system should create that as a mistake"
+    proved_by: packages/engine/tests/test_learned_mistakes.py::test_a_rule_seen_on_two_questions_is_proposed_once_with_its_examples_and_words
+  - words: "so that next time, when a child does that, that is found"
+    proved_by: packages/engine/tests/test_learned_mistakes.py::test_an_adopted_mistake_is_recognised_on_a_question_it_was_never_seen_on
+  - words: "systems that become smarter with every other iteration"
+    proved_by: packages/engine/tests/test_learned_rules.py::test_the_rule_space_reproduces_named_mistakes_it_was_never_told_about
+manual: []
+scenarios: []
+criteria:
+  - name: the rule space, the search, the proposals, adoption and recognition
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_learned_rules.py tests/test_learned_mistakes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

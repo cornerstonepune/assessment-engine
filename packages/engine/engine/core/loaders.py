@@ -50,6 +50,12 @@ THRESHOLDS = [
         "Confirmed answers a question needs before its share right proposes anything",
     ),
     (
+        "mistake.learn_min_questions",
+        2,
+        "count",
+        "Different questions a rule must explain unexplained answers on before it is proposed as a mistake (goals/s22)",
+    ),
+    (
         "read.auto_confirm_above",
         0.90,
         "confidence",
