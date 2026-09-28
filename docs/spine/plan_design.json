@@ -1,0 +1,51 @@
+{
+  "status": "The school's proposal, drafted by Claude on 28 Sep 2026 for discussion. Not official and not agreed. Official numbers come from NCF-SE, checked by research/timetable_data.py.",
+  "calendar": {
+    "summer_weeks": 7,
+    "diwali_weeks": 3,
+    "weekday_holidays": 12,
+    "test_days": 20,
+    "event_days": 20,
+    "fortnight_days": 10,
+    "saturday_minutes": 225
+  },
+  "day": {"start": "08:30", "end": "14:30", "community": 30, "breaks": 45, "instruction": 285},
+  "modes": {
+    "concept": {"label": "Concept", "what": "A new idea, introduced creatively: a hook, a story or a game; objects before pictures before symbols.", "group": "Whole group; ages can mix", "caps": ["cap.knowledge-and-academic-mastery", "cap.thinking-and-reasoning"]},
+    "practice": {"label": "Level practice", "what": "Practice at each child's own level. Children regroup across sections, and across grades where the bells line up.", "group": "Fluid level groups", "caps": ["cap.learning-and-agency", "cap.knowledge-and-academic-mastery"]},
+    "check": {"label": "Customised check", "what": "A short personal check set by the worksheet engine. Its result decides tomorrow's group.", "group": "Each child alone", "caps": ["cap.learning-and-agency"]},
+    "application": {"label": "Studio", "what": "Projects, investigations, labs and making that draw on several subjects at once.", "group": "Mixed teams", "caps": ["cap.creation-and-problem-solving", "cap.communication-and-collaboration", "cap.society-ethics-and-planet", "cap.technology-and-ai"]},
+    "arts": {"label": "Arts", "what": "Visual art, music, dance and theatre.", "group": "Class or mixed ages", "caps": ["cap.creation-and-problem-solving", "cap.self-and-relationships"]},
+    "sport": {"label": "Sport", "what": "PE, games and outdoor play.", "group": "Class or mixed ages", "caps": ["cap.self-and-relationships"]},
+    "community": {"label": "Circle & close", "what": "Morning circle or advisory, then the day's reflection and a portfolio note.", "group": "Class", "caps": ["cap.self-and-relationships", "cap.society-ethics-and-planet"]}
+  },
+  "anatomy_note": "How an academic hour is spent. The school's Grade 2–4 ICT plan already runs 10 minutes of shared hook, 35 minutes of practice by grade and 15 minutes of evaluation.",
+  "bands": {
+    "G1-2": {
+      "grades": [1, 2], "stage": "Foundational", "arc": "Discover",
+      "anatomy": {"concept": 0.15, "practice": 0.70, "check": 0.15},
+      "week": [["R1", "acads", 495], ["Maths", "acads", 300], ["R2", "acads", 300], ["Discover", "application", 90], ["Arts", "arts", 150], ["Sport", "sport", 90]],
+      "saturday": {"Arts": 0.5, "Sport": 0.5},
+      "ncf": {"basis": "daily minutes x 180 days", "R1": 270, "R2": 180, "Maths": 180}
+    },
+    "G3-5": {
+      "grades": [3, 4, 5], "stage": "Preparatory", "arc": "Investigate",
+      "anatomy": {"concept": 0.20, "practice": 0.65, "check": 0.15},
+      "week": [["Maths", "acads", 300], ["R1", "acads", 300], ["R2", "acads", 225], ["TWAU", "application", 320], ["Arts", "arts", 160], ["Sport", "sport", 120]],
+      "saturday": {"Arts": 0.5, "Sport": 0.5},
+      "ncf": {"basis": "Table 4.2i", "R1": "R1", "R2": "R2", "Maths": "Maths", "TWAU": "TWAU", "Arts": "Art", "Sport": "PE"}
+    },
+    "G6-7": {
+      "grades": [6, 7], "stage": "Middle", "arc": "Apply",
+      "anatomy": {"concept": 0.25, "practice": 0.60, "check": 0.15},
+      "week": [["Maths", "acads", 240], ["Science", "acads", 120], ["Science", "application", 80], ["SS", "acads", 120], ["SS", "application", 80], ["R1", "acads", 130], ["R2", "acads", 105], ["R3", "acads", 150], ["VE", "application", 160], ["Arts", "arts", 120], ["Sport", "sport", 120]],
+      "saturday": {"Arts": 0.34, "Sport": 0.33, "VE": 0.33},
+      "ncf": {"basis": "Table 4.2iv", "R1": "R1", "R2": "R2", "R3": "R3", "Maths": "Maths", "Science": "Science", "SS": "SS", "VE": "VE", "Arts": "Art", "Sport": "PE"}
+    }
+  },
+  "slot_names": {"R1": "R1 (English)", "R2": "R2 (Hindi; Marathi in Grade 4)", "R3": "R3", "Maths": "Maths", "TWAU": "Studio: The World Around Us", "Discover": "Discover (studio)", "Science": "Science", "SS": "Social Science", "VE": "Vocational: coding, AI, design, making", "Arts": "Arts", "Sport": "Sport", "Community": "Circle & close"},
+  "school_subject": {"Numeracy": "Maths", "Literacy": "R1", "Literacy - English": "R1", "Phonics": "R1", "Literacy - Hindi": "R2", "Literacy - Marathi": "R2", "Science": "studio", "Global perspectives": "studio", "Primary Computing": "studio", "Home Science": "studio", "Visual Arts": "Arts", "Routines": "Community"},
+  "studio_slot": {"G1-2": "Discover", "G3-5": "TWAU"},
+  "corrected_subject": {"art": "Arts", "social-science": "studio"},
+  "ncert_subject": {"eng": "R1", "math": "Maths", "evs": "TWAU", "sci": "Science", "sst": "SS"}
+}

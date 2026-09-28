@@ -12,6 +12,82 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep, built: the Plan view inside the spine
+
+Nimish: "don't keep on waiting for me ... Just give me the final output." Built on the reading below, with "CATs"
+taken as academics.
+- **Where:** the spine map, Plan view: https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg (deep link `#plan`).
+  The map's explorer shows each school unit's and NCERT outcome's grade and fortnight.
+- **Built by:** `python3 research/plan_build.py`, which writes `docs/spine/plan.json` (22/22 official quotes found
+  on their page), then `python3 research/spine_page.py`.
+- **Inputs:** the syllabus is the school's map for Grades 1–4 and NCERT for Grades 5–7. The design is
+  `docs/spine/plan_design.json`: seven modes, the shape of an academic hour per stage, and weekly minutes. The design
+  is a proposal.
+
+What it shows at the defaults:
+- Academic time is about 219 minutes a day in Grades 1–2, 165 in Grades 3–5 and 173 in Grades 6–7.
+- NCERT outcomes go 37 → 72 → 89 from Grade 5 to 7, so hours per outcome fall from 13.1 to 4.6. The answer is how the
+  hour is used (concept, level practice, customised check, a personal paper each fortnight) and projects that carry
+  outcomes in groups.
+- The Grade 1 map has 120 studio objectives for 47 hours of Discover.
+- There are 16 fortnights (158 teaching days).
+- The separate timetable page (28 Sep) is superseded by this view.
+
+## 28 Sep, later: Nimish reframes the ask (outcome not yet agreed)
+
+His words (trimmed):
+- "I am not looking for the separate documents. I am looking for this in integration with the entire syllabus that we
+  made ... And how can we break it down into fortnightly plans?"
+- "Timetables are not sacrosanct; they are built with 80-90% conviction."
+- "I'm not looking for the actual timetable per se ... The number of hours that are required and the schedule that we
+  are suggesting: how does it work? ... the learning needs to happen the way we are designing the school": application-
+  based learning; concepts explained in a very innovative, creative way; time for assessment; customised assessments;
+  fluid class sizes by age and level; those slots every day; sports and arts time.
+- "how the composition changes with increasing grades and how the CATs part increases. How can that CATs part still
+  be powerful enough that ... we are able to achieve our objectives for the kind of children we want? Is the outcome
+  clear here?"
+
+Read as follows, pending his confirmation. "CATs" / "cat time" is probably "acads", meaning academics. The
+outcome is one model inside the spine, not a separate page, running:
+- from the outcomes, to the hours they need, to the fortnights they fall in;
+- to the daily learning modes: concept, level practice, customised check, application, sport and arts, community;
+- to how the mix of those modes shifts from Grade 1 to Grade 7.
+
+Found in the school's Drive on 28 Sep, to build on:
+- The Grade 1 Planning Sheet 2026 logs every activity's attendance by Level 1/2/3.
+- The Cambridge Grade 1 maths plans split each lesson into Beginners, Intermediate and Advanced.
+- The ICT plan for Grades 2–4 runs a shared 10-minute hook, 35 minutes of practice with one pathway per grade, and a
+  shared 15-minute evaluation.
+- A monthly Parent Day & Learning Showcase runs on portfolio stations.
+- No Grade 1–4 timetable was found; the "Time Table" folder shows empty.
+
+## 28 Sep: his answers, and the indicative timetable
+
+- **Scope:** Grades 1–7 ("the first 7 standard curriculum is what I'm asking about").
+- **"ITCS":** he meant IGCSE, that is, Cambridge. Below Grade 9, Cambridge means Cambridge Primary (Stages 1–6) and
+  Lower Secondary (Stage 7).
+- **"cat time":** he does not know what he meant. It is dropped; the morning block is called Core.
+- **Calendar:** the usual Indian school calendar. "Two nature breaks" is read as the two daily breaks (snack and
+  lunch); the year has a summer break and a Diwali break.
+- **Timings:** 8:30 to 2:30, six hours. "You can create everything else."
+- **Later:** an interface that generates the timetable from a set of conditions.
+
+**Built now: the indicative timetable,** https://claude.ai/artifact/T46QvYnMgqyJW1hKktafYH. Source:
+`docs/brainstorms/2026-09-28-indicative-timetable.html`. Its official numbers come from
+`python3 research/timetable_data.py`, which found 22/22 quotes word for word on their cited page (NCF-SE Part A Chapter
+4, NCERT, the graduate profile).
+
+What it shows at the defaults (Monday to Friday, a 7-week summer break, a 3-week Diwali break, 12 weekday holidays,
+NCF-SE's 20 test days and 20 event days):
+- 158 teaching days × 285 minutes ≈ 751 hours a year, against NCF-SE's illustrative 955 (79%).
+- With a 2-hour morning core, R2 and PE fall to about 62–63% of NCF-SE's hours in Grades 3–5, and Science and Social
+  Science to about 66% in Grades 6–7.
+- Alternate Saturday half-days (NCF-SE's own model) and 8 test days instead of 20 reach about 886 hours (93%).
+- Grades 6–7 English and Social Science get about 3–4 hours per NCERT outcome.
+
+The timetable is a proposal, not agreed. Cambridge is not counted, and the RTE Act's minimums were not verified
+(India Code could not be reached).
+
 ## 27 Sep, after the merge: Nimish's next asks, and the objective put back to him
 
 **Start here.** He asked for the objective to be agreed before any work: *"Is the objective clear? Just make sure that
