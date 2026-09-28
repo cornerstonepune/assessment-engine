@@ -34,6 +34,8 @@ BANNED = (
     r"concerns?\w*",
     r"fail\w*",
 )
+# the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
+WHEN = re.compile(r"\b(this|last|next) (week|month|term|year)\b|\b(today|yesterday|weekly)\b", re.IGNORECASE)
 SCHOOLS_OWN = re.compile(r"\bword[- ]problems?\b", re.IGNORECASE)  # the skill set's own name
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
@@ -142,11 +144,22 @@ def facts(conn, child_id):
         "improving": [i for i in _improving(rows, sets) if i["id"] not in said],
         "working_on": [_mistake(f, what) for f in rep["faulty"][:3]],
         "wrong_answers_no_named_mistake_explains": sum(u["times"] for u in rep["unexplained"]),
-        "next": nxt and _skill(nxt, level=rep["next"]["level"]),
-        "habits": {
-            "wrong": len(wrong),
-            "wrong_with_working_shown": sum(r["working"] != "none" for r in wrong),
-            "left_blank": sum(r["correct"] is None for r in rows),
+        # why, as the graph says it: secure there already, so harder questions of it; or more practice of it. v3's first
+        # eval said "can do X" and then "will practise X next" to the same parent — the facts had not said which
+        "next": nxt
+        and _skill(
+            nxt,
+            level=rep["next"]["level"],
+            why="secure already: next, harder questions of it"
+            if rep["next"]["state"] in ("secure", "stretch_ready")
+            else "still practising it: more questions of it",
+        ),
+        "days": (rows[-1]["observed_at"].date() - rows[0]["observed_at"].date()).days + 1,
+        # what the child did on the papers — v3 read a bare "left_blank: 4" as a task ("leave four questions blank")
+        "on_the_papers": {
+            "wrong_answers": len(wrong),
+            "wrong_answers_with_working_shown": sum(r["working"] != "none" for r in wrong),
+            "questions_the_child_left_blank": sum(r["correct"] is None for r in rows),
         },
     }
 
@@ -179,6 +192,8 @@ def check(f, d):
         for w in BANNED:
             if m := re.search(rf"\b{w}\b", SCHOOLS_OWN.sub("", t), re.IGNORECASE):
                 problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
+        if m := WHEN.search(t):
+            problems.append(f"a time the facts do not give, {m.group(0)!r}: {t!r}")
         if "%" in t or re.search(r"\bper ?cent", t, re.IGNORECASE):
             problems.append(f"a percentage: {t!r}")
         if "!" in t:
@@ -294,7 +309,15 @@ def evaluate(conn, version, ask=None, limit=None):
     kids = conn.execute(
         "select distinct child_id from evidence_event where confirmed_by is not null order by child_id"
     ).fetchall()[:limit]
-    out = {"version": version, "n": 0, "passed": 0, "first_try": 0, "failures": [], "sample": None}
+    out = {
+        "version": version,
+        "n": 0,
+        "passed": 0,
+        "first_try": 0,
+        "failures": [],
+        "sample": None,
+        "drafts": [],
+    }
     for k in kids:
         try:
             got = draft(conn, k["child_id"], ask=ask, version=version)
@@ -309,4 +332,7 @@ def evaluate(conn, version, ask=None, limit=None):
         out["passed"] += 1
         out["first_try"] += got["attempts"] == 1
         out["sample"] = out["sample"] or got["draft"]
+        # every draft, to be read by a person: code holds the words to the facts, not to sense (v3: 10 of 10 held, and
+        # one still said "leave four questions blank")
+        out["drafts"].append({"child": str(k["child_id"])[:8], "draft": got["draft"]})
     return out
