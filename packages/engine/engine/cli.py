@@ -20,6 +20,7 @@ from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
 from engine.w4_close.cli_card import card_app
+from engine.w4_close.cli_report import report_app
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 app.add_typer(bank_app, name="bank")
@@ -30,6 +31,7 @@ app.add_typer(live_app, name="live")
 app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
 app.add_typer(card_app, name="card")
+app.add_typer(report_app, name="report")
 register_checks(app)
 
 
