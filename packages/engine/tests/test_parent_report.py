@@ -138,7 +138,12 @@ def test_the_facts_are_the_childs_signed_off_answers_and_never_their_name(conn, 
         "select repair_hint from misconception where code = 'M_SMALL_FROM_LARGE' and op = '-'"
     ).fetchone()["repair_hint"]
     assert slip["what_we_do"] == hint and slip["what_happens"] and "written as" not in slip["what_happens"]
-    assert f["habits"] == {"wrong": 7, "wrong_with_working_shown": 1, "left_blank": 0}
+    assert f["on_the_papers"] == {
+        "wrong_answers": 7,
+        "wrong_answers_with_working_shown": 1,
+        "questions_the_child_left_blank": 0,
+    }
+    assert f["days"] == 4, "the answers span four days, and the facts say so"
 
 
 def test_words_that_say_what_the_facts_do_not_are_caught(conn, child):
@@ -303,3 +308,23 @@ def test_what_the_first_eval_on_live_found_is_caught_or_let_through_as_it_should
     assert any(
         "the number 25" in p for p in said(at_home=["Start with 25 take away 3, which needs no exchange."])
     )
+
+
+def test_what_the_v3_eval_on_live_found_the_facts_now_say_and_the_check_catches(conn, child, monkeypatch):
+    """2026-09-28, v3 on live, 10 of 10 held to their facts, and a person reading them found: "can do X" and "will
+    practise X next" to the same parent; "over this week" for answers over more days; "leave four questions blank"."""
+    real = P.report.build
+
+    def secure_next(conn, child_id, since=None):
+        rep = real(conn, child_id, since)
+        return {
+            **rep,
+            "next": {"skill_set": "ADD.2D1D", "level": "Hard", "mistake": None, "state": "stretch_ready"},
+        }
+
+    monkeypatch.setattr(P.report, "build", secure_next)
+    f = P.facts(conn, child)
+    assert f["next"]["why"].startswith("secure already") and f["next"]["level"] == "Hard"
+    assert "questions_the_child_left_blank" in f["on_the_papers"]
+    for said in ("Over this week, [child] answered them.", "[child] did well today.", "Practise it weekly."):
+        assert any("a time the facts do not give" in p for p in P.check(f, {**_good(f), "summary": said}))
