@@ -1,0 +1,289 @@
+<title>Crosswalk Tables</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{--paper:#F6F6F1;--ink:#16201B;--muted:#5A6660;--line:#D5DBD3;--panel:#ECEFE8;--panel2:#E2E7DE;
+ --accent:#0E6B67;--accent-soft:#D5EAE6;--proposed:#8F5510;--missing:#A33A22;
+ --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0F1513;--ink:#E4EAE6;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1D2723;--accent:#5CC0B9;--accent-soft:#15383A;--proposed:#E2AE62;--missing:#EF8A6E}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0F1513;--ink:#E4EAE6;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1D2723;--accent:#5CC0B9;--accent-soft:#15383A;--proposed:#E2AE62;--missing:#EF8A6E}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--body);padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:44px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:21px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+.eyebrow{font:500 12px var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.lede{font-size:17px;max-width:66ch;margin-top:12px}
+.muted{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:.9em}
+section>p{max-width:70ch}
+/* status chips: the word carries the meaning; colour repeats it */
+.chip{display:inline-block;font:600 11px var(--mono);letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.chip.ok{color:var(--accent)}.chip.school{color:var(--ink)}.chip.proposed{color:var(--proposed)}.chip.missing{color:var(--missing)}.chip.example{color:var(--muted);border-style:dashed}
+.scroll{overflow-x:auto}
+table.today{border-collapse:collapse;width:100%;font-size:14px}
+.today th,.today td{text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.today th{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.today td:first-child{font-weight:500;min-width:190px}.today td:last-child{white-space:nowrap}
+.today .n{font-variant-numeric:tabular-nums}
+/* the diagram */
+figure{margin:0}
+.diagram{min-width:860px}
+.diagram svg{display:block;width:100%;height:auto;color:var(--ink)}
+.diagram .box{fill:var(--panel);stroke:var(--ink);stroke-width:1.2}
+.diagram .box.claim{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+.diagram .t{font:600 13px var(--mono);fill:var(--ink)}
+.diagram .s{font:400 11.5px var(--body);fill:var(--muted)}
+.diagram .z{font:600 11px var(--mono);fill:var(--muted);letter-spacing:.08em}
+.diagram .lab{font:500 11px var(--body);fill:var(--ink)}
+.diagram .tag{fill:var(--paper);stroke:var(--accent);stroke-width:1}
+.diagram .tagt{font:600 10px var(--mono);fill:var(--accent)}
+.diagram .etag{fill:var(--paper);stroke:var(--muted);stroke-width:1}
+.diagram .etagt{font:600 10px var(--mono);fill:var(--muted)}
+.diagram .ln{stroke:var(--ink);stroke-width:1.3;fill:none}
+.diagram .ln.acc{stroke:var(--accent);stroke-dasharray:5 4}
+.diagram .ah{fill:var(--ink)}.diagram .ah.acc{fill:var(--accent)}
+figcaption{margin-top:10px;font-size:13.5px;color:var(--muted);max-width:80ch}
+/* the worked objective */
+.card{border:1.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.card header{padding:14px 18px;background:var(--panel);display:grid;gap:4px}
+.card header .code{font:600 12px var(--mono);color:var(--muted)}
+.card header h3{font-size:19px;font-family:var(--display)}
+.rows{display:grid}
+.row{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) auto;gap:6px 18px;padding:14px 18px;border-top:1px solid var(--line);align-items:start}
+.row .k{font:600 13px var(--body)}
+.row .v{max-width:78ch}
+.row .v .src{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:4px}
+.row.claimrow{background:var(--accent-soft)}
+@media (max-width:720px){.row{grid-template-columns:minmax(0,1fr)}.row .chip{justify-self:start}}
+.rubric{border-collapse:collapse;width:100%;font-size:14px;margin-top:4px}
+.rubric td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.rubric td:first-child{font:600 12.5px var(--mono);white-space:nowrap;width:1%}
+/* tables by zone */
+.zones{display:grid;gap:22px}
+.zone h3{font:600 12px var(--mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.tbls{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
+.tbl{border:1px solid var(--line);border-radius:8px;padding:11px 13px;display:grid;gap:5px;align-content:start}
+.tbl.claim{border-color:var(--accent)}
+.tbl .nm{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font:600 13.5px var(--mono)}
+.tbl p{font-size:13.5px}
+.tbl .cols{font:400 12px var(--mono);color:var(--muted);line-height:1.5}
+ol.steps,ul.rules,ol.decide{margin:0;padding-left:22px;display:grid;gap:9px;max-width:78ch}
+ol.steps li::marker,ol.decide li::marker{font:600 14px var(--mono);color:var(--accent)}
+.note{border-left:3px solid var(--proposed);padding:4px 0 4px 12px;max-width:78ch}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+a{color:var(--accent)}
+</style>
+<div class="wrap">
+
+<header>
+ <p class="eyebrow">Cornerstone · the curriculum's backend · a proposal, 28 Sep 2026</p>
+ <h1>Crosswalk Tables</h1>
+ <p class="lede">Yes, it is incomplete. The chain has its shape, but no link from a school objective to NCF-SE or Cambridge has been signed by anyone, and Cambridge is not in it at all. Below is the set of tables that makes every link a claim someone signs, and one objective worked all the way through: what NCF-SE says, what NCERT says, what Cambridge says, what we say, and the written outcome with its rubric.</p>
+</header>
+
+<section id="today" aria-labelledby="h-today">
+ <h2 id="h-today">Where each link stands today</h2>
+ <div class="scroll"><table class="today">
+  <thead><tr><th>Link</th><th>Today</th><th>State</th></tr></thead>
+  <tbody>
+   <tr><td>NCF-SE goals and competencies</td><td><span class="n">814</span> imported, each found word for word on its page</td><td><span class="chip ok">checked</span></td></tr>
+   <tr><td>NCERT outcomes, Classes 1–10</td><td><span class="n">729</span> imported, each found word for word on its page</td><td><span class="chip ok">checked</span></td></tr>
+   <tr><td>Cambridge Primary and Lower Secondary</td><td>Not imported. The school's Drive holds only Cambridge Primary PE (0069); Maths, English and Science are not there</td><td><span class="chip missing">missing</span></td></tr>
+   <tr><td>The school's objectives</td><td><span class="n">1,750</span> for Grades 1–4. None yet for Grades 5–7</td><td><span class="chip school">school's</span></td></tr>
+   <tr><td>Objective → engine skill</td><td><span class="n">2,012</span> links from the school's own map</td><td><span class="chip school">school's</span></td></tr>
+   <tr><td>Objective → NCF-SE</td><td>None. <span class="n">981</span> links exist a level up, from a unit, drafted by subject reviewers</td><td><span class="chip proposed">proposed</span></td></tr>
+   <tr><td>Objective → Cambridge</td><td>None</td><td><span class="chip missing">missing</span></td></tr>
+   <tr><td>What we say</td><td>None. An objective carries a short title, such as "Place value (reading/writing large numbers, partitioning, rounding)"</td><td><span class="chip missing">missing</span></td></tr>
+   <tr><td>Written outcome with rubric levels</td><td>None</td><td><span class="chip missing">missing</span></td></tr>
+   <tr><td>Signatures</td><td>No table records who approved anything</td><td><span class="chip missing">missing</span></td></tr>
+  </tbody>
+ </table></div>
+</section>
+
+<section id="shape" aria-labelledby="h-shape">
+ <h2 id="h-shape">The tables, as one picture</h2>
+ <figure>
+  <div class="scroll"><div class="diagram">
+  <svg viewBox="0 0 1080 450" role="img" aria-label="An official statement is cited by an alignment for a school objective. Objectives are gathered into a written skill outcome, graded by one rubric descriptor per level, on which a child's evidence lands. Every alignment, statement, outcome and descriptor is a claim that counts only when an educator's decision signs it.">
+   <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker>
+   </defs>
+   <text class="z" x="5" y="20">WHAT OTHERS SAY</text>
+   <text class="z" x="295" y="20">THE LINK</text>
+   <text class="z" x="555" y="20">WHAT WE SAY</text>
+   <text class="z" x="845" y="20">HOW WE'LL KNOW</text>
+
+   <rect class="box" x="5" y="38" width="200" height="60" rx="8"/>
+   <text class="t" x="17" y="61">framework_document</text><text class="s" x="17" y="80">the copy read · sha256</text>
+
+   <rect class="box" x="5" y="150" width="200" height="66" rx="8"/>
+   <text class="t" x="17" y="173">framework_statement</text><text class="s" x="17" y="192">NCF-SE · NCERT · Cambridge</text><text class="s" x="17" y="207">word for word, with its page</text>
+
+   <rect class="box claim" x="5" y="268" width="200" height="60" rx="8"/>
+   <text class="t" x="17" y="291">progression_step</text><text class="s" x="17" y="310">a step and its age, per strand</text>
+
+   <rect class="box claim" x="295" y="150" width="170" height="66" rx="8"/>
+   <text class="t" x="307" y="173">alignment</text><text class="s" x="307" y="192">meets · extends ·</text><text class="s" x="307" y="207">partly · prepares for</text>
+
+   <rect class="box claim" x="555" y="38" width="200" height="60" rx="8"/>
+   <text class="t" x="567" y="61">lo_statement</text><text class="s" x="567" y="80">what we say, in versions</text>
+
+   <rect class="box" x="555" y="150" width="200" height="66" rx="8"/>
+   <text class="t" x="567" y="173">learning_objective</text><text class="s" x="567" y="192">LO-G3-0930 · the school's</text>
+   <rect class="etag" x="701" y="202" width="46" height="16" rx="8"/><text class="etagt" x="724" y="213.5" text-anchor="middle">exists</text>
+
+   <rect class="box" x="845" y="38" width="230" height="60" rx="8"/>
+   <text class="t" x="857" y="61">skill · rung</text><text class="s" x="857" y="80">the engine's worksheets</text>
+   <rect class="etag" x="1021" y="46" width="46" height="16" rx="8"/><text class="etagt" x="1044" y="57.5" text-anchor="middle">exists</text>
+
+   <rect class="box claim" x="845" y="150" width="230" height="66" rx="8"/>
+   <text class="t" x="857" y="173">skill_outcome</text><text class="s" x="857" y="192">the written outcome,</text><text class="s" x="857" y="207">one per step of a strand</text>
+
+   <rect class="box claim" x="845" y="268" width="230" height="60" rx="8"/>
+   <text class="t" x="857" y="291">rubric_descriptor</text><text class="s" x="857" y="310">what a child does at a level</text>
+
+   <rect class="box" x="845" y="380" width="230" height="60" rx="8"/>
+   <text class="t" x="857" y="403">outcome_evidence</text><text class="s" x="857" y="422">a child at a level · append-only</text>
+
+   <rect class="box claim" x="295" y="380" width="170" height="60" rx="8"/>
+   <text class="t" x="307" y="403">claim</text><text class="s" x="307" y="422">by a person or a prompt</text>
+
+   <rect class="box claim" x="555" y="380" width="200" height="60" rx="8"/>
+   <text class="t" x="567" y="403">claim_decision</text><text class="s" x="567" y="422">signed by an educator</text>
+
+   <line class="ln" x1="105" y1="98" x2="105" y2="147" marker-end="url(#ah)"/><text class="lab" x="113" y="127">holds</text>
+   <line class="ln" x1="105" y1="216" x2="105" y2="265" marker-end="url(#ah)"/><text class="lab" x="113" y="245">lined up by age</text>
+   <line class="ln" x1="205" y1="183" x2="292" y2="183" marker-end="url(#ah)"/><text class="lab" x="248" y="175" text-anchor="middle">cited by</text>
+   <line class="ln" x1="465" y1="183" x2="552" y2="183" marker-end="url(#ah)"/><text class="lab" x="508" y="175" text-anchor="middle">for</text>
+   <line class="ln" x1="655" y1="98" x2="655" y2="147" marker-end="url(#ah)"/><text class="lab" x="663" y="127">states it</text>
+   <line class="ln" x1="755" y1="183" x2="842" y2="183" marker-end="url(#ah)"/><text class="lab" x="798" y="175" text-anchor="middle">gathered into</text>
+   <line class="ln" x1="960" y1="98" x2="960" y2="147" marker-end="url(#ah)"/><text class="lab" x="968" y="127">informs</text>
+   <line class="ln" x1="960" y1="216" x2="960" y2="265" marker-end="url(#ah)"/><text class="lab" x="968" y="245">graded by</text>
+   <line class="ln" x1="960" y1="380" x2="960" y2="331" marker-end="url(#ah)"/><text class="lab" x="968" y="360">lands on a level</text>
+   <line class="ln acc" x1="555" y1="410" x2="468" y2="410" marker-end="url(#aha)"/><text class="lab" x="511" y="402" text-anchor="middle">signs</text>
+   <line class="ln acc" x1="380" y1="377" x2="380" y2="219" marker-end="url(#aha)"/><text class="lab" x="388" y="292">every shaded</text><text class="lab" x="388" y="306">row is a claim</text>
+  </svg>
+  </div></div>
+  <figcaption>Shaded rows are claims. A person or a prompt proposes each one. It shows as proposed from that moment, and it counts only once an educator signs it. The unshaded rows are imported word for word, like NCF-SE, or already belong to the school, like its objectives and the engine's skills.</figcaption>
+ </figure>
+</section>
+
+<section id="example" aria-labelledby="h-example">
+ <h2 id="h-example">One objective, worked through</h2>
+ <p class="muted" style="margin-bottom:12px">This is what every objective in Grades 1–7 would carry. The official lines are real and checked. The two example lines are drafts written to show the shape, and nobody has signed them.</p>
+ <article class="card">
+  <header>
+   <span class="code">LO-G3-0930 · Grade 3 · Maths · unit: Numbers and the Number System</span>
+   <h3>Place value (reading/writing large numbers, partitioning, rounding)</h3>
+  </header>
+  <div class="rows">
+   <div class="row"><span class="k">NCF-SE says</span><p class="v">"Represents numbers using the place value structure of the Indian number system, compares whole numbers, and knows and can read the names of very large numbers"<span class="src">NCF-SE 2023 · Preparatory · Mathematics · C-1.1, under CG-1</span></p><span class="chip ok">official</span></div>
+   <div class="row"><span class="k">NCERT says</span><p class="v">"works with three digit numbers – reads and writes numbers up to 999 using place value – compares numbers up to 999 for their value based on their place value – solves simple daily life problems using addition and subtraction of three digit numbers with and without regrouping, sums not exceeding 999 …"<span class="src">NCERT Learning Outcomes (2017) · Class 3 · Mathematics · outcome 1 (quoted up to the fourth of its seven parts)</span></p><span class="chip ok">official</span></div>
+   <div class="row" id="cam-row"><span class="k">Cambridge says</span><p class="v">Missing. The school's Drive has only one official Cambridge Primary framework, Physical Education (0069, Stages 1–6). The Mathematics framework has to come from the school's Cambridge account and be imported word for word.</p><span class="chip missing">missing</span></div>
+   <div class="row claimrow"><span class="k">What we say</span><p class="v">Reads, writes, compares and orders whole numbers to 1,000 (to 10,000 when extended), says what each digit is worth using Indian place-value names, partitions a number in more than one way (347 = 300 + 40 + 7 = 34 tens and 7 ones), and rounds to the nearest 10 and 100 to estimate and check.<span class="src">lo_statement · drafted by Claude to show the shape</span></p><span class="chip example">example</span></div>
+   <div class="row claimrow"><span class="k">Skill outcome</span><div class="v"><p>Maths · Number, the step most children reach around age 8: works with whole numbers to 1,000. Reads, writes, compares, orders, partitions and rounds them, and explains what each digit is worth.</p>
+    <table class="rubric" aria-label="Example rubric">
+     <tr><td>Beginning</td><td>Reads and writes 3-digit numbers with a place-value chart or blocks beside them; compares two numbers that differ in the hundreds.</td></tr>
+     <tr><td>Developing</td><td>Reads, writes and compares any two 3-digit numbers without support, and partitions a number into hundreds, tens and ones one way.</td></tr>
+     <tr><td>Secure</td><td>Orders a set of 3-digit numbers, partitions them in more than one way, rounds to the nearest 10 and 100, and says why each digit has its value.</td></tr>
+     <tr><td>Extending</td><td>Does the same with 4-digit numbers, uses rounding to estimate and check a sum, and explains the mistake in someone else's partitioning.</td></tr>
+    </table>
+    <span class="src">skill_outcome and rubric_descriptor · gathers LO-G3-0930, LO-G3-0952 and LO-G3-0954 · the level names are an example (the first two are the Hindi reading rubric's); the scale is the school's to choose</span></div><span class="chip example">example</span></div>
+   <div class="row"><span class="k">The engine checks</span><p class="v">NUM.PV.03 Rounding &amp; estimation, the skill the school's map ties to this objective. Its unit also builds NUM.PV.02 Comparing &amp; ordering numbers.<span class="src">learning_objective_skill · the school's map</span></p><span class="chip school">school's</span></div>
+   <div class="row"><span class="k">When</span><p class="v">Grade 3 Maths, fortnight 1. The unit's three objectives come first in the year.<span class="src">the plan's pacing · the day and calendar are a proposal</span></p><span class="chip proposed">proposed</span></div>
+   <div class="row"><span class="k">Signed</span><p class="v">Nothing yet. Each line above becomes a claim. The card is complete when every one of them is signed and the Cambridge line is imported.</p><span class="chip missing">none</span></div>
+  </div>
+ </article>
+</section>
+
+<section id="tables" aria-labelledby="h-tables">
+ <h2 id="h-tables">Every table</h2>
+ <p class="muted" style="margin-bottom:14px">Seven of these exist today. Every new table carries <code>tenant_id</code> and gets row-level security from <code>internal.apply_conventions()</code>, like the rest. The column-by-column SQL is in ADR 0041.</p>
+ <div class="zones">
+  <div class="zone"><h3>What others say · imported word for word, never edited</h3><div class="tbls">
+   <div class="tbl"><span class="nm">framework <span class="chip school">new</span></span><p>NCF-SE 2023, NCERT's outcomes, Cambridge Primary Mathematics, the school's own map.</p><span class="cols">code · name · publisher · kind · edition</span></div>
+   <div class="tbl"><span class="nm">framework_document <span class="chip school">new</span></span><p>The very copy that was read. A changed file is refused.</p><span class="cols">url · sha256 · bytes · reading · retrieved_at</span></div>
+   <div class="tbl"><span class="nm">framework_level <span class="chip school">new</span></span><p>A framework's own levels: Preparatory, Class 3, Stage 3.</p><span class="cols">framework · code · ord</span></div>
+   <div class="tbl"><span class="nm">framework_statement <span class="chip school">new</span></span><p>Each goal, competency, outcome or objective, word for word, with its page. A trigger refuses edits.</p><span class="cols">kind · code · parent · level · area · text · pdf_page · supersedes</span></div>
+  </div></div>
+  <div class="zone"><h3>Age is the anchor, not the grade · decided 28 Sep</h3><div class="tbls">
+   <div class="tbl"><span class="nm">progression <span class="chip school">new</span></span><p>One ladder per subject strand: Maths · Number, English · Reading.</p><span class="cols">code · subject · strand</span></div>
+   <div class="tbl claim"><span class="nm">progression_step <span class="chip ok">claim</span></span><p>A step on the ladder and the age a child is usually ready for it. Framework levels carry the ages they print, so a Cambridge stage or an NCF-SE level lines up with a step by age.</p><span class="cols">progression · ord · code · age_from · age_to · claim</span></div>
+   <div class="tbl claim"><span class="nm">objective_step <span class="chip ok">claim</span></span><p>Where an objective sits on its ladder. Teaching something earlier or later than a framework's age is a signed claim.</p><span class="cols">objective · progression · step · claim</span></div>
+  </div></div>
+  <div class="zone"><h3>What we say</h3><div class="tbls">
+   <div class="tbl"><span class="nm">learning_objective <span class="chip school">exists</span></span><p>The school's 1,750 objectives. It gains its teaching order.</p><span class="cols">code · band · subject · unit · title · signal · + ord</span></div>
+   <div class="tbl claim"><span class="nm">lo_statement <span class="chip ok">claim</span></span><p>The school's own statement for an objective: NCF-SE and Cambridge combined, and further than both. Kept in versions.</p><span class="cols">objective · text · claim · supersedes</span></div>
+   <div class="tbl"><span class="nm">capability <span class="chip school">new</span></span><p>The graduate profile's eight capabilities.</p><span class="cols">code · label · text</span></div>
+   <div class="tbl claim"><span class="nm">lo_capability <span class="chip ok">claim</span></span><p>The "why": which capability an objective builds, primary or secondary.</p><span class="cols">objective · capability · weight · claim</span></div>
+  </div></div>
+  <div class="zone"><h3>Claims and signatures · the missing link</h3><div class="tbls">
+   <div class="tbl claim"><span class="nm">claim <span class="chip ok">new</span></span><p>Every assertion: a link, a statement, an outcome, a rubric line. A person or a prompt proposes it, never both. Append-only.</p><span class="cols">kind · proposed_by | prompt purpose@version · rationale</span></div>
+   <div class="tbl claim"><span class="nm">claim_decision <span class="chip ok">new</span></span><p>Approved, rejected or revised, always by the subject's signatory. A claim's state is its latest decision. Append-only.</p><span class="cols">claim · decision · decided_by · decided_at · note</span></div>
+   <div class="tbl"><span class="nm">signatory <span class="chip school">new</span></span><p>Who may sign each subject's claims. Akanksha signs for every subject to start; a subject gets its own signatory by adding a row.</p><span class="cols">subject · educator · valid_from · valid_to</span></div>
+   <div class="tbl claim"><span class="nm">alignment <span class="chip ok">claim</span></span><p>One objective joined to one official statement, and how: meets, extends, partly meets, prepares for.</p><span class="cols">objective · statement · relation · claim</span></div>
+   <div class="tbl claim"><span class="nm">exclusion <span class="chip ok">claim</span></span><p>An official statement the school chooses not to teach in a grade. The reason is the claim's rationale.</p><span class="cols">statement · grade · claim</span></div>
+  </div></div>
+  <div class="zone"><h3>How we'll know · the written outcome, its rubric, the evidence</h3><div class="tbls">
+   <div class="tbl"><span class="nm">rubric_scale · rubric_level <span class="chip school">new</span></span><p>The school's levels, as rows. Their number and names are the school's to choose.</p><span class="cols">scale · ord · code · label · meaning</span></div>
+   <div class="tbl claim"><span class="nm">skill_outcome <span class="chip ok">claim</span></span><p>The written outcome a rubric grades, one per step of a strand.</p><span class="cols">code · progression · step · text · scale · claim</span></div>
+   <div class="tbl claim"><span class="nm">outcome_objective <span class="chip ok">claim</span></span><p>The objectives an outcome gathers.</p><span class="cols">outcome · objective · claim</span></div>
+   <div class="tbl claim"><span class="nm">rubric_descriptor <span class="chip ok">claim</span></span><p>What a child does at each level of the outcome's scale: one current, signed line per level.</p><span class="cols">outcome · level · text · exemplar · claim</span></div>
+   <div class="tbl claim"><span class="nm">skill_set_objective <span class="chip ok">claim</span></span><p>Which objectives a skill set's questions assess. Every question already names its skill set and difficulty, so it reaches an objective, a step and a rubric.</p><span class="cols">skill_set · objective · claim</span></div>
+   <div class="tbl"><span class="nm">outcome_skill <span class="chip school">new</span></span><p>The engine's skills and rungs whose worksheet results inform an outcome.</p><span class="cols">outcome · skill · rung</span></div>
+   <div class="tbl"><span class="nm">skill · rung · evidence_event <span class="chip school">exist</span></span><p>The engine's skills, its ladder, and each worksheet answer, append-only.</p><span class="cols">as today</span></div>
+   <div class="tbl"><span class="nm">outcome_evidence <span class="chip school">new</span></span><p>A child placed at a level of an outcome, from a worksheet, an observation, a project or a portfolio. Append-only, like evidence_event.</p><span class="cols">child · outcome · level · source · evidence_event · observed_by · observed_at</span></div>
+  </div></div>
+  <div class="zone"><h3>The answers · views, rebuilt at any time</h3><div class="tbls">
+   <div class="tbl"><span class="nm">lo_crosswalk</span><p>One row per objective: what NCF-SE, Cambridge and NCERT say, what we say, the capability, the outcomes, and whether each rubric is complete. The card above is one row of it.</p></div>
+   <div class="tbl"><span class="nm">framework_gap</span><p>Every official statement at a grade's level that nothing covers. "Which Cambridge objectives are we missing?" becomes a query.</p></div>
+   <div class="tbl"><span class="nm">readiness</span><p>By strand and step, how much is signed. It shows the build's progress.</p></div>
+   <div class="tbl"><span class="nm">child_step · level_group</span><p>Each child's step in each strand, from their evidence, and the children on the same step across grades: the fluid groups.</p></div>
+   <div class="tbl"><span class="nm">child_outcome_state</span><p>Each child's current level on each outcome, rebuilt from their evidence.</p></div>
+  </div></div>
+ </div>
+</section>
+
+<section id="accuracy" aria-labelledby="h-acc">
+ <h2 id="h-acc">What makes the mapping accurate</h2>
+ <ul class="rules">
+  <li><b>Official text is never typed.</b> It comes only from the importer. The checker finds every statement word for word on its page, in the copy whose fingerprint is recorded. A trigger refuses edits.</li>
+  <li><b>A model never signs.</b> A prompt may propose a claim. Only an educator can decide it.</li>
+  <li><b>Unsigned is visible and counts for nothing.</b> The views count approved claims only.</li>
+  <li><b>Both ends of every link exist.</b> Foreign keys replace today's list of links, which only a script checks.</li>
+  <li><b>Age, not the grade number, lines frameworks up.</b> Cambridge Primary is "typically for learners aged 5 to 11" over six stages, so matching grade numbers would put a child a stage behind their age. A departure from a framework's age is a signed claim.</li>
+  <li><b>Complete means a command passes.</b> For a grade and subject, every objective must have a signed statement, a signed NCF-SE link, and a signed Cambridge link or a signed reason there is none. Every outcome must have a signed line at every level, and nothing may be left in framework_gap.</li>
+ </ul>
+</section>
+
+<section id="build" aria-labelledby="h-build">
+ <h2 id="h-build">How the missing link gets built</h2>
+ <ol class="steps">
+  <li><b>Import Cambridge</b> Primary (Stages 1–6) and Lower Secondary (Stage 7), word for word, with fingerprints. Move NCF-SE and NCERT, already checked, into framework_statement.</li>
+  <li><b>Draw each strand's steps with their ages,</b> and sign them.</li>
+  <li><b>Write a small gold set by hand:</b> alignments, statements, outcomes and rubrics for one strand (Maths · Number). It is what the drafting prompts are measured against before they are used.</li>
+  <li><b>Draft the rest</b>, strand by strand. For each objective: its alignments, with a relation and a reason, and its combined statement. For each strand: the outcome and a line at every level. Everything lands as a proposed claim.</li>
+  <li><b>Code checks what code can:</b> every cited statement exists at the right level, every outcome has every level, lines describe what a child does, nothing is duplicated, and the gaps are listed.</li>
+  <li><b>Educators sign</b> on one screen per objective card: approve, reject or revise.</li>
+  <li><b>Each strand reaches 100%</b> before the next begins.</li>
+ </ol>
+ <p class="note" style="margin-top:16px">Rubrics sit per strand, not per objective. Grades 1–4 have 1,750 objectives, about 2.3 per unit. Four levels each would be 7,000 lines, too many to observe or sign. Outcomes per strand, each gathering its objectives, come to roughly 40–60 a grade. That figure is an estimate until the strands are drawn.</p>
+</section>
+
+<section id="decide" aria-labelledby="h-decide">
+ <h2 id="h-decide">Decisions, as of 28 Sep</h2>
+ <ol class="decide">
+  <li><b>Cambridge files.</b> The official copies need the Cambridge School Support Hub login; Akanksha is checking whether Cornerstone is registered. Meanwhile the structure is built from copies of Cambridge's own publications (English 0058, Science 0097) and the official PE framework in the Drive, and compared with the official files when they come.</li>
+  <li><b>The rubric scale (recommended).</b> Four levels inside the school: <b>Beginning</b>, <b>Developing</b>, <b>Secure</b> (the target, and the signal to move on) and <b>Extending</b>. They report onto the national Holistic Progress Card's three: Beginner, Proficient, and Advanced for both Secure and Extending. Every question already carries one of four difficulties (Easy, Medium, Hard, Advance), so the engine can suggest a level and the educator confirms it. Four to seven levels give the most reliable judgements (Guskey, 2024).</li>
+  <li><b>Rubrics per step of a strand.</b> Decided. Questions keep reporting per objective.</li>
+  <li><b>Signatory.</b> Akanksha, for every subject, to start. Nobody writes: she approves or corrects what the drafting method produces.</li>
+  <li><b>Build.</b> Start now, as data shaped like these tables. The database tables wait for their place in the build order.</li>
+ </ol>
+</section>
+
+<footer>The SQL for every table is in <span class="mono">docs/adr/0041-the-curriculum-crosswalk-is-tables-of-statements-and-signed-claims.md</span>. The numbers come from <span class="mono">docs/spine/spine.json</span> and <span class="mono">supabase/seed/registry.json</span> on 28 Sep 2026.</footer>
+</div>

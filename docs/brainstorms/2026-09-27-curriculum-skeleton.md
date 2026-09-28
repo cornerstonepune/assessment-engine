@@ -12,6 +12,39 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep, last: the crosswalk as tables (ADR 0041, proposed)
+
+Nimish: "most of this is where you are saying that it's not been linked, so it is incomplete, right? … for a certain
+learning objective: what does the NCF say, what does IGCSE say, and what are we going to say as a combination … That
+essentially translates into the written skill outcome at a rubric level … for all the grades … If you have to convert
+this into a proper set of tables such that this mapping becomes accurate, how will you want to do it?"
+
+- **Answer:** yes, it is incomplete. No objective is linked to NCF-SE or Cambridge at the objective level, Cambridge
+  is not imported, and no table records a signature. The design is `docs/adr/0041-…`. Page:
+  https://claude.ai/artifact/KW1vV2p6c9Cxq6ThfTr2iR (source `docs/brainstorms/2026-09-28-crosswalk-tables.html`).
+- **The design has five zones:**
+  - what others say, imported word for word;
+  - which grade reads which level;
+  - what we say;
+  - claims and signatures, where a model may propose and only an educator decides;
+  - how we'll know: the skill outcome per strand, rubric descriptors per level, and evidence.
+  Views answer the questions: `lo_crosswalk`, `framework_gap`, `readiness`.
+- **Drive, searched read-only on 28 Sep:**
+  - The only official Cambridge Primary framework is Physical Education (0069, Stages 1–6, file
+    `1IG5pexvD-K9wHGv-ZSDJZn39GmbNeJlD`). Its objectives are banded by Stages 1–3 and 4–6, with codes like `123MW.01`.
+  - Maths, English and Science frameworks are not there, and there is nothing for Lower Secondary or IGCSE.
+    "IGCSE Curriculum.pdf" is another school's Grade 1 map.
+  - The school's own syllabus documents cover G1–G4 only.
+- **Scales already in use:**
+  - the Hindi reading rubric (Beginning, Developing, Fluent, Expressive);
+  - report cards (Outstanding, Desired, Improving out of 10, where 6/10 appears under two labels);
+  - planning sheets (Level 1, 2, 3);
+  - the registry's score out of 10 and yes / sometimes / no.
+- **Five decisions for Nimish:** the Cambridge files and Grade n = Stage n; one rubric scale; rubrics per strand
+  (recommended) or per objective; who signs each subject; pilot Grade 3 Maths now as data, or move the tables up in
+  BUILD-ORDER.
+- "Expensive" in his message is read as "expansive": the school's statement goes further than NCF-SE and Cambridge.
+
 ## 28 Sep, redesigned: the spine page reads as one thread (ADR 0038)
 
 Nimish: "is there a way that you can design this html better such that its more easily understood and the

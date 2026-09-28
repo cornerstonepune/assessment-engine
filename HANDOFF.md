@@ -3,6 +3,23 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28, curriculum: the crosswalk designed as tables (ADR 0041 proposed, no step moved, nothing built)
+
+- Nimish asked whether the spine is incomplete, and it is. He asked for each objective, per subject and grade, to say
+  what NCF-SE says, what Cambridge says and what we say, turned into a written outcome at rubric level for all grades.
+  He asked what tables would make that mapping accurate.
+- The design is `docs/adr/0041-the-curriculum-crosswalk-is-tables-of-statements-and-signed-claims.md`. Page:
+  https://claude.ai/artifact/KW1vV2p6c9Cxq6ThfTr2iR.
+- Every link and every text the school writes is a `claim`. A model may propose one; only an educator's
+  `claim_decision` signs it.
+- Blocked on Nimish:
+  - the Cambridge Primary Maths, English and Science frameworks. The Drive has only PE (0069);
+  - one rubric scale;
+  - who signs each subject;
+  - whether to pilot Grade 3 Maths now as data or move the tables up in BUILD-ORDER.
+- Nothing was migrated: the crosswalk is not one of BUILD-ORDER's ten steps, and ADR 0037 puts the spine's tables
+  after them.
+
 ## 2026-09-28 — N12: a child's report from the graph, read back against Aseem's findings (goal w4b; stacked on #96)
 
 - `engine/w4_close/report.py`, `engine report child <id>`, `engine report gold`, `GET /report/{child_id}`. Strong,
