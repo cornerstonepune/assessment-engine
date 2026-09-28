@@ -120,6 +120,14 @@ def test_a_copy_and_the_official_file_are_compared_statement_by_statement():
     assert [c["code"] for c in diff["changed"]] == ["3Ni.02"]
     assert diff["only_in_copy"] == ["3Np.02"] and diff["only_in_official"] == ["3Np.06"]
     assert compare.compare(copy_rows, copy_rows)["changed"] == []
+    sources = json.loads((CROSSWALK / "sources.json").read_text())
+    maths = "Curriculum Framework Cambridge Primary Mathematics 0096 Published in September 2020"
+    assert compare.which(maths, sources)["framework"] == "CAM-PRI-MAT-0096"
+    assert (
+        compare.which("Cambridge Primary English 0058 Curriculum Framework", sources)["framework"]
+        == "CAM-PRI-ENG-0058"
+    )
+    assert compare.which("Learning Outcomes at the Elementary Stage", sources) is None
 
 
 def test_age_is_the_anchor_every_level_and_step_has_ages_and_each_objective_sits_at_its_grades_age(t, design):

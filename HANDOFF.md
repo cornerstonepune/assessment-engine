@@ -22,9 +22,9 @@ is verified. This file only says where the last session stopped.
   Her approved rows become the gold set.
 - **Owed by Nimish:**
   - his yes on the method and on the four-level scale;
-  - the school's Grade 1 entry age (6 assumed);
-  - the official Cambridge files (from Akanksha, via the School Support Hub), then run
-    `python3 research/crosswalk_compare.py <framework> <file>` for each.
+  - the official Cambridge files (from Akanksha, via the School Support Hub), then from anywhere:
+    `~/cornerstone/assessment-engine/bin/compare-cambridge ~/Downloads/<file>.pdf`, one or more files.
+- Grade 1 is age 6: Nimish decided on 28 Sep. It is ADR 0041's decision 6.
 - **For Akanksha, through the Skill Map Review** (the registry is generated there, never edited here):
   - 36 objectives with "art" replaced inside words ("PVisual arts 2");
   - Grade 4 Numeracy repeating Grade 3's titles (78 of 89);
