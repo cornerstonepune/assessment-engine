@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — W4 starts: Friday's class card, from the graph alone (goal w4a; BUILD-ORDER step 9)
+
+- `engine/w4_close/card.py` (new workflow folder), `engine card build|confirm`, `GET /card/{section}/{week}`,
+  `POST /card/{section}/{week}/confirm`; migration `20261014090000_the_class_card.sql` (`class_card.groups`,
+  `class_card_confirmation`, append-only). Each child sits once per skill set, where weakest; reteach is grouped by the
+  named mistake repeated; the home area is W2's own (`focus_paper.home_area`, split out of `plan` unchanged).
+- Not verified locally: the home area on real data — the local copy has no bank, so W2's catalog is empty (the 9
+  focus-paper DB tests fail on main for the same reason). Run `bin/engine card build <section> <week>` on the server.
+- Next in W4: the sentence per child and the parent note (Jev chooses from sentences the school writes once — the engine
+  drafts them, Aseem approves), the card on the site, then N12 reports.
+
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
 - Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in
