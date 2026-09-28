@@ -150,8 +150,9 @@ def facts(conn, child_id):
         and _skill(
             nxt,
             level=rep["next"]["level"],
+            # as the report shows it: a skill set it lists as "can do" is secure (v4 said "can do" and "more practice")
             why="secure already: next, harder questions of it"
-            if rep["next"]["state"] in ("secure", "stretch_ready")
+            if rep["next"]["state"] in ("secure", "stretch_ready") or nxt["code"] in strong
             else "still practising it: more questions of it",
         ),
         "days": (rows[-1]["observed_at"].date() - rows[0]["observed_at"].date()).days + 1,
@@ -169,6 +170,39 @@ def _texts(d):
             *d["at_home"], d["next_at_school"]]  # fmt: skip
 
 
+UNITS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen"
+    " eighteen nineteen".split())}  # fmt: skip
+TENS = {
+    w: 10 * i
+    for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split())
+    if i > 1
+}
+SCALES = {"hundred": 100, "thousand": 1000}
+
+
+def numbers_in(text):
+    """(values written in digits, values written in words) — "9,000" is 9000, "sixty-one" 61, "nine thousand four
+    hundred" 9400. A bare "a hundred" or "hundreds" is the place value's name, not a count, and is not a value.
+    v4 on live wrote a child's example in words ("leaving sixty-one") where no digit check could see it."""
+    digits = {int(n.replace(",", "")) for n in re.findall(r"\d{1,3}(?:,\d{3})+|\d+", text)}
+    words, total, cur = set(), None, None
+    for w in re.findall(r"[a-z]+", text.lower().replace("-", " ")) + ["."]:
+        if w in UNITS or w in TENS:
+            cur = (cur or 0) + UNITS.get(w, TENS.get(w, 0))
+        elif w in SCALES and cur is not None:
+            cur *= SCALES[w]
+            if w == "thousand":
+                total, cur = (total or 0) + cur, 0
+        elif w == "and" and cur is not None:
+            continue
+        else:
+            if total is not None or cur is not None:
+                words.add((total or 0) + (cur or 0))
+            total = cur = None
+    return digits, words
+
+
 def check(f, d):
     """What the words say that the facts do not, or that the school does not say — [] when nothing."""
     problems = []
@@ -183,12 +217,13 @@ def check(f, d):
         problems.append("the summary never says [child]")
     known = json.dumps(f, ensure_ascii=False)
     # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
-    numbers = set(re.findall(r"\d+", json.dumps({k: v for k, v in f.items() if k not in ("from", "to")})))
+    held = numbers_in(json.dumps({k: v for k, v in f.items() if k not in ("from", "to")}, ensure_ascii=False))
+    numbers = held[0] | held[1]
     words = set(re.findall(r"[A-Za-z]+", known)) | PLAIN_CAPS
     for t in _texts(d):
-        for n in re.findall(r"\d+", t):
-            if n not in numbers:
-                problems.append(f"the number {n} is not in the facts: {t!r}")
+        digits, spelled = numbers_in(t)
+        for n in sorted(digits - numbers) + sorted(v for v in spelled - numbers if v > 10):
+            problems.append(f"the number {n} is not in the facts: {t!r}")
         for w in BANNED:
             if m := re.search(rf"\b{w}\b", SCHOOLS_OWN.sub("", t), re.IGNORECASE):
                 problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
@@ -205,9 +240,9 @@ def check(f, d):
         plain = t.replace("[child]", "")
         for m in re.finditer(r"\b[A-Z][a-z]+\b", plain):
             before = re.sub(r"[\s'\"‘’“”()\-—]+$", "", plain[: m.start()])
-            starts = (
-                not before or before[-1] in ".!?:;"
-            )  # a sentence's first word, even after a closing quote
+            # a sentence's first word: after a full stop (a closing quote between), or opening a quoted sentence
+            opens = re.search(r"['\"‘“]$", plain[: m.start()].rstrip())
+            starts = not before or before[-1] in ".!?:;" or bool(opens)
             if not starts and m.group(0) not in words:
                 problems.append(f"{m.group(0)!r} is a name or word the facts do not hold: {t!r}")
     return problems
