@@ -101,17 +101,51 @@ create table framework_statement (          -- append-only; a correction superse
 -- trigger: before update or delete → internal.forbid_change()
 ```
 
-### Zone 2: which grade reads which level (a school decision, signed)
+### Zone 2: age is the anchor, not the grade (decided 28 Sep)
+
+Nimish, 28 Sep: "the ability of the child is the center. What should the child be able to do at what age should be our
+baseline. At least till sixth standard, because our concept is towards fluid classrooms".
+
+So every subject strand is a ladder of steps, each with the age a child is usually ready for it. Objectives and
+official statements sit on those steps. A child's step in each strand comes from their evidence, not their grade, and
+children on the same step can be taught together across grades. The grade stays as the class a child belongs to.
+
+The frameworks' own levels carry the ages each framework prints: NCF-SE's stages by age, and Cambridge Primary
+"typically for learners aged 5 to 11" (Science 0097, page 5; English 0058, page 8). Comparing on age rather than on
+grade numbers avoids an off-by-one error. Six stages over ages 5–11 put a six-year-old near Cambridge Stage 2, while
+NCF-SE puts them in Grade 1. That per-stage figure is an inference: Cambridge prints the range, not an age per stage.
 
 ```sql
-create table grade_equivalence (            -- Grade 3 ↔ NCF-SE Preparatory ↔ NCERT Class 3 ↔ Cambridge Stage 3
+alter table framework_level add column age_from numeric, add column age_to numeric;   -- as the framework prints them
+
+create table progression (                  -- one ladder per subject strand: Maths · Number, English · Reading
   tenant_id uuid not null references tenant(id) on delete cascade,
-  grade text not null,                      -- G1 … G7, the school's bands
-  level_id uuid not null references framework_level(id),
+  code text not null, subject text not null, strand text not null,
+  primary key (tenant_id, code)
+);
+create table progression_step (             -- a step, and the age a child is usually ready for it
+  tenant_id uuid not null references tenant(id) on delete cascade,
+  progression_code text not null,
+  ord int not null,
+  code text not null,                       -- MATH.NUMBER.5
+  age_from numeric not null,
+  age_to numeric not null,
   claim_id uuid not null references claim(id),
-  primary key (tenant_id, grade, level_id)
+  primary key (tenant_id, progression_code, code)
+);
+create table objective_step (               -- where an objective sits on its ladder (replaces the grade band as the anchor)
+  tenant_id uuid not null references tenant(id) on delete cascade,
+  lo_code text not null,
+  progression_code text not null,
+  step_code text not null,
+  claim_id uuid not null references claim(id),
+  primary key (tenant_id, lo_code)
 );
 ```
+
+Which Cambridge stage or NCF-SE level lines up with a step is worked out from the ages, not typed. Where the school
+teaches something earlier or later than a framework's age, that is a signed `objective_step` claim. The engine's
+maths rungs are already a ladder like this (R1–R14, X1, X2); the progression generalises them to every subject.
 
 ### Zone 3: what we say
 
@@ -134,15 +168,28 @@ create table lo_statement (                 -- "what we say": NCF-SE and Cambrid
 
 ### Zone 4: claims and signatures (the missing link)
 
-Every assertion is a claim: a link, a statement, an outcome, a rubric line, a grade equivalence. A person or a prompt
-proposes it. Only a person decides it. A claim's state is its latest decision, and with no decision it stays
-"proposed, not signed".
+Every assertion is a claim: a link, a statement, an outcome, a rubric line, a step. A person or a prompt proposes it.
+Only the subject's signatory decides it. A claim's state is its latest decision, and with no decision it stays
+"proposed, not signed". To start, one signatory, Akanksha, signs for every subject (Nimish, 28 Sep); a subject gets its
+own signatory by adding a row.
+
+```sql
+create table signatory (                    -- who may sign a subject's claims, and from when
+  tenant_id uuid not null references tenant(id) on delete cascade,
+  subject text not null,                    -- '*' for every subject
+  educator uuid not null,                   -- auth.users; the name stays in pii
+  valid_from date not null,
+  valid_to date,
+  primary key (tenant_id, subject, educator, valid_from)
+);
+-- claim_decision refuses a decided_by who is not the subject's signatory on decided_at (a trigger)
+```
 
 ```sql
 create table claim (                        -- append-only
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references tenant(id) on delete cascade,
-  kind text not null,                       -- alignment · lo_statement · lo_capability · grade_equivalence ·
+  kind text not null,                       -- alignment · lo_statement · lo_capability · progression_step · objective_step ·
                                             -- skill_outcome · outcome_objective · rubric_descriptor · exclusion
   proposed_by uuid,                         -- an educator (auth.users); the name stays in pii
   prompt_purpose text,                      -- or the prompt that drafted it (CLAUDE.md rule 2)
@@ -174,12 +221,12 @@ create table alignment (                    -- one school objective ↔ one offi
   foreign key (tenant_id, lo_code) references learning_objective (tenant_id, code)
 );
 
-create table exclusion (                    -- an official statement the school chooses not to teach in a grade, and why
+create table exclusion (                    -- an official statement the school chooses not to teach, and why
   tenant_id uuid not null references tenant(id) on delete cascade,
   statement_id uuid not null references framework_statement(id),
-  grade text not null,
+  progression_code text not null,
   claim_id uuid not null references claim(id),   -- the why is the claim's rationale
-  primary key (tenant_id, statement_id, grade)
+  primary key (tenant_id, statement_id, progression_code)
 );
 
 create table capability (                   -- the graduate profile's eight, and the word each mostly shows
@@ -216,12 +263,12 @@ create table rubric_level (
   primary key (tenant_id, scale_code, code)
 );
 
-create table skill_outcome (                -- the written outcome a rubric grades: one strand of a subject in a grade
+create table skill_outcome (                -- the written outcome a rubric grades: one step of one strand (decided 28 Sep)
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references tenant(id) on delete cascade,
-  code text not null,                       -- MATH.G3.NUMBER
-  subject text not null,
-  grade text not null,
+  code text not null,                       -- MATH.NUMBER.5
+  progression_code text not null,
+  step_code text not null,
   text text not null,
   scale_code text not null,
   claim_id uuid not null references claim(id),
@@ -232,6 +279,13 @@ create table outcome_objective (            -- the objectives an outcome gathers
   lo_code text not null,
   claim_id uuid not null references claim(id),
   primary key (outcome_id, lo_code)
+);
+create table skill_set_objective (         -- which objectives a skill set's questions assess: how a question reaches
+  tenant_id uuid not null references tenant(id) on delete cascade,   -- an objective, a step and a rubric
+  skill_set_code text not null,             -- every item already names its skill set and difficulty (Easy … Advance)
+  lo_code text not null,
+  claim_id uuid not null references claim(id),
+  primary key (tenant_id, skill_set_code, lo_code)
 );
 create table outcome_skill (                -- the engine's skills and rungs whose worksheet evidence informs it
   outcome_id uuid not null references skill_outcome(id),
@@ -273,9 +327,11 @@ create table outcome_evidence (             -- append-only, like evidence_event 
   - the capability it builds;
   - its outcomes, and whether each rubric is complete.
   The spine page reads this view.
-- **`framework_gap`**: every official statement at a level equivalent to a grade that no approved alignment or
+- **`child_step`**: a child's current step in each strand, rebuilt from their evidence. It sets fluid groups.
+- **`level_group`**: the children on the same step of a strand, across grades: who can learn together.
+- **`framework_gap`**: every official statement for the ages a step covers that no approved alignment or
   exclusion covers. "Which Cambridge objectives are we missing?" becomes a query.
-- **`readiness`**: per grade and subject, the share of objectives with an approved statement, signed alignments and a
+- **`readiness`**: per strand and step, the share of objectives with an approved statement, signed alignments and a
   complete rubric. This is the build's progress bar.
 - **`child_outcome_state`**: a child's current level on each outcome, rebuilt by `engine graph` from
   `outcome_evidence`.
@@ -288,8 +344,9 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 3. **Unsigned is visible and counts for nothing.** The views read approved claims only. A proposal shows as proposed,
    as the spine page shows it today.
 4. **Every end of every link exists.** Foreign keys replace today's edge list, whose ids only a script checked.
-5. **Grade and stage are matched on purpose.** Grade 3 ↔ Cambridge Stage 3 is a signed row, not an assumption.
-6. **Complete means a command passes.** The goal for a grade and subject passes only when:
+5. **Age, not grade number, lines frameworks up.** Each framework level carries the ages it prints, and each step
+   the age a child is usually ready for it. A departure from a framework's age is a signed claim.
+6. **Complete means a command passes.** The goal for a strand passes only when:
    - every objective has an approved statement, a signed NCF-SE alignment, and a signed Cambridge alignment or a signed
      reason there is none;
    - every outcome has a signed descriptor at every level of its scale;
@@ -299,16 +356,16 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 
 1. **Import Cambridge.** Bring in Cambridge Primary (Stages 1–6) and Lower Secondary (Stage 7), word for word, with
    fingerprints. Move NCF-SE and NCERT, already checked, into `framework_statement`.
-2. **Sign the grade equivalences.**
-3. **Write a small gold set by hand.** Educators write the alignments, statements, outcomes and rubrics for one grade
-   and subject. The prompts are evaluated against it before they are used (CLAUDE.md rule 7).
-4. **Draft, grade by grade and subject by subject, with those prompts.** For each objective, its alignments with a
+2. **Draw each strand's steps with their ages, and sign them.**
+3. **Write a small gold set by hand.** Educators write the alignments, statements, outcomes and rubrics for one strand
+   (Maths · Number). The prompts are evaluated against it before they are used (CLAUDE.md rule 7).
+4. **Draft, strand by strand, with those prompts.** For each objective, its alignments with a
    relation and a reason, and its combined statement. For each strand, the skill outcome and a descriptor at every
    level. All of it lands as proposed claims.
-5. **Code checks what code can.** Every cited statement exists at an equivalent level. Every outcome has every level.
+5. **Code checks what code can.** Every cited statement's ages overlap its step's. Every outcome has every level.
    Descriptors describe what a child does. There are no duplicates. The gaps are listed.
 6. **Educators sign** on one review screen per objective card: approve, reject or revise.
-7. **Stop at 100% before moving on.** The grade and subject's goal must pass before the next one starts.
+7. **Stop at 100% before moving on.** A strand's goal must pass before the next one starts.
 
 ## Rejected
 
@@ -317,8 +374,13 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 - **Links as columns on the skill, as `skill.cg` is today.** "CG-3" names no stage and no subject, and a column holds
   one link where a skill serves several.
 - **A rubric per objective.** Grades 1–4 have 1,750 objectives, about 2.3 per unit. Four levels each is 7,000
-  descriptors, too fine to observe and too many to sign. Outcomes per strand, each gathering its objectives, come to
-  roughly 40–60 per grade (an estimate, until the strands are drawn).
+  descriptors, too fine to observe and too many to sign. Questions still report per objective: each item names its
+  skill set and its difficulty (Easy, Medium, Hard, Advance), and `skill_set_objective` ties the skill set to its
+  objectives. So an objective's evidence is counted by code, and the rubric judges the strand's step from it.
+  Outcomes per step of a strand come to roughly 40–60 a year of age (an estimate, until the steps are drawn).
+- **Grade as the anchor ("Grade n is Stage n").** Cambridge prints "typically for learners aged 5 to 11" over six
+  stages, so matching on the grade number puts a child a stage behind their age. Fluid classrooms group by level
+  in a subject, not by grade.
 - **A draft becoming the school's word by being written down.** Drafts stay claims until a person signs them.
 
 ## Decisions for Nimish
