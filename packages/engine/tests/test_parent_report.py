@@ -103,7 +103,11 @@ def _good(f):
     return {
         "summary": "[child] is building steady habits in maths, and the educator sees careful work on the page.",
         "can_do": [
-            {"id": x["id"], "sentence": f"[child] got {x.get('right', x.get('recent'))} right."}
+            {
+                "id": x["id"],
+                "sentence": ("[child] is nearly secure: " if k == "nearly" else "[child] ")
+                + f"got {x.get('right', x.get('recent'))} right.",
+            }
             for k in ("can_do", "nearly", "improving")
             for x in f[k]
         ],  # fmt: skip
@@ -405,3 +409,69 @@ def test_what_the_second_v6_eval_found_a_maths_problem_is_a_question_and_a_made_
     assert any("has a problem" in p for p in said(next_at_school="[child] has a problem with tens."))
     story = "Tell a story: 'I had thirty-seven pennies, found ten more, then spent fifteen.'"
     assert any("the number 37" in p for p in said(at_home=[story]))
+
+
+def _one_paper(conn, child, rung, n):
+    """n right answers at a rung, all on the fixture's one paper: nearly secure, waiting on a second."""
+    t, cap = (
+        conn.execute(
+            "select c.tenant_id, c.id from capture c join sheet_instance s on s.id = c.sheet_instance_id"
+            " where s.child_id = %s",
+            (child,),
+        )
+        .fetchone()
+        .values()
+    )
+    for i in range(n):
+        item = conn.execute(
+            "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)"
+            " values (%s, %s, 'pr', %s, '{NUM.OPS.01}', 'Procedural', 'column', %s, %s) returning id",
+            (
+                t,
+                f"pr/{child}/{rung}/{i}",
+                rung,
+                json.dumps({"op": "+", "a": 40, "b": 5}),
+                json.dumps([{"rid": "a", "answer": 45}]),
+            ),
+        ).fetchone()["id"]
+        res = conn.execute(
+            "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, misconception_codes,"
+            " working_shown, state) values (%s, %s, %s, 'a', '{}', 'correct', '{}', 'none', 'confirmed') returning id",
+            (t, cap, item),
+        ).fetchone()["id"]
+        conn.execute(
+            "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
+            " channel, item_result_id, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.01',%s,true,'{}','item',%s,now(),'t')",
+            (t, child, rung, res),
+        )
+    conn.execute("select rebuild_child_skill_state(%s::uuid)", (child,))
+
+
+def test_what_the_v7_eval_found_a_skill_is_said_as_secure_only_on_its_own_line_and_nearly_says_why(
+    conn, child
+):
+    """v7 on live, 10 of 10 held to their facts, and a read of all ten found: "nearly secure ... got 14 of 14 right"
+    with no reason; a summary calling an improving skill "now secure"; "rewrite the lender digit"."""
+    _one_paper(conn, child, "R23", 4)
+    f = P.facts(conn, child)
+    near = {x["id"]: x for x in f["nearly"]}
+    assert near, f["nearly"]
+    assert all(
+        x["not_yet"] == "answered on one paper so far: secure once it holds on another" for x in near.values()
+    )
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    assert said() == []
+    assert any(
+        "never says what is secure" in p for p in said(summary="[child] is now secure at subtraction.")
+    )
+    lines = _good(f)["can_do"]
+    swap = {x["id"]: k for k in ("can_do", "nearly", "improving") for x in f[k]}
+    for k, wrong in (("can_do", "[child] is nearly secure at it."), ("nearly", "[child] got 4 of 4 right."),
+                     ("improving", "[child] is now secure at it.")):  # fmt: skip
+        entry = next(c for c in lines if swap[c["id"]] == k)
+        bad = [{**c, "sentence": wrong} if c is entry else c for c in lines]
+        assert said(can_do=bad), (k, wrong)
+    assert any("lender" in p for p in said(at_home=["Cross out and rewrite the lender digit together."]))

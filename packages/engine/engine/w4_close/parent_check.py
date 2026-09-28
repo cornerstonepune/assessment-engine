@@ -17,7 +17,12 @@ BANNED = (
     r"struggl\w*",
     r"concerns?\w*",
     r"fail\w*",
+    r"lend\w*",  # v7: "rewrite the lender digit" — the borrowing picture; the school's word is exchange
 )
+# a skill's state is said on its own line, held there to the list it is in; v7's summary called a skill that was only
+# improving "now secure", which no check could hold the summary to
+NEARLY = re.compile(r"\b(nearly|almost|not yet)\b", re.IGNORECASE)
+SECURE = re.compile(r"\bsecure(ly)?\b", re.IGNORECASE)
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
 WHEN = re.compile(r"\b(this|last|next) (week|month|term|year)\b|\b(today|yesterday|weekly)\b", re.IGNORECASE)
 # "problem" said of the child — "has a problem", "problems with" — never the kind of question ("an addition problem",
@@ -92,6 +97,19 @@ def check(f, d):
         problems.append(f"working_on must have exactly one entry for each of {want}; it has {got}")
     if "[child]" not in d["summary"]:
         problems.append("the summary never says [child]")
+    if SECURE.search(d["summary"]):
+        problems.append(
+            "the summary never says what is secure or nearly secure: each skill's own line says it"
+        )
+    lists = {x["id"]: k for k in ("can_do", "nearly", "improving") for x in f[k]}
+    for c in d["can_do"]:
+        k, t = lists.get(c["id"]), c["sentence"]
+        if k == "can_do" and NEARLY.search(t):
+            problems.append(f"{c['id']} is secure, never nearly or not yet: {t!r}")
+        if k == "nearly" and not re.search(r"\bnearly secure\b", t, re.IGNORECASE):
+            problems.append(f"{c['id']} is nearly secure, and its line says so: {t!r}")
+        if k == "improving" and SECURE.search(t):
+            problems.append(f"{c['id']} is improving, not secure: {t!r}")
     known = json.dumps(f, ensure_ascii=False)
     # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
     held = numbers_in(json.dumps({k: v for k, v in f.items() if k not in ("from", "to")}, ensure_ascii=False))
