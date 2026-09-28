@@ -1,0 +1,31 @@
+name: j1-jev-mistakes
+goal: >
+  A wrong answer no named mistake explains is not left blank: Jev, asked with the sum, the right answer and the child's
+  answer (never a name, never the page), proposes the three likeliest named mistakes or "none of these", each with its
+  chance, for a person to pick from. Code still names every mistake it can reproduce, and Jev is never asked about
+  those; an answer outside the options Jev was given is refused. `engine bank unclassified --guess` shows the
+  shortlist for every unexplained wrong answer; `engine eval mistake_guess` scores Jev on cases whose mistake is known.
+
+# Written 2026-09-27, before the work. Nimish: "Let's just say, for every question, if we have a set of answers that
+# need to be generated, all the potential wrong answers can be generated efficiently. Matching the child's wrong
+# answer to that can be an efficient way…" and "build as many as you can where the impact is maximized".
+says:
+  - words: "all the potential wrong answers can be generated efficiently"
+    proved_by: packages/engine/tests/test_mistake_guess.py::test_a_wrong_answer_code_explains_is_never_sent_to_jev
+  - words: "Matching the child's wrong answer to that"
+    proved_by: packages/engine/tests/test_mistake_guess.py::test_an_unexplained_wrong_answer_gets_three_named_mistakes_or_none_with_their_chances
+  - words: "build as many as you can where the impact is maximized"
+    proved_by: packages/engine/tests/test_jev.py::test_a_choice_outside_the_options_is_refused_never_passed_on
+manual:
+  - "The server's .env holds TYPESAFE_API_KEY (Nimish), then `bin/engine load` for the prompt row and the price."
+scenarios:
+  - name: Jev on mistakes whose answer is known
+    request: bin/engine eval mistake_guess
+    check: the right mistake among the three in at least 90 of 120; no slip given a named mistake (0)
+criteria:
+  - name: the adapter and the shortlist
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_jev.py tests/test_mistake_guess.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

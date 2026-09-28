@@ -6,7 +6,7 @@ import typer
 
 from engine.adapters.llm import LLMError
 from engine.core import db
-from engine.w1_bank import bank, inventory, review, spec
+from engine.w1_bank import bank, inventory, mistake_guess, review, spec
 from engine.w1_bank.cli_taxonomy import register as register_taxonomy
 
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
@@ -93,12 +93,19 @@ def bank_coverage() -> None:
 
 
 @bank_app.command("unclassified")
-def bank_unclassified(limit: int = typer.Option(50, "--limit")) -> None:
+def bank_unclassified(
+    limit: int = typer.Option(50, "--limit"),
+    guess: bool = typer.Option(
+        False, "--guess", help="Jev's three likeliest named mistakes for each (ADR 0036)"
+    ),
+) -> None:
     """Wrong answers no named mistake explains, commonest first — the candidates for a new
     misconception. Empty until real papers are read; the instrument exists first (ADR 0012)."""
     with db.connect() as conn:
         rows = inventory.unclassified(conn, limit)
-    for r in rows:
+        guesses = [mistake_guess.shortlist(conn, r["spec"], r["wrote"]) if guess else None for r in rows]
+        conn.commit()
+    for r, g in zip(rows, guesses):
         # A legacy item — read off a real paper before the bank existed — has no skill set.
         # Those are the most interesting rows here, so they print, they do not crash.
         unit = r["skill_set_code"] or "(from a real paper)"
@@ -108,6 +115,8 @@ def bank_unclassified(limit: int = typer.Option(50, "--limit")) -> None:
             f"  {r['children']:>3} children  {r['rung_code'] or '?':<4}{unit:<22}"
             f"wrote {r['wrote']!s:<8}{question[:44]}"
         )
+        if g:
+            typer.echo("        likely: " + " · ".join(f"{code} {p:.0%}" for code, p in g))
     typer.echo(f"  {len(rows)} unexplained wrong answers")
 
 

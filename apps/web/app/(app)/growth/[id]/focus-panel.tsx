@@ -1,4 +1,4 @@
-// The child's next paper, chosen from their own ladder (goals/s11-focus-paper.yaml, u2-children.yaml). The engine
+// The child's home assessment, chosen from their own ladder (goals/s11-focus-paper.yaml, u2-children.yaml). The engine
 // proposes (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas, at what
 // level, why; its questions are one press away, on the paper as it prints ("See the paper"). A teacher approves it
 // with one button, which prints it in their name. Once a week: an approved paper is shown with who approved it, and
@@ -25,7 +25,7 @@ async function plan(childId: string, week: string): Promise<Plan | string> {
   }
 }
 
-const TITLE = "Next paper, proposed by the engine";
+const TITLE = "Home assessment";
 
 export async function FocusPanel({ childId, name, staff }: { childId: string; name: string; staff: Record<string, string> }) {
   const week = isoWeek();
@@ -37,15 +37,15 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
       ) : p.approved ? (
         <p className="text-[13.5px]">
           Approved by {staff[p.approved.approved_by ?? ""] ?? p.approved.approved_by}
-          {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s paper,{" "}
-          <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. Print it from its page; the next proposal
-          comes next week, from what this one shows.
+          {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s home assessment,{" "}
+          <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. See it and print it from its page; the next
+          one is proposed next week, from what this one shows.
         </p>
       ) : p.areas.length === 0 ? (
         <p className="note">Nothing to work on yet: no skill where {name} lags on the checked papers.</p>
       ) : (
         <>
-          <ol className="grid gap-4" aria-label="Areas the next paper works on">
+          <ol className="grid gap-4" aria-label="Areas the home assessment works on">
             {p.areas.map((a) => (
               <li key={a.skill_set} className="text-[13.5px]">
                 <Link href={`/skill-sets/${a.skill_set}`} className="text-basalt no-underline hover:underline">{a.name}</Link>
@@ -65,13 +65,13 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
           <form action={approveNextPaper} className="mt-4">
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
-            <button className="btn" type="submit">Approve this paper</button>{" "}
+            <button className="btn" type="submit">Approve this home assessment</button>{" "}
             <a href={seeHref(childId, week)} target="_blank" rel="noreferrer" className="btn secondary ml-2">
-              See the paper
+              See the home assessment
             </a>
             <p className="note mt-2">
-              Approving prints it in your name as {name}&rsquo;s paper for this week.{" "}
-              <Link href={`/make/custom?child=${childId}`}>Choose a different paper</Link>
+              Approving prints it in your name as {name}&rsquo;s home assessment for this week.{" "}
+              <Link href={`/make/custom?child=${childId}`}>Choose a different home assessment</Link>
             </p>
           </form>
         </>

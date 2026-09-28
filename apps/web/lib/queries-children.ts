@@ -219,6 +219,7 @@ export async function childSheets(id: string): Promise<ChildSheet[]> {
 export const PURPOSE: Record<string, string> = {
   assessment: "class assessment",
   practice: "class practice",
-  focus: "their own next paper",
+  focus: "their home assessment",
+  custom: "their home assessment, chosen by their educator",
   home: "sent home",
 };

@@ -16,6 +16,7 @@ import pytest
 from engine.adapters import llm, ocr
 from engine.assess import graph
 from engine.core import db
+from engine.w1_bank import mistake_guess
 from engine.w3_read import legacy, marking
 
 # ---- pure: shape → rung, and marking by lookup
@@ -1084,3 +1085,90 @@ def test_every_old_paper_question_has_a_place_on_todays_ladder(path):
     for it in paper["items"]:
         t = legacy._template_item(paper, it, (skills, cases, rung_skills))
         assert t["rung"] in rung_skills, (it["n"], t["rung"])
+
+
+def _read_the_paper(conn, child, tmp_path, monkeypatch):
+    """TEST-PAPER entered and one scan of it read, as `test_paper_scan_confirm_graph` does → the capture."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    fake_ocr(monkeypatch, [])
+    monkeypatch.setattr(llm, "generate", lambda conn, purpose, variables, images=(): READ)
+    s = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
+    ids = {
+        r["key"]: r["id"]
+        for r in conn.execute(
+            "select i.item_key as key, r.id from item_result r join item i on i.id = r.item_id where r.capture_id = %s",
+            (s["capture_id"],),
+        ).fetchall()
+    }
+    return s["capture_id"], ids
+
+
+@pytestmark_db
+def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_shortlist(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """goals/j2-name-the-mistake.yaml: 68 + 27 written 93 is wrong in a way no predictor makes; Jev's shortlist is
+    offered, a person picks, and the pick reaches the child's evidence. 57 + 28 written 75 is code's (M_NOCARRY)."""
+    capture, ids = _read_the_paper(conn, child, tmp_path, monkeypatch)
+    explained, unexplained = ids["legacy/TEST-PAPER/2"], ids["legacy/TEST-PAPER/3"]
+    assert marking.correct(conn, explained, "75", "aseem")["codes"] == ["M_NOCARRY"]
+    got = marking.correct(conn, unexplained, "93", "aseem")
+    assert (got["status"], got["codes"]) == ("wrong", [])
+
+    def unreachable(*a):
+        raise mistake_guess.jev.JevError("no TYPESAFE_API_KEY in the engine's environment")
+
+    monkeypatch.setattr(mistake_guess.jev, "decide", unreachable)
+    down = marking.unnamed(conn, capture)[str(unexplained)]
+    assert down["shortlist"] == [] and "TYPESAFE_API_KEY" in down["why"], (
+        "Jev down: the answer is still named by hand"
+    )
+    assert "M_NOCARRY" in down["options"] and mistake_guess.NONE in down["options"]
+
+    asked = []
+
+    def decide(conn, purpose, state, options):
+        asked.append(state)
+        return {"ranked": [("M_CARRY_SKIP", 0.5), ("NONE", 0.3), ("M_NOCARRY", 0.1), ("M_CONCAT", 0.1)]}
+
+    monkeypatch.setattr(mistake_guess.jev, "decide", decide)
+    lists = marking.unnamed(conn, capture)
+    assert list(lists) == [str(unexplained)], "only the wrong answer code cannot explain is asked about"
+    got = lists[str(unexplained)]
+    assert (got["answer"], got["why"]) == ("93", "")
+    assert got["shortlist"] == [["M_CARRY_SKIP", 0.5], ["NONE", 0.3], ["M_NOCARRY", 0.1]]
+    assert asked == [{"question": "68 + 27 = ?", "right_answer": 95, "child_answer": "93"}]
+
+    with pytest.raises(ValueError, match="not a named mistake of"):
+        marking.name_mistake(
+            conn, unexplained, "M_SMALL_FROM_LARGE", "aseem"
+        )  # a subtraction mistake, on a sum
+    with pytest.raises(ValueError, match="no wrong answer waiting to be named"):
+        marking.name_mistake(conn, explained, "M_CONCAT", "aseem")  # code named it already
+    marking.name_mistake(conn, unexplained, "M_CARRY_SKIP", "aseem", lists[str(unexplained)]["shortlist"])
+    codes = lambda: conn.execute(  # noqa: E731
+        "select misconception_codes from item_result where id = %s", (unexplained,)
+    ).fetchone()["misconception_codes"]
+    assert codes() == ["M_CARRY_SKIP"] and marking.unnamed(conn, capture) == {}
+
+    # the same reading saved again keeps the person's naming; a different reading does not
+    assert marking.correct(conn, unexplained, "93", "aseem")["codes"] == ["M_CARRY_SKIP"]
+    assert marking.correct(conn, unexplained, "92", "aseem")["codes"] == []
+    marking.name_mistake(conn, unexplained, mistake_guess.NONE, "aseem")
+    assert codes() == [] and marking.unnamed(conn, capture) == {}, "none of these is an answer too"
+    assert marking.correct(conn, unexplained, "93", "aseem")["codes"] == ["M_CARRY_SKIP"]
+
+    with pytest.raises(Exception, match="append-only"), conn.transaction():
+        conn.execute("update mistake_named set code = 'M_CONCAT'")
+    marking.correct(conn, ids["legacy/TEST-PAPER/4"], "", "aseem")
+    marking.confirm(conn, child, "aseem")
+    ev = conn.execute(
+        "select misconception_codes from evidence_event where item_result_id = %s", (unexplained,)
+    ).fetchone()
+    assert ev["misconception_codes"] == ["M_CARRY_SKIP"], "the named mistake is the child's evidence"

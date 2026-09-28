@@ -47,6 +47,21 @@ is verified. This file only says where the last session stopped.
   rows that cite lines clause by clause, a code validator plus a second-model flagger plus a person's signature, and a trace
   from any mark to the official page.
 
+## 2026-09-27 — the order after step 1; Jev's first two uses; the home assessment's name (all in PRs, none merged)
+
+Nimish: engine first, then structure, then the screens (BUILD-ORDER, PR #81); no second-curriculum engine — a
+curriculum module will feed this one. "Build as many [Jev use cases] as you can where the impact is maximized."
+- **#81** docs: the order, `docs/design/teacher-flow.md`, `research/2026-09-27-jev-use-cases.md`.
+- **#82** "Home assessment" everywhere on the child's flow; a chosen paper prints as one too (`focus_paper.heading`).
+- **#84** ADR 0036 + `adapters/jev.py` + `w1_bank/mistake_guess`: eval 109–110/120 among three, 60/60 slips NONE.
+- **#85** (stacked on #84) Marking: name the mistake from Jev's shortlist; `mistake_named` (migration).
+- **Owed by Nimish:** `TYPESAFE_API_KEY` in the server's `.env`; merge order #81, #82, #84, #85.
+- **A local Postgres for DB tests** works in a cloud session: `postgres:17` in Docker, the three roles, every migration
+  in order, `engine load`; then `TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres`. On seed data
+  alone 77 DB tests fail on `main` and on these branches alike (they want a copy of live's rows) — compare lists, not counts.
+- **Next Jev uses, by impact:** the educator's week in words → skills (N4, with its form), `skill_match` with a gold,
+  parent-note sentences (with W4), near-duplicate questions, the working's method; the reviewers last (12-case gold).
+
 ## 2026-09-26, night — the curriculum spine as one graph and a clickable map (PR #73; no step moved)
 
 - Nimish: "do the whole exercise and even finish the next two steps of mapping NCERT and the grade-wise thing … build the
@@ -67,6 +82,15 @@ is verified. This file only says where the last session stopped.
   preparatory mathematics in NCF has no data-handling goal though NCERT and the school teach it.
 - **Next:** the curriculum team's pass on the generated links (accept, edit, reject), subject by subject; then the organ
   that holds the spine as rows, after the ten steps.
+
+## 2026-09-26, night — step 1 on live: 24 Sep passes, 23 Sep does not; goal s17 not green
+
+PaddleOCR (#78) and the memory fix (#79) are live. 24 Sep: 147/192 settled (floor 144), 16/16 on a child.
+23 Sep: 55/108 — its papers were printed before L3's one-box-per-digit layout, so they do not line up with today's
+worksheet PDFs and fall back to the old reader. **Decision owed by Nimish** (STATE.md, "Step 1 on live"): rebuild
+23 Sep's as-printed layout, find the boxes on the page instead, or leave that one batch to people. Also still his:
+confirm `docs/adr/0035-bench/gold.json`; whether to change the trust rules (they, not the reader, set how many answers
+wait: 727 now); rotate the Textract key.
 
 ## 2026-09-26, night (later) — PaddleOCR merged (#78) and deployed; the engine ran out of memory reading 24 Sep
 

@@ -5,6 +5,25 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Now: finish the engine, then its structure, then the screens — agreed with Nimish 2026-09-27
+
+Nimish, 2026-09-27: *"First, let's prioritize building the remaining elements out and then cleaning up the codebase,
+making sure that each of these things is in a very proper structure in Git … After all of that is done, we'll commit to
+this frontend flow."* And: *"We don't need to add a new curriculum thing here. We are starting to build a proper
+curriculum module itself … the curriculum flows from the curriculum module to this module … Let's not start building
+a new engine right now."* On Jev: *"You should really deep dive into Jev and potentially figure out all the use cases
+that we can integrate and start doing that."*
+
+1. **Engine elements**, in the ten steps' order below with the changes here: step 1 closes on Nimish's 23 Sep
+   decision; step 3 is "the reader improves behind a gate" (PaddleOCR, ADR 0035, is the baseline to beat); the home
+   assessment is its own generation, its kind in the page's title; **Jev** is a use-case map, each adopted where it
+   beats the current way on its gold set (`research/2026-09-27-jev-use-cases.md`), not a single late step.
+2. **The structure**: files split at real seams, what is maths-only apart from what any subject reuses, and the
+   hand-over from the curriculum module (lesson plans → assessments) named as an interface — nothing built for a
+   second curriculum here.
+3. **The screens**: steps 5 and 6 fold into the redesign sketched in `docs/design/teacher-flow.md`; until then the
+   current screens are fixed only where they block checking answers.
+
 ## Now: ten steps, in this order — agreed with Nimish 2026-09-25/26 (this section is the current order)
 
 Nimish, 2026-09-25: *"Let's first align on the set of developments now that need to happen in sequence and what

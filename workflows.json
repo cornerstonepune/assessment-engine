@@ -26,7 +26,7 @@
       "built": "live",
       "takes": ["skill_set", "taxonomy_case"],
       "gives": ["item"],
-      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/rehome.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py"],
+      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/rehome.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py", "engine/w1_bank/mistake_guess.py"],
       "commands": ["engine bank fill", "engine bank refill", "engine bank rehome", "engine bank taxonomy", "engine bank relabel"],
       "screens": ["/library", "/library/[key]", "/api/question/[key]"],
       "subject": {"any": false, "note": "Maths only: questions are generated and their answers computed by arithmetic code (engine/assess). A subject whose answers cannot be computed needs a person-approved key per question, which this step does not have."}
@@ -155,7 +155,7 @@
   "shared": [
     {"code": "assess", "name": "The maths library", "does": "Pure code with no database: makes, measures, draws and marks every kind of question. W1, W2 and W3 all use it.", "folder": "engine/assess", "subject": {"any": false, "note": "All maths. A new subject brings its own library beside this one."}},
     {"code": "core", "name": "The base", "does": "The one database connection, the seed loader, and the class list every workflow reads.", "folder": "engine/core", "subject": {"any": true, "note": ""}},
-    {"code": "adapters", "name": "Outside services", "does": "The only files that talk to something outside the engine: the text model, Amazon's handwriting reader, and the digit reader run in a process of its own (ADR 0035).", "folder": "engine/adapters", "subject": {"any": true, "note": ""}},
+    {"code": "adapters", "name": "Outside services", "does": "The only files that talk to something outside the engine: the text model, Amazon's handwriting reader, and the digit reader run in a process of its own (ADR 0035), and Jev for typed judgements code cannot compute (ADR 0036).", "folder": "engine/adapters", "subject": {"any": true, "note": ""}},
     {"code": "checks", "name": "The proofs", "does": "Every invariant over every row, a goal's commands and scenarios, the live site's health.", "folder": "engine/checks", "subject": {"any": true, "note": ""}},
     {"code": "doors", "name": "The front doors", "does": "The command line and the web service the website and n8n call — thin, each command handing straight to a workflow.", "folder": "engine/api", "files": ["engine/cli.py"], "subject": {"any": true, "note": ""}}
   ],
@@ -165,6 +165,7 @@
     {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/inventory.py", "why": "A paper chosen from a child's graph is drawn from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."},
     {"from": "engine/w3_read/sorting.py", "to": "engine/w2_print/library.py", "why": "A scanned library worksheet is counted off in copies as long as the worksheet prints."},
+    {"from": "engine/w3_read/marking.py", "to": "engine/w1_bank/mistake_guess.py", "why": "A wrong answer no named mistake explains is named by a person from the bank's named mistakes, Jev's shortlist first (ADR 0036)."},
     {"from": "engine/w3_read/copies.py", "to": "engine/w2_print/library.py", "why": "A library worksheet copy is read against the page the worksheet prints: its questions' words, their pages, the name band."}
   ],
   "ceilings": {

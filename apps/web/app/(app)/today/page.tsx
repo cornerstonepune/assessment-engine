@@ -32,9 +32,9 @@ export default async function Today() {
             action="Sign them off"
           />
           <Card
-            title="Home papers to approve"
+            title="Home assessments to approve"
             n={w.nextPapers}
-            words="children whose checked work gives the engine a home paper to propose, not yet approved this week"
+            words="children whose checked work gives the engine a home assessment to propose, not yet approved this week"
             href="/make"
             action="Approve them"
           />
