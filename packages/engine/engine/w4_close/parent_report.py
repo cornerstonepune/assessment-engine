@@ -36,7 +36,9 @@ BANNED = (
 )
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
 WHEN = re.compile(r"\b(this|last|next) (week|month|term|year)\b|\b(today|yesterday|weekly)\b", re.IGNORECASE)
-SCHOOLS_OWN = re.compile(r"\bword[- ]problems?\b", re.IGNORECASE)  # the skill set's own name
+# a maths problem is not the child's: "word problems" is the skill set's own name, and v6 wrote "story problem" twice.
+# The ban is on the word said of the child ("has a problem"), never on the kind of question
+SCHOOLS_OWN = re.compile(r"\b(word|story|maths?|one[- ]step|two[- ]step)[- ]problems?\b", re.IGNORECASE)
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
 
@@ -236,7 +238,10 @@ def check(f, d):
     words = set(re.findall(r"[A-Za-z]+", known)) | PLAIN_CAPS
     for t in _texts(d):
         digits, spelled = numbers_in(t)
-        for n in sorted(digits - numbers) + sorted(v for v in spelled - numbers if v > 10):
+        # counting in tens aloud ("ten, twenty, thirty"), "a hundred", "a thousand" is the words of counting, not a
+        # count of the child's; any other number over ten said in words is a claim, and must be in the facts
+        counting = {v for v in spelled if (v <= 100 and v % 10 == 0) or v == 1000}
+        for n in sorted(digits - numbers) + sorted(v for v in spelled - numbers - counting if v > 10):
             problems.append(f"the number {n} is not in the facts: {t!r}")
         for w in BANNED:
             if m := re.search(rf"\b{w}\b", SCHOOLS_OWN.sub("", t), re.IGNORECASE):
