@@ -19,8 +19,8 @@ from engine.assess import misconceptions as M
 from engine.assess import placing, tags
 from engine.assess.items import Item
 from engine.core import db
-from engine.w3_read import profiles, reading, render_pdf
-from engine.w3_read.marking import _MINUS, UNTRUSTED, mark_read, normalise_answer
+from engine.w3_read import reading, render_pdf
+from engine.w3_read.marking import _MINUS, normalise_answer, verdicts
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
 # `capture_live_content_idx` forbids two LIVE captures of one file, so on a re-read the old row must
@@ -537,7 +537,7 @@ def import_scan(
     summary = {"capture_id": capture, "pages": len(images), "results": [], "unmatched": [], "notes": []}
     try:
         cli = ocr.client()
-        trust = profiles.kind_trust(conn)
+        judge = verdicts(conn, capture)
         scan = {
             "path": path,
             "paper_code": paper_code,
@@ -558,9 +558,7 @@ def import_scan(
                 if not it or it["spec"].get("page", 1) != page_no:
                     summary["unmatched"].append(key)
                     continue
-                status, codes, working, read = mark_read(
-                    it["spec"], it["responses"][0], read, trust.get(it["fmt"], UNTRUSTED)
-                )
+                status, codes, working, read = judge(it, read)
                 rid = it["responses"][0].get("rid", "a")
                 conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
