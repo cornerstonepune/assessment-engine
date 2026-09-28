@@ -45,8 +45,11 @@ scenarios:
   - name: the real 24 Sep scan, on live
     request: POST /read/file with again=true for Drive file 13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6
     check: >
-      16 of 16 copies on a child; every answer of every copy read in its boxes (GET /capture/{id}/readings: `boxes`
-      set on all 192), copies 01 and 02 of R31-H02 included; an answer a person already worked on is as they left it.
+      16 of 16 copies on a child; every answer nobody had checked read in its boxes (GET /capture/{id}/readings:
+      `boxes` set); every answer a person had checked or corrected exactly as they left it. Written first as "boxes set
+      on all 192, copies 01 and 02 included": the two halves could not both hold, because every answer on copies 01
+      and 02 had been corrected by hand, and those stay as they were. Copies 01 and 02 lining up is proved on their
+      own photographs outside the live database (STATE.md, S23).
 criteria:
   - name: the line-up and the box reader, on synthetic scans
     run: cd packages/engine && .venv/bin/python -m pytest tests/test_lineup.py tests/test_boxes.py tests/test_crops.py

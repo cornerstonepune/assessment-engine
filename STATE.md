@@ -3638,6 +3638,23 @@ deploys.
   pixel (ADR 0042, Consequences).
   - Copy 01: 10 read, and 2 to a person with the right guess (673, 240).
   - Copy 02: 4 read; its 8 other questions are blank on the paper (6 read blank, 2 marks to a person).
+- **On live, 28 Sep.** Merged in #114 and deployed. Then `POST /read/file {again: true}` for the 24 Sep file: run
+  d8337ebc, `ok`, 13:57–14:04 UTC.
+  - The 5 copies nobody had worked on (03, 06, 08, 12, 16) were read again with the new line-up. All 60 of their
+    answers are read in their boxes. Answer by answer, 57 of 60 match the same code run locally on the same
+    photographs; the other 3 differ only in the guess the server's second reader adds to a doubt.
+  - On those 5 copies the tally moved: right 27→26, wrong 8→6, blank 8→8, unclear 17→20. This is the reader's
+    sub-pixel sensitivity, as measured locally.
+  - The 11 copies a person had worked on, 01 and 02 included: no answer's reading changed. Every answer on them had a
+    person's check or correction, and a re-read keeps those (#107). If an answer had been read again, its reading
+    would have changed: new crops change what the reader sees, and the old reader would have dropped `boxes`. So
+    copies 01 and 02 are as Nimish corrected them.
+  - `GET /read/scan/24 sept.pdf/copies` → 16 of 16 copies on a child.
+  - `engine-logs.yml` after the run: `oom_killed=false restarts=0`. Available memory 782 MB of 1906; swap used
+    1038 of 2047.
+  - `bin/engine done s23-a-curled-photo-lines-up` → both of Nimish's sentences PROVED ("its in proper boxes and qr
+    and all": 3 passed; the fold: 1 passed). It reports NOT DONE only because this container cannot read the live
+    database's migrations.
 
 ## Box reader, re-reads and the loop's end: #100–#110 (2026-09-28)
 
