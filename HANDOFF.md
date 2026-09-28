@@ -15,6 +15,7 @@ is verified. This file only says where the last session stopped.
   15% of runs once the spot-check existed — `every_kind_trusted` now sets the spot rate to 0.
 - Stacked: merges after #90 and #91.
 
+
 ## 2026-09-28 — step 7, first half: a question's real difficulty proposes, a person decides (goal s21; PR open)
 
 - `item_stat` (ring B) is filled from confirmed answers (`learn.item_stats`, also by `engine graph`); a question far
@@ -35,6 +36,7 @@ is verified. This file only says where the last session stopped.
   ("Quota exceeded … Requests per minute", consumer project 498586711441 — a shared project, not the school's use).
   Nimish: give F3's Drive credential the school's own Google Cloud OAuth client. Then the live proof: a scan copied into
   folder 1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val runs F3, and its copies are on Marking.
+
 
 ## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
 
