@@ -1,5 +1,6 @@
 """How a question is drawn for the child (assess/render.py, goals/s15-answer-boxes.yaml). Pure: HTML only."""
 
+import json
 import re
 
 import pytest
@@ -8,6 +9,7 @@ from engine.assess import answer_space, render
 from engine.assess import items as I
 from engine.assess.pick import Sheet
 from engine.assess.words import word_2step
+from engine.core import db
 
 
 def _html(it):
@@ -47,3 +49,43 @@ def test_a_question_of_two_steps_gets_the_most_room_to_work():
     assert 'class="work h4"' in _html(it)
     heights = dict(re.findall(r"\.work\.(h\d) \{ min-height: (\d+)mm; \}", render.CSS))
     assert int(heights["h4"]) >= 34 and int(heights["h2"]) >= 20
+
+
+def _layouts():
+    rows = json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text(encoding="utf-8"))[
+        "config"
+    ]
+    return next(r["value"] for r in rows if r["key"] == "render.layouts")
+
+
+def test_a_worksheet_draws_in_each_layout_the_school_has_printed():
+    """Nimish, 2026-09-28, of the 23 Sep papers printed before L3: "Recover layout". The renderer draws a question
+    in any layout a paper has printed in: before L3 an answer had the room its question set (four boxes for 68),
+    from L3 as many boxes as the answer has digits, with taller working space and a stronger QR."""
+    old, l3, today = _layouts()
+    it = I.bare_sum(__import__("random").Random(1), "R0", "Procedural", "+", 2, 2, {0, 1, 2})
+    it.spec.update(a=23, b=45, op="+", layout="horizontal")
+    ans = next(r for r in it.responses if r.rid == "ans")
+    ans.answer, ans.cells = "68", 4
+    sheet = Sheet("CS000000", "G2", "Easy", 1, "W1", [it])
+
+    assert _boxes(render.render_item(sheet, it, 1, old)) == 4
+    assert _boxes(render.render_item(sheet, it, 1, today)) == 2
+    assert _boxes(answer_space._grid("S", "I", [23, 45], "+", ans, boxes=old["boxes"])) == 4
+
+    page = render.sheet_html(sheet, layout=old)
+    assert ".work { min-height: 11mm; }" in page and ".work.h4 { min-height: 26mm; }" in page
+    assert ".rowgroup .item .work { min-height: 9mm; }" in page
+    # the QR as printed: the same code, drawn with the error correction of its day
+    assert render.sheet_html(sheet, layout=old) != render.sheet_html(sheet, layout=l3)
+
+
+def test_todays_layout_is_the_last_row_and_what_the_renderer_draws_with_none():
+    """The page's own CSS and the last layout row are one thing: a row added without the renderer, or the
+    renderer changed without a row, would print papers no row describes."""
+    today = _layouts()[-1]
+    heights = dict(re.findall(r"\.work(?:\.(h\d))? \{ [^}]*min-height: (\d+)mm;", render.CSS))
+    assert [int(heights[k]) for k in ("", "h2", "h3", "h4")] == today["work_mm"]
+    assert re.search(rf"\.rowgroup \.item \.work {{ min-height: {today['paired_work_mm']}mm; }}", render.CSS)
+    sheet = Sheet("CS000000", "G2", "Easy", 1, "W1", [])
+    assert render.sheet_html(sheet) == render.sheet_html(sheet, layout=today)

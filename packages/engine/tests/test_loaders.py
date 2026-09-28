@@ -153,3 +153,20 @@ def test_every_rung_band_is_a_band_the_levels_know_about(loaded):
             " and not exists (select 1 from level_rule l where l.band = r.band)"
         ).fetchall()
     assert rows == [], f"rung bands with no level rule: {rows}"
+
+
+def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monkeypatch):
+    """`engine load --settings`, run by every deploy (deploy-engine.yml): a merged setting — a layout, a
+    threshold, a prompt — is live with the code that reads it, and nobody runs `bin/update-live` for it. The
+    rows people own or the bank's own steps build (skill sets, levels, the registry) are not touched."""
+    touched = []
+    for step in ("_registry", "_rungs", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
+                 "_skill_sets", "_subjects"):  # fmt: skip
+        monkeypatch.setattr(loaders, step, lambda *a, s=step: touched.append(s))
+    monkeypatch.setattr(loaders.topics, "load", lambda *a: touched.append("topics"))
+
+    assert set(loaders.load_settings()) == {"prompt", "threshold", "config"} and touched == []
+    with db.connect() as conn:
+        layouts = conn.execute("select value from config where key = 'render.layouts'").fetchone()["value"]
+        assert [x["name"] for x in layouts] == ["2026-09-21", "2026-09-23-L3", "2026-09-24"]
+        assert conn.execute("select 1 from prompt where purpose = 'mistake_guess' and active").fetchone()

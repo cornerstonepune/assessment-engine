@@ -8,15 +8,16 @@ by their ones, and only the answer's own columns have boxes.
 import html
 
 
-def _boxes(r):
+def _boxes(r, rule="digits"):
     """As many boxes as the right answer has digits (Nimish, 2026-09-23: four boxes for a one- or two-digit answer
-    confused the children). A response with no written number keeps the room its question set."""
+    confused the children). A response with no written number keeps the room its question set — as every answer
+    did in the layout before L3 (`rule` "cells", a `render.layouts` row: goals/s18-read-as-printed.yaml)."""
     ans = str(r.answer or "")
-    return len(ans) if r.kind == "digits" and ans.isdigit() else max(1, r.cells)
+    return len(ans) if rule == "digits" and r.kind == "digits" and ans.isdigit() else max(1, r.cells)
 
 
-def _cells(sheet_id, item_id, r, big=False, cls=""):
-    n = _boxes(r)
+def _cells(sheet_id, item_id, r, big=False, cls="", boxes="digits"):
+    n = _boxes(r, boxes)
     s = "".join(
         f'<span class="cell {cls}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="{k}"></span>'
         for k in range(n)
@@ -44,10 +45,10 @@ def _work(lines):
     return f'<div class="work h{min(lines, 4)}">working</div>'
 
 
-def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True):
+def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
     """rows: list of ints (addends or minuend/subtrahend), lined up by the ones under as many columns as the widest
     number or the answer needs; the answer row has a box only under the answer's own digits."""
-    boxes = _boxes(ans_resp)
+    boxes = _boxes(ans_resp, boxes)
     w = max([boxes, *(len(str(n)) for n in rows)])
     out = ['<div class="grid" style="grid-template-columns: 8.4mm repeat(%d, 8.4mm)">' % w]
     if carry:

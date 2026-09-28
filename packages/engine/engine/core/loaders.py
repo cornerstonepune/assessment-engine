@@ -62,6 +62,12 @@ THRESHOLDS = [
         "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above",
     ),
     ("marking.agreement_gate", 0.95, "proportion", "Agreement with teacher marking before marks are trusted"),
+    (
+        "marking.spot_check_rate",
+        0.15,
+        "proportion",
+        "Of a trusted kind's right answers, the share a person still checks (step 4, goals/s20-routine-intake.yaml)",
+    ),
     # How the transcriber finds a child's answer on a page (ADR 0019). Every one of these was tuned
     # against a hand-read page, and every one is a property of how a PAPER is laid out rather than of
     # the code — so the next paper will want them different, and rule 1 says that is a row to edit,
@@ -555,6 +561,18 @@ def load_all() -> dict[str, int]:
         topics.load(conn, t, _seed)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
+
+
+def load_settings() -> dict[str, int]:
+    """Only the rows the engine reads as settings — prompts, thresholds, config — each upserted from its seed as
+    `load_all` does. Every deploy runs it (`engine load --settings`, deploy-engine.yml), so a setting merged with
+    the code that reads it is live with that code; the rest waits for `bin/update-live`."""
+    with db.connect() as conn:
+        t = _tenant(conn)
+        for step in (_prompts, _thresholds, _config):
+            step(conn, t)
+        conn.commit()
+        return db.counts(conn, ("prompt", "threshold", "config"))
 
 
 def orphans() -> dict[str, list[str]]:
