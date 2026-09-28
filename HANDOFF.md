@@ -19,11 +19,15 @@ is verified. This file only says where the last session stopped.
   the real reader on 24 Sep: 192 of 192 answers read in their boxes (168 before); 2 read wrong and stood behind (3).
 - `test_boxes`' real-reader test no longer holds a doubt's guess to be right. The reader's guess changes when the crop
   moves by under a pixel (ADR 0042, Consequences). It now holds that every digit written reached the reader.
-- **Next, on merge (deploy):**
-  1. Run `POST /read/file {again: true}` for 24 Sep (Drive 13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6).
-  2. Check `GET /read/scan/24 sept.pdf/copies`: every copy's answers should be in boxes.
-  3. Then 23 Sep: 52 of 120 answers were in their boxes on live before this.
-  4. Watch `engine-logs.yml` for a memory kill: a line-up takes 234 MB more at its peak (SIFT).
+- **Done on live** (#114 merged and deployed; 24 Sep re-read, run d8337ebc):
+  - The 5 copies nobody had worked on were read again, all 60 answers in their boxes.
+  - The 11 a person had worked on, copies 01 and 02 among them, are exactly as they were: every answer on them had
+    been checked or corrected by hand.
+  - No memory kill.
+- **Next:**
+  - The 23 Sep file (Drive 1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1) has 52 of 120 answers in their boxes on live. Locally,
+    all 30 of its pages now line up and every answer is found.
+  - Re-read it with `POST /read/file {again: true}` once Nimish says so (goals s17, s18).
 - **For step 3:** a vote of the reader over one-pixel shifts, where a reading does not fit its inked boxes, put the
   right guess on 6 more of 24 Sep's doubts and turned one right guess wrong. Not adopted.
 
