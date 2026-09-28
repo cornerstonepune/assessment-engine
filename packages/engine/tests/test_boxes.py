@@ -296,21 +296,36 @@ def test_a_bent_page_is_read_in_its_boxes(paper, tmp_path, reader, seed):
 
 
 @pytest.mark.parametrize("seed", range(5))
-def test_the_real_reader_on_a_bent_page_stands_behind_nothing_wrong(paper, tmp_path, seed):
+def test_the_real_reader_on_a_bent_page_stands_behind_nothing_wrong(paper, tmp_path, seed, monkeypatch):
     """The real reader (ADR 0035): what it stands behind is what was written; what it is less sure of than the
-    floor goes to a person with its guess — on 24 Sep 112 of 133 stood and 2 were wrong; here none may be."""
+    floor goes to a person with its guess — on 24 Sep 112 of 133 stood and 2 were wrong; here none may be.
+
+    What a doubt's guess says is the reader's own: the same crop moved by less than a pixel reads differently. On
+    this page "663" read "63" where it was cut, and "663" at seven of the eight one-pixel shifts around it; on the 141
+    answers of 24 Sep with a gold, re-reading after a new line-up moved 19 outcomes, as many up as down (ADR 0042).
+    So what is held of a doubt is what the pipeline decides: every digit written reached the reader."""
     wrote, scan = _bent_page(paper, tmp_path, seed)
+    handed, real = [], digits.read
+
+    def keeping(image_bytes, cli=None):
+        handed.append(image_bytes)
+        return real(image_bytes, cli)
+
+    monkeypatch.setattr(digits, "read", keeping)
     got = _really(paper, scan)
+    shapes, crops = (
+        StandIn(),
+        iter(handed),
+    )  # an answer with ink is handed over once, in the order of its slot
     for k, r in got.items():
+        crop = next(crops) if r["inked"] else None
         if r["answer_state"] == "written":
             assert r["child_answer"] == wrote[k], (k, r)
         elif r["answer_state"] == "blank":
             assert wrote[k] == "", (k, r)
         else:
-            assert r["why"] and r["guess"] == wrote[k], (
-                k,
-                r,
-            )  # "563" read "5 63" at 88.5: to a person, right guess
+            reached = "".join(w["text"] for w in shapes.read(crop)["words"]) if crop else ""
+            assert r["why"] and reached == wrote[k], (k, r, reached)
     assert got["4"]["answer_state"] == "blank"
     assert sum(r["answer_state"] == "written" for r in got.values()) >= 4, got
 

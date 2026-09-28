@@ -13,14 +13,14 @@ paper's own print taken out), how many boxes hold a digit (ink down the box, not
 in this run of boxes, handed to it as photographed, print and all — and its answer stands only when it has
 exactly as many digits as boxes hold ink and it is at least as sure as the floor.
 
-Lining up is by the printed page's own features (ORB, RANSAC; `stencil.homography`), not by the corner marks:
-a phone's "scan" app crops the page tight and the marks are the first thing it cuts off (every page of the
-2026-09-24 file). A page that will not line up is read as an old paper, and says so.
+Lining up is `lineup.py`'s: by the printed page's own print, tile by tile, not by the corner marks — a phone's "scan"
+app crops the page tight and the marks are the first thing it cuts off (every page of the 2026-09-24 file) — and each
+answer is found around its own printed question. A page that will not line up is read as an old paper, and says so;
+an answer whose print is not found where the page lines up goes to a person as `not_found`.
 """
 
 import json
 import re
-from functools import lru_cache
 from pathlib import Path
 
 import cv2
@@ -29,13 +29,9 @@ import pymupdf
 
 from engine.adapters import digits
 from engine.assess.geometry import cells_of
-from engine.w3_read import stencil
+from engine.w3_read.lineup import NEAR, PPM, PRINTED, SEEK, H, W, blank, line_up, settle
 
-PPM = 10  # pixels per mm the scan is drawn at in the printed page's frame: 254 dpi, a phone scan's own
-W, H = 210 * PPM, 297 * PPM
 EDGE = 0.8  # mm each printed pixel is grown by before it is removed: the line, its blur and its JPEG halo
-SEEK = 3.0  # mm a run of boxes is looked for around its recorded place: a curved phone photo moves it 1-2 mm
-PRINTED = 140  # grey under this on the blank page is the paper's own print
 INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the line itself never counts
 # A pencil digit fills 3-15% of its cell; JPEG noise and a shadow on white, measured under 0.3%.
 INK = 0.012
@@ -48,46 +44,10 @@ WORK_INSIDE = 1.5  # mm: the working box's dashed border and its printed label s
 AROUND = 2  # mm of the photograph around a run of boxes handed to the reader, as ADR 0035 measured it
 QUIET = 1  # mm of that crop's own edge repeated around it: the reader's detector wants still space about a
 # number, and on 24 Sep this took 115 of 133 answers read exactly to 125, with the same two wrong (ADR 0035)
-MIN_INLIERS = 60  # fewer matched features than this and the page is not the one it claims to be
-SIDE = 2000  # the long side features are matched at, as `stencil` does
 COARSE = 5  # a page's print and marks are compared at PPM / COARSE: 2 px a mm, a box line still one pixel
 RULE = 6  # mm: a box's edge is 5.4–13 mm, a run of them longer; a pencil stroke across a box is shorter
 GROW = 1.5  # mm a mark and a printed line may sit apart and still be the same line: a curved photograph
-
-
-def _grey(img, side):
-    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
-    s = side / max(g.shape[:2])
-    return cv2.resize(g, None, fx=s, fy=s, interpolation=cv2.INTER_AREA), s
-
-
-@lru_cache(maxsize=8)
-def blank(pdf, page_no):
-    """The printed page, drawn at PPM, grey: the frame every box position is recorded in."""
-    with pymupdf.open(pdf) as doc:
-        pix = doc[page_no - 1].get_pixmap(
-            matrix=pymupdf.Matrix(PPM * 25.4 / 72, PPM * 25.4 / 72), colorspace=pymupdf.csGRAY
-        )
-        g = np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.width)
-    return cv2.resize(g, (W, H), interpolation=cv2.INTER_AREA)
-
-
-def _scale(s):
-    return np.array([[s, 0, 0], [0, s, 0], [0, 0, 1]], dtype=np.float64)
-
-
-def line_up(img, pdf, page_no):
-    """→ (the scan drawn in the printed page's frame, the 3x3 map from the scan's pixels to that frame), or
-    (None, None) when the page does not match the paper it was said to come from."""
-    ref = blank(str(pdf), page_no)
-    small, s_child = _grey(img, SIDE)
-    ref_small, s_ref = _grey(ref, SIDE)
-    Hm, n = stencil.homography(small, ref_small)
-    if Hm is None or n < MIN_INLIERS or not stencil.plausible(Hm, small.shape, ref_small.shape):
-        return None, None
-    M = _scale(1 / s_ref) @ Hm @ _scale(s_child)
-    canon = cv2.warpPerspective(img, M, (W, H), flags=cv2.INTER_CUBIC, borderValue=(255, 255, 255))
-    return canon, M
+NOT_FOUND = "its printed question was not found where the page lines up: a crease may have moved it"
 
 
 def dark(canon):
@@ -158,35 +118,6 @@ def as_printed(pages, pdfs):
             agreement(img, pdf, n, where[n]) for n, img in enumerate(pages[: counted[pdf]], 1)
         ),
     )
-
-
-def _shift(c, d):
-    return {**c, "x": c["x"] + d[0] / PPM, "y": c["y"] + d[1] / PPM}
-
-
-def _find(grey, printed, cells, seek):
-    """→ (dx, dy) pixels: where the printed `cells` sit on the scan, found by matching the blank page's print
-    around them against the scan within `seek` mm. No print to match (a flat patch): (0, 0)."""
-    pad, s = int(1.5 * PPM), int(seek * PPM)
-    x0 = min(_px(c)[0] for c in cells) - pad
-    y0 = min(_px(c)[1] for c in cells) - pad
-    x1 = max(_px(c)[2] for c in cells) + pad
-    y1 = max(_px(c)[3] for c in cells) + pad
-    if x0 - s < 0 or y0 - s < 0 or x1 + s > W or y1 + s > H:
-        return 0, 0
-    tpl = printed[y0:y1, x0:x1]
-    if tpl.std() < 5:
-        return 0, 0
-    score = cv2.matchTemplate(grey[y0 - s : y1 + s, x0 - s : x1 + s], tpl, cv2.TM_CCOEFF_NORMED)
-    _, _, _, (bx, by) = cv2.minMaxLoc(score)
-    return bx - s, by - s
-
-
-def settle(grey, printed, cells):
-    """The recorded cells moved together to where their run printed on this scan (it may sit a few mm off on a
-    curved photograph). Not box by box: one printed square is too little to match on, and jumps."""
-    d = _find(grey, printed, cells, SEEK)
-    return [{**_shift(c, d), "from": (c["x"], c["y"])} for c in cells]
 
 
 def _theirs(printed, cells, box):
@@ -267,19 +198,19 @@ def photo(canon, cells):
     return cv2.imencode(".png", crop)[1].tobytes()
 
 
-def _back(M, cells, shape, frame):
-    """The run of boxes as (left, top, right, bottom) fractions of the page as it is shown — the photograph
-    inside its PDF page (`frame`), so the approval screen crops exactly where the reading came from."""
-    x0 = min(_px(c)[0] for c in cells) - 2 * PPM
-    y0 = min(_px(c)[1] for c in cells) - 2 * PPM
-    x1 = max(_px(c)[2] for c in cells) + 2 * PPM
-    y1 = max(_px(c)[3] for c in cells) + 2 * PPM
-    quad = np.float32([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).reshape(-1, 1, 2)
-    pts = cv2.perspectiveTransform(quad, np.linalg.inv(M)).reshape(-1, 2)
+def _back(to_photo, cells, shape, frame, around=2):
+    """The run of boxes, `around` mm about it, as (left, top, right, bottom) fractions of the page as it is shown —
+    the photograph inside its PDF page (`frame`) — found through the line-up (`lineup.line_up`'s `to_photo`), so the
+    approval screen crops exactly where the reading came from, on a curled page too."""
+    x0 = min(_px(c)[0] for c in cells) - around * PPM
+    y0 = min(_px(c)[1] for c in cells) - around * PPM
+    x1 = max(_px(c)[2] for c in cells) + around * PPM
+    y1 = max(_px(c)[3] for c in cells) + around * PPM
+    xs, ys = to_photo(np.float32([x0, x1, x1, x0]), np.float32([y0, y0, y1, y1]))
     h, w = shape[:2]
     fx0, fy0, fx1, fy1 = frame
-    left, top = fx0 + (fx1 - fx0) * pts[:, 0].min() / w, fy0 + (fy1 - fy0) * pts[:, 1].min() / h
-    right, bottom = fx0 + (fx1 - fx0) * pts[:, 0].max() / w, fy0 + (fy1 - fy0) * pts[:, 1].max() / h
+    left, top = fx0 + (fx1 - fx0) * xs.min() / w, fy0 + (fy1 - fy0) * ys.min() / h
+    right, bottom = fx0 + (fx1 - fx0) * xs.max() / w, fy0 + (fy1 - fy0) * ys.max() / h
     return [round(float(max(0, v)), 4) for v in (left, top, min(1, right), min(1, bottom))]
 
 
@@ -334,7 +265,7 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
     """One page of a scan → {slot: reading} in the shape `ocr.answers_for` gives, or None when the page will
     not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page.
     `keep`: (slot, png) → path — each answer's crop, blank or written, kept as read (`crops.keeper`)."""
-    canon, M = line_up(img, pdf, page_no)
+    canon, to_photo = line_up(img, pdf, page_no)
     if canon is None:
         return None
     printed = blank(str(pdf), page_no)
@@ -346,13 +277,18 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
         run = runs.get((item_key, rid))
         if not run:
             continue
-        box = _back(M, run, img.shape, frame)
-        run = settle(grey, printed, run)
-        inked = sum(holds_digit(is_dark, printed, c) for c in run)
-        spaces = [settle(grey, printed, [w])[0] for w in works.get(item_key, [])]
+        run, found = settle(grey, printed, run)
+        spaces = [settle(grey, printed, [w])[0][0] for w in works.get(item_key, [])]
         working = (
             "partial" if any(ink(is_dark, printed, w, WORK_INSIDE) > WORK_INK for w in spaces) else "none"
         )
+        box = _back(to_photo, run, img.shape, frame, 2 if found else 2 + NEAR)
+        if not found:  # not read at a guessed place, as blank or as a number, and no crop kept to learn from
+            out[slot] = {"working_shown": working, "box": box, "boxes": len(run), "inked": 0, "seen": [],
+                         "child_answer": "", "answer_state": "not_found", "why": NOT_FOUND, "guess": "",
+                         "confidence": 0.0}  # fmt: skip
+            continue
+        inked = sum(holds_digit(is_dark, printed, c) for c in run)
         base = {"working_shown": working, "box": box, "boxes": len(run), "inked": inked, "seen": []}
         seen_as = photo(canon, run)
         if keep:

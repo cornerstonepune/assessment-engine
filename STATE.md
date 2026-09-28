@@ -3598,3 +3598,43 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
     "Assembly PVisual artsicipation".
   - Projects are split into fragments at "/".
   - Geography and History units sit under Visual Arts and Global perspectives.
+
+## S23 — a photographed page is lined up by its own print (goal s23-a-curled-photo-lines-up, ADR 0042, 2026-09-28)
+
+Goal `s23-a-curled-photo-lines-up` (step 1). Not green until its live scenario runs: the re-read of 24 Sep after this
+deploys.
+- **The failure.** R31-H02 copies 01 and 02 of 24 Sep were read as old papers, none of their 24 answers in their
+  boxes. The old line-up (ORB, one straight map, at least 60 matched features) matched 37 and 40 on their
+  photographs. The corner squares were ruled out on the pages: the scan app cut the top two off both.
+- **The tests.** `cd packages/engine && .venv/bin/python -m pytest tests/test_lineup.py` → `8 passed`. On main's
+  reader, 7 of them fail for the reason each names:
+  - the lifted page misread;
+  - the smeared answer read as blank;
+  - a crop's true corner outside the box shown;
+  - a page refused on 37 matched features;
+  - the 7 mm fold misread.
+
+  The eighth, a page that is not this paper, holds on both.
+- **On the 46 photographed pages of 23 and 24 Sep** (scans in a scratch folder, not the repository):
+  - every page lines up, and 324 of 324 answers are found;
+  - the last step, each answer found around its own question, moves a run 0.1 mm at the median, 1.0 mm at the
+    99th percentile, and 2.9 mm at most;
+  - 1.3 s a page on 4 CPUs.
+
+  Before, 2 pages were refused, and on 23 Sep answers were left up to 7 mm off.
+- **The layout each 23 Sep copy was printed in** (ADR 0040) is chosen as before: 2026-09-21 for all four worksheets,
+  with the right layout's agreement 1.27–1.84 against 0.0–1.32 for the others.
+- **Memory.** One line-up takes 234 MB more at its peak (33 MB before), measured as peak resident memory on one 24 Sep
+  photograph. SIFT runs at 1000 px: at 2000 it alone took 715 MB.
+- **With the real reader on the 16 photographs of 24 Sep**, the full `boxes.read_page` path, scored on ADR 0035's gold
+  (141 sure answers, copies 03–16):
+  - 192 of 192 answers read in their boxes (168 before, with copies 01 and 02 read as old papers);
+  - 104 stood behind and right (105 before);
+  - 2 stood behind and wrong: copy07_q09 145→195 and copy10_q02 419→919, both known since ADR 0035 (3 before, copy14_q04
+    1747→174 too);
+  - 17 doubts with the right guess (20 before).
+
+  19 of the 141 outcomes moved, in both directions. The reader reads the same crop differently when it moves by under a
+  pixel (ADR 0042, Consequences).
+  - Copy 01: 10 read, and 2 to a person with the right guess (673, 240).
+  - Copy 02: 4 read; its 8 other questions are blank on the paper (6 read blank, 2 marks to a person).

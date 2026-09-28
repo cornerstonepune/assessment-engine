@@ -3,6 +3,30 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — step 1: a photographed page is lined up by its own print (goal s23, ADR 0042)
+
+- Nimish asked why R31-H02 copies 01 and 02 of 24 Sep were barely read. Both had been read as old papers, 0 of 24
+  answers in their boxes: the line-up (ORB, one straight map, at least 60 matched features) matched 37 and 40.
+- **The corner squares he agreed to were ruled out on the photographs.** The scan app cut the top two off both copies.
+- Built `w3_read/lineup.py` (step N8):
+  - a first map by ORB or SIFT, whichever finds more of the page's print;
+  - a better map from 24 mm tiles of print;
+  - a smooth field for the curl;
+  - each answer found around its own printed question.
+
+  An answer whose print is not found goes to a person as `not_found`. `boxes.py` keeps only what is in a box.
+- Measured on the 46 photographed pages of 23 and 24 Sep: every page lines up, and 324 of 324 answers are found. With
+  the real reader on 24 Sep: 192 of 192 answers read in their boxes (168 before); 2 read wrong and stood behind (3).
+- `test_boxes`' real-reader test no longer holds a doubt's guess to be right. The reader's guess changes when the crop
+  moves by under a pixel (ADR 0042, Consequences). It now holds that every digit written reached the reader.
+- **Next, on merge (deploy):**
+  1. Run `POST /read/file {again: true}` for 24 Sep (Drive 13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6).
+  2. Check `GET /read/scan/24 sept.pdf/copies`: every copy's answers should be in boxes.
+  3. Then 23 Sep: 52 of 120 answers were in their boxes on live before this.
+  4. Watch `engine-logs.yml` for a memory kill: a line-up takes 234 MB more at its peak (SIFT).
+- **For step 3:** a vote of the reader over one-pixel shifts, where a reading does not fit its inked boxes, put the
+  right guess on 6 more of 24 Sep's doubts and turned one right guess wrong. Not adopted.
+
 ## 2026-09-28, curriculum: the crosswalk built from the documents in hand; the first sample is with Akanksha
 
 - No BUILD-ORDER step moved: the crosswalk is research-layer data shaped like ADR 0041's tables. Nothing was migrated.
