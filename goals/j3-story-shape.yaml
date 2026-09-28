@@ -1,0 +1,31 @@
+name: j3-story-shape
+goal: >
+  A story question in anyone's words — an educator's, an outside paper's — is placed like the engine's own: its shape
+  (taxonomy §10) chosen by Jev from the taxonomy's own shape cases, each shown with every one of the engine's stories of that
+  shape (ADR 0036); everything after is code — the case, the skill set and level whose level names it, the numbers read
+  from the text, and a one-step answer computed as the shape's operation on them. Code holds Jev to the story's numbers:
+  a shape whose stories print two numbers is not taken for a story that prints four, and a one-step question over three
+  numbers is extra information by definition. Below `story.shape_sure_above` (0.6), or when the numbers contradict the
+  shape, a person names it; Jev unreachable is the same. An answer key the engine computes is never wrong.
+
+# Written 2026-09-28, before the work. The Jev use-case map (research/2026-09-27-jev-use-cases.md) put "a question's
+# text → its skill / taxonomy case" second by impact. Until now a story's shape was known only for the engine's own
+# stories (`words.structure_of`, a template match): on the 65 gold stories below, written in other words, it names none.
+# Nimish, 2026-09-27: "You should really deep dive into Jev and potentially figure out all the use cases that we can
+# integrate and start doing that."
+says:
+  - words: "You should really deep dive into Jev and potentially figure out all the use cases that we can integrate and start doing that."
+    proved_by: packages/engine/tests/test_story_shape.py::test_a_story_in_an_educators_words_is_named_by_jev_and_the_rest_is_code
+  - words: "whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: packages/engine/tests/test_story_shape.py::test_the_storys_numbers_hold_jev_to_account
+manual:
+  - "`engine eval story_shape` on the server after the seed loads (65 gold stories; measured 2026-09-28, three runs: 63 right, 0 wrong keys of 44)."
+  - "Aseem: is 'how many tickets were not sold' take-away (W04) or part-whole (W08), and is 'I think of a number, take away 25, add 40, get 100' CONSTRAINT (W29) or UNKNOWN_FIRST (W28)? The taxonomy holds both readings; Jev's two wrong names are exactly these."
+scenarios: []
+criteria:
+  - name: shapes, numbers, the gold's own arithmetic, the route — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_story_shape.py tests/api/test_bank_routes.py -k "story or shape"
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

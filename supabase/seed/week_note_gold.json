@@ -1,0 +1,29 @@
+{
+  "note": "An educator's week in their own words, and the skill sets it covered (goals/n4-week-declaration.yaml). Written 2026-09-28 by the engine's session from the skill sets' own names and objectives and the school's words (exchange, regroup); to be replaced by real notes as educators declare weeks. `engine eval week_skills` scores Jev against it.",
+  "notes": [
+    {"band": "G2", "note": "This week we did 2-digit plus 2-digit sums with carrying, in columns.", "skill_sets": ["ADD.2D2D"]},
+    {"band": "G2", "note": "Subtraction of two-digit numbers where we exchange a ten for ten ones.", "skill_sets": ["SUB.2D2D"]},
+    {"band": "G2", "note": "We practised adding a single digit to a two-digit number, like 47 + 5.", "skill_sets": ["ADD.2D1D"]},
+    {"band": "G2", "note": "Taking away a one-digit number from a two-digit number, some needed exchanging.", "skill_sets": ["SUB.2D1D"]},
+    {"band": "G2", "note": "Story sums: one-step and two-step word problems about the bus and the mela.", "skill_sets": ["WORD.1_2STEP"]},
+    {"band": "G2", "note": "Missing numbers and the equals sign meaning 'is the same as'; checking subtraction with addition.", "skill_sets": ["EQUALITY.INVERSE"]},
+    {"band": "G2", "note": "Mental maths: bridging through ten and using friendly numbers.", "skill_sets": ["MENTAL.BRIDGE_EQ"]},
+    {"band": "G2", "note": "Children found the mistake in worked column sums and wrote the correct answer.", "skill_sets": ["REASON.FIND_MISTAKE"]},
+    {"band": "G2", "note": "We discussed whether statements about sums are true and explained why.", "skill_sets": ["REASON.EXPLAIN"]},
+    {"band": "G2", "note": "Revision week: 2-digit addition with regrouping and 2-digit subtraction with exchange.", "skill_sets": ["ADD.2D2D", "SUB.2D2D"]},
+    {"band": "G2", "note": "Borrowing in subtraction, 2-digit minus 2-digit, and a few word problems at the end.", "skill_sets": ["SUB.2D2D", "WORD.1_2STEP"]},
+    {"band": "G2", "note": "Adding 2-digit numbers, then spotting the mistake in a friend's working.", "skill_sets": ["ADD.2D2D", "REASON.FIND_MISTAKE"]},
+    {"band": "G3", "note": "3-digit plus 3-digit addition, carrying in any column.", "skill_sets": ["ADD.3D3D"]},
+    {"band": "G3", "note": "Subtracting 3-digit numbers from 3-digit numbers, exchanging across a zero.", "skill_sets": ["SUB.3D3D"]},
+    {"band": "G3", "note": "Adding three or more numbers in columns where a column can carry 2.", "skill_sets": ["ADD.MANY"]},
+    {"band": "G3", "note": "Estimating by rounding to the nearest ten first, then working out the exact answer.", "skill_sets": ["ESTIMATE.ROUND10"]},
+    {"band": "G3", "note": "Rounding to the nearest hundred to judge whether an answer can be right.", "skill_sets": ["ESTIMATE.HUNDRED"]},
+    {"band": "G3", "note": "Missing digits puzzles in addition and subtraction.", "skill_sets": ["MISSING.DIGIT"]},
+    {"band": "G3", "note": "Multiplying a 2-digit number by a single digit in columns.", "skill_sets": ["MUL.1D"]},
+    {"band": "G3", "note": "Adding a 2-digit number to a 3-digit number, lined up by the ones.", "skill_sets": ["ADD.3D2D"]},
+    {"band": "G3", "note": "3-digit take away 2-digit, exchanging in one or two columns.", "skill_sets": ["SUB.3D2D"]},
+    {"band": "G3", "note": "3-digit minus 1-digit with exchange across zero, and 3-digit plus 1-digit.", "skill_sets": ["SUB.3D1D", "ADD.3D1D"]},
+    {"band": "G3", "note": "Column addition of 3-digit numbers and estimating to the nearest ten to check.", "skill_sets": ["ADD.3D3D", "ESTIMATE.ROUND10"]},
+    {"band": "G3", "note": "Times tables revision and multiplying by one digit; then finding mistakes in worked examples.", "skill_sets": ["MUL.1D", "REASON.FIND_MISTAKE"]}
+  ]
+}

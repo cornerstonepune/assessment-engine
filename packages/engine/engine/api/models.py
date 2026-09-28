@@ -125,12 +125,33 @@ class BankRemoveResponse(BaseModel):
     worksheets_retired: int
 
 
+class BankDecideRequest(BaseModel):
+    verdict: Literal["remove", "keep", "adopt", "reject"]
+    by: str = Field(min_length=1, max_length=200)
+    note: str = Field(default="", max_length=300)
+
+
 class BankCoverageRow(BaseModel):
     code: str
     difficulty: str
     n: int
     target: int
     shortfall: int
+
+
+class StoryShapeRequest(BaseModel):
+    story: str = Field(min_length=1, max_length=600)
+
+
+class StoryShapeResponse(BaseModel):
+    shape: str | None
+    case: str | None
+    sure: float | None
+    how: str | None
+    answer: int | None
+    placed: list[tuple[str, str]]
+    ranked: list[tuple[str, float]]
+    why: str
 
 
 class BankReviewRequest(BaseModel):
@@ -158,6 +179,20 @@ class RunResponse(BaseModel):
     error: str | None
     tokens: int | None
     cost_inr: float | None
+
+
+class WeekNoteRequest(BaseModel):
+    section: str = Field(min_length=1, max_length=40)
+    note: str = Field(max_length=2000)
+
+
+class WeekDeclareRequest(BaseModel):
+    section: str = Field(min_length=1, max_length=40)
+    week: str = Field(min_length=1, max_length=40)
+    note: str = Field(default="", max_length=2000)
+    skill_sets: list[str] = Field(min_length=1)
+    by: str = Field(min_length=1, max_length=200)
+    proposed: list[dict] = Field(default_factory=list)
 
 
 class WeekPrescribeRequest(BaseModel):

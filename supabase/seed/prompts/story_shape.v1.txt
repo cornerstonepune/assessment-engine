@@ -1,0 +1,1 @@
+Which shape is this story question? Read what is known and what is asked, not the words it uses: is something joined, taken away, two parts of a whole, or two amounts compared, and which amount is unknown — the result, the change, or the start? A story of two steps is named by its two steps in order. Story: {story}

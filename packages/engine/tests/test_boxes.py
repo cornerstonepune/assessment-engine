@@ -8,6 +8,7 @@ photographed, never the working (ADR 0035) — and what code decides around it; 
 run the real reader (`adapters/digits.py`).
 """
 
+import json
 import random
 import re
 
@@ -20,6 +21,7 @@ from engine.adapters import digits, ocr
 from engine.assess import geometry, items
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
+from engine.core import db
 from engine.w3_read import boxes, render_pdf, sorting
 
 CODE = "CS00C0DE"
@@ -362,3 +364,44 @@ def test_two_readings_of_the_same_pencil_that_agree_stand_and_two_that_disagree_
         r = got[str(n)]
         assert r["answer_state"] == "illegible" and r["child_answer"] == ""
         assert wrote[i] in r["why"] and "disagree" in r["why"], r["why"]
+
+
+@pytest.fixture(scope="module")
+def two_layouts(tmp_path_factory):
+    """The same six sums drawn in the layout before L3 (three boxes each, as their question set) and in today's
+    (as many boxes as the answer has digits): the 23 Sep papers and the ones printed since."""
+    rows = json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text(encoding="utf-8"))[
+        "config"
+    ]
+    layouts = next(r["value"] for r in rows if r["key"] == "render.layouts")
+    rng = random.Random(7)
+    made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(40)]
+    qs = [q for q in made if len(q.responses[0].answer) == 2][:6]
+    out = {}
+    for name, layout in (("before L3", layouts[0]), ("today", layouts[-1])):
+        d = tmp_path_factory.mktemp(name.replace(" ", ""))
+        key = render_sheet(
+            Sheet(CODE, "G2", "Focus", 1, "W1", qs, title="Practice"), d, "Practice", layout=layout
+        )
+        out[name] = (d / f"{CODE}.pdf", key)
+    return out
+
+
+def test_a_copy_is_read_in_the_layout_it_was_printed_in(two_layouts, tmp_path, reader):
+    """Nimish: "If the answer has been in the designated place, it should be able to read the answers" — the place
+    as it was printed. A 23 Sep copy printed three boxes an answer; today the same worksheet prints two."""
+    pdfs = [pdf for pdf, _ in two_layouts.values()]
+    assert all(len(pymupdf.open(p)) == 1 for p in pdfs)  # the page count alone does not tell them apart
+    assert _boxes(two_layouts["before L3"][1], 1) == 3 and _boxes(two_layouts["today"][1], 1) == 2
+    for name, paper in two_layouts.items():
+        pdf, key = paper
+        ids = [it["item_id"] for it in key["items"]]
+        wrote = {ids[n - 1]: _fits(key, n) for n in range(1, 7)}
+        scan = _scanned(_filled(paper, wrote, {}), tmp_path / f"{name}.pdf")
+        img, _ = render_pdf.photo(scan, 1)
+
+        assert boxes.as_printed([img], pdfs) == pdf, name
+        got = _read(paper, scan, reader)
+        assert {k: r["child_answer"] for k, r in got.items()} == {
+            str(n): wrote[i] for n, i in enumerate(ids, 1)
+        }

@@ -1,0 +1,87 @@
+{
+  "note": "Story questions in words none of the engine's own templates use, each with its taxonomy shape (§10) and, for a one-step story, its answer (goals/j3-story-shape.yaml). Written 2026-09-28 by the engine's session; `test_story_shape.py` checks every one-step answer against the shape's own operation, so a story filed under the wrong operation fails before any model is asked. To be replaced by educators' own questions as they are typed in. `engine eval story_shape` scores Jev against it.",
+  "stories": [
+    {"shape": "JOIN_RESULT", "text": "Kabir's cricket team made 46 runs before lunch. After lunch they made 38 more. What was their total score?", "answer": 84},
+    {"shape": "JOIN_RESULT", "text": "Meera saved ₹125 in June. In July she saved another ₹60. How much has she saved now?", "answer": 185},
+    {"shape": "JOIN_RESULT", "text": "A tank held 250 litres of water. Then 140 litres more were poured in. How much water is in the tank now?", "answer": 390},
+    {"shape": "JOIN_RESULT", "text": "Dev had read 57 pages of his story book. Today he read 26 pages more. How many pages has he read in all?", "answer": 83},
+
+    {"shape": "JOIN_CHANGE", "text": "Zoya had 28 bangles. Her aunt gave her a few more, and now Zoya has 45 bangles. How many bangles did her aunt give her?", "answer": 17},
+    {"shape": "JOIN_CHANGE", "text": "The class library had 132 books. After the book drive it had 210 books. How many books were given in the drive?", "answer": 78},
+    {"shape": "JOIN_CHANGE", "text": "Arjun had ₹75 in his piggy bank. On his birthday he got some money and now he has ₹200. How much money did he get?", "answer": 125},
+    {"shape": "JOIN_CHANGE", "text": "There were 19 ducks in the pond. More ducks came, and then there were 34 ducks. How many ducks came?", "answer": 15},
+
+    {"shape": "JOIN_START", "text": "Tara had some crayons. Her friend gave her 12 more, and now she has 40 crayons. How many crayons did Tara have before?", "answer": 28},
+    {"shape": "JOIN_START", "text": "A farmer had some goats. He bought 25 more at the market. Now he has 73 goats. How many goats did he have earlier?", "answer": 48},
+    {"shape": "JOIN_START", "text": "Some people were sitting in the auditorium. 118 more people walked in, making 300 people. How many were sitting there to begin with?", "answer": 182},
+    {"shape": "JOIN_START", "text": "Ishaan had a stack of coins. His dad added 9 coins to it and the stack now has 31 coins. How many coins were in the stack first?", "answer": 22},
+
+    {"shape": "SEPARATE_RESULT", "text": "A baker made 96 cupcakes and sold 58 of them. How many cupcakes does the baker still have?", "answer": 38},
+    {"shape": "SEPARATE_RESULT", "text": "Riya had a ribbon 150 cm long. She cut off 65 cm for a gift. How long is the ribbon that remains?", "answer": 85},
+    {"shape": "SEPARATE_RESULT", "text": "There were 305 tickets for the school play. 187 were sold. How many tickets were not sold?", "answer": 118},
+    {"shape": "SEPARATE_RESULT", "text": "Neel picked 42 guavas. On the way home he gave 17 to his neighbours. How many guavas did he bring home?", "answer": 25},
+
+    {"shape": "SEPARATE_CHANGE", "text": "Anaya had 64 balloons for the party. Some burst, and she has 49 left. How many balloons burst?", "answer": 15},
+    {"shape": "SEPARATE_CHANGE", "text": "The shopkeeper had 240 notebooks in the morning. By evening only 95 were left. How many notebooks did he sell?", "answer": 145},
+    {"shape": "SEPARATE_CHANGE", "text": "Vihaan took ₹500 to the fair and came back with ₹215. How much did he spend at the fair?", "answer": 285},
+    {"shape": "SEPARATE_CHANGE", "text": "A jar had 53 toffees. The children ate some, and 18 are left in the jar. How many toffees did the children eat?", "answer": 35},
+
+    {"shape": "SEPARATE_START", "text": "Sana gave away 16 of her storybooks and still has 29. How many storybooks did she have before giving any away?", "answer": 45},
+    {"shape": "SEPARATE_START", "text": "A rickshaw driver spent ₹85 on lunch and had ₹340 left. How much money did he have before lunch?", "answer": 425},
+    {"shape": "SEPARATE_START", "text": "Some pigeons were on the roof. 23 flew off, and 38 stayed. How many pigeons were on the roof at first?", "answer": 61},
+    {"shape": "SEPARATE_START", "text": "After 150 kg of rice was sold, the shop still had 275 kg. How much rice did the shop have in the beginning?", "answer": 425},
+
+    {"shape": "PPW_WHOLE", "text": "In the orchard there are 57 mango trees and 36 chikoo trees. How many trees are in the orchard?", "answer": 93},
+    {"shape": "PPW_WHOLE", "text": "A school van carries 14 girls and 17 boys. How many children does the van carry?", "answer": 31},
+    {"shape": "PPW_WHOLE", "text": "The morning school has 128 children and the afternoon school has 135 children. How many children are in the two schools together?", "answer": 263},
+    {"shape": "PPW_WHOLE", "text": "A garland has 48 white flowers and 29 orange flowers. How many flowers are on the garland?", "answer": 77},
+
+    {"shape": "PPW_PART", "text": "A box of 72 crayons has 45 wax crayons and the rest are pencil crayons. How many are pencil crayons?", "answer": 27},
+    {"shape": "PPW_PART", "text": "There are 250 students on the playground. 138 are playing football. How many are not playing football?", "answer": 112},
+    {"shape": "PPW_PART", "text": "Of the 36 eggs in the tray, 19 are brown. How many eggs are white?", "answer": 17},
+    {"shape": "PPW_PART", "text": "A cricket kit costs ₹900. The bat in it costs ₹560. What do the other things in the kit cost?", "answer": 340},
+
+    {"shape": "COMPARE_DIFFERENCE", "text": "Priya is 132 cm tall and her brother is 118 cm tall. How much taller is Priya?", "answer": 14},
+    {"shape": "COMPARE_DIFFERENCE", "text": "Team Blue won 45 matches. Team Green won 28 matches. How many fewer matches did Team Green win?", "answer": 17},
+    {"shape": "COMPARE_DIFFERENCE", "text": "A red pen costs ₹35 and a gel pen costs ₹62. What is the difference in their prices?", "answer": 27},
+    {"shape": "COMPARE_DIFFERENCE", "text": "Pune got 84 mm of rain this week and Mumbai got 210 mm. By how much did Mumbai's rain exceed Pune's?", "answer": 126},
+
+    {"shape": "COMPARE_LARGER", "text": "Rohan has 26 marbles. Aditi has 15 marbles more than Rohan. How many marbles does Aditi have?", "answer": 41},
+    {"shape": "COMPARE_LARGER", "text": "A cycle costs ₹2350. A scooter toy costs ₹480 more than the cycle. What does the scooter toy cost?", "answer": 2830},
+    {"shape": "COMPARE_LARGER", "text": "The banyan tree is 17 m tall. The coconut tree is 6 m taller than it. How tall is the coconut tree?", "answer": 23},
+    {"shape": "COMPARE_LARGER", "text": "On Monday 208 people visited the museum. On Tuesday 95 more people visited than on Monday. How many visited on Tuesday?", "answer": 303},
+
+    {"shape": "COMPARE_SMALLER", "text": "Leela scored 87 in the quiz. Omar scored 12 less than Leela. What was Omar's score?", "answer": 75},
+    {"shape": "COMPARE_SMALLER", "text": "The blue bag weighs 5400 g. The green bag is 1250 g lighter. How much does the green bag weigh?", "answer": 4150},
+    {"shape": "COMPARE_SMALLER", "text": "Class 2A planted 63 saplings. Class 2B planted 18 fewer saplings than 2A. How many saplings did 2B plant?", "answer": 45},
+    {"shape": "COMPARE_SMALLER", "text": "A train ticket costs ₹340. A bus ticket costs ₹125 less than the train ticket. What is the bus fare?", "answer": 215},
+
+    {"shape": "ADD_ADD", "text": "Aarav walked 350 steps to the park, 275 steps around it, and 360 steps back home. How many steps did he walk?"},
+    {"shape": "ADD_ADD", "text": "A shop sold 48 kites on Friday, 65 on Saturday and 92 on Sunday. How many kites did it sell over the three days?"},
+    {"shape": "ADD_ADD", "text": "Nisha had 120 stamps. Her uncle sent her 35 stamps and her cousin gave her 42 more. How many stamps does she have now?"},
+
+    {"shape": "SUB_SUB", "text": "Mohan took ₹600 to the market. He spent ₹240 on vegetables and ₹175 on fruit. How much money did he bring back?"},
+    {"shape": "SUB_SUB", "text": "A bus left the depot with 52 passengers. 14 got off at the first stop and 19 got off at the second. How many are still on the bus?"},
+    {"shape": "SUB_SUB", "text": "A roll of cloth is 90 m long. The tailor cuts 25 m for curtains and 18 m for cushions. How much cloth is left?"},
+
+    {"shape": "SUB_ADD", "text": "The class had 38 pencils. 12 were lost during the week and the educator brought 20 new ones. How many pencils does the class have now?"},
+    {"shape": "SUB_ADD", "text": "Kiara had ₹450. She spent ₹180 on a gift, then her grandmother gave her ₹100. How much money does Kiara have now?"},
+    {"shape": "SUB_ADD", "text": "There were 85 birds at the lake. 27 flew away and later 16 new birds arrived. How many birds are at the lake?"},
+
+    {"shape": "ADD_SUB", "text": "A library had 420 books. It received 150 donated books and then sent 95 old books for repair. How many books are on its shelves?"},
+    {"shape": "ADD_SUB", "text": "Yash had 64 cards. He won 23 cards in a game and then gave 30 to his sister. How many cards does he have?"},
+    {"shape": "ADD_SUB", "text": "A parking lot had 136 cars. In the morning 58 more cars came in, and by noon 72 cars had left. How many cars are in the lot at noon?"},
+
+    {"shape": "UNKNOWN_FIRST", "text": "Rahul had some money. His father gave him ₹50, then he spent ₹80 on a book. Now he has ₹120. How much money did Rahul start with?"},
+    {"shape": "UNKNOWN_FIRST", "text": "A basket had some apples. Maya added 15 apples, then 22 apples were eaten. Now there are 40 apples. How many were in the basket at the beginning?"},
+    {"shape": "UNKNOWN_FIRST", "text": "Some children were in the pool. 9 got out and then 14 jumped in. Now there are 30 children in the pool. How many were in the pool at first?"},
+
+    {"shape": "EXTRA_INFORMATION", "text": "Aisha is 8 years old. She has 34 red beads and 27 blue beads. How many beads does she have?"},
+    {"shape": "EXTRA_INFORMATION", "text": "A bus with 3 doors had 56 passengers. At the market 19 passengers got off. How many passengers are still on the bus?"},
+    {"shape": "EXTRA_INFORMATION", "text": "Our school has 12 classrooms. On sports day 245 parents and 180 grandparents came to watch. How many visitors came in all?"},
+
+    {"shape": "CONSTRAINT", "text": "I am thinking of a number. If I take away 25 and then add 40, I get 100. What number am I thinking of?"},
+    {"shape": "CONSTRAINT", "text": "Two friends have 90 stickers between them. One friend has 20 more stickers than the other. How many stickers does the friend with fewer have?"},
+    {"shape": "CONSTRAINT", "text": "The sum of two numbers is 150 and their difference is 30. What is the bigger number?"}
+  ]
+}

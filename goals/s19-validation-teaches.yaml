@@ -1,0 +1,30 @@
+name: s19-validation-teaches
+goal: >
+  Step 2 of the build order: every answer a person checks is kept as a lesson for the reader — the pixels the
+  reader read (its box crop, saved beside the scans when it read them) and what the person said the child wrote
+  (its label) — and Marking shows how often the reader matched people, by the day the papers were read and by kind
+  of question. One definition of "checked" (the view `answer_checked`) is what the engine's notebook, `engine read
+  report`, the reader's gold set and Marking all count from: a typed reading wins, a sign-off keeps the reader's
+  reading, a Right/Wrong judgement is not a reading.
+
+# Written 2026-09-28, before the work. Found by reading the code: labels existed (read_correction for typed ones, a
+# sign-off's state for the rest) but "checked" was defined twice — `profiles.checked_rows` in Python and
+# `readerReport` in the website's SQL; no crop was kept anywhere (only the page and box, and the scan file); and the
+# accuracy by day existed only in `engine read report`, never on Marking.
+says:
+  - words: "All the validations that we are doing right now should help improve the system."
+    proved_by: packages/engine/tests/test_crops.py::test_every_answer_the_reader_reads_keeps_the_crop_it_read_beside_the_scans
+  - words: "Even the ones that you have marked as right and right, we are validating them also. Is this data going to be used in a constructive way?"
+    proved_by: packages/engine/tests/test_crops.py::test_a_checked_answer_has_one_label_its_crop_and_the_day_it_was_read
+  - words: "How many rounds of validations will we do till we get to more than 95% accuracy?"
+    proved_by: packages/engine/tests/test_crops.py::test_the_readers_accuracy_is_counted_by_day_and_by_kind_from_the_one_view
+manual:
+  - "Marking on live shows the reader's accuracy by the day papers were read, beside the table by kind."
+scenarios: []
+criteria:
+  - name: the crops, the view and the report
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_crops.py tests/test_boxes.py tests/test_profiles.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -6,7 +6,7 @@ import typer
 
 from engine.adapters.llm import LLMError
 from engine.core import db
-from engine.w1_bank import bank, inventory, mistake_guess, review, spec
+from engine.w1_bank import bank, inventory, mistake_guess, review, spec, story_shape
 from engine.w1_bank.cli_taxonomy import register as register_taxonomy
 
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
@@ -145,6 +145,23 @@ def bank_review(
     typer.echo(
         f"  {len(verdicts)} judged, {worst} not a pass · {meta.get('model')} · ₹{meta.get('cost_inr')}"
     )
+
+
+@bank_app.command("shape")
+def bank_shape(story: str) -> None:
+    """A story question in anyone's words → its shape (Jev, from the taxonomy's own), its case, the skill set and
+    level that hold it, and a one-step answer computed from its numbers (goals/j3-story-shape.yaml)."""
+    with db.connect() as conn:
+        got = story_shape.name(conn, story)
+        conn.commit()
+    if got["shape"] is None:
+        typer.echo(f"  a person names it: {got['why']}")
+    else:
+        where = ", ".join(f"{s} {lv}" for s, lv in got["placed"]) or "no level names this case yet"
+        typer.echo(f"  {got['shape']} ({got['case']}) · {got['how']} {got['sure']} · {where}")
+        typer.echo(f"  answer {got['answer'] if got['answer'] is not None else 'for a person to key'}")
+    for s, p in got["ranked"]:
+        typer.echo(f"    {p:.2f}  {s}")
 
 
 @bank_app.command("recheck")
