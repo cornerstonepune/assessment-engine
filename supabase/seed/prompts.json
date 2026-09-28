@@ -1458,6 +1458,20 @@
       "json_schema": {
         "type": "choice"
       }
+    },
+    {
+      "purpose": "week_skills",
+      "version": 1,
+      "model": "jev-latest",
+      "active": true,
+      "text_file": "prompts/week_skills.v1.txt",
+      "json_schema": {
+        "type": "noul",
+        "criteria": {
+          "true": "The note says the class worked on this skill this week.",
+          "false": "The note does not mention this skill."
+        }
+      }
     }
   ]
 }

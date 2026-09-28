@@ -175,6 +175,12 @@
    "value": 150,
    "unit": "INR",
    "description": "The adapter refuses a new call once today's cost_inr for the tenant passes this. A row, not a limit in code — raise it here."
+  },
+  {
+   "key": "week.skill_yes_above",
+   "value": 0.5,
+   "unit": "probability",
+   "description": "A skill set Jev says the week's note covered at least this surely comes ticked (N4, goals/n4-week-declaration.yaml)"
   }
  ]
 }
