@@ -6,7 +6,9 @@ next. The model is stood in for; the database is the local copy, rolled back."""
 import copy
 import json
 import os
+import re
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -519,3 +521,15 @@ def test_what_the_v10_eval_found_mastery_is_a_state_and_out_of_is_a_count(conn, 
     ]
     assert any("gives the count" in p for p in said(can_do=counted + lines[1:]))
     assert said(summary="[child] adds with care, one column at a time, and checks each answer.") == []
+
+
+def test_what_the_v11_eval_found_readiness_is_the_plans_and_the_prompt_holds_no_sum_of_its_own(conn, child):
+    """v11 on live: 11 of 12, the failure "Try 62 minus 27", copied from the prompt's own example into a child's report
+    whose facts hold no 27; read in the eleven: "is ready to move forward in most areas"."""
+    seed = Path(__file__).resolve().parents[3] / "supabase" / "seed" / "prompts" / "parent_report.v12.txt"
+    text = seed.read_text()
+    assert not re.search(r"\d+\s*[−+-]\s*\d+", text), "the prompt's own examples hold no sum to copy"
+    assert "at home this week" not in text, "the prompt asks for no time the check refuses"
+    f = P.facts(conn, child)
+    said = P.check(f, {**_good(f), "summary": "[child] is ready to move forward in most areas."})
+    assert any("'ready to'" in p for p in said)
