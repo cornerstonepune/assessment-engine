@@ -40,6 +40,21 @@ jobs:
           printf '%s\n' "$KEY" > ~/.ssh/server
           chmod 600 ~/.ssh/server
           ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: room to read a scan — 2 GB of swap
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        # The server has 1.9 GB and no swap. The handwriting reader holds about 700 MB while it reads (ADR 0035);
+        # with the system and the engine resident, the kernel killed the engine mid-read on 2026-09-26 and again
+        # on 2026-09-28 07:14 (the 23 Sep re-read; `engine logs`: "Out of memory: Killed process … uvicorn").
+        # A swapfile lets it page out what is idle instead of killing the engine. Made once; a no-op after.
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S 'set -e
+            if ! sudo swapon --show=NAME --noheadings | grep -qx /swapfile; then
+              [ -f /swapfile ] || { sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile; }
+              sudo swapon /swapfile
+            fi
+            grep -q "^/swapfile " /etc/fstab || echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab >/dev/null
+            free -m'
       - name: the code, exactly as committed
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         run: |
