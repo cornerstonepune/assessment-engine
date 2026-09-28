@@ -1448,6 +1448,16 @@
           }
         }
       }
+    },
+    {
+      "purpose": "mistake_guess",
+      "version": 1,
+      "model": "jev-latest",
+      "active": true,
+      "text_file": "prompts/mistake_guess.v1.txt",
+      "json_schema": {
+        "type": "choice"
+      }
     }
   ]
 }

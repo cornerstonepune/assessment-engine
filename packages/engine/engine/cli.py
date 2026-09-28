@@ -12,7 +12,7 @@ from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
 from engine.core import db, loaders
-from engine.w1_bank import bank, review, spec
+from engine.w1_bank import bank, mistake_guess, review, spec
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
@@ -139,6 +139,16 @@ def eval_(
         typer.echo(
             f"  {purpose}: {r['useful']} of the model's proposals survived as additions"
             f" over {len(r['rows'])} skill sets · {r['model']} · ₹{r['cost_inr']}"
+        )
+        return
+
+    if purpose == mistake_guess.PURPOSE:
+        with db.connect() as conn:
+            r = mistake_guess.evaluate(conn, mistake_guess.gold())
+            conn.commit()
+        typer.echo(
+            f"  {purpose}: the right mistake first {r['first']}/{r['cases']}, among the three {r['listed']}/{r['cases']}"
+            f" · slips called NONE {r['slips_none']}/{r['slips']} · slips given a mistake {r['false_named']}"
         )
         return
 
