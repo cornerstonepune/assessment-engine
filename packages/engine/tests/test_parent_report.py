@@ -103,11 +103,7 @@ def _good(f):
     return {
         "summary": "[child] is building steady habits in maths, and the educator sees careful work on the page.",
         "can_do": [
-            {
-                "id": x["id"],
-                "sentence": ("[child] is nearly secure: " if k == "nearly" else "[child] ")
-                + f"got {x.get('right', x.get('recent'))} right.",
-            }
+            {"id": x["id"], "sentence": "[child] " + x["can"][0].lower() + x["can"][1:]}
             for k in ("can_do", "nearly", "improving")
             for x in f[k]
         ],  # fmt: skip
@@ -464,9 +460,7 @@ def test_what_the_v7_eval_found_a_skill_is_said_as_secure_only_on_its_own_line_a
         return P.check(f, {**_good(f), **parts})
 
     assert said() == []
-    assert any(
-        "never says what is secure" in p for p in said(summary="[child] is now secure at subtraction.")
-    )
+    assert any("says 'secure'" in p for p in said(summary="[child] is now secure at subtraction."))
     lines = _good(f)["can_do"]
     swap = {x["id"]: k for k in ("can_do", "nearly", "improving") for x in f[k]}
     for k, wrong in (("can_do", "[child] is nearly secure at it."), ("nearly", "[child] got 4 of 4 right."),
@@ -494,13 +488,16 @@ def test_what_the_v8_eval_found_a_count_is_its_own_skills_and_the_words_are_a_pu
     def line(entry, t):
         return [{**c, "sentence": t} if c is entry else c for c in lines]
 
-    assert said(can_do=line(near, "[child] is nearly secure, and got four of four right.")) == []
-    wrong = line(near, f"[child] is nearly secure, and got {a} of {b} right.")
-    assert any("not its own count" in p for p in said(can_do=wrong))
+    # v10: no count at all in the words, its own or another's — the page prints each skill's own, from the facts
+    own = line(near, "[child] adds with confidence, and got four of four right.")
+    assert any("gives the count 'four of four'" in p for p in said(can_do=own))
+    wrong = line(near, f"[child] adds with confidence, and got {a} of {b} right.")
+    assert any("gives the count" in p for p in said(can_do=wrong))
     imp = next(c for c in lines if c["id"] == better["id"])
-    assert (
-        said(can_do=line(imp, f"[child] got {better['earlier']} earlier and {better['recent']} recently."))
-        == []
+    assert said(can_do=line(imp, "[child] has improved from the earlier answers to the recent ones.")) == []
+    assert any(
+        "gives the count" in p for p in said(can_do=line(imp, f"[child] got {better['recent']} recently."))
     )
+    assert any("gives the count" in p for p in said(summary="[child] went from 2 of 8 to 6 of 8."))
     assert any("a time" in p for p in said(summary="[child] improved from earlier in the month."))
     assert any("money" in p for p in said(at_home=["Use ten-pence and one-penny coins to make a number."]))

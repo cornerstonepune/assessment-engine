@@ -83,7 +83,7 @@ async function keepDraft(id: string, f: Facts) {
       "[child] adds a 2-digit and a 1-digit number with confidence, and is learning to exchange in subtraction.",
     can_do: [...f.can_do, ...f.nearly, ...f.improving].map((s) => ({
       id: s.id,
-      sentence: "[child] got 9 of 9 right.",
+      sentence: "[child] adds with confidence.",
     })),
     working_on: f.working_on.map((w) => ({
       id: w.id,
@@ -148,6 +148,10 @@ test("a parent reads a letter with the child's name, the counts beside the words
   const can = letter.getByRole("region", { name: "What they can do" });
   await expect(can).toContainText("2-digit + 1-digit");
   await expect(can).toContainText("ready for the next step");
+  // the count and the state are the page's, from the facts, never the model's words (v9 swapped two skills' counts)
+  await expect(can.getByTestId("count").first()).toHaveText(
+    /^\d+ of \d+ right — secure\.$/,
+  );
   const slip = letter.getByRole("region", { name: "What they are working on" });
   await expect(slip).toContainText("62 − 27");
   await expect(slip).toContainText("Tara wrote");
@@ -159,7 +163,9 @@ test("a parent reads a letter with the child's name, the counts beside the words
   // from the rows, not a constant: the out-of-date test below signs one more off each run (evidence is append-only)
   const [{ n }] = await sql<{ n: number }[]>`
     select count(*)::int as n from evidence_event where child_id = ${id}::uuid and confirmed_by is not null`;
-  await expect(letter).toContainText(`${n} answers, each checked by an educator`);
+  await expect(letter).toContainText(
+    `${n} answers, each checked by an educator`,
+  );
   // never a code, never "teacher"
   await expect(letter).not.toContainText(
     /\b(R\d{1,2}|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/,

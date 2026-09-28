@@ -120,6 +120,7 @@ export function Letter({
   const skills = Object.fromEntries(
     [...f.can_do, ...f.nearly, ...f.improving].map((s) => [s.id, s]),
   );
+  const secure = new Set(f.can_do.map((s) => s.id));
   const slips = Object.fromEntries(f.working_on.map((w) => [w.id, w]));
   return (
     <article
@@ -194,6 +195,16 @@ export function Letter({
                       ) : null}
                     </div>
                     <div className="text-basalt/80">{put(c.sentence)}</div>
+                    <div
+                      className="text-[13px] text-basalt/60"
+                      data-testid="count"
+                    >
+                      {s?.recent
+                        ? `Earlier ${s.earlier}; recently ${s.recent}.`
+                        : s?.answered
+                          ? `${s.right} of ${s.answered} right${secure.has(c.id) ? " — secure" : ""}.`
+                          : null}
+                    </div>
                     {s?.not_yet ? (
                       <div className="text-[13px] text-basalt/60">
                         Why not yet secure: {s.not_yet}.
