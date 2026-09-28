@@ -12,6 +12,20 @@ is verified. This file only says where the last session stopped.
   stripped the letter s), now `[[:space:],]`.
 - **Next, on merge (after #88):** the re-read of 23 and 24 Sep keeps their crops; check Marking's by-day table on live.
 
+## 2026-09-28, last: the spine page redesigned around one thread (ADR 0038, no step moved)
+
+- Nimish was "getting lost in the artifact". Every item now sits on the same five steps: why, what NCF-SE asks, in
+  the grade, when, how we check. Clicking anything shows its thread through them, with each link's source marked.
+  A grade's year is a grid of fortnights by subjects with the units' own names. The school day shows five parts by
+  grade.
+- Same link, version 3: https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg. Build it with
+  `python3 research/plan_build.py && python3 research/spine_page.py`. It is held by `goals/spine-readable.yaml`
+  (`bin/engine done spine-readable`).
+- The threads are worked out in `research/spine_links.py`, `spine_steps.py` and `spine_thread.py`; the scripts only
+  draw.
+- Next: his reaction. Open points for him are in the brief's "28 Sep, redesigned" section: routines paced like
+  syllabus, arts units named as briefs, and "CATs" still read as academics.
+
 ## 2026-09-28, later: the Plan view inside the spine (a brainstorm view, no step moved)
 
 - Nimish asked for one system, not separate documents. It shows how the syllabus becomes fortnights and a day of
