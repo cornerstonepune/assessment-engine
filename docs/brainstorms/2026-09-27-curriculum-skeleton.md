@@ -12,6 +12,36 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep, redesigned: the spine page reads as one thread (ADR 0038)
+
+Nimish: "is there a way that you can design this html better such that its more easily understood and the
+connections are untuitive - i am getting lost in the artifact".
+
+- **Where:** the same link, https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg (version 3).
+- **Thread view:** everything sits on the same five steps: why, what NCF-SE asks, in the grade, when, how we check.
+  Clicking anything shows its thread through them, and each link is marked as NCF-SE or NCERT, the school's map,
+  proposed or inferred.
+- **A grade's year:** fortnights by subjects, with the units' own names.
+- **The school day:** academic, studio, arts, sport, and circle and close, by grade.
+- **Opens on:** Grade 3's addition and subtraction. It builds Thinking & reasoning, serves NCF-SE CG-1 and CG-4, and
+  matches 5 of NCERT's Grade 3 outcomes. It is taught in fortnights 2–3 and checked by 2 engine skills (NUM.OPS.01,
+  NUM.OPS.02).
+- **Held by:** `goals/spine-readable.yaml`, whose five sentences are Nimish's words, each with its test in
+  `packages/engine/tests/test_spine_page.py`.
+
+What the rebuild found:
+- **Routines in the plan.** 31 of the 637 items the plan places reach no capability: 30 of the school's units (Home
+  Period, Science Week, the maths quiz every alternate week, Play-Based Learning (weekly) and more) and one NCERT
+  outcome ("visits a language laboratory"). They are routines or
+  inputs, not learning. The plan paces them like syllabus; a school timetable would give them fixed slots instead.
+- **Arts units named as briefs.** 122 arts and social-science units in the school's map are named
+  "• Title: … / • Focus: … / • Key Concepts: …". The page shows the title, and the focus and concepts on the unit's
+  card. The map itself could carry the three as separate fields.
+- **Dark-mode colours.** The last session's dark palette failed the colour-vision check (arts and studio ΔE 1.6 for
+  deuteranopes). It is fixed by drawing the day in five parts; both themes pass.
+- **"CATs" is still read as academics.** Nothing in this redesign depends on that reading beyond the day chart's
+  "academic" block.
+
 ## 28 Sep, built: the Plan view inside the spine
 
 Nimish: "don't keep on waiting for me ... Just give me the final output." Built on the reading below, with "CATs"
