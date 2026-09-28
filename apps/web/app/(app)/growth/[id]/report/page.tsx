@@ -68,6 +68,9 @@ export default async function ReportCard({ params }: Props) {
           <Link href={`/growth/${id}`} className="chip">
             ← {name}&apos;s page
           </Link>
+          <Link href={`/growth/${id}/parent`} className="chip">
+            Parent report →
+          </Link>
           <PrintButton />
         </p>
         {waiting > 0 ? (

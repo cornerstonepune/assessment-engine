@@ -1,0 +1,42 @@
+# Score a prompt on the server, where the model's key is (CLAUDE.md rule 7: a new prompt version is scored before it
+# is made active). Run by hand; it reads the live rows and writes only the flow_run rows of what it spent. The inputs
+# are a fixed list, so this runs `engine eval` and nothing else.
+name: engine eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      purpose:
+        description: "the prompt to score"
+        type: choice
+        options: [parent_report]
+      version:
+        description: "its version, active or not"
+        type: choice
+        options: ["1"]
+
+permissions:
+  contents: read
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: the score
+        env:
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+          PURPOSE: "${{ inputs.purpose }}"
+          VERSION: "${{ inputs.version }}"
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION"

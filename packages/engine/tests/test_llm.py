@@ -49,7 +49,7 @@ class Conn:
                     "model": "m1",
                     "json_schema": self.schema,
                 }
-            purpose, subject = self._params
+            purpose, subject = self._params[:2]  # then the version, twice
             return self.prompts.get((purpose, subject)) or self.prompts.get((purpose, None))
         if "from threshold" in self._sql:
             return {"value": self.budget} if self.budget is not None else None
