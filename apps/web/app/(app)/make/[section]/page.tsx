@@ -25,11 +25,11 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
     <>
       <PageHeader
         stage="Make papers"
-        title={`${section} · home papers`}
-        sub={`Week ${week}. Each child's home paper works on one skill from their own map. Approve them, or choose a different paper for any child.`}
+        title={`${section} · home assessments`}
+        sub={`Week ${week}. Each child's home assessment works on one skill from their own map. Approve them, or choose a different one for any child.`}
       />
       <Body>
-        {q.approved ? <Notice tone="neem">Approved {q.approved}, in your name. They print as each child&rsquo;s own paper.</Notice> : null}
+        {q.approved ? <Notice tone="neem">Approved {q.approved}, in your name. They print as each child&rsquo;s home assessment.</Notice> : null}
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
           <Link href="/make" className="chip">
             ← Every class
@@ -47,9 +47,9 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
             </form>
           ) : null}
         </div>
-        <Panel title="Each child's home paper" aside={`${proposed.length} waiting for you`}>
+        <Panel title="Each child's home assessment" aside={`${proposed.length} waiting for you`}>
           <div className="overflow-x-auto">
-            <table className="grid" aria-label="Each child's home paper">
+            <table className="grid" aria-label="Each child's home assessment">
               <thead>
                 <tr>
                   <th>Roll</th>
@@ -100,7 +100,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                             See the paper
                           </a>
                         ) : null}
-                        <Link href={`/make/custom?child=${c.id}`}>Choose a paper</Link>
+                        <Link href={`/make/custom?child=${c.id}`}>Choose a different one</Link>
                       </td>
                     </tr>
                   );

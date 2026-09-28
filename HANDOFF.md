@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-27, after #73 merged: the provenance check wired in; the next objective put to Nimish (no step moved)
+
+- **Next session: read `docs/brainstorms/2026-09-27-curriculum-skeleton.md`, starting at "27 Sep, after the merge".**
+  Nimish's new asks cover: Grades 1–7 in detail; the school's own additions; a Cambridge skills gap check; and whether
+  application-based teaching fits the hours, with the school day that follows. Agree the objective with him before any
+  work; he asked for that in so many words.
+- The provenance check now runs anywhere and is wired in. `python3 research/spine_verify.py` fetches NCERT's PDFs and
+  refuses a changed file. It compares whole rows: 814/814 and 729/729. `goals/spine-traceable.yaml` holds it, and CI
+  runs it on every PR. CI's first run failed when ncert.nic.in dropped a connection; the fetch now asks again (after
+  2, 4, 8 and 16 s) before it gives up.
+- The spine build is now deterministic; unit→skill links had been emitted in set order.
+
 ## 2026-09-27 — brainstorm: the curriculum skeleton, and provenance as a rule (no step moved, nothing built)
 
 - **To resume this discussion in a new session, read `docs/brainstorms/2026-09-27-curriculum-skeleton.md` first.** It holds
@@ -59,6 +71,15 @@ curriculum module will feed this one. "Build as many [Jev use cases] as you can 
   preparatory mathematics in NCF has no data-handling goal though NCERT and the school teach it.
 - **Next:** the curriculum team's pass on the generated links (accept, edit, reject), subject by subject; then the organ
   that holds the spine as rows, after the ten steps.
+
+## 2026-09-26, night — step 1 on live: 24 Sep passes, 23 Sep does not; goal s17 not green
+
+PaddleOCR (#78) and the memory fix (#79) are live. 24 Sep: 147/192 settled (floor 144), 16/16 on a child.
+23 Sep: 55/108 — its papers were printed before L3's one-box-per-digit layout, so they do not line up with today's
+worksheet PDFs and fall back to the old reader. **Decision owed by Nimish** (STATE.md, "Step 1 on live"): rebuild
+23 Sep's as-printed layout, find the boxes on the page instead, or leave that one batch to people. Also still his:
+confirm `docs/adr/0035-bench/gold.json`; whether to change the trust rules (they, not the reader, set how many answers
+wait: 727 now); rotate the Textract key.
 
 ## 2026-09-26, night (later) — PaddleOCR merged (#78) and deployed; the engine ran out of memory reading 24 Sep
 

@@ -28,7 +28,7 @@ says:
   - words: "just say addition, subtraction"
     proved_by: packages/engine/tests/test_focus.py::test_a_weak_subtraction_on_an_addition_rung_is_worked_on_as_subtraction
   - words: "ensure that these kinds of things are available even on the UI for better understanding"
-    proved_by: apps/web/tests/s11-focus-paper.spec.ts::a child's page says which areas the next paper works on and why, and makes it
+    proved_by: apps/web/tests/s11-focus-paper.spec.ts::a child's page says which areas the home assessment works on and why, and makes it
 manual:
   - "On live, once merged: `bin/engine load` (the new config row), then open a checked child's Growth page."
 scenarios: []

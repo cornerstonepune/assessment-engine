@@ -226,9 +226,9 @@ test("a child's page shows what their answers show and every mistake that repeat
 
 test("the engine proposes the next paper and a teacher approves it, once, in their own name", async ({ page }) => {
   await page.goto(`/growth/${ids.Asha}`);
-  const next = page.getByRole("region", { name: "Next paper, proposed by the engine" });
-  await expect(next.getByRole("list", { name: "Areas the next paper works on" }).getByRole("listitem").first()).toBeVisible();
-  await next.getByRole("button", { name: "Approve this paper" }).click();
+  const next = page.getByRole("region", { name: "Home assessment" });
+  await expect(next.getByRole("list", { name: "Areas the home assessment works on" }).getByRole("listitem").first()).toBeVisible();
+  await next.getByRole("button", { name: "Approve this home assessment" }).click();
   await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
   const qr = new URL(page.url()).searchParams.get("paper")!;
 
@@ -240,11 +240,11 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
   await page.goto(`/growth/${ids.Asha}`);
   await expect(next).toContainText(`Approved by ${TEST_STAFF.name}`);
   await expect(next.getByRole("link", { name: qr })).toHaveAttribute("href", `/worksheets/${qr}`);
-  await expect(next.getByRole("button", { name: "Approve this paper" })).toHaveCount(0);
+  await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 
   // a child with nothing to work on is told so, with nothing to approve
   await page.goto(`/growth/${ids.Chetan}`);
-  await expect(next.getByRole("button", { name: "Approve this paper" })).toHaveCount(0);
+  await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 });
 
 test("a child's page lists every paper made for them or read from them, with its purpose and who approved it", async ({
@@ -261,7 +261,7 @@ test("a child's page lists every paper made for them or read from them, with its
   await expect(papers.getByRole("listitem")).toHaveCount(rows.length);
   for (const r of rows) {
     const it = papers.getByRole("listitem").filter({ hasText: r.qr_code });
-    await expect(it).toContainText(r.kind === "focus" ? "their own next paper" : "class practice");
+    await expect(it).toContainText(r.kind === "focus" ? "their home assessment" : "class practice");
     await expect(it).toContainText(r.approved_by ? `approved by ${TEST_STAFF.name}` : "waiting for a teacher to approve");
   }
 });

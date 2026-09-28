@@ -77,12 +77,12 @@ test("each class's home papers are proposed from each child's own map, one skill
 }) => {
   await page.goto("/make");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
-  const row = page.getByRole("table", { name: "Home papers this week" }).locator("tbody tr").filter({ hasText: SECTION });
+  const row = page.getByRole("table", { name: "Home assessments this week" }).locator("tbody tr").filter({ hasText: SECTION });
   await expect(row.locator("td[data-n=proposed]")).toHaveText("2");
   await row.getByRole("link", { name: "Open" }).click();
   await expect(page).toHaveURL(`/make/${SECTION}`);
 
-  const table = page.getByRole("table", { name: "Each child's home paper" });
+  const table = page.getByRole("table", { name: "Each child's home assessment" });
   // the repeated subtraction mistake: one skill, at a level whose questions can show the mistake
   const asha = table.locator("tbody tr").filter({ hasText: "Asha" });
   await expect(asha).toContainText("2-digit − 2-digit");
@@ -106,10 +106,10 @@ test("each class's home papers are proposed from each child's own map, one skill
 
 test("a teacher chooses skills, a level each and how many, sees the questions, and approves the paper", async ({ page }) => {
   await page.goto(`/make/${SECTION}`);
-  await page.getByRole("table", { name: "Each child's home paper" }).locator("tbody tr").filter({ hasText: "Chetan" })
-    .getByRole("link", { name: "Choose a paper" }).click();
+  await page.getByRole("table", { name: "Each child's home assessment" }).locator("tbody tr").filter({ hasText: "Chetan" })
+    .getByRole("link", { name: "Choose a different one" }).click();
   await expect(page).toHaveURL(`/make/custom?child=${ids.Chetan}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("A paper for Chetan");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("A home assessment for Chetan");
 
   const form = page.getByRole("form", { name: "Choose the paper" });
   await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Medium");

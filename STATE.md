@@ -3471,6 +3471,21 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - `cd packages/engine && .venv/bin/python -m pytest tests/test_sorting.py -k one_page_at_a_time` → `1 passed`
   (fails on the old code: 309 → 468 MB for 2 → 10 pages). Engine suite `858 passed`; `bin/check` green.
 
+## Step 1 on live — both scans re-read with PaddleOCR (2026-09-26)
+
+`POST /read/file {again: true}`, runs `2eecaacc` (24 Sep) and `a5186848` (23 Sep), both `ok`, no restart.
+- **24 Sep: 147 of 192 settled** (125 read, 22 blank; the goal's floor 144; this morning 80). 16 of 16 copies on a
+  child; 168 of 192 answers read in their boxes. 13 readings saw a non-digit: most the child's own (mirror-written
+  digits, a pencil dot between boxes); "T210" and "174-" look like a printed dashed line — both went to a person.
+  The three that stood ("6.73", "3:22", "3.22" → 673, 322, 322) match the session's gold.
+- **23 Sep: 55 of 108 settled (51%)** — under the floor. These papers were printed before L3 (23 Sep 10:08 UTC):
+  their answer rows have more boxes than digits, so they do not line up with today's worksheet PDFs and 87 of 108
+  answers fell back to the old whole-page reader. One old-reader reading ("81") came from printed words; it waits
+  for a person (the kind is not trusted), so it did not count.
+- Waiting for a person, printed papers: **300 → 288** (unreadable 167 → 85; read right but kind untrusted 50 → 108;
+  wrong 39 → 51; blank 34 → 36). A better reader moves answers from typing to one click; the count is held by the
+  rules of ADR 0029/0032 (every wrong and blank, and rights until a kind is trusted), not by the reader.
+
 ## The curriculum spine as one graph, with a clickable map (2026-09-26, ADR 0037 proposed)
 
 - **Claim:** the school's spine, three words down to the engine's rungs, is one checked graph: every edge names two nodes
@@ -3491,7 +3506,21 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
 - **Not verified:** that the generated links are right (the curriculum team's pass decides); NCERT extraction folds a few
   sub-points and truncates a few rows (the seats name them); NCERT has no Hindi or Marathi outcomes in these files; 30
   school units and 6 NCERT outcomes carry a reason instead of a competency.
-- **Provenance check (2026-09-27):** `python3 research/spine_verify.py --ncf <NCF-SE text> --elementary <NCERT 2017 PDF> --secondary <NCERT 2019 PDF>`
-  → `NCF-SE rows found word for word in the source: 814/814` · `NCERT outcomes found word for word on their stated page: 729/729`.
-  The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
+- **Provenance check (2026-09-27, wired in the same day):** `python3 research/spine_verify.py` runs from any directory. It
+  fetches NCERT's three PDFs from ncert.nic.in into data/spine_sources/ and refuses any whose sha256 differs from
+  `docs/spine/sources/official_documents.json`. Output: `NCF-SE rows found in full, word for word, in the source:
+  814/814` · `NCERT outcomes found in full, word for word, on their stated page: 729/729`.
+  - It now compares whole rows. The first version compared only the first 120 and 80 characters, so a changed word late
+    in a long row would have passed; the longest rows are 2,227 and 1,238 characters.
+  - A lone hyphen counts as punctuation, not as a word: NCERT's "etc.:-" in Class 1 Maths outcome 7.
+  - Held by `goals/spine-traceable.yaml`: `bin/engine done spine-traceable` → the three sentences PROVED. Its "NOT DONE"
+    comes only from this container not reaching the live database; there is no migration.
+  - CI's engine job runs the same tests on every PR, with the PDFs cached under their fingerprints.
+  - CI's first run, with nothing cached, failed: ncert.nic.in reset the TLS handshake, and served the same file to the
+    next test seconds later. A failed request is now made again after 2, 4, 8 and 16 s; the fifth failure stops the run,
+    naming the address. `pytest tests/test_spine_provenance.py` → 5 passed, two of them pinning this.
+  - The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
+- **The spine rebuilds byte for byte (2026-09-27):** `python3 research/spine_import.py && python3 research/spine_build.py`
+  leaves `docs/spine/sources/` unchanged, and `spine.json` is identical under any PYTHONHASHSEED. The unit→skill links
+  were written in a set's order; they are now sorted.
 

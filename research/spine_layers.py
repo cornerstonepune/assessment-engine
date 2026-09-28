@@ -236,7 +236,8 @@ def imported_layers():
         if lo_unit.get(x["lo"]) and f"skill.{x['skill']}" in g.ids:
             unit_skills[lo_unit[x["lo"]]].add(x["skill"])
     for uid, skills in unit_skills.items():
-        for sk in skills:
+        # sorted: a set's order changes from run to run, and the graph must not
+        for sk in sorted(skills):
             g.edge(
                 uid,
                 f"skill.{sk}",

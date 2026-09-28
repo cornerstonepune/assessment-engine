@@ -1,0 +1,31 @@
+name: h1-home-assessment
+goal: >
+  A child's home assessment is part of the child's own page: the educator sees it (the areas it works on and why,
+  the paper as it will print one press away), approves it, or makes a different one for the child — and everywhere
+  it is named "Home assessment": the child's page, Make papers, Today, the child's list of papers, and the printed
+  page itself, whichever of the two ways it was chosen, with the line under the title saying who chose it.
+
+# Written 2026-09-27, before the work. Nimish: "it's not like I need a separate button. There will be a separate
+# button, but it will be a part of the student flow itself. We just need to have some simple functionality where the
+# teacher is able to see the home assessment. If they want to generate a different home assessment, that
+# functionality we already have. The home assessment part reads as 'home assessment.' That's the main thing."
+says:
+  - words: "The home assessment part reads as 'home assessment.'"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_every_paper_made_for_a_child_prints_as_a_home_assessment_and_says_who_chose_it
+  - words: "it will be a part of the student flow itself"
+    proved_by: apps/web/tests/s11-focus-paper.spec.ts::a child's page says which areas the home assessment works on and why, and makes it
+  - words: "If they want to generate a different home assessment, that functionality we already have"
+    proved_by: apps/web/tests/m2-make-papers.spec.ts::each class's home papers are proposed from each child's own map, one skill each, and approved in one click
+manual:
+  - "On live, once merged: open a child's page, see \"Home assessment\", press \"See the home assessment\"."
+scenarios: []
+criteria:
+  - name: the printed heading, both ways a home assessment is chosen
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_focus_paper.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
+  - name: the child's page, Make papers and Today, on the copy
+    run: cd apps/web && npx playwright test tests/s11-focus-paper.spec.ts tests/m2-make-papers.spec.ts tests/u2-children.spec.ts tests/u1-today.spec.ts
+    expect: "passed"

@@ -11,7 +11,7 @@ import collections
 import json
 import sys
 
-from spine_layers import R, SEATS, imported_layers
+from spine_layers import SEATS, R, imported_layers
 
 OUT = R / "docs/spine/spine.json"
 SOURCES = [
