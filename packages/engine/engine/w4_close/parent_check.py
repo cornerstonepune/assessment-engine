@@ -23,7 +23,8 @@ BANNED = (
 # improving "now secure", which no check could hold the summary to
 NEARLY = re.compile(r"\b(nearly|almost|not yet)\b", re.IGNORECASE)
 # v10: "has mastered two-digit subtraction", said of a skill only improving — mastery is a state as secure is
-SECURE = re.compile(r"\b(secure(ly)?|master(s|ed|y|ing)?)\b", re.IGNORECASE)
+# v11: "is ready to move forward in most areas" — whether a child moves on is the engine's plan, on the page
+SECURE = re.compile(r"\b(secure(ly)?|master(s|ed|y|ing)?|ready (to|for))\b", re.IGNORECASE)
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
 # v8: "earlier in the month" — any calendar span said of the answers is a guess at them
 WHEN = re.compile(
