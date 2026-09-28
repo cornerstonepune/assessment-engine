@@ -356,3 +356,24 @@ def test_what_the_v4_eval_on_live_found_is_caught(conn, child):
         == []
     )
     assert said(at_home=["Count in tens up to a hundred together, with spoons."]) == []
+
+
+def test_what_the_v5_eval_on_live_found_is_read_right_and_next_is_never_the_models(conn, child):
+    """2026-09-28, v5 on live, 8 of 10: "ten, twenty, thirty" read as 60 and "one ten, two tens" as 13 (the check was
+    wrong, not the words); "[child become" let through; and "secure already" written up as "still practising"."""
+    assert P.numbers_in("count to ten, twenty, thirty and beyond")[1] == {10, 20, 30}
+    assert P.numbers_in("'one ten, two tens, three tens'")[1] == {1, 10, 2, 3}
+    assert P.numbers_in("twenty-three, then four hundred and fifty-six")[1] == {23, 456}
+    f = P.facts(conn, child)
+    assert any(
+        "a bracket" in p for p in P.check(f, {**_good(f), "summary": "[child become sure of it, [child]."})
+    )
+
+    seen = []
+
+    def ask(conn, purpose, variables, meta=None, version=None):
+        seen.append(variables["facts"])
+        return _good(variables["facts"])
+
+    P.draft(conn, child, ask=ask)
+    assert "next" not in seen[0], "what comes next is said by code on the page, never by the model"

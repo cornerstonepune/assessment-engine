@@ -156,7 +156,10 @@ test("a parent reads a letter with the child's name, the counts beside the words
   await expect(letter.getByRole("region", { name: "At home" })).toContainText(
     "ten spoons",
   );
-  await expect(letter).toContainText("13 answers, each checked by an educator");
+  // from the rows, not a constant: the out-of-date test below signs one more off each run (evidence is append-only)
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from evidence_event where child_id = ${id}::uuid and confirmed_by is not null`;
+  await expect(letter).toContainText(`${n} answers, each checked by an educator`);
   // never a code, never "teacher"
   await expect(letter).not.toContainText(
     /\b(R\d{1,2}|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/,
