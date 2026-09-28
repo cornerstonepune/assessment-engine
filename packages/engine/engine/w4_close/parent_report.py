@@ -24,7 +24,8 @@ IMPROVED_BY = (
 )
 
 SIGNED = """
-select e.placed_rung as rung, e.correct, e.observed_at, coalesce(ir.working_shown, 'none') as working
+select e.id, e.skill_code, e.placed_rung as rung, e.correct, e.observed_at, ir.capture_id as paper,
+       coalesce(ir.working_shown, 'none') as working
 from evidence_placed e
 left join item_result ir on ir.id = e.item_result_id
 left join capture c on c.id = ir.capture_id
@@ -75,6 +76,28 @@ def _states(conn, child_id, state):
     }
 
 
+def _not_yet(conn, rows):
+    """{rung: why it is not secure yet}, as the graph decides it: a skill is secure only once it holds on
+    `state.min_observers` papers. v7 on live wrote "nearly secure ... got 14 of 14 right" with no reason, which reads to
+    a parent as a contradiction."""
+    row = conn.execute("select value from threshold where key = 'state.min_observers'").fetchone()
+    need = row["value"] if row else 2
+    papers = {}
+    for r in rows:
+        papers.setdefault((r["rung"], r["skill_code"]), set()).add(r["paper"] or r["id"])
+    out = {}
+    for (rung, _), p in papers.items():
+        out[rung] = min(out.get(rung, len(p)), len(p))
+    return {
+        rung: "answered on one paper so far: secure once it holds on another"
+        if n == 1
+        else "answered on fewer papers than secure needs: secure once it holds on another"
+        if n < need
+        else "not yet right often enough to be secure"
+        for rung, n in out.items()
+    }
+
+
 def _mistake(f, what):
     ex = f["example"]
     return {
@@ -108,8 +131,9 @@ def facts(conn, child_id):
         _skill(by_code[code], right=right, answered=n, ready_to_move_up=code in stretch)
         for code, (right, n) in strong.items()
     ]
+    why = _not_yet(conn, rows)
     nearly = [
-        _skill(sets[r], right=right, answered=n)
+        _skill(sets[r], right=right, answered=n, not_yet=why.get(r, "not yet secure"))
         for r, (right, n) in _states(conn, child_id, "practising").items()
         if r in sets and sets[r]["code"] not in strong and n >= 3 and right / n >= NEARLY
     ]

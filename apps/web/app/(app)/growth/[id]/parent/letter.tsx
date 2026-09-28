@@ -16,6 +16,7 @@ type Skill = {
   earlier?: string;
   recent?: string;
   ready_to_move_up?: boolean;
+  not_yet?: string;
 };
 export type Facts = {
   grade: string;
@@ -179,6 +180,11 @@ export function Letter({
                       {s?.ready_to_move_up ? (
                         <span className="pill pill-neem ml-2 align-middle">
                           ready for the next step
+                        </span>
+                      ) : null}
+                      {s?.not_yet ? (
+                        <span className="pill pill-bamboo ml-2 align-middle">
+                          nearly secure
                         </span>
                       ) : null}
                       {s?.recent ? (
