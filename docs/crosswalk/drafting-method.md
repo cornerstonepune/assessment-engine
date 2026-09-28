@@ -91,20 +91,25 @@ gets familiar with, borrow, teacher. What a child "understands" cannot be seen; 
 
 ## What code checks, so nobody has to
 
-The drafts go through `python3 research/crosswalk_sample.py`, which refuses a draft when:
+`python3 research/crosswalk_build.py` checks every draft (the checks are in `research/crosswalk_drafts.py`, and the
+words above are read from this file). It refuses a draft when:
 - an official statement it cites does not exist, or sits outside the step's age by more than a year;
 - a relation is not one of the four, or a reason is empty;
 - an objective has, for NCF-SE or for Cambridge, neither a statement nor a reason;
 - a sentence begins with a word not on the list, uses a word that is never used, or is over the length;
 - the outcome lacks a line for any level of the scale;
 - a skill set or a capability does not exist;
-- the same link appears twice.
+- the same link appears twice;
+- a Cambridge objective of the strand, at the step's age or a year younger, is neither aligned nor listed as not
+  covered.
 
 ## What the signatory sees
 
-One row per claim: the school's objective, what NCF-SE, NCERT and Cambridge say (word for word, with page), the
-relation and the reason, what we say, and the outcome with its four lines. Her columns are **Decision** (Approve,
-Change, Reject) and **Comment**. Only a person's decision makes a claim the school's word. A draft that nobody
+One row per objective: the school's title, what NCF-SE, NCERT and Cambridge say (word for word, with page), the
+relation and the reason, what we say, the capability and the skill sets. A decision on the row decides every claim it
+shows. Then one row for the outcome, one for each rubric line, and one for each statement not covered. Her columns
+are **Decision** (Approve, Change, Reject) and **Comment** (`research/crosswalk_sheet.py`, read back by
+`research/crosswalk_decisions.py`). Only a person's decision makes a claim the school's word. A draft that nobody
 decides counts for nothing.
 
 ## The output, exactly
