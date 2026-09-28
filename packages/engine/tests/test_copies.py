@@ -6,6 +6,7 @@ a school scanner hands them over (`test_sorting._scanned`), and the reader is st
 so the test is about which child each copy lands on and how it is marked, not about handwriting.
 """
 
+import json
 import os
 import uuid
 
@@ -217,3 +218,31 @@ def test_a_copy_with_no_kept_pdf_is_read_in_the_layout_its_page_was_printed_in(
     scan = _scanned([pdf], tmp_path / "class.pdf")
 
     assert copies._as_printed(conn, code, copies._cut(scan, [1], "copy01.pdf")) == pdf
+
+
+def test_a_childs_kept_pdf_that_records_no_boxes_gives_way_to_the_layout_the_page_matches(
+    tmp_path, monkeypatch
+):
+    """23 Sep, R8-H01 copies 07 and 08: each was printed for its child and that PDF was kept — but drawn before the
+    renderer recorded where its boxes are. Read against it, the copy had no boxes to read in and fell back to the
+    old reader, which took 66 from the working for a child who wrote 34. Spare copies of the same sheet, with no
+    kept PDF, were read in their boxes (goals/s18). A kept PDF is used only when it says where its boxes are."""
+    bare = tmp_path / "printed-for-child.pdf"
+    bare.write_bytes(b"%PDF")
+    bare.with_suffix(".key.json").write_text(json.dumps({"items": []}))
+    monkeypatch.setattr(copies, "_as_printed", lambda conn, code, cut: "the layout the page matches")
+    assert (
+        copies._read_from(None, "R8-H01", {"pdf_path": str(bare)}, "cut.pdf") == "the layout the page matches"
+    )
+
+    boxed = tmp_path / "printed-with-boxes.pdf"
+    boxed.write_bytes(b"%PDF")
+    boxed.with_suffix(".key.json").write_text(
+        json.dumps({"geometry": [{"page": 1, "item": "x", "kind": "digit"}]})
+    )
+    assert copies._read_from(None, "R8-H01", {"pdf_path": str(boxed)}, "cut.pdf") == str(boxed)
+    assert copies._read_from(None, "R8-H01", None, "cut.pdf") == "the layout the page matches"
+    assert (
+        copies._read_from(None, "R8-H01", {"pdf_path": str(tmp_path / "gone.pdf")}, "c")
+        == "the layout the page matches"
+    )

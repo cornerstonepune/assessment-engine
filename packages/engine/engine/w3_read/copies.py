@@ -142,6 +142,14 @@ def _as_printed(conn, code, cut):
     return boxes.as_printed(list(render_pdf.photos(cut)), drawn)
 
 
+def _read_from(conn, code, mine, cut):
+    """The PDF a copy is read against: the one printed for its child, where that file is kept and records where its
+    boxes are; else the layout its pages match (`_as_printed`). A child's PDF drawn before the renderer recorded its
+    boxes (23 Sep) would have the copy read as an old paper, numbers taken from the working."""
+    kept = mine and mine["pdf_path"] and Path(mine["pdf_path"]).exists() and _geometry(mine["pdf_path"])
+    return mine["pdf_path"] if kept else _as_printed(conn, code, cut)
+
+
 def _child(conn, section, who, actor):
     """A first name, or a roll number where the name on the page is unclear."""
     if not who.isdigit():
@@ -259,11 +267,8 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
                 {**row, "skipped": True, "why": "printed with no child's code; say whose it is to read it"}
             )
             continue
-        kept = mine and mine["pdf_path"] and Path(mine["pdf_path"]).exists()
         cut = _cut(scan, copy["pages"], name)
-        template, by_key, unread = paper(
-            conn, code, mine["pdf_path"] if kept else _as_printed(conn, code, cut)
-        )
+        template, by_key, unread = paper(conn, code, _read_from(conn, code, mine, cut))
         if mine:
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
         s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))
