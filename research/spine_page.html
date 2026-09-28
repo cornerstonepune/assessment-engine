@@ -3,9 +3,10 @@
 <style>
 :root{--bg:#FAFAF6;--ink:#17211C;--muted:#5E6B65;--line:#D8DED8;--panel:#F1F4F0;--panel2:#E6ECE6;--accent:#0E6B67;--focus:#0E6B67;
  --word:#6E3B66;--capability:#0E6B67;--behaviour:#2F6B2A;--goal:#8A5A12;--competency:#A8661A;--outcome:#1F5FA8;--unit:#3E6FB0;--skill:#7A2E2E;--rung:#7A2E2E;--grade:#4A5560;--stage:#4A5560;--subject:#4A5560;--platform:#5C6B2A;
+ --m-concept:#184f95;--m-practice:#3987e5;--m-check:#9ec5f4;--m-application:#1baf7a;--m-arts:#e87ba4;--m-sport:#eda100;--m-community:#4a3aa7;--t-concept:#fff;--t-practice:#fff;--t-check:#17211C;--t-application:#10231b;--t-arts:#2a1320;--t-sport:#2a1d00;--t-community:#fff;--good:#0a7d0a;--warn:#946300;--bad:#b4471f;
  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A;--m-concept:#9ec5f4;--m-practice:#3987e5;--m-check:#1c5cab;--m-application:#199e70;--m-arts:#d55181;--m-sport:#c98500;--m-community:#9085e9;--t-concept:#0F1513;--t-practice:#fff;--t-check:#fff;--t-application:#07140f;--t-arts:#fff;--t-sport:#1a1200;--t-community:#0F1513;--good:#4cc34c;--warn:#e0a526;--bad:#ec835a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0F1513;--ink:#E6EBE7;--muted:#9AA8A1;--line:#2A3430;--panel:#161E1B;--panel2:#1E2925;--accent:#55B8B2;--focus:#55B8B2;--word:#C58BBB;--capability:#55B8B2;--behaviour:#8CC98A;--goal:#E0B36A;--competency:#E1A75C;--outcome:#7FB0F0;--unit:#8FB8F5;--skill:#E08585;--rung:#E08585;--grade:#A9B4BC;--stage:#A9B4BC;--subject:#A9B4BC;--platform:#B9C97A;--m-concept:#9ec5f4;--m-practice:#3987e5;--m-check:#1c5cab;--m-application:#199e70;--m-arts:#d55181;--m-sport:#c98500;--m-community:#9085e9;--t-concept:#0F1513;--t-practice:#fff;--t-check:#fff;--t-application:#07140f;--t-arts:#fff;--t-sport:#1a1200;--t-community:#0F1513;--good:#4cc34c;--warn:#e0a526;--bad:#ec835a}
 *{box-sizing:border-box;min-width:0}
 .wrap,.cols>*,.col,.grp,.row,.focus{max-width:100%}
 .row .l,.focus .lab,.focus .txt,.meta,footer,.mono{overflow-wrap:anywhere}
@@ -99,9 +100,30 @@ details.notes{margin-top:18px;border:1px solid var(--line);border-radius:8px;pad
 details.notes summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:14px}
 details.notes ul{margin:8px 0 0;padding-left:18px;font-size:13px}
 details.notes li{margin:4px 0}
+/* plan */
+.pl-h{font-family:var(--display);font-size:18px;margin:26px 0 8px}
+.pl-scen{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px}.pl-scen button[aria-pressed="true"],.pl-g[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pl-row{display:grid;grid-template-columns:86px minmax(0,1fr) minmax(0,250px);gap:10px;align-items:center;margin:6px 0}
+@media (max-width:760px){.pl-row{grid-template-columns:74px minmax(0,1fr)}.pl-load{grid-column:2}}
+.pl-g{padding:4px 8px;font-size:13px}
+.pl-bar{display:flex;gap:2px;height:28px;border-radius:6px;overflow:hidden;background:var(--panel2)}.pl-bar.small{height:24px}
+.pl-seg{display:flex;align-items:center;justify-content:center;font:500 11px var(--mono);white-space:nowrap;overflow:hidden}
+.m-concept{background:var(--m-concept);color:var(--t-concept)}.m-practice{background:var(--m-practice);color:var(--t-practice)}.m-check{background:var(--m-check);color:var(--t-check)}.m-application{background:var(--m-application);color:var(--t-application)}.m-arts{background:var(--m-arts);color:var(--t-arts)}.m-sport{background:var(--m-sport);color:var(--t-sport)}.m-community{background:var(--m-community);color:var(--t-community)}
+.pl-load{font-size:12.5px;color:var(--muted)}.pl-load b{color:var(--ink);font-variant-numeric:tabular-nums}
+.pl-legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+.pl-leg{display:grid;grid-template-columns:14px 1fr;gap:3px 8px;font-size:13px;align-items:start}.pl-what,.pl-caps{grid-column:2;color:var(--muted)}.pl-caps{display:flex;flex-wrap:wrap;gap:4px}
+.pl-sw{width:14px;height:14px;border-radius:3px;margin-top:2px}.pl-cap{font-size:11px;padding:1px 6px;color:var(--capability);border-color:currentColor}
+.pl-says{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:10px;margin:14px 0}.pl-card{background:var(--panel);border-radius:8px;padding:12px 14px}.pl-card p{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.pl-an{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:10px;align-items:center;margin:6px 0}@media (max-width:760px){.pl-an{grid-template-columns:minmax(0,1fr)}}
+.pl-scroll{overflow-x:auto;margin:6px 0}.pl-t,.pl-f{border-collapse:collapse;width:100%;font-size:13px}.pl-f{min-width:780px}
+.pl-t th,.pl-t td,.pl-f th,.pl-f td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:middle}.pl-t th,.pl-f th{font-weight:600;color:var(--muted);font-size:12px}
+.pl-t .num{text-align:right;font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pl-f th small{display:block;font-weight:400}.pl-f td{padding:3px;text-align:center}.pl-f td:first-child,.pl-f th:first-child{text-align:left;white-space:nowrap;padding:6px 8px}
+.pl-cell{width:100%;min-width:30px;padding:4px 0;font-family:var(--mono);font-size:12px;background:var(--panel)}.pl-cell.on{background:var(--ink);color:var(--bg)}.pl-check td{color:var(--muted)}
+.pl-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:3px;vertical-align:middle}.ok{color:var(--good)}.mid{color:var(--warn)}.low{color:var(--bad)}
 </style>
 <div class="wrap">
-<div class="top"><h1>Cornerstone Spine</h1><div class="views"><button id="v-map" aria-pressed="true">Map</button><button id="v-tree">Tree</button><button id="v-grade">By grade</button></div><div style="position:relative;flex:1 1 220px"><input id="q" placeholder="find anything: a grade, a word, a skill, a competency…" aria-label="Search"><div id="results" class="search" hidden></div></div></div>
+<div class="top"><h1>Cornerstone Spine</h1><div class="views"><button id="v-map" aria-pressed="true">Map</button><button id="v-tree">Tree</button><button id="v-grade">By grade</button><button id="v-plan">Plan</button></div><div style="position:relative;flex:1 1 220px"><input id="q" placeholder="find anything: a grade, a word, a skill, a competency…" aria-label="Search"><div id="results" class="search" hidden></div></div></div>
 
 <section id="map">
 <p class="lede">The school's spine: three words at the top, the engine's skills at the bottom, and every layer between clickable. Click a layer to list it, or start from a word, a capability or a grade.</p>
@@ -122,6 +144,22 @@ details.notes li{margin:4px 0}
 <section id="tree" hidden>
 <p class="lede">The same spine as a tree. Click a line to open what sits under it.</p>
 <div class="tree" id="treeroot"></div>
+</section>
+
+<section id="plan" hidden>
+<p class="lede">How the syllabus becomes a school year: the day by how children learn, what each grade has to cover, and how it is cut into fortnights. The day and the modes are the school's proposal; NCF-SE's numbers are checked on their page.</p>
+<div class="pl-scen" id="pl-scen"></div>
+<h2 class="pl-h">The day, by how children learn · minutes a day</h2>
+<div id="pl-comp"></div>
+<div class="pl-legend" id="pl-legend"></div>
+<div class="pl-says" id="pl-says"></div>
+<h2 class="pl-h">Inside an academic hour</h2>
+<div id="pl-anat"></div>
+<h2 class="pl-h" id="pl-gtitle">Grade 3: hours and fortnights</h2>
+<div id="pl-hours"></div>
+<div id="pl-fort"></div>
+<div id="pl-cell"></div>
+<div id="pl-src"></div>
 </section>
 
 <section id="grade" hidden>
@@ -146,9 +184,9 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const chip=(k,t)=>`<span class="chip k-${k}">${esc(t||LAYER[k]||k)}</span>`;
 function sub(n){const p=[];if(n.stage)p.push(n.stage);if(n.grade)p.push(n.grade.replace('G','Grade '));if(n.bands)p.push(n.bands.join(' '));if(n.subject&&n.layer!=='subject')p.push(n.subject.replace(/-/g,' '));if(n.area)p.push(n.area);if(n.capture)p.push(n.capture.replace('_',' '));if(n.from_age)p.push('from age '+n.from_age);if(n.domain)p.push(n.domain);if(n.code)p.push(n.code);return p.join(' · ')}
 let trail=[];
-const views=['map','tree','grade'];
+const views=['map','tree','grade','plan'];
 function show(v){views.concat(['explore']).forEach(x=>document.getElementById(x).hidden=(x!==v));views.forEach(x=>{const b=document.getElementById('v-'+x);if(b)b.setAttribute('aria-pressed',String(x===v))});window.scrollTo({top:0})}
-document.getElementById('v-map').onclick=()=>show('map');document.getElementById('v-tree').onclick=()=>{buildTree();show('tree')};document.getElementById('v-grade').onclick=()=>{show('grade');if(!document.getElementById('gview').innerHTML)pickGrade('G3')};
+document.getElementById('v-map').onclick=()=>show('map');document.getElementById('v-tree').onclick=()=>{buildTree();show('tree')};document.getElementById('v-grade').onclick=()=>{show('grade');if(!document.getElementById('gview').innerHTML)pickGrade('G3')};document.getElementById('v-plan').onclick=()=>{show('plan');if(window.renderPlan)renderPlan()};
 // ---- map
 const ORDER=['word','capability','behaviour','competency','outcome','skill'];
 const DESC={word:'what the graduate is',capability:'from the graduate profile',behaviour:'one occasion an educator sees and records',competency:'NCF-SE 2023, per subject per stage (plus '+(D.layers.goal||0)+' curricular goals)',outcome:'NCERT, per class 1–10, and '+(D.layers.unit||0)+' school units for Grades 1–4',skill:"the school's skill map; "+(D.layers.rung||0)+' rungs the worksheets test'};
@@ -170,7 +208,7 @@ document.body.addEventListener('click',e=>{const m=e.target.closest('[data-more]
 function focus(id){const n=N[id];if(!n)return;document.getElementById('neuron').hidden=false;const i=trail.indexOf(id);if(i>=0)trail=trail.slice(0,i+1);else trail.push(id);if(trail.length>12)trail=trail.slice(-12);
  document.getElementById('trail').innerHTML=trail.map((t,k)=>`${k?'<span class="sep">›</span>':''}<button data-go="${t}">${esc(N[t].label.length>42?N[t].label.slice(0,40)+'…':N[t].label)}</button>`).join('');
  const chips=[chip(n.layer)];if(n.stage)chips.push(chip('stage',n.stage));if(n.grade)chips.push(chip('grade',n.grade.replace('G','Grade ')));if(n.subject&&n.layer!=='subject')chips.push(chip('subject',n.subject.replace(/-/g,' ')));if(n.area)chips.push(chip('subject',n.area));if(n.from_age)chips.push(chip('grade','from age '+n.from_age));if(n.council)chips.push(chip('behaviour',n.council));
- let extra='';if(n.counter)extra+=`<div class="meta" style="margin-top:6px"><b>Not evidence when:</b> ${esc(n.counter)}</div>`;if(n.capture)extra+=`<div class="meta">Captured as ${esc(n.capture.replace('_',' '))} · in ${esc(n.setting)}</div>`;if(n.samples)extra+=`<div class="meta" style="margin-top:6px"><b>${n.objectives} objectives, such as:</b> ${esc(n.samples.join(' · '))}</div>`;if(n.why)extra+=`<div class="meta" style="margin-top:6px"><b>No competency:</b> ${esc(n.why)}</div>`;if(n.relabelled)extra+=`<div class="meta" style="margin-top:6px"><b>Relabelled:</b> ${esc(n.relabelled)}</div>`;if(n.src)extra+=`<div class="mono" style="margin-top:6px">source: ${esc(n.src)}</div>`;
+ let extra='';if(n.counter)extra+=`<div class="meta" style="margin-top:6px"><b>Not evidence when:</b> ${esc(n.counter)}</div>`;if(n.capture)extra+=`<div class="meta">Captured as ${esc(n.capture.replace('_',' '))} · in ${esc(n.setting)}</div>`;if(n.samples)extra+=`<div class="meta" style="margin-top:6px"><b>${n.objectives} objectives, such as:</b> ${esc(n.samples.join(' · '))}</div>`;if(n.why)extra+=`<div class="meta" style="margin-top:6px"><b>No competency:</b> ${esc(n.why)}</div>`;if(n.relabelled)extra+=`<div class="meta" style="margin-top:6px"><b>Relabelled:</b> ${esc(n.relabelled)}</div>`;if(n.src)extra+=`<div class="mono" style="margin-top:6px">source: ${esc(n.src)}</div>`;if(window.PLAN_WHERE){const w=PLAN_WHERE(id);if(w)extra+=`<div class="meta" style="margin-top:6px"><b>In the plan:</b> ${esc(w)}</div>`}
  document.getElementById('focus').innerHTML=`<div class="chips">${chips.join('')}</div>${n.text?`<div class="txt">${esc(n.text)}</div>`:''}${extra}<div class="mono" style="margin-top:6px">${esc(n.id)}</div>`;
  const gin=groupsOf(IN[id]||[],'from',INW),gout=groupsOf(OUT[id]||[],'to',OUTW);
  document.getElementById('in').innerHTML=gin.map(x=>grpX(x,'in')).join('')||'<div class="meta">nothing</div>';document.getElementById('out').innerHTML=gout.map(x=>grpX(x,'out')).join('')||'<div class="meta">nothing</div>';
@@ -231,3 +269,6 @@ document.getElementById('foot').innerHTML=`Built ${esc(D.built)} from: ${D.sourc
 // deep link
 const h=(location.hash||'').slice(1);if(h&&N[h])focus(h);
 </script>
+<script id="plan-data" type="application/json">__PLAN__</script>
+<script>__PLANJS__
+{const hh=(location.hash||'').slice(1);if(hh==='plan'){show('plan');renderPlan()}else if(hh&&N[hh])focus(hh)}</script>

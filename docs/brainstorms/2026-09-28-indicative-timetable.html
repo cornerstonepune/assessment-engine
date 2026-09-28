@@ -1,0 +1,819 @@
+<title>Cornerstone Grade 1–7 Timetable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --ink:#14202c; --muted:#556171; --faint:#8a95a3; --rule:#dde2e8; --soft:#eceff3;
+  --k-core:#2a78d6; --k-lang:#eb6834; --k-studio:#1baf7a; --k-move:#eda100; --k-care:#e87ba4; --k-brk:#c9d0d9;
+  --bar:#2a78d6; --good:#0ca30c; --warn:#b77f00; --serious:#c75a2e;
+  --tint:22%;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#101317; --surface:#181c21; --ink:#edf1f5; --muted:#a7b1bd; --faint:#7d8896; --rule:#2a3139; --soft:#20262d;
+    --k-core:#3987e5; --k-lang:#d95926; --k-studio:#199e70; --k-move:#c98500; --k-care:#d55181; --k-brk:#3a424c;
+    --bar:#3987e5; --good:#2fb82f; --warn:#e0a526; --serious:#ec835a; --tint:34%;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101317; --surface:#181c21; --ink:#edf1f5; --muted:#a7b1bd; --faint:#7d8896; --rule:#2a3139; --soft:#20262d;
+  --k-core:#3987e5; --k-lang:#d95926; --k-studio:#199e70; --k-move:#c98500; --k-care:#d55181; --k-brk:#3a424c;
+  --bar:#3987e5; --good:#2fb82f; --warn:#e0a526; --serious:#ec835a; --tint:34%;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px;display:grid;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5vw,44px);font-weight:800;line-height:1.08}
+h2{font-size:clamp(22px,3.2vw,28px);font-weight:800}
+h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:68ch}
+.eyebrow{font:500 12px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lede{color:var(--muted);font-size:17px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--ink);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+header{display:grid;gap:12px}
+section{display:grid;gap:16px}
+.sub{color:var(--muted);font-size:15px}
+
+/* the year in four numbers */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.tile .v{font:800 clamp(26px,4vw,36px)/1 var(--display);font-variant-numeric:tabular-nums}
+.tile .k{font-size:13px;color:var(--muted)}
+.tile .n{font:500 12px/1.3 var(--mono);color:var(--faint)}
+.tile.lead{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tile.lead .k,.tile.lead .n{color:color-mix(in srgb,var(--surface) 72%,var(--ink))}
+.verdict{font-size:18px;font-weight:600;max-width:72ch}
+
+/* levers */
+.levers{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 20px}
+.lever{display:grid;gap:4px}
+.lever label{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.lever label output{font:500 13px var(--mono);color:var(--ink)}
+.lever input[type=range]{width:100%;accent-color:var(--k-core)}
+.lever select{font:inherit;font-size:15px;padding:5px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:15px}
+.toggle input{width:18px;height:18px;accent-color:var(--k-core)}
+.levers .row-end{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+button{font:600 14px var(--body);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--k-core);outline-offset:2px}
+
+/* the day: three bell columns on one axis */
+.dayboard{display:grid;grid-template-columns:52px repeat(3,minmax(0,1fr));gap:8px;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 12px 16px}
+.colhead{display:grid;gap:2px;padding-bottom:8px;min-height:52px}
+.colhead b{font:600 15px var(--display)}
+.colhead span{font-size:12px;color:var(--muted)}
+.track{position:relative;border-left:1px dashed var(--rule)}
+.axis{position:relative}
+.tick{position:absolute;right:6px;transform:translateY(-50%);font:400 11px var(--mono);color:var(--faint)}
+.gridline{position:absolute;left:0;right:0;border-top:1px solid var(--soft)}
+.blk{position:absolute;left:4px;right:0;border-radius:6px;padding:3px 7px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;font-size:13px;line-height:1.2;border:1px solid transparent}
+.blk .t{font:500 10.5px var(--mono);color:var(--muted)}
+.blk b{font-weight:600}
+.blk small{font-size:11.5px;color:var(--muted)}
+.blk.brk{background:repeating-linear-gradient(135deg,var(--soft) 0 6px,transparent 6px 12px);border-color:var(--rule);color:var(--muted);font-size:12px}
+.k-core{background:color-mix(in srgb,var(--k-core) var(--tint),var(--surface));border-color:color-mix(in srgb,var(--k-core) 55%,var(--surface))}
+.k-lang{background:color-mix(in srgb,var(--k-lang) var(--tint),var(--surface));border-color:color-mix(in srgb,var(--k-lang) 55%,var(--surface))}
+.k-studio{background:color-mix(in srgb,var(--k-studio) var(--tint),var(--surface));border-color:color-mix(in srgb,var(--k-studio) 55%,var(--surface))}
+.k-move{background:color-mix(in srgb,var(--k-move) var(--tint),var(--surface));border-color:color-mix(in srgb,var(--k-move) 55%,var(--surface))}
+.k-care{background:color-mix(in srgb,var(--k-care) var(--tint),var(--surface));border-color:color-mix(in srgb,var(--k-care) 55%,var(--surface))}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.leg{display:grid;grid-template-columns:14px 1fr;gap:4px 10px;align-items:start;font-size:14px}
+.leg .sw{width:14px;height:14px;border-radius:4px;margin-top:3px}
+.leg .caps{grid-column:2;font-size:12.5px;color:var(--muted)}
+.note{border-left:3px solid var(--k-core);padding:2px 0 2px 12px;font-size:15px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* the week */
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:separate;border-spacing:4px;width:100%;min-width:640px}
+th{font:600 13px var(--body);color:var(--muted);text-align:left;padding:6px 8px}
+td{border-radius:6px;padding:7px 9px;font-size:13.5px;line-height:1.25;vertical-align:top;border:1px solid transparent}
+td.time{font:500 12px var(--mono);color:var(--muted);white-space:nowrap;width:1%;border:none}
+td.time i{display:block;font-style:normal;color:var(--faint)}
+td.brk{background:repeating-linear-gradient(135deg,var(--soft) 0 6px,transparent 6px 12px);color:var(--muted);text-align:center;border-color:var(--rule)}
+td small{display:block;color:var(--muted);font-size:12px}
+.weeksum{display:flex;flex-wrap:wrap;gap:8px}
+
+/* coverage bars */
+.cov{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
+.cov-row{display:grid;grid-template-columns:minmax(92px,150px) 1fr minmax(118px,auto);gap:12px;align-items:center;font-size:14px}
+.cov-row .name small{display:block;color:var(--muted);font-size:12px}
+.barbox{position:relative;height:18px;background:var(--soft);border-radius:4px}
+.barbox .fill{position:absolute;left:0;top:3px;bottom:3px;background:var(--bar);border-radius:0 4px 4px 0}
+.barbox .ncf{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.cov-row .val{font:500 13px var(--mono);text-align:right;white-space:nowrap}
+.st{font:600 12px var(--body);margin-left:6px}
+.st.good{color:var(--good)} .st.warn{color:var(--warn)} .st.serious{color:var(--serious)}
+.cov-key{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);align-items:center}
+.cov-key span{display:inline-flex;align-items:center;gap:6px}
+.cov-key .sfill{width:22px;height:10px;background:var(--bar);border-radius:2px}
+.cov-key .stick{width:2px;height:14px;background:var(--ink)}
+td.o{background:var(--surface);border:1px solid var(--rule)}
+td.o b{font:600 16px var(--mono)}
+td.o.low b{color:var(--serious)}
+td.o.none{color:var(--faint);border-style:dashed}
+
+/* the year */
+.yearbar{display:grid;grid-template-columns:repeat(52,minmax(0,1fr));gap:2px;height:34px}
+.yearbar div{border-radius:2px}
+.w-school{background:color-mix(in srgb,var(--k-core) 55%,var(--surface))}
+.w-diwali{background:var(--k-move)}
+.w-summer{background:var(--k-lang)}
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));font:500 11px var(--mono);color:var(--faint)}
+.sum{display:grid;gap:4px;font:400 14px var(--mono);font-variant-numeric:tabular-nums}
+.sum b{font-weight:500}
+.sum .n{color:var(--muted);font-family:var(--body)}
+
+/* what it means */
+.means{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mean{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.mean h3{font-size:16px}
+.mean p{font-size:14.5px;color:var(--muted)}
+
+/* sources */
+details{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+summary{cursor:pointer;font-weight:600}
+.srcs{display:grid;gap:10px;margin-top:12px}
+.src{display:grid;gap:3px;border-top:1px solid var(--soft);padding-top:10px;font-size:14px}
+.src q{color:var(--muted)}
+.src .where{font:500 12px var(--mono);color:var(--faint)}
+ul.plain{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14.5px}
+
+@media (max-width:760px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dayboard{grid-template-columns:40px repeat(3,minmax(0,1fr));gap:5px;padding:12px 8px}
+  .blk{padding:2px 4px;font-size:11.5px;left:2px}
+  .blk small,.blk .t{display:none}
+  .tick{font-size:10px;right:3px}
+  .cov-row{grid-template-columns:1fr minmax(96px,auto);}
+  .cov-row .barbox{grid-column:1 / -1;order:3}
+}
+@media (prefers-reduced-motion:no-preference){.barbox .fill{transition:width .35s ease}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Cornerstone · Grades 1–7 · proposal for discussion · 28 Sep 2026</div>
+    <h1>A school day from 8:30 to 2:30: what it holds, and what it leaves out</h1>
+    <p class="lede">An indicative day, week and year for Grades 1–7, measured against the NCF-SE 2023 time plan. The morning builds mastery and the afternoon applies it.</p>
+    <div class="chips">
+      <span class="chip"><span class="dot" style="background:var(--good)"></span><b id="checked">–</b></span>
+      <span class="chip"><span class="dot" style="background:var(--k-care)"></span>The timetable is the school's proposal: not official, not agreed</span>
+      <span class="chip"><span class="dot" style="background:var(--faint)"></span>Cambridge lines not counted yet</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-year">
+    <h2 id="h-year">The year, in teaching hours</h2>
+    <div class="tiles">
+      <div class="tile lead"><div class="k">Teaching hours a year</div><div class="v mono" id="t-hours">–</div><div class="n" id="t-hours-n">–</div></div>
+      <div class="tile"><div class="k">NCF-SE plans</div><div class="v mono" id="t-ncf">955</div><div class="n">hours a year, Grades 3–8</div></div>
+      <div class="tile"><div class="k">Teaching days</div><div class="v mono" id="t-days">–</div><div class="n" id="t-days-n">NCF-SE: 180</div></div>
+      <div class="tile"><div class="k">Teaching minutes a day</div><div class="v mono" id="t-min">–</div><div class="n" id="t-min-n">–</div></div>
+    </div>
+    <p class="verdict" id="verdict">–</p>
+    <div class="levers" role="group" aria-label="Conditions">
+      <div class="lever"><label for="end">Day ends <output id="o-end"></output></label>
+        <select id="end"><option value="870">2:30 pm (the school's plan)</option><option value="900">3:00 pm</option><option value="930">3:30 pm</option></select></div>
+      <div class="lever"><label class="toggle" for="sat"><input type="checkbox" id="sat"> Alternate Saturdays, 8:30–12:30</label>
+        <div class="sub" style="font-size:12.5px">NCF-SE's own model: 5½ days, every other week</div></div>
+      <div class="lever"><label for="tests">Stand-alone test days <output id="o-tests"></output></label><input type="range" id="tests" min="0" max="20" step="1" value="20"></div>
+      <div class="lever"><label for="events">Event days (incl. 10 bagless in Gr 6–7) <output id="o-events"></output></label><input type="range" id="events" min="10" max="20" step="1" value="20"></div>
+      <div class="lever"><label for="summer">Summer break, weeks <output id="o-summer"></output></label><input type="range" id="summer" min="5" max="9" step="1" value="7"></div>
+      <div class="lever"><label for="diwali">Diwali break, weeks <output id="o-diwali"></output></label><input type="range" id="diwali" min="1" max="4" step="1" value="3"></div>
+      <div class="lever"><label for="hols">Weekday holidays <output id="o-hols"></output></label><input type="range" id="hols" min="6" max="18" step="1" value="12"></div>
+      <div class="lever row-end"><button type="button" id="reset">Back to the school's plan</button></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-day">
+    <h2 id="h-day">The day</h2>
+    <p class="sub">Every weekday runs on the same bells. Core learning in the morning, application after lunch, two breaks.</p>
+    <div class="dayboard" id="dayboard"></div>
+    <div class="legend" id="legend"></div>
+    <p class="note" id="fluid"><b>Fluid levels need one rule.</b> Maths and R1 sit at the same hour for every section of a grade, so children can move between level groups without clashing with anything else.</p>
+  </section>
+
+  <section aria-labelledby="h-week">
+    <h2 id="h-week">The week</h2>
+    <div class="tabs" role="tablist" aria-label="Grade band" id="tabs"></div>
+    <div class="scroll"><table id="week" aria-describedby="h-week"></table></div>
+    <div class="weeksum" id="weeksum"></div>
+  </section>
+
+  <section aria-labelledby="h-cov">
+    <h2 id="h-cov">Coverage against NCF-SE</h2>
+    <p class="sub" id="cov-sub">Hours a year per subject, set against NCF-SE's illustrative plan. They change with the conditions above.</p>
+    <div class="cov" id="cov"></div>
+    <h3>Hours for each official outcome, by grade</h3>
+    <p class="sub">NCERT's learning outcomes (2017), counted per grade. Each cell shows our hours per outcome; underneath is what NCF-SE's own hours would give. Red means we give less time per outcome than NCF-SE's plan.</p>
+    <div class="scroll"><table id="outcomes"></table></div>
+  </section>
+
+  <section aria-labelledby="h-cal">
+    <h2 id="h-cal">The calendar</h2>
+    <p class="sub">June to May, as most Indian schools run it: a Diwali break in October–November and a summer break from mid-April.</p>
+    <div>
+      <div class="yearbar" id="yearbar" aria-hidden="true"></div>
+      <div class="months" aria-hidden="true"><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span></div>
+    </div>
+    <div class="sum" id="calsum"></div>
+  </section>
+
+  <section aria-labelledby="h-means">
+    <h2 id="h-means">What the numbers say</h2>
+    <div class="means" id="means"></div>
+  </section>
+
+  <section aria-labelledby="h-src">
+    <h2 id="h-src">Where every number comes from</h2>
+    <details>
+      <summary>Official numbers, each quoted and found on its page (22)</summary>
+      <div class="srcs" id="srcs"></div>
+    </details>
+    <details>
+      <summary>The school's proposal (what is designed, not official)</summary>
+      <ul class="plain">
+        <li>Calendar: Monday to Friday, a 7-week summer break, a 3-week Diwali break and 12 weekday holidays. These are typical of Indian schools; the school's real calendar replaces them.</li>
+        <li>Day: 8:30–2:30 with a 20-minute circle, a 15-minute snack break, a 30-minute lunch and a 10-minute close. That leaves 285 teaching minutes, or 4¾ hours.</li>
+        <li>The block plan and the weekly grids on this page. Grades 1–2 take NCF-SE's daily minutes for R1, R2 and Maths exactly.</li>
+        <li>Longer days go to the afternoon studio. Saturday hours go to clubs, sport, arts and making.</li>
+        <li>Which of the eight capabilities each block mainly builds.</li>
+        <li>R1 is counted as English, since only English outcomes are imported. The R1/R2/R3 choice is still the founders' decision.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Not checked, or not yet counted</summary>
+      <ul class="plain">
+        <li>The RTE Act 2009 sets minimum working days and teaching hours. The official text (India Code) could not be reached on 28 Sep, so no RTE number is used here.</li>
+        <li>Cambridge (IGCSE's family below Grade 9 is Cambridge Primary, Stages 1–6, and Lower Secondary, Stage 7). Its frameworks are not imported: the official copies need the school's Cambridge login. Coverage here is NCERT and NCF-SE only.</li>
+        <li>Maharashtra's rule on teaching Marathi may fix one of R2/R3. Verify before choosing languages.</li>
+      </ul>
+    </details>
+    <p class="sub mono" style="font-size:12.5px">Refresh the official data: python3 research/timetable_data.py</p>
+  </section>
+</div>
+
+<script id="official" type="application/json">
+{
+ "official": {
+  "illustrative": {
+   "key": "illustrative",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 126,
+   "printed_page": 112,
+   "quote": "The specific time allocations described in this section must be seen as illustrative, and the actual time allocations must be conducted by schools, in accordance with their contexts",
+   "value": {}
+  },
+  "hours_are_schools_call": {
+   "key": "hours_are_schools_call",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 127,
+   "printed_page": 113,
+   "quote": "The actual decision on the exact number of working hours would be taken by schools or school systems, and the proportion and rhythm of the illustrative timetable in the NCF could still be held",
+   "value": {}
+  },
+  "art_pe_ve_need_time": {
+   "key": "art_pe_ve_need_time",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 127,
+   "printed_page": 113,
+   "quote": "In this NCF, they need explicit and significant time allocation",
+   "value": {}
+  },
+  "foundational_minutes": {
+   "key": "foundational_minutes",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 129,
+   "printed_page": 115,
+   "quote": "R1 would need 90 minutes every day and R2 would need 60 minutes. Mathematics and numeracy would require 60 minutes a day",
+   "value": {
+    "R1": 90,
+    "R2": 60,
+    "Maths": 60
+   }
+  },
+  "working_days": {
+   "key": "working_days",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 130,
+   "printed_page": 116,
+   "quote": "The annual working year, for schools, has 220 instruction or school-going days after taking into consideration national holidays, term breaks and vacations",
+   "value": {
+    "days": 220
+   }
+  },
+  "assessment_days": {
+   "key": "assessment_days",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 130,
+   "printed_page": 116,
+   "quote": "Of these 220 days, around 20 days may be considered for assessments and other assessment-related activities across stages",
+   "value": {
+    "days": 20
+   }
+  },
+  "event_days": {
+   "key": "event_days",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 130,
+   "printed_page": 116,
+   "quote": "Another 20 days may be set aside for school events and other similar activities",
+   "value": {
+    "days": 20
+   }
+  },
+  "instruction_days": {
+   "key": "instruction_days",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "a safe estimate can be of 180 days of instruction time across these three stages at school",
+   "value": {
+    "days": 180
+   }
+  },
+  "saturdays": {
+   "key": "saturdays",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "the model here has considered five and a half days of school every alternate week only",
+   "value": {}
+  },
+  "weeks_hours": {
+   "key": "weeks_hours",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "a working school year would have around 34 working weeks of around 29 hours of instruction hours every week",
+   "value": {
+    "weeks": 34,
+    "hours_per_week": 29
+   }
+  },
+  "period_minutes": {
+   "key": "period_minutes",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "Class time for all subjects is 40 minutes. Some subjects will require a block period of 80 minutes",
+   "value": {
+    "period": 40,
+    "block": 80
+   }
+  },
+  "breaks": {
+   "key": "breaks",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "A snack break of 15 minutes and a lunch break of 45 minutes has been built in",
+   "value": {
+    "snack": 15,
+    "lunch": 45
+   }
+  },
+  "r1_across_subjects": {
+   "key": "r1_across_subjects",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 131,
+   "printed_page": 117,
+   "quote": "all other Curricular Areas are taught in the language of R1 and so add to the learning of R1",
+   "value": {}
+  },
+  "prep_hours": {
+   "key": "prep_hours",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 132,
+   "printed_page": 118,
+   "quote": "R1+Library 180 270 R2 190 285 Mathematics (Maths) 185 277.5 The World Around Us (TWAU) 200 300 Art Education (Art) 100 150 Physical Education (PE) 100 150",
+   "value": {
+    "R1": 180,
+    "R2": 190,
+    "Maths": 185,
+    "TWAU": 200,
+    "Art": 100,
+    "PE": 100
+   }
+  },
+  "middle_hours": {
+   "key": "middle_hours",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 134,
+   "printed_page": 120,
+   "quote": "R1+Library 65 97.5 R2 70 105 R3 75 112.5 Mathematics (Maths) 115 172.5 Science 160 240 Social Science (SS) 160 240 Art Education (Art) 100 150 Physical Education (PE) 100 150 Vocational Education (VE) 110 165",
+   "value": {
+    "R1": 65,
+    "R2": 70,
+    "R3": 75,
+    "Maths": 115,
+    "Science": 160,
+    "SS": 160,
+    "Art": 100,
+    "PE": 100,
+    "VE": 110
+   }
+  },
+  "bagless_days": {
+   "key": "bagless_days",
+   "doc": "NCF-SE 2023 (NCERT), Part A, Chapter 4",
+   "pdf_page": 135,
+   "printed_page": 121,
+   "quote": "provisions be made in the annual calendar of schools for ten bagless days in the Middle and Secondary Stages",
+   "value": {
+    "days": 10
+   }
+  },
+  "no_science_grades_1_2": {
+   "key": "no_science_grades_1_2",
+   "doc": "NCERT, Learning Outcomes at the Elementary Stage (2017)",
+   "pdf_page": 93,
+   "printed_page": null,
+   "quote": "in classes III to V, it is introduced as a separate curricular area and in I and II, the related concerns are integrated with language and mathematics",
+   "value": {}
+  },
+  "periods_projects": {
+   "key": "periods_projects",
+   "doc": "Cornerstone graduate profile (the school's own design document, September 2026)",
+   "pdf_page": 3,
+   "printed_page": null,
+   "quote": "Periods build capability. Projects integrate capability.",
+   "value": {}
+  },
+  "mastery_time": {
+   "key": "mastery_time",
+   "doc": "Cornerstone graduate profile (the school's own design document, September 2026)",
+   "pdf_page": 3,
+   "printed_page": null,
+   "quote": "protect dedicated mastery time for mathematics, sciences, languages, literature, history, geography and other required disciplines while deliberately creating time for interdisciplinary application",
+   "value": {}
+  },
+  "arc_1_2": {
+   "key": "arc_1_2",
+   "doc": "Cornerstone graduate profile (the school's own design document, September 2026)",
+   "pdf_page": 3,
+   "printed_page": null,
+   "quote": "Grades 1–2 — DISCOVER: curiosity, language, numeracy, observation, imagination, physical and social foundations",
+   "value": {}
+  },
+  "arc_3_5": {
+   "key": "arc_3_5",
+   "doc": "Cornerstone graduate profile (the school's own design document, September 2026)",
+   "pdf_page": 3,
+   "printed_page": null,
+   "quote": "Grades 3–5 — INVESTIGATE: research, measurement, evidence, structured writing, experimentation and collaboration",
+   "value": {}
+  },
+  "arc_6_8": {
+   "key": "arc_6_8",
+   "doc": "Cornerstone graduate profile (the school's own design document, September 2026)",
+   "pdf_page": 3,
+   "printed_page": null,
+   "quote": "Grades 6–8 — APPLY: deeper disciplines plus coding, AI literacy, design, economics, debate and increasingly ambiguous real-world problems",
+   "value": {}
+  }
+ },
+ "counts": {
+  "ncert_outcomes": {
+   "1": {
+    "eng": 15,
+    "math": 8
+   },
+   "2": {
+    "eng": 12,
+    "math": 7
+   },
+   "3": {
+    "eng": 14,
+    "evs": 14,
+    "math": 11
+   },
+   "4": {
+    "eng": 18,
+    "evs": 14,
+    "math": 12
+   },
+   "5": {
+    "eng": 18,
+    "evs": 12,
+    "math": 7
+   },
+   "6": {
+    "eng": 16,
+    "math": 18,
+    "sci": 13,
+    "sst": 25
+   },
+   "7": {
+    "eng": 21,
+    "math": 20,
+    "sci": 15,
+    "sst": 33
+   }
+  },
+  "ncf_competencies": {
+   "foundational": {
+    "foundational": 69
+   },
+   "preparatory": {
+    "language": 26,
+    "mathematics": 19,
+    "art": 35,
+    "world-around-us": 25,
+    "physical-education": 22
+   },
+   "middle": {
+    "language": 34,
+    "mathematics": 30,
+    "science": 27,
+    "social-science": 22,
+    "art": 35,
+    "physical-education": 29,
+    "vocational": 8
+   }
+  }
+ },
+ "checked": "22/22 quotes found word for word on their cited page"
+}
+</script>
+<script>
+(function(){
+const OFF = JSON.parse(document.getElementById('official').textContent || '{}');
+const O = OFF.official || {};
+const val = (k, f, d) => (O[k] && O[k].value && O[k].value[f] != null) ? O[k].value[f] : d;
+const PREP = (O.prep_hours && O.prep_hours.value) || {};
+const MID = (O.middle_hours && O.middle_hours.value) || {};
+const FND = (O.foundational_minutes && O.foundational_minutes.value) || {};
+const NCF_DAYS = val('instruction_days', 'days', 180);
+const COUNTS = (OFF.counts && OFF.counts.ncert_outcomes) || {};
+document.getElementById('checked').textContent = OFF.checked ? 'Official numbers: ' + OFF.checked.replace(' quotes found word for word on their cited page', ' checked on their page') : 'Official data not loaded';
+
+const KINDS = {
+  core:   {label:'Core: mastery in level groups', caps:'Knowledge & academic mastery · Thinking & reasoning'},
+  lang:   {label:'Languages', caps:'Communication & collaboration'},
+  studio: {label:'Studio: application, projects, making', caps:'Creation & problem solving · Learning & agency · Society, ethics & planet · Technology & AI (Gr 6–7)'},
+  move:   {label:'Movement and arts', caps:'Self & relationships · Creation & problem solving'},
+  care:   {label:'Circle and close', caps:'Self & relationships · Learning & agency'},
+  brk:    {label:'Breaks', caps:'Snack and lunch'}
+};
+const D = ['Mon','Tue','Wed','Thu','Fri'];
+// a cell: [text, subject counted, kind if it differs from the slot's]
+const S = (t, s, k) => ({t, s, k});
+const BANDS = {
+  g12: {name:'Grades 1–2', arc:'Discover', grades:[1,2], slots:[
+    {at:'08:30', m:20, k:'care', label:'Circle', days:D.map(() => S('Circle: song, talk, movement', null))},
+    {at:'08:50', m:90, k:'core', label:'R1', sub:'talk, words, reading', days:D.map(() => S('R1: talk · word recognition · reading & writing', 'R1'))},
+    {at:'10:20', m:15, k:'brk', label:'Snack'},
+    {at:'10:35', m:60, k:'core', label:'Maths', days:D.map(() => S('Maths', 'Maths'))},
+    {at:'11:35', m:30, k:'move', label:'Art & music', days:[S('Art & craft','Art & music'),S('Music & rhyme','Art & music'),S('Art & craft','Art & music'),S('Music & rhyme','Art & music'),S('Art & craft','Art & music')]},
+    {at:'12:05', m:30, k:'brk', label:'Lunch'},
+    {at:'12:35', m:60, k:'lang', label:'R2', days:D.map(() => S('R2: talk · word recognition', 'R2'))},
+    {at:'13:35', m:45, k:'studio', label:'Discover & play', days:[S('Outdoor play','Discover & play'),S('Discover: science play','Discover & play'),S('Gardening','Discover & play'),S('PE & movement','Discover & play'),S('Library & stories','Discover & play')]},
+    {at:'14:20', m:10, k:'care', label:'Close', days:D.map(() => S('Close', null))}
+  ], sat:{'Discover & play':.5,'Art & music':.5}},
+  g35: {name:'Grades 3–5', arc:'Investigate', grades:[3,4,5], slots:[
+    {at:'08:30', m:20, k:'care', label:'Circle', days:[S('Assembly',null),S('Circle',null),S('Circle',null),S('Circle',null),S('Circle',null)]},
+    {at:'08:50', m:60, k:'core', label:'Maths', sub:'level groups', days:D.map(() => S('Maths · level groups','Maths'))},
+    {at:'09:50', m:60, k:'core', label:'R1', sub:'level groups', days:[S('R1 · level groups','R1'),S('R1 · level groups','R1'),S('R1 · level groups','R1'),S('Library','R1'),S('R1 · level groups','R1')]},
+    {at:'10:50', m:15, k:'brk', label:'Snack'},
+    {at:'11:05', m:45, k:'lang', label:'R2', days:D.map(() => S('R2','R2'))},
+    {at:'11:50', m:30, k:'brk', label:'Lunch'},
+    {at:'12:20', m:80, k:'studio', label:'Studio', sub:'investigations', days:[S('TWAU investigation','TWAU'),S('TWAU investigation','TWAU'),S('TWAU: measure & test','TWAU'),S('TWAU: research & write','TWAU'),S('Art studio','Art','move')]},
+    {at:'13:40', m:40, k:'move', label:'PE / arts', days:[S('PE','PE'),S('Music · dance · theatre','Art'),S('PE','PE'),S('Art','Art'),S('PE','PE')]},
+    {at:'14:20', m:10, k:'care', label:'Close', days:D.map(() => S('Close · portfolio', null))}
+  ], sat:{PE:.5, Art:.5}},
+  g67: {name:'Grades 6–7', arc:'Apply', grades:[6,7], slots:[
+    {at:'08:30', m:20, k:'care', label:'Advisory', days:[S('Assembly',null),S('Advisory circle',null),S('Advisory circle',null),S('Advisory circle',null),S('Advisory circle',null)]},
+    {at:'08:50', m:60, k:'core', label:'Maths', sub:'level groups; R3 on Fri', days:[S('Maths · level groups','Maths'),S('Maths · level groups','Maths'),S('Maths · level groups','Maths'),S('Maths · level groups','Maths'),S('R3','R3','lang')]},
+    {at:'09:50', m:60, k:'core', label:'Science / SS', sub:'concept lessons', days:[S('Science','Science'),S('Social Science','SS'),S('Science','Science'),S('Social Science','SS'),S('R2','R2','lang')]},
+    {at:'10:50', m:15, k:'brk', label:'Snack'},
+    {at:'11:05', m:45, k:'lang', label:'R1 / R2 / R3', days:[S('R1','R1'),S('R2','R2'),S('R3','R3'),S('R1','R1'),S('R3','R3')]},
+    {at:'11:50', m:30, k:'brk', label:'Lunch'},
+    {at:'12:20', m:80, k:'studio', label:'Studio', sub:'labs, projects, making', days:[S('Science lab','Science'),S('Social Science project','SS'),S('VE: coding · AI · design','VE'),S('Art studio','Art','move'),S('VE: making · crafts','VE')]},
+    {at:'13:40', m:40, k:'move', label:'PE / arts', days:[S('PE','PE'),S('Music · theatre','Art'),S('PE','PE'),S('Library & reading','R1','lang'),S('PE','PE')]},
+    {at:'14:20', m:10, k:'care', label:'Close', days:D.map(() => S('Close · portfolio', null))}
+  ], sat:{PE:1/3, Art:1/3, VE:1/3}}
+};
+const NCF = {
+  g12: {R1:(FND.R1||90)*NCF_DAYS/60, R2:(FND.R2||60)*NCF_DAYS/60, Maths:(FND.Maths||60)*NCF_DAYS/60},
+  g35: PREP, g67: MID
+};
+const ORDER = {g12:['R1','Maths','R2','Art & music','Discover & play'], g35:['Maths','R1','R2','TWAU','Art','PE'], g67:['Maths','Science','SS','R1','R2','R3','VE','Art','PE']};
+const NAMES = {R1:'R1 (English)', R2:'R2', R3:'R3', Maths:'Maths', TWAU:'The World Around Us', Science:'Science', SS:'Social Science', Art:'Art education', PE:'Physical education', VE:'Vocational education', 'Art & music':'Art & music', 'Discover & play':'Discover & play'};
+const LO = {R1:'eng', Maths:'math', TWAU:'evs', Science:'sci', SS:'sst'};
+const DEF = {end:870, sat:false, tests:20, events:20, summer:7, diwali:3, hols:12};
+let st = Object.assign({}, DEF), band = 'g35';
+try { const b = localStorage.getItem('tt-band'); if (b && BANDS[b]) band = b; } catch (e) {}
+
+const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const hhmm = x => String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0');
+const DAY0 = mins('08:30'), DAY_END = 870, BASE_TEACH = 285, SAT_TEACH = 225;
+const fmt = (x, d = 0) => x.toLocaleString('en-IN', {maximumFractionDigits:d, minimumFractionDigits:d});
+
+function year(){
+  const weeks = 52 - st.summer - st.diwali;
+  const work = weeks * 5 - st.hols;
+  const sats = st.sat ? Math.floor(weeks / 2) : 0;
+  const teach = Math.max(0, work - st.tests - st.events);
+  const perDay = BASE_TEACH + (st.end - DAY_END);
+  const hours = teach * perDay / 60 + sats * SAT_TEACH / 60;
+  return {weeks, work, sats, teach, perDay, hours};
+}
+function weekly(b){
+  const w = {};
+  for (const sl of BANDS[b].slots) (sl.days || []).forEach(c => { if (c.s) w[c.s] = (w[c.s] || 0) + sl.m; });
+  return w;
+}
+function studioShare(b){
+  const sl = BANDS[b].slots.find(s => s.k === 'studio'), sh = {};
+  sl.days.forEach(c => { if (c.s) sh[c.s] = (sh[c.s] || 0) + 1 / sl.days.length; });
+  return sh;
+}
+function annual(b, y){
+  const w = weekly(b), extra = y.perDay - BASE_TEACH, share = studioShare(b), sat = BANDS[b].sat, out = {};
+  const subjects = new Set([...Object.keys(w), ...Object.keys(share), ...Object.keys(sat)]);
+  for (const s of subjects) {
+    out[s] = (w[s] || 0) / 60 * y.teach / 5 + (share[s] || 0) * extra * y.teach / 60 + (sat[s] || 0) * y.sats * SAT_TEACH / 60;
+  }
+  return out;
+}
+
+function renderYear(){
+  const y = year(), ncf = 955, pct = y.hours / ncf * 100;
+  document.getElementById('t-hours').textContent = fmt(y.hours);
+  document.getElementById('t-hours-n').textContent = fmt(pct) + '% of NCF-SE';
+  document.getElementById('t-days').textContent = y.teach;
+  document.getElementById('t-days-n').textContent = 'NCF-SE: ' + NCF_DAYS + (y.sats ? ' · plus ' + y.sats + ' Saturdays' : '');
+  document.getElementById('t-min').textContent = y.perDay;
+  document.getElementById('t-min-n').textContent = 'of ' + (st.end - DAY0) + ' in school, ' + hhmm(DAY0) + '–' + hhmm(st.end);
+  const plan = st.end === DEF.end && !st.sat;
+  document.getElementById('verdict').textContent = (plan ? 'At 8:30–2:30, Monday to Friday, ' : 'With these conditions, ') +
+    'the school teaches about ' + fmt(y.hours) + ' hours a year: ' + fmt(pct) + '% of the 955 that NCF-SE’s illustrative plan uses. ' +
+    (pct < 97 ? 'Every subject below has to fit into that smaller total.' : 'That matches NCF-SE’s plan.');
+  document.getElementById('o-end').textContent = hhmm(st.end);
+  for (const k of ['tests','events','summer','diwali','hols']) document.getElementById('o-' + k).textContent = st[k];
+  // calendar
+  const bar = document.getElementById('yearbar'); bar.textContent = '';
+  const pre = 20, post = 52 - pre - st.diwali - st.summer;
+  const seq = [].concat(Array(pre).fill('school'), Array(st.diwali).fill('diwali'), Array(post).fill('school'), Array(st.summer).fill('summer'));
+  seq.forEach(k => { const d = document.createElement('div'); d.className = 'w-' + k; d.title = k === 'school' ? 'School week' : (k === 'diwali' ? 'Diwali break' : 'Summer break'); bar.appendChild(d); });
+  document.getElementById('calsum').innerHTML =
+    `<div><b>${y.weeks}</b> school weeks × 5 = <b>${y.weeks * 5}</b> weekdays − <b>${st.hols}</b> holidays = <b>${y.work}</b> working days <span class="n">(NCF-SE counts 220 with alternate Saturdays${y.sats ? '; with yours: ' + (y.work + y.sats) : ''})</span></div>` +
+    `<div><b>${y.work}</b> − <b>${st.tests}</b> test days − <b>${st.events}</b> event days = <b>${y.teach}</b> teaching days <span class="n">(NCF-SE: 180)</span></div>` +
+    `<div><b>${y.teach}</b> days × <b>${y.perDay}</b> min${y.sats ? ' + <b>' + y.sats + '</b> Saturdays × <b>' + SAT_TEACH + '</b> min' : ''} = <b>${fmt(y.hours)}</b> teaching hours <span class="n">(NCF-SE: 955)</span></div>`;
+}
+
+function renderDay(){
+  const board = document.getElementById('dayboard'); board.textContent = '';
+  const end = st.end, span = end - DAY0, px = window.innerWidth < 760 ? 1.15 : 1.45, H = span * px;
+  const axisHead = document.createElement('div'); axisHead.className = 'colhead'; board.appendChild(axisHead);
+  for (const b of Object.keys(BANDS)) {
+    const h = document.createElement('div'); h.className = 'colhead';
+    h.innerHTML = `<b>${BANDS[b].name}</b><span>${BANDS[b].arc}</span>`; board.appendChild(h);
+  }
+  const axis = document.createElement('div'); axis.className = 'axis'; axis.style.height = H + 'px';
+  for (let t = DAY0; t <= end; t += 30) { const s = document.createElement('div'); s.className = 'tick'; s.style.top = (t - DAY0) * px + 'px'; s.textContent = hhmm(t); axis.appendChild(s); }
+  board.appendChild(axis);
+  for (const b of Object.keys(BANDS)) {
+    const tr = document.createElement('div'); tr.className = 'track'; tr.style.height = H + 'px';
+    for (let t = DAY0; t <= end; t += 30) { const g = document.createElement('div'); g.className = 'gridline'; g.style.top = (t - DAY0) * px + 'px'; tr.appendChild(g); }
+    const extra = end - DAY_END;
+    let cursor = DAY0;
+    for (const sl of BANDS[b].slots) {
+      const m = sl.m + (sl.k === 'studio' ? extra : 0), top = (cursor - DAY0) * px;
+      const el = document.createElement('div');
+      el.className = 'blk ' + (sl.k === 'brk' ? 'brk' : 'k-' + sl.k);
+      el.style.top = top + 1 + 'px'; el.style.height = Math.max(m * px - 2, 8) + 'px';
+      el.title = `${hhmm(cursor)}–${hhmm(cursor + m)} · ${sl.label} · ${m} min`;
+      const big = m * px >= 40, mid = m * px >= 18;
+      el.innerHTML = sl.k === 'brk' ? (mid ? sl.label : '') :
+        (big ? `<span class="t">${hhmm(cursor)} · ${m}′</span>` : '') + (mid ? `<b>${sl.label}</b>` : '') + (big && sl.sub ? `<small>${sl.sub}</small>` : '');
+      tr.appendChild(el); cursor += m;
+    }
+    board.appendChild(tr);
+  }
+  const lg = document.getElementById('legend'); lg.textContent = '';
+  for (const [k, v] of Object.entries(KINDS)) {
+    const d = document.createElement('div'); d.className = 'leg';
+    d.innerHTML = `<span class="sw ${k === 'brk' ? '' : 'k-' + k}" style="${k === 'brk' ? 'background:repeating-linear-gradient(135deg,var(--soft) 0 4px,transparent 4px 8px);border:1px solid var(--rule)' : ''}"></span><span>${v.label}</span><span class="caps">${v.caps}</span>`;
+    lg.appendChild(d);
+  }
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs'); tabs.textContent = '';
+  for (const b of Object.keys(BANDS)) {
+    const t = document.createElement('button'); t.type = 'button'; t.setAttribute('role', 'tab'); t.id = 'tab-' + b;
+    t.setAttribute('aria-selected', String(b === band)); t.textContent = BANDS[b].name;
+    t.onclick = () => { band = b; try { localStorage.setItem('tt-band', b); } catch (e) {} renderTabs(); renderWeek(); renderCoverage(); };
+    tabs.appendChild(t);
+  }
+}
+
+function renderWeek(){
+  const tb = document.getElementById('week'), y = year(), extra = y.perDay - BASE_TEACH;
+  let h = '<thead><tr><th scope="col">Bell</th>' + D.map(d => `<th scope="col">${d}</th>`).join('') + '</tr></thead><tbody>';
+  let cursor = DAY0;
+  for (const sl of BANDS[band].slots) {
+    const m = sl.m + (sl.k === 'studio' ? extra : 0);
+    h += `<tr><td class="time">${hhmm(cursor)}<i>${m} min</i></td>`;
+    if (sl.k === 'brk') h += `<td class="brk" colspan="5">${sl.label}</td>`;
+    else h += sl.days.map(c => `<td class="k-${c.k || sl.k}">${c.t}</td>`).join('');
+    h += '</tr>'; cursor += m;
+  }
+  if (st.sat) h += `<tr><td class="time">Sat<i>alternate</i></td><td class="k-move" colspan="5">8:30–12:30 · clubs, sport, arts, making · a bagless day when due</td></tr>`;
+  tb.innerHTML = h + '</tbody>';
+  const w = weekly(band), ws = document.getElementById('weeksum'); ws.textContent = '';
+  for (const s of ORDER[band]) if (w[s]) { const c = document.createElement('span'); c.className = 'chip'; c.innerHTML = `${NAMES[s]} <b class="mono">${fmt(w[s] / 60, 2).replace(/\.?0+$/, '')} h</b>/week`; ws.appendChild(c); }
+}
+
+function renderCoverage(){
+  const y = year(), a = annual(band, y), ncf = NCF[band], box = document.getElementById('cov');
+  const rows = ORDER[band].filter(s => a[s] != null || ncf[s] != null);
+  const max = Math.max(...rows.map(s => Math.max(a[s] || 0, ncf[s] || 0))) * 1.08;
+  let h = `<div class="cov-key"><span><i class="sfill"></i>Our hours a year</span><span><i class="stick"></i>NCF-SE's hours${band === 'g12' ? ' (daily minutes × 180 days)' : ''}</span></div>`;
+  for (const s of rows) {
+    const ours = a[s] || 0, ref = ncf[s], pct = ref ? ours / ref * 100 : null;
+    const stc = pct == null ? '' : pct >= 97 ? `<span class="st good">✓ ${fmt(pct)}%</span>` : pct >= 80 ? `<span class="st warn">▲ ${fmt(pct)}%</span>` : `<span class="st serious">▼ ${fmt(pct)}%</span>`;
+    h += `<div class="cov-row"><div class="name">${NAMES[s]}${ref == null ? '<small>no NCF-SE figure</small>' : ''}</div>` +
+      `<div class="barbox" role="img" aria-label="${NAMES[s]}: ${fmt(ours)} hours${ref ? ' against ' + fmt(ref) + ' in NCF-SE' : ''}"><div class="fill" style="width:${ours / max * 100}%"></div>${ref ? `<div class="ncf" style="left:${ref / max * 100}%"></div>` : ''}</div>` +
+      `<div class="val">${fmt(ours)}${ref ? ' / ' + fmt(ref) : ''} h${stc}</div></div>`;
+  }
+  box.innerHTML = h;
+  document.getElementById('cov-sub').textContent = BANDS[band].name + ': hours a year per subject against NCF-SE' + (band === 'g12' ? '’s daily minutes for Grades 1–2 (R1 90, R2 60, Maths 60).' : band === 'g35' ? '’s Table 4.2i (Preparatory stage).' : '’s Table 4.2iv (Middle stage).') + ' They change with the conditions above.';
+  renderOutcomes(y);
+}
+
+function renderOutcomes(y){
+  const cols = ['R1','Maths','TWAU','Science','SS'];
+  let h = '<thead><tr><th scope="col">Grade</th>' + cols.map(c => `<th scope="col">${NAMES[c]}</th>`).join('') + '</tr></thead><tbody>';
+  for (let g = 1; g <= 7; g++) {
+    const b = g <= 2 ? 'g12' : g <= 5 ? 'g35' : 'g67', a = annual(b, y), ncf = NCF[b], c = COUNTS[String(g)] || {};
+    h += `<tr><td class="time">Grade ${g}</td>`;
+    for (const s of cols) {
+      const n = c[LO[s]];
+      if (!n || a[s] == null) { h += `<td class="o none">${s === 'Science' && g <= 2 ? 'No separate science in NCERT' : '–'}</td>`; continue; }
+      const ours = a[s] / n, plan = ncf[s] ? ncf[s] / n : null, low = plan != null && ours < plan * 0.97;
+      h += `<td class="o${low ? ' low' : ''}"><b>${fmt(ours, 1)} h</b><small>${n} outcomes${plan != null ? ' · NCF-SE ' + fmt(plan, 1) + ' h' : ''}</small></td>`;
+    }
+    h += '</tr>';
+  }
+  document.getElementById('outcomes').innerHTML = h + '</tbody>';
+}
+
+function renderMeans(){
+  const y = year();
+  const base = (() => { const s = st; st = Object.assign({}, DEF); const r = year(); st = s; return r; })();
+  const lever = patch => { const s = st; st = Object.assign({}, DEF, patch); const r = year().hours; st = s; return r; };
+  const satGain = lever({sat:true}) - base.hours, testGain = lever({tests:8}) - base.hours, endGain = lever({end:900}) - base.hours, both = lever({sat:true, tests:8});
+  const p35 = annual('g35', base), p67 = annual('g67', base);
+  const pc = (a, b) => fmt(a / b * 100) + '%';
+  const per = [6, 7].flatMap(g => ['eng', 'sst'].map(k => (k === 'eng' ? p67.R1 : p67.SS) / ((COUNTS[String(g)] || {})[k] || 1)));
+  const thin = fmt(Math.min(...per), 1) + '–' + fmt(Math.max(...per), 1);
+  const cards = [
+    ['The total is the real constraint', `Monday to Friday, 8:30 to 2:30, gives about ${fmt(base.hours)} teaching hours. NCF-SE's plan uses 955. NCF-SE calls its hours illustrative and leaves the total to the school, but it keeps the proportions (p. 113).`],
+    ['Something has to give', `With the morning core at full strength, the squeeze falls elsewhere. In Grades 3–5, R2 gets ${pc(p35.R2, PREP.R2 || 190)} and PE ${pc(p35.PE, PREP.PE || 100)} of NCF-SE's hours. In Grades 6–7, Science and Social Science get ${pc(p67.Science, MID.Science || 160)}. NCF-SE gives R2 more time than R1 in Grades 3–5 and asks for “explicit and significant” time for art, PE and vocational work.`],
+    ['Three levers close most of the gap', `Alternate Saturday half-days, NCF-SE's own model, add ${fmt(satGain)} hours. Cutting stand-alone test days from 20 to 8 adds ${fmt(testGain)}; the worksheet engine already assesses inside lessons. A 3:00 finish adds ${fmt(endGain)}. The first two together reach ${fmt(both)} hours, ${pc(both, 955)} of NCF-SE.`],
+    ['Projects have to carry outcomes in groups', `In Grades 6–7, English and Social Science get ${thin} hours per NCERT outcome, which is too little to teach them one by one. Studio projects must carry several outcomes at once. NCF-SE notes that every other subject is taught in R1 and adds to it (p. 117, said of Grades 3–5).`],
+    ['Fluid levels fix the morning', 'Regrouping children by level works only if every section of a grade has Maths and R1 at the same hour. That also fixes staffing: one educator per level group at 8:50 and again at 9:50.'],
+    ['Grades 1–2 already fit', 'The day gives R1 90 minutes, R2 60 and Maths 60, exactly NCF-SE’s daily figures. NCERT has no separate science in Grades 1–2, so “Discover” time carries science through play; Cambridge science would add content there.']
+  ];
+  document.getElementById('means').innerHTML = cards.map(([t, p]) => `<div class="mean"><h3>${t}</h3><p>${p}</p></div>`).join('');
+}
+
+function renderSources(){
+  const s = document.getElementById('srcs'); const list = Object.values(O);
+  if (!list.length) { s.innerHTML = '<p class="sub">Official data not loaded. Run python3 research/timetable_data.py.</p>'; return; }
+  const LABEL = {illustrative:'NCF-SE’s timetables are illustrative; schools decide', hours_are_schools_call:'The school sets the hours; NCF-SE’s proportions can hold', art_pe_ve_need_time:'Art, PE and vocational education need significant time', foundational_minutes:'Grades 1–2 daily minutes: R1 90, R2 60, Maths 60', working_days:'220 school-going days a year', assessment_days:'About 20 days for assessments', event_days:'About 20 days for events', instruction_days:'About 180 teaching days', saturdays:'5½ days every alternate week', weeks_hours:'About 34 weeks of about 29 hours', period_minutes:'40-minute periods, 80-minute blocks', breaks:'Snack break 15 min, lunch 45 min', r1_across_subjects:'R1 is learnt across all subjects', prep_hours:'Grades 3–5 hours a year (Table 4.2i)', middle_hours:'Grades 6–8 hours a year (Table 4.2iv)', bagless_days:'Ten bagless days in the Middle stage', no_science_grades_1_2:'No separate science in Classes I–II', periods_projects:'Periods build capability; projects integrate it', mastery_time:'Protect mastery time, make time for application', arc_1_2:'Grades 1–2: Discover', arc_3_5:'Grades 3–5: Investigate', arc_6_8:'Grades 6–8: Apply (coding, AI literacy, design, economics, debate)'};
+  s.innerHTML = list.map(o => `<div class="src"><b>${LABEL[o.key] || o.key}</b><q>${o.quote}</q><span class="where">${o.doc} · PDF p.${o.pdf_page}${o.printed_page ? ' · printed p.' + o.printed_page : ''}</span></div>`).join('') +
+    `<div class="src"><b>NCERT outcome counts per grade</b><span class="where">docs/spine/sources/ncert_learning_outcomes.json · every row checked word for word by research/spine_verify.py</span></div>`;
+}
+
+function renderAll(){ renderYear(); renderDay(); renderWeek(); renderCoverage(); renderMeans(); }
+function bind(){
+  const ids = ['tests','events','summer','diwali','hols'];
+  for (const k of ids) { const el = document.getElementById(k); el.value = st[k]; el.oninput = () => { st[k] = Number(el.value); renderAll(); }; }
+  const end = document.getElementById('end'); end.value = String(st.end); end.onchange = () => { st.end = Number(end.value); renderAll(); };
+  const sat = document.getElementById('sat'); sat.checked = st.sat; sat.onchange = () => { st.sat = sat.checked; renderAll(); };
+  document.getElementById('reset').onclick = () => { st = Object.assign({}, DEF); bind(); renderAll(); };
+}
+renderTabs(); bind(); renderAll(); renderSources();
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderDay, 120); });
+})();
+</script>
