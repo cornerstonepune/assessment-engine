@@ -3505,6 +3505,11 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
     next test seconds later. A failed request is now made again after 2, 4, 8 and 16 s; the fifth failure stops the run,
     naming the address. `pytest tests/test_spine_provenance.py` → 5 passed, two of them pinning this.
   - The first run found 19 rows broken at a line-break hyphen ("vice- versa"); fixed where the importer joins lines.
+- **Indicative timetable data (2026-09-28):** `python3 research/timetable_data.py` prints `22/22 quotes found word for
+  word on their cited page`. The quotes come from NCF-SE Part A Chapter 4, NCERT's EVS introduction and the graduate
+  profile. The script writes them, with the NCERT outcome counts for Grades 1–7, into
+  `docs/brainstorms/2026-09-28-indicative-timetable.html`. The timetable on that page is a proposal. The RTE Act's
+  minimums are not verified (India Code unreachable on 28 Sep).
 - **The spine rebuilds byte for byte (2026-09-27):** `python3 research/spine_import.py && python3 research/spine_build.py`
   leaves `docs/spine/sources/` unchanged, and `spine.json` is identical under any PYTHONHASHSEED. The unit→skill links
   were written in a set's order; they are now sorted.

@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28: the indicative timetable, Grades 1–7 (a brainstorm page, no step moved)
+
+- Nimish answered the open points: Grades 1–7, IGCSE meaning Cambridge, "cat time" dropped, an Indian school
+  calendar, and 8:30–2:30. He asked for an indicative timetable, academic and non-academic, with timings and coverage.
+- Page: https://claude.ai/artifact/T46QvYnMgqyJW1hKktafYH. Source: `docs/brainstorms/2026-09-28-indicative-timetable.html`.
+  Its official numbers come from `python3 research/timetable_data.py` (22/22 quotes found on their page).
+- Finding: the school's day and calendar give about 751 teaching hours a year against NCF-SE's 955. The page shows
+  what that squeezes and which levers close the gap. The brief's "28 Sep" section has the detail.
+- Next: Nimish's reaction to the proposed day and levers; then the interface that generates a timetable from
+  conditions. Nothing is built into the engine: BUILD-ORDER is on step 1 of ten.
+
 ## 2026-09-27, after #73 merged: the provenance check wired in; the next objective put to Nimish (no step moved)
 
 - **Next session: read `docs/brainstorms/2026-09-27-curriculum-skeleton.md`, starting at "27 Sep, after the merge".**

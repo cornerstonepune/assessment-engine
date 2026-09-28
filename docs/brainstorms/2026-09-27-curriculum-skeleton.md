@@ -12,6 +12,33 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
 
+## 28 Sep: his answers, and the indicative timetable
+
+- **Scope:** Grades 1–7 ("the first 7 standard curriculum is what I'm asking about").
+- **"ITCS":** he meant IGCSE, that is, Cambridge. Below Grade 9, Cambridge means Cambridge Primary (Stages 1–6) and
+  Lower Secondary (Stage 7).
+- **"cat time":** he does not know what he meant. It is dropped; the morning block is called Core.
+- **Calendar:** the usual Indian school calendar. "Two nature breaks" is read as the two daily breaks (snack and
+  lunch); the year has a summer break and a Diwali break.
+- **Timings:** 8:30 to 2:30, six hours. "You can create everything else."
+- **Later:** an interface that generates the timetable from a set of conditions.
+
+**Built now: the indicative timetable,** https://claude.ai/artifact/T46QvYnMgqyJW1hKktafYH. Source:
+`docs/brainstorms/2026-09-28-indicative-timetable.html`. Its official numbers come from
+`python3 research/timetable_data.py`, which found 22/22 quotes word for word on their cited page (NCF-SE Part A Chapter
+4, NCERT, the graduate profile).
+
+What it shows at the defaults (Monday to Friday, a 7-week summer break, a 3-week Diwali break, 12 weekday holidays,
+NCF-SE's 20 test days and 20 event days):
+- 158 teaching days × 285 minutes ≈ 751 hours a year, against NCF-SE's illustrative 955 (79%).
+- With a 2-hour morning core, R2 and PE fall to about 62–63% of NCF-SE's hours in Grades 3–5, and Science and Social
+  Science to about 66% in Grades 6–7.
+- Alternate Saturday half-days (NCF-SE's own model) and 8 test days instead of 20 reach about 886 hours (93%).
+- Grades 6–7 English and Social Science get about 3–4 hours per NCERT outcome.
+
+The timetable is a proposal, not agreed. Cambridge is not counted, and the RTE Act's minimums were not verified
+(India Code could not be reached).
+
 ## 27 Sep, after the merge: Nimish's next asks, and the objective put back to him
 
 **Start here.** He asked for the objective to be agreed before any work: *"Is the objective clear? Just make sure that
