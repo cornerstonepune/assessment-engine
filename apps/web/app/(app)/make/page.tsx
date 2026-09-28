@@ -15,17 +15,17 @@ export default async function MakePapers() {
       <PageHeader
         stage="Make papers"
         title="Make papers"
-        sub="Each child's home paper for the week — one skill, from their own map — and any paper you choose for a child. Nothing prints until you approve it."
+        sub="Each child's home assessment for the week — one skill, from their own map, or one you choose for them. Nothing prints until you approve it."
       />
       <Body>
-        <Panel title="Home papers this week" aside={isoWeek()}>
+        <Panel title="Home assessments this week" aside={isoWeek()}>
           <p className="note mb-3">
             One skill per child, never a mix: the weakest they are working on, at a level where their mistake can show; a
             child with nothing red or amber is stretched one level up on their strongest skill. Open a class to approve,
             or to choose a different paper for any child.
           </p>
           <div className="overflow-x-auto">
-            <table className="grid" aria-label="Home papers this week">
+            <table className="grid" aria-label="Home assessments this week">
               <thead>
                 <tr>
                   <th>Class</th>

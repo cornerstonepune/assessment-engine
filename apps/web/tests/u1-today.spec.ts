@@ -113,8 +113,8 @@ test("today lists everything waiting on a teacher, each with its count and one c
     where c.active and s.state in ('patterned_error', 'emerging', 'practising', 'secure', 'stretch_ready')
       and not exists (select 1 from sheet_instance si where si.child_id = s.child_id and si.kind = 'focus'
                       and si.week = ${isoWeek()})`;
-  expect(await count(page, "Home papers to approve")).toBe(n);
-  await page.getByRole("region", { name: "Home papers to approve" }).getByRole("link").first().click();
+  expect(await count(page, "Home assessments to approve")).toBe(n);
+  await page.getByRole("region", { name: "Home assessments to approve" }).getByRole("link").first().click();
   await expect(page).toHaveURL("/make");
 
   // the skills that wait for an approval
