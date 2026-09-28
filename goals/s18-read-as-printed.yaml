@@ -1,0 +1,41 @@
+name: s18-read-as-printed
+goal: >
+  A copy of a library worksheet is read in the layout it was printed in, not the layout the worksheet prints in
+  today. Every layout the renderer has printed is a row (`render.layouts`: how many boxes an answer gets, how tall
+  the working space is, the QR's error correction), the renderer draws a worksheet in any of them, and the reader
+  lines the copy's pages up against each and reads it in the one its printed page matches. A layout change never
+  again turns the papers already in children's hands into papers the reader cannot place. What closes step 1:
+  the 23 Sep Grade 2 scan, printed at 4 boxes an answer before L3, is read in its boxes on live.
+
+# Written 2026-09-28, before the work. Found while closing step 1: the 23 Sep papers were printed before L3
+# (2026-09-23 10:08 UTC) with 4 boxes an answer, 4 questions a page, 3 pages; today R8-H02 prints 2 boxes, 3 a
+# page, 4 pages. The worksheet PDF is cached inside the engine's container, which every deploy rebuilds, so the
+# as-printed layout was gone and 87 of 108 answers fell back to the old whole-page reader (55 of 108 settled).
+# Nimish chose, of "recover the layout" and "drop 23 Sep from the goal": "Recover layout (Recommended)".
+# The renderer's layout changes since 2026-09-21 are exactly three (git diff 22f7ffe^..main -- render.py,
+# answer_space.py): boxes per answer (cells → digits), working height (11/15/20/26 → 14/20/26/34 mm, paired 9 →
+# 12), QR error correction (m → h, 8c4c911, 2026-09-24).
+says:
+  - words: "Recover layout (Recommended)"
+    proved_by: packages/engine/tests/test_render.py::test_a_worksheet_draws_in_each_layout_the_school_has_printed
+  - words: "If the answer has been in the designated place, it should be able to read the answers"
+    proved_by: packages/engine/tests/test_boxes.py::test_a_copy_is_read_in_the_layout_it_was_printed_in
+manual: []
+scenarios:
+  - name: two layouts, synthetic
+    request: >
+      One worksheet drawn in the layout before L3 and in today's; a copy of each written on and photographed as a
+      phone does it (top cut off, tilted, softened, compressed).
+    check: each copy is placed in its own layout, and every digit in its boxes is read. 100%.
+  - name: the real 23 Sep scan, on live
+    request: POST /read/file with again=true for Drive file 1eBcFq8bsI-m_K37iR2OMMa2qbzrBtgu1
+    check: >
+      every copy lines up in the layout before L3; the answers read with confidence (written or blank) are at
+      least 75% of all answers (goal s17's floor); every copy a person named keeps its child.
+criteria:
+  - name: the layouts, the renderer and the reader
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_render.py tests/test_boxes.py tests/test_library.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
