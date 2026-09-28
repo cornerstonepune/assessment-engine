@@ -8,6 +8,7 @@ Wrong answers no named mistake explains are counted per skill, never spread. Nex
 that the papers hold must be in the report, and nothing he called strong may be faulty in it.
 """
 
+from engine.core import mistake_names
 from engine.w2_print import focus_paper
 
 STRONG = ("secure", "stretch_ready")
@@ -42,7 +43,7 @@ def _example(row):
 def build(conn, child_id, since=None):
     """→ {"child_id", "strong", "faulty", "unexplained", "next"} for one child, over evidence from `since` on."""
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
-    mistakes = {r["code"]: r["name"] for r in conn.execute("select code, name from misconception")}
+    name_of = mistake_names.names(conn)
     sets = {r["rung_code"]: r for r in conn.execute("select code, name, rung_code from skill_set")}
     states = conn.execute(
         "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
@@ -76,7 +77,7 @@ def build(conn, child_id, since=None):
                 code,
                 {
                     "mistake": code,
-                    "name": mistakes.get(code, code),
+                    "name": name_of(code, op=(row["spec"] or {}).get("op"), skill=row["skill_code"]),
                     "skill_code": row["skill_code"],
                     "skill": skills.get(row["skill_code"], row["skill_code"]),
                     "times": 0,

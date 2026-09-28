@@ -20,29 +20,35 @@ CODE = re.compile(r"^[RMX]\d{1,2}-[EMHA]\d{2,3}$")
 PRINTS = db.REPO_ROOT / "data" / "prints"  # gitignored: a printed copy names its child
 
 
-@router.get("/worksheet/{code}.pdf")
-def worksheet_pdf(code: str, conn=Depends(get_conn)) -> FileResponse:
+def _drawn(conn, code, layout):
+    """The worksheet drawn in `layout` (a `render.layouts` name; today's when None) — the layout a copy was printed in,
+    for whoever is working out why that copy read as it did."""
     if not CODE.match(code):
         raise HTTPException(status_code=404, detail="no such worksheet")
     try:
-        path = library.pdf(conn, code)
+        drawn = library.printed(conn, code) if layout else {None: library.pdf(conn, code)}
     except LookupError as missing:
         raise HTTPException(status_code=404, detail=str(missing)) from missing
+    if layout not in drawn:
+        raise HTTPException(
+            status_code=404, detail=f"no layout {layout!r}: {', '.join(k for k in drawn if k)}"
+        )
+    return drawn[layout]
+
+
+@router.get("/worksheet/{code}.pdf")
+def worksheet_pdf(code: str, layout: str | None = None, conn=Depends(get_conn)) -> FileResponse:
+    path = _drawn(conn, code, layout)
     return FileResponse(
         path, media_type="application/pdf", filename=f"{code}.pdf", content_disposition_type="inline"
     )
 
 
 @router.get("/worksheet/{code}/geometry")
-def worksheet_geometry(code: str, conn=Depends(get_conn)) -> dict:
+def worksheet_geometry(code: str, layout: str | None = None, conn=Depends(get_conn)) -> dict:
     """Where every box and working space of a worksheet prints (`<pdf>.key.json`'s geometry, no answers): what
     the box reader cuts a scan by, for whoever is improving it without the server's disk."""
-    if not CODE.match(code):
-        raise HTTPException(status_code=404, detail="no such worksheet")
-    try:
-        path = library.pdf(conn, code)
-    except LookupError as missing:
-        raise HTTPException(status_code=404, detail=str(missing)) from missing
+    path = _drawn(conn, code, layout)
     key = json.loads(path.with_suffix(".key.json").read_text(encoding="utf-8"))
     return {"code": code, "pages": key.get("pages"), "geometry": key.get("geometry", [])}
 
