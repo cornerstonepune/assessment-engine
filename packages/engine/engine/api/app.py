@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
-from engine.api.routes import bank, capture, card, children, focus, graph, library, runs, week
+from engine.api.routes import bank, capture, card, children, focus, graph, library, parent, runs, week
 from engine.w3_read import inbox
 
 
@@ -36,6 +36,7 @@ app.include_router(week.router)
 app.include_router(library.router)
 app.include_router(focus.router)
 app.include_router(card.router)
+app.include_router(parent.router)
 
 
 @app.exception_handler(InProgress)

@@ -19,6 +19,7 @@ from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
+from engine.w4_close import parent_report
 from engine.w4_close.cli_card import card_app
 from engine.w4_close.cli_report import report_app
 
@@ -109,9 +110,27 @@ def eval_(
     purpose: str,
     n: int = typer.Option(10, "--n", help="Items asked per skill set × difficulty"),
     only: str = typer.Option("", "--only", help="One skill set code, else all"),
+    version: int = typer.Option(
+        0, "--version", help="parent_report: the prompt version to score, active or not"
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
-    hand-judged gold set in supabase/seed/validator_gold.json."""
+    hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
+    each draft held to its facts by code — the bar is all of them."""
+    if purpose == parent_report.PURPOSE:
+        with db.connect() as conn:
+            try:
+                r = parent_report.evaluate(conn, version or None)
+            except LLMError as e:
+                conn.commit()
+                typer.echo(f"MODEL  {e}", err=True)
+                raise typer.Exit(1)
+            conn.commit()  # the flow_run rows: what the eval spent
+        typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
+        typer.echo(
+            f"parent_report v{version or 'active'}: {r['passed']}/{r['n']} held to their facts, {r['first_try']} first time"
+        )
+        raise typer.Exit(0 if r["n"] and r["passed"] == r["n"] else 1)
     if purpose == spec.MISCONCEPTION_PROMPT:
         with db.connect() as conn:
             # One skill set per kind the engine knows, chosen by a row and not by a list in code: a

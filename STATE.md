@@ -3638,3 +3638,31 @@ deploys.
   pixel (ADR 0042, Consequences).
   - Copy 01: 10 read, and 2 to a person with the right guess (673, 240).
   - Copy 02: 4 read; its 8 other questions are blank on the paper (6 read blank, 2 marks to a person).
+
+## Box reader, re-reads and the loop's end: #100–#110 (2026-09-28)
+
+- **The server does not run out of memory reading a scan** (#100: 2 GB of swap, set up by `deploy-engine.yml`). The 23 Sep
+  read had been killed by the OOM killer at 07:14; after the swap it completed.
+- **The box reader** (#102, #104, #105):
+  - an educator's tick in an empty box is not a digit (`boxes.DIGIT_TALL`);
+  - a box's own printed line left in the cell is not ink (`boxes.marks`, `EDGE_LINE`);
+  - a child's kept PDF with no geometry gives way to the layout the page matches (`copies._read_from`).
+  - Tests: `test_boxes.py`, `test_copies.py`.
+- **A re-read reaches the answers nobody has checked** (#107, `w3_read/checked.py`). Signed-off and corrected answers
+  keep their rows exactly (`test_legacy.py::test_a_signed_off_answer_keeps_its_signature_when_the_paper_is_read_again`).
+  - 23 Sep on live, run `eda671c0`: 80 → 86 of 120 settled (72%).
+  - Goal s17's floor is 75%, so s17 is **not green**. What remains is mostly dropped digits, which is step 3's.
+- **A mistake is named, and its fix given, for its question's operation** (#102, #109, `core/mistake_names.py`).
+  - Checked on live, `GET /report/{child}` for all 11 G2 children: every named mistake carries its `hint` and the
+    child's own example.
+- **Marking shows the reader's accuracy by confidence band, with today's floor** (#103).
+- **The report card** (#109, `/growth/[id]/report`, goal u6):
+  - a skill map, the three signals, what goes well, each mistake with the child's own example, next steps;
+  - `npx playwright test tests/u6-report-card.spec.ts` → 5 passed.
+- **The parent report** (#110, `/growth/[id]/parent`, goal w4c):
+  - Code computes the facts; the `parent_report` prompt writes the words and never sees the name; code holds the words
+    to the facts; an educator approves.
+  - `pytest tests/test_parent_report.py` → 6 passed. `npx playwright test tests/u7-parent-report.spec.ts` → 4 passed.
+  - **The prompt is not active yet.** Rule 7 requires a score first: run the `engine eval` workflow on the server.
+- **Found:** `parent_note` v1 sent the child's first name to the model (rule 6) and had no eval (rule 7). It is now
+  inactive; `parent_report` replaces it.

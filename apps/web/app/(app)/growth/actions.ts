@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { engineSend } from "@/lib/engine";
 import { makePaper } from "@/lib/next-paper";
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -43,4 +44,26 @@ export async function approveNextPaper(formData: FormData): Promise<void> {
   revalidatePath(`/growth/${id}`);
   // already approved this week (a second click, or a colleague first): the page shows who approved it
   redirect(qr ? `/growth/${id}?paper=${qr}` : `/growth/${id}`);
+}
+
+/** An educator asks for the parent report to be written from the child's signed-off answers (goals/w4c-parent-report.yaml).
+ *  The engine writes it and holds it to the facts; a draft that breaks them is never kept, and the page says why. */
+export async function writeParentReport(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("child_id") ?? "");
+  if (!UUID.test(id)) redirect("/growth");
+  const r = await engineSend(`/child/${id}/parent-report`, { by: me.email }).catch(() => null);
+  revalidatePath(`/growth/${id}/parent`);
+  redirect(`/growth/${id}/parent${r?.ok ? "?written=1" : `?error=${r?.status ?? "down"}`}`);
+}
+
+/** An educator approves the parent report, in their own name; only then is it the parents' to read. */
+export async function approveParentReport(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("child_id") ?? "");
+  const note = String(formData.get("note_id") ?? "");
+  if (!UUID.test(id) || !UUID.test(note)) redirect("/growth");
+  const r = await engineSend(`/child/${id}/parent-report/${note}/approve`, { by: me.email }).catch(() => null);
+  revalidatePath(`/growth/${id}/parent`);
+  redirect(`/growth/${id}/parent${r?.ok ? "?approved=1" : `?error=${r?.status ?? "down"}`}`);
 }
