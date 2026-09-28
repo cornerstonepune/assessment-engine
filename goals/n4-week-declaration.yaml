@@ -1,0 +1,28 @@
+name: n4-week-declaration
+goal: >
+  N4, the week's declaration (workflow v1: "LLM structures, teacher confirms"): an educator says in their own words
+  what the class did this week, and the engine proposes which of that grade's skill sets it covered — one yes/no per
+  skill set, asked of Jev in one call (ADR 0036), each with its probability — for the educator to confirm or change.
+  What they confirm is kept (`week_declaration`, append-only; the latest for a section and week stands) and is what
+  the week's papers are made from. If Jev cannot be reached, the educator ticks the skill sets themselves. Jev is
+  adopted for this only on its eval: `engine eval week_skills` over the gold notes, score recorded in DECISIONS-LOG.
+
+# Written 2026-09-28, before the work. N4 was "not built" in workflows.json: "Today a person names the week's skill
+# set on the command line." The Jev use-case map (research/2026-09-27-jev-use-cases.md) put it first by impact.
+# Nimish, 2026-09-27: "You should really deep dive into Jev and potentially figure out all the use cases that we can
+# integrate and start doing that."
+says:
+  - words: "You should really deep dive into Jev and potentially figure out all the use cases that we can integrate and start doing that."
+    proved_by: packages/engine/tests/test_week_note.py::test_a_note_in_the_educators_words_proposes_the_grades_skill_sets_it_covered
+  - words: "Let's not start building a new engine right now."
+    proved_by: packages/engine/tests/test_week_note.py::test_what_the_educator_confirms_is_kept_and_the_latest_for_a_week_stands
+manual:
+  - "An educator declares a real week on the site and the proposal matches what they meant."
+scenarios: []
+criteria:
+  - name: the proposal, the confirmation, Jev down
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_week_note.py tests/test_jev.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

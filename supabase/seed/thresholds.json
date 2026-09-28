@@ -1,0 +1,192 @@
+{
+ "note": "Every threshold the engine reads, as rows (CLAUDE.md rule 1). `engine load` upserts them into `threshold`; a change is an edit here and a load, never a number in code.",
+ "thresholds": [
+  {
+   "key": "state.min_events",
+   "value": 3,
+   "unit": "events",
+   "description": "Below this an estimate stays 'not enough yet'"
+  },
+  {
+   "key": "state.min_observers",
+   "value": 2,
+   "unit": "observers",
+   "description": "Distinct adults or contexts before a level is claimed"
+  },
+  {
+   "key": "next_sheet.promote_at",
+   "value": 0.8,
+   "unit": "proportion",
+   "description": "At-band correct over the last two sheets to move to L+"
+  },
+  {
+   "key": "next_sheet.demote_below",
+   "value": 0.5,
+   "unit": "proportion",
+   "description": "Below this, the next sheet drops to L-"
+  },
+  {
+   "key": "exposure.days",
+   "value": 21,
+   "unit": "days",
+   "description": "An item a child has seen within this window is not reused"
+  },
+  {
+   "key": "item.flag_low_p",
+   "value": 0.2,
+   "unit": "proportion",
+   "description": "Below this p_correct the item may be mis-levelled"
+  },
+  {
+   "key": "item.flag_high_p",
+   "value": 0.95,
+   "unit": "proportion",
+   "description": "Above this p_correct the item may be too easy"
+  },
+  {
+   "key": "item.min_attempts",
+   "value": 10,
+   "unit": "count",
+   "description": "Confirmed answers a question needs before its share right proposes anything"
+  },
+  {
+   "key": "mistake.learn_min_questions",
+   "value": 2,
+   "unit": "count",
+   "description": "Different questions a rule must explain unexplained answers on before it is proposed as a mistake (goals/s22)"
+  },
+  {
+   "key": "read.auto_confirm_above",
+   "value": 0.9,
+   "unit": "confidence",
+   "description": "A digit in its boxes read this surely stands (ADR 0035)"
+  },
+  {
+   "key": "read.route_above_overturn",
+   "value": 0.25,
+   "unit": "proportion",
+   "description": "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above"
+  },
+  {
+   "key": "marking.agreement_gate",
+   "value": 0.95,
+   "unit": "proportion",
+   "description": "Agreement with teacher marking before marks are trusted"
+  },
+  {
+   "key": "marking.spot_check_rate",
+   "value": 0.15,
+   "unit": "proportion",
+   "description": "Of a trusted kind's right answers, the share a person still checks (step 4, goals/s20-routine-intake.yaml)"
+  },
+  {
+   "key": "ocr.min_confidence",
+   "value": 70,
+   "unit": "confidence",
+   "description": "Below this the engine does not stand behind a reading: it is kept, flagged, and a person decides. At 0 a stray mark read as a minus sign reached a child's graph unchallenged",
+   "why": "How the transcriber finds a child's answer on a page (ADR 0019). Every one of these was tuned against a hand-read page, and every one is a property of how a PAPER is laid out rather than of the code — so the next paper will want them different, and rule 1 says that is a row to edit, not a Python file to change."
+  },
+  {
+   "key": "ocr.answer_column",
+   "value": 0.085,
+   "unit": "page fraction",
+   "description": "How far either side of a question its answer may sit. These papers print four boxes across, about 0.19 apart, so anything wider reaches into the neighbouring child's answer"
+  },
+  {
+   "key": "ocr.answer_drop",
+   "value": 0.095,
+   "unit": "page fraction",
+   "description": "How far below a question its answer may sit, when no following question bounds the region"
+  },
+  {
+   "key": "ocr.row_band",
+   "value": 0.02,
+   "unit": "page fraction",
+   "description": "Answers within this of each other vertically are one row, read left to right. The scans sit a degree off square, so rounding instead of clustering gave every child the next one's answer"
+  },
+  {
+   "key": "ocr.first_page_mask",
+   "value": 0.34,
+   "unit": "page fraction",
+   "description": "Top of page one painted out before anything is sent: the name band lives there (rule 6)"
+  },
+  {
+   "key": "ocr.box_min_width",
+   "value": 0.04,
+   "unit": "page fraction",
+   "description": "A printed answer box is at least this wide. Narrower rectangles are tick boxes and stray marks, not fields. Used only on a paper whose row says its answers live in boxes"
+  },
+  {
+   "key": "ocr.box_min_height",
+   "value": 0.015,
+   "unit": "page fraction",
+   "description": "And at least this tall. With box_min_width this separates the boxes a paper prints for its answers from the noise on a photograph of it"
+  },
+  {
+   "key": "ocr.box_max_width",
+   "value": 0.35,
+   "unit": "page fraction",
+   "description": "Wider than this is a frame around a number line or a working area, not an answer box. Counting one as a field handed a slot its neighbour's answer when the count happened to match"
+  },
+  {
+   "key": "ocr.box_ink_blank",
+   "value": 0.004,
+   "unit": "fraction of pixels",
+   "description": "A field with more ink than this and no word the transcriber could read is a doubt for a person, never a blank"
+  },
+  {
+   "key": "ocr.red_pen_mask",
+   "value": 1,
+   "unit": "switch",
+   "description": "Paint out red ink before a page is read. The educator marks in red and the child writes in pencil or blue; a red circle over 5147 read back as 147 at 95%. 0 turns it off"
+  },
+  {
+   "key": "ocr.reread_dpi",
+   "value": 500,
+   "unit": "dots per inch",
+   "description": "A flagged answer gets a second look at this resolution. The page itself goes to the transcriber at 150 dpi, where a 40x25-pixel answer is at the limit of what it can resolve — a third of everything that reaches a person sits one band under the floor. 0 turns the second look off"
+  },
+  {
+   "key": "ocr.reread_pad",
+   "value": 0.012,
+   "unit": "page fraction",
+   "description": "How much of the page around a doubtful answer goes into its crop. Too tight and the transcriber has no baseline to read the digits against; too loose and the neighbouring answer comes with it and the crop is refused for holding two numbers"
+  },
+  {
+   "key": "ocr.stencil_min_inliers",
+   "value": 50,
+   "unit": "matched features",
+   "description": "A child's page is read against its paper's rebuilt blank only when at least this many printed features line the two up. Pages that align measure 300-1000; a page too bare to align reads as it did before, never against a stencil that is not on it"
+  },
+  {
+   "key": "ocr.stencil_empty",
+   "value": 0.03,
+   "unit": "fraction of pixels",
+   "description": "The rebuilt blank counts as empty where fewer than this share of its pixels are dark. A child's number Textract took for print is given back to the child only where the blank is empty; a printed word's patch runs 10-25% dark, an empty box's interior under 1%"
+  },
+  {
+   "key": "confirm.queue_minutes",
+   "value": 2,
+   "unit": "minutes",
+   "description": "Target time for a teacher to clear one class"
+  },
+  {
+   "key": "llm.daily_budget_inr",
+   "value": 150,
+   "unit": "INR",
+   "description": "The adapter refuses a new call once today's cost_inr for the tenant passes this. A row, not a limit in code — raise it here."
+  },
+  {
+   "key": "week.skill_yes_above",
+   "value": 0.5,
+   "unit": "probability",
+   "description": "A skill set Jev says the week's note covered at least this surely comes ticked (N4, goals/n4-week-declaration.yaml)"
+  },
+  {
+   "key": "story.shape_sure_above",
+   "value": 0.6,
+   "unit": "probability",
+   "description": "A story's shape Jev is at least this sure of is taken; below it a person names it (goals/j3-story-shape.yaml)"
+  }
+ ]
+}

@@ -148,25 +148,13 @@ def apply(readings, notes, fmt_of):
 def checked_rows(conn, child_id=None):
     """Every answer a person has settled, oldest first: typed (the latest reading a person gave) or
     signed off without a change (the reader's reading, confirmed). A judgement is not a reading, so
-    an answer settled by Right/Wrong alone is not here."""
+    an answer settled by Right/Wrong alone is not here. The view `answer_checked` is the one definition
+    (goals/s19-validation-teaches.yaml); Marking counts from it too."""
     return conn.execute(
-        "with latest as (select distinct on (rc.item_result_id) rc.item_result_id, rc.human_read, rc.judged"
-        "               from read_correction rc order by rc.item_result_id, rc.created_at desc)"
-        " select si.child_id, i.fmt, c.id as capture_id, c.path, c.pages as file_pages, c.created_at::date as batch,"
-        "        coalesce((i.spec ->> 'page')::int, 1) as page, i.item_key, t.batch_id as paper, r.id as item_result_id,"
-        "        coalesce(r.raw_read::jsonb ->> 'child_answer', '') as model_read,"
-        "        coalesce(l.human_read, r.raw_read::jsonb ->> 'child_answer', '') as human_read,"
-        "        coalesce((r.raw_read::jsonb ->> 'confidence')::float, 0) as confidence,"
-        "        coalesce(r.raw_read::jsonb ->> 'why', '') as why,"
-        "        coalesce(r.raw_read::jsonb ->> 'answer_state', '') as answer_state,"
-        "        coalesce(r.raw_read::jsonb ->> 'guess', '') as guess,"
-        "        r.raw_read::jsonb -> 'box' as box, (l.item_result_id is not null) as corrected"
-        " from item_result r join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
-        " join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on t.id = si.sheet_template_id"
-        " left join latest l on l.item_result_id = r.id"
-        " where c.superseded_by is null and l.judged is null and (l.item_result_id is not null or r.state = 'confirmed')"
-        "   and (%s::uuid is null or si.child_id = %s::uuid)"
-        " order by c.created_at, i.item_key",
+        "select child_id, fmt, capture_id, path, file_pages, read_on as batch, page, item_key, paper, item_result_id,"
+        " reading as model_read, label as human_read, confidence, why, answer_state, guess, box, crop,"
+        " how = 'typed' as corrected"
+        " from answer_checked where (%s::uuid is null or child_id = %s::uuid) order by read_at, item_key",
         (child_id, child_id),
     ).fetchall()
 

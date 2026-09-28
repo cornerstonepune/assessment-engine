@@ -204,3 +204,42 @@ def test_rendering_a_week_draws_the_papers_already_made_and_makes_no_second_set(
     ).fetchall()
     assert sorted(x["qr_code"] for x in rows) == sorted(made)
     assert all(x["pdf_path"] for x in rows)
+
+
+def test_a_weeks_declaration_is_proposed_confirmed_and_read_back_over_http(client, conn, monkeypatch):
+    """N4 over HTTP (goals/n4-week-declaration.yaml): the note proposes, the educator confirms, the week reads it back;
+    another grade's skill set is refused with the reason."""
+    import uuid
+
+    from engine.w2_print import week_note
+
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    section = f"T{uuid.uuid4().hex[:5]}"
+    conn.execute(
+        "insert into child (tenant_id, roll_no, section, band) values (%s,'1',%s,'G2')", (tenant, section)
+    )
+    monkeypatch.setattr(
+        week_note.jev,
+        "decide_yes_no",
+        lambda conn, p, s, asks: {"yes": {c: 0.9 if c == "SUB.2D2D" else 0.1 for c in asks}},
+    )
+
+    got = client.post("/week/declaration/propose", json={"section": section, "note": "subtraction"})
+    assert got.status_code == 200 and [r["code"] for r in got.json()["skill_sets"] if r["ticked"]] == [
+        "SUB.2D2D"
+    ]
+    body = {
+        "section": section,
+        "week": "2026-W40",
+        "note": "subtraction",
+        "skill_sets": ["SUB.2D2D"],
+        "by": "neha",
+    }
+    assert client.post("/week/declaration", json=body).status_code == 200
+    back = client.get(f"/week/{section}/2026-W40/declaration").json()
+    assert back["skill_sets"] == ["SUB.2D2D"] and back["by"] == "neha"
+    refused = client.post("/week/declaration", json={**body, "skill_sets": ["ADD.3D3D"]})
+    assert refused.status_code == 409 and "not skill sets of G2" in refused.json()["detail"]
+    assert (
+        client.post("/week/declaration/propose", json={"section": "NOSUCH", "note": "x"}).status_code == 404
+    )

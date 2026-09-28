@@ -218,3 +218,27 @@ def test_a_typed_story_is_shaped_over_http_and_a_person_gets_it_when_jev_is_down
     monkeypatch.setattr(jev, "decide", down)
     r = client.post("/bank/story/shape", json={"story": story}, headers=HEADERS)
     assert r.status_code == 200 and r.json()["shape"] is None and "TYPESAFE_API_KEY" in r.json()["why"]
+
+
+def test_the_banks_proposals_are_listed_and_decided_once_over_http(client, conn):
+    """goals/s21-real-difficulty.yaml over HTTP: a question 20 of 20 right at Hard is listed with its evidence;
+    it is decided once — keep — and a second decision is refused with the reason."""
+    from tests.test_learn import _answered, _question, _tenant
+
+    tenant = _tenant(conn)
+    key = _question(conn, tenant)
+    _answered(conn, tenant, key, ["correct"] * 20)
+
+    listed = client.get("/bank/proposals", headers=HEADERS)
+    assert listed.status_code == 200
+    mine = next(p for p in listed.json() if p["subject"] == key)
+    assert mine["direction"] == "easier" and mine["evidence"]["n"] == 20
+
+    body = {"verdict": "keep", "by": "neha", "note": "a warm-up on purpose"}
+    assert (
+        client.post(f"/bank/proposal/{mine['id']}/decide", json=body, headers=HEADERS).json()["verdict"]
+        == "keep"
+    )
+    again = client.post(f"/bank/proposal/{mine['id']}/decide", json=body, headers=HEADERS)
+    assert again.status_code == 409 and "already decided" in again.json()["detail"]
+    assert key not in {p["subject"] for p in client.get("/bank/proposals", headers=HEADERS).json()}

@@ -34,6 +34,9 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
           <Link href="/make" className="chip">
             ← Every class
           </Link>
+          <Link href={`/make/${encodeURIComponent(section)}/week`} className="chip">
+            This week&rsquo;s declaration
+          </Link>
           {proposed.length ? (
             <form action={approveHome}>
               <input type="hidden" name="week" value={week} />

@@ -4,6 +4,7 @@ import { Body, PageHeader, Panel } from "@/components/shell";
 import { DIFFICULTIES } from "@/lib/queries";
 import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
+import { Proposals } from "./proposals";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -63,6 +64,13 @@ export default async function LibraryPage({ searchParams }: Props) {
             </p>
           </div>
         </Panel>
+        <div className="h-[18px]" />
+        {q.error ? (
+          <p role="alert" className="mb-3 text-[14px]">
+            {q.error}
+          </p>
+        ) : null}
+        <Proposals />
         <div className="h-[18px]" />
         <Panel title="What is in the bank" aside={`${n(totals.active)} ready · ${n(totals.retired)} removed`}>
           <div className="overflow-x-auto">
