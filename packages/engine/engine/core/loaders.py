@@ -35,159 +35,6 @@ FILLED_TABLES = (
     "topic",
 )
 
-THRESHOLDS = [
-    ("state.min_events", 3, "events", "Below this an estimate stays 'not enough yet'"),
-    ("state.min_observers", 2, "observers", "Distinct adults or contexts before a level is claimed"),
-    ("next_sheet.promote_at", 0.80, "proportion", "At-band correct over the last two sheets to move to L+"),
-    ("next_sheet.demote_below", 0.50, "proportion", "Below this, the next sheet drops to L-"),
-    ("exposure.days", 21, "days", "An item a child has seen within this window is not reused"),
-    ("item.flag_low_p", 0.20, "proportion", "Below this p_correct the item may be mis-levelled"),
-    ("item.flag_high_p", 0.95, "proportion", "Above this p_correct the item may be too easy"),
-    (
-        "item.min_attempts",
-        10,
-        "count",
-        "Confirmed answers a question needs before its share right proposes anything",
-    ),
-    (
-        "mistake.learn_min_questions",
-        2,
-        "count",
-        "Different questions a rule must explain unexplained answers on before it is proposed as a mistake (goals/s22)",
-    ),
-    (
-        "read.auto_confirm_above",
-        0.90,
-        "confidence",
-        "A digit in its boxes read this surely stands (ADR 0035)",
-    ),
-    (
-        "read.route_above_overturn",
-        0.25,
-        "proportion",
-        "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above",
-    ),
-    ("marking.agreement_gate", 0.95, "proportion", "Agreement with teacher marking before marks are trusted"),
-    (
-        "marking.spot_check_rate",
-        0.15,
-        "proportion",
-        "Of a trusted kind's right answers, the share a person still checks (step 4, goals/s20-routine-intake.yaml)",
-    ),
-    # How the transcriber finds a child's answer on a page (ADR 0019). Every one of these was tuned
-    # against a hand-read page, and every one is a property of how a PAPER is laid out rather than of
-    # the code — so the next paper will want them different, and rule 1 says that is a row to edit,
-    # not a Python file to change.
-    (
-        "ocr.min_confidence",
-        70,
-        "confidence",
-        "Below this the engine does not stand behind a reading: it is kept, flagged, and a person"
-        " decides. At 0 a stray mark read as a minus sign reached a child's graph unchallenged",
-    ),
-    (
-        "ocr.answer_column",
-        0.085,
-        "page fraction",
-        "How far either side of a question its answer may sit. These papers print four boxes across,"
-        " about 0.19 apart, so anything wider reaches into the neighbouring child's answer",
-    ),
-    (
-        "ocr.answer_drop",
-        0.095,
-        "page fraction",
-        "How far below a question its answer may sit, when no following question bounds the region",
-    ),
-    (
-        "ocr.row_band",
-        0.02,
-        "page fraction",
-        "Answers within this of each other vertically are one row, read left to right. The scans sit"
-        " a degree off square, so rounding instead of clustering gave every child the next one's answer",
-    ),
-    (
-        "ocr.first_page_mask",
-        0.34,
-        "page fraction",
-        "Top of page one painted out before anything is sent: the name band lives there (rule 6)",
-    ),
-    (
-        "ocr.box_min_width",
-        0.04,
-        "page fraction",
-        "A printed answer box is at least this wide. Narrower rectangles are tick boxes and stray"
-        " marks, not fields. Used only on a paper whose row says its answers live in boxes",
-    ),
-    (
-        "ocr.box_min_height",
-        0.015,
-        "page fraction",
-        "And at least this tall. With box_min_width this separates the boxes a paper prints for its"
-        " answers from the noise on a photograph of it",
-    ),
-    (
-        "ocr.box_max_width",
-        0.35,
-        "page fraction",
-        "Wider than this is a frame around a number line or a working area, not an answer box. Counting"
-        " one as a field handed a slot its neighbour's answer when the count happened to match",
-    ),
-    (
-        "ocr.box_ink_blank",
-        0.004,
-        "fraction of pixels",
-        "A field with more ink than this and no word the transcriber could read is a doubt for a person,"
-        " never a blank",
-    ),
-    (
-        "ocr.red_pen_mask",
-        1,
-        "switch",
-        "Paint out red ink before a page is read. The educator marks in red and the child writes in"
-        " pencil or blue; a red circle over 5147 read back as 147 at 95%. 0 turns it off",
-    ),
-    (
-        "ocr.reread_dpi",
-        500,
-        "dots per inch",
-        "A flagged answer gets a second look at this resolution. The page itself goes to the"
-        " transcriber at 150 dpi, where a 40x25-pixel answer is at the limit of what it can resolve"
-        " — a third of everything that reaches a person sits one band under the floor. 0 turns the"
-        " second look off",
-    ),
-    (
-        "ocr.reread_pad",
-        0.012,
-        "page fraction",
-        "How much of the page around a doubtful answer goes into its crop. Too tight and the"
-        " transcriber has no baseline to read the digits against; too loose and the neighbouring"
-        " answer comes with it and the crop is refused for holding two numbers",
-    ),
-    (
-        "ocr.stencil_min_inliers",
-        50,
-        "matched features",
-        "A child's page is read against its paper's rebuilt blank only when at least this many printed"
-        " features line the two up. Pages that align measure 300-1000; a page too bare to align reads as"
-        " it did before, never against a stencil that is not on it",
-    ),
-    (
-        "ocr.stencil_empty",
-        0.03,
-        "fraction of pixels",
-        "The rebuilt blank counts as empty where fewer than this share of its pixels are dark. A child's"
-        " number Textract took for print is given back to the child only where the blank is empty; a"
-        " printed word's patch runs 10-25% dark, an empty box's interior under 1%",
-    ),
-    ("confirm.queue_minutes", 2, "minutes", "Target time for a teacher to clear one class"),
-    (
-        "llm.daily_budget_inr",
-        150,
-        "INR",
-        "The adapter refuses a new call once today's cost_inr for the tenant passes this. A row, not a limit in code — raise it here.",
-    ),
-]
-
 
 def _seed(name, key):
     return json.loads((SEED / name).read_text())[key]
@@ -486,7 +333,8 @@ def _prompts(conn, t):
 
 
 def _thresholds(conn, t):
-    for key, value, unit, note in THRESHOLDS:
+    for r in _seed("thresholds.json", "thresholds"):
+        key, value, unit, note = r["key"], r["value"], r["unit"], r["description"]
         conn.execute(
             "insert into threshold (tenant_id, key, value, unit, description)"
             " values (%s,%s,%s,%s,%s)"
@@ -567,6 +415,18 @@ def load_all() -> dict[str, int]:
         topics.load(conn, t, _seed)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
+
+
+def load_settings() -> dict[str, int]:
+    """Only the rows the engine reads as settings — prompts, thresholds, config — each upserted from its seed as
+    `load_all` does. Every deploy runs it (`engine load --settings`, deploy-engine.yml), so a setting merged with
+    the code that reads it is live with that code; the rest waits for `bin/update-live`."""
+    with db.connect() as conn:
+        t = _tenant(conn)
+        for step in (_prompts, _thresholds, _config):
+            step(conn, t)
+        conn.commit()
+        return db.counts(conn, ("prompt", "threshold", "config"))
 
 
 def orphans() -> dict[str, list[str]]:

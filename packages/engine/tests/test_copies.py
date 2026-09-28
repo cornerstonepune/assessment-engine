@@ -199,3 +199,21 @@ def test_a_copy_cut_where_the_server_cannot_see_it_moves_to_where_the_scans_live
     moved = copies._cut(tmp_path / "class.pdf", [1, 2, 3], "copy01-R8-H02.pdf")
     assert moved == tmp_path / "assessments" / "copies" / "class" / "copy01-R8-H02.pdf"
     assert moved.read_bytes() == b"%PDF the copy as first cut" and not old.exists()
+
+
+@pytest.mark.parametrize("layout", ["2026-09-21", "today"])
+def test_a_copy_with_no_kept_pdf_is_read_in_the_layout_its_page_was_printed_in(
+    conn, tmp_path, monkeypatch, layout
+):
+    """goals/s18-read-as-printed.yaml: the 23 Sep copies were printed before L3 and their PDF was not kept. The
+    reader draws the worksheet in every layout it has printed in and reads the copy in the one it matches."""
+    from tests.test_library import _six_sums
+
+    monkeypatch.setattr(library, "PDF_DIR", tmp_path / "worksheets")
+    monkeypatch.setattr(copies, "CUT", tmp_path / "scans")
+    code = _six_sums(conn)
+    drawn = library.printed(conn, code)
+    pdf = drawn[layout] if layout in drawn else drawn[next(iter(drawn))]
+    scan = _scanned([pdf], tmp_path / "class.pdf")
+
+    assert copies._as_printed(conn, code, copies._cut(scan, [1], "copy01.pdf")) == pdf

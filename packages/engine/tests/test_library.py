@@ -162,3 +162,54 @@ def test_a_worksheet_already_printed_for_a_child_is_retired_never_changed(conn):
         "select item_ids, retired_at from sheet_template where id = %s", (sheet["id"],)
     ).fetchone()
     assert kept["item_ids"] == sheet["item_ids"] and kept["retired_at"] is not None
+
+
+def _six_sums(conn):
+    """A library worksheet of six sums of its own — the bank need not be on the copy — and its code."""
+    import dataclasses
+    import json
+    import random
+
+    from engine.assess import items
+
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    rung = conn.execute("select code from rung order by code limit 1").fetchone()["code"]  # any: layout only
+    rng, ids = random.Random(7), []
+    made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(40)]
+    for q in [q for q in made if len(q.responses[0].answer) == 2][:6]:
+        ids.append(conn.execute(
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s) returning id",
+            (tenant, f"T-{q.item_id}", q.template, rung, q.signal, "bare_sum", q.stem or "", json.dumps(q.spec),
+             json.dumps([dataclasses.asdict(r) for r in q.responses])),
+        ).fetchone()["id"])  # fmt: skip
+    code = "R5-T01"
+    conn.execute(
+        "insert into sheet_template (tenant_id, band, week, variant, source, code, skill_set_code, difficulty,"
+        " item_ids) values (%s, 'G2', 'library', 98, 'library', %s, 'ADD.2D2D', 'Easy', %s)",
+        (tenant, code, ids),
+    )
+    return code
+
+
+@needs_db
+def test_a_worksheet_prints_in_every_layout_the_school_has_printed_and_today_s_by_default(
+    conn, tmp_path, monkeypatch
+):
+    """A 23 Sep copy of a worksheet printed three boxes an answer; today the same worksheet prints two. Both are
+    drawn, each where only its own layout is kept, so one is never served as the other (goals/s18)."""
+    import json
+
+    monkeypatch.setattr(library, "PDF_DIR", tmp_path)
+    code = _six_sums(conn)
+    names = [x["name"] for x in library.layouts(conn)]
+    printed = library.printed(conn, code)
+    assert list(printed) == names[::-1] and library.pdf(conn, code) == printed[names[-1]]
+
+    def boxes_for_first_answer(pdf):
+        cells = json.loads(pdf.with_suffix(".key.json").read_text())["geometry"]
+        first = next(c["item"] for c in cells if c.get("kind") != "work")
+        return sum(1 for c in cells if c["item"] == first and c.get("kind") != "work")
+
+    assert boxes_for_first_answer(printed["2026-09-21"]) == 3
+    assert boxes_for_first_answer(printed[names[-1]]) == 2
