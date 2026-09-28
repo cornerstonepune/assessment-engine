@@ -1,0 +1,40 @@
+name: u6-report-card
+goal: >
+  A child's report card, one page for the educator and the child's parents: every signed-off answer in the three
+  signals (right, wrong with working, wrong, blank); a skill map of every skill set of the child's grade, one step back
+  and one forward on each lane, and any the child has answers on — a column per grade, a row per registry skill, the
+  school's ladder as arrows — each coloured by the graph's own state; what is going well, always at least one true thing; each named mistake with how often and the
+  child's own question, what they wrote and the answer; and what happens next, for the educator from the school's own
+  repair hint and the home paper, and for parents in plain words from the child's own questions. Only answers an
+  educator signed off count, and the card says how many still wait. No code of the engine's and never "teacher".
+
+# Written 2026-09-28, before the page, on Nimish's request the same day: "agastyas and advika's all papers are approved
+# - create a proper skill.knowledge grpah and a the report card for parents and teachers that's visual, accurate, with
+# clear actionables and positive areas as well"; then "dhanvi is done too".
+says:
+  - words: "create a proper skill.knowledge grpah"
+    proved_by: apps/web/tests/u6-report-card.spec.ts::the skill map places the grade's skill sets and one step either side, coloured by the graph's own state
+  - words: "visual, accurate"
+    proved_by: apps/web/tests/u6-report-card.spec.ts::every number on the card is the signed-off answers', and it says when any still wait
+  - words: "positive areas as well"
+    proved_by: apps/web/tests/u6-report-card.spec.ts::what goes well is named first, with its score, and the habit of showing working
+  - words: "with clear actionables"
+    proved_by: apps/web/tests/u6-report-card.spec.ts::each mistake is named with her own example, and what happens next is clear for the educator and for parents
+  - words: "the report card for parents and teachers"
+    proved_by: apps/web/tests/u6-report-card.spec.ts::the card reads on a phone without pushing the page sideways, and prints
+  - words: "clear actionables"
+    proved_by: packages/engine/tests/test_mistake_names.py::test_what_the_school_does_about_a_mistake_is_the_one_for_its_operation
+manual:
+  - "On live, once merged: open Children → G2 → Agastya, Advika and Dhanvi → Report card; each says every answer signed off."
+  - "The parents' lines are written from computed facts in fixed words; a model-written note (prompt `parent_note`) waits on Nimish's choice of tone and an eval."
+scenarios: []
+criteria:
+  - name: the report card, on the copy
+    run: cd apps/web && npx playwright test tests/u6-report-card.spec.ts
+    expect: "passed"
+  - name: the report the card reads, and the mistakes' names and hints
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_report.py tests/test_mistake_names.py -q
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

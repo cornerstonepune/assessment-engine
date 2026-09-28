@@ -16,7 +16,7 @@ export const NAV: readonly NavItem[] = [
 export function Shell({ me, children }: { me: Session; children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="flex w-full flex-col bg-basalt px-[18px] py-[26px] text-lime md:w-[230px] md:shrink-0">
+      <aside className="flex w-full flex-col bg-basalt px-[18px] py-[26px] text-lime md:w-[230px] md:shrink-0 print:hidden">
         <div className="mb-9 flex items-center gap-[10px]">
           <Mark />
           <div className="font-heading text-[19px] text-lime">cornerstone</div>

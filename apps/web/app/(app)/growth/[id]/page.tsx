@@ -57,6 +57,9 @@ export default async function ChildPage({ params, searchParams }: Props) {
           <Link href="/growth" className="chip">
             All classes
           </Link>
+          <Link href={`/growth/${id}/report`} className="chip">
+            Report card →
+          </Link>
         </p>
         <p data-testid="summary" className="mb-4 max-w-[760px] text-[16px] leading-snug">
           {summary(child.first_name, shown, notYet)}

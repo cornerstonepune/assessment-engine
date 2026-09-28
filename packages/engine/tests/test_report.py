@@ -35,6 +35,10 @@ def test_a_faulty_concept_comes_with_the_childs_own_example(conn, child, tmp_pat
     got = report.build(conn, child)
     f = next(f for f in got["faulty"] if f["mistake"] == "M_SMALL_FROM_LARGE")
     assert f["times"] == 1 and f["skill_code"] == skill and f["name"]
+    hint = conn.execute(
+        "select repair_hint from misconception where code = 'M_SMALL_FROM_LARGE' and op = '-'"
+    ).fetchone()["repair_hint"]
+    assert hint and f["hint"] == hint, "what the school does about it, for the subtraction it was made in"
     assert f["example"]["wrote"] == "5147" and "8" in f["example"]["question"]
     assert str(f["example"]["right"]) == "4853"
     assert got["strong"] == [], "one wrong answer makes nothing strong"

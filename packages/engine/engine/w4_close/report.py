@@ -43,7 +43,7 @@ def _example(row):
 def build(conn, child_id, since=None):
     """→ {"child_id", "strong", "faulty", "unexplained", "next"} for one child, over evidence from `since` on."""
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
-    name_of = mistake_names.names(conn)
+    name_of, hint_of = mistake_names.names(conn), mistake_names.names(conn, "repair_hint")
     sets = {r["rung_code"]: r for r in conn.execute("select code, name, rung_code from skill_set")}
     states = conn.execute(
         "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
@@ -73,11 +73,13 @@ def build(conn, child_id, since=None):
         if not codes:
             unexplained[row["skill_code"]] = unexplained.get(row["skill_code"], 0) + 1
         for code in codes:
+            op = (row["spec"] or {}).get("op")
             f = faulty.setdefault(
                 code,
                 {
                     "mistake": code,
-                    "name": name_of(code, op=(row["spec"] or {}).get("op"), skill=row["skill_code"]),
+                    "name": name_of(code, op=op, skill=row["skill_code"]),
+                    "hint": hint_of(code, op=op, skill=row["skill_code"]),
                     "skill_code": row["skill_code"],
                     "skill": skills.get(row["skill_code"], row["skill_code"]),
                     "times": 0,
