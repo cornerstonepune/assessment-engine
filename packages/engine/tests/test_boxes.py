@@ -424,3 +424,20 @@ def test_an_educators_tick_in_an_empty_box_is_not_a_digit(paper, tmp_path, reade
     cv2.line(img, (int(x0), int(y0)), (int(x1), int(y1)), (40, 40, 40), max(2, int(0.5 * ppm)), cv2.LINE_AA)
     got = _read(paper, _scanned(img, tmp_path / "scan.pdf"), reader)[str(n)]
     assert (got["inked"], got["answer_state"], got["child_answer"]) == (2, "written", wrote), got.get("why")
+
+
+def test_a_boxs_own_line_left_in_the_cell_is_not_ink():
+    """23 Sep R8-H01 copy 05, question 4: the fourth box was empty but for its own left line, a hair off where it
+    printed — 3 columns 97-100% dark top to bottom — and was counted as a digit. A column dark down (almost) the whole
+    cell at its edge is the box's line; a stroke inside the cell, a 1 included, is not."""
+    m = np.zeros((86, 70), bool)
+    m[:, 0:3] = True  # the box's line, at the left edge
+    assert not boxes._edge_lines_out(m).any()
+    m[:, 67:70] = True  # and at the right
+    assert not boxes._edge_lines_out(m).any()
+    one = np.zeros((86, 70), bool)
+    one[8:80, 33:37] = True  # a 1, written down the middle
+    assert (boxes._edge_lines_out(one) == one).all()
+    beside = one.copy()
+    beside[:, 0:2] = True
+    assert (boxes._edge_lines_out(beside) == one).all(), "the line goes, the 1 beside it stays"
