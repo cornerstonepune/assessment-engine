@@ -8,10 +8,15 @@ The name is the one for the question's own operation; else the operation of the 
 (`skills.by_operation`, read backwards); a code whose rows all share one name needs neither.
 """
 
+FIELDS = ("name", "repair_hint")
 
-def names(conn):
-    """→ name_of(code, op=None, skill=None): the mistake's name for that operation, or its code when it cannot be told."""
-    rows = conn.execute("select code, op, name from misconception").fetchall()
+
+def names(conn, field="name"):
+    """→ name_of(code, op=None, skill=None): the mistake's name (or its `repair_hint`, what the school does about it)
+    for that operation; the code when a name cannot be told, None when a hint cannot."""
+    if field not in FIELDS:
+        raise ValueError(f"a mistake has no {field!r} to look up")
+    rows = conn.execute(f"select code, op, {field} as name from misconception").fetchall()
     exact = {(r["code"], r["op"]): r["name"] for r in rows}
     alone = {}
     for r in rows:
@@ -24,7 +29,7 @@ def names(conn):
         if (code, op) in exact:
             return exact[(code, op)]
         only = alone.get(code, set())
-        return next(iter(only)) if len(only) == 1 else code
+        return next(iter(only)) if len(only) == 1 else (code if field == "name" else None)
 
     return name_of
 

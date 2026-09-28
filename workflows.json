@@ -148,7 +148,7 @@
       "gives": ["report_item"],
       "files": ["engine/w4_close/report.py", "engine/w4_close/cli_report.py"],
       "commands": ["engine report child", "engine report gold"],
-      "screens": [],
+      "screens": ["/growth/[id]/report"],
       "subject": {"any": true, "note": "Any subject: the report reads only the graph, the evidence and the named mistakes. Built: the report computed from confirmed evidence and read back against Aseem's findings (goals/w4b-report.yaml); not built: the narrative, the coordinator's approval, the class trend, the page a parent sees."}
     }
   ],

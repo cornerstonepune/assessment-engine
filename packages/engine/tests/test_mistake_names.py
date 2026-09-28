@@ -23,3 +23,18 @@ def test_one_code_is_named_for_the_operation_of_its_question_or_of_its_skill():
     assert name_of("M_FACT_PM10") == "Tens miscounted", "one name in every operation needs no operation"
     assert name_of("M_WRONG_OP") == "M_WRONG_OP", "never a guess at which one"
     assert name_of("M_NO_SUCH") == "M_NO_SUCH"
+
+
+def test_what_the_school_does_about_a_mistake_is_the_one_for_its_operation():
+    """Nimish, 2026-09-28: a report card "with clear actionables". The action is the school's own `repair_hint`, for
+    the operation the mistake was made in — never one guessed across operations, and never written here."""
+    with db.connect() as conn:
+        hint_of = mistake_names.names(conn, "repair_hint")
+        want = conn.execute(
+            "select repair_hint from misconception where code = 'M_SMALL_FROM_LARGE' and op = '-'"
+        ).fetchone()["repair_hint"]
+    assert hint_of("M_SMALL_FROM_LARGE", op="-") == want and want
+    assert hint_of("M_NOCARRY", skill="NUM.OPS.01").startswith("Place-value chart")
+    assert hint_of("M_FACT_PM1") is None, "two operations, two hints: none is guessed"
+    with pytest.raises(ValueError):
+        mistake_names.names(conn, "description; drop table misconception")
