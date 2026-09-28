@@ -3,7 +3,8 @@
 Date: 2026-09-28
 Goal: none — a design, not yet built. `goals/crosswalk-signed.yaml` is written with the build, when BUILD-ORDER
 reaches it or Nimish moves it up (decision 5 below).
-Status: **proposed**. Five decisions are Nimish's (at the end).
+Status: **proposed**. Nimish settled four of the five decisions on 28 Sep, and the rubric scale is recommended below
+for his yes (see the end).
 Source: the schema it extends, `supabase/migrations/20260917090000_ring_a.sql` and `20260921090000_full_registry.sql`;
 the spine it replaces as the record, `docs/spine/spine.json` (ADR 0037).
 
@@ -357,8 +358,10 @@ create table outcome_evidence (             -- append-only, like evidence_event 
 1. **Import Cambridge.** Bring in Cambridge Primary (Stages 1–6) and Lower Secondary (Stage 7), word for word, with
    fingerprints. Move NCF-SE and NCERT, already checked, into `framework_statement`.
 2. **Draw each strand's steps with their ages, and sign them.**
-3. **Write a small gold set by hand.** Educators write the alignments, statements, outcomes and rubrics for one strand
-   (Maths · Number). The prompts are evaluated against it before they are used (CLAUDE.md rule 7).
+3. **Align on the drafting method, and let a sample become the gold set.** Nobody at school writes (Nimish, 28 Sep:
+   "You can't expect Akanksha or any teacher to be writing"). The method, one prompt with a fixed way of thinking, is
+   what Nimish and Akanksha agree. Akanksha approves or corrects a drafted sample, and the approved sample is the gold
+   set every later draft is scored against (CLAUDE.md rule 7).
 4. **Draft, strand by strand, with those prompts.** For each objective, its alignments with a
    relation and a reason, and its combined statement. For each strand, the skill outcome and a descriptor at every
    level. All of it lands as proposed claims.
@@ -383,20 +386,36 @@ create table outcome_evidence (             -- append-only, like evidence_event 
   in a subject, not by grade.
 - **A draft becoming the school's word by being written down.** Drafts stay claims until a person signs them.
 
-## Decisions for Nimish
+## Decisions, as of 28 Sep
 
-1. **Which Cambridge framework, and the files.** For Grades 1–7 it is Cambridge Primary (Stages 1–6) and Lower
-   Secondary (Stages 7–9); IGCSE begins after Lower Secondary. The Drive has only Primary PE, so the Maths, English
-   and Science frameworks must come from the school's Cambridge account. "IGCSE Curriculum.pdf" in the Drive is
-   another school's Grade 1 map; the importer accepts only Cambridge's own publication. Which subjects, and is Grade n
-   Stage n?
-2. **One rubric scale.** The school uses several today:
-   - the Hindi reading rubric: Beginning, Developing, Fluent, Expressive;
-   - report cards: Outstanding, Desired, Improving, out of 10, where 6/10 appears under two labels;
-   - planning sheets: Level 1, 2 and 3;
-   - the registry: a score out of 10, and yes / sometimes / no.
-   Which one grades the outcomes?
-3. **Where rubrics sit.** Per strand and grade, gathering objectives (recommended), or per objective.
-4. **Who signs each subject.**
-5. **When to build.** BUILD-ORDER is on step 1 of ten, and ADR 0037 puts the spine's tables after the ten. The
-   choice is to pilot now as data shaped like these tables (Grade 3 Maths, no migration), or to move the tables up.
+1. **Cambridge files.** Official copies come from the Cambridge School Support Hub, which needs a school login;
+   Akanksha is asking whether Cornerstone is a registered centre. Until then, the structure is built from copies of
+   Cambridge's own publications found on other schools' sites (English 0058 v2.1, Science 0097 v1) and from the
+   official PE framework (0069) in the school's Drive. Each copy is recorded as a third-party copy, with its address
+   and fingerprint, and is compared with the official file when it arrives (Nimish: "let's not shy away from doing
+   that").
+2. **The rubric scale (recommended, for Nimish's yes).** Four levels inside the school, reported on the national
+   card's three:
+
+   | Level | Meaning | The engine's evidence | On the Holistic Progress Card |
+   |---|---|---|---|
+   | Beginning | does parts of the step with help | right at Easy | Beginner |
+   | Developing | does it alone in simpler cases, with slips in harder ones | right at Medium | Proficient |
+   | Secure | does what the step says, alone and consistently: the target, and the signal to move on | right at Hard | Advanced |
+   | Extending | uses it in new problems, explains it, finds the mistake | right at Advance | Advanced |
+
+   The reasons:
+   - The national Holistic Progress Card (PARAKH/NCERT) uses "three performance level descriptors - Beginner,
+     Proficient, and Advanced" (Middle Stage guide, page 9). On it, Proficient still means "requires some support",
+     so the school avoids the word inside its own scale.
+   - Guskey (Phi Delta Kappan, 2024, page 6): "optimal discrimination, validity, and reliability are obtained using
+     grading scales with four to seven levels or categories".
+   - Every question already carries one of four difficulties (Easy, Medium, Hard, Advance). The engine's suggested
+     level is the hardest difficulty a child answers right, consistently, and the educator confirms it. The
+     thresholds are rows in `threshold`, to be checked against real papers.
+   - NCF-SE asks for descriptors of behaviour, and for a child's progress to be compared with their own earlier
+     report, not with other children.
+3. **Rubrics per step of a strand.** Decided. Questions keep reporting per objective.
+4. **Signatory.** Akanksha, for every subject, to start.
+5. **Build.** Start now, as data shaped exactly like these tables, from the documents in hand. The tables themselves
+   (migrations) wait for their place in BUILD-ORDER.
