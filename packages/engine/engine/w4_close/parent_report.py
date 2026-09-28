@@ -76,18 +76,24 @@ def _states(conn, child_id, state):
     }
 
 
-def _not_yet(conn, rows):
+def _not_yet(conn, child_id, rows):
     """{rung: why it is not secure yet}, as the graph decides it: a skill is secure only once it holds on
     `state.min_observers` papers. v7 on live wrote "nearly secure ... got 14 of 14 right" with no reason, which reads to
-    a parent as a contradiction."""
+    a parent as a contradiction. Counted over the skills of the set still practising, as the nearly counts are."""
     row = conn.execute("select value from threshold where key = 'state.min_observers'").fetchone()
     need = row["value"] if row else 2
+    practising = {
+        (r["rung_code"], r["skill_code"])
+        for r in conn.execute(
+            "select rung_code, skill_code from child_skill_state where child_id = %s and state = 'practising'",
+            (child_id,),
+        )
+    }
     papers = {}
     for r in rows:
-        papers.setdefault((r["rung"], r["skill_code"]), set()).add(r["paper"] or r["id"])
-    out = {}
-    for (rung, _), p in papers.items():
-        out[rung] = min(out.get(rung, len(p)), len(p))
+        if (r["rung"], r["skill_code"]) in practising:
+            papers.setdefault(r["rung"], set()).add(r["paper"] or r["id"])
+    out = {rung: len(p) for rung, p in papers.items()}
     return {
         rung: "answered on one paper so far: secure once it holds on another"
         if n == 1
@@ -131,7 +137,7 @@ def facts(conn, child_id):
         _skill(by_code[code], right=right, answered=n, ready_to_move_up=code in stretch)
         for code, (right, n) in strong.items()
     ]
-    why = _not_yet(conn, rows)
+    why = _not_yet(conn, child_id, rows)
     nearly = [
         _skill(sets[r], right=right, answered=n, not_yet=why.get(r, "not yet secure"))
         for r, (right, n) in _states(conn, child_id, "practising").items()

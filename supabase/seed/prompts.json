@@ -885,6 +885,84 @@
       }
     },
     {
+      "purpose": "parent_report",
+      "version": 9,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/parent_report.v9.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "summary",
+          "can_do",
+          "working_on",
+          "at_home"
+        ],
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 80,
+            "maxLength": 900
+          },
+          "can_do": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "id",
+                "sentence"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "sentence": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 300
+                }
+              }
+            }
+          },
+          "working_on": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "id",
+                "explanation"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 20,
+                  "maxLength": 600
+                }
+              }
+            }
+          },
+          "at_home": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "minLength": 20,
+              "maxLength": 400
+            }
+          }
+        }
+      }
+    },
+    {
       "purpose": "item_generate",
       "version": 1,
       "model": "claude-haiku-4-5",

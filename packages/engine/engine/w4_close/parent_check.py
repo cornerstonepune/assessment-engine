@@ -24,7 +24,18 @@ BANNED = (
 NEARLY = re.compile(r"\b(nearly|almost|not yet)\b", re.IGNORECASE)
 SECURE = re.compile(r"\bsecure(ly)?\b", re.IGNORECASE)
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
-WHEN = re.compile(r"\b(this|last|next) (week|month|term|year)\b|\b(today|yesterday|weekly)\b", re.IGNORECASE)
+# v8: "earlier in the month" — any calendar span said of the answers is a guess at them
+WHEN = re.compile(
+    r"\b(this|last|next|the) (week|month|term|year)\b|\b(today|yesterday|weekly|monthly)\b", re.IGNORECASE
+)
+# a school in Pune: v8 had a parent use "ten-pence and one-penny coins"
+MONEY = re.compile(r"\b(pence|penny|pennies|pounds?|dollars?|cents?|euros?)\b", re.IGNORECASE)
+# "4 of 4", "two of three", "five of the last eight": a count said of a skill is that skill's own (v8 gave one child's
+# two skills the same "10 of 11", and the numbers were in the facts, so nothing caught it)
+PAIR = re.compile(
+    r"\b([a-z]+(?:-[a-z]+)?|\d+) of (?:the (?:first|last|most recent|recent|earlier) )?([a-z]+(?:-[a-z]+)?|\d+)\b",
+    re.IGNORECASE,
+)
 # "problem" said of the child — "has a problem", "problems with" — never the kind of question ("an addition problem",
 # v6's second run); a maths problem is not the child's: "word problems" is the skill set's own name, and v6 wrote "story problem" twice.
 # The ban is on the word said of the child ("has a problem"), never on the kind of question
@@ -47,6 +58,30 @@ TENS = {
     if i > 1
 }
 SCALES = {"hundred": 100, "thousand": 1000}
+
+
+def _count(token):
+    """A count written in digits or in words ("seven", "twenty-one", "none"); None when the word is not a number."""
+    t = token.lower()
+    if t.isdigit():
+        return int(t)
+    if t == "none":
+        return 0
+    parts = t.split("-")
+    vals = [UNITS.get(w, TENS.get(w)) for w in parts]
+    return None if None in vals else sum(vals)
+
+
+def _pairs(text):
+    return {
+        (a, b) for x, y in PAIR.findall(text) if (a := _count(x)) is not None and (b := _count(y)) is not None
+    }
+
+
+def _own(item):
+    """The counts a skill's line may say: right of answered, and an improving skill's earlier and recent."""
+    own = {(item["right"], item["answered"])} if "answered" in item else set()
+    return own | {p for k in ("earlier", "recent") if k in item for p in _pairs(item[k])}
 
 
 def numbers_in(text):
@@ -102,8 +137,14 @@ def check(f, d):
             "the summary never says what is secure or nearly secure: each skill's own line says it"
         )
     lists = {x["id"]: k for k in ("can_do", "nearly", "improving") for x in f[k]}
+    items = {x["id"]: x for k in ("can_do", "nearly", "improving") for x in f[k]}
     for c in d["can_do"]:
         k, t = lists.get(c["id"]), c["sentence"]
+        if c["id"] in items:
+            for pair in sorted(_pairs(t) - _own(items[c["id"]])):
+                problems.append(
+                    f"{c['id']}'s line says {pair[0]} of {pair[1]}, which is not its own count: {t!r}"
+                )
         if k == "can_do" and NEARLY.search(t):
             problems.append(f"{c['id']} is secure, never nearly or not yet: {t!r}")
         if k == "nearly" and not re.search(r"\bnearly secure\b", t, re.IGNORECASE):
@@ -130,6 +171,8 @@ def check(f, d):
                 problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
         if m := WHEN.search(t):
             problems.append(f"a time the facts do not give, {m.group(0)!r}: {t!r}")
+        if m := MONEY.search(t):
+            problems.append(f"money the school's parents do not use, {m.group(0)!r}: {t!r}")
         if "%" in t or re.search(r"\bper ?cent", t, re.IGNORECASE):
             problems.append(f"a percentage: {t!r}")
         if "!" in t:

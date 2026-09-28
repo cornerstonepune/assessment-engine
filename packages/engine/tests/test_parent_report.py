@@ -475,3 +475,32 @@ def test_what_the_v7_eval_found_a_skill_is_said_as_secure_only_on_its_own_line_a
         bad = [{**c, "sentence": wrong} if c is entry else c for c in lines]
         assert said(can_do=bad), (k, wrong)
     assert any("lender" in p for p in said(at_home=["Cross out and rewrite the lender digit together."]))
+
+
+def test_what_the_v8_eval_found_a_count_is_its_own_skills_and_the_words_are_a_pune_homes(conn, child):
+    """v8 on live: 10 of 12, both failures lines too long with the reason written in them (the page prints it now);
+    and read in the ten: one child's two skills both said "10 of 11"; "earlier in the month"; "ten-pence coins"."""
+    _one_paper(conn, child, "R23", 4)
+    f = P.facts(conn, child)
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    lines = _good(f)["can_do"]
+    near = next(c for c in lines if c["id"] in {x["id"] for x in f["nearly"]})
+    better = next(x for x in f["improving"])
+    a, b = better["earlier"].split(" right")[0].split(" of ")
+
+    def line(entry, t):
+        return [{**c, "sentence": t} if c is entry else c for c in lines]
+
+    assert said(can_do=line(near, "[child] is nearly secure, and got four of four right.")) == []
+    wrong = line(near, f"[child] is nearly secure, and got {a} of {b} right.")
+    assert any("not its own count" in p for p in said(can_do=wrong))
+    imp = next(c for c in lines if c["id"] == better["id"])
+    assert (
+        said(can_do=line(imp, f"[child] got {better['earlier']} earlier and {better['recent']} recently."))
+        == []
+    )
+    assert any("a time" in p for p in said(summary="[child] improved from earlier in the month."))
+    assert any("money" in p for p in said(at_home=["Use ten-pence and one-penny coins to make a number."]))

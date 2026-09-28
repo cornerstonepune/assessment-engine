@@ -194,6 +194,11 @@ export function Letter({
                       ) : null}
                     </div>
                     <div className="text-basalt/80">{put(c.sentence)}</div>
+                    {s?.not_yet ? (
+                      <div className="text-[13px] text-basalt/60">
+                        Why not yet secure: {s.not_yet}.
+                      </div>
+                    ) : null}
                   </div>
                 </li>
               );
