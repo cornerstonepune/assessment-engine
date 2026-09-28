@@ -1,8 +1,9 @@
 # 0037 — The curriculum spine is one graph: imported where a body has decided, generated where it has not, every generated link flagged
 
 Date: 2026-09-26
-Goal: none — a design artefact (`docs/spine/spine.json` and the page rendered from it); the organ that holds it
-as rows starts with its own goal file when its turn comes after the ten steps (CLAUDE.md rule 12)
+Goal: goals/spine-traceable.yaml
+(the imported lines, each proved against the published copy it cites; the rest is a design artefact, and the organ
+that holds the spine as rows starts with its own goal file when its turn comes after the ten steps, CLAUDE.md rule 12)
 Status: **proposed** — needs Nimish's ratification of the shape; the generated links need the curriculum team's pass.
 Source: `research/spine_build.py` (the assembly and its checks), `research/spine_council/` (the seats' crosswalks and
 the brief they read), `docs/spine/sources/` (what was imported and from where).

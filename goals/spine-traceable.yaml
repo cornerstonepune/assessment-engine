@@ -1,0 +1,28 @@
+name: spine-traceable
+goal: >
+  Nothing in the curriculum spine is made up. Every official line imported into it (NCF-SE 2023's curricular goals and
+  competencies, NCERT's learning outcomes for Classes 1-10) is found in full, word for word, in the published document
+  it cites, on the page it cites. That document is the very copy the import read: its address and fingerprint are
+  recorded, and a changed file is refused. Anyone can run the check from any directory without asking anyone for a
+  file. What the school or a model wrote (behaviours, crosswalk links, activities) is labelled as such, and this check
+  does not vouch for it.
+
+# Written 2026-09-27, before the check was wired in. Nimish, 2026-09-27, on the curriculum skeleton.
+says:
+  - words: "Nothing needs to be fabricated here."
+    proved_by: packages/engine/tests/test_spine_provenance.py::test_every_official_line_in_the_spine_is_found_in_full_in_the_document_it_cites
+  - words: "say that we have not made something up"
+    proved_by: packages/engine/tests/test_spine_provenance.py::test_a_line_changed_by_one_word_is_caught
+  - words: "Tomorrow, anyone can trace back"
+    proved_by: packages/engine/tests/test_spine_provenance.py::test_a_publisher_file_that_is_not_the_copy_the_import_read_is_refused
+manual:
+  - "Cambridge (Primary, Lower Secondary) and CBSE lines are not imported yet, so this check does not cover them. The official Cambridge copies need the school's Cambridge support-site login (question 6 in docs/brainstorms/2026-09-27-curriculum-skeleton.md); each document joins docs/spine/sources/official_documents.json when it is imported."
+  - "The generated layers (the 204 behaviours, the crosswalk links) are marked proposed; they become the school's only when a person signs them."
+scenarios: []
+criteria:
+  - name: every official line, found in full on the publisher's own copy, from any directory; a changed word and a changed file are caught
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_spine_provenance.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

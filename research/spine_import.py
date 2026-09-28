@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Imports the spine's sources into docs/spine/sources/ as JSON, so the imported layers rebuild by one command.
 
-python3 research/spine_import.py --ncf <NCF-SE 2023 text> --elementary <NCERT elementary PDF> --secondary <NCERT secondary PDF>
+python3 research/spine_import.py      # or --ncf <NCF-SE 2023 text> --elementary <NCERT elementary PDF> --secondary <NCERT secondary PDF>
 
 - NCF-SE 2023, Part C: curricular goals (CG) and competencies (C) per subject, per stage. The text is the PDF's
   text layer (https://ncert.nic.in/pdf/NCFSE-2023-August_2023.pdf, extracted with PyMuPDF). Art and physical
@@ -11,7 +11,8 @@ python3 research/spine_import.py --ncf <NCF-SE 2023 text> --elementary <NCERT el
   and at the Secondary Stage (2019; https://ncert.nic.in/pdf/publication/otherpublications/learning_outcomes.pdf):
   the right-hand "Learning Outcomes" column of each class table. Hindi, Urdu and Sanskrit sections are left out.
 - The school's own learning-objective units, from supabase/seed/registry.json.
-No model is called. The PDFs are not committed; pass their local paths.
+No model is called. The PDFs are not committed: a path not passed is fetched from the publisher and checked
+against its recorded fingerprint (research/spine_sources.py, docs/spine/sources/official_documents.json).
 """
 
 import argparse
@@ -19,6 +20,8 @@ import collections
 import json
 import re
 from pathlib import Path
+
+from spine_sources import fill
 
 R = Path(__file__).resolve().parents[1]
 OUT = R / "docs/spine/sources"
@@ -365,10 +368,10 @@ def school_units():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ncf", required=True)
-    ap.add_argument("--elementary", required=True)
-    ap.add_argument("--secondary", required=True)
-    a = ap.parse_args()
+    ap.add_argument("--ncf")
+    ap.add_argument("--elementary")
+    ap.add_argument("--secondary")
+    a = fill(ap.parse_args())
     OUT.mkdir(parents=True, exist_ok=True)
     ncf = ncf_competencies(a.ncf)
     lo = ncert_outcomes(a.elementary, a.secondary)
