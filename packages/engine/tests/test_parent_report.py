@@ -328,3 +328,31 @@ def test_what_the_v3_eval_on_live_found_the_facts_now_say_and_the_check_catches(
     assert "questions_the_child_left_blank" in f["on_the_papers"]
     for said in ("Over this week, [child] answered them.", "[child] did well today.", "Practise it weekly."):
         assert any("a time the facts do not give" in p for p in P.check(f, {**_good(f), "summary": said}))
+
+
+def test_numbers_are_read_however_they_are_written():
+    assert P.numbers_in("9,000 take away 3,456") == ({9000, 3456}, set())
+    assert P.numbers_in("leaving sixty-one, then forty three got on") == (set(), {61, 43})
+    assert P.numbers_in("nine thousand four hundred and fifty-six seats")[1] == {9456}
+    assert P.numbers_in("count in tens on a hundred-square, in hundreds") == (set(), set()), (
+        "a place value's name"
+    )
+
+
+def test_what_the_v4_eval_on_live_found_is_caught(conn, child):
+    """2026-09-28, v4 on live, 9 of 10, and reading all nine: a child's steps retold in number words, a sum in
+    grouped digits, and a quoted sentence's first word taken for a name."""
+    f = P.facts(conn, child)
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    assert any("the number 61" in p for p in said(next_at_school="[child] wrote sixty-one and stopped."))
+    assert any("the number 9000" in p for p in said(at_home=["Try 9,000 take away 3,456 together."]))
+    assert (
+        said(
+            at_home=["Tell a story like 'First you had some apples. Then you picked more.' Ask what happens."]
+        )
+        == []
+    )
+    assert said(at_home=["Count in tens up to a hundred together, with spoons."]) == []
