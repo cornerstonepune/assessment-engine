@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28 — N12: a child's report from the graph, read back against Aseem's findings (goal w4b; stacked on #96)
+
+- `engine/w4_close/report.py`, `engine report child <id>`, `engine report gold`, `GET /report/{child_id}`. Strong,
+  faulty (each named mistake with the child's own example: question, what they wrote, the right answer), unexplained
+  wrongs per skill, next (W2's home area). No model. `focus_paper._words` is now public as `question_text`.
+- `goals/w4-close-the-loop.yaml`'s report criterion now runs `engine report gold` (the command that exists).
+- Owed: `bin/engine report gold` on the server — needs `engine gold confirm` of the transcription (Nimish).
+- Waiting on Nimish: the parent note / narrative — model-drafted wording per named mistake approved once by Aseem and
+  composed by code (proposed), or the workflow's "LLM one sentence per child".
+
 ## 2026-09-28 — W4 starts: Friday's class card, from the graph alone (goal w4a; BUILD-ORDER step 9)
 
 - `engine/w4_close/card.py` (new workflow folder), `engine card build|confirm`, `GET /card/{section}/{week}`,

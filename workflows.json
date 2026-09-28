@@ -143,13 +143,13 @@
       "code": "N12", "workflow": "W4", "name": "Reports and planning",
       "does": "Monthly parent reports, the class trend, regrouping and not-ready flags.",
       "who": "code; a model for the narrative; the coordinator approves",
-      "built": "not built",
+      "built": "partly",
       "takes": ["child_skill_state"],
       "gives": ["report_item"],
-      "files": [],
-      "commands": [],
+      "files": ["engine/w4_close/report.py", "engine/w4_close/cli_report.py"],
+      "commands": ["engine report child", "engine report gold"],
       "screens": [],
-      "subject": {"any": true, "note": "Not built."}
+      "subject": {"any": true, "note": "Any subject: the report reads only the graph, the evidence and the named mistakes. Built: the report computed from confirmed evidence and read back against Aseem's findings (goals/w4b-report.yaml); not built: the narrative, the coordinator's approval, the class trend, the page a parent sees."}
     }
   ],
   "shared": [
@@ -160,6 +160,8 @@
     {"code": "doors", "name": "The front doors", "does": "The command line and the web service the website and n8n call — thin, each command handing straight to a workflow.", "folder": "engine/api", "files": ["engine/cli.py"], "subject": {"any": true, "note": ""}}
   ],
   "handovers": [
+    {"from": "engine/w4_close/report.py", "to": "engine/w2_print/focus_paper.py", "why": "A report's next step is the area W2's home paper works on, and its examples print as W2 prints a question."},
+    {"from": "engine/w4_close/cli_report.py", "to": "engine/w3_read/gold.py", "why": "The reports are read back against Aseem's transcribed findings, where W3 keeps them."},
     {"from": "engine/w4_close/card.py", "to": "engine/w2_print/focus_paper.py", "why": "The class card names each child's home area as W2 makes the home paper (`home_area`), never a second rule."},
     {"from": "engine/w2_print/library.py", "to": "engine/w1_bank/inventory.py", "why": "A worksheet is dealt from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/inventory.py", "why": "A child's paper is built from the bank's questions, each read back as the question it is."},

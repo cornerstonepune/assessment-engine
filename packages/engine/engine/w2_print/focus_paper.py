@@ -81,7 +81,7 @@ def catalog(conn) -> list[dict]:
     ]
 
 
-def _words(item):
+def question_text(item):
     """The question as a line of text: its stem, or for a bare sum its numbers (the page prints it in full)."""
     sp = item["spec"]
     if item["fmt"] == "missing_digit" and "c" in sp:
@@ -238,7 +238,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
                 "questions": [
                     {
                         "item_key": q["item_key"],
-                        "text": _words(q),
+                        "text": question_text(q),
                         "fmt": q["fmt"],
                         "shows_mistake": _can_show(q, area.mistake),
                         "id": str(q["id"]),
