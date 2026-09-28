@@ -1,0 +1,40 @@
+name: spine-readable
+goal: >
+  The spine page can be read without getting lost. Every item on it sits on the same five steps, in the same order:
+  why (the capabilities and the three words), what NCF-SE asks (its curricular goals and competencies), in the grade
+  (NCERT's outcomes and the school's units), when (the fortnights of the plan) and how we check (the engine's skills
+  and rungs). Clicking any item shows its own thread through those steps. Every link says where it comes from: NCF-SE
+  or NCERT, the school's own map, a proposal nobody has signed yet, or an inference from a shared competency. Every
+  unit of the school's map for Grades 1-4, and every NCERT outcome standing in for Grades 5-7, lands in the fortnights
+  of its grade's year in the syllabus's order, and reaches a capability or says why it cannot. The page speaks the
+  school's words, not the build's.
+
+# Written 2026-09-28, before the page was rebuilt. Nimish, 2026-09-28, on the spine page: "is there a way that you can
+# design this html better such that its more easily understood and the connections are untuitive - i am getting lost
+# in the artifact". The last two lines are his words from the same day, on what the plan must be.
+says:
+  - words: "i am getting lost in the artifact"
+    proved_by: packages/engine/tests/test_spine_page.py::test_every_item_on_the_page_opens_a_thread_on_the_same_five_steps
+  - words: "the connections are untuitive"
+    proved_by: packages/engine/tests/test_spine_page.py::test_every_link_in_a_thread_says_where_it_comes_from
+  - words: "more easily understood"
+    proved_by: packages/engine/tests/test_spine_page.py::test_the_page_speaks_the_schools_words_not_the_builds
+  - words: "in integration with the entire syllabus that we made"
+    proved_by: packages/engine/tests/test_spine_page.py::test_every_unit_and_outcome_of_grades_1_to_7_reaches_a_capability_and_a_fortnight
+  - words: "how can we break it down into fortnightly plans"
+    proved_by: packages/engine/tests/test_spine_page.py::test_each_grades_syllabus_is_paced_across_its_fortnights_in_order
+manual:
+  - "Whether the page is easy to follow is for Nimish and the curriculum team to say. These tests prove its structure, not how it reads to them."
+  - "The day, the seven modes and the weekly minutes are the school's proposal (docs/spine/plan_design.json), drafted for discussion and not agreed."
+  - "Links marked proposed become the school's only when a person signs them."
+scenarios: []
+criteria:
+  - name: every item on five steps, every link sourced, every unit and outcome of Grades 1-7 placed, the school's words
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_spine_page.py
+    expect: "passed"
+  - name: the page builds from the tracked files alone
+    run: python3 research/spine_page.py
+    expect: "rendered"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
