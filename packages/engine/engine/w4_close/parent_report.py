@@ -30,13 +30,13 @@ BANNED = (
     r"poor\w*",
     r"behind",
     r"struggl\w*",
-    r"problems?",
     r"concerns?\w*",
     r"fail\w*",
 )
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
 WHEN = re.compile(r"\b(this|last|next) (week|month|term|year)\b|\b(today|yesterday|weekly)\b", re.IGNORECASE)
-# a maths problem is not the child's: "word problems" is the skill set's own name, and v6 wrote "story problem" twice.
+# "problem" said of the child — "has a problem", "problems with" — never the kind of question ("an addition problem",
+# v6's second run); a maths problem is not the child's: "word problems" is the skill set's own name, and v6 wrote "story problem" twice.
 # The ban is on the word said of the child ("has a problem"), never on the kind of question
 SCHOOLS_OWN = re.compile(r"\b(word|story|maths?|one[- ]step|two[- ]step)[- ]problems?\b", re.IGNORECASE)
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
@@ -243,6 +243,9 @@ def check(f, d):
         counting = {v for v in spelled if (v <= 100 and v % 10 == 0) or v == 1000}
         for n in sorted(digits - numbers) + sorted(v for v in spelled - numbers - counting if v > 10):
             problems.append(f"the number {n} is not in the facts: {t!r}")
+        said_of = r"\b(has|have|having|had)\s+(a\s+|some\s+)?problems?\b|\bproblems?\s+(with|in)\b"
+        if m := re.search(said_of, SCHOOLS_OWN.sub("", t), re.IGNORECASE):
+            problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
         for w in BANNED:
             if m := re.search(rf"\b{w}\b", SCHOOLS_OWN.sub("", t), re.IGNORECASE):
                 problems.append(f"the word {m.group(0)!r} is not the school's: {t!r}")
@@ -269,13 +272,17 @@ def check(f, d):
 
 def draft(conn, child_id, ask=None, version=None):
     """→ {"facts", "draft", "problems", "prompt_id", "attempts"}: the model's words for the facts, held to them; sent
-    back once with what they broke. None when there is nothing signed off to report."""
+    back with what they broke, twice at most. None when there is nothing signed off to report."""
     ask = ask or llm.generate
     f = facts(conn, child_id)
     if f is None:
         return None
     fix = ""
-    for attempt in (1, 2):
+    for attempt in (
+        1,
+        2,
+        3,
+    ):  # every try held to the facts in full; a third lets a stubborn slip be put right
         meta = {}
         try:
             # what comes next is the engine's decision, and code says it on the page: v5 was told "secure already" and
