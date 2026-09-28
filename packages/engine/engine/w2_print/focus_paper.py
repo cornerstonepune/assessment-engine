@@ -24,7 +24,7 @@ from playwright.sync_api import sync_playwright
 from engine.assess import focus
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
-from engine.core import db, roster
+from engine.core import db, mistake_names, roster
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print.assemble import _config, _qr, _threshold
 
@@ -208,7 +208,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
         chosen = [(a, n) for a in home_area(conn, child_id, states)]
     names = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
-    mistakes = {r["code"]: r["name"] for r in conn.execute("select code, name from misconception")}
+    name_of = mistake_names.names(conn)
     rng = random.Random(f"{child_id}|{week}")
     out = []
     for area, want in chosen:
@@ -224,7 +224,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
             else f"Right {area.right} of {area.answered} — {WHY[area.state]}"
         )
         if area.mistake:
-            why += f": {mistakes.get(area.mistake, area.mistake)}"
+            why += f": {name_of(area.mistake, skill=area.skill_code)}"
         out.append(
             {
                 "skill_set": area.skill_set,

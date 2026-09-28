@@ -405,3 +405,22 @@ def test_a_copy_is_read_in_the_layout_it_was_printed_in(two_layouts, tmp_path, r
         assert {k: r["child_answer"] for k, r in got.items()} == {
             str(n): wrote[i] for n, i in enumerate(ids, 1)
         }
+
+
+def test_an_educators_tick_in_an_empty_box_is_not_a_digit(paper, tmp_path, reader):
+    """23 Sep, R8-H01 copy 05: the educator ticked each answer in the box after the child's last digit. The reader
+    read 23, 26 and 27 right, and each waited — "3 boxes hold ink but the reader saw 23" — because the tick is ink.
+    Measured on that page: a written digit spans 74–87% of its box's height, the tick 23%. A box holds a digit
+    only when its ink is at least DIGIT_TALL of the box's height; a short stroke across its top is a mark."""
+    pdf, key = paper
+    ids = [it["item_id"] for it in key["items"]]
+    n = next(n for n in range(1, 7) if _boxes(key, n) == 3)
+    wrote = _fits(key, n)[1:]  # two digits, right-aligned: the first box stays empty
+    img = _filled(paper, {ids[n - 1]: wrote}, {})
+    first = geometry.cells_of(key["geometry"], 1)[0][(ids[n - 1], "ans")][0]
+    ppm = boxes.PPM
+    x0, y0 = (first["x"] + first["w"] * 0.35) * ppm, (first["y"] + first["h"] * 0.32) * ppm
+    x1, y1 = (first["x"] + first["w"] * 0.7) * ppm, (first["y"] + first["h"] * 0.12) * ppm
+    cv2.line(img, (int(x0), int(y0)), (int(x1), int(y1)), (40, 40, 40), max(2, int(0.5 * ppm)), cv2.LINE_AA)
+    got = _read(paper, _scanned(img, tmp_path / "scan.pdf"), reader)[str(n)]
+    assert (got["inked"], got["answer_state"], got["child_answer"]) == (2, "written", wrote), got.get("why")

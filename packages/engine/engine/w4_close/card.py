@@ -9,7 +9,7 @@ rebuilt whenever it is built); the educator confirms it once, by name, and what 
 
 import json
 
-from engine.core import db
+from engine.core import db, mistake_names
 from engine.w2_print import focus_paper
 
 GROUPS = {
@@ -57,14 +57,14 @@ def build(conn, section):
             "select code, name, rung_code from skill_set where status is distinct from 'retired'"
         )
     }
-    mistakes = {r["code"]: r["name"] for r in conn.execute("select code, name from misconception")}
+    name_of = mistake_names.names(conn)
 
     by_rung = {}
     for (rung, who), s in _weakest(states).items():
         g = by_rung.setdefault(rung, {k: [] for k in ORDER if k != "reteach"} | {"reteach": {}})
         if s["state"] == "patterned_error":
             code = s["repeating_misconception"]
-            g["reteach"].setdefault(code, {"name": mistakes.get(code, code), "children": []})[
+            g["reteach"].setdefault(code, {"name": name_of(code, skill=s["skill_code"]), "children": []})[
                 "children"
             ].append(who)
         else:
@@ -99,7 +99,7 @@ def build(conn, section):
                     "skill_set": area.skill_set,
                     "level": area.level,
                     "mistake": area.mistake,
-                    "mistake_name": mistakes.get(area.mistake) if area.mistake else None,
+                    "mistake_name": name_of(area.mistake, skill=area.skill_code) if area.mistake else None,
                     "state": area.state,
                     "right": area.right,
                     "answered": area.answered,

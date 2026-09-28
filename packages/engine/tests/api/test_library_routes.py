@@ -46,6 +46,16 @@ def test_a_worksheet_prints_as_a_pdf_and_is_served_from_disk_the_second_time(cli
     assert client.get("/worksheet/R22-H03.pdf").content == first.content
 
 
+def test_a_worksheet_is_served_in_any_layout_it_printed_in_and_an_unknown_layout_is_named(client):
+    """Working out why a copy read as it did needs the worksheet as that copy was printed (goals/s18)."""
+    old = client.get("/worksheet/R22-H03.pdf?layout=2026-09-21")
+    assert old.status_code == 200 and old.content != client.get("/worksheet/R22-H03.pdf").content
+    boxes = client.get("/worksheet/R22-H03/geometry?layout=2026-09-21").json()["geometry"]
+    assert boxes and boxes != client.get("/worksheet/R22-H03/geometry").json()["geometry"]
+    none = client.get("/worksheet/R22-H03.pdf?layout=1999-01-01")
+    assert none.status_code == 404 and "2026-09-21" in none.json()["detail"]
+
+
 def test_a_code_that_names_no_worksheet_is_not_found(client):
     assert client.get("/worksheet/R22-H99.pdf").status_code == 404
     assert client.get("/worksheet/..%2Fsecrets.pdf").status_code == 404

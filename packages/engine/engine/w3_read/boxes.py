@@ -8,7 +8,7 @@ because nobody knew where those papers' answers lived: it took the handwritten n
 question, which on 2026-09-24 was the child's working.
 
 What code decides here, and the reader is never asked: whether a box is blank (a count of dark pixels, the
-paper's own print taken out), how many boxes hold ink (the same), whether the working space was written in
+paper's own print taken out), how many boxes hold a digit (ink down the box, not a tick across it), whether the working space was written in
 (the third signal, rule 5). The reader (`adapters/digits.py`, ADR 0035) is asked one thing — which digits are
 in this run of boxes, handed to it as photographed, print and all — and its answer stands only when it has
 exactly as many digits as boxes hold ink and it is at least as sure as the floor.
@@ -39,6 +39,9 @@ PRINTED = 140  # grey under this on the blank page is the paper's own print
 INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the line itself never counts
 # A pencil digit fills 3-15% of its cell; JPEG noise and a shadow on white, measured under 0.3%.
 INK = 0.012
+# A digit is written down its box; an educator's tick or a stray stroke lies across it. Measured on 23 Sep R8-H01 copy
+# 05: digits span 74–87% of their box's height, the tick in the box after them 23%, an empty box's specks 6%.
+DIGIT_TALL = 0.45
 WORK_INK = 0.004  # this much of the working space written on is the third signal (rule 5)
 WORK_INSIDE = 1.5  # mm: the working box's dashed border and its printed label stay outside the measure
 AROUND = 2  # mm of the photograph around a run of boxes handed to the reader, as ADR 0035 measured it
@@ -216,6 +219,18 @@ def ink(is_dark, printed, g, inside=INSIDE):
     return float((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], box)).mean())
 
 
+def tall(is_dark, printed, g, inside=INSIDE):
+    """How much of a settled cell's height, `inside` mm in from its line, the marks in it span, top to bottom."""
+    x0, y0, x1, y1 = _px(g, inside)
+    rows = np.flatnonzero((is_dark[y0:y1, x0:x1] & ~_theirs(printed, [g], (x0, y0, x1, y1))).any(axis=1))
+    return float((rows[-1] - rows[0] + 1) / max(1, y1 - y0)) if rows.size else 0.0
+
+
+def holds_digit(is_dark, printed, g):
+    """A box holds a digit when it is marked (`INK`) down at least `DIGIT_TALL` of its height — not a tick across it."""
+    return ink(is_dark, printed, g) > INK and tall(is_dark, printed, g) >= DIGIT_TALL
+
+
 def photo(canon, cells):
     """The run of one answer's settled boxes as photographed, AROUND mm about it: what the reader sees. Not
     cleaned — taking the print out took the pencil lying on it too, and on 24 Sep every reader then stood
@@ -311,7 +326,7 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
             continue
         box = _back(M, run, img.shape, frame)
         run = settle(grey, printed, run)
-        inked = sum(ink(is_dark, printed, c) > INK for c in run)
+        inked = sum(holds_digit(is_dark, printed, c) for c in run)
         spaces = [settle(grey, printed, [w])[0] for w in works.get(item_key, [])]
         working = (
             "partial" if any(ink(is_dark, printed, w, WORK_INSIDE) > WORK_INK for w in spaces) else "none"
