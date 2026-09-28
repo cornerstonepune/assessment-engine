@@ -21,6 +21,9 @@ services:
       # sheet_instance.pdf_path records where a pack was rendered — an absolute path on the Mac that
       # rendered it. The copies sit at that same path inside the container, so the rows stay true.
       - ${HOME}/cornerstone/packs:${PACKS_AS_RECORDED}:ro
+      # the seed of the commit deployed, where the loader looks for it: `engine load --settings` runs on every
+      # deploy (deploy-engine.yml), so a setting merged with the code that reads it is live with that code
+      - ../supabase/seed:/app/supabase/seed:ro
     restart: unless-stopped
 
   caddy:

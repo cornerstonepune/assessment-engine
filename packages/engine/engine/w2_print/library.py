@@ -18,7 +18,6 @@ the level is dealt afresh.
 import hashlib
 import math
 from collections import Counter
-from pathlib import Path
 
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
@@ -271,10 +270,21 @@ def check(conn):
     return len(levels), found
 
 
-def pdf(conn, code):
-    """The worksheet as it prints — rendered the first time it is asked for, then served from disk.
-    Its code stands where a child's paper has its QR."""
-    path = PDF_DIR / f"{code}.pdf"
+def layouts(conn):
+    """Every layout a worksheet has printed in (`render.layouts`, goals/s18-read-as-printed.yaml), oldest first;
+    the last is today's."""
+    row = conn.execute("select value from config where key = 'render.layouts'").fetchone()
+    if not row:
+        raise LookupError("no render.layouts row: `engine load --settings` loads it")
+    return row["value"]
+
+
+def pdf(conn, code, layout=None):
+    """The worksheet as it prints in `layout` (today's when None) — rendered the first time it is asked for, then
+    served from disk, under the layout's own name: a cached PDF is never one layout served as another. Its code
+    stands where a child's paper has its QR."""
+    layout = layout or layouts(conn)[-1]
+    path = PDF_DIR / layout["name"] / f"{code}.pdf"
     if path.exists():
         return path
     t = conn.execute(
@@ -291,5 +301,11 @@ def pdf(conn, code):
     }
     sheet = Sheet(code, t["band"], t["difficulty"], t["variant"], "library",
                   [item_from_row(rows[i]) for i in t["item_ids"]], title=t["name"])  # fmt: skip
-    render_sheet(sheet, PDF_DIR, week_label=f"Worksheet {code}")
-    return Path(path)
+    render_sheet(sheet, path.parent, week_label=f"Worksheet {code}", layout=layout)
+    return path
+
+
+def printed(conn, code):
+    """{layout name: the worksheet drawn in it}, today's first: every way a copy of it may have been printed. A
+    copy scanned back is read in the one its page matches (`boxes.as_printed`)."""
+    return {layout["name"]: pdf(conn, code, layout) for layout in reversed(layouts(conn))}
