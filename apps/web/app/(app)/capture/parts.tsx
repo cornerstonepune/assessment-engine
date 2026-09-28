@@ -209,6 +209,35 @@ export function ReaderPanel({ r }: { r: ReaderReport }) {
             </table>
           </div>
         ) : null}
+        {r.bands.length ? (
+          <div className="mt-3 min-w-0 overflow-x-auto">
+            <p className="text-[15px] leading-snug">
+              How sure the reader was, and how often it was right. An answer stands on its own only when the reader is at least{" "}
+              {Math.round(r.floor)}% sure; below that a person checks it. When the bands just under that line are right nearly every
+              time, the line can come down and fewer answers wait.
+            </p>
+            <table className="grid mt-2">
+              <thead>
+                <tr>
+                  <th>Reader was this sure</th>
+                  <th className="text-right">Checked</th>
+                  <th className="text-right">Right</th>
+                  <th>Today</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.bands.map((b) => (
+                  <tr key={b.lo}>
+                    <td>{b.lo}–{Math.min(b.hi, 100)}%</td>
+                    <td className="num">{b.n}</td>
+                    <td className="num">{pct(b.right, b.n)}</td>
+                    <td>{b.lo >= r.floor ? <Pill tone="neem">stands alone</Pill> : <Pill tone="bamboo">a person checks</Pill>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
     </Panel>
   );
 }

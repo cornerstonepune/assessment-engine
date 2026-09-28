@@ -188,7 +188,10 @@ export type QueueEntry = { id: string; spot: boolean };
 export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean };
 // One row per day papers were read: how often the reader matched the people who checked that day's answers.
 export type ReaderDay = { day: string; checked: number; stood_behind: number; right: number; gave_up: number };
-export type ReaderReport = { checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; kinds: ReaderKind[]; days: ReaderDay[]; window: number; bar: number };
+// One row per band of the reader's own confidence: of the checked answers it read that surely, how many were what the
+// person said — its reading where it stood behind one, its guess where it did not. What says where the floor can sit.
+export type ReaderBand = { lo: number; hi: number; n: number; right: number };
+export type ReaderReport = { checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; kinds: ReaderKind[]; days: ReaderDay[]; bands: ReaderBand[]; floor: number; window: number; bar: number };
 
 export async function readerReport(): Promise<ReaderReport> {
   const [gate] = await sql<{ bar: number }[]>`select coalesce((select value from threshold where key = 'marking.agreement_gate'), 0.95)::float as bar`;
@@ -213,6 +216,18 @@ export async function readerReport(): Promise<ReaderReport> {
            count(*) filter (where stood and reader_right)::int as right,
            count(*) filter (where not stood)::int as gave_up
     from answer_checked group by read_on order by read_on desc`;
+  const bands = await sql<ReaderBand[]>`
+    with said as (
+      select confidence,
+             regexp_replace(lower(case when stood then reading else guess end), '[[:space:],]', '', 'g') as said,
+             regexp_replace(lower(label), '[[:space:],]', '', 'g') as label
+      from answer_checked where label <> '')
+    select b.lo, b.hi, count(*)::int as n, count(*) filter (where s.said = s.label)::int as right
+    from said s join (values (0, 50), (50, 70), (70, 80), (80, 85), (85, 90), (90, 95), (95, 101)) b(lo, hi)
+      on s.confidence >= b.lo and s.confidence < b.hi
+    where s.said <> ''
+    group by b.lo, b.hi order by b.lo`;
+  const [floor] = await sql<{ floor: number }[]>`select coalesce((select value from threshold where key = 'read.auto_confirm_above'), 0.9)::float * 100 as floor`;
   const sum = (k: keyof (typeof rows)[number]) => rows.reduce((n, r) => n + Number(r[k]), 0);
   return {
     checked: sum("checked"),
@@ -224,6 +239,8 @@ export async function readerReport(): Promise<ReaderReport> {
     bar: gate.bar,
     kinds: rows.map((r) => ({ ...r, trusted: r.window_n >= 50 && r.window_right / r.window_n >= gate.bar })),
     days,
+    bands,
+    floor: floor.floor,
   };
 }
 
