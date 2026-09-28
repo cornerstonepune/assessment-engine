@@ -286,7 +286,7 @@ def read_again(
     paper: list[str] = typer.Option([], "--paper", help="one paper's code; default every paper"),
 ) -> None:
     """Read every live scan again so each unclear answer carries the reader's guess. A paper a person
-    has signed off or corrected is never read again; every settled answer whose reading changed is
+    has signed off or corrected keeps what they said; every settled answer whose reading changed is
     named. Exits 1 if any did, or if any file could not be read."""
     with db.connect() as conn:
         out = reread.run(conn, only=paper or None)

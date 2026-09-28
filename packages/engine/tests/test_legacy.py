@@ -509,56 +509,94 @@ def test_reimporting_the_same_file_returns_the_existing_capture(conn, child, tmp
     assert n == 1
 
 
-@pytestmark_db
-def test_a_paper_a_person_signed_off_is_never_read_again(conn, child, tmp_path, monkeypatch):
-    """A better reader re-reads the corpus. A paper a teacher has already signed off must keep her
-    signature: superseding its capture would take her approved answers out of the child's ladder."""
+def _read_twice(conn, child, tmp_path, monkeypatch, bytes_, touch):
+    """Read a paper, let a person `touch` it, read it again with a reader that now sees 99 everywhere."""
     path = tmp_path / "paper.json"
     path.write_text(json.dumps(PAPER))
     legacy.load_paper(conn, path)
     scan = tmp_path / "scan.jpg"
-    scan.write_bytes(b"signed off, then read again")
+    scan.write_bytes(bytes_)
     monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
     asked = []
     fake_ocr(monkeypatch, asked)
-
     first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
-    conn.execute("update item_result set state = 'confirmed' where capture_id = %s", (first["capture_id"],))
+    kept = touch(first["capture_id"])
+    before = _rows(conn, first["capture_id"])
+    better = ocr.answers_for
+    monkeypatch.setattr(
+        ocr,
+        "answers_for",
+        lambda *a, **k: {s: {**r, "child_answer": "99"} for s, r in better(*a, **k).items()},
+    )
     again = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test", again=True)
-    _untouched(conn, asked, first, again)
+    return first, again, before, _rows(conn, first["capture_id"]), kept, asked
+
+
+def _rows(conn, capture):
+    return {
+        r["id"]: r
+        for r in conn.execute(
+            "select id, raw_read::jsonb ->> 'child_answer' as read, status, state, misconception_codes"
+            " from item_result where capture_id = %s",
+            (capture,),
+        )
+    }
+
+
+def _only_the_untouched_were_read_again(conn, first, again, before, after, kept, asked):
+    assert len(asked) == 2, "the paper is read again"
+    assert again["capture_id"] == first["capture_id"], "the same capture: a person's work hangs from it"
+    assert (
+        conn.execute("select superseded_by from capture where id = %s", (first["capture_id"],)).fetchone()[
+            "superseded_by"
+        ]
+        is None
+    )
+    assert kept and set(before) == set(after)
+    for rid in before:
+        if rid in kept:
+            assert after[rid] == before[rid], "what a person checked stays exactly as they left it"
+        else:
+            assert after[rid]["read"] == "99", "an answer nobody checked takes the new reading"
+    assert len(again["results"]) == len(before) - len(kept)
+    assert any(f"{len(kept)} answer" in n for n in again["notes"])
 
 
 @pytestmark_db
-def test_a_paper_a_person_has_corrected_is_never_read_again(conn, child, tmp_path, monkeypatch):
-    """Not signed off yet, only corrected: still a person's work. A re-read took six of Nimish's
-    corrections before this was guarded."""
-    path = tmp_path / "paper.json"
-    path.write_text(json.dumps(PAPER))
-    legacy.load_paper(conn, path)
-    scan = tmp_path / "scan.jpg"
-    scan.write_bytes(b"corrected, not yet signed, then read again")
-    monkeypatch.setattr(legacy, "render_pages", lambda p, pages=None: [b"jpeg"])
-    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
-    asked = []
-    fake_ocr(monkeypatch, asked)
+def test_a_signed_off_answer_keeps_its_signature_when_the_paper_is_read_again(
+    conn, child, tmp_path, monkeypatch
+):
+    """Nimish, 2026-09-28: "yes, go ahead with the partial re-read" — a better reader reaches the answers nobody
+    has looked at yet, and an answer a person signed off keeps their signature: its reading, mark and state."""
 
-    first = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test")
-    rid = conn.execute(
-        "select id from item_result where capture_id = %s limit 1", (first["capture_id"],)
-    ).fetchone()["id"]
-    marking.correct(conn, rid, "42", "a teacher")
-    again = legacy.import_scan(conn, scan, "TEST-PAPER", child, "test", again=True)
-    _untouched(conn, asked, first, again)
+    def sign_one(capture):
+        rid = conn.execute(
+            "select id from item_result where capture_id = %s order by id limit 1", (capture,)
+        ).fetchone()["id"]
+        conn.execute("update item_result set state = 'confirmed' where id = %s", (rid,))
+        return {rid}
+
+    got = _read_twice(conn, child, tmp_path, monkeypatch, b"one signed, then read again", sign_one)
+    _only_the_untouched_were_read_again(conn, *got)
 
 
-def _untouched(conn, asked, first, again):
-    assert len(asked) == 1  # not read a second time
-    assert again["capture_id"] == first["capture_id"] and again["already"] is True
-    live = conn.execute("select superseded_by from capture where id = %s", (first["capture_id"],)).fetchone()[
-        "superseded_by"
-    ]
-    assert live is None
+@pytestmark_db
+def test_a_corrected_answer_is_not_read_again_but_the_rest_of_its_paper_is(
+    conn, child, tmp_path, monkeypatch
+):
+    """Not signed off, only corrected: still a person's work. A re-read once took six of Nimish's corrections;
+    now it takes none of them and still reads what nobody corrected."""
+
+    def correct_one(capture):
+        rid = conn.execute(
+            "select id from item_result where capture_id = %s order by id limit 1", (capture,)
+        ).fetchone()["id"]
+        marking.correct(conn, rid, "42", "a teacher")
+        return {rid}
+
+    got = _read_twice(conn, child, tmp_path, monkeypatch, b"one corrected, then read again", correct_one)
+    _only_the_untouched_were_read_again(conn, *got)
 
 
 @pytestmark_db

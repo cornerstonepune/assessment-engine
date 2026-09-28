@@ -19,7 +19,7 @@ import pymupdf
 
 from engine.core import db, roster
 from engine.w2_print import library
-from engine.w3_read import boxes, legacy, read_eval, render_pdf, sorting
+from engine.w3_read import boxes, checked, legacy, read_eval, render_pdf, sorting
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
@@ -177,7 +177,7 @@ def _replaces(conn, capture_id, scan):
         " and c.id <> %s and c.superseded_by is null and (c.path like %s or c.path like %s)",
         (capture_id, capture_id, _home(CUT / stem) + "/%", _home(WAS_CUT / stem) + "/%"),
     ).fetchall():
-        if not legacy.worked_on(conn, old["id"]):
+        if not checked.worked_on(conn, old["id"]):
             conn.execute("update capture set superseded_by = %s where id = %s", (capture_id, old["id"]))
 
 

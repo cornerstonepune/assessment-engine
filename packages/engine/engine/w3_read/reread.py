@@ -6,8 +6,8 @@ offer the guess for a one-click confirm. The reader itself is unchanged.
 
 Every live capture already carries its file, its child, the paper it was read against and the pages
 of that paper its answers land on — exactly what `legacy.import_scan` takes — so nothing names a
-child here (rule 6). A paper a person has signed off or corrected is never read again
-(`legacy.worked_on`). Every settled answer whose reading changed is named in the result, so a re-read
+child here (rule 6). On a paper a person has worked on, only the answers nobody signed off or corrected
+take the new reading (`legacy.UNTOUCHED`). Every settled answer whose reading changed is named in the result, so a re-read
 that moved anything the engine stood behind cannot pass unnoticed.
 """
 
