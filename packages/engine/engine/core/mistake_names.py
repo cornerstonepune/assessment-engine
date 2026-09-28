@@ -8,7 +8,7 @@ The name is the one for the question's own operation; else the operation of the 
 (`skills.by_operation`, read backwards); a code whose rows all share one name needs neither.
 """
 
-FIELDS = ("name", "repair_hint")
+FIELDS = ("name", "repair_hint", "description")
 
 
 def names(conn, field="name"):

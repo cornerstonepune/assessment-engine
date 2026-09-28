@@ -39,21 +39,25 @@ class LLMError(RuntimeError):
     pass
 
 
-def active_prompt(conn, purpose, subject=None):
+def active_prompt(conn, purpose, subject=None, version=None):
     """The prompt row that answers `purpose`: a row scoped to `subject` wins over the shared row
-    (subject is null), so a second subject carries its own master prompt (ADR 0009)."""
+    (subject is null), so a second subject carries its own master prompt (ADR 0009). `version` names
+    one row whether or not it is active — only an eval asks for it (rule 7: a version is scored
+    before it is made active)."""
     row = conn.execute(
         "select id, text, model, json_schema from prompt"
-        " where purpose = %s and active and (subject = %s or subject is null)"
+        " where purpose = %s and (subject = %s or subject is null)"
+        " and (active and %s::int is null or version = %s::int)"
         " order by (subject is not null) desc limit 1",
-        (purpose, subject),
+        (purpose, subject, version, version),
     ).fetchone()
     if not row:
-        raise LLMError(f"no active prompt for {purpose!r}" + (f" (subject {subject!r})" if subject else ""))
+        what = f"version {version} of" if version else "an active prompt for"
+        raise LLMError(f"no {what} {purpose!r}" + (f" (subject {subject!r})" if subject else ""))
     return row
 
 
-def generate(conn, purpose, variables, images=(), subject=None, meta=None):
+def generate(conn, purpose, variables, images=(), subject=None, meta=None, version=None):
     """Refuses before spending anything once the tenant's spend today reaches the
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
@@ -71,7 +75,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None):
                 "daily budget (threshold llm.daily_budget_inr)"
             )
 
-    row = active_prompt(conn, purpose, subject)
+    row = active_prompt(conn, purpose, subject, version)
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])
     run = conn.execute(

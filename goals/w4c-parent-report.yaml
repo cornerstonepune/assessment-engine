@@ -1,0 +1,43 @@
+name: w4c-parent-report
+goal: >
+  The loop ends with a parent report: one page, a letter from the school, that tells a child's parents where the child
+  is in maths, what they can do (with the count each rests on), what has improved from their earlier answers to their
+  recent ones, what they are working on with their own question, what they wrote and the answer, what to do at home
+  this week, and what the educator does next. Code works out every fact from answers an educator signed off; a model
+  writes the words from those facts and is never given the child's name ([child], put in by the website); code holds
+  every word to the facts — each skill and mistake once, no number the facts lack, no name, no code, none of the words
+  the school does not use — and a draft that breaks them twice is never kept. No parent reads it before an educator
+  approves it by name; a report written before more answers were signed off says it is out of date.
+
+# Written 2026-09-28, before the code, on Nimish's words the same day: "we need a much better-formatted parent report.
+# We can't just show a graph. That's not the parent report. If we have this level of data, the process should end with
+# a parent report" — and on 2026-09-27: "It can't be so deterministic in nature. It should be a proper understanding and
+# explanation of where the child is, what he is improving, what he is supposed to work on".
+says:
+  - words: "the process should end with a parent report"
+    proved_by: apps/web/tests/u7-parent-report.spec.ts::the report is reached from the child's page, and says when its writer has not passed its check
+  - words: "a much better-formatted parent report. We can't just show a graph"
+    proved_by: apps/web/tests/u7-parent-report.spec.ts::a parent reads a letter with the child's name, the counts beside the words and their own example
+  - words: "a proper understanding and explanation of where the child is, what he is improving, what he is supposed to work on"
+    proved_by: packages/engine/tests/test_parent_report.py::test_the_facts_are_the_childs_signed_off_answers_and_never_their_name
+  - words: "It can't be so deterministic in nature"
+    proved_by: packages/engine/tests/test_parent_report.py::test_words_that_say_what_the_facts_do_not_are_caught
+  - words: "The teacher always approves"
+    proved_by: apps/web/tests/u7-parent-report.spec.ts::an educator approves it in their own name, once, and a report out of date says so
+manual:
+  - "On live, after merge: run the `engine eval` workflow for parent_report v1 (the server holds the model's key). Only at every child held to their facts is v1 made active, its score in DECISIONS-LOG.md (rule 7)."
+  - "Nimish reads the first real reports (Agastya, Advika, Dhanvi) for tone before any goes to a parent."
+scenarios: []
+criteria:
+  - name: the facts, the check, the retry, keeping and approving, over HTTP
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_parent_report.py -q
+    expect: "passed"
+  - name: the letter a parent reads, on the copy
+    run: cd apps/web && npx playwright test tests/u7-parent-report.spec.ts
+    expect: "passed"
+  - name: the prompt, scored on every child with signed-off answers (on the server)
+    run: bin/engine eval parent_report --version 1
+    expect: "held to their facts"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

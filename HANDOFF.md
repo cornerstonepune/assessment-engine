@@ -3,6 +3,26 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28, W4 (step 9): the report card and the parent report; the partial re-read
+
+- **Merged:** #107 (partial re-read), #109 (report card), then this session's PR (the parent report).
+  - Goals: `u6-report-card.yaml` and `w4c-parent-report.yaml`.
+  - `STATE.md` has the section "Box reader, re-reads and the loop's end".
+- **Next, in order:**
+  1. Run the eval on the server: Actions → **engine eval** → `parent_report`, version `1`. It scores v1 on every
+     child with signed-off answers, and the bar is all of them.
+  2. If it passes: make v1 active in `supabase/seed/prompts.json`, record the score in `DECISIONS-LOG.md`, merge, and
+     let the deploy load it.
+  3. If it fails: fix the prompt at the cause (v2), then score again. Never loosen `parent_report.check`.
+  4. Once active: write Agastya's, Advika's and Dhanvi's reports (Children → the child → Parent report). Nimish reads
+     them for tone before any is approved.
+- **Step 1 is still open:** 23 Sep is at 72% against s17's 75% floor. Nimish decides whether to accept it or wait for
+  step 3.
+- **Owed by Nimish:**
+  - the school's own Google sign-in for Drive in n8n (step 4);
+  - rotating the AWS reader key;
+  - replacing N4's 24 gold notes, which this session wrote, with real educators' notes.
+
 ## 2026-09-28, curriculum: the crosswalk built from the documents in hand; the first sample is with Akanksha
 
 - No BUILD-ORDER step moved: the crosswalk is research-layer data shaped like ADR 0041's tables. Nothing was migrated.
