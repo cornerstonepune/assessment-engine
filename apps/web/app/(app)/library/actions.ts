@@ -51,3 +51,27 @@ export async function correctItem(formData: FormData): Promise<void> {
   revalidatePath("/library");
   redirect(next);
 }
+
+// A person decides one of the bank's proposals, once (goals/s21-real-difficulty.yaml): remove the question — the
+// engine rebuilds its worksheets in the same transaction — or keep it. A refusal comes back in the engine's words.
+export async function decideProposal(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("id") ?? "");
+  const verdict = String(formData.get("verdict") ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(id) || !["remove", "keep", "adopt", "reject"].includes(verdict)) redirect("/library");
+  // a mistake adopted is named by the person adopting it; the engine refuses one without a name
+  const note = String(formData.get("name") ?? "").trim().slice(0, 300);
+  let next = "/library";
+  try {
+    const res = await engineSend(`/bank/proposal/${id}/decide`, { verdict, by: me.email, note });
+    if (!res.ok) {
+      const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "it could not be decided";
+      next = `/library?error=${encodeURIComponent(`Nothing was changed: ${why}.`)}`;
+    }
+  } catch (e) {
+    next = `/library?error=${encodeURIComponent(e instanceof EngineDown ? e.message : "The engine could not be reached. Nothing was changed.")}`;
+  }
+  revalidatePath("/library");
+  revalidatePath("/worksheets");
+  redirect(next);
+}

@@ -1,0 +1,28 @@
+name: s20-routine-intake
+goal: >
+  Step 4 of the build order: a scan dropped in the school's Drive folder is on Marking with nobody acting (n8n F3
+  hands the engine its link; the engine fetches, sorts, reads and marks every copy); every wrong and every blank waits
+  for a person; and once a kind of question is trusted, its right answers settle alone except a fixed share a person
+  still checks — `marking.spot_check_rate`, 15%, a threshold row — the same answers every time a paper is read.
+
+# Written 2026-09-28, before the work. Found: F3 (n8n 8FI9HPbPz9LNgcC0) is active, polls the folder every minute and
+# has never run on a file — all 19 executions since 2026-09-26 are the poll itself refused by Drive ("Quota exceeded
+# … Requests per minute", consumer project 498586711441, limit 12000/min: a project shared beyond this school, not
+# the school's own use). Scans so far arrived by link. The spot-check was the website's one answer per paper, not a
+# share of a trusted kind's right answers, and no row held a rate.
+says:
+  - words: "This is a massive effort I'm making the teachers do, so it better help the case"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_trusted_kinds_right_answers_are_spot_checked_at_the_rows_rate
+  - words: "How many rounds of validations will we do till we get to more than 95% accuracy?"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
+manual:
+  - "A scan copied into Drive folder 1A3vNmSQUFDSTXH30HyMZUAUwERwO2Val runs F3 once (n8n executions), the engine's run is ok (GET /runs/{id}), and its copies are on Marking (GET /read/scan/{name}/copies) — nobody at a terminal."
+  - "F3's Drive credential on the school's own Google Cloud OAuth client, so its poll is not refused by a shared quota (Nimish)."
+scenarios: []
+criteria:
+  - name: marking, the gate and the spot-check
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_legacy.py -k "trusted or spot"
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
