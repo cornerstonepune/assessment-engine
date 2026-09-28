@@ -22,7 +22,8 @@ BANNED = (
 # a skill's state is said on its own line, held there to the list it is in; v7's summary called a skill that was only
 # improving "now secure", which no check could hold the summary to
 NEARLY = re.compile(r"\b(nearly|almost|not yet)\b", re.IGNORECASE)
-SECURE = re.compile(r"\bsecure(ly)?\b", re.IGNORECASE)
+# v10: "has mastered two-digit subtraction", said of a skill only improving — mastery is a state as secure is
+SECURE = re.compile(r"\b(secure(ly)?|master(s|ed|y|ing)?)\b", re.IGNORECASE)
 # the facts give the dates and the days the answers cover; "this week" was a model's guess at them (v3's first eval)
 # v8: "earlier in the month" — any calendar span said of the answers is a guess at them
 WHEN = re.compile(
@@ -33,7 +34,9 @@ MONEY = re.compile(r"\b(pence|penny|pennies|pounds?|dollars?|cents?|euros?)\b", 
 # "4 of 4", "two of three", "five of the last eight": a count said of a skill is that skill's own (v8 gave one child's
 # two skills the same "10 of 11", and the numbers were in the facts, so nothing caught it)
 PAIR = re.compile(
-    r"\b([a-z]+(?:-[a-z]+)?|\d+) of (?:the (?:first|last|most recent|recent|earlier) )?([a-z]+(?:-[a-z]+)?|\d+)\b",
+    # v10: "one correct answer out of four" is a count as "1 of 4" is
+    r"\b([a-z]+(?:-[a-z]+)?|\d+) (?:(?:correct |right )?answers? )?(?:out )?of "
+    r"(?:the (?:first|last|most recent|recent|earlier) )?([a-z]+(?:-[a-z]+)?|\d+)\b",
     re.IGNORECASE,
 )
 # "problem" said of the child — "has a problem", "problems with" — never the kind of question ("an addition problem",
