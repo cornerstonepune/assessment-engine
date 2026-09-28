@@ -1,0 +1,56 @@
+name: s23-a-curled-photo-lines-up
+goal: >
+  A phone photograph of a printed paper — seen at an angle, curling or creased where the paper lifts off the desk, its
+  corner marks cut off by the phone's scan app — is lined up with the page it was printed from closely enough that
+  every answer is read in its own boxes. No one straight map does that for a curled page, and how many features
+  matched is not how well a page lines up: the printed page's own print, found tile by tile on the photograph, lines
+  the page up and measures the curl, and each answer is then found around its own printed question. An answer whose
+  print is not found near where the page lines up goes to a person saying so, never read as blank or as a number at a
+  guessed place. A page on which too little of its print is found is still read as an old paper, and says so.
+
+# Written 2026-09-28, before the code, after measuring. Nimish asked why R31-H02 copies 01 and 02 of the 24 Sep scan
+# were barely read ("its in proper boxes and qr and all"): both had been read as old papers, 0 of 12 answers in their
+# boxes, because the line-up (ORB features, RANSAC at 0.74 mm, at least 60 matches) found 37 and 40 matches on their
+# photographs and refused them. The corner squares were proposed and ruled out on the photographs themselves: the scan
+# app cut the top two off both copies.
+# Measured on the 46 photographed pages of 23 and 24 Sep with the photographs as the engine reads them (the scans stay
+# on the school's Drive and in a scratch folder, never here, rule 6):
+# - one straight map, from either kind of feature, leaves answers up to 6-8 mm off on the pages that lift (24 Sep
+#   copies 01, 09; 23 Sep pages 7, 14, 17, 20), and the matched-feature count does not tell them apart: 99 matches on
+#   one page 7 mm off, 40 on a page within 3 mm;
+# - found by its print, tile by tile, with the curl carried by a smooth field, every page lines up and every answer is
+#   found in its boxes, 324 of 324; the last step, each answer found around its own question, moves a run 0.1 mm at
+#   the median and 2.9 mm at most;
+# - with the real reader on the 16 photographs of 24 Sep against ADR 0035's gold: 192 of 192 answers read in their
+#   boxes (168 before), 2 read wrong and stood behind (3 before).
+# Nimish, 2026-09-28: "yes re-read 24 sep and do the corner fix" — the re-read is the live scenario below; the fix is
+# this goal, not corner squares, for the reason above.
+says:
+  - words: "why is not much read of this paper : R31-H02 - its in proper boxes and qr and all"
+    proved_by: packages/engine/tests/test_lineup.py::test_a_curled_photograph_with_its_top_cut_off_is_read_in_its_boxes
+  - words: "If the answer has been in the designated place, it should be able to read the answers"
+    proved_by: packages/engine/tests/test_lineup.py::test_an_answer_moved_by_a_fold_is_found_around_its_own_print
+manual: []
+scenarios:
+  - name: a lifted page, synthetic
+    request: >
+      A full page of twelve sums, every box but one question's written in, its lower half lifting off the desk (the
+      best straight map leaves its last row about 6 mm off), its top and corner marks cut off, tilted, softened,
+      compressed; the same page with one question moved 6 mm by a crease; the same page with one question smeared
+      past finding.
+    check: >
+      every digit read in its boxes and the empty boxes blank, on three lifts; the creased question read around its
+      own print; the smeared question sent to a person saying its print was not found, every other answer read; the
+      crop a person is shown holds the digits the reader was handed. 100%.
+  - name: the real 24 Sep scan, on live
+    request: POST /read/file with again=true for Drive file 13Zsrf3B2PDzSbCVWJJaCWObhfAWGQIl6
+    check: >
+      16 of 16 copies on a child; every answer of every copy read in its boxes (GET /capture/{id}/readings: `boxes`
+      set on all 192), copies 01 and 02 of R31-H02 included; an answer a person already worked on is as they left it.
+criteria:
+  - name: the line-up and the box reader, on synthetic scans
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_lineup.py tests/test_boxes.py tests/test_crops.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
