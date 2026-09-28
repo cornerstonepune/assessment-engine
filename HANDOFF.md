@@ -3,6 +3,35 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-28, curriculum: the crosswalk built from the documents in hand; the first sample is with Akanksha
+
+- No BUILD-ORDER step moved: the crosswalk is research-layer data shaped like ADR 0041's tables. Nothing was migrated.
+  Goal `goals/crosswalk-start.yaml`, `bin/engine done crosswalk-start`.
+- Cambridge Primary Maths 0096, English 0058 and Science 0097 are read word for word from other schools' copies:
+  296, 581 and 311 objectives. `docs/crosswalk/tables/` holds 2,789 official statements with page and level, and
+  levels and steps with ages. 1,405 of the 1,750 school objectives are placed at their grade's age on a strand; 345
+  wait for the drafting method.
+- The prompt Nimish asked to align on is `docs/crosswalk/drafting-method.md`. Its first output is
+  `docs/crosswalk/drafts/math-number-8.json`: Grade 3, Number, 30 objectives.
+- **Akanksha has the first-round sheet** (20 rows; the link is in `docs/crosswalk/review/math-number-8.sent.json`). When
+  she returns it:
+  1. Download it as CSV.
+  2. Run `python3 research/crosswalk_decisions.py MATH.NUMBER.8 <file.csv> --by Akanksha`.
+  3. Run `python3 research/crosswalk_build.py`.
+  4. Redraft every "Change" from her comment, with a new method version if the method itself changes.
+  Her approved rows become the gold set.
+- **Owed by Nimish:**
+  - his yes on the method and on the four-level scale;
+  - the school's Grade 1 entry age (6 assumed);
+  - the official Cambridge files (from Akanksha, via the School Support Hub), then run
+    `python3 research/crosswalk_compare.py <framework> <file>` for each.
+- **For Akanksha, through the Skill Map Review** (the registry is generated there, never edited here):
+  - 36 objectives with "art" replaced inside words ("PVisual arts 2");
+  - Grade 4 Numeracy repeating Grade 3's titles (78 of 89);
+  - projects split into fragments.
+- Next, after her decisions: draft the other 20 Grade 3 Number objectives, then the rest of MATH.NUMBER, then
+  English.
+
 ## 2026-09-28, curriculum: the crosswalk designed as tables (ADR 0041 proposed, no step moved, nothing built)
 
 - Nimish asked whether the spine is incomplete, and it is. He asked for each objective, per subject and grade, to say

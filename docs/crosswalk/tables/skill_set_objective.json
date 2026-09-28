@@ -1,0 +1,23 @@
+[
+{"skill_set_code": "EQUALITY.INVERSE", "lo_code": "LO-G3-0937", "claim_id": "skill_set_objective:EQUALITY.INVERSE:LO-G3-0937"},
+{"skill_set_code": "ADD.3D1D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ADD.3D1D:LO-G3-0938"},
+{"skill_set_code": "ADD.3D2D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ADD.3D2D:LO-G3-0938"},
+{"skill_set_code": "ADD.3D3D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ADD.3D3D:LO-G3-0938"},
+{"skill_set_code": "ADD.MANY", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ADD.MANY:LO-G3-0938"},
+{"skill_set_code": "SUB.3D1D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:SUB.3D1D:LO-G3-0938"},
+{"skill_set_code": "SUB.3D2D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:SUB.3D2D:LO-G3-0938"},
+{"skill_set_code": "SUB.3D3D", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:SUB.3D3D:LO-G3-0938"},
+{"skill_set_code": "MISSING.DIGIT", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:MISSING.DIGIT:LO-G3-0938"},
+{"skill_set_code": "ESTIMATE.ROUND10", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0938"},
+{"skill_set_code": "REASON.FIND_MISTAKE", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:REASON.FIND_MISTAKE:LO-G3-0938"},
+{"skill_set_code": "ESTIMATE.HUNDRED", "lo_code": "LO-G3-0939", "claim_id": "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0939"},
+{"skill_set_code": "MUL.1D", "lo_code": "LO-G3-0944", "claim_id": "skill_set_objective:MUL.1D:LO-G3-0944"},
+{"skill_set_code": "ESTIMATE.ROUND10", "lo_code": "LO-G3-0954", "claim_id": "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0954"},
+{"skill_set_code": "ESTIMATE.HUNDRED", "lo_code": "LO-G3-0954", "claim_id": "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0954"},
+{"skill_set_code": "WORD.1_2STEP", "lo_code": "LO-G3-0959", "claim_id": "skill_set_objective:WORD.1_2STEP:LO-G3-0959"},
+{"skill_set_code": "WORD.1_2STEP", "lo_code": "LO-G3-0967", "claim_id": "skill_set_objective:WORD.1_2STEP:LO-G3-0967"},
+{"skill_set_code": "WORD.BUDGET", "lo_code": "LO-G3-0967", "claim_id": "skill_set_objective:WORD.BUDGET:LO-G3-0967"},
+{"skill_set_code": "WORD.BUDGET", "lo_code": "LO-G3-0968", "claim_id": "skill_set_objective:WORD.BUDGET:LO-G3-0968"},
+{"skill_set_code": "MENTAL.BRIDGE_EQ", "lo_code": "LO-G3-0994", "claim_id": "skill_set_objective:MENTAL.BRIDGE_EQ:LO-G3-0994"},
+{"skill_set_code": "STRATEGY.EFFICIENT", "lo_code": "LO-G3-0994", "claim_id": "skill_set_objective:STRATEGY.EFFICIENT:LO-G3-0994"}
+]

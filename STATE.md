@@ -3545,3 +3545,52 @@ each; `engine-logs.yml` now shows `docker inspect` and the kernel's kills). Meas
   leaves `docs/spine/sources/` unchanged, and `spine.json` is identical under any PYTHONHASHSEED. The unit→skill links
   were written in a set's order; they are now sorted.
 
+
+## The curriculum crosswalk, started from the documents in hand (2026-09-28, ADR 0041, goal crosswalk-start)
+
+- **Cambridge, word for word:** `python3 research/crosswalk_cambridge.py` → `CAM-PRI-MAT-0096: 296 objectives, stages
+  [1, 2, 3, 4, 5, 6], 296/296 found word for word on their page` · `CAM-PRI-ENG-0058: 581 … 581/581 …, 2 notes` ·
+  `CAM-PRI-SCI-0097: 311 … 311/311`.
+  - The copies are other schools' copies of Cambridge's own files, recorded with address and sha256 in
+    `docs/crosswalk/sources.json`: Maths 0096 v2.1, English 0058 v2.1, Science 0097 v1.
+  - Every code a plain reading of a page shows is read (an independent count per page).
+  - A list under an objective ("Understand addition as:", 14 in maths) and a stacked fraction (2Nf.05 "1/4, 1/2, 3/4")
+    are kept whole. They were cut short or read as "1 4" before the reader followed fonts and spans.
+  - Maths' eight ways of working (TWM.01–08) are read once, from page 14.
+  - PE 0069 is in the school's Drive but not read: the Drive connector cannot save a file to disk.
+  - Cambridge's words are not in git; the repository is public. The tracked index and tables keep each statement's
+    code, place and sha256 of its words. The words are rebuilt into `data/crosswalk_statements/`, and the build
+    refuses a mismatch. `pytest tests/test_crosswalk.py` holds this: 1,190 Cambridge rows, none with words.
+- **The tables:** `python3 research/crosswalk_build.py` writes `docs/crosswalk/tables/` and `views/` with no FAULT:
+  - `framework 6 · framework_document 6 · framework_level 32 · framework_statement 2789 · progression 20`
+  - `progression_step 200 · objective_step 1405 · objective_waiting 345 · claim 1848 · claim_decision 0`
+  - NCF-SE's 814 statements each now carry a PDF page, found word for word on it.
+  - NCF-SE's stage ages are printed (page 62). NCERT's classes and Cambridge's stages carry ages worked out from them
+    (Grade g is ages g+5 to g+6; six Cambridge stages over "aged 5 to 11").
+- **The drafting method and the sample:** `docs/crosswalk/drafting-method.md` (the prompt, version 1) and
+  `docs/crosswalk/drafts/math-number-8.json`:
+  - 30 Grade 3 Number objectives, 100 alignments, the outcome, four rubric lines and 14 statements no objective covers.
+  - The build refuses a draft that breaks the method: a missing Cambridge Stage 3/4 Number objective is a FAULT.
+  - `python3 research/crosswalk_sheet.py MATH.NUMBER.8` → the first-round sheet: 10 objectives, the outcome and its four
+    rubric lines, and 5 not-covered statements.
+  - It is a Google Sheet shared with Akanksha as editor on 28 Sep (`docs/crosswalk/review/math-number-8.sent.json`).
+    Downloaded back as CSV, it has 41 rows and 0 cells different.
+  - Her decisions come back with `python3 research/crosswalk_decisions.py MATH.NUMBER.8 <file.csv> --by Akanksha`.
+- **Compare with the official files:** `python3 research/crosswalk_compare.py CAM-PRI-MAT-0096 <file>` reads the file with
+  the same reader. On the copy itself → `296 the same, 0 changed, 0 only in the copy, 0 only in the official file`.
+- **Tests:** `cd packages/engine && .venv/bin/python -m pytest tests/test_crosswalk.py` → `10 passed`. They read only the
+  tracked tables; each of Nimish's ten sentences in `goals/crosswalk-start.yaml` names one.
+- **Not verified:**
+  - that the drafts are right: Akanksha decides;
+  - Cambridge's per-stage ages (inferred from the range);
+  - the school's Grade 1 entry age (NCF-SE's 6 assumed);
+  - the 345 objectives waiting for a strand: occasions such as projects, quizzes and visits, and course-book units that
+    mix reading and writing.
+- **Found in the school's objectives** (`supabase/seed/registry.json`, generated from the Skill Map Review, not edited
+  here):
+  - 78 of the 89 Grade 4 Numeracy objectives have exactly a Grade 3 title, and 212 of the 410 Numeracy objectives
+    share a title with another grade.
+  - 36 objectives carry a replace of "art" inside words: "PVisual arts 2" for "Part 2", "EVisual artsh" for "Earth",
+    "Assembly PVisual artsicipation".
+  - Projects are split into fragments at "/".
+  - Geography and History units sit under Visual Arts and Global perspectives.

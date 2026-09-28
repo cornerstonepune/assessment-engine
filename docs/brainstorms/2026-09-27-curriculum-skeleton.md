@@ -1,6 +1,6 @@
 # Curriculum skeleton — brainstorm, to resume in a new session
 
-27 September 2026 · status: **brainstorm, nothing built** · waiting on Nimish's answers to six questions (end of file)
+27 September 2026 · status: **the crosswalk is built as data (28 Sep); the first sample is with Akanksha** · waiting on Nimish's answers to six questions (end of file)
 Visual version: `docs/brainstorms/2026-09-27-curriculum-skeleton.html` (published: https://claude.ai/artifact/XY5Pvbwd4vjSTgj1K2R6mE)
 Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on branch `claude/sleepy-keller-j2ybm5`.
 
@@ -11,6 +11,26 @@ Merged to main on 27 Sep (cornerstonepune/assessment-engine#73); follow-ups on b
    the clickable spine map is https://claude.ai/artifact/KemZgBsaTfwSXbEg2ttcAg.
 3. Do not build anything until Nimish answers the six questions. He asked to brainstorm first: "first, we need a
    representation of how we think about it structurally, then we create the backend out of this very clearly".
+
+## 28 Sep, later: built from the documents in hand, and the first sample is with Akanksha
+
+Nimish: "no approver needs to actually write … have a proper prompt that we can align on … a sample which you can send
+to Akanksha … start building the entire data structure … even if they are not from the Cambridge official website".
+
+- **Built:** `docs/crosswalk/`, rows shaped like ADR 0041's tables. They hold:
+  - 2,789 official statements, each with its page: NCF-SE, NCERT, and Cambridge Maths, English and Science read from
+    other schools' copies;
+  - 32 framework levels with ages;
+  - 20 strands of one step per year of age;
+  - 1,405 school objectives placed at their grade's age.
+  `STATE.md` has the commands and their output.
+- **The prompt to align on:** `docs/crosswalk/drafting-method.md`: one way of thinking in ten steps, a fixed word list,
+  and the checks code runs.
+- **The sample:** Grade 3 Number (age 8), 30 objectives drafted by the method. The first 20 rows went to Akanksha as a
+  Google Sheet that asks only for Approve, Change or Reject.
+- **What building showed:**
+  - The school's Grade 3 already mixes Cambridge Stage 3 and Stage 4, so the age anchor fits the school.
+  - Grade 4 repeats Grade 3's titles (78 of 89), which is why "what we say" has to carry the range for its age.
 
 ## 28 Sep, last: the crosswalk as tables (ADR 0041, proposed)
 

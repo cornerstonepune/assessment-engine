@@ -1,0 +1,22 @@
+[
+{"code": "MATH.NUMBER", "subject": "MATH", "strand": "Number", "cambridge_strands": ["Number"]},
+{"code": "MATH.GEOMETRY", "subject": "MATH", "strand": "Geometry and Measure", "cambridge_strands": ["Geometry and Measure"]},
+{"code": "MATH.DATA", "subject": "MATH", "strand": "Statistics and Probability", "cambridge_strands": ["Statistics and Probability"]},
+{"code": "MATH.THINKING", "subject": "MATH", "strand": "Thinking and Working Mathematically", "cambridge_strands": ["Thinking and Working Mathematically"]},
+{"code": "ENG.READING", "subject": "ENG", "strand": "Reading", "cambridge_strands": ["Reading"]},
+{"code": "ENG.WRITING", "subject": "ENG", "strand": "Writing", "cambridge_strands": ["Writing"]},
+{"code": "ENG.SPEAKING", "subject": "ENG", "strand": "Speaking and Listening", "cambridge_strands": ["Speaking and Listening"]},
+{"code": "SCI.ENQUIRY", "subject": "SCI", "strand": "Thinking and Working Scientifically", "cambridge_strands": ["Thinking and Working Scientifically"]},
+{"code": "SCI.BIOLOGY", "subject": "SCI", "strand": "Biology", "cambridge_strands": ["Biology"]},
+{"code": "SCI.CHEMISTRY", "subject": "SCI", "strand": "Chemistry", "cambridge_strands": ["Chemistry"]},
+{"code": "SCI.PHYSICS", "subject": "SCI", "strand": "Physics", "cambridge_strands": ["Physics"]},
+{"code": "SCI.EARTH", "subject": "SCI", "strand": "Earth and Space", "cambridge_strands": ["Earth and Space"]},
+{"code": "SCI.CONTEXT", "subject": "SCI", "strand": "Science in Context", "cambridge_strands": ["Science in Context"]},
+{"code": "HIN.ALL", "subject": "HIN", "strand": "Hindi (strands not drawn: no framework with strands in hand)", "cambridge_strands": []},
+{"code": "MAR.ALL", "subject": "MAR", "strand": "Marathi (strands not drawn: no framework with strands in hand)", "cambridge_strands": []},
+{"code": "GP.ALL", "subject": "GP", "strand": "Global Perspectives (strands not drawn: the Cambridge framework is not in hand)", "cambridge_strands": []},
+{"code": "HSC.ALL", "subject": "HSC", "strand": "Home Science (strands not drawn)", "cambridge_strands": []},
+{"code": "RTN.ALL", "subject": "RTN", "strand": "Routines (strands not drawn)", "cambridge_strands": []},
+{"code": "CMP.ALL", "subject": "CMP", "strand": "Computing (strands not drawn: the Cambridge framework is not in hand)", "cambridge_strands": []},
+{"code": "ART.ALL", "subject": "ART", "strand": "Visual Arts (strands not drawn)", "cambridge_strands": []}
+]

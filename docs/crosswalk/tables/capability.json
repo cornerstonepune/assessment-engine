@@ -1,0 +1,10 @@
+[
+{"code": "knowledge-and-academic-mastery", "label": "Knowledge & academic mastery", "text": "Strong conceptual and procedural command of core subjects; can perform under examination conditions."},
+{"code": "thinking-and-reasoning", "label": "Thinking & reasoning", "text": "Defines problems, evaluates evidence, reasons quantitatively and changes position when evidence warrants."},
+{"code": "learning-and-agency", "label": "Learning & agency", "text": "Sets goals, researches independently, seeks feedback, reflects and improves."},
+{"code": "creation-and-problem-solving", "label": "Creation & problem solving", "text": "Turns ideas into experiments, prototypes, designs, investigations and useful outputs."},
+{"code": "communication-and-collaboration", "label": "Communication & collaboration", "text": "Writes, speaks, presents, listens, negotiates and contributes reliably to teams."},
+{"code": "technology-and-ai", "label": "Technology & AI", "text": "Uses digital tools productively; verifies AI outputs; understands bias, privacy, provenance and limitations."},
+{"code": "self-and-relationships", "label": "Self & relationships", "text": "Shows resilience, emotional regulation, physical competence, empathy and responsible independence."},
+{"code": "society-ethics-and-planet", "label": "Society, ethics & planet", "text": "Can examine trade-offs, understand systems and consider consequences beyond the self."}
+]
