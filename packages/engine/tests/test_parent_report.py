@@ -301,7 +301,7 @@ def test_what_the_first_eval_on_live_found_is_caught_or_let_through_as_it_should
     # the school's own skill name is not the banned word; every other form of it is
     assert said(next_at_school="The educator works on word problems with [child].") == []
     assert any(
-        "'problems'" in p for p in said(next_at_school="The educator sees problems in [child]'s work.")
+        "problems in" in p for p in said(next_at_school="The educator sees problems in [child]'s work.")
     )
     assert any("'struggles'" in p for p in said(next_at_school="[child] struggles with the exchange."))
     # a practice sum the model made up is a number the facts do not hold
@@ -389,5 +389,19 @@ def test_what_the_v6_eval_on_live_refused_that_it_should_not_have(conn, child):
 
     assert said(at_home=["Make up a short story problem together about pocket money."]) == []
     assert said(at_home=["Count in tens aloud together — ten, twenty, thirty — with spoons."]) == []
-    assert any("'problem'" in p for p in said(next_at_school="[child] has a problem with exchanging."))
+    assert any("has a problem" in p for p in said(next_at_school="[child] has a problem with exchanging."))
     assert any("the number 61" in p for p in said(next_at_school="[child] wrote sixty-one."))
+
+
+def test_what_the_second_v6_eval_found_a_maths_problem_is_a_question_and_a_made_up_story_is_caught(
+    conn, child
+):
+    f = P.facts(conn, child)
+
+    def said(**parts):
+        return P.check(f, {**_good(f), **parts})
+
+    assert said(next_at_school="When [child] solves an addition problem, [child] checks it.") == []
+    assert any("has a problem" in p for p in said(next_at_school="[child] has a problem with tens."))
+    story = "Tell a story: 'I had thirty-seven pennies, found ten more, then spent fifteen.'"
+    assert any("the number 37" in p for p in said(at_home=[story]))
