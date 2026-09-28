@@ -167,7 +167,7 @@ def facts(conn, child_id):
 
 def _texts(d):
     return [d["summary"], *(c["sentence"] for c in d["can_do"]), *(w["explanation"] for w in d["working_on"]),
-            *d["at_home"], d["next_at_school"]]  # fmt: skip
+            *d["at_home"], d.get("next_at_school", "")]  # fmt: skip
 
 
 UNITS = {w: i for i, w in enumerate(
@@ -187,9 +187,24 @@ def numbers_in(text):
     v4 on live wrote a child's example in words ("leaving sixty-one") where no digit check could see it."""
     digits = {int(n.replace(",", "")) for n in re.findall(r"\d{1,3}(?:,\d{3})+|\d+", text)}
     words, total, cur = set(), None, None
-    for w in re.findall(r"[a-z]+", text.lower().replace("-", " ")) + ["."]:
-        if w in UNITS or w in TENS:
-            cur = (cur or 0) + UNITS.get(w, TENS.get(w, 0))
+
+    def flush():
+        if total is not None or cur is not None:
+            words.add((total or 0) + (cur or 0))
+
+    # words build a number only as English does: "twenty" then "three" is 23, but "ten, twenty, thirty" is three
+    # numbers and "one ten, two tens" is not 13 (v5 on live read them as 60 and 13); any other token ends a number
+    for w in re.findall(r"[a-z]+|[^a-z\s]", text.lower().replace("-", " ")) + ["."]:
+        v = UNITS.get(w, TENS.get(w))
+        tail = cur % 100 if cur is not None else 0
+        if v is not None:
+            joins = cur is not None and (
+                tail == 0 or (w in UNITS and v < 10 and tail >= 20 and tail % 10 == 0)
+            )
+            if cur is not None and not joins:
+                flush()
+                total = None
+            cur = (cur if joins else 0) + v
         elif w in SCALES and cur is not None:
             cur *= SCALES[w]
             if w == "thousand":
@@ -197,8 +212,7 @@ def numbers_in(text):
         elif w == "and" and cur is not None:
             continue
         else:
-            if total is not None or cur is not None:
-                words.add((total or 0) + (cur or 0))
+            flush()
             total = cur = None
     return digits, words
 
@@ -235,8 +249,8 @@ def check(f, d):
             problems.append(f"an exclamation mark: {t!r}")
         if m := CODE.search(t):
             problems.append(f"a code, {m.group(0)}: {t!r}")
-        if others := [b for b in re.findall(r"\[[^\]]*\]", t) if b != "[child]"]:
-            problems.append(f"a bracket other than [child], {others[0]}: {t!r}")
+        if re.search(r"[\[\]]", t.replace("[child]", "")):  # "[child become" printed as it stood (v5)
+            problems.append(f"a bracket other than [child]: {t!r}")
         plain = t.replace("[child]", "")
         for m in re.finditer(r"\b[A-Z][a-z]+\b", plain):
             before = re.sub(r"[\s'\"‘’“”()\-—]+$", "", plain[: m.start()])
@@ -259,8 +273,11 @@ def draft(conn, child_id, ask=None, version=None):
     for attempt in (1, 2):
         meta = {}
         try:
+            # what comes next is the engine's decision, and code says it on the page: v5 was told "secure already" and
+            # still wrote "more practice, as [child] is still practising" twice — a model not given it cannot say it
+            told = {k: v for k, v in f.items() if k != "next"}
             out = ask(
-                conn, PURPOSE, {"grade": f["grade"], "facts": f, "fix": fix}, meta=meta, version=version
+                conn, PURPOSE, {"grade": f["grade"], "facts": told, "fix": fix}, meta=meta, version=version
             )
             problems = check(f, out)
         except llm.LLMError as e:

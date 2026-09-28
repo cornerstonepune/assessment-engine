@@ -31,14 +31,14 @@ export type Facts = {
     times: number;
     example: Example | null;
   }[];
-  next: (Skill & { level: string }) | null;
+  next: (Skill & { level: string; why?: string }) | null;
 };
 export type Draft = {
   summary: string;
   can_do: { id: string; sentence: string }[];
   working_on: { id: string; explanation: string }[];
   at_home: string[];
-  next_at_school: string;
+  next_at_school?: string;
 };
 export type Note = {
   id: string;
@@ -72,6 +72,16 @@ function Dots({ right, of }: { right: number; of: number }) {
       ))}
     </span>
   );
+}
+
+// What comes next is the engine's own choice, so it is said here from the facts, never written by the model: v5 was
+// told a skill was secure and still wrote that the child "is still practising" it (goals/w4c-parent-report.yaml).
+export function nextStep(next: Facts["next"], name: string): string | null {
+  if (!next) return null;
+  const skill = next.skill.toLowerCase();
+  return next.why?.startsWith("secure")
+    ? `${name} is secure at ${skill}, so the educator moves on to harder questions of it (${next.level}).`
+    : `The educator gives ${name} more questions of ${skill}, at ${next.level}, until it is secure.`;
 }
 
 function Section({
@@ -235,7 +245,7 @@ export function Letter({
       </Section>
 
       <Section title="Next at school" label="Next at school">
-        <p>{put(note.draft.next_at_school)}</p>
+        <p>{nextStep(f.next, name) ?? put(note.draft.next_at_school ?? "")}</p>
       </Section>
 
       <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-basalt/15 pt-3 text-[12.5px] text-basalt/65">
