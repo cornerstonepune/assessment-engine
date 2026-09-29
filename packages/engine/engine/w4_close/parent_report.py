@@ -10,6 +10,7 @@ broke; one that fails twice is never kept. A kept draft waits for an educator to
 """
 
 import json
+import threading
 from datetime import date
 
 from engine.adapters import llm
@@ -19,6 +20,10 @@ from engine.w4_close.parent_check import check, numbers_in  # noqa: F401 — the
 
 PURPOSE = "parent_report"
 FLOW = "parent_report_write"  # the run a person looks at while a report is written (`/runs/{id}`)
+# One report is written at a time: each holds a connection for a minute or more, and the database's pooler allows 15.
+# 2026-09-29 on live, twelve started together: three were refused "EMAXCONNSESSION ... pool_size: 15". The rest wait
+# their turn, their runs saying "running"
+WRITING = threading.Lock()
 NEARLY = 0.8  # four in five right, waiting only on a second paper to be called secure
 IMPROVED_BY = (
     0.25  # the recent half of a skill set's answers right this much more often than the earlier half
@@ -239,7 +244,7 @@ def start(child_id, by):
 
 def write(run_id, child_id):
     """Draft, hold, read and keep one child's report on its own connection, the run marked ok or with why not."""
-    with db.connect() as conn:
+    with WRITING, db.connect() as conn:
         try:
             got = draft(conn, child_id)
             why = (
