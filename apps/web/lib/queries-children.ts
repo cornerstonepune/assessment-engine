@@ -173,7 +173,7 @@ export async function repeatedMistakes(id: string): Promise<Repeated[]> {
   return sql<Repeated[]>`
     select s.repeating_misconception as code, coalesce(m.name, s.repeating_misconception) as name,
            coalesce(k.name, s.skill_code) as skill_name, r.descriptor, s.rung_code, s.skill_code,
-           (select count(*)::int from evidence_event e
+           (select count(*)::int from evidence_placed e
               left join item_result ir on ir.id = e.item_result_id left join capture c on c.id = ir.capture_id
              where e.child_id = s.child_id and e.skill_code = s.skill_code and e.rung_code = s.rung_code
                and e.confirmed_by is not null and (c.id is null or c.superseded_by is null)

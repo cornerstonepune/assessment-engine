@@ -147,7 +147,7 @@ def homes(address: str | None = None, week: str | None = None):
     with db.connect(address or url()) as conn:
         conn.read_only = True
         kids = conn.execute(
-            "select c.id, c.section, c.roll_no, (select count(*) from evidence_event e"
+            "select c.id, c.section, c.roll_no, (select count(*) from evidence_placed e"
             "  where e.child_id = c.id and e.confirmed_by is not null) as answers"
             " from child c where c.active order by c.section, c.roll_no ~ '^[0-9]+$' desc,"
             " case when c.roll_no ~ '^[0-9]+$' then c.roll_no::int end, c.roll_no"
