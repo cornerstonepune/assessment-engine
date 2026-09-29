@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+
+## 2026-09-29 — the parent report is on; educators edit; twelve reports written, none yet approved
+
+- **On live** (#120-#127, this PR): `parent_report` v12 active; code prints every count and state, the model writes
+  the words, code refuses what breaks the facts (three tries, else not kept); written in the background (the site's 30 s
+  was too short); an educator edits the words ("Edit the words", held to the same facts, name kept out of the rows) and
+  approves by name. Decision and score: `DECISIONS-LOG.md` 2026-09-29.
+- **Written on live, 2026-09-29, none approved:** all 11 in G2 and G3 roll 1 — every child with signed-off answers.
+  Read by me: G3 roll 1's home activity says "three tens and five ones to show 350" (it is 35) — an educator must edit it
+  before approving. G2 roll 10 (8 answers, nothing secure) leads with what went wrong; tone for Nimish.
+- **G3 rolls 2-5 have no signed-off answers** (the engine refuses to write for them). `engine-logs.yml` shows 306
+  answers on the legacy scans still waiting for a person (109 read right but that kind not trusted, 90 unreadable, 57
+  read wrong, 34 blank, 16 unsure). Asked Nimish where the G3 papers he validated are.
+- **`parent_review`** (a second model reading each draft): built, gold set of 21 drafts / 14 wrong sentences; v1
+  (sonnet-5) ran past 30 min; v2 (haiku) caught 10/14 and flagged 70 right sentences. Off; not to be switched on unless
+  it scores 14/14 with none flagged wrongly.
+- **Writes are one at a time** (this PR): twelve started together ran out the pooler's 15 connections.
+
 ## 2026-09-28 — step 1: a photographed page is lined up by its own print (goal s23, ADR 0042)
 
 - Nimish asked why R31-H02 copies 01 and 02 of 24 Sep were barely read. Both had been read as old papers, 0 of 24

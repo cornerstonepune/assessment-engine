@@ -622,3 +622,32 @@ def test_an_educator_edits_the_draft_held_to_the_same_facts_and_the_edit_becomes
     P.approve(conn, child, now["id"], "neha")
     with pytest.raises(LookupError):
         P.edit(conn, child, now["id"], words, "neha")
+
+
+def test_reports_are_written_one_at_a_time_so_the_pooler_never_runs_out(monkeypatch):
+    """2026-09-29 on live: twelve reports started together; three were refused a connection (pool_size 15)."""
+    import threading
+    import time
+
+    inside, most = [0], [0]
+
+    class Conn:
+        def __getattr__(self, name):
+            return lambda *a, **k: None
+
+    @contextmanager
+    def connect():
+        inside[0] += 1
+        most[0] = max(most[0], inside[0])
+        time.sleep(0.05)
+        yield Conn()
+        inside[0] -= 1
+
+    monkeypatch.setattr(P.db, "connect", connect)
+    monkeypatch.setattr(P, "draft", lambda conn, child_id: None)
+    threads = [threading.Thread(target=P.write, args=(str(i), str(i))) for i in range(6)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert most[0] == 1
