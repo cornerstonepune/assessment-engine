@@ -10,6 +10,7 @@ import pytest
 
 from engine.core import db
 from engine.w3_read import legacy, reread
+from tests.rows import a_read_paper
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -36,23 +37,27 @@ def test_every_live_capture_is_read_again_from_its_own_rows(conn, monkeypatch):
     assert all(kw["child_id"] and kw["paper_code"] for kw in seen)
 
 
-def test_a_settled_answer_whose_reading_changed_is_named(conn, monkeypatch):
-    target = conn.execute(
-        "select r.id, r.capture_id from item_result r join capture c on c.id = r.capture_id"
-        " where c.superseded_by is null and r.status = 'correct' limit 1"
-    ).fetchone()
+def test_a_settled_answer_whose_reading_changed_is_named(conn, monkeypatch, tmp_path):
+    (tmp_path / "scan.pdf").write_bytes(b"%PDF")
+    paper = a_read_paper(
+        conn, [{"status": "correct", "read": "35", "state": "confirmed"}], tmp_path / "scan.pdf"
+    )
+    target = paper["results"][0]
 
     def stand_in(c, **kw):  # a reader that now reads one settled answer differently
-        c.execute("update item_result set status = 'wrong' where id = %s", (target["id"],))
+        c.execute("update item_result set status = 'wrong' where id = %s", (target,))
         return {"results": [], "notes": []}
 
     monkeypatch.setattr(legacy, "import_scan", stand_in)
     out = reread.run(conn, commit=False)
-    assert [c["item_result"] for c in out["changed"]] == [target["id"]]
+    assert [c["item_result"] for c in out["changed"]] == [target]
     assert out["changed"][0]["was"] == "correct" and out["changed"][0]["now"] == "wrong"
 
 
-def test_one_file_that_fails_does_not_stop_the_rest(conn, monkeypatch):
+def test_one_file_that_fails_does_not_stop_the_rest(conn, monkeypatch, tmp_path):
+    for n in (1, 2):
+        (tmp_path / f"{n}.pdf").write_bytes(b"%PDF")
+        a_read_paper(conn, [{"status": "correct", "read": "35"}], tmp_path / f"{n}.pdf")
     calls = []
 
     def flaky(c, **kw):

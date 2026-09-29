@@ -257,8 +257,7 @@
             "a_range": [
               10,
               99
-            ],
-            "claim_is_true": true
+            ]
           },
           "words": "A compensation claim about two 2-digit numbers (e.g. 47 + 38 gives the same total as 46 + 39)."
         },
@@ -266,12 +265,11 @@
           "check": {
             "format": "explain_claim",
             "a_range": [
-              120,
-              480
-            ],
-            "claim_is_true": false
+              480,
+              960
+            ]
           },
-          "words": "A claim that is false, so the child must catch the flaw rather than just agree."
+          "words": "The same claim with a number in the high hundreds; true or false, so the child must check it rather than just agree."
         },
         "Medium": {
           "check": {
@@ -279,8 +277,7 @@
             "a_range": [
               120,
               480
-            ],
-            "claim_is_true": true
+            ]
           },
           "words": "The same claim shape with a 3-digit number and a near-hundred number."
         },
@@ -291,8 +288,7 @@
               120,
               480
             ],
-            "claim_topic": "regrouping",
-            "claim_is_true": false
+            "claim_topic": "regrouping"
           },
           "words": "A claim about exchange/regrouping itself (e.g. 'trading a ten for ten ones changes the total') rather than about compensation."
         }
@@ -914,9 +910,6 @@
               "A04",
               "M01",
               "M02",
-              "M03",
-              "M04",
-              "M05",
               "W01",
               "W07",
               "W10",

@@ -2,6 +2,11 @@
 # The local copy of the live database that every test and goal run uses (ADR 0025). From anywhere:
 #   ~/cornerstone/assessment-engine/bin/testdb          copy today's live rows into the local copy
 #   ~/cornerstone/assessment-engine/bin/testdb migrate  apply new migrations to the local copy only
+#   bin/testdb fresh postgresql://…/empty                build a database from this repository alone
+#
+# `fresh` needs no live access and holds no child: plain Postgres, the three roles Supabase provides,
+# every migration in order, then the seed, the question bank and the worksheet library, all made by
+# the engine's own commands. It is what CI tests against, and what a laptop without live access uses.
 #
 # The live side is only read (pg_dump). The copy is Supabase's own Postgres image in Docker, built
 # from this repository's migrations, so its schema is the live schema by construction; only the rows
@@ -9,8 +14,31 @@
 # scans, and the dump file is deleted as soon as it is restored.
 set -euo pipefail
 
+fresh() {
+  local url="$1" f n=0
+  psql "$url" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin
+    if not exists (select from pg_roles where rolname = 'anon') then create role anon nologin; end if;
+    if not exists (select from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
+    if not exists (select from pg_roles where rolname = 'service_role') then create role service_role nologin; end if;
+  end \$\$;"
+  for f in "$REPO"/supabase/migrations/*.sql; do
+    psql "$url" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null || { echo "migration failed: ${f##*/}" >&2; exit 1; }
+    n=$((n + 1))
+  done
+  echo "applied $n migrations"
+  export DATABASE_URL="$url"
+  "$REPO/bin/engine" load
+  "$REPO/bin/engine" bank refill | tail -1
+  "$REPO/bin/engine" library build | tail -1
+}
+
 main() {
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
+if [ "${1:-}" = fresh ]; then
+  [ -n "${2:-}" ] || { echo "usage: bin/testdb fresh <postgres url of an empty database>" >&2; exit 1; }
+  fresh "$2"
+  exit 0
+fi
 LIVE=$(grep -E '^DATABASE_URL=' "$REPO/.env" | cut -d= -f2- | tr -d "\"'")
 COPY=$(grep -E '^TEST_DATABASE_URL=' "$REPO/.env" | cut -d= -f2- | tr -d "\"'")
 case "$COPY" in

@@ -241,7 +241,7 @@ export type ChildRow = {
 export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     select c.id, c.roll_no, c.section, c.band, p.first_name,
-           (select count(*)::int from evidence_event e
+           (select count(*)::int from evidence_placed e
               left join item_result r on r.id = e.item_result_id left join capture k on k.id = r.capture_id
              where e.child_id = c.id and e.confirmed_by is not null and (k.id is null or k.superseded_by is null)) as n_events,
            (select count(*)::int from item_result r join capture k on k.id = r.capture_id
@@ -332,7 +332,7 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
            r.status, e.misconception_codes
-    from evidence_event e
+    from evidence_placed e
     join item_result r on r.id = e.item_result_id
     join item i on i.id = r.item_id
     join capture c on c.id = r.capture_id

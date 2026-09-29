@@ -66,7 +66,9 @@ def possible_answer(rng, rung, signal, op="+", digits=3):
     """Right or impossible by size: an extra digit, a lost digit, or the true answer."""
     a, b = _pair(rng, op, digits)
     exact = a + b if op == "+" else a - b
-    kind = rng.choice(["true", "extra_digit", "lost_digit"])
+    # right as often as wrong: drawn evenly from one right kind and two wrong ones, "no" was the answer two times in
+    # three, and past `bank.choice_answer_max_share` on some builds (audit: no choice is answered by ticking one place)
+    kind = "true" if rng.random() < 0.5 else rng.choice(["extra_digit", "lost_digit"])
     if kind == "true":
         claimed = exact
     elif kind == "extra_digit":

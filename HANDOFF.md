@@ -15,8 +15,11 @@ Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B 
   first, so every deploy can enter each paper again (`deploy-engine.yml`), with nothing to rehome after.
 - **`marking.py` split at its ceiling:** naming a wrong answer's mistake is `w3_read/naming.py` (`naming.unnamed`,
   `naming.name_mistake`; the routes and tests follow).
-- **Owed after merge:** the deploy enters the papers; then press Save on one box of each question 5 equation that
-  shows a right split as wrong and is not signed off. Signed-off answers stay as signed (rule 4).
+- **Owed after merge:** the deploy enters the papers; then press Save on each box of each question 5 equation that
+  shows a right split as wrong. A signed-off box is corrected by its own Save, its evidence with it (#131).
+- **Merged main into the branch** (#130: CI tests against `bin/testdb fresh`; #131: a signed-off answer can be
+  corrected). #131 took migration version 20261015090000, so this branch's `prompt.effort` migration is now
+  20261016090000 — with the same version, `migrate live` would have counted it applied and skipped it.
 - **Open, for Nimish and the school:** STATE.md (2026-09-17) called this very 600 + 19 + 19 "a wrong method reaching a
   right answer … the diagnostic signal the product exists to find". Marked right, it is not recorded. ADR 0043 lists
   the three ways; any split is what is built.
@@ -41,7 +44,7 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   a skill line under the draft's `can_do` read as "secure"). Fixed in what the reader is given, not by a bigger model:
   skill lines are asked of Jev as lines about their skill set (`parent_review.skills` v1) and handed to the model as
   `skill_lines`; code then Jev is 12/14, 0 wrong, with 16 of 310 sentences left to the model.
-- **Effort per prompt row** (migration 20261015090000, `prompt.effort`, sent to the row's own model only); the
+- **Effort per prompt row** (migration 20261016090000, `prompt.effort`, sent to the row's own model only); the
   settings loaders split into `core/settings.py` (the loader stood at its frozen ceiling; now 413).
 - **Owed after merge (the session can run it: Actions from any branch):** engine eval → parent_review, jev_version 1,
   version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low), one at a time (the server's memory). The cheapest
@@ -54,6 +57,37 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   `engine load`; then `TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres`. 75 DB tests fail on
   seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
 
+
+## 2026-09-29 — a signed-off answer can be corrected
+
+- Nimish signed Kiyaan's Grade 3–4 quiz off with Q11 (44) and Q13 (9) read as blank. A correction to a signed-off
+  answer was refused (`marking.correct` took only `candidate`), leaving only row edits, which rule 4 forbids.
+- Migration `20261015090000`: `evidence_placed` (everything the graph reads) keeps only each answer's latest batch;
+  `answer_evidence` is the one definition of what a marked answer is evidence of, shared by `confirm_results` and the
+  new `correct_signed_off`. `POST /capture/correct` takes a signed-off answer; a refusal is a 409 with its reason. The
+  paper page offers "Signed off wrongly? Correct what the child wrote" under each signed-off answer.
+## 2026-09-29 — CI tests against a database built from the repository (cleanup stage 0)
+
+- `bin/testdb fresh <url>`: plain Postgres, every migration, the seed, `bank refill`, `library build` — no live rows,
+  no child. CI builds one before `pytest`, so the database tests run instead of skipping (the suite: ~8 min).
+- What a clean build found, each fixed at its cause:
+  - 23 mistakes named by skill sets existed only on live (made by the mistake-finding prompt); now in the seed,
+    fetched read-only by `engine-logs.yml`, which prints any such gap from now on.
+  - story and number-line cases never drew on a level whose numbers are set by `within` (`draw._native` left the
+    size to the generator's default): no case-drawn word problem at any Advance level. Fixed; ADD.1D1D Advance's three
+    contradictory cases (a 2- or 3-digit unknown in a 1-digit sum) removed from the seed.
+  - six levels answered every tick in one place (DECISIONS-LOG 2026-09-29).
+  - tests that read whatever live held now build their own rows (`tests/rows.py`); stale tests fixed.
+- **Not yet on live, needs a person:** skill sets load `on conflict do nothing`, so ADD.1D1D Advance's case list and
+  REASON.EXPLAIN's mixed truth reach live only when the sets are changed there and ratified; the bank then refills.
+  The estimate question's new wording is only in questions made after the deploy; the ones already in live's bank
+  keep "is your exact answer close?" until they are retired and refilled.
+- **Open, stage 1:** about 35 cases across 14 levels still cannot be drawn (missing-number, exchange, R/X/SZ cases),
+  none leaving a level short yet; a test that every case a level lists can be drawn comes with their fix. With it:
+  find-the-mistake's "which column?" sits in one column on six Advance levels (the planted mistake fixes it: a
+  forgotten carry in 2-digit + 1-digit is always in the tens), unseen by the audit because it samples one random bank
+  and those levels hold too few; the audit is to measure each generator directly instead. The live engine was killed
+  out of memory on 26 and 28 Sep (`engine-logs.yml`).
 
 ## 2026-09-29 — the parent report is on; educators edit; twelve reports written, none yet approved
 

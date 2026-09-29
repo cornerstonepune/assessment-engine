@@ -27,8 +27,10 @@ equations. The boxes count on Addition (NUM.OPS.01, rung R27).
 3. **What the child wrote is a person's reading, or the engine's once it settled the box** (`marking._group`). The
    engine still settles no wrong answer on its own reading (ADR 0029). So a split other than the key's always passes
    through a person, and it is marked when the person saves the last box of its side (`marking.correct`). A side not
-   coming out, or with a box still waiting for a person, leaves each of its boxes to its own key, as before. An
-   answer already signed off is never marked again (rule 4), but what it says still counts toward its side.
+   coming out, or with a box still waiting for a person, leaves each of its boxes to its own key, as before. A box
+   already signed off is marked again only when a person saves it, with its next batch of evidence
+   (`correct_signed_off`, #131); one box's save never rewrites another's evidence. What a signed-off box says still
+   counts toward its side.
 4. **A paper corrected in its file is live with the deploy that carries it.** Every deploy enters each paper again
    (`deploy-engine.yml`), as `bin/update-live` did from one Mac. The loader now files a sum where `bank rehome` does:
    the rung its shape places it on first, and the rung its file names only where the ladder has none. Before this,

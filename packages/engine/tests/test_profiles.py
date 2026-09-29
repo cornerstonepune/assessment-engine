@@ -9,6 +9,7 @@ import os
 import pytest
 
 from engine.w3_read import profiles
+from tests.rows import a_read_paper
 
 
 def checked(**kw):
@@ -167,10 +168,17 @@ def conn():
         c.rollback()
 
 
+CHECKED = [
+    {"status": "correct", "read": "35", "state": "confirmed"},
+    {"status": "wrong", "read": "17", "typed": "47"},
+    {"status": "wrong", "read": "45", "state": "confirmed"},
+]
+
+
 def test_rebuild_writes_a_notebook_for_every_checked_child_and_reads_it_back(conn):
+    child = a_read_paper(conn, CHECKED)["child"]
     n = profiles.rebuild(conn)
     assert n == conn.execute("select count(*) as n from child_reading_profile").fetchone()["n"] > 0
-    child = conn.execute("select child_id from read_correction limit 1").fetchone()["child_id"]
     notes = profiles.for_child(conn, child)
     assert notes["checked"] > 0 and notes["floor"] in (70, 80, 90, 95)
     assert set(notes) >= {
@@ -190,13 +198,12 @@ def test_rebuild_writes_a_notebook_for_every_checked_child_and_reads_it_back(con
 
 
 def test_a_signed_off_answer_counts_as_the_reader_being_right(conn):
+    a_read_paper(conn, CHECKED)
     row = conn.execute(
         "select r.id from item_result r join capture c on c.id = r.capture_id"
         " where c.superseded_by is null and r.state = 'confirmed' and r.raw_read::jsonb ->> 'answer_state' = 'written'"
         " and not exists (select 1 from read_correction rc where rc.item_result_id = r.id) limit 1"
     ).fetchone()
-    if not row:
-        pytest.skip("no signed-off answer without a correction on the copy")
     rows = [r for r in profiles.checked_rows(conn) if str(r["item_result_id"]) == str(row["id"])]
     assert (
         len(rows) == 1 and not rows[0]["corrected"] and rows[0]["human_read"] == rows[0]["model_read"] != ""
@@ -204,6 +211,7 @@ def test_a_signed_off_answer_counts_as_the_reader_being_right(conn):
 
 
 def test_kind_trust_is_the_last_fifty_checks_of_each_kind_against_the_gate(conn):
+    a_read_paper(conn, CHECKED)
     trust = profiles.kind_trust(conn)
     assert trust and all(
         v["n"] <= 50 and v["right"] <= v["n"] and isinstance(v["trusted"], bool) for v in trust.values()

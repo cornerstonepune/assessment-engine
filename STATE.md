@@ -3713,7 +3713,7 @@ deploys.
     as `skill_lines`. Code then Jev (local copy, real Jev): `bin/engine eval parent_review --jev-version 1` →
     `12/14 wrong sentences caught, 0 flagged that were right, over 21 drafts (5 by code first)`; Jev unsure of 16 of
     310 sentences (49 before the skills question), both misses among them (e10 0.20, r1 0.30).
-  - A prompt row names how hard its model thinks (migration 20261015090000, `prompt.effort`); `llm._call_anthropic`
+  - A prompt row names how hard its model thinks (migration 20261016090000, `prompt.effort`); `llm._call_anthropic`
     sends `output_config.effort` to the row's own model, never a fallback: `pytest tests/test_llm.py -k effort` and
     `pytest tests/test_loaders.py -k effort` → passed.
   - The settings loaders (prompts, thresholds, config) are their own module, `core/settings.py`; `loaders.py` 468 →
@@ -3743,8 +3743,13 @@ deploys.
   with the new loader, then `bank rehome` → `moved 0 questions · 0 old papers' sums onto their skill`; relabel 0
   changed, `3010 worksheets · 102 of 102 skill-levels ready · 0 problems`, `233 states · 359 questions with confirmed
   answers`. The run's last check failed on two lines already failing before any step ran, on live's own rows:
-  this branch's migration 20261015090000 not yet on live (applied on merge), and `paper CS57B729: 12 answers counted
+  this branch's migration 20261016090000 not yet on live (applied on merge), and `paper CS57B729: 12 answers counted
   for 12 questions printed, 6 counted twice` — two live captures of one sheet with results for the same six
   questions. Pre-existing, not this work's; it waits for a person to say which capture is superseded.
-- **Not yet verified:** on live. After merge the deploy enters the papers; then one box of each question 5 equation
-  already marked wrong is saved again. Signed-off answers stay as signed.
+- **With main merged (#130, #131), on a database built as CI builds it** (`bin/testdb fresh`, 45 migrations, local
+  Postgres 16): `pytest tests/test_equation.py tests/test_legacy.py tests/api/test_capture_routes.py
+  tests/test_loaders.py tests/test_layout.py tests/test_promises.py` → all passed, including
+  `test_a_signed_off_equation_is_put_right_one_saved_box_at_a_time` (a signed-off box marked again by its own Save,
+  its evidence with it; a signed-off partner untouched until saved).
+- **Not yet verified:** on live. After merge the deploy enters the papers; then each box of each question 5 equation
+  still marked wrong is saved again.

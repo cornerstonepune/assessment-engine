@@ -183,16 +183,20 @@ def correct(conn, result_id, human_read, by):
     lookup against numbers computed when the paper was entered. A teacher is asked what a child
     wrote, never whether it is right. A box of one equation (`spec.holds`) is marked with the others
     of it: its side is right whatever split the child chose (`_group`).
+
+    An answer already signed off is corrected the same way, and its evidence with it: a new batch in this
+    person's name that the graph reads instead of the one before, which stays (`correct_signed_off`, migration
+    20261015090000). A paper signed off by mistake is put right without editing a row.
     """
     row = conn.execute(
-        "select r.id, r.tenant_id, r.raw_read, r.capture_id, si.child_id, i.spec, i.responses"
+        "select r.id, r.tenant_id, r.raw_read, r.capture_id, r.state, si.child_id, i.spec, i.responses"
         " from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
-        " where r.id = %s and r.state = 'candidate'",
+        " where r.id = %s and r.state in ('candidate', 'confirmed')",
         (result_id,),
     ).fetchone()
     if not row:
-        raise ValueError(f"no answer waiting for a person with id {result_id}")
+        raise ValueError(f"no answer with id {result_id}")
     read, text = _read(row), (human_read or "").strip()
     learned, holds = learned_mistakes.rules(conn), (row["spec"] or {}).get("holds")
     group = _group(conn, row["capture_id"], holds, {row["id"]: text}) if holds else {}
@@ -212,7 +216,8 @@ def correct(conn, result_id, human_read, by):
             by,
         ),
     )
-    # the other boxes of its equation a person read, not yet signed off: this reading can make their side hold, or not
+    # the other boxes of its equation a person read, not yet signed off: this reading can make their side hold, or not.
+    # One signed off changes only when a person saves it, with its evidence (`correct_signed_off`).
     marks = {row["id"]: (status, codes, working)} | {
         rid: _as_read(conn, b, typed, right, learned)
         for rid, (b, typed, right) in group.items()
@@ -224,6 +229,12 @@ def correct(conn, result_id, human_read, by):
             " updated_at = now() where id = %s",
             (*m, rid),
         )
+    if row["state"] == "confirmed":
+        written = conn.execute("select correct_signed_off(%s, %s) as n", (row["id"], by)).fetchone()["n"]
+        if not written:
+            raise ValueError(
+                f"{text or 'blank'} marks as {status}, which a signed-off answer cannot be changed to"
+            )
     return {"status": status, "codes": codes, "was": read.get("child_answer", "") or "", "now": text}
 
 

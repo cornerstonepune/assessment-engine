@@ -9,6 +9,7 @@ import random
 
 from engine.assess import diagnosis as D
 from engine.assess import equality as EQ
+from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
@@ -87,7 +88,7 @@ NATIVE_GENERATORS = {
     "number_wall": lambda rng, rung, signal, c: I.number_wall(rng, rung, signal, c["hi"]),
     "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
         rng, rung, signal, one_of(c["op"], rng), c["hi"]),
-    "estimate_then_calc": lambda rng, rung, signal, c: I.estimate_then_calc(
+    "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
         rng, rung, signal, one_of(c["op"], rng), *c["digits"], set(c["regroups"]), round_to=c.get("round_to", 10),
         judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance")),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
@@ -106,7 +107,7 @@ NATIVE_GENERATORS = {
         planted=one_of(c["planted"], rng) if c.get("planted") else None),
     "explain_claim": lambda rng, rung, signal, c: D.explain_claim(
         rng, rung, signal, a_range=tuple(c.get("a_range", (120, 480))),
-        claim_is_true=c.get("claim_is_true", True), claim_topic=c.get("claim_topic", "compensation")),
+        claim_is_true=one_of(c.get("claim_is_true", [True, False]), rng), claim_topic=c.get("claim_topic", "compensation")),
     "missing_digit": lambda rng, rung, signal, c: MD.missing_digit(
         rng, rung, signal, {**c, "op": one_of(c.get("op", "+"), rng), "width": one_of(c.get("width", 2), rng)}),
     "equation": lambda rng, rung, signal, c: EQ.equation(rng, rung, signal, one_of(c["shape"], rng), c.get("hi", 50)),

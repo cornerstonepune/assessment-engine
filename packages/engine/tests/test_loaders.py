@@ -64,6 +64,13 @@ def test_load_config_keeps_a_password_set_in_the_app():
         conn.rollback()
 
 
+SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed"
+
+
+def _seeded(name):
+    return len(json.loads((SEED / f"{name}.json").read_text())[name])
+
+
 EXPECTED = {
     "tenant": 1,
     "domain": 14,
@@ -80,12 +87,11 @@ EXPECTED = {
     "misconception": 39,
     "case_dimension": 18,
     "taxonomy_case": 270,  # the team's taxonomy, one row per case (step 8e)
-    "prompt": 20,  # + read_with_examples (ADR 0032), pedagogy_review, language_review (gate 4), misconception_list v1-v4,
-    #                question_extract v1+v2 and skill_match v1 (W3, placing a non-ladder paper),
-    #                legacy_extract v3+v4 (ADR 0018's contract, then the slot list of ADR 0019)
-    "threshold": 26,  # + the fourteen ocr.* page-geometry rows (ADR 0019, rule 1)
-    "config": 16,  # + skills.* and charges_by_kind (+ its approval), step 8; + bank.choice_answer_max_share; + focus;
-    #               + taxonomy.across_levels (s13)
+    # prompts, thresholds and config are settings a PR adds to: counted from their seed files, never typed here
+    # (2026-09-29: the typed 20, 26 and 16 had fallen to 37, 31 and 17 without anyone noticing)
+    "prompt": _seeded("prompts"),
+    "threshold": _seeded("thresholds"),
+    "config": _seeded("config"),
     "skill_set": 26,  # fifteen calculation skills by operation and digit shape (ADR 0034) and eleven others
     "subject": 1,
 }
@@ -174,7 +180,7 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
 
 def test_a_prompt_row_keeps_the_effort_its_seed_names():
     """Nimish, 2026-09-29: "yes, go ahead with all three". A row names how hard its model thinks (migration
-    20261015090000); the loader carries it, and a row that names none keeps the model's own default."""
+    20261016090000); the loader carries it, and a row that names none keeps the model's own default."""
     with db.connect() as conn:
         settings.load_prompts(conn, loaders._tenant(conn))
         rows = conn.execute(
