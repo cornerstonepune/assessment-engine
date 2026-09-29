@@ -1275,6 +1275,48 @@
       }
     },
     {
+      "purpose": "parent_review.claims",
+      "version": 1,
+      "model": "jev-latest",
+      "active": false,
+      "text_file": "prompts/parent_review.claims.v1.txt",
+      "json_schema": {
+        "type": "noul",
+        "criteria": {
+          "true": "Each claim about the child is in the facts, no stronger than they show it; a sentence with no claim about the child also counts.",
+          "false": "It claims more than the facts show, or something they do not contain."
+        }
+      }
+    },
+    {
+      "purpose": "parent_review.mistakes",
+      "version": 1,
+      "model": "jev-latest",
+      "active": false,
+      "text_file": "prompts/parent_review.mistakes.v1.txt",
+      "json_schema": {
+        "type": "noul",
+        "criteria": {
+          "true": "What it says the child does is what happens in this mistake; or it says only what the educator does.",
+          "false": "It describes the child doing something other than what happens in this mistake."
+        }
+      }
+    },
+    {
+      "purpose": "parent_review.home",
+      "version": 1,
+      "model": "jev-latest",
+      "active": false,
+      "text_file": "prompts/parent_review.home.v1.txt",
+      "json_schema": {
+        "type": "noul",
+        "criteria": {
+          "true": "It is advice, or everything it says about the child, a question or a skill is in the facts.",
+          "false": "It mentions something about the child, a question or a skill that the facts do not contain."
+        }
+      }
+    },
+    {
       "purpose": "item_generate",
       "version": 1,
       "model": "claude-haiku-4-5",

@@ -18,6 +18,10 @@ on:
         description: "parent_report only: the parent_review version that reads each draft"
         type: choice
         options: ["2", "1"]
+      jev_version:
+        description: "parent_review only: the version of Jev's three questions that read each sentence first (0: none)"
+        type: choice
+        options: ["1", "0"]
 
 permissions:
   contents: read
@@ -42,6 +46,7 @@ jobs:
           PURPOSE: "${{ inputs.purpose }}"
           VERSION: "${{ inputs.version }}"
           REVIEW: "${{ inputs.review_version }}"
+          JEV: "${{ inputs.jev_version }}"
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
-          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW"
+          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW --jev-version $JEV"

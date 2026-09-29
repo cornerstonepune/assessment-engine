@@ -1,0 +1,1 @@
+The state holds facts about one child's maths work. This sentence is from a suggestion to the parents for practice at home. Is it free of any claim about the child, and of any question, paper or skill, that the facts do not contain? Advice on how to practise has no such claim. Sentence: {subject}

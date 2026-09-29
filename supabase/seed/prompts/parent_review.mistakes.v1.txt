@@ -1,0 +1,1 @@
+The state holds one mistake a child makes: its name, what_happens in it, an example of it, and what_we_do about it. Does this sentence describe the mistake as what_happens and the example show it, and the educator's work as what_we_do says? Sentence: {subject}

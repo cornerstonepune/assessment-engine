@@ -3,6 +3,29 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-29 — Jev: the three uses proven on live; the parent report's checker reads with Jev first (goals j4, j5)
+
+Nimish asked where Jev is integrated, then: "I really want to integrate Jev as much as possible in all the use cases to
+make it efficient, cost-light" and, on the order recommended (code first, Jev on every judgement, the model only on
+what Jev is unsure of, a person signing off), "with everything you have said (no except)". The order: (1) the built uses
+proven live, (2) the parent report's checker, (3) skill matching, (4) the template reviewers.
+- **Done, step 1 (goal j4):** the server has `TYPESAFE_API_KEY` (engine logs now say so, never the value); the eval
+  workflow offers every Jev decision; an eval Jev cannot answer fails and says why. Live: week_skills 21/24,
+  story_shape 63/65 with 0 wrong keys, mistake_guess 108/120 among three with 0 slips named (runs in STATE.md).
+- **Built, step 2 (goal j5), switched off:** `w4_close/parent_review.py` — code's check (now also what coins make), then
+  Jev per sentence with only its facts (`parent_review.claims|mistakes|home` v1), then the model on the unsure band
+  (`review.jev_wrong_below` 0.1 / `review.jev_sure_above` 0.5). Gold, code then Jev: 12/14, 0 wrong, the model to read
+  49 of 310 sentences; the two misses (r1, e10) are in the unsure band.
+- **Owed after merge (the session can run it: Actions from any branch):** engine eval → parent_review, version 2,
+  jev_version 1. At 14/14 and 0 flagged wrongly: set the three Jev rows and parent_review v2 `active` in the seed, in
+  DECISIONS-LOG with the run. Below it: fix at the cause (a question Jev asks, or code), never lower a bar.
+- **Next:** step 3, skill matching — a gold of outside questions whose skill a person confirmed first; step 4, the
+  reviewers — grow their 6-case golds to ~40 first.
+- **A local database without Docker** (this container had no Docker daemon): Postgres 16's binaries, `initdb` as the
+  `postgres` user under /var/tmp, port 55432, roles anon/authenticated/service_role, every migration in order,
+  `engine load`; then `TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres`. 75 DB tests fail on
+  seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
+
 
 ## 2026-09-29 — the parent report is on; educators edit; twelve reports written, none yet approved
 

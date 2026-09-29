@@ -107,7 +107,8 @@ def test_every_jev_decision_can_be_scored_on_the_server():
     a Jev decision is scored (rule 7). Its eval workflow offered only the parent report's two prompts, so none of Jev's
     uses had ever been scored where they run."""
     rows = json.loads((db.REPO_ROOT / "supabase/seed/prompts.json").read_text())["prompts"]
-    jevs = {r["purpose"] for r in rows if str(r.get("model", "")).startswith("jev")}
+    # a part of one decision ("parent_review.claims") is scored with the decision it is part of
+    jevs = {r["purpose"].split(".")[0] for r in rows if str(r.get("model", "")).startswith("jev")}
     spec = yaml.safe_load(_workflow("engine-eval.yml"))
     offered = set((spec.get("on") or spec[True])["workflow_dispatch"]["inputs"]["purpose"]["options"])
     assert jevs and jevs <= offered, f"not offered on the server: {sorted(jevs - offered)}"

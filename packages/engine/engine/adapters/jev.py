@@ -103,9 +103,9 @@ def counting(ask, failed):
     """`ask`, with the reason of every call Jev did not answer also kept in `failed`: an eval tells a decision Jev could
     not be asked about from one it was unsure of (with no key, both used to score as nothing chosen)."""
 
-    def asking(*args):
+    def asking(*args, **kwargs):
         try:
-            return ask(*args)
+            return ask(*args, **kwargs)
         except JevError as e:
             failed.append(str(e))
             raise
@@ -113,18 +113,19 @@ def counting(ask, failed):
     return asking
 
 
-def decide_yes_no(conn, purpose, state, asks, post=_post):
-    """`yes_no` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
-    return _recorded(conn, purpose, lambda row: yes_no(row, state, asks, post))
+def decide_yes_no(conn, purpose, state, asks, post=_post, version=None):
+    """`yes_no` with the purpose's active prompt row (or `version`, active or not: only an eval names one), recorded
+    as a flow_run with its tokens and cost."""
+    return _recorded(conn, purpose, lambda row: yes_no(row, state, asks, post), version)
 
 
-def decide(conn, purpose, state, options, post=_post):
-    """`ask` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
-    return _recorded(conn, purpose, lambda row: ask(row, state, options, post))
+def decide(conn, purpose, state, options, post=_post, version=None):
+    """`ask` with the purpose's active prompt row (or `version`), recorded as a flow_run with its tokens and cost."""
+    return _recorded(conn, purpose, lambda row: ask(row, state, options, post), version)
 
 
-def _recorded(conn, purpose, call):
-    row = llm.active_prompt(conn, purpose)
+def _recorded(conn, purpose, call, version=None):
+    row = llm.active_prompt(conn, purpose, version=version)
     run = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger) select id, %s, 'engine' from tenant where slug = %s"
         " returning id",

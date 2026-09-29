@@ -1,0 +1,36 @@
+name: j5-parent-review-jev
+goal: >
+  Every parent report is read sentence by sentence before an educator sees it, each question asked of the cheapest
+  reader that can answer it: code first (what coins make is arithmetic, and code's); then Jev, asked of each sentence
+  with only the facts it is about (the summary and a skill's line against the child's standing, a mistake's line
+  against what happens in that mistake, a home activity against the facts); what Jev is sure is wrong goes back to the
+  writer, what it is sure is right passes, and only what it is unsure of is read by the model (`parent_review`).
+  Jev unreachable, the model reads the whole draft as before. Switched on only when `engine eval parent_review`
+  catches every wrong sentence of the gold set with nothing flagged wrongly (rule 7); the eval says how many sentences
+  the model had to read. The educator still approves every report.
+
+# Written 2026-09-29, before the code, on Nimish's words the same day: "What do you recommend? I really want to
+# integrate Jev as much as possible in all the use cases to make it efficient, cost-light, etc., so we have to do it."
+# and, on the recommendation (code first, Jev on every judgement call, the model only for what Jev is unsure of, a
+# person signing off): "with everything you have said (no except)". Measured before: code alone catches 4 of the gold's
+# 14 wrong sentences; Jev per section, below 0.1, 7 more with none flagged wrongly (probe, 2026-09-29).
+says:
+  - words: "I really want to integrate Jev as much as possible in all the use cases"
+    proved_by: packages/engine/tests/test_parent_review.py::test_what_jev_is_sure_is_wrong_goes_back_and_what_it_is_sure_is_right_passes
+  - words: "to make it efficient, cost-light"
+    proved_by: packages/engine/tests/test_parent_review.py::test_only_what_jev_is_unsure_of_is_read_by_the_model
+  - words: "with everything you have said (no except)"
+    proved_by: packages/engine/tests/test_parent_report.py::test_what_coins_make_is_arithmetic_and_code_holds_it
+manual:
+  - "On the server: Actions → engine eval → parent_review, version 2, jev_version 1. Only at every wrong sentence caught with none flagged wrongly are the three Jev rows and parent_review v2 made active, the score in DECISIONS-LOG.md (rule 7)."
+scenarios: []
+criteria:
+  - name: the sentences, the three readers in order, Jev down, the eval's counts, the coins — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_parent_review.py tests/test_parent_report.py tests/test_jev.py -q
+    expect: "passed"
+  - name: code, Jev and the model on the gold set (on the server, where the model's key is)
+    run: bin/engine eval parent_review --version 2 --jev-version 1
+    expect: "wrong sentences caught, 0 flagged"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

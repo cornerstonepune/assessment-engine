@@ -44,6 +44,14 @@ PAIR = re.compile(
 # v6's second run); a maths problem is not the child's: "word problems" is the skill set's own name, and v6 wrote "story problem" twice.
 # The ban is on the word said of the child ("has a problem"), never on the kind of question
 SCHOOLS_OWN = re.compile(r"\b(word|story|maths?|one[- ]step|two[- ]step)[- ]problems?\b", re.IGNORECASE)
+# r2, v12 on live: "Make a three-digit number with coins (for example, three ten-rupee notes and five one-rupee coins)"
+# is thirty-five. What coins make is arithmetic, and code's (ADR 0036): Jev was 0.75 sure the sentence was fine
+COINS = re.compile(r"\b([a-z]+(?:-[a-z]+)?|\d+) (hundred|ten|one)-rupee (?:coins?|notes?)\b", re.IGNORECASE)
+RUPEES = {"hundred": 100, "ten": 10, "one": 1}
+COINS_MAKE = re.compile(
+    r"\b(?:make|makes|making|show|shows|showing) ([a-z]+(?:-[a-z]+)?|\d+) with\b", re.IGNORECASE
+)
+COINS_SIZE = re.compile(r"\b(one|two|three|four)-digit number\b", re.IGNORECASE)
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
 
@@ -118,6 +126,22 @@ def numbers_in(text):
     return digits, words
 
 
+def _coins(t):
+    """What the coins a sentence counts out make, where the sentence says they make something else: [] when they agree,
+    or when it counts no coins ("use ten-rupee coins" is advice, not an amount)."""
+    counted = [(n, RUPEES[kind.lower()]) for x, kind in COINS.findall(t) if (n := _count(x)) is not None]
+    if not counted:
+        return []
+    made = sum(n * r for n, r in counted)
+    said = COINS_MAKE.search(t)
+    if said and _count(said.group(1)) not in (None, made):
+        return [f"the coins make {made}, not {said.group(1)}: {t!r}"]
+    size = COINS_SIZE.search(t)
+    if size and UNITS[size.group(1).lower()] != len(str(made)):
+        return [f"the coins make {made}, which is not a {size.group(0)}: {t!r}"]
+    return []
+
+
 def check(f, d):
     """What the words say that the facts do not, or that the school does not say — [] when nothing."""
     problems = []
@@ -172,6 +196,7 @@ def check(f, d):
             problems.append(f"a percentage: {t!r}")
         if "!" in t:
             problems.append(f"an exclamation mark: {t!r}")
+        problems += _coins(t)
         if m := CODE.search(t):
             problems.append(f"a code, {m.group(0)}: {t!r}")
         if re.search(r"[\[\]]", t.replace("[child]", "")):  # "[child become" printed as it stood (v5)

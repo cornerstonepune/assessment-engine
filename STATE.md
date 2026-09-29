@@ -3683,3 +3683,25 @@ deploys.
   - **The prompt is not active yet.** Rule 7 requires a score first: run the `engine eval` workflow on the server.
 - **Found:** `parent_note` v1 sent the child's first name to the model (rule 6) and had no eval (rule 7). It is now
   inactive; `parent_report` replaces it.
+
+## Jev on the server, and the parent-report checker reads with Jev first (2026-09-29, goals j4, j5)
+
+- **The engine on the server has Jev's key.** Actions → engine logs (run 36519464404, from this branch):
+  `TYPESAFE_API_KEY is set`. The key lives in `~/assessment-engine/.env` on the server; every deploy carries it across.
+- **Each of Jev's three uses, scored where it runs** (Actions → engine eval, from this branch, the server's code):
+  - `week_skills` (run 36519649576): `the exact skill sets on 21/24 notes · precision 0.935 · recall 0.967`
+  - `story_shape` (run 36519781611): `named 65/65, the shape right on 63 · one-step answers computed 44, wrong 0 ·
+    left for a person 0`
+  - `mistake_guess` (run 36519894157): `the right mistake first 66/120, among the three 108/120 · slips called NONE
+    30/30 · slips given a mistake 0` (goal j1's bar: 90 of 120 among three, no slip named — held)
+- **An eval Jev cannot answer fails and names why** (before: `week_skills … 0/24` and exit 0 with no key):
+  `pytest tests/test_cli.py -k jev_eval` → 3 passed; each eval counts `unanswered` (`jev.counting`).
+- **What coins make is code's** (`parent_check._coins`): `pytest tests/test_parent_report.py -k coins` → passed; no
+  draft of the gold a person found right is refused.
+- **The parent-report checker, code then Jev, on its gold set** (21 drafts, 14 wrong sentences; local copy, real Jev):
+  `bin/engine eval parent_review --jev-version 1` → `12/14 wrong sentences caught, 0 flagged that were right, over 21
+  drafts (5 by code first) · the model read 0 of 310 sentences`; exit 1 (below the bar). Jev was unsure of 49 of the
+  310 sentences, both misses among them (r1 0.27–0.28, e10 0.21–0.22 over two runs).
+- **Not yet verified:** the whole chain with the model (`parent_review` v2, Haiku) reading those 49 — its key is on the
+  server only. Owed after merge: Actions → engine eval → parent_review, version 2, jev_version 1. Nothing is switched on
+  until it catches 14 of 14 with none flagged wrongly (rule 7); until then `review()` reads nothing, as before.

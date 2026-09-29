@@ -123,6 +123,11 @@ def eval_(
     review_version: int = typer.Option(
         0, "--review-version", help="parent_report: the parent_review version that reads each draft"
     ),
+    jev_version: int = typer.Option(
+        0,
+        "--jev-version",
+        help="parent_review: the version of Jev's three questions that reads first (0: none)",
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
@@ -144,7 +149,7 @@ def eval_(
     if purpose == parent_review.PURPOSE:
         with db.connect() as conn:
             try:
-                r = parent_review.evaluate(conn, version or None)
+                r = parent_review.evaluate(conn, version or None, jev_version=jev_version or None)
             except LLMError as e:
                 conn.commit()
                 typer.echo(f"MODEL  {e}", err=True)
@@ -152,9 +157,11 @@ def eval_(
             conn.commit()
         typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
         typer.echo(
-            f"parent_review v{version or 'active'}: {r['caught']}/{r['bad']} wrong sentences caught,"
-            f" {r['false_flags']} flagged that were right, over {r['n']} drafts"
+            f"parent_review v{version or '-'}, Jev v{jev_version or '-'}: {r['caught']}/{r['bad']} wrong sentences"
+            f" caught, {r['false_flags']} flagged that were right, over {r['n']} drafts ({r['by_code']} by code first)"
+            f" · the model read {r['read_by_model']} of {r['sentences']} sentences"
         )
+        _unanswered(r, r["n"])
         raise typer.Exit(0 if r["bad"] and r["caught"] == r["bad"] and not r["false_flags"] else 1)
     if purpose == spec.MISCONCEPTION_PROMPT:
         with db.connect() as conn:
