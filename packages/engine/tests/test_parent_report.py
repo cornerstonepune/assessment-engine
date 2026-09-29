@@ -100,6 +100,17 @@ def child(conn):
     return kid
 
 
+def writer(fn):
+    """A test's writer, and a second reader that finds nothing: the reviewer is scored on its own gold set."""
+
+    def ask(conn, purpose, variables, meta=None, version=None):
+        if purpose == "parent_review":
+            return {"unsupported": []}
+        return fn(conn, purpose, variables, meta=meta, version=version)
+
+    return ask
+
+
 def _good(f):
     """A draft that says only what the facts say, as the model is asked to."""
     return {
@@ -181,7 +192,7 @@ def test_a_draft_that_breaks_its_facts_is_sent_back_once_and_never_kept_if_it_br
             d["summary"] += " The teacher says so."
         return d
 
-    got = P.draft(conn, child, ask=ask)
+    got = P.draft(conn, child, ask=writer(ask))
     assert got["attempts"] == 2 and got["problems"] == []
     assert "'teacher'" in asked[1]["fix"], "the second ask names what the first broke"
     assert NAME not in json.dumps(asked, default=str)
@@ -189,7 +200,7 @@ def test_a_draft_that_breaks_its_facts_is_sent_back_once_and_never_kept_if_it_br
     def stubborn(conn, purpose, variables, meta=None, version=None):
         return {**_good(variables["facts"]), "next_at_school": "The teacher decides."}
 
-    bad = P.draft(conn, child, ask=stubborn)
+    bad = P.draft(conn, child, ask=writer(stubborn))
     assert bad["problems"]
     with pytest.raises(ValueError, match="never kept"):
         P.keep(conn, child, bad)
@@ -197,7 +208,7 @@ def test_a_draft_that_breaks_its_facts_is_sent_back_once_and_never_kept_if_it_br
 
 def test_a_kept_report_waits_for_an_educator_says_when_it_is_out_of_date_and_is_approved_once(conn, child):
     ask = lambda conn, purpose, variables, meta=None, version=None: _good(variables["facts"])  # noqa: E731
-    P.keep(conn, child, P.draft(conn, child, ask=ask))
+    P.keep(conn, child, P.draft(conn, child, ask=writer(ask)))
     note = P.latest(conn, child)
     assert (
         note["approved_by"] is None
@@ -223,7 +234,7 @@ def test_a_kept_report_waits_for_an_educator_says_when_it_is_out_of_date_and_is_
 
 def test_the_eval_counts_every_child_and_the_bar_is_all_of_them(conn, child):
     ask = lambda conn, purpose, variables, meta=None, version=None: _good(variables["facts"])  # noqa: E731
-    got = P.evaluate(conn, None, ask=ask)
+    got = P.evaluate(conn, None, ask=writer(ask))
     assert got["n"] >= 1 and got["passed"] + len(got["failures"]) == got["n"] and got["sample"]
     assert all(set(f) == {"child", "problems"} and len(f["child"]) == 8 for f in got["failures"]), (
         "no name, ever"
@@ -237,7 +248,9 @@ def test_the_report_over_http_is_written_kept_and_approved(conn, child, monkeypa
     from engine.api.app import app
 
     monkeypatch.setattr(
-        P.llm, "generate", lambda conn, purpose, variables, meta=None, version=None: _good(variables["facts"])
+        P.llm,
+        "generate",
+        writer(lambda conn, purpose, variables, meta=None, version=None: _good(variables["facts"])),
     )
     monkeypatch.setenv("ENGINE_KEY", "k")
     app.dependency_overrides[deps.get_conn] = lambda: (yield conn)
@@ -272,7 +285,7 @@ def test_a_draft_over_its_schema_is_sent_back_and_one_childs_failure_never_ends_
             raise P.llm.LLMError("parent_report output failed its schema: '...' is too long")
         return _good(variables["facts"])
 
-    got = P.draft(conn, child, ask=long_once)
+    got = P.draft(conn, child, ask=writer(long_once))
     assert got["attempts"] == 2 and got["problems"] == []
     assert "failed its schema" in P.draft(conn, child, ask=lambda *a, **k: (_ for _ in ()).throw(
         P.llm.LLMError("parent_report output failed its schema: too long")))["problems"][0]  # fmt: skip
@@ -377,7 +390,7 @@ def test_what_the_v5_eval_on_live_found_is_read_right_and_next_is_never_the_mode
         seen.append(variables["facts"])
         return _good(variables["facts"])
 
-    P.draft(conn, child, ask=ask)
+    P.draft(conn, child, ask=writer(ask))
     assert "next" not in seen[0], "what comes next is said by code on the page, never by the model"
 
 
@@ -533,3 +546,21 @@ def test_what_the_v11_eval_found_readiness_is_the_plans_and_the_prompt_holds_no_
     f = P.facts(conn, child)
     said = P.check(f, {**_good(f), "summary": "[child] is ready to move forward in most areas."})
     assert any("'ready to'" in p for p in said)
+
+
+def test_what_the_reviewer_quotes_goes_back_to_the_writer_and_a_draft_it_keeps_refusing_is_not_kept(
+    conn, child
+):
+    sent = []
+
+    def ask(conn, purpose, variables, meta=None, version=None):
+        if purpose == "parent_review":
+            return {"unsupported": [{"quote": "is building steady habits", "why": "no fact says so"}]}
+        sent.append(variables["fix"])
+        return _good(variables["facts"])
+
+    got = P.draft(conn, child, ask=ask)
+    assert got["attempts"] == 3 and got["problems"]
+    assert "'is building steady habits' is not supported: no fact says so" in sent[1]
+    with pytest.raises(ValueError):
+        P.keep(conn, child, got)

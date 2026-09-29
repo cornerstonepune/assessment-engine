@@ -19,7 +19,7 @@ from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
-from engine.w4_close import parent_report
+from engine.w4_close import parent_report, parent_review
 from engine.w4_close.cli_card import card_app
 from engine.w4_close.cli_report import report_app
 
@@ -113,6 +113,9 @@ def eval_(
     version: int = typer.Option(
         0, "--version", help="parent_report: the prompt version to score, active or not"
     ),
+    review_version: int = typer.Option(
+        0, "--review-version", help="parent_report: the parent_review version that reads each draft"
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
@@ -120,7 +123,7 @@ def eval_(
     if purpose == parent_report.PURPOSE:
         with db.connect() as conn:
             try:
-                r = parent_report.evaluate(conn, version or None)
+                r = parent_report.evaluate(conn, version or None, review_version=review_version or None)
             except LLMError as e:
                 conn.commit()
                 typer.echo(f"MODEL  {e}", err=True)
@@ -131,6 +134,21 @@ def eval_(
             f"parent_report v{version or 'active'}: {r['passed']}/{r['n']} held to their facts, {r['first_try']} first time"
         )
         raise typer.Exit(0 if r["n"] and r["passed"] == r["n"] else 1)
+    if purpose == parent_review.PURPOSE:
+        with db.connect() as conn:
+            try:
+                r = parent_review.evaluate(conn, version or None)
+            except LLMError as e:
+                conn.commit()
+                typer.echo(f"MODEL  {e}", err=True)
+                raise typer.Exit(1)
+            conn.commit()
+        typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
+        typer.echo(
+            f"parent_review v{version or 'active'}: {r['caught']}/{r['bad']} wrong sentences caught,"
+            f" {r['false_flags']} flagged that were right, over {r['n']} drafts"
+        )
+        raise typer.Exit(0 if r["bad"] and r["caught"] == r["bad"] and not r["false_flags"] else 1)
     if purpose == spec.MISCONCEPTION_PROMPT:
         with db.connect() as conn:
             # One skill set per kind the engine knows, chosen by a row and not by a list in code: a

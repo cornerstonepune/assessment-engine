@@ -1,0 +1,2814 @@
+{
+ "_note": "PROVISIONAL. Judged by the engineer on 2026-09-29 from the parent report's evals on live (v7-v12, 2026-09-28): the ok cases are v12 drafts read in full and found right; r1-r2 are errors v12 wrote; e1-e12 put an error the reads found (or one of its kind) into a clean draft of a child whose facts make it wrong. `engine eval parent_review` scores the reviewer against it: every bad quote flagged, nothing else flagged. Facts carry no child's name.",
+ "cases": [
+  {
+   "ref": "ok1",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 77,
+    "can_do": [
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "ADD.2D1D",
+      "skill": "2-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D1D",
+      "skill": "2-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct total",
+      "what_we_do": "Count in tens on a 100-square",
+      "times": 3,
+      "example": {
+       "question": "34 + 15 =",
+       "wrote": "59",
+       "right": "49"
+      }
+     },
+     {
+      "id": "M_NOCARRY",
+      "mistake": "Forgets to carry",
+      "what_happens": "Writes each column sum mod 10 and never carries",
+      "what_we_do": "Place-value chart; exchange 10 ones for a ten with rods before recording",
+      "times": 2,
+      "example": {
+       "question": "Kabir collected 33 seashells on Monday and 29 seashells on Tuesday. How many seashells did he collect in all?",
+       "wrote": "52",
+       "right": "62"
+      }
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "mistake": "Exchanges but does not reduce the lender column",
+      "what_happens": "Adds ten to the column but leaves the lender column unchanged",
+      "what_we_do": "Cross out and rewrite the lender digit before subtracting",
+      "times": 2,
+      "example": {
+       "question": "276 - 9 =",
+       "wrote": "277",
+       "right": "267"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 23,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 30,
+     "wrong_answers_with_working_shown": 17,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] is working well with two-digit subtraction, taking a two-digit number from a two-digit number with exchange when needed. [child] is also working with addition and subtraction using two-digit and one-digit numbers, and has shown this on the papers so far. Over these 26 days, [child] answered 77 questions and is developing the skills needed to work with larger numbers.",
+    "can_do": [
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.2D1D",
+      "sentence": "[child] adds a one-digit number to a two-digit number, either first, lined up by the ones."
+     },
+     {
+      "id": "SUB.2D1D",
+      "sentence": "[child] takes a one-digit number from a two-digit number, lined up by the ones, exchanging when the ones need it."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts in tens, the answer sometimes comes out ten more than it should be. The educator counts in tens on a 100-square with [child] to make sure each step is correct."
+     },
+     {
+      "id": "M_NOCARRY",
+      "explanation": "When adding, [child] sometimes writes the sum of each column but forgets to carry the ten to the next column. The educator uses a place-value chart and exchanges ten ones for a ten with rods before recording the answer."
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "explanation": "When subtracting with exchange, [child] adds ten to the ones column but leaves the tens column unchanged. The educator helps [child] cross out and rewrite the tens digit before subtracting."
+     }
+    ],
+    "at_home": [
+     "Play with rupee coins: make a two-digit number with some coins, then take away a smaller amount. After [child] exchanges a ten-rupee coin for ten one-rupee coins if needed, count together to check the answer.",
+     "Try the seashell question together: work out how many seashells Kabir collected in all. Use small objects like buttons to show 33 and 29, then push them together and count to check.",
+     "Count in tens using objects around the home: line up ten spoons, then count how many tens are in twenty, thirty and forty. This helps [child] build a picture of tens and ones."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok2",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 119,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 7,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "ADD.3D3D",
+      "skill": "3-digit + 3-digit",
+      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "right": 17,
+      "answered": 18,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 30,
+      "answered": 34,
+      "not_yet": "not yet right often enough to be secure"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D2D",
+      "skill": "3-digit + 2-digit",
+      "can": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "4 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 1,
+      "example": {
+       "question": "27 + 38 =",
+       "wrote": "66",
+       "right": "65"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 13,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 19,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 5
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "ADD.3D3D",
+      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of an equals sign balance."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D2D",
+      "sentence": "[child] adds a two-digit number to a three-digit number, with the numbers lined up by the ones."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier papers to recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens, [child] sometimes counts one extra ten, making the answer ten more than it should be. The educator and [child] count back in tens on a hundred-square to check the answer and see where the count went."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, [child] correctly takes from the left column but leaves the zero as ten instead of nine. A number line count-up helps [child] check the answer and see the difference."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer is one more than the correct total, likely from a number fact that is off by one. Number bonds and ten-frame practice help [child] build fluency with the facts."
+     }
+    ],
+    "at_home": [
+     "Try the subtraction question beside this together: 306 − 128. After [child] works it out, count up from the answer on your fingers or with coins to check it reaches 306. This helps [child] notice when the exchange across the zero is correct.",
+     "Make a two-digit number together with ten-rupee and one-rupee coins, then take away a smaller two-digit number. Count the change together to check the answer. This gives [child] practice with exchanging and builds confidence in subtraction.",
+     "Play with number bonds: show [child] a number like ten, made with two groups of coins or objects, then hide one group and ask how many are hidden. Swapping which group you hide helps [child] see all the ways to make the number."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok3",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 81,
+    "can_do": [],
+    "nearly": [
+     {
+      "id": "ADD.2D1D",
+      "skill": "2-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 6,
+      "answered": 6,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D1D",
+      "skill": "2-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.3D2D",
+      "skill": "3-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 3-digit number, exchanging in one column or two.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 2,
+      "example": {
+       "question": "334 − 189 = ?",
+       "wrote": "155",
+       "right": "145"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 24,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 26,
+     "wrong_answers_with_working_shown": 6,
+     "questions_the_child_left_blank": 0
+    }
+   },
+   "draft": {
+    "summary": "[child] is building strong skills in addition and subtraction with two-digit and three-digit numbers. [child] adds one-digit numbers to two-digit numbers, adds two two-digit numbers together, and takes away one-digit and two-digit numbers from larger numbers. Over these 26 days, [child] has answered 81 questions and shown these skills across the papers. One small slip has appeared a few times: when counting back in tens during subtraction, [child] sometimes miscounts and makes the answer ten more than it should be.",
+    "can_do": [
+     {
+      "id": "ADD.2D1D",
+      "sentence": "[child] adds a one-digit number to a two-digit number, either first, lined up by the ones."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "SUB.2D1D",
+      "sentence": "[child] takes a one-digit number from a two-digit number, lined up by the ones, exchanging when the ones need it."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "SUB.3D2D",
+      "sentence": "[child] takes a two-digit number from a three-digit number, exchanging in one column or two."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts back in tens during subtraction, the answer sometimes comes out ten more than the correct answer. The educator helps [child] count back in tens on a hundred-square to make the counting clear and steady."
+     }
+    ],
+    "at_home": [
+     "Try the subtraction 334 − 189 together using coins or small objects split into groups of ten and ones. Count back slowly in tens, moving objects into a separate pile each time, and see what answer you find together.",
+     "Make a two-digit number with coins or objects. Take away a smaller one-digit number and check the answer together. Do this a few times with different numbers to keep the counting steady."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok4",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 69,
+    "can_do": [],
+    "nearly": [],
+    "improving": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "earlier": "4 of 17 right",
+      "recent": "11 of 18 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "mistake": "Writes the whole column sum instead of regrouping",
+      "what_happens": "Writes the full column sums side by side",
+      "what_we_do": "Ten-frame / rods: 'only one digit fits in a column'",
+      "times": 3,
+      "example": {
+       "question": "69 + 25",
+       "wrote": "814",
+       "right": "94"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 3,
+      "example": {
+       "question": "26 + 37 = ?",
+       "wrote": "64",
+       "right": "63"
+      }
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "mistake": "Drops the final carry-out (76+54 -> 30)",
+      "what_happens": "Drops the carry out of the last column",
+      "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
+      "times": 1,
+      "example": {
+       "question": "76 + 95 = ?",
+       "wrote": "71",
+       "right": "171"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 27,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 34,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 4
+    }
+   },
+   "draft": {
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "explanation": "When [child] adds, sometimes the full column sum gets written side by side instead of being regrouped into tens and ones. The educator uses ten-frames and rods to show that only one digit fits in each column."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer comes out one more than the correct total. The educator is building number bonds and ten-frame fluency so [child] can check the size of the answer."
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+     }
+    ],
+    "at_home": [
+     "Try the question 69 + 25 together using coins or small objects. Make 69 with tens and ones, then add 25, and count what you have altogether. This helps [child] see what happens when you regroup.",
+     "Play with two-digit numbers using things at home like spoons, buttons or coins arranged in tens and ones. Take turns making a two-digit number and adding another one without writing it down, just by counting and grouping. Keep it to ten minutes or so.",
+     "When [child] adds numbers, ask: is the answer bigger than the bigger number we started with? This helps [child] check if the answer makes sense before writing it down."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok5",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 114,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 5,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 14,
+      "answered": 14,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "1 of 7 right",
+      "recent": "5 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct total",
+      "what_we_do": "Count in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "894 + 983 = ? (in columns)",
+       "wrote": "1887",
+       "right": "1877"
+      }
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "mistake": "Stops after the first step of a two-step question",
+      "what_happens": "Answers 'had 40, spent 15, then earned 8' with 25 — the first step only.",
+      "what_we_do": "Underline both things that happen before calculating; two boxes for two steps",
+      "times": 2,
+      "example": {
+       "question": "A train has 80 passengers. At the first station 19 get off and 43 get on. How many passengers are on the train now?",
+       "wrote": "61",
+       "right": "104"
+      }
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "mistake": "Exchanges but does not reduce the lender column",
+      "what_happens": "Adds ten to the column but leaves the lender column unchanged",
+      "what_we_do": "Cross out and rewrite the lender digit before subtracting",
+      "times": 1,
+      "example": {
+       "question": "727 − 379 = ?",
+       "wrote": "458",
+       "right": "348"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 22,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 30,
+     "wrong_answers_with_working_shown": 19,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] is building strong foundations in addition and subtraction of two-digit numbers, and can work mentally with strategies like bridging through ten. Over these 24 days, [child] has shown real progress in three-digit subtraction, improving from earlier attempts. [child] is now working with three-digit numbers in addition and subtraction, and solving word problems that need two steps. The main things to watch are keeping track of all the steps in a problem, and remembering to reduce a column after exchanging a ten during subtraction.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of equals balance."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, writing the one-digit number under the ones."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier attempts."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts in tens during addition, the tens column sometimes goes one too high, making the answer ten more than it should be. The educator counts in tens on a hundred-square with [child] to keep track of exactly how many tens there are."
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "explanation": "In the train question beside this, [child] found the answer to the first step but stopped there, instead of using it to answer the full question. The educator now asks [child] to underline both things that happen, and to use two boxes—one for each step."
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "explanation": "When exchanging a ten in the subtraction beside this, [child] added the ten to the ones but forgot to reduce the tens column. The educator asks [child] to cross out and rewrite the tens digit before subtracting."
+     }
+    ],
+    "at_home": [
+     "Try the train question beside this together. Use small objects like rupee coins or stones to show the passengers getting on and off. Work through it step by step, writing down what you find after the first thing that happens, then use that number for the second part.",
+     "Make a three-digit number with [child] using three piles of rupee coins or buttons (one pile for hundreds, one for tens, one for ones). Take away a smaller three-digit number you choose. If you need to exchange, cross out and rewrite the tens digit before taking away.",
+     "Count up in tens together on paper or using coins. Start at different numbers and count: ten, twenty, thirty. This helps [child] notice when the tens are right, especially during longer additions."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok6",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 44,
+    "can_do": [],
+    "nearly": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 10,
+      "answered": 11,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "ADD.1D1D",
+      "skill": "1-digit + 1-digit",
+      "can": "Adds two 1-digit numbers, in columns and in a line, the answer one digit or two.",
+      "earlier": "2 of 10 right",
+      "recent": "10 of 11 right"
+     }
+    ],
+    "working_on": [],
+    "wrong_answers_no_named_mistake_explains": 19,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 19,
+     "wrong_answers_with_working_shown": 0,
+     "questions_the_child_left_blank": 2
+    }
+   },
+   "draft": {
+    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with carrying, and the educator will watch for this to hold steady on more papers.",
+    "can_do": [
+     {
+      "id": "ADD.1D1D",
+      "sentence": "[child] adds two one-digit numbers, in columns and in a line, and the answer is one digit or two digits. This has improved from the earlier papers to the recent ones."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     }
+    ],
+    "working_on": [],
+    "at_home": [
+     "Make two two-digit numbers with rupee coins or any objects at home, then add them together in columns on paper. Try making a few different pairs and adding them, as a game rather than a test.",
+     "Play with adding one-digit numbers using objects around the home, such as spoons or buttons. Ask [child] to show the answer in two ways: in a line and in columns, just like on the papers at school."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "ok7",
+   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 116,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MUL.1D",
+      "skill": "Multiplication by a single digit",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "right": 3,
+      "answered": 3,
+      "ready_to_move_up": false
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 26,
+      "answered": 30,
+      "not_yet": "not yet right often enough to be secure"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "6 of 8 right"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "earlier": "2 of 3 right",
+      "recent": "3 of 3 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "",
+      "what_we_do": "Number bonds; count-up on a number line",
+      "times": 2,
+      "example": {
+       "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?",
+       "wrote": "25",
+       "right": "26"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 15,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 22,
+     "wrong_answers_with_working_shown": 9,
+     "questions_the_child_left_blank": 1
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance."
+     },
+     {
+      "id": "MUL.1D",
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column and across one zero or several, and this has improved from earlier in these papers to more recent ones."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it, and this has improved from earlier in these papers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens during subtraction in columns, the answer sometimes comes out ten more than it should be. The school helps by counting back in tens on a hundred-square to practise this step carefully."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, sometimes the zero is written as ten but stays as ten instead of becoming nine. The school uses a number line to count up and check the answer instead."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes an answer is off by one, most often in subtraction or when finding what is left. The school uses number bonds and counting up on a number line to find the right answer."
+     }
+    ],
+    "at_home": [
+     "Play a counting-back game with rupee coins. Take a handful of coins, count them together, then remove a few and count back to find how many are left. This builds the counting-back skill that helps with subtraction.",
+     "Try the question beside the bird example together: read the story, ask [child] what happens first, what happens next, and which numbers go in the sum. Write it in columns and solve it, then check by counting up on your fingers or a piece of paper marked in tens.",
+     "Make two two-digit numbers with playing cards or written digits, and take the smaller away from the larger in columns on paper. If there is exchanging to do, say it aloud as you write: this helps [child] catch when the exchange has been written but not used."
+    ]
+   },
+   "bad": []
+  },
+  {
+   "ref": "r1",
+   "note": "v12: its nearly-secure skills are each answered on one paper so far (not_yet)",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 64,
+    "can_do": [
+     {
+      "id": "ADD.3D3D",
+      "skill": "3-digit + 3-digit",
+      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "right": 18,
+      "answered": 18,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "ADD.2D1D",
+      "skill": "2-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 6,
+      "answered": 6,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D1D",
+      "skill": "2-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [],
+    "wrong_answers_no_named_mistake_explains": 4,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 4,
+     "wrong_answers_with_working_shown": 3,
+     "questions_the_child_left_blank": 11
+    }
+   },
+   "draft": {
+    "summary": "[child] is working well with addition and subtraction in Grade 2 maths. [child] can add two 3-digit numbers with carrying from any column, including when a column carries onto a zero. [child] has also shown what it takes to add and subtract with 2-digit and 3-digit numbers, and these skills are beginning to hold across more than one piece of work. Over these 26 days, [child] has answered 64 questions, leaving some blank and showing working on most of the ones that were not quite right.",
+    "can_do": [
+     {
+      "id": "ADD.3D3D",
+      "sentence": "[child] adds two 3-digit numbers, carrying from any column, including onto a zero."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.2D1D",
+      "sentence": "[child] adds a 1-digit number to a 2-digit number, either first, lined up by the ones."
+     },
+     {
+      "id": "SUB.2D1D",
+      "sentence": "[child] takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     }
+    ],
+    "working_on": [],
+    "at_home": [
+     "Make some 2-digit numbers with coins or objects and ask [child] to add them together by lining them up. Use coins or small things you have at home to show the tens and ones, and let [child] add them their own way.",
+     "Take a 2-digit number [child] knows, such as a number of rupees, and ask [child] to take away a smaller number from it. Use objects or coins to show what is left, and let [child] show you the steps they take."
+    ]
+   },
+   "bad": [
+    "these skills are beginning to hold across more than one piece of work"
+   ]
+  },
+  {
+   "ref": "r2",
+   "note": "v12: three tens and five ones is thirty-five, a two-digit number",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 111,
+    "can_do": [
+     {
+      "id": "ADD.3D3D",
+      "skill": "3-digit + 3-digit",
+      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "right": 13,
+      "answered": 13,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "REASON.EXPLAIN",
+      "skill": "Explains the procedure or judges a claim",
+      "can": "Decides whether a statement about a calculation is true, such as moving 1 between two numbers keeping the total the same, and explains why in words.",
+      "right": 3,
+      "answered": 3,
+      "ready_to_move_up": false
+     },
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "right": 15,
+      "answered": 16,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 15,
+      "answered": 15,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D2D",
+      "skill": "3-digit + 2-digit",
+      "can": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [],
+    "wrong_answers_no_named_mistake_explains": 3,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 3,
+     "wrong_answers_with_working_shown": 1,
+     "questions_the_child_left_blank": 0
+    }
+   },
+   "draft": {
+    "summary": "[child] is working confidently with larger numbers in Grade 2. [child] can add and subtract three-digit numbers with carrying and exchanging across zeros, and solves one- and two-step word problems by working out what each step needs rather than following keywords. [child] is also using mental strategies like bridging through ten and balancing equations. Over these 26 days, [child] has shown strong understanding across a range of calculations.",
+    "can_do": [
+     {
+      "id": "ADD.3D3D",
+      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance."
+     },
+     {
+      "id": "REASON.EXPLAIN",
+      "sentence": "[child] decides whether a statement about a calculation is true, such as moving one between two numbers keeping the total the same, and explains why in words."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, either first, the one-digit number under the ones."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "ADD.3D2D",
+      "sentence": "[child] adds a two-digit number to a three-digit number, either first, lined up by the ones."
+     }
+    ],
+    "working_on": [],
+    "at_home": [
+     "Play adding and subtracting with rupee coins at home. Make a three-digit number with coins (for example, three ten-rupee notes and five one-rupee coins), then add or take away another amount. [child] can tell you the new amount and show how the coins changed.",
+     "Ask [child] to explain why moving one rupee from one pile to another keeps the total the same. This helps [child] think about how numbers work, not just find answers.",
+     "Make up simple stories together about things at home that need one or two steps, like counting items in different rooms or working out change. Let [child] decide what to add or take away, rather than telling [child] which operation to use."
+    ]
+   },
+   "bad": [
+    "Make a three-digit number with coins (for example, three ten-rupee notes and five one-rupee coins)"
+   ]
+  },
+  {
+   "ref": "e1",
+   "note": "v10: SUB.2D2D is only improving",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 116,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MUL.1D",
+      "skill": "Multiplication by a single digit",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "right": 3,
+      "answered": 3,
+      "ready_to_move_up": false
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 26,
+      "answered": 30,
+      "not_yet": "not yet right often enough to be secure"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "6 of 8 right"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "earlier": "2 of 3 right",
+      "recent": "3 of 3 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "",
+      "what_we_do": "Number bonds; count-up on a number line",
+      "times": 2,
+      "example": {
+       "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?",
+       "wrote": "25",
+       "right": "26"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 15,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 22,
+     "wrong_answers_with_working_shown": 9,
+     "questions_the_child_left_blank": 1
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] has mastered two-digit subtraction.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance."
+     },
+     {
+      "id": "MUL.1D",
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column and across one zero or several, and this has improved from earlier in these papers to more recent ones."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it, and this has improved from earlier in these papers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens during subtraction in columns, the answer sometimes comes out ten more than it should be. The school helps by counting back in tens on a hundred-square to practise this step carefully."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, sometimes the zero is written as ten but stays as ten instead of becoming nine. The school uses a number line to count up and check the answer instead."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes an answer is off by one, most often in subtraction or when finding what is left. The school uses number bonds and counting up on a number line to find the right answer."
+     }
+    ],
+    "at_home": [
+     "Play a counting-back game with rupee coins. Take a handful of coins, count them together, then remove a few and count back to find how many are left. This builds the counting-back skill that helps with subtraction.",
+     "Try the question beside the bird example together: read the story, ask [child] what happens first, what happens next, and which numbers go in the sum. Write it in columns and solve it, then check by counting up on your fingers or a piece of paper marked in tens.",
+     "Make two two-digit numbers with playing cards or written digits, and take the smaller away from the larger in columns on paper. If there is exchanging to do, say it aloud as you write: this helps [child] catch when the exchange has been written but not used."
+    ]
+   },
+   "bad": [
+    "[child] has mastered two-digit subtraction."
+   ]
+  },
+  {
+   "ref": "e2",
+   "note": "v11: SUB.3D3D is only improving, and M_ZERO_NOT_NINE is a mistake it still makes",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 116,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MUL.1D",
+      "skill": "Multiplication by a single digit",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "right": 3,
+      "answered": 3,
+      "ready_to_move_up": false
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 26,
+      "answered": 30,
+      "not_yet": "not yet right often enough to be secure"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "6 of 8 right"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "earlier": "2 of 3 right",
+      "recent": "3 of 3 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "",
+      "what_we_do": "Number bonds; count-up on a number line",
+      "times": 2,
+      "example": {
+       "question": "There were 52 birds sitting on a tree. 26 birds flew away. How many birds are left on the tree?",
+       "wrote": "25",
+       "right": "26"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 15,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 22,
+     "wrong_answers_with_working_shown": 9,
+     "questions_the_child_left_blank": 1
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] now exchanges correctly across columns and zeros.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance."
+     },
+     {
+      "id": "MUL.1D",
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column and across one zero or several, and this has improved from earlier in these papers to more recent ones."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it, and this has improved from earlier in these papers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens during subtraction in columns, the answer sometimes comes out ten more than it should be. The school helps by counting back in tens on a hundred-square to practise this step carefully."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, sometimes the zero is written as ten but stays as ten instead of becoming nine. The school uses a number line to count up and check the answer instead."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes an answer is off by one, most often in subtraction or when finding what is left. The school uses number bonds and counting up on a number line to find the right answer."
+     }
+    ],
+    "at_home": [
+     "Play a counting-back game with rupee coins. Take a handful of coins, count them together, then remove a few and count back to find how many are left. This builds the counting-back skill that helps with subtraction.",
+     "Try the question beside the bird example together: read the story, ask [child] what happens first, what happens next, and which numbers go in the sum. Write it in columns and solve it, then check by counting up on your fingers or a piece of paper marked in tens.",
+     "Make two two-digit numbers with playing cards or written digits, and take the smaller away from the larger in columns on paper. If there is exchanging to do, say it aloud as you write: this helps [child] catch when the exchange has been written but not used."
+    ]
+   },
+   "bad": [
+    "[child] now exchanges correctly across columns and zeros."
+   ]
+  },
+  {
+   "ref": "e3",
+   "note": "v11: four of its seven skill sets are only nearly secure, one only improving",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 114,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 5,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 14,
+      "answered": 14,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "1 of 7 right",
+      "recent": "5 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct total",
+      "what_we_do": "Count in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "894 + 983 = ? (in columns)",
+       "wrote": "1887",
+       "right": "1877"
+      }
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "mistake": "Stops after the first step of a two-step question",
+      "what_happens": "Answers 'had 40, spent 15, then earned 8' with 25 — the first step only.",
+      "what_we_do": "Underline both things that happen before calculating; two boxes for two steps",
+      "times": 2,
+      "example": {
+       "question": "A train has 80 passengers. At the first station 19 get off and 43 get on. How many passengers are on the train now?",
+       "wrote": "61",
+       "right": "104"
+      }
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "mistake": "Exchanges but does not reduce the lender column",
+      "what_happens": "Adds ten to the column but leaves the lender column unchanged",
+      "what_we_do": "Cross out and rewrite the lender digit before subtracting",
+      "times": 1,
+      "example": {
+       "question": "727 − 379 = ?",
+       "wrote": "458",
+       "right": "348"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 22,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 30,
+     "wrong_answers_with_working_shown": 19,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] is building strong foundations in addition and subtraction of two-digit numbers, and can work mentally with strategies like bridging through ten. Over these 24 days, [child] has shown real progress in three-digit subtraction, improving from earlier attempts. [child] is now working with three-digit numbers in addition and subtraction, and solving word problems that need two steps. The main things to watch are keeping track of all the steps in a problem, and remembering to reduce a column after exchanging a ten during subtraction. [child] is ready to move forward in most areas.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of equals balance."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, writing the one-digit number under the ones."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier attempts."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts in tens during addition, the tens column sometimes goes one too high, making the answer ten more than it should be. The educator counts in tens on a hundred-square with [child] to keep track of exactly how many tens there are."
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "explanation": "In the train question beside this, [child] found the answer to the first step but stopped there, instead of using it to answer the full question. The educator now asks [child] to underline both things that happen, and to use two boxes—one for each step."
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "explanation": "When exchanging a ten in the subtraction beside this, [child] added the ten to the ones but forgot to reduce the tens column. The educator asks [child] to cross out and rewrite the tens digit before subtracting."
+     }
+    ],
+    "at_home": [
+     "Try the train question beside this together. Use small objects like rupee coins or stones to show the passengers getting on and off. Work through it step by step, writing down what you find after the first thing that happens, then use that number for the second part.",
+     "Make a three-digit number with [child] using three piles of rupee coins or buttons (one pile for hundreds, one for tens, one for ones). Take away a smaller three-digit number you choose. If you need to exchange, cross out and rewrite the tens digit before taking away.",
+     "Count up in tens together on paper or using coins. Start at different numbers and count: ten, twenty, thirty. This helps [child] notice when the tens are right, especially during longer additions."
+    ]
+   },
+   "bad": [
+    "[child] is ready to move forward in most areas."
+   ]
+  },
+  {
+   "ref": "e4",
+   "note": "v7: SUB.2D2D is nearly secure, not secure",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 119,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 7,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "ADD.3D3D",
+      "skill": "3-digit + 3-digit",
+      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "right": 17,
+      "answered": 18,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 30,
+      "answered": 34,
+      "not_yet": "not yet right often enough to be secure"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D2D",
+      "skill": "3-digit + 2-digit",
+      "can": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "4 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 1,
+      "example": {
+       "question": "27 + 38 =",
+       "wrote": "66",
+       "right": "65"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 13,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 19,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 5
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on. [child] can now subtract two two-digit numbers, and this is secure.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "ADD.3D3D",
+      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of an equals sign balance."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D2D",
+      "sentence": "[child] adds a two-digit number to a three-digit number, with the numbers lined up by the ones."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier papers to recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens, [child] sometimes counts one extra ten, making the answer ten more than it should be. The educator and [child] count back in tens on a hundred-square to check the answer and see where the count went."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, [child] correctly takes from the left column but leaves the zero as ten instead of nine. A number line count-up helps [child] check the answer and see the difference."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer is one more than the correct total, likely from a number fact that is off by one. Number bonds and ten-frame practice help [child] build fluency with the facts."
+     }
+    ],
+    "at_home": [
+     "Try the subtraction question beside this together: 306 − 128. After [child] works it out, count up from the answer on your fingers or with coins to check it reaches 306. This helps [child] notice when the exchange across the zero is correct.",
+     "Make a two-digit number together with ten-rupee and one-rupee coins, then take away a smaller two-digit number. Count the change together to check the answer. This gives [child] practice with exchanging and builds confidence in subtraction.",
+     "Play with number bonds: show [child] a number like ten, made with two groups of coins or objects, then hide one group and ask how many are hidden. Swapping which group you hide helps [child] see all the ways to make the number."
+    ]
+   },
+   "bad": [
+    "[child] can now subtract two two-digit numbers, and this is secure."
+   ]
+  },
+  {
+   "ref": "e5",
+   "note": "M_NOCARRY keeps only the ones digit and drops the ten; side by side is M_CONCAT",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 77,
+    "can_do": [
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "ADD.2D1D",
+      "skill": "2-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D1D",
+      "skill": "2-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct total",
+      "what_we_do": "Count in tens on a 100-square",
+      "times": 3,
+      "example": {
+       "question": "34 + 15 =",
+       "wrote": "59",
+       "right": "49"
+      }
+     },
+     {
+      "id": "M_NOCARRY",
+      "mistake": "Forgets to carry",
+      "what_happens": "Writes each column sum mod 10 and never carries",
+      "what_we_do": "Place-value chart; exchange 10 ones for a ten with rods before recording",
+      "times": 2,
+      "example": {
+       "question": "Kabir collected 33 seashells on Monday and 29 seashells on Tuesday. How many seashells did he collect in all?",
+       "wrote": "52",
+       "right": "62"
+      }
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "mistake": "Exchanges but does not reduce the lender column",
+      "what_happens": "Adds ten to the column but leaves the lender column unchanged",
+      "what_we_do": "Cross out and rewrite the lender digit before subtracting",
+      "times": 2,
+      "example": {
+       "question": "276 - 9 =",
+       "wrote": "277",
+       "right": "267"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 23,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 30,
+     "wrong_answers_with_working_shown": 17,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] is working well with two-digit subtraction, taking a two-digit number from a two-digit number with exchange when needed. [child] is also working with addition and subtraction using two-digit and one-digit numbers, and has shown this on the papers so far. Over these 26 days, [child] answered 77 questions and is developing the skills needed to work with larger numbers.",
+    "can_do": [
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.2D1D",
+      "sentence": "[child] adds a one-digit number to a two-digit number, either first, lined up by the ones."
+     },
+     {
+      "id": "SUB.2D1D",
+      "sentence": "[child] takes a one-digit number from a two-digit number, lined up by the ones, exchanging when the ones need it."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts in tens, the answer sometimes comes out ten more than it should be. The educator counts in tens on a 100-square with [child] to make sure each step is correct."
+     },
+     {
+      "id": "M_NOCARRY",
+      "explanation": "When adding, [child] writes the whole sum of each column side by side, so both digits of a column's total end up in the answer. The educator uses a place-value chart and rods."
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "explanation": "When subtracting with exchange, [child] adds ten to the ones column but leaves the tens column unchanged. The educator helps [child] cross out and rewrite the tens digit before subtracting."
+     }
+    ],
+    "at_home": [
+     "Play with rupee coins: make a two-digit number with some coins, then take away a smaller amount. After [child] exchanges a ten-rupee coin for ten one-rupee coins if needed, count together to check the answer.",
+     "Try the seashell question together: work out how many seashells Kabir collected in all. Use small objects like buttons to show 33 and 29, then push them together and count to check.",
+     "Count in tens using objects around the home: line up ten spoons, then count how many tens are in twenty, thirty and forty. This helps [child] build a picture of tens and ones."
+    ]
+   },
+   "bad": [
+    "[child] writes the whole sum of each column side by side"
+   ]
+  },
+  {
+   "ref": "e6",
+   "note": "four tens and six ones is forty-six",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 81,
+    "can_do": [],
+    "nearly": [
+     {
+      "id": "ADD.2D1D",
+      "skill": "2-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 2-digit number, either first, lined up by the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 6,
+      "answered": 6,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D1D",
+      "skill": "2-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 2-digit number, lined up by the ones, exchanging when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.3D2D",
+      "skill": "3-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 3-digit number, exchanging in one column or two.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 2,
+      "example": {
+       "question": "334 − 189 = ?",
+       "wrote": "155",
+       "right": "145"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 24,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 26,
+     "wrong_answers_with_working_shown": 6,
+     "questions_the_child_left_blank": 0
+    }
+   },
+   "draft": {
+    "summary": "[child] is building strong skills in addition and subtraction with two-digit and three-digit numbers. [child] adds one-digit numbers to two-digit numbers, adds two two-digit numbers together, and takes away one-digit and two-digit numbers from larger numbers. Over these 26 days, [child] has answered 81 questions and shown these skills across the papers. One small slip has appeared a few times: when counting back in tens during subtraction, [child] sometimes miscounts and makes the answer ten more than it should be.",
+    "can_do": [
+     {
+      "id": "ADD.2D1D",
+      "sentence": "[child] adds a one-digit number to a two-digit number, either first, lined up by the ones."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "SUB.2D1D",
+      "sentence": "[child] takes a one-digit number from a two-digit number, lined up by the ones, exchanging when the ones need it."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "SUB.3D2D",
+      "sentence": "[child] takes a two-digit number from a three-digit number, exchanging in one column or two."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts back in tens during subtraction, the answer sometimes comes out ten more than the correct answer. The educator helps [child] count back in tens on a hundred-square to make the counting clear and steady."
+     }
+    ],
+    "at_home": [
+     "Make forty-five with rupee coins: four ten-rupee coins and six one-rupee coins, then take away a few ones together.",
+     "Make a two-digit number with coins or objects. Take away a smaller one-digit number and check the answer together. Do this a few times with different numbers to keep the counting steady."
+    ]
+   },
+   "bad": [
+    "Make forty-five with rupee coins: four ten-rupee coins and six one-rupee coins"
+   ]
+  },
+  {
+   "ref": "e7",
+   "note": "no subtraction is in the facts at all",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 69,
+    "can_do": [],
+    "nearly": [],
+    "improving": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "earlier": "4 of 17 right",
+      "recent": "11 of 18 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "mistake": "Writes the whole column sum instead of regrouping",
+      "what_happens": "Writes the full column sums side by side",
+      "what_we_do": "Ten-frame / rods: 'only one digit fits in a column'",
+      "times": 3,
+      "example": {
+       "question": "69 + 25",
+       "wrote": "814",
+       "right": "94"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 3,
+      "example": {
+       "question": "26 + 37 = ?",
+       "wrote": "64",
+       "right": "63"
+      }
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "mistake": "Drops the final carry-out (76+54 -> 30)",
+      "what_happens": "Drops the carry out of the last column",
+      "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
+      "times": 1,
+      "example": {
+       "question": "76 + 95 = ?",
+       "wrote": "71",
+       "right": "171"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 27,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 34,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 4
+    }
+   },
+   "draft": {
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has also improved at subtraction.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "explanation": "When [child] adds, sometimes the full column sum gets written side by side instead of being regrouped into tens and ones. The educator uses ten-frames and rods to show that only one digit fits in each column."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer comes out one more than the correct total. The educator is building number bonds and ten-frame fluency so [child] can check the size of the answer."
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+     }
+    ],
+    "at_home": [
+     "Try the question 69 + 25 together using coins or small objects. Make 69 with tens and ones, then add 25, and count what you have altogether. This helps [child] see what happens when you regroup.",
+     "Play with two-digit numbers using things at home like spoons, buttons or coins arranged in tens and ones. Take turns making a two-digit number and adding another one without writing it down, just by counting and grouping. Keep it to ten minutes or so.",
+     "When [child] adds numbers, ask: is the answer bigger than the bigger number we started with? This helps [child] check if the answer makes sense before writing it down."
+    ]
+   },
+   "bad": [
+    "[child] has also improved at subtraction."
+   ]
+  },
+  {
+   "ref": "e8",
+   "note": "ADD.2D2D is nearly secure, answered on one paper so far",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 44,
+    "can_do": [],
+    "nearly": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 10,
+      "answered": 11,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "ADD.1D1D",
+      "skill": "1-digit + 1-digit",
+      "can": "Adds two 1-digit numbers, in columns and in a line, the answer one digit or two.",
+      "earlier": "2 of 10 right",
+      "recent": "10 of 11 right"
+     }
+    ],
+    "working_on": [],
+    "wrong_answers_no_named_mistake_explains": 19,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 19,
+     "wrong_answers_with_working_shown": 0,
+     "questions_the_child_left_blank": 2
+    }
+   },
+   "draft": {
+    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with carrying, and the educator will watch for this to hold steady on more papers. [child] adds two two-digit numbers with carrying reliably, on every paper.",
+    "can_do": [
+     {
+      "id": "ADD.1D1D",
+      "sentence": "[child] adds two one-digit numbers, in columns and in a line, and the answer is one digit or two digits. This has improved from the earlier papers to the recent ones."
+     },
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     }
+    ],
+    "working_on": [],
+    "at_home": [
+     "Make two two-digit numbers with rupee coins or any objects at home, then add them together in columns on paper. Try making a few different pairs and adding them, as a game rather than a test.",
+     "Play with adding one-digit numbers using objects around the home, such as spoons or buttons. Ask [child] to show the answer in two ways: in a line and in columns, just like on the papers at school."
+    ]
+   },
+   "bad": [
+    "[child] adds two two-digit numbers with carrying reliably, on every paper."
+   ]
+  },
+  {
+   "ref": "e9",
+   "note": "M_ZERO_NOT_NINE takes from the left correctly and leaves the zero as ten",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 119,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 7,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "ADD.3D3D",
+      "skill": "3-digit + 3-digit",
+      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "right": 17,
+      "answered": 18,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 6,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 30,
+      "answered": 34,
+      "not_yet": "not yet right often enough to be secure"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D2D",
+      "skill": "3-digit + 2-digit",
+      "can": "Adds a 2-digit number to a 3-digit number, either first, lined up by the ones.",
+      "right": 3,
+      "answered": 3,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "2 of 8 right",
+      "recent": "4 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct difference",
+      "what_we_do": "Count back in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "mistake": "Across zero: zero becomes 10 and stays 10 (should be 9)",
+      "what_happens": "Takes from the left column correctly but leaves the zero as 10",
+      "what_we_do": "Number line count-up as a check",
+      "times": 3,
+      "example": {
+       "question": "306 − 128 = ? (in columns)",
+       "wrote": "188",
+       "right": "178"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 1,
+      "example": {
+       "question": "27 + 38 =",
+       "wrote": "66",
+       "right": "65"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 13,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 19,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 5
+    }
+   },
+   "draft": {
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "ADD.3D3D",
+      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of an equals sign balance."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, with the one-digit number under the ones."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D2D",
+      "sentence": "[child] adds a two-digit number to a three-digit number, with the numbers lined up by the ones."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier papers to recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When counting back in tens, [child] sometimes counts one extra ten, making the answer ten more than it should be. The educator and [child] count back in tens on a hundred-square to check the answer and see where the count went."
+     },
+     {
+      "id": "M_ZERO_NOT_NINE",
+      "explanation": "When exchanging across a zero, [child] turns the zero into a nine correctly but then forgets to take from the hundreds. The educator uses a number line count-up as a check."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer is one more than the correct total, likely from a number fact that is off by one. Number bonds and ten-frame practice help [child] build fluency with the facts."
+     }
+    ],
+    "at_home": [
+     "Try the subtraction question beside this together: 306 − 128. After [child] works it out, count up from the answer on your fingers or with coins to check it reaches 306. This helps [child] notice when the exchange across the zero is correct.",
+     "Make a two-digit number together with ten-rupee and one-rupee coins, then take away a smaller two-digit number. Count the change together to check the answer. This gives [child] practice with exchanging and builds confidence in subtraction.",
+     "Play with number bonds: show [child] a number like ten, made with two groups of coins or objects, then hide one group and ask how many are hidden. Swapping which group you hide helps [child] see all the ways to make the number."
+    ]
+   },
+   "bad": [
+    "[child] turns the zero into a nine correctly but then forgets to take from the hundreds"
+   ]
+  },
+  {
+   "ref": "e10",
+   "note": "no question in the facts is about kites",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-26",
+    "answers": 114,
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "right": 8,
+      "answered": 8,
+      "ready_to_move_up": true
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "skill": "Mental strategies: bridging, friendly numbers, equality",
+      "can": "Works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of = balance.",
+      "right": 5,
+      "answered": 6,
+      "ready_to_move_up": true
+     }
+    ],
+    "nearly": [
+     {
+      "id": "SUB.3D1D",
+      "skill": "3-digit − 1-digit",
+      "can": "Takes a 1-digit number from a 3-digit number, exchanging across a zero when it must.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "ADD.3D1D",
+      "skill": "3-digit + 1-digit",
+      "can": "Adds a 1-digit number to a 3-digit number, either first, the 1-digit number under the ones.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "skill": "One- and two-step word problems",
+      "can": "Solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step.",
+      "right": 14,
+      "answered": 14,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     },
+     {
+      "id": "SUB.2D2D",
+      "skill": "2-digit − 2-digit",
+      "can": "Takes a 2-digit number from a 2-digit number, exchanging a ten for ten ones when the ones need it.",
+      "right": 4,
+      "answered": 4,
+      "not_yet": "answered on one paper so far: secure once it holds on another"
+     }
+    ],
+    "improving": [
+     {
+      "id": "SUB.3D3D",
+      "skill": "3-digit − 3-digit",
+      "can": "Takes a 3-digit number from a 3-digit number, exchanging in any column, across one zero or several.",
+      "earlier": "1 of 7 right",
+      "recent": "5 of 8 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "mistake": "Tens miscounted",
+      "what_happens": "The answer is ten more than the correct total",
+      "what_we_do": "Count in tens on a 100-square",
+      "times": 4,
+      "example": {
+       "question": "894 + 983 = ? (in columns)",
+       "wrote": "1887",
+       "right": "1877"
+      }
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "mistake": "Stops after the first step of a two-step question",
+      "what_happens": "Answers 'had 40, spent 15, then earned 8' with 25 — the first step only.",
+      "what_we_do": "Underline both things that happen before calculating; two boxes for two steps",
+      "times": 2,
+      "example": {
+       "question": "A train has 80 passengers. At the first station 19 get off and 43 get on. How many passengers are on the train now?",
+       "wrote": "61",
+       "right": "104"
+      }
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "mistake": "Exchanges but does not reduce the lender column",
+      "what_happens": "Adds ten to the column but leaves the lender column unchanged",
+      "what_we_do": "Cross out and rewrite the lender digit before subtracting",
+      "times": 1,
+      "example": {
+       "question": "727 − 379 = ?",
+       "wrote": "458",
+       "right": "348"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 22,
+    "days": 24,
+    "on_the_papers": {
+     "wrong_answers": 30,
+     "wrong_answers_with_working_shown": 19,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] is building strong foundations in addition and subtraction of two-digit numbers, and can work mentally with strategies like bridging through ten. Over these 24 days, [child] has shown real progress in three-digit subtraction, improving from earlier attempts. [child] is now working with three-digit numbers in addition and subtraction, and solving word problems that need two steps. The main things to watch are keeping track of all the steps in a problem, and remembering to reduce a column after exchanging a ten during subtraction.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+     },
+     {
+      "id": "MENTAL.BRIDGE_EQ",
+      "sentence": "[child] works out sums and differences mentally by bridging through ten or using a friendly number, and finds what makes both sides of equals balance."
+     },
+     {
+      "id": "SUB.2D2D",
+      "sentence": "[child] takes a two-digit number from a two-digit number, exchanging a ten for ten ones when the ones need it."
+     },
+     {
+      "id": "ADD.3D1D",
+      "sentence": "[child] adds a one-digit number to a three-digit number, writing the one-digit number under the ones."
+     },
+     {
+      "id": "SUB.3D1D",
+      "sentence": "[child] takes a one-digit number from a three-digit number, exchanging across a zero when it must."
+     },
+     {
+      "id": "WORD.1_2STEP",
+      "sentence": "[child] solves one- and two-step word problems, choosing each operation from what happens in the story rather than a keyword, and using the first answer in the second step."
+     },
+     {
+      "id": "SUB.3D3D",
+      "sentence": "[child] takes a three-digit number from a three-digit number, exchanging in any column, across one zero or several, and has improved from earlier attempts."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_FACT_PM10",
+      "explanation": "When [child] counts in tens during addition, the tens column sometimes goes one too high, making the answer ten more than it should be. The educator counts in tens on a hundred-square with [child] to keep track of exactly how many tens there are."
+     },
+     {
+      "id": "M_ONE_STEP_ONLY",
+      "explanation": "In the train question beside this, [child] found the answer to the first step but stopped there, instead of using it to answer the full question. The educator now asks [child] to underline both things that happen, and to use two boxes—one for each step."
+     },
+     {
+      "id": "M_NO_DECREMENT",
+      "explanation": "When exchanging a ten in the subtraction beside this, [child] added the ten to the ones but forgot to reduce the tens column. The educator asks [child] to cross out and rewrite the tens digit before subtracting."
+     }
+    ],
+    "at_home": [
+     "Try the kite question beside this together, and act it out with coins.",
+     "Make a three-digit number with [child] using three piles of rupee coins or buttons (one pile for hundreds, one for tens, one for ones). Take away a smaller three-digit number you choose. If you need to exchange, cross out and rewrite the tens digit before taking away.",
+     "Count up in tens together on paper or using coins. Start at different numbers and count: ten, twenty, thirty. This helps [child] notice when the tens are right, especially during longer additions."
+    ]
+   },
+   "bad": [
+    "Try the kite question beside this together"
+   ]
+  },
+  {
+   "ref": "e11",
+   "note": "nothing is secure, nearly secure or improving in the facts",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-11",
+    "to": "2026-09-11",
+    "answers": 8,
+    "can_do": [],
+    "nearly": [],
+    "improving": [],
+    "working_on": [],
+    "wrong_answers_no_named_mistake_explains": 5,
+    "days": 1,
+    "on_the_papers": {
+     "wrong_answers": 5,
+     "wrong_answers_with_working_shown": 2,
+     "questions_the_child_left_blank": 3
+    }
+   },
+   "draft": {
+    "summary": "[child] has answered 8 questions on these papers. On the papers, [child] left 3 questions blank and gave 5 answers that were not correct. Of the incorrect answers, [child] showed working for 2 of them. Right now, [child] is beginning to work with maths ideas and is building skills in areas the educator is checking. [child] can already add small numbers confidently.",
+    "can_do": [],
+    "working_on": [],
+    "at_home": [
+     "When [child] finds a maths question tricky, encourage [child] to have a try anyway and write down or draw what [child] is thinking, even if the answer is not sure. This helps the educator see what [child] understands and what to help with next.",
+     "Play with numbers at home using things you have: make numbers with coins or counters, take some away, and count what is left. This helps [child] build confidence with numbers in a natural way without pressure."
+    ]
+   },
+   "bad": [
+    "[child] can already add small numbers confidently."
+   ]
+  },
+  {
+   "ref": "e12",
+   "note": "ADD.2D2D improved from 4 of 17 to 11 of 18: not every time",
+   "facts": {
+    "grade": "Grade 2",
+    "from": "2026-09-03",
+    "to": "2026-09-28",
+    "answers": 69,
+    "can_do": [],
+    "nearly": [],
+    "improving": [
+     {
+      "id": "ADD.2D2D",
+      "skill": "2-digit + 2-digit",
+      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "earlier": "4 of 17 right",
+      "recent": "11 of 18 right"
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "mistake": "Writes the whole column sum instead of regrouping",
+      "what_happens": "Writes the full column sums side by side",
+      "what_we_do": "Ten-frame / rods: 'only one digit fits in a column'",
+      "times": 3,
+      "example": {
+       "question": "69 + 25",
+       "wrote": "814",
+       "right": "94"
+      }
+     },
+     {
+      "id": "M_FACT_PM1",
+      "mistake": "Fact off by one",
+      "what_happens": "The answer is one more than the correct total",
+      "what_we_do": "Number bonds; ten-frame fluency",
+      "times": 3,
+      "example": {
+       "question": "26 + 37 = ?",
+       "wrote": "64",
+       "right": "63"
+      }
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "mistake": "Drops the final carry-out (76+54 -> 30)",
+      "what_happens": "Drops the carry out of the last column",
+      "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
+      "times": 1,
+      "example": {
+       "question": "76 + 95 = ?",
+       "wrote": "71",
+       "right": "171"
+      }
+     }
+    ],
+    "wrong_answers_no_named_mistake_explains": 27,
+    "days": 26,
+    "on_the_papers": {
+     "wrong_answers": 34,
+     "wrong_answers_with_working_shown": 11,
+     "questions_the_child_left_blank": 4
+    }
+   },
+   "draft": {
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has improved at adding two-digit numbers, and now gets them right every time.",
+    "can_do": [
+     {
+      "id": "ADD.2D2D",
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+     }
+    ],
+    "working_on": [
+     {
+      "id": "M_CONCAT",
+      "explanation": "When [child] adds, sometimes the full column sum gets written side by side instead of being regrouped into tens and ones. The educator uses ten-frames and rods to show that only one digit fits in each column."
+     },
+     {
+      "id": "M_FACT_PM1",
+      "explanation": "Sometimes [child]'s answer comes out one more than the correct total. The educator is building number bonds and ten-frame fluency so [child] can check the size of the answer."
+     },
+     {
+      "id": "M_DROP_CARRYOUT",
+      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+     }
+    ],
+    "at_home": [
+     "Try the question 69 + 25 together using coins or small objects. Make 69 with tens and ones, then add 25, and count what you have altogether. This helps [child] see what happens when you regroup.",
+     "Play with two-digit numbers using things at home like spoons, buttons or coins arranged in tens and ones. Take turns making a two-digit number and adding another one without writing it down, just by counting and grouping. Keep it to ten minutes or so.",
+     "When [child] adds numbers, ask: is the answer bigger than the bigger number we started with? This helps [child] check if the answer makes sense before writing it down."
+    ]
+   },
+   "bad": [
+    "now gets them right every time"
+   ]
+  }
+ ]
+}
