@@ -675,3 +675,43 @@ def test_what_coins_make_is_arithmetic_and_code_holds_it():
     )
     assert any("coins" in p for p in said("Make seven with one ten-rupee coin and two one-rupee coins."))
     assert said("Use one-rupee coins and ten-rupee coins to show numbers, and swap ten ones for a ten.") == []
+
+
+def test_a_question_the_words_name_is_the_childs_own_and_an_improving_skill_reads_as_improving():
+    """Nimish, 2026-09-29: "Do you believe changing the model might help the case?" Haiku 4.5, Sonnet 5.5 and Opus 5.5
+    each let e10's "Try the kite question beside this together" pass — no fact holds a kite — and each flagged e7's
+    summary "[child] can add two 2-digit numbers …" of a skill only improving, which the gold had called right and his
+    ruling the same day made wrong: a skill only improving reads as improving. Neither needs a bigger model: which
+    questions the facts hold, and whether the summary names an improving skill without saying so, are code's."""
+    gold = {
+        c["ref"]: c
+        for c in json.loads((db.REPO_ROOT / "supabase/seed/parent_review_gold.json").read_text())["cases"]
+    }
+    e10, ok4 = gold["e10"], gold["ok4"]
+    assert any("'the kite question'" in p for p in P.check(e10["facts"], e10["draft"]))
+    for ref in ("ok4", "e7", "e12"):
+        assert any(
+            "ADD.2D2D" in p and "improved" in p for p in P.check(gold[ref]["facts"], gold[ref]["draft"])
+        ), ref
+    for c in gold.values():  # nothing a person found right is refused
+        if not c["bad"]:
+            assert P.check(c["facts"], c["draft"]) == [], c["ref"]
+
+    def said(c, **part):
+        return P.check(c["facts"], {**c["draft"], **part})
+
+    assert (
+        said(e10, at_home=["Try the train question beside this together, and act it out with coins."]) == []
+    )
+    assert said(e10, at_home=["Try the subtraction question beside this together."]) == []
+    assert any("balloon" in p for p in said(e10, at_home=["Try the balloon story beside this together."]))
+
+    right = ok4["draft"]["summary"].replace(ok4["bad"][0], "").strip()
+    assert said(ok4, summary=right) == [], (
+        "is learning to add …, and this skill has improved: read as improving"
+    )
+    for plain in (
+        "[child] now adds two 2-digit numbers in columns.",
+        "[child] can add two two-digit numbers.",
+    ):
+        assert any("ADD.2D2D" in p for p in said(ok4, summary=f"{right} {plain}")), plain

@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-29 — the parent report's checker: none of three models passed; code and the gold fixed (goal j5)
+
+- **Scored on the server** behind Jev: Haiku 4.5 13/14 with 8 flagged wrongly, Sonnet 5.5 low 13/14 with 7, Opus 5.5
+  low 13/14 with 3. Nothing switched on. Runs and the misses in STATE.md.
+- **Fixed at the cause:** code refuses a draft naming a question the facts do not hold (the kite all three missed) and
+  a summary naming an improving skill without saying it improved; Nimish ruled two gold "right" sentences wrong, and
+  the gold is relabelled (18 wrong sentences). Code then Jev: 16/18, none flagged wrongly.
+- **Owed after merge:** Actions → engine eval → parent_review, jev_version 1, versions 3, 4, 5 again. The cheapest at
+  18/18 with none flagged wrongly is switched on with the four Jev rows. None there: look at what each flagged wrongly
+  (ok7's home activity, ok3's "strong skills", ok6/e8's "can add …, and this skill has grown") — a ruling for Nimish or
+  a fix at its cause, never a lower bar.
+
 ## 2026-09-29 — question 5: a split that adds up is right (goal s24, ADR 0043)
 
 Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B ("638 = 600 + [19] + [19]", both

@@ -1,5 +1,5 @@
 {
- "_note": "PROVISIONAL. Judged by the engineer on 2026-09-29 from the parent report's evals on live (v7-v12, 2026-09-28): the ok cases are v12 drafts read in full and found right; r1-r2 are errors v12 wrote; e1-e12 put an error the reads found (or one of its kind) into a clean draft of a child whose facts make it wrong. `engine eval parent_review` scores the reviewer against it: every bad quote flagged, nothing else flagged. Facts carry no child's name.",
+ "_note": "PROVISIONAL. Judged by the engineer on 2026-09-29 from the parent report's evals on live (v7-v12, 2026-09-28): the ok cases are v12 drafts read in full and found right; r1-r2 are errors v12 wrote; e1-e12 put an error the reads found (or one of its kind) into a clean draft of a child whose facts make it wrong. `engine eval parent_review` scores the reviewer against it: every bad quote flagged, nothing else flagged. Facts carry no child's name. Relabelled on Nimish's ruling, 2026-09-29, after Haiku 4.5, Sonnet 5.5 and Opus 5.5 each flagged what the engineer had judged right: ok4, e7, e12 and r1 (each case's note).",
  "cases": [
   {
    "ref": "ok1",
@@ -428,7 +428,7 @@
   },
   {
    "ref": "ok4",
-   "note": "v12 on live, read in full: every sentence holds to the facts",
+   "note": "v12 on live; Nimish, 2026-09-29: a skill only improving reads as improving — the summary's \"[child] can add two 2-digit numbers …\" of ADD.2D2D, which is only improving, is wrong (the summary prints no state beside its words)",
    "facts": {
     "grade": "Grade 2",
     "from": "2026-09-03",
@@ -519,7 +519,9 @@
      "When [child] adds numbers, ask: is the answer bigger than the bigger number we started with? This helps [child] check if the answer makes sense before writing it down."
     ]
    },
-   "bad": []
+   "bad": [
+    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+   ]
   },
   {
    "ref": "ok5",
@@ -929,7 +931,7 @@
   },
   {
    "ref": "r1",
-   "note": "v12: its nearly-secure skills are each answered on one paper so far (not_yet)",
+   "note": "v12: its nearly-secure skills are each answered on one paper so far (not_yet); Nimish, 2026-09-29: no 3-digit subtraction is in the facts, so \"… add and subtract with 2-digit and 3-digit numbers\" is wrong",
    "facts": {
     "grade": "Grade 2",
     "from": "2026-09-03",
@@ -1032,7 +1034,8 @@
     ]
    },
    "bad": [
-    "these skills are beginning to hold across more than one piece of work"
+    "these skills are beginning to hold across more than one piece of work",
+    "[child] has also shown what it takes to add and subtract with 2-digit and 3-digit numbers"
    ]
   },
   {
@@ -2160,7 +2163,7 @@
   },
   {
    "ref": "e7",
-   "note": "no subtraction is in the facts at all",
+   "note": "no subtraction is in the facts at all; Nimish, 2026-09-29: a skill only improving reads as improving — the summary's \"[child] can add two 2-digit numbers …\" of ADD.2D2D, which is only improving, is wrong (the summary prints no state beside its words)",
    "facts": {
     "grade": "Grade 2",
     "from": "2026-09-03",
@@ -2252,7 +2255,8 @@
     ]
    },
    "bad": [
-    "[child] has also improved at subtraction."
+    "[child] has also improved at subtraction.",
+    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
    ]
   },
   {
@@ -2715,7 +2719,7 @@
   },
   {
    "ref": "e12",
-   "note": "ADD.2D2D improved from 4 of 17 to 11 of 18: not every time",
+   "note": "ADD.2D2D improved from 4 of 17 to 11 of 18: not every time; Nimish, 2026-09-29: a skill only improving reads as improving — the summary's \"[child] can add two 2-digit numbers …\" of ADD.2D2D, which is only improving, is wrong (the summary prints no state beside its words)",
    "facts": {
     "grade": "Grade 2",
     "from": "2026-09-03",
@@ -2807,7 +2811,8 @@
     ]
    },
    "bad": [
-    "now gets them right every time"
+    "now gets them right every time",
+    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
    ]
   }
  ]

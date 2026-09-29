@@ -3753,3 +3753,23 @@ deploys.
   its evidence with it; a signed-off partner untouched until saved).
 - **Not yet verified:** on live. After merge the deploy enters the papers; then each box of each question 5 equation
   still marked wrong is saved again.
+
+## The parent report's checker: three models scored on the server, and what code now holds (2026-09-29, goal j5)
+
+- **Behind Jev (jev_version 1), before the rules below** — Actions → engine eval, main 3e15a79:
+  - Haiku 4.5, parent_review v3 (run 36571102880): `13/14 wrong sentences caught, 8 flagged that were right … the
+    model read 16 of 310 sentences`
+  - Sonnet 5.5 low, v4 (run 36572682537): `13/14 …, 7 flagged that were right … the model read 17 of 310 sentences`
+  - Opus 5.5 low, v5 (run 36573750680): `13/14 …, 3 flagged that were right … the model read 18 of 310 sentences`
+  - All three missed e10's "Try the kite question beside this together"; all three flagged e7's summary "[child] can
+    add two 2-digit numbers …" of a skill only improving. Nothing is switched on.
+- **Nimish ruled, the same day,** two sentences the provisional gold called right to be wrong (ok4, e7, e12's
+  improving-skill claim; r1's 3-digit subtraction the facts do not hold). The gold is relabelled: 18 wrong sentences.
+- **Code holds two more things** (`parent_check`): a question, story or example the words name is one the facts hold;
+  a summary sentence that names an improving skill says it has improved. `pytest tests/test_parent_report.py
+  tests/test_parent_review.py` (local copy) → 34 passed; no draft of the gold a person found right is refused.
+- **Code then Jev, relabelled gold** (local, real Jev): `bin/engine eval parent_review --jev-version 1` →
+  `16/18 wrong sentences caught, 0 flagged that were right, over 21 drafts (11 by code first) · the model read 0 of
+  227 sentences`; Jev unsure of 14, r1's two-clause sentence among them.
+- **Not yet verified:** the three models scored again on the server after merge, each reading those 14.
+

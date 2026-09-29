@@ -10,7 +10,9 @@ goal: >
   own `can_do`, which it read as a claim of being secure. Each model row says how hard its model thinks (`effort`),
   sent to that model only. Of Haiku 4.5, Sonnet 5.5 (low effort) and Opus 5.5 (low effort), the cheapest that catches
   every wrong sentence of the gold set with nothing flagged wrongly is switched on (rule 7); the eval says how many
-  sentences the model had to read. The educator still approves every report.
+  sentences the model had to read. What every model missed or flagged alike is code's or the gold's, never a bigger
+  model's: a question the draft names is one of the child's own, and a summary that names a skill only improving says
+  it has improved (Nimish's ruling, 2026-09-29, which relabelled the gold). The educator still approves every report.
 
 # Written 2026-09-29, before the code, on Nimish's words the same day: "What do you recommend? I really want to
 # integrate Jev as much as possible in all the use cases to make it efficient, cost-light, etc., so we have to do it."
@@ -26,10 +28,12 @@ says:
     proved_by: packages/engine/tests/test_parent_report.py::test_what_coins_make_is_arithmetic_and_code_holds_it
   - words: "Do you believe changing the model might help the case?"
     proved_by: packages/engine/tests/test_parent_review.py::test_the_model_reads_skill_lines_as_skill_lines_never_as_can_do
+  - words: "Do you believe changing the model might help the case?"
+    proved_by: packages/engine/tests/test_parent_report.py::test_a_question_the_words_name_is_the_childs_own_and_an_improving_skill_reads_as_improving
   - words: "yes, go ahead with all three"
     proved_by: packages/engine/tests/test_llm.py::test_a_rows_effort_goes_to_its_own_model_and_never_to_a_fallback
 manual:
-  - "On the server, after merge (the migration and the seed go live with it): Actions → engine eval → parent_review, jev_version 1, version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low). The cheapest at every wrong sentence caught with none flagged wrongly is made active with the four Jev rows, the scores in DECISIONS-LOG.md (rule 7)."
+  - "On the server, after merge (the rules and the relabelled gold go live with it): Actions → engine eval → parent_review, jev_version 1, version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low). The cheapest at every wrong sentence caught with none flagged wrongly is made active with the four Jev rows, the scores in DECISIONS-LOG.md (rule 7). First scored 2026-09-29, before the rules: 13/14 each, 8, 7 and 3 flagged wrongly (runs 36571102880, 36572682537, 36573750680)."
 scenarios: []
 criteria:
   - name: the sentences, the three readers in order, Jev down, the eval's counts, the coins — on the local copy

@@ -52,8 +52,31 @@ COINS_MAKE = re.compile(
     r"\b(?:make|makes|making|show|shows|showing) ([a-z]+(?:-[a-z]+)?|\d+) with\b", re.IGNORECASE
 )
 COINS_SIZE = re.compile(r"\b(one|two|three|four)-digit number\b", re.IGNORECASE)
+# e10: "Try the kite question beside this together" — the page prints the child's own questions beside the words, and
+# no fact holds a kite; Haiku 4.5, Sonnet 5.5 and Opus 5.5 each let it pass (2026-09-29). Which questions the facts
+# hold is code's: a question, story or example the words name by what it is about is one the facts hold
+NAMED = re.compile(r"\bthe ([a-z]+(?:-[a-z]+)?) (question|story|example)\b", re.IGNORECASE)
+NAMES_NOTHING = {"subtraction", "addition", "sum", "full", "whole", "same", "first", "second", "third", "next", "last",
+                 "other", "word", "maths", "two-step", "one-step", "harder", "easier", "similar", "new"}  # fmt: skip
+# Nimish, 2026-09-29: a skill only improving reads as improving. e7, v12 on live: "[child] can add two 2-digit numbers
+# in columns and in a line, carrying exactly when a column needs it." of a skill 11 of 18 right — and the summary,
+# unlike a skill's own line, prints no state beside its words
+IMPROVED = re.compile(r"\b(improv\w*|grow\w*|grew|better|progress\w*)\b", re.IGNORECASE)
+DIGITS = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5"}
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
+
+
+def _words(text):
+    """A text's words as a skill's "can" is compared: lower case, numbers as digits, a plural's or a verb's s off."""
+    out = [DIGITS.get(w, w) for w in re.findall(r"[a-z0-9]+", text.lower())]
+    return [w[:-1] if len(w) > 3 and w.endswith("s") and not w.endswith("ss") else w for w in out]
+
+
+def _names(text, skill):
+    """Whether a text names a skill by what it can do: the first words of its "can", up to its first comma."""
+    want, got = _words(skill["can"].split(",")[0])[:5], _words(text)
+    return any(got[i : i + len(want)] == want for i in range(len(got) - len(want) + 1))
 
 
 def _texts(d):
@@ -170,6 +193,12 @@ def check(f, d):
             problems.append(
                 f"{where} says {said.group(0)!r}; the page shows how secure a skill is, so take it out"
             )
+    for said in re.split(r"(?<=[.!?])\s+(?=[A-Z\[])", d["summary"]):
+        for x in f["improving"]:
+            if _names(said, x) and not IMPROVED.search(said):
+                problems.append(
+                    f"the summary says what {x['id']} is without saying it has improved; it is only improving: {said!r}"
+                )
     known = json.dumps(f, ensure_ascii=False)
     # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
     held = numbers_in(json.dumps({k: v for k, v in f.items() if k not in ("from", "to")}, ensure_ascii=False))
@@ -197,6 +226,9 @@ def check(f, d):
         if "!" in t:
             problems.append(f"an exclamation mark: {t!r}")
         problems += _coins(t)
+        for m in NAMED.finditer(t):
+            if m.group(1).lower() not in NAMES_NOTHING and m.group(1).lower() not in known.lower():
+                problems.append(f"{m.group(0)!r} is not one of [child]'s own questions: {t!r}")
         if m := CODE.search(t):
             problems.append(f"a code, {m.group(0)}: {t!r}")
         if re.search(r"[\[\]]", t.replace("[child]", "")):  # "[child become" printed as it stood (v5)
