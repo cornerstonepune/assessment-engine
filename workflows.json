@@ -175,7 +175,7 @@
   "ceilings": {
     "limit": 400,
     "frozen": {
-      "engine/adapters/ocr.py": 1002,
+      "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 579,
       "engine/core/loaders.py": 413,

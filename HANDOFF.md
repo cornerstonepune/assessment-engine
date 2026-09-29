@@ -58,6 +58,17 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
 
 
+## 2026-09-29 — two questions printing the same words; a missing-digit sum beside its words
+
+- Rudraksh's G4-SEPW2 page 2 (Nimish's screenshots): 6a, 6b, 7a, 7b all showed question 6's heading and came back
+  blank. 6 and 7 both print "Write the missing digits."; `ocr.find_question` took the first line that matched for
+  both. And each sum prints to the right of its words, outside the region `answers_for` looked in.
+- Fixed in `ocr.py`: of lines that match as well, a question takes the first not on a row another question was found
+  on (questions found in number order); a question alone on its rows that finds nothing in its column looks across
+  their width, where the sum's boxes are. The dead `_in_region` went (ceiling 1002 → 999).
+- Rudraksh's four answers are not signed off: a person types 8, 5, 6, 6 on Marking, or his paper is read again once
+  this is live. `ocr.py`'s split into the Textract adapter and the page logic stays owed (cleanup stage 2).
+
 ## 2026-09-29 — a copy's pages are the pages they print, not where they sit in the file
 
 - Achal's voice note, roll 7 (G2, R8-H03): the paper was photographed across two files, and the second file's two
@@ -71,9 +82,7 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   included (`copies._misplaced`): they were made against another question. Roll 7's second file is to be read again
   once this is live, and its Q7–Q12 signed off afresh.
 - `copy_scores.py` split from `copies.py` (the per-scan reports), which had passed 400 lines.
-- **Open, next:** Rudraksh's G4-SEPW2 Q6/Q7 — two questions printing the same words anchor on the first
-  (`ocr.find_question` breaks ties by page order), and a missing-digit sum printed beside its heading falls outside
-  the answer column; `ocr.py` is at its ceiling, so the question-finding is split out first.
+- Rudraksh's G4-SEPW2 Q6/Q7 (two questions printing the same words): fixed in the entry above.
 - `engine-logs.yml` prints how the reader is doing (`profiles.report`): 2026-09-29, 1,238 checked, 693 of the 898 it
   stood behind right (77%), no kind at the 95% gate.
 
