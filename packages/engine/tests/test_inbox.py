@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from engine.api import deps
 from engine.api.app import app
-from engine.w3_read import copies, inbox
+from engine.w3_read import copies, copy_scores, inbox
 
 KEY = "test-engine-key"
 LINKS = [
@@ -139,7 +139,7 @@ def test_a_scans_copies_are_given_by_roll_number_never_by_name(client, monkeypat
     seen = []
     row = {"copy": "copy01", "section": "G3", "roll_no": "1", "code": "R31-H02", "capture_id": RUN, "answers": 12,
            "right": 9, "wrong": 2, "blank": 1, "unclear": 0, "waiting": 12}  # fmt: skip
-    monkeypatch.setattr(copies, "of_scan", lambda conn, name: seen.append(name) or [row])
+    monkeypatch.setattr(copy_scores, "of_scan", lambda conn, name: seen.append(name) or [row])
     r = c.get("/read/scan/24 sept.pdf/copies")
     assert r.status_code == 200 and r.json() == [row] and seen == ["24 sept.pdf"]
     assert "name" not in r.text
@@ -216,6 +216,6 @@ def test_a_copys_readings_say_why_each_answer_waits(client, monkeypatch):
     row = {"item": "WP2-1", "status": "needs_teacher", "answer_state": "illegible",
            "why": "3 boxes hold ink but the reader saw 42", "child_answer": "", "guess": "42", "confidence": 91.0,
            "boxes": 3, "inked": 3, "seen": [{"text": "42", "confidence": 91.0}], "working_shown": "none"}  # fmt: skip
-    monkeypatch.setattr(copies, "readings", lambda conn, capture_id: [row])
+    monkeypatch.setattr(copy_scores, "readings", lambda conn, capture_id: [row])
     r = c.get(f"/capture/{RUN}/readings")
     assert r.status_code == 200 and r.json() == [row]
