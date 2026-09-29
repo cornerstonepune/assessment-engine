@@ -105,6 +105,13 @@ def graph_(
     typer.echo(f"  {n} states · {questions} questions with confirmed answers")
 
 
+def _unanswered(r, n):
+    """A Jev eval Jev did not answer fails and says why: with no key it used to score as nothing chosen, and pass."""
+    if r["unanswered"]:
+        typer.echo(f"JEV  not answered on {r['unanswered']} of {n}: {r['error']}", err=True)
+        raise typer.Exit(1)
+
+
 @app.command("eval")
 def eval_(
     purpose: str,
@@ -198,6 +205,7 @@ def eval_(
             f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
             f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
         )
+        _unanswered(r, r["n"])
         return
 
     if purpose == mistake_guess.PURPOSE:
@@ -208,6 +216,7 @@ def eval_(
             f"  {purpose}: the right mistake first {r['first']}/{r['cases']}, among the three {r['listed']}/{r['cases']}"
             f" · slips called NONE {r['slips_none']}/{r['slips']} · slips given a mistake {r['false_named']}"
         )
+        _unanswered(r, r["cases"])
         return
 
     if purpose == "week_skills":
@@ -222,6 +231,7 @@ def eval_(
             f"  {purpose}: the exact skill sets on {r['exact']}/{r['n']} notes · precision {r['precision']}"
             f" · recall {r['recall']}"
         )
+        _unanswered(r, r["n"])
         return
 
     if purpose in review.REVIEWERS:

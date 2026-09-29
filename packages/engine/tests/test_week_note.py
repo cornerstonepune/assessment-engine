@@ -89,3 +89,13 @@ def test_the_eval_counts_precision_recall_and_exact_sets_against_the_gold(conn):
     got = week_note.evaluate(conn, ask, gold)
     assert (got["n"], got["exact"], got["precision"], got["recall"]) == (2, 0, 0.5, 0.667)
     assert got["misses"][0]["want"] == ["SUB.2D2D"] and got["misses"][0]["got"] == ["ADD.2D2D", "SUB.2D2D"]
+
+
+def test_an_eval_jev_cannot_answer_says_so_and_does_not_score_zero(conn):
+    """Before, a note Jev could not be asked about was scored as nothing ticked: the eval said 0/24 and passed."""
+
+    def down(*a):
+        raise jev.JevError("no TYPESAFE_API_KEY in the engine's environment: Jev cannot be asked")
+
+    got = week_note.evaluate(conn, down, [{"band": "G2", "note": "a", "skill_sets": ["SUB.2D2D"]}])
+    assert (got["n"], got["unanswered"]) == (1, 1) and "TYPESAFE_API_KEY" in got["error"]

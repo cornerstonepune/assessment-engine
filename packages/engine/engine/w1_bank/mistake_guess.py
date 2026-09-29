@@ -90,8 +90,13 @@ def evaluate(conn, cases, ask=None):
     """→ how Jev did on `cases`: first choice right, right among the shortlist, slips called NONE, and slips given a
     mistake they are not (the number that must stay 0)."""
     first = listed = slips_none = false_named = 0
+    failed = []
     for c in cases:
-        out = (ask or jev.decide)(conn, PURPOSE, state(c, str(c["wrote"])), options(c["op"]))
+        try:
+            out = (ask or jev.decide)(conn, PURPOSE, state(c, str(c["wrote"])), options(c["op"]))
+        except jev.JevError as e:
+            failed.append(str(e))
+            continue
         top = [code for code, _ in out["ranked"][:SHORTLIST]]
         first += top[0] == c["want"]
         listed += c["want"] in top
@@ -99,4 +104,5 @@ def evaluate(conn, cases, ask=None):
             slips_none += top[0] == NONE
             false_named += top[0] != NONE
     return {"cases": len(cases), "first": first, "listed": listed, "slips": sum(c["want"] == NONE for c in cases),
-            "slips_none": slips_none, "false_named": false_named}  # fmt: skip
+            "slips_none": slips_none, "false_named": false_named,
+            "unanswered": len(failed), "error": failed[0] if failed else ""}  # fmt: skip

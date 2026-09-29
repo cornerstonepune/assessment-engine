@@ -99,6 +99,20 @@ def yes_no(row, state, asks, post=_post):
     }
 
 
+def counting(ask, failed):
+    """`ask`, with the reason of every call Jev did not answer also kept in `failed`: an eval tells a decision Jev could
+    not be asked about from one it was unsure of (with no key, both used to score as nothing chosen)."""
+
+    def asking(*args):
+        try:
+            return ask(*args)
+        except JevError as e:
+            failed.append(str(e))
+            raise
+
+    return asking
+
+
 def decide_yes_no(conn, purpose, state, asks, post=_post):
     """`yes_no` with the purpose's active prompt row, recorded as a flow_run with its tokens and cost."""
     return _recorded(conn, purpose, lambda row: yes_no(row, state, asks, post))

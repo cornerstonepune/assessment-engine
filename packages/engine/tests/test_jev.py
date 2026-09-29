@@ -1,9 +1,14 @@
 """The Jev adapter (`adapters/jev.py`, ADR 0036): one typed decision per call, from a prompt row, never text.
 The service is stood in for; what is tested is the request the adapter builds and what it makes of the reply."""
 
+import json
+import re
+
 import pytest
+import yaml
 
 from engine.adapters import jev
+from engine.core import db
 
 ROW = {
     "id": "p1",
@@ -91,3 +96,26 @@ def test_a_yes_no_answer_that_is_not_a_probability_or_not_asked_is_refused():
         jev.yes_no(YES_NO, {}, asks, lambda b: {"answers": {"Z": {"type": "noul", "noul": 0.5}}})
     with pytest.raises(jev.JevError, match="not a probability"):
         jev.yes_no(YES_NO, {}, asks, lambda b: {"answers": {"A": {"type": "noul", "noul": 1.7}}})
+
+
+def _workflow(name):
+    return (db.REPO_ROOT / ".github" / "workflows" / name).read_text()
+
+
+def test_every_jev_decision_can_be_scored_on_the_server():
+    """Nimish, 2026-09-29: "go ahead and start building on the things." The server holds the key, so the server is where
+    a Jev decision is scored (rule 7). Its eval workflow offered only the parent report's two prompts, so none of Jev's
+    uses had ever been scored where they run."""
+    rows = json.loads((db.REPO_ROOT / "supabase/seed/prompts.json").read_text())["prompts"]
+    jevs = {r["purpose"] for r in rows if str(r.get("model", "")).startswith("jev")}
+    spec = yaml.safe_load(_workflow("engine-eval.yml"))
+    offered = set((spec.get("on") or spec[True])["workflow_dispatch"]["inputs"]["purpose"]["options"])
+    assert jevs and jevs <= offered, f"not offered on the server: {sorted(jevs - offered)}"
+
+
+def test_the_engine_logs_say_whether_the_engine_has_jevs_key_and_where_it_goes_never_the_key():
+    """Nimish, 2026-09-29: "The key is already there, but tell me where you want me to put it." The logs say whether
+    the engine on the server has it, and where it goes if not, without ever printing it."""
+    logs = _workflow("engine-logs.yml")
+    assert 'os.environ.get("TYPESAFE_API_KEY")' in logs and "~/assessment-engine/.env" in logs
+    assert not re.search(r"\$\{?TYPESAFE_API_KEY|printenv", logs), "the key's value is never printed"

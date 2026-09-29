@@ -1,0 +1,39 @@
+name: j4-jev-live
+goal: >
+  Every decision Jev makes in the engine is scored on the server where it runs, and a score never hides that Jev could
+  not be asked: the `engine eval` workflow offers each Jev purpose (mistake_guess, story_shape, week_skills, and each
+  one added after them); an eval whose Jev calls fail names the reason and fails, instead of scoring nothing chosen and
+  passing; the engine's logs say whether the engine has Jev's key, and where it goes if not, never the key itself.
+  Each use's score on the server is in STATE.md with the run that produced it.
+
+# Written 2026-09-29, before the code. Asked where Jev is integrated, the answer found three uses built and none ever
+# scored on the server: the eval workflow offered only the parent report's two prompts, and with no key
+# `engine eval week_skills` said "the exact skill sets on 0/24 notes" and exited 0 (story_shape: "left for a person").
+# Nimish: "The key is already there, but tell me where you want me to put it. Yes, go ahead and start building on the
+# things." Step 1 of the Jev order agreed the same day (parent-report checker, skill matching, the reviewers follow).
+says:
+  - words: "Have we implemented Jev in the assessment engine? Where have we integrated it?"
+    proved_by: packages/engine/tests/test_cli.py::test_a_jev_eval_jev_cannot_answer_fails_and_says_why
+  - words: "The key is already there, but tell me where you want me to put it."
+    proved_by: packages/engine/tests/test_jev.py::test_the_engine_logs_say_whether_the_engine_has_jevs_key_and_where_it_goes_never_the_key
+  - words: "I really want to integrate Jev as much as possible in all the use cases"
+    proved_by: packages/engine/tests/test_jev.py::test_every_jev_decision_can_be_scored_on_the_server
+manual:
+  - "Nimish, only if the engine logs say the key is missing: one line TYPESAFE_API_KEY=<key> in ~/assessment-engine/.env on the server, then Actions → deploy engine → Run workflow."
+scenarios: []
+criteria:
+  - name: the evals count what Jev did not answer; the command fails on it; the workflows — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_jev.py tests/test_mistake_guess.py tests/test_story_shape.py tests/test_week_note.py tests/test_cli.py -q
+    expect: "passed"
+  - name: the named mistakes' shortlist, scored where it runs (on the server, Actions → engine eval → mistake_guess)
+    run: bin/engine eval mistake_guess
+    expect: "among the three"
+  - name: a story's shape, scored where it runs (on the server, Actions → engine eval → story_shape)
+    run: bin/engine eval story_shape
+    expect: "the shape right on"
+  - name: the week's note, scored where it runs (on the server, Actions → engine eval → week_skills)
+    run: bin/engine eval week_skills
+    expect: "the exact skill sets on"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

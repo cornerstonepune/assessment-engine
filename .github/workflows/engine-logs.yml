@@ -39,6 +39,18 @@ jobs:
           # the reader's key file, its shape only: every value masked, line ends shown as $ so a stray space shows
           echo "== ~/.aws/credentials (values masked)"
           $S "sed -E 's/=.*/= <set>/' ~/.aws/credentials | cat -A" || true
+          # Jev's key (ADR 0036), whether the engine has it and never its value: the key lives in the server's .env, which
+          # every deploy carries across and hands to the engine (deploy/compose.server.yml, env_file).
+          echo "== Jev's key in the engine"
+          cat > jevkey.py <<'PY'
+          import os
+          if os.environ.get("TYPESAFE_API_KEY"):
+              print("TYPESAFE_API_KEY is set")
+          else:
+              print("TYPESAFE_API_KEY is missing: one line TYPESAFE_API_KEY=<key> in ~/assessment-engine/.env on the server,"
+                    " then Actions -> deploy engine -> Run workflow, which restarts the engine with it")
+          PY
+          $S 'sudo docker exec -i deploy-engine-1 python -' < jevkey.py || true
           echo "== reading runs, last day"
           cat > runs.py <<'PY'
           from engine.core import db
