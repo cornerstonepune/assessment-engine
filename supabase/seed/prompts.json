@@ -1275,6 +1275,125 @@
       }
     },
     {
+      "purpose": "parent_review",
+      "version": 3,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/parent_review.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unsupported"
+        ],
+        "properties": {
+          "unsupported": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "quote",
+                "why"
+              ],
+              "properties": {
+                "quote": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 400
+                },
+                "why": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "parent_review",
+      "version": 4,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/parent_review.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unsupported"
+        ],
+        "properties": {
+          "unsupported": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "quote",
+                "why"
+              ],
+              "properties": {
+                "quote": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 400
+                },
+                "why": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      },
+      "effort": "low"
+    },
+    {
+      "purpose": "parent_review",
+      "version": 5,
+      "model": "claude-opus-5-5",
+      "active": false,
+      "text_file": "prompts/parent_review.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unsupported"
+        ],
+        "properties": {
+          "unsupported": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "quote",
+                "why"
+              ],
+              "properties": {
+                "quote": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 400
+                },
+                "why": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      },
+      "effort": "low"
+    },
+    {
       "purpose": "parent_review.claims",
       "version": 1,
       "model": "jev-latest",
@@ -1285,6 +1404,20 @@
         "criteria": {
           "true": "Each claim about the child is in the facts, no stronger than they show it; a sentence with no claim about the child also counts.",
           "false": "It claims more than the facts show, or something they do not contain."
+        }
+      }
+    },
+    {
+      "purpose": "parent_review.skills",
+      "version": 1,
+      "model": "jev-latest",
+      "active": false,
+      "text_file": "prompts/parent_review.skills.v1.txt",
+      "json_schema": {
+        "type": "noul",
+        "criteria": {
+          "true": "It says what this skill set is, as its can words do, and nothing its facts contradict; leaving out a detail is fine.",
+          "false": "It describes a different skill set, or says something about the child that its facts contradict."
         }
       }
     },

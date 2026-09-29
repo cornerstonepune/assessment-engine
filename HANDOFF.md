@@ -16,9 +16,16 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   Jev per sentence with only its facts (`parent_review.claims|mistakes|home` v1), then the model on the unsure band
   (`review.jev_wrong_below` 0.1 / `review.jev_sure_above` 0.5). Gold, code then Jev: 12/14, 0 wrong, the model to read
   49 of 310 sentences; the two misses (r1, e10) are in the unsure band.
-- **Owed after merge (the session can run it: Actions from any branch):** engine eval → parent_review, version 2,
-  jev_version 1. At 14/14 and 0 flagged wrongly: set the three Jev rows and parent_review v2 `active` in the seed, in
-  DECISIONS-LOG with the run. Below it: fix at the cause (a question Jev asks, or code), never lower a bar.
+- **Haiku alone was scored and failed at its cause** (run 36520653494: 10/14, 71 right sentences flagged, 65 of them
+  a skill line under the draft's `can_do` read as "secure"). Fixed in what the reader is given, not by a bigger model:
+  skill lines are asked of Jev as lines about their skill set (`parent_review.skills` v1) and handed to the model as
+  `skill_lines`; code then Jev is 12/14, 0 wrong, with 16 of 310 sentences left to the model.
+- **Effort per prompt row** (migration 20261015090000, `prompt.effort`, sent to the row's own model only); the
+  settings loaders split into `core/settings.py` (the loader stood at its frozen ceiling; now 413).
+- **Owed after merge (the session can run it: Actions from any branch):** engine eval → parent_review, jev_version 1,
+  version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low), one at a time (the server's memory). The cheapest
+  at 14/14 and 0 flagged wrongly: set it and the four Jev rows `active` in the seed, with the runs in DECISIONS-LOG.
+  None there: fix at the cause (a question Jev asks, the reader's instructions, or code), never lower a bar.
 - **Next:** step 3, skill matching — a gold of outside questions whose skill a person confirmed first; step 4, the
   reviewers — grow their 6-case golds to ~40 first.
 - **A local database without Docker** (this container had no Docker daemon): Postgres 16's binaries, `initdb` as the

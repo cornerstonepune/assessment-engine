@@ -23,7 +23,7 @@ from engine.w4_close.parent_check import _texts as texts
 from engine.w4_close.parent_check import check
 
 PURPOSE = "parent_review"
-PARTS = ("claims", "mistakes", "home")
+PARTS = ("claims", "skills", "mistakes", "home")
 GOLD = "supabase/seed/parent_review_gold.json"
 # below the first Jev is sure a sentence is wrong; from the second, sure it is right; between, the model reads it
 BARS = (("review.jev_wrong_below", 0.1), ("review.jev_sure_above", 0.5))
@@ -64,8 +64,9 @@ def questions(facts, draft):
     whole = told(facts)
     mistakes = {m["id"]: m for m in facts.get("working_on") or []}
     out = [("claims", whole, split(draft["summary"]))]
+    # a skill set's line is asked as a line about that skill set: the page prints how secure it is beside the line
     out += [
-        ("claims", {"grade": facts.get("grade"), "skill": _skill(facts, c["id"])}, split(c["sentence"]))
+        ("skills", {"grade": facts.get("grade"), "skill": _skill(facts, c["id"])}, split(c["sentence"]))
         for c in draft["can_do"]
     ]
     out += [
@@ -108,6 +109,17 @@ def _only(draft, keep):
     }
 
 
+def for_reader(draft):
+    """The draft as the model reads it: its skill lines as `skill_lines`. Under the draft's own `can_do`, a line for a
+    nearly secure skill set read as a claim it was secure — in the facts `can_do` means secure — and Haiku flagged 65
+    right lines so (run 36520653494), though its instructions said a line for any of the three lists is right."""
+    return {("skill_lines" if k == "can_do" else k): v for k, v in draft.items()}
+
+
+def as_drafted(shown):
+    return {("can_do" if k == "skill_lines" else k): v for k, v in shown.items()}
+
+
 def findings(conn, facts, draft, ask=None, version=None, meta=None, jev_ask=None, jev_version=None, seen=None,
              model_on=None, jev_on=None):  # fmt: skip
     """→ [(quote, why)]: every sentence the facts do not support, and which reader said so. A reader reads a school's
@@ -139,7 +151,7 @@ def findings(conn, facts, draft, ask=None, version=None, meta=None, jev_ask=None
     if model_on and unsure:
         seen["read_by_model"] += sum(len(split(t)) for t in texts(unsure))
         out = (ask or llm.generate)(
-            conn, PURPOSE, {"facts": told(facts), "draft": unsure}, meta=meta, version=version
+            conn, PURPOSE, {"facts": told(facts), "draft": for_reader(unsure)}, meta=meta, version=version
         )
         found += [(u["quote"], u["why"]) for u in out["unsupported"]]
     return found

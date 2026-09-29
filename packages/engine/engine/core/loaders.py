@@ -7,9 +7,9 @@ registry cannot be trusted as the thing every assessment result joins to.
 
 import json
 
-from engine.core import db, topics
+from engine.core import db, settings, topics
 
-SEED = db.REPO_ROOT / "supabase" / "seed"
+SEED = settings.SEED
 
 FILLED_TABLES = (
     "tenant",
@@ -36,8 +36,7 @@ FILLED_TABLES = (
 )
 
 
-def _seed(name, key):
-    return json.loads((SEED / name).read_text())[key]
+_seed = settings.seed
 
 
 def _text_array(values):
@@ -310,56 +309,6 @@ def _taxonomy_cases(conn, t):
         )
 
 
-def _prompts(conn, t):
-    for p in _seed("prompts.json", "prompts"):
-        text = (SEED / p["text_file"]).read_text() if p.get("text_file") else p["text"]
-        conn.execute(
-            "insert into prompt (tenant_id, purpose, version, text, model, json_schema, active, subject)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, purpose, coalesce(subject, ''), version) do update set text=excluded.text,"
-            " model=excluded.model, json_schema=excluded.json_schema, active=excluded.active,"
-            " updated_at=now()",
-            (
-                t,
-                p["purpose"],
-                p["version"],
-                text,
-                p["model"],
-                json.dumps(p["json_schema"]),
-                p.get("active", False),
-                p.get("subject"),
-            ),
-        )
-
-
-def _thresholds(conn, t):
-    for r in _seed("thresholds.json", "thresholds"):
-        key, value, unit, note = r["key"], r["value"], r["unit"], r["description"]
-        conn.execute(
-            "insert into threshold (tenant_id, key, value, unit, description)"
-            " values (%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, key) do update set value=excluded.value,"
-            " unit=excluded.unit, description=excluded.description, updated_at=now()",
-            (t, key, value, unit, note),
-        )
-
-
-def _config(conn, t):
-    """A row marked `seed_once` belongs to the app after its first load — `app.staff` holds the
-    password hashes `engine set-password` writes, and re-seeding it took every one of them away."""
-    for c in _seed("config.json", "config"):
-        on_conflict = (
-            "do nothing"
-            if c.get("seed_once")
-            else "do update set value=excluded.value, description=excluded.description, updated_at=now()"
-        )
-        conn.execute(
-            "insert into config (tenant_id, key, value, description) values (%s,%s,%s,%s)"
-            f" on conflict (tenant_id, key) {on_conflict}",
-            (t, c["key"], json.dumps(c["value"]), c.get("description", "")),
-        )
-
-
 def _skill_sets(conn, t):
     """Insert only. The seed is the first draft of a set; after that the row belongs to Neha and
     Achal, who edit it in the app. An upsert here would silently overwrite their words and rules
@@ -405,9 +354,7 @@ def load_all() -> dict[str, int]:
             _misconceptions,
             _dimensions,
             _taxonomy_cases,
-            _prompts,
-            _thresholds,
-            _config,
+            settings.load,
             _skill_sets,
             _subjects,
         ):
@@ -422,9 +369,7 @@ def load_settings() -> dict[str, int]:
     `load_all` does. Every deploy runs it (`engine load --settings`, deploy-engine.yml), so a setting merged with
     the code that reads it is live with that code; the rest waits for `bin/update-live`."""
     with db.connect() as conn:
-        t = _tenant(conn)
-        for step in (_prompts, _thresholds, _config):
-            step(conn, t)
+        settings.load(conn, _tenant(conn))
         conn.commit()
         return db.counts(conn, ("prompt", "threshold", "config"))
 

@@ -46,7 +46,7 @@ reads only what Jev is unsure of; a person signs off. Every use is scored on the
 | 1 · the week's note → skill sets (N4) | built, live | `w2_print/week_note.py`, `/make/[section]/week` | 21/24 exact on live |
 | 2 · a question → its skill | half: stories only | `w1_bank/story_shape.py` (no screen); `skill_match` still the model | 63/65 shapes on live |
 | 3 · an unexplained wrong answer → named mistakes | built, live | `w1_bank/mistake_guess.py`, Marking | 108/120 among three on live |
-| new · the parent report's checker, sentence by sentence | built, off until scored | `w4_close/parent_review.py` | code + Jev 12/14, 0 wrong (gold) |
+| new · the parent report's checker, sentence by sentence | built, off until scored | `w4_close/parent_review.py` | code + Jev 12/14, 0 wrong; 16 of 310 sentences to the model (gold) |
 | 5 · the reviewers of a question template | next, after the gold grows | `w1_bank/review.py` | gold is 6 cases each |
 | 6 · a parent note from sentences the school writes once | Aseem's call; mostly code, not Jev | — | — |
 | 4 · the working's method | blocked: the working is measured as ink, never read as text | `w3_read/boxes.py` | — |

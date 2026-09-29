@@ -27,7 +27,7 @@ def test_the_reviewer_is_scored_on_every_bad_sentence_and_on_nothing_else():
     by_draft = {json.dumps(c["draft"], sort_keys=True): c for c in GOLD["cases"]}
 
     def perfect(conn, purpose, variables, meta=None, version=None):
-        c = by_draft[json.dumps(variables["draft"], sort_keys=True)]
+        c = by_draft[json.dumps(R.as_drafted(variables["draft"]), sort_keys=True)]
         return {"unsupported": [{"quote": b, "why": c["note"]} for b in c["bad"]]}
 
     r = R.evaluate(None, ask=perfect)
@@ -66,14 +66,14 @@ def test_each_sentence_is_asked_with_only_the_facts_it_is_about():
     happens in that mistake; a home activity to the facts. Every sentence of the draft is asked, once."""
     c = _case("e5")
     asked = R.questions(c["facts"], c["draft"])
-    assert {part for part, _, _ in asked} == {"claims", "mistakes", "home"}
+    assert {part for part, _, _ in asked} == {"claims", "skills", "mistakes", "home"}
     side_by_side = next(
         st for part, st, ss in asked if part == "mistakes" and any("side by side" in s for s in ss)
     )
     assert (
         side_by_side["id"] == "M_NOCARRY" and "what_happens" in side_by_side and "can_do" not in side_by_side
     )
-    line = next(st for part, st, ss in asked if part == "claims" and "skill" in st)
+    line = next(st for part, st, ss in asked if part == "skills")
     assert set(line) == {"grade", "skill"} and line["skill"]["state"] in ("can_do", "nearly", "improving")
     summary = next(st for part, st, ss in asked if part == "claims" and "skill" not in st)
     assert summary == R.told(c["facts"])
@@ -115,7 +115,7 @@ def test_only_what_jev_is_unsure_of_is_read_by_the_model(bars):
         None, c["facts"], c["draft"], ask=model, version=2, jev_ask=ask, jev_version=1, seen=seen
     )
     assert [q for q, _ in got] == [bad]
-    shown = [s for d in read for t in R.texts(d) for s in R.split(t)]
+    shown = [s for d in read for t in R.texts(R.as_drafted(d)) for s in R.split(t)]
     assert len(read) == 1 and len(shown) == 1 and bad in shown[0]
     assert seen["read_by_model"] == 1 and seen["sentences"] > 10
 
@@ -133,7 +133,7 @@ def test_jev_unreachable_the_model_reads_the_whole_draft_as_before(bars):
         return {"unsupported": []}
 
     assert R.findings(None, c["facts"], c["draft"], ask=model, version=2, jev_ask=down, jev_version=1) == []
-    assert read == [c["draft"]]
+    assert read == [R.for_reader(c["draft"])]
 
 
 def test_the_eval_counts_what_code_catches_first_and_what_the_model_read(bars):
@@ -172,3 +172,26 @@ def test_an_eval_that_names_jev_and_cannot_ask_it_says_so(bars):
 
     r = R.evaluate(None, jev_ask=down, jev_version=1)
     assert r["unanswered"] > 0 and "TYPESAFE_API_KEY" in r["error"]
+
+
+def test_the_model_reads_skill_lines_as_skill_lines_never_as_can_do(bars):
+    """Haiku, reading whole drafts on the server (run 36520653494): 10 of 14 caught and 71 right sentences flagged, 65
+    of them one misreading. The draft keeps a line for every skill set under `can_do`, and in the facts `can_do` means
+    secure, so a line for a nearly secure skill set read as a claim it was secure, though the prompt said otherwise.
+    The reader is given the lines under a name that claims nothing."""
+    c = _case("ok1")
+    ask, _ = _jev(lambda s: 0.3)  # unsure of everything: the model reads the whole draft
+    read = []
+
+    def model(conn, purpose, variables, meta=None, version=None):
+        read.append(variables["draft"])
+        return {"unsupported": []}
+
+    R.findings(None, c["facts"], c["draft"], ask=model, version=3, jev_ask=ask, jev_version=1)
+    shown = read[0]
+    assert "can_do" not in shown and [x["id"] for x in shown["skill_lines"]] == [
+        x["id"] for x in c["draft"]["can_do"]
+    ]
+    assert R.texts(R.as_drafted(shown)) == R.texts(c["draft"]), (
+        "every sentence the model was given, and only those"
+    )

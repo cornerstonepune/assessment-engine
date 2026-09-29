@@ -5,9 +5,12 @@ goal: >
   with only the facts it is about (the summary and a skill's line against the child's standing, a mistake's line
   against what happens in that mistake, a home activity against the facts); what Jev is sure is wrong goes back to the
   writer, what it is sure is right passes, and only what it is unsure of is read by the model (`parent_review`).
-  Jev unreachable, the model reads the whole draft as before. Switched on only when `engine eval parent_review`
-  catches every wrong sentence of the gold set with nothing flagged wrongly (rule 7); the eval says how many sentences
-  the model had to read. The educator still approves every report.
+  Jev unreachable, the model reads the whole draft as before. A skill set's line is asked as a line about that skill
+  set (the page prints how secure it is), and the model is given the lines as `skill_lines`, never under the draft's
+  own `can_do`, which it read as a claim of being secure. Each model row says how hard its model thinks (`effort`),
+  sent to that model only. Of Haiku 4.5, Sonnet 5.5 (low effort) and Opus 5.5 (low effort), the cheapest that catches
+  every wrong sentence of the gold set with nothing flagged wrongly is switched on (rule 7); the eval says how many
+  sentences the model had to read. The educator still approves every report.
 
 # Written 2026-09-29, before the code, on Nimish's words the same day: "What do you recommend? I really want to
 # integrate Jev as much as possible in all the use cases to make it efficient, cost-light, etc., so we have to do it."
@@ -21,15 +24,25 @@ says:
     proved_by: packages/engine/tests/test_parent_review.py::test_only_what_jev_is_unsure_of_is_read_by_the_model
   - words: "with everything you have said (no except)"
     proved_by: packages/engine/tests/test_parent_report.py::test_what_coins_make_is_arithmetic_and_code_holds_it
+  - words: "Do you believe changing the model might help the case?"
+    proved_by: packages/engine/tests/test_parent_review.py::test_the_model_reads_skill_lines_as_skill_lines_never_as_can_do
+  - words: "yes, go ahead with all three"
+    proved_by: packages/engine/tests/test_llm.py::test_a_rows_effort_goes_to_its_own_model_and_never_to_a_fallback
 manual:
-  - "On the server: Actions → engine eval → parent_review, version 2, jev_version 1. Only at every wrong sentence caught with none flagged wrongly are the three Jev rows and parent_review v2 made active, the score in DECISIONS-LOG.md (rule 7)."
+  - "On the server, after merge (the migration and the seed go live with it): Actions → engine eval → parent_review, jev_version 1, version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low). The cheapest at every wrong sentence caught with none flagged wrongly is made active with the four Jev rows, the scores in DECISIONS-LOG.md (rule 7)."
 scenarios: []
 criteria:
   - name: the sentences, the three readers in order, Jev down, the eval's counts, the coins — on the local copy
-    run: cd packages/engine && .venv/bin/python -m pytest tests/test_parent_review.py tests/test_parent_report.py tests/test_jev.py -q
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_parent_review.py tests/test_parent_report.py tests/test_jev.py tests/test_llm.py tests/test_loaders.py -k "not expected_number and not refers_to_something" -q
     expect: "passed"
-  - name: code, Jev and the model on the gold set (on the server, where the model's key is)
-    run: bin/engine eval parent_review --version 2 --jev-version 1
+  - name: code, Jev and Haiku 4.5 on the gold set (on the server, where the model's key is)
+    run: bin/engine eval parent_review --version 3 --jev-version 1
+    expect: "wrong sentences caught, 0 flagged"
+  - name: code, Jev and Sonnet 5.5 at low effort on the gold set (on the server)
+    run: bin/engine eval parent_review --version 4 --jev-version 1
+    expect: "wrong sentences caught, 0 flagged"
+  - name: code, Jev and Opus 5.5 at low effort on the gold set (on the server)
+    run: bin/engine eval parent_review --version 5 --jev-version 1
     expect: "wrong sentences caught, 0 flagged"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

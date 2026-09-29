@@ -3705,3 +3705,18 @@ deploys.
 - **Not yet verified:** the whole chain with the model (`parent_review` v2, Haiku) reading those 49 — its key is on the
   server only. Owed after merge: Actions → engine eval → parent_review, version 2, jev_version 1. Nothing is switched on
   until it catches 14 of 14 with none flagged wrongly (rule 7); until then `review()` reads nothing, as before.
+- **The checker's model reads only what Jev leaves it, under names that claim nothing** (goal j5, later the same day):
+  - Haiku alone on whole drafts (parent_review v2, Actions run 36520653494 on the server): `10/14 wrong sentences
+    caught, 71 flagged that were right` — 65 of the 71 were one misreading: every skill set's line sits under the
+    draft's `can_do`, and in the facts `can_do` means secure, so a line for a nearly secure skill set read as a claim.
+  - Skill lines are now asked of Jev as lines about their skill set (`parent_review.skills` v1) and given to the model
+    as `skill_lines`. Code then Jev (local copy, real Jev): `bin/engine eval parent_review --jev-version 1` →
+    `12/14 wrong sentences caught, 0 flagged that were right, over 21 drafts (5 by code first)`; Jev unsure of 16 of
+    310 sentences (49 before the skills question), both misses among them (e10 0.20, r1 0.30).
+  - A prompt row names how hard its model thinks (migration 20261015090000, `prompt.effort`); `llm._call_anthropic`
+    sends `output_config.effort` to the row's own model, never a fallback: `pytest tests/test_llm.py -k effort` and
+    `pytest tests/test_loaders.py -k effort` → passed.
+  - The settings loaders (prompts, thresholds, config) are their own module, `core/settings.py`; `loaders.py` 468 →
+    413 lines and its frozen ceiling lowered to match.
+  - **Not yet verified:** parent_review v3 (Haiku 4.5), v4 (Sonnet 5.5, low effort), v5 (Opus 5.5, low effort) on the
+    server, each with jev_version 1 — after merge, when the migration and the seed are live.

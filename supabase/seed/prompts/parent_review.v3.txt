@@ -1,0 +1,38 @@
+You check a maths report written for the parents of one child at Cornerstone School, Pune. Another writer drafted it from the FACTS below, which the school's own marking worked out from answers an educator has checked. Your job is to find every sentence in the DRAFT that says something the FACTS do not support. You do not rewrite anything.
+
+FACTS:
+{{facts}}
+
+DRAFT:
+{{draft}}
+
+How to read the draft:
+- "summary" is a short paragraph about the child.
+- "skill_lines" holds one line for every skill set in "can_do", "nearly" and "improving", each with its skill set's id. The page prints each skill set's state and counts beside its line, so a line that says what its skill set is, as its "can" words do, is right whichever of the three lists the skill set is in. Never flag a skill line because its skill set is nearly secure or improving.
+- "working_on" explains each mistake in "working_on", by its id; "at_home" is what the parents can do at home.
+- The draft may hold only some of its sentences: those a first reader could not settle. Check every sentence you are given, and nothing else.
+
+How to read the facts:
+- "can_do" are skills the child is secure at. "nearly" are skills the child is nearly secure at; "not_yet" says why they are not secure yet (for example, answered on one paper so far). "improving" are skills that improved from the earlier answers to the recent ones, and are not secure.
+- "working_on" are mistakes the child makes: "what_happens" is what the mistake is, "what_we_do" is what the school does about it, and "example" is the child's own question, what they wrote and the answer.
+- "on_the_papers" counts wrong answers, wrong answers with working shown, and questions left blank.
+- The page prints each skill's counts and state beside the draft's words, so the draft does not repeat them.
+
+Flag a sentence when it:
+1. says a skill is secure, mastered, reliable, done right every time, or that the child is ready to move on, when the facts give that skill as only nearly secure or only improving, or do not give it at all;
+2. says something happened across papers or over time that the facts contradict (for example, "on more than one paper" when "not_yet" says one paper so far);
+3. says the child improved at, or can do, something the facts do not list;
+4. describes a mistake differently from its "what_happens", or says what the child did in an example differently from the example;
+5. does wrong arithmetic, or names a quantity that does not match its own description (for example, calls a two-digit number three-digit, or says three tens and five ones make a number other than thirty-five);
+6. refers to a question, story or example that the facts do not hold.
+
+Do not flag:
+- warm or general wording that claims nothing ("is building confidence", "is working on addition");
+- a plain restatement of a skill's "can" words for an item in any of the three lists, or one that leaves out a detail of them;
+- an activity for home that makes no claim about the child and has no wrong arithmetic;
+- the child's own example questions and their numbers;
+- style, length or tone.
+
+If every sentence holds, return an empty list. For each sentence you flag, quote the exact words from the draft that are unsupported, and say in one short sentence which fact they contradict or go beyond.
+
+Return JSON only, matching the schema. No prose outside it.

@@ -31,6 +31,8 @@ RETRIES = len(WAITS)
 TRANSIENT = (404, 429, 503)  # 404 is returned spuriously by this API under load (STATE.md)
 TIMEOUT_S = 180
 MAX_TOKENS = 16000  # a thinking model needs room to think and then still answer
+# how hard a model thinks (Anthropic's output_config.effort), named per prompt row; none is the model's own default
+EFFORTS = ("low", "medium", "high", "xhigh", "max")
 RATE_LIMIT_WAIT_S = 60  # a 429 without Retry-After: the free tier's limits are per minute
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
@@ -45,7 +47,7 @@ def active_prompt(conn, purpose, subject=None, version=None):
     one row whether or not it is active — only an eval asks for it (rule 7: a version is scored
     before it is made active)."""
     row = conn.execute(
-        "select id, text, model, json_schema from prompt"
+        "select id, text, model, json_schema, effort from prompt"
         " where purpose = %s and (subject = %s or subject is null)"
         " and (active and %s::int is null or version = %s::int)"
         " order by (subject is not null) desc limit 1",
@@ -86,7 +88,9 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
 
     text = _fill(row["text"], variables)
     try:
-        out, model, tokens, tokens_in, tokens_out = _dispatch(models, text, images, row["json_schema"])
+        out, model, tokens, tokens_in, tokens_out = _dispatch(
+            models, text, images, row["json_schema"], row.get("effort")
+        )
         try:
             jsonschema.validate(out, row["json_schema"])
         except jsonschema.ValidationError as e:
@@ -118,11 +122,12 @@ def _cost_inr(conn, model, tokens_in, tokens_out):
     return round((tokens_in * rate.get("in", 0) + tokens_out * rate.get("out", 0)) / 1_000_000, 4)
 
 
-def _dispatch(models, text, images, schema):
+def _dispatch(models, text, images, schema, effort=None):
     """Walk the model list in order, each vendor by its own transport. A model that cannot serve
     — quota gone, no key, no credit, transient errors exhausted — hands on to the next, and the
     final error names every model's reason, so a malformed request still reads as one. Returns
-    (output, model that answered, total tokens, input tokens or None, output tokens or None)."""
+    (output, model that answered, total tokens, input tokens or None, output tokens or None). The row's `effort` is
+    its own model's: a fallback is another model, and Haiku 4.5 refuses one."""
     errors = []
     # Both vendors see the schema in the prompt: asked only for "JSON", a model may return a bare
     # list where an object was wanted, and the validation after this would refuse the whole page.
@@ -130,7 +135,9 @@ def _dispatch(models, text, images, schema):
     for model in models:
         try:
             if model.startswith("claude-"):
-                out, tin, tout = _call_anthropic(model, text, images, schema)
+                out, tin, tout = _call_anthropic(
+                    model, text, images, schema, effort if model == models[0] else None
+                )
                 return out, model, tin + tout, tin, tout
             parts = [{"text": text}]
             parts += [
@@ -155,9 +162,10 @@ def _dispatch(models, text, images, schema):
     raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors))
 
 
-def _call_anthropic(model, text, images, schema):
+def _call_anthropic(model, text, images, schema, effort=None):
     """One Messages call → (output, input tokens, output tokens). The reply is validated by the
-    caller; the SDK already retries 429s and 5xx."""
+    caller; the SDK already retries 429s and 5xx. `effort` bounds how long the model thinks first: at its default,
+    claude-sonnet-5 read 21 parent reports for over thirty minutes (2026-09-28)."""
     key = db.env("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(api_key=key, max_retries=3, timeout=TIMEOUT_S)
     content = [
@@ -174,7 +182,10 @@ def _call_anthropic(model, text, images, schema):
     content.append({"type": "text", "text": text})
     try:
         r = client.messages.create(
-            model=model, max_tokens=MAX_TOKENS, messages=[{"role": "user", "content": content}]
+            model=model,
+            max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": content}],
+            **({"output_config": {"effort": effort}} if effort else {}),
         )
     except anthropic.RateLimitError as e:
         raise LLMError(f"{model} rate limited: {e.message}") from e

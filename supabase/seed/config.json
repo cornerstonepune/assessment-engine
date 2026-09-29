@@ -97,7 +97,7 @@
     },
     {
       "key": "llm.prices",
-      "description": "INR per million tokens, in and out, at roughly ₹88/USD. Sonnet 5 matches Anthropic's published rate; Haiku 4.5 is an estimate pending a verified figure at anthropic.com/pricing — correct this row when one is confirmed, nothing else changes. Gemini's free-tier flash models cost nothing until the daily quota is exhausted, so 0/0 here is the pilot's honest number, not a placeholder. A model missing from this table prices at 0 — the adapter still runs it, budget tracking just can't see it, which is why every model actually in use belongs here.",
+      "description": "INR per million tokens, in and out, at roughly ₹88/USD. The Claude rows are Anthropic's list prices, checked 2026-09-29: Haiku 4.5 $1/$5, Sonnet 5 and Sonnet 5.5 $2/$10, Opus 5 $5/$25, Opus 5.5 $4/$20 per million tokens. Gemini's free-tier flash models cost nothing until the daily quota is exhausted, so 0/0 here is the pilot's honest number, not a placeholder. Jev is TypeSafe's rate (ADR 0036). A model missing from this table prices at 0 — the adapter still runs it, budget tracking just can't see it, which is why every model actually in use belongs here.",
       "value": {
         "claude-opus-5": {
           "in": 440,
@@ -126,6 +126,14 @@
         "jev-latest": {
           "in": 3.7,
           "out": 0
+        },
+        "claude-sonnet-5-5": {
+          "in": 176,
+          "out": 880
+        },
+        "claude-opus-5-5": {
+          "in": 352,
+          "out": 1760
         }
       }
     },

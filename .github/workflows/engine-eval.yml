@@ -17,7 +17,7 @@ on:
       review_version:
         description: "parent_report only: the parent_review version that reads each draft"
         type: choice
-        options: ["2", "1"]
+        options: ["5", "4", "3", "2", "1"]
       jev_version:
         description: "parent_review only: the version of Jev's three questions that read each sentence first (0: none)"
         type: choice

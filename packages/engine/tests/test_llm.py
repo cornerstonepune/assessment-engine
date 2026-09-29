@@ -334,7 +334,7 @@ def test_the_subject_selection_sql_prefers_the_subject_row_and_falls_back_correc
     monkeypatch.setattr(
         llm,
         "_dispatch",
-        lambda models, text, images, schema: (seen.append(text) or {"items": []}, "m1", 5, 3, 2),
+        lambda models, text, images, schema, effort=None: (seen.append(text) or {"items": []}, "m1", 5, 3, 2),
     )
 
     llm.generate(real_conn, "test_purpose_llm", {"n": 1}, subject="NUM")
@@ -344,3 +344,60 @@ def test_the_subject_selection_sql_prefers_the_subject_row_and_falls_back_correc
     assert seen[0].startswith("num 1")
     assert seen[1].startswith("generic 2")
     assert seen[2].startswith("generic 3")
+
+
+def _anthropic_call(seen, fail=()):
+    """`_call_anthropic`, stood in: records (model, effort) and fails for the models named in `fail`."""
+
+    def call(model, text, images, schema, effort=None):
+        seen.append((model, effort))
+        if model in fail:
+            raise llm.LLMError(f"{model} server error HTTP 529: overloaded")
+        return {"items": []}, 10, 2
+
+    return call
+
+
+def test_a_rows_effort_goes_to_its_own_model_and_never_to_a_fallback(monkeypatch):
+    """Nimish, 2026-09-29, on the parent report's checker: "yes, go ahead with all three". claude-sonnet-5, asked at
+    its default effort, read 21 drafts for over thirty minutes; a row now says how hard its model thinks. A fallback
+    is another model, and Haiku 4.5 refuses an effort at all, so the setting stays with the row's own model."""
+    seen = []
+    monkeypatch.setattr(llm, "_call_anthropic", _anthropic_call(seen, fail=("claude-sonnet-5-5",)))
+    llm._dispatch(["claude-sonnet-5-5", "claude-haiku-4-5"], "t", (), SCHEMA, "low")
+    assert seen == [("claude-sonnet-5-5", "low"), ("claude-haiku-4-5", None)]
+
+
+def test_generate_reads_the_effort_off_the_prompt_row(monkeypatch):
+    seen = []
+    monkeypatch.setattr(llm, "_call_anthropic", _anthropic_call(seen))
+    row = {"id": "p1", "text": "x", "model": "claude-opus-5-5", "json_schema": SCHEMA, "effort": "low"}
+    llm.generate(Conn(prompts={("p", None): row}, fallback=()), "p", {})
+    assert seen == [("claude-opus-5-5", "low")]
+
+
+def test_effort_is_sent_as_output_config_and_left_out_when_the_row_names_none(monkeypatch):
+    from types import SimpleNamespace as NS
+
+    sent = []
+
+    class Client:
+        def __init__(self, **kw):
+            self.messages = NS(create=lambda **kw: sent.append(kw) or NS(
+                stop_reason="end_turn", content=[NS(type="text", text='{"items": []}')],
+                usage=NS(input_tokens=5, output_tokens=2)))  # fmt: skip
+
+    monkeypatch.setattr(llm.anthropic, "Anthropic", Client)
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    llm._call_anthropic("claude-sonnet-5-5", "t", (), SCHEMA, "low")
+    llm._call_anthropic("claude-haiku-4-5", "t", (), SCHEMA)
+    assert sent[0]["output_config"] == {"effort": "low"} and "output_config" not in sent[1]
+
+
+def test_no_seeded_prompt_asks_a_model_for_an_effort_it_does_not_take():
+    """Anthropic's effort levels, and Haiku 4.5 takes none (it answers a request that names one with an error)."""
+    rows = json.loads((db.REPO_ROOT / "supabase/seed/prompts.json").read_text())["prompts"]
+    for r in rows:
+        if r.get("effort"):
+            assert r["effort"] in llm.EFFORTS, (r["purpose"], r["version"], r["effort"])
+            assert not r["model"].startswith("claude-haiku"), (r["purpose"], r["version"])
