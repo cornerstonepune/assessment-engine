@@ -19,7 +19,7 @@ jobs:
         image: postgres:17
         env: { POSTGRES_PASSWORD: postgres }
         ports: ["5432:5432"]
-        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 30
+        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
     env:
       # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres

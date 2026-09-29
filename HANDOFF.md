@@ -21,8 +21,11 @@ is verified. This file only says where the last session stopped.
   The estimate question's new wording is only in questions made after the deploy; the ones already in live's bank
   keep "is your exact answer close?" until they are retired and refilled.
 - **Open, stage 1:** about 35 cases across 14 levels still cannot be drawn (missing-number, exchange, R/X/SZ cases),
-  none leaving a level short yet; a test that every case a level lists can be drawn comes with their fix. The live
-  engine was killed out of memory on 26 and 28 Sep (`engine-logs.yml`).
+  none leaving a level short yet; a test that every case a level lists can be drawn comes with their fix. With it:
+  find-the-mistake's "which column?" sits in one column on six Advance levels (the planted mistake fixes it: a
+  forgotten carry in 2-digit + 1-digit is always in the tens), unseen by the audit because it samples one random bank
+  and those levels hold too few; the audit is to measure each generator directly instead. The live engine was killed
+  out of memory on 26 and 28 Sep (`engine-logs.yml`).
 
 ## 2026-09-29 — the parent report is on; educators edit; twelve reports written, none yet approved
 

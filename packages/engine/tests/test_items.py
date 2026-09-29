@@ -340,3 +340,14 @@ def test_a_level_that_does_not_fix_a_claims_truth_gets_both():
         for _ in range(40)
     }
     assert ticks == {"yes", "no"}
+
+
+def test_a_could_it_be_right_question_is_right_as_often_as_wrong():
+    rng = random.Random(11)
+    ticks = []
+    while len(ticks) < 400:
+        try:
+            ticks.append(RS.possible_answer(rng, "R11", "Conceptual").responses[0].answer)
+        except RuntimeError:
+            continue  # numbers that could not make this kind; the bank draws again
+    assert 0.4 < ticks.count("yes") / len(ticks) < 0.6
