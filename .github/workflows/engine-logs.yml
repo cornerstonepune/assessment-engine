@@ -76,4 +76,19 @@ jobs:
                   print("checked already:", r["source"], r["n"], "answers on", r["papers"], "papers")
           PY
           $S 'sudo docker exec -i deploy-engine-1 python -' < waiting.py || true
+          # A skill set may name only mistakes the vocabulary holds (`loaders.orphans`); the ones the mistake-finding
+          # prompt added on live are printed in supabase/seed/misconceptions.json's own shape, to be kept in the seed.
+          echo "== mistakes skill sets name that the seed does not hold (read only)"
+          cat > vocabulary.py <<'PY'
+          import json
+          from engine.core import db
+          seed = {m["code"] for m in json.load(open(db.REPO_ROOT / "supabase/seed/misconceptions.json"))["misconceptions"]}
+          with db.connect() as c:
+              rows = c.execute("select code, op, name, description, repair_hint, detectable_by, source, external_ref,"
+                               " skill_from, skill_code from misconception m"
+                               " where exists (select 1 from skill_set s where m.code = any(s.misconception_codes))"
+                               " order by code, op").fetchall()
+          print(json.dumps([dict(r) for r in rows if r["code"] not in seed], ensure_ascii=False, indent=1))
+          PY
+          $S 'sudo docker exec -i deploy-engine-1 python -' < vocabulary.py || true
           echo "== log"; $S "sudo docker logs --tail ${LINES:-300} deploy-engine-1 2>&1"

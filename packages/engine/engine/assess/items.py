@@ -11,7 +11,6 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from . import misconceptions as M
-from .rounding import half_up
 
 
 @dataclass
@@ -421,64 +420,6 @@ def sort_into_table(rng, rung, signal, op, n=4):
         dict(items=items, col_a=word, col_b="No regrouping needed"),
         rs,
         working_lines=0,
-    )
-
-
-def estimate_then_calc(
-    rng, rung, signal, op, digits_a, digits_b, regroups, round_to=10, judged=False, tolerance=None
-):
-    """Estimate by rounding both numbers to the nearest `round_to`, then work it out (§9). `judged` adds
-    the question the taxonomy asks next: is the exact answer close to the estimate?"""
-    if op == "+":
-        a, b = sample_add(rng, digits_a, digits_b, regroups)
-    else:
-        a, b = sample_sub(rng, digits_a, digits_b, regroups)
-    ra, rb = half_up(a, round_to), half_up(b, round_to)
-    est = ra + rb if op == "+" else ra - rb
-    ans = a + b if op == "+" else a - b
-    rs = [
-        Response(
-            "est",
-            "digits",
-            str(est),
-            cells=_cells(max(est, ans)),
-            tolerance=tolerance or round_to,
-            label="estimate",
-        ),
-        Response(
-            "ans",
-            "digits",
-            str(ans),
-            cells=_cells(max(est, ans)),
-            misconceptions=M.predict(op, a, b),
-            label="exact",
-        ),
-    ]
-    spec = dict(a=a, b=b, op=op, ra=ra, rb=rb)
-    if round_to != 10:
-        spec["round_to"] = round_to
-    if judged:
-        spec["shape"] = "JUDGED"
-        rs.append(
-            Response(
-                "sense",
-                "tick",
-                "yes",
-                options=["yes", "no"],
-                label="Is your exact answer close to your estimate?",
-                misconceptions={"M_COMPARE_ESTIMATE_EXACT": "no"},
-            )
-        )
-    return _item(
-        "ESTIMATE",
-        rung,
-        signal,
-        "estimate_then_calc",
-        f"Estimate first, then work out {a} {op} {b}.",
-        spec,
-        rs,
-        scaffolded=True,
-        working_lines=2,
     )
 
 

@@ -321,9 +321,9 @@ def propose_misconceptions(conn, code, apply=False, meta=None, n=SAMPLE_PAIRS):
 
 
 def _store(conn, s, covered, proposals, meta):
-    """New rows for the genuinely new, then the union attached to the skill set. Attaching is a
-    content edit, so the versioning trigger withdraws the set's ratification — correct: the person
-    signs the list they were shown, and a changed list has not been signed."""
+    """New rows for the genuinely new, then the union attached to the skill set. The engine keeping the list
+    complete does not withdraw the set's approval; only a person's change does (migration
+    20261006090000_only_what_is_taught.sql)."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     source = f"{MISCONCEPTION_PROMPT} · {meta.get('model') or 'model'} · prompt {meta.get('prompt_id')}"
     codes = set(s["misconception_codes"]) | set(covered)

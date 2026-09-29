@@ -19,9 +19,7 @@ answer is found around its own printed question. A page that will not line up is
 an answer whose print is not found where the page lines up goes to a person as `not_found`.
 """
 
-import json
 import re
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -29,7 +27,7 @@ import pymupdf
 
 from engine.adapters import digits
 from engine.assess.geometry import cells_of
-from engine.w3_read.lineup import NEAR, PPM, PRINTED, SEEK, H, W, blank, line_up, settle
+from engine.w3_read.lineup import NEAR, PPM, PRINTED, H, W, blank, line_up, settle
 
 EDGE = 0.8  # mm each printed pixel is grown by before it is removed: the line, its blur and its JPEG halo
 INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the line itself never counts
@@ -59,19 +57,17 @@ def dark(canon):
     return g < background * 0.72
 
 
-def agreement(img, pdf, page_no, where=None):
+def agreement(img, pdf, page_no):
     """How closely a photographed page's ruled lines (`_rules`) follow those `pdf` printed on that page, 0–1: of the
     printed lines, how much is on the photograph, and of the photograph's, how much the print explains (their
-    harmonic mean), each within GROW mm, counted only `where` (a mask at PPM / COARSE; the whole page when None). A layout the page was
-    not printed in leaves boxes unexplained or missing. 0: the page does not line up with `pdf`."""
+    harmonic mean), each within GROW mm, over the whole page. A layout the page was not printed in leaves boxes
+    unexplained or missing. 0: the page does not line up with `pdf`."""
     canon, _ = line_up(img, pdf, page_no)
     if canon is None:
         return 0.0
     size = (W // COARSE, H // COARSE)
     printed = cv2.resize(_rules(blank(str(pdf), page_no) < PRINTED), size, interpolation=cv2.INTER_AREA)
     marked = cv2.resize(_rules(dark(canon)), size, interpolation=cv2.INTER_AREA)
-    if where is not None:
-        printed, marked = printed & where, marked & where
     grow = np.ones((2 * int(GROW * PPM / COARSE) + 1,) * 2, np.uint8)
     found = (printed & cv2.dilate(marked, grow)).sum() / max(1, printed.sum())
     explained = (marked & cv2.dilate(printed, grow)).sum() / max(1, marked.sum())
@@ -85,24 +81,6 @@ def _rules(mask):
     return cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, kernel)
 
 
-def _answer_places(pdfs, page_no):
-    """Where any of `pdfs` prints an answer box on a page, grown by SEEK, as a mask at PPM / COARSE: the part of a
-    page layouts differ in. The text around them is the same in every layout, and only dilutes the difference."""
-    where = np.zeros((H // COARSE, W // COARSE), np.uint8)
-    pad = SEEK * PPM / COARSE
-    for pdf in pdfs:
-        key = Path(pdf).with_suffix(".key.json")
-        for c in json.loads(key.read_text(encoding="utf-8")).get("geometry", []) if key.exists() else []:
-            if c["page"] == page_no and c.get("kind") != "work":
-                x0, y0 = int(c["x"] * PPM / COARSE - pad), int(c["y"] * PPM / COARSE - pad)
-                x1, y1 = (
-                    int((c["x"] + c["w"]) * PPM / COARSE + pad),
-                    int((c["y"] + c["h"]) * PPM / COARSE + pad),
-                )
-                where[max(0, y0) : y1, max(0, x0) : x1] = 1
-    return where if where.any() else None
-
-
 def as_printed(pages, pdfs):
     """Of the PDFs one worksheet has printed as (one per `render.layouts` row, goals/s18-read-as-printed.yaml), the
     one a copy was printed from: among those with as many pages as the copy, the one its answer boxes agree with
@@ -111,12 +89,11 @@ def as_printed(pages, pdfs):
     same = [pdf for pdf in pdfs if counted[pdf] == len(pages)] or list(pdfs)
     if len(same) == 1:
         return same[0]
-    where = {n: _answer_places(same, n) for n in range(1, len(pages) + 1)}
+    # the whole page's ruled lines, not only those near the answers: held to the answer boxes alone, a copy printed
+    # in the 21 Sep layout agreed with 24 Sep's more (0.576) than its own (0.503); over the page, its own 0.875
+    # against 0.607 (2026-09-29, test_copies on a database built from the seed)
     return max(
-        same,
-        key=lambda pdf: sum(
-            agreement(img, pdf, n, where[n]) for n, img in enumerate(pages[: counted[pdf]], 1)
-        ),
+        same, key=lambda pdf: sum(agreement(img, pdf, n) for n, img in enumerate(pages[: counted[pdf]], 1))
     )
 
 

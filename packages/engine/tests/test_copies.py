@@ -16,7 +16,7 @@ import pytest
 from engine.adapters import ocr
 from engine.core import db
 from engine.w2_print import library
-from engine.w3_read import copies, second_reader
+from engine.w3_read import boxes, copies, second_reader
 from tests.test_sorting import _scanned
 
 
@@ -67,7 +67,7 @@ SECTION = f"T{uuid.uuid4().hex[:4]}"
 
 
 def stand_in_reader(conn, ids, monkeypatch):
-    """The reader, stood in for: question 1 read right, question 2 read wrong, every other one read blank."""
+    """Both readers, stood in for: question 1 read right, question 2 read wrong, every other one read blank."""
     keys = {r["id"]: r["responses"][0]["answer"] for r in conn.execute(
         "select id, responses from item where id = any(%s)", (ids,)
     )}  # fmt: skip
@@ -83,6 +83,10 @@ def stand_in_reader(conn, ids, monkeypatch):
         }  # fmt: skip
 
     monkeypatch.setattr(ocr, "answers_for", answers)
+    # a worksheet that recorded where its boxes print is read in them, by the digit reader, not by `answers_for`
+    monkeypatch.setattr(
+        boxes, "read_page", lambda img, page_no, pdf, geometry, wanted, cfg, **k: answers(None, wanted)
+    )
     monkeypatch.setattr(second_reader, "propose", lambda conn, r, *a, **k: (r, ""))
 
 

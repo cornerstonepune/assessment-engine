@@ -12,6 +12,28 @@ is verified. This file only says where the last session stopped.
   `answer_evidence` is the one definition of what a marked answer is evidence of, shared by `confirm_results` and the
   new `correct_signed_off`. `POST /capture/correct` takes a signed-off answer; a refusal is a 409 with its reason. The
   paper page offers "Signed off wrongly? Correct what the child wrote" under each signed-off answer.
+## 2026-09-29 — CI tests against a database built from the repository (cleanup stage 0)
+
+- `bin/testdb fresh <url>`: plain Postgres, every migration, the seed, `bank refill`, `library build` — no live rows,
+  no child. CI builds one before `pytest`, so the database tests run instead of skipping (the suite: ~8 min).
+- What a clean build found, each fixed at its cause:
+  - 23 mistakes named by skill sets existed only on live (made by the mistake-finding prompt); now in the seed,
+    fetched read-only by `engine-logs.yml`, which prints any such gap from now on.
+  - story and number-line cases never drew on a level whose numbers are set by `within` (`draw._native` left the
+    size to the generator's default): no case-drawn word problem at any Advance level. Fixed; ADD.1D1D Advance's three
+    contradictory cases (a 2- or 3-digit unknown in a 1-digit sum) removed from the seed.
+  - six levels answered every tick in one place (DECISIONS-LOG 2026-09-29).
+  - tests that read whatever live held now build their own rows (`tests/rows.py`); stale tests fixed.
+- **Not yet on live, needs a person:** skill sets load `on conflict do nothing`, so ADD.1D1D Advance's case list and
+  REASON.EXPLAIN's mixed truth reach live only when the sets are changed there and ratified; the bank then refills.
+  The estimate question's new wording is only in questions made after the deploy; the ones already in live's bank
+  keep "is your exact answer close?" until they are retired and refilled.
+- **Open, stage 1:** about 35 cases across 14 levels still cannot be drawn (missing-number, exchange, R/X/SZ cases),
+  none leaving a level short yet; a test that every case a level lists can be drawn comes with their fix. With it:
+  find-the-mistake's "which column?" sits in one column on six Advance levels (the planted mistake fixes it: a
+  forgotten carry in 2-digit + 1-digit is always in the tens), unseen by the audit because it samples one random bank
+  and those levels hold too few; the audit is to measure each generator directly instead. The live engine was killed
+  out of memory on 26 and 28 Sep (`engine-logs.yml`).
 
 ## 2026-09-29 — the parent report is on; educators edit; twelve reports written, none yet approved
 

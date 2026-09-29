@@ -1,13 +1,9 @@
 # What must hold before anything reaches main. The style is machine-enforced here (ruff format
-# --check) so it cannot drift back into hand formatting, and the engine suite runs without a
-# database — the DB-backed goal (`bin/engine goal w1-build-the-bank`, ten scenarios and twelve
-# invariants) runs against the real Supabase project before a merge, because CI has no database
-# yet. Giving CI one means a Postgres service with pgcrypto and the migrations, minus the
-# Supabase-only auth/RLS statements: worth doing, not yet done, named in STATE.md.
-# Deployment: Vercel deploys main on every merge, and migrate.yml applies a merge's migrations to the
-# live database; the engine server and the bank still go live with `bin/update-live`.
-# The database tests need DATABASE_URL and skip themselves without it, so CI runs the pure engine
-# suite and the web build — the two things that break silently otherwise.
+# --check) so it cannot drift back into hand formatting. The engine suite runs against a database built
+# from this repository alone (`bin/testdb fresh`: every migration, the seed, the question bank and the
+# worksheet library), so a test that reads the database runs here instead of skipping itself.
+# Deployment: Vercel deploys main on every merge, migrate.yml applies a merge's migrations to the live
+# database, and deploy-engine.yml rebuilds the engine server.
 name: ci
 on:
   push:
@@ -18,6 +14,16 @@ jobs:
   engine:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: packages/engine } }
+    services:
+      postgres:
+        image: postgres:17
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
+    env:
+      # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -41,6 +47,7 @@ jobs:
         with:
           path: data/spine_sources
           key: spine-sources-${{ hashFiles('docs/spine/sources/official_documents.json') }}
+      - run: ../../bin/testdb fresh "$DATABASE_URL"
       - run: uv run pytest -q
 
   web:

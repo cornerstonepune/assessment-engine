@@ -214,8 +214,8 @@ def bank_misconceptions(
     ),
 ) -> None:
     """Every wrong method a child can use on this skill set: what code computes from the band's own
-    numbers, then what only judgment finds. Without --apply nothing is stored. With it, the set's
-    ratification is withdrawn — a changed list needs a signature."""
+    numbers, then what only judgment finds. Without --apply nothing is stored. With it, the new mistakes are
+    added to the set's list; the set keeps its approval (only a person's change withdraws one)."""
     if computed_only:
         with db.connect() as conn:
             added = spec.apply_computed(conn, skill_set)
