@@ -306,8 +306,10 @@ def test_fill_native_produces_no_flow_run_row(conn):
 def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path):
     monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(13)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 13)
+    # the bank never holds one sum twice: a candidate the refilled bank already has is not kept, so the sheet is
+    # sized from what this fill kept, not from what it was offered (it hung on which sums the refill had drawn)
     inventory.flag(conn, accepted[0].item_id, "nimish", "retired on purpose")
-    key = inventory.sheet(conn, SET, DIFF, 12, tmp_path)
+    key = inventory.sheet(conn, SET, DIFF, len(accepted) - 1, tmp_path)
     assert (tmp_path / f"{key['sheet_id']}.pdf").exists() and key["pages"] >= 1
     assert accepted[0].item_id not in {i["item_id"] for i in key["items"]}
     have = conn.execute(

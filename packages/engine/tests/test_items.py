@@ -11,6 +11,7 @@ import pytest
 
 from engine.assess import diagnosis as D
 from engine.assess import equality as EQ
+from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import missing_digits as MD
 from engine.assess import reasoning as RS
@@ -77,7 +78,7 @@ def test_missing_digit_item_has_a_unique_solution():
 
 def test_estimate_item_carries_a_tolerance_so_a_near_estimate_is_not_marked_wrong():
     rng = random.Random(19)
-    item = I.estimate_then_calc(rng, "R11", "Application", "+", 3, 3, {1})
+    item = E.estimate_then_calc(rng, "R11", "Application", "+", 3, 3, {1})
     est = next(r for r in item.responses if r.rid == "est")
     exact = next(r for r in item.responses if r.rid == "ans")
     assert est.tolerance, "an estimate marked to the exact digit is not an estimate"
@@ -309,6 +310,44 @@ def test_an_estimate_rounds_a_five_up_as_children_are_taught():
     """The page prints the rounded numbers; 665 printed as 660 taught the wrong rounding."""
     rng = random.Random(5)
     for _ in range(300):
-        item = I.estimate_then_calc(rng, "R11", "Application", rng.choice("+-"), 3, 3, {1}, round_to=10)
+        item = E.estimate_then_calc(rng, "R11", "Application", rng.choice("+-"), 3, 3, {1}, round_to=10)
         s = item.spec
         assert (s["ra"], s["rb"]) == ((s["a"] + 5) // 10 * 10, (s["b"] + 5) // 10 * 10), s
+
+
+def test_a_judged_estimate_asks_about_someone_elses_answer_and_either_tick_can_be_right():
+    """Asked of the child's own answer, "close to your estimate?" was "yes" for every child who worked it out."""
+    rng = random.Random(7)
+    seen = set()
+    for _ in range(200):
+        item = E.estimate_then_calc(rng, "R11", "Application", rng.choice("+-"), 3, 3, {1}, judged=True)
+        est, sense = (next(r for r in item.responses if r.rid == k) for k in ("est", "sense"))
+        shown = item.spec["shown"]
+        assert str(shown) in sense.label and item.spec["name"] in sense.label
+        assert sense.answer == ("yes" if abs(shown - int(est.answer)) <= est.tolerance else "no")
+        seen.add(sense.answer)
+    assert seen == {"yes", "no"}
+
+
+def test_a_level_that_does_not_fix_a_claims_truth_gets_both():
+    from engine.assess import bands
+
+    rng = random.Random(3)
+    ticks = {
+        bands.native_item("explain_claim", {"a_range": [120, 480]}, rng, "X1", "Conceptual")
+        .responses[0]
+        .answer
+        for _ in range(40)
+    }
+    assert ticks == {"yes", "no"}
+
+
+def test_a_could_it_be_right_question_is_right_as_often_as_wrong():
+    rng = random.Random(11)
+    ticks = []
+    while len(ticks) < 400:
+        try:
+            ticks.append(RS.possible_answer(rng, "R11", "Conceptual").responses[0].answer)
+        except RuntimeError:
+            continue  # numbers that could not make this kind; the bank draws again
+    assert 0.4 < ticks.count("yes") / len(ticks) < 0.6

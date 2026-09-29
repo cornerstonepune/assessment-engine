@@ -174,25 +174,25 @@ def test_a_class_of_library_worksheet_copies_sorts_into_one_paper_per_child(conn
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()
     if not tenant or not conn.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
         pytest.skip("needs the seed loaded on the copy")
-    for code in ("R8-H02", "R5-H14"):
+    # two codes of the library's shape that no worksheet on this database already has: the library build
+    # makes R8-H02 itself, and a test that assumed it absent failed on any database the library was built on
+    taken = {r["code"] for r in conn.execute("select code from sheet_template where code is not null")}
+    a, other = (
+        next(c for n in range(999, 99, -1) if (c := f"{prefix}-H{n}") not in taken) for prefix in ("R8", "R5")
+    )
+    for code in (a, other):
         conn.execute(
             "insert into sheet_template (tenant_id, band, week, source, code, skill_set_code, difficulty)"
             " values (%s, 'G2', 'library', 'library', %s, 'ADD.2D2D', 'Hard')",
             (tenant["id"], code),
         )
     a1, b, a2 = (_printed(tmp_path / str(i), code, n) for i, (code, n) in enumerate(
-        [("R8-H02", 30), ("R5-H14", 12), ("R8-H02", 30)]
+        [(a, 30), (other, 12), (a, 30)]
     ))  # fmt: skip
     scan = _scanned([a1, b, a2], tmp_path / "class.pdf")
     length = len(pymupdf.open(a1))
-    papers = sorting.sort_file(
-        conn, scan, pages_of=lambda code: len(pymupdf.open(a1 if code == "R8-H02" else b))
-    )
-    assert [(p["qr"], len(p["pages"])) for p in papers] == [
-        ("R8-H02", length),
-        ("R5-H14", 1),
-        ("R8-H02", length),
-    ]
+    papers = sorting.sort_file(conn, scan, pages_of=lambda code: len(pymupdf.open(a1 if code == a else b)))
+    assert [(p["qr"], len(p["pages"])) for p in papers] == [(a, length), (other, 1), (a, length)]
     assert all(p["worksheet"] and p["ours"] and not p["sheet"] for p in papers)
     assert papers[0]["worksheet"]["level"] == "Hard"
 

@@ -249,6 +249,19 @@ def _native(rng, alt, check, rung, k):
         hints["table"] = True
     if alt.get("operation"):
         hints["op"] = OPS[_pick(rng, alt["operation"], ["ADD", "SUB"])]
+    # The numbers' size, from the case as its level narrowed it (`within`), where the level's rule does not
+    # already say: a story or a number line left to its generator's own default wrote 2-digit numbers on a
+    # 1-digit level, and every one was refused by the case it was drawn for.
+    if "digits" not in check and any(
+        k in alt for k in ("operand_1_digits", "operand_2_digits", "digits_max")
+    ):
+        pairs = _pairs(alt, check, hints.get("op") or "+")
+        if not pairs:
+            return None
+        d1, d2 = rng.choice(pairs)
+        hints["digits"] = [d1, d2]
+        if "hi" not in check:
+            hints["hi"] = 10**d1 - 1 + (10**d2 - 1 if hints.get("op", "+") == "+" else 0)
     try:
         return bands.native_item(fmt, {**check, **hints}, rng, rung, "Conceptual")
     except (KeyError, ValueError, RuntimeError):
