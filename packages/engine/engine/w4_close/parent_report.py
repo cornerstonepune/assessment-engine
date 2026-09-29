@@ -14,7 +14,7 @@ from datetime import date
 
 from engine.adapters import llm
 from engine.core import db, mistake_names
-from engine.w4_close import report
+from engine.w4_close import parent_review, report
 from engine.w4_close.parent_check import check, numbers_in  # noqa: F401 — the words held to the facts
 
 PURPOSE = "parent_report"
@@ -178,9 +178,10 @@ def facts(conn, child_id):
     }
 
 
-def draft(conn, child_id, ask=None, version=None):
-    """→ {"facts", "draft", "problems", "prompt_id", "attempts"}: the model's words for the facts, held to them; sent
-    back with what they broke, twice at most. None when there is nothing signed off to report."""
+def draft(conn, child_id, ask=None, version=None, review_version=None):
+    """→ {"facts", "draft", "problems", "prompt_id", "attempts"}: the model's words for the facts, held to them by code
+    and then read against them by a second model (`parent_review`); sent back with what either found, three tries in
+    all. None when there is nothing signed off to report."""
     ask = ask or llm.generate
     f = facts(conn, child_id)
     if f is None:
@@ -200,6 +201,9 @@ def draft(conn, child_id, ask=None, version=None):
                 conn, PURPOSE, {"grade": f["grade"], "facts": told, "fix": fix}, meta=meta, version=version
             )
             problems = check(f, out)
+            # what a sentence means only a reader holds: v7-v12 each passed the check and still said "mastered" of a
+            # skill only improving, and made thirty-five a three-digit number
+            problems = problems or parent_review.review(conn, f, out, ask=ask, version=review_version)
         except llm.LLMError as e:
             # 2026-09-28, the first eval on live: a draft over its schema's length ended the whole run. A draft that
             # breaks its schema has broken a rule like any other, and is sent back with what it broke.
@@ -275,7 +279,7 @@ def approve(conn, child_id, note_id, by):
     return row
 
 
-def evaluate(conn, version, ask=None, limit=None):
+def evaluate(conn, version, ask=None, limit=None, review_version=None):
     """Rule 7: the version drafts a report for every child with signed-off answers, and code holds each to its facts.
     The bar is every one (rule 12). → {"n", "passed", "first_try", "failures", "sample"}."""
     kids = conn.execute(
@@ -292,7 +296,7 @@ def evaluate(conn, version, ask=None, limit=None):
     }
     for k in kids:
         try:
-            got = draft(conn, k["child_id"], ask=ask, version=version)
+            got = draft(conn, k["child_id"], ask=ask, version=version, review_version=review_version)
         except llm.LLMError as e:  # one child's failure is counted, never the end of the others'
             got = {"problems": [str(e)]}
         if got is None:

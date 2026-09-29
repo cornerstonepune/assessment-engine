@@ -25,7 +25,7 @@ says:
   - words: "The teacher always approves"
     proved_by: apps/web/tests/u7-parent-report.spec.ts::an educator approves it in their own name, once, and a report out of date says so
 manual:
-  - "On live, after merge: run the `engine eval` workflow for parent_report v1 (the server holds the model's key). Only at every child held to their facts is v1 made active, its score in DECISIONS-LOG.md (rule 7)."
+  - "On live, after merge: the `engine eval` workflow for parent_review, then for parent_report with it (the server holds the model's key). Only at every wrong sentence caught with none flagged wrongly, and every child held to their facts and read clean, are both made active, their scores in DECISIONS-LOG.md (rule 7)."
   - "Nimish reads the first real reports (Agastya, Advika, Dhanvi) for tone before any goes to a parent."
 scenarios: []
 criteria:
@@ -35,8 +35,11 @@ criteria:
   - name: the letter a parent reads, on the copy
     run: cd apps/web && npx playwright test tests/u7-parent-report.spec.ts
     expect: "passed"
-  - name: the prompt, scored on every child with signed-off answers (on the server)
-    run: bin/engine eval parent_report --version 1
+  - name: the second reader, scored on its gold set of drafts read by a person (on the server)
+    run: bin/engine eval parent_review --version 1
+    expect: "wrong sentences caught, 0 flagged"
+  - name: the prompt, written for every child with signed-off answers, held by code and read by the reviewer (on the server)
+    run: bin/engine eval parent_report --version 12 --review-version 1
     expect: "held to their facts"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

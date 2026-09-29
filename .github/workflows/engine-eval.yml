@@ -9,11 +9,15 @@ on:
       purpose:
         description: "the prompt to score"
         type: choice
-        options: [parent_report]
+        options: [parent_report, parent_review]
       version:
         description: "its version, active or not"
         type: choice
         options: ["12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
+      review_version:
+        description: "parent_report only: the parent_review version that reads each draft"
+        type: choice
+        options: ["1"]
 
 permissions:
   contents: read
@@ -37,6 +41,7 @@ jobs:
           HOST: "${{ secrets.LIGHTSAIL_HOST }}"
           PURPOSE: "${{ inputs.purpose }}"
           VERSION: "${{ inputs.version }}"
+          REVIEW: "${{ inputs.review_version }}"
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
-          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION"
+          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW"
