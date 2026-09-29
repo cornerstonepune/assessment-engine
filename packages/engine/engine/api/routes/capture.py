@@ -106,7 +106,10 @@ def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
     of the first — a teacher who looks again and changes their mind must leave both rows behind
     (rule 4). The append-only table is what makes that safe.
     """
-    return marking.correct(conn, body.result_id, body.human_read, body.by)
+    try:
+        return marking.correct(conn, body.result_id, body.human_read, body.by)
+    except ValueError as why:
+        raise HTTPException(status_code=409, detail=str(why)) from why
 
 
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")

@@ -82,8 +82,8 @@ export async function coverage(id: string): Promise<Coverage> {
   const [c] = await sql<Coverage[]>`
     select count(distinct c.id)::int as papers, count(ir.id)::int as answers,
            count(ir.id) filter (where ir.state = 'confirmed')::int as signed,
-           (select min(observed_at)::text from evidence_event where child_id = ${id}::uuid and confirmed_by is not null) as first,
-           (select max(observed_at)::text from evidence_event where child_id = ${id}::uuid and confirmed_by is not null) as last
+           (select min(observed_at)::text from evidence_placed where child_id = ${id}::uuid and confirmed_by is not null) as first,
+           (select max(observed_at)::text from evidence_placed where child_id = ${id}::uuid and confirmed_by is not null) as last
     from capture c
     join sheet_instance si on si.id = c.sheet_instance_id
     join item_result ir on ir.capture_id = c.id

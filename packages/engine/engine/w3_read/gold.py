@@ -84,7 +84,7 @@ def check(conn) -> list[dict]:
                  where s3.child_id = g.child_id
                    and g.skill_code = any(case when i3.source = 'generated' then i3.skill_codes
                         else array[coalesce(i3.spec ->> 'skill', i3.skill_codes[1])] end)) as on_papers,
-               (select count(*) from evidence_event e left join item_result r2 on r2.id = e.item_result_id
+               (select count(*) from evidence_placed e left join item_result r2 on r2.id = e.item_result_id
                   left join capture c2 on c2.id = r2.capture_id
                  where e.child_id = g.child_id and e.skill_code = g.skill_code
                    and e.confirmed_by is not null and (c2.id is null or c2.superseded_by is null)) as in_graph,

@@ -299,7 +299,22 @@ function AnswerCard({
           </p>
         ) : null}
         {unnamed && a.state !== "confirmed" ? <MistakePicker a={a} paperId={paperId} names={names} u={unnamed} /> : null}
-        {a.state === "confirmed" ? null : (
+        {a.state === "confirmed" ? (
+          // A paper signed off by mistake is put right here: the answer is marked again and its evidence replaced by
+          // a new batch in your name; the old one is kept (migration 20261015090000).
+          <details className="mt-3">
+            <summary className="cursor-pointer text-[12.5px] text-basalt/60">Signed off wrongly? Correct what the child wrote</summary>
+            <form action={correctRead} className="mt-2 flex flex-wrap items-end gap-2">
+              <input type="hidden" name="result_id" value={a.id} />
+              <input type="hidden" name="paper_id" value={paperId} />
+              <label className="field">
+                <span className="label">What the child wrote</span>
+                <input className="input w-[150px]" name="human_read" defaultValue={value} placeholder="leave empty for blank" />
+              </label>
+              <button className="btn secondary" type="submit">Save the correction</button>
+            </form>
+          </details>
+        ) : (
           <>
             <form action={correctRead} className="mt-3 flex flex-wrap items-end gap-2">
               <input type="hidden" name="result_id" value={a.id} />

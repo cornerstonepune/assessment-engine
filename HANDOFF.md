@@ -4,6 +4,14 @@ Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means.
 is verified. This file only says where the last session stopped.
 
 
+## 2026-09-29 — a signed-off answer can be corrected
+
+- Nimish signed Kiyaan's Grade 3–4 quiz off with Q11 (44) and Q13 (9) read as blank. A correction to a signed-off
+  answer was refused (`marking.correct` took only `candidate`), leaving only row edits, which rule 4 forbids.
+- Migration `20261015090000`: `evidence_placed` (everything the graph reads) keeps only each answer's latest batch;
+  `answer_evidence` is the one definition of what a marked answer is evidence of, shared by `confirm_results` and the
+  new `correct_signed_off`. `POST /capture/correct` takes a signed-off answer; a refusal is a 409 with its reason. The
+  paper page offers "Signed off wrongly? Correct what the child wrote" under each signed-off answer.
 ## 2026-09-29 — CI tests against a database built from the repository (cleanup stage 0)
 
 - `bin/testdb fresh <url>`: plain Postgres, every migration, the seed, `bank refill`, `library build` — no live rows,
