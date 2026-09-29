@@ -15,7 +15,9 @@ export async function confirmChild(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const id = String(formData.get("child_id") ?? "");
   if (!UUID.test(id)) redirect("/growth");
-  const [{ n }] = await sql<{ n: number }[]>`select confirm_results(${id}::uuid, ${me.email}) as n`;
+  const [{ n }] = await sql<
+    { n: number }[]
+  >`select confirm_results(${id}::uuid, ${me.email}) as n`;
   revalidatePath(`/growth/${id}`);
   redirect(`/growth/${id}?confirmed=${n}`);
 }
@@ -27,7 +29,8 @@ export async function resolveOne(formData: FormData): Promise<void> {
   const child = String(formData.get("child_id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!UUID.test(id) || !UUID.test(child)) redirect("/growth");
-  if (!["correct", "wrong", "blank"].includes(status)) redirect(`/growth/${child}?error=resolve`);
+  if (!["correct", "wrong", "blank"].includes(status))
+    redirect(`/growth/${child}?error=resolve`);
   await sql`select resolve_result(${id}::uuid, ${status}, '{}'::text[], ${me.email})`;
   revalidatePath(`/growth/${child}`);
   redirect(`/growth/${child}?resolved=1`);
@@ -52,9 +55,17 @@ export async function writeParentReport(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const id = String(formData.get("child_id") ?? "");
   if (!UUID.test(id)) redirect("/growth");
-  const r = await engineSend(`/child/${id}/parent-report`, { by: me.email }).catch(() => null);
+  const r = await engineSend(`/child/${id}/parent-report`, {
+    by: me.email,
+  }).catch(() => null);
+  // the engine answers at once and writes after: the page watches the run it names
+  const run = r?.ok
+    ? ((await r.json().catch(() => null)) as { run_id?: string } | null)?.run_id
+    : null;
   revalidatePath(`/growth/${id}/parent`);
-  redirect(`/growth/${id}/parent${r?.ok ? "?written=1" : `?error=${r?.status ?? "down"}`}`);
+  redirect(
+    `/growth/${id}/parent${run ? `?writing=${run}` : `?error=${r?.status ?? "down"}`}`,
+  );
 }
 
 /** An educator approves the parent report, in their own name; only then is it the parents' to read. */
@@ -63,7 +74,11 @@ export async function approveParentReport(formData: FormData): Promise<void> {
   const id = String(formData.get("child_id") ?? "");
   const note = String(formData.get("note_id") ?? "");
   if (!UUID.test(id) || !UUID.test(note)) redirect("/growth");
-  const r = await engineSend(`/child/${id}/parent-report/${note}/approve`, { by: me.email }).catch(() => null);
+  const r = await engineSend(`/child/${id}/parent-report/${note}/approve`, {
+    by: me.email,
+  }).catch(() => null);
   revalidatePath(`/growth/${id}/parent`);
-  redirect(`/growth/${id}/parent${r?.ok ? "?approved=1" : `?error=${r?.status ?? "down"}`}`);
+  redirect(
+    `/growth/${id}/parent${r?.ok ? "?approved=1" : `?error=${r?.status ?? "down"}`}`,
+  );
 }

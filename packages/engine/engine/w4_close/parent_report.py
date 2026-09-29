@@ -18,6 +18,7 @@ from engine.w4_close import parent_review, report
 from engine.w4_close.parent_check import check, numbers_in  # noqa: F401 — the words held to the facts
 
 PURPOSE = "parent_report"
+FLOW = "parent_report_write"  # the run a person looks at while a report is written (`/runs/{id}`)
 NEARLY = 0.8  # four in five right, waiting only on a second paper to be called secure
 IMPROVED_BY = (
     0.25  # the recent half of a skill set's answers right this much more often than the earlier half
@@ -220,6 +221,43 @@ def draft(conn, child_id, ask=None, version=None, review_version=None):
         "prompt_id": meta.get("prompt_id"),
         "attempts": attempt,
     }
+
+
+def start(child_id, by):
+    """The run the page watches while a report is written. Committed on its own connection before the writing
+    starts, as a scan's is (`w3_read/inbox.start`): writing and reading a draft twice over takes longer than the
+    site's thirty seconds, so the request answers first and the writing follows."""
+    with db.connect() as conn:
+        return str(
+            conn.execute(
+                "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
+                " returning id",
+                (FLOW, f"{by}: {child_id}", db.tenant_slug()),
+            ).fetchone()["id"]
+        )
+
+
+def write(run_id, child_id):
+    """Draft, hold, read and keep one child's report on its own connection, the run marked ok or with why not."""
+    with db.connect() as conn:
+        try:
+            got = draft(conn, child_id)
+            why = (
+                "no answer of this child's has been signed off yet"
+                if got is None
+                else got["problems"]
+                and "not kept, it still said what its facts do not: " + "; ".join(got["problems"])
+            )
+            if not why:
+                keep(conn, child_id, got)
+        except Exception as e:  # the run says why; the request that started it has already answered
+            conn.rollback()
+            why = f"{type(e).__name__}: {e}"
+        conn.execute(
+            "update flow_run set status = %s, error = %s, finished_at = now(), updated_at = now() where id = %s",
+            ("error" if why else "ok", (why or None) and why[:2000], run_id),
+        )
+        conn.commit()
 
 
 def keep(conn, child_id, got):

@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import re
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -254,12 +255,26 @@ def test_the_report_over_http_is_written_kept_and_approved(conn, child, monkeypa
     )
     monkeypatch.setenv("ENGINE_KEY", "k")
     app.dependency_overrides[deps.get_conn] = lambda: (yield conn)
+
+    class Shared:
+        """The writing's own connection is the test's, so it sees the test's child; its commit is the test's to undo."""
+
+        def __getattr__(self, name):
+            return getattr(conn, name)
+
+        def commit(self):
+            pass
+
+    monkeypatch.setattr(P.db, "connect", contextmanager(lambda: (yield Shared())))
     try:
         with TestClient(app, headers={"X-Engine-Key": "k"}) as client:
             assert client.get(f"/child/{child}/parent-report").json()["note"] is None
+            # answered at once; the writing follows (a draft read twice over outlasts the site's thirty seconds)
             r = client.post(f"/child/{child}/parent-report", json={"by": "neha"})
-            assert r.status_code == 201, r.text
-            note = r.json()["note"]
+            assert r.status_code == 202, r.text
+            run = client.get(f"/runs/{r.json()['run_id']}").json()
+            assert run["status"] == "ok" and run["flow"] == "parent_report_write", run
+            note = client.get(f"/child/{child}/parent-report").json()["note"]
             assert note["approved_by"] is None
             r = client.post(f"/child/{child}/parent-report/{note['id']}/approve", json={"by": "neha"})
             assert r.status_code == 200 and r.json()["note"]["approved_by"] == "neha"
@@ -564,3 +579,26 @@ def test_what_the_reviewer_quotes_goes_back_to_the_writer_and_a_draft_it_keeps_r
     assert "'is building steady habits' is not supported: no fact says so" in sent[1]
     with pytest.raises(ValueError):
         P.keep(conn, child, got)
+
+
+def test_a_report_written_in_the_background_that_still_breaks_its_facts_says_why_and_keeps_nothing(
+    conn, child, monkeypatch
+):
+    class Shared:
+        def __getattr__(self, name):
+            return getattr(conn, name)
+
+        def commit(self):
+            pass
+
+    monkeypatch.setattr(P.db, "connect", contextmanager(lambda: (yield Shared())))
+
+    def stubborn(conn, purpose, variables, meta=None, version=None):
+        return {**_good(variables["facts"]), "summary": "[child] is weak at subtraction."}
+
+    monkeypatch.setattr(P.llm, "generate", writer(stubborn))
+    run = P.start(child, "neha")
+    P.write(run, child)
+    row = conn.execute("select status, error from flow_run where id = %s", (run,)).fetchone()
+    assert row["status"] == "error" and "not kept" in row["error"] and "'weak'" in row["error"]
+    assert P.latest(conn, child) is None
