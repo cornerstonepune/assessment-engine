@@ -240,7 +240,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
                 return first ? (
                   <figure key={n} className="mb-3 last:mb-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/scan/${first.capture_id}/${n}`} alt={`Page ${n} of the paper`} className="w-full border border-basalt/14" />
+                    <img src={`/api/scan/${first.capture_id}/${first.file_page}`} alt={`Page ${n} of the paper`} className="w-full border border-basalt/14" />
                     <figcaption className="note mt-1">Page {n}, as it was photographed.</figcaption>
                   </figure>
                 ) : null;
@@ -279,7 +279,7 @@ function AnswerCard({
     <li id={`a-${a.id}`} className="grid scroll-mt-6 gap-3 border border-basalt/12 p-4 md:grid-cols-[300px_minmax(0,1fr)]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`/api/scan/${a.capture_id}/${a.page}${box}`}
+        src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
         alt={`What the child wrote for question ${a.slot}`}
         className="max-h-[170px] w-full border border-basalt/14 bg-chalk object-contain"
       />

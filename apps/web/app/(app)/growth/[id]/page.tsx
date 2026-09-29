@@ -101,7 +101,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
                         {/* What the child wrote, as the photograph shows it: a person settles an answer by looking at it. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={`/api/scan/${p.capture_id}/${p.page}${p.box?.length === 4 ? `?box=${p.box.join(",")}` : ""}`}
+                          src={`/api/scan/${p.capture_id}/${p.file_page}${p.box?.length === 4 ? `?box=${p.box.join(",")}` : ""}`}
                           alt={`What the child wrote, page ${p.page}`}
                           className="max-h-[170px] w-full border border-basalt/14 bg-chalk object-contain"
                         />

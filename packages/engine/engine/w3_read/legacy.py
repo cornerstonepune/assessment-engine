@@ -492,7 +492,7 @@ def import_scan(
         }
 
     images = render_pages(path, pages)
-    page_numbers = pages or sorted(page_specs)[: len(images)]
+    page_numbers = template.get("paper_pages") or pages or sorted(page_specs)[: len(images)]
     rel = str(Path(path).resolve()).replace(str(Path.home()), "~")
     if existing:  # a previous attempt on this exact file errored; retry into that row, not a new one
         capture = existing["id"]

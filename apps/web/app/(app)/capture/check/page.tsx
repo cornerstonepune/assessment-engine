@@ -89,7 +89,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
               <figure className="min-w-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`/api/scan/${a.capture_id}/${a.page}${box}`}
+                  src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
                   alt={`What ${a.first_name} wrote for question ${a.slot}`}
                   className="max-h-[420px] w-full border border-basalt/14 bg-chalk object-contain"
                 />

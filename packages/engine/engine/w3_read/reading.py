@@ -87,8 +87,9 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
             )
         readings = profiles.apply(readings, notes, lambda k: (by_key.get(k) or {}).get("fmt", ""))
         note = how
-        if second:
-            file_page = page_no if len(page_numbers) > 1 or page_no == 1 else 1
+        if (
+            second
+        ):  # the page of the file this image is, never the paper's: a copy may start at its third page
             readings, proposed = second_reader.propose(conn, readings, path, file_page, notes, cfg)
             note = "; ".join(n for n in (how, proposed) if n)
         flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")

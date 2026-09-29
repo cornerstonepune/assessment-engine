@@ -16,7 +16,7 @@ import pytest
 from engine.adapters import ocr
 from engine.core import db
 from engine.w2_print import library
-from engine.w3_read import boxes, copies, second_reader
+from engine.w3_read import boxes, copies, copy_scores, second_reader
 from tests.test_sorting import _scanned
 
 
@@ -107,6 +107,69 @@ def test_each_question_is_found_on_its_page_in_its_printed_words_and_the_name_ba
     assert name[3] / first.rect.height < band < q1[1] / first.rect.height
 
 
+def test_a_copy_whose_file_starts_at_its_second_page_is_read_against_the_questions_on_the_pages_it_holds(
+    conn, worksheet, tmp_path, monkeypatch
+):
+    """2026-09-29: one child's copy photographed across two files. The second file's pages — the paper's later
+    ones — were read as its first, against the first page's questions and answer key, and signed off that way. The
+    page each photograph is comes from what it prints (`boxes.placed`), not from where it sits in the file."""
+    tenant, code, ids, pdf = worksheet
+    with pymupdf.open(pdf) as doc:
+        n = len(doc)
+        assert n >= 2, "the worksheet needs a second page for this to mean anything"
+        later = pymupdf.open()
+        later.insert_pdf(doc, from_page=1, to_page=n - 1)
+        later.save(tmp_path / "later.pdf")
+    child = _child(conn, tenant, "43", "Chitra")
+    stand_in_reader(conn, ids, monkeypatch)
+    scan = _scanned([tmp_path / "later.pdf"], tmp_path / "second-file.pdf")
+
+    got = copies.read(conn, scan, SECTION, ["Chitra"], "test", pages_of=lambda c: n)
+    assert [(c["code"], c["child_id"]) for c in got] == [(code, child)]
+    words, _ = copies.printed(pdf)
+    on_later = {ids[q - 1] for q, (page, _) in words.items() if page >= 2}
+    rows = conn.execute(
+        "select r.item_id, r.raw_read::jsonb as raw from item_result r where r.capture_id = %s",
+        (got[0]["capture_id"],),
+    ).fetchall()
+    assert rows and {r["item_id"] for r in rows} <= on_later, (
+        "an answer landed on a question its file does not hold"
+    )
+    for r in rows:
+        page = next(pg for q, (pg, _) in words.items() if ids[q - 1] == r["item_id"])
+        assert (r["raw"]["page"], r["raw"]["file_page"]) == (page, page - 1)
+
+
+def test_a_reading_that_put_answers_on_questions_its_pages_do_not_hold_is_replaced_checks_and_all(
+    conn, worksheet, tmp_path, monkeypatch
+):
+    """The copy read before its pages were placed, and signed off that way: its reading is replaced, not kept for the
+    sign-off's sake — the checks were made against another question's words and key — and the note says so."""
+    tenant, code, ids, pdf = worksheet
+    with pymupdf.open(pdf) as doc:
+        n = len(doc)
+        later = pymupdf.open()
+        later.insert_pdf(doc, from_page=1, to_page=n - 1)
+        later.save(tmp_path / "later.pdf")
+    _child(conn, tenant, "44", "Devika")
+    stand_in_reader(conn, ids, monkeypatch)
+    scan = _scanned([tmp_path / "later.pdf"], tmp_path / "second-file.pdf")
+    first = copies.read(conn, scan, SECTION, ["Devika"], "test", pages_of=lambda c: n)[0]["capture_id"]
+    words, _ = copies.printed(pdf)
+    on_page_1 = next(ids[q - 1] for q, (page, _) in words.items() if page == 1)
+    conn.execute(  # what the old reading did: an answer on a question of a page this file does not hold, signed off
+        "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state, confirmed_by)"
+        " values (%s, %s, %s, 'ans', '{}', 'wrong', 'confirmed', 'tester@example.org')",
+        (tenant, first, on_page_1),
+    )
+
+    again = copies.read(conn, scan, SECTION, ["Devika"], "test", pages_of=lambda c: n)[0]
+    assert again["capture_id"] != first
+    replaced = conn.execute("select superseded_by from capture where id = %s", (first,)).fetchone()
+    assert replaced["superseded_by"] == again["capture_id"]
+    assert any("no longer count" in note for note in again["notes"]), again["notes"]
+
+
 def test_two_copies_land_on_the_two_children_named_each_answer_marked_against_its_key(
     conn, worksheet, tmp_path, monkeypatch
 ):
@@ -135,7 +198,7 @@ def test_two_copies_land_on_the_two_children_named_each_answer_marked_against_it
     cut = sorted((tmp_path / "scans").rglob("*.pdf"))
     assert [len(pymupdf.open(p)) for p in cut] == [len(pymupdf.open(pdf))] * 2
     # the scan's score, per child by roll number — what `/read/scan/{name}/copies` gives
-    score = copies.of_scan(conn, scan)
+    score = copy_scores.of_scan(conn, scan)
     assert [(s["roll_no"], s["code"], s["right"], s["wrong"], s["blank"]) for s in score] == [
         ("41", code, 1, 1, 10),
         ("42", code, 1, 1, 10),
