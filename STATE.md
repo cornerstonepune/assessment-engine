@@ -3739,5 +3739,12 @@ deploys.
 - **Whole suite, local copy:** 115 failed or errored on the branch; 113 of them fail identically on main (seed data and
   models this container lacks). The other two were the capture routes' tests patching the moved functions by their old
   module; fixed, `tests/api/test_capture_routes.py` → `12 passed`.
+- **On a copy of live** (Actions → rehearse update-live, run 36547703784, from this branch): every seed paper entered
+  with the new loader, then `bank rehome` → `moved 0 questions · 0 old papers' sums onto their skill`; relabel 0
+  changed, `3010 worksheets · 102 of 102 skill-levels ready · 0 problems`, `233 states · 359 questions with confirmed
+  answers`. The run's last check failed on two lines already failing before any step ran, on live's own rows:
+  this branch's migration 20261015090000 not yet on live (applied on merge), and `paper CS57B729: 12 answers counted
+  for 12 questions printed, 6 counted twice` — two live captures of one sheet with results for the same six
+  questions. Pre-existing, not this work's; it waits for a person to say which capture is superseded.
 - **Not yet verified:** on live. After merge the deploy enters the papers; then one box of each question 5 equation
   already marked wrong is saved again. Signed-off answers stay as signed.

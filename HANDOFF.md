@@ -20,6 +20,9 @@ Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B 
 - **Open, for Nimish and the school:** STATE.md (2026-09-17) called this very 600 + 19 + 19 "a wrong method reaching a
   right answer … the diagnostic signal the product exists to find". Marked right, it is not recorded. ADR 0043 lists
   the three ways; any split is what is built.
+- **Found on live, not this work's:** `engine live data` → `paper CS57B729: 12 answers counted for 12 questions
+  printed, 6 counted twice` (rehearse update-live run 36547703784, before any step ran). Two live captures of one sheet
+  carry results for the same six questions; Marking shows them twice. Which capture to supersede is a person's call.
 
 ## 2026-09-29 — Jev: the three uses proven on live; the parent report's checker reads with Jev first (goals j4, j5)
 
