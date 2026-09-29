@@ -5,7 +5,7 @@ under the ceiling."""
 import typer
 
 from engine.core import db
-from engine.w3_read import copies, sorting
+from engine.w3_read import copies, copy_scores, sorting
 
 
 def read_file(
@@ -79,7 +79,7 @@ def _read_copies(path, names, section, actor):
                     f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  not read: {c.get('why', 'no child named')}"
                 )
                 continue
-            t = copies.tally(conn, c["capture_id"])
+            t = copy_scores.tally(conn, c["capture_id"])
             waiting += t["waiting"]
             again = "  (read before: nothing new)" if c["already"] else ""
             how = "by its code" if c["by_code"] else "by name"

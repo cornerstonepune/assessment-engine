@@ -23,7 +23,7 @@ from engine.api.models import (
     ReadFileRequest,
     ReadFileResponse,
 )
-from engine.w3_read import copies, inbox, legacy, marking, naming
+from engine.w3_read import copy_scores, inbox, legacy, marking, naming
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -159,14 +159,14 @@ def read_file(
 
 @router.get("/read/scan/{name}/copies")
 def scan_copies(name: str, conn=Depends(get_conn)) -> list[dict]:
-    """Every copy read from one scanned file, and each child's score by roll number (`copies.of_scan`)."""
-    return copies.of_scan(conn, name)
+    """Every copy read from one scanned file, and each child's score by roll number (`copy_scores.of_scan`)."""
+    return copy_scores.of_scan(conn, name)
 
 
 @router.get("/capture/{capture_id}/readings")
 def capture_readings(capture_id: str, conn=Depends(get_conn)) -> list[dict]:
-    """How the reader left every answer on one copy, and why each waits (`copies.readings`)."""
-    return copies.readings(conn, capture_id)
+    """How the reader left every answer on one copy, and why each waits (`copy_scores.readings`)."""
+    return copy_scores.readings(conn, capture_id)
 
 
 @router.get("/capture/{capture_id}/mistakes")

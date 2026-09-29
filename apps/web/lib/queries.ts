@@ -284,6 +284,7 @@ export type PendingResult = {
   capture_id: string;
   paper_id: string;
   page: number;
+  file_page: number;
   box: number[] | null;
 };
 
@@ -293,6 +294,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
            i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, i.responses -> 0 ->> 'answer' as answer,
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
+           coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,

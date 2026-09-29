@@ -58,6 +58,25 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
 
 
+## 2026-09-29 — a copy's pages are the pages they print, not where they sit in the file
+
+- Achal's voice note, roll 7 (G2, R8-H03): the paper was photographed across two files, and the second file's two
+  pages — the paper's 3 and 4 — were read as 1 and 2, against Q1–Q6's words and key, and signed off that way.
+- `boxes.placed`: each photograph is the run of the worksheet's pages it fits best — layout (ruled lines) times the
+  print only that page has. On the real photographs: 12 of 12 placed right; ruled lines alone put 5 of 8 photos on
+  their page. A copy whose pages fit no run `read.page_margin` (1.25) times better than the next is not read; a person
+  places it. `page` stays the paper's page on each answer; `file_page` is the photograph's page in the copy's file,
+  and every screen that shows a photograph uses it.
+- A reading that put answers on questions its pages do not hold is replaced when the file is read again, its checks
+  included (`copies._misplaced`): they were made against another question. Roll 7's second file is to be read again
+  once this is live, and its Q7–Q12 signed off afresh.
+- `copy_scores.py` split from `copies.py` (the per-scan reports), which had passed 400 lines.
+- **Open, next:** Rudraksh's G4-SEPW2 Q6/Q7 — two questions printing the same words anchor on the first
+  (`ocr.find_question` breaks ties by page order), and a missing-digit sum printed beside its heading falls outside
+  the answer column; `ocr.py` is at its ceiling, so the question-finding is split out first.
+- `engine-logs.yml` prints how the reader is doing (`profiles.report`): 2026-09-29, 1,238 checked, 693 of the 898 it
+  stood behind right (77%), no kind at the 95% gate.
+
 ## 2026-09-29 — a signed-off answer can be corrected
 
 - Nimish signed Kiyaan's Grade 3–4 quiz off with Q11 (44) and Q13 (9) read as blank. A correction to a signed-off

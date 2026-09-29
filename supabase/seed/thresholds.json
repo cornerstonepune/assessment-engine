@@ -80,6 +80,12 @@
    "description": "Of a trusted kind's right answers, the share a person still checks (step 4, goals/s20-routine-intake.yaml)"
   },
   {
+   "key": "read.page_margin",
+   "value": 1.25,
+   "unit": "ratio",
+   "description": "How much better the best run of a worksheet's pages must fit a part-copy's photographs than the next best before its answers are read against those pages (`boxes.placed`); less, and a person places them. On the 2026-09-29 photographs the right run led by 1.5-46 times."
+  },
+  {
    "key": "ocr.min_confidence",
    "value": 70,
    "unit": "confidence",

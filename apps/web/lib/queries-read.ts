@@ -105,6 +105,8 @@ export type CaptureAnswer = {
   slot: string;
   n: number | null;
   page: number;
+  // the page of its copy's file the photograph is: the paper's page, unless the copy starts part-way
+  file_page: number;
   question: string;
   kind: string;
   rung_code: string;
@@ -150,6 +152,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
     select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
+           coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
@@ -287,6 +290,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
     select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
+           coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
            coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
