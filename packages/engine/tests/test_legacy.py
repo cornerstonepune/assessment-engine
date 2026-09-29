@@ -697,6 +697,52 @@ def test_a_correction_is_a_new_row_and_the_engine_marks_it_again(conn, child, tm
 
 
 @pytestmark_db
+def test_a_signed_off_answer_is_corrected_by_a_new_batch_and_the_graph_reads_only_the_latest(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """2026-09-29: a paper signed off by mistake, answers the child had written read as blank. A correction to a
+    signed-off answer is marked again and becomes its next batch of evidence; the batch before stays (rule 4)."""
+    capture, ids = _read_the_paper(conn, child, tmp_path, monkeypatch)
+    first = ids["legacy/TEST-PAPER/1"]  # 46 + 38, read 84: right
+    assert (
+        conn.execute("select status from item_result where id = %s", (first,)).fetchone()["status"]
+        == "correct"
+    )
+    marking.confirm(conn, child, "neha@school")
+
+    def counted():
+        rows = conn.execute(
+            "select correct from evidence_placed where item_result_id = %s", (first,)
+        ).fetchall()
+        return [r["correct"] for r in rows]
+
+    assert counted() and all(counted())
+    right_before = sum(
+        r["n_correct"]
+        for r in conn.execute("select n_correct from child_skill_state where child_id = %s", (child,))
+    )
+
+    out = marking.correct(conn, first, "", "nimish@school")  # signed off as right; the child left it blank
+    assert (out["status"], out["was"], out["now"]) == ("blank", "84", "")
+    assert counted() == [None]
+    right_after = sum(
+        r["n_correct"]
+        for r in conn.execute("select n_correct from child_skill_state where child_id = %s", (child,))
+    )
+    assert right_after == right_before - 1, "the graph was rebuilt from the corrected answer"
+
+    marking.correct(conn, first, "84", "nimish@school")  # and back: the latest batch is what counts
+    assert counted() and all(counted())
+    kept = conn.execute(
+        "select count(*) as n from evidence_event where item_result_id = %s", (first,)
+    ).fetchone()["n"]
+    assert kept == 3, "every batch stays in evidence_event"
+    state = conn.execute("select state, confirmed_by from item_result where id = %s", (first,)).fetchone()
+    assert (state["state"], state["confirmed_by"]) == ("confirmed", "nimish@school")
+    assert marking.confirm(conn, child, "neha@school") == 0, "signing off again writes no second batch"
+
+
+@pytestmark_db
 def test_a_correction_feeds_the_next_measurement_of_the_reader(conn, child, tmp_path, monkeypatch):
     """A teacher's correction IS a hand-verified response, so the gold set the reader is measured
     against grows by using the system rather than by a data-entry project."""

@@ -227,3 +227,12 @@ def test_a_person_names_a_mistake_and_a_refusal_says_why(client, monkeypatch):
     assert seen == [("r1", "M_CARRY_SKIP", "aseem", [["M_CARRY_SKIP", 0.5]])]
     r = client.post("/capture/mistake", headers=HEADERS, json={**body, "code": "M_SMALL_FROM_LARGE"})
     assert r.status_code == 409 and "not a named mistake" in r.json()["detail"]
+
+
+def test_a_correction_the_engine_refuses_is_a_409_with_its_reason_not_a_500(client):
+    r = client.post(
+        "/capture/correct",
+        headers=HEADERS,
+        json={"result_id": "00000000-0000-0000-0000-000000000000", "human_read": "44", "by": "tester@example.org"},
+    )
+    assert r.status_code == 409 and "no answer" in r.json()["detail"]
