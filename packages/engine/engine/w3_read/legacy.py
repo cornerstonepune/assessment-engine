@@ -15,8 +15,8 @@ import cv2
 import numpy as np
 
 from engine.adapters import llm, ocr
+from engine.assess import equation, placing, tags
 from engine.assess import misconceptions as M
-from engine.assess import placing, tags
 from engine.assess.items import Item
 from engine.core import db
 from engine.w3_read import checked, reading, render_pdf
@@ -75,14 +75,14 @@ def _template_item(paper, it, where):
     the wrong answers each misconception would produce, so marking is a lookup."""
     kind = it.get("kind", "bare")
     parsed = parse_expr(it["expr"]) if it.get("expr") else None
-    spec = {"kind": kind, "expr": it.get("expr"), "question": it["question"]}
+    spec = {"kind": kind, "expr": it.get("expr"), "question": it["question"]} | equation.of(it, paper)
     predictions = {}
     if parsed:
         op, a, b = parsed
         spec |= {"op": op, "a": a, "b": b}
         answer = it.get("answer", M.compute(op, a, b))
         predictions = M.predict(op, a, b)
-        rung = it.get("rung") or rung_for(op, a, b, where)
+        rung = rung_for(op, a, b, where) or it.get("rung")  # by its shape first, as bank rehome files it
         if rung is None:
             raise ValueError(
                 f"item {it['n']}{it.get('part', '')}: {it['expr']!r} is not on the ladder; give it a rung"

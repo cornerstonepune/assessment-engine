@@ -3720,3 +3720,24 @@ deploys.
     413 lines and its frozen ceiling lowered to match.
   - **Not yet verified:** parent_review v3 (Haiku 4.5), v4 (Sonnet 5.5, low effort), v5 (Opus 5.5, low effort) on the
     server, each with jev_version 1 — after merge, when the migration and the seed are live.
+
+## S24 — question 5: a split that adds up is right (goal s24-a-split-that-holds-is-right, ADR 0043, 2026-09-29)
+
+- **An equation's boxes are marked by the equation** (`assess/equation.py`, `marking.correct`): 600 + 19 + 19 is right
+  for "638 = 600 + [ ] + [ ]", as 30 and 8 are; each side is its own claim (1100 + 0 + 13 right beside a total of 1112).
+  `pytest tests/test_equation.py tests/test_legacy.py tests/api/test_capture_routes.py` (local copy) → `77 passed`.
+- **Every equation the school's papers name is one their own key makes true:** 26 boxes in eight equations, question 5
+  of G3-SEPW1-A, G3-SEPW1-B, G4-SEPW1; a paper whose key does not make its equation true is refused when entered.
+- **Every seed paper enters where `bank rehome` files it** (local copy, all 17 papers entered in one transaction, rolled
+  back): `rehome._old_papers` → 0 sums to move; 9 before the loader filed a sum by its shape first (G2-CAM-A 7b R11 →
+  R26; G2-WORD-SEP17 1-3, 5-8, 10 R8 → R22/R24). Pinned: `test_every_paper_is_entered_where_bank_rehome_files_it…`
+  fails with `assert 9 == 0` on the old rule.
+- **Every deploy enters each paper again** (`deploy-engine.yml`, after the engine is up; a paper that cannot be entered
+  fails the deploy): `test_a_deploy_enters_every_paper_again_as_its_file_now_says` → passed.
+- **`marking.py` 397 → 326 lines:** naming a wrong answer's mistake moved to `w3_read/naming.py`. `bin/check` →
+  `13 passed`, lint and format clean.
+- **Whole suite, local copy:** 115 failed or errored on the branch; 113 of them fail identically on main (seed data and
+  models this container lacks). The other two were the capture routes' tests patching the moved functions by their old
+  module; fixed, `tests/api/test_capture_routes.py` → `12 passed`.
+- **Not yet verified:** on live. After merge the deploy enters the papers; then one box of each question 5 equation
+  already marked wrong is saved again. Signed-off answers stay as signed.

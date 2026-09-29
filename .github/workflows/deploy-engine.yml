@@ -105,3 +105,12 @@ jobs:
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           $S 'sudo docker exec deploy-engine-1 engine load --settings'
+      - name: the papers the engine marks against — each as its file now says
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        # A paper's key or equation corrected in its file is live with the code that marks by it, as a setting is: on
+        # 2026-09-29 question 5's "638 = 600 + [ ] + [ ]" marked 19 and 19 wrong until its file named the equation, and
+        # only `bin/update-live`, from one Mac, entered papers again. `legacy paper` upserts each question by its key,
+        # a sum on the rung `bank rehome` files it on, so nothing needs rehoming after (test_legacy.py pins both).
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S 'sudo docker exec deploy-engine-1 sh -c "for p in /app/supabase/seed/papers/*.json; do engine legacy paper \$p >/dev/null || exit 1; done"'

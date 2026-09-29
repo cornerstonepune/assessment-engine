@@ -7,10 +7,10 @@ import hashlib
 import json
 import re
 
+from engine.assess import equation
 from engine.assess import misconceptions as M
 from engine.w1_bank import learned as learned_mistakes
-from engine.w1_bank import mistake_guess
-from engine.w3_read import profiles
+from engine.w3_read import naming, profiles
 
 # A typed or printed minus is the same minus; a multiplication "x" is a times sign.
 _MINUS = str.maketrans({"−": "-", "–": "-", "x": "×"})
@@ -181,7 +181,8 @@ def correct(conn, result_id, human_read, by):
 
     Only the MARK is recomputed, by the same `mark` the import path uses, because marking is a
     lookup against numbers computed when the paper was entered. A teacher is asked what a child
-    wrote, never whether it is right.
+    wrote, never whether it is right. A box of one equation (`spec.holds`) is marked with the others
+    of it: its side is right whatever split the child chose (`_group`).
     """
     row = conn.execute(
         "select r.id, r.tenant_id, r.raw_read, r.capture_id, si.child_id, i.spec, i.responses"
@@ -192,14 +193,10 @@ def correct(conn, result_id, human_read, by):
     ).fetchone()
     if not row:
         raise ValueError(f"no answer waiting for a person with id {result_id}")
-    read = (
-        json.loads(row["raw_read"] or "{}") if isinstance(row["raw_read"], str) else (row["raw_read"] or {})
-    )
-    text = (human_read or "").strip()
-    reading = {**read, "child_answer": text, "answer_state": "written" if text else "blank"}
-    status, codes, working = mark(row["spec"], row["responses"][0], reading, learned_mistakes.rules(conn))
-    if status == "wrong" and not codes:  # a mistake a person named on this very reading still stands
-        codes = _named(conn, row["id"], text)
+    read, text = _read(row), (human_read or "").strip()
+    learned, holds = learned_mistakes.rules(conn), (row["spec"] or {}).get("holds")
+    group = _group(conn, row["capture_id"], holds, {row["id"]: text}) if holds else {}
+    status, codes, working = _as_read(conn, row, text, group.get(row["id"], (row, text, False))[2], learned)
     conn.execute(
         # clock_timestamp(), not now(): two corrections in one transaction keep their order ("the latest" is exact)
         "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read,"
@@ -215,12 +212,59 @@ def correct(conn, result_id, human_read, by):
             by,
         ),
     )
-    conn.execute(
-        "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
-        " updated_at = now() where id = %s",
-        (status, codes, working, row["id"]),
-    )
+    # the other boxes of its equation a person read, not yet signed off: this reading can make their side hold, or not
+    marks = {row["id"]: (status, codes, working)} | {
+        rid: _as_read(conn, b, typed, right, learned)
+        for rid, (b, typed, right) in group.items()
+        if rid != row["id"] and typed is not None and b["state"] == "candidate"
+    }
+    for rid, m in marks.items():
+        conn.execute(
+            "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
+            " updated_at = now() where id = %s",
+            (*m, rid),
+        )
     return {"status": status, "codes": codes, "was": read.get("child_answer", "") or "", "now": text}
+
+
+def _read(row):
+    raw = row["raw_read"]
+    return json.loads(raw or "{}") if isinstance(raw, str) else (raw or {})
+
+
+def _as_read(conn, row, typed, right, learned):
+    """`mark` for what a person says the child wrote → (status, codes, working): right when the answer's side of its
+    equation holds (`right`); a wrong answer keeps the mistake a person named on this very reading."""
+    reading = {**_read(row), "child_answer": typed, "answer_state": "written" if typed.strip() else "blank"}
+    status, codes, working = mark(row["spec"], row["responses"][0], reading, learned)
+    if right:
+        return "correct", [], working
+    if status == "wrong" and not codes:  # a mistake a person named on this very reading still stands
+        codes = naming.named(conn, row["id"], typed.strip())
+    return status, codes, working
+
+
+def _group(conn, capture_id, expr, now):
+    """The boxes of one equation (`spec.holds`) on a paper → {result id: (row, what a person read in it or None, whether
+    its side holds)}. A side holds when it comes out at the equation's total with what the child wrote — 600 + 19 + 19
+    is 638 — as a person read it (`now`: {result id: the reading being saved}), or as the engine read it once it settled
+    the box. A box still waiting for a person leaves its side undecided: each of its boxes is marked by its own key."""
+    boxes = conn.execute(
+        "select r.id, r.state, r.status, i.item_key, i.spec, i.responses, r.raw_read, rc.human_read as typed"
+        " from item_result r join item i on i.id = r.item_id left join lateral (select human_read from read_correction"
+        " where item_result_id = r.id and judged is null order by created_at desc limit 1) rc on true"
+        " where r.capture_id = %s and r.state <> 'rejected' and i.spec->>'holds' = %s",
+        (capture_id, expr),
+    ).fetchall()
+    typed = {b["id"]: now.get(b["id"], b["typed"]) for b in boxes}
+    name = {b["id"]: b["item_key"].rsplit("/", 1)[1] for b in boxes}
+    wrote = {  # a person's reading, else the engine's once it settled the box; a box still waiting says nothing
+        name[b["id"]]: typed[b["id"]] if typed[b["id"]] is not None else _read(b).get("child_answer") or ""
+        for b in boxes
+        if typed[b["id"]] is not None or b["status"] not in ("needs_teacher", "unreadable")
+    }
+    right = equation.right(expr, {k: normalise_answer(v) for k, v in wrote.items()})
+    return {b["id"]: (b, typed[b["id"]], bool(right.get(name[b["id"]]))) for b in boxes}
 
 
 def corrections(conn):
@@ -280,83 +324,3 @@ def remark(conn, child_id):
 
 def confirm(conn, child_id, by):
     return conn.execute("select confirm_results(%s, %s) as n", (child_id, by)).fetchone()["n"]
-
-
-def _named(conn, result_id, answer):
-    """The mistake a person last named for this answer, on this reading of it: [code], or [] (none, or not named)."""
-    row = conn.execute(
-        "select code from mistake_named where item_result_id = %s and answer = %s order by created_at desc limit 1",
-        (result_id, answer),
-    ).fetchone()
-    return [row["code"]] if row and row["code"] != mistake_guess.NONE else []
-
-
-def _waiting(conn, where, arg):
-    """Wrong answers not yet signed off that no mistake is named for, with what the child wrote."""
-    rows = conn.execute(
-        "select r.id, i.spec, r.raw_read,"
-        " (select rc.human_read from read_correction rc where rc.item_result_id = r.id"
-        "  order by rc.created_at desc limit 1) as typed"
-        " from item_result r join item i on i.id = r.item_id"
-        f" where {where} and r.state = 'candidate' and r.status = 'wrong' and r.misconception_codes = '{{}}'",
-        (arg,),
-    ).fetchall()
-    out = []
-    for r in rows:
-        answer = (
-            r["typed"]
-            if r["typed"] is not None
-            else json.loads(r["raw_read"] or "{}").get("child_answer", "")
-        )
-        named = conn.execute(
-            "select 1 from mistake_named where item_result_id = %s and answer = %s", (r["id"], answer)
-        ).fetchone()
-        if not named:
-            out.append((r, answer))
-    return out
-
-
-def unnamed(conn, capture_id):
-    """{result_id: {"answer", "shortlist": [[code, chance], …], "options": [every code], "why"}} for a paper's wrong
-    answers that no named mistake explains and no person has named yet — Jev's three likeliest, or NONE
-    (`w1_bank/mistake_guess`, ADR 0036), and every named mistake of the operation for when those three miss. Jev
-    unreachable is not a failure of the page: the shortlist is empty and `why` says so."""
-    out = {}
-    for r, answer in _waiting(conn, "r.capture_id = %s", capture_id):
-        op = (r["spec"] or {}).get("op")
-        if op not in mistake_guess.SIGN:
-            continue
-        why = ""
-        try:
-            short = mistake_guess.shortlist(conn, r["spec"], answer) or []
-        except mistake_guess.jev.JevError as e:
-            short, why = [], f"Jev could not be asked: {e}"
-        out[str(r["id"])] = {
-            "answer": answer,
-            "shortlist": [[c, p] for c, p in short],
-            "options": list(mistake_guess.options(op)),
-            "why": why,
-        }
-    return out
-
-
-def name_mistake(conn, result_id, code, by, proposed=()):
-    """A person names the mistake behind a wrong answer no named mistake explains: one of its operation's named
-    mistakes, or NONE. Kept (append-only) against the reading it was named on; the answer's mark carries it."""
-    found = _waiting(conn, "r.id = %s", result_id)
-    if not found:
-        raise ValueError(f"no wrong answer waiting to be named with id {result_id}")
-    row, answer = found[0]
-    op = (row["spec"] or {}).get("op")
-    if op not in mistake_guess.SIGN or code not in mistake_guess.options(op):
-        raise ValueError(f"{code!r} is not a named mistake of {op!r}, nor {mistake_guess.NONE}")
-    conn.execute(
-        "insert into mistake_named (tenant_id, item_result_id, answer, code, proposed, by, created_at)"
-        " select tenant_id, id, %s, %s, %s, %s, clock_timestamp() from item_result where id = %s",
-        (answer, code, json.dumps([list(x) for x in proposed]), by, result_id),
-    )
-    conn.execute(
-        "update item_result set misconception_codes = %s, updated_at = now() where id = %s",
-        ([] if code == mistake_guess.NONE else [code], result_id),
-    )
-    return {"code": code, "answer": answer}

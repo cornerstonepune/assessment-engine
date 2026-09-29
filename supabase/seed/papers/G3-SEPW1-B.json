@@ -117,7 +117,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 40,
-      "question": "246 = 200 +"
+      "question": "246 = 200 +",
+      "holds": "246 = 200 + {5a} + {5b}"
     },
     {
       "n": 5,
@@ -126,7 +127,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 6,
-      "question": "246 = 200 +"
+      "question": "246 = 200 +",
+      "holds": "246 = 200 + {5a} + {5b}"
     },
     {
       "n": 5,
@@ -135,7 +137,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 30,
-      "question": "132 = 100 +"
+      "question": "132 = 100 +",
+      "holds": "132 = 100 + {5c} + {5d}"
     },
     {
       "n": 5,
@@ -144,7 +147,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 2,
-      "question": "132 = 100 +"
+      "question": "132 = 100 +",
+      "holds": "132 = 100 + {5c} + {5d}"
     },
     {
       "n": 5,
@@ -153,7 +157,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 300,
-      "question": "total ="
+      "question": "total =",
+      "holds": "246 + 132 = {5e} + {5f} + {5g} = {5h}"
     },
     {
       "n": 5,
@@ -162,7 +167,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 70,
-      "question": "total ="
+      "question": "total =",
+      "holds": "246 + 132 = {5e} + {5f} + {5g} = {5h}"
     },
     {
       "n": 5,
@@ -171,7 +177,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 8,
-      "question": "total ="
+      "question": "total =",
+      "holds": "246 + 132 = {5e} + {5f} + {5g} = {5h}"
     },
     {
       "n": 5,
@@ -180,7 +187,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 378,
-      "question": "total ="
+      "question": "total =",
+      "holds": "246 + 132 = {5e} + {5f} + {5g} = {5h}"
     },
     {
       "n": 6,

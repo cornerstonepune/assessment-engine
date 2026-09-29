@@ -23,7 +23,7 @@ from engine.api.models import (
     ReadFileRequest,
     ReadFileResponse,
 )
-from engine.w3_read import copies, inbox, legacy, marking
+from engine.w3_read import copies, inbox, legacy, marking, naming
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -168,14 +168,14 @@ def capture_readings(capture_id: str, conn=Depends(get_conn)) -> list[dict]:
 
 @router.get("/capture/{capture_id}/mistakes")
 def capture_mistakes(capture_id: str, conn=Depends(get_conn)) -> dict:
-    """Each wrong answer on one copy that no named mistake explains, with Jev's shortlist (`marking.unnamed`)."""
-    return marking.unnamed(conn, capture_id)
+    """Each wrong answer on one copy that no named mistake explains, with Jev's shortlist (`naming.unnamed`)."""
+    return naming.unnamed(conn, capture_id)
 
 
 @router.post("/capture/mistake")
 def name_mistake(body: NameMistakeRequest, conn=Depends(get_conn)) -> dict:
-    """A person names the mistake behind such an answer (`marking.name_mistake`); a refusal says why."""
+    """A person names the mistake behind such an answer (`naming.name_mistake`); a refusal says why."""
     try:
-        return marking.name_mistake(conn, body.result_id, body.code, body.by, body.proposed)
+        return naming.name_mistake(conn, body.result_id, body.code, body.by, body.proposed)
     except ValueError as e:
         raise HTTPException(409, str(e)) from e

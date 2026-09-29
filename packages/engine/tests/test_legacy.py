@@ -12,12 +12,13 @@ import cv2
 import numpy as np
 import pymupdf
 import pytest
+import yaml
 
 from engine.adapters import llm, ocr
 from engine.assess import graph
 from engine.core import db
-from engine.w1_bank import mistake_guess
-from engine.w3_read import legacy, marking
+from engine.w1_bank import cases, mistake_guess, rehome
+from engine.w3_read import legacy, marking, naming
 
 # ---- pure: shape → rung, and marking by lookup
 
@@ -1183,7 +1184,7 @@ def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_short
         raise mistake_guess.jev.JevError("no TYPESAFE_API_KEY in the engine's environment")
 
     monkeypatch.setattr(mistake_guess.jev, "decide", unreachable)
-    down = marking.unnamed(conn, capture)[str(unexplained)]
+    down = naming.unnamed(conn, capture)[str(unexplained)]
     assert down["shortlist"] == [] and "TYPESAFE_API_KEY" in down["why"], (
         "Jev down: the answer is still named by hand"
     )
@@ -1196,7 +1197,7 @@ def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_short
         return {"ranked": [("M_CARRY_SKIP", 0.5), ("NONE", 0.3), ("M_NOCARRY", 0.1), ("M_CONCAT", 0.1)]}
 
     monkeypatch.setattr(mistake_guess.jev, "decide", decide)
-    lists = marking.unnamed(conn, capture)
+    lists = naming.unnamed(conn, capture)
     assert list(lists) == [str(unexplained)], "only the wrong answer code cannot explain is asked about"
     got = lists[str(unexplained)]
     assert (got["answer"], got["why"]) == ("93", "")
@@ -1204,22 +1205,22 @@ def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_short
     assert asked == [{"question": "68 + 27 = ?", "right_answer": 95, "child_answer": "93"}]
 
     with pytest.raises(ValueError, match="not a named mistake of"):
-        marking.name_mistake(
+        naming.name_mistake(
             conn, unexplained, "M_SMALL_FROM_LARGE", "aseem"
         )  # a subtraction mistake, on a sum
     with pytest.raises(ValueError, match="no wrong answer waiting to be named"):
-        marking.name_mistake(conn, explained, "M_CONCAT", "aseem")  # code named it already
-    marking.name_mistake(conn, unexplained, "M_CARRY_SKIP", "aseem", lists[str(unexplained)]["shortlist"])
+        naming.name_mistake(conn, explained, "M_CONCAT", "aseem")  # code named it already
+    naming.name_mistake(conn, unexplained, "M_CARRY_SKIP", "aseem", lists[str(unexplained)]["shortlist"])
     codes = lambda: conn.execute(  # noqa: E731
         "select misconception_codes from item_result where id = %s", (unexplained,)
     ).fetchone()["misconception_codes"]
-    assert codes() == ["M_CARRY_SKIP"] and marking.unnamed(conn, capture) == {}
+    assert codes() == ["M_CARRY_SKIP"] and naming.unnamed(conn, capture) == {}
 
     # the same reading saved again keeps the person's naming; a different reading does not
     assert marking.correct(conn, unexplained, "93", "aseem")["codes"] == ["M_CARRY_SKIP"]
     assert marking.correct(conn, unexplained, "92", "aseem")["codes"] == []
-    marking.name_mistake(conn, unexplained, mistake_guess.NONE, "aseem")
-    assert codes() == [] and marking.unnamed(conn, capture) == {}, "none of these is an answer too"
+    naming.name_mistake(conn, unexplained, mistake_guess.NONE, "aseem")
+    assert codes() == [] and naming.unnamed(conn, capture) == {}, "none of these is an answer too"
     assert marking.correct(conn, unexplained, "93", "aseem")["codes"] == ["M_CARRY_SKIP"]
 
     with pytest.raises(Exception, match="append-only"), conn.transaction():
@@ -1230,3 +1231,132 @@ def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_short
         "select misconception_codes from evidence_event where item_result_id = %s", (unexplained,)
     ).fetchone()
     assert ev["misconception_codes"] == ["M_CARRY_SKIP"], "the named mistake is the child's evidence"
+
+
+SPLIT = {
+    "code": "TEST-SPLIT",
+    "title": "test",
+    "band": "G3",
+    "week": "test",
+    "date": "2026-09-11",
+    "pages": [{"n": 1, "mask": 0}],
+    "items": [
+        {"n": 5, "part": p, "page": 1, "kind": "missing", "rung": "R27", "answer": a, "question": q, "holds": h}
+        for h, q, parts in (
+            ("638 = 600 + {5a} + {5b}", "638 = 600 +", (("a", 30), ("b", 8))),
+            ("475 = {5c} + {5d} + {5e}", "475 =", (("c", 400), ("d", 70), ("e", 5))),
+            ("638 + 475 = {5f} + {5g} + {5h} = {5i}", "total =", (("f", 1000), ("g", 100), ("h", 13), ("i", 1113))),
+        )
+        for p, a in parts
+    ],
+}  # fmt: skip
+# what the child wrote in each box of question 5, as the reader reads it
+WROTE = {
+    "5a": "19",
+    "5b": "19",
+    "5c": "400",
+    "5d": "75",
+    "5e": "0",
+    "5f": "1100",
+    "5g": "0",
+    "5h": "13",
+    "5i": "1112",
+}
+
+
+@pytestmark_db
+def test_a_box_of_an_equation_is_right_when_its_side_comes_out_at_the_total_whatever_split_the_child_chose(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """Nimish, 2026-09-29, of "638 = 600 + [ ] + [ ]" on the Grade 3 September paper: "this question's right answer
+    is 19 and 19, but its showing wrong - need to correct it". Each box was marked alone against 30 and 8. A box of one
+    equation is right when its side comes out at the total with what the child wrote — as a person read it, or as the
+    engine read it once it settled the box; the side not coming out, each box is marked by its own key, as before."""
+    path = tmp_path / "split.json"
+    path.write_text(json.dumps(SPLIT))
+    legacy.load_paper(conn, path)
+    spec = conn.execute("select spec from item where item_key = 'legacy/TEST-SPLIT/5a'").fetchone()["spec"]
+    assert spec["holds"] == "638 = 600 + {5a} + {5b}", "the paper's equation reaches the item"
+    scan = tmp_path / "scan.jpg"
+    scan.write_bytes(b"")
+    monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
+    monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
+    monkeypatch.setitem(READ, "items", [
+        {"slot": s, "question_as_printed": "", "child_answer": v, "answer_state": "written", "working_summary": "",
+         "self_corrected": False} for s, v in WROTE.items()])  # fmt: skip
+    fake_ocr(monkeypatch)
+    capture = legacy.import_scan(conn, scan, "TEST-SPLIT", child, "test")["capture_id"]
+
+    def box(key):
+        return conn.execute(
+            "select r.id, r.status from item_result r join item i on i.id = r.item_id"
+            " where r.capture_id = %s and i.item_key = %s",
+            (capture, f"legacy/TEST-SPLIT/{key}"),
+        ).fetchone()
+
+    def marks(*keys):
+        return {k: box(k)["status"] for k in keys}
+
+    def save(key, wrote=None):
+        return marking.correct(conn, box(key)["id"], WROTE[key] if wrote is None else wrote, "nimish")
+
+    assert set(marks(*WROTE).values()) - {"needs_teacher"} == {"correct"}, (
+        "the engine settles only its key's answers"
+    )
+    assert marks("5c", "5h") == {"5c": "correct", "5h": "correct"}
+
+    save("5a")
+    assert marks("5a")["5a"] == "wrong", "one box read, its side still waits: the box by its own key"
+    assert save("5b")["status"] == "correct"
+    assert marks("5a", "5b") == {"5a": "correct", "5b": "correct"}, "600 + 19 + 19 is 638"
+    save("5b", "20")
+    assert marks("5a", "5b") == {"5a": "wrong", "5b": "wrong"}, "639 is not 638: each box back to its own key"
+    save("5a", "30"), save("5b", "8")
+    assert marks("5a", "5b") == {"5a": "correct", "5b": "correct"}
+
+    save("5d"), save("5e")
+    assert marks("5c", "5d", "5e") == dict.fromkeys(("5c", "5d", "5e"), "correct"), (
+        "400 + 75 + 0 is 475, with the 400 the engine settled"
+    )
+
+    save("5f"), save("5g"), save("5i")
+    assert marks("5f", "5g", "5h", "5i") == {
+        "5f": "correct",
+        "5g": "correct",
+        "5h": "correct",
+        "5i": "wrong",
+    }, "1100 + 0 + 13 is a right split of 1113; 1112 is not the total"
+
+
+@pytestmark_db
+def test_every_paper_is_entered_where_bank_rehome_files_it_so_a_deploy_can_enter_it_again(conn):
+    """Every deploy enters each paper again as its file says (deploy-engine.yml), without `bank rehome` after it as
+    `bin/update-live` runs. So a paper is entered where rehome would file it: a sum on the rung its shape places it,
+    the rung its file names only where the ladder has no place for it. G2-WORD-SEP17's sums name R8, an old rung, and
+    rehome files them on R22 and R24; entered again alone they went back to R8 (nine sums, 2026-09-29)."""
+    for path in sorted((db.REPO_ROOT / "supabase/seed/papers").glob("*.json")):
+        legacy.load_paper(conn, path)
+    assert rehome._old_papers(conn, rehome.shaped(conn), cases.matches(conn)) == 0, (
+        "rehome moved a sum a paper entered"
+    )
+
+
+def test_a_deploy_enters_every_paper_again_as_its_file_now_says():
+    """Nimish, 2026-09-29: "need to correct it". A paper corrected in its file — question 5 naming its equation — is
+    live with the code that marks by it: every deploy enters each paper again once the engine is up on the new code,
+    from the seed the server holds, and a paper that cannot be entered fails the deploy."""
+    root = db.REPO_ROOT
+    steps = yaml.safe_load((root / ".github/workflows/deploy-engine.yml").read_text())["jobs"]["deploy"][
+        "steps"
+    ]
+    runs = [s.get("run", "") for s in steps]
+    papers = [i for i, r in enumerate(runs) if "engine legacy paper" in r]
+    assert (
+        len(papers) == 1
+        and "/app/supabase/seed/papers/*.json" in runs[papers[0]]
+        and "|| exit 1" in runs[papers[0]]
+    )
+    assert papers[0] > next(i for i, r in enumerate(runs) if "docker compose" in r), (
+        "after the engine is on the new code"
+    )
+    assert "../supabase/seed:/app/supabase/seed:ro" in (root / "deploy/compose.server.yml").read_text()

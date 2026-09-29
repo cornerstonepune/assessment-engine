@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-29 — question 5: a split that adds up is right (goal s24, ADR 0043)
+
+Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B ("638 = 600 + [19] + [19]", both
+"wrong · with working"): "this question's right answer is 19 and 19, but its showing wrong - need to correct it".
+- **Built:** `assess/equation.py` (a paper's `holds` read, refused unless its own key makes it true; a box right when
+  its side comes out at the total) and `marking.correct` marking an equation's boxes together from people's readings
+  and the engine's settled ones. Question 5 of G3-SEPW1-A, G3-SEPW1-B and G4-SEPW1 names its equations: 26 boxes.
+- **Found and fixed at the cause:** the loader filed nine sums on their files' old rungs (R8, R11) where `bank rehome`
+  files them (R22, R24, R26); `update-live` only hid it by running rehome last. The loader now files a sum by its shape
+  first, so every deploy can enter each paper again (`deploy-engine.yml`), with nothing to rehome after.
+- **`marking.py` split at its ceiling:** naming a wrong answer's mistake is `w3_read/naming.py` (`naming.unnamed`,
+  `naming.name_mistake`; the routes and tests follow).
+- **Owed after merge:** the deploy enters the papers; then press Save on one box of each question 5 equation that
+  shows a right split as wrong and is not signed off. Signed-off answers stay as signed (rule 4).
+- **Open, for Nimish and the school:** STATE.md (2026-09-17) called this very 600 + 19 + 19 "a wrong method reaching a
+  right answer … the diagnostic signal the product exists to find". Marked right, it is not recorded. ADR 0043 lists
+  the three ways; any split is what is built.
+
 ## 2026-09-29 — Jev: the three uses proven on live; the parent report's checker reads with Jev first (goals j4, j5)
 
 Nimish asked where Jev is integrated, then: "I really want to integrate Jev as much as possible in all the use cases to
