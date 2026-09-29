@@ -105,6 +105,13 @@ def graph_(
     typer.echo(f"  {n} states · {questions} questions with confirmed answers")
 
 
+def _unanswered(r, n):
+    """A Jev eval Jev did not answer fails and says why: with no key it used to score as nothing chosen, and pass."""
+    if r["unanswered"]:
+        typer.echo(f"JEV  not answered on {r['unanswered']} of {n}: {r['error']}", err=True)
+        raise typer.Exit(1)
+
+
 @app.command("eval")
 def eval_(
     purpose: str,
@@ -115,6 +122,11 @@ def eval_(
     ),
     review_version: int = typer.Option(
         0, "--review-version", help="parent_report: the parent_review version that reads each draft"
+    ),
+    jev_version: int = typer.Option(
+        0,
+        "--jev-version",
+        help="parent_review: the version of Jev's three questions that reads first (0: none)",
     ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
@@ -137,7 +149,7 @@ def eval_(
     if purpose == parent_review.PURPOSE:
         with db.connect() as conn:
             try:
-                r = parent_review.evaluate(conn, version or None)
+                r = parent_review.evaluate(conn, version or None, jev_version=jev_version or None)
             except LLMError as e:
                 conn.commit()
                 typer.echo(f"MODEL  {e}", err=True)
@@ -145,9 +157,11 @@ def eval_(
             conn.commit()
         typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
         typer.echo(
-            f"parent_review v{version or 'active'}: {r['caught']}/{r['bad']} wrong sentences caught,"
-            f" {r['false_flags']} flagged that were right, over {r['n']} drafts"
+            f"parent_review v{version or '-'}, Jev v{jev_version or '-'}: {r['caught']}/{r['bad']} wrong sentences"
+            f" caught, {r['false_flags']} flagged that were right, over {r['n']} drafts ({r['by_code']} by code first)"
+            f" · the model read {r['read_by_model']} of {r['sentences']} sentences"
         )
+        _unanswered(r, r["n"])
         raise typer.Exit(0 if r["bad"] and r["caught"] == r["bad"] and not r["false_flags"] else 1)
     if purpose == spec.MISCONCEPTION_PROMPT:
         with db.connect() as conn:
@@ -198,6 +212,7 @@ def eval_(
             f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
             f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
         )
+        _unanswered(r, r["n"])
         return
 
     if purpose == mistake_guess.PURPOSE:
@@ -208,6 +223,7 @@ def eval_(
             f"  {purpose}: the right mistake first {r['first']}/{r['cases']}, among the three {r['listed']}/{r['cases']}"
             f" · slips called NONE {r['slips_none']}/{r['slips']} · slips given a mistake {r['false_named']}"
         )
+        _unanswered(r, r["cases"])
         return
 
     if purpose == "week_skills":
@@ -222,6 +238,7 @@ def eval_(
             f"  {purpose}: the exact skill sets on {r['exact']}/{r['n']} notes · precision {r['precision']}"
             f" · recall {r['recall']}"
         )
+        _unanswered(r, r["n"])
         return
 
     if purpose in review.REVIEWERS:

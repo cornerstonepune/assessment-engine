@@ -3,6 +3,60 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-29 — question 5: a split that adds up is right (goal s24, ADR 0043)
+
+Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B ("638 = 600 + [19] + [19]", both
+"wrong · with working"): "this question's right answer is 19 and 19, but its showing wrong - need to correct it".
+- **Built:** `assess/equation.py` (a paper's `holds` read, refused unless its own key makes it true; a box right when
+  its side comes out at the total) and `marking.correct` marking an equation's boxes together from people's readings
+  and the engine's settled ones. Question 5 of G3-SEPW1-A, G3-SEPW1-B and G4-SEPW1 names its equations: 26 boxes.
+- **Found and fixed at the cause:** the loader filed nine sums on their files' old rungs (R8, R11) where `bank rehome`
+  files them (R22, R24, R26); `update-live` only hid it by running rehome last. The loader now files a sum by its shape
+  first, so every deploy can enter each paper again (`deploy-engine.yml`), with nothing to rehome after.
+- **`marking.py` split at its ceiling:** naming a wrong answer's mistake is `w3_read/naming.py` (`naming.unnamed`,
+  `naming.name_mistake`; the routes and tests follow).
+- **Owed after merge:** the deploy enters the papers; then press Save on each box of each question 5 equation that
+  shows a right split as wrong. A signed-off box is corrected by its own Save, its evidence with it (#131).
+- **Merged main into the branch** (#130: CI tests against `bin/testdb fresh`; #131: a signed-off answer can be
+  corrected). #131 took migration version 20261015090000, so this branch's `prompt.effort` migration is now
+  20261016090000 — with the same version, `migrate live` would have counted it applied and skipped it.
+- **Open, for Nimish and the school:** STATE.md (2026-09-17) called this very 600 + 19 + 19 "a wrong method reaching a
+  right answer … the diagnostic signal the product exists to find". Marked right, it is not recorded. ADR 0043 lists
+  the three ways; any split is what is built.
+- **Found on live, not this work's:** `engine live data` → `paper CS57B729: 12 answers counted for 12 questions
+  printed, 6 counted twice` (rehearse update-live run 36547703784, before any step ran). Two live captures of one sheet
+  carry results for the same six questions; Marking shows them twice. Which capture to supersede is a person's call.
+
+## 2026-09-29 — Jev: the three uses proven on live; the parent report's checker reads with Jev first (goals j4, j5)
+
+Nimish asked where Jev is integrated, then: "I really want to integrate Jev as much as possible in all the use cases to
+make it efficient, cost-light" and, on the order recommended (code first, Jev on every judgement, the model only on
+what Jev is unsure of, a person signing off), "with everything you have said (no except)". The order: (1) the built uses
+proven live, (2) the parent report's checker, (3) skill matching, (4) the template reviewers.
+- **Done, step 1 (goal j4):** the server has `TYPESAFE_API_KEY` (engine logs now say so, never the value); the eval
+  workflow offers every Jev decision; an eval Jev cannot answer fails and says why. Live: week_skills 21/24,
+  story_shape 63/65 with 0 wrong keys, mistake_guess 108/120 among three with 0 slips named (runs in STATE.md).
+- **Built, step 2 (goal j5), switched off:** `w4_close/parent_review.py` — code's check (now also what coins make), then
+  Jev per sentence with only its facts (`parent_review.claims|mistakes|home` v1), then the model on the unsure band
+  (`review.jev_wrong_below` 0.1 / `review.jev_sure_above` 0.5). Gold, code then Jev: 12/14, 0 wrong, the model to read
+  49 of 310 sentences; the two misses (r1, e10) are in the unsure band.
+- **Haiku alone was scored and failed at its cause** (run 36520653494: 10/14, 71 right sentences flagged, 65 of them
+  a skill line under the draft's `can_do` read as "secure"). Fixed in what the reader is given, not by a bigger model:
+  skill lines are asked of Jev as lines about their skill set (`parent_review.skills` v1) and handed to the model as
+  `skill_lines`; code then Jev is 12/14, 0 wrong, with 16 of 310 sentences left to the model.
+- **Effort per prompt row** (migration 20261016090000, `prompt.effort`, sent to the row's own model only); the
+  settings loaders split into `core/settings.py` (the loader stood at its frozen ceiling; now 413).
+- **Owed after merge (the session can run it: Actions from any branch):** engine eval → parent_review, jev_version 1,
+  version 3 (Haiku 4.5), 4 (Sonnet 5.5, low) and 5 (Opus 5.5, low), one at a time (the server's memory). The cheapest
+  at 14/14 and 0 flagged wrongly: set it and the four Jev rows `active` in the seed, with the runs in DECISIONS-LOG.
+  None there: fix at the cause (a question Jev asks, the reader's instructions, or code), never lower a bar.
+- **Next:** step 3, skill matching — a gold of outside questions whose skill a person confirmed first; step 4, the
+  reviewers — grow their 6-case golds to ~40 first.
+- **A local database without Docker** (this container had no Docker daemon): Postgres 16's binaries, `initdb` as the
+  `postgres` user under /var/tmp, port 55432, roles anon/authenticated/service_role, every migration in order,
+  `engine load`; then `TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres`. 75 DB tests fail on
+  seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
+
 
 ## 2026-09-29 — a signed-off answer can be corrected
 

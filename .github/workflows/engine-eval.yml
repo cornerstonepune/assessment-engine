@@ -9,15 +9,19 @@ on:
       purpose:
         description: "the prompt to score"
         type: choice
-        options: [parent_report, parent_review]
+        options: [parent_report, parent_review, mistake_guess, story_shape, week_skills]
       version:
-        description: "its version, active or not"
+        description: "its version, active or not (Jev's decisions score their active version)"
         type: choice
         options: ["12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
       review_version:
         description: "parent_report only: the parent_review version that reads each draft"
         type: choice
-        options: ["2", "1"]
+        options: ["5", "4", "3", "2", "1"]
+      jev_version:
+        description: "parent_review only: the version of Jev's three questions that read each sentence first (0: none)"
+        type: choice
+        options: ["1", "0"]
 
 permissions:
   contents: read
@@ -42,6 +46,7 @@ jobs:
           PURPOSE: "${{ inputs.purpose }}"
           VERSION: "${{ inputs.version }}"
           REVIEW: "${{ inputs.review_version }}"
+          JEV: "${{ inputs.jev_version }}"
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
-          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW"
+          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW --jev-version $JEV"

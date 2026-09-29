@@ -136,3 +136,17 @@ def test_a_key_computed_for_a_story_that_is_not_one_step_is_counted_wrong(conn):
 def test_each_shape_is_shown_with_every_one_of_the_engines_stories_of_it(conn):
     constraint = S.shapes(conn)["CONSTRAINT"][1]
     assert "I think of a number" in constraint and "Two numbers add up to" in constraint
+
+
+@DB
+def test_an_eval_jev_cannot_answer_says_so_and_is_not_a_story_left_for_a_person(conn):
+    """A story Jev could not be asked about is not one it was unsure of: before, both were "left", so the eval with no
+    key said "left for a person 65" and passed."""
+
+    def down(*a):
+        raise jev.JevError("no TYPESAFE_API_KEY in the engine's environment: Jev cannot be asked")
+
+    stories = [{"shape": "JOIN_CHANGE", "text": "Zoya had 28 bangles and now has 45. How many did she get?"}]
+    got = S.evaluate(conn, stories, down)
+    assert (got["n"], got["unanswered"], got["left"], got["named"]) == (1, 1, 0, 0)
+    assert "TYPESAFE_API_KEY" in got["error"]

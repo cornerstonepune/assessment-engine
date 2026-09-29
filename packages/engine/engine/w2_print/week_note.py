@@ -92,9 +92,14 @@ def evaluate(conn, ask=None, gold=None):
     """Jev against the gold notes: precision and recall of the ticked skill sets, and how many notes it got exactly."""
     gold = gold if gold is not None else json.loads(GOLD.read_text(encoding="utf-8"))["notes"]
     tp = fp = fn = exact = 0
-    misses = []
+    misses, failed = [], []
+    asking = jev.counting(ask or jev.decide_yes_no, failed)
     for g in gold:
-        got = {r["code"] for r in propose(conn, g["band"], g["note"], ask)["skill_sets"] if r["ticked"]}
+        before = len(failed)
+        proposed = propose(conn, g["band"], g["note"], asking)
+        if len(failed) > before:  # not asked is not "nothing ticked"
+            continue
+        got = {r["code"] for r in proposed["skill_sets"] if r["ticked"]}
         want = set(g["skill_sets"])
         tp, fp, fn = tp + len(got & want), fp + len(got - want), fn + len(want - got)
         exact += got == want
@@ -106,4 +111,6 @@ def evaluate(conn, ask=None, gold=None):
         "precision": round(tp / max(1, tp + fp), 3),
         "recall": round(tp / max(1, tp + fn), 3),
         "misses": misses,
+        "unanswered": len(failed),
+        "error": failed[0] if failed else "",
     }

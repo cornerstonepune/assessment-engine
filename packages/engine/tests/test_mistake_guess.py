@@ -1,6 +1,7 @@
 """A wrong answer no named mistake explains gets Jev's shortlist (`w1_bank/mistake_guess.py`, goals/j1-jev-mistakes.yaml).
 Code names every mistake it can reproduce exactly; Jev is asked only about the rest, and only ever proposes."""
 
+from engine.adapters import jev
 from engine.w1_bank import mistake_guess
 
 
@@ -62,3 +63,15 @@ def test_the_gold_is_built_from_code_each_case_one_named_mistake_or_a_slip_none_
 
         made = {code for code, v in M.predict(c["op"], c["a"], c["b"]).items() if v == c["wrote"]}
         assert made == ({c["want"]} if c["want"] != mistake_guess.NONE else set())
+
+
+def test_an_eval_jev_cannot_answer_says_so_and_scores_nothing():
+    """Nimish, 2026-09-29: "The key is already there, but tell me where you want me to put it." Without the key every
+    case failed with a traceback; now the eval counts what Jev did not answer and says why, and the command fails."""
+
+    def down(*a):
+        raise jev.JevError("no TYPESAFE_API_KEY in the engine's environment: Jev cannot be asked")
+
+    got = mistake_guess.evaluate(None, mistake_guess.gold(seed=3, named=4, slips=2), ask=down)
+    assert (got["cases"], got["unanswered"], got["listed"], got["first"]) == (6, 6, 0, 0)
+    assert "TYPESAFE_API_KEY" in got["error"]

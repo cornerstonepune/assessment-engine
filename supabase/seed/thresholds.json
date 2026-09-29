@@ -187,6 +187,18 @@
    "value": 0.6,
    "unit": "probability",
    "description": "A story's shape Jev is at least this sure of is taken; below it a person names it (goals/j3-story-shape.yaml)"
+  },
+  {
+   "key": "review.jev_wrong_below",
+   "value": 0.1,
+   "unit": "probability",
+   "description": "A parent report's sentence Jev gives less than this chance of following from its facts goes back to the writer (goals/j5-parent-review-jev.yaml)"
+  },
+  {
+   "key": "review.jev_sure_above",
+   "value": 0.5,
+   "unit": "probability",
+   "description": "A parent report's sentence Jev gives at least this chance passes; between the two bars the model reads it (goals/j5-parent-review-jev.yaml)"
   }
  ]
 }

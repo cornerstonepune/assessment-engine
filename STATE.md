@@ -3683,3 +3683,73 @@ deploys.
   - **The prompt is not active yet.** Rule 7 requires a score first: run the `engine eval` workflow on the server.
 - **Found:** `parent_note` v1 sent the child's first name to the model (rule 6) and had no eval (rule 7). It is now
   inactive; `parent_report` replaces it.
+
+## Jev on the server, and the parent-report checker reads with Jev first (2026-09-29, goals j4, j5)
+
+- **The engine on the server has Jev's key.** Actions → engine logs (run 36519464404, from this branch):
+  `TYPESAFE_API_KEY is set`. The key lives in `~/assessment-engine/.env` on the server; every deploy carries it across.
+- **Each of Jev's three uses, scored where it runs** (Actions → engine eval, from this branch, the server's code):
+  - `week_skills` (run 36519649576): `the exact skill sets on 21/24 notes · precision 0.935 · recall 0.967`
+  - `story_shape` (run 36519781611): `named 65/65, the shape right on 63 · one-step answers computed 44, wrong 0 ·
+    left for a person 0`
+  - `mistake_guess` (run 36519894157): `the right mistake first 66/120, among the three 108/120 · slips called NONE
+    30/30 · slips given a mistake 0` (goal j1's bar: 90 of 120 among three, no slip named — held)
+- **An eval Jev cannot answer fails and names why** (before: `week_skills … 0/24` and exit 0 with no key):
+  `pytest tests/test_cli.py -k jev_eval` → 3 passed; each eval counts `unanswered` (`jev.counting`).
+- **What coins make is code's** (`parent_check._coins`): `pytest tests/test_parent_report.py -k coins` → passed; no
+  draft of the gold a person found right is refused.
+- **The parent-report checker, code then Jev, on its gold set** (21 drafts, 14 wrong sentences; local copy, real Jev):
+  `bin/engine eval parent_review --jev-version 1` → `12/14 wrong sentences caught, 0 flagged that were right, over 21
+  drafts (5 by code first) · the model read 0 of 310 sentences`; exit 1 (below the bar). Jev was unsure of 49 of the
+  310 sentences, both misses among them (r1 0.27–0.28, e10 0.21–0.22 over two runs).
+- **Not yet verified:** the whole chain with the model (`parent_review` v2, Haiku) reading those 49 — its key is on the
+  server only. Owed after merge: Actions → engine eval → parent_review, version 2, jev_version 1. Nothing is switched on
+  until it catches 14 of 14 with none flagged wrongly (rule 7); until then `review()` reads nothing, as before.
+- **The checker's model reads only what Jev leaves it, under names that claim nothing** (goal j5, later the same day):
+  - Haiku alone on whole drafts (parent_review v2, Actions run 36520653494 on the server): `10/14 wrong sentences
+    caught, 71 flagged that were right` — 65 of the 71 were one misreading: every skill set's line sits under the
+    draft's `can_do`, and in the facts `can_do` means secure, so a line for a nearly secure skill set read as a claim.
+  - Skill lines are now asked of Jev as lines about their skill set (`parent_review.skills` v1) and given to the model
+    as `skill_lines`. Code then Jev (local copy, real Jev): `bin/engine eval parent_review --jev-version 1` →
+    `12/14 wrong sentences caught, 0 flagged that were right, over 21 drafts (5 by code first)`; Jev unsure of 16 of
+    310 sentences (49 before the skills question), both misses among them (e10 0.20, r1 0.30).
+  - A prompt row names how hard its model thinks (migration 20261016090000, `prompt.effort`); `llm._call_anthropic`
+    sends `output_config.effort` to the row's own model, never a fallback: `pytest tests/test_llm.py -k effort` and
+    `pytest tests/test_loaders.py -k effort` → passed.
+  - The settings loaders (prompts, thresholds, config) are their own module, `core/settings.py`; `loaders.py` 468 →
+    413 lines and its frozen ceiling lowered to match.
+  - **Not yet verified:** parent_review v3 (Haiku 4.5), v4 (Sonnet 5.5, low effort), v5 (Opus 5.5, low effort) on the
+    server, each with jev_version 1 — after merge, when the migration and the seed are live.
+
+## S24 — question 5: a split that adds up is right (goal s24-a-split-that-holds-is-right, ADR 0043, 2026-09-29)
+
+- **An equation's boxes are marked by the equation** (`assess/equation.py`, `marking.correct`): 600 + 19 + 19 is right
+  for "638 = 600 + [ ] + [ ]", as 30 and 8 are; each side is its own claim (1100 + 0 + 13 right beside a total of 1112).
+  `pytest tests/test_equation.py tests/test_legacy.py tests/api/test_capture_routes.py` (local copy) → `77 passed`.
+- **Every equation the school's papers name is one their own key makes true:** 26 boxes in eight equations, question 5
+  of G3-SEPW1-A, G3-SEPW1-B, G4-SEPW1; a paper whose key does not make its equation true is refused when entered.
+- **Every seed paper enters where `bank rehome` files it** (local copy, all 17 papers entered in one transaction, rolled
+  back): `rehome._old_papers` → 0 sums to move; 9 before the loader filed a sum by its shape first (G2-CAM-A 7b R11 →
+  R26; G2-WORD-SEP17 1-3, 5-8, 10 R8 → R22/R24). Pinned: `test_every_paper_is_entered_where_bank_rehome_files_it…`
+  fails with `assert 9 == 0` on the old rule.
+- **Every deploy enters each paper again** (`deploy-engine.yml`, after the engine is up; a paper that cannot be entered
+  fails the deploy): `test_a_deploy_enters_every_paper_again_as_its_file_now_says` → passed.
+- **`marking.py` 397 → 326 lines:** naming a wrong answer's mistake moved to `w3_read/naming.py`. `bin/check` →
+  `13 passed`, lint and format clean.
+- **Whole suite, local copy:** 115 failed or errored on the branch; 113 of them fail identically on main (seed data and
+  models this container lacks). The other two were the capture routes' tests patching the moved functions by their old
+  module; fixed, `tests/api/test_capture_routes.py` → `12 passed`.
+- **On a copy of live** (Actions → rehearse update-live, run 36547703784, from this branch): every seed paper entered
+  with the new loader, then `bank rehome` → `moved 0 questions · 0 old papers' sums onto their skill`; relabel 0
+  changed, `3010 worksheets · 102 of 102 skill-levels ready · 0 problems`, `233 states · 359 questions with confirmed
+  answers`. The run's last check failed on two lines already failing before any step ran, on live's own rows:
+  this branch's migration 20261016090000 not yet on live (applied on merge), and `paper CS57B729: 12 answers counted
+  for 12 questions printed, 6 counted twice` — two live captures of one sheet with results for the same six
+  questions. Pre-existing, not this work's; it waits for a person to say which capture is superseded.
+- **With main merged (#130, #131), on a database built as CI builds it** (`bin/testdb fresh`, 45 migrations, local
+  Postgres 16): `pytest tests/test_equation.py tests/test_legacy.py tests/api/test_capture_routes.py
+  tests/test_loaders.py tests/test_layout.py tests/test_promises.py` → all passed, including
+  `test_a_signed_off_equation_is_put_right_one_saved_box_at_a_time` (a signed-off box marked again by its own Save,
+  its evidence with it; a signed-off partner untouched until saved).
+- **Not yet verified:** on live. After merge the deploy enters the papers; then each box of each question 5 equation
+  still marked wrong is saved again.

@@ -7,6 +7,7 @@ exists, takes the arguments the documentation and the goal files claim, and fail
 than silently when given something wrong. They do not re-test the logic underneath.
 """
 
+import os
 import re
 
 import pytest
@@ -115,3 +116,14 @@ def test_a_next_paper_prints_only_with_the_person_who_approves_it_named():
     """`week focus --make` is an approval (BUILD-ORDER, U2): without --by it refuses before touching the database."""
     r = run("week", "focus", "G2", "Asha", "2026-W39", "--make")
     assert r.exit_code != 0 and "--by" in r.output_plain
+
+
+@pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+@pytest.mark.parametrize("purpose", ["mistake_guess", "story_shape", "week_skills"])
+def test_a_jev_eval_jev_cannot_answer_fails_and_says_why(purpose, monkeypatch):
+    """With no key, `engine eval week_skills` said "the exact skill sets on 0/24 notes" and exited 0, and so did
+    story_shape ("left for a person 65"): a missing key looked like a poor score. It is an error, named."""
+    monkeypatch.setenv("TYPESAFE_API_KEY", "")
+    r = run("eval", purpose)
+    assert r.exit_code == 1, r.output_plain
+    assert "not answered" in r.output_plain and "TYPESAFE_API_KEY" in r.output_plain

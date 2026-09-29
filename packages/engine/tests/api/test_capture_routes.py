@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from engine.api import deps
 from engine.api.app import app
 from engine.core import db
-from engine.w3_read import legacy, marking
+from engine.w3_read import legacy, marking, naming
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -205,7 +205,7 @@ def test_a_papers_unexplained_wrong_answers_come_with_jevs_shortlist(client, mon
     listed = {
         "r1": {"answer": "93", "shortlist": [["NONE", 0.7]], "options": ["M_NOCARRY", "NONE"], "why": ""}
     }
-    monkeypatch.setattr(marking, "unnamed", lambda conn, capture_id: seen.append(capture_id) or listed)
+    monkeypatch.setattr(naming, "unnamed", lambda conn, capture_id: seen.append(capture_id) or listed)
     r = client.get("/capture/cap-1/mistakes", headers=HEADERS)
     assert r.status_code == 200 and r.json() == listed and seen == ["cap-1"]
     assert client.get("/capture/cap-1/mistakes").status_code == 401
@@ -220,7 +220,7 @@ def test_a_person_names_a_mistake_and_a_refusal_says_why(client, monkeypatch):
             raise ValueError("'M_SMALL_FROM_LARGE' is not a named mistake of '+', nor NONE")
         return {"code": code, "answer": "93"}
 
-    monkeypatch.setattr(marking, "name_mistake", name)
+    monkeypatch.setattr(naming, "name_mistake", name)
     body = {"result_id": "r1", "code": "M_CARRY_SKIP", "by": "aseem", "proposed": [["M_CARRY_SKIP", 0.5]]}
     r = client.post("/capture/mistake", headers=HEADERS, json=body)
     assert r.status_code == 200 and r.json() == {"code": "M_CARRY_SKIP", "answer": "93"}

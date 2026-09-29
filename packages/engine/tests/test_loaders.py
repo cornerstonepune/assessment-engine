@@ -13,7 +13,7 @@ import pathlib
 
 import pytest
 
-from engine.core import db, loaders
+from engine.core import db, loaders, settings
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -57,7 +57,7 @@ def test_load_config_keeps_a_password_set_in_the_app():
         staff[0]["password"] = "scrypt$test$hash"
         conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
 
-        loaders._config(conn, tenant)
+        settings.load_config(conn, tenant)
 
         after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
         assert after[0].get("password") == "scrypt$test$hash", "loading the seed took a password away"
@@ -176,3 +176,16 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
         layouts = conn.execute("select value from config where key = 'render.layouts'").fetchone()["value"]
         assert [x["name"] for x in layouts] == ["2026-09-21", "2026-09-23-L3", "2026-09-24"]
         assert conn.execute("select 1 from prompt where purpose = 'mistake_guess' and active").fetchone()
+
+
+def test_a_prompt_row_keeps_the_effort_its_seed_names():
+    """Nimish, 2026-09-29: "yes, go ahead with all three". A row names how hard its model thinks (migration
+    20261016090000); the loader carries it, and a row that names none keeps the model's own default."""
+    with db.connect() as conn:
+        settings.load_prompts(conn, loaders._tenant(conn))
+        rows = conn.execute(
+            "select version, effort from prompt where purpose = 'parent_review' and version in (3, 4, 5)"
+        ).fetchall()
+        got = {r["version"]: r["effort"] for r in rows}
+        conn.rollback()
+    assert got == {3: None, 4: "low", 5: "low"}

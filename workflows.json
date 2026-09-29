@@ -110,7 +110,7 @@
       "built": "live",
       "takes": ["capture", "item"],
       "gives": ["item_result", "read_correction", "child_reading_profile"],
-      "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/marking.py", "engine/w3_read/profiles.py", "engine/w3_read/crops.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
+      "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/marking.py", "engine/w3_read/naming.py", "engine/w3_read/profiles.py", "engine/w3_read/crops.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
       "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval"],
       "screens": ["/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
       "subject": {"any": false, "note": "The loop — notebook, trust per kind, a person's check — is any subject's. The reader reads numbers only, and marking is a lookup against computed answers: a subject answered in words would reach a person every time."}
@@ -168,7 +168,7 @@
     {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/inventory.py", "why": "A paper chosen from a child's graph is drawn from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."},
     {"from": "engine/w3_read/sorting.py", "to": "engine/w2_print/library.py", "why": "A scanned library worksheet is counted off in copies as long as the worksheet prints."},
-    {"from": "engine/w3_read/marking.py", "to": "engine/w1_bank/mistake_guess.py", "why": "A wrong answer no named mistake explains is named by a person from the bank's named mistakes, Jev's shortlist first (ADR 0036)."},
+    {"from": "engine/w3_read/naming.py", "to": "engine/w1_bank/mistake_guess.py", "why": "A wrong answer no named mistake explains is named by a person from the bank's named mistakes, Jev's shortlist first (ADR 0036)."},
     {"from": "engine/w3_read/marking.py", "to": "engine/w1_bank/learned.py", "why": "A wrong answer is recognised as a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)."},
     {"from": "engine/w3_read/copies.py", "to": "engine/w2_print/library.py", "why": "A library worksheet copy is read against the page the worksheet prints: its questions' words, their pages, the name band."}
   ],
@@ -178,7 +178,7 @@
       "engine/adapters/ocr.py": 1002,
       "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 579,
-      "engine/core/loaders.py": 468,
+      "engine/core/loaders.py": 413,
       "engine/assess/misconceptions.py": 500,
       "engine/assess/mark.py": 417
     }

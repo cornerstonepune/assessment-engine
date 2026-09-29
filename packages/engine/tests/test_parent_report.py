@@ -651,3 +651,27 @@ def test_reports_are_written_one_at_a_time_so_the_pooler_never_runs_out(monkeypa
     for t in threads:
         t.join()
     assert most[0] == 1
+
+
+def test_what_coins_make_is_arithmetic_and_code_holds_it():
+    """Nimish, on code first, Jev on the judgements, the model on what Jev is unsure of: "with everything you have said
+    (no except)". v12 on live: "Make a three-digit number with coins (for example, three ten-rupee notes and five
+    one-rupee coins)" — thirty-five. Jev was 0.75 sure that was fine; what coins make is arithmetic, and code's."""
+    gold = json.loads((db.REPO_ROOT / "supabase/seed/parent_review_gold.json").read_text())["cases"]
+    r2 = next(c for c in gold if c["ref"] == "r2")
+    assert any("coins" in p and "35" in p for p in P.check(r2["facts"], r2["draft"]))
+    for c in gold:  # nothing a person read and found right is refused
+        if not c["bad"]:
+            assert P.check(c["facts"], c["draft"]) == [], c["ref"]
+    ok = next(c for c in gold if not c["bad"])
+
+    def said(line):
+        return P.check(ok["facts"], {**ok["draft"], "at_home": [line]})
+
+    assert said("Make a two-digit number with coins: three ten-rupee coins and five one-rupee coins.") == []
+    assert any(
+        "46" in p
+        for p in said("Make a three-digit number with four ten-rupee coins and six one-rupee coins.")
+    )
+    assert any("coins" in p for p in said("Make seven with one ten-rupee coin and two one-rupee coins."))
+    assert said("Use one-rupee coins and ten-rupee coins to show numbers, and swap ten ones for a ten.") == []

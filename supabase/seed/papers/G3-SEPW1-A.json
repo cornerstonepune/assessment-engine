@@ -114,7 +114,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 30,
-      "question": "638 = 600 +"
+      "question": "638 = 600 +",
+      "holds": "638 = 600 + {5a} + {5b}"
     },
     {
       "n": 5,
@@ -123,7 +124,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 8,
-      "question": "638 = 600 +"
+      "question": "638 = 600 +",
+      "holds": "638 = 600 + {5a} + {5b}"
     },
     {
       "n": 5,
@@ -132,7 +134,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 400,
-      "question": "475 ="
+      "question": "475 =",
+      "holds": "475 = {5c} + {5d} + {5e}"
     },
     {
       "n": 5,
@@ -141,7 +144,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 70,
-      "question": "475 ="
+      "question": "475 =",
+      "holds": "475 = {5c} + {5d} + {5e}"
     },
     {
       "n": 5,
@@ -150,7 +154,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 5,
-      "question": "475 ="
+      "question": "475 =",
+      "holds": "475 = {5c} + {5d} + {5e}"
     },
     {
       "n": 5,
@@ -159,7 +164,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 1000,
-      "question": "total ="
+      "question": "total =",
+      "holds": "638 + 475 = {5f} + {5g} + {5h} = {5i}"
     },
     {
       "n": 5,
@@ -168,7 +174,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 100,
-      "question": "total ="
+      "question": "total =",
+      "holds": "638 + 475 = {5f} + {5g} + {5h} = {5i}"
     },
     {
       "n": 5,
@@ -177,7 +184,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 13,
-      "question": "total ="
+      "question": "total =",
+      "holds": "638 + 475 = {5f} + {5g} + {5h} = {5i}"
     },
     {
       "n": 5,
@@ -186,7 +194,8 @@
       "kind": "missing",
       "rung": "R27",
       "answer": 1113,
-      "question": "total ="
+      "question": "total =",
+      "holds": "638 + 475 = {5f} + {5g} + {5h} = {5i}"
     },
     {
       "n": 6,

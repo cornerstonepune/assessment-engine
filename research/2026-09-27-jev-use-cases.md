@@ -35,3 +35,24 @@ large model or to a person, wherever it matches or beats that on a gold set (rul
 | 8 | Is this reading right (reader's words, key, the child's history) | a person checks | only after step 2's checks measure it: a model that knows arithmetic leans to the right answer (ADR 0019) |
 
 Children's data: only question text, numbers and codes are sent; never a name or an image (rule 6).
+
+## Where each use stands (2026-09-29, after Nimish: "I really want to integrate Jev as much as possible in all the use cases")
+
+The rule agreed the same day: code does what it can compute; Jev reads first wherever a judgement is made; the model
+reads only what Jev is unsure of; a person signs off. Every use is scored on the server (goals/j4-jev-live.yaml).
+
+| Use | Status | Where | Score |
+|---|---|---|---|
+| 1 · the week's note → skill sets (N4) | built, live | `w2_print/week_note.py`, `/make/[section]/week` | 21/24 exact on live |
+| 2 · a question → its skill | half: stories only | `w1_bank/story_shape.py` (no screen); `skill_match` still the model | 63/65 shapes on live |
+| 3 · an unexplained wrong answer → named mistakes | built, live | `w1_bank/mistake_guess.py`, Marking | 108/120 among three on live |
+| new · the parent report's checker, sentence by sentence | built, off until scored | `w4_close/parent_review.py` | code + Jev 12/14, 0 wrong; 16 of 310 sentences to the model (gold) |
+| 5 · the reviewers of a question template | next, after the gold grows | `w1_bank/review.py` | gold is 6 cases each |
+| 6 · a parent note from sentences the school writes once | Aseem's call; mostly code, not Jev | — | — |
+| 4 · the working's method | blocked: the working is measured as ink, never read as text | `w3_read/boxes.py` | — |
+| 7 · near-duplicates | only for outside questions; the bank's own are caught by code | `w1_bank/bank.py` | — |
+| 8 · is this reading right | dropped: a model shown the key leans to "right" (ADR 0019) | — | — |
+
+Not Jev at all, and why: the five prompts that read an image (Jev reads none) and the five that write text (Jev writes
+none). Reading scans is probably the largest spend and only the digit reader (step 3) reduces it — to be checked
+against `flow_run.cost_inr` by flow on the server.

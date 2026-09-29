@@ -153,9 +153,13 @@ def evaluate(conn, stories=None, ask=None):
     key); how many it leaves for a person."""
     stories = stories if stories is not None else gold()
     named = right = keyed = wrong_answer = left = 0
-    misses = []
+    misses, failed = [], []
+    asking = jev.counting(ask or jev.decide, failed)
     for g in stories:
-        got = name(conn, g["text"], ask)
+        before = len(failed)
+        got = name(conn, g["text"], asking)
+        if len(failed) > before:  # Jev not answering is not Jev unsure: nobody was asked
+            continue
         if got["shape"] is None:
             left += 1
             misses.append({"text": g["text"], "want": g["shape"], "got": None, "why": got["why"]})
@@ -175,4 +179,6 @@ def evaluate(conn, stories=None, ask=None):
         "keyed": keyed,
         "wrong_answer": wrong_answer,
         "misses": misses,
+        "unanswered": len(failed),
+        "error": failed[0] if failed else "",
     }
