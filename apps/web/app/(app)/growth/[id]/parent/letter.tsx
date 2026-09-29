@@ -46,6 +46,7 @@ export type Note = {
   facts: Facts;
   draft: Draft;
   approved_by: string | null;
+  edited_by?: string | null;
   approved_at: string | null;
   written_at: string;
   stale: boolean;

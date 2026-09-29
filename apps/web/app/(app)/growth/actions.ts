@@ -82,3 +82,50 @@ export async function approveParentReport(formData: FormData): Promise<void> {
     `/growth/${id}/parent${r?.ok ? "?approved=1" : `?error=${r?.status ?? "down"}`}`,
   );
 }
+
+/** An educator's own words become the report: the draft's every part, the child's name turned back into [child] so
+ *  no name is stored (rule 6), held by the engine to the same facts as the model's words. */
+export async function editParentReport(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("child_id") ?? "");
+  const note = String(formData.get("note_id") ?? "");
+  if (!UUID.test(id) || !UUID.test(note)) redirect("/growth");
+  const name = String(formData.get("name") ?? "").trim();
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const named = name ? new RegExp(`\\b${escaped}\\b`, "g") : null;
+  const back = (v: FormDataEntryValue | null | undefined) =>
+    (named
+      ? String(v ?? "").replace(named, "[child]")
+      : String(v ?? "")
+    ).trim();
+  const all = (k: string) => formData.getAll(k);
+  const draft = {
+    summary: back(formData.get("summary")),
+    can_do: all("can_do_id").map((c, i) => ({
+      id: String(c),
+      sentence: back(all("can_do_text")[i]),
+    })),
+    working_on: all("working_id").map((w, i) => ({
+      id: String(w),
+      explanation: back(all("working_text")[i]),
+    })),
+    at_home: all("at_home").map(back).filter(Boolean),
+  };
+  const r = await engineSend(`/child/${id}/parent-report/${note}/edit`, {
+    by: me.email,
+    draft,
+  }).catch(() => null);
+  revalidatePath(`/growth/${id}/parent`);
+  if (r?.ok) redirect(`/growth/${id}/parent?edited=1`);
+  const problems =
+    r?.status === 422
+      ? ((
+          (await r.json().catch(() => null)) as {
+            detail?: { problems?: string[] };
+          } | null
+        )?.detail?.problems ?? [])
+      : [];
+  redirect(
+    `/growth/${id}/parent?edit=1&${problems.length ? `problems=${encodeURIComponent(problems.slice(0, 5).join("\n"))}` : `error=${r?.status ?? "down"}`}`,
+  );
+}

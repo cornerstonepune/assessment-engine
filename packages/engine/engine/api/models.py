@@ -171,6 +171,11 @@ class BankReviewResponse(BaseModel):
     already: bool = False
 
 
+class ParentReportEdit(BaseModel):
+    by: str
+    draft: dict
+
+
 class RunResponse(BaseModel):
     id: str
     flow: str

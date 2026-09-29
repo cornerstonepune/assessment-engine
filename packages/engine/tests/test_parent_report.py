@@ -574,7 +574,7 @@ def test_what_the_reviewer_quotes_goes_back_to_the_writer_and_a_draft_it_keeps_r
         sent.append(variables["fix"])
         return _good(variables["facts"])
 
-    got = P.draft(conn, child, ask=ask)
+    got = P.draft(conn, child, ask=ask, review_version=1)  # a named version reads, active or not
     assert got["attempts"] == 3 and got["problems"]
     assert "'is building steady habits' is not supported: no fact says so" in sent[1]
     with pytest.raises(ValueError):
@@ -602,3 +602,23 @@ def test_a_report_written_in_the_background_that_still_breaks_its_facts_says_why
     row = conn.execute("select status, error from flow_run where id = %s", (run,)).fetchone()
     assert row["status"] == "error" and "not kept" in row["error"] and "'weak'" in row["error"]
     assert P.latest(conn, child) is None
+
+
+def test_an_educator_edits_the_draft_held_to_the_same_facts_and_the_edit_becomes_the_report(conn, child):
+    """Nimish, 2026-09-29: "there should be an option for the educator to also edit the draft ... and then that can
+    become the report"."""
+    got = P.draft(conn, child, ask=writer(lambda conn, purpose, variables, **k: _good(variables["facts"])))
+    first = P.keep(conn, child, got)["id"]
+    words = {**got["draft"], "summary": "[child] works carefully and checks each answer with the educator."}
+    P.edit(conn, child, str(first), words, "neha")
+    now = P.latest(conn, child)
+    assert (
+        now["draft"]["summary"] == words["summary"] and now["edited_by"] == "neha" and now["id"] != str(first)
+    )
+    # the educator's words are held as the model's were: no name, no number the facts lack
+    with pytest.raises(ValueError) as e:
+        P.edit(conn, child, now["id"], {**words, "summary": "[child] got 97 right, said Priya."}, "neha")
+    assert any("97" in p for p in e.value.args[0]) and any("Priya" in p for p in e.value.args[0])
+    P.approve(conn, child, now["id"], "neha")
+    with pytest.raises(LookupError):
+        P.edit(conn, child, now["id"], words, "neha")

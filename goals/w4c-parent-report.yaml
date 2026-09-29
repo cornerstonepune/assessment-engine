@@ -22,6 +22,8 @@ says:
     proved_by: packages/engine/tests/test_parent_report.py::test_the_facts_are_the_childs_signed_off_answers_and_never_their_name
   - words: "It can't be so deterministic in nature"
     proved_by: packages/engine/tests/test_parent_report.py::test_words_that_say_what_the_facts_do_not_are_caught
+  - words: "there should be an option for the educator to also edit the draft that has been sent, and then that can become the report"
+    proved_by: apps/web/tests/u7-parent-report.spec.ts::an educator edits the words, the edit is the report, and no name is stored
   - words: "The teacher always approves"
     proved_by: apps/web/tests/u7-parent-report.spec.ts::an educator approves it in their own name, once, and a report out of date says so
 manual:
