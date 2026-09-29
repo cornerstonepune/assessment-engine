@@ -20,6 +20,7 @@ an answer whose print is not found where the page lines up goes to a person as `
 """
 
 import re
+from itertools import combinations
 
 import cv2
 import numpy as np
@@ -46,6 +47,12 @@ COARSE = 5  # a page's print and marks are compared at PPM / COARSE: 2 px a mm, 
 RULE = 6  # mm: a box's edge is 5.4–13 mm, a run of them longer; a pencil stroke across a box is shorter
 GROW = 1.5  # mm a mark and a printed line may sit apart and still be the same line: a curved photograph
 NOT_FOUND = "its printed question was not found where the page lines up: a crease may have moved it"
+# Telling one page of a worksheet from another (`_fits`): each page's own print is its words that no other page
+# prints within APART mm, looked for on the photograph within OWN_GROW mm, at PPM / FINE — 5 px a mm, a digit's
+# strokes apart. On the 2026-09-29 photographs this put all eight on their own page; the ruled lines alone, five.
+FINE = 2
+APART = 1.0
+OWN_GROW = 0.5
 
 
 def dark(canon):
@@ -63,8 +70,10 @@ def agreement(img, pdf, page_no):
     harmonic mean), each within GROW mm, over the whole page. A layout the page was not printed in leaves boxes
     unexplained or missing. 0: the page does not line up with `pdf`."""
     canon, _ = line_up(img, pdf, page_no)
-    if canon is None:
-        return 0.0
+    return 0.0 if canon is None else _ruled(canon, pdf, page_no)
+
+
+def _ruled(canon, pdf, page_no):
     size = (W // COARSE, H // COARSE)
     printed = cv2.resize(_rules(blank(str(pdf), page_no) < PRINTED), size, interpolation=cv2.INTER_AREA)
     marked = cv2.resize(_rules(dark(canon)), size, interpolation=cv2.INTER_AREA)
@@ -74,6 +83,43 @@ def agreement(img, pdf, page_no):
     return 0.0 if found + explained == 0 else float(2 * found * explained / (found + explained))
 
 
+def _fine(mask):
+    return cv2.resize(mask.astype(np.uint8), (W // FINE, H // FINE), interpolation=cv2.INTER_AREA) > 0
+
+
+def _grown(mask, mm):
+    k = np.ones((2 * max(1, int(mm * PPM / FINE)) + 1,) * 2, np.uint8)
+    return cv2.dilate(mask.astype(np.uint8), k).astype(bool)
+
+
+def _own_print(pdf):
+    """{page: its own print}: the words and numbers a page prints that no other page of `pdf` prints within APART mm
+    of the same place — its questions, not the labels, boxes and footer every page shares."""
+    with pymupdf.open(pdf) as doc:
+        n = len(doc)
+    words = {}
+    for p in range(1, n + 1):
+        pr = blank(str(pdf), p) < PRINTED
+        words[p] = _fine(pr & ~(_rules(pr) > 0))
+    near = {p: _grown(words[p], APART) for p in words}
+    return {p: words[p] & ~np.logical_or.reduce([near[q] for q in words if q != p] or [np.zeros_like(words[p])])
+            for p in words}  # fmt: skip
+
+
+def _fits(img, pdf, page_no, own):
+    """How surely a photographed page is `pdf`'s page `page_no`: its layout (`_ruled`), times how much of the print
+    only that page has is on the photograph. Pages of one worksheet share a layout — on 2026-09-29 the ruled lines
+    alone took R8-H03's page 4 for its page 2 — and differ in their questions."""
+    canon, _ = line_up(img, pdf, page_no)
+    if canon is None:
+        return 0.0
+    mine = own[page_no]
+    if not mine.any():
+        return _ruled(canon, pdf, page_no)
+    found = (mine & _grown(_fine(dark(canon)), OWN_GROW)).sum() / mine.sum()
+    return _ruled(canon, pdf, page_no) * float(found)
+
+
 def _rules(mask):
     """The straight horizontal lines of a page, RULE mm or longer — the tops and bottoms of its answer boxes, its
     rules — without its words or a child's pencil, whose strokes are shorter."""
@@ -81,10 +127,38 @@ def _rules(mask):
     return cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, kernel)
 
 
+def _placing(pages, pdf):
+    """(how well, which printed page each photograph is, how well the next best did): the run of `pdf`'s pages, in
+    order, the photographs fit (`_fits`) most. A copy's pages come in the order the scanner took them, but not always
+    from its first: on 2026-09-29 one child's copy was photographed across two files, and the second file's two
+    pages — the paper's third and fourth — were read as its first and second, against questions 1–6. As many
+    photographs as the paper has pages can only be 1…n, and nothing is measured."""
+    n, k = len(pymupdf.open(pdf)), len(pages)
+    if k >= n:
+        return None, list(range(1, k + 1)), None
+    own = _own_print(pdf)
+    fit = [[_fits(img, pdf, p, own) for p in range(1, n + 1)] for img in pages]
+    runs = sorted(
+        ((sum(fit[i][p - 1] for i, p in enumerate(c)), list(c)) for c in combinations(range(1, n + 1), k)),
+        reverse=True,
+    )
+    return runs[0][0], runs[0][1], runs[1][0] if len(runs) > 1 else 0.0
+
+
+def placed(pages, pdf, margin) -> list[int] | None:
+    """Which page of `pdf` each photographed page of a copy is, in order (`_placing`) — or None when no run of its
+    pages fits `margin` times better than the next: its answers are then not read against a key nobody can be sure
+    of, and a person places the pages."""
+    best, run, second = _placing(pages, pdf)
+    if best is None:
+        return run
+    return run if best > 0 and best >= margin * second else None
+
+
 def as_printed(pages, pdfs):
     """Of the PDFs one worksheet has printed as (one per `render.layouts` row, goals/s18-read-as-printed.yaml), the
     one a copy was printed from: among those with as many pages as the copy, the one its answer boxes agree with
-    most. `pages`: the copy's pages as photographed, in order."""
+    most. `pages`: the copy's pages as photographed, in order — all of them, or a run of them (`_placing`)."""
     counted = {pdf: len(pymupdf.open(pdf)) for pdf in pdfs}
     same = [pdf for pdf in pdfs if counted[pdf] == len(pages)] or list(pdfs)
     if len(same) == 1:
@@ -92,9 +166,15 @@ def as_printed(pages, pdfs):
     # the whole page's ruled lines, not only those near the answers: held to the answer boxes alone, a copy printed
     # in the 21 Sep layout agreed with 24 Sep's more (0.576) than its own (0.503); over the page, its own 0.875
     # against 0.607 (2026-09-29, test_copies on a database built from the seed)
-    return max(
-        same, key=lambda pdf: sum(agreement(img, pdf, n) for n, img in enumerate(pages[: counted[pdf]], 1))
-    )
+    return max(same, key=lambda pdf: _agreeing(pages, pdf, counted[pdf]))
+
+
+def _agreeing(pages, pdf, n):
+    """How well a copy's photographs agree with `pdf`: page by page when they are all there, else at the run of pages
+    they fit most."""
+    if len(pages) >= n:
+        return sum(agreement(img, pdf, p) for p, img in enumerate(pages[:n], 1))
+    return _placing(pages, pdf)[0]
 
 
 def _theirs(printed, cells, box):

@@ -456,3 +456,37 @@ def test_a_boxs_own_line_left_in_the_cell_is_not_ink():
     beside = one.copy()
     beside[:, 0:2] = True
     assert (boxes._edge_lines_out(beside) == one).all(), "the line goes, the 1 beside it stays"
+
+
+def _pages(tmp_path, n):
+    doc = pymupdf.open()
+    for _ in range(n):
+        doc.new_page()
+    doc.save(tmp_path / "paper.pdf")
+    return tmp_path / "paper.pdf"
+
+
+def _fitting(monkeypatch, fit):
+    """`boxes._fits` stood in by a table: {(photo, printed page): how well}."""
+    monkeypatch.setattr(boxes, "_own_print", lambda pdf: {})
+    monkeypatch.setattr(boxes, "_fits", lambda img, pdf, p, own: fit[(img, p)])
+
+
+def test_a_part_copy_is_placed_at_the_run_of_pages_it_fits_clearly_best(tmp_path, monkeypatch):
+    """2026-09-29: the second file held a copy's third and fourth pages."""
+    _fitting(monkeypatch, {("a", 1): 0, ("a", 2): 0.27, ("a", 3): 0.55, ("a", 4): 0,
+                           ("b", 1): 0, ("b", 2): 0.0, ("b", 3): 0, ("b", 4): 0.25})  # fmt: skip
+    assert boxes.placed(["a", "b"], _pages(tmp_path, 4), 1.25) == [3, 4]
+
+
+def test_pages_that_cannot_be_told_apart_are_not_placed(tmp_path, monkeypatch):
+    """Two runs fit as well: the answers are not read against a key nobody can be sure of."""
+    _fitting(monkeypatch, {("a", 1): 0, ("a", 2): 0.6, ("a", 3): 0, ("a", 4): 0.6})
+    assert boxes.placed(["a"], _pages(tmp_path, 4), 1.25) is None
+    _fitting(monkeypatch, {("a", p): 0 for p in range(1, 5)})
+    assert boxes.placed(["a"], _pages(tmp_path, 4), 1.25) is None, "a page that lines up with none"
+
+
+def test_a_whole_copy_is_its_pages_in_order_and_nothing_is_measured(tmp_path, monkeypatch):
+    monkeypatch.setattr(boxes, "_fits", lambda *a: pytest.fail("a whole copy is never measured"))
+    assert boxes.placed(["a", "b", "c", "d"], _pages(tmp_path, 4), 1.25) == [1, 2, 3, 4]

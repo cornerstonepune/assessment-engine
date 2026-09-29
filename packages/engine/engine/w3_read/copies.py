@@ -181,6 +181,27 @@ def _replaces(conn, capture_id, scan):
             conn.execute("update capture set superseded_by = %s where id = %s", (capture_id, old["id"]))
 
 
+def _margin(conn):
+    row = conn.execute("select value from threshold where key = 'read.page_margin'").fetchone()
+    return float(row["value"]) if row else 1.25
+
+
+def _misplaced(conn, cut, held) -> tuple[str | None, int]:
+    """A live reading of this very copy with answers on questions its pages do not hold — read before a copy's
+    pages were placed (`boxes.placed`) — and how many of them a person signed off or corrected. Such a reading is
+    wrong at its root, a person's checks included: they were made against another question's words and key
+    (2026-09-29), so it is replaced whatever was done on it (rule 4: kept, no longer read)."""
+    old = conn.execute(
+        "select c.id from capture c where c.path = %s and c.superseded_by is null"
+        " and exists (select 1 from item_result r where r.capture_id = c.id and not (r.item_id = any(%s)))",
+        (_home(cut), list(held)),
+    ).fetchone()
+    if not old:
+        return None, 0
+    conn.execute("update capture set superseded_by = id where id = %s", (old["id"],))  # pointed below
+    return old["id"], checked.worked_on(conn, old["id"])
+
+
 def _cut(scan, pages, name):
     """The copy's pages as a file of their own — once: a second run reads the same file, so nothing is read twice."""
     out = CUT / Path(scan).stem / name
@@ -268,90 +289,50 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
             )
             continue
         cut = _cut(scan, copy["pages"], name)
-        template, by_key, unread = paper(conn, code, _read_from(conn, code, mine, cut))
+        pdf = _read_from(conn, code, mine, cut)
+        template, by_key, unread = paper(conn, code, pdf)
         if mine:
             template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
-        s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))
+        # which of the paper's pages each photographed one is: a copy split across two files starts part-way
+        placed = boxes.placed(list(render_pdf.photos(cut)), pdf, _margin(conn))
+        if placed is None:
+            out.append(
+                {**row, "skipped": True, "why": f"which pages of {code} these are could not be told apart"}
+            )
+            continue
+        template["paper_pages"] = placed
+        file_page = {p: f for f, p in enumerate(placed, 1)}
+        held = [it["id"] for it in by_key.values() if it["spec"]["page"] in file_page]
+        with conn.transaction():  # the wrong reading is replaced only by one that was made, never by nothing
+            wrong, checks = _misplaced(conn, cut, held)
+            s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))
+            if wrong:
+                conn.execute("update capture set superseded_by = %s where id = %s", (s["capture_id"], wrong))
+                s["notes"].append(
+                    "an earlier reading put this copy's answers on questions its pages do not hold; replaced"
+                    + (
+                        f", and the {checks} checks made on it no longer count: check them again"
+                        if checks
+                        else ""
+                    )
+                )
         _replaces(conn, s["capture_id"], scan)
         # a copy read before it moved (`WAS_CUT`): its reading now points at where it lives
         conn.execute(
             "update capture set path = %s where id = %s and path <> %s",
             (_home(cut), s["capture_id"], _home(cut)),
         )
-        # The page each answer was read on, kept with its reading: a worksheet question's page is not in the
-        # bank's row (`paper`), and the approval screens show the photograph of that page. Only where missing.
-        for it in by_key.values():
+        # The paper's page each answer is on, and the page of this copy's file its photograph is — the same unless
+        # the copy starts part-way: a worksheet question's page is not in the bank's row (`paper`), and the approval
+        # screens show the photograph. Only where missing.
+        for it in (it for it in by_key.values() if it["spec"]["page"] in file_page):
             conn.execute(
-                "update item_result set raw_read = (raw_read::jsonb || jsonb_build_object('page', %s::int))::text"
-                " where capture_id = %s and item_id = %s and raw_read is not null and not (raw_read::jsonb ? 'page')",
-                (it["spec"]["page"], s["capture_id"], it["id"]),
+                "update item_result set raw_read = (raw_read::jsonb || jsonb_build_object('page', %s::int,"
+                " 'file_page', %s::int))::text where capture_id = %s and item_id = %s and raw_read is not null"
+                " and not (raw_read::jsonb ? 'file_page')",
+                (it["spec"]["page"], file_page[it["spec"]["page"]], s["capture_id"], it["id"]),
             )
         answers = s.get("already_results") if s.get("already") else len(s["results"])
         out.append({**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
                     "capture_id": s["capture_id"], "notes": [n for n in s["notes"] if n]})  # fmt: skip
     return out
-
-
-def tally(conn, capture_id) -> dict:
-    """What the engine made of one copy's answers: settled right, and waiting for a person as read right,
-    read wrong, read blank or not read at all — the reason each waits is its own (`marking.mark_read`)."""
-    return conn.execute(
-        "select count(*) filter (where status = 'correct') as right,"
-        " count(*) filter (where status <> 'correct' and raw_read::jsonb ->> 'why' like 'read as a right%%')"
-        "   as right_waiting,"
-        " count(*) filter (where raw_read::jsonb ->> 'why' like 'read as a wrong%%') as wrong,"
-        " count(*) filter (where raw_read::jsonb ->> 'why' like 'read as blank%%') as blank,"
-        " count(*) filter (where status <> 'correct') as waiting"
-        " from item_result where capture_id = %s",
-        (capture_id,),
-    ).fetchone()
-
-
-def of_scan(conn, name: str) -> list[dict]:
-    """Every copy read from one scanned file, in file order, as its child's class and roll number (never a name,
-    rule 6), the worksheet, and what the engine made of its answers (`tally`): the per-child score of a scan, for
-    whoever needs it without the database — a person on the site, or a session through the engine's API."""
-    stem = Path(name).stem
-    rows = conn.execute(
-        "select c.id as capture_id, c.path, ch.section, ch.roll_no, coalesce(t.code, t.batch_id) as code,"
-        " (select count(*) from item_result r where r.capture_id = c.id) as answers"
-        " from capture c join sheet_instance si on si.id = c.sheet_instance_id"
-        " join sheet_template t on t.id = si.sheet_template_id left join child ch on ch.id = si.child_id"
-        " where c.superseded_by is null and (c.path like %s or c.path like %s) order by c.path",
-        (_home(CUT / stem) + "/%", _home(WAS_CUT / stem) + "/%"),
-    ).fetchall()
-    out = []
-    for r in rows:
-        t = tally(conn, r["capture_id"])
-        unclear = t["waiting"] - t["right_waiting"] - t["wrong"] - t["blank"]
-        out.append({"copy": Path(r["path"]).name.split("-")[0], "section": r["section"], "roll_no": r["roll_no"],
-                    "code": r["code"], "capture_id": str(r["capture_id"]), "answers": r["answers"],
-                    "right": t["right"] + t["right_waiting"], "wrong": t["wrong"], "blank": t["blank"],
-                    "unclear": max(0, unclear), "waiting": t["waiting"]})  # fmt: skip
-    return out
-
-
-def readings(conn, capture_id) -> list[dict]:
-    """Every answer on one read copy as the reader left it — its state, why it waits, how many boxes the paper
-    printed and how many held ink, what the reader saw — with no name and no image: what someone improving the
-    reader needs to see why answers came back unclear, through the engine's API."""
-    rows = conn.execute(
-        "select split_part(i.item_key, '/', 3) as slot, i.item_key, r.status, r.raw_read::jsonb as raw"
-        " from item_result r join item i on i.id = r.item_id where r.capture_id = %s order by i.item_key",
-        (capture_id,),
-    ).fetchall()
-    keep = (
-        "answer_state",
-        "why",
-        "child_answer",
-        "guess",
-        "confidence",
-        "boxes",
-        "inked",
-        "seen",
-        "working_shown",
-    )
-    return [
-        {"item": r["item_key"], "status": r["status"], **{k: (r["raw"] or {}).get(k) for k in keep}}
-        for r in rows
-    ]
