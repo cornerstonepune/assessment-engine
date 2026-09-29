@@ -11,22 +11,33 @@ import { childHeader, staffList } from "@/lib/queries";
 import { approveParentReport, writeParentReport } from "../../actions";
 import { PrintButton } from "../report/print-button";
 import { Letter, type Note } from "./letter";
+import { Refresh } from "./refresh";
 
 type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 };
 type Got = { note: Note | null; ready: boolean };
+type Run = { status: string; error: string | null };
 
 const WHY: Record<string, string> = {
-  "422":
-    "The draft said something its facts do not hold, twice, so it was not kept. Write it again.",
   "409":
     "Nothing to do: no answer has been signed off yet, or this report was already approved.",
   "503":
     "The writer could not be reached, or today's budget for it is spent. Nothing was changed.",
   down: "The engine is not answering. Nothing was changed.",
 };
+
+/** The run writing a report, or null when the engine cannot say. */
+async function writing(run: string | undefined): Promise<Run | null> {
+  if (!run || !/^[0-9a-f-]{36}$/.test(run)) return null;
+  try {
+    const r = await engineGet(`/runs/${run}`);
+    return r.ok ? ((await r.json()) as Run) : null;
+  } catch {
+    return null;
+  }
+}
 
 async function newest(id: string): Promise<Got | string> {
   try {
@@ -46,8 +57,13 @@ export default async function ParentReport({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, got, staff] = await deadline(
-    Promise.all([childHeader(id, me.email), newest(id), staffList()]),
+  const [child, got, staff, run] = await deadline(
+    Promise.all([
+      childHeader(id, me.email),
+      newest(id),
+      staffList(),
+      writing(q.writing),
+    ]),
   );
   if (!child) notFound();
   const name = child.first_name;
@@ -110,10 +126,23 @@ export default async function ParentReport({ params, searchParams }: Props) {
               {WHY[q.error] ?? `The engine said no (${q.error}).`}
             </Notice>
           ) : null}
-          {q.written ? (
+          {run?.status === "running" ? (
+            <Notice tone="neem">
+              <Refresh />
+              Being written, then checked against {name}&apos;s answers and read
+              against them. This page updates itself; it takes a minute or two.
+            </Notice>
+          ) : null}
+          {run?.status === "ok" ? (
             <Notice tone="neem">
               Written and checked against {name}&apos;s answers. Read it, then
               approve it.
+            </Notice>
+          ) : null}
+          {run?.status === "error" ? (
+            <Notice tone="terracotta">
+              The report was not kept: {run.error}. Nothing was changed; write
+              it again.
             </Notice>
           ) : null}
           {q.approved ? (

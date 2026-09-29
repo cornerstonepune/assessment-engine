@@ -1236,6 +1236,45 @@
       }
     },
     {
+      "purpose": "parent_review",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/parent_review.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unsupported"
+        ],
+        "properties": {
+          "unsupported": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "quote",
+                "why"
+              ],
+              "properties": {
+                "quote": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 400
+                },
+                "why": {
+                  "type": "string",
+                  "maxLength": 300
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "purpose": "item_generate",
       "version": 1,
       "model": "claude-haiku-4-5",

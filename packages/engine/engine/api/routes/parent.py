@@ -1,9 +1,8 @@
 """N12 over HTTP: a child's parent report — the newest kept draft and whether it is still true, a new draft written
 and held to its facts, and an educator's approval (`w4_close/parent_report.py`)."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
-from engine.adapters import llm
 from engine.api.deps import get_conn, require_engine_key
 from engine.api.models import CardConfirmRequest
 from engine.w4_close import parent_report
@@ -31,20 +30,16 @@ def newest(child_id: str, conn=Depends(get_conn)):
     }
 
 
-@router.post("/child/{child_id}/parent-report", status_code=201)
-def write(child_id: str, body: CardConfirmRequest, conn=Depends(get_conn)):
-    """Write a new draft from the child's signed-off answers; kept only if it holds to them (422 with what it broke)."""
+@router.post("/child/{child_id}/parent-report", status_code=202)
+def write(child_id: str, body: CardConfirmRequest, background: BackgroundTasks, conn=Depends(get_conn)):
+    """Start writing a new draft from the child's signed-off answers → {run_id}. It is written, held to its facts,
+    read against them and kept after this answers (`parent_report.write`); `/runs/{run_id}` says ok, or why not."""
     _child(conn, child_id)
-    try:
-        got = parent_report.draft(conn, child_id)
-    except llm.LLMError as e:
-        raise HTTPException(503, str(e))
-    if got is None:
+    if parent_report.facts(conn, child_id) is None:
         raise HTTPException(409, "no answer of this child's has been signed off yet")
-    if got["problems"]:
-        raise HTTPException(422, {"problems": got["problems"]})
-    parent_report.keep(conn, child_id, got)
-    return {"note": parent_report.latest(conn, child_id), "by": body.by}
+    run_id = parent_report.start(child_id, body.by)
+    background.add_task(parent_report.write, run_id, child_id)
+    return {"run_id": run_id, "by": body.by}
 
 
 @router.post("/child/{child_id}/parent-report/{note_id}/approve")

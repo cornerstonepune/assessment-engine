@@ -17,7 +17,7 @@ on:
       review_version:
         description: "parent_report only: the parent_review version that reads each draft"
         type: choice
-        options: ["1"]
+        options: ["2", "1"]
 
 permissions:
   contents: read
