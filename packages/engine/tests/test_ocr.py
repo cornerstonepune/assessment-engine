@@ -866,3 +866,59 @@ def test_the_reader_records_what_it_saw_even_when_it_gives_up():
         page([q, w("83", 0.42, 0.302, conf=91.0, line=q["text"])], [q]), {"7": "7. 45 + 38 ="}
     )
     assert clean["7"]["child_answer"] == "83" and clean["7"]["seen"] == [{"text": "83", "confidence": 91.0}]
+
+
+def _missing_digits_page():
+    """G4-SEPW2's page 2 (2026-09-29, Rudraksh's paper): two questions that print the same words, each with its
+    sum printed to the right of them and a box in it for each missing digit. He wrote 8 and 5 in 6's, 6 and 6 in
+    7's."""
+    lines = [
+        w("6", 0.06, 0.055, hand=False, width=0.02),
+        w("Write the missing digits.", 0.06, 0.07, hand=False, width=0.25),
+        w("4 6", 0.56, 0.09, hand=False, width=0.06),
+        w("+ 2 8", 0.52, 0.12, hand=False, width=0.18),
+        w("7 1 6", 0.56, 0.155, hand=False, width=0.13),
+        w("7", 0.06, 0.22, hand=False, width=0.02),
+        w("Write the missing digits.", 0.06, 0.235, hand=False, width=0.25),
+        w("3 5", 0.56, 0.25, hand=False, width=0.15),
+        w("- 1 8", 0.52, 0.28, hand=False, width=0.12),
+        w("1 7 9", 0.56, 0.31, hand=False, width=0.13),
+    ]
+    words = [
+        w("8", 0.675, 0.085, width=0.02), w("5", 0.615, 0.12, width=0.02),
+        w("6", 0.615, 0.25, width=0.02), w("6", 0.675, 0.28, width=0.02),
+    ]  # fmt: skip
+    boxes = [
+        (0.66, 0.08, 0.71, 0.105),
+        (0.60, 0.115, 0.65, 0.14),
+        (0.60, 0.245, 0.65, 0.27),
+        (0.66, 0.275, 0.71, 0.30),
+    ]
+    slots = {"6a": "Write the missing digits. 4 6", "6b": "Write the missing digits. 4 6",
+             "7a": "Write the missing digits. 3", "7b": "Write the missing digits. 3"}  # fmt: skip
+    return page(words, lines), slots, boxes
+
+
+def test_two_questions_printing_the_same_words_are_each_found_where_they_print():
+    """Both anchored on question 6's words — the first line that matched — so 7's answers were looked for at 6."""
+    p, slots, boxes = _missing_digits_page()
+    got = ocr.answers_for(p, slots, boxes=boxes)
+    assert got["7a"]["box"] != got["6a"]["box"]
+
+
+def test_a_sum_printed_beside_its_question_is_read_in_its_boxes():
+    """The digits are written in the sum's boxes, to the right of the words: a region as wide as the words found
+    nothing, and every answer came back blank."""
+    p, slots, boxes = _missing_digits_page()
+    got = ocr.answers_for(p, slots, boxes=boxes)
+    assert [got[k]["child_answer"] for k in ("6a", "6b", "7a", "7b")] == ["8", "5", "6", "6"]
+    assert all(got[k]["answer_state"] == "written" for k in slots)
+
+
+def test_questions_on_one_printed_row_keep_their_own_anchors():
+    """A grid prints four sums on one row; each matches only its own line, and none is moved to another row."""
+    anchors = [w(q, x, 0.24, hand=False) for q, x in (("4 + 3 =", 0.10), ("6 + 2 =", 0.32))]
+    got = ocr.answers_for(
+        page([w("7", 0.20, 0.24), w("8", 0.42, 0.24)], anchors), {"1a": "4 + 3 =", "1b": "6 + 2 ="}
+    )
+    assert [got[k]["child_answer"] for k in ("1a", "1b")] == ["7", "8"]

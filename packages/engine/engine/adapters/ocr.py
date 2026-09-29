@@ -346,23 +346,25 @@ def _norm(s):
 _PLACEHOLDER = re.compile(r"\[\s*\]|□|_{2,}")
 
 
-def find_question(lines, question, min_overlap=0.6):
+def find_question(lines, question, min_overlap=0.6, taken=(), band=0.02):
     """Where a printed question sits on the page, or None.
 
     Matched on the question's tokens appearing in order, not on a contiguous string. Two reasons,
     both met on real pages: a question with a fill-in box is no longer contiguous once a child fills
     it — "250 + [ ] = 300" is printed on the page as "250 + 150 = 300" and never matched at all —
-    and a word problem wraps, so only its opening survives on any one line.
+    and a word problem wraps, so only its opening survives on any one line. Of lines that match as
+    well, the first not on a row in `taken`, those other questions were found on: G4-SEPW2's 6 and 7
+    both print "Write the missing digits.", and 7 was found on 6's line (2026-09-29).
     """
     want = [tok for tok in _tokens(_PLACEHOLDER.sub(" ", question)) if tok][:8]
     if not want:
         return None
-    best, score = None, 0.0
-    for anchor, text in _candidates(lines):
-        ratio = _in_order(want, _tokens(text)) / len(want)
-        if ratio > score:
-            best, score = anchor, ratio
-    return best if score >= min_overlap else None
+    scored = [(_in_order(want, _tokens(text)) / len(want), anchor) for anchor, text in _candidates(lines)]
+    score = max((ratio for ratio, _ in scored), default=0.0)
+    if score < min_overlap:
+        return None
+    best = [anchor for ratio, anchor in scored if ratio == score]
+    return next((a for a in best if all(abs(a["y"] - y) > band for y in taken)), best[0])
 
 
 def _candidates(lines):
@@ -433,25 +435,6 @@ def _in_field(word, box):
     """
     cx, cy = word["x"] + word.get("w", 0) / 2, word["y"] + word.get("h", 0) / 2
     return box["top"] <= cy < box["bottom"] and box["left"] <= cx <= box["right"]
-
-
-def _in_region(word, anchor, max_drop, column, bottom=None):
-    """Is this word an answer to the question anchored here?
-
-    The region is as wide as the question itself. A grid question — "236 + 9 =" in one of four boxes
-    across the page — is narrow, so its region stays narrow and cannot reach the neighbouring box's
-    answer, which is how 245 once became 155. A question printed across the page with fill-in boxes
-    along it is wide, so its region is wide, which is the only way to reach boxes sitting 0.12 to the
-    right of where the question starts.
-
-    Using one fixed column for both is what made Q5's three boxes unreadable while a wider one made
-    every grid answer ambiguous. The page already says which kind it is: the printed line's width.
-    """
-    dy = word["y"] - anchor["y"]
-    limit = (bottom - anchor["y"]) if bottom is not None else max_drop
-    if not -anchor["h"] <= dy < limit:
-        return False
-    return anchor["x"] - column <= word["x"] <= anchor["x"] + max(anchor["w"], column)
 
 
 def _all_handwriting(page, box, inside=_in_box, any_hand=False):
@@ -771,7 +754,12 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
     # Every question is anchored first, claimed or not: a question read from its own boxes still
     # occupies its rows, and the question above it is bounded by it. Dropping claimed questions
     # from the ordering let a region run down over the next question's answers.
-    anchors = {slot: find_question(page["lines"], q) for slot, q in slots.items()}
+    anchors, rows = {}, {}
+    for slot in sorted(slots, key=lambda s: (_number(s), s)):
+        taken = [y for n, ys in rows.items() if n != _number(slot) for y in ys]
+        anchors[slot] = find_question(page["lines"], slots[slot], taken=taken, band=cfg["row_band"])
+        if anchors[slot]:
+            rows.setdefault(_number(slot), []).append(anchors[slot]["y"])
     groups = {}
     for slot in slots:
         groups.setdefault(_number(slot), []).append(slot)
@@ -842,9 +830,18 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
         ]
         if on_line:
             box["top"] = min(box["top"], min(w["y"] for w in on_line))
+        printed_here = len(re.findall(r"\d[\d,]*", " ".join({slots[s] for s in members})))
+        # A question alone on its rows may put its answers anywhere across them: G4-SEPW2 prints each missing-digit
+        # sum beside its words, and a region as wide as the words held none of the child's digits (2026-09-29).
+        alone = not any(abs(y - anchor["y"]) <= cfg["row_band"] for y, other in ordered if other != n)
+        if (
+            alone
+            and not _all_handwriting(page, box)
+            and not (boxes and _fields_in(boxes, page, box, printed_here))
+        ):
+            box = {**box, "left": 0.0, "right": 1.0}
         working = _working_shown(len(_all_handwriting(page, box)), len(members))
         echoes = _echoes([slots[s] for s in members])
-        printed_here = len(re.findall(r"\d[\d,]*", " ".join({slots[s] for s in members})))
         fields = _fields_in(boxes, page, box, printed_here) if boxes else []
         # Boxes are trusted only when the count matches AND they hold the child's ink — or the
         # whole region is empty. A decorative frame beside an answer written on an underline

@@ -58,6 +58,17 @@ proven live, (2) the parent report's checker, (3) skill matching, (4) the templa
   seed data alone, on main and here alike (they want live's rows) — compare lists, not counts.
 
 
+## 2026-09-29 — two questions printing the same words; a missing-digit sum beside its words
+
+- Rudraksh's G4-SEPW2 page 2 (Nimish's screenshots): 6a, 6b, 7a, 7b all showed question 6's heading and came back
+  blank. 6 and 7 both print "Write the missing digits."; `ocr.find_question` took the first line that matched for
+  both. And each sum prints to the right of its words, outside the region `answers_for` looked in.
+- Fixed in `ocr.py`: of lines that match as well, a question takes the first not on a row another question was found
+  on (questions found in number order); a question alone on its rows that finds nothing in its column looks across
+  their width, where the sum's boxes are. The dead `_in_region` went (ceiling 1002 → 999).
+- Rudraksh's four answers are not signed off: a person types 8, 5, 6, 6 on Marking, or his paper is read again once
+  this is live. `ocr.py`'s split into the Textract adapter and the page logic stays owed (cleanup stage 2).
+
 ## 2026-09-29 — a signed-off answer can be corrected
 
 - Nimish signed Kiyaan's Grade 3–4 quiz off with Q11 (44) and Q13 (9) read as blank. A correction to a signed-off
