@@ -177,7 +177,7 @@
     "frozen": {
       "engine/adapters/ocr.py": 1002,
       "engine/w3_read/legacy.py": 652,
-      "engine/assess/items.py": 640,
+      "engine/assess/items.py": 579,
       "engine/core/loaders.py": 468,
       "engine/assess/misconceptions.py": 500,
       "engine/assess/mark.py": 417

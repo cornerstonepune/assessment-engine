@@ -13,6 +13,7 @@ from engine.assess.pick import Sheet
 from engine.core import db
 from engine.w1_bank import inventory, question
 from engine.w2_print import library
+from tests.rows import a_child, tenant
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -57,10 +58,10 @@ def test_a_questions_printed_block_comes_back_as_an_image(conn):
 
 def test_rewording_keeps_every_number_answer_and_mistake_and_retires_the_old_wording(conn):
     old = _row(conn, "word_1step")
-    child = conn.execute("select id, tenant_id from child limit 1").fetchone()
+    child = a_child(conn)
     conn.execute(
         "insert into item_exposure (tenant_id, child_id, item_id, week) values (%s, %s, %s, 'test-week')",
-        (child["tenant_id"], child["id"], old["id"]),
+        (tenant(conn), child, old["id"]),
     )
     reworded = "Read carefully. " + old["stem"]
 
@@ -74,7 +75,7 @@ def test_rewording_keeps_every_number_answer_and_mistake_and_retires_the_old_wor
     note = conn.execute("select actor, note from item_feedback where item_id = %s", (old["id"],)).fetchone()
     assert note["actor"] == BY and out["item_key"] in note["note"] and "clearer wording" in note["note"]
     seen = conn.execute(
-        "select week from item_exposure where item_id = %s and child_id = %s", (new["id"], child["id"])
+        "select week from item_exposure where item_id = %s and child_id = %s", (new["id"], child)
     ).fetchone()
     assert seen and seen["week"] == "test-week", "a child who saw the old wording has seen this question"
 

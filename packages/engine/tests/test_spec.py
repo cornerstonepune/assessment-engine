@@ -157,7 +157,9 @@ def test_applying_unions_and_keeps_the_signature(conn, monkeypatch):
     assert before <= after, "a curated code can never be dropped by a model's omission"
     assert set(r["covered"]) <= after, "what code computed is attached too"
     row = conn.execute("select status, ratified_by from skill_set where code = %s", (SET,)).fetchone()
-    assert (row["status"], row["ratified_by"]) == ("ratified", "a test"), "the engine's own update keeps the signature"
+    assert (row["status"], row["ratified_by"]) == ("ratified", "a test"), (
+        "the engine's own update keeps the signature"
+    )
 
 
 def test_ratify_signs_every_draft_with_a_name_and_never_signs_one_twice(conn):

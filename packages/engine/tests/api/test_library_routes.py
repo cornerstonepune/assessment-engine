@@ -37,12 +37,13 @@ def client(conn, monkeypatch, tmp_path):
     app.dependency_overrides.clear()
 
 
-def test_a_worksheet_prints_as_a_pdf_and_is_served_from_disk_the_second_time(client, tmp_path):
+def test_a_worksheet_prints_as_a_pdf_and_is_served_from_disk_the_second_time(client, conn, tmp_path):
     first = client.get("/worksheet/R22-H03.pdf")
     assert first.status_code == 200
     assert first.headers["content-type"] == "application/pdf"
     assert first.content.startswith(b"%PDF")
-    assert (tmp_path / "R22-H03.pdf").exists()
+    # kept under today's layout's own name, so a copy printed in another layout is never served as this one
+    assert (tmp_path / library.layouts(conn)[-1]["name"] / "R22-H03.pdf").exists()
     assert client.get("/worksheet/R22-H03.pdf").content == first.content
 
 
