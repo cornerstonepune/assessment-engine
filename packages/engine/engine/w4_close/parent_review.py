@@ -25,6 +25,12 @@ def told(facts):
 
 def review(conn, facts, draft, ask=None, version=None, meta=None):
     """→ the reviewer's findings, one line each: the quoted words and the fact they go beyond. [] when all hold."""
+    # only a version scored and switched on reads the reports a school writes (rule 7); an eval names its version
+    if (
+        version is None
+        and not conn.execute("select 1 from prompt where purpose = %s and active", (PURPOSE,)).fetchone()
+    ):
+        return []
     ask = ask or llm.generate
     out = ask(conn, PURPOSE, {"facts": told(facts), "draft": draft}, meta=meta, version=version)
     return [f"{u['quote']!r} is not supported: {u['why']}" for u in out["unsupported"]]

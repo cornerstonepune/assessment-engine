@@ -1122,7 +1122,7 @@
       "purpose": "parent_report",
       "version": 12,
       "model": "claude-haiku-4-5",
-      "active": false,
+      "active": true,
       "text_file": "prompts/parent_report.v12.txt",
       "json_schema": {
         "type": "object",

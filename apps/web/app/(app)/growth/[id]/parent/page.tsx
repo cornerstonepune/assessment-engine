@@ -12,6 +12,7 @@ import { approveParentReport, writeParentReport } from "../../actions";
 import { PrintButton } from "../report/print-button";
 import { Letter, type Note } from "./letter";
 import { Refresh } from "./refresh";
+import { EditForm } from "./edit-form";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -109,6 +110,11 @@ export default async function ParentReport({ params, searchParams }: Props) {
               </button>
             </form>
           ) : null}
+          {note && !note.approved_by && !note.stale && !q.edit ? (
+            <Link href={`/growth/${id}/parent?edit=1`} className="chip">
+              Edit the words
+            </Link>
+          ) : null}
           {note ? <PrintButton /> : null}
         </div>
         <div className="print:hidden">
@@ -145,6 +151,18 @@ export default async function ParentReport({ params, searchParams }: Props) {
               it again.
             </Notice>
           ) : null}
+          {q.problems ? (
+            <Notice tone="terracotta">
+              Not saved. These words say what {name}&apos;s answers do not:{" "}
+              {q.problems.replaceAll("[child]", name)}
+            </Notice>
+          ) : null}
+          {q.edited ? (
+            <Notice tone="neem">
+              Your version is saved and is now the report. Read it once more,
+              then approve it.
+            </Notice>
+          ) : null}
           {q.approved ? (
             <Notice tone="neem">
               Approved in your name. It is ready for {name}&apos;s parents.
@@ -157,7 +175,9 @@ export default async function ParentReport({ params, searchParams }: Props) {
             </Notice>
           ) : null}
         </div>
-        {note ? (
+        {note && q.edit && !note.approved_by && !note.stale ? (
+          <EditForm note={note} name={name} id={id} />
+        ) : note ? (
           <Letter
             note={note}
             name={name}

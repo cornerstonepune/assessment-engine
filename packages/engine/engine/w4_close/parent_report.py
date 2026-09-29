@@ -299,8 +299,40 @@ def latest(conn, child_id):
         "approved_by": row["approved_by"],
         "approved_at": row["approved_by"] and row["updated_at"].isoformat(),
         "written_at": row["created_at"].isoformat(),
+        "edited_by": body.get("edited_by"),
         "stale": now != body["facts"],
     }
+
+
+def edit(conn, child_id, note_id, words, by):
+    """An educator's own words for a report not yet approved, held to the same facts as the model's were, kept as a
+    new version beside the one it replaces; the newest is the report. Nimish, 2026-09-29: "an option for the educator
+    to also edit the draft ... and then that can become the report"."""
+    if not by:
+        raise ValueError(["an edit names the educator making it"])
+    row = conn.execute(
+        "select body, week, prompt_version, approved_by from parent_note where id::text = %s and child_id = %s",
+        (note_id, child_id),
+    ).fetchone()
+    if not row or row["approved_by"]:
+        raise LookupError("no report waiting for approval with that id")
+    f = json.loads(row["body"])["facts"]
+    problems = check(f, words)
+    if problems:
+        raise ValueError(problems)
+    return conn.execute(
+        # the clock's own time, not the transaction's: the edit is newer than the draft it replaces even when both
+        # are written in one transaction, and the newest is the report
+        "insert into parent_note (tenant_id, child_id, week, body, prompt_version, created_at)"
+        " select t.id, %s, %s, %s, %s, clock_timestamp() from tenant t where t.slug = %s returning id",
+        (
+            child_id,
+            row["week"],
+            json.dumps({"facts": f, "draft": words, "edited_by": by}),
+            row["prompt_version"],
+            db.tenant_slug(),
+        ),
+    ).fetchone()
 
 
 def approve(conn, child_id, note_id, by):

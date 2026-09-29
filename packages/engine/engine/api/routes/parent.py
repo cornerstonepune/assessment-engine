@@ -4,7 +4,7 @@ and held to its facts, and an educator's approval (`w4_close/parent_report.py`).
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from engine.api.deps import get_conn, require_engine_key
-from engine.api.models import CardConfirmRequest
+from engine.api.models import CardConfirmRequest, ParentReportEdit
 from engine.w4_close import parent_report
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -49,4 +49,17 @@ def approve(child_id: str, note_id: str, body: CardConfirmRequest, conn=Depends(
         parent_report.approve(conn, child_id, note_id, body.by)
     except LookupError as e:
         raise HTTPException(409, str(e))
+    return {"note": parent_report.latest(conn, child_id)}
+
+
+@router.post("/child/{child_id}/parent-report/{note_id}/edit")
+def edit(child_id: str, note_id: str, body: ParentReportEdit, conn=Depends(get_conn)):
+    """An educator's own words become the report, held to its facts (422 with what they broke); 409 once approved."""
+    _child(conn, child_id)
+    try:
+        parent_report.edit(conn, child_id, note_id, body.draft, body.by)
+    except LookupError as e:
+        raise HTTPException(409, str(e))
+    except ValueError as e:
+        raise HTTPException(422, {"problems": e.args[0]})
     return {"note": parent_report.latest(conn, child_id)}

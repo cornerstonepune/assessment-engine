@@ -174,6 +174,27 @@ test("a parent reads a letter with the child's name, the counts beside the words
   await expect(letter.getByTestId("draft-mark")).toBeVisible();
 });
 
+test("an educator edits the words, the edit is the report, and no name is stored", async ({
+  page,
+}) => {
+  await page.goto(`/growth/${id}/parent`);
+  await page.getByRole("link", { name: "Edit the words" }).click();
+  const form = page.getByTestId("edit-report");
+  await form
+    .getByRole("textbox")
+    .first()
+    .fill("Tara adds with care and checks each answer with the educator.");
+  await form.getByRole("button", { name: "Save my version" }).click();
+  await expect(page).toHaveURL(`/growth/${id}/parent?edited=1`);
+  await expect(
+    page.getByRole("region", { name: "How they are doing" }),
+  ).toContainText("Tara adds with care and checks each answer");
+  const [{ body }] = await sql<{ body: string }[]>`
+    select body from parent_note where child_id = ${id}::uuid order by created_at desc limit 1`;
+  expect(body).toContain("[child] adds with care");
+  expect(body).not.toContain("Tara");
+});
+
 test("an educator approves it in their own name, once, and a report out of date says so", async ({
   page,
 }) => {
