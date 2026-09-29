@@ -160,9 +160,8 @@ def _live_worksheets_of(conn, item_id):
 def test_rewording_a_question_moves_it_onto_a_new_worksheet_and_retires_the_old_one(conn):
     q = _on_a_worksheet(conn)
     stem = conn.execute("select stem from item where id = %s", (q["id"],)).fetchone()["stem"]
-    new = question.correct(
-        conn, q["item_key"], stem.replace("How many", "Altogether, how many"), BY, "clearer"
-    )
+    # an edit every story takes: not every story asks "How many", and which one comes first is the bank's draw
+    new = question.correct(conn, q["item_key"], stem + " Show how you know.", BY, "clearer")
     assert _live_worksheets_of(conn, q["id"]) == []
     new_id = conn.execute("select id from item where item_key = %s", (new["item_key"],)).fetchone()["id"]
     assert len(_live_worksheets_of(conn, new_id)) == 1
