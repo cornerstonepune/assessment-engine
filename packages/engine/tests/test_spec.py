@@ -140,7 +140,9 @@ def test_an_answer_only_claim_code_cannot_reproduce_is_downgraded_not_trusted(co
     assert p["downgraded"] in row["description"], "why it was downgraded is stored with it"
 
 
-def test_applying_unions_and_withdraws_the_signature(conn, monkeypatch):
+def test_applying_unions_and_keeps_the_signature(conn, monkeypatch):
+    """The engine keeping a set's mistake list up to date never withdraws its approval: only a person's change does
+    (migration 20261006090000_only_what_is_taught.sql; test_approval.py holds the trigger to it)."""
     conn.execute("update skill_set set status = 'ratified', ratified_by = 'a test' where code = %s", (SET,))
     before = set(
         conn.execute("select misconception_codes as c from skill_set where code = %s", (SET,)).fetchone()["c"]
@@ -155,7 +157,7 @@ def test_applying_unions_and_withdraws_the_signature(conn, monkeypatch):
     assert before <= after, "a curated code can never be dropped by a model's omission"
     assert set(r["covered"]) <= after, "what code computed is attached too"
     row = conn.execute("select status, ratified_by from skill_set where code = %s", (SET,)).fetchone()
-    assert (row["status"], row["ratified_by"]) == ("draft", None), "a changed list needs a new signature"
+    assert (row["status"], row["ratified_by"]) == ("ratified", "a test"), "the engine's own update keeps the signature"
 
 
 def test_ratify_signs_every_draft_with_a_name_and_never_signs_one_twice(conn):
