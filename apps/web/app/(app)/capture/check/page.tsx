@@ -3,7 +3,9 @@ import { Bar, Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
+import { EngineDown, engineGet } from "@/lib/engine";
 import { correctRead, judgeOne } from "../actions";
+import type { Key } from "../[id]/card";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -35,6 +37,18 @@ function whyHere(a: CheckItem, spot: boolean): string {
   return "The reader could not be sure what the child wrote.";
 }
 
+// The right answer this answer is marked against, as the engine stores it (`GET /capture/{id}/keys`, goals/s26-the-
+// right-answer-shown-and-corrected.yaml). The engine down, the key the queue read itself.
+async function keyOf(paper: string, id: string): Promise<Key | undefined> {
+  try {
+    const res = await engineGet(`/capture/${paper}/keys`);
+    return res.ok ? ((await res.json()) as Record<string, Key>)[id] : undefined;
+  } catch (e) {
+    if (e instanceof EngineDown) return undefined;
+    throw e;
+  }
+}
+
 // Every answer the engine is unsure of, one at a time: the child's own writing, the question, the
 // reader's best guess. A person settles it in a click and the next one appears (Nimish: "I'm not even
 // able to see what all validations you need from our side"). The engine marks what the person says.
@@ -47,6 +61,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const from = at >= 0 ? at : Math.min(Math.max(0, Number(q.from) || 0), Math.max(0, queue.length - 1));
   const entry = queue[from];
   const a = entry ? await deadline(checkItem(entry.id, me.email)) : undefined;
+  const key = a ? await keyOf(a.paper_id, a.id) : undefined;
   const waiting = queue.filter((e) => !e.spot).length;
   const spots = queue.length - waiting;
   const next = `/capture/check?from=${from}`;
@@ -103,6 +118,11 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 <div>
                   <span className="label">The question</span>
                   <p className="mt-1 leading-snug">{a.question}</p>
+                  <p className="mt-1">
+                    <span className="label">Right answer</span>{" "}
+                    <strong className="fact">{key?.right ?? a.answer ?? "a person judges this one"}</strong>
+                    {key?.by ? <span className="text-[12px] text-basalt/55"> · changed from {key.was ?? "none"} by {key.by}</span> : null}
+                  </p>
                 </div>
                 <p className="note">{whyHere(a, entry.spot)}</p>
 

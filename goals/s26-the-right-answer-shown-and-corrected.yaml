@@ -1,0 +1,42 @@
+name: s26-the-right-answer-shown-and-corrected
+goal: >
+  Every answer a person checks shows the right answer as the engine stores it, next to what the child wrote. That is a
+  number, or the paper's own words (True / Not true). For a box of an equation it is the equation, which any split
+  that comes out makes true. A question only a person judges says so. When an educator finds a stored right answer
+  wrong, they change it on that answer, for every child at once. Code checks the new answer first:
+  - a sum's right answer is its arithmetic, so 78 for 48 + 35 is refused, with why;
+  - a box of an equation is marked by its equation, not by a key;
+  - a number stays a whole number, and a claim stays True or Not true.
+  The change is kept as a row of its own, in the educator's name and with the answer it replaced. Every deploy puts it
+  back over the paper's file. Every answer to that question is marked again by it: one not yet signed off in place, and
+  one signed off with a new batch of evidence, the old one kept. The page says how many answers changed.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day. First, of question 4A on the Grade 4 September
+# paper: "give an option to the teacher here itself to edit the right answer … it validates it, and then these questions
+# become right for all the students". Then: "the key can be changed by an educator, not an issue. also in any
+# correction, the system should show what the right answer is as stored in the system; that would remove any suspicion
+# or confusion and make it easier to spot any system issue as well."
+# 4A's key was right: 48 + 35 is 83. The 78 was in 4B's box. Had the card shown "right answer 83", the confusion would
+# not have arisen, which is why showing the stored key comes before changing it.
+says:
+  - words: "in any correction, the system should show what the right answer is as stored in the system"
+    proved_by: apps/web/tests/s26-right-answer.spec.ts::every answer shows its right answer as the engine stores it
+  - words: "the key can be changed by an educator, not an issue"
+    proved_by: apps/web/tests/s26-right-answer.spec.ts::an educator changes a right answer for every child, and code refuses one the sum contradicts
+  - words: "it validates it"
+    proved_by: packages/engine/tests/test_keys.py::test_code_refuses_a_right_answer_the_question_itself_contradicts
+  - words: "and then these questions become right for all the students"
+    proved_by: packages/engine/tests/test_keys.py::test_an_educator_changes_a_right_answer_and_every_childs_answer_is_marked_again
+manual:
+  - "After the merge's deploy is green: on the Marking page of the Grade 4 September Week 1 paper, question 4A reads 'Right answer: 83' and 11B 'Right answer: Not true'."
+scenarios: []
+criteria:
+  - name: the key shown, checked, changed for every child and kept across a deploy — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_keys.py -q
+    expect: "passed"
+  - name: the Marking page shows each right answer and changes one, on a production build against the local copy
+    run: cd apps/web && npx playwright test tests/s26-right-answer.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

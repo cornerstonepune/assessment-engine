@@ -18,7 +18,7 @@ from engine.adapters import llm, ocr
 from engine.assess import graph
 from engine.core import db
 from engine.w1_bank import cases, mistake_guess, rehome
-from engine.w3_read import legacy, marking, naming
+from engine.w3_read import again, legacy, marking, naming
 
 # ---- pure: shape → rung, and marking by lookup
 
@@ -883,7 +883,7 @@ def test_marking_again_never_undoes_what_a_person_said(conn, child, tmp_path, mo
     assert two["status"] == "needs_teacher"  # the reader saw 75 for 57 + 28, and a wrong waits (ADR 0029)
 
     marking.correct(conn, two["id"], "85", "a person")
-    marking.remark(conn, child)
+    again.remark(conn, child)
 
     after = conn.execute("select status from item_result where id = %s", (two["id"],)).fetchone()
     assert after["status"] == "correct"
@@ -985,7 +985,7 @@ def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
             (status, json.dumps(read), rows[k]["id"]),
         )
     marking.correct(conn, rows["3"]["id"], "85", "a person")
-    assert marking.remark(conn, child) == 2
+    assert again.remark(conn, child) == 2
 
     after = {
         r["id"]: r
@@ -1001,7 +1001,7 @@ def test_marking_again_holds_a_wrong_or_blank_the_engine_had_settled_alone(
         "needs_teacher",
     ]
     assert json.loads(after[rows["2"]["id"]]["raw_read"])["guess"] == "75"
-    assert marking.remark(conn, child) == 0
+    assert again.remark(conn, child) == 0
 
 
 # ---------------------------------------------------------------- ADR 0032: the reader learns
@@ -1249,6 +1249,10 @@ def test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_short
     assert (got["answer"], got["why"]) == ("93", "")
     assert got["shortlist"] == [["M_CARRY_SKIP", 0.5], ["NONE", 0.3], ["M_NOCARRY", 0.1]]
     assert asked == [{"question": "68 + 27 = ?", "right_answer": 95, "child_answer": "93"}]
+    paper = conn.execute("select sheet_instance_id from capture where id = %s", (capture,)).fetchone()
+    assert list(naming.unnamed(conn, paper["sheet_instance_id"])) == list(lists), (
+        "the Marking page asks by the paper it shows, not by one capture of it"
+    )
 
     with pytest.raises(ValueError, match="not a named mistake of"):
         naming.name_mistake(
@@ -1534,7 +1538,7 @@ def test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too(
     }
     assert (box("11b")["state"], box("11c")["state"]) == ("confirmed", "candidate")
 
-    changed = marking.mark_again(conn, "the marking rule")
+    changed = again.mark_again(conn, "the marking rule")
     assert sorted(changed) == [
         ("legacy/TEST-TRUTH/11b", "wrong", "correct"),
         ("legacy/TEST-TRUTH/11c", "wrong", "correct"),
@@ -1560,7 +1564,7 @@ def test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too(
         (box("11b")["id"],),
     ).fetchone()
     assert typed["human_read"] == "false", "what the person read stays"
-    assert marking.mark_again(conn, "the marking rule") == [], (
+    assert again.mark_again(conn, "the marking rule") == [], (
         "marked by the rule as it stands, nothing changes twice"
     )
 

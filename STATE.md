@@ -3783,7 +3783,7 @@ deploys.
   marked as it was before.
   - `pytest tests/test_legacy.py -k claim_ticked` → passes.
   - Without the fix: `AssertionError`, "false" is wrong against "Not true".
-- **Marking again:** `marking.mark_again` (`engine legacy mark-again --by`) marks each answer a person read by the rule
+- **Marking again:** `marking.mark_again` (now `again.mark_again`, S26) (`engine legacy mark-again --by`) marks each answer a person read by the rule
   as it now stands.
   - A changed mark on an answer not yet signed off is written in place.
   - A changed mark on a signed-off answer gets a new evidence batch; the old one stays in `evidence_event`, and
@@ -3804,3 +3804,36 @@ deploys.
   - `bin/check` → exit 0.
 - **`marking.py` is at 392 of 400 lines.** The next rule added there splits it along a real seam first, for example
   comparing a reading with its key into `assess/`.
+
+## S26 — the right answer shown as stored, and an educator corrects it for every child (goal s26-the-right-answer-shown-and-corrected, ADR 0045, 2026-09-30)
+
+- **Asked on live:**
+  - Question 4A on the Grade 4 paper was typed 78 and marked wrong. Nimish asked to change the key for every child.
+  - The key was right: 48 + 35 is 83. The 78 was 4B's, on the number line.
+  - Then Nimish: "the key can be changed by an educator … in any correction, the system should show what the right
+    answer is as stored in the system".
+- **Built:**
+  - Every card on the paper page, and the answer in the queue, shows "Right answer …" as stored (`keys.shown`,
+    `GET /capture/{id}/keys`), and who changed it.
+  - "Is the right answer wrong? Change it for every child" (`keys.change`, `POST /paper/key`). Code checks the new
+    answer first (`keys.check`).
+  - The change is a `key_correction` row (migration 20261017090000, append-only). `engine legacy paper` puts it back
+    after entering the file (`keys.reapply`), so every deploy keeps it.
+  - Every answer to the question is marked again (`again.mark_again` and `again.remark`, limited to the question).
+    Signed-off answers get a new batch of evidence.
+- **Marking again moved** from `marking.py` (392 of 400 lines) to `w3_read/again.py`. It now also counts a signed-off
+  answer nobody corrected, by the reading its sign-off accepted.
+- **Found and fixed:** the paper page asked for Jev's mistake shortlist by the paper's id, while `naming.unnamed`
+  looked answers up by the capture's id, so the shortlist never showed on a paper page. Both now take either
+  (`naming.ONE_PAPER`), pinned in `test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_shortlist`.
+- **Checks:**
+  - `pytest tests/test_keys.py tests/test_legacy.py tests/api/test_capture_routes.py tests/test_equation.py
+    tests/test_gold.py tests/test_report.py`: all pass (local Postgres 16, the `ci` database with the migration
+    applied).
+  - `npx playwright test tests/s26-right-answer.spec.ts`: 2 passed, on a production build with the real engine and
+    the local copy. The machine's own Chromium was used (`executablePath`), because the pinned Playwright wants a
+    newer one.
+  - `u3-marking.spec.ts`: 5 passed.
+  - `s4-validation-queue.spec.ts` "each paper has one spot-check": fails before loading any page. Its setup query
+    finds no spot-check candidate in a fresh copy (live's rows), so it fails the same way without this change.
+  - `npx tsc --noEmit` and `npm run build` pass. `bin/check` → exit 0.

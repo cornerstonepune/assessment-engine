@@ -15,6 +15,23 @@ is verified. This file only says where the last session stopped.
   (ok7's home activity, ok3's "strong skills", ok6/e8's "can add …, and this skill has grown") — a ruling for Nimish or
   a fix at its cause, never a lower bar.
 
+## 2026-09-30, later — the right answer shown as stored; an educator changes it for every child (goal s26, ADR 0045)
+
+- **Nimish:** "the key can be changed by an educator, not an issue. also in any correction, the system should show what
+  the right answer is as stored in the system", and "stop the model testing for now and finish these two things".
+- **Built, on the branch after #135:**
+  - "Right answer …" on every card and in the queue.
+  - "Is the right answer wrong? Change it for every child", checked by code (`keys.check`), kept as `key_correction`
+    rows that the deploy's paper step puts back (`keys.reapply`), with every answer to the question marked again.
+  - `again.py` (marking again) split from `marking.py`.
+  - The paper page's Jev shortlist, which never showed, is fixed.
+- **Model testing paused.** The three scores are in DECISIONS-LOG. When it resumes, Nimish first rules on the
+  ok7/e2/e1 home-activity sentence.
+- **Next:**
+  - After #135 merges, restart the branch from main, carry this work and open its PR.
+  - Rehearse it on a copy of live: `mark-again` now also covers signed-off answers nobody corrected, so its list may
+    be longer than #135's.
+
 ## 2026-09-30 — a reading is marked by what it says; every deploy marks again (goal s25, ADR 0044)
 
 - **#134 merged by Nimish and deployed** (run 36669517359, 04:41 UTC). The three-model checker eval is running on

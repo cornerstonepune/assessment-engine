@@ -1,13 +1,14 @@
 """N3 — papers done before QR sheets, read into evidence. Its own module so the operator's
 command line stays one screen per workflow (CLAUDE.md rule 11: split along a responsibility)."""
 
+import json
 from pathlib import Path
 
 import typer
 
 from engine.adapters.llm import LLMError
 from engine.core import db, roster
-from engine.w3_read import legacy, marking
+from engine.w3_read import again, keys, legacy, marking
 
 legacy_app = typer.Typer(help="N3 — papers done before QR sheets, read into evidence", no_args_is_help=True)
 
@@ -17,8 +18,11 @@ def legacy_paper(path: str) -> None:
     """Enter (or correct) a paper once: its printed questions become legacy items with a rung each."""
     with db.connect() as conn:
         template = legacy.load_paper(conn, path)
+        keys.reapply(
+            conn, json.loads(Path(path).read_text())["code"]
+        )  # an educator's changed right answers stay
         conn.commit()
-        _, items = legacy.paper_rows(conn, __import__("json").loads(Path(path).read_text())["code"])
+        _, items = legacy.paper_rows(conn, json.loads(Path(path).read_text())["code"])
     typer.echo(f"  {template}  {len(items)} questions")
     for key, it in sorted(
         items.items(), key=lambda kv: (int("".join(ch for ch in kv[0] if ch.isdigit()) or 0), kv[0])
@@ -109,7 +113,7 @@ def legacy_remark(
             ids = [roster.find(conn, section, child, actor)]
         else:
             raise typer.BadParameter("name one child with --child and --section, or say --every-child")
-        n = sum(marking.remark(conn, cid) for cid in ids)
+        n = sum(again.remark(conn, cid) for cid in ids)
         conn.commit()
     typer.echo(f"  {n} results changed" + (f" across {len(ids)} children" if every_child else ""))
 
@@ -118,10 +122,10 @@ def legacy_remark(
 def legacy_mark_again(
     by: str = typer.Option(..., "--by", help="whose name a signed-off answer's new evidence carries"),
 ) -> None:
-    """Every answer a person read, marked again by the rule as it now stands (`marking.mark_again`) — how a marking
-    rule put right reaches answers already marked, signed off or not. Each deploy runs it; it names each change."""
+    """Every answer a person read or signed off, marked again by the rule as it now stands (`again.mark_again`) — how
+    a marking rule put right reaches answers already marked, signed off or not. Each deploy runs it; it names each."""
     with db.connect() as conn:
-        changed = marking.mark_again(conn, by)
+        changed = again.mark_again(conn, by)
         conn.commit()
     for key, was, now in changed:
         typer.echo(f"  {key}: {was} → {now}")
