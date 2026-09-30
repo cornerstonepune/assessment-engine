@@ -8,6 +8,7 @@ const ROUTES: [string, string][] = [
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
   ["/papers", "Papers"],
+  ["/papers/make", "Make papers"],
   ["/capture", "Marking"],
   ["/growth", "Children"],
   ["/home", "Home Assignments"],

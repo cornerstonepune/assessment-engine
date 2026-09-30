@@ -3929,3 +3929,34 @@ deploys.
   e2e "every child's paper has its own code": it needs a G3 T2W1 week, and this copy has no T2W1 paper at all. The 7
   skipped are the serial e2e tests after it. CI does not run the browser suites; its web job typechecks and builds.
   `npx tsc --noEmit`, eslint and `bin/check` pass.
+- **Fixed after the first run (0c430b4):** a paper drawn for one child (`focus_paper.make`) records no skill set on its
+  template, so its row was titled by its QR code. It is now titled by its questions' skill sets and levels.
+
+## M3 — the maker (goal m3-the-maker, 2026-09-30)
+
+- **Asked:** Nimish: class practice, class assessments and home assessments, each "for multiple children", in "an
+  interface in itself": "the same skill paper for multiple children", "individual papers for each child", and "choose
+  the right skill and the grade level, and then choose the children and generate different questions".
+- **Built:**
+  - `w2_print/maker.py`: `plan` (writes nothing), `make` (in the educator's name) and `pdf` (the batch as one PDF, in
+    roll order). It serves any children of one class, in three ways:
+    - `same`: one paper for all, the same questions on every copy, none any of them has been given;
+    - `each`: the chosen skill and level, a different draw for each child, no two sharing a question;
+    - `own`: each child's next step from their graph, which the educator can change for any child.
+  - Every paper is drawn and printed as a home paper is (`focus_paper.print_paper`, now shared): its own code, kind,
+    class and week, and its questions recorded as seen, so it lands in Papers and in the class's pack.
+  - A child the bank cannot fill is named with why. `make` then refuses the whole batch rather than printing part of
+    a class. A home assessment is one a child a week, whoever chose it.
+  - Routes: `POST /papers/plan`, `POST /papers/make` (the same form sent twice makes its papers once),
+    `GET /papers/pack.pdf`.
+  - Screen: /papers/make ("Make a paper" on Papers). Pick the class, what the paper is, how, and the children; see
+    every child's paper; make them; print them all as one; see them in Papers. The old /make is titled "Home
+    assessments", which is what it lists.
+- **Checks:**
+  - `pytest tests/test_maker.py tests/test_focus_paper.py tests/api/test_maker_routes.py tests/api/test_paper_routes.py`
+    → 21 passed.
+  - `npx playwright test` m4-the-maker, m2-make-papers, u9-papers, screens, u2-children and u1-today → all passed.
+    That includes the maker at phone width: its table scrolls, the page does not.
+  - `npx tsc --noEmit`, eslint and `bin/check` pass.
+- **Fixed on the way:** two u2 checks passed vacuously while the page was still a skeleton. The "nothing to approve"
+  child (Chetan) is secure on every answer, so he is stretched; Bina, with no answers, is the child with nothing.

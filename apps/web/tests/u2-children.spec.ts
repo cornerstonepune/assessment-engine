@@ -242,8 +242,11 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
   await expect(next.getByRole("link", { name: qr })).toHaveAttribute("href", `/worksheets/${qr}`);
   await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 
-  // a child with nothing to work on is told so, with nothing to approve
-  await page.goto(`/growth/${ids.Chetan}`);
+  // a child with nothing to work on — Bina has no checked answer yet — is told so, with nothing to approve. The page
+  // streams in: its words first, so that no button is a fact about the page and not about a skeleton. (Chetan, secure
+  // on every answer, is stretched a level up; the count of 0 passed only while his page had not loaded.)
+  await page.goto(`/growth/${ids.Bina}`);
+  await expect(next).toContainText("Nothing to work on yet");
   await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 });
 
@@ -282,6 +285,8 @@ test("a class reads the shared tree, topic by topic, each skill by its name, in 
       where s.topic_code = t.code and l.band = 'G2') order by t.ord`;
   await page.goto(`/growth/class/${SECTION}`);
   const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
+  // the page streams in behind its skeleton, and reading texts does not wait: the heading row first
+  await expect(grid.locator("thead tr").first()).toBeVisible();
   const heads = await grid.locator("thead tr").first().locator("th").allInnerTexts();
   // after the "Child" column, the topics in their order (a topic shows only if the class has a step in it)
   const shown = heads.slice(1).map((h) => h.trim().toLowerCase());

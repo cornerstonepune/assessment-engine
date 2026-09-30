@@ -76,7 +76,7 @@ test("each class's home papers are proposed from each child's own map, one skill
   page,
 }) => {
   await page.goto("/make");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home assessments");
   const row = page.getByRole("table", { name: "Home assessments this week" }).locator("tbody tr").filter({ hasText: SECTION });
   await expect(row.locator("td[data-n=proposed]")).toHaveText("2");
   await row.getByRole("link", { name: "Open" }).click();

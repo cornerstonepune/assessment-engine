@@ -1,0 +1,40 @@
+name: m3-the-maker
+goal: >
+  One maker makes a class practice, a class assessment or a home assessment for any children of a class an educator
+  picks, one of three ways: one paper for all, the same questions on every child's copy and none any of them has
+  seen; the same skill and level with different questions, each child's own draw and no two children sharing a
+  question; or each child's own next step, as their graph shows it, which the educator may change for any child. The
+  educator sees every child's paper before anything is made, and a paper the bank cannot fill is refused in words,
+  naming the child, never padded. Making them approves them in the educator's name: each paper has its own code, its
+  kind, class and week, its questions recorded as seen, and lands in Papers; the batch prints as one PDF in roll order.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day, answering how Papers should work: "The make
+# paper part should also have the capability to create assessments, which are home assessments, class assessments,
+# and all three types of assessments should have the ability to select multiple children with different skill sets.
+# That should be like an interface in itself, which gives the flexibility and possibility for a teacher to: generate
+# the same skill paper for multiple children; generate individual papers for each child; choose the right skill and
+# the grade level, and then choose the children and generate different questions."
+says:
+  - words: "all three types of assessments should have the ability to select multiple children with different skill sets"
+    proved_by: packages/engine/tests/test_maker.py::test_every_kind_is_made_for_the_children_picked_and_no_one_else
+  - words: "generate the same skill paper for multiple children"
+    proved_by: packages/engine/tests/test_maker.py::test_one_paper_for_all_puts_the_same_questions_on_every_copy_none_seen_by_any
+  - words: "generate individual papers for each child"
+    proved_by: packages/engine/tests/test_maker.py::test_each_childs_own_is_their_next_step_and_an_educator_can_change_one_child
+  - words: "choose the right skill and the grade level, and then choose the children and generate different questions"
+    proved_by: packages/engine/tests/test_maker.py::test_the_same_skill_and_level_gives_each_child_different_questions_none_shared
+  - words: "That should be like an interface in itself"
+    proved_by: apps/web/tests/m4-the-maker.spec.ts::an educator picks the kind, the children and the way, sees every paper, makes them, and prints them as one
+manual:
+  - "On live, once merged: make a class practice for three children of G2, one paper for all; print the PDF; find the three in Papers."
+scenarios: []
+criteria:
+  - name: the maker, on the copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_maker.py tests/test_focus_paper.py tests/api/test_maker_routes.py tests/api/test_paper_routes.py
+    expect: "passed"
+  - name: the maker's screen, on the copy
+    run: cd apps/web && npx playwright test tests/m4-the-maker.spec.ts tests/m2-make-papers.spec.ts tests/u9-papers.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
