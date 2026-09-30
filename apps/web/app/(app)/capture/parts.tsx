@@ -3,6 +3,7 @@
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import type { PaperRow, ReaderReport } from "@/lib/queries-read";
+import { ReaderTable } from "./reader-table";
 
 export const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
@@ -43,7 +44,7 @@ export function StandingCells({ s }: { s: Standing }) {
       <td className="num" data-testid="engine">{s.engine}</td>
       <td className="num" data-testid="person">{s.person}</td>
       <td className="num" data-testid="waiting">{s.waiting ? <Pill tone="bamboo">{s.waiting}</Pill> : "—"}</td>
-      <td className="whitespace-nowrap text-[12.5px]">
+      <td className="num whitespace-nowrap text-[12.5px]">
         {s.papers === 0 ? "—" : s.signed === s.papers ? <Pill tone="neem">all {s.papers} signed off</Pill> : `${s.signed} of ${s.papers} signed off`}
       </td>
     </>
@@ -52,12 +53,12 @@ export function StandingCells({ s }: { s: Standing }) {
 
 export const STANDING_HEADS = (
   <>
-    <th className="text-right">Papers in</th>
-    <th className="text-right">Answers read</th>
-    <th className="text-right">Settled by the engine</th>
-    <th className="text-right">Checked by a person</th>
-    <th className="text-right">Still waiting</th>
-    <th>Signed off</th>
+    <th className="num">Papers in</th>
+    <th className="num">Answers read</th>
+    <th className="num">Settled by the engine</th>
+    <th className="num">Checked by a person</th>
+    <th className="num">Still waiting</th>
+    <th className="num">Signed off</th>
   </>
 );
 
@@ -94,13 +95,13 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
           <tr>
             {withChild ? <th>Child</th> : null}
             <th>Paper</th>
-            <th>Sat</th>
-            <th className="text-right">Answers</th>
-            <th className="text-right">By the engine</th>
-            <th className="text-right">By a person</th>
-            <th className="text-right">Waiting</th>
-            <th className="text-right">Score</th>
-            <th>State</th>
+            <th className="num">Sat</th>
+            <th className="num">Answers</th>
+            <th className="num">By the engine</th>
+            <th className="num">By a person</th>
+            <th className="num">Waiting</th>
+            <th className="num">Score</th>
+            <th className="num">State</th>
           </tr>
         </thead>
         <tbody>
@@ -115,7 +116,7 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
               <td className="max-w-[280px] text-[13px]">
                 <Link href={`/capture/${p.id}`}>{p.title ?? p.paper}</Link>
               </td>
-              <td className="fact whitespace-nowrap">{fmtDate(p.date)}</td>
+              <td className="num fact whitespace-nowrap">{fmtDate(p.date)}</td>
               <td className="num">{p.n_results}</td>
               <td className="num">{p.n_engine}</td>
               <td className="num">{p.n_person}</td>
@@ -124,7 +125,7 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
                 {/* A score once nothing on the sheet waits for a person: right, of every answer that counts. */}
                 {p.n_results > 0 && p.n_flagged === 0 ? `${p.n_right} / ${p.n_scored} right` : "—"}
               </td>
-              <td className="whitespace-nowrap">
+              <td className="num whitespace-nowrap">
                 {p.n_results === 0 ? (
                   <Pill tone="terracotta">nothing read</Pill>
                 ) : p.n_candidate === 0 ? (
@@ -143,101 +144,25 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
   );
 }
 
-// Every check teaches the reader about that child (ADR 0032); this says what the checks so far add up to,
-// so the effort can be seen to pay — and which kinds of question the reader has earned trust on.
-const KIND_WORDS: Record<string, string> = { legacy_bare: "sums", legacy_missing: "missing numbers", legacy_word: "word problems", legacy_text: "written answers" };
+// Every check teaches the reader about that child (ADR 0032); this says what the checks so far add up to, so the effort
+// can be seen to pay, and whether the reader is getting better: one table, by day first (`ReaderTable`).
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—");
 
 export function ReaderPanel({ r }: { r: ReaderReport }) {
+  const read = r.days.filter((d) => d.stood_behind > 0); // newest first
+  const [latest, first] = [read[0], read[read.length - 1]];
   return (
     <Panel title="How the reader is doing" label="How the reader is doing" aside={`from ${r.checked} answers people have checked`}>
-        <p className="text-[15px] leading-snug">
-          Checked by a person: {r.checked} answers. The reader was right on {r.right} of the {r.stood_behind} it stood behind ({pct(r.right, r.stood_behind)}),
-          wrong on {r.stood_behind - r.right}, and gave up on {r.gave_up}{r.gave_up ? ` (its guess was right on ${r.guess_right})` : ""}. Every check you make
-          teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you {Math.round(r.bar * 100)}% of the
-          time over the last {r.window} checks.
-        </p>
-        {r.kinds.length ? (
-          <div className="mt-3 min-w-0 overflow-x-auto">
-            <table className="grid">
-              <thead>
-                <tr>
-                  <th>Kind of question</th>
-                  <th className="text-right">Checked</th>
-                  <th className="text-right">Reader right</th>
-                  <th className="text-right">Gave up</th>
-                  <th className="text-right">Last {r.window}</th>
-                  <th>Standing</th>
-                </tr>
-              </thead>
-              <tbody>
-                {r.kinds.map((k) => (
-                  <tr key={k.fmt}>
-                    <td>{KIND_WORDS[k.fmt] ?? k.fmt}</td>
-                    <td className="num">{k.checked}</td>
-                    <td className="num">{pct(k.right, k.checked - k.gave_up)}</td>
-                    <td className="num">{k.gave_up}</td>
-                    <td className="num">{k.window_right} of {k.window_n}</td>
-                    <td>{k.trusted ? <Pill tone="neem">trusted: settles alone</Pill> : <Pill tone="bamboo">every answer checked by a person</Pill>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-        {r.days.length ? (
-          <div className="mt-3 min-w-0 overflow-x-auto">
-            <table className="grid">
-              <thead>
-                <tr>
-                  <th>Papers read on</th>
-                  <th className="text-right">Checked</th>
-                  <th className="text-right">Reader right</th>
-                  <th className="text-right">Gave up</th>
-                </tr>
-              </thead>
-              <tbody>
-                {r.days.map((d) => (
-                  <tr key={d.day}>
-                    <td>{d.day}</td>
-                    <td className="num">{d.checked}</td>
-                    <td className="num">{pct(d.right, d.stood_behind)}</td>
-                    <td className="num">{d.gave_up}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-        {r.bands.length ? (
-          <div className="mt-3 min-w-0 overflow-x-auto">
-            <p className="text-[15px] leading-snug">
-              How sure the reader was, and how often it was right. An answer stands on its own only when the reader is at least{" "}
-              {Math.round(r.floor)}% sure; below that a person checks it. When the bands just under that line are right nearly every
-              time, the line can come down and fewer answers wait.
-            </p>
-            <table className="grid mt-2">
-              <thead>
-                <tr>
-                  <th>Reader was this sure</th>
-                  <th className="text-right">Checked</th>
-                  <th className="text-right">Right</th>
-                  <th>Today</th>
-                </tr>
-              </thead>
-              <tbody>
-                {r.bands.map((b) => (
-                  <tr key={b.lo}>
-                    <td>{b.lo}–{Math.min(b.hi, 100)}%</td>
-                    <td className="num">{b.n}</td>
-                    <td className="num">{pct(b.right, b.n)}</td>
-                    <td>{b.lo >= r.floor ? <Pill tone="neem">stands alone</Pill> : <Pill tone="bamboo">a person checks</Pill>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
+      <p className="text-[15px] leading-snug">
+        Checked by a person: {r.checked} answers. The reader was right on {r.right} of the {r.stood_behind} it stood behind ({pct(r.right, r.stood_behind)}),
+        wrong on {r.stood_behind - r.right}, and gave up on {r.gave_up}{r.gave_up ? ` (its guess was right on ${r.guess_right})` : ""}.
+        {first && latest && first !== latest
+          ? ` On the first papers it read (${fmtDate(first.day)}) it was right on ${pct(first.right, first.stood_behind)}; on the latest (${fmtDate(latest.day)}), ${pct(latest.right, latest.stood_behind)}.`
+          : ""}{" "}
+        Every check you make teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you{" "}
+        {Math.round(r.bar * 100)}% of the time over the last {r.window} checks.
+      </p>
+      {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} /> : null}
     </Panel>
   );
 }

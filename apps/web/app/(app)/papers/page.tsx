@@ -112,12 +112,12 @@ export default async function PapersPage({ searchParams }: Props) {
                 <tr>
                   <th>Paper</th>
                   <th>Kind</th>
-                  <th>Class</th>
+                  <th className="num">Class</th>
                   <th>Child</th>
-                  <th>Week</th>
-                  <th>Stage</th>
-                  <th className="text-right">Waiting</th>
-                  <th className="text-right">Score</th>
+                  <th className="num">Week</th>
+                  <th className="num">Stage</th>
+                  <th className="num">Waiting</th>
+                  <th className="num">Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,10 +130,10 @@ export default async function PapersPage({ searchParams }: Props) {
                       </Link>
                     </td>
                     <td className="whitespace-nowrap">{KIND_WORDS[p.kind] ?? p.kind}</td>
-                    <td className="whitespace-nowrap">{p.section ?? <span className="text-basalt/45">—</span>}</td>
+                    <td className="num whitespace-nowrap">{p.section ?? <span className="text-basalt/45">—</span>}</td>
                     <td className="whitespace-nowrap">{p.child ?? <span className="text-basalt/45">spare copy</span>}</td>
-                    <td className="fact whitespace-nowrap">{p.week ?? <span className="text-basalt/45">—</span>}</td>
-                    <td>
+                    <td className="num fact whitespace-nowrap">{p.week ?? <span className="text-basalt/45">—</span>}</td>
+                    <td className="num">
                       <Pill tone={STAGE_TONE[p.stage]}>{p.stage}</Pill>
                     </td>
                     <td className="num">{p.waiting ? p.waiting : <span className="text-basalt/45">—</span>}</td>

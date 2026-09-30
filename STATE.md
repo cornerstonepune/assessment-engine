@@ -3960,3 +3960,26 @@ deploys.
   - `npx tsc --noEmit`, eslint and `bin/check` pass.
 - **Fixed on the way:** two u2 checks passed vacuously while the page was still a skeleton. The "nothing to approve"
   child (Chetan) is secure on every answer, so he is stretched; Bina, with no answers, is the child with nothing.
+
+## U10 — tables that read straight; the reader as one table (goal u10-tables-read-straight, 2026-09-30)
+
+- **Asked:** Nimish, over the Marking page's reader tables: "The column names are not well formatted and
+  center-aligned … the table alignment is distorted across all the places", and "just one table, which can have a
+  toggle around confidence levels, the date, etc. … which very clearly shows how the engine is improving or not".
+- **Root cause of the drift:** every `<th className="text-right">` in the app was silently left-aligned. The shared
+  rule `table.grid th { text-align: left }` outranks a utility class. So numbers sat right under headings on the left.
+- **Built:**
+  - `table.grid .num` now centres a short value (count, share, date, level, pill) and its heading together. Names and
+    sentences stay left.
+  - All 19 files with tables are swept: 26 headings take `num`, and pill, date, level and grade columns take it on
+    heading and cells alike.
+  - The reader panel is one table with a toggle (`capture/reader-table.tsx`):
+    - by day first, with each day's move against the day before (▲/▼ points) and one sentence on the first day read
+      against the latest;
+    - by kind of question, every kind in words from `KIND`, and the school's earlier papers named as such;
+    - by how sure it was.
+- **Checks:** `npx playwright test tests/u10-tables-read-straight.spec.ts` → 3 passed.
+  - It compares every heading's computed alignment with its column's on /papers, /capture, /growth, /make, /library
+    and /worksheets, and in each reader view.
+  - It checks the day-against-day arithmetic from the table's own rows, on two days the test seeds.
+  - s4, u3, u8, u9, m2, m4, u2, s3, s5 and screens → all passed.

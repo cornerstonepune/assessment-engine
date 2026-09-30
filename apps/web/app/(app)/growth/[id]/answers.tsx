@@ -16,9 +16,9 @@ export function AnswerTable({ rows, names }: { rows: AnswerRow[]; names: Record<
             <th>Date</th>
             <th>Q</th>
             <th>Question</th>
-            <th className="text-right">Child wrote</th>
-            <th className="text-right">Key</th>
-            <th>Mark</th>
+            <th className="num">Child wrote</th>
+            <th className="num">Key</th>
+            <th className="num">Mark</th>
             <th>Mistake matched</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@ export function AnswerTable({ rows, names }: { rows: AnswerRow[]; names: Record<
               </td>
               <td className="num">{a.read || "—"}</td>
               <td className="num">{a.answer ?? "—"}</td>
-              <td>
+              <td className="num">
                 <MarkPill status={a.status} working={a.working} />
               </td>
               <td className="text-[12.5px]">{a.misconception_codes.map((c) => names[c] ?? c).join("; ")}</td>

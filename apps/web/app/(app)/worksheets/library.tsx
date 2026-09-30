@@ -55,7 +55,7 @@ export async function Library({ q }: { q: Q }) {
               <tr>
                 <th>What the child can do</th>
                 {DIFFICULTIES.map((d) => (
-                  <th key={d} className="text-right">
+                  <th key={d} className="num">
                     {d}
                   </th>
                 ))}
@@ -114,7 +114,7 @@ export async function Library({ q }: { q: Q }) {
               <tr>
                 <th>Worksheet</th>
                 <th>Skill</th>
-                <th>Level</th>
+                <th className="num">Level</th>
                 <th>Its twelve questions</th>
               </tr>
             </thead>
@@ -125,7 +125,7 @@ export async function Library({ q }: { q: Q }) {
                     <Link href={`/worksheets/${w.code}`}>{w.code}</Link>
                   </td>
                   <td className="min-w-[180px]">{w.skill}</td>
-                  <td>{w.difficulty}</td>
+                  <td className="num">{w.difficulty}</td>
                   <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds)}</td>
                 </tr>
               ))}

@@ -67,7 +67,7 @@ export default async function QuestionScreen({ params, searchParams }: Props) {
                   <table className="grid" aria-label="Wrong answers it catches">
                     <thead>
                       <tr>
-                        <th className="text-right">If the child writes</th>
+                        <th className="num">If the child writes</th>
                         <th>The mistake</th>
                         <th>What it looks like</th>
                       </tr>

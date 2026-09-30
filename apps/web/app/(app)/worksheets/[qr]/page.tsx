@@ -79,7 +79,7 @@ export default async function PaperPage({ params }: Props) {
               <table className="grid" aria-label="Answer key">
                 <thead>
                   <tr>
-                    <th className="text-right">#</th>
+                    <th className="num">#</th>
                     <th>Question</th>
                     <th>Kind</th>
                     <th>Answer</th>

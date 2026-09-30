@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, night — tables that read straight; the reader as one table (goal u10); colours and curriculum next
+
+- **Nimish's next asks, same message:**
+  - (1) the tables: done in u10;
+  - (2) what red, amber, green and grey mean, stated on the page, and for grey a recommended check that places the
+    child (goal u11, next);
+  - (3) Curriculum as one expandable table: grade → subject → topic → skill, with columns for questions,
+    worksheets, levels, children assessed and taught (goal u12).
+- **Answered in chat:** changing a key re-marks that question for every child, signed-off answers included (with new
+  evidence and the graph rebuilt). A person's own right/wrong call is never overwritten, and is counted as kept.
+
 ## 2026-09-30, evening — the maker (goal m3)
 
 - **Built:** /papers/make makes class practice, class assessments or home assessments for any children of a class,

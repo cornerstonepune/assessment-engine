@@ -52,8 +52,8 @@ export async function Proposals() {
             <thead>
               <tr>
                 <th>Question</th>
-                <th>Level</th>
-                <th className="text-right">Right</th>
+                <th className="num">Level</th>
+                <th className="num">Right</th>
                 <th>Children found it</th>
                 <th>Decide</th>
               </tr>
@@ -64,7 +64,7 @@ export async function Proposals() {
                   <td>
                     <Link href={`/library/${p.subject}`}>{p.subject}</Link>
                   </td>
-                  <td>{p.evidence.difficulty}</td>
+                  <td className="num">{p.evidence.difficulty}</td>
                   <td className="num">
                     {p.evidence.correct} of {p.evidence.n}
                   </td>
