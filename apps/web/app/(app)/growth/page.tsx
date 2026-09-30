@@ -14,21 +14,24 @@ const fmtDay = (d: string) =>
 const reportRank = (r: ChildRow["report"]) => (!r ? 2 : r.out_of_date ? 0 : r.approved ? 3 : 1);
 const helpRank = (h: ChildRow["help"]) => (!h ? 2 : h.rag === "red" ? 0 : 1);
 
-// Each column, in order: its heading, and how it sorts (none: the roll order, as the class list has it).
-const COLUMNS: { key: string; label: string; num?: boolean; by?: (a: ChildRow, b: ChildRow) => number }[] = [
-  { key: "roll", label: "Roll" },
-  { key: "name", label: "Name", by: (a, b) => a.first_name.localeCompare(b.first_name) },
+// Each column, in order: its heading, how it sorts (none: the roll order, as the class list has it), and which way,
+// as a screen reader says it: "other" where the order is what needs doing first rather than smallest or largest.
+type Dir = "ascending" | "descending" | "other";
+const COLUMNS: { key: string; label: string; num?: boolean; dir?: Dir; by?: (a: ChildRow, b: ChildRow) => number }[] = [
+  { key: "roll", label: "Roll", dir: "ascending" },
+  { key: "name", label: "Name", dir: "ascending", by: (a, b) => a.first_name.localeCompare(b.first_name) },
   { key: "grade", label: "Grade" },
-  { key: "class", label: "Class", by: (a, b) => a.section.localeCompare(b.section) },
+  { key: "class", label: "Class", dir: "ascending", by: (a, b) => a.section.localeCompare(b.section) },
   {
     key: "help",
     label: "Needs help on",
+    dir: "other",
     by: (a, b) => helpRank(a.help) - helpRank(b.help) || (a.help?.name ?? "").localeCompare(b.help?.name ?? ""),
   },
-  { key: "secure", label: "Secure", num: true, by: (a, b) => b.secure - a.secure },
-  { key: "practising", label: "Practising", num: true, by: (a, b) => b.practising - a.practising },
-  { key: "last", label: "Last paper read", by: (a, b) => (b.last_read ?? "").localeCompare(a.last_read ?? "") },
-  { key: "report", label: "Parent report", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
+  { key: "secure", label: "Secure", num: true, dir: "descending", by: (a, b) => b.secure - a.secure },
+  { key: "practising", label: "Practising", num: true, dir: "descending", by: (a, b) => b.practising - a.practising },
+  { key: "last", label: "Last paper read", dir: "descending", by: (a, b) => (b.last_read ?? "").localeCompare(a.last_read ?? "") },
+  { key: "report", label: "Parent report", dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
 
 function Report({ r }: { r: ChildRow["report"] }) {
@@ -51,7 +54,9 @@ function Report({ r }: { r: ChildRow["report"] }) {
 // every skill (goals/u2-children.yaml).
 export default async function ChildrenPage({ searchParams }: Props) {
   const me = await requireStaff();
-  const { sort = "roll" } = await searchParams;
+  const asked = (await searchParams).sort;
+  // a heading that does not sort (Grade), or no heading at all, is the roll order
+  const sort = COLUMNS.find((c) => c.key === asked && c.dir)?.key ?? "roll";
   const rows = await deadline(childTable(me.email));
   const by = COLUMNS.find((c) => c.key === sort)?.by;
   const grades = [...new Set(rows.map((r) => r.band))];
@@ -95,9 +100,9 @@ export default async function ChildrenPage({ searchParams }: Props) {
                           <th
                             key={c.key}
                             className={c.num ? "text-right" : undefined}
-                            aria-sort={c.key === sort ? (c.by ? "descending" : "ascending") : undefined}
+                            aria-sort={c.key === sort ? c.dir : undefined}
                           >
-                            {c.key === "grade" ? (
+                            {!c.dir ? (
                               c.label
                             ) : (
                               <Link

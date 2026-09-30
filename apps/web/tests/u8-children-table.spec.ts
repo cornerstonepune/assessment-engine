@@ -121,16 +121,22 @@ test("a click anywhere on a child's row opens the child, and any column sorts th
     (await page.locator(`tbody tr[data-section="${SECTION}"]`).evaluateAll((trs) => trs.map((t) => t.getAttribute("data-child"))));
   expect(await mine()).toEqual([ids.Asha, ids.Bina, ids.Chetan]); // by roll, 2 before 10
 
+  // a sort is a new page, streamed in behind a skeleton: its column says it sorts before the rows are read
+  const sorted = (label: string) => page.getByRole("table", { name: "Grade 2: every child" }).locator("th", { hasText: label });
   await page.getByRole("table", { name: "Grade 2: every child" }).getByRole("link", { name: "Secure" }).click();
   await expect(page).toHaveURL(/sort=secure/);
+  await expect(sorted("Secure")).toHaveAttribute("aria-sort", "descending");
   expect((await mine()).slice(0, 2).sort()).toEqual([ids.Asha, ids.Chetan].sort()); // one secure skill each, then none
   expect((await mine())[2]).toBe(ids.Bina);
 
   await page.getByRole("table", { name: "Grade 2: every child" }).getByRole("link", { name: "Parent report" }).click();
   await expect(page).toHaveURL(/sort=report/);
+  await expect(sorted("Parent report")).toHaveAttribute("aria-sort", "other"); // what needs doing first
 
-  // a click where a person would click it: in the middle of the Practising cell, nowhere near the name
-  const box = (await row(page, "Bina").locator("td").nth(6).boundingBox())!;
+  // a click where a person would click it: in the middle of the Practising cell, nowhere near the name, on screen
+  const cell = row(page, "Bina").locator("td").nth(6);
+  await cell.scrollIntoViewIfNeeded();
+  const box = (await cell.boundingBox())!;
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await expect(page).toHaveURL(`/growth/${ids.Bina}`);
 });
