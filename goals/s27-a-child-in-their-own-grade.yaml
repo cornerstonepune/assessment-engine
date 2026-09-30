@@ -1,0 +1,26 @@
+name: s27-a-child-in-their-own-grade
+goal: >
+  G3 roll 5 is a Grade 3 child on live. Their parent report says Grade 3, and their papers come from Grade 3's levels.
+  A class works at the grade most of its children are in, decided the same way every time. A child entered in another
+  grade by mistake therefore never moves the whole class's week to it; a child who works at another grade by design is
+  still prescribed at their own. Loading the class list names every child whose grade it changes, so a list that still
+  carries the slip cannot undo the fix unseen.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day: "G3 roll 5 should be band G3, fix it". The
+# session had written every parent report due that morning and found G3 roll 5 in class G3 with band G4. Their report
+# said "Grade 4". Only the class list sets a child's band (`engine week roster`, `core/roster.py`), so the slip was in
+# that file, which is kept outside the repository because it holds names. The week's declaration took its class's grade
+# from whichever child Postgres returned first (`limit 1`), so one child's slip could move the whole class.
+says:
+  - words: "G3 roll 5 should be band G3, fix it"
+    proved_by: packages/engine/tests/test_roster.py::test_g3_roll_5_is_band_g3_once_the_migration_has_run
+manual:
+  - "Correct G3 roll 5's band in the class list file itself. It lives outside the repository, and loading it unchanged puts G4 back; the load now says so."
+scenarios: []
+criteria:
+  - name: the migration, a class's grade, and what loading the class list changes
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_roster.py tests/test_week_note.py -q
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
