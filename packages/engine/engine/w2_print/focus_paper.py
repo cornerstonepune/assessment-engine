@@ -19,8 +19,6 @@ import tempfile
 from dataclasses import replace
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
 from engine.assess import focus
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
@@ -42,6 +40,8 @@ HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by the
 # Nimish, 2026-09-27: "The home assessment part reads as 'home assessment.'" A paper an educator chooses instead of
 # the proposed one is a different home assessment, so both say so; the week label says who chose it.
 TITLE = "Home assessment"
+# A paper the maker makes for the class (goal m3-the-maker) says so instead: it is sat in class, not sent home.
+TITLES = {"practice": "Class practice", "assessment": "Class assessment"}
 MOST_ASKED = 40
 PREVIEW = (
     "PREVIEW"  # the QR a paper seen before approval carries: no sheet has it, so a stray copy never reads
@@ -99,18 +99,40 @@ def _can_show(item, mistake):
     return bool(mistake) and any(mistake in (r.get("misconceptions") or {}) for r in item["responses"])
 
 
-def _draw(conn, child_id, area, want, rng):
-    """`want` active questions for one area at its level that the child has never been given: questions of
-    the area's own skill first, those that can show the child's repeated mistake before the rest."""
+def _draw(conn, whose, area, want, rng, taken=()):
+    """`want` active questions for one area at its level that none of `whose` (one child, or every child of a paper
+    for all) has ever been given, and none `taken` for another child's paper: questions of the area's own skill
+    first, those that can show the child's repeated mistake before the rest."""
     rows = conn.execute(
         "select * from item i where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s"
-        " and not exists (select 1 from item_exposure x where x.child_id = %s and x.item_id = i.id)"
+        " and not exists (select 1 from item_exposure x where x.child_id = any(%s::uuid[]) and x.item_id = i.id)"
         " order by i.item_key",
-        (area.skill_set, area.level, child_id),
+        (area.skill_set, area.level, list(whose)),
     ).fetchall()
     rng.shuffle(rows)
     rows.sort(key=lambda r: (area.skill_code not in r["skill_codes"], not _can_show(r, area.mistake)))
-    return rows[:want]
+    return [r for r in rows if str(r["id"]) not in taken][:want]
+
+
+def _short(k, whose, taken, name, level) -> str:
+    """Why an area cannot be filled, in words: how many questions are left, and for whom."""
+    who = (
+        "this child has not seen"
+        if len(whose) == 1
+        else f"none of these {len(whose)} children has been given"
+    )
+    if taken:
+        who += " and no other paper here holds"
+    then = f"ask for {k} or fewer" if k else "choose another skill or level"
+    return f"only {k} questions {who} in {name} at {level}; {then}"
+
+
+def _states(conn, child_id):
+    return conn.execute(
+        "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
+        " from child_skill_state where child_id = %s",
+        (child_id,),
+    ).fetchall()
 
 
 def _where_it_shows(conn, area, levels) -> focus.Area:
@@ -182,42 +204,41 @@ def home_area(conn, child_id: str, states: list | None = None) -> list:
     """[the one Area a child's home paper works on], at the level where its mistake shows — or [] when the graph shows
     none. What `plan` draws a home paper from, and what Friday's class card names for each child."""
     if states is None:
-        states = conn.execute(
-            "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
-            " from child_skill_state where child_id = %s",
-            (child_id,),
-        ).fetchall()
+        states = _states(conn, child_id)
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     levels = _levels(conn, band)
     return [_where_it_shows(conn, a, levels) for a in focus.home(states, catalog(conn), rule(conn), levels)]
 
 
-def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
+def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> dict:
     """The areas and the questions for a paper for this child; nothing is written. Without `ask`, the home paper
     the graph proposes; with it, the areas a teacher asked for — refused, never padded, when the bank holds too
-    few questions the child has not seen."""
-    states = conn.execute(
-        "select skill_code, rung_code, state, n_events, n_correct, repeating_misconception"
-        " from child_skill_state where child_id = %s",
-        (child_id,),
-    ).fetchall()
+    few questions the child has not seen. `taken`: questions already on another child's paper of the same batch."""
+    states = _states(conn, child_id)
     if ask:
         chosen = _asked(conn, states, ask)
     else:
         n = int(_config(conn, "assemble.items_per_sheet", 12))
         chosen = [(a, n) for a in home_area(conn, child_id, states)]
+    rng = random.Random(f"{child_id}|{week}")
+    return {
+        "child_id": child_id,
+        "week": week,
+        **drawn(conn, [child_id], chosen, rng, taken, strict=bool(ask)),
+    }
+
+
+def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
+    """Each chosen (area, how many) filled with questions none of `whose` has been given, as a paper shows them;
+    `strict` refuses an area the bank cannot fill rather than printing it short."""
     names = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
     name_of = mistake_names.names(conn)
-    rng = random.Random(f"{child_id}|{week}")
     out = []
     for area, want in chosen:
-        questions = _draw(conn, child_id, area, want, rng)
-        if ask and len(questions) < want:
-            raise ValueError(
-                f"only {len(questions)} questions this child has not seen in {names.get(area.skill_set)} at"
-                f" {area.level}; ask for {len(questions)} or fewer"
-            )
+        questions = _draw(conn, whose, area, want, rng, taken)
+        if strict and len(questions) < want:
+            raise ValueError(_short(len(questions), whose, taken, names.get(area.skill_set), area.level))
         why = (
             WHY["asked"]
             if area.state == "asked"
@@ -247,7 +268,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None) -> dict:
                 ],
             }
         )
-    return {"child_id": child_id, "week": week, "areas": out, "n": sum(len(a["questions"]) for a in out)}
+    return {"areas": out, "n": sum(len(a["questions"]) for a in out)}
 
 
 def approved(conn, child_id: str, week: str) -> dict | None:
@@ -269,7 +290,14 @@ def make(conn, child_id: str, week: str, actor: str, ask: list | None = None) ->
     had = None if ask else approved(conn, child_id, week)
     if had:
         raise ValueError(f"this week's next paper is already approved: {had['qr']} by {had['approved_by']}")
-    p, ids = _planned(conn, child_id, week, ask)
+    p, _ = _planned(conn, child_id, week, ask)
+    return {**print_paper(conn, child_id, week, actor, kind, p, HOW[kind]), "areas": p["areas"]}
+
+
+def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, how: str, pw=None) -> dict:
+    """One child's drawn paper `p`, approved by `actor`: a template of its own, the child's copy with its code, its
+    kind, class and week, its questions recorded as seen, and the page rendered, saying `how` it was chosen."""
+    ids = [q["id"] for a in p["areas"] for q in a["questions"]]
     child = conn.execute("select tenant_id, band, section from child where id = %s", (child_id,)).fetchone()
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)"
@@ -289,13 +317,13 @@ def make(conn, child_id: str, week: str, actor: str, ask: list | None = None) ->
         (child["tenant_id"], child_id, week, ids),
     )
     outdir = db.REPO_ROOT / "data" / "focus" / week
-    key = _render(conn, child_id, week, actor, kind, p, ids, qr, outdir)
+    key = _render(conn, child_id, week, actor, kind, p, ids, qr, outdir, how, pw)
     pdf = outdir / f"{qr}.pdf"
     conn.execute(
         "update sheet_instance set pdf_path = %s, key = %s where id = %s",
         (str(pdf), json.dumps(key), instance),
     )
-    return {"qr": qr, "pdf_path": str(pdf), "pages": key["pages"], "questions": len(ids), "areas": p["areas"]}
+    return {"qr": qr, "pdf_path": str(pdf), "pages": key["pages"], "questions": len(ids)}
 
 
 def _planned(conn, child_id, week, ask):
@@ -306,20 +334,22 @@ def _planned(conn, child_id, week, ask):
     return p, ids
 
 
-def _render(conn, child_id, week, actor, kind, p, ids, qr, outdir):
-    """The paper as it prints, into `outdir` as `<qr>.pdf`; returns its key. Approving and seeing it both come here."""
+def _render(conn, child_id, week, actor, kind, p, ids, qr, outdir, how=None, pw=None):
+    """The paper as it prints, into `outdir` as `<qr>.pdf`; returns its key. Approving and seeing it both come here;
+    a batch passes its one Playwright (`pw`) to every paper."""
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     rows = {str(r["id"]): r for r in conn.execute("select * from item where id = any(%s::uuid[])", (ids,))}
     name = roster.names(conn, [child_id], actor).get(child_id, "")
-    title, label = heading(kind, [a["name"] for a in p["areas"]], name)
+    title, label = heading(kind, [a["name"] for a in p["areas"]], name, how)
     sheet = Sheet(qr, band, "Focus", 1, week, [item_from_row(rows[i]) for i in ids], title=title)
-    with sync_playwright() as pw:
-        return render_sheet(sheet, outdir, week_label=label, pw=pw)
+    return render_sheet(sheet, outdir, week_label=label, pw=pw)
 
 
-def heading(kind, areas, name):
-    """→ (the paper's title, the line under it): what a child's home assessment says at its top."""
-    return f"{TITLE}: " + " · ".join(areas), f"{name or TITLE} · {TITLE}, {HOW[kind]}"
+def heading(kind, areas, name, how=None):
+    """→ (the paper's title, the line under it): what a child's paper says at its top — a home assessment, or the
+    class's practice or assessment — and who chose it."""
+    title = TITLES.get(kind, TITLE)
+    return f"{title}: " + " · ".join(areas), f"{name or title} · {title}, {how or HOW[kind]}"
 
 
 def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> bytes:

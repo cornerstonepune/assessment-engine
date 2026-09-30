@@ -13,8 +13,8 @@ export default async function MakePapers() {
   return (
     <>
       <PageHeader
-        stage="Papers · make"
-        title="Make papers"
+        stage="Papers · home assessments"
+        title="Home assessments"
         sub="Each child's home assessment for the week — one skill, from their own map, or one you choose for them. Nothing prints until you approve it."
       />
       <Body>

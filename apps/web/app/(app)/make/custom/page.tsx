@@ -5,10 +5,11 @@ import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
 import { readArea, seeHref, type Area } from "@/lib/next-paper";
-import { GRADE_GROUPS, levelsOf, skillSets } from "@/lib/queries";
+import { skillSets } from "@/lib/queries";
 import { oneChild } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
 import { approveCustom } from "../actions";
+import { SkillLevelSelect } from "../skill-level";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 type Plan = { areas: { skill_set: string; name: string; level: string; questions: { item_key: string; text: string }[] }[] };
@@ -43,7 +44,6 @@ export default async function CustomPaper({ searchParams }: Props) {
     else refused = ((await res.json().catch(() => ({}))) as { detail?: unknown }).detail?.toString() ?? `The engine refused (${res.status}).`;
   }
   const lines = Array.from({ length: ROWS }, (_, i) => areas[i]);
-  const grades = [...GRADE_GROUPS].sort(([a], [b]) => Number(b === child.band) - Number(a === child.band));
 
   return (
     <>
@@ -69,23 +69,7 @@ export default async function CustomPaper({ searchParams }: Props) {
                 <div key={i} className="grid grid-cols-[minmax(0,1fr)_72px] gap-2">
                   <label className="field">
                     <span className="label">Skill and level {i + 1}</span>
-                    <select className="select" name="s" defaultValue={a ? `${a.skill_set}~${a.level}` : ""} aria-label={`Skill and level ${i + 1}`}>
-                      <option value="">—</option>
-                      {grades.map(([band, words]) => {
-                        const here = sets.filter((x) => x.band === band);
-                        return here.length ? (
-                          <optgroup key={band} label={words}>
-                            {here.flatMap((x) =>
-                              levelsOf(x).map((d) => (
-                                <option key={`${x.code}~${d}`} value={`${x.code}~${d}`}>
-                                  {x.name} · {d} ({x.counts[d] ?? 0} questions)
-                                </option>
-                              )),
-                            )}
-                          </optgroup>
-                        ) : null;
-                      })}
-                    </select>
+                    <SkillLevelSelect name="s" label={`Skill and level ${i + 1}`} value={a ? `${a.skill_set}~${a.level}` : ""} sets={sets} band={child.band} />
                   </label>
                   <label className="field">
                     <span className="label">Questions</span>

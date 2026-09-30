@@ -69,7 +69,7 @@ export default async function PapersPage({ searchParams }: Props) {
       />
       <Body>
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
-          <Link href="/make" className="btn">
+          <Link href="/papers/make" className="btn">
             Make a paper
           </Link>
           <Link href="/capture/check" className="btn secondary">

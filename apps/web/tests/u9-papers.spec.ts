@@ -135,7 +135,7 @@ test("one Papers in the menu for marking and making, and a row opens the paper w
   await expect(menu.getByRole("link", { name: "Marking" })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Make papers" })).toHaveCount(0);
   // making, reading a scan and the queue of answers to check are all here
-  await expect(page.getByRole("link", { name: "Make a paper" })).toHaveAttribute("href", "/make");
+  await expect(page.getByRole("link", { name: "Make a paper" })).toHaveAttribute("href", "/papers/make");
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
   // the pages it merged are still Papers

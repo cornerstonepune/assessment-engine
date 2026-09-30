@@ -63,6 +63,14 @@ export type GridChild = { id: string; roll_no: string; first_name: string; state
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
 
+/** A class's children in roll order, each name read through pii.read_child, which logs who asked. */
+export async function classRoll(section: string, actor: string): Promise<{ id: string; roll_no: string; first_name: string }[]> {
+  return sql<{ id: string; roll_no: string; first_name: string }[]>`
+    select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
+    where c.active and c.section = ${section}
+    order by coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
+}
+
 /** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill
  *  any child in the class has a checked answer on, in the shared tree's order — topic by topic, easy to hard — and
  *  each child's state and score on each. A skill no child has answered is not a column of grey: it is named once,
@@ -81,10 +89,7 @@ export async function classGrid(
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
       where c.section = ${section} and c.active and s.n_events > 0
       order by t.ord, r.ladder_order nulls last, r.code`,
-    sql<{ id: string; roll_no: string; first_name: string }[]>`
-      select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
-      where c.active and c.section = ${section}
-      order by coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`,
+    classRoll(section, actor),
     sql<{ child_id: string; skill_code: string; rung_code: string; state: string; n_events: number; n_correct: number }[]>`
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,

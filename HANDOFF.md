@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, evening — the maker (goal m3)
+
+- **Built:** /papers/make makes class practice, class assessments or home assessments for any children of a class,
+  in one of three ways: one paper for all, the same skill with different questions each, or each child's own next
+  step (changeable per child). Every paper is seen first, made in the educator's name, and printed as one PDF.
+  STATE.md M3.
+- **Next:** once merged and deployed, try it on live: G2, three children, a class practice, one paper for all; print
+  it; find the three in Papers. Then the earlier backlog (the model-testing ruling on the home-activity sentence).
+
 ## 2026-09-30, evening — Papers is one menu item and one list (goal u9); the maker next
 
 - **Built:** Marking and Make papers are one menu item, Papers. /papers is every paper in one table: kind, class,
