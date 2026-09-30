@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, late night — the colours said (goal u11) and the curriculum as one table (goal u12)
+
+- **u11:** "What the colours mean" is on Children, every class and every child, in the threshold rows' own numbers.
+  Grey and never-assessed skills each carry a 5-question check. "Make this check" opens the maker with it chosen.
+- **u12:** Curriculum is one table: grade → subject → topic → skill. Every row has the same columns: questions,
+  worksheets, each level, children assessed, taught. s2, u5 and e2e's skill-map tests now read the table.
+- **Order of shipping:** PR for u10 first (open when this was written), then u11, then u12, each merged with a merge
+  commit. u11 and u12 were committed on the branch behind u10 and are replayed onto main after it merges.
+- **For Nimish to decide:** "taught" is inferred from any checked answer (his words: "based on the assessments"). A
+  placement check therefore marks a skill taught. The alternative is a record of what was taught, which no table
+  holds yet.
+
 ## 2026-09-30, night — tables that read straight; the reader as one table (goal u10); colours and curriculum next
 
 - **Nimish's next asks, same message:**

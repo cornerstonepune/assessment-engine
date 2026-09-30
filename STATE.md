@@ -4007,3 +4007,37 @@ deploys.
   - `npx playwright test tests/u11-colours-said.spec.ts` → 2 passed. The key's numbers are compared against the
     threshold rows on three pages, and a check against its children, level, size and the maker it opens.
   - u10, u2, u8, m4 and screens → 41 passed.
+
+## U12 — the curriculum as one table that opens (goal u12-curriculum-table, 2026-09-30)
+
+- **Asked:** Nimish, over the Curriculum page's nested boxes: "this should be like a proper table, and that table
+  needs to have some kind of an expand/collapse … within grade 1, within mathematics, there are addition and
+  subtraction, and then within that, there is sub." The columns: questions, worksheets, the levels, "number of
+  students which have been there", and taught "based on the assessments".
+- **Built:**
+  - `lib/queries-curriculum.ts` `curriculumRows()`: one row per grade, subject, topic and skill, every row with the
+    same numbers.
+    - A skill's questions and worksheets are counted at the levels its grade holds. A level another grade holds is a
+      dash (a skill's Advance may be Grade 3's).
+    - A topic, a subject or a grade adds up its rows.
+  - Children assessed: the active children with a checked answer on the skill (`child_skill_state.n_events > 0`). At
+    a topic or a grade, each child is counted once across its skills.
+  - Taught is read from the answers: a skill is taught once any child has a checked answer on it. A topic or a grade
+    says how many of its skills are taught ("4 of 7").
+  - `app/(app)/curriculum-table.tsx` is the table.
+    - A grade opens its topics; its one subject opens with it. A topic opens its skills. "Open everything" and
+      "Close everything" do both at once.
+    - A skill's sentence opens its page. A level's count opens those questions in the bank. The worksheets count
+      opens the skill's worksheets.
+    - A skill waiting for approval says so on its row.
+- **Checks:**
+  - `npx playwright test tests/u12-curriculum-table.spec.ts` → 2 passed. It opens and closes the table row by row. It
+    also recomputes one skill's and one topic's numbers in SQL and compares them with the rows.
+  - u5's four tests are rewritten for the table under their own names → 4 passed. s2 and the three e2e skill-map
+    tests are moved from the old tree to the table → passed.
+  - u10's alignment check now covers the Curriculum too.
+  - The whole steps, screens and map suites, on a production build, a fresh copy and the real engine: 113 passed and
+    1 failed. The failure is s7 "names the worksheet each child was given": it needs live's G2 class, and a fresh copy
+    has none (already named at U2). 6 were skipped (s4, with no read papers here) and 2 did not run (s7's followers).
+- **Not proven, by design:** "taught" is inferred from answers, as asked. A check that places a child on a skill
+  their class has not been taught (u11) marks that skill taught. No table records teaching itself.

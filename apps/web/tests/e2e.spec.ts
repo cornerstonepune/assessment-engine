@@ -83,42 +83,41 @@ test("a teacher can reach every section from the menu, and the menu says where t
 
 // ---------------------------------------------------------------- skill map
 
-/** A skill in the Curriculum's tree (U5), opened; the page streams in after its loading screen. */
-async function openSkill(page: Page, outcome: string) {
-  const box = page.getByRole("group", { name: outcome, exact: true });
-  await expect(box).toBeVisible();
-  if ((await box.getAttribute("open")) === null) await box.locator("summary").click();
-  await expect(box).toHaveAttribute("open", "");
-  return box;
+/** A skill's row in the Curriculum's table (U12), everything opened; `grade` is the grade that holds the level read. */
+async function openSkill(page: Page, grade: string, code: string) {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open everything" }).click();
+  const row = page.getByRole("table", { name: "The curriculum, grade by grade" }).locator(`tr[data-row="${grade}/${code}"]`);
+  await expect(row).toBeVisible();
+  return row;
 }
 
 const hardOf = async () =>
   (
-    await sql<{ n: number; outcome: string }[]>`
-      select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome
+    await sql<{ n: number; outcome: string; grade: string }[]>`
+      select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome,
+             (select coalesce(s.level_band ->> 'Hard', r.band) from skill_set s
+                join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.code = 'SUB.2D2D') as grade
       from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`
   )[0];
 
 test("the skill map's counts are the real number of questions in the bank", async ({ page }) => {
-  const { n, outcome } = await hardOf();
-  await page.goto("/");
-  const hard = (await openSkill(page, outcome)).getByRole("listitem").filter({ hasText: "Hard" });
-  await expect(hard).toContainText(`${n} questions`);
+  const { n, grade } = await hardOf();
+  const hard = (await openSkill(page, grade, "SUB.2D2D")).locator('td[data-level="Hard"]');
+  await expect(hard).toHaveText(n.toLocaleString("en-IN"));
 });
 
 test("a count on the skill map opens exactly those questions", async ({ page }) => {
-  const { n, outcome } = await hardOf();
-  await page.goto("/");
-  const hard = (await openSkill(page, outcome)).getByRole("listitem").filter({ hasText: "Hard" });
-  await hard.getByRole("link", { name: `${n} questions` }).click();
+  const { n, grade } = await hardOf();
+  const hard = (await openSkill(page, grade, "SUB.2D2D")).locator('td[data-level="Hard"]');
+  await hard.getByRole("link", { name: n.toLocaleString("en-IN") }).click();
   await expect(page).toHaveURL(/set=SUB\.2D2D&difficulty=Hard/);
   await expect(page.locator("#questions tbody tr")).toHaveCount(Math.min(n, 50));
 });
 
 test("a skill on the map opens its own page", async ({ page }) => {
-  const { outcome } = await hardOf();
-  await page.goto("/");
-  await page.getByRole("group", { name: outcome, exact: true }).getByRole("link", { name: "Read, edit and approve" }).click();
+  const { outcome, grade } = await hardOf();
+  await (await openSkill(page, grade, "SUB.2D2D")).getByRole("link", { name: outcome, exact: true }).click();
   await expect(page).toHaveURL(/skill-sets\/SUB\.2D2D/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(outcome);
 });

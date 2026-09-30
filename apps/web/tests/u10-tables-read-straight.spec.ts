@@ -77,7 +77,7 @@ async function offColumn(page: Page): Promise<string[]> {
 test("every heading sits over its own column, on every page with a table", async ({ page }) => {
   const [grid] = await sql<{ section: string }[]>`
     select c.section from child_skill_state s join child c on c.id = s.child_id where c.active and s.n_events > 0 limit 1`;
-  for (const path of ["/papers", "/capture", "/growth", "/make", "/library", "/worksheets", `/growth/class/${grid.section}`]) {
+  for (const path of ["/", "/papers", "/capture", "/growth", "/make", "/library", "/worksheets", `/growth/class/${grid.section}`]) {
     await page.goto(path);
     expect(await offColumn(page), path).toEqual([]);
   }

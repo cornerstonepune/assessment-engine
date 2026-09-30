@@ -31,14 +31,17 @@ async function noSidewaysScroll(page: Page) {
 test("the map lists every skill by grade, each led by what the child can do, and no list that goes nowhere", async ({ page }) => {
   const all = await skills();
   await page.goto("/");
+  const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
   for (const grade of ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Reasoning · Grade 2 and up"]) {
-    await expect(page.getByRole("heading", { name: grade, exact: true })).toBeVisible();
+    await expect(table.getByRole("button", { name: grade, exact: true })).toBeVisible();
   }
+  await page.getByRole("button", { name: "Open everything" }).click();
   for (const s of all) {
-    // the Curriculum's tree (U5): each skill is led by what the child can do and opens its own page
-    const box = page.getByRole("group", { name: s.outcome, exact: true });
-    await expect(box.locator("summary")).toContainText(s.outcome);
-    await expect(box.getByRole("link", { name: "Read, edit and approve" })).toHaveAttribute("href", `/skill-sets/${s.code}`);
+    // the Curriculum's table (U12): each skill is led by what the child can do, and that sentence opens its page,
+    // under every grade that holds one of its levels
+    const links = table.getByRole("link", { name: s.outcome, exact: true });
+    await expect(links.first()).toBeVisible();
+    for (const link of await links.all()) await expect(link).toHaveAttribute("href", `/skill-sets/${s.code}`);
   }
   await expect(page.getByText("Registry skills")).toHaveCount(0);
   const tables = await page.getByRole("main").getByRole("table").allInnerTexts();
@@ -47,13 +50,14 @@ test("the map lists every skill by grade, each led by what the child can do, and
 
 test("every kind of link on the Curriculum opens", async ({ page }) => {
   await page.goto("/");
-  // The page arrives as its loading screen and the map streams in after; read the map, not the screen.
-  await expect(page.getByRole("heading", { name: "Grade 1", exact: true })).toBeVisible();
+  // The page arrives as its loading screen and the table streams in after; read the table, opened, not the screen.
+  await page.getByRole("button", { name: "Open everything" }).click();
+  await expect(page.locator('tbody tr[data-depth="3"]').first()).toBeVisible();
   const hrefs = await page.getByRole("main").locator("a[href]").evaluateAll((as) => [
     ...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0])),
   ]);
   expect(hrefs.length).toBeGreaterThan(17);
-  // every kind of link, and one worksheet of each level: the tree lists every worksheet, some two thousand
+  // every kind of link, once: a skill's page, its worksheets, a level's questions in the bank
   const seen = new Set<string>();
   const sample = hrefs.filter((h) => {
     // one of each kind: a worksheet of each level, and a link that differs only in its query once
