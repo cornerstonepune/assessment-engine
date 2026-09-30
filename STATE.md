@@ -3826,6 +3826,9 @@ deploys.
 - **Found and fixed:** the paper page asked for Jev's mistake shortlist by the paper's id, while `naming.unnamed`
   looked answers up by the capture's id, so the shortlist never showed on a paper page. Both now take either
   (`naming.ONE_PAPER`), pinned in `test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_shortlist`.
+- **Deploy order:** `deploy engine` now waits for `migrate live` to succeed on the same commit when the merge carries a
+  migration, so the engine never runs code reading a table live does not have yet. Checked against a stand-in for the
+  GitHub API: no migration, a run that appears late and succeeds, one that fails, and one that never finishes.
 - **Checks:**
   - `pytest tests/test_keys.py tests/test_legacy.py tests/api/test_capture_routes.py tests/test_equation.py
     tests/test_gold.py tests/test_report.py`: all pass (local Postgres 16, the `ci` database with the migration

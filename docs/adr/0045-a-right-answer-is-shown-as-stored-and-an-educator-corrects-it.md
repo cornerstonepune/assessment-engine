@@ -54,6 +54,12 @@ The paper page asked `GET /capture/{id}/mistakes` with the paper's id (a `sheet_
 answers up by the capture's id. It found none on the page, so Jev's shortlist for a wrong answer no named mistake
 explains never showed on a paper page. Both lookups now take either id (`naming.ONE_PAPER`).
 
+`deploy engine` and `migrate live` both start on a merge to main, and nothing ordered them. This merge's papers step
+reads `key_correction`, which its own migration makes, so a deploy that got there first would fail, and an engine
+restarted before the migration would fail every paper page. `deploy engine` now waits first: when the merge carries a
+migration (the merge's own changed files, from the compare API), it waits for `migrate live` to succeed on the same
+commit, up to ten minutes, and stops if it fails.
+
 ## Rejected
 
 - **Editing the key in the paper's file from the page.** The file lives in the repository; a page cannot commit to it.
