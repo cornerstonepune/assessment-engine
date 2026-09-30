@@ -30,7 +30,8 @@ equations. The boxes count on Addition (NUM.OPS.01, rung R27).
    coming out, or with a box still waiting for a person, leaves each of its boxes to its own key, as before. A box
    already signed off is marked again only when a person saves it, with its next batch of evidence
    (`correct_signed_off`, #131); one box's save never rewrites another's evidence. What a signed-off box says still
-   counts toward its side.
+   counts toward its side. (Amended by ADR 0044, 2026-09-30: every deploy also marks each answer a person read again by
+   the rule as it now stands, so a signed-off box whose side holds is put right at the next deploy.)
 4. **A paper corrected in its file is live with the deploy that carries it.** Every deploy enters each paper again
    (`deploy-engine.yml`), as `bin/update-live` did from one Mac. The loader now files a sum where `bank rehome` does:
    the rung its shape places it on first, and the rung its file names only where the ladder has none. Before this,

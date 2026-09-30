@@ -114,3 +114,11 @@ jobs:
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           $S 'sudo docker exec deploy-engine-1 sh -c "for p in /app/supabase/seed/papers/*.json; do engine legacy paper \$p >/dev/null || exit 1; done"'
+      - name: every answer a person read, marked by the rule as it now stands
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}", SHA: "${{ github.sha }}" }
+        # A marking rule put right reaches answers already marked, signed off or not, with the deploy that carries it:
+        # on 2026-09-30 "false" typed for "odd + odd = odd" stayed wrong against "Not true" on every signed-off paper.
+        # Only a changed mark is written; a signed-off one gets a new batch of evidence, the old one kept. Names each.
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S "sudo docker exec deploy-engine-1 engine legacy mark-again --by 'the marking rule, deploy ${SHA::7}'"

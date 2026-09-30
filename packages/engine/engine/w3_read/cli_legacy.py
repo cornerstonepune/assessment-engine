@@ -114,6 +114,20 @@ def legacy_remark(
     typer.echo(f"  {n} results changed" + (f" across {len(ids)} children" if every_child else ""))
 
 
+@legacy_app.command("mark-again")
+def legacy_mark_again(
+    by: str = typer.Option(..., "--by", help="whose name a signed-off answer's new evidence carries"),
+) -> None:
+    """Every answer a person read, marked again by the rule as it now stands (`marking.mark_again`) — how a marking
+    rule put right reaches answers already marked, signed off or not. Each deploy runs it; it names each change."""
+    with db.connect() as conn:
+        changed = marking.mark_again(conn, by)
+        conn.commit()
+    for key, was, now in changed:
+        typer.echo(f"  {key}: {was} → {now}")
+    typer.echo(f"  {len(changed)} answers a person read marked again")
+
+
 @legacy_app.command("confirm")
 def legacy_confirm(
     child: str = typer.Option(..., "--child"),

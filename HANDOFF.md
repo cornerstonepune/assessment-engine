@@ -15,6 +15,24 @@ is verified. This file only says where the last session stopped.
   (ok7's home activity, ok3's "strong skills", ok6/e8's "can add …, and this skill has grown") — a ruling for Nimish or
   a fix at its cause, never a lower bar.
 
+## 2026-09-30 — a reading is marked by what it says; every deploy marks again (goal s25, ADR 0044)
+
+- **#134 merged by Nimish and deployed** (run 36669517359, 04:41 UTC). The three-model checker eval is running on
+  main, one model at a time (task: `parent_review`, jev_version 1, versions 3, 4, 5). The cheapest at 18/18 with
+  none flagged wrongly is switched on in a follow-up; otherwise each false flag goes to Nimish or is fixed at its cause.
+- **Built (this branch):** true / not true marked by meaning. `engine legacy mark-again` runs on every deploy, after
+  the papers. The first deploy after merging re-marks question 11 (and 9 on G3-B) wherever a person typed "false",
+  and the question 5 boxes whose sides hold, signed off or not. Its log names every answer it changed. Rehearse it on
+  a copy of live first (Actions → rehearse update-live, this branch) to see the list before merging.
+- **Nimish's question 4 (live, same paper, 2026-09-30) is not a key error.** 4A is the box after "48 + 35 =" (key 83),
+  and on his screenshot that box is empty. The child's 78 is in the first number-line box, 4B, whose key is 78; 4C is
+  83. Typed as 4A = blank, 4B = 78, 4C = 83, all three mark right.
+  - The defect is the card. It shows the whole question, so it does not say which of the three boxes it means.
+  - Changing 4A's key to 78, as he asked, would mark every child who wrote 83 there wrong.
+  - Next: each card names its own box. After that, a key correction that code checks first. It refuses a key the
+    question's own sum contradicts, and it shows how many children's marks it would change before it is saved.
+- **Open for Nimish:** approve the design above for correcting a key (who may change a key for everyone).
+
 ## 2026-09-29 — question 5: a split that adds up is right (goal s24, ADR 0043)
 
 Nimish, with the live Marking page of G3 September Week 1 Level A open at 5A/5B ("638 = 600 + [19] + [19]", both

@@ -3773,3 +3773,34 @@ deploys.
   227 sentences`; Jev unsure of 14, r1's two-clause sentence among them.
 - **Not yet verified:** the three models scored again on the server after merge, each reading those 14.
 
+## S25 — a reading is marked by what it says; every deploy marks again (goal s25-a-reading-is-marked-by-what-it-says, ADR 0044, 2026-09-30)
+
+- **Found on live** (Nimish's Marking page, the Grade 4 September Week 1 paper): question 11B "odd + odd = odd" and
+  11C "odd - odd = odd", "You said the child wrote false", both wrong and signed off. The keys were right
+  ("Not true"). `marking._against_the_key` compared the letters of "false" with "Not true". The same boxes are on
+  G3-SEPW1-A (11a-d), G3-SEPW1-B (9a-c) and G4-SEPW1 (11a-d); the reader hands every one of them to a person.
+- **Marking by meaning:** `marking.TRUTH` gives true and not true however a person types them; any other key is
+  marked as it was before.
+  - `pytest tests/test_legacy.py -k claim_ticked` → passes.
+  - Without the fix: `AssertionError`, "false" is wrong against "Not true".
+- **Marking again:** `marking.mark_again` (`engine legacy mark-again --by`) marks each answer a person read by the rule
+  as it now stands.
+  - A changed mark on an answer not yet signed off is written in place.
+  - A changed mark on a signed-off answer gets a new evidence batch; the old one stays in `evidence_event`, and
+    `evidence_placed` reads the new one.
+  - What a person read is kept, and so is a person's judgement.
+  - A second run changes nothing.
+  - Command: `pytest tests/test_legacy.py -k rule_put_right` → passes.
+- **Runs on:**
+  - every deploy, after the papers (`deploy-engine.yml`);
+  - `bin/update-live`;
+  - the rehearsal on a copy of live.
+  - Pinned by `test_a_deploy_marks_every_answer_a_person_read_by_the_rule_as_it_now_stands`.
+- **ADR 0043 amended:** a signed-off box of question 5 whose side holds is now put right at the next deploy, with no
+  Save needed.
+- **Checks:**
+  - `pytest tests/test_legacy.py tests/test_equation.py tests/api/test_capture_routes.py tests/test_gold.py
+    tests/test_layout.py tests/test_report.py`: all pass (local Postgres 16, the `ci` database).
+  - `bin/check` → exit 0.
+- **`marking.py` is at 392 of 400 lines.** The next rule added there splits it along a real seam first, for example
+  comparing a reading with its key into `assess/`.
