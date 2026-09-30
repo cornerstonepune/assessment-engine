@@ -1,0 +1,44 @@
+# Every parent report that is due, written on the server, where the model's key is (goals/w4d-every-report-written.yaml).
+# Nimish, 2026-09-30: "the reports havent been generated for grade 3; please go ahead and generate all the reports".
+# Run by hand. For each child due in turn, it writes what the Parent report page's button writes: a draft held to its
+# facts and kept for an educator to approve, or not kept, with why. No parent sees one before an educator approves it.
+# The input is a fixed list, so this runs `engine report parents` and nothing else.
+name: write reports
+
+on:
+  workflow_dispatch:
+    inputs:
+      band:
+        description: "whose reports: every band, or one"
+        type: choice
+        options: [all, G2, G3, G4]
+
+permissions:
+  contents: read
+
+concurrency: { group: write-reports, cancel-in-progress: false }
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    # one report at a time, each a minute or two with its checks: twenty children fit well inside this
+    timeout-minutes: 120
+    steps:
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: every report due, one after another
+        env:
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+          BAND: "${{ inputs.band }}"
+          ACTOR: "${{ github.actor }}"
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 ubuntu@$HOST"
+          case "$BAND" in all) only="" ;; *) only="--band $BAND" ;; esac
+          $S "sudo docker exec deploy-engine-1 engine report parents --by '$ACTOR, write-reports' $only"

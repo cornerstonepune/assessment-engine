@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, evening — every parent report that is due, written by one command (goal w4d)
+
+- **Nimish:** "the reports havent been generated for grade 3; please go ahead and generate all the reports". A report
+  was written only by pressing each child's button; G3 rolls 2-5 were signed off after 2026-09-29's reports.
+- **Built:** `engine report parents` and the `write reports` workflow (band all, G2, G3 or G4).
+- **Next:** after the merge's deploy, run Actions → write reports → all. Read its lines: each child "kept" or why not.
+  Each kept report waits for an educator to approve it. A refusal is either the draft breaking its facts three times
+  (the educator writes it) or the ₹150 daily budget (`llm.daily_budget_inr`), which is Nimish's to raise.
+
 ## 2026-09-29 — the parent report's checker: none of three models passed; code and the gold fixed (goal j5)
 
 - **Scored on the server** behind Jev: Haiku 4.5 13/14 with 8 flagged wrongly, Sonnet 5.5 low 13/14 with 7, Opus 5.5

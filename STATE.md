@@ -3852,3 +3852,20 @@ deploys.
   - `s4-validation-queue.spec.ts` "each paper has one spot-check": fails before loading any page. Its setup query
     finds no spot-check candidate in a fresh copy (live's rows), so it fails the same way without this change.
   - `npx tsc --noEmit` and `npm run build` pass. `bin/check` → exit 0.
+
+## W4d — every parent report that is due, written by one command (goal w4d-every-report-written, 2026-09-30)
+
+- **Asked:** Nimish, 2026-09-30: "the reports havent been generated for grade 3; please go ahead and generate all the
+  reports". Until now a report was written only when someone pressed each child's button. On 2026-09-29 that was done
+  for G2's eleven and G3 roll 1. G3 rolls 2-5 had nothing signed off then, and their papers were signed off after.
+- **Built:**
+  - `engine report parents --by … [--band G3]` (`w4_close/every_report.py`) finds every active child with signed-off
+    answers whose newest report is missing or out of date (`due`).
+  - It writes each in turn with the page's own `parent_report.start` and `.write`, so each report is held to its facts
+    and kept as a draft for an educator to approve.
+  - It prints each child by band, class and roll, never by name, with "kept" or why not. It exits 1 while any report
+    due was not kept.
+  - `.github/workflows/write-reports.yml` runs it on the server (band: all, G2, G3 or G4).
+- **Checks:** `pytest tests/test_every_report.py tests/test_parent_report.py tests/test_cli.py tests/test_layout.py` →
+  58 passed (local Postgres 16). `bin/check` → exit 0.
+

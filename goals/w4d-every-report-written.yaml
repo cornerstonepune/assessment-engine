@@ -1,0 +1,30 @@
+name: w4d-every-report-written
+goal: >
+  One command writes every parent report that is due: one for each child with answers an educator signed off, whose
+  report is missing or was written before more of their answers were signed off. A report still true of the child's
+  answers is left as it is, and a child with nothing signed off has nothing to write yet. Each report is written as the
+  page's own button writes it: one at a time, held to its facts, and kept only if it holds, as a draft waiting for an
+  educator to approve. The command says, per child by class and roll number and never by name, whether their report
+  was kept or why not. It fails while any report due was not kept. A workflow runs it on the server, where the model's
+  key is, with nobody at a terminal.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day: "the reports havent been generated for grade 3;
+# please go ahead and generate all the reports". On 2026-09-29 reports were written for the eleven children of G2 and
+# for G3 roll 1, each by pressing the page's button. G3 rolls 2-5 had no signed-off answers then, and the engine refuses
+# to write for a child with none. Their papers have been signed off since. Nothing wrote a report unless someone opened
+# each child's page and pressed it, and the session cannot press it.
+says:
+  - words: "please go ahead and generate all the reports"
+    proved_by: packages/engine/tests/test_every_report.py::test_every_report_due_is_written_and_one_still_true_is_left_as_it_is
+  - words: "the reports havent been generated for grade 3"
+    proved_by: packages/engine/tests/test_every_report.py::test_a_report_not_kept_is_named_by_class_and_roll_and_the_command_fails
+manual:
+  - "An educator reads each new report and approves it by name before any parent sees it (goal w4c)."
+scenarios: []
+criteria:
+  - name: who is due, each written in turn, what was kept and why not
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_every_report.py -q
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
