@@ -15,6 +15,32 @@ is verified. This file only says where the last session stopped.
   (ok7's home activity, ok3's "strong skills", ok6/e8's "can add …, and this skill has grown") — a ruling for Nimish or
   a fix at its cause, never a lower bar.
 
+## 2026-09-30, later — the right answer shown as stored; an educator changes it for every child (goal s26, ADR 0045)
+
+- **Nimish:** "the key can be changed by an educator, not an issue. also in any correction, the system should show what
+  the right answer is as stored in the system", and "stop the model testing for now and finish these two things".
+- **Built, on the branch after #135:**
+  - "Right answer …" on every card and in the queue.
+  - "Is the right answer wrong? Change it for every child", checked by code (`keys.check`), kept as `key_correction`
+    rows that the deploy's paper step puts back (`keys.reapply`), with every answer to the question marked again.
+  - `again.py` (marking again) split from `marking.py`.
+  - The paper page's Jev shortlist, which never showed, is fixed.
+- **Model testing paused.** The three scores are in DECISIONS-LOG. When it resumes, Nimish first rules on the
+  ok7/e2/e1 home-activity sentence.
+- **#135 deployed** (run 36672327168, 05:17 UTC). Its mark-again on live: 7 answers wrong → correct (G3-SEPW1-A 5a,
+  5b, 11b ×2, 11c ×2; G3-SEPW1-B 9c), and G3-QUIZ20/8 held. The 04:52 rehearsal had also listed G4-SEPW1 11b and 11c;
+  by 05:17 live no longer needed them changed. Something between the two runs had already settled them, most likely
+  a person on the page, but nothing here shows what: worth a look on that paper.
+- **Caught before merge, in this branch:** the first build marked every signed-off answer again by the engine's stored
+  reading. That would have overwritten a person's pre-U3 Right / Wrong / Blank, which left no row.
+  - A key change now redoes only a mark its reading explains by the old key.
+  - It never changes a judgement: one made by the old key is named for the educator.
+  - A deploy still redoes only what a person typed (ADR 0045 §5–6).
+- **Deploy order and the rehearsal, fixed:** `deploy engine` waits for `migrate live` when the merge carries a
+  migration. The rehearsal records the migrations it applies to the copy.
+- **Next:** the PR is #136. Merge it once CI and the rehearsal are green. Then check that migration 20261017090000 is on
+  live and the deploy is green, and do the manual step in goal s26.
+
 ## 2026-09-30 — a reading is marked by what it says; every deploy marks again (goal s25, ADR 0044)
 
 - **#134 merged by Nimish and deployed** (run 36669517359, 04:41 UTC). The three-model checker eval is running on

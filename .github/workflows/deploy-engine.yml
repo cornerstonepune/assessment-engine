@@ -20,6 +20,7 @@ concurrency: { group: deploy-engine, cancel-in-progress: false }
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions: { contents: read, actions: read }
     steps:
       - uses: actions/checkout@v4
       - name: the secrets are set
@@ -31,6 +32,26 @@ jobs:
             echo "::error::LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST must be set under Settings → Secrets and variables → Actions"
             exit 1
           fi
+      - name: live has this merge's migrations before the engine runs the code that reads them
+        if: github.event_name == 'push'
+        env: { GH_TOKEN: "${{ github.token }}", BEFORE: "${{ github.event.before }}", SHA: "${{ github.sha }}" }
+        # `migrate live` starts on the same push and nothing ordered the two, so the engine could restart on code that
+        # reads a table live does not have yet (2026-09-30: `key_correction`, read by the papers step below). A merge
+        # with no migration has no run to wait for; one with a migration waits for `migrate live` to succeed on it.
+        run: |
+          R="repos/$GITHUB_REPOSITORY"
+          n=$(gh api "$R/compare/$BEFORE...$SHA" -q '[.files[]?.filename | select(startswith("supabase/migrations/"))] | length')
+          [ "$n" = 0 ] && { echo "no migration in this merge"; exit 0; }
+          for _ in $(seq 60); do
+            s=$(gh api "$R/actions/workflows/migrate.yml/runs?head_sha=$SHA" -q '.workflow_runs[0] // empty | "\(.status) \(.conclusion)"')
+            case "$s" in
+              "completed success") echo "live has this merge's $n migration file(s)"; exit 0 ;;
+              completed*) echo "::error::migrate live ended $s; the engine keeps its old code until live has the schema"; exit 1 ;;
+            esac
+            echo "migrate live: ${s:-not started}; waiting"
+            sleep 10
+          done
+          echo "::error::migrate live did not finish in ten minutes"; exit 1
       - name: a way in
         env:
           KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"

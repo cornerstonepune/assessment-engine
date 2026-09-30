@@ -59,9 +59,17 @@ jobs:
             echo "::warning::on live but made by no migration (rule 9), copied as live has it: $t"
             pg_dump "$LIVE" --schema-only --no-owner --no-privileges --table="$t" | psql "$COPY" -q -v ON_ERROR_STOP=1 >/dev/null
           done
-          for f in supabase/migrations/*.sql; do v=$(basename "$f" | cut -d_ -f1); if ! echo "$applied" | grep -qx "$v"; then psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; fi; done
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create schema supabase_migrations; create table supabase_migrations.schema_migrations (version text primary key);"
           psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
+          # each one recorded as `supabase db push` records it, so the copy's own check afterwards finds it applied
+          # (2026-09-30: a branch's new migration was on the copy, unrecorded, and "every migration is applied" failed)
+          for f in supabase/migrations/*.sql; do
+            v=$(basename "$f" | cut -d_ -f1)
+            if ! echo "$applied" | grep -qx "$v"; then
+              psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null
+              psql "$COPY" -q -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations (version) values ('$v')"
+            fi
+          done
       - name: the copy's rows, every one of live's
         run: |
           tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"

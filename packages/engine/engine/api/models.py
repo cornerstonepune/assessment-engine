@@ -81,6 +81,24 @@ class CorrectResponse(BaseModel):
     now: str
 
 
+class KeyRequest(BaseModel):
+    result_id: str  # the answer an educator changed it from: its question is the one changed, for every child
+    answer: str = Field(max_length=40)
+    by: str = Field(min_length=1, max_length=200)
+
+
+class KeyResponse(BaseModel):
+    was: str
+    now: str
+    changed: list[
+        tuple[str, str, str]
+    ]  # (question's key, the mark it had, the mark it has), one per answer changed
+    left: list[
+        tuple[str, str, str]
+    ]  # (question's key, the mark it keeps, why): a person's own call the new answer disagrees with, or no evidence
+    unseen: int  # readings no person has seen yet, marked again with it
+
+
 class GraphRebuildRequest(BaseModel):
     child_id: str | None = None
 

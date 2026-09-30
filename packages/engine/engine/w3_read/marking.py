@@ -1,7 +1,7 @@
 """W3/N9 — an answer marked against its question's key. The engine's own reading (`mark_read`: right
 settles only once its kind is trusted, wrong and blank wait for a person — ADR 0029, 0032), a person's
-reading (`correct`, a new `read_correction` row, the reader's own reading left untouched — rule 4),
-and marking again when the rule changes (`remark`). `legacy.py` reads papers in; this marks them."""
+reading (`correct`, a new `read_correction` row, the reader's own reading left untouched — rule 4).
+Marking every answer again when its rule or key changes is `again.py`; `legacy.py` reads papers in."""
 
 import hashlib
 import json
@@ -311,81 +311,6 @@ def corrections(conn):
         " where c.superseded_by is null and rc.judged is null"  # a judgement is not a reading
         " order by rc.item_result_id, rc.created_at desc"
     ).fetchall()
-
-
-def remark(conn, child_id):
-    """Mark every candidate again from what was read, without asking the model again — for when
-    the marking rule improves after a page was read. Returns how many rows changed.
-
-    An answer a person has settled — typed what the child wrote, or judged it — is never marked again
-    from the reader's own reading: that would put back the very reading the person corrected. Nor is
-    a reading a later read superseded: it is history, and nothing else reads it either. A wrong or a
-    blank the engine settled alone before ADR 0029 is held for a person here, its reading unchanged."""
-    rows = conn.execute(
-        "select r.id, r.capture_id, r.item_id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec,"
-        " i.responses, i.fmt from item_result r join item i on i.id = r.item_id"
-        " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
-        " where si.child_id = %s and r.state = 'candidate' and r.raw_read is not null"
-        " and c.superseded_by is null"
-        " and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)",
-        (child_id,),
-    ).fetchall()
-    changed = 0
-    trust, rate, learned = profiles.kind_trust(conn), spot_rate(conn), learned_mistakes.rules(conn)
-    for r in rows:
-        status, codes, working, read = mark_read(
-            r["spec"], r["responses"][0], json.loads(r["raw_read"]), trust.get(r["fmt"], UNTRUSTED),
-            spot=spot_checked(r["capture_id"], r["item_id"], rate),  # the same sample as when it was read
-            learned=learned,
-        )  # fmt: skip
-        if (status, codes, working) != (r["status"], list(r["misconception_codes"]), r["working_shown"]):
-            conn.execute(
-                "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
-                " raw_read = %s where id = %s",
-                (status, codes, working, json.dumps(read), r["id"]),
-            )
-            changed += 1
-    return changed
-
-
-class _Held(Exception):
-    pass
-
-
-def mark_again(conn, by):
-    """Every answer a person read, marked again by the rule as it now stands, as `correct` marks it → [(its
-    question's key, the mark it had, the mark it has)] for each whose mark changed: one not yet signed off in place,
-    one signed off with a new batch of evidence in `by`'s name (`correct_signed_off`), the batch before it kept. What
-    the person read stays; an answer whose latest word from a person is a judgement keeps it. `remark` does this for
-    what the reader read. 2026-09-30: "false" for "odd + odd = odd" stayed wrong on every paper signed off before."""
-    rows = conn.execute(
-        "select distinct on (r.id) r.id, r.capture_id, r.state, r.status, r.raw_read, i.item_key, i.spec, i.responses,"
-        " rc.human_read as typed, rc.judged from read_correction rc join item_result r on r.id = rc.item_result_id"
-        " join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
-        " where r.state in ('candidate', 'confirmed') and c.superseded_by is null"
-        " order by r.id, rc.created_at desc"
-    ).fetchall()
-    learned, changed = learned_mistakes.rules(conn), []
-    for r in (r for r in rows if r["judged"] is None):
-        holds = (r["spec"] or {}).get("holds")
-        right = _group(conn, r["capture_id"], holds, {})[r["id"]][2] if holds else False
-        status, codes, working = _as_read(conn, r, r["typed"] or "", right, learned)
-        if status == r["status"]:
-            continue
-        try:
-            with conn.transaction():  # a signed-off answer changes with its evidence, or not at all
-                conn.execute(
-                    "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
-                    " updated_at = now() where id = %s",
-                    (status, codes, working, r["id"]),
-                )
-                evidence = "select correct_signed_off(%s, %s) as n"
-                if r["state"] == "confirmed" and not conn.execute(evidence, (r["id"], by)).fetchone()["n"]:
-                    raise _Held
-        except _Held:
-            status = f"{r['status']} (held: {status} makes no evidence)"
-        changed.append((r["item_key"], r["status"], status))
-    return changed
 
 
 def confirm(conn, child_id, by):

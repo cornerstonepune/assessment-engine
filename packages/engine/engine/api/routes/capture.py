@@ -17,13 +17,15 @@ from engine.api.models import (
     CorrectResponse,
     IngestRequest,
     IngestResponse,
+    KeyRequest,
+    KeyResponse,
     MarkRequest,
     MarkResponse,
     NameMistakeRequest,
     ReadFileRequest,
     ReadFileResponse,
 )
-from engine.w3_read import copy_scores, inbox, legacy, marking, naming
+from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -74,7 +76,7 @@ def mark(
         "mark",
         key,
         body.model_dump(),
-        lambda: {"changed": marking.remark(conn, body.child_id)},
+        lambda: {"changed": again.remark(conn, body.child_id)},
     )
     return {**result, "already": already}
 
@@ -110,6 +112,22 @@ def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
         return marking.correct(conn, body.result_id, body.human_read, body.by)
     except ValueError as why:
         raise HTTPException(status_code=409, detail=str(why)) from why
+
+
+@router.post("/paper/key", response_model=KeyResponse)
+def change_key(body: KeyRequest, conn=Depends(get_conn)) -> dict:
+    """An educator changes the right answer of the question an answer is to, for every child (`keys.change`, ADR 0045).
+    Not idempotency-wrapped: each change is its own row, as a correction is. Code's refusal is a 409 in its words."""
+    try:
+        return keys.change_from(conn, body.result_id, body.answer, body.by)
+    except ValueError as why:
+        raise HTTPException(status_code=409, detail=str(why)) from why
+
+
+@router.get("/capture/{capture_id}/keys")
+def capture_keys(capture_id: str, conn=Depends(get_conn)) -> dict:
+    """Each answer on a capture → the right answer its card prints, as stored, and who changed it (`keys.shown`)."""
+    return {r["id"]: r for r in keys.shown(conn, capture_id)}
 
 
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")

@@ -19,6 +19,14 @@ def named(conn, result_id, answer):
     return [row["code"]] if row and row["code"] != mistake_guess.NONE else []
 
 
+# The answers on one copy, by its capture or by the paper the Marking page shows (`sheet_instance`): the page passed
+# the paper's id, and a filter on the capture alone found no answer on it, so the shortlist never showed (2026-09-30).
+ONE_PAPER = (
+    "r.capture_id in (select c.id from capture c where %s::uuid in (c.id, c.sheet_instance_id)"
+    " and c.superseded_by is null)"
+)
+
+
 def _waiting(conn, where, arg):
     """Wrong answers not yet signed off that no mistake is named for, with what the child wrote."""
     rows = conn.execute(
@@ -50,7 +58,7 @@ def unnamed(conn, capture_id):
     (`w1_bank/mistake_guess`, ADR 0036), and every named mistake of the operation for when those three miss. Jev
     unreachable is not a failure of the page: the shortlist is empty and `why` says so."""
     out = {}
-    for r, answer in _waiting(conn, "r.capture_id = %s", capture_id):
+    for r, answer in _waiting(conn, ONE_PAPER, capture_id):
         op = (r["spec"] or {}).get("op")
         if op not in mistake_guess.SIGN:
             continue

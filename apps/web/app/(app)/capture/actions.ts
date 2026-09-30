@@ -65,6 +65,41 @@ export async function correctRead(formData: FormData): Promise<void> {
   redirect(back(formData) ?? `/capture/${paper}?corrected=${encodeURIComponent(wrote || "blank")}#a-${id}`);
 }
 
+/** An educator changes the right answer of a paper's question, for every child (goals/s26-the-right-answer-shown-
+ *  and-corrected.yaml, ADR 0045). Code checks it first and, refusing, says why in its own words; otherwise every
+ *  child's answer to the question is marked again with it, and the page says how many were, and how many keep the
+ *  mark a person gave them though the new right answer disagrees. */
+export async function changeKey(formData: FormData): Promise<void> {
+  const me = await requireStaff();
+  const id = String(formData.get("result_id") ?? "");
+  const paper = String(formData.get("paper_id") ?? "");
+  const slot = String(formData.get("slot") ?? "").slice(0, 12);
+  const answer = String(formData.get("answer") ?? "").trim().slice(0, 40);
+  if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
+  let to: string;
+  try {
+    const res = await engineSend("/paper/key", { result_id: id, answer, by: me.email });
+    const body = (await res.json().catch(() => ({}))) as {
+      detail?: string;
+      now?: string;
+      changed?: unknown[];
+      left?: unknown[];
+      unseen?: number;
+    };
+    const n = (body.changed?.length ?? 0) + (body.unseen ?? 0);
+    const kept = body.left?.length ?? 0;
+    to = res.ok
+      ? `/capture/${paper}?key=${encodeURIComponent(`${slot}|${body.now ?? answer}|${n}|${kept}`)}#a-${id}`
+      : `/capture/${paper}?error=${encodeURIComponent((body.detail ?? `refused (${res.status})`).slice(0, 200))}#a-${id}`;
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    to = `/capture/${paper}?error=engine#a-${id}`;
+  }
+  revalidatePath(`/capture/${paper}`);
+  revalidatePath("/capture/check");
+  redirect(to);
+}
+
 /** A person signs off ONE paper: every answer on it becomes evidence in their name, and the
  *  child's ladder is rebuilt from it. Scoped to this capture — a signature means the person read
  *  the thing they signed, not everything that child has ever sat. */

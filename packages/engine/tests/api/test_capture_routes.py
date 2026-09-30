@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from engine.api import deps
 from engine.api.app import app
 from engine.core import db
-from engine.w3_read import legacy, marking, naming
+from engine.w3_read import again, keys, legacy, marking, naming
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -143,7 +143,7 @@ def test_ingest_rejects_a_malformed_body_before_touching_the_database(client, mo
 
 def test_mark_calls_remark_for_the_requested_child(client, monkeypatch):
     seen = []
-    monkeypatch.setattr(marking, "remark", lambda conn, child_id: seen.append(child_id) or 3)
+    monkeypatch.setattr(again, "remark", lambda conn, child_id: seen.append(child_id) or 3)
     r = client.post("/mark", headers=HEADERS, json={"child_id": "c9"})
     assert r.status_code == 200 and r.json() == {"changed": 3, "already": False}
     assert seen == ["c9"]
@@ -151,7 +151,7 @@ def test_mark_calls_remark_for_the_requested_child(client, monkeypatch):
 
 def test_mark_with_the_same_key_does_not_remark_twice(client, monkeypatch):
     calls = []
-    monkeypatch.setattr(marking, "remark", lambda conn, child_id: calls.append(1) or len(calls))
+    monkeypatch.setattr(again, "remark", lambda conn, child_id: calls.append(1) or len(calls))
     headers = {**HEADERS, "Idempotency-Key": "mk1"}
     client.post("/mark", headers=headers, json={"child_id": "c9"})
     r2 = client.post("/mark", headers=headers, json={"child_id": "c9"})
@@ -240,3 +240,39 @@ def test_a_correction_the_engine_refuses_is_a_409_with_its_reason_not_a_500(clie
         },
     )
     assert r.status_code == 409 and "no answer" in r.json()["detail"]
+
+
+# ---- the right answer (goals/s26-the-right-answer-shown-and-corrected.yaml)
+
+
+def test_a_right_answer_is_changed_from_one_answer_and_a_refusal_is_a_409_in_codes_words(client, monkeypatch):
+    seen = []
+    kept = ["legacy/P/4b", "wrong", "a person's; the new right answer marks its reading, 78, correct"]
+    done = {
+        "was": "80",
+        "now": "78",
+        "changed": [["legacy/P/4b", "wrong", "correct"]],
+        "left": [kept],
+        "unseen": 0,
+    }
+    monkeypatch.setattr(
+        keys, "change_from", lambda conn, rid, answer, by: seen.append((rid, answer, by)) or done
+    )
+    body = {"result_id": "r1", "answer": "78", "by": "neha@school"}
+    r = client.post("/paper/key", headers=HEADERS, json=body)
+    assert r.status_code == 200 and r.json() == done and seen == [("r1", "78", "neha@school")]
+
+    def refuse(*_):
+        raise ValueError("48 + 35 is 83, so 78 cannot be its right answer")
+
+    monkeypatch.setattr(keys, "change_from", refuse)
+    r = client.post("/paper/key", headers=HEADERS, json=body)
+    assert r.status_code == 409 and r.json()["detail"] == "48 + 35 is 83, so 78 cannot be its right answer"
+    assert client.post("/paper/key", json=body).status_code == 401
+
+
+def test_each_answer_on_a_paper_comes_with_its_right_answer_as_stored(client, monkeypatch):
+    shown = [{"id": "r1", "slot": "4a", "right": "83", "was": None, "by": None, "at": None}]
+    monkeypatch.setattr(keys, "shown", lambda conn, capture: shown if capture == "cap-1" else [])
+    r = client.get("/capture/cap-1/keys", headers=HEADERS)
+    assert r.status_code == 200 and r.json() == {"r1": shown[0]}

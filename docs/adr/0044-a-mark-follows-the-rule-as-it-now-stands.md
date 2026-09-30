@@ -23,7 +23,7 @@ it changes only when a person saves it again (#131, ADR 0043).
    the key's True. "not true", "false", "f", "no", "n", "untrue", a cross, "x" and "cross" are its Not true. This
    holds on the papers' "True" / "Not true" and on the bank's "true" / "false" alike. Any other key is marked as it
    was before this ADR: by its letters, a number by its value, and a sign by the sign.
-2. **Every deploy marks each answer a person read again by the rule as it now stands** (`marking.mark_again`,
+2. **Every deploy marks each answer a person read again by the rule as it now stands** (`again.mark_again`,
    `engine legacy mark-again`, after the papers are entered). This runs as `correct` marks a save: an answer of an
    equation with its equation, a wrong answer with the mistake a person named on it.
    - A changed mark not yet signed off changes in place.
@@ -45,3 +45,8 @@ it changes only when a person saves it again (#131, ADR 0043).
   entered on every deploy for the same reason (ADR 0043).
 - **Writing a mark whose status is unchanged.** Only a changed status (right, wrong, blank) is written. Otherwise
   mistakes learned or named since a paper was signed off would rewrite signed-off evidence that no rule corrected.
+
+## Amended by ADR 0045 (2026-09-30)
+
+Marking again moved to `w3_read/again.py`. It now also counts a signed-off answer no person corrected, by the reading
+its sign-off accepted. It can be limited to one question whose right answer an educator changed.
