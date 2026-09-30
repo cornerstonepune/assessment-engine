@@ -24,7 +24,7 @@ says:
   - words: "need to correct it"
     proved_by: packages/engine/tests/test_legacy.py::test_a_deploy_enters_every_paper_again_as_its_file_now_says
 manual:
-  - "After the merge's deploy is green: on the Marking page of each paper whose question 5 shows a right split as wrong, press Save on each box of that equation. A box not signed off is marked again with the others; a signed-off one by its own Save, its evidence with it."
+  - "After the deploy that carries ADR 0044 (goal s25) is green: its step 'every answer a person read, marked by the rule as it now stands' marks every question 5 box a person read by its equation, signed off or not; a box still waiting for a person is marked when they save it."
   - "Aseem or Achal: question 5's boxes count on Addition (NUM.OPS.01, rung R27), which any split that adds up shows; the key prints the place-value split (600 + 30 + 8) the third line adds column by column. If the school wants only that split, the three papers' `holds` lines come out and each box goes back to its own key."
 scenarios: []
 criteria:

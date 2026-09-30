@@ -154,10 +154,25 @@ def verdicts(conn, capture_id):
     return judge
 
 
+# A claim is true or not true however a person types what the child ticked. The papers print "True" / "Not true", the
+# bank's own questions say "true" / "false"; 2026-09-30, "false" typed for "odd + odd = odd" was marked wrong against
+# the paper's "Not true" on every child's paper.
+TRUTH = dict.fromkeys(("true", "t", "yes", "y", "✓", "✔", "tick"), True) | dict.fromkeys(
+    ("nottrue", "false", "f", "no", "n", "untrue", "✗", "✘", "x", "cross"), False
+)
+
+
+def _truth(text):
+    return TRUTH.get(re.sub(r"[\s.\-]+", "", text).casefold())
+
+
 def _against_the_key(key, wrote):
     """What a person says the child wrote, against a key that is not one number: numbers in order
-    by the numbers in order ("12,34,45,78" is "12, 34, 45, 78"), a sign by the sign, and anything
-    else — a word, a fraction — by its letters, ignoring case and spacing."""
+    by the numbers in order ("12,34,45,78" is "12, 34, 45, 78"), a sign by the sign, a claim by
+    whether it says true (`TRUTH`), and anything else — a word, a fraction — by its letters,
+    ignoring case and spacing."""
+    if _truth(key) is not None:
+        return "correct" if _truth(wrote) == _truth(key) else "wrong"
     if re.fullmatch(r"\s*\d+(\s*[,;\s]\s*\d+)+\s*", key):
         # ponytail: a thousands comma inside a number ("1,234, 2,345") splits it alike on both sides;
         # a child who leaves that comma out would be marked wrong. No such key yet — split on the
@@ -330,6 +345,46 @@ def remark(conn, child_id):
                 (status, codes, working, json.dumps(read), r["id"]),
             )
             changed += 1
+    return changed
+
+
+class _Held(Exception):
+    pass
+
+
+def mark_again(conn, by):
+    """Every answer a person read, marked again by the rule as it now stands, as `correct` marks it → [(its
+    question's key, the mark it had, the mark it has)] for each whose mark changed: one not yet signed off in place,
+    one signed off with a new batch of evidence in `by`'s name (`correct_signed_off`), the batch before it kept. What
+    the person read stays; an answer whose latest word from a person is a judgement keeps it. `remark` does this for
+    what the reader read. 2026-09-30: "false" for "odd + odd = odd" stayed wrong on every paper signed off before."""
+    rows = conn.execute(
+        "select distinct on (r.id) r.id, r.capture_id, r.state, r.status, r.raw_read, i.item_key, i.spec, i.responses,"
+        " rc.human_read as typed, rc.judged from read_correction rc join item_result r on r.id = rc.item_result_id"
+        " join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
+        " where r.state in ('candidate', 'confirmed') and c.superseded_by is null"
+        " order by r.id, rc.created_at desc"
+    ).fetchall()
+    learned, changed = learned_mistakes.rules(conn), []
+    for r in (r for r in rows if r["judged"] is None):
+        holds = (r["spec"] or {}).get("holds")
+        right = _group(conn, r["capture_id"], holds, {})[r["id"]][2] if holds else False
+        status, codes, working = _as_read(conn, r, r["typed"] or "", right, learned)
+        if status == r["status"]:
+            continue
+        try:
+            with conn.transaction():  # a signed-off answer changes with its evidence, or not at all
+                conn.execute(
+                    "update item_result set status = %s, misconception_codes = %s, working_shown = %s,"
+                    " updated_at = now() where id = %s",
+                    (status, codes, working, r["id"]),
+                )
+                evidence = "select correct_signed_off(%s, %s) as n"
+                if r["state"] == "confirmed" and not conn.execute(evidence, (r["id"], by)).fetchone()["n"]:
+                    raise _Held
+        except _Held:
+            status = f"{r['status']} (held: {status} makes no evidence)"
+        changed.append((r["item_key"], r["status"], status))
     return changed
 
 

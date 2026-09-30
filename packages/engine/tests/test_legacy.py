@@ -1310,36 +1310,39 @@ WROTE = {
 }
 
 
-def _read_split(conn, child, tmp_path, monkeypatch):
-    """The question 5 paper entered and its page read as WROTE → (box, marks, save): a box's row by its key, the
-    marks of some boxes, and a person saving what the child wrote in a box."""
+def _read_split(conn, child, tmp_path, monkeypatch, paper=SPLIT, wrote=WROTE):
+    """The question 5 paper (or `paper`) entered and its page read as WROTE (or `wrote`) → (box, marks, save): a box's
+    row by its key, the marks of some boxes, and a person saving what the child wrote in a box."""
     path = tmp_path / "split.json"
-    path.write_text(json.dumps(SPLIT))
+    path.write_text(json.dumps(paper))
     legacy.load_paper(conn, path)
-    spec = conn.execute("select spec from item where item_key = 'legacy/TEST-SPLIT/5a'").fetchone()["spec"]
-    assert spec["holds"] == "638 = 600 + {5a} + {5b}", "the paper's equation reaches the item"
+    if paper is SPLIT:
+        spec = conn.execute("select spec from item where item_key = 'legacy/TEST-SPLIT/5a'").fetchone()[
+            "spec"
+        ]
+        assert spec["holds"] == "638 = 600 + {5a} + {5b}", "the paper's equation reaches the item"
     scan = tmp_path / "scan.jpg"
     scan.write_bytes(b"")
     monkeypatch.setattr(legacy, "render_pages", lambda p, *a, **k: [b"jpeg"])
     monkeypatch.setattr(legacy, "mask_name_band", lambda j, f: j)
     monkeypatch.setitem(READ, "items", [
         {"slot": s, "question_as_printed": "", "child_answer": v, "answer_state": "written", "working_summary": "",
-         "self_corrected": False} for s, v in WROTE.items()])  # fmt: skip
+         "self_corrected": False} for s, v in wrote.items()])  # fmt: skip
     fake_ocr(monkeypatch)
-    capture = legacy.import_scan(conn, scan, "TEST-SPLIT", child, "test")["capture_id"]
+    capture = legacy.import_scan(conn, scan, paper["code"], child, "test")["capture_id"]
 
     def box(key):
         return conn.execute(
             "select r.id, r.status, r.state from item_result r join item i on i.id = r.item_id"
             " where r.capture_id = %s and i.item_key = %s",
-            (capture, f"legacy/TEST-SPLIT/{key}"),
+            (capture, f"legacy/{paper['code']}/{key}"),
         ).fetchone()
 
     def marks(*keys):
         return {k: box(k)["status"] for k in keys}
 
-    def save(key, wrote=None):
-        return marking.correct(conn, box(key)["id"], WROTE[key] if wrote is None else wrote, "nimish")
+    def save(key, typed=None):
+        return marking.correct(conn, box(key)["id"], wrote[key] if typed is None else typed, "nimish")
 
     return box, marks, save
 
@@ -1442,3 +1445,134 @@ def test_a_deploy_enters_every_paper_again_as_its_file_now_says():
         "after the engine is on the new code"
     )
     assert "../supabase/seed:/app/supabase/seed:ro" in (root / "deploy/compose.server.yml").read_text()
+
+
+def test_a_claim_ticked_not_true_is_marked_by_what_it_says_however_it_is_typed():
+    """Nimish, 2026-09-30, of question 11 on the Grade 4 September paper ("Tick the correct box for each statement",
+    True / Not true): "odd + odd = odd. The child has written false, which is the right answer … the system is still
+    considering it as the wrong answer". The key is the paper's "Not true", and "false" was compared with it letter by
+    letter. The bank's own questions key "true" / "false": the same claim, typed either way, is marked alike."""
+
+    def m(key, wrote, predicted=None):
+        response = {"answer": key, "misconceptions": predicted or {}}
+        return marking.mark(
+            {"kind": "missing"}, response, {"child_answer": wrote, "answer_state": "written"}
+        )[:2]
+
+    for wrote in ("false", "False", "not true", "Not true.", "no", "✗", "x", "cross", "F"):
+        assert m("Not true", wrote) == m("false", wrote) == ("correct", []), wrote
+        assert m("True", wrote)[0] == "wrong", wrote
+    for wrote in ("true", "TRUE", "yes", "✓", "tick", "T"):
+        assert m("True", wrote) == m("true", wrote) == ("correct", []), wrote
+        assert m("Not true", wrote)[0] == "wrong", wrote
+    assert m("true", "not true", {"M_REVERSES_CLAIM_TRUTH": "false"}) == (
+        "wrong",
+        ["M_REVERSES_CLAIM_TRUTH"],
+    ), "the bank's reversed claim is named however it is typed"
+    assert m("Not true", "not sure")[0] == "wrong", "anything else is still marked by its letters"
+    assert (m("even", "Even")[0], m("even", "odd")[0]) == ("correct", "wrong")
+
+
+TRUTH = {
+    "code": "TEST-TRUTH",
+    "title": "test",
+    "band": "G3",
+    "week": "test",
+    "date": "2026-09-11",
+    "pages": [{"n": 1, "mask": 0}],
+    "items": [
+        {"n": 11, "part": p, "page": 1, "kind": "missing", "rung": "X1", "answer": a, "question": q}
+        for p, a, q in (
+            ("a", "True", "even + even = even"),
+            ("b", "Not true", "odd + odd = odd"),
+            ("c", "Not true", "odd - odd = odd"),
+            ("d", "True", "odd + even = odd"),
+        )
+    ]
+    + [
+        {"n": 12, "page": 1, "kind": "text", "rung": "X1", "question": "Explain why Leroy cannot be correct."}
+    ],
+}
+
+
+@pytestmark_db
+def test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too(
+    conn, child, tmp_path, monkeypatch, every_kind_trusted
+):
+    """Nimish, 2026-09-30: "this would have happened with all the children". People typed question 11's ticks as
+    "false" and "true", "false" was marked wrong against "Not true", and papers were signed off that way. With the rule
+    put right, every answer a person read is marked again by it: one not yet signed off in place, one signed off with a
+    new batch of evidence the graph reads instead, the batch before it kept. What the person read stays, and an answer
+    a person judged keeps their judgement."""
+    ticks = {
+        "11a": "",
+        "11b": "",
+        "11c": "",
+        "11d": "",
+        "12": "because",
+    }  # the reader hands the ticks to a person
+    box, marks, save = _read_split(conn, child, tmp_path, monkeypatch, TRUTH, ticks)
+    with monkeypatch.context() as rule_until_now:
+        rule_until_now.setattr(
+            marking, "_truth", lambda text: None
+        )  # letters only, as it stood until 2026-09-30
+        save("11a", "true"), save("11b", "false")
+        conn.execute(  # a person judges 12 Right on the queue (`judgeOne`): a judgement, not a reading
+            "insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read, by,"
+            " judged) select r.tenant_id, %s, r.capture_id, r.id, 'because', 'because', 'nimish', 'correct'"
+            " from item_result r where r.id = %s",
+            (child, box("12")["id"]),
+        )
+        conn.execute("update item_result set status = 'correct' where id = %s", (box("12")["id"],))
+        marking.confirm(conn, child, "nimish")
+        save("11c", "false"), save("11d", "true")
+    assert marks("11a", "11b", "11c", "11d") == {
+        "11a": "correct",
+        "11b": "wrong",
+        "11c": "wrong",
+        "11d": "correct",
+    }
+    assert (box("11b")["state"], box("11c")["state"]) == ("confirmed", "candidate")
+
+    changed = marking.mark_again(conn, "the marking rule")
+    assert sorted(changed) == [
+        ("legacy/TEST-TRUTH/11b", "wrong", "correct"),
+        ("legacy/TEST-TRUTH/11c", "wrong", "correct"),
+    ]
+    assert marks("11b", "11c", "12") == {"11b": "correct", "11c": "correct", "12": "correct"}
+
+    def evidence(key, view):
+        return [
+            (r["correct"], r["confirmed_by"])
+            for r in conn.execute(
+                f"select correct, confirmed_by from {view} where item_result_id = %s order by created_at",
+                (box(key)["id"],),
+            )
+        ]
+
+    assert evidence("11b", "evidence_event") == [(False, "nimish"), (True, "the marking rule")], (
+        "the old batch kept"
+    )
+    assert evidence("11b", "evidence_placed") == [(True, "the marking rule")], "the graph reads the new one"
+    assert evidence("11c", "evidence_event") == [], "not signed off: marked in place, no evidence yet"
+    typed = conn.execute(
+        "select human_read from read_correction where item_result_id = %s order by created_at desc limit 1",
+        (box("11b")["id"],),
+    ).fetchone()
+    assert typed["human_read"] == "false", "what the person read stays"
+    assert marking.mark_again(conn, "the marking rule") == [], (
+        "marked by the rule as it stands, nothing changes twice"
+    )
+
+
+def test_a_deploy_marks_every_answer_a_person_read_by_the_rule_as_it_now_stands():
+    """Nimish, 2026-09-30: "How do we do this?" A marking rule put right is live, on every answer already marked, with
+    the deploy that carries it: once the engine is up on the new code and the papers are entered as their files say,
+    every answer a person read is marked again, signed off or not, and the log names each one that changed."""
+    steps = yaml.safe_load((db.REPO_ROOT / ".github/workflows/deploy-engine.yml").read_text())["jobs"][
+        "deploy"
+    ]["steps"]
+    runs = [s.get("run", "") for s in steps]
+    again = [i for i, r in enumerate(runs) if "engine legacy mark-again --by" in r]
+    assert len(again) == 1
+    assert again[0] > next(i for i, r in enumerate(runs) if "engine legacy paper" in r), "after the papers"

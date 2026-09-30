@@ -89,6 +89,7 @@ jobs:
           bin/engine load
           bin/engine bank levels --apply
           for p in supabase/seed/papers/*.json; do bin/engine legacy paper "$p" >/dev/null; done
+          bin/engine legacy mark-again --by "the marking rule (rehearsal)"  # as every deploy does, naming each change
           bin/engine bank relabel
           bin/engine bank rehome
           bin/engine bank refill

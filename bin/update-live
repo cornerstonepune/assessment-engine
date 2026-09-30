@@ -37,6 +37,7 @@ say "4/6 seed rows"
 "$E" load
 "$E" bank levels --apply   # load never rewrites a skill that exists; a changed level reaches it only here
 for p in "$REPO"/supabase/seed/papers/*.json; do "$E" legacy paper "$p" >/dev/null; done   # old papers' levels, as their files now say
+"$E" legacy mark-again --by "the marking rule (update-live)"   # every answer a person read, by the rule as it now stands
 
 say "5/6 the bank, the worksheets, each child's skills"
 "$E" bank relabel

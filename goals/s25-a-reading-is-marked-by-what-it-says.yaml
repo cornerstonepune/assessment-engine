@@ -1,0 +1,33 @@
+name: s25-a-reading-is-marked-by-what-it-says
+goal: >
+  What a person says a child wrote is marked by what it says, not by its letters: in a question that asks whether a
+  claim is true, a tick in the paper's "Not true" column typed as "false", "no" or a cross is the key's "Not true",
+  and "true", "yes" or a tick is its "True" — on the school's papers ("True" / "Not true") and in the bank's own
+  questions ("true" / "false") alike; anything else is still marked by its letters. A marking rule put right reaches
+  every answer already marked: every deploy marks each answer a person read again by the rule as it now stands, and an
+  answer whose mark changes is changed — one not yet signed off in place, one signed off with a new batch of evidence
+  the graph reads instead, the old batch kept. What the person read is never changed, a judgement a person made is
+  never marked again, and the deploy's log names every answer whose mark changed.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day, with the live Marking page of the Grade 4
+# September Week 1 paper open at question 11 ("Tick the correct box for each statement"): 11B "odd + odd = odd" and 11C
+# "odd - odd = odd", "You said the child wrote false", both "wrong · signed off". The key is right ("Not true"); the
+# marking compared "false" with "Not true" letter by letter. The same eleven boxes are on G3-SEPW1-A (11a-d), G3-SEPW1-B
+# (9a-c) and G4-SEPW1 (11a-d), and the reader hands every one of them to a person: every child's answer there is typed.
+says:
+  - words: "odd + odd = odd. The child has written false, which is the right answer"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_claim_ticked_not_true_is_marked_by_what_it_says_however_it_is_typed
+  - words: "this would have happened with all the children"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too
+  - words: "How do we do this?"
+    proved_by: packages/engine/tests/test_legacy.py::test_a_deploy_marks_every_answer_a_person_read_by_the_rule_as_it_now_stands
+manual:
+  - "After the merge's deploy is green: its log's step 'every answer a person read, marked by the rule as it now stands' names each answer whose mark changed; question 11B and 11C of the Grade 4 paper Nimish had open read right."
+scenarios: []
+criteria:
+  - name: the marking, marking again, and the deploy that runs it — on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_legacy.py -q -k "claim_ticked or rule_put_right or deploy_marks or keys_own_form"
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
