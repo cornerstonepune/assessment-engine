@@ -7,6 +7,7 @@ const ROUTES: [string, string][] = [
   ["/", "Curriculum"],
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
+  ["/papers", "Papers"],
   ["/capture", "Marking"],
   ["/growth", "Children"],
   ["/home", "Home Assignments"],
@@ -37,7 +38,7 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Today", "Children", "Marking", "Make papers", "Curriculum"]) {
+  for (const label of ["Today", "Children", "Papers", "Curriculum"]) {
     await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });

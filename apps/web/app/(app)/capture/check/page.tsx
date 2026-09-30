@@ -70,7 +70,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Marking · check answers"
+        stage="Papers · check answers"
         title="Check the answers"
         sub="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
       />

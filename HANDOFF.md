@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, evening — Papers is one menu item and one list (goal u9); the maker next
+
+- **Built:** Marking and Make papers are one menu item, Papers. /papers is every paper in one table: kind, class,
+  child, week, stage, what waits for a person, and the score. It filters by class, child, kind, week and stage, and a
+  row opens the paper. STATE.md U9.
+- **#139 (the Children table)** took one more commit, 3c6dc18: each sorted heading says its true direction, and the
+  click test scrolls to the row.
+- **Next:** the maker (task 38). Class practice, class assessment or home assessment, for any set of children, made in
+  one of three ways: one paper for all; the same skill and level with different questions each; or each child's own
+  next step, with a per-child change. Built on the engine's existing paths (class pack prescribe/assemble, focus,
+  custom paper, library handout). Goal file with his words first.
+- **Local only:** e2e "every child's paper has its own code" needs a G3 T2W1 week the local copy does not have.
+
 ## 2026-09-30, evening — Children as a table; Papers next (goal u8)
 
 - **Nimish asked for three screens** (his answers in the session): the Children table (done, goal u8), then Papers:

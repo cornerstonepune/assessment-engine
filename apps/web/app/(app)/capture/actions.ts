@@ -23,22 +23,25 @@ const back = (formData: FormData) => {
  * link, and that is what the person sees. */
 export async function readScan(formData: FormData): Promise<void> {
   const me = await requireStaff();
+  // back to the page it was read from: Papers, or the scans and the reader's accuracy (goals/u9-papers.yaml)
+  const page = formData.get("from") === "/papers" ? "/papers" : "/capture";
   const url = String(formData.get("url") ?? "")
     .trim()
     .slice(0, 400);
-  if (!/^https:\/\/drive\.google\.com\//.test(url)) redirect("/capture?read=not-a-link");
+  if (!/^https:\/\/drive\.google\.com\//.test(url)) redirect(`${page}?read=not-a-link#read-scan`);
   try {
     const res = await engineSend("/read/file", { url, actor: me.email });
     if (!res.ok) {
       const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "";
-      redirect(`/capture?read=refused&why=${encodeURIComponent(why.slice(0, 200))}`);
+      redirect(`${page}?read=refused&why=${encodeURIComponent(why.slice(0, 200))}#read-scan`);
     }
     const { pages } = (await res.json()) as { pages: number };
     revalidatePath("/capture");
-    redirect(`/capture?read=started&pages=${Number(pages) || 0}`);
+    revalidatePath("/papers");
+    redirect(`${page}?read=started&pages=${Number(pages) || 0}#read-scan`);
   } catch (e) {
     if (!(e instanceof EngineDown)) throw e;
-    redirect("/capture?read=engine");
+    redirect(`${page}?read=engine#read-scan`);
   }
 }
 

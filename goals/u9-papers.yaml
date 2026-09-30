@@ -1,0 +1,30 @@
+name: u9-papers
+goal: >
+  Papers is one menu item in place of Marking and Make papers, and one table of every paper. Each row gives the paper
+  (its skill and level, or its title), whose it is (class and child), its kind (class practice, class assessment, home
+  assessment, a paper an educator chose, or an earlier paper), its week, and its stage: made, printed, scanned, checked
+  or signed off. It also says how many answers wait for a person and, once checked, its score. The table filters by
+  class, child, kind, week and stage, and counts each stage. A click anywhere on a row opens the paper where its work
+  is: to check its answers once it is scanned, to see and print it before. The same page reads a scan, opens the queue
+  of answers to check, and makes a paper. Names are read the one logged way, once per child.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day: "I really don't think marking and marking papers
+# as two different types are essential. We can merge them into one with a very simple and effective" — and, offered
+# the shapes: "Yeah, I agree with one list of papers with the right filtration and all, and a good view. The view
+# should be good, and the table should be aesthetically pleasing." The maker he described in the same answer (three
+# kinds, any set of children, the same paper or each child's own) is its own goal.
+says:
+  - words: "I really don't think marking and marking papers as two different types are essential. We can merge them into one"
+    proved_by: apps/web/tests/u9-papers.spec.ts::one Papers in the menu for marking and making, and a row opens the paper where its work is
+  - words: "one list of papers with the right filtration"
+    proved_by: apps/web/tests/u9-papers.spec.ts::every paper is one row, what it is, whose, and where it stands, filtered by class, kind and stage
+manual:
+  - "On live, once merged: open Papers, filter to one class, and open a scanned paper and a printed one."
+scenarios: []
+criteria:
+  - name: Papers, on the copy
+    run: cd apps/web && npx playwright test tests/u9-papers.spec.ts tests/u3-marking.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

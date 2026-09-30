@@ -88,7 +88,7 @@
       "gives": ["papers marked printed"],
       "files": ["engine/w2_print/pack.py"],
       "commands": ["engine week approve", "engine week pack"],
-      "screens": ["/worksheets", "/today", "/growth/[id]"],
+      "screens": ["/worksheets", "/papers", "/today", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
     },
     {
@@ -100,7 +100,7 @@
       "gives": ["capture"],
       "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/lineup.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py", "engine/w3_read/copies.py", "engine/w3_read/copy_scores.py", "engine/w3_read/cli_file.py", "engine/w3_read/inbox.py"],
       "commands": ["engine read stencil", "engine read file"],
-      "screens": ["/capture"],
+      "screens": ["/papers", "/capture"],
       "subject": {"any": true, "note": "Any subject. Scans enter from this Mac; a phone photo arriving on its own (Drive folder, QR) is not built."}
     },
     {
@@ -112,7 +112,7 @@
       "gives": ["item_result", "read_correction", "child_reading_profile"],
       "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/marking.py", "engine/w3_read/again.py", "engine/w3_read/keys.py", "engine/w3_read/naming.py", "engine/w3_read/profiles.py", "engine/w3_read/crops.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py"],
       "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval"],
-      "screens": ["/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
+      "screens": ["/papers", "/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
       "subject": {"any": false, "note": "The loop — notebook, trust per kind, a person's check — is any subject's. The reader reads numbers only, and marking is a lookup against computed answers: a subject answered in words would reach a person every time."}
     },
     {

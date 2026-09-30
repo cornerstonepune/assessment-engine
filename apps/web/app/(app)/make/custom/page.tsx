@@ -48,7 +48,7 @@ export default async function CustomPaper({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Make papers"
+        stage="Papers · make"
         title={`A home assessment for ${child.first_name}`}
         sub="Choose up to four skills, a level for each, and how many questions. You see every question before it prints; the child has seen none of them."
       />

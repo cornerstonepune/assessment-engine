@@ -150,13 +150,14 @@ test("marking is one area, and says how many papers are in and where every answe
   await page.goto("/capture");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Marking");
   const menu = page.getByRole("navigation", { name: "Sections" });
-  await expect(menu.getByRole("link", { name: "Marking" })).toHaveAttribute("aria-current", "page");
+  // Marking sits inside Papers (goals/u9-papers.yaml)
+  await expect(menu.getByRole("link", { name: "Papers" })).toHaveAttribute("aria-current", "page");
   expect(await shown(page.getByRole("region", { name: "Where every answer stands" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
   await page.getByRole("link", { name: /check them/i }).click();
   await expect(page).toHaveURL(/\/capture\/check/);
-  await expect(menu.getByRole("link", { name: "Marking" })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: "Papers" })).toHaveAttribute("aria-current", "page");
   await page.getByRole("link", { name: "← Marking" }).click();
   await expect(page).toHaveURL(/\/capture$/);
 });

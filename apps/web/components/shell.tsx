@@ -4,12 +4,13 @@ import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 
 // The menu is the teacher's week (BUILD-ORDER, "the website as the teacher's week"): what waits on them, the
-// children, the papers coming back, the papers going out, what is taught, the questions it is taught with.
+// children, their papers going out and coming back (one item, goals/u9-papers.yaml: Nimish, 2026-09-30, "I really
+// don't think marking and marking papers as two different types are essential"), and what is taught. A child's own
+// paper (CS + six hex) is a paper; a library worksheet is curriculum.
 export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
-  { href: "/capture", label: "Marking", icon: "camera", match: ["/capture"] },
-  { href: "/make", label: "Make papers", icon: "sheet", match: ["/make", "/home"] },
+  { href: "/papers", label: "Papers", icon: "sheet", match: ["/papers", "/capture", "/make", "/home", "/worksheets/CS"] },
   { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets"] },
 ];
 

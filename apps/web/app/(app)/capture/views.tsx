@@ -133,7 +133,7 @@ export function WorksheetPapers({ papers, worksheet }: { papers: PaperRow[]; wor
   return (
     <>
       <PageHeader
-        stage="Marking · worksheet"
+        stage="Papers · marking by worksheet"
         title={rows[0].title ?? worksheet}
         sub={`${s.papers} children's copies read: ${s.engine} answers settled by the engine, ${s.person} checked by a person, ${s.waiting} still waiting.`}
       />
@@ -167,7 +167,7 @@ export function ChildPapers({ papers, id }: { papers: PaperRow[]; id: string }) 
   return (
     <>
       <PageHeader
-        stage={`Marking · ${c.section}`}
+        stage={`Papers · marking · ${c.section}`}
         title={c.first_name}
         sub={`Roll ${c.roll_no}. ${read.length} paper${read.length === 1 ? "" : "s"} read, ${s.toSign} still to sign off. Open a paper, check every answer against ${c.first_name}'s writing, then sign it off.`}
       />

@@ -77,14 +77,12 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
   await expect(menu.getByRole("link")).toHaveText([
     "Today",
     "Children",
-    "Marking",
-    "Make papers",
+    "Papers",
     "Curriculum",
   ]);
   for (const [label, heading] of [
     ["Children", "Children"],
-    ["Marking", "Marking"],
-    ["Make papers", "Make papers"],
+    ["Papers", "Papers"],
     ["Curriculum", "Curriculum"],
     ["Today", "Today"],
   ]) {
