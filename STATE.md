@@ -3983,3 +3983,27 @@ deploys.
     and /worksheets, and in each reader view.
   - It checks the day-against-day arithmetic from the table's own rows, on two days the test seeds.
   - s4, u3, u8, u9, m2, m4, u2, s3, s5 and screens → all passed.
+
+## U11 — what the colours mean, and a check for grey (goal u11-colours-said, 2026-09-30)
+
+- **Asked:** Nimish: "The clarity of what each of the colors means has not been very clearly mentioned. How do we
+  classify students across different tiers?" And: for grey, "a clear recommendation around the next set of
+  assessments … so that we know where the child is".
+- **Built:**
+  - `lib/colours.ts` reads the rows `rebuild_child_skill_state` decides by: `state.min_events`,
+    `state.min_observers`, `next_sheet.promote_at`, `next_sheet.demote_below`, and `prescribe.band_default`. The
+    check size is derived from them: the larger of the minimum answers and the fewest answers in which the green
+    share can show (5).
+  - `components/colour-key.tsx` is "What the colours mean", on Children, each class and each child. For each colour
+    it gives when a skill is that colour, in those numbers, and what comes next.
+  - `growth/checks.tsx` lists the checks that would place them:
+    - On a class, every step where some child is grey or has no answer, those children with their counts.
+    - On a child, their grey skills, then their grade's skills not yet assessed.
+    - Each check is a class assessment at the grade's starting level, 5 questions, different for each child. "Make
+      this check" opens the maker with the children, skill, level and size already chosen.
+  - The class grid's step headings are centred over their dots. u10's alignment check now covers tables whose
+    headings span two rows.
+- **Checks:**
+  - `npx playwright test tests/u11-colours-said.spec.ts` → 2 passed. The key's numbers are compared against the
+    threshold rows on three pages, and a check against its children, level, size and the maker it opens.
+  - u10, u2, u8, m4 and screens → 41 passed.

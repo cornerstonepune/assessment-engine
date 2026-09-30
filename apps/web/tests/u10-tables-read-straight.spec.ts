@@ -64,8 +64,9 @@ async function offColumn(page: Page): Promise<string[]> {
     const side = (el: Element) => ({ start: "left", end: "right" })[getComputedStyle(el).textAlign] ?? getComputedStyle(el).textAlign;
     return tables.flatMap((t, n) => {
       const heads = [...t.querySelectorAll("thead tr:last-child th")];
-      const cells = [...(t.querySelector("tbody tr")?.querySelectorAll("td") ?? [])];
-      if (!cells.length || heads.length !== cells.length) return []; // a table of spanning headings is drawn by hand
+      // a heading that spans the heading rows (a class grid's "Child") heads the first cells: the last row heads the rest
+      const cells = [...(t.querySelector("tbody tr")?.querySelectorAll("td") ?? [])].slice(-heads.length);
+      if (!cells.length || heads.length > cells.length) return [];
       return heads.flatMap((h, i) =>
         side(h) === side(cells[i]) ? [] : [`${t.getAttribute("aria-label") ?? `table ${n + 1}`} · "${h.textContent?.trim()}": heading ${side(h)}, cells ${side(cells[i])}`],
       );
@@ -74,7 +75,9 @@ async function offColumn(page: Page): Promise<string[]> {
 }
 
 test("every heading sits over its own column, on every page with a table", async ({ page }) => {
-  for (const path of ["/papers", "/capture", "/growth", "/make", "/library", "/worksheets"]) {
+  const [grid] = await sql<{ section: string }[]>`
+    select c.section from child_skill_state s join child c on c.id = s.child_id where c.active and s.n_events > 0 limit 1`;
+  for (const path of ["/papers", "/capture", "/growth", "/make", "/library", "/worksheets", `/growth/class/${grid.section}`]) {
     await page.goto(path);
     expect(await offColumn(page), path).toEqual([]);
   }

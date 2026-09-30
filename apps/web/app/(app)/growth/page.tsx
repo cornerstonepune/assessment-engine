@@ -4,6 +4,8 @@ import { requireStaff } from "@/lib/auth";
 import { childTable, type ChildRow } from "@/lib/queries-children";
 import { gradeWords } from "@/lib/queries";
 import { deadline } from "@/lib/deadline";
+import { ColourKey } from "@/components/colour-key";
+import { colourRules } from "@/lib/colours";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -57,7 +59,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
   const asked = (await searchParams).sort;
   // a heading that does not sort (Grade), or no heading at all, is the roll order
   const sort = COLUMNS.find((c) => c.key === asked && c.dir)?.key ?? "roll";
-  const rows = await deadline(childTable(me.email));
+  const [rows, rules] = await deadline(Promise.all([childTable(me.email), colourRules()]));
   const by = COLUMNS.find((c) => c.key === sort)?.by;
   const grades = [...new Set(rows.map((r) => r.band))];
 
@@ -167,10 +169,11 @@ export default async function ChildrenPage({ searchParams }: Props) {
             );
           })}
           <p className="note">
-            From checked papers only. &ldquo;Needs help on&rdquo; is the skill with a repeating mistake or under half
-            right (red dot), else the one still being practised (amber); secure counts the skills got. A parent report is
-            out of date once answers were signed off after it was written.
+            From checked papers only. &ldquo;Needs help on&rdquo; is the child&rsquo;s red skill (a dot in red) where they have one,
+            else their amber one; secure counts the green. A parent report is out of date once answers were signed off after it was
+            written.
           </p>
+          <ColourKey rules={rules} />
         </div>
       </Body>
     </>
