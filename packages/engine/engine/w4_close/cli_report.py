@@ -5,7 +5,7 @@ import typer
 
 from engine.core import db
 from engine.w3_read import gold
-from engine.w4_close import report
+from engine.w4_close import every_report, report
 
 report_app = typer.Typer(help="W4 — a child's report, in the shape of Aseem's", no_args_is_help=True)
 
@@ -50,3 +50,33 @@ def report_gold() -> None:
     if not held or not all(r["in_report"] for r in held):
         raise typer.Exit(1)
     typer.echo("  every finding the papers hold is in the report")
+
+
+@report_app.command("parents")
+def report_parents(
+    by: str = typer.Option(
+        ..., "--by", help="who asked: each report's run carries it, as the page's button does"
+    ),
+    band: str = typer.Option(
+        None, "--band", help="only this band's children (G2, G3, G4); every band if left out"
+    ),
+) -> None:
+    """Every parent report that is due, written one after another: each child with signed-off answers whose report is
+    missing or out of date. Each is held to its facts and kept as a draft for an educator to approve. Names each child
+    by class and roll, never by name. Exits 1 while any report due was not kept."""
+    with db.connect() as conn:
+        kids = every_report.due(conn, band)
+    if not kids:
+        typer.echo("  nothing due: every child with signed-off answers has a report still true of them")
+        return
+    typer.echo(f"  {len(kids)} report(s) due")
+    done = []
+    for k in kids:
+        (d,) = every_report.write_each(by, [k])
+        done.append(d)
+        who = f"{d['band']}{'' if d['section'] == d['band'] else ' ' + d['section']} roll {d['roll_no']}"
+        typer.echo(f"  {who}  " + ("kept" if d["kept"] else f"not kept: {d['error']}") + f"  ({d['why']})")
+    kept = sum(d["kept"] for d in done)
+    typer.echo(f"  {kept} of {len(done)} kept, each a draft waiting for an educator to approve")
+    if kept < len(done):
+        raise typer.Exit(1)

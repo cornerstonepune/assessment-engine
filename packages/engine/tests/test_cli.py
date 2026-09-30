@@ -44,6 +44,7 @@ COMMANDS = [
     ("read", "stability", "--help"),
     ("legacy", "import", "--help"),
     ("legacy", "paper", "--help"),
+    ("report", "parents", "--help"),  # the write-reports workflow runs it on the server
 ]
 
 
