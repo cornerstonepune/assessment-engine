@@ -200,7 +200,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                   <tr>
                     <th>Kind</th>
                     <th>For example</th>
-                    <th className="text-right">Questions</th>
+                    <th className="num">Questions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -303,7 +303,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                     <thead>
                       <tr>
                         <th>Worksheet</th>
-                        <th>Level</th>
+                        <th className="num">Level</th>
                         <th>Its twelve questions</th>
                       </tr>
                     </thead>
@@ -313,7 +313,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                           <td className="fact whitespace-nowrap">
                             <Link href={`/worksheets/${w.code}`}>{w.code}</Link>
                           </td>
-                          <td>{w.difficulty}</td>
+                          <td className="num">{w.difficulty}</td>
                           <td className="text-[12.5px] text-basalt/70">
                             {kindsInWords(w.kinds)}
                           </td>

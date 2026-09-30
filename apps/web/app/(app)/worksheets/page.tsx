@@ -91,11 +91,11 @@ export default async function WorksheetsPage({ searchParams }: Props) {
               <thead>
                 <tr>
                   <th>Roll</th>
-                  <th>Level</th>
+                  <th className="num">Level</th>
                   <th>Why this level</th>
                   <th>Paper</th>
-                  <th className="text-right">Questions</th>
-                  <th>Status</th>
+                  <th className="num">Questions</th>
+                  <th className="num">Status</th>
                   <th></th>
                 </tr>
               </thead>
@@ -103,7 +103,7 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                 {plan.map((r) => (
                   <tr key={r.prescription_id}>
                     <td className="fact">{r.roll_no}</td>
-                    <td>
+                    <td className="num">
                       <Pill tone={r.rule_fired === "override" ? "bamboo" : "monsoon"}>{r.difficulty}</Pill>
                     </td>
                     <td className="max-w-[340px] text-[12.5px]">
@@ -135,7 +135,7 @@ export default async function WorksheetsPage({ searchParams }: Props) {
                       )}
                     </td>
                     <td className="num">{r.questions ?? 0}</td>
-                    <td>
+                    <td className="num">
                       {r.print_status === "printed" ? (
                         <Pill tone="neem">printed</Pill>
                       ) : r.qr_code ? (

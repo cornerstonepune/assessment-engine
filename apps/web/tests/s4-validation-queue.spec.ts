@@ -304,9 +304,10 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
   await page.goto("/capture");
   const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
   await expect(panel.getByText(`Checked by a person: ${n.checked} answers.`)).toBeVisible();
-  // up to three tables (by kind of answer, by day, by grade) as the answers allow: the first is by kind
-  await expect(panel.getByRole("table").first()).toBeVisible();
-  await expect(panel.getByText(/every answer checked by a person|trusted: settles alone/).first()).toBeVisible();
+  // one table, by day first; each kind of question's standing is a click away (goals/u10-tables-read-straight.yaml)
+  await expect(panel.getByRole("table")).toHaveCount(1);
+  await panel.getByRole("button", { name: "By kind of question" }).click();
+  await expect(panel.getByText(/a person checks every answer|trusted: settles alone/).first()).toBeVisible();
 });
 
 test("the queue is on the menu, and fits a phone", async ({ page }) => {

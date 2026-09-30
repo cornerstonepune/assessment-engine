@@ -20,7 +20,7 @@ export function ByClass({ papers }: { papers: PaperRow[] }) {
           <thead>
             <tr>
               <th>Class</th>
-              <th className="text-right">Children</th>
+              <th className="num">Children</th>
               {STANDING_HEADS}
             </tr>
           </thead>
@@ -103,7 +103,7 @@ export function ByWorksheet({ papers }: { papers: PaperRow[] }) {
           <thead>
             <tr>
               <th>Worksheet</th>
-              <th className="text-right">Children</th>
+              <th className="num">Children</th>
               {STANDING_HEADS}
             </tr>
           </thead>

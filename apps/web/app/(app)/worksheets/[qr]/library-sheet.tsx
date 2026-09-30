@@ -65,7 +65,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
               <table className="grid" aria-label="Questions and answers">
                 <thead>
                   <tr>
-                    <th className="text-right">#</th>
+                    <th className="num">#</th>
                     <th>Question</th>
                     <th>Answer</th>
                     <th>Kind</th>

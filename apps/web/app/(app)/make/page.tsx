@@ -29,10 +29,10 @@ export default async function MakePapers() {
               <thead>
                 <tr>
                   <th>Class</th>
-                  <th>Grade</th>
-                  <th className="text-right">Children</th>
-                  <th className="text-right">Proposed</th>
-                  <th className="text-right">Approved</th>
+                  <th className="num">Grade</th>
+                  <th className="num">Children</th>
+                  <th className="num">Proposed</th>
+                  <th className="num">Approved</th>
                   <th></th>
                 </tr>
               </thead>
@@ -40,7 +40,7 @@ export default async function MakePapers() {
                 {classes.map((c) => (
                   <tr key={c.section}>
                     <td className="fact">{c.section}</td>
-                    <td>{gradeWords(c.band)}</td>
+                    <td className="num">{gradeWords(c.band)}</td>
                     <td className="num">{c.children}</td>
                     <td className="num" data-n="proposed">
                       {c.proposed}

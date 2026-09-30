@@ -138,8 +138,15 @@ table.grid .pin {
 table.grid th.pin {
   background: linear-gradient(var(--ink-03), var(--ink-03)), var(--chalk);
 }
+/* A short value — a count, a share, a date, a pill — sits in the middle of its column, and its heading with it. A
+   heading's own `text-right` never applied (the rule above outranks a utility), so every number sat right under a
+   heading on the left and read as a different column (Nimish, 2026-09-30: "the column names and the table alignment
+   is distorted across all the places"). Names and sentences stay left. */
+table.grid th.num,
 table.grid td.num {
-  text-align: right;
+  text-align: center;
+}
+table.grid td.num {
   font-variant-numeric: tabular-nums lining-nums;
 }
 

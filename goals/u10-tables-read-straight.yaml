@@ -1,0 +1,30 @@
+name: u10-tables-read-straight
+goal: >
+  Every table's headings sit over their own columns: a name or a sentence is on the left, heading and cells alike; a
+  short value (a count, a share, a date, a level, a pill) is in the middle of its column, heading and cells alike, on
+  every page. How the reader is doing is one table, not three: by day first, each day's share right and how many
+  points it moved against the day before, so whether the reader is getting better reads at a glance; by kind of
+  question and by how sure it was are one click away, in the same table. Every kind of question is named in words.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day over a screenshot of the Marking page's reader
+# tables: "The column names are not well formatted and center-aligned. Let's do that. … The table alignment, like the
+# column names and the table alignment, is distorted across all the places." And: "is there just one view that we can
+# have? It simply shows just one table, which can have a toggle around confidence levels, the date, etc. There's just
+# one table which very clearly shows how the engine is improving or not, so we keep it simple."
+says:
+  - words: "The table alignment, like the column names and the table alignment, is distorted across all the places"
+    proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::every heading sits over its own column, on every page with a table
+  - words: "It simply shows just one table, which can have a toggle around confidence levels, the date, etc."
+    proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::how the reader is doing is one table, by day first, by kind or by how sure at a click
+  - words: "There's just one table which very clearly shows how the engine is improving or not"
+    proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::each day says how far the reader moved against the day before, and the words say first against latest
+manual:
+  - "On live, once merged: open Papers → Scans, and how the reader is doing; switch the reader's table by day, by kind and by how sure."
+scenarios: []
+criteria:
+  - name: tables and the reader, on the copy
+    run: cd apps/web && npx playwright test tests/u10-tables-read-straight.spec.ts tests/s4-validation-queue.spec.ts tests/u3-marking.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

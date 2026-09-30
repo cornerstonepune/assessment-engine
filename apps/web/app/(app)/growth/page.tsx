@@ -20,8 +20,8 @@ type Dir = "ascending" | "descending" | "other";
 const COLUMNS: { key: string; label: string; num?: boolean; dir?: Dir; by?: (a: ChildRow, b: ChildRow) => number }[] = [
   { key: "roll", label: "Roll", dir: "ascending" },
   { key: "name", label: "Name", dir: "ascending", by: (a, b) => a.first_name.localeCompare(b.first_name) },
-  { key: "grade", label: "Grade" },
-  { key: "class", label: "Class", dir: "ascending", by: (a, b) => a.section.localeCompare(b.section) },
+  { key: "grade", label: "Grade", num: true },
+  { key: "class", label: "Class", num: true, dir: "ascending", by: (a, b) => a.section.localeCompare(b.section) },
   {
     key: "help",
     label: "Needs help on",
@@ -30,8 +30,8 @@ const COLUMNS: { key: string; label: string; num?: boolean; dir?: Dir; by?: (a: 
   },
   { key: "secure", label: "Secure", num: true, dir: "descending", by: (a, b) => b.secure - a.secure },
   { key: "practising", label: "Practising", num: true, dir: "descending", by: (a, b) => b.practising - a.practising },
-  { key: "last", label: "Last paper read", dir: "descending", by: (a, b) => (b.last_read ?? "").localeCompare(a.last_read ?? "") },
-  { key: "report", label: "Parent report", dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
+  { key: "last", label: "Last paper read", num: true, dir: "descending", by: (a, b) => (b.last_read ?? "").localeCompare(a.last_read ?? "") },
+  { key: "report", label: "Parent report", num: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
 
 function Report({ r }: { r: ChildRow["report"] }) {
@@ -99,7 +99,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
                         {COLUMNS.map((c) => (
                           <th
                             key={c.key}
-                            className={c.num ? "text-right" : undefined}
+                            className={c.num ? "num" : undefined}
                             aria-sort={c.key === sort ? c.dir : undefined}
                           >
                             {!c.dir ? (
@@ -135,8 +135,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
                               {r.first_name}
                             </Link>
                           </td>
-                          <td>{gradeWords(r.band)}</td>
-                          <td>{r.section}</td>
+                          <td className="num">{gradeWords(r.band)}</td>
+                          <td className="num">{r.section}</td>
                           <td>
                             {r.help ? (
                               <span className="inline-flex items-center gap-2">
@@ -152,10 +152,10 @@ export default async function ChildrenPage({ searchParams }: Props) {
                           </td>
                           <td className="num">{r.secure}</td>
                           <td className="num">{r.practising}</td>
-                          <td className="fact whitespace-nowrap">
+                          <td className="num fact whitespace-nowrap">
                             {r.last_read ? fmtDay(r.last_read) : <span className="text-basalt/45">—</span>}
                           </td>
-                          <td>
+                          <td className="num">
                             <Report r={r.report} />
                           </td>
                         </tr>

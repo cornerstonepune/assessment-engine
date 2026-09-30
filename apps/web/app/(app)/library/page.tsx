@@ -78,14 +78,14 @@ export default async function LibraryPage({ searchParams }: Props) {
               <thead>
                 <tr>
                   <th>Skill set</th>
-                  <th>Grade</th>
+                  <th className="num">Grade</th>
                   <th>Kinds of question</th>
                   {DIFFICULTIES.map((d) => (
-                    <th key={d} className="text-right">
+                    <th key={d} className="num">
                       {d}
                     </th>
                   ))}
-                  <th className="text-right">All</th>
+                  <th className="num">All</th>
                 </tr>
               </thead>
               <tbody>
@@ -94,7 +94,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                     <td className="min-w-[220px]">
                       <Link href={link({ set: r.code, difficulty: undefined, fmt: undefined })}>{r.name}</Link>
                     </td>
-                    <td className="fact">{r.band}</td>
+                    <td className="num fact">{r.band}</td>
                     <td className="min-w-[180px] text-[12px] text-basalt/62">
                       {r.fmts.map((f) => KIND[f] ?? f).join(" · ")}
                     </td>
@@ -163,7 +163,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                       <th>Answer</th>
                       <th>Kind</th>
                       <th>Worksheets</th>
-                      <th></th>
+                      <th className="num"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -192,7 +192,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                             <span className="note">none</span>
                           )}
                         </td>
-                        <td className="text-right">
+                        <td className="num">
                           <Link href={`/library/${it.item_key}`} className="whitespace-nowrap text-[12.5px]" tabIndex={-1} aria-hidden>
                             Open →
                           </Link>
