@@ -43,8 +43,8 @@ const papersCte = sql`
     select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id,
            coalesce(si.section, ch.section) as section, coalesce(si.week, t.week) as week,
            coalesce(t.key ->> 'date', si.created_at::date::text) as day, si.created_at,
-           case when ss.name is not null then ss.name || coalesce(' · ' || t.difficulty, '')
-                else coalesce(t.key ->> 'title', t.code, t.batch_id, si.qr_code) end as title,
+           coalesce(ss.name || coalesce(' · ' || t.difficulty, ''), t.key ->> 'title', drawn.title, t.code, t.batch_id,
+                    si.qr_code) as title,
            case when not a.read then case when si.print_status = 'new' then 'made' else 'printed' end
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
@@ -54,6 +54,16 @@ const papersCte = sql`
     join sheet_template t on t.id = si.sheet_template_id
     left join child ch on ch.id = si.child_id
     left join skill_set ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
+    -- a paper drawn for one child (a home assessment, a paper an educator chose) names no skill set of its own: its
+    -- title is its questions' skill sets and levels, in the order they stand on the page
+    left join lateral (
+      select string_agg(x.name || ' · ' || x.difficulty, ' + ' order by x.first) as title
+      from (select s.name, i.difficulty, min(o.n) as first
+            from unnest(t.item_ids) with ordinality o(id, n)
+            join item i on i.id = o.id
+            join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+            group by s.name, i.difficulty) x
+    ) drawn on ss.name is null
     cross join lateral (
       select exists (select 1 from capture k where k.sheet_instance_id = si.id and k.superseded_by is null) as read,
              count(r.id)::int as n,

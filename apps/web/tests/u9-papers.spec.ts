@@ -37,14 +37,15 @@ async function paper(
   tenant: string,
   qr: string,
   kid: string,
-  t: { source: string; set?: string; level?: string; key?: object },
+  t: { source: string; set?: string; level?: string; key?: object; drawn?: string[] },
   i: { kind: string | null; status: string; approved?: boolean },
 ): Promise<Paper> {
   const [had] = await sql<Paper[]>`select id, qr_code as qr from sheet_instance where qr_code = ${qr}`;
   if (had) return had;
   const [{ id: tpl }] = await sql<{ id: string }[]>`
-    insert into sheet_template (tenant_id, band, week, source, skill_set_code, difficulty, child_id, key)
-    values (${tenant}, 'G2', ${WEEK}, ${t.source}, ${t.set ?? null}, ${t.level ?? null}, ${kid}, ${sql.json((t.key ?? {}) as never)})
+    insert into sheet_template (tenant_id, band, week, source, skill_set_code, difficulty, child_id, key, item_ids)
+    values (${tenant}, 'G2', ${WEEK}, ${t.source}, ${t.set ?? null}, ${t.level ?? null}, ${kid}, ${sql.json((t.key ?? {}) as never)},
+            ${t.drawn ?? null}::uuid[])
     returning id`;
   const [p] = await sql<Paper[]>`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status, kind, week, section,
@@ -76,7 +77,10 @@ test.beforeAll(async () => {
   const [{ id: tenant }] = await sql<{ id: string }[]>`select id from tenant limit 1`;
   kids = { Asha: await child(tenant, "1", "Asha"), Bina: await child(tenant, "2", "Bina") };
   papers.made = await paper(tenant, "U9-MADE", kids.Bina, { source: "generated", set: "ADD.2D2D", level: "Easy" }, { kind: "practice", status: "new" });
-  papers.printed = await paper(tenant, "CSE9A001", kids.Asha, { source: "focus", set: "SUB.2D2D", level: "Medium" }, { kind: "focus", status: "printed", approved: true });
+  // a home paper as the engine makes it (focus_paper.make): its questions, and no skill set of its own
+  const drawn = await sql<{ id: string }[]>`
+    select id from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Medium' order by item_key limit 3`;
+  papers.printed = await paper(tenant, "CSE9A001", kids.Asha, { source: "focus", drawn: drawn.map((d) => d.id) }, { kind: "focus", status: "printed", approved: true });
   papers.scanned = await paper(tenant, "U9-OLD-A", kids.Asha, { source: "legacy", key: { title: "U9 September paper", date: "2026-09-21" } }, { kind: null, status: "returned" });
   papers.signed = await paper(tenant, "U9-ASSESS", kids.Bina, { source: "generated", set: "SUB.2D2D", level: "Hard" }, { kind: "assessment", status: "returned" });
   await read(tenant, papers.scanned, [["needs_teacher", "candidate"], ["correct", "candidate"]]);
