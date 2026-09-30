@@ -3983,3 +3983,78 @@ deploys.
     and /worksheets, and in each reader view.
   - It checks the day-against-day arithmetic from the table's own rows, on two days the test seeds.
   - s4, u3, u8, u9, m2, m4, u2, s3, s5 and screens → all passed.
+
+## U11 — what the colours mean, and a check for grey (goal u11-colours-said, 2026-09-30)
+
+- **Asked:** Nimish: "The clarity of what each of the colors means has not been very clearly mentioned. How do we
+  classify students across different tiers?" And: for grey, "a clear recommendation around the next set of
+  assessments … so that we know where the child is".
+- **Built:**
+  - `lib/colours.ts` reads the rows `rebuild_child_skill_state` decides by: `state.min_events`,
+    `state.min_observers`, `next_sheet.promote_at`, `next_sheet.demote_below`, and `prescribe.band_default`. The
+    check size is derived from them: the larger of the minimum answers and the fewest answers in which the green
+    share can show (5).
+  - `components/colour-key.tsx` is "What the colours mean", on Children, each class and each child. For each colour
+    it gives when a skill is that colour, in those numbers, and what comes next.
+  - `growth/checks.tsx` lists the checks that would place them:
+    - On a class, every step where some child is grey or has no answer, those children with their counts.
+    - On a child, their grey skills, then their grade's skills not yet assessed.
+    - Each check is a class assessment at the grade's starting level, 5 questions, different for each child. "Make
+      this check" opens the maker with the children, skill, level and size already chosen.
+  - The class grid's step headings are centred over their dots. u10's alignment check now covers tables whose
+    headings span two rows.
+- **Checks:**
+  - `npx playwright test tests/u11-colours-said.spec.ts` → 2 passed. The key's numbers are compared against the
+    threshold rows on three pages, and a check against its children, level, size and the maker it opens.
+  - u10, u2, u8, m4 and screens → 41 passed.
+
+## U12 — the curriculum as one table that opens (goal u12-curriculum-table, 2026-09-30)
+
+- **Asked:** Nimish, over the Curriculum page's nested boxes: "this should be like a proper table, and that table
+  needs to have some kind of an expand/collapse … within grade 1, within mathematics, there are addition and
+  subtraction, and then within that, there is sub." The columns: questions, worksheets, the levels, "number of
+  students which have been there", and taught "based on the assessments".
+- **Built:**
+  - `lib/queries-curriculum.ts` `curriculumRows()`: one row per grade, subject, topic and skill, every row with the
+    same numbers.
+    - A skill's questions and worksheets are counted at the levels its grade holds. A level another grade holds is a
+      dash (a skill's Advance may be Grade 3's).
+    - A topic, a subject or a grade adds up its rows.
+  - Children assessed: the active children with a checked answer on the skill (`child_skill_state.n_events > 0`). At
+    a topic or a grade, each child is counted once across its skills.
+  - Taught is read from the answers: a skill is taught once any child has a checked answer on it. A topic or a grade
+    says how many of its skills are taught ("4 of 7").
+  - `app/(app)/curriculum-table.tsx` is the table.
+    - A grade opens its topics; its one subject opens with it. A topic opens its skills. "Open everything" and
+      "Close everything" do both at once.
+    - A skill's sentence opens its page. A level's count opens those questions in the bank. The worksheets count
+      opens the skill's worksheets.
+    - A skill waiting for approval says so on its row.
+- **Checks:**
+  - `npx playwright test tests/u12-curriculum-table.spec.ts` → 2 passed. It opens and closes the table row by row. It
+    also recomputes one skill's and one topic's numbers in SQL and compares them with the rows.
+  - u5's four tests are rewritten for the table under their own names → 4 passed. s2 and the three e2e skill-map
+    tests are moved from the old tree to the table → passed.
+  - u10's alignment check now covers the Curriculum too.
+  - The whole steps, screens and map suites, on a production build, a fresh copy and the real engine: 113 passed and
+    1 failed. The failure is s7 "names the worksheet each child was given": it needs live's G2 class, and a fresh copy
+    has none (already named at U2). 6 were skipped (s4, with no read papers here) and 2 did not run (s7's followers).
+- **Not proven, by design:** "taught" is inferred from answers, as asked. A check that places a child on a skill
+  their class has not been taught (u11) marks that skill taught. No table records teaching itself.
+
+## The previews build again: importing a page touches no database (2026-09-30)
+
+- **What failed:** every Vercel Preview from #140 to #143, about a minute after each push. Production built each time.
+- **Cause:** `lib/queries-papers.ts` (U9) built its SQL fragment when the module was imported. A page is imported to
+  build it. Preview has no DATABASE_URL (see "The website builds without a database", 2026-09-21), so `sql` was
+  the stand-in that refuses on first use, and the build stopped at `/papers`.
+- **Why CI missed it:** CI's web build was handed a made-up DATABASE_URL, so `sql` was a real, lazy client there.
+- **Fixed:**
+  - The fragment is a function, called when a query runs.
+  - CI's build now runs with no DATABASE_URL, as Preview does. A page that touches the database on import now fails
+    CI before it reaches Vercel.
+- **Checks:**
+  - Before the fix, `next build` with no DATABASE_URL → "Failed to collect configuration for /papers … DATABASE_URL
+    is not set". After the fix → exit 0.
+  - CI's own steps (typegen, `tsc`, build) with no DATABASE_URL → exit 0.
+  - u9 and u3 → 7 passed.

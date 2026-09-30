@@ -5,6 +5,9 @@ import { requireStaff } from "@/lib/auth";
 import { childEvidence, childHeader, childPapers, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
 import { childSheets, childSkills, repeatedMistakes, summary } from "@/lib/queries-children";
 import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
+import { ColourKey } from "@/components/colour-key";
+import { checkHref, checkLevel, colourRules } from "@/lib/colours";
+import { ChecksPanel, type Check } from "../checks";
 import { confirmChild, resolveOne } from "../actions";
 import { deadline } from "@/lib/deadline";
 import { FocusPanel } from "./focus-panel";
@@ -20,7 +23,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
@@ -30,6 +33,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     repeatedMistakes(id),
     childSheets(id),
     staffList(),
+    colourRules(),
   ]));
   if (!child) notFound();
 
@@ -41,6 +45,23 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const notYet = skills.filter((s) => s.n_events === 0).length;
   const staffNames = Object.fromEntries(staff.map((x) => [x.email, x.name]));
   const count = (c: string) => shown.filter((s) => rag(s) === c).length;
+  // the skills the colours cannot say yet — too few answers, then none at all — each with the check that would place
+  // the child (goals/u11-colours-said.yaml)
+  const unplaced = [
+    ...skills.filter((s) => s.n_events > 0 && (s.state ?? "not_enough_yet") === "not_enough_yet"),
+    ...skills.filter((s) => s.n_events === 0),
+  ];
+  const checks: Check[] = unplaced.map((s) => {
+    const level = checkLevel(rules, child.band, s.levels);
+    return {
+      key: s.code,
+      skill: s.name,
+      who: s.n_events ? `${s.n_events} answer${s.n_events === 1 ? "" : "s"} so far` : "none yet",
+      level,
+      n: rules.checkSize,
+      href: checkHref(child.section, [id], s.code, level, rules.checkSize),
+    };
+  });
 
   return (
     <>
@@ -89,6 +110,10 @@ export default async function ChildPage({ params, searchParams }: Props) {
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
             <SkillsPanel skills={skills} answers={evidence} names={names} />
+
+            <ChecksPanel title={`Checks that would place ${child.first_name}`} whoHeading="Answers" checks={checks} />
+
+            <ColourKey rules={rules} />
 
             <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 

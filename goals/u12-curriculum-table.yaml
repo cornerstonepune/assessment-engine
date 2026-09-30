@@ -1,0 +1,32 @@
+name: u12-curriculum-table
+goal: >
+  Curriculum is one table that opens grade by grade: a grade's row opens its subject and its topics, a topic's row
+  opens its skills, and a row closes again at a click. Every row, at every depth, has the same columns: questions,
+  worksheets, questions at each level (Easy, Medium, Hard, Advance; a level another grade holds is a dash), children
+  assessed, and taught, read from the answers. A skill is taught once any child has a checked answer on it; a topic or
+  a grade counts its skills taught. A skill's row opens its page, where its levels, questions and worksheets are read,
+  edited and approved; a skill waiting for approval says so on its row.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day, over a screenshot of the Curriculum page's
+# nested boxes: "the curriculum page somehow is not very intuitive. Again, I feel this should be like a proper table,
+# and that table needs to have some kind of an expand/collapse, right? When I click on, let's just say, curriculum,
+# then grade 1. When I click on grade 1, there is a proper table where, within grade 1, within mathematics, there are
+# addition and subtraction, and then within that, there is sub. It just flows like that. There are some consistent
+# columns around: number of questions, number of worksheets, easy, medium, advanced (that classification is there in
+# the columns), number of students which have been there, based on the assessments, whether that topic has been
+# taught or not, something like that."
+says:
+  - words: "I feel this should be like a proper table, and that table needs to have some kind of an expand/collapse"
+    proved_by: apps/web/tests/u12-curriculum-table.spec.ts::the curriculum is one table that opens grade by grade, topic by topic, and closes again
+  - words: "There are some consistent columns around: number of questions, number of worksheets, easy, medium, advanced (that classification is there in the columns), number of students which have been there, based on the assessments, whether that topic has been taught or not"
+    proved_by: apps/web/tests/u12-curriculum-table.spec.ts::every row has the same columns, and every number is the database's own
+manual:
+  - "On live, once merged: open Curriculum, open Grade 2, open Addition & subtraction, and read a skill's row."
+scenarios: []
+criteria:
+  - name: the curriculum table, on the copy
+    run: cd apps/web && npx playwright test tests/u12-curriculum-table.spec.ts tests/u5-curriculum.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

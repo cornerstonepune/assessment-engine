@@ -1,14 +1,16 @@
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
-import { Body, PageHeader, TONE_BG } from "@/components/shell";
+import { Body, PageHeader } from "@/components/shell";
+import { ColourKey, Swatch } from "@/components/colour-key";
 import { requireStaff } from "@/lib/auth";
-import { classGrid, stepKey, type Step } from "@/lib/queries-children";
+import { checkHref, checkLevel, colourRules } from "@/lib/colours";
+import { classGrid, stepKey, type GridChild, type Step } from "@/lib/queries-children";
 import { STATE_WORDS } from "@/lib/queries";
-import { rag, RAG_TONE, RAG_WORDS, type Rag } from "@/lib/rag";
+import { rag } from "@/lib/rag";
 import { deadline } from "@/lib/deadline";
+import { ChecksPanel, type Check } from "../../checks";
 
 type Props = { params: Promise<{ section: string }> };
-const COLOURS: Rag[] = ["red", "amber", "green", "grey"];
 
 // A class: its children down the side, across the top every skill someone in the class has been assessed on, topic by
 // topic; each cell the child's score in the colour of the graph's own state (goals/v2-what-answers-show.yaml). A skill
@@ -16,8 +18,24 @@ const COLOURS: Rag[] = ["red", "amber", "green", "grey"];
 export default async function ClassPage({ params }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
-  const { steps, children, notYet } = await deadline(classGrid(section, me.email));
+  const [{ steps, children, notYet, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
   if (!children.length) notFound();
+  // every step some child has too few answers on, or none: the check that would place them
+  const unplaced = (s: Step) => children.filter((c) => (c.states[stepKey(s)]?.state ?? "not_enough_yet") === "not_enough_yet");
+  const checks: Check[] = steps
+    .map((s) => ({ s, kids: unplaced(s) }))
+    .filter(({ kids }) => kids.length)
+    .map(({ s, kids }) => {
+      const level = checkLevel(rules, band, s.levels);
+      return {
+        key: stepKey(s),
+        skill: s.descriptor,
+        who: <Who kids={kids} step={s} />,
+        level,
+        n: rules.checkSize,
+        href: checkHref(section, kids.map((k) => k.id), s.skill_set, level, rules.checkSize),
+      };
+    });
   const topics = [...new Set(steps.map((s) => s.topic_name))];
   const firstOfTopic = (i: number) => i === 0 || steps[i - 1].topic_name !== steps[i].topic_name;
 
@@ -33,12 +51,6 @@ export default async function ClassPage({ params }: Props) {
           <Link href="/growth" className="chip">
             ← All classes
           </Link>
-          {COLOURS.map((c) => (
-            <span key={c} className="flex items-center gap-2">
-              <Swatch colour={c} />
-              {RAG_WORDS[c]}
-            </span>
-          ))}
         </p>
         {steps.length ? null : <p className="note mb-3">No checked answers in this class yet.</p>}
         <div className="panel overflow-x-auto">
@@ -49,7 +61,7 @@ export default async function ClassPage({ params }: Props) {
                   Child
                 </th>
                 {topics.map((t) => (
-                  <th key={t} colSpan={steps.filter((s) => s.topic_name === t).length} className="border-l border-basalt/12">
+                  <th key={t} colSpan={steps.filter((s) => s.topic_name === t).length} className="num border-l border-basalt/12">
                     {t}
                   </th>
                 ))}
@@ -60,7 +72,7 @@ export default async function ClassPage({ params }: Props) {
                     key={stepKey(s)}
                     data-col={stepKey(s)}
                     title={s.descriptor}
-                    className={`min-w-[96px] max-w-[120px] align-top ${firstOfTopic(i) ? "border-l border-basalt/12" : ""}`}
+                    className={`num min-w-[96px] max-w-[120px] align-top ${firstOfTopic(i) ? "border-l border-basalt/12" : ""}`}
                   >
                     {/* the table's headings are small capitals; a step's words are a sentence, so they are set as one */}
                     <span className="line-clamp-3 block text-[11.5px] font-normal normal-case leading-tight tracking-normal text-basalt/75">
@@ -94,9 +106,13 @@ export default async function ClassPage({ params }: Props) {
           </p>
         ) : null}
         <p className="note mt-3">
-          Columns follow the Curriculum: topic by topic, each skill easy to hard. A cell is the child&rsquo;s right answers of all they answered. Red is a repeating mistake
-          or under half right, amber practising, green got it, grey fewer than three checked answers.
+          Columns follow the Curriculum: topic by topic, each skill easy to hard. A cell is the child&rsquo;s right answers of all they
+          answered; its colour is said below.
         </p>
+        <div className="mt-[18px] grid gap-[18px]">
+          <ColourKey rules={rules} />
+          <ChecksPanel title="Checks that would place them" whoHeading="Children without enough answers" checks={checks} />
+        </div>
       </Body>
     </>
   );
@@ -106,7 +122,7 @@ function Cell({ step, first, got }: { step: Step; first: boolean; got?: { state:
   const colour = rag(got?.state);
   const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${STATE_WORDS[got.state].words}` : "no answers yet"}`;
   return (
-    <td data-col={stepKey(step)} data-rag={colour} title={said} className={`text-center ${first ? "border-l border-basalt/12" : ""}`}>
+    <td data-col={stepKey(step)} data-rag={colour} title={said} className={`num ${first ? "border-l border-basalt/12" : ""}`}>
       {got?.n_events ? (
         <span className="inline-flex items-center gap-1">
           <Swatch colour={colour} label={said} />
@@ -123,13 +139,19 @@ function Cell({ step, first, got }: { step: Step; first: boolean; got?: { state:
   );
 }
 
-function Swatch({ colour, label }: { colour: Rag; label?: string }) {
+/** Who a check is for: each child, and how many answers they have on the step so far. */
+function Who({ kids, step }: { kids: GridChild[]; step: Step }) {
   return (
-    <span
-      role={label ? "img" : undefined}
-      aria-label={label}
-      aria-hidden={label ? undefined : true}
-      className={`inline-block h-4 w-4 rounded-[3px] ${TONE_BG[RAG_TONE[colour]]} ${colour === "grey" ? "opacity-40" : ""}`}
-    />
+    <>
+      {kids.map((k, i) => {
+        const n = k.states[stepKey(step)]?.n_events ?? 0;
+        return (
+          <span key={k.id} className="whitespace-nowrap">
+            {k.first_name} <span className="text-basalt/55">({n ? `${n} answer${n === 1 ? "" : "s"}` : "none"})</span>
+            {i < kids.length - 1 ? ", " : ""}
+          </span>
+        );
+      })}
+    </>
   );
 }

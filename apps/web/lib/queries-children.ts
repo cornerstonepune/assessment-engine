@@ -58,7 +58,8 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */
-export type Step = { skill_code: string; skill_name: string; rung_code: string; descriptor: string; topic_name: string };
+/** One step of the class grid: its skill, and the skill set a paper on it is drawn from, with the levels it has. */
+export type Step = { skill_code: string; skill_name: string; rung_code: string; descriptor: string; topic_name: string; skill_set: string; levels: string[] };
 export type GridChild = { id: string; roll_no: string; first_name: string; states: Record<string, { state: string; n_events: number; n_correct: number }> };
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
@@ -78,11 +79,11 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
 export async function classGrid(
   section: string,
   actor: string,
-): Promise<{ steps: Step[]; children: GridChild[]; notYet: string[] }> {
-  const [steps, children, states, notYet] = await Promise.all([
+): Promise<{ steps: Step[]; children: GridChild[]; notYet: string[]; band: string }> {
+  const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
       select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.name as topic_name,
-             t.ord, r.ladder_order
+             ss.code as skill_set, array(select jsonb_object_keys(ss.difficulty)) as levels, t.ord, r.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
       join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
       join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
@@ -101,6 +102,9 @@ export async function classGrid(
         and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
                         where c.section = ${section} and c.active and s.rung_code = r.code and s.n_events > 0)
       order by t.ord, r.ladder_order nulls last`,
+    // the class's grade is most of its children's (as `roster.class_band` has it)
+    sql<{ band: string }[]>`
+      select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1`,
   ]);
   return {
     steps,
@@ -109,6 +113,7 @@ export async function classGrid(
       states: Object.fromEntries(states.filter((s) => s.child_id === c.id).map((s) => [stepKey(s), s])),
     })),
     notYet: notYet.map((n) => n.name),
+    band: grade?.band ?? "",
   };
 }
 
@@ -123,6 +128,8 @@ export type ChildSkill = {
   n_correct: number;
   repeating_misconception: string | null;
   last_seen: string | null;
+  /** The levels its skill set has, for a check on it. */
+  levels: string[];
 };
 
 /** A child's taught skills: those of their grade, and any other a checked answer of theirs landed on — each with the
@@ -130,6 +137,7 @@ export type ChildSkill = {
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
     select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, s.state,
+           array(select jsonb_object_keys(ss.difficulty)) as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
     from skill_set ss

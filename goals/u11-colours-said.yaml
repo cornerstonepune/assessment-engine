@@ -1,0 +1,31 @@
+name: u11-colours-said
+goal: >
+  Wherever a skill's colour shows (Children, a class, a child), the page says what each colour means in the rule's
+  own numbers, read from the rows the graph decides by, and what comes next. Red is the same mistake twice or more, or
+  under the lower share right. Amber is between the two shares, or the upper share on one paper so far. Green is the
+  upper share or more across enough papers. Grey is too few checked answers to say. Where the colours cannot say yet
+  (grey, or no answer at all), the page recommends the check that places the child: that skill, at the grade's
+  starting level, enough questions for its colour to be decided. On a class, a check is for every child it would
+  place. One click opens it in the maker, its children, skill, level and size already chosen.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day: "I feel like red, amber, and green notations can
+# be used better. The clarity of what each of the colors means has not been very clearly mentioned. How do we classify
+# students across different tiers? That needs to have a very clear understanding. And also, for areas where we don't
+# have sufficient data points for us to judge the skill level (which is in gray), we should have a clear
+# recommendation around the next set of assessments for the questions (so that we know where the child is for areas
+# where there are missing points)."
+says:
+  - words: "The clarity of what each of the colors means has not been very clearly mentioned. How do we classify students across different tiers?"
+    proved_by: apps/web/tests/u11-colours-said.spec.ts::each colour is said in the rule's own numbers, wherever colours show
+  - words: "for areas where we don't have sufficient data points for us to judge the skill level (which is in gray), we should have a clear recommendation around the next set of assessments"
+    proved_by: apps/web/tests/u11-colours-said.spec.ts::a grey or empty skill has the check that would place the child, and one click opens it in the maker
+manual:
+  - "On live, once merged: open a class, read the colour key, and open one check in the maker."
+scenarios: []
+criteria:
+  - name: the colours and the checks, on the copy
+    run: cd apps/web && npx playwright test tests/u11-colours-said.spec.ts tests/u2-children.spec.ts tests/u8-children-table.spec.ts tests/m4-the-maker.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
