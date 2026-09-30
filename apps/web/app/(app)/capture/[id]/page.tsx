@@ -266,11 +266,14 @@ function Glyph({ status, label }: { status: string; label: string }) {
 
 // What changing a right answer did (`changeKey`): "slot|the right answer now|how many answers were marked again".
 function KeyChanged({ said }: { said: string }) {
-  const [slot, now, n] = said.split("|");
+  const [slot, now, n, kept = "0"] = said.split("|");
   return (
     <Notice tone="neem">
       The right answer to question {slot} is now {now}, for every child. {n === "1" ? "1 answer was" : `${n} answers were`}{" "}
       marked again with it; a signed-off answer got new evidence in your name, the old kept.
+      {kept !== "0"
+        ? ` ${kept === "1" ? "1 answer keeps" : `${kept} answers keep`} the mark it had, which the new right answer disagrees with — a person judged it by the old one, or its new mark needs a person: check ${kept === "1" ? "it" : "them"} on ${kept === "1" ? "its paper" : "their papers"}.`
+        : ""}
     </Notice>
   );
 }

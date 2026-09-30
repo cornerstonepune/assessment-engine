@@ -144,7 +144,7 @@ def test_an_educator_changes_a_right_answer_and_every_childs_answer_is_marked_ag
     )
 
     done = keys.change(conn, _item(conn, "4b")["id"], " 78 ", "neha@school")
-    assert (done["was"], done["now"]) == ("80", "78")
+    assert (done["was"], done["now"], done["left"]) == ("80", "78", [])
     assert sorted(done["changed"]) == sorted(
         [("legacy/TEST-KEYS/4b", "wrong", "correct")] * 2 + [("legacy/TEST-KEYS/4b", "correct", "wrong")]
     )
@@ -184,4 +184,61 @@ def test_a_changed_right_answer_survives_the_paper_being_entered_again(
     assert keys.reapply(conn, "TEST-KEYS") == 1
     assert _item(conn, "4b")["responses"][0]["answer"] == "78"
     assert marks("4b") == {"4b": "correct"}
-    assert again.mark_again(conn, "the marking rule") == []
+    assert again.mark_again(conn, "the marking rule", _item(conn, "4b")["id"]) == ([], [])
+
+
+@legacy_tests.pytestmark_db
+def test_a_changed_right_answer_reaches_what_was_signed_off_as_read_and_leaves_what_a_person_decided(
+    conn, tmp_path, monkeypatch, every_kind_trusted
+):
+    """Nimish, 2026-09-30: "these questions become right for all the students", and a person's own call is never
+    overwritten on the way. Five children's 4B, each signed off; only a mark its reading gives by the old 80 came from
+    that key:
+    - the engine read 80, right by 80, and nobody typed it: marked by the new right answer, with a new batch of evidence;
+    - a person typed 78: marked again by the new right answer, as any reading a person typed is;
+    - a person judged a 78 Wrong, as 80 marked it: a judgement is never changed by the engine, so it stays, and the
+      educator is told the new right answer marks it right;
+    - the engine misread 18, and a person judged it Right, once with a row saying so and once before judgements left one
+      (U3): no key decided that mark, so it stays, and nothing about the change is theirs to hear.
+    Marking every answer again, as a deploy does, touches none of the five: only what a person typed is marked again."""
+    reads = {"80": "80", "typed": "78", "judged": "78", "overrode": "18", "unrecorded": "18"}
+    kids = {}
+    for i, (who, wrote) in enumerate(reads.items()):
+        child, where = _child(conn, str(i + 1)), tmp_path / who
+        where.mkdir()
+        kids[who] = (
+            child,
+            *legacy_tests._read_split(conn, child, where, monkeypatch, KEYS, {**READS, "4b": wrote}),
+        )
+    box = {who: kids[who][1]("4b")["id"] for who in kids}
+    kids["typed"][3]("4b", "78")
+    conn.execute("select resolve_result(%s, 'wrong', '{}', 'nimish')", (box["judged"],))
+    conn.execute("select resolve_result(%s, 'correct', '{}', 'nimish')", (box["overrode"],))
+    # before U3 a paper's Right / Wrong / Blank set the mark and signed it off, and left no row saying so
+    conn.execute("update item_result set status = 'correct', misconception_codes = '{}' where id = %s",
+                 (box["unrecorded"],))  # fmt: skip
+    for child, *_ in kids.values():
+        marking.confirm(conn, child, "nimish")
+    before = {
+        "80": "correct",
+        "typed": "wrong",
+        "judged": "wrong",
+        "overrode": "correct",
+        "unrecorded": "correct",
+    }
+    assert {who: kids[who][2]("4b")["4b"] for who in kids} == before
+    assert {kids[who][1]("4b")["state"] for who in kids} == {"confirmed"}
+
+    done = keys.change(conn, _item(conn, "4b")["id"], "78", "neha@school")
+    k = "legacy/TEST-KEYS/4b"
+    assert sorted(done["changed"]) == [(k, "correct", "wrong"), (k, "wrong", "correct")]
+    assert done["left"] == [
+        (k, "wrong", "a person judged it by the old right answer; the new one marks its reading, 78, correct")
+    ]
+    after = {**before, "80": "wrong", "typed": "correct"}
+    assert {who: kids[who][2]("4b")["4b"] for who in kids} == after
+    evidence = conn.execute(
+        "select correct, confirmed_by from evidence_placed where item_result_id = %s", (box["80"],)
+    ).fetchall()
+    assert [(e["correct"], e["confirmed_by"]) for e in evidence] == [(False, "neha@school")]
+    assert again.mark_again(conn, "the marking rule", _item(conn, "4b")["id"]) == ([], [])

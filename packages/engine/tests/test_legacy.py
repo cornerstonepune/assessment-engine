@@ -1538,8 +1538,14 @@ def test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too(
     }
     assert (box("11b")["state"], box("11c")["state"]) == ("confirmed", "candidate")
 
-    changed = again.mark_again(conn, "the marking rule")
-    assert sorted(changed) == [
+    def this_paper(
+        done,
+    ):  # every answer is marked again, as a deploy does; this paper's are the ones asserted
+        return tuple(sorted(c for c in part if c[0].startswith("legacy/TEST-TRUTH/")) for part in done)
+
+    changed, left = this_paper(again.mark_again(conn, "the marking rule"))
+    assert left == []
+    assert changed == [
         ("legacy/TEST-TRUTH/11b", "wrong", "correct"),
         ("legacy/TEST-TRUTH/11c", "wrong", "correct"),
     ]
@@ -1564,7 +1570,7 @@ def test_a_rule_put_right_marks_every_answer_a_person_read_again_signed_off_too(
         (box("11b")["id"],),
     ).fetchone()
     assert typed["human_read"] == "false", "what the person read stays"
-    assert again.mark_again(conn, "the marking rule") == [], (
+    assert this_paper(again.mark_again(conn, "the marking rule")) == ([], []), (
         "marked by the rule as it stands, nothing changes twice"
     )
 

@@ -93,6 +93,9 @@ class KeyResponse(BaseModel):
     changed: list[
         tuple[str, str, str]
     ]  # (question's key, the mark it had, the mark it has), one per answer changed
+    left: list[
+        tuple[str, str, str]
+    ]  # (question's key, the mark it keeps, why): a person's own call the new answer disagrees with, or no evidence
     unseen: int  # readings no person has seen yet, marked again with it
 
 

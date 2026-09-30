@@ -3821,11 +3821,23 @@ deploys.
     after entering the file (`keys.reapply`), so every deploy keeps it.
   - Every answer to the question is marked again (`again.mark_again` and `again.remark`, limited to the question).
     Signed-off answers get a new batch of evidence.
-- **Marking again moved** from `marking.py` (392 of 400 lines) to `w3_read/again.py`. It now also counts a signed-off
-  answer nobody corrected, by the reading its sign-off accepted.
+- **Marking again moved** from `marking.py` (392 of 400 lines) to `w3_read/again.py`.
+  - A deploy still marks again only what a person typed.
+  - A key change also reaches a signed-off answer no person typed, but only when its reading gives its mark by the old
+    key (`again.by_new_key`).
+  - A judgement is never changed. One made by the old key is named, and the page counts those.
+  - Any other mark is a person's own call and stays: a judgement against the key, or a pre-U3 Right / Wrong / Blank
+    that left no row.
+  - Caught before merge: the first build re-marked every signed-off answer by the engine's stored reading, so a
+    person's Right on a misread 18 would have turned wrong (`test_a_changed_right_answer_reaches_what_was_signed_off_
+    as_read_and_leaves_what_a_person_decided`, which failed on that build and passes now).
 - **Found and fixed:** the paper page asked for Jev's mistake shortlist by the paper's id, while `naming.unnamed`
   looked answers up by the capture's id, so the shortlist never showed on a paper page. Both now take either
   (`naming.ONE_PAPER`), pinned in `test_a_wrong_answer_no_mistake_explains_is_named_by_a_person_from_jevs_shortlist`.
+- **Rehearsal:** the copy recorded no migration it applied from the branch, so its closing "every migration is
+  applied" failed on any branch that brings one (run 36672769380). It now records each, as `supabase db push` does.
+  On that run's copy of live, the branch's mark-again changed nothing: `legacy/G3-QUIZ20/8` stays wrong (held,
+  needs_teacher makes no evidence).
 - **Deploy order:** `deploy engine` now waits for `migrate live` to succeed on the same commit when the merge carries a
   migration, so the engine never runs code reading a table live does not have yet. Checked against a stand-in for the
   GitHub API: no migration, a run that appears late and succeeds, one that fails, and one that never finishes.

@@ -87,10 +87,11 @@ def _store(conn, item, answer):
 
 
 def change(conn, item_id, answer, by):
-    """An educator's new right answer for one printed question, for every child → {was, now, changed, unseen}: checked
-    (`check`), kept as a `key_correction` row, stored on the item, and every answer to it marked again (`again`), each
-    change as (key, the mark it had, the mark it has). A library question's answer is code's; its wording is corrected
-    in the Library instead."""
+    """An educator's new right answer for one printed question, for every child → {was, now, changed, left, unseen}:
+    checked (`check`), kept as a `key_correction` row, stored on the item, and every answer to it marked again
+    (`again`): each change as (key, the mark it had, the mark it has), and each answer that keeps its mark though the new
+    right answer disagrees, a person's call or a signed-off mark that makes no evidence, as (key, its mark, why). A
+    library question's answer is code's; its wording is corrected in the Library instead."""
     item = conn.execute(
         "select id, tenant_id, item_key, spec, responses, source from item where id = %s", (item_id,)
     ).fetchone()
@@ -102,9 +103,16 @@ def change(conn, item_id, answer, by):
         (item["tenant_id"], item["item_key"], None if key is None else str(key), new, by),
     )
     _store(conn, item, new)
-    changed = again.mark_again(conn, by, item["id"])
+    typed, typed_left = again.mark_again(conn, by, item["id"])
+    signed, signed_left = again.by_new_key(conn, by, item["id"], key)
     unseen = again.remark(conn, None, item["id"])  # what the reader read and no person has seen yet
-    return {"was": str(key), "now": new, "changed": changed, "unseen": unseen}
+    return {
+        "was": str(key),
+        "now": new,
+        "changed": typed + signed,
+        "left": typed_left + signed_left,
+        "unseen": unseen,
+    }
 
 
 def change_from(conn, result_id, answer, by):

@@ -122,13 +122,15 @@ def legacy_remark(
 def legacy_mark_again(
     by: str = typer.Option(..., "--by", help="whose name a signed-off answer's new evidence carries"),
 ) -> None:
-    """Every answer a person read or signed off, marked again by the rule as it now stands (`again.mark_again`) — how
+    """Every answer a person typed the reading of, marked again by the rule as it now stands (`again.mark_again`) — how
     a marking rule put right reaches answers already marked, signed off or not. Each deploy runs it; it names each."""
     with db.connect() as conn:
-        changed = again.mark_again(conn, by)
+        changed, left = again.mark_again(conn, by)
         conn.commit()
     for key, was, now in changed:
         typer.echo(f"  {key}: {was} → {now}")
+    for key, keeps, why in left:
+        typer.echo(f"  {key}: stays {keeps} ({why})")
     typer.echo(f"  {len(changed)} answers a person read marked again")
 
 

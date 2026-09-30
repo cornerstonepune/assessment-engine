@@ -27,10 +27,19 @@ is verified. This file only says where the last session stopped.
   - The paper page's Jev shortlist, which never showed, is fixed.
 - **Model testing paused.** The three scores are in DECISIONS-LOG. When it resumes, Nimish first rules on the
   ok7/e2/e1 home-activity sentence.
-- **Next:**
-  - After #135 merges, restart the branch from main, carry this work and open its PR.
-  - Rehearse it on a copy of live: `mark-again` now also covers signed-off answers nobody corrected, so its list may
-    be longer than #135's.
+- **#135 deployed** (run 36672327168, 05:17 UTC). Its mark-again on live: 7 answers wrong → correct (G3-SEPW1-A 5a,
+  5b, 11b ×2, 11c ×2; G3-SEPW1-B 9c), and G3-QUIZ20/8 held. The 04:52 rehearsal had also listed G4-SEPW1 11b and 11c;
+  by 05:17 live no longer needed them changed. Something between the two runs had already settled them, most likely
+  a person on the page, but nothing here shows what: worth a look on that paper.
+- **Caught before merge, in this branch:** the first build marked every signed-off answer again by the engine's stored
+  reading. That would have overwritten a person's pre-U3 Right / Wrong / Blank, which left no row.
+  - A key change now redoes only a mark its reading explains by the old key.
+  - It never changes a judgement: one made by the old key is named for the educator.
+  - A deploy still redoes only what a person typed (ADR 0045 §5–6).
+- **Deploy order and the rehearsal, fixed:** `deploy engine` waits for `migrate live` when the merge carries a
+  migration. The rehearsal records the migrations it applies to the copy.
+- **Next:** the PR is #136. Merge it once CI and the rehearsal are green. Then check that migration 20261017090000 is on
+  live and the deploy is green, and do the manual step in goal s26.
 
 ## 2026-09-30 — a reading is marked by what it says; every deploy marks again (goal s25, ADR 0044)
 

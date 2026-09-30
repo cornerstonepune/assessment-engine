@@ -38,15 +38,25 @@ there.
    - `engine legacy paper` puts it back after entering the file (`keys.reapply`), so the deploy that enters every
      paper again (ADR 0043) never undoes it.
    - The paper's file is not edited from the page.
-5. **Every answer to the question is marked again with it** (`again.mark_again` and `again.remark`, limited to the
-   question).
-   - What a person read or signed off: an answer not yet signed off changes in place; a signed-off one gets a new batch
-     of evidence in the educator's name, the old batch kept (ADR 0044).
-   - What the reader read and no person has seen is marked as the reader's reading always is (ADR 0029).
-   - The page says how many answers changed.
-6. **Marking again now counts a signed-off answer nobody corrected** by the reading its sign-off accepted, so a key or
-   rule change reaches it too. That code moved from `marking.py` (at its 400-line ceiling) to `w3_read/again.py`:
-   marking an answer, and marking every answer again when its rule or key changes, are two jobs.
+5. **Every answer to the question is marked again with it**, and a mark a person decided is never overwritten.
+   - What a person typed the reading of (`again.mark_again`, limited to the question): an answer not yet signed off
+     changes in place; a signed-off one gets a new batch of evidence in the educator's name, the old batch kept
+     (ADR 0044).
+   - What no person typed (`again.by_new_key`): only a mark its reading gives by the key it replaced came from that
+     key.
+     - Signed off as the reader read it: marked by the new key, with a new batch of evidence.
+     - Judged by a person as the old key marked it: a judgement is never changed by the engine (ADR 0044), so it
+       stays. Where the new key marks its reading otherwise, the educator is told how many such answers there are, to
+       judge again.
+     - Any other mark is a person's own call, which no key decided: a judgement against the old key, or a mark set
+       before U3, when a paper's Right / Wrong / Blank signed it off and left no row. It stays, and the change says
+       nothing about it.
+   - What the reader read and no person has seen is marked as the reader's reading always is (`again.remark`,
+     ADR 0029).
+   - The page says how many answers changed, and how many keep a mark the new key disagrees with.
+6. **Marking again after a deploy is unchanged: only what a person typed** (ADR 0044). A signed-off answer nobody typed
+   is marked again only by a key change, as in 5. That code moved from `marking.py` (at its 400-line ceiling) to
+   `w3_read/again.py`: marking an answer, and marking every answer again when its rule or key changes, are two jobs.
 
 ## Found on the way, fixed at the cause
 
@@ -68,5 +78,12 @@ commit, up to ten minutes, and stops if it fails.
 - **Letting any key be typed.** 4A's 78 is exactly the change that looks right on one paper and marks every other
   child wrong. Code refuses what it can prove wrong, and shows the stored key everywhere, so a person sees the mismatch
   before reaching for the change at all.
+- **Marking every signed-off answer again by the reading the engine stored** (the first build, 2026-09-30, caught
+  before merge). Before U3, a paper's Right / Wrong / Blank left no row, so a person's Right on a misread 18 looks
+  exactly like the engine's own mark. Marked again by its reading, the new key would make it wrong: a person's call
+  overwritten with nothing to show for it. Only a mark its reading explains by the old key came from the key.
+- **Changing a judgement that followed the old key.** It would make such an answer right at once, but the judgement row
+  would still say a person judged it Wrong while the mark said right. The engine never changes a judgement
+  (ADR 0044). It names these answers instead, and a person judges them again.
 - **Naming each box on the card instead of showing its key** (the first idea, 2026-09-30). Nimish's ask covers it:
   once "Right answer: 83" sits beside "48 + 35 =", the box is plain.

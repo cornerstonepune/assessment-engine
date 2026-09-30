@@ -247,7 +247,14 @@ def test_a_correction_the_engine_refuses_is_a_409_with_its_reason_not_a_500(clie
 
 def test_a_right_answer_is_changed_from_one_answer_and_a_refusal_is_a_409_in_codes_words(client, monkeypatch):
     seen = []
-    done = {"was": "80", "now": "78", "changed": [["legacy/P/4b", "wrong", "correct"]], "unseen": 0}
+    kept = ["legacy/P/4b", "wrong", "a person's; the new right answer marks its reading, 78, correct"]
+    done = {
+        "was": "80",
+        "now": "78",
+        "changed": [["legacy/P/4b", "wrong", "correct"]],
+        "left": [kept],
+        "unseen": 0,
+    }
     monkeypatch.setattr(
         keys, "change_from", lambda conn, rid, answer, by: seen.append((rid, answer, by)) or done
     )

@@ -9,7 +9,9 @@ goal: >
   - a number stays a whole number, and a claim stays True or Not true.
   The change is kept as a row of its own, in the educator's name and with the answer it replaced. Every deploy puts it
   back over the paper's file. Every answer to that question is marked again by it: one not yet signed off in place, and
-  one signed off with a new batch of evidence, the old one kept. The page says how many answers changed.
+  one signed off with a new batch of evidence, the old one kept. Only a mark the old answer gave is redone; a person's
+  own call stays, and a judgement is never changed by the engine. The page says how many answers changed, and how many
+  judged by the old answer keep a mark the new one disagrees with.
 
 # Written 2026-09-30, before the code, on Nimish's words the same day. First, of question 4A on the Grade 4 September
 # paper: "give an option to the teacher here itself to edit the right answer … it validates it, and then these questions
@@ -27,6 +29,8 @@ says:
     proved_by: packages/engine/tests/test_keys.py::test_code_refuses_a_right_answer_the_question_itself_contradicts
   - words: "and then these questions become right for all the students"
     proved_by: packages/engine/tests/test_keys.py::test_an_educator_changes_a_right_answer_and_every_childs_answer_is_marked_again
+  - words: "these questions become right for all the students"
+    proved_by: packages/engine/tests/test_keys.py::test_a_changed_right_answer_reaches_what_was_signed_off_as_read_and_leaves_what_a_person_decided
 manual:
   - "After the merge's deploy is green: on the Marking page of the Grade 4 September Week 1 paper, question 4A reads 'Right answer: 83' and 11B 'Right answer: Not true'."
 scenarios: []

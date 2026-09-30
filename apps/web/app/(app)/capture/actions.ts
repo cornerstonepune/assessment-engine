@@ -67,7 +67,8 @@ export async function correctRead(formData: FormData): Promise<void> {
 
 /** An educator changes the right answer of a paper's question, for every child (goals/s26-the-right-answer-shown-
  *  and-corrected.yaml, ADR 0045). Code checks it first and, refusing, says why in its own words; otherwise every
- *  child's answer to the question is marked again with it, and the page says how many were. */
+ *  child's answer to the question is marked again with it, and the page says how many were, and how many keep the
+ *  mark a person gave them though the new right answer disagrees. */
 export async function changeKey(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const id = String(formData.get("result_id") ?? "");
@@ -78,10 +79,17 @@ export async function changeKey(formData: FormData): Promise<void> {
   let to: string;
   try {
     const res = await engineSend("/paper/key", { result_id: id, answer, by: me.email });
-    const body = (await res.json().catch(() => ({}))) as { detail?: string; now?: string; changed?: unknown[]; unseen?: number };
+    const body = (await res.json().catch(() => ({}))) as {
+      detail?: string;
+      now?: string;
+      changed?: unknown[];
+      left?: unknown[];
+      unseen?: number;
+    };
     const n = (body.changed?.length ?? 0) + (body.unseen ?? 0);
+    const kept = body.left?.length ?? 0;
     to = res.ok
-      ? `/capture/${paper}?key=${encodeURIComponent(`${slot}|${body.now ?? answer}|${n}`)}#a-${id}`
+      ? `/capture/${paper}?key=${encodeURIComponent(`${slot}|${body.now ?? answer}|${n}|${kept}`)}#a-${id}`
       : `/capture/${paper}?error=${encodeURIComponent((body.detail ?? `refused (${res.status})`).slice(0, 200))}#a-${id}`;
   } catch (e) {
     if (!(e instanceof EngineDown)) throw e;
