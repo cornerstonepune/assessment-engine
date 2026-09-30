@@ -3869,3 +3869,20 @@ deploys.
 - **Checks:** `pytest tests/test_every_report.py tests/test_parent_report.py tests/test_cli.py tests/test_layout.py` →
   58 passed (local Postgres 16). `bin/check` → exit 0.
 
+## S27 — G3 roll 5 is a Grade 3 child; a class works at its children's grade (goal s27-a-child-in-their-own-grade, 2026-09-30)
+
+- **Found:** writing every report due, the command named "G4 G3 roll 5": class G3, band G4. Their report said
+  "Grade 4". Nimish: "G3 roll 5 should be band G3, fix it".
+- **Cause:** only the class list sets a child's band (`engine week roster`, `core/roster.py`), so the slip is in that
+  file, kept outside the repository because it holds names.
+- **Fixed:**
+  - Migration 20261018090000 moves class G3 roll 5 to band G3, only while they still say G4.
+  - A class's grade is now its active children's most common band, the lower on a tie (`roster.class_band`). The
+    week's declaration and its proposal had taken it from whichever child Postgres returned first (`limit 1`).
+  - Loading the class list names each child whose grade it changes, so the old file loaded again cannot undo the fix
+    unseen.
+- **Still manual:** correct roll 5's band in the class list file itself.
+- **Checks:** `pytest tests/test_roster.py tests/test_week_note.py tests/test_week.py tests/api/test_week_routes.py
+  tests/test_every_report.py` → all pass (local Postgres 16; the two tests that render a PDF need the pinned Chromium,
+  run with it). `bin/check` → exit 0.
+

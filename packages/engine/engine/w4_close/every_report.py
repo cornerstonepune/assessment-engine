@@ -27,7 +27,11 @@ def due(conn, band=None):
         note = parent_report.latest(conn, k["id"])
         if note and not note["stale"]:
             continue
-        why = "no report yet" if note is None else "answers signed off since its report was written"
+        why = (
+            "no report yet"
+            if note is None
+            else "its facts changed since it was written: answers signed off, or the child's grade"
+        )
         out.append(
             {"child_id": str(k["id"]), "band": k["band"], "section": k["section"], "roll_no": k["roll_no"]}
             | {"why": why}

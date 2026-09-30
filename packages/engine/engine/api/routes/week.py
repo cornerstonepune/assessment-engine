@@ -24,7 +24,7 @@ from engine.api.models import (
     WeekRenderRequest,
     WeekRenderResponse,
 )
-from engine.core import db
+from engine.core import db, roster
 from engine.w2_print import assemble, pack, prescribe, week_note
 from engine.w3_read import legacy
 
@@ -173,12 +173,10 @@ def sheet_page(qr: str, page_no: int, conn=Depends(get_conn)) -> Response:
 def propose_declaration(body: WeekNoteRequest, conn=Depends(get_conn)) -> dict:
     """N4: an educator's note for the week → the grade's skill sets it covered, ticked where Jev is sure enough
     (`week_note.propose`). Nothing is kept until the educator confirms."""
-    row = conn.execute(
-        "select band from child where section = %s and active limit 1", (body.section,)
-    ).fetchone()
-    if not row:
+    band = roster.class_band(conn, body.section)
+    if not band:
         raise HTTPException(status_code=404, detail=f"no class {body.section!r}")
-    return week_note.propose(conn, row["band"], body.note)
+    return week_note.propose(conn, band, body.note)
 
 
 @router.post("/week/declaration")

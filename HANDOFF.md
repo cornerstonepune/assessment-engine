@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, evening — G3 roll 5 is Grade 3 (goal s27)
+
+- **Written on live, 07:40 UTC** (write reports, run 36684707559): 15 of 15 kept, each a draft waiting for approval.
+  G2 rolls 1-9 and 11 and G3 roll 1 were rewritten, their answers having moved on. G3 rolls 2-5 were new. G2 roll 10's
+  report was still true and was left alone.
+- **G3 roll 5 was band G4** in class G3, so their report said "Grade 4". Nimish: "G3 roll 5 should be band G3, fix it".
+  Migration 20261018090000, and a class's grade taken from most of its children.
+- **Next:** after the merge's deploy, run write reports → G3; roll 5's report is due again and is rewritten as Grade 3.
+  Nimish corrects the class list file, or loading it again puts G4 back (the load now says so).
+
 ## 2026-09-30, evening — every parent report that is due, written by one command (goal w4d)
 
 - **Nimish:** "the reports havent been generated for grade 3; please go ahead and generate all the reports". A report

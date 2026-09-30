@@ -13,7 +13,7 @@ exact set on 21 of 24, about 0.3 s a note. Jev is shown the note and the skill s
 import json
 
 from engine.adapters import jev
-from engine.core import db
+from engine.core import db, roster
 
 PURPOSE = "week_skills"
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "week_note_gold.json"
@@ -62,13 +62,13 @@ def _row(code, about, yes, ticked):
 
 def confirm(conn, section, week, note, skill_sets, by, proposed=()):
     """What the educator confirms for their section's week, kept as said. Refuses a skill set that is not the grade's."""
-    band = conn.execute("select band from child where section = %s and active limit 1", (section,)).fetchone()
+    band = roster.class_band(conn, section)
     if not band:
         raise ValueError(f"no class {section!r}")
-    allowed = options(conn, band["band"])
+    allowed = options(conn, band)
     unknown = sorted(set(skill_sets) - set(allowed))
     if unknown:
-        raise ValueError(f"not skill sets of {band['band']}: {', '.join(unknown)}")
+        raise ValueError(f"not skill sets of {band}: {', '.join(unknown)}")
     if not by:
         raise ValueError("a declaration names the educator making it")
     return conn.execute(

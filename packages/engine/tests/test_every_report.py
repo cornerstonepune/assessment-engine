@@ -82,7 +82,9 @@ def test_every_report_due_is_written_and_one_still_true_is_left_as_it_is(shared,
         " observed_at, confirmed_by) values (%s,%s,'NUM.OPS.01','R21',true,'{}','item',now(),'t')",
         (t, child),
     )
-    assert [d["why"] for d in _mine(shared, child)] == ["answers signed off since its report was written"]
+    assert [d["why"] for d in _mine(shared, child)] == [
+        "its facts changed since it was written: answers signed off, or the child's grade"
+    ]
 
 
 def test_a_report_not_kept_is_named_by_class_and_roll_and_the_command_fails(shared, child, monkeypatch):
