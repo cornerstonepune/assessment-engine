@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-09-30, evening — Children as a table; Papers next (goal u8)
+
+- **Nimish asked for three screens** (his answers in the session): the Children table (done, goal u8), then Papers:
+  - one menu item for Marking and Make papers, one filtered list of every paper;
+  - a maker that makes class practice, class assessments or home assessments for any set of children, in one of three
+    ways: the same paper for all, the same skill and level with different questions each, or each child's own next step
+    with a per-child override.
+  - This week and Library (the rest of the 26-27 Sep sketch) are not being built now.
+- **#138 on live:** migration 20261018090000 applied 09:12 UTC, deploy green 09:17; write reports → G3 run after it.
+
 ## 2026-09-30, evening — G3 roll 5 is Grade 3 (goal s27)
 
 - **Written on live, 07:40 UTC** (write reports, run 36684707559): 15 of 15 kept, each a draft waiting for approval.
