@@ -5,63 +5,56 @@ import { rag, type Rag } from "./rag";
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
 // states are the engine's (`rebuild_child_skill_state`); nothing here decides one.
 
-export type ClassRow = {
+/** One row of the Children table (goals/u8-children-table.yaml): a child's standing and next step. */
+export type ChildRow = {
+  id: string;
   band: string;
   section: string;
-  n: number;
-  /** Children, not skills: each child counted once, in the colour of the skill they most need help on. */
-  kids: Record<Rag, number>;
-  /** The skills the most children need help on, and how many. */
-  weakest: { name: string; n: number }[];
-  /** Answers read from the class's papers that wait for a person. */
-  waiting: number;
-  /** The last day a paper of the class was read. */
+  roll_no: string;
+  first_name: string;
+  /** The skill they most need help on: red before amber, the least often right first. None when nothing is red or amber. */
+  help: { name: string; rag: "red" | "amber" } | null;
+  secure: number;
+  practising: number;
+  /** The last day a paper of theirs was read. */
   last_read: string | null;
+  /** Their newest parent report: approved, or a draft; out of date once answers were signed off after it was written. */
+  report: { approved: boolean; out_of_date: boolean; written: string } | null;
 };
 
-const WORST: Rag[] = ["red", "amber", "green", "grey"];
-
-/** Each class on roll with its grade: how many of its children stand in each colour (a child in the colour of the
- *  skill they most need help on, grey with no checked answers), the skills the most children need help on, what
- *  waits on Marking, and when a paper was last read. Taught skills only — as the child's own page shows them. */
-export async function classes(): Promise<ClassRow[]> {
-  const [kids, weak] = await Promise.all([
-    sql<{ band: string; section: string; states: string[] | null; waiting: number; last_read: string | null }[]>`
-      select c.band, c.section,
-             (select array_agg(s.state) from child_skill_state s
-               where s.child_id = c.id and exists (
-                 select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
-                 where ss.rung_code = s.rung_code and t.taught)) as states,
-             (select count(*)::int from item_result r join capture k on k.id = r.capture_id
-                join sheet_instance si on si.id = k.sheet_instance_id
-               where si.child_id = c.id and r.state = 'candidate' and k.superseded_by is null) as waiting,
-             (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
-               where si.child_id = c.id and k.superseded_by is null) as last_read
-      from child c where c.active order by c.band, c.section`,
-    sql<{ section: string; name: string; n: number }[]>`
-      select c.section, ss.name, count(distinct c.id)::int as n
-      from child_skill_state s join child c on c.id = s.child_id and c.active
-      join skill_set ss on ss.rung_code = s.rung_code
+/** Every child on roll, grade by grade, with their standing on each taught skill as the graph's own states give it
+ *  (one skill set counted once, in the worst state of its skills), the last paper read, and their newest parent
+ *  report. Names through pii.read_child, which logs who asked. */
+export async function childTable(actor: string): Promise<ChildRow[]> {
+  return sql<ChildRow[]>`
+    with st as (
+      select s.child_id, s.rung_code, ss.name,
+             min(case s.state when 'patterned_error' then 1 when 'emerging' then 2 when 'practising' then 3
+                              when 'secure' then 5 when 'stretch_ready' then 5 else 4 end) as sev,
+             sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share
+      from child_skill_state s
+      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
-      where s.state in ('patterned_error', 'emerging')
-      group by c.section, ss.name order by c.section, n desc, ss.name`,
-  ]);
-  const out = new Map<string, ClassRow>();
-  for (const k of kids) {
-    const row = out.get(k.section) ?? {
-      band: k.band, section: k.section, n: 0, kids: { red: 0, amber: 0, green: 0, grey: 0 },
-      weakest: weak.filter((w) => w.section === k.section).slice(0, 3).map(({ name, n }) => ({ name, n })),
-      waiting: 0, last_read: null,
-    }; // prettier-ignore
-    const colours = new Set((k.states ?? []).map((st) => rag(st)));
-    const worst = WORST.find((c) => c !== "grey" && colours.has(c)) ?? "grey";
-    row.n += 1;
-    row.kids[worst] += 1;
-    row.waiting += k.waiting;
-    if (k.last_read && (!row.last_read || k.last_read > row.last_read)) row.last_read = k.last_read;
-    out.set(k.section, row);
-  }
-  return [...out.values()];
+      group by s.child_id, s.rung_code, ss.name
+    )
+    select c.id, c.band, c.section, c.roll_no, p.first_name,
+           (select jsonb_build_object('name', st.name, 'rag', case when st.sev <= 2 then 'red' else 'amber' end)
+              from st where st.child_id = c.id and st.sev <= 3
+             order by st.sev, st.right_share nulls last, st.name limit 1) as help,
+           (select count(*)::int from st where st.child_id = c.id and st.sev = 5) as secure,
+           (select count(*)::int from st where st.child_id = c.id and st.sev = 3) as practising,
+           (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
+             where si.child_id = c.id and k.superseded_by is null) as last_read,
+           (select jsonb_build_object(
+                     'approved', n.approved_by is not null,
+                     'written', n.created_at::date::text,
+                     'out_of_date', exists (select 1 from evidence_event e where e.child_id = c.id
+                                             and e.confirmed_by is not null and e.created_at > n.created_at))
+              from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
+             order by n.created_at desc limit 1) as report
+    from child c, lateral pii.read_child(c.id, ${actor}) p
+    where c.active
+    order by c.band, c.section, coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */

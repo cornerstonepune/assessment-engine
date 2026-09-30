@@ -1,0 +1,29 @@
+name: u8-children-table
+goal: >
+  Children opens on a table per grade: one row per child, with their roll, name, grade and class, the skill they most
+  need help on, how many skills are secure and how many are still being practised, when a paper of theirs was last
+  read, and their parent report's standing (none, draft, approved, or out of date once answers were signed off after
+  it). A click anywhere on a row opens the child. Any column sorts the table. Each class still opens as its children
+  against every skill. Names are read the one logged way (pii.read_child), and no rung, skill or mistake code reaches
+  the table.
+
+# Written 2026-09-30, before the code, on Nimish's words the same day, over a screenshot of the Children page's dot
+# cards: "We have a proper tabular view here that outlines children with their grades or something like that, and then
+# that is clickable". Asked what each row holds, he chose "Standing + next step": roll, name, grade, class, the skill
+# they most need help on, secure and practising counts, last paper, parent report status, sortable, the table in place of
+# the dot cards.
+says:
+  - words: "a proper tabular view here that outlines children with their grades"
+    proved_by: apps/web/tests/u8-children-table.spec.ts::each grade is a table of its children, each row their standing and next step in the school's words
+  - words: "and then that is clickable"
+    proved_by: apps/web/tests/u8-children-table.spec.ts::a click anywhere on a child's row opens the child, and any column sorts the table
+manual:
+  - "On live, once merged: open Children and click a child's row."
+scenarios: []
+criteria:
+  - name: the Children table, on the copy
+    run: cd apps/web && npx playwright test tests/u8-children-table.spec.ts tests/u2-children.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

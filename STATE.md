@@ -3886,3 +3886,20 @@ deploys.
   tests/test_every_report.py` → all pass (local Postgres 16; the two tests that render a PDF need the pinned Chromium,
   run with it). `bin/check` → exit 0.
 
+## U8 — the Children table (goal u8-children-table, 2026-09-30)
+
+- **Asked:** Nimish, over the Children page's dot cards: "We have a proper tabular view here that outlines children
+  with their grades or something like that, and then that is clickable". He chose "Standing + next step" as the row.
+- **Built:**
+  - /growth is now one table per grade: roll, name, grade, class, the skill they most need help on (red before amber,
+    the least often right first), how many skills are secure and how many practising, last paper read, and the parent
+    report (none, draft, approved, or out of date once answers were signed off after it) (`childTable`).
+  - A click anywhere on a row opens the child: one link per row, stretched over the row. Any heading sorts
+    (`?sort=`).
+  - Each class still opens as its children against every skill. Names come through `pii.read_child`, which logs who
+    asked.
+  - The class cards' query `classes()` had no other caller and is removed.
+- **Checks:** `npx playwright test tests/u8-children-table.spec.ts tests/u2-children.spec.ts` → 10 passed;
+  `screens`, `gate`, `s1-site-answers` → 32 passed (production build, real engine, local copy; the machine's own
+  Chromium, and the engine's PDFs with it). `npx tsc --noEmit`, eslint and `bin/check` pass.
+
