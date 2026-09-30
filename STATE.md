@@ -4041,3 +4041,20 @@ deploys.
     has none (already named at U2). 6 were skipped (s4, with no read papers here) and 2 did not run (s7's followers).
 - **Not proven, by design:** "taught" is inferred from answers, as asked. A check that places a child on a skill
   their class has not been taught (u11) marks that skill taught. No table records teaching itself.
+
+## The previews build again: importing a page touches no database (2026-09-30)
+
+- **What failed:** every Vercel Preview from #140 to #143, about a minute after each push. Production built each time.
+- **Cause:** `lib/queries-papers.ts` (U9) built its SQL fragment when the module was imported. A page is imported to
+  build it. Preview has no DATABASE_URL (see "The website builds without a database", 2026-09-21), so `sql` was
+  the stand-in that refuses on first use, and the build stopped at `/papers`.
+- **Why CI missed it:** CI's web build was handed a made-up DATABASE_URL, so `sql` was a real, lazy client there.
+- **Fixed:**
+  - The fragment is a function, called when a query runs.
+  - CI's build now runs with no DATABASE_URL, as Preview does. A page that touches the database on import now fails
+    CI before it reaches Vercel.
+- **Checks:**
+  - Before the fix, `next build` with no DATABASE_URL → "Failed to collect configuration for /papers … DATABASE_URL
+    is not set". After the fix → exit 0.
+  - CI's own steps (typegen, `tsc`, build) with no DATABASE_URL → exit 0.
+  - u9 and u3 → 7 passed.

@@ -11,6 +11,9 @@ is verified. This file only says where the last session stopped.
   worksheets, each level, children assessed, taught. s2, u5 and e2e's skill-map tests now read the table.
 - **Order of shipping:** PR for u10 first (open when this was written), then u11, then u12, each merged with a merge
   commit. u11 and u12 were committed on the branch behind u10 and are replayed onto main after it merges.
+- **Vercel previews:** they failed from #140 on. Their cause was U9's SQL fragment, built when `/papers` was imported:
+  Preview has no DATABASE_URL. The fragment is now built when a query runs, and CI builds with no DATABASE_URL, so
+  this cannot pass CI again.
 - **For Nimish to decide:** "taught" is inferred from any checked answer (his words: "based on the assessments"). A
   placement check therefore marks a skill taught. The alternative is a record of what was taught, which no table
   holds yet.

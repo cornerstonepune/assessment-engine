@@ -37,8 +37,9 @@ export type PaperListRow = {
 
 const LIMIT = 300;
 
-/** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. */
-const papersCte = sql`
+/** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. A function, not
+ *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
+const papersCte = () => sql`
   papers as (
     select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id,
            coalesce(si.section, ch.section) as section, coalesce(si.week, t.week) as week,
@@ -99,7 +100,7 @@ export async function paperList(
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
   const [rows, counts, classes, weeks, children] = await Promise.all([
     sql<(PaperListRow & { name: string | null })[]>`
-      with ${papersCte},
+      with ${papersCte()},
       shown as (
         select * from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
         order by day desc nulls last, created_at desc, section, qr
@@ -114,7 +115,7 @@ export async function paperList(
       from shown s left join names on names.id = s.child_id
       order by s.day desc nulls last, s.created_at desc, s.section, s.qr`,
     sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte} select stage, count(*)::int as n from papers where ${narrowed(f)} group by stage`,
+      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f)} group by stage`,
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id

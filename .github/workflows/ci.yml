@@ -63,5 +63,7 @@ jobs:
       # 'LayoutProps'" while the engine job stayed green — and nobody was looking.
       - run: npx next typegen
       - run: npx tsc --noEmit
+      # No DATABASE_URL, as on Vercel's previews: a page's import must never touch the database (lib/db.ts). One did
+      # (lib/queries-papers.ts, a fragment built at import), and every preview failed from #140 to #143 while this
+      # build, handed a URL, passed.
       - run: npm run build
-        env: { DATABASE_URL: "postgres://ci:ci@localhost:5432/ci" }
