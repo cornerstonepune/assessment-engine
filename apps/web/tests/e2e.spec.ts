@@ -68,8 +68,7 @@ test("a teacher can reach every section from the menu, and the menu says where t
   const sections = [
     ["Today", "Today"],
     ["Children", "Children"],
-    ["Marking", "Marking"],
-    ["Make papers", "Make papers"],
+    ["Papers", "Papers"],
     ["Curriculum", "Curriculum"],
   ];
   for (const [label, heading] of sections) {

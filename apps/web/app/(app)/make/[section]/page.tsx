@@ -24,7 +24,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Make papers"
+        stage="Papers · make"
         title={`${section} · home assessments`}
         sub={`Week ${week}. Each child's home assessment works on one skill from their own map. Approve them, or choose a different one for any child.`}
       />

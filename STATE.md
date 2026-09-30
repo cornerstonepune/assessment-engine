@@ -3903,3 +3903,29 @@ deploys.
   `screens`, `gate`, `s1-site-answers` → 32 passed (production build, real engine, local copy; the machine's own
   Chromium, and the engine's PDFs with it). `npx tsc --noEmit`, eslint and `bin/check` pass.
 
+- **Fixed before merge (3c6dc18):** a sorted heading said "descending" for every column, Name (A to Z) included; each
+  column now carries its own direction ("other" where the order is what needs doing first). The row-click test scrolls
+  the row into view first: with more classes on the copy the row sat below the fold and the click landed nowhere.
+
+## U9 — Papers, one menu item and one list (goal u9-papers, 2026-09-30)
+
+- **Asked:** Nimish: "I really don't think marking and marking papers as two different types are essential. We can
+  merge them into one" and "one list of papers with the right filtration and all, and a good view".
+- **Built:**
+  - The menu is Today, Children, Papers, Curriculum. Papers covers /papers, /capture, /make and a child's own printed
+    paper (/worksheets/CS…); a library worksheet stays under Curriculum.
+  - /papers is one table of every paper: the paper (its skill and level, or its title), kind (class practice, class
+    assessment, home assessment, a chosen paper, or an earlier paper), class, child, week, stage (made, printed,
+    scanned, checked, signed off), answers waiting for a person, and the score once checked (`paperList`). Void papers
+    are left out; the newest 300 show, and the page says when there are more.
+  - The stage chips count each stage under the other filters, and each one is the filter. A form filters by class,
+    child, kind and week.
+  - A click anywhere on a row opens the paper where its work is: its answers once scanned, the page before.
+  - Making a paper, reading a scan (the same form as /capture, which now returns to the page it was sent from), and
+    the queue of answers to check all start here. The pages under it say "Papers · …" above their titles.
+  - Names are read once per shown child through `pii.read_child`.
+- **Checks:** `npx playwright test` on u9-papers, u3-marking, u1-today, s1-site-answers, s4-validation-queue,
+  m2-make-papers, u8-children-table, screens and e2e → 65 passed, 1 failed, 7 skipped. The one failure is
+  e2e "every child's paper has its own code": it needs a G3 T2W1 week, and this copy has no T2W1 paper at all. The 7
+  skipped are the serial e2e tests after it. CI does not run the browser suites; its web job typechecks and builds.
+  `npx tsc --noEmit`, eslint and `bin/check` pass.

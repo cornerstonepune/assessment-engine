@@ -42,7 +42,7 @@ export default async function WeekDeclaration({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Make papers"
+        stage="Papers · make"
         title={`${section} · this week`}
         sub={`Week ${week}. Say in your own words what the class did; the engine proposes the skills it covered, and you confirm.`}
       />

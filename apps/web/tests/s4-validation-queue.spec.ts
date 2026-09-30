@@ -304,17 +304,18 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
   await page.goto("/capture");
   const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
   await expect(panel.getByText(`Checked by a person: ${n.checked} answers.`)).toBeVisible();
-  await expect(panel.getByRole("table")).toBeVisible();
+  // up to three tables (by kind of answer, by day, by grade) as the answers allow: the first is by kind
+  await expect(panel.getByRole("table").first()).toBeVisible();
   await expect(panel.getByText(/every answer checked by a person|trusted: settles alone/).first()).toBeVisible();
 });
 
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
-  // U1: the queue sits inside Marking, and Today opens it
+  // U1: the queue sits inside Papers (U9), and Today opens it
   await page.goto("/today");
   await page.getByRole("region", { name: "Answers to check" }).getByText(/Check them|Nothing waiting/).first().waitFor();
   await page.goto("/capture/check");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Marking" })).toHaveAttribute(
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Papers" })).toHaveAttribute(
     "aria-current",
     "page",
   );

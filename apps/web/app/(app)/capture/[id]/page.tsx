@@ -84,7 +84,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage={`Marking · ${paper.section}`}
+        stage={`Papers · ${paper.section}`}
         title={`${paper.first_name} · ${paper.title ?? paper.paper}`}
         sub={`Sat ${fmtDate(paper.date)}. ${answers.length} answers on ${paper.pages} page${paper.pages === 1 ? "" : "s"}. The engine read what it could and flagged the rest; nothing here reaches ${paper.first_name}'s ladder until you sign it off.`}
       />
