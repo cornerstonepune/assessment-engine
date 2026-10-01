@@ -49,11 +49,11 @@ def _id(template, payload):
     return f"{template}-{h}"
 
 
-def _cells(n):
+def cells(n):
     return len(str(n)) + 1
 
 
-def _item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, working_lines=2, skills=None):
+def item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, working_lines=2, skills=None):
     return Item(
         _id(template, spec),
         template,
@@ -72,7 +72,7 @@ def _item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, 
 # ---------------------------------------------------------------- operand samplers
 
 
-def _regroup_count_add(a, b):
+def regroup_count_add(a, b):
     w = max(len(str(a)), len(str(b)))
     da, db = M.digits(a, w), M.digits(b, w)
     c, n = 0, 0
@@ -83,7 +83,7 @@ def _regroup_count_add(a, b):
     return n
 
 
-def _regroup_count_sub(a, b):
+def regroup_count_sub(a, b):
     w = max(len(str(a)), len(str(b)))
     da, db = M.digits(a, w), M.digits(b, w)
     n, borrow = 0, 0
@@ -110,7 +110,7 @@ def sample_add(rng, digits_a, digits_b, regroups, max_total=None, tries=2000):
             continue
         if max_total and a + b > max_total:
             continue
-        if _regroup_count_add(a, b) in regroups:
+        if regroup_count_add(a, b) in regroups:
             return a, b
     raise RuntimeError(f"no add sample for {digits_a},{digits_b},{regroups}")
 
@@ -157,7 +157,7 @@ def sample_sub(rng, digits_a, digits_b, regroups, across_zero=False, tries=4000,
         has_zero = 0 in ds[1:]
         if across_zero != has_zero:
             continue
-        if _regroup_count_sub(a, b) in regroups:
+        if regroup_count_sub(a, b) in regroups:
             return a, b
     raise RuntimeError(f"no sub sample for {digits_a},{digits_b},{regroups},{across_zero}")
 
@@ -171,9 +171,9 @@ def bare_sum(rng, rung, signal, op, da, db, regroups, max_total=None, across_zer
     else:
         a, b = sample_sub(rng, da, db, regroups, across_zero, max_a=max_total)
     ans = a + b if op == "+" else a - b
-    r = Response("ans", "digits", str(ans), cells=_cells(max(ans, a)), misconceptions=M.predict(op, a, b))
+    r = Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=M.predict(op, a, b))
     fmt = "column_grid" if layout == "column" else "bare_sum"
-    return _item(
+    return item(
         f"{'ADD' if op == '+' else 'SUB'}.{da}D{db}D.REG{'Z' if across_zero else ''.join(map(str, sorted(regroups)))}",
         rung,
         signal,
@@ -211,8 +211,8 @@ def missing_number(rng, rung, signal, kind, hi):
         stem = f"{c} − □ = {a}"
         mis = {"M_ADD_INSTEAD": c + a, "M_FACT_PM1": ans + 1}
     mis = {k: v for k, v in mis.items() if v != ans and v >= 0}
-    r = Response("ans", "digits", str(ans), cells=_cells(hi), misconceptions=mis)
-    return _item("MISSING.NUM", rung, signal, "missing_number", stem, dict(text=stem), [r], working_lines=1)
+    r = Response("ans", "digits", str(ans), cells=cells(hi), misconceptions=mis)
+    return item("MISSING.NUM", rung, signal, "missing_number", stem, dict(text=stem), [r], working_lines=1)
 
 
 def balance_scale(rng, rung, signal, hi):
@@ -225,8 +225,8 @@ def balance_scale(rng, rung, signal, hi):
     ans = a + b - c
     mis = {"M_EQUALS_MEANS_ANSWER": a + b, "M_ADD_ALL": a + b + c}
     mis = {k: v for k, v in mis.items() if v != ans}
-    r = Response("ans", "digits", str(ans), cells=_cells(a + b), misconceptions=mis)
-    return _item(
+    r = Response("ans", "digits", str(ans), cells=cells(a + b), misconceptions=mis)
+    return item(
         "BALANCE",
         rung,
         "Conceptual",
@@ -243,11 +243,11 @@ def number_wall(rng, rung, signal, hi):
     m1, m2 = base[0] + base[1], base[1] + base[2]
     top = m1 + m2
     rs = [
-        Response("m1", "digits", str(m1), cells=_cells(top), misconceptions=M.predict("+", base[0], base[1])),
-        Response("m2", "digits", str(m2), cells=_cells(top), misconceptions=M.predict("+", base[1], base[2])),
-        Response("top", "digits", str(top), cells=_cells(top), misconceptions=M.predict("+", m1, m2)),
+        Response("m1", "digits", str(m1), cells=cells(top), misconceptions=M.predict("+", base[0], base[1])),
+        Response("m2", "digits", str(m2), cells=cells(top), misconceptions=M.predict("+", base[1], base[2])),
+        Response("top", "digits", str(top), cells=cells(top), misconceptions=M.predict("+", m1, m2)),
     ]
-    return _item(
+    return item(
         "WALL",
         rung,
         signal,
@@ -301,14 +301,14 @@ def number_line_jumps(rng, rung, signal, op, hi):
                 "land1",
                 "digits",
                 str(land1),
-                cells=_cells(hi),
+                cells=cells(hi),
                 label=f"after {op}{first}",
                 misconceptions={"M_FACT_PM1": land1 + (1 if op == "+" else -1)},
             ),
-            Response("ans", "digits", str(ans), cells=_cells(hi), misconceptions=M.predict(op, a, b)),
+            Response("ans", "digits", str(ans), cells=cells(hi), misconceptions=M.predict(op, a, b)),
         ]
         # `tens`/`ones` are the renderer's names for the two jump sizes, whatever their place value.
-        return _item(
+        return item(
             "NLINE.BRIDGE",
             rung,
             signal,
@@ -340,13 +340,13 @@ def number_line_jumps(rng, rung, signal, op, hi):
             "land1",
             "digits",
             str(land1),
-            cells=_cells(hi),
+            cells=cells(hi),
             misconceptions={"M_FACT_PM10": land1 + (10 if op == "+" else -10)},
             label=f"after {op}{tens}",
         ),
-        Response("ans", "digits", str(ans), cells=_cells(hi), misconceptions=M.predict(op, a, b)),
+        Response("ans", "digits", str(ans), cells=cells(hi), misconceptions=M.predict(op, a, b)),
     ]
-    return _item(
+    return item(
         "NLINE",
         rung,
         signal,
@@ -376,7 +376,7 @@ def partition_scaffold(rng, rung, signal, regroups):
         Response("ones", "digits", str(ones), cells=3),
         Response("ans", "digits", str(a + b), cells=5, misconceptions=M.predict("+", a, b)),
     ]
-    return _item(
+    return item(
         "PARTITION",
         rung,
         "Conceptual",
@@ -411,7 +411,7 @@ def sort_into_table(rng, rung, signal, op, n=4):
             )
         )
     word = "Change a ten for 10 ones" if op == "-" else "Make a new ten"
-    return _item(
+    return item(
         "SORT",
         rung,
         "Conceptual",
@@ -440,7 +440,7 @@ def digit_cards(rng, rung, signal, n_cards=3, addend=None):
             misconceptions={"M_SMALLEST_NUMBER": worst, "M_FORGOT_ADDEND": big},
         )
     ]
-    return _item(
+    return item(
         "CARDS",
         rung,
         "Stretch",
@@ -481,8 +481,8 @@ def efficient_method(rng, rung, signal, kind=None):
         b = rng.choice([998, 999, 1999, 2998])
         op = "+"
     ans = a + b if op == "+" else a - b
-    rs = [Response("ans", "digits", str(ans), cells=_cells(ans), misconceptions=M.predict(op, a, b))]
-    return _item(
+    rs = [Response("ans", "digits", str(ans), cells=cells(ans), misconceptions=M.predict(op, a, b))]
+    return item(
         "EFFICIENT",
         rung,
         signal,
@@ -516,7 +516,7 @@ def partial_worked(rng, rung, signal):
         Response("p3", "digits", str(parts[2]), cells=3, label="ones after regrouping"),
         Response("ans", "digits", str(a - b), cells=4, misconceptions=M.predict("-", a, b)),
     ]
-    return _item(
+    return item(
         "PARTIAL",
         rung,
         "Conceptual",
@@ -539,7 +539,7 @@ def missing_part_20(rng, rung, signal):
     r = Response(
         "ans", "digits", str(ans), cells=2, misconceptions={"M_ADD_INSTEAD": a + c, "M_FACT_PM1": ans + 1}
     )
-    return _item(
+    return item(
         "PPW20",
         rung,
         "Conceptual",
@@ -567,7 +567,7 @@ def multi_add(rng, rung, signal, n_addends=3, digits_each=4, xs=None, layout="co
     r = Response("ans", "digits", str(ans), cells=len(str(ans)) + 1, misconceptions=mis)
     spec = dict(addends=xs, op="+", layout=layout) | ({"shape": shape} if shape else {})
     column = layout == "column"
-    return _item(
+    return item(
         f"ADD.MULTI{len(xs)}",
         rung,
         signal,

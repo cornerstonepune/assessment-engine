@@ -69,7 +69,7 @@ PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
 
 def _words(text):
     """A text's words as a skill's "can" is compared: lower case, numbers as digits, a plural's or a verb's s off."""
-    out = [DIGITS.get(w, w) for w in re.findall(r"[a-z0-9]+", text.lower())]
+    out = [DIGITS.get(w, w) for w in map(str, re.findall(r"[a-z0-9]+", text.lower()))]
     return [w[:-1] if len(w) > 3 and w.endswith("s") and not w.endswith("ss") else w for w in out]
 
 
@@ -103,8 +103,8 @@ def _count(token):
     if t == "none":
         return 0
     parts = t.split("-")
-    vals = [UNITS.get(w, TENS.get(w)) for w in parts]
-    return None if None in vals else sum(vals)
+    vals = [v for w in parts if (v := UNITS.get(w, TENS.get(w))) is not None]
+    return sum(vals) if len(vals) == len(parts) else None
 
 
 def _pairs(text):
@@ -136,7 +136,7 @@ def numbers_in(text):
             if cur is not None and not joins:
                 flush()
                 total = None
-            cur = (cur if joins else 0) + v
+            cur = (cur if cur is not None and joins else 0) + v
         elif w in SCALES and cur is not None:
             cur *= SCALES[w]
             if w == "thousand":

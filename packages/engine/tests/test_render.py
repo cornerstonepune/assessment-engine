@@ -40,7 +40,7 @@ def test_there_are_as_many_answer_boxes_as_the_answer_has_digits(a, b, op, layou
     it.spec.update(a=a, b=b, op=op, layout=layout)
     ans = next(r for r in it.responses if r.rid == "ans")
     ans.answer = answer
-    html = _html(it) if layout == "horizontal" else answer_space._grid("S", "I", [a, b], op, ans)
+    html = _html(it) if layout == "horizontal" else answer_space.grid("S", "I", [a, b], op, ans)
     assert _boxes(html) == len(answer)
 
 
@@ -71,7 +71,7 @@ def test_a_worksheet_draws_in_each_layout_the_school_has_printed():
 
     assert _boxes(render.render_item(sheet, it, 1, old)) == 4
     assert _boxes(render.render_item(sheet, it, 1, today)) == 2
-    assert _boxes(answer_space._grid("S", "I", [23, 45], "+", ans, boxes=old["boxes"])) == 4
+    assert _boxes(answer_space.grid("S", "I", [23, 45], "+", ans, boxes=old["boxes"])) == 4
 
     page = render.sheet_html(sheet, layout=old)
     assert ".work { min-height: 11mm; }" in page and ".work.h4 { min-height: 26mm; }" in page

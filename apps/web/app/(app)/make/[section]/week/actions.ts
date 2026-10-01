@@ -12,9 +12,13 @@ export async function confirmWeek(formData: FormData): Promise<void> {
   const week = String(formData.get("week") ?? "");
   const note = String(formData.get("note") ?? "").slice(0, 2000);
   const skillSets = formData.getAll("skill_set").map(String);
-  let proposed: unknown[] = [];
+  // what the engine had proposed, one object per skill set, as the engine takes it; anything else is not kept
+  let proposed: Record<string, unknown>[] = [];
   try {
-    proposed = JSON.parse(String(formData.get("proposed") ?? "[]")) as unknown[];
+    const sent: unknown = JSON.parse(String(formData.get("proposed") ?? "[]"));
+    if (Array.isArray(sent)) {
+      proposed = sent.filter((x): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x));
+    }
   } catch {
     proposed = [];
   }

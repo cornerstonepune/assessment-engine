@@ -9,7 +9,7 @@ The wrong answers each one predicts are the equality mistakes the vocabulary nam
 answer comes next", adding every number in sight, turning a subtraction round.
 """
 
-from .items import Response, _cells, _item
+from .items import Response, cells, item
 
 MINUS = "−"
 UNFIT = "these numbers do not make this question; draw again"
@@ -81,7 +81,7 @@ def equation(rng, rung, signal, shape, hi=50):
                 "ans",
                 "digits",
                 str(ans),
-                cells=_cells(max(left, ans)),
+                cells=cells(max(left, ans)),
                 misconceptions={k: v for k, v in wrong.items() if v != ans},
             )
         ]
@@ -96,7 +96,7 @@ def equation(rng, rung, signal, shape, hi=50):
                 "ans",
                 "digits",
                 str(x),
-                cells=_cells(total),
+                cells=cells(total),
                 misconceptions={"M_ADD_INSTEAD": add + total, "M_EQUALS_MEANS_ANSWER": total - add},
             )
         ]
@@ -144,7 +144,7 @@ def equation(rng, rung, signal, shape, hi=50):
     else:
         raise ValueError(f"no equation shape {shape!r}")
     spec = dict(text=text, shape=shape, ops=ops)
-    return _item(f"EQ.{shape}", rung, signal, "equation", stem, spec, rs, working_lines=1)
+    return item(f"EQ.{shape}", rung, signal, "equation", stem, spec, rs, working_lines=1)
 
 
 def fact_family(rng, rung, signal, shape, hi=20):
@@ -174,7 +174,7 @@ def fact_family(rng, rung, signal, shape, hi=20):
             f"f{i + 1}",
             "digits",
             str(ans),
-            cells=_cells(max(ans, c, a)),
+            cells=cells(max(ans, c, a)),
             label=text,
             misconceptions={k: v for k, v in mis.items() if v != ans and v >= 0},
         )
@@ -189,7 +189,7 @@ def fact_family(rng, rung, signal, shape, hi=20):
         op="+" if shape == "FROM_ADDITION" else "-",
         ops=["+", "-"],
     )
-    return _item(
+    return item(
         "FACTS",
         rung,
         signal,
@@ -223,7 +223,7 @@ def inverse_check(rng, rung, signal, op, digits=3):
             "check",
             "digits",
             str(check_value),
-            cells=_cells(max(check_value, claimed)),
+            cells=cells(max(check_value, claimed)),
             label=check_text,
             misconceptions={"M_ADD_INSTEAD": claimed + b}
             if op == "+"
@@ -243,6 +243,6 @@ def inverse_check(rng, rung, signal, op, digits=3):
     spec = dict(
         a=a, b=b, op=op, claimed=claimed, shown=shown, check=check_text, ops=[op, "-" if op == "+" else "+"]
     )
-    return _item(
+    return item(
         "CHECK", rung, signal, "inverse_check", f"Check {shown} with {other}.", spec, rs, working_lines=2
     )

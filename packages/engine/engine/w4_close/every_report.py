@@ -47,6 +47,6 @@ def write_each(by, kids):
         run = parent_report.start(k["child_id"], by)
         parent_report.write(run, k["child_id"])
         with db.connect() as conn:
-            r = conn.execute("select status, error from flow_run where id = %s", (run,)).fetchone()
+            r = db.one(conn, "select status, error from flow_run where id = %s", (run,))
         done.append({**k, "kept": r["status"] == "ok", "error": r["error"]})
     return done

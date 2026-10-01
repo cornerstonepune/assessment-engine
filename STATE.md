@@ -4279,3 +4279,53 @@ The second of Phase 1's five PRs (`goals/p1-browser-tests-in-ci.yaml`).
   - **On main's code:** s4 skipped 9, screens 2 and m2 1, and e2e's G3 tests and s7 failed without live's classes.
   - `test_gates.py`: 6 passed. The concurrency test passed twice and leaves one class.
   - `tsc`, eslint and `bin/check` passed.
+
+## Phase 1, PR C: the types hold (2026-10-01)
+
+The third of Phase 1's five PRs (`goals/p1-types-hold.yaml`).
+
+- **A type checker reads every engine file.**
+  - pyright 1.1.414 is pinned in the dev extras with its own Node (`pyright[nodejs]`). It reads `engine/` at its
+    basic level, and `assess/` and `core/` strictly (`[tool.pyright]`).
+  - `tests/test_types.py` runs it (about 15 s) and holds its verdict; `bin/check` runs it before every commit.
+  - On main's code it found 5,277 errors: 4,825 missing annotations in `assess/`, and 260 findings of other kinds
+    across the engine (216 of all kinds in `core/`).
+- **Nothing it calls wrong stands.** Every finding is fixed where it is. Among them:
+  - **The one connection was typed as giving tuples.** `psycopg.connect` ignores its row factory in its types.
+    `db.Conn` names the dict rows, so every `row["id"]` downstream is checked against a dict.
+  - **A query that must return a row says which one when it does not.** `db.one()` replaces `fetchone()["x"]`
+    where that would have failed as "None is not subscriptable".
+  - **Two latent crashes:**
+    - `engine eval` on a reviewer with no hand-judged case raised a KeyError; it now says there is nothing to score.
+    - `draw` raised a KeyError when a case allowed neither ADD nor SUB; that attempt is now refused like any other.
+  - **OpenCV calls take the shapes their types declare.** Each was proved to give the same result: the red-ink
+    mask, the line-up's features, the borders.
+  - **Shared helpers are public.** Eleven helpers named private were used across modules; they are now public.
+    Dead code is gone: an unused class, unused variables, and a pick helper nothing called.
+- **The base is strict and clean:** `core/` went from 216 errors to 0.
+- **The maths library's missing annotations are frozen.** 4,816 across 26 files sit in `workflows.json`
+  `types.frozen`, exactly; a file that sheds some writes its new number down.
+- **The ratchet holds the type check.** Its level, the roots it reads, the roots it reads strictly, what counts as a
+  missing annotation, and every frozen count may only tighten.
+- **A shrunk frozen number is written down.** The line ceiling and the complexity list now require a frozen file or
+  function to sit exactly at its number:
+  - `mark.py` 417 → 414 lines, and `loaders.py` 413 → 411;
+  - `cli.eval_` C901 20 → 18 and 85 → 74 statements, its reviewer scoring split out;
+  - `mark.roundtrip` 52 → 51 statements.
+- **The website calls the engine only by its routes.**
+  - `bin/engine contract` writes `apps/web/lib/engine-routes.ts` from the engine's OpenAPI document: 53 routes,
+    each POST's body as TypeScript.
+  - `lib/engine.ts` takes only those paths (each `{name}` any text, a query string allowed) and only those bodies.
+  - `tests/test_contract.py` fails when the list is stale, and `tests/engine-contract.ts` holds six calls that must
+    not compile.
+  - It found four bodies the engine does not declare: a mistake's shortlist and a week's proposal parsed as
+    anything, a bank verdict as any string, and a crop's query as any text. Each is now checked where the form
+    arrives.
+- **Checks:**
+  - `test_types.py`, `test_contract.py`, `test_ratchet.py` and `test_layout.py` pass, and so does `bin/check`
+    (25 tests).
+  - The full engine suite under coverage on a fresh database: 1,332 passed, coverage 79.72%. Its two failures were
+    fixed at their cause:
+    - the effort test read the call's arguments, so it is now read off the HTTP request itself;
+    - the invariant test caught the browser seeds' engine-only wrongs (PR B's fix).
+  - `tsc` and `eslint --max-warnings 0` pass on the website.

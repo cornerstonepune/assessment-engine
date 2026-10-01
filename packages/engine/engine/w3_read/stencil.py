@@ -31,6 +31,8 @@ import numpy as np
 from engine.adapters import ocr
 from engine.core import db
 
+NO_MASK = np.empty((0, 0), np.uint8)  # OpenCV reads an empty mask as none; its declared types take no None
+
 # db.REPO_ROOT, never parents[3]: inside the Docker image this file is /app/engine/stencil.py and has
 # nothing three levels up, so counting folders stopped the whole engine from starting on the server.
 TEMPLATES = db.REPO_ROOT / "data" / "paper-templates"
@@ -48,17 +50,17 @@ def grey(jpeg, side=SIDE):
 
 def homography(src, dst):
     """→ (3x3 mapping src pixels to dst pixels, RANSAC inliers), or (None, n) when it will not fit."""
-    orb = cv2.ORB_create(5000)
-    k1, d1 = orb.detectAndCompute(src, None)
-    k2, d2 = orb.detectAndCompute(dst, None)
+    orb = cv2.ORB.create(5000)
+    k1, d1 = orb.detectAndCompute(src, NO_MASK)
+    k2, d2 = orb.detectAndCompute(dst, NO_MASK)
     if d1 is None or d2 is None:
         return None, 0
     matches = sorted(cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True).match(d1, d2), key=lambda m: m.distance)
     matches = matches[: max(12, len(matches) // 4)]
     if len(matches) < 12:
         return None, len(matches)
-    a = np.float32([k1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-    b = np.float32([k2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+    a = np.array([k1[m.queryIdx].pt for m in matches], np.float32).reshape(-1, 1, 2)
+    b = np.array([k2[m.trainIdx].pt for m in matches], np.float32).reshape(-1, 1, 2)
     H, mask = cv2.findHomography(a, b, cv2.RANSAC, 5.0)
     return (H, int(mask.sum())) if H is not None else (None, 0)
 
@@ -67,7 +69,9 @@ def plausible(H, src_shape, dst_shape):
     """A homography that turns a page into a sliver or a bow tie matched the wrong features. The
     page's corners must land as a convex shape of about the page's own area."""
     h, w = src_shape[:2]
-    quad = cv2.perspectiveTransform(np.float32([[0, 0], [w, 0], [w, h], [0, h]]).reshape(-1, 1, 2), H)
+    quad = cv2.perspectiveTransform(
+        np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32).reshape(-1, 1, 2), H
+    )
     ratio = cv2.contourArea(quad) / float(dst_shape[0] * dst_shape[1])
     return cv2.isContourConvex(quad.astype(np.float32)) and 0.5 <= ratio <= 2.0
 
@@ -85,7 +89,7 @@ def build(jpegs):
         H, n = homography(g, ref)
         inliers.append(n)
         if H is not None and plausible(H, g.shape, ref.shape):
-            stack.append(cv2.warpPerspective(g, H, (ref.shape[1], ref.shape[0]), borderValue=255))
+            stack.append(cv2.warpPerspective(g, H, (ref.shape[1], ref.shape[0]), borderValue=(255,)))
     return np.median(np.stack(stack), axis=0).astype(np.uint8), len(stack), inliers
 
 
@@ -121,7 +125,9 @@ def _scale(shape):
 
 
 def _map_box(M, x0, y0, x1, y1):
-    pts = cv2.perspectiveTransform(np.float32([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]).reshape(-1, 1, 2), M)
+    pts = cv2.perspectiveTransform(
+        np.array([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], np.float32).reshape(-1, 1, 2), M
+    )
     xs, ys = pts[:, 0, 0], pts[:, 0, 1]
     return float(xs.min()), float(ys.min()), float(xs.max()), float(ys.max())
 

@@ -137,11 +137,12 @@ def confirm(conn, section, week, by, card):
     """The educator confirms the week's card, by name; kept as they saw it (append-only; the latest stands)."""
     if not by:
         raise ValueError("a confirmation names the educator making it")
-    return conn.execute(
+    return db.one(
+        conn,
         "insert into class_card_confirmation (tenant_id, section, week, by, card, created_at)"
         " select id, %s, %s, %s, %s, clock_timestamp() from tenant where slug = %s returning id, created_at",
         (section, week, by, json.dumps(card), db.tenant_slug()),
-    ).fetchone()
+    )
 
 
 def confirmed(conn, section, week):

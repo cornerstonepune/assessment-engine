@@ -16,7 +16,7 @@ def _boxes(r, rule="digits"):
     return len(ans) if rule == "digits" and r.kind == "digits" and ans.isdigit() else max(1, r.cells)
 
 
-def _cells(sheet_id, item_id, r, big=False, cls="", boxes="digits"):
+def cells(sheet_id, item_id, r, big=False, cls="", boxes="digits"):
     n = _boxes(r, boxes)
     s = "".join(
         f'<span class="cell {cls}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="{k}"></span>'
@@ -25,7 +25,7 @@ def _cells(sheet_id, item_id, r, big=False, cls="", boxes="digits"):
     return f'<span class="cells{" big" if big else ""}" data-resp="{item_id}|{r.rid}">{s}</span>'
 
 
-def _ticks(sheet_id, item_id, r, labels=None):
+def ticks(sheet_id, item_id, r, labels=None):
     out = []
     for j, o in enumerate(r.options):
         lab = (labels or {}).get(o, o)
@@ -35,17 +35,17 @@ def _ticks(sheet_id, item_id, r, labels=None):
     return f'<span data-resp="{item_id}|{r.rid}">{"".join(out)}</span>'
 
 
-def _text(sheet_id, item_id, r, h=16):
+def textbox(sheet_id, item_id, r, h=16):
     return f'<div class="textbox" data-resp="{item_id}|{r.rid}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="0" style="min-height:{h}mm"></div>'
 
 
-def _work(lines):
+def working(lines):
     if not lines:
         return ""
     return f'<div class="work h{min(lines, 4)}">working</div>'
 
 
-def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
+def grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
     """rows: list of ints (addends or minuend/subtrahend), lined up by the ones under as many columns as the widest
     number or the answer needs; the answer row has a box only under the answer's own digits."""
     boxes = _boxes(ans_resp, boxes)
@@ -55,7 +55,7 @@ def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
         out.append('<div class="g blank"></div>' + "".join('<div class="g carry"></div>' for _ in range(w)))
     for idx, n in enumerate(rows):
         s = str(n).rjust(w)
-        opch = "" if idx == 0 else _op(op)
+        opch = "" if idx == 0 else op_sign(op)
         out.append(
             f'<div class="g op">{opch if idx == len(rows) - 1 else ""}</div>'
             + "".join(f'<div class="g">{c.strip() or ""}</div>' for c in s)
@@ -72,5 +72,5 @@ def _grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
     return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
 
 
-def _op(o):
+def op_sign(o):
     return "−" if o == "-" else o

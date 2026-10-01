@@ -6,6 +6,7 @@ registry cannot be trusted as the thing every assessment result joins to.
 """
 
 import json
+from typing import Any, LiteralString
 
 from engine.core import db, settings, topics
 
@@ -36,25 +37,22 @@ FILLED_TABLES = (
 )
 
 
-_seed = settings.seed
-
-
-def _text_array(values):
+def _text_array(values: list[Any]) -> list[str]:
     """The taxonomy mixes numbers and letters in one dimension (operand digits are 1..4 and N),
     so every allowed value is stored as text rather than forcing a type the source does not have."""
     return [str(v) for v in values]
 
 
-def _tenant(conn) -> str:
+def _tenant(conn: db.Conn) -> db.Id:
     slug = db.tenant_slug()
     conn.execute(
         "insert into tenant (slug, name) values (%s, %s) on conflict (slug) do nothing",
         (slug, "Cornerstone School, Pune"),
     )
-    return conn.execute("select id from tenant where slug = %s", (slug,)).fetchone()["id"]
+    return db.one(conn, "select id from tenant where slug = %s", (slug,))["id"]
 
 
-def _registry(conn, t):
+def _registry(conn: db.Conn, t: db.Id) -> None:
     """The whole skill map — all 14 domains, not the maths slice.
 
     `registry.json` is generated from the Skill Map Review artifact and never hand-edited; it
@@ -67,7 +65,7 @@ def _registry(conn, t):
     # 11k rows: `executemany` pipelines them, one statement per table instead of one round trip
     # per row. Loading the whole map takes seconds that way and minutes the other way, and the
     # loader runs three times in the test suite.
-    def many(sql, rows):
+    def many(sql: LiteralString, rows: list[tuple[Any, ...]]) -> None:
         if rows:
             conn.cursor().executemany(sql, rows)
 
@@ -217,8 +215,8 @@ def _registry(conn, t):
     )
 
 
-def _rungs(conn, t):
-    for r in _seed("rungs.json", "rungs"):
+def _rungs(conn: db.Conn, t: db.Id) -> None:
+    for r in settings.seed("rungs.json", "rungs"):
         conn.execute(
             "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes)"
             " values (%s,%s,%s,%s,%s,%s)"
@@ -229,8 +227,8 @@ def _rungs(conn, t):
         )
 
 
-def _levels(conn, t):
-    for lv in _seed("levels.json", "levels"):
+def _levels(conn: db.Conn, t: db.Id) -> None:
+    for lv in settings.seed("levels.json", "levels"):
         conn.execute(
             "insert into level_rule (tenant_id, band, level, rung_codes,"
             " foundational_rung_code, probe_rung_code) values (%s,%s,%s,%s,%s,%s)"
@@ -248,8 +246,8 @@ def _levels(conn, t):
         )
 
 
-def _misconceptions(conn, t):
-    for m in _seed("misconceptions.json", "misconceptions"):
+def _misconceptions(conn: db.Conn, t: db.Id) -> None:
+    for m in settings.seed("misconceptions.json", "misconceptions"):
         conn.execute(
             "insert into misconception (tenant_id, code, op, name, description, repair_hint,"
             " detectable_by, source, external_ref, skill_from, skill_code)"
@@ -275,8 +273,8 @@ def _misconceptions(conn, t):
         )
 
 
-def _dimensions(conn, t):
-    for i, d in enumerate(_seed("case_dimensions.json", "case_dimensions"), start=1):
+def _dimensions(conn: db.Conn, t: db.Id) -> None:
+    for i, d in enumerate(settings.seed("case_dimensions.json", "case_dimensions"), start=1):
         conn.execute(
             "insert into case_dimension (tenant_id, code, name, description, allowed_values,"
             " dimension_order, source) values (%s,%s,%s,%s,%s,%s,%s)"
@@ -287,8 +285,8 @@ def _dimensions(conn, t):
         )
 
 
-def _taxonomy_cases(conn, t):
-    for c in _seed("taxonomy_cases.json", "taxonomy_cases"):
+def _taxonomy_cases(conn: db.Conn, t: db.Id) -> None:
+    for c in settings.seed("taxonomy_cases.json", "taxonomy_cases"):
         conn.execute(
             "insert into taxonomy_case (tenant_id, code, section, section_name, label, example_text, example,"
             " match, min_items) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -309,11 +307,11 @@ def _taxonomy_cases(conn, t):
         )
 
 
-def _skill_sets(conn, t):
+def _skill_sets(conn: db.Conn, t: db.Id) -> None:
     """Insert only. The seed is the first draft of a set; after that the row belongs to Neha and
     Achal, who edit it in the app. An upsert here would silently overwrite their words and rules
     on the next `engine load` — and they would have no way to know."""
-    for s in _seed("skill_sets.json", "skill_sets"):
+    for s in settings.seed("skill_sets.json", "skill_sets"):
         conn.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
             " philosophy, formats, misconception_codes, difficulty, eval_type)"
@@ -334,8 +332,8 @@ def _skill_sets(conn, t):
         )
 
 
-def _subjects(conn, t):
-    for s in _seed("subjects.json", "subjects"):
+def _subjects(conn: db.Conn, t: db.Id) -> None:
+    for s in settings.seed("subjects.json", "subjects"):
         conn.execute(
             "insert into subject (tenant_id, code, name, verifier, mark_mode) values (%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do update set name=excluded.name,"
@@ -359,7 +357,7 @@ def load_all() -> dict[str, int]:
             _subjects,
         ):
             step(conn, t)
-        topics.load(conn, t, _seed)
+        topics.load(conn, t, settings.seed)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 

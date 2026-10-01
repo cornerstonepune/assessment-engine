@@ -134,7 +134,9 @@ def evaluate(conn, reviewer, gold):
     """
     cases = [c for c in gold["cases"] if c["reviewer"] == reviewer]
     if not cases:
-        return {"cases": 0}
+        raise ValueError(
+            f"no hand-judged case for {reviewer} in validator_gold.json: nothing to score it against"
+        )
     by_ref = {c["ref"]: c for c in cases}
 
     # One call per (skill set, band), each carrying that band's own rule. A harness that sends

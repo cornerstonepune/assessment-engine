@@ -22,6 +22,10 @@ Read it as four parts with hard edges:
 | **n8n** | triggers, sequencing, waits, Drive and WhatsApp I/O, retries, run logs | `n8n/workflows/*.json` |
 | **App** | the six screens a human touches | `apps/web`, Next.js |
 
+The app reaches the engine only through `apps/web/lib/engine.ts`, which takes a path and a body only from
+`lib/engine-routes.ts`: `bin/engine contract` writes that list from the engine's own OpenAPI document, so a route
+the engine does not serve, or a field a route does not take, fails the app's type check (`goals/p1-types-hold.yaml`).
+
 ## 2. Where n8n is — node by node
 
 The workflow's twelve nodes, and who actually executes each. This is the table to argue with, not

@@ -1,14 +1,16 @@
 """The baselines only tighten (goals/p1-the-gates-hold.yaml).
 
 Today's debt is written down and frozen: files over the 400-line ceiling at their size, functions past the
-complexity limits at theirs (`workflows.json`), and the engine's coverage at its floor (`pyproject.toml`). A
+complexity limits at theirs, the maths library's missing annotations at their count (`workflows.json`), and the
+engine's coverage at its floor and its type check at its level (`pyproject.toml`). A
 test holds the code to each number; this holds the numbers to the commit before. A frozen file or function
 may shrink and must never grow, nothing new joins a frozen list, no limit rises, nothing measured stops being
 measured, and the coverage floor never falls. CI runs it against the base of every change (`engine ratchet
 --base <commit>`), so "raise the limit" is a red build, not a quiet edit (CLAUDE.md rule 14).
 
 A baseline written for the first time is today's debt being recorded, not a loosening: a file under a root the
-ceiling did not cover before, and the complexity list on the commit that introduces it.
+ceiling did not cover before, and the complexity list or the type check on the commit that introduces it
+(goals/p1-types-hold.yaml).
 """
 
 import json
@@ -19,12 +21,23 @@ from engine.core import db
 
 MAP = "workflows.json"
 PYPROJECT = "packages/engine/pyproject.toml"
+MODES = ("off", "basic", "standard", "strict")  # pyright's levels, least to most
 
 
 def baselines(map_text: str, pyproject_text: str) -> dict:
     """The numbers a commit holds itself to, from its own `workflows.json` and `pyproject.toml`."""
     m = json.loads(map_text)
-    report = tomllib.loads(pyproject_text).get("tool", {}).get("coverage", {}).get("report", {})
+    tool = tomllib.loads(pyproject_text).get("tool", {})
+    report, pyright = tool.get("coverage", {}).get("report", {}), tool.get("pyright")
+    types = None
+    if pyright is not None and "types" in m:
+        types = {
+            "mode": pyright.get("typeCheckingMode", "standard"),
+            "include": pyright.get("include", []),
+            "strict": pyright.get("strict", []),
+            "unannotated": m["types"]["unannotated"],
+            "frozen": m["types"]["frozen"],
+        }
     return {
         "ceiling": m["ceilings"]["limit"],
         # before the website was measured, the ceiling held the engine's own files alone
@@ -32,6 +45,7 @@ def baselines(map_text: str, pyproject_text: str) -> dict:
         "ceilings": m["ceilings"]["frozen"],
         "complexity": m.get("complexity"),
         "coverage": float(report.get("fail_under", 0)),
+        "types": types,
     }
 
 
@@ -71,9 +85,34 @@ def _complexity(base: dict | None, head: dict | None) -> list[str]:
     return out
 
 
+def _types(base: dict | None, head: dict | None) -> list[str]:
+    if base is None:
+        return []  # the type check is being written down on this commit
+    if head is None:
+        return ["the type check or its frozen counts are gone"]
+    out = []
+    if MODES.index(head["mode"]) < MODES.index(base["mode"]):
+        out.append(f"the type check fell from {base['mode']} to {head['mode']}")
+    out += [f"{root} is no longer type-checked" for root in base["include"] if root not in head["include"]]
+    out += [f"{root} is no longer read strictly" for root in base["strict"] if root not in head["strict"]]
+    out += [
+        f"{rule} now counts as a missing annotation"
+        for rule in head["unannotated"]
+        if rule not in base["unannotated"]
+    ]
+    for f, n in head["frozen"].items():
+        was = base["frozen"].get(f)
+        if was is None:
+            out.append(f"{f} joined the files allowed missing annotations, at {n}: annotate it instead")
+        elif n > was:
+            out.append(f"{f} may have {n} missing annotations, up from {was}")
+    return out
+
+
 def loosened(base: dict, head: dict) -> list[str]:
     """Every way `head` asks less of the code than `base` did; none is the only passing answer."""
     out = _ceilings(base, head) + _complexity(base["complexity"], head["complexity"])
+    out += _types(base.get("types"), head.get("types"))
     if head["coverage"] < base["coverage"]:
         out.append(f"the coverage floor fell from {base['coverage']:g}% to {head['coverage']:g}%")
     return out

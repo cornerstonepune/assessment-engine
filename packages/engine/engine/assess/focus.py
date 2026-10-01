@@ -110,7 +110,7 @@ def home(states, catalog, rule, levels):
         target = rule["stretch"].get(s["state"])
         code = target and skill_set_for(s["skill_code"], s["rung_code"], catalog, rule["reach"])
         level = code and _at_most(target, levels.get(code, ()))
-        if level:
+        if code and level:
             area = Area(code, s["skill_code"], level, s["n_correct"], s["n_events"], None, s["state"])
             strong.append(area)
     strong.sort(key=lambda a: (-(a.right / a.answered if a.answered else 0), -a.answered, a.skill_set))

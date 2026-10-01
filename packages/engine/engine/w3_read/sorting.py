@@ -23,7 +23,7 @@ OURS = re.compile(r"^CS[0-9A-F]{6}$")
 WORKSHEET = re.compile(r"^[RMX]\d{1,2}-[EMHA]\d{2,3}$")  # the library's codes, as the website checks them
 
 
-_QR = zxingcpp.BarcodeFormat.QRCode
+_QR = zxingcpp.BarcodeFormats(zxingcpp.BarcodeFormat.QRCode)
 _BINARIZERS = (
     zxingcpp.Binarizer.LocalAverage,
     zxingcpp.Binarizer.GlobalHistogram,

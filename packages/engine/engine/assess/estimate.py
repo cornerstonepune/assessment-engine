@@ -3,7 +3,7 @@ tolerance of that, the exact answer marked with every mistake the numbers can sh
 someone's answer is close to the estimate."""
 
 from . import misconceptions as M
-from .items import Response, _cells, _item, sample_add, sample_sub
+from .items import Response, cells, item, sample_add, sample_sub
 from .rounding import half_up
 
 NAMES = ["Zoya", "Aarav", "Meera", "Kabir", "Riya", "Dev"]
@@ -26,7 +26,7 @@ def estimate_then_calc(
             "est",
             "digits",
             str(est),
-            cells=_cells(max(est, ans)),
+            cells=cells(max(est, ans)),
             tolerance=tolerance or round_to,
             label="estimate",
         ),
@@ -34,7 +34,7 @@ def estimate_then_calc(
             "ans",
             "digits",
             str(ans),
-            cells=_cells(max(est, ans)),
+            cells=cells(max(est, ans)),
             misconceptions=M.predict(op, a, b),
             label="exact",
         ),
@@ -62,7 +62,7 @@ def estimate_then_calc(
                 misconceptions={"M_COMPARE_ESTIMATE_EXACT": "no" if close else "yes"},
             )
         )
-    return _item(
+    return item(
         "ESTIMATE",
         rung,
         signal,

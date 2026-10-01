@@ -78,8 +78,8 @@ def _ruled(canon, pdf, page_no):
     printed = cv2.resize(_rules(blank(str(pdf), page_no) < PRINTED), size, interpolation=cv2.INTER_AREA)
     marked = cv2.resize(_rules(dark(canon)), size, interpolation=cv2.INTER_AREA)
     grow = np.ones((2 * int(GROW * PPM / COARSE) + 1,) * 2, np.uint8)
-    found = (printed & cv2.dilate(marked, grow)).sum() / max(1, printed.sum())
-    explained = (marked & cv2.dilate(printed, grow)).sum() / max(1, marked.sum())
+    found = cv2.bitwise_and(printed, cv2.dilate(marked, grow)).sum() / max(1, printed.sum())
+    explained = cv2.bitwise_and(marked, cv2.dilate(printed, grow)).sum() / max(1, marked.sum())
     return 0.0 if found + explained == 0 else float(2 * found * explained / (found + explained))
 
 
@@ -174,7 +174,7 @@ def _agreeing(pages, pdf, n):
     they fit most."""
     if len(pages) >= n:
         return sum(agreement(img, pdf, p) for p, img in enumerate(pages[:n], 1))
-    return _placing(pages, pdf)[0]
+    return _placing(pages, pdf)[0] or 0.0  # fewer photographs than pages always measures a run
 
 
 def _theirs(printed, cells, box):
@@ -255,7 +255,7 @@ def photo(canon, cells):
     return cv2.imencode(".png", crop)[1].tobytes()
 
 
-def _back(to_photo, cells, shape, frame, around=2):
+def _back(to_photo, cells, shape, frame, around: float = 2):
     """The run of boxes, `around` mm about it, as (left, top, right, bottom) fractions of the page as it is shown —
     the photograph inside its PDF page (`frame`) — found through the line-up (`lineup.line_up`'s `to_photo`), so the
     approval screen crops exactly where the reading came from, on a curled page too."""
@@ -263,7 +263,7 @@ def _back(to_photo, cells, shape, frame, around=2):
     y0 = min(_px(c)[1] for c in cells) - around * PPM
     x1 = max(_px(c)[2] for c in cells) + around * PPM
     y1 = max(_px(c)[3] for c in cells) + around * PPM
-    xs, ys = to_photo(np.float32([x0, x1, x1, x0]), np.float32([y0, y0, y1, y1]))
+    xs, ys = to_photo(np.array([x0, x1, x1, x0], np.float32), np.array([y0, y0, y1, y1], np.float32))
     h, w = shape[:2]
     fx0, fy0, fx1, fy1 = frame
     left, top = fx0 + (fx1 - fx0) * xs.min() / w, fy0 + (fy1 - fy0) * ys.min() / h

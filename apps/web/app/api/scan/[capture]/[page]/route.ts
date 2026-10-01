@@ -20,6 +20,6 @@ export async function GET(
     return new Response("no such page", { status: 400 });
   }
   const box = new URL(request.url).searchParams.get("box") ?? "";
-  const q = BOX.test(box) ? `?box=${box}` : "";
+  const q: "" | `?box=${string}` = BOX.test(box) ? `?box=${box}` : "";
   return engineImage(`/capture/${capture}/page/${n}.jpg${q}`);
 }

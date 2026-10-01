@@ -105,8 +105,8 @@ def outcome_problems(text):
     lo, hi = OUTCOME_WORDS
     if not lo <= len(words) <= hi:
         problems.append(f"has {len(words)} words, not {lo}–{hi}")
-    if _CODE.search(text):
-        problems.append(f"names a code ({_CODE.search(text).group(0)})")
+    if code := _CODE.search(text):
+        problems.append(f"names a code ({code.group(0)})")
     said = {w.strip(".,;:()'\"").lower() for w in words}
     problems += [f"uses the engine's word {w!r}" for w in NOT_A_TEACHERS_WORD if w in said]
     return problems

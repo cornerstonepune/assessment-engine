@@ -89,7 +89,8 @@ NATIVE_GENERATORS = {
     "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
         rng, rung, signal, one_of(c["op"], rng), c["hi"]),
     "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
-        rng, rung, signal, one_of(c["op"], rng), *c["digits"], set(c["regroups"]), round_to=c.get("round_to", 10),
+        rng, rung, signal, one_of(c["op"], rng), c["digits"][0], c["digits"][1], set(c["regroups"]),
+        round_to=c.get("round_to", 10),
         judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance")),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
         rng, rung, signal, c.get("n_addends", 3), c.get("digits_each", 4)),

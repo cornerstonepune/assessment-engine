@@ -41,7 +41,7 @@ def printed(path) -> tuple[dict, float]:
     the first "working" or "Answer" label, or the next question, or the footer. Numbers are found top to bottom
     as they sit on the page, not in the order the PDF happens to store its text."""
     out, n, band = {}, 1, 0.0
-    for p, page in enumerate(pymupdf.open(path), 1):
+    for p, page in enumerate(pymupdf.open(path).pages(), 1):
         words = sorted(page.get_text("words"), key=lambda w: (w[5], w[6], w[7]))
         if not words:
             continue

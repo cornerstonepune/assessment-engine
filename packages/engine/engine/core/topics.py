@@ -3,8 +3,13 @@ level). Rows from supabase/seed/topics.json; which skills a topic holds is that 
 placed on each load — unlike its words, which belong to the educators once loaded. Only a topic marked `taught`
 shows on the site or on a child's paper: the others keep their questions, out of sight, until the school teaches them."""
 
+from collections.abc import Callable
+from typing import Any
 
-def load(conn, tenant, seed) -> None:
+from engine.core import db
+
+
+def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
     """Every topic, in its order, and each skill set's topic. A skill set in no topic, or in two, is refused:
     the tree would lose it or show it twice."""
     topics = seed("topics.json", "topics")

@@ -7,12 +7,17 @@ it — and is read by path.
 """
 
 import json
+from collections.abc import Sequence
 from pathlib import Path
+from typing import TypedDict
+from uuid import UUID
 
 from engine.core import db
 
+Loaded = TypedDict("Loaded", {"added": int, "already known": int, "grade changed": list[str]})
 
-def load(path: Path) -> dict:
+
+def load(path: Path) -> Loaded:
     """Upsert children from a roster file → how many were added, how many already existed, and each child whose
     grade it changed, by class and roll: the list is the only thing that sets a child's band, and one loaded again
     with an old slip in it (G3 roll 5 as G4, 2026-09-30) would undo a correction unseen.
@@ -23,20 +28,21 @@ def load(path: Path) -> dict:
     """
     children = json.loads(Path(path).read_text())["children"]
     added = updated = 0
-    changed = []
+    changed: list[str] = []
     with db.connect() as conn:
-        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
         for c in children:
             key = (tenant, c["section"], str(c["roll_no"]))
             was = conn.execute(
                 "select band from child where tenant_id = %s and section = %s and roll_no = %s", key
             ).fetchone()
-            row = conn.execute(
+            row = db.one(
+                conn,
                 "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,%s)"
                 " on conflict (tenant_id, section, roll_no) do update set band = excluded.band,"
                 " updated_at = now() returning id, (xmax = 0) as inserted",
                 (tenant, str(c["roll_no"]), c["section"], c["band"]),
-            ).fetchone()
+            )
             added, updated = (added + 1, updated) if row["inserted"] else (added, updated + 1)
             if was and was["band"] != c["band"]:
                 changed.append(f"{c['section']} roll {c['roll_no']}: {was['band']} → {c['band']}")
@@ -52,7 +58,7 @@ def load(path: Path) -> dict:
     return {"added": added, "already known": updated, "grade changed": changed}
 
 
-def class_band(conn, section):
+def class_band(conn: db.Conn, section: str) -> str | None:
     """The grade a class works at: the one most of its active children are in, the lower on a tie, so the same every
     time. A child may work at another grade within a class, and is prescribed at their own (`test_week`); a class's
     week is its own grade's. `limit 1` over the class took whichever child came first, so one child entered in the
@@ -61,13 +67,13 @@ def class_band(conn, section):
         "select band from child where section = %s and active group by band order by count(*) desc, band limit 1",
         (section,),
     ).fetchone()
-    return row and row["band"]
+    return row["band"] if row else None
 
 
-def names(conn, child_ids: list[str], actor: str) -> dict[str, str]:
+def names[K: (UUID, str)](conn: db.Conn, child_ids: Sequence[K], actor: str) -> dict[K, str]:
     """Names for printing on a worksheet, through the logging accessor — every read is recorded
     in `access_log` with who asked. Nothing else in the engine may touch `pii.child` directly."""
-    out = {}
+    out: dict[K, str] = {}
     for cid in child_ids:
         row = conn.execute("select * from pii.read_child(%s, %s)", (cid, actor)).fetchone()
         if row:
@@ -75,7 +81,7 @@ def names(conn, child_ids: list[str], actor: str) -> dict[str, str]:
     return out
 
 
-def find(conn, section: str, first_name: str, actor: str) -> str:
+def find(conn: db.Conn, section: str, first_name: str, actor: str) -> UUID:
     """The child id for a first name in a section, for the legacy importer's `--child`. The lookup
     is logged like a read, because it is one."""
     rows = conn.execute(

@@ -8,7 +8,7 @@ from engine.assess import misconceptions as M
 from engine.assess import verify
 from engine.assess.items import Item, Response
 from engine.assess.layout import WORKING_LINES
-from engine.assess.pick import Sheet, _sheet_id
+from engine.assess.pick import Sheet, sheet_id
 from engine.assess.render import render_sheet
 from engine.w1_bank import cases
 
@@ -174,7 +174,7 @@ def sheet(conn, code, difficulty, n, outdir, seed=1, pw=None):
     chosen = random.Random(seed).sample(rows, n)
     name = conn.execute("select name from skill_set where code = %s", (code,)).fetchone()["name"]
     sh = Sheet(
-        _sheet_id(code, difficulty, seed, "bank"),
+        sheet_id(code, difficulty, seed, "bank"),
         chosen[0]["band"],
         difficulty,
         seed,
