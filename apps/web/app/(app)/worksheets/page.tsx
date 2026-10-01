@@ -5,10 +5,12 @@ import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } f
 import { approvePack, overrideChild } from "./actions";
 import { Library } from "./library";
 import { deadline } from "@/lib/deadline";
+import { requireStaff } from "@/lib/auth";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 export default async function WorksheetsPage({ searchParams }: Props) {
+  await requireStaff();
   const q = await searchParams;
   const all = await deadline(weeks());
 

@@ -4092,3 +4092,46 @@ so papers had to survive a deploy first.
 - **Known gap, Phase 1:** Vercel still publishes the website on the merge itself. Website code that reads a new table
   can therefore reach live up to one CI run (about 15 minutes) before `migrate live` adds the table. Before this
   change, the two started together.
+
+## Phase 0, PR 2: every page checks who asks; one answer counts once; one roll order (2026-10-01)
+
+Steps P0.2 and P0.5 of the plan Nimish approved ("go ahead with phase 0").
+
+- **Every page checks who asks** (`goals/p0-every-page-checks-who-asks.yaml`).
+  - Nine pages relied on the `(app)` layout's check. Next 16's auth guide says a layout neither re-renders on
+    navigation nor stops the page rendering into its payload. Each page now calls `requireStaff` itself.
+  - `proxy.ts` turns away a request with no good session cookie before anything renders: pages go to sign-in, API
+    routes answer 401. The cookie is read by `lib/session-cookie.ts`, which touches no database.
+  - `currentStaff` runs once per request (React `cache`) and no longer carries the password hash.
+  - Honest scope: a forged request against main answered 500, not data. The leak was never shown; this closes the
+    documented risk.
+- **One answer counts once** (`goals/p0-one-answer-counts-once.yaml`).
+  - A right answer writes an evidence row per skill its question tests. A real three-skill question counted as 3
+    answers in the parent report.
+  - The new view `answer_placed` has one row per signed-off answer, from its latest batch.
+  - What now reads it:
+    - the report card's per-skill-set counts;
+    - the parent report: answers, wrong, blank, "improving", and the "can do" and "nearly" scores, which were per-skill
+      sums;
+    - a child's answer count;
+    - `engine live data`.
+  - Per-skill counts (the class grid, the graph's states) stay per skill, as they should.
+- **The split:** `parent_report.py` reached 401 lines against the 400 ceiling. What a report may say (`facts` and its
+  counting) moved to `w4_close/parent_facts.py`, which `workflows.json` places on the same step. Drafting, review and
+  approval stay in `parent_report.py` (230 lines), and `parent_report.facts` still answers.
+- **One roll order** (same goal).
+  - `roll_order(text)`: by the roll's first number, a roll with none last.
+  - It replaces 12 copies. Three web copies sent `'\D'` as `'D'`, so "12A" broke `::int`, and `card.py` sorted "10"
+    before "2". The JS sort in `capture/views.tsx` matches it.
+- **Checks:**
+  - `test_web_gate.py`: 2 of 4 failed before (9 pages, no proxy); 4 passed after.
+  - The gate suite passed 10, including a payload request and an API request without a session. The payload test
+    fails on main's code.
+  - `test_parent_report.py`: the new test failed (3 answers for 1) before and passes after; the file passed 25.
+  - `test_roll_order.py`: 2 passed; the static half failed on main with 15 lines.
+  - u6: the card's numbers are now checked against the answers themselves, with a two-skill answer in the fixture.
+    The old row count shows "17 right" against 16, and the test fails.
+  - The 23 engine test files that touch these modules passed 315.
+  - The full browser suite passed 123. As before, 1 failed (s7, which needs live's G2 class), 6 were skipped and 2
+    did not run.
+  - `tsc`, eslint and `bin/check` passed.

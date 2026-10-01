@@ -4,12 +4,14 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { levelsOf, skillSet } from "@/lib/queries";
 import { saveWords } from "../actions";
+import { requireStaff } from "@/lib/auth";
 
 type Props = { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
 // The words of one skill, and nothing else: what a teacher can change without knowing how the
 // engine checks a question. Saving sends the skill back for approval.
 export default async function EditSkillWords({ params, searchParams }: Props) {
+  await requireStaff();
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const s = await deadline(skillSet(code));
   if (!s) notFound();

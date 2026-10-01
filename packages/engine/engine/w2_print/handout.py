@@ -44,7 +44,7 @@ def for_children(conn, code: str, child_ids: list, week: str, by: str, outdir: P
         )
     kids = conn.execute(
         "select id, roll_no, section from child where id = any(%s) and active"
-        " order by section, coalesce(nullif(regexp_replace(roll_no, '\\D', '', 'g'), '')::int, 9999), roll_no",
+        " order by section, roll_order(roll_no), roll_no",
         (list(child_ids),),
     ).fetchall()
     if len(kids) != len(set(map(str, child_ids))):

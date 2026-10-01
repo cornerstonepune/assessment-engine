@@ -3,6 +3,7 @@ import { Body, Notice, PageHeader } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { curriculumRows } from "@/lib/queries-curriculum";
 import { CurriculumTable } from "./curriculum-table";
+import { requireStaff } from "@/lib/auth";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -11,6 +12,7 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 // and whether it is taught. A skill opens its page, where its levels, questions and worksheets are read, edited and
 // approved; a skill waiting for approval says so on its row.
 export default async function CurriculumPage({ searchParams }: Props) {
+  await requireStaff();
   const q = await searchParams;
   const { rows } = await deadline(curriculumRows());
   const waiting = rows.filter((r) => r.draft).length;

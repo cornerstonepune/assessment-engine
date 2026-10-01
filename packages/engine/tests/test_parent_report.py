@@ -15,6 +15,7 @@ import pytest
 
 from engine.core import db
 from engine.w4_close import parent_report as P
+from engine.w4_close import report
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 NAME = "Riaparentreport"
@@ -343,7 +344,7 @@ def test_what_the_first_eval_on_live_found_is_caught_or_let_through_as_it_should
 def test_what_the_v3_eval_on_live_found_the_facts_now_say_and_the_check_catches(conn, child, monkeypatch):
     """2026-09-28, v3 on live, 10 of 10 held to their facts, and a person reading them found: "can do X" and "will
     practise X next" to the same parent; "over this week" for answers over more days; "leave four questions blank"."""
-    real = P.report.build
+    real = report.build
 
     def secure_next(conn, child_id, since=None):
         rep = real(conn, child_id, since)
@@ -352,7 +353,7 @@ def test_what_the_v3_eval_on_live_found_the_facts_now_say_and_the_check_catches(
             "next": {"skill_set": "ADD.2D1D", "level": "Hard", "mistake": None, "state": "stretch_ready"},
         }
 
-    monkeypatch.setattr(P.report, "build", secure_next)
+    monkeypatch.setattr(report, "build", secure_next)
     f = P.facts(conn, child)
     assert f["next"]["why"].startswith("secure already") and f["next"]["level"] == "Hard"
     assert "questions_the_child_left_blank" in f["on_the_papers"]
@@ -715,3 +716,52 @@ def test_a_question_the_words_name_is_the_childs_own_and_an_improving_skill_read
         "[child] can add two two-digit numbers.",
     ):
         assert any("ADD.2D2D" in p for p in said(ok4, summary=f"{right} {plain}")), plain
+
+
+def test_one_answer_to_a_question_of_two_skills_counts_once(conn):
+    """A right answer is evidence for every skill its question tests, so a sign-off writes a row per skill
+    (`answer_evidence`). The report counts answers: on 2026-09-30 it counted rows, so a right answer on a question of
+    two skills was two right answers to a parent, and a wrong one was one (goals/p0-one-answer-counts-once.yaml)."""
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    item = conn.execute(
+        "select id, skill_codes, responses -> 0 ->> 'rid' as rid from item"
+        " where status = 'active' and source = 'generated' and cardinality(skill_codes) > 1 order by item_key limit 1"
+    ).fetchone()
+    assert item, "the bank holds no question of two skills"
+    kid = conn.execute(
+        "insert into child (tenant_id, roll_no, section, band) values (%s, '1', 'ONE-ANSWER', 'G2') returning id",
+        (t,),
+    ).fetchone()["id"]
+    conn.execute("insert into pii.child (tenant_id, child_id, first_name) values (%s, %s, 'Onea')", (t, kid))
+    tpl = conn.execute(
+        "insert into sheet_template (tenant_id, band, child_id, week) values (%s, 'G2', %s, 'ONE-ANSWER') returning id",
+        (t, kid),
+    ).fetchone()["id"]
+    inst = conn.execute(
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
+        " values (%s, %s, %s, %s, 'returned') returning id",
+        (t, f"OA-{str(kid)[:8]}", tpl, kid),
+    ).fetchone()["id"]
+    cap = conn.execute(
+        "insert into capture (tenant_id, path, pages, sheet_instance_id, status) values (%s, 'oa', 1, %s, 'processed')"
+        " returning id",
+        (t, inst),
+    ).fetchone()["id"]
+    res = conn.execute(
+        "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state)"
+        " values (%s, %s, %s, %s, '{}', 'correct', 'candidate') returning id",
+        (t, cap, item["id"], item["rid"]),
+    ).fetchone()["id"]
+    conn.execute("select confirm_results(%s, 'test', %s)", (kid, cap))
+
+    rows = conn.execute(
+        "select count(*) as n from evidence_event where item_result_id = %s", (res,)
+    ).fetchone()["n"]
+    assert rows == len(item["skill_codes"]) > 1, (
+        "a sign-off no longer writes a row per skill; this test reads nothing"
+    )
+    assert (
+        conn.execute("select count(*) as n from answer_placed where child_id = %s", (kid,)).fetchone()["n"]
+        == 1
+    )
+    assert P.facts(conn, kid)["answers"] == 1

@@ -32,7 +32,7 @@ HOW = {"graph": focus_paper.HOW["focus"], "educator": focus_paper.HOW["custom"]}
 NO_STEP = (
     "no next step to go on yet: too few checked answers, or no question left they have not seen — choose one"
 )
-ROLL = "coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no"
+ROLL = "roll_order(c.roll_no), c.roll_no"
 
 
 def _class(conn, section: str, children: list) -> list:

@@ -17,6 +17,7 @@ import { levelExamples, skillKinds, skillMistakes } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills, saveGrades } from "./actions";
+import { requireStaff } from "@/lib/auth";
 
 type Props = {
   params: Promise<{ code: string }>;
@@ -36,6 +37,7 @@ const fmtDate = (d: string) =>
 // real question from the bank, the kinds of question that test it, the mistakes it watches for, and
 // its worksheets. Codes are provenance at the foot of the page, never the lead.
 export default async function SkillPage({ params, searchParams }: Props) {
+  await requireStaff();
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = DIFFICULTIES.find((d) => d === q.level);
   const [sets, examples, kinds, caught, book, sheets] = await deadline(

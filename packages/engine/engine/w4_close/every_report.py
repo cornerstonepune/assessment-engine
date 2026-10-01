@@ -17,7 +17,7 @@ def due(conn, band=None):
         "select c.id, c.band, c.section, c.roll_no from child c where c.active"
         " and (%(b)s::text is null or c.band = %(b)s)"
         " and exists (select 1 from evidence_event e where e.child_id = c.id and e.confirmed_by is not null)"
-        " order by c.band, c.section, nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int nulls last, c.roll_no",
+        " order by c.band, c.section, roll_order(c.roll_no), c.roll_no",
         {"b": band},
     ).fetchall()
     out = []

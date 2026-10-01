@@ -26,7 +26,7 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     children = conn.execute(
         "select id, roll_no, band from child where section = %s and active order by"
-        " coalesce(nullif(regexp_replace(roll_no, '\\D', '', 'g'), '')::int, 9999), roll_no",
+        " roll_order(roll_no), roll_no",
         (section,),
     ).fetchall()
     if not children:

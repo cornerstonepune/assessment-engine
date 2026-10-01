@@ -5,10 +5,12 @@ import { gradeWords } from "@/lib/queries";
 import { homeByClass } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek } from "@/lib/week";
+import { requireStaff } from "@/lib/auth";
 
 // Make papers (goals/m1-make-papers.yaml): each class's home papers for the week, proposed by the engine from each
 // child's own map; a class opens where they are approved, and where a paper is chosen for any one child.
 export default async function MakePapers() {
+  await requireStaff();
   const [classes, packs] = await deadline(Promise.all([homeByClass(), classPacksWaiting()]));
   return (
     <>

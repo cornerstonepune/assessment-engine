@@ -55,7 +55,7 @@ def papers(conn, section: str, week: str, kind: str) -> list[dict]:
         " from sheet_instance si left join child c on c.id = si.child_id"
         f" where si.print_status <> 'void' and {_IN_PACK}"
         " order by si.child_id is null,"
-        "   coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no, si.qr_code",
+        "   roll_order(c.roll_no), c.roll_no, si.qr_code",
         {"week": week, "section": section, "kind": kind},
     ).fetchall()
 

@@ -14,6 +14,25 @@ for (const route of ROUTES) {
   });
 }
 
+// A page's server payload asked for the way the client router asks for it, from a client that says it already holds
+// the (app) layout. Next 16's auth guide warns a layout's check does not stop the page rendering into this payload;
+// before proxy.ts this request reached Next's own handling (on 2026-10-01 it answered a 500, not data, so the leak was
+// never shown). Now nothing without a good session gets that far (goals/p0-every-page-checks-who-asks.yaml).
+test("no session: a page's server payload, asked for past its layout, is turned away before the page renders", async ({ request }) => {
+  const holding = ["", { children: ["(app)", { children: ["__PAGE__", {}] }] }, null, null, true];
+  const res = await request.get("/worksheets", {
+    headers: { RSC: "1", "Next-Router-State-Tree": encodeURIComponent(JSON.stringify(holding)) },
+    maxRedirects: 0,
+  });
+  expect(res.status()).toBe(307);
+  expect(res.headers()["location"]).toMatch(/\/login$/);
+});
+
+test("no session: an API route answers 401 before it reads anything", async ({ request }) => {
+  const res = await request.get("/api/see/00000000-0000-0000-0000-000000000000", { maxRedirects: 0 });
+  expect(res.status()).toBe(401);
+});
+
 test("a wrong password is refused and you stay on the sign-in page", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("School email").fill("nimish.shah1989@gmail.com");

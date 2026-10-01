@@ -36,7 +36,8 @@ def _weakest(states):
 
 def _children(conn, section):
     return conn.execute(
-        "select id, roll_no, band from child where section = %s and active order by roll_no", (section,)
+        "select id, roll_no, band from child where section = %s and active order by roll_order(roll_no), roll_no",
+        (section,),
     ).fetchall()
 
 

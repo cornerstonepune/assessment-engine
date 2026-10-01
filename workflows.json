@@ -146,7 +146,7 @@
       "built": "partly",
       "takes": ["child_skill_state"],
       "gives": ["report_item", "parent_note"],
-      "files": ["engine/w4_close/report.py", "engine/w4_close/cli_report.py", "engine/w4_close/parent_report.py", "engine/w4_close/parent_check.py", "engine/w4_close/parent_review.py", "engine/w4_close/every_report.py"],
+      "files": ["engine/w4_close/report.py", "engine/w4_close/cli_report.py", "engine/w4_close/parent_report.py", "engine/w4_close/parent_facts.py", "engine/w4_close/parent_check.py", "engine/w4_close/parent_review.py", "engine/w4_close/every_report.py"],
       "commands": ["engine report child", "engine report gold", "engine report parents", "engine eval"],
       "screens": ["/growth/[id]/report", "/growth/[id]/parent"],
       "subject": {"any": true, "note": "Any subject: the report reads only the graph, the evidence and the named mistakes. Built: the report computed from confirmed evidence and read back against Aseem's findings (goals/w4b-report.yaml); the report card (goals/u6-report-card.yaml); the parent report, written by a model from computed facts, held to them by code and approved by an educator (goals/w4c-parent-report.yaml); not built: the class trend, sending it to a parent."}
