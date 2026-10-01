@@ -68,3 +68,22 @@ def test_the_engines_data_folder_is_on_the_servers_disk():
     assert on_disk, "the engine's data folder lives in the container and goes with every rebuild"
     host, _, mode = on_disk[0].partition(":")
     assert host.startswith("${HOME}/") and not mode.endswith(":ro"), on_disk[0]
+
+
+def test_live_is_watched_every_ten_minutes_from_outside_the_server():
+    """watch-live.yml asks the engine what is wrong on the server, checks both public doors, and tells Nimish by an
+    issue that mentions him; the server's address is masked, because the repository's logs are public
+    (goals/p2-live-is-watched.yaml)."""
+    spec = _load(WORKFLOWS / "watch-live.yml")
+    assert _on(spec)["schedule"] == [{"cron": "*/10 * * * *"}]
+    script = "\n".join(s.get("run", "") for s in spec["jobs"]["watch"]["steps"])
+    for needed in (
+        "engine live watch",
+        "::add-mask::",
+        "/health",
+        "/login",
+        "@nimishshah1989",
+        "gh issue close",
+    ):
+        assert needed in script, needed
+    assert spec["permissions"]["issues"] == "write"

@@ -18,13 +18,16 @@ pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DAT
 ROLES = ("app_web", "app_engine")
 WRITES = ("INSERT", "UPDATE", "DELETE", "TRUNCATE")
 # Every write the website makes (apps/web/app and lib, each `insert into` and `update`): a person's reading or
-# judgement, an override of a prescription, a skill set edited or approved, the approved table of mistakes' charges.
+# judgement, an override of a prescription, a skill set edited or approved, the approved table of mistakes' charges,
+# and an error a page raised.
 WEB_WRITES = {
     "public.read_correction": {"INSERT"},
     "public.item_result": {"UPDATE"},
     "public.prescription": {"UPDATE"},
     "public.skill_set": {"UPDATE"},
     "public.config": {"UPDATE"},
+    # an error a page raised, for the live watcher (goals/p2-live-is-watched.yaml)
+    "public.web_error": {"INSERT"},
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name.
 WEB_CALLS = {"confirm_results", "resolve_result", "roll_order", "read_child"}

@@ -3,6 +3,22 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 2, PR 1: live is watched
+
+- **`engine live watch` and `watch-live.yml`** (every 10 minutes) open the issue "Live needs a look". A limit is a
+  `watch.*` threshold row.
+- **Ponytail's rules are on** (Nimish, 2026-10-01: https://github.com/dietrichgebert/ponytail): the laziest solution
+  that works. A `ponytail:` comment names each deliberate corner and when it would need more.
+- **Phase 2's remaining PRs, trimmed by those rules:**
+  - a restart marks every dead run; a rollback is a commit given to the deploy; the rebuild lock; a login limit;
+  - one owner per rule;
+  - dead code out, and no state shown by colour alone;
+  - docs.
+- **Owed by Nimish:**
+  - confirm that Supabase backups are on;
+  - switch to the roles (STATE.md "Phase 1, PR D");
+  - decide the repository's visibility: a child's first name is in its public history.
+
 ## 2026-10-01 — Phase 1 closed: the loose ends
 
 - **`read_cells` and `word_context` are inactive.** No engine code ever asked for either, and neither had an eval.

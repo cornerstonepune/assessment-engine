@@ -1,10 +1,13 @@
 """Is the live website answering? `engine live check` — the evidence a step closes on (BUILD-ORDER,
 "Now: five steps"). Its own module so `cli.py` stays one screen per workflow."""
 
+import shutil
+
 import typer
 
-from engine.checks import live
+from engine.checks import live, watch
 from engine.checks import live_data as live_data_module
+from engine.core import db
 
 live_app = typer.Typer(help="The live website, read from its own logs", no_args_is_help=True)
 
@@ -55,3 +58,15 @@ def live_homes(
     for section, roll, what in rows:
         typer.echo(f"  {section:<6}{roll:>4}  {what}")
     typer.echo(f"  {len(rows)} children · {sum('×' in w for _, _, w in rows)} with a proposed paper")
+
+
+@live_app.command("watch")
+def live_watch() -> None:
+    """What is wrong on live now, one line each: runs stuck or failed, website errors, the disk nearly full. Run on the
+    server every ten minutes by watch-live.yml; exits 1 when anything is wrong."""
+    with db.connect() as conn:
+        lines = watch.problems(conn, shutil.disk_usage(db.REPO_ROOT).free)
+    for line in lines:
+        typer.echo(line)
+    if lines:
+        raise typer.Exit(1)

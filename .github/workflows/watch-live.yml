@@ -1,0 +1,58 @@
+# Live, watched from outside the server every ten minutes (goals/p2-live-is-watched.yaml). The code review of
+# 2026-09-30: "Nobody is told when the engine is down or marking badly." What is wrong is the engine's to say
+# (`engine live watch`, run on the server); this file asks it, checks the two public doors answer, and tells Nimish
+# through an issue that mentions him: opened when something is wrong, kept current while it is, closed when all is
+# well. The repository is public, so the issue carries only what these steps print, never the server's address.
+# ponytail: GitHub can start a scheduled run late under load; an outside uptime service if minutes ever matter.
+name: watch live
+
+on:
+  schedule: [{ cron: "*/10 * * * *" }]
+  workflow_dispatch:
+
+permissions: { contents: read, issues: write }
+
+concurrency: { group: watch-live, cancel-in-progress: true }
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: what is wrong on live
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+          WEB: https://cornerstone-assessment.vercel.app
+        # Asked twice a minute apart before anything is said: a deploy restarts the engine for a few seconds.
+        run: |
+          engine="${HOST//./-}.sslip.io"
+          echo "::add-mask::$engine"
+          install -m 700 -d ~/.ssh && printf '%s\n' "$KEY" > ~/.ssh/server && chmod 600 ~/.ssh/server
+          look() {
+            : > problems.txt
+            if ! ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" \
+                 'sudo docker exec deploy-engine-1 engine live watch' > said.txt 2>/dev/null; then
+              if [ -s said.txt ]; then cat said.txt >> problems.txt
+              else echo "the engine could not be asked: the server or its container is down" >> problems.txt; fi
+            fi
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://$engine/health" || true)
+            [ "$code" = 200 ] || echo "the engine's public address answered $code, not 200" >> problems.txt
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$WEB/login" || true)
+            [ "$code" = 200 ] || echo "the website's sign-in page answered $code, not 200" >> problems.txt
+          }
+          look
+          if [ -s problems.txt ]; then sleep 60; look; fi
+          cat problems.txt
+      - name: tell Nimish
+        env: { GH_TOKEN: "${{ github.token }}", GH_REPO: "${{ github.repository }}" }
+        run: |
+          open=$(gh issue list --label live-watch --state open --json number --jq '.[0].number // empty')
+          if [ ! -s problems.txt ]; then
+            [ -z "$open" ] || gh issue close "$open" --comment "All well again at $(date -u '+%d %b %H:%M') UTC."
+            exit 0
+          fi
+          body=$(printf '@nimishshah1989 live needs a look (checked %s UTC):\n\n' "$(date -u '+%d %b %H:%M')"; sed 's/^/- /' problems.txt)
+          if [ -n "$open" ]; then gh issue edit "$open" --body "$body"; exit 0; fi
+          gh label create live-watch --color B60205 --description "opened and closed by watch-live.yml" 2>/dev/null || true
+          gh issue create --title "Live needs a look" --label live-watch --body "$body"
