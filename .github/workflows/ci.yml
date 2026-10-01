@@ -25,7 +25,9 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
       TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
+      # the whole history, for the ratchet below to read the baselines of the commit this change starts from
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: astral-sh/setup-uv@v5
       # The server builds with `uv sync --frozen`, which installs the lockfile and nothing else. A
       # lock missing boto3 passed every check here (a fresh resolve found it) and the deployed
@@ -34,6 +36,10 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run ruff format --check engine tests
       - run: uv run ruff check engine tests
+      # Today's debt is frozen in workflows.json and pyproject.toml (files over 400 lines, functions past the
+      # complexity limits, the coverage floor); a change may tighten each number and never loosen it
+      # (goals/p1-the-gates-hold.yaml). The base is the pull request's, or the commit main was at before a push.
+      - run: uv run engine ratchet --base "${{ github.event.pull_request.base.sha || github.event.before }}"
       # A paper is printed through Chromium (assess/render.py); the test that scans printed papers needs it.
       - run: uv run playwright install --with-deps chromium
       # The digit reader's models (ADR 0035, ~135 MB): test_digits and test_boxes run the real reader.
@@ -48,7 +54,8 @@ jobs:
           path: data/spine_sources
           key: spine-sources-${{ hashFiles('docs/spine/sources/official_documents.json') }}
       - run: ../../bin/testdb fresh "$DATABASE_URL"
-      - run: uv run pytest -q
+      # Coverage below the floor in pyproject.toml ([tool.coverage.report] fail_under) fails the run.
+      - run: uv run pytest -q --cov=engine --cov-report=term:skip-covered
 
   web:
     runs-on: ubuntu-latest
@@ -63,6 +70,8 @@ jobs:
       # 'LayoutProps'" while the engine job stayed green — and nobody was looking.
       - run: npx next typegen
       - run: npx tsc --noEmit
+      # Every warning is an error here: lint ran nowhere until 2026-10-01 (goals/p1-the-gates-hold.yaml).
+      - run: npx eslint --max-warnings 0
       # No DATABASE_URL, as on Vercel's previews: a page's import must never touch the database (lib/db.ts). One did
       # (lib/queries-papers.ts, a fragment built at import), and every preview failed from #140 to #143 while this
       # build, handed a URL, passed.

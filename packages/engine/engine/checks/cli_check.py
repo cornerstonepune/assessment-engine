@@ -24,6 +24,7 @@ def register(app: typer.Typer) -> None:
     app.command()(goal)
     app.command()(done)
     app.command()(promises)
+    app.command()(ratchet)
     spec_app = typer.Typer(help="The skill-set specs, as a person reads them", no_args_is_help=True)
     spec_app.command("outcomes")(outcomes)
     app.add_typer(spec_app, name="spec")
@@ -126,6 +127,19 @@ def done(name: str = typer.Argument(..., help="A goal in goals/")) -> None:
     for line in lines:
         _say(line)
     if not ok:
+        raise typer.Exit(1)
+
+
+def ratchet(base: str = typer.Option(..., help="The commit whose baselines this one may not loosen")) -> None:
+    """The baselines only tighten: the frozen files and functions, the limits and the coverage floor, held
+    against commit `base` (goals/p1-the-gates-hold.yaml). Exits 1 on any loosening."""
+    from engine.checks import ratchet as rules
+
+    found = rules.against(base)
+    for p in found:
+        _say(f"  FAIL  {p}", err=True)
+    _say(f"  {len(found)} baseline(s) loosened" if found else "  every baseline held or tightened")
+    if found:
         raise typer.Exit(1)
 
 

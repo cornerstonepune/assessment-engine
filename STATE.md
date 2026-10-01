@@ -4199,3 +4199,36 @@ found 15 defects in the maker, the colours and the curriculum. PR 2 fixed one (t
     - 7 were skipped and 7 did not run (the rest of e2e's G3 tests, s4 without its readings, s7's).
   - `tsc` and eslint (`app lib components tests proxy.ts`, 0 warnings) passed. `bin/check` passed.
   - `engine promises`: every promise has its command.
+
+## Phase 1, PR A: the gates hold (2026-10-01)
+
+Nimish: "go ahead with phase 1". The first of Phase 1's five PRs (`goals/p1-the-gates-hold.yaml`).
+
+- **Web lint in CI.** The web job runs `npx eslint --max-warnings 0`, which ran nowhere before. The browser tests'
+  build output (`.next-test`, `test-results`, `playwright-report`) is ignored.
+- **A coverage floor.**
+  - The engine job runs `pytest --cov=engine`, and `[tool.coverage.report] fail_under = 79` fails a run under it.
+  - Measured here today: 79.57% of 10,239 statements, 1,325 tests.
+  - Coverage uses Python 3.12's `sys.monitoring` (`core = "sysmon"`): the suite took 681 s, against about 590 s
+    without coverage. The default tracer was too slow to finish.
+- **The ceiling covers the website.** `workflows.json` `ceilings.covers` names `engine/` and `apps/web/`. The
+  website's only file over 400 lines, `tests/e2e.spec.ts`, is frozen at its 466.
+- **Complexity has a baseline.** ruff measured 30 functions past C901 10 or PLR0915 50; each is frozen in
+  `workflows.json` `complexity.frozen` at today's measure, and `test_layout.py` holds every function to the
+  limits or its frozen measure. The worst: `ocr.answers_for` (28 branches, 78 statements), `render.render_item`
+  (28, 90) and `parent_check.check` (26, 51).
+- **The ratchet.** `engine ratchet --base <commit>` (`engine/checks/ratchet.py`) fails when a limit rises, a
+  frozen number grows, anything new is frozen, a measured root is dropped, or the coverage floor falls. CI runs
+  it against the pull request's base, or main's previous commit. `bin/check` runs its tests against HEAD.
+- **The `-qq` problem.** The pyproject's `addopts = "-q"` is gone. With a criterion's own `-q` it made `-qq`,
+  which prints no "passed", so 11 goal criteria could never pass.
+- **Checks:**
+  - Each gate fails on a planted violation:
+    - a lint warning: eslint exits 1;
+    - a 401-line web file: "apps/web/lib/long.ts has 401 lines";
+    - one more branch in a frozen function: "learned_rules.py::answer measures C901 15, past 14";
+    - a frozen size raised in the map: the ratchet exits 1;
+    - main's pyproject: the criterion test fails;
+    - main's ci.yml: 3 of the CI tests fail.
+  - `test_gates.py`, `test_ratchet.py` and `test_layout.py`: 17 passed. `bin/check` passed.
+  - The full engine suite under coverage: 1,325 passed.

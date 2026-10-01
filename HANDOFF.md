@@ -3,6 +3,25 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 1 of the code review: PR A (the gates hold)
+
+- **Phase 0 is merged and live** (#144, #145, #146): every deploy waited for CI. `engine done` proves 26 of 26 of
+  Nimish's promises; it says NOT DONE only because this container cannot read live's migrations table.
+- **Phase 1** (Nimish: "go ahead with phase 1") is five PRs, each with its goal:
+  - **A (this one):** `goals/p1-the-gates-hold.yaml`. CI lints the website with 0 warnings and holds the engine's
+    coverage to a floor. The 400-line ceiling now measures the website too. Today's 30 over-complex functions
+    are frozen in `workflows.json`. `engine ratchet --base` holds each frozen number and the floor to the
+    change's base commit. The pyproject's extra `-q` is gone, so a `pytest -q` criterion can print "passed".
+  - **B:** the browser suite in CI on a fresh database, with 0 skipped. s7 needs its own class; e2e's G3 week
+    tests and s4's readings must seed their own rows (`tests/rows.py` shows how the engine tests do it).
+  - **C:** pyright strict on `assess/` and `core/`, with a ratchet on untyped arguments; the engine's OpenAPI
+    schema as a contract the website's calls are typed against.
+  - **D:** least-privilege database roles. Anything that needs a password is Nimish's step, written down.
+  - **E:** `engine done` runs each goal's criteria and scenarios; every model eval's bar becomes a threshold row.
+- **The cloud container restarts between sessions**, and nothing starts its local Postgres again (the copy lives in
+  `/var/tmp/pg16-engine`). Before any test that reads the database:
+  `su postgres -c "setsid /usr/lib/postgresql/16/bin/pg_ctl -D /var/tmp/pg16-engine/data -o '-p 55432 -k /var/tmp/pg16-engine -c listen_addresses=127.0.0.1' -l /var/tmp/pg16-engine/log start"`
+
 ## 2026-10-01 — Phase 0 of the code review: PR 3 of 3 (the maker makes what it shows)
 
 - **PR 1 (#144) and PR 2 (#145) are merged.** PR 1's deploy chain ran on live: CI, then the migration, then the engine
