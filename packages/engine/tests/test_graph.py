@@ -4,11 +4,11 @@ assess/graph.py and every signing-off function goes through."""
 import os
 import threading
 import time
-import uuid
 
 import pytest
 
 from engine.core import db
+from tests.rows import a_child, tenant
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -16,19 +16,20 @@ REBUILD = "select rebuild_child_skill_state(%s)"
 
 
 def _a_child_with_an_answer() -> str:
-    """Committed, so two connections see it: a child of a tenant of its own, with one signed-off answer."""
+    """Committed, so two connections see it: a child in a class of its own (`rows.a_child`), with one signed-off
+    answer on a skill its rung holds, so no other test's count or check meets anything new."""
     with db.connect() as c:
-        slug = f"t-{uuid.uuid4()}"
-        tenant = db.one(c, "insert into tenant (slug, name) values (%s, 't') returning id", (slug,))["id"]
-        child = db.one(
+        child = a_child(c)
+        on = db.one(
             c,
-            "insert into child (tenant_id, roll_no, band, section) values (%s, '1', 'G2', 'G2') returning id",
-            (tenant,),
-        )["id"]
+            "select code, skill_codes[1] as skill from rung where tenant_id = %s and cardinality(skill_codes) > 0"
+            " order by code limit 1",
+            (tenant(c),),
+        )
         c.execute(
             "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, observed_at,"
-            " confirmed_by) values (%s, %s, 'NUM.OPS.01', 'R1', true, 'teacher_override', now(), 'a person')",
-            (tenant, child),
+            " confirmed_by) values (%s, %s, %s, %s, true, 'teacher_override', now(), 'a person')",
+            (tenant(c), child, on["skill"], on["code"]),
         )
     return str(child)
 
