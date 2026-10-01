@@ -182,8 +182,7 @@
       "engine/assess/items.py": 579,
       "engine/core/loaders.py": 413,
       "engine/assess/misconceptions.py": 500,
-      "engine/assess/mark.py": 417,
-      "apps/web/tests/e2e.spec.ts": 466
+      "engine/assess/mark.py": 417
     }
   },
   "complexity": {

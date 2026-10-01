@@ -76,3 +76,43 @@ jobs:
       # (lib/queries-papers.ts, a fragment built at import), and every preview failed from #140 to #143 while this
       # build, handed a URL, passed.
       - run: npm run build
+
+  # Every browser spec, against a production build and the engine (playwright.config.ts starts both), on a database
+  # built from this repository alone — the engine job's `bin/testdb fresh`. Until 2026-10-01 these ran on a laptop
+  # against a copy of live, some leaned on live's classes, and none ran here. A spec builds the rows it needs
+  # (tests/rows.ts); one that skips itself fails this job (goals/p1-browser-tests-in-ci.yaml).
+  browser:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+        working-directory: packages/engine
+      # the engine prints a paper through Chromium (assess/render.py)
+      - run: uv run playwright install --with-deps chromium
+        working-directory: packages/engine
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: bin/testdb fresh "$DATABASE_URL"
+      - run: npx playwright test --reporter=list,json
+        working-directory: apps/web
+        env: { PLAYWRIGHT_JSON_OUTPUT_NAME: results.json }
+      - name: no test skipped or left unrun
+        working-directory: apps/web
+        run: >-
+          node -e "const s = require('./results.json').stats; console.log(s);
+          if (s.skipped || s.unexpected || s.flaky) process.exit(1)"
+
