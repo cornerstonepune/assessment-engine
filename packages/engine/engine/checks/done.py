@@ -83,8 +83,10 @@ def not_live(conn=None):
     return out
 
 
-def report(name, run=run_proof, live=not_live):
-    """→ (lines for a person, every sentence proved and nothing left out of live)."""
+def report(name, run=run_proof, live=not_live, scenarios=goals.run_scenarios, criterion=goals.run_criterion):
+    """→ (lines for a person, every sentence proved, every scenario met, every criterion passed and nothing left out
+    of live). The goal's own scenarios and criteria run too: a goal reported done with its own commands red was done
+    in words only (goals/p1-done-means-every-check.yaml)."""
     spec = goals.load(name)
     lines = [
         f"GOAL  {spec['goal'].strip()}",
@@ -101,6 +103,21 @@ def report(name, run=run_proof, live=not_live):
         ok &= passed
         lines.append(f'  {"PROVED" if passed else "NOT PROVED"}  "{s["words"]}"')
         lines.append(f"            {s['proved_by']}  — {last}")
+    ran = list(scenarios(spec))
+    if ran:
+        lines += ["", "Its scenarios (run now, on the copy):"]
+    for scenario, _, failures in ran:
+        ok &= not failures
+        lines.append(f"  {'MET' if not failures else 'NOT MET'}  {scenario}")
+        lines += [f"            {f}" for f in failures[:3]]
+    if spec.get("criteria"):
+        lines += ["", "Its criteria (run now):"]
+    for c in spec.get("criteria") or []:
+        passed, out = criterion(c)
+        ok &= passed
+        tail = [ln.strip() for ln in out.splitlines() if ln.strip()]
+        lines.append(f"  {'PASSED' if passed else 'FAILED'}  {c['name']}")
+        lines.append(f"            $ {c['run']}  — {tail[-1][:100] if tail else 'no output'}")
     lines += ["", "Still manual:"]
     lines += [f"  - {m}" for m in spec.get("manual") or []] or ["  nothing"]
     gaps = live()

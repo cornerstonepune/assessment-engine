@@ -145,6 +145,6 @@ The school's words win elsewhere too: "exchange / regroup", never "borrow"; "edu
 ```
 cd packages/engine && pytest -q                       # engine
 engine load --check                                    # loader idempotence, seed counts
-engine eval read_cells                                 # prompt precision/recall vs gold
+engine eval <purpose>                                  # a prompt's score against its bar (threshold rows eval.*)
 cd apps/web && npx playwright test                     # one screenshot per screen
 ```

@@ -23,6 +23,18 @@ from engine.w4_close import parent_report, parent_review
 from engine.w4_close.cli_card import card_app
 from engine.w4_close.cli_report import report_app
 
+# every purpose `engine eval` scores, each against its bars (`checks.bars`)
+EVALS = (
+    parent_report.PURPOSE,
+    parent_review.PURPOSE,
+    spec.MISCONCEPTION_PROMPT,
+    story_shape.PURPOSE,
+    mistake_guess.PURPOSE,
+    "week_skills",
+    *review.REVIEWERS,
+    "item_generate",
+)
+
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 app.add_typer(bank_app, name="bank")
 app.add_typer(week_app, name="week")
@@ -112,6 +124,24 @@ def _unanswered(r, n):
         raise typer.Exit(1)
 
 
+def _of(part: float, whole: float) -> float:
+    return part / whole if whole else 0.0
+
+
+def _held(purpose: str, scores: dict[str, float]) -> None:
+    """An eval's scores against its bars, rows in `threshold` (`checks.bars`): it exits 1 below any bar, or with none
+    on record (goals/p1-done-means-every-check.yaml)."""
+    from engine.checks import bars
+
+    with db.connect() as conn:
+        missed = bars.short(scores, bars.bars(conn, purpose))
+    for m in missed:
+        typer.echo(f"  BELOW  {purpose}: {m}", err=True)
+    if missed:
+        raise typer.Exit(1)
+    typer.echo(f"  {purpose}: every bar met")
+
+
 def _eval_reviewer(purpose: str) -> None:
     """A reviewer's agreement with the hand-judged cases in supabase/seed/validator_gold.json, and each case it
     disagreed on."""
@@ -137,6 +167,26 @@ def _eval_reviewer(purpose: str) -> None:
         f" · right reason {r['reason_agreed']}/{r['cases']}"
         f" · {r['model']} · {r['calls']} calls · ₹{r['cost_inr']}"
     )
+    _held(purpose, {"agreed": r["rate"], "right_reason": _of(r["reason_agreed"], r["cases"])})
+
+
+def _eval_item_generate(n: int, only: str) -> None:
+    """item_generate: questions the validator accepted of those the model returned, per skill set and level."""
+    total_ok = total = 0
+    with db.connect() as conn:
+        sets = conn.execute("select code, difficulty from skill_set order by code").fetchall()
+        for s in sets:
+            if only and s["code"] != only:
+                continue
+            for d in s["difficulty"]:
+                counts, reasons, _ = bank.fill(conn, s["code"], d, n, dry_run=True)
+                ok, ret = counts.get("accepted", 0), counts.get("returned", 0)
+                total_ok += ok
+                total += ret
+                worst = max(reasons, key=lambda k: reasons[k]) if reasons else "-"
+                typer.echo(f"  {s['code']:<14}{d:<9}{ok:>3}/{ret:<3}  {worst}")
+    typer.echo(f"  pass rate {total_ok}/{total} = {total_ok / total:.2f}" if total else "  nothing returned")
+    _held("item_generate", {"pass_rate": _of(total_ok, total)})
 
 
 @app.command("eval")
@@ -172,7 +222,7 @@ def eval_(
         typer.echo(
             f"parent_report v{version or 'active'}: {r['passed']}/{r['n']} held to their facts, {r['first_try']} first time"
         )
-        raise typer.Exit(0 if r["n"] and r["passed"] == r["n"] else 1)
+        return _held(purpose, {"held": _of(r["passed"], r["n"])})
     if purpose == parent_review.PURPOSE:
         with db.connect() as conn:
             try:
@@ -189,7 +239,7 @@ def eval_(
             f" · the model read {r['read_by_model']} of {r['sentences']} sentences"
         )
         _unanswered(r, r["n"])
-        raise typer.Exit(0 if r["bad"] and r["caught"] == r["bad"] and not r["false_flags"] else 1)
+        return _held(purpose, {"caught": _of(r["caught"], r["bad"]), "flagged_right": r["false_flags"]})
     if purpose == spec.MISCONCEPTION_PROMPT:
         with db.connect() as conn:
             # One skill set per kind the engine knows, chosen by a row and not by a list in code: a
@@ -225,7 +275,7 @@ def eval_(
             f"  {purpose}: {r['useful']} of the model's proposals survived as additions"
             f" over {len(r['rows'])} skill sets · {r['model']} · ₹{r['cost_inr']}"
         )
-        return
+        return _held(purpose, {"useful": r["useful"]})
 
     if purpose == story_shape.PURPOSE:
         with db.connect() as conn:
@@ -240,7 +290,7 @@ def eval_(
             f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
         )
         _unanswered(r, r["n"])
-        return
+        return _held(purpose, {"shape_right": _of(r["right"], r["n"]), "wrong_answers": r["wrong_answer"]})
 
     if purpose == mistake_guess.PURPOSE:
         with db.connect() as conn:
@@ -251,7 +301,15 @@ def eval_(
             f" · slips called NONE {r['slips_none']}/{r['slips']} · slips given a mistake {r['false_named']}"
         )
         _unanswered(r, r["cases"])
-        return
+        return _held(
+            purpose,
+            {
+                "first": _of(r["first"], r["cases"]),
+                "listed": _of(r["listed"], r["cases"]),
+                "slips_none": _of(r["slips_none"], r["slips"]),
+                "false_named": r["false_named"],
+            },
+        )
 
     if purpose == "week_skills":
         from engine.w2_print import week_note
@@ -266,28 +324,15 @@ def eval_(
             f" · recall {r['recall']}"
         )
         _unanswered(r, r["n"])
-        return
+        return _held(
+            purpose, {"exact": _of(r["exact"], r["n"]), "precision": r["precision"], "recall": r["recall"]}
+        )
 
     if purpose in review.REVIEWERS:
         return _eval_reviewer(purpose)
     if purpose != "item_generate":
-        raise typer.BadParameter(
-            f"no eval for {purpose!r}; try item_generate, {' or '.join(review.REVIEWERS)}"
-        )
-    total_ok = total = 0
-    with db.connect() as conn:
-        sets = conn.execute("select code, difficulty from skill_set order by code").fetchall()
-        for s in sets:
-            if only and s["code"] != only:
-                continue
-            for d in s["difficulty"]:
-                counts, reasons, _ = bank.fill(conn, s["code"], d, n, dry_run=True)
-                ok, ret = counts.get("accepted", 0), counts.get("returned", 0)
-                total_ok += ok
-                total += ret
-                worst = max(reasons, key=lambda k: reasons[k]) if reasons else "-"
-                typer.echo(f"  {s['code']:<14}{d:<9}{ok:>3}/{ret:<3}  {worst}")
-    typer.echo(f"  pass rate {total_ok}/{total} = {total_ok / total:.2f}" if total else "  nothing returned")
+        raise typer.BadParameter(f"no eval for {purpose!r}; there is one for {', '.join(EVALS)}")
+    return _eval_item_generate(n, only)
 
 
 @app.command()

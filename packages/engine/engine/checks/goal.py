@@ -40,6 +40,21 @@ def scenarios_of(spec):
     return spec.get("scenarios") or []
 
 
+def run_scenarios(spec):
+    """(name, measures, failures) for each scenario of a goal, as each finishes. On the local copy, never live: a
+    scenario writes while it proves (ADR 0025)."""
+    from engine.checks import (
+        scenarios as scenarios_module,
+    )  # the bank and the graph, only when a goal has scenarios
+
+    if not scenarios_of(spec):
+        return
+    with db.connect(db.local_copy()) as conn:
+        for sc in scenarios_of(spec):
+            measures, failures = scenarios_module.run_one(conn, sc)
+            yield sc["name"], measures, failures
+
+
 def env():
     """The engine's own console script on PATH, so a goal file writes `engine …` and never a path."""
     return {

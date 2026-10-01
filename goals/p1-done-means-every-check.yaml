@@ -1,0 +1,32 @@
+name: p1-done-means-every-check
+goal: >
+  `engine done` reports the whole of a goal: each of Nimish's sentences with its test, and the goal's own scenarios
+  and criteria, every one run now. It says DONE only when all of them pass and all of it is live. And every model
+  eval holds its score to a bar written as a threshold row, the bar Nimish set or the score its prompt was made
+  active on: `engine eval <purpose>` exits 1 below the bar, and an eval with no bar on record says so and does not
+  pass.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked for "a code quality of 9/10 from a proper
+# reviewer"; the review found `engine done` running a goal's sentences but never its criteria or scenarios, so a goal
+# could be reported done with its own commands red, and seven of nine evals printing a score that nothing held to a
+# bar. On 2026-10-01: "go ahead with phase 1". The last of Phase 1's gates.
+says:
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_promises.py::test_the_done_report_runs_the_goals_own_scenarios_and_criteria
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_bars.py::test_every_eval_holds_its_score_to_a_bar_on_record
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_bars.py::test_a_score_below_its_bar_fails_and_says_by_how_much
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_bars.py::test_an_eval_with_no_bar_on_record_does_not_pass
+manual:
+  - "An eval with no bar on record (item_generate) needs a run on the server and its score written down as its bar:
+    Actions → engine eval → item_generate."
+scenarios: []
+criteria:
+  - name: the done-report and the eval bars
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_promises.py tests/test_bars.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
