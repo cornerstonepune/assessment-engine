@@ -45,8 +45,10 @@ def _pick(rng, want, pool):
 
 
 def _op(rng, alt, check):
+    """The operation this attempt draws: one the case allows, or None when it allows neither of ours."""
     if alt.get("operation"):
-        return OPS.get(_pick(rng, alt["operation"], ["ADD", "SUB"]))
+        picked = _pick(rng, alt["operation"], ["ADD", "SUB"])
+        return OPS[picked] if picked else None
     ops = check.get("op", ["+", "-"])
     return rng.choice(ops) if isinstance(ops, list) else ops
 
@@ -145,7 +147,7 @@ def _pair(rng, alt, check, op, about, fix=None):
 
 def _plain(rng, alt, check, rung, k):
     op = _op(rng, alt, check)
-    got = _pair(rng, alt, check, op, taxonomy.keys(alt))
+    got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
     if not got:
         return None
     a, b = got
@@ -210,6 +212,8 @@ def _missing(rng, alt, check, rung, k):
             "Conceptual",
         )
     op = _op(rng, alt, check)
+    if op is None:
+        return None
     ways = ["FIRST_OPERAND", "SECOND_OPERAND"] + (["RESULT"] if op == "-" else [])
     where = _pick(rng, alt.get("unknown_position"), ways)
     size = _pick(rng, alt.get("unknown_digits"), DIGITS) if "unknown_digits" in alt else None
@@ -248,7 +252,9 @@ def _native(rng, alt, check, rung, k):
     if alt.get("context") == "TABLE_OR_CHART":
         hints["table"] = True
     if alt.get("operation"):
-        hints["op"] = OPS[_pick(rng, alt["operation"], ["ADD", "SUB"])]
+        hints["op"] = _op(rng, alt, check)
+        if hints["op"] is None:
+            return None  # the case allows neither operation this drawer writes
     # The numbers' size, from the case as its level narrowed it (`within`), where the level's rule does not
     # already say: a story or a number line left to its generator's own default wrote 2-digit numbers on a
     # 1-digit level, and every one was refused by the case it was drawn for.

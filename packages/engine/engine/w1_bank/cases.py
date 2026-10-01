@@ -70,9 +70,9 @@ def propose_levels(conn, codes=None):
     Returns the codes that changed."""
     import json
 
-    from engine.core import loaders
+    from engine.core import settings
 
-    seed = {s["code"]: s for s in loaders._seed("skill_sets.json", "skill_sets")}
+    seed = {s["code"]: s for s in settings.seed("skill_sets.json", "skill_sets")}
     changed = []
     for r in conn.execute("select code, difficulty, formats from skill_set order by code").fetchall():
         s = seed.get(r["code"])

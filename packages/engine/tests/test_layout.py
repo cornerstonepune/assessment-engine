@@ -123,13 +123,18 @@ def sized_files():
 
 def test_no_file_grows_past_the_ceiling():
     limit, frozen = MAP["ceilings"]["limit"], MAP["ceilings"]["frozen"]
-    for f, n in sized_files().items():
+    sized = sized_files()
+    for f, n in sized.items():
         ceiling = frozen.get(f, limit)
         assert n <= ceiling, (
             f"{f} has {n} lines; its ceiling is {ceiling} — split it along a real responsibility"
         )
     for f, ceiling in frozen.items():
         assert ceiling > limit, f"{f} is at or under {limit} lines now: take it off the frozen list"
+        # a frozen file that shrank writes its new size down, or it could grow back to the old one unseen
+        assert sized.get(f) == ceiling, (
+            f"{f} has {sized.get(f)} lines, not its frozen {ceiling}: write {sized.get(f)}"
+        )
 
 
 def test_the_ceiling_holds_the_website_too():
@@ -176,9 +181,13 @@ def test_no_function_grows_more_complex_than_the_map_allows():
                 f"{fn} measures {rule} {n}, past {allowed}: split it along a real responsibility"
             )
     for fn, measures in frozen.items():
-        for rule in measures:
+        for rule, n in measures.items():
             assert rule in found.get(fn, {}), (
                 f"{fn} is within the {rule} limit now: take it off the frozen list"
+            )
+            # a function that shrank writes its new measure down, or it could grow back unseen
+            assert found[fn][rule] == n, (
+                f"{fn} measures {rule} {found[fn][rule]}, not its frozen {n}: write it"
             )
 
 

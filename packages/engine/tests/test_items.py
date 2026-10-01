@@ -22,14 +22,14 @@ def test_sample_add_produces_exactly_the_requested_regrouping_count():
     rng = random.Random(7)
     for _ in range(50):
         a, b = I.sample_add(rng, 2, 2, {1})
-        assert I._regroup_count_add(a, b) == 1, (a, b)
+        assert I.regroup_count_add(a, b) == 1, (a, b)
 
 
 def test_sample_add_honours_a_two_regrouping_request():
     rng = random.Random(9)
     for _ in range(30):
         a, b = I.sample_add(rng, 3, 3, {2})
-        assert I._regroup_count_add(a, b) == 2, (a, b)
+        assert I.regroup_count_add(a, b) == 2, (a, b)
 
 
 def test_sample_sub_across_zero_has_a_zero_in_a_column_that_gets_borrowed_from():

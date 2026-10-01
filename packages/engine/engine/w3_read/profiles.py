@@ -307,7 +307,7 @@ def lines(conn, child_ids=None, actor="engine-cli"):
             f"floor {n['floor']}",
         ]
         if n["route"]:
-            bits.append("routes: " + ", ".join(KIND_WORDS.get(f, f) for f in n["route"]))
+            bits.append("routes: " + ", ".join(KIND_WORDS.get(f, f) for f in map(str, n["route"])))
         if n["confusions"]:
             bits.append(
                 "confuses "

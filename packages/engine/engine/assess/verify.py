@@ -8,7 +8,7 @@ item_key from either path, which is what stops the bank holding one sum twice.
 
 from . import misconceptions as M
 from . import taxonomy
-from .items import Response, _cells, _item, _regroup_count_add, _regroup_count_sub
+from .items import Response, cells, item, regroup_count_add, regroup_count_sub
 from .rounding import half_up
 
 FORBIDDEN_WORDS = ("borrow",)
@@ -19,7 +19,7 @@ FORMATS = {
     "missing_number": ("Conceptual", 1, True),
     "word_1step": ("Application", 3, True),
 }
-REGROUPS = {"+": _regroup_count_add, "-": _regroup_count_sub}
+REGROUPS = {"+": regroup_count_add, "-": regroup_count_sub}
 OPS = {"−": "-", "–": "-", "x": "×", "X": "×", "*": "×"}  # symbols a model writes for the same operation
 SYMMETRIC = {
     "M_FACT_PM1": 1,
@@ -212,10 +212,10 @@ def to_item(c, rung, skills=None):
     if fmt == "missing_number":
         hidden = {"a": a, "b": b, "answer": ans}[c["missing"]]
         mis = _missing_distractors(op, a, b, ans, c["missing"], hidden)
-        r = Response("ans", "digits", str(hidden), cells=_cells(max(a, b, ans)), misconceptions=mis)
+        r = Response("ans", "digits", str(hidden), cells=cells(max(a, b, ans)), misconceptions=mis)
         # The renderer reads only `text`; a, b, op, missing are kept so recheck and the tag
         # deriver can see the arithmetic behind the box.
-        return _item(
+        return item(
             "MISSING.NUM",
             rung,
             signal,
@@ -232,20 +232,20 @@ def to_item(c, rung, skills=None):
     mis |= {m["code"]: m["wrong_answer"] for m in c.get("misconceptions", []) if m["code"] not in table}
     if fmt == "word_1step":
         mis["M_WRONG_OP"] = abs(a - b) if op == "+" else a + b
-        return _item(
+        return item(
             "WP1",
             rung,
             signal,
             fmt,
             stem,
             dict(a=a, b=b, op=op),
-            [Response("ans", "digits", str(ans), cells=_cells(max(ans, a + b)), misconceptions=mis)],
+            [Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)],
             working_lines=lines,
             skills=skills,
         )
     layout = "column" if fmt == "column_grid" else "horizontal"
-    r = Response("ans", "digits", str(ans), cells=_cells(max(ans, a)), misconceptions=mis)
-    return _item(
+    r = Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=mis)
+    return item(
         _template(op, a, b),
         rung,
         signal,

@@ -13,10 +13,12 @@ import ssl
 import time
 import urllib.error
 import urllib.request
+from typing import Literal, get_args
 
 import anthropic
 import certifi
 import jsonschema
+from anthropic.types import ImageBlockParam, MessageParam, TextBlockParam
 
 from engine.core import db
 
@@ -32,7 +34,8 @@ TRANSIENT = (404, 429, 503)  # 404 is returned spuriously by this API under load
 TIMEOUT_S = 180
 MAX_TOKENS = 16000  # a thinking model needs room to think and then still answer
 # how hard a model thinks (Anthropic's output_config.effort), named per prompt row; none is the model's own default
-EFFORTS = ("low", "medium", "high", "xhigh", "max")
+Effort = Literal["low", "medium", "high", "xhigh", "max"]
+EFFORTS: tuple[Effort, ...] = get_args(Effort)
 RATE_LIMIT_WAIT_S = 60  # a 429 without Retry-After: the free tier's limits are per minute
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
@@ -162,13 +165,13 @@ def _dispatch(models, text, images, schema, effort=None):
     raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors))
 
 
-def _call_anthropic(model, text, images, schema, effort=None):
+def _call_anthropic(model, text, images, schema, effort: Effort | None = None):
     """One Messages call → (output, input tokens, output tokens). The reply is validated by the
     caller; the SDK already retries 429s and 5xx. `effort` bounds how long the model thinks first: at its default,
     claude-sonnet-5 read 21 parent reports for over thirty minutes (2026-09-28)."""
     key = db.env("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(api_key=key, max_retries=3, timeout=TIMEOUT_S)
-    content = [
+    content: list[ImageBlockParam | TextBlockParam] = [
         {
             "type": "image",
             "source": {
@@ -180,12 +183,13 @@ def _call_anthropic(model, text, images, schema, effort=None):
         for img in images
     ]
     content.append({"type": "text", "text": text})
+    messages: list[MessageParam] = [{"role": "user", "content": content}]
     try:
         r = client.messages.create(
             model=model,
             max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": content}],
-            **({"output_config": {"effort": effort}} if effort else {}),
+            messages=messages,
+            output_config={"effort": effort} if effort else anthropic.omit,
         )
     except anthropic.RateLimitError as e:
         raise LLMError(f"{model} rate limited: {e.message}") from e

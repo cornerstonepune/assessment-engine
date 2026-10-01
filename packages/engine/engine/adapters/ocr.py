@@ -70,13 +70,13 @@ def mask_red_pen(image_bytes, cfg=None):
     under any reading — so it is removed, the way exam digitisation has removed marking ink for
     years. The approval screen still shows the page as photographed.
     """
-    if not (cfg or DEFAULTS).get("red_pen_mask"):
-        return image_bytes
-    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
-    if img is None:
+    on = (cfg or DEFAULTS).get("red_pen_mask")
+    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR) if on else None
+    if img is None:  # masking is off, or this is not an image
         return image_bytes
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    red = cv2.inRange(hsv, (0, 80, 60), (12, 255, 255)) | cv2.inRange(hsv, (160, 80, 60), (180, 255, 255))
+    low = cv2.inRange(hsv, np.array((0, 80, 60)), np.array((12, 255, 255)))  # red wraps round the hue circle
+    red = cv2.bitwise_or(low, cv2.inRange(hsv, np.array((160, 80, 60)), np.array((180, 255, 255))))
     if not red.any():
         return image_bytes
     # Inpainted, not painted white: a red circle crosses the child's own strokes, and a white gap
@@ -533,7 +533,7 @@ def _echoes(questions):
     the child copying an operand into their working — or, beside large handwriting, the printed
     operand itself mis-tagged as handwriting. Kabir's 24,568 + 37,845 came back as 37845 and his
     8 × ___ = 72 as 72, both at 94%+, both the paper's own digits: an echo is never an answer."""
-    return {value_of(tok) for q in questions for tok in re.findall(r"\d[\d,]*", q)}
+    return frozenset(value_of(tok) for q in questions for tok in re.findall(r"\d[\d,]*", q))
 
 
 def _on_line(word, anchor):
@@ -603,7 +603,7 @@ def sharper(pick, reread, cfg):
     if len(found) != 1:
         return None
     better = {**pick, "text": found[0]["text"], "confidence": found[0]["confidence"]}
-    if len(value_of(better["text"])) < len(value_of(pick["text"])):
+    if len(value_of(better["text"]) or "") < len(value_of(pick["text"]) or ""):
         # FEWER digits than the whole page saw is the crop having cut the answer in half, not a
         # clearer view of it: "Answer=43" came back "4" at 91.7% and would have gone into a child's
         # graph as 4. More pixels may add a digit the page missed; they cannot take one away.

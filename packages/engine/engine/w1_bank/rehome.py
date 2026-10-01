@@ -17,14 +17,14 @@ from collections import Counter
 
 from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
-from engine.core import loaders
+from engine.core import settings
 from engine.w1_bank import cases
 
 
 def replaced(seed=None):
     """{old skill set: the new ones that replace it} — from the seed, where a person wrote it."""
     out = {}
-    for s in seed if seed is not None else loaders._seed("skill_sets.json", "skill_sets"):
+    for s in seed if seed is not None else settings.seed("skill_sets.json", "skill_sets"):
         for old in s.get("replaces", []):
             out.setdefault(old, []).append(s["code"])
     return out

@@ -22,6 +22,6 @@ class Sheet:
         return d
 
 
-def _sheet_id(grade, level, variant, week):
+def sheet_id(grade, level, variant, week):
     raw = f"{grade}|{level}|{variant}|{week}|cornerstone"
     return "CS" + hashlib.sha1(raw.encode()).hexdigest()[:6].upper()

@@ -157,9 +157,9 @@ def verdicts(conn, capture_id):
 # A claim is true or not true however a person types what the child ticked. The papers print "True" / "Not true", the
 # bank's own questions say "true" / "false"; 2026-09-30, "false" typed for "odd + odd = odd" was marked wrong against
 # the paper's "Not true" on every child's paper.
-TRUTH = dict.fromkeys(("true", "t", "yes", "y", "✓", "✔", "tick"), True) | dict.fromkeys(
-    ("nottrue", "false", "f", "no", "n", "untrue", "✗", "✘", "x", "cross"), False
-)
+TRUTH: dict[str, bool] = {w: True for w in ("true", "t", "yes", "y", "✓", "✔", "tick")} | {
+    w: False for w in ("nottrue", "false", "f", "no", "n", "untrue", "✗", "✘", "x", "cross")
+}
 
 
 def _truth(text):

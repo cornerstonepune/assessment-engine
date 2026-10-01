@@ -50,7 +50,7 @@ def ratify(
     with db.connect() as conn:
         rows = spec.ratify(conn, by, code or None)
         conn.commit()
-        left = conn.execute("select count(*) as n from skill_set where status = 'draft'").fetchone()["n"]
+        left = db.one(conn, "select count(*) as n from skill_set where status = 'draft'")["n"]
     for r in rows:
         typer.echo(f"  ratified  {r['code']:<22}v{r['version']:<3}{by}")
     typer.echo(f"  {len(rows)} ratified, {left} still draft")
@@ -110,6 +110,33 @@ def _unanswered(r, n):
     if r["unanswered"]:
         typer.echo(f"JEV  not answered on {r['unanswered']} of {n}: {r['error']}", err=True)
         raise typer.Exit(1)
+
+
+def _eval_reviewer(purpose: str) -> None:
+    """A reviewer's agreement with the hand-judged cases in supabase/seed/validator_gold.json, and each case it
+    disagreed on."""
+    gold = __import__("json").loads((db.REPO_ROOT / "supabase/seed/validator_gold.json").read_text())
+    with db.connect() as conn:
+        try:
+            r = review.evaluate(conn, purpose, gold)
+        except ValueError as e:  # no hand-judged case to score it against
+            typer.echo(f"  {e}", err=True)
+            raise typer.Exit(1)
+        except LLMError as e:
+            conn.commit()
+            typer.echo(f"MODEL  {e}", err=True)
+            raise typer.Exit(1)
+        conn.commit()
+    for d in r["disagreements"]:
+        typer.echo(
+            f"  DISAGREED  {d['ref']:<5}person said {d['expected']:<7}reviewer said {d['got']:<7}{d['text']}",
+            err=True,
+        )
+    typer.echo(
+        f"  {purpose}: agreed {r['agreed']}/{r['cases']} = {r['rate']}"
+        f" · right reason {r['reason_agreed']}/{r['cases']}"
+        f" · {r['model']} · {r['calls']} calls · ₹{r['cost_inr']}"
+    )
 
 
 @app.command("eval")
@@ -242,27 +269,7 @@ def eval_(
         return
 
     if purpose in review.REVIEWERS:
-        gold = __import__("json").loads((db.REPO_ROOT / "supabase/seed/validator_gold.json").read_text())
-        with db.connect() as conn:
-            try:
-                r = review.evaluate(conn, purpose, gold)
-            except LLMError as e:
-                conn.commit()
-                typer.echo(f"MODEL  {e}", err=True)
-                raise typer.Exit(1)
-            conn.commit()
-        for d in r["disagreements"]:
-            typer.echo(
-                f"  DISAGREED  {d['ref']:<5}person said {d['expected']:<7}"
-                f"reviewer said {d['got']:<7}{d['text']}",
-                err=True,
-            )
-        typer.echo(
-            f"  {purpose}: agreed {r['agreed']}/{r['cases']} = {r['rate']}"
-            f" · right reason {r['reason_agreed']}/{r['cases']}"
-            f" · {r['model']} · {r['calls']} calls · ₹{r['cost_inr']}"
-        )
-        return
+        return _eval_reviewer(purpose)
     if purpose != "item_generate":
         raise typer.BadParameter(
             f"no eval for {purpose!r}; try item_generate, {' or '.join(review.REVIEWERS)}"
@@ -278,7 +285,7 @@ def eval_(
                 ok, ret = counts.get("accepted", 0), counts.get("returned", 0)
                 total_ok += ok
                 total += ret
-                worst = max(reasons, key=reasons.get) if reasons else "-"
+                worst = max(reasons, key=lambda k: reasons[k]) if reasons else "-"
                 typer.echo(f"  {s['code']:<14}{d:<9}{ok:>3}/{ret:<3}  {worst}")
     typer.echo(f"  pass rate {total_ok}/{total} = {total_ok / total:.2f}" if total else "  nothing returned")
 
@@ -313,6 +320,16 @@ def load(
                 typer.echo(f"CHANGED  {t}: {was} -> {now}", err=True)
             raise typer.Exit(1)
         typer.echo("  unchanged on a second run")
+
+
+@app.command()
+def contract() -> None:
+    """Write the website's list of the engine's routes (apps/web/lib/engine-routes.ts) from the engine itself:
+    after a route or a request body changes, so the website's type check reads what the engine now serves."""
+    from engine.api import contract as routes
+
+    routes.OUT.write_text(routes.written(routes.spec()))
+    typer.echo(f"  wrote {routes.OUT.relative_to(db.REPO_ROOT)}: {len(routes.routes(routes.spec()))} routes")
 
 
 if __name__ == "__main__":

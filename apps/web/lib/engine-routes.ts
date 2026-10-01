@@ -1,0 +1,58 @@
+// The engine's routes, written by `bin/engine contract` from the engine itself (packages/engine/engine/api)
+// and never by hand: packages/engine/tests/test_contract.py fails the day this is not what the engine serves.
+// lib/engine.ts takes a path and a body only from here.
+export type EngineRoutes = {
+  "GET /bank/coverage": null;
+  "GET /bank/item/{item_key}/printed.png": null;
+  "GET /bank/proposals": null;
+  "GET /capture/{capture_id}/keys": null;
+  "GET /capture/{capture_id}/mistakes": null;
+  "GET /capture/{capture_id}/page/{page_no}.jpg": null;
+  "GET /capture/{capture_id}/readings": null;
+  "GET /card/{section}/{week}": null;
+  "GET /child/{child_id}/focus": null;
+  "GET /child/{child_id}/focus/paper.pdf": null;
+  "GET /child/{child_id}/parent-report": null;
+  "GET /health": null;
+  "GET /papers/pack.pdf": null;
+  "GET /read/scan/{name}/copies": null;
+  "GET /report/{child_id}": null;
+  "GET /runs/{run_id}": null;
+  "GET /sheet/{qr}/page/{page_no}.jpg": null;
+  "GET /week/{section}/{week}/declaration": null;
+  "GET /week/{section}/{week}/{kind}/pack.pdf": null;
+  "GET /worksheet/{code}.pdf": null;
+  "GET /worksheet/{code}/geometry": null;
+  "POST /bank/fill": { skill_set: string; difficulty: string; count: number };
+  "POST /bank/item/{item_key}/correct": { stem: string; by: string; reason: string };
+  "POST /bank/item/{item_key}/remove": { by: string; note: string };
+  "POST /bank/proposal/{proposal_id}/decide": { verdict: "remove" | "keep" | "adopt" | "reject"; by: string; note?: string };
+  "POST /bank/review": { skill_set: string; difficulty: string; reviewer: "pedagogy_review" | "language_review" };
+  "POST /bank/story/shape": { story: string };
+  "POST /capture/correct": { result_id: string; human_read: string; by: string };
+  "POST /capture/mistake": { result_id: string; code: string; by: string; proposed?: unknown[][] };
+  "POST /card/{section}/{week}/confirm": { by: string };
+  "POST /child/{child_id}/focus": { week: string; by: string };
+  "POST /child/{child_id}/paper": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };
+  "POST /child/{child_id}/paper/plan": { week: string; areas: { skill_set: string; level: string; n: number }[] };
+  "POST /child/{child_id}/paper/plan.pdf": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };
+  "POST /child/{child_id}/parent-report": { by: string };
+  "POST /child/{child_id}/parent-report/{note_id}/approve": { by: string };
+  "POST /child/{child_id}/parent-report/{note_id}/edit": { by: string; draft: Record<string, unknown> };
+  "POST /children/find": { section: string; first_name: string; actor: string };
+  "POST /commit": { child_id: string; by: string };
+  "POST /graph/rebuild": { child_id?: string | null };
+  "POST /ingest": { path: string; paper_code: string; child_id: string; actor: string; pages?: number[] | null; masks?: Record<string, number> | null; narrative?: boolean };
+  "POST /mark": { child_id: string };
+  "POST /paper/key": { result_id: string; answer: string; by: string };
+  "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; by: string; once: string };
+  "POST /papers/plan": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]> };
+  "POST /read/file": { url: string; actor: string; again?: boolean };
+  "POST /week/approve": { section: string; week: string; kind?: string; by: string };
+  "POST /week/assemble": { section: string; week: string; kind?: string };
+  "POST /week/declaration": { section: string; week: string; note?: string; skill_sets: string[]; by: string; proposed?: Record<string, unknown>[] };
+  "POST /week/declaration/propose": { section: string; note: string };
+  "POST /week/prescribe": { section: string; week: string; skill_set: string; kind?: string };
+  "POST /week/render": { section: string; week: string; kind?: string; out?: string; actor?: string };
+  "POST /worksheet/{code}/for.pdf": { children: string[]; week: string; by: string };
+};

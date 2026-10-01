@@ -6,10 +6,13 @@ it passed its 400 lines (2026-10-01).
 
 import contextvars
 from contextlib import contextmanager
+from typing import Any
 
 from engine.w2_print.assemble import _config, _threshold
 
-_BATCH = contextvars.ContextVar("focus_paper_batch", default=None)
+_BATCH: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
+    "focus_paper_batch", default=None
+)
 
 
 @contextmanager

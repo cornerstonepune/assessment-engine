@@ -5,17 +5,18 @@ gained its model's effort and the loader stood at its frozen ceiling.
 """
 
 import json
+from typing import Any
 
 from engine.core import db
 
 SEED = db.REPO_ROOT / "supabase" / "seed"
 
 
-def seed(name, key):
+def seed(name: str, key: str) -> Any:
     return json.loads((SEED / name).read_text())[key]
 
 
-def load_prompts(conn, t):
+def load_prompts(conn: db.Conn, t: db.Id) -> None:
     for p in seed("prompts.json", "prompts"):
         text = (SEED / p["text_file"]).read_text() if p.get("text_file") else p["text"]
         conn.execute(
@@ -38,7 +39,7 @@ def load_prompts(conn, t):
         )
 
 
-def load_thresholds(conn, t):
+def load_thresholds(conn: db.Conn, t: db.Id) -> None:
     for r in seed("thresholds.json", "thresholds"):
         key, value, unit, note = r["key"], r["value"], r["unit"], r["description"]
         conn.execute(
@@ -50,7 +51,7 @@ def load_thresholds(conn, t):
         )
 
 
-def load_config(conn, t):
+def load_config(conn: db.Conn, t: db.Id) -> None:
     """A row marked `seed_once` belongs to the app after its first load — `app.staff` holds the
     password hashes `engine set-password` writes, and re-seeding it took every one of them away."""
     for c in seed("config.json", "config"):
@@ -66,6 +67,6 @@ def load_config(conn, t):
         )
 
 
-def load(conn, t):
+def load(conn: db.Conn, t: db.Id) -> None:
     for step in (load_prompts, load_thresholds, load_config):
         step(conn, t)

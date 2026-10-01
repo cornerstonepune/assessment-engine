@@ -14,7 +14,15 @@ BASE = {
     "ceilings": {"engine/big.py": 500, "apps/web/tests/e2e.spec.ts": 466},
     "complexity": {"limit": {"C901": 10, "PLR0915": 50}, "frozen": {"engine/a.py::f": {"C901": 20}}},
     "coverage": 79.0,
+    "types": {
+        "mode": "basic",
+        "include": ["engine"],
+        "strict": ["engine/assess", "engine/core"],
+        "unannotated": ["reportUnknownArgumentType"],
+        "frozen": {"engine/assess/a.py": 40},
+    },
 }
+TYPES = BASE["types"]
 
 
 def _with(**changes):
@@ -27,13 +35,14 @@ def test_tightening_or_standing_still_passes():
         ceilings={"engine/big.py": 450},
         complexity={"limit": {"C901": 10, "PLR0915": 50}, "frozen": {}},
         coverage=80.5,
+        types={**TYPES, "mode": "strict", "unannotated": [], "frozen": {"engine/assess/a.py": 12}},
     )
     assert ratchet.loosened(BASE, tighter) == []
 
 
 def test_a_baseline_may_only_tighten():
-    """Raising a limit, growing a frozen number, freezing something new, dropping what is measured, or lowering
-    the coverage floor: each is a red build, never a quiet edit (CLAUDE.md rule 14)."""
+    """Raising a limit, growing a frozen number, freezing something new, dropping what is measured, lowering the
+    coverage floor or the type check: each is a red build, never a quiet edit (CLAUDE.md rule 14)."""
     cases = {
         "ceiling": _with(ceiling=450),
         "grown file": _with(ceilings={**BASE["ceilings"], "engine/big.py": 520}),
@@ -49,6 +58,13 @@ def test_a_baseline_may_only_tighten():
         ),
         "complexity gone": _with(complexity=None),
         "lower floor": _with(coverage=78.5),
+        "type check gone": _with(types=None),
+        "lower type check": _with(types={**TYPES, "mode": "off"}),
+        "unchecked root": _with(types={**TYPES, "include": []}),
+        "base no longer strict": _with(types={**TYPES, "strict": ["engine/assess"]}),
+        "a new kind of debt": _with(types={**TYPES, "unannotated": [*TYPES["unannotated"], "reportOptionalSubscript"]}),
+        "grown annotations": _with(types={**TYPES, "frozen": {"engine/assess/a.py": 41}}),
+        "newly frozen annotations": _with(types={**TYPES, "frozen": {**TYPES["frozen"], "engine/w2_print/b.py": 3}}),
     }  # fmt: skip
     for case, head in cases.items():
         assert ratchet.loosened(BASE, head), f"{case} passed as if it tightened"
@@ -57,7 +73,9 @@ def test_a_baseline_may_only_tighten():
 def test_a_baseline_written_down_for_the_first_time_is_not_a_loosening():
     """Main before this goal measured the engine alone and had no complexity list: the website's e2e.spec.ts
     frozen at 466 and the 30 functions recorded are today's debt written down, not new debt."""
-    before = _with(covers=["engine/"], ceilings={"engine/big.py": 500}, complexity=None, coverage=0.0)
+    before = _with(
+        covers=["engine/"], ceilings={"engine/big.py": 500}, complexity=None, coverage=0.0, types=None
+    )
     assert ratchet.loosened(before, BASE) == []
 
 
