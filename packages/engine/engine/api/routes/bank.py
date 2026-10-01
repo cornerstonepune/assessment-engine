@@ -25,7 +25,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
 @router.get("/bank/coverage", response_model=list[BankCoverageRow])
-def coverage(short_only: bool = False, conn=Depends(get_conn)):
+def coverage(short_only: bool = False, conn=Depends(get_conn, scope="function")):
     """The unit grid. `short_only=true` returns just the units below their target, with the
     shortfall — which is exactly what an orchestrator needs to decide what to top up, so the
     deciding stays here and n8n only forwards the answer (CLAUDE.md rule 3)."""
@@ -43,7 +43,7 @@ def coverage(short_only: bool = False, conn=Depends(get_conn)):
 
 
 @router.post("/bank/story/shape", response_model=StoryShapeResponse)
-def story(body: StoryShapeRequest, conn=Depends(get_conn)):
+def story(body: StoryShapeRequest, conn=Depends(get_conn, scope="function")):
     """A story question typed by an educator → its shape, case, place and one-step answer; nothing is stored."""
     return story_shape.name(conn, body.story)
 
@@ -52,7 +52,7 @@ def story(body: StoryShapeRequest, conn=Depends(get_conn)):
 def review_unit(
     body: BankReviewRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """One reviewer over one unit's rule and a ≤5 % sample. Advisory — nothing is retired."""
@@ -78,7 +78,7 @@ def review_unit(
 def fill(
     body: BankFillRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     key = idempotency_key or derive_key(body.model_dump())
@@ -92,7 +92,7 @@ def fill(
 
 
 @router.get("/bank/item/{item_key}/printed.png")
-def printed_question(item_key: str, conn=Depends(get_conn)) -> Response:
+def printed_question(item_key: str, conn=Depends(get_conn, scope="function")) -> Response:
     """One question exactly as a paper prints it, for the question page."""
     png = question.printed(conn, item_key)
     if png is None:
@@ -101,7 +101,7 @@ def printed_question(item_key: str, conn=Depends(get_conn)) -> Response:
 
 
 @router.post("/bank/item/{item_key}/correct", response_model=BankCorrectResponse)
-def correct_question(item_key: str, body: BankCorrectRequest, conn=Depends(get_conn)):
+def correct_question(item_key: str, body: BankCorrectRequest, conn=Depends(get_conn, scope="function")):
     """A person rewords a question. Not idempotency-wrapped: the same correction sent twice is
     refused the second time, because the first one retired the wording it corrected."""
     try:
@@ -113,7 +113,7 @@ def correct_question(item_key: str, body: BankCorrectRequest, conn=Depends(get_c
 
 
 @router.post("/bank/item/{item_key}/remove", response_model=BankRemoveResponse)
-def remove_question(item_key: str, body: BankRemoveRequest, conn=Depends(get_conn)):
+def remove_question(item_key: str, body: BankRemoveRequest, conn=Depends(get_conn, scope="function")):
     """A person takes a question out of the bank. The worksheets it was on are retired and replaced
     in the same transaction (ADR 0026)."""
     try:
@@ -125,14 +125,14 @@ def remove_question(item_key: str, body: BankRemoveRequest, conn=Depends(get_con
 
 
 @router.get("/bank/proposals")
-def proposals(conn=Depends(get_conn)) -> list[dict]:
+def proposals(conn=Depends(get_conn, scope="function")) -> list[dict]:
     """What children's confirmed answers propose for the bank, still undecided (`learn.refresh`, goals/s21): a
     question far easier or harder than its level, with its evidence."""
     return learn.refresh(conn)
 
 
 @router.post("/bank/proposal/{proposal_id}/decide")
-def decide(proposal_id: str, body: BankDecideRequest, conn=Depends(get_conn)) -> dict:
+def decide(proposal_id: str, body: BankDecideRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """A person decides a proposal once: remove or keep a question far off its level; adopt (named, in `note`) or
     reject a mistake learned from children's answers."""
     try:

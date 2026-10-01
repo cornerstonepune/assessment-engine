@@ -44,7 +44,7 @@ def _args(b: Batch) -> tuple:
 
 
 @router.post("/papers/plan")
-def papers_plan(body: Batch, conn=Depends(get_conn)) -> dict:
+def papers_plan(body: Batch, conn=Depends(get_conn, scope="function")) -> dict:
     """Each picked child's paper, question by question, and each child whose paper cannot be made, with why.
     Writes nothing."""
     try:
@@ -54,7 +54,9 @@ def papers_plan(body: Batch, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/papers/make")
-def papers_make(body: MakeBatch, conn=Depends(get_conn), tenant_id: str = Depends(get_tenant_id)) -> dict:
+def papers_make(
+    body: MakeBatch, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
+) -> dict:
     """`by` approves the papers the plan showed, and each prints with its own code; refused whole, naming each child
     whose paper cannot be made."""
     request = body.model_dump(mode="json")
@@ -71,7 +73,7 @@ def papers_make(body: MakeBatch, conn=Depends(get_conn), tenant_id: str = Depend
 
 
 @router.get("/papers/pack.pdf")
-def papers_pdf(qr: list[str] = Query(...), conn=Depends(get_conn)) -> Response:
+def papers_pdf(qr: list[str] = Query(...), conn=Depends(get_conn, scope="function")) -> Response:
     """The papers as one PDF, in class and roll order, exactly as each was rendered. Writes nothing."""
     try:
         pdf = maker.pdf(conn, qr)

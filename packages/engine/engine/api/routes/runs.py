@@ -13,13 +13,13 @@ runs_router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
 @health_router.get("/health")
-def health(conn=Depends(get_conn)):
+def health(conn=Depends(get_conn, scope="function")):
     conn.execute("select 1")
     return {"ok": True}
 
 
 @runs_router.get("/runs/{run_id}", response_model=RunResponse)
-def get_run(run_id: str, conn=Depends(get_conn)):
+def get_run(run_id: str, conn=Depends(get_conn, scope="function")):
     row = conn.execute(
         "select id, flow, trigger, status, error, tokens, cost_inr from flow_run where id = %s", (run_id,)
     ).fetchone()

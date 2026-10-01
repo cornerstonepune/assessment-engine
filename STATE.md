@@ -4456,6 +4456,12 @@ works; https://github.com/dietrichgebert/ponytail).
 - **Two rebuilds of one child at once both finish.** Reproduced first: the second raised `UniqueViolation` on the
   first's rows. `rebuild_child_skill_state` now takes a lock per child, held to the end of its transaction
   (migration 20261023090000).
+- **Every route commits before it answers.** Main's CI went red on #156's merge, on a browser test #156 never
+  touched ("removing a question retires it"), which had passed on the same tree an hour before. Root cause:
+  FastAPI 0.141 closes a request-scoped dependency after the answer is sent (`routing.py`: `await response(...)`
+  inside the request's exit stack), so `get_conn` committed after the website had its answer. The website then read
+  the question back before the commit, and still saw it live. Every route now takes `Depends(get_conn,
+  scope="function")`, which commits as the route returns. `tests/api/test_deps.py` fails on a request-scoped one.
 - **A password is not guessed by trying.** After `sign_in.max_failures` (10) wrong passwords for one email inside
   `sign_in.window_minutes` (15), the sign-in page refuses that email until the window passes (`sign_in_failure`,
   migration 20261023100000). `app_web` may insert there.

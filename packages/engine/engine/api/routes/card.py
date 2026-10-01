@@ -11,7 +11,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
 @router.get("/card/{section}/{week}")
-def weeks_card(section: str, week: str, conn=Depends(get_conn)):
+def weeks_card(section: str, week: str, conn=Depends(get_conn, scope="function")):
     """The card as the graph stands now, kept as the week's rows, with who confirmed it last, if anyone."""
     try:
         got = card.build(conn, section)
@@ -27,7 +27,7 @@ def weeks_card(section: str, week: str, conn=Depends(get_conn)):
 
 
 @router.post("/card/{section}/{week}/confirm")
-def confirm(section: str, week: str, body: CardConfirmRequest, conn=Depends(get_conn)):
+def confirm(section: str, week: str, body: CardConfirmRequest, conn=Depends(get_conn, scope="function")):
     try:
         row = card.confirm(conn, section, week, body.by, card.build(conn, section))
     except ValueError as e:
@@ -36,7 +36,7 @@ def confirm(section: str, week: str, body: CardConfirmRequest, conn=Depends(get_
 
 
 @router.get("/report/{child_id}")
-def childs_report(child_id: str, since: str | None = None, conn=Depends(get_conn)):
+def childs_report(child_id: str, since: str | None = None, conn=Depends(get_conn, scope="function")):
     """One child's report as the graph holds it: strong, faulty with the child's own example, next."""
     if not conn.execute("select 1 from child where id::text = %s", (child_id,)).fetchone():
         raise HTTPException(404, f"no child {child_id}")

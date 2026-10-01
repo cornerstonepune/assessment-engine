@@ -34,7 +34,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 def ingest(
     body: IngestRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     key = idempotency_key or derive_key(body.model_dump())
@@ -66,7 +66,7 @@ def ingest(
 def mark(
     body: MarkRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     key = idempotency_key or derive_key(body.model_dump())
@@ -85,7 +85,7 @@ def mark(
 def commit(
     body: CommitRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     key = idempotency_key or derive_key(body.model_dump())
@@ -101,7 +101,7 @@ def commit(
 
 
 @router.post("/capture/correct", response_model=CorrectResponse)
-def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
+def correct(body: CorrectRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """A person says what a child actually wrote, and the answer is marked again from it.
 
     Not idempotency-wrapped: a second correction of the same answer is a SECOND fact, not a repeat
@@ -115,7 +115,7 @@ def correct(body: CorrectRequest, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/paper/key", response_model=KeyResponse)
-def change_key(body: KeyRequest, conn=Depends(get_conn)) -> dict:
+def change_key(body: KeyRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """An educator changes the right answer of the question an answer is to, for every child (`keys.change`, ADR 0045).
     Not idempotency-wrapped: each change is its own row, as a correction is. Code's refusal is a 409 in its words."""
     try:
@@ -125,13 +125,15 @@ def change_key(body: KeyRequest, conn=Depends(get_conn)) -> dict:
 
 
 @router.get("/capture/{capture_id}/keys")
-def capture_keys(capture_id: str, conn=Depends(get_conn)) -> dict:
+def capture_keys(capture_id: str, conn=Depends(get_conn, scope="function")) -> dict:
     """Each answer on a capture → the right answer its card prints, as stored, and who changed it (`keys.shown`)."""
     return {r["id"]: r for r in keys.shown(conn, capture_id)}
 
 
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")
-def capture_page(capture_id: str, page_no: int, box: str = "", conn=Depends(get_conn)) -> Response:
+def capture_page(
+    capture_id: str, page_no: int, box: str = "", conn=Depends(get_conn, scope="function")
+) -> Response:
     """The photograph a reading came from — the whole page, or the patch one answer sits in.
 
     The approval screen's whole reason for existing: a teacher confirms what a child wrote by
@@ -176,25 +178,25 @@ def read_file(
 
 
 @router.get("/read/scan/{name}/copies")
-def scan_copies(name: str, conn=Depends(get_conn)) -> list[dict]:
+def scan_copies(name: str, conn=Depends(get_conn, scope="function")) -> list[dict]:
     """Every copy read from one scanned file, and each child's score by roll number (`copy_scores.of_scan`)."""
     return copy_scores.of_scan(conn, name)
 
 
 @router.get("/capture/{capture_id}/readings")
-def capture_readings(capture_id: str, conn=Depends(get_conn)) -> list[dict]:
+def capture_readings(capture_id: str, conn=Depends(get_conn, scope="function")) -> list[dict]:
     """How the reader left every answer on one copy, and why each waits (`copy_scores.readings`)."""
     return copy_scores.readings(conn, capture_id)
 
 
 @router.get("/capture/{capture_id}/mistakes")
-def capture_mistakes(capture_id: str, conn=Depends(get_conn)) -> dict:
+def capture_mistakes(capture_id: str, conn=Depends(get_conn, scope="function")) -> dict:
     """Each wrong answer on one copy that no named mistake explains, with Jev's shortlist (`naming.unnamed`)."""
     return naming.unnamed(conn, capture_id)
 
 
 @router.post("/capture/mistake")
-def name_mistake(body: NameMistakeRequest, conn=Depends(get_conn)) -> dict:
+def name_mistake(body: NameMistakeRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """A person names the mistake behind such an answer (`naming.name_mistake`); a refusal says why."""
     try:
         return naming.name_mistake(conn, body.result_id, body.code, body.by, body.proposed)

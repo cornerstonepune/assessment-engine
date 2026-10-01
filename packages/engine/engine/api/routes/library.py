@@ -37,7 +37,9 @@ def _drawn(conn, code, layout):
 
 
 @router.get("/worksheet/{code}.pdf")
-def worksheet_pdf(code: str, layout: str | None = None, conn=Depends(get_conn)) -> FileResponse:
+def worksheet_pdf(
+    code: str, layout: str | None = None, conn=Depends(get_conn, scope="function")
+) -> FileResponse:
     path = _drawn(conn, code, layout)
     return FileResponse(
         path, media_type="application/pdf", filename=f"{code}.pdf", content_disposition_type="inline"
@@ -45,7 +47,9 @@ def worksheet_pdf(code: str, layout: str | None = None, conn=Depends(get_conn)) 
 
 
 @router.get("/worksheet/{code}/geometry")
-def worksheet_geometry(code: str, layout: str | None = None, conn=Depends(get_conn)) -> dict:
+def worksheet_geometry(
+    code: str, layout: str | None = None, conn=Depends(get_conn, scope="function")
+) -> dict:
     """Where every box and working space of a worksheet prints (`<pdf>.key.json`'s geometry, no answers): what
     the box reader cuts a scan by, for whoever is improving it without the server's disk."""
     path = _drawn(conn, code, layout)
@@ -60,7 +64,7 @@ class ForChildren(BaseModel):
 
 
 @router.post("/worksheet/{code}/for.pdf")
-def worksheet_for(code: str, body: ForChildren, conn=Depends(get_conn)) -> FileResponse:
+def worksheet_for(code: str, body: ForChildren, conn=Depends(get_conn, scope="function")) -> FileResponse:
     """The worksheet printed for the children picked, one copy each with its own code, in the educator's name."""
     if not CODE.match(code) or not body.children:
         raise HTTPException(status_code=404, detail="no such worksheet, or no child picked")

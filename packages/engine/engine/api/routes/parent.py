@@ -16,7 +16,7 @@ def _child(conn, child_id):
 
 
 @router.get("/child/{child_id}/parent-report")
-def newest(child_id: str, conn=Depends(get_conn)):
+def newest(child_id: str, conn=Depends(get_conn, scope="function")):
     """The newest kept report (or null), the facts a report written now would rest on, and whether the report's prompt
     has passed its eval and may write one."""
     _child(conn, child_id)
@@ -31,7 +31,12 @@ def newest(child_id: str, conn=Depends(get_conn)):
 
 
 @router.post("/child/{child_id}/parent-report", status_code=202)
-def write(child_id: str, body: CardConfirmRequest, background: BackgroundTasks, conn=Depends(get_conn)):
+def write(
+    child_id: str,
+    body: CardConfirmRequest,
+    background: BackgroundTasks,
+    conn=Depends(get_conn, scope="function"),
+):
     """Start writing a new draft from the child's signed-off answers → {run_id}. It is written, held to its facts,
     read against them and kept after this answers (`parent_report.write`); `/runs/{run_id}` says ok, or why not."""
     _child(conn, child_id)
@@ -43,7 +48,7 @@ def write(child_id: str, body: CardConfirmRequest, background: BackgroundTasks, 
 
 
 @router.post("/child/{child_id}/parent-report/{note_id}/approve")
-def approve(child_id: str, note_id: str, body: CardConfirmRequest, conn=Depends(get_conn)):
+def approve(child_id: str, note_id: str, body: CardConfirmRequest, conn=Depends(get_conn, scope="function")):
     _child(conn, child_id)
     try:
         parent_report.approve(conn, child_id, note_id, body.by)
@@ -53,7 +58,7 @@ def approve(child_id: str, note_id: str, body: CardConfirmRequest, conn=Depends(
 
 
 @router.post("/child/{child_id}/parent-report/{note_id}/edit")
-def edit(child_id: str, note_id: str, body: ParentReportEdit, conn=Depends(get_conn)):
+def edit(child_id: str, note_id: str, body: ParentReportEdit, conn=Depends(get_conn, scope="function")):
     """An educator's own words become the report, held to its facts (422 with what they broke); 409 once approved."""
     _child(conn, child_id)
     try:

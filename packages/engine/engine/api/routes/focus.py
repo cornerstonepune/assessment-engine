@@ -40,7 +40,7 @@ def _child(child_id: str) -> str:
 
 
 @router.get("/child/{child_id}/focus")
-def focus_plan(child_id: str, week: str, conn=Depends(get_conn)) -> dict:
+def focus_plan(child_id: str, week: str, conn=Depends(get_conn, scope="function")) -> dict:
     """The areas the child lags in, why, and the questions their next paper would hold, and the paper already
     approved this week if there is one. Writes nothing."""
     child = _child(child_id)
@@ -48,7 +48,7 @@ def focus_plan(child_id: str, week: str, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/child/{child_id}/focus")
-def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn)) -> dict:
+def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn, scope="function")) -> dict:
     """`by` approves that plan: it prints as the child's paper, with its QR, in their name; once a week."""
     try:
         made = focus_paper.make(conn, _child(child_id), body.week, body.by)
@@ -68,7 +68,7 @@ def _pdf(see) -> Response:
 
 
 @router.get("/child/{child_id}/focus/paper.pdf")
-def focus_see(child_id: str, week: str, by: str, conn=Depends(get_conn)) -> Response:
+def focus_see(child_id: str, week: str, by: str, conn=Depends(get_conn, scope="function")) -> Response:
     """The home paper the graph proposes, as it will print, before anyone approves it. Writes nothing."""
     child = _child(child_id)
     return _pdf(lambda: focus_paper.preview(conn, child, week, by))
@@ -81,7 +81,7 @@ def _ask(body: Ask) -> list[dict]:
 
 
 @router.post("/child/{child_id}/paper/plan")
-def paper_plan(child_id: str, body: Ask, conn=Depends(get_conn)) -> dict:
+def paper_plan(child_id: str, body: Ask, conn=Depends(get_conn, scope="function")) -> dict:
     """What a paper a teacher asks for would hold, question by question. Writes nothing; refused in words when
     the bank cannot fill it."""
     try:
@@ -91,7 +91,7 @@ def paper_plan(child_id: str, body: Ask, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/child/{child_id}/paper")
-def paper_make(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> dict:
+def paper_make(child_id: str, body: MakeAsked, conn=Depends(get_conn, scope="function")) -> dict:
     """`by` approves the paper they asked for: it prints for the child, with its QR, in their name."""
     try:
         made = focus_paper.make(conn, _child(child_id), body.week, body.by, _ask(body))
@@ -101,7 +101,7 @@ def paper_make(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/child/{child_id}/paper/plan.pdf")
-def paper_see(child_id: str, body: MakeAsked, conn=Depends(get_conn)) -> Response:
+def paper_see(child_id: str, body: MakeAsked, conn=Depends(get_conn, scope="function")) -> Response:
     """The paper a teacher asks for, as it will print, before they approve it. Writes nothing."""
     child, ask = _child(child_id), _ask(body)
     return _pdf(lambda: focus_paper.preview(conn, child, body.week, body.by, ask))
