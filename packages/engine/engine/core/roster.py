@@ -82,18 +82,9 @@ def names[K: (UUID, str)](conn: db.Conn, child_ids: Sequence[K], actor: str) -> 
 
 
 def find(conn: db.Conn, section: str, first_name: str, actor: str) -> UUID:
-    """The child id for a first name in a section, for the legacy importer's `--child`. The lookup
-    is logged like a read, because it is one."""
-    rows = conn.execute(
-        "select c.id from child c join pii.child p on p.child_id = c.id"
-        " where c.section = %s and lower(p.first_name) = lower(%s)",
-        (section, first_name),
-    ).fetchall()
+    """The child id for a first name in a section, for the legacy importer's `--child`: through the accessor that logs
+    the lookup like a read, because it is one (`pii.find_child`) — neither service may read `pii.child` itself."""
+    rows = conn.execute("select pii.find_child(%s, %s, %s) as id", (section, first_name, actor)).fetchall()
     if len(rows) != 1:
         raise ValueError(f"{len(rows)} children called {first_name!r} in {section}")
-    conn.execute(
-        "insert into access_log (tenant_id, actor, child_id, action)"
-        " select tenant_id, %s, id, 'find_child' from child where id = %s",
-        (actor, rows[0]["id"]),
-    )
     return rows[0]["id"]

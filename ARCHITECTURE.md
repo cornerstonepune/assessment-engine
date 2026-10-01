@@ -25,6 +25,9 @@ Read it as four parts with hard edges:
 The app reaches the engine only through `apps/web/lib/engine.ts`, which takes a path and a body only from
 `lib/engine-routes.ts`: `bin/engine contract` writes that list from the engine's own OpenAPI document, so a route
 the engine does not serve, or a field a route does not take, fails the app's type check (`goals/p1-types-hold.yaml`).
+Each reaches the database as a role of its own: `app_web` reads and writes only what a person changes on a page,
+`app_engine` writes the rest, neither changes a ledger row or reads a name but through the accessors that log it
+(ADR 0046).
 
 ## 2. Where n8n is — node by node
 

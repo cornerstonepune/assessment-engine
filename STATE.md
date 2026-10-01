@@ -4329,3 +4329,42 @@ The third of Phase 1's five PRs (`goals/p1-types-hold.yaml`).
     - the effort test read the call's arguments, so it is now read off the HTTP request itself;
     - the invariant test caught the browser seeds' engine-only wrongs (PR B's fix).
   - `tsc` and `eslint --max-warnings 0` pass on the website.
+
+## Phase 1, PR D: each service its own role (2026-10-01)
+
+The fourth of Phase 1's five PRs (`goals/p1-the-roles-hold.yaml`).
+
+- **Two login roles, `app_web` and `app_engine`**, made by a migration (`20261021090000_each_service_its_own_role`),
+  with no password.
+  - **The engine is the system's writer.** It may read and write every table in `public` and run every function of
+    ours, but it cannot change, remove or empty a ledger row, and it has nothing on `pii.child`.
+  - **The website reads every table in `public`** and writes the five a person changes on it: `read_correction`
+    (insert), `item_result`, `prescription`, `skill_set` and `config` (update). It calls four of our functions:
+    `confirm_results`, `resolve_result`, `roll_order` and `pii.read_child`.
+  - **Row security** stays forced on every table, and a policy for the two roles is made with each table
+    (`internal.apply_conventions`).
+  - **A ledger is held the moment it has its trigger.** That is any table `internal.forbid_change` guards: eight
+    today. The same function revokes its update, delete and truncate at the end of every migration.
+- **Names only through the logged accessors.** `roster.find` and the gold set read `pii.child` themselves until now;
+  `pii.find_child` (new) and `pii.read_child` each write the read to `access_log`.
+- **Proved from the database itself.** `tests/test_roles.py` reads each role's privileges with
+  `has_table_privilege` and its kin, and a planted wider grant fails it. Four were planted: update on
+  `evidence_event`, select on `pii.child`, insert on `item`, and a function the website does not call.
+- **Proved wide enough.** CI's browser job gives both roles a password for the run and starts the website and the
+  engine as them; the specs still write their own rows as the owner.
+  - Run that way here, the suite passed 154 of 157 and found one grant too narrow. Editing a skill set (s2) fires the
+    trigger that writes its history, and it ran as the website's role.
+  - The trigger now writes as its owner (`security definer`), since history rows are the system's to write. s2 then
+    passed 6 of 6 as the roles.
+- **Checks:** `test_roles.py` 5 passed, with each of the four planted grants failing one test. The tests the change
+  touches (the lookup route, the week, the gold set, the report, the gates, the layout, the promises) pass, 54 in
+  all. `bin/check`, `tsc` and eslint pass. ADR 0046 records the rejected alternatives.
+- **Live switches by Nimish's hand** — until then both services keep the owner's connection and nothing changes:
+  1. In Supabase's SQL editor, as the owner: `alter role app_web password '<new>'` and
+     `alter role app_engine password '<new>'` (two long random passwords, kept in the password manager).
+  2. Vercel, Production and Preview: `DATABASE_URL` → the transaction pooler (6543) as `app_web.<project-ref>`.
+     Redeploy.
+  3. The engine server's environment: `DATABASE_URL` → `app_engine.<project-ref>`. Restart the engine.
+  4. Migrations, `bin/engine week roster` (it writes names) and `bin/update-live` keep the owner's URL.
+  5. Check: sign in and open a child's page, and read one paper from Capture.
+  - I am not certain the pooler takes custom roles as `<role>.<project-ref>`; Supabase's pooler docs say how.

@@ -1,0 +1,36 @@
+name: p1-the-roles-hold
+goal: >
+  The website and the engine each reach the database as a role of their own, able to do what their code does and
+  no more. Neither can read a child's name except through the accessors that log who asked; neither can change,
+  remove or empty a row of an append-only ledger; the website writes only the tables a person changes on it. A test
+  reads each role's privileges from the database itself and fails on a grant wider than this, and CI runs every
+  browser test with the website and the engine connected as these roles, so a grant too narrow fails too. Live
+  switches when each role is given its password and each service its connection string — Nimish's step, written
+  down.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked for "a code quality of 9/10 from a proper
+# reviewer"; the review found the website and the engine both connected as the database's owner: either could read
+# every child's name without the access log, and only a trigger stood between them and a ledger row. On 2026-10-01:
+# "go ahead with phase 1". The fourth of Phase 1's gates.
+says:
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_roles.py::test_neither_service_can_read_a_name_but_through_its_accessor
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_roles.py::test_no_service_can_change_remove_or_empty_a_ledger_row
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_roles.py::test_the_website_writes_only_what_a_person_changes_on_it
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_roles.py::test_finding_a_child_by_name_is_logged_like_any_read
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_ci_runs_every_browser_test_as_the_services_own_roles
+manual:
+  - "Nimish: give app_web and app_engine their passwords and point Vercel's DATABASE_URL and the server's at them
+    (STATE.md \"Phase 1, PR D\" has each step); until then both services keep the owner's connection."
+scenarios: []
+criteria:
+  - name: each role's privileges, read from the database
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_roles.py tests/test_gates.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
