@@ -1,0 +1,26 @@
+name: p1-no-loose-ends
+goal: >
+  Nothing the system marks as in use is idle, and nothing it reports as proved hides its proof. Every prompt the seed
+  makes active is one the engine's code asks for, so active means in use and scored before it was (rule 7); a prompt
+  designed for a later step stays inactive until that step asks for it and its eval is scored. And each criterion
+  `engine done` runs is reported by the line that passed it, a test run's tally, not by whatever the command printed
+  last.
+
+# Written 2026-10-01, before the code, while closing Phase 1. `read_cells` and `word_context` have been active since
+# the first seed with no engine code asking for either and no eval behind either; and the browser criterion's line in
+# `engine done` read "[WebServer] }" where its tally belonged. CLAUDE.md rule 11, in Nimish's words: fixed in the
+# session that found them.
+says:
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: packages/engine/tests/test_settings.py::test_every_prompt_the_seed_makes_active_is_one_the_engine_asks_for
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: packages/engine/tests/test_promises.py::test_a_criterions_evidence_is_the_line_that_proves_it
+manual: []
+scenarios: []
+criteria:
+  - name: the prompts in use and the done-report's evidence
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_settings.py tests/test_promises.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

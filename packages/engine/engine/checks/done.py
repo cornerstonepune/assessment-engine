@@ -53,6 +53,14 @@ def run_proof(proved_by, timeout=900):
     return p.returncode == 0 and bool(tally), (tally[-1] if tally else lines[-1] if lines else "no output")
 
 
+def evidence(out, expect):
+    """The line a criterion's result stands on: the last that carries its expected text (a test run's tally, not the
+    server log printed after it), else its last line (goals/p1-no-loose-ends.yaml)."""
+    said = [ln.strip() for ln in out.splitlines() if ln.strip()]
+    proof = [ln for ln in said if expect and expect in ln]
+    return (proof or said or ["no output"])[-1][:100]
+
+
 def not_live(conn=None):
     """What this checkout holds that the live system does not: the branch not merged to main, and
     migrations the live database has not had."""
@@ -115,9 +123,8 @@ def report(name, run=run_proof, live=not_live, scenarios=goals.run_scenarios, cr
     for c in spec.get("criteria") or []:
         passed, out = criterion(c)
         ok &= passed
-        tail = [ln.strip() for ln in out.splitlines() if ln.strip()]
         lines.append(f"  {'PASSED' if passed else 'FAILED'}  {c['name']}")
-        lines.append(f"            $ {c['run']}  — {tail[-1][:100] if tail else 'no output'}")
+        lines.append(f"            $ {c['run']}  — {evidence(out, c.get('expect', ''))}")
     lines += ["", "Still manual:"]
     lines += [f"  - {m}" for m in spec.get("manual") or []] or ["  nothing"]
     gaps = live()

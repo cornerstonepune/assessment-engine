@@ -4,7 +4,7 @@
       "purpose": "read_cells",
       "version": 1,
       "model": "claude-haiku-4-5",
-      "active": true,
+      "active": false,
       "text_file": "prompts/read_cells.v1.txt",
       "json_schema": {
         "type": "object",
@@ -173,7 +173,7 @@
       "purpose": "word_context",
       "version": 1,
       "model": "claude-haiku-4-5",
-      "active": true,
+      "active": false,
       "text_file": "prompts/word_context.v1.txt",
       "json_schema": {
         "type": "object",
