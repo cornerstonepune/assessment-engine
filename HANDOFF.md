@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 1 of the code review: PR E (done means every check)
+
+- **PR E:** `engine done` runs a goal's scenarios and criteria as well as Nimish's sentences, and every eval is held to
+  a threshold-row bar (`checks/bars.py`, `eval.<purpose>.<measure>`). STATE.md "Phase 1, PR E" has the detail.
+- **A new prompt version** must meet its purpose's bar in `engine eval`. A new eval purpose goes in `cli.EVALS` with
+  its bar rows, or `tests/test_bars.py` fails.
+- **Owed by Nimish:** `item_generate` has no score on record, so no bar. Run Actions → engine eval → item_generate,
+  write the score down, and add its row.
+
 ## 2026-10-01 — Phase 1 of the code review: PR D (each service its own role)
 
 - **PR B merged (#150).** PR C is #152.

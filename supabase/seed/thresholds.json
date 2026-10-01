@@ -205,6 +205,108 @@
    "value": 0.5,
    "unit": "probability",
    "description": "A parent report's sentence Jev gives at least this chance passes; between the two bars the model reads it (goals/j5-parent-review-jev.yaml)"
+  },
+  {
+   "key": "eval.parent_report.held",
+   "value": 1,
+   "unit": "proportion",
+   "description": "Every draft of the eval held to its facts by code: Nimish's bar, \"the bar is all of them\" (goals/w4c-parent-report.yaml). v12 is active at 11 of 12, with an educator's approval as the last gate (DECISIONS-LOG 2026-09-29)"
+  },
+  {
+   "key": "eval.parent_review.caught",
+   "value": 1,
+   "unit": "proportion",
+   "description": "Every wrong sentence of the gold drafts caught: the bar it stays inactive until (DECISIONS-LOG 2026-09-29, 14 of 14)"
+  },
+  {
+   "key": "eval.parent_review.flagged_right_at_most",
+   "value": 0,
+   "unit": "count",
+   "description": "Right sentences flagged as wrong: none, the same bar (DECISIONS-LOG 2026-09-29)"
+  },
+  {
+   "key": "eval.misconception_list.useful",
+   "value": 0.75,
+   "unit": "proportion",
+   "description": "The model's proposals that survive as additions: 0.75, the score recorded when this became its eval (STATE.md, the mistake list becomes an engine output, 2026-09-19; ADR 0014)"
+  },
+  {
+   "key": "eval.story_shape.shape_right",
+   "value": 0.9692,
+   "unit": "proportion",
+   "description": "Stories placed in the right shape: 63 of 65, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+  },
+  {
+   "key": "eval.story_shape.wrong_answers_at_most",
+   "value": 0,
+   "unit": "count",
+   "description": "One-step answers computed wrong: none, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+  },
+  {
+   "key": "eval.mistake_guess.first",
+   "value": 0.5583,
+   "unit": "proportion",
+   "description": "The right mistake named first: 67 of 120 on the gold set (seed 7), v1's score when made active (DECISIONS-LOG 2026-09-27)"
+  },
+  {
+   "key": "eval.mistake_guess.listed",
+   "value": 0.9083,
+   "unit": "proportion",
+   "description": "The right mistake among the three: 109 of 120 on the gold set (seed 7), v1's score when made active (DECISIONS-LOG 2026-09-27)"
+  },
+  {
+   "key": "eval.mistake_guess.slips_none",
+   "value": 1,
+   "unit": "proportion",
+   "description": "Slips called NONE: 30 of 30, v1's score when made active (DECISIONS-LOG 2026-09-27)"
+  },
+  {
+   "key": "eval.mistake_guess.false_named_at_most",
+   "value": 0,
+   "unit": "count",
+   "description": "Slips given a mistake: none, v1's score when made active (DECISIONS-LOG 2026-09-27)"
+  },
+  {
+   "key": "eval.week_skills.exact",
+   "value": 0.8333,
+   "unit": "proportion",
+   "description": "Notes whose skill sets were ticked exactly: 20 of 24, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+  },
+  {
+   "key": "eval.week_skills.precision",
+   "value": 0.933,
+   "unit": "proportion",
+   "description": "Skill sets ticked that the note covered: 0.933, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+  },
+  {
+   "key": "eval.week_skills.recall",
+   "value": 0.933,
+   "unit": "proportion",
+   "description": "Skill sets the note covered that were ticked: 0.933, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+  },
+  {
+   "key": "eval.language_review.agreed",
+   "value": 1,
+   "unit": "proportion",
+   "description": "Agreement with the hand-judged cases: 6 of 6, v1's score (STATE.md, W1 gates 4 and 5, 2026-09-19)"
+  },
+  {
+   "key": "eval.language_review.right_reason",
+   "value": 1,
+   "unit": "proportion",
+   "description": "Agreed for the right reason: 6 of 6, v1's score (STATE.md, W1 gates 4 and 5, 2026-09-19)"
+  },
+  {
+   "key": "eval.pedagogy_review.agreed",
+   "value": 0.8333,
+   "unit": "proportion",
+   "description": "Agreement with the hand-judged cases: 5 of 6, v1's score (STATE.md, W1 gates 4 and 5, 2026-09-19)"
+  },
+  {
+   "key": "eval.pedagogy_review.right_reason",
+   "value": 0.8333,
+   "unit": "proportion",
+   "description": "Agreed for the right reason: 5 of 6, v1's score (STATE.md, W1 gates 4 and 5, 2026-09-19)"
   }
  ]
 }

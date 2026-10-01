@@ -4368,3 +4368,33 @@ The fourth of Phase 1's five PRs (`goals/p1-the-roles-hold.yaml`).
   4. Migrations, `bin/engine week roster` (it writes names) and `bin/update-live` keep the owner's URL.
   5. Check: sign in and open a child's page, and read one paper from Capture.
   - I am not certain the pooler takes custom roles as `<role>.<project-ref>`; Supabase's pooler docs say how.
+
+## Phase 1, PR E: done means every check (2026-10-01)
+
+The last of Phase 1's five PRs (`goals/p1-done-means-every-check.yaml`).
+
+- **`engine done` runs the whole goal.** Each of Nimish's sentences with its test, then the goal's own scenarios and
+  criteria, every one run now. It says DONE only when all of them pass and all of it is live. Before, a goal's
+  sentences could be proved while its own criteria were red. The scenario loop now lives once in
+  `goal.run_scenarios`, which `engine goal` and `engine done` both use.
+- **Every eval is held to a bar, and the bar is a row.**
+  - `eval.<purpose>.<measure>` threshold rows hold 17 bars for 8 of the 9 purposes `engine eval` scores. A measure
+    ending `_at_most` is a ceiling, such as a count of wrong answers.
+  - Each bar is either the bar Nimish set (`parent_report`, every draft held to its facts; `parent_review`, every
+    wrong sentence caught and none flagged wrongly) or the score the prompt was made active on, with the source named
+    in the row: DECISIONS-LOG and STATE.md, for `story_shape`, `mistake_guess`, `week_skills`, the two reviewers and
+    `misconception_list`.
+  - `engine eval <purpose>` prints each bar it misses and exits 1. An eval with no bar on record does not pass.
+  - `item_generate` has none: no score has been recorded since it was made active. Its bar is Nimish's step:
+    Actions → engine eval → item_generate.
+  - Seven of the nine evals printed a score that nothing held to a bar until now.
+- **`engine eval`'s dispatcher shrank.** Its C901 measure went from 18 to 15 and its statements from 74 to 60, with
+  `item_generate`'s scoring split out. Its "no eval for" message now names every eval, from one `EVALS` list that the
+  test reads too.
+- **CLAUDE.md's verify command `engine eval read_cells` named an eval that does not exist.** The `read_cells` prompt
+  is designed in SPEC.md, but no engine code uses it. The line now says `engine eval <purpose>`.
+- **Checks:**
+  - `test_bars.py` 3 passed: a score below its bar fails through the command (story_shape at 60 of 65, a reviewer at
+    0.83 against 1); at its bar it passes; with no bar, `item_generate` fails.
+  - `test_promises.py`'s new test passes: one scenario short or one criterion red makes it NOT DONE.
+  - `test_goal.py` and `test_cli.py` passed 29, and pyright on the changed files found nothing.

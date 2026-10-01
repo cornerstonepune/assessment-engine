@@ -77,6 +77,43 @@ def test_the_done_report_names_each_sentence_its_test_and_what_is_not_live(tmp_p
     assert ok and lines[-1] == "DONE" and "nothing: all of it is live" in "\n".join(lines)
 
 
+def test_the_done_report_runs_the_goals_own_scenarios_and_criteria(tmp_path, monkeypatch):
+    """A goal's sentences proved while its own scenarios and criteria are red is not done: the report runs those too,
+    now, and says which (goals/p1-done-means-every-check.yaml)."""
+    goals_dir = tmp_path / "goals"
+    goals_dir.mkdir()
+    (goals_dir / "x.yaml").write_text(yaml.safe_dump({
+        "name": "x", "goal": "It learns.", "says": [{"words": "it learns", "proved_by": "a::b"}],
+        "scenarios": [{"name": "one class"}, {"name": "two classes"}],
+        "criteria": [{"name": "the suite", "run": "pytest", "expect": "passed"}, {"name": "lint", "run": "ruff"}],
+    }))  # fmt: skip
+    monkeypatch.setattr(done.goals, "GOALS", goals_dir)
+
+    def scenarios(spec):
+        for s in spec["scenarios"]:
+            yield s["name"], {}, [] if s["name"] == "one class" else ["2 of 3 children got a paper"]
+
+    def criterion(c):
+        return (True, "3 passed") if c["name"] == "the suite" else (False, "E501 line too long")
+
+    lines, ok = done.report(
+        "x", run=lambda p: (True, "1 passed"), live=lambda: [], scenarios=scenarios, criterion=criterion
+    )
+    assert not ok and lines[-1] == "NOT DONE"
+    assert "  MET  one class" in lines and "  NOT MET  two classes" in lines
+    assert "  PASSED  the suite" in lines and "  FAILED  lint" in lines
+    text = "\n".join(lines)
+    assert "2 of 3 children got a paper" in text and "E501 line too long" in text
+    lines, ok = done.report(
+        "x",
+        run=lambda p: (True, "1 passed"),
+        live=lambda: [],
+        scenarios=lambda spec: iter([("one class", {}, [])]),
+        criterion=lambda c: (True, "ok"),
+    )
+    assert ok and lines[-1] == "DONE"
+
+
 def test_the_hooks_run_the_checks_before_a_commit_and_before_claude_says_it_is_finished():
     """The checks run whether or not anyone remembers them: git before every commit, and Claude Code
     before it may end a turn in this repository."""

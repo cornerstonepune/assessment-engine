@@ -7,7 +7,6 @@ import typer
 
 from engine.checks import audit as audit_module
 from engine.checks import goal as goal_module
-from engine.checks import scenarios as scenarios_module
 from engine.core import db
 from engine.w1_bank import spec
 
@@ -82,16 +81,13 @@ def goal(name: str = typer.Argument("", help="A goal in goals/; omit to list the
 
     scenarios = goal_module.scenarios_of(spec)
     met = 0
+    for name_, m, failures in goal_module.run_scenarios(spec):
+        met += not failures
+        _say(f"  {'PASS' if not failures else 'FAIL'}  {name_}")
+        _say("          " + "  ".join(f"{k}={v}" for k, v in m.items()))
+        for f in failures:
+            _say(f"          {f}", err=True)
     if scenarios:
-        # Scenarios write while they prove, so they run on the local copy, never live (ADR 0025).
-        with db.connect(db.local_copy()) as conn:
-            for sc in scenarios:
-                m, failures = scenarios_module.run_one(conn, sc)
-                met += not failures
-                _say(f"  {'PASS' if not failures else 'FAIL'}  {sc['name']}")
-                _say("          " + "  ".join(f"{k}={v}" for k, v in m.items()))
-                for f in failures:
-                    _say(f"          {f}", err=True)
         _say(f"  {met}/{len(scenarios)} scenarios met the bar completely")
 
     failed = []
