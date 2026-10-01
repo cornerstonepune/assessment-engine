@@ -4,22 +4,65 @@
  * Nimish, 2026-09-21: "I'm not even able to see what all validations you need from our side to do for
  * the 200-odd questions that need to be validated. Why am I not even seeing that here?" Every answer the
  * engine is unsure of, one at a time, settled in a click — each test puts the answer back afterwards.
+ *
+ * The papers are the test's own (tests/rows.ts): a class of three read on one worksheet, every kind of answer the queue
+ * holds on Asha's first paper, nothing waiting on her second, two waiting on Bina's, and Chitra's for the spot-check
+ * alone. They were live's own until 2026-10-01, and nine tests skipped themselves on any database without them
+ * (goals/p1-browser-tests-in-ci.yaml).
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aClass, aReadPaper, aWorksheet } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 test.afterAll(async () => sql.end());
 
 const ME = "e2e@cornerstone.test";
-const LIVE = sql`from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null`;
+const HELD = { wrong: "read as a wrong answer; a person checks every wrong answer before it counts", blank: "read as blank; a person checks every blank before it counts" };
+test.beforeAll(async () => {
+  const kids = await aClass(sql, "S4-TEST", "G2", ["Asha", "Bina", "Chitra"]);
+  const sums = ["46 + 38", "57 + 28", "68 + 27", "59 + 24", "35 + 47", "26 + 18", "33 + 29", "47 + 45"];
+  const w = await aWorksheet(sql, {
+    code: "S4-A", title: "S4 paper", date: "2026-09-01", band: "G2", week: "S4-TEST",
+    items: [...sums.map((expr, i) => ({ n: i + 1, page: 1, expr, question: expr })), { n: 9, page: 1, kind: "text", rung: "X1", question: "Which place did you regroup?" }],
+  });
+  const paper = (qr: string, child: string, reads: Parameters<typeof aReadPaper>[1]["reads"]) =>
+    aReadPaper(sql, { qr, child, template: w.template, items: w.items, reads });
+  await paper("S4TEST-1", kids.Asha, [
+    { status: "unreadable", why: "not sure of the digits", guess: "84" },
+    { status: "unreadable", why: "nothing it could read" },
+    { status: "unreadable", why: "nothing it could read" },
+    { status: "needs_teacher", read: "9 5" },
+    { status: "needs_teacher", read: "73", why: HELD.wrong, guess: "73" },
+    { status: "needs_teacher", why: HELD.blank },
+    { status: "correct", read: "82" },
+    { status: "unreadable", why: "3 numbers in the region for 1 answers" },
+    { status: "needs_teacher", why: HELD.blank },
+  ]);
+  await paper("S4TEST-2", kids.Asha, [
+    { status: "correct", read: "84", checkedBy: "rows.ts" },
+    { status: "correct", read: "85" },
+    { status: "wrong", read: "93", checkedBy: "rows.ts" },
+    { status: "blank", checkedBy: "rows.ts" },
+  ]);
+  await paper("S4TEST-3", kids.Bina, [{ status: "unreadable" }, { status: "needs_teacher", read: "8 5" }]);
+  // Settling an answer on a paper's own page signs the whole paper off (`resolve_result`), and a paper signed off has
+  // no spot-check left: which of Asha's two kept one depended on an id's md5, and CI drew the one that had none.
+  await paper("S4TEST-4", kids.Chitra, [{ status: "correct", read: "84" }, { status: "correct", read: "85" }, { status: "correct", read: "95" }]);
+});
+
+// every answer on a paper of the test's own; `waiting` counts the whole queue, as the screen does
+const ALL = sql`from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null`;
+const LIVE = sql`from item_result r join capture c on c.id = r.capture_id join item i on i.id = r.item_id
+  where c.superseded_by is null and c.path like 'S4TEST-%'`;
+const NUMBER = sql`coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') is not null`;
 // A wrong or a blank the engine holds for a person (ADR 0029) is a reading to confirm, not a judgement.
 const notHeld = sql`coalesce(r.raw_read::jsonb ->> 'why', '') not like '%a person checks every%'`;
 
 // The engine's own definition (`engine read waiting`), so the screen's count is checked against it.
 const waiting = async () =>
-  (await sql<{ n: number }[]>`select count(*)::int as n ${LIVE} and r.status in ('unreadable', 'needs_teacher')`)[0].n;
+  (await sql<{ n: number }[]>`select count(*)::int as n ${ALL} and r.status in ('unreadable', 'needs_teacher')`)[0].n;
 
 type Row = { id: string; status: string; state: string; misconception_codes: string[]; working_shown: string };
 const keep = async (id: string) =>
@@ -44,7 +87,7 @@ test("confirming the reader's guess settles the answer in the person's name, and
   const [a] = await sql<{ id: string; guess: string }[]>`
     select r.id, r.raw_read::jsonb ->> 'guess' as guess ${LIVE} and r.status = 'unreadable' and r.state = 'candidate'
     and coalesce(r.raw_read::jsonb ->> 'guess', '') <> '' order by r.id limit 1`;
-  test.skip(!a, "no unclear reading carries a guess yet");
+  expect(a, "an unclear reading with a guess").toBeTruthy();
   const before = await keep(a.id);
   const n = await waiting();
   try {
@@ -63,7 +106,7 @@ test("confirming the reader's guess settles the answer in the person's name, and
 test("typing what the child wrote marks it, and a blank is one press", async ({ page }) => {
   const rows = await sql<{ id: string }[]>`
     select r.id ${LIVE} and r.status = 'unreadable' and r.state = 'candidate' order by r.id desc limit 2`;
-  test.skip(rows.length < 2, "fewer than two unclear readings wait on the copy");
+  expect(rows.length, "two unclear readings").toBe(2);
   const [typed, empty] = rows;
   const before = await Promise.all(rows.map((r) => keep(r.id)));
   try {
@@ -85,7 +128,7 @@ test("judging one answer settles that answer only — nothing else on the paper 
   const [a] = await sql<{ id: string; capture_id: string }[]>`
     select r.id, r.capture_id ${LIVE} and r.status = 'needs_teacher' and r.state = 'candidate'
     and r.raw_read::jsonb ->> 'answer_state' = 'written' and ${notHeld} order by r.id limit 1`;
-  test.skip(!a, "no answer waits for a person's judgement");
+  expect(a, "an answer waiting for a person's judgement").toBeTruthy();
   const before = await keep(a.id);
   const confirmed = async () =>
     (await sql`select count(*)::int as n from item_result where capture_id = ${a.capture_id} and state = 'confirmed'`)[0].n;
@@ -113,8 +156,8 @@ for (const held of [
   test(`a ${held.kind} the engine read is held for a person and settles in one click`, async ({ page }) => {
     const [a] = await sql<{ id: string; guess: string }[]>`
       select r.id, r.raw_read::jsonb ->> 'guess' as guess ${LIVE} and r.status = 'needs_teacher'
-      and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like ${held.why} order by r.id limit 1`;
-    test.skip(!a, `no ${held.kind} is held for a person`);
+      and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like ${held.why} and ${NUMBER} order by r.id limit 1`;
+    expect(a, `a ${held.kind} held for a person`).toBeTruthy();
     const before = await keep(a.id);
     try {
       await page.goto(`/capture/check?id=${a.id}`);
@@ -135,13 +178,10 @@ for (const held of [
 // held; typing the child's words kept it held, Right and Wrong stayed hidden, and nine saves settled nothing.
 test("an explanation held as blank takes the child's words, then asks for Right or Wrong", async ({ page }) => {
   const [a] = await sql<{ id: string; paper: string }[]>`
-    select r.id, c.sheet_instance_id as paper from item_result r join capture c on c.id = r.capture_id
-    join item i on i.id = r.item_id
-    where c.superseded_by is null and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like 'read as blank%'
-      and coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') is null
-      and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)
+    select r.id, c.sheet_instance_id as paper ${LIVE} and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like 'read as blank%'
+      and not ${NUMBER} and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)
     order by r.id limit 1`;
-  test.skip(!a, "no explanation is held as blank");
+  expect(a, "an explanation held as blank").toBeTruthy();
   const before = await keep(a.id);
   try {
     await page.goto(`/capture/${a.paper}`);
@@ -161,7 +201,7 @@ test("on its paper, a held answer asks what the child wrote with the reading fil
     select r.id, c.sheet_instance_id as paper, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE}
     and r.status = 'needs_teacher' and r.state = 'candidate' and r.raw_read::jsonb ->> 'why' like 'read as a wrong answer%'
     order by r.id limit 1`;
-  test.skip(!a, "no wrong answer is held for a person");
+  expect(a, "a wrong answer held for a person").toBeTruthy();
   await page.goto(`/capture/${a.paper}`);
   const card = page.locator(`#a-${a.id}`);
   await expect(card.getByText(`The reader read ${a.read}, a wrong answer.`)).toBeVisible();
@@ -171,14 +211,15 @@ test("on its paper, a held answer asks what the child wrote with the reading fil
 
 test("each paper has one spot-check, an answer the engine was sure of, asked the same way", async ({ page }) => {
   // The page's own rule: per paper, the settled answer with the smallest md5 of its id — shown while
-  // it is still a candidate and no person has looked at it.
+  // it is still a candidate and no person has looked at it. Chitra's paper is the one no other test settles.
   const [spot] = await sql<{ id: string; read: string }[]>`
     select s.id, s.read from (
       select distinct on (c.sheet_instance_id) r.id, r.state, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE}
-      and r.status in ('correct', 'wrong', 'blank') and r.raw_read::jsonb ->> 'answer_state' = 'written'
+      and c.path = 'S4TEST-4.pdf' and r.status in ('correct', 'wrong', 'blank')
+      and r.raw_read::jsonb ->> 'answer_state' = 'written'
       order by c.sheet_instance_id, md5(r.id::text)) s
-    where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)
-    limit 1`;
+    where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)`;
+  expect(spot, "Chitra's paper has its spot-check").toBeTruthy();
   await page.goto(`/capture/check?id=${spot.id}`);
   await expect(page.getByText("A spot-check: the engine was sure of this one.")).toBeVisible();
   await expect(page.getByRole("button", { name: `Yes, the child wrote ${spot.read}` })).toBeVisible();
@@ -191,8 +232,9 @@ test("a sheet shows its score as soon as nothing on it waits", async ({ page }) 
            min(t.key ->> 'title') as title
     from item_result r join capture c on c.id = r.capture_id and c.superseded_by is null
     join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on t.id = si.sheet_template_id
+    where c.path like 'S4TEST-%'
     group by si.id having count(*) filter (where r.status in ('unreadable', 'needs_teacher')) = 0 limit 1`;
-  test.skip(!p, "every sheet still has an answer waiting");
+  expect(p, "a sheet with nothing waiting").toBeTruthy();
   await page.goto(`/capture?child=${p.child}`);
   await expect(page.getByText(`${p.right} / ${p.scored} right`).first()).toBeVisible();
 });
@@ -255,7 +297,7 @@ test("a right answer of a kind the reader is not yet trusted on waits, and settl
     select r.id, r.raw_read, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE} and r.status = 'correct' and r.state = 'candidate'
       and coalesce(r.raw_read::jsonb ->> 'child_answer', '') <> ''
       and not exists (select 1 from read_correction rc where rc.item_result_id = r.id) order by r.id limit 1`;
-  test.skip(!a, "no right answer waits on the copy");
+  expect(a, "a right answer still a candidate").toBeTruthy();
   const before = await keep(a.id);
   try {
     const held = JSON.stringify({
@@ -280,7 +322,7 @@ test("the second reader's guess is offered back as one click, on the queue and o
     select r.id, r.raw_read, c.sheet_instance_id as paper ${LIVE} and r.state = 'candidate'
       and r.raw_read::jsonb ->> 'why' like '%numbers in the region%' and coalesce(r.raw_read::jsonb ->> 'guess', '') = ''
       and not exists (select 1 from read_correction rc where rc.item_result_id = r.id) order by r.id limit 1`;
-  test.skip(!a, "nothing the reader gave up on waits on the copy");
+  expect(a, "an answer the reader gave up on").toBeTruthy();
   try {
     const guessed = JSON.stringify({ ...JSON.parse(a.raw_read), guess: "282", guess_by: "read_with_examples with 3 of the child's answers" });
     await sql`update item_result set raw_read = ${guessed} where id = ${a.id}`;

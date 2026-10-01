@@ -5,6 +5,7 @@ number to the commit before it, and 11 goal criteria that could never pass. Thes
 and the goals, the way test_deploy.py reads the deploy.
 """
 
+import re
 import tomllib
 
 import yaml
@@ -52,3 +53,31 @@ def test_a_goal_criterion_that_runs_pytest_quietly_can_pass():
         }
     )
     assert passed, out
+
+
+def test_ci_runs_every_browser_test_on_a_fresh_database_with_none_skipped():
+    """29 browser spec files ran on a laptop against a copy of live, never in CI, and some leaned on live's classes
+    (code review, 2026-09-30; goals/p1-browser-tests-in-ci.yaml)."""
+    runs = _runs("browser")
+    assert 'bin/testdb fresh "$DATABASE_URL"' in runs, "the browser job does not build its own database"
+    (suite,) = [r for r in runs if r.startswith("npx playwright test")]
+    assert "--grep" not in suite and "json" in suite, (
+        f"not the whole suite, or no report to count skips in: {suite}"
+    )
+    assert [r for r in runs if "results.json" in r and "skipped" in r and "process.exit(1)" in r], (
+        "a skipped test does not fail the job"
+    )
+
+
+def test_no_browser_test_can_skip_itself():
+    """A test that skips itself when the database lacks its rows proves nothing on a database that lacks them; it
+    builds them instead (apps/web/tests/rows.ts)."""
+    specs = sorted((db.REPO_ROOT / "apps" / "web" / "tests").glob("*.ts"))
+    assert len(specs) > 20, "found too few browser tests; the search reads nothing"
+    found = [
+        f"{p.name}:{n}"
+        for p in specs
+        for n, line in enumerate(p.read_text().splitlines(), 1)
+        if re.search(r"\b(test|describe)\.(skip|fixme|only)\(", line)
+    ]
+    assert found == []

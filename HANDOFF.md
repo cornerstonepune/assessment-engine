@@ -18,6 +18,17 @@ test that failed before its fix:
 The out-of-date notice no longer says only "answers signed off since": a change in how the school counts makes a
 report out of date too, and every report the fixes above change goes out of date on its own once this is live.
 
+## 2026-10-01 — Phase 1 of the code review: PR B (the browser suite in CI)
+
+- **PR A merged** after main moved: #147 and #148, from another session, landed first. Main was merged in, and only
+  `HANDOFF.md` conflicted.
+- **PR B:** every browser spec runs in CI on a fresh database, and a skip fails the job. Specs seed their own rows
+  through `apps/web/tests/rows.ts`. STATE.md "Phase 1, PR B" has the detail.
+- **Local check:** build a fresh database with `bin/testdb fresh postgresql://…/fresh` and point TEST_DATABASE_URL
+  at it. The copy holds rows from older runs that a fresh database does not, and u9's bug hid behind them.
+- **Next:** C (pyright on `assess/` and `core/`, the OpenAPI contract), D (database roles), E (`engine done` runs
+  criteria and scenarios; eval bars as threshold rows).
+
 ## 2026-10-01 — Phase 1 of the code review: PR A (the gates hold)
 
 - **Phase 0 is merged and live** (#144, #145, #146): every deploy waited for CI. `engine done` proves 26 of 26 of

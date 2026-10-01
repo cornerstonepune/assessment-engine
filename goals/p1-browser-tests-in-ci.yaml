@@ -1,0 +1,42 @@
+name: p1-browser-tests-in-ci
+goal: >
+  Every browser test runs in CI on every change, on a database built from this repository alone, against a
+  production build of the website and the engine, and a test that skips itself fails the run. Each test builds the
+  rows it needs: a class of its own, a worksheet entered by the engine, papers read (apps/web/tests/rows.ts). None
+  leans on live's classes: the week tests, the answer queue, a child's page and the Marking screen once read live's
+  "G2" or "G3" and skipped or failed themselves anywhere else, and now seed their own. And the engine's concurrency
+  test keeps one class instead of leaving two more children in the copy on every run.
+
+# Written 2026-10-01, before the code. The review of 2026-09-30: 29 browser spec files never ran in CI and some
+# needed live's data (a class "G2", a week "T2W1"), so most of that day's bugs sat in code only these tests reach. On
+# 2026-10-01: "go ahead with phase 1". The second of Phase 1's five PRs (goals/p1-the-gates-hold.yaml is the first).
+says:
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_ci_runs_every_browser_test_on_a_fresh_database_with_none_skipped
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_no_browser_test_can_skip_itself
+  - words: "go ahead with phase 1"
+    proved_by: "apps/web/tests/s4-validation-queue.spec.ts::confirming the reader's guess settles the answer in the person's name, and the next one appears"
+  - words: "go ahead with phase 1"
+    proved_by: "apps/web/tests/s7-paper-from-library.spec.ts::a paper opens from its code: the page as printed, how it was drawn, and its whole key"
+  - words: "go ahead with phase 1"
+    proved_by: "apps/web/tests/s7-paper-from-library.spec.ts::approving the pack marks the papers printed"
+  - words: "go ahead with phase 1"
+    proved_by: "apps/web/tests/screens.spec.ts::a child's page is in words, with the answers behind each skill"
+  - words: "go ahead with phase 1"
+    proved_by: "apps/web/tests/m2-make-papers.spec.ts::a paper the bank cannot fill says why, and nothing prints"
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_week.py::test_two_classes_assembled_at_the_same_moment_both_finish
+manual:
+  - "After the merge: main's CI run shows the browser job green, its last step printing skipped: 0."
+scenarios: []
+criteria:
+  - name: the CI gates and the concurrency test that keeps its class
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_gates.py tests/test_week.py
+    expect: "passed"
+  - name: every browser test, on a production build against the local copy
+    run: cd apps/web && npx playwright test
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -45,7 +45,7 @@ async function paper(
   const [{ id: tpl }] = await sql<{ id: string }[]>`
     insert into sheet_template (tenant_id, band, week, source, skill_set_code, difficulty, child_id, key, item_ids)
     values (${tenant}, 'G2', ${WEEK}, ${t.source}, ${t.set ?? null}, ${t.level ?? null}, ${kid}, ${sql.json((t.key ?? {}) as never)},
-            ${t.drawn ?? null}::uuid[])
+            ${t.drawn ?? []}::uuid[])
     returning id`;
   const [p] = await sql<Paper[]>`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status, kind, week, section,
