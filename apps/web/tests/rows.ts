@@ -54,28 +54,35 @@ export async function aWorksheet(sql: Sql, w: Worksheet): Promise<{ template: st
   return { template: t.id, items: t.item_ids };
 }
 
-/** One answer as the reader left it: its status, what it read, and why it held it, if it did. */
+/** One answer as the reader left it: its status, what it read, and why it held it, if it did; `checkedBy`, the person
+ *  who said what the child wrote. */
 export type Read = { status: string; read?: string; why?: string; guess?: string; checkedBy?: string };
 
-/** One child's copy of a worksheet, scanned and read, an answer per entry of `reads` in question order: a paper that
- *  was there before under the same code is replaced, so a run starts from these rows and nothing an earlier run left.
- *  → its sheet (sheet_instance id), its capture and its answers' ids. */
+/** One child's copy of a worksheet, scanned and read, an answer per entry of `reads` in question order. A paper read
+ *  before under the same code is superseded, as the reader supersedes a scan it reads again: its answers stay — one a
+ *  test signed off holds evidence, and evidence is append-only, so deleting them failed the next run — and nothing
+ *  that reads a paper reads them. A run starts from these rows. → its sheet (sheet_instance id), its capture and its
+ *  answers' ids. */
 export async function aReadPaper(
   sql: Sql,
   p: { qr: string; child: string; template: string; items: string[]; reads: Read[] },
 ): Promise<{ sheet: string; capture: string; results: string[] }> {
+  // ADR 0029: a wrong or a blank stands once a person has said what the child wrote; the engine's word alone holds it
+  // for them (`needs_teacher`). A paper with one the engine settled alone is a paper the engine cannot write.
+  const alone = p.reads.filter((r) => (r.status === "wrong" || r.status === "blank") && !r.checkedBy);
+  if (alone.length) throw new Error(`${p.qr}: a wrong or a blank needs checkedBy — the engine never settles one alone`);
   const t = await tenant(sql);
-  const old = sql`select c.id from capture c join sheet_instance si on si.id = c.sheet_instance_id where si.qr_code = ${p.qr}`;
-  await sql`delete from read_correction where capture_id in (${old})`;
-  await sql`delete from item_result where capture_id in (${old})`;
-  await sql`delete from capture where id in (${old})`;
-  await sql`delete from sheet_instance where qr_code = ${p.qr}`;
-  const [{ id: sheet }] = await sql<{ id: string }[]>`
-    insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)
-    values (${t}, ${p.qr}, ${p.template}, ${p.child}, 'returned') returning id`;
+  const [had] = await sql<{ id: string }[]>`select id from sheet_instance where qr_code = ${p.qr} and child_id = ${p.child}`;
+  const [{ id: sheet }] = had
+    ? [had]
+    : await sql<{ id: string }[]>`
+        insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)
+        values (${t}, ${p.qr}, ${p.template}, ${p.child}, 'returned') returning id`;
   const [{ id: capture }] = await sql<{ id: string }[]>`
     insert into capture (tenant_id, path, pages, status, sheet_instance_id)
     values (${t}, ${`${p.qr}.pdf`}, 1, 'processed', ${sheet}) returning id`;
+  await sql`update capture set superseded_by = ${capture} where sheet_instance_id = ${sheet} and id <> ${capture}
+            and superseded_by is null`;
   const results: string[] = [];
   for (const [i, r] of p.reads.entries()) {
     const raw = JSON.stringify({

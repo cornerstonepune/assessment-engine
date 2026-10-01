@@ -4260,8 +4260,22 @@ The second of Phase 1's five PRs (`goals/p1-browser-tests-in-ci.yaml`).
   deleted, because `evidence_event`'s append-only trigger refuses even an empty cascade. That left 24 children in
   the copy. It now uses one class, `CONCURSEC-TEST`, made once and kept.
 - **The coverage floor rises to today's number:** 79.5% at one decimal (CI measured 79.51% on PR A).
+- **CI's first run caught an order-dependent test** (149 passed; s4's spot-check found none, and the 7 after it did not
+  run):
+  - Settling an answer on a paper's own page signs the whole paper off (`resolve_result`, by design since
+    2026-09-24). s4's "Right" on Asha's first paper did so, and left that paper no spot-check. Her second had one only
+    when the smallest md5 of three random ids fell on an answer no one had checked: one run in three it did not.
+  - The spot-check now reads Chitra's paper, which no other test settles.
+  - A seeded paper holds only what the engine can write: a settled wrong or blank carries a person's reading, and
+    `aReadPaper` refuses one without. The engine's invariant test caught three such answers on a database the browser
+    suite had used.
+  - A paper read again is superseded, as the reader supersedes a scan, not deleted: a signed-off answer's evidence is
+    append-only, so the second local run failed to delete it.
 - **Checks:**
   - **On a database built fresh here:** 155 passed, 0 skipped. The one failure was u9 (above), which then passed.
+  - **The full suite on another fresh database, in CI's order:** 157 passed. A statement log showed the one
+    `resolve_result` that signed Asha's paper off. After the fix, s4 and screens passed twice in a row on that
+    database (40 and 40), and the engine's invariant test passed on it.
   - **On main's code:** s4 skipped 9, screens 2 and m2 1, and e2e's G3 tests and s7 failed without live's classes.
   - `test_gates.py`: 6 passed. The concurrency test passed twice and leaves one class.
   - `tsc`, eslint and `bin/check` passed.

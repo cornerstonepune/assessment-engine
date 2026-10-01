@@ -41,7 +41,7 @@ test.beforeAll(async () => {
   });
   await aReadPaper(sql, {
     qr: "SCREENS-1", child: kavya, template: w.template, items: w.items,
-    reads: [{ status: "correct", read: "84" }, { status: "wrong", read: "75" }, { status: "needs_teacher", read: "9 5" }],
+    reads: [{ status: "correct", read: "84" }, { status: "wrong", read: "75", checkedBy: "rows.ts" }, { status: "needs_teacher", read: "9 5" }],
   });
 });
 test.afterAll(async () => sql.end());

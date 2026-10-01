@@ -5,9 +5,10 @@
  * the 200-odd questions that need to be validated. Why am I not even seeing that here?" Every answer the
  * engine is unsure of, one at a time, settled in a click — each test puts the answer back afterwards.
  *
- * The papers are the test's own (tests/rows.ts): a class of two read on one worksheet, every kind of answer the queue
- * holds on Asha's first paper, nothing waiting on her second, and two waiting on Bina's. They were live's own until
- * 2026-10-01, and nine tests skipped themselves on any database without them (goals/p1-browser-tests-in-ci.yaml).
+ * The papers are the test's own (tests/rows.ts): a class of three read on one worksheet, every kind of answer the queue
+ * holds on Asha's first paper, nothing waiting on her second, two waiting on Bina's, and Chitra's for the spot-check
+ * alone. They were live's own until 2026-10-01, and nine tests skipped themselves on any database without them
+ * (goals/p1-browser-tests-in-ci.yaml).
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
@@ -20,7 +21,7 @@ test.afterAll(async () => sql.end());
 const ME = "e2e@cornerstone.test";
 const HELD = { wrong: "read as a wrong answer; a person checks every wrong answer before it counts", blank: "read as blank; a person checks every blank before it counts" };
 test.beforeAll(async () => {
-  const kids = await aClass(sql, "S4-TEST", "G2", ["Asha", "Bina"]);
+  const kids = await aClass(sql, "S4-TEST", "G2", ["Asha", "Bina", "Chitra"]);
   const sums = ["46 + 38", "57 + 28", "68 + 27", "59 + 24", "35 + 47", "26 + 18", "33 + 29", "47 + 45"];
   const w = await aWorksheet(sql, {
     code: "S4-A", title: "S4 paper", date: "2026-09-01", band: "G2", week: "S4-TEST",
@@ -42,10 +43,13 @@ test.beforeAll(async () => {
   await paper("S4TEST-2", kids.Asha, [
     { status: "correct", read: "84", checkedBy: "rows.ts" },
     { status: "correct", read: "85" },
-    { status: "wrong", read: "93" },
-    { status: "blank" },
+    { status: "wrong", read: "93", checkedBy: "rows.ts" },
+    { status: "blank", checkedBy: "rows.ts" },
   ]);
   await paper("S4TEST-3", kids.Bina, [{ status: "unreadable" }, { status: "needs_teacher", read: "8 5" }]);
+  // Settling an answer on a paper's own page signs the whole paper off (`resolve_result`), and a paper signed off has
+  // no spot-check left: which of Asha's two kept one depended on an id's md5, and CI drew the one that had none.
+  await paper("S4TEST-4", kids.Chitra, [{ status: "correct", read: "84" }, { status: "correct", read: "85" }, { status: "correct", read: "95" }]);
 });
 
 // every answer on a paper of the test's own; `waiting` counts the whole queue, as the screen does
@@ -207,14 +211,15 @@ test("on its paper, a held answer asks what the child wrote with the reading fil
 
 test("each paper has one spot-check, an answer the engine was sure of, asked the same way", async ({ page }) => {
   // The page's own rule: per paper, the settled answer with the smallest md5 of its id — shown while
-  // it is still a candidate and no person has looked at it.
+  // it is still a candidate and no person has looked at it. Chitra's paper is the one no other test settles.
   const [spot] = await sql<{ id: string; read: string }[]>`
     select s.id, s.read from (
       select distinct on (c.sheet_instance_id) r.id, r.state, r.raw_read::jsonb ->> 'child_answer' as read ${LIVE}
-      and r.status in ('correct', 'wrong', 'blank') and r.raw_read::jsonb ->> 'answer_state' = 'written'
+      and c.path = 'S4TEST-4.pdf' and r.status in ('correct', 'wrong', 'blank')
+      and r.raw_read::jsonb ->> 'answer_state' = 'written'
       order by c.sheet_instance_id, md5(r.id::text)) s
-    where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)
-    limit 1`;
+    where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)`;
+  expect(spot, "Chitra's paper has its spot-check").toBeTruthy();
   await page.goto(`/capture/check?id=${spot.id}`);
   await expect(page.getByText("A spot-check: the engine was sure of this one.")).toBeVisible();
   await expect(page.getByRole("button", { name: `Yes, the child wrote ${spot.read}` })).toBeVisible();
