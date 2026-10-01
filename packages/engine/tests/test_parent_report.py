@@ -765,3 +765,35 @@ def test_one_answer_to_a_question_of_two_skills_counts_once(conn):
         == 1
     )
     assert P.facts(conn, kid)["answers"] == 1
+
+
+def test_a_skill_set_is_secure_only_when_every_skill_of_it_the_child_answered_is(conn, child):
+    """Advika's report, 2026-10-01: "One- and two-step word problems — 17 of 27 right — secure", and next "harder
+    questions of it". One skill of the set was secure and the set was called so, its count the whole set's. Here the
+    set of 2-digit + 1-digit holds nine of nine of one skill and one of five of another: ten of fourteen, not secure."""
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    before = P.facts(conn, child)
+    held = next(x for x in before["can_do"] if x["answered"] == 9)
+    for right in (True, False, False, False, False):
+        conn.execute(
+            "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
+            " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.02','R21',%s,'{}','item',now(),'t')",
+            (t, child, right),
+        )
+    conn.execute("select rebuild_child_skill_state(%s::uuid)", (child,))
+    states = {
+        r["state"]
+        for r in conn.execute(
+            "select state from child_skill_state where child_id = %s and rung_code = 'R21'", (child,)
+        )
+    }
+    assert states & set(report.STRONG) and states - set(report.STRONG), (
+        "the set no longer mixes; this test reads nothing"
+    )
+
+    f = P.facts(conn, child)
+    assert held["id"] not in {x["id"] for x in f["can_do"]}, "a set is secure only when every skill of it is"
+    # and next never says secure of a set the report does not call secure
+    for g in (f, before):
+        if g["next"] and g["next"]["why"].startswith("secure"):
+            assert g["next"]["id"] in {x["id"] for x in g["can_do"]}
