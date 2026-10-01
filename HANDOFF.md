@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 1 closed: the loose ends
+
+- **`read_cells` and `word_context` are inactive.** No engine code ever asked for either, and neither had an eval.
+  `tests/test_settings.py` fails on any active prompt that no code asks for. A step that uses one makes it active once
+  `engine eval` has scored it (rule 7).
+- **`engine done` quotes the line that passed each criterion** (`done.evidence`), not the log printed after it.
+- **Owed by Nimish, unchanged:**
+  - the role switch (STATE.md "Phase 1, PR D");
+  - the `item_generate` bar;
+  - confirming that Supabase backups are on.
+
 ## 2026-10-01 — Phase 1 of the code review: PR E (done means every check)
 
 - **PR E:** `engine done` runs a goal's scenarios and criteria as well as Nimish's sentences, and every eval is held to

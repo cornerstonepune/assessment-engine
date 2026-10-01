@@ -4398,3 +4398,26 @@ The last of Phase 1's five PRs (`goals/p1-done-means-every-check.yaml`).
     0.83 against 1); at its bar it passes; with no bar, `item_generate` fails.
   - `test_promises.py`'s new test passes: one scenario short or one criterion red makes it NOT DONE.
   - `test_goal.py` and `test_cli.py` passed 29, and pyright on the changed files found nothing.
+
+## Phase 1, loose ends: nothing active is idle; each check shows its proof (2026-10-01)
+
+Found while closing Phase 1 (`goals/p1-no-loose-ends.yaml`).
+
+- **Two prompts were active with nothing asking for them.** `read_cells` and `word_context` had been active since the
+  first seed. No engine code has ever named either (`git log -S` finds no commit that does), and neither has an eval.
+  Rule 7 makes a prompt active only once its eval is scored, so both are now inactive.
+  - `read_cells` waits for step R1 in BUILD-ORDER.md, one answer box read whole. That step makes it active once
+    `engine eval read_cells` scores it.
+  - `word_context` is designed in SPEC.md; no step in BUILD-ORDER.md names it.
+  - `tests/test_settings.py` reads every active purpose from the seed and every string the engine's code holds whole.
+    It fails on an active prompt that no code asks for, and it failed on these two before the seed changed.
+  - Live takes the change on the next deploy: `engine load --settings` sets `active` from the seed.
+- **`engine done` quotes the line that passed a criterion.** It quoted whatever the command printed last, so the
+  browser suite's line read `[WebServer] }`. It now quotes the last line carrying the criterion's expected text (a
+  tally such as `57 passed (3.1m)`), or the last line when none does (`done.evidence`).
+- **Checks:**
+  - `pytest -q tests/test_settings.py tests/test_promises.py tests/test_loaders.py tests/test_llm.py tests/test_bars.py
+    tests/test_audit.py` → 50 passed. Both new tests failed first: `['read_cells', 'word_context'] == []`, and the
+    criterion line without its tally.
+  - `engine audit` on the local copy found the same 27 violations with and without the change. All are local data (26
+    specs not ratified, one mistake-charge table not approved); none is about prompts.

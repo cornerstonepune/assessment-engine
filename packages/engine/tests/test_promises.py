@@ -114,6 +114,26 @@ def test_the_done_report_runs_the_goals_own_scenarios_and_criteria(tmp_path, mon
     assert ok and lines[-1] == "DONE"
 
 
+def test_a_criterions_evidence_is_the_line_that_proves_it(tmp_path, monkeypatch):
+    """A criterion's line in the report quotes the output that passed it, a test run's tally, not whatever the command
+    printed last: the browser suite's read "[WebServer] }" (goals/p1-no-loose-ends.yaml)."""
+    goals_dir = tmp_path / "goals"
+    goals_dir.mkdir()
+    (goals_dir / "x.yaml").write_text(yaml.safe_dump({
+        "name": "x", "goal": "It runs.", "says": [{"words": "it runs", "proved_by": "a::b"}],
+        "criteria": [{"name": "the browser", "run": "npx playwright test", "expect": "passed"}],
+    }))  # fmt: skip
+    monkeypatch.setattr(done.goals, "GOALS", goals_dir)
+    lines, _ = done.report(
+        "x",
+        run=lambda p: (True, "1 passed"),
+        live=lambda: [],
+        scenarios=lambda spec: iter(()),
+        criterion=lambda c: (True, "Running 57 tests\n  57 passed (3.1m)\n[WebServer] }\n"),
+    )
+    assert "            $ npx playwright test  — 57 passed (3.1m)" in lines
+
+
 def test_the_hooks_run_the_checks_before_a_commit_and_before_claude_says_it_is_finished():
     """The checks run whether or not anyone remembers them: git before every commit, and Claude Code
     before it may end a turn in this repository."""
