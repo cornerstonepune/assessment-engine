@@ -4,10 +4,13 @@ A false negative (rejecting a valid key) is merely annoying; a false positive is
 must refuse everything rather than let an unset header match an unset secret.
 """
 
+import re
+
 import pytest
 from fastapi import HTTPException
 
 from engine.api.deps import require_engine_key
+from engine.core import db
 
 
 def test_the_correct_key_passes(monkeypatch):
@@ -52,3 +55,13 @@ def test_an_empty_configured_key_also_refuses_everything(monkeypatch):
     with pytest.raises(HTTPException) as exc:
         require_engine_key(x_engine_key="")
     assert exc.value.status_code == 500
+
+
+def test_every_route_commits_before_it_answers():
+    """FastAPI closes a request-scoped dependency after the answer is sent, so a route's write committed after the
+    caller had its answer: the website, redirecting to read back a question it had just removed, sometimes found it
+    still live (main's CI, 2026-10-01: "removing a question retires it"). Every route's connection is
+    function-scoped, and commits before the answer leaves (goals/p2-live-recovers.yaml)."""
+    src = "\n".join(p.read_text() for p in (db.REPO_ROOT / "packages/engine/engine/api").rglob("*.py"))
+    assert re.findall(r"Depends\(get_conn\)", src) == []
+    assert src.count('Depends(get_conn, scope="function")') > 50

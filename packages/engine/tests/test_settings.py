@@ -1,6 +1,7 @@
 """The settings the engine reads, as their seed files hold them (core/settings.py)."""
 
 import ast
+import re
 
 from engine.core import db, settings
 
@@ -21,3 +22,14 @@ def test_every_prompt_the_seed_makes_active_is_one_the_engine_asks_for():
     designed for a later step stays inactive until that step asks for it (goals/p1-no-loose-ends.yaml)."""
     active = {p["purpose"] for p in settings.seed("prompts.json", "prompts") if p.get("active")}
     assert sorted(active - _named_in_code()) == []
+
+
+def test_every_setting_is_read_through_one_reader():
+    """A workflow reads a config or threshold row through `settings.config` and `settings.threshold`; three private
+    copies of the same reader had grown (goals/p2-less-code.yaml)."""
+    copies = [
+        str(p.relative_to(db.REPO_ROOT))
+        for p in (db.REPO_ROOT / "packages/engine/engine").rglob("*.py")
+        if re.search(r"^def _(config|threshold)\(", p.read_text(), re.M)
+    ]
+    assert copies == []

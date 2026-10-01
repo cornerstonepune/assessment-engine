@@ -70,3 +70,15 @@ def load_config(conn: db.Conn, t: db.Id) -> None:
 def load(conn: db.Conn, t: db.Id) -> None:
     for step in (load_prompts, load_thresholds, load_config):
         step(conn, t)
+
+
+def config(conn: db.Conn, key: str, default: Any = None) -> Any:
+    """A config row's value, or `default` when there is no such row. The one reader every workflow uses."""
+    row = conn.execute("select value from config where key = %s", (key,)).fetchone()
+    return row["value"] if row else default
+
+
+def threshold(conn: db.Conn, key: str, default: float) -> float:
+    """A threshold row's value, or `default` when there is no such row."""
+    row = conn.execute("select value from threshold where key = %s", (key,)).fetchone()
+    return float(row["value"]) if row else default

@@ -325,6 +325,18 @@
    "value": 2,
    "unit": "GB",
    "description": "Below this much free on the server's disk, the live watcher says so: scans, papers and every deploy's build live there"
+  },
+  {
+   "key": "sign_in.max_failures",
+   "value": 10,
+   "unit": "wrong passwords",
+   "description": "This many wrong passwords for one email inside sign_in.window_minutes and the sign-in page refuses that email until the window passes (goals/p2-live-recovers.yaml)"
+  },
+  {
+   "key": "sign_in.window_minutes",
+   "value": 15,
+   "unit": "minutes",
+   "description": "How far back the sign-in page counts an email's wrong passwords"
   }
  ]
 }

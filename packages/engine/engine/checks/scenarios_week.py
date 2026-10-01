@@ -5,17 +5,12 @@ caller's transaction, and rolls it back. Nothing here mocks the engine: the prop
 the rows the real path writes, which is the only way to catch what the parts' own tests cannot.
 """
 
-from engine.core import db
+from engine.core import db, settings
 from engine.w2_print import assemble, pack, prescribe
 
 SECTION = "GOALSEC"
 WEEK = "goal-week"
 SET = "SUB.2D2D"
-
-
-def _config(conn, key, default):
-    row = conn.execute("select value from config where key = %s", (key,)).fetchone()
-    return default if row is None else row["value"]
 
 
 def _children(conn, n, band="G2"):
@@ -52,8 +47,8 @@ def _sheet_items(sheet):
 def _headroom(conn, rx):
     """How many questions the class needs against how many the unit holds — the number that decides
     whether ten children can have ten different papers at all."""
-    per_sheet = int(_config(conn, "assemble.items_per_sheet", 12))
-    spares = int(_config(conn, "assemble.spares_per_difficulty", 2))
+    per_sheet = int(settings.config(conn, "assemble.items_per_sheet", 12))
+    spares = int(settings.config(conn, "assemble.spares_per_difficulty", 2))
     needed, held = 0, 0
     for difficulty in {p["difficulty"] for p in rx}:
         kids = sum(1 for p in rx if p["difficulty"] == difficulty)
@@ -156,13 +151,13 @@ def respects_exposure_window(conn, sc):
     return {
         "children": len(rx),
         "children_checked_across_two_weeks": checked,
-        "window_days": _config(conn, "exposure.days", 21),
+        "window_days": settings.config(conn, "exposure.days", 21),
     }, fails
 
 
 def sheet_length_matches_config(conn, sc):
     _, built = _week(conn, sc)
-    want = int(_config(conn, "assemble.items_per_sheet", 12))
+    want = int(settings.config(conn, "assemble.items_per_sheet", 12))
     wrong = [
         f"{s['qr']}: {len(s['item_rows'])}"
         for s in built["sheets"] + built["spares"]
@@ -175,7 +170,7 @@ def sheet_length_matches_config(conn, sc):
 
 def spares_are_anonymous(conn, sc):
     rx, built = _week(conn, sc)
-    want_each = int(_config(conn, "assemble.spares_per_difficulty", 2))
+    want_each = int(settings.config(conn, "assemble.spares_per_difficulty", 2))
     difficulties = {p["difficulty"] for p in rx}
     named = [s["qr"] for s in built["spares"] if s["child_id"]]
     fails = []

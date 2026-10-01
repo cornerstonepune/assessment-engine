@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 2, PR 2: live recovers
+
+- **A restart** marks every dead run (`runs.orphaned`).
+- **A rollback** is a commit given to the deploy.
+- **Rebuilds of one child** are locked per child.
+- **Sign-in** refuses an email after too many wrong passwords (`sign_in.*` rows).
+- **Less code** (`goals/p2-less-code.yaml`):
+  - `assess/mark.py`'s dead round trip is deleted;
+  - every workflow reads a setting through `core/settings.py`;
+  - each colour swatch carries a mark;
+  - ARCHITECTURE.md §5 points at the generated route list.
+- **"One owner per rule" is traced, and nothing needed merging.** The two level rules are agreed rules with one owner
+  each, and the website's judgement writes match `resolve_result`. STATE.md "Phase 2, PR 2 (continued)" has the
+  detail, and what was skipped with when to add it.
+
 ## 2026-10-01 — Phase 2, PR 1: live is watched
 
 - **`engine live watch` and `watch-live.yml`** (every 10 minutes) open the issue "Live needs a look". A limit is a

@@ -41,7 +41,7 @@ def _short(built):
 def prescribe_class(
     body: WeekPrescribeRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """One prescription per child in the section, each carrying the rule that chose it."""
@@ -68,7 +68,7 @@ def prescribe_class(
 def assemble_week(
     body: WeekAssembleRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Every child's own paper plus the spares. A child the bank cannot dress is returned by name,
@@ -95,7 +95,7 @@ def assemble_week(
 def render_week(
     body: WeekRenderRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """The printable pack, in roll order, one key per sheet. Names are read through the logging
@@ -124,7 +124,7 @@ def render_week(
 def approve_week(
     body: WeekApproveRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """The human gate, over HTTP so the app and a flow use one implementation. Approving is safe to repeat —
@@ -142,7 +142,7 @@ def approve_week(
 
 
 @router.get("/week/{section}/{week}/{kind}/pack.pdf")
-def pack_pdf(section: str, week: str, kind: str, conn=Depends(get_conn)) -> FileResponse:
+def pack_pdf(section: str, week: str, kind: str, conn=Depends(get_conn, scope="function")) -> FileResponse:
     """The approved pack as one PDF for the Papers page to hand on. Refused, in words, while it waits."""
     try:
         out = pack.pdf(conn, section, week, kind, db.REPO_ROOT / "data" / "packs")
@@ -154,7 +154,7 @@ def pack_pdf(section: str, week: str, kind: str, conn=Depends(get_conn)) -> File
 
 
 @router.get("/sheet/{qr}/page/{page_no}.jpg")
-def sheet_page(qr: str, page_no: int, conn=Depends(get_conn)) -> Response:
+def sheet_page(qr: str, page_no: int, conn=Depends(get_conn, scope="function")) -> Response:
     """One page of a paper exactly as it was printed — the QR in its corner — for the paper view.
 
     Served from the PDF the render wrote, like a scan is served from the school's disk: a person
@@ -170,7 +170,7 @@ def sheet_page(qr: str, page_no: int, conn=Depends(get_conn)) -> Response:
 
 
 @router.post("/week/declaration/propose")
-def propose_declaration(body: WeekNoteRequest, conn=Depends(get_conn)) -> dict:
+def propose_declaration(body: WeekNoteRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """N4: an educator's note for the week → the grade's skill sets it covered, ticked where Jev is sure enough
     (`week_note.propose`). Nothing is kept until the educator confirms."""
     band = roster.class_band(conn, body.section)
@@ -180,7 +180,7 @@ def propose_declaration(body: WeekNoteRequest, conn=Depends(get_conn)) -> dict:
 
 
 @router.post("/week/declaration")
-def declare(body: WeekDeclareRequest, conn=Depends(get_conn)) -> dict:
+def declare(body: WeekDeclareRequest, conn=Depends(get_conn, scope="function")) -> dict:
     """N4: what the educator confirms for their section's week is kept; the latest for a week stands."""
     try:
         row = week_note.confirm(
@@ -197,7 +197,7 @@ def declare(body: WeekDeclareRequest, conn=Depends(get_conn)) -> dict:
 
 
 @router.get("/week/{section}/{week}/declaration")
-def declaration(section: str, week: str, conn=Depends(get_conn)) -> dict:
+def declaration(section: str, week: str, conn=Depends(get_conn, scope="function")) -> dict:
     """The week's declaration that stands, or 404 when none is declared."""
     row = week_note.current(conn, section, week)
     if not row:

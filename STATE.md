@@ -4443,3 +4443,61 @@ works; https://github.com/dietrichgebert/ponytail).
   - `pytest -q tests/test_watch.py tests/test_roles.py tests/test_deploy.py` → 15 passed.
   - `npx playwright test tests/p2-website-errors.spec.ts`, run as `app_web` → 1 passed.
   - ruff, pyright, eslint and tsc are clean on the changed files.
+
+## Phase 2, PR 2: live recovers (2026-10-01)
+
+`goals/p2-live-recovers.yaml`.
+
+- **A restart marks every run it killed, whatever the flow** (`api/routes/runs.py::orphaned`, called as the engine
+  starts). Until now only a scan reading was marked; a parent report being written said "running" forever. Moved from
+  `w3_read/inbox.py`, which no longer has it.
+- **A bad deploy is undone by naming a commit.** Actions → deploy engine → Run workflow → a full commit id. The next
+  merge deploys main again. Migrations only go forward.
+- **Two rebuilds of one child at once both finish.** Reproduced first: the second raised `UniqueViolation` on the
+  first's rows. `rebuild_child_skill_state` now takes a lock per child, held to the end of its transaction
+  (migration 20261023090000).
+- **Every route commits before it answers.** Main's CI went red on #156's merge, on a browser test #156 never
+  touched ("removing a question retires it"), which had passed on the same tree an hour before. Root cause:
+  FastAPI 0.141 closes a request-scoped dependency after the answer is sent (`routing.py`: `await response(...)`
+  inside the request's exit stack), so `get_conn` committed after the website had its answer. The website then read
+  the question back before the commit, and still saw it live. Every route now takes `Depends(get_conn,
+  scope="function")`, which commits as the route returns. `tests/api/test_deps.py` fails on a request-scoped one.
+- **A password is not guessed by trying.** After `sign_in.max_failures` (10) wrong passwords for one email inside
+  `sign_in.window_minutes` (15), the sign-in page refuses that email until the window passes (`sign_in_failure`,
+  migration 20261023100000). `app_web` may insert there.
+- **Checks:**
+  - `pytest -q tests/api/test_runs_routes.py tests/test_deploy.py tests/test_graph.py tests/test_roles.py
+    tests/test_inbox.py tests/test_watch.py` → 33 passed.
+  - `npx playwright test tests/gate.spec.ts tests/p2-website-errors.spec.ts`, run as `app_web` → 12 passed.
+
+## Phase 2, PR 2 (continued): less code says the same (2026-10-01)
+
+`goals/p2-less-code.yaml`.
+
+- **`assess/mark.py` went from 414 lines to 90** and off the frozen list. The prototype's synthetic round trip (fake
+  answers, a fake photo, a printed-digit reader, `roundtrip`) had no caller since real scans arrived. `deskew` and
+  `read_qr` stay; `w3_read/sorting.py` uses them. Its frozen missing-annotation count fell from 320 to 50.
+- **One settings reader.** `settings.config` and `settings.threshold` in `core/settings.py` replace three private
+  copies in `assemble.py`, `prescribe.py` and `scenarios_week.py`, which `shelf.py` reached into.
+  `tests/test_settings.py` fails on a new copy.
+- **No state is told by colour alone.** Each swatch carries a mark (! needs help, ~ practising, ✓ got it); grey stays
+  blank.
+- **Traced and left as they are, because they are not copies:**
+  - "Which level next" is two rules agreed with the school, each with one owner. `next_difficulty()` steps the week's
+    practice paper from its last level; `assess/focus.py` picks the home paper's level from the share right.
+  - `judgeOne` and `resolve_result` record a judgement the same way. The code review's "level-next in 4 places"
+    counted callers.
+- **Checks:**
+  - `pytest -q tests/test_settings.py tests/test_layout.py tests/test_types.py tests/test_ratchet.py` → passed.
+  - ruff, pyright, eslint and tsc are clean on the changed files.
+- **ARCHITECTURE.md §5 no longer lists the engine's routes by hand.** Eight of its thirteen were never served
+  (`/declare` is `/week/declaration`, `/read` is `/read/file`, and so on). It now points at the list `bin/engine
+  contract` writes from the engine's OpenAPI, which `tests/test_contract.py` and the website's type check already
+  hold.
+- **Skipped, with when to add each** (ponytail):
+  - a job queue: a restart marks its dead runs; add one if restarts mid-run become common;
+  - the server's `.env` kept in a GitHub secret: Nimish's Mac keeps it, and `go-live.sh` rebuilds a server from it;
+  - a restore-drill script: first confirm that Supabase keeps backups;
+  - an automated accessibility checker: add one if a second colour-only state ships;
+  - STATE.md compacted: BUILD-ORDER reads each workflow's gates here, so archiving them risks that process; archive
+    by month when a session's reading cost bites.

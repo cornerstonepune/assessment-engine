@@ -12,7 +12,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
 @router.post("/children/find", response_model=FindChildResponse)
-def find(body: FindChildRequest, conn=Depends(get_conn)):
+def find(body: FindChildRequest, conn=Depends(get_conn, scope="function")):
     try:
         child_id = roster.find(conn, body.section, body.first_name, body.actor)
     except ValueError as e:

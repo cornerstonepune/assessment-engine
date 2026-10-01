@@ -4,6 +4,9 @@ import { RAG_TONE, RAG_WORDS, type Rag } from "@/lib/rag";
 
 const pc = (x: number) => `${Math.round(x * 100)}%`;
 
+// The colour is never the only sign (WCAG 1.4.1): a mark inside says it to an eye that cannot tell red from green.
+const MARK: Record<Rag, string> = { red: "!", amber: "~", green: "✓", grey: "" };
+
 /** The swatch a colour is drawn with, wherever a skill's colour shows. */
 export function Swatch({ colour, label }: { colour: Rag; label?: string }) {
   return (
@@ -11,8 +14,10 @@ export function Swatch({ colour, label }: { colour: Rag; label?: string }) {
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      className={`inline-block h-4 w-4 shrink-0 rounded-[3px] ${TONE_BG[RAG_TONE[colour]]} ${colour === "grey" ? "opacity-40" : ""}`}
-    />
+      className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none ${colour === "amber" ? "text-basalt" : "text-chalk"} ${TONE_BG[RAG_TONE[colour]]} ${colour === "grey" ? "opacity-40" : ""}`}
+    >
+      {MARK[colour]}
+    </span>
   );
 }
 

@@ -21,7 +21,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 def rebuild(
     body: GraphRebuildRequest,
     idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
-    conn=Depends(get_conn),
+    conn=Depends(get_conn, scope="function"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     key = idempotency_key or derive_key(body.model_dump())

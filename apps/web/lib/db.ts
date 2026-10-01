@@ -77,3 +77,6 @@ const url = process.env.DATABASE_URL;
 const absent = new Proxy<Sql>(unset as never, { get: () => unset });
 export const sql: Sql = globalThis.cornerstoneSql ?? (url ? connect(url) : absent);
 if (process.env.NODE_ENV !== "production" && url) globalThis.cornerstoneSql = sql;
+
+// The school these rows belong to, as the engine names it (`db.tenant_slug()`): the website writes a few rows of its own.
+export const TENANT_SLUG = process.env.TENANT_SLUG ?? "cornerstone-pune";

@@ -35,7 +35,9 @@ def _pool_for(dsn: str) -> ConnectionPool:
 def get_conn():
     """A serverless-style short-lived pool when ENGINE_POOL=1 (behind a real process manager,
     per ADR 0008); a plain connection otherwise (dev, tests) — the same serverless-vs-not split
-    `engine/db.py` already makes for the app's own Postgres client."""
+    `engine/db.py` already makes for the app's own Postgres client. Always `Depends(get_conn, scope="function")`: it
+    commits as the route returns, before the answer is sent. FastAPI closes a request-scoped one after sending, and
+    the website, reading back what it had just asked for, sometimes read the row before the commit."""
     if os.environ.get("ENGINE_POOL") == "1":
         with _pool_for(db.dsn()).connection() as conn:
             yield conn
@@ -44,5 +46,5 @@ def get_conn():
             yield conn
 
 
-def get_tenant_id(conn=Depends(get_conn)) -> str:
+def get_tenant_id(conn=Depends(get_conn, scope="function")) -> str:
     return conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]

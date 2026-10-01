@@ -16,19 +16,9 @@ from playwright.sync_api import sync_playwright
 
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
-from engine.core import db, roster
+from engine.core import db, roster, settings
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print import pack
-
-
-def _config(conn, key, default):
-    row = conn.execute("select value from config where key = %s", (key,)).fetchone()
-    return row["value"] if row else default
-
-
-def _threshold(conn, key, default):
-    row = conn.execute("select value from threshold where key = %s", (key,)).fetchone()
-    return float(row["value"]) if row else default
 
 
 def _qr(*parts) -> str:
@@ -81,8 +71,8 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     be given one is named with the reason, never handed a short paper or a repeat.
     """
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    spares_each = int(_config(conn, "assemble.spares_per_difficulty", 2))
-    window = _threshold(conn, "exposure.days", 21)
+    spares_each = int(settings.config(conn, "assemble.spares_per_difficulty", 2))
+    window = settings.threshold(conn, "exposure.days", 21)
 
     rx = conn.execute(
         "select p.id, p.child_id, p.skill_set_code, p.difficulty, p.rule_fired, c.roll_no, c.band"
