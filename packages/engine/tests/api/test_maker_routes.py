@@ -92,3 +92,14 @@ def test_a_batch_that_cannot_be_made_says_why(client, kids):
     assert nothing.status_code == 409 and "roll 1" in nothing.json()["detail"], (
         "a child with nothing to work on"
     )
+
+
+def test_a_change_sent_without_a_length_is_as_long_as_a_home_paper(client, kids, conn):
+    """The website sent 12 for every changed child, a number of its own (`OWN_N`); it sends none, and the paper is as
+    long as the `assemble.items_per_sheet` row (code review, 2026-09-30; goals/p0-the-maker-makes-what-it-shows.yaml)."""
+    conn.execute("update config set value = '5'::jsonb where key = 'assemble.items_per_sheet'")
+    change = {kids[0]: [{"skill_set": "SUB.2D2D", "level": "Easy"}]}
+    sent = _batch(kids[:1], kind="focus", way="own", areas=[], changed=change)
+    plan = client.post("/papers/plan", headers=HEADERS, json=sent)
+    assert plan.status_code == 200, plan.text
+    assert [p["n"] for p in plan.json()["papers"]] == [5]

@@ -71,10 +71,16 @@ def pdf(conn, section: str, week: str, kind: str, outdir: Path) -> Path:
         raise PermissionError(
             f"{len(waiting)} papers in this pack wait for a teacher's approval; nothing prints before"
         )
+    return merged(rows, Path(outdir) / f"{section}-{week}-{kind}.pdf")
+
+
+def merged(rows, out: Path) -> Path:
+    """Rendered papers (`qr_code`, `pdf_path`), one after another, as one PDF. Refuses, naming them, papers never
+    rendered on this machine: a batch with a hole in it is not the batch. A pack and the maker's papers share it."""
     missing = [r["qr_code"] for r in rows if not r["pdf_path"] or not Path(r["pdf_path"]).exists()]
     if missing:
         raise FileNotFoundError(f"not rendered on this machine: {', '.join(missing)}")
-    return merge([r["pdf_path"] for r in rows], Path(outdir) / f"{section}-{week}-{kind}.pdf")
+    return merge([r["pdf_path"] for r in rows], out)
 
 
 def merge(pdfs: list, out: Path) -> Path:

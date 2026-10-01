@@ -72,10 +72,12 @@ async function ria(): Promise<string> {
     insert into capture (tenant_id, path, pages, sheet_instance_id, status)
     values (${tenant_id}, 'u6-test', 1, ${instance}, 'processed') returning id as capture`;
     for (const [n, a] of ON_PAPER.entries()) {
+      // a test's own question, entered as an earlier paper's (`legacy`): the bank's checks are for the questions it
+      // generates, and four tests' "generated" rows broke `engine audit` on the copy (2026-10-01)
       const [{ item }] = await sql<{ item: string }[]>`
-      insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)
+      insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses, source)
       values (${tenant_id}, ${`u6-test/${id.slice(0, 8)}/${n}`}, 'u6-test', 'R24', '{NUM.OPS.02}', 'Procedural', 'column',
-              ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}) returning id as item`;
+              ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}, 'legacy') returning id as item`;
       const status = a.right === null ? "blank" : a.right ? "correct" : "wrong";
       const [{ result }] = await sql<{ result: string }[]>`
       insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, misconception_codes, working_shown,
@@ -258,9 +260,9 @@ async function waiting(what: "add" | "remove") {
     select c.tenant_id, c.id as capture from capture c join sheet_instance si on si.id = c.sheet_instance_id
     where si.child_id = ${id}::uuid limit 1`;
   const [{ item }] = await sql<{ item: string }[]>`
-    insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)
+    insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses, source)
     values (${c.tenant_id}, ${key}, 'u6-test', 'R24', '{NUM.OPS.02}', 'Procedural', 'column',
-            ${sql.json({ op: "-", a: 81, b: 46 })}, ${sql.json([{ rid: "a", answer: 35 }])}) returning id as item`;
+            ${sql.json({ op: "-", a: 81, b: 46 })}, ${sql.json([{ rid: "a", answer: 35 }])}, 'legacy') returning id as item`;
   await sql`
     insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, misconception_codes, working_shown, state)
     values (${c.tenant_id}, ${c.capture}, ${item}, 'a', ${JSON.stringify({ child_answer: "35" })}, 'correct', '{}', 'none', 'candidate')`;

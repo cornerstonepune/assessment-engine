@@ -22,7 +22,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-from engine.w2_print import focus_paper, pack
+from engine.w2_print import focus_paper, pack, shelf
 
 KINDS = {"practice": "class practice", "assessment": "class assessment", "focus": "home assessment"}
 WAYS = ("same", "each", "own")
@@ -70,7 +70,9 @@ def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> di
         raise ValueError(
             f"make one paper for all, the same skill for each, or each child's own — not {way!r}"
         )
-    changed = {str(k): v for k, v in (changed or {}).items() if v}
+    # a changed child's paper is as long as a home paper (`assemble.items_per_sheet`) unless its length is given
+    n_home = shelf.home_length(conn)
+    changed = {str(k): [{**a, "n": a.get("n") or n_home} for a in v] for k, v in (changed or {}).items() if v}
     if way != "own" and not ask:
         raise ValueError("choose a skill, its level and how many questions")
     if changed and way != "own":
@@ -78,6 +80,11 @@ def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> di
     kids = _class(conn, section, children)
     if set(changed) - {str(k["id"]) for k in kids}:
         raise ValueError("a change names a child who is not picked")
+    with shelf.one_batch():
+        return _plan(conn, kids, section, week, kind, way, ask, changed)
+
+
+def _plan(conn, kids, section, week, kind, way, ask, changed) -> dict:
     shared = _for_all(conn, kids, week, ask) if way == "same" else None
     papers, refused, taken = [], [], set()
     for k in kids:
@@ -135,8 +142,5 @@ def pdf(conn, qrs: list) -> bytes:
     waiting = [r["qr_code"] for r in rows if r["print_status"] in ("new", "void")]
     if waiting:
         raise ValueError(f"not approved for print: {', '.join(waiting)}")
-    missing = [r["qr_code"] for r in rows if not r["pdf_path"] or not Path(r["pdf_path"]).exists()]
-    if missing:
-        raise FileNotFoundError(f"not rendered on this machine: {', '.join(missing)}")
     with tempfile.TemporaryDirectory() as tmp:
-        return pack.merge([r["pdf_path"] for r in rows], Path(tmp) / "papers.pdf").read_bytes()
+        return pack.merged(rows, Path(tmp) / "papers.pdf").read_bytes()

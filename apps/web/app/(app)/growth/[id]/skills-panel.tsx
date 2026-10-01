@@ -22,7 +22,14 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
               {assessed
                 .filter((s) => s.topic === t)
                 .map((s) => (
-                  <SkillLine key={s.code} s={s} answers={answers.filter((a) => a.rung_code === s.rung_code)} names={names} />
+                  <SkillLine
+                    key={`${s.code}|${s.skill_code}`}
+                    s={s}
+                    // a rung that tests two skills is a line for each, the same name twice unless each says its skill
+                    of={assessed.filter((x) => x.code === s.code).length > 1 ? s.skill_name : null}
+                    answers={answers.filter((a) => a.rung_code === s.rung_code)}
+                    names={names}
+                  />
                 ))}
             </ul>
           </div>
@@ -39,15 +46,18 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
   );
 }
 
-function SkillLine({ s, answers, names }: { s: ChildSkill; answers: Evidence[]; names: Record<string, string> }) {
+function SkillLine({ s, of, answers, names }: { s: ChildSkill; of: string | null; answers: Evidence[]; names: Record<string, string> }) {
   const state = s.state ?? "not_enough_yet";
   const words = STATE_WORDS[state];
   const blank = answers.filter((a) => a.status === "blank").length;
   return (
-    <li data-rag={rag(s.state)} data-skill={s.code}>
+    <li data-rag={rag(s.state)} data-skill={s.code} data-of={s.skill_code ?? undefined}>
       <details className="rounded-md border border-basalt/12">
         <summary className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-[13.5px]">
-          <span className="min-w-[150px] font-medium text-basalt">{s.name}</span>
+          <span className="min-w-[150px] font-medium text-basalt">
+            {s.name}
+            {of ? <span className="font-normal text-basalt/62"> · {of}</span> : null}
+          </span>
           <span className="fact">
             {s.n_correct} of {s.n_events} right
           </span>

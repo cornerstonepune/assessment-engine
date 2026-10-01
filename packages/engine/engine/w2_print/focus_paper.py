@@ -24,7 +24,8 @@ from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db, mistake_names, roster
 from engine.w1_bank.inventory import item_from_row
-from engine.w2_print.assemble import _config, _qr, _threshold
+from engine.w2_print.assemble import _qr
+from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule
 
 WHY = {
     "patterned_error": "the same mistake more than once",
@@ -47,38 +48,6 @@ PREVIEW = (
     "PREVIEW"  # the QR a paper seen before approval carries: no sheet has it, so a stray copy never reads
 )
 NOTHING = "nothing to work on: the child's graph shows no area they lag in, or the bank has no unseen question for it"  # questions in one area of a paper a teacher asks for
-
-
-def rule(conn) -> dict:
-    """How far from its rung an area may be worked on, the stretch level for each strong state, and where Easy
-    ends — all rows."""
-    r = dict(_config(conn, "focus", {"reach": 2, "stretch": {"secure": "Hard", "stretch_ready": "Advance"}}))
-    r["easy_below"] = _threshold(conn, "next_sheet.demote_below", 0.5)
-    return r
-
-
-def catalog(conn) -> list[dict]:
-    """The bank's taught skill sets: rung, place on the ladder, the skill each is for, every skill it uses. A skill
-    the school does not teach yet is never on a child's paper, whatever the child's map shows."""
-    rows = conn.execute(
-        "select s.code, s.rung_code, r.ladder_order,"
-        " (select x from item i, unnest(i.skill_codes) x where i.skill_set_code = s.code"
-        "   and i.status = 'active' group by x order by count(*) desc, x limit 1) as own,"
-        " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
-        "   where i.skill_set_code = s.code and i.status = 'active') as skills"
-        " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
-        " where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)"
-    ).fetchall()
-    return [
-        {
-            "code": r["code"],
-            "rung": r["rung_code"],
-            "order": r["ladder_order"],
-            "own": r["own"],
-            "skills": set(r["skills"]),
-        }
-        for r in rows
-    ]
 
 
 def question_text(item):
@@ -114,7 +83,7 @@ def _draw(conn, whose, area, want, rng, taken=()):
     return [r for r in rows if str(r["id"]) not in taken][:want]
 
 
-def _short(k, whose, taken, name, level) -> str:
+def _short(k, whose, taken, name, level, earlier=False) -> str:
     """Why an area cannot be filled, in words: how many questions are left, and for whom."""
     who = (
         "this child has not seen"
@@ -123,6 +92,8 @@ def _short(k, whose, taken, name, level) -> str:
     )
     if taken:
         who += " and no other paper here holds"
+    if earlier:
+        who += " and no line above on this paper holds"
     then = f"ask for {k} or fewer" if k else "choose another skill or level"
     return f"only {k} questions {who} in {name} at {level}; {then}"
 
@@ -150,30 +121,6 @@ def _where_it_shows(conn, area, levels) -> focus.Area:
         if any(_can_show(r, area.mistake) for r in rows):
             return replace(area, level=level)
     return area
-
-
-def _grade(band) -> int:
-    """A band's place among the grades: G1 → 1; reasoning's "G2+" → 2."""
-    digits = "".join(ch for ch in str(band or "") if ch.isdigit())
-    return int(digits) if digits else 0
-
-
-def _levels(conn, band=None) -> dict:
-    """{skill set: its levels}. With a child's band, only the levels of that child's grade or below: each level
-    belongs to one grade (`skill_set.level_band`, else the skill's own), and a child is never given a level of a
-    grade above their own — a Grade 1 child meets 2-digit + 1-digit only at the levels Grade 1 teaches."""
-    out = {}
-    for r in conn.execute(
-        "select s.code, s.difficulty, s.level_band, r.band from skill_set s"
-        " left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
-    ):
-        defined = tuple(r["difficulty"] or {})
-        if band is not None:
-            defined = tuple(
-                d for d in defined if _grade((r["level_band"] or {}).get(d) or r["band"]) <= _grade(band)
-            )
-        out[r["code"]] = defined
-    return out
 
 
 def _asked(conn, states, ask) -> list:
@@ -218,7 +165,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
     if ask:
         chosen = _asked(conn, states, ask)
     else:
-        n = int(_config(conn, "assemble.items_per_sheet", 12))
+        n = home_length(conn)
         chosen = [(a, n) for a in home_area(conn, child_id, states)]
     rng = random.Random(f"{child_id}|{week}")
     return {
@@ -231,14 +178,23 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
 def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
     """Each chosen (area, how many) filled with questions none of `whose` has been given, as a paper shows them;
     `strict` refuses an area the bank cannot fill rather than printing it short."""
-    names = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
-    skills = {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
-    name_of = mistake_names.names(conn)
-    out = []
-    for area, want in chosen:
-        questions = _draw(conn, whose, area, want, rng, taken)
+    names = _once(
+        "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
+    )
+    skills = _once(
+        "skill names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
+    )
+    name_of = _once("mistake names", lambda: mistake_names.names(conn))
+    # what the paper may not use: other papers' questions, and its own lines' too, or two lines alike drew the same
+    # questions (code review, 2026-09-30)
+    out, on_it = [], set(taken)
+    for i, (area, want) in enumerate(chosen):
+        questions = _draw(conn, whose, area, want, rng, on_it)
+        on_it.update(str(q["id"]) for q in questions)
         if strict and len(questions) < want:
-            raise ValueError(_short(len(questions), whose, taken, names.get(area.skill_set), area.level))
+            alike = any((a.skill_set, a.level) == (area.skill_set, area.level) for a, _ in chosen[:i])
+            name = names.get(area.skill_set)
+            raise ValueError(_short(len(questions), whose, taken, name, area.level, alike))
         why = (
             WHY["asked"]
             if area.state == "asked"
@@ -318,6 +274,8 @@ def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, 
     )
     outdir = db.REPO_ROOT / "data" / "focus" / week
     key = _render(conn, child_id, week, actor, kind, p, ids, qr, outdir, how, pw)
+    # its own page says how it was chosen and what it works on: a maker's class paper is not a home paper (2026-09-30)
+    key = {**key, "how": how, "areas": [{"name": a["name"], "level": a["level"]} for a in p["areas"]]}
     pdf = outdir / f"{qr}.pdf"
     conn.execute(
         "update sheet_instance set pdf_path = %s, key = %s where id = %s",

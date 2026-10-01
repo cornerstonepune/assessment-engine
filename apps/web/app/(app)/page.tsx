@@ -15,7 +15,8 @@ export default async function CurriculumPage({ searchParams }: Props) {
   await requireStaff();
   const q = await searchParams;
   const { rows } = await deadline(curriculumRows());
-  const waiting = rows.filter((r) => r.draft).length;
+  // a skill is a row under every grade one of its levels belongs to; it waits once (code review, 2026-09-30)
+  const waiting = new Set(rows.filter((r) => r.draft).map((r) => r.href)).size;
 
   return (
     <>

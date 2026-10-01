@@ -28,7 +28,7 @@ export function ColourKey({ rules }: { rules: ColourRules }) {
     ],
     [
       "amber",
-      `${pc(rules.demote)} up to ${pc(rules.promote)} right, or ${pc(rules.promote)} and more but on one paper so far.`,
+      `${pc(rules.demote)} up to ${pc(rules.promote)} right, or ${pc(rules.promote)} and more but on fewer than ${rules.minPapers} papers so far.`,
       "Worked on once nothing is red, at its level.",
     ],
     [

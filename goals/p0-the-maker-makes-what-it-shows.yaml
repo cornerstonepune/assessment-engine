@@ -1,0 +1,58 @@
+name: p0-the-maker-makes-what-it-shows
+goal: >
+  The maker makes what it shows, says what it made, and stays up when the engine is slow. A paper never holds a
+  question twice, however many of its lines are alike. A class is planned on one read of the bank's catalogue and
+  rendered in one browser. A changed child's paper is as long as the `assemble.items_per_sheet` row says, not a number
+  of the website's. A changed choice stops Make until the papers are seen again. A refused batch comes back with the
+  children the educator picked. An engine that does not answer is said on the maker itself, and the same form sent
+  again makes the papers once. A made paper's page says how its questions were chosen and what it works on, in the
+  engine's words. The checks that would place a child are one a skill, including the skills no child of a class has
+  answered. The colours are said in the rule's own numbers. A skill waiting for approval is counted once. And the
+  bank's recheck names a sum it cannot recheck instead of stopping.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked where "the weak points and the fragile points are
+# still". The review's correctness pass over that day's PRs found 15 defects in the maker, the colours and the
+# curriculum; P0.5 fixed one (the roll order), and this goal holds the other fourteen, and the audit crash that rows a
+# website test left in the bank turned up while proving them. On 2026-10-01: "go ahead with phase 0" (P0.6).
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_maker.py::test_two_lines_alike_on_one_paper_never_repeat_a_question
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_maker.py::test_a_class_is_planned_on_one_read_of_the_catalogue_not_one_a_child
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_render.py::test_a_batch_shares_one_browser_however_many_papers_it_renders
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_maker.py::test_a_changed_childs_paper_is_as_long_as_the_home_paper_row_says
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/api/test_maker_routes.py::test_a_change_sent_without_a_length_is_as_long_as_a_home_paper
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_maker.py::test_a_made_paper_keeps_how_it_was_chosen_and_what_it_works_on_for_its_own_page
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_bank.py::test_recheck_names_a_sum_with_no_answer_box_rather_than_stop
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/m4-the-maker.spec.ts::an educator picks the kind, the children and the way, sees every paper, makes them, and prints them as one"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/m4-the-maker.spec.ts::a choice changed after the papers are seen stops Make until they are seen again"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/m4-the-maker.spec.ts::a batch the engine refuses comes back as the educator chose it, the children they picked"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/m4-the-maker.spec.ts::an engine that does not answer is said on the maker, and the same form sent again makes the papers once"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/u11-colours-said.spec.ts::a skill has one check, though its rung tests two skills, and a skill no child has answered has one for the class"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/u11-colours-said.spec.ts::each colour is said in the rule's own numbers, wherever colours show"
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/u12-curriculum-table.spec.ts::the skills waiting for approval are counted once, though a skill shows under each grade it reaches"
+manual:
+  - "On live, after the merge: make a class practice for two children; its paper's page says it was chosen by their educator."
+scenarios: []
+criteria:
+  - name: the maker's papers, the recheck and the maker's route, on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_maker.py tests/test_render.py tests/test_bank.py tests/api/test_maker_routes.py -o addopts=
+    expect: "passed"
+  - name: the maker, the colours, the checks and the curriculum, on a production build against the local copy
+    run: cd apps/web && npx playwright test tests/m4-the-maker.spec.ts tests/u11-colours-said.spec.ts tests/u12-curriculum-table.spec.ts tests/s11-focus-paper.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

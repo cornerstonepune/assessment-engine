@@ -6,6 +6,7 @@ different skill sets" — "the same skill paper for multiple children", "individ
 "choose the right skill and the grade level, and then choose the children and generate different questions".
 """
 
+import json
 import os
 from pathlib import Path
 
@@ -14,7 +15,7 @@ import pytest
 
 from engine.assess import graph
 from engine.core import db
-from engine.w2_print import focus_paper, maker
+from engine.w2_print import focus_paper, maker, shelf
 
 WEEK = "T3W1-maker-test"
 SECTION = "MAKERTEST"
@@ -237,3 +238,55 @@ def test_the_same_skill_and_level_gives_each_child_different_questions_none_shar
     assert db.counts(conn, ["sheet_instance"]) == before, (
         "one child refused, none printed, never a short paper"
     )
+
+
+def test_two_lines_alike_on_one_paper_never_repeat_a_question(conn, kids):
+    """Two areas alike on one paper could draw the same question twice: what was `taken` held the other children's
+    papers, never the paper's own (code review, 2026-09-30; goals/p0-the-maker-makes-what-it-shows.yaml). The child
+    has been given all but six of the area's questions, so two lines share those six, or the second is refused."""
+    conn.execute(
+        "insert into item_exposure (tenant_id, child_id, item_id, week) select i.tenant_id, %s, i.id, 'seen'"
+        " from item i where i.status = 'active' and i.skill_set_code = 'SUB.3D3D' and i.difficulty = 'Easy'"
+        " order by i.item_key offset 6",
+        (kids["new"],),
+    )
+    line = {"skill_set": "SUB.3D3D", "level": "Easy"}
+    halves, more = [{**line, "n": 3}, {**line, "n": 3}], [{**line, "n": 6}, {**line, "n": 1}]
+    for way in ("each", "same"):
+        (paper,) = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", way, halves)["papers"]
+        assert len(_ids(paper)) == len(set(_ids(paper))) == 6, way
+    p = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "each", more)
+    assert p["papers"] == [] and "no line above on this paper holds" in p["refused"][0]["why"]
+    with pytest.raises(ValueError, match="no line above on this paper holds"):
+        maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "same", more)
+
+
+def test_a_class_is_planned_on_one_read_of_the_catalogue_not_one_a_child(conn, kids, monkeypatch):
+    """Planning read the bank's catalogue, levels, rule and names again for every child, inside a page that must
+    answer in 8 s (code review, 2026-09-30)."""
+    reads, real = [], shelf._catalog
+    monkeypatch.setattr(shelf, "_catalog", lambda c: reads.append(1) or real(c))
+    maker.plan(conn, SECTION, [kids["weak"], kids["strong"]], WEEK, "focus", "own")
+    assert len(reads) == 1
+
+
+def test_a_changed_childs_paper_is_as_long_as_the_home_paper_row_says(conn, kids):
+    """The website asked for 12 questions for a changed child, a number of its own; a home paper's length is the
+    `assemble.items_per_sheet` row, and a change without a length takes it (code review, 2026-09-30)."""
+    conn.execute("update config set value = '10'::jsonb where key = 'assemble.items_per_sheet'")
+    change = {kids["new"]: [{"skill_set": "SUB.3D3D", "level": "Easy"}]}
+    p = maker.plan(conn, SECTION, [kids["new"]], WEEK, "focus", "own", changed=change)
+    assert [x["n"] for x in p["papers"]] == [10]
+
+
+def test_a_made_paper_keeps_how_it_was_chosen_and_what_it_works_on_for_its_own_page(conn, kids):
+    """Every maker paper was stored as a home paper's, so its page said "chosen from this child's own checked
+    papers" of a class practice an educator chose (code review, 2026-09-30)."""
+    made = maker.make(conn, SECTION, [kids["weak"]], WEEK, "practice", "each", BY, EASY)
+    key = conn.execute("select key from sheet_instance where qr_code = %s", (made["qrs"][0],)).fetchone()[
+        "key"
+    ]
+    key = key if isinstance(key, dict) else json.loads(key)
+    name = conn.execute("select name from skill_set where code = 'SUB.3D3D'").fetchone()["name"]
+    assert key["how"] == "chosen by their educator"
+    assert key["areas"] == [{"name": name, "level": "Easy"}]

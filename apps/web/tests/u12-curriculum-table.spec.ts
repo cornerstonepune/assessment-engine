@@ -102,3 +102,30 @@ test("every row has the same columns, and every number is the database's own", a
   await expect(topic.nth(1)).toHaveText(n(skills.reduce((a, s) => a + s.questions, 0)));
   await expect(topic.nth(8)).toHaveText(`${skills.filter((s) => s.taught).length} of ${skills.length}`);
 });
+
+test("the skills waiting for approval are counted once, though a skill shows under each grade it reaches", async ({ page }) => {
+  // the count said rows: a waiting skill whose levels belong to two grades waited twice (code review, 2026-09-30). The
+  // copy's skills keep their levels in their own grade, so this one gives a Grade 2 skill's easiest level to Grade 1 —
+  // as Nimish did with 2-digit + 1-digit on 2026-09-24 — and puts it back after.
+  const [skill] = await sql<{ code: string; easiest: string }[]>`
+    select ss.code, (array['Easy', 'Medium', 'Hard', 'Advance'])[min(array_position(array['Easy', 'Medium', 'Hard', 'Advance'], d))] as easiest
+    from skill_set ss
+    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    cross join jsonb_object_keys(ss.difficulty) as d
+    where ss.status <> 'ratified' and r.band = 'G2' and ss.level_band = '{}'::jsonb
+    group by ss.code having count(*) >= 2 order by ss.code limit 1`;
+  expect(skill, "no waiting Grade 2 skill with two levels to show under two grades").toBeTruthy();
+  await sql`update skill_set set level_band = ${sql.json({ [skill.easiest]: "G1" })} where code = ${skill.code}`;
+  try {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Open everything" }).click();
+    const rows = depth(page, 3).filter({ hasText: "waiting for approval" });
+    const ids = await rows.evaluateAll((trs) => trs.map((tr) => tr.getAttribute("data-row") ?? ""));
+    expect(ids).toEqual(expect.arrayContaining([`G1/${skill.code}`, `G2/${skill.code}`]));
+    const skills = new Set(ids.map((id) => id.split("/")[1]));
+    await expect(page.getByText(/waits? for approval\./)).toContainText(`${skills.size} ${skills.size === 1 ? "skill waits" : "skills wait"}`);
+  } finally {
+    await sql`update skill_set set level_band = '{}'::jsonb where code = ${skill.code}`;
+  }
+});

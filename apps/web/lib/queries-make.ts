@@ -9,6 +9,13 @@ import { isoWeek } from "./week";
  *  home paper yet this week. A child with fewer than three answers everywhere has nothing to go on. */
 const PROPOSABLE = ["patterned_error", "emerging", "practising", "secure", "stretch_ready"];
 
+/** How many questions a home paper holds — the `assemble.items_per_sheet` row the engine makes them by — for the
+ *  maker's first line to start at; null when there is no such row, and the educator says. */
+export async function homeLength(): Promise<number | null> {
+  const [row] = await sql<{ n: number }[]>`select value::int as n from config where key = 'assemble.items_per_sheet'`;
+  return row?.n ?? null;
+}
+
 export type ClassHome = { section: string; band: string; children: number; proposed: number; approved: number };
 
 export async function homeByClass(week = isoWeek()): Promise<ClassHome[]> {

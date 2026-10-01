@@ -7,8 +7,10 @@
  * one with too little work for a paper of their own. Evidence is append-only, so the children are made once and
  * kept; the papers the test makes are removed.
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { randomBytes } from "node:crypto";
 import postgres from "postgres";
+import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
 
 test.describe.configure({ mode: "serial" });
@@ -100,7 +102,7 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
   await expect(papers.getByRole("list").first().getByRole("listitem")).toHaveCount(5);
   await expect(papers).not.toContainText(CODES);
 
-  await papers.getByRole("button", { name: "Make and approve 2 papers" }).click();
+  await papers.getByRole("button", { name: "Make and approve 2 class assessment papers" }).click();
   await expect(page.getByText("2 papers made and approved in your name.")).toBeVisible();
   const made = await sql<{ name: string; kind: string; approved_by: string; items: string }[]>`
     select p.first_name as name, si.kind, si.approved_by, t.item_ids::text as items
@@ -111,6 +113,16 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
     ["Bina", "assessment", TEST_STAFF.email],
   ]);
   expect(made[0].items).toBe(made[1].items); // one paper for all: the same questions on both copies
+
+  // its page says the educator chose it, and what it works on: every maker paper said "chosen from this child's own
+  // checked papers" (code review, 2026-09-30; goals/p0-the-maker-makes-what-it-shows.yaml)
+  const [{ qr }] = await sql<{ qr: string }[]>`select qr_code as qr from sheet_instance where section = ${SECTION} limit 1`;
+  await page.goto(`/worksheets/${qr}`);
+  const how = page.getByRole("region", { name: "How it was made" });
+  await expect(how).toContainText("5 chosen by their educator — none they had been given before");
+  await expect(how).toContainText("2-digit − 2-digit · Easy");
+  await expect(how).not.toContainText("own checked papers");
+  await page.goBack();
 
   // printed as one PDF
   const pdf = await page.request.get((await page.getByRole("link", { name: "Print them all" }).getAttribute("href"))!);
@@ -148,11 +160,83 @@ test("each child's own next step is shown child by child, and a child with nothi
   await page.getByLabel("Change Chetan's paper").selectOption(`${ids.Chetan}~ADD.2D2D~Easy`);
   await page.getByRole("button", { name: "See the papers with these changes" }).click();
   await expect(row("Chetan")).toContainText("Chosen by you.");
-  await expect(row("Chetan")).toContainText("12 questions");
+  // as long as a home paper: the engine's `assemble.items_per_sheet` row, not a number of the website's
+  const [{ home }] = await sql<{ home: number }[]>`select value::int as home from config where key = 'assemble.items_per_sheet'`;
+  await expect(row("Chetan")).toContainText(`${home} questions`);
   await expect(row("Asha")).toContainText("the same mistake more than once"); // the others stay their own
-  await page.getByRole("button", { name: "Make and approve 3 papers" }).click();
+  await page.getByRole("button", { name: "Make and approve 3 home assessment papers" }).click();
   await expect(page.getByText("3 papers made and approved in your name.")).toBeVisible();
   const [{ n }] = await sql<{ n: number }[]>`
     select count(*)::int as n from sheet_instance where section = ${SECTION} and kind = 'focus' and approved_by = ${TEST_STAFF.email}`;
   expect(n).toBe(3);
+});
+
+/** Asha and Bina, the same skill with different questions, seen and not yet made. */
+async function seen(page: Page, kind: RegExp) {
+  await clearUp();
+  await page.goto(`/papers/make?class=${SECTION}`);
+  const form = page.getByRole("form", { name: "Choose the papers" });
+  await form.getByRole("radio", { name: kind }).check();
+  await form.getByRole("radio", { name: /Same skill, different questions/ }).check();
+  await form.getByRole("checkbox", { name: "Chetan" }).uncheck();
+  await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Easy");
+  await form.getByLabel("Questions 1").fill("3");
+  await form.getByRole("button", { name: "See the papers" }).click();
+  await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
+  return form;
+}
+
+test("a choice changed after the papers are seen stops Make until they are seen again", async ({ page }) => {
+  // the papers made are the papers shown: a kind picked after seeing them was made as the old kind, silently
+  const form = await seen(page, /Class practice/);
+  await expect(page.getByRole("button", { name: "Make and approve 2 class practice papers" })).toBeEnabled();
+  await form.getByRole("radio", { name: /Class assessment/ }).check();
+  await expect(page.getByRole("button", { name: /Make and approve/ })).toBeDisabled();
+  await expect(page.getByRole("status").filter({ hasText: "You changed what to make" })).toBeVisible();
+  await form.getByRole("button", { name: "See the papers" }).click();
+  await expect(page.getByRole("button", { name: "Make and approve 2 class assessment papers" })).toBeEnabled();
+});
+
+test("a batch the engine refuses comes back as the educator chose it, the children they picked", async ({ page }) => {
+  const form = await seen(page, /Home assessment/);
+  // between seeing and making, Asha is given this week's home assessment elsewhere
+  const [{ tenant }] = await sql<{ tenant: string }[]>`select id as tenant from tenant limit 1`;
+  const [{ id: template }] = await sql<{ id: string }[]>`
+    insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)
+    values (${tenant}, 'G2', ${isoWeek()}, '{}', 'focus', ${ids.Asha}) returning id`;
+  await sql`
+    insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status, approved_by)
+    values (${tenant}, ${`CS${randomBytes(3).toString("hex").toUpperCase()}`}, ${template}, ${ids.Asha}, ${isoWeek()}, ${SECTION},
+            'focus', 'printed', 'someone@school.test')`;
+  await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
+  await expect(page.getByText("already has this week's home assessment").first()).toBeVisible();
+  // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
+  await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
+  await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();
+  await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
+});
+
+test("an engine that does not answer is said on the maker, and the same form sent again makes the papers once", async ({ page }) => {
+  test.setTimeout(150_000);
+  await seen(page, /Class practice/);
+  // the engine waits on a table the page itself never reads: it is slow, the website is not
+  const tx = await sql.reserve();
+  try {
+    await tx`begin`;
+    await tx`lock table item_exposure in access exclusive mode`;
+    await page.getByRole("button", { name: "Make and approve 2 class practice papers" }).click();
+    // the make gives up after the engine's 30 s, and says the papers may have been made; the plan, after the page's 8 s
+    await expect(page.getByText("may only have been slow")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/The engine did not answer within \d+ seconds/)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers"); // the maker, not an error page
+  } finally {
+    await tx`rollback`;
+    tx.release();
+  }
+  await page.reload();
+  await page.getByRole("button", { name: "Make and approve 2 class practice papers" }).click();
+  await expect(page.getByText(/2 papers made and approved in your name|These 2 papers were made before/)).toBeVisible({ timeout: 60_000 });
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from sheet_instance where section = ${SECTION} and kind = 'practice'`;
+  expect(n, "sent twice, made once").toBe(2);
 });

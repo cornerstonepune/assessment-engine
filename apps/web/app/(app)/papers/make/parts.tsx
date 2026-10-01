@@ -1,9 +1,10 @@
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import type { SkillSet } from "@/lib/queries";
-import type { Batch, MakerPlan, PlannedPaper } from "@/lib/maker";
+import { KINDS, type Batch, type MakerPlan, type PlannedPaper } from "@/lib/maker";
 import { SkillLevelSelect } from "../../make/skill-level";
 import { makePapers } from "./actions";
+import { MakeButton } from "./make-button";
 
 type Child = { id: string; roll_no: string; first_name: string };
 
@@ -129,14 +130,7 @@ export function ThePapers({ plan, batch, roll, sets, band, once }: {
         {Object.entries(batch.changed).map(([c, [a]]) => (
           <input key={c} type="hidden" name="x" value={`${c}~${a.skill_set}~${a.level}`} />
         ))}
-        <button className="btn" type="submit" disabled={!ready}>
-          Make and approve {n} {n === 1 ? "paper" : "papers"}
-        </button>
-        <p className="note mt-2">
-          {ready
-            ? "They print in your name, each with its own code, and land in Papers."
-            : "Untick the children whose paper cannot be made, or change what they are given, and see the papers again."}
-        </p>
+        <MakeButton n={n} kind={(KINDS.find(([k]) => k === batch.kind)?.[1] ?? batch.kind).toLowerCase()} ready={ready} />
       </form>
     </Panel>
   );

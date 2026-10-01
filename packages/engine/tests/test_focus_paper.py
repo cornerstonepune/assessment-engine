@@ -11,7 +11,7 @@ import pytest
 
 from engine.assess import graph
 from engine.core import db
-from engine.w2_print import focus_paper
+from engine.w2_print import focus_paper, shelf
 
 WEEK = "T3W1-focus-test"
 
@@ -237,10 +237,10 @@ def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_
     conn.execute(
         'update skill_set set level_band = \'{"Easy": "G1", "Medium": "G1"}\' where code = %s', (s["code"],)
     )
-    g1, g2 = focus_paper._levels(conn, "G1")[s["code"]], focus_paper._levels(conn, "G2")[s["code"]]
+    g1, g2 = shelf._levels(conn, "G1")[s["code"]], shelf._levels(conn, "G2")[s["code"]]
     assert "Easy" in g1 and "Hard" not in g1 and "Advance" not in g1
     assert {"Easy", "Hard"} <= set(g2), "a Grade 2 child may still be given the levels Grade 1 teaches"
-    assert focus_paper._levels(conn)[s["code"]] == tuple(
+    assert shelf._levels(conn)[s["code"]] == tuple(
         conn.execute("select difficulty from skill_set where code = %s", (s["code"],)).fetchone()[
             "difficulty"
         ]

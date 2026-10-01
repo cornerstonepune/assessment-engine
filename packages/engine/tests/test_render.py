@@ -89,3 +89,19 @@ def test_todays_layout_is_the_last_row_and_what_the_renderer_draws_with_none():
     assert re.search(rf"\.rowgroup \.item \.work {{ min-height: {today['paired_work_mm']}mm; }}", render.CSS)
     sheet = Sheet("CS000000", "G2", "Easy", 1, "W1", [])
     assert render.sheet_html(sheet) == render.sheet_html(sheet, layout=today)
+
+
+def test_a_batch_shares_one_browser_however_many_papers_it_renders(tmp_path):
+    """A batch passes its one Playwright to every paper (the maker, a class's pack). Each paper still launched a
+    browser of its own, so a class-sized batch could outlive the website's 30 s wait while the engine went on making
+    every paper (code review, 2026-09-30; goals/p0-the-maker-makes-what-it-shows.yaml)."""
+    from playwright.sync_api import sync_playwright
+
+    it = I.bare_sum(__import__("random").Random(1), "R0", "Procedural", "+", 2, 2, {0, 1, 2})
+    with sync_playwright() as pw:
+        launches, real = [], pw.chromium.launch
+        pw.chromium.launch = lambda *a, **k: launches.append(1) or real(*a, **k)
+        for n in range(3):
+            render.render_sheet(Sheet(f"CS00000{n}", "G2", "Easy", 1, "W1", [it]), tmp_path, pw=pw)
+    assert len(launches) == 1
+    assert sorted(p.name for p in tmp_path.glob("*.pdf")) == ["CS000000.pdf", "CS000001.pdf", "CS000002.pdf"]

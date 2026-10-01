@@ -36,10 +36,12 @@ async function tara(): Promise<string> {
       insert into capture (tenant_id, path, pages, sheet_instance_id, status)
       values (${tenant_id}, 'u7-test', 1, ${instance}, 'processed') returning id as capture`;
     for (let n = 0; n < 4; n++) {
+      // a test's own question, entered as an earlier paper's (`legacy`): the bank's checks are for the questions it
+      // generates, and four tests' "generated" rows broke `engine audit` on the copy (2026-10-01)
       const [{ item }] = await sql<{ item: string }[]>`
-        insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)
+        insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses, source)
         values (${tenant_id}, ${`u7-test/${id.slice(0, 8)}/${n}`}, 'u7-test', 'R24', '{NUM.OPS.02}', 'Procedural', 'column',
-                ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}) returning id as item`;
+                ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}, 'legacy') returning id as item`;
       const [{ result }] = await sql<{ result: string }[]>`
         insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, misconception_codes, working_shown, state)
         values (${tenant_id}, ${capture}, ${item}, 'a', ${JSON.stringify({ child_answer: "45" })}, 'wrong',

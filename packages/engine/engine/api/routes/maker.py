@@ -14,6 +14,14 @@ from engine.w2_print import maker
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 
+class Change(BaseModel):
+    """What an educator put in place of a child's own next step; as long as a home paper unless `n` says."""
+
+    skill_set: str
+    level: str
+    n: int | None = None
+
+
 class Batch(BaseModel):
     section: str
     week: str
@@ -21,7 +29,7 @@ class Batch(BaseModel):
     way: str
     children: list[uuid.UUID]
     areas: list[Area] = []
-    changed: dict[uuid.UUID, list[Area]] = {}
+    changed: dict[uuid.UUID, list[Change]] = {}
 
 
 class MakeBatch(Batch):

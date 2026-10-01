@@ -63,10 +63,12 @@ async function read(tenant: string, p: Paper, answers: [status: string, state: s
     insert into capture (tenant_id, path, pages, sheet_instance_id, status) values (${tenant}, 'u9', 1, ${p.id}, 'processed')
     returning id`;
   for (const [n, [status, state]] of answers.entries()) {
+    // a test's own question, entered as an earlier paper's (`legacy`): the bank's checks are for the questions it
+    // generates, and four tests' "generated" rows broke `engine audit` on the copy (2026-10-01)
     const [{ id: item }] = await sql<{ id: string }[]>`
-      insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)
+      insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses, source)
       values (${tenant}, ${`u9/${p.qr}/${n}`}, 'u9', 'R24', '{NUM.OPS.02}', 'Procedural', 'column',
-              ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])})
+              ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}, 'legacy')
       returning id`;
     await sql`insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state)
               values (${tenant}, ${cap}, ${item}, 'a', '{"child_answer": "35"}', ${status}, ${state})`;

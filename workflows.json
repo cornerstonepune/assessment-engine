@@ -62,7 +62,7 @@
       "built": "live",
       "takes": ["child_skill_state", "evidence_event"],
       "gives": ["prescription", "sheet_instance"],
-      "files": ["engine/w2_print/prescribe.py", "engine/w2_print/focus_paper.py", "engine/w2_print/maker.py"],
+      "files": ["engine/w2_print/prescribe.py", "engine/w2_print/focus_paper.py", "engine/w2_print/shelf.py", "engine/w2_print/maker.py"],
       "commands": ["engine week prescribe", "engine week focus"],
       "screens": ["/papers/make", "/make", "/make/[section]", "/make/custom", "/worksheets", "/growth/[id]", "/api/see/[child]", "/api/papers/print"],
       "subject": {"any": true, "note": "Any subject: the rule reads states and levels, not maths."}

@@ -72,7 +72,11 @@ def recheck(conn):
             continue  # an older row that kept only its printed text
         if set(sp) - {"a", "b", "op", "layout", "missing", "text"}:
             continue  # made by a generator with more than numbers (a story's table): not `to_item`'s to rebuild
-        stored = next(x for x in r["responses"] if x["rid"] == "ans")
+        # a sum with no answer box is named, never a crash that hides every other row (2026-09-30)
+        stored = next((x for x in r["responses"] if x["rid"] == "ans"), None)
+        if stored is None:
+            bad.append(r["item_key"])
+            continue
         rebuilt = verify.to_item(
             {
                 "format": r["fmt"],
