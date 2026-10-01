@@ -23,7 +23,7 @@ type Run = { status: string; error: string | null };
 
 const WHY: Record<string, string> = {
   "409":
-    "Nothing to do: no answer has been signed off yet, or this report was already approved.",
+    "Nothing was changed: no answer has been signed off yet, this report was already approved, or it went out of date or was replaced while this page was open. Read the report below.",
   "503":
     "The writer could not be reached, or today's budget for it is spent. Nothing was changed.",
   down: "The engine is not answering. Nothing was changed.",
@@ -115,7 +115,8 @@ export default async function ParentReport({ params, searchParams }: Props) {
               Edit the words
             </Link>
           ) : null}
-          {note ? <PrintButton /> : null}
+          {/* an out-of-date report is written again before anyone prints it for a parent */}
+          {note && !note.stale ? <PrintButton /> : null}
         </div>
         <div className="print:hidden">
           {typeof got === "string" ? (
@@ -170,8 +171,14 @@ export default async function ParentReport({ params, searchParams }: Props) {
           ) : null}
           {note?.stale ? (
             <Notice tone="terracotta">
-              Answers of {name}&apos;s have been signed off since this was
-              written, so it is out of date. Write it again before approving.
+              What this report rests on has changed since it was written
+              (answers of {name}&apos;s signed off since, or how the school
+              counts them), so it is out of date and is not printed. Write it
+              again
+              {note.approved_by
+                ? ", and approve the new one"
+                : " before approving"}
+              .
             </Notice>
           ) : null}
         </div>

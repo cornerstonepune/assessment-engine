@@ -797,3 +797,97 @@ def test_a_skill_set_is_secure_only_when_every_skill_of_it_the_child_answered_is
     for g in (f, before):
         if g["next"] and g["next"]["why"].startswith("secure"):
             assert g["next"]["id"] in {x["id"] for x in g["can_do"]}
+
+
+def _state(conn, child, rung, skill, state):
+    """A skill's state as the graph would leave it — set here, the graph's own rules tested apart."""
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    conn.execute(
+        "insert into child_skill_state (tenant_id, child_id, skill_code, rung_code, state, n_events, n_correct)"
+        " values (%s, %s, %s, %s, %s, 1, 1) on conflict (tenant_id, child_id, skill_code, rung_code)"
+        " do update set state = excluded.state",
+        (t, child, skill, rung, state),
+    )
+
+
+def test_ready_for_the_next_step_is_said_of_a_set_only_when_every_skill_of_it_is(conn, child):
+    """Advika's report put "ready for the next step" on word problems at 17 of 27: the pill, like "secure", was said
+    of a set when any one skill of it was ready to move up."""
+    _state(conn, child, "R21", "NUM.OPS.01", "stretch_ready")
+    _state(conn, child, "R21", "NUM.OPS.02", "secure")
+    set_ = next(x for x in P.facts(conn, child)["can_do"] if x["answered"] == 9)
+    assert not set_["ready_to_move_up"], "one skill of the set is only secure"
+    _state(conn, child, "R21", "NUM.OPS.02", "stretch_ready")
+    assert next(x for x in P.facts(conn, child)["can_do"] if x["id"] == set_["id"])["ready_to_move_up"]
+
+
+def test_nearly_secure_is_never_said_of_a_set_with_a_skill_still_making_its_mistake(conn, child):
+    """ "Nearly secure ... secure once it holds on another paper" is a promise that one more paper is all it needs; a set
+    with a skill in a repeated mistake, or only emerging, needs more than that."""
+    _state(conn, child, "R21", "NUM.OPS.01", "practising")
+    before = {x["id"] for x in P.facts(conn, child)["nearly"]}
+    assert before, "the set is not nearly secure to begin with; this test reads nothing"
+    for state in ("patterned_error", "emerging"):
+        _state(conn, child, "R21", "NUM.OPS.02", state)
+        assert not {x["id"] for x in P.facts(conn, child)["nearly"]} & before, state
+
+
+def test_a_mistake_is_counted_once_per_answer_however_many_skills_its_question_tests(conn, child):
+    """A wrong answer to a question of two skills writes a row per skill; the report counted the mistake once per row,
+    so one slip was two (the same class as goals/p0-one-answer-counts-once.yaml)."""
+
+    def times():
+        return next(
+            f["times"] for f in report.build(conn, child)["faulty"] if f["mistake"] == "M_SMALL_FROM_LARGE"
+        )
+
+    was = times()
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    e = conn.execute(
+        "select item_result_id, observed_at from evidence_event where child_id = %s and correct = false"
+        " and item_result_id is not null limit 1",
+        (child,),
+    ).fetchone()
+    conn.execute(
+        "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
+        " channel, item_result_id, observed_at, confirmed_by)"
+        " values (%s,%s,'NUM.OPS.01','R24',false,'{M_SMALL_FROM_LARGE}','item',%s,%s,'t')",
+        (t, child, e["item_result_id"], e["observed_at"]),
+    )
+    assert times() == was
+
+
+def test_a_question_left_blank_is_not_an_answer_the_report_counts(conn, child):
+    """The header said "112 answers" and the summary "has answered 112 questions" with the blank ones in the count."""
+    was = P.facts(conn, child)
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    conn.execute(
+        "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
+        " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.01','R22',null,'{}','item',now(),'t')",
+        (t, child),
+    )
+    now = P.facts(conn, child)
+    assert (
+        now["on_the_papers"]["questions_the_child_left_blank"]
+        == was["on_the_papers"]["questions_the_child_left_blank"] + 1
+    )
+    assert now["answers"] == was["answers"]
+
+
+def test_a_report_out_of_date_is_never_approved_or_edited_and_only_the_newest_is(conn, child):
+    """The page hides the buttons on a report out of date, but a page open from before is not: approval, like the edit,
+    is refused by the engine for a report whose facts have changed since, or one a newer report has replaced."""
+    f = P.facts(conn, child)
+    old = P.keep(conn, child, {"facts": f, "draft": _good(f), "prompt_id": None, "problems": []})
+    new = P.keep(conn, child, {"facts": f, "draft": _good(f), "prompt_id": None, "problems": []})
+    conn.execute(
+        "update parent_note set created_at = created_at - interval '1 minute' where id = %s", (old["id"],)
+    )
+    with pytest.raises(LookupError):
+        P.approve(conn, child, str(old["id"]), "e@x")
+    _state(conn, child, "R21", "NUM.OPS.01", "practising")
+    assert P.latest(conn, child)["stale"]
+    with pytest.raises(LookupError):
+        P.edit(conn, child, str(new["id"]), _good(f), "e@x")
+    with pytest.raises(LookupError):
+        P.approve(conn, child, str(new["id"]), "e@x")

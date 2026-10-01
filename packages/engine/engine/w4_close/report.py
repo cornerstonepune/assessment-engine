@@ -14,7 +14,7 @@ from engine.w2_print import focus_paper
 STRONG = ("secure", "stretch_ready")
 
 WRONG = """
-select e.skill_code, e.misconception_codes, e.observed_at, i.item_key, i.fmt, i.stem, i.spec, i.responses,
+select coalesce(e.item_result_id, e.id) as answer, e.skill_code, e.misconception_codes, e.observed_at, i.item_key, i.fmt, i.stem, i.spec, i.responses,
        coalesce((select rc.human_read from read_correction rc where rc.item_result_id = r.id and rc.judged is null
                   order by rc.created_at desc limit 1), r.raw_read::jsonb ->> 'child_answer') as wrote
 from evidence_placed e
@@ -67,12 +67,16 @@ def build(conn, child_id, since=None):
         key=lambda r: (r["skill_set"] or "~", r["skill_code"]),
     )
 
-    faulty, unexplained = {}, {}
+    faulty, unexplained, counted = {}, {}, set()
     for row in conn.execute(WRONG, (child_id, since, since)):
         codes = row["misconception_codes"] or []
         if not codes:
             unexplained[row["skill_code"]] = unexplained.get(row["skill_code"], 0) + 1
         for code in codes:
+            # a wrong answer to a question of two skills is a row per skill, and one slip, not two
+            if (code, row["answer"]) in counted:
+                continue
+            counted.add((code, row["answer"]))
             op = (row["spec"] or {}).get("op")
             f = faulty.setdefault(
                 code,
