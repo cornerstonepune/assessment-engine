@@ -1,6 +1,7 @@
 #!/bin/sh
 # The checks that hold the code to its map and every promise to a command (ADR 0033): the engine's layout
-# against workflows.json, every goal line a command or one of Nimish's sentences with its test, and lint.
+# against workflows.json, every goal line a command or one of Nimish's sentences with its test, no baseline loosened
+# since the last commit, and lint.
 # Fast and with no database, so it runs every time rather than when someone remembers:
 #   before every commit            .githooks/pre-commit
 #   before Claude Code ends a turn .claude/settings.json (Stop hook) — `--claude` makes a failure block it
@@ -12,7 +13,7 @@ if [ ! -x "$engine/.venv/bin/python" ]; then
 fi
 run() {
   cd "$engine" &&
-    DATABASE_URL= TEST_DATABASE_URL= .venv/bin/python -m pytest tests/test_layout.py tests/test_promises.py \
+    DATABASE_URL= TEST_DATABASE_URL= .venv/bin/python -m pytest tests/test_layout.py tests/test_promises.py tests/test_ratchet.py \
       -q -p no:cacheprovider -o addopts= &&
     .venv/bin/ruff check engine tests -q &&
     .venv/bin/ruff format --check engine tests -q

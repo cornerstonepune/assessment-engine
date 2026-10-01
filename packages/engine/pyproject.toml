@@ -41,10 +41,17 @@ packages = ["engine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
 
 [tool.coverage.run]
 source = ["engine"]
+# Python 3.12's sys.monitoring: about a fifth slower than no coverage, against four fifths for the default tracer
+# (2026-10-01, 95 tests: 1.42 s bare, 1.70 s sysmon, 2.59 s ctrace) — CI measures every run.
+core = "sysmon"
+
+[tool.coverage.report]
+# The floor CI holds the engine to (`pytest --cov`), at the coverage measured when it was set; it may rise and
+# never fall (`engine ratchet`, goals/p1-the-gates-hold.yaml).
+fail_under = 79
 
 [tool.ruff]
 # 110 is the width this engine was written at; 88 would rewrap every line in the repository and

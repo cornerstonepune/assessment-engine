@@ -1,0 +1,45 @@
+name: p1-the-gates-hold
+goal: >
+  CI holds every change to the standard, and the standard only tightens. The website is linted with no warning
+  allowed. The engine's tests run with coverage, and a total under the floor in pyproject.toml fails the run.
+  Today's debt is written down where a test holds the code to it: files over 400 lines, the website's now too,
+  frozen at their size; the 30 functions past ruff's complexity limits (C901 10, PLR0915 50) frozen at their
+  measure in workflows.json. Each frozen number may shrink and never grow, nothing new joins a frozen list, no
+  limit rises and the floor never falls — `engine ratchet` holds every change to its base commit. And a goal
+  criterion that runs `pytest -q` prints "passed" again, so it can pass.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked for "a code quality of 9/10 from a proper
+# reviewer"; the review found no web lint and no coverage floor in CI, nothing stopping a frozen number from being
+# raised, and 11 criteria that could never pass (`-q` twice prints no "passed"). On 2026-10-01: "go ahead with
+# phase 1". The first of Phase 1's gates; the browser suite in CI, the type checker and the database roles follow.
+says:
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_ci_lints_the_website_with_no_warning_allowed
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_ci_holds_the_engine_to_its_coverage_floor
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_layout.py::test_the_ceiling_holds_the_website_too
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_layout.py::test_no_function_grows_more_complex_than_the_map_allows
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_ratchet.py::test_a_baseline_may_only_tighten
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_ci_refuses_a_change_that_loosens_a_baseline
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_gates.py::test_a_goal_criterion_that_runs_pytest_quietly_can_pass
+manual:
+  - "After the merge: main's CI run shows the eslint step, `engine ratchet` and the coverage total, all green."
+scenarios: []
+criteria:
+  - name: the gates, the ratchet and the map's limits
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_gates.py tests/test_ratchet.py tests/test_layout.py
+    expect: "passed"
+  - name: the website lints with no warning
+    run: cd apps/web && npx eslint --max-warnings 0 && echo "lint clean"
+    expect: "lint clean"
+  - name: no baseline loosened against main
+    run: bin/engine ratchet --base origin/main
+    expect: "every baseline held or tightened"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
