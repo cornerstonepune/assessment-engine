@@ -1,0 +1,32 @@
+name: p0-every-page-checks-who-asks
+goal: >
+  Every page, route handler and server action checks who is asking, itself: none relies on its layout, which Next 16
+  does not re-render on navigation and which does not stop the page rendering into its server payload. Before any
+  route renders, `proxy.ts` turns away a request with no good staff session cookie: a page goes to sign-in, an API route
+  answers 401. The signed-in session carries no password hash, and the staff lookup runs once per request.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked where "the weak points and the fragile points are
+# still"; the review's fragile point 4: nine pages (/, /home, /library, /library/[key], /make, /skill-sets/[code] and
+# its edit page, /worksheets and /worksheets/[qr]) relied on the (app) layout alone for the staff check, against Next
+# 16's auth guide ("Layouts and auth checks"). A forged request on main answered 500, not data, so a leak was never
+# shown: this is the documented risk closed, not a proven hole. On 2026-10-01: "go ahead with phase 0" (P0.2).
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_web_gate.py::test_every_page_checks_who_is_asking
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_web_gate.py::test_a_proxy_turns_away_a_request_without_a_good_session_before_it_renders
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/gate.spec.ts::no session: a page's server payload, asked for past its layout, is turned away before the page renders"
+manual:
+  - "On live, signed out: opening /worksheets, or asking /api/see/<any id>, lands on sign-in or answers 401."
+scenarios: []
+criteria:
+  - name: every page, route and action checks the session, and the proxy does
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_web_gate.py -o addopts=
+    expect: "passed"
+  - name: the gate holds against a production build with the bypass off
+    run: cd apps/web && npx playwright test --project=gate
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

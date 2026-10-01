@@ -5,6 +5,7 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { mistakeBook, questionPage, type QuestionPage } from "@/lib/queries-bank";
 import { correctItem, flagItem } from "../actions";
 import { deadline } from "@/lib/deadline";
+import { requireStaff } from "@/lib/auth";
 
 type Props = {
   params: Promise<{ key: string }>;
@@ -14,6 +15,7 @@ type Props = {
 // One question, everything about it: how it prints, its answer, every wrong answer it catches and
 // what each one means, where it came from — and the two things a person can do to it.
 export default async function QuestionScreen({ params, searchParams }: Props) {
+  await requireStaff();
   const [{ key }, q] = await Promise.all([params, searchParams]);
   if (!/^[A-Za-z0-9._-]+$/.test(key)) notFound();
   const [it, book] = await deadline(Promise.all([questionPage(key), mistakeBook()]));

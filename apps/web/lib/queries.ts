@@ -190,7 +190,7 @@ export async function weekPlan(section: string, week: string, kind: string): Pro
     left join sheet_instance si on si.id = p.sheet_instance_id
     left join sheet_template st on st.id = si.sheet_template_id
     where c.section = ${section} and p.week = ${week} and p.kind = ${kind}
-    order by coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no`;
+    order by roll_order(c.roll_no), c.roll_no`;
 }
 
 export async function spareSheets(
@@ -241,7 +241,7 @@ export type ChildRow = {
 export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     select c.id, c.roll_no, c.section, c.band, p.first_name,
-           (select count(*)::int from evidence_placed e
+           (select count(*)::int from answer_placed e
               left join item_result r on r.id = e.item_result_id left join capture k on k.id = r.capture_id
              where e.child_id = c.id and e.confirmed_by is not null and (k.id is null or k.superseded_by is null)) as n_events,
            (select count(*)::int from item_result r join capture k on k.id = r.capture_id
@@ -251,7 +251,7 @@ export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
              where si.child_id = c.id and k.superseded_by is null) as n_papers
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
-    order by c.section, coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
+    order by c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
 export async function childHeader(id: string, actor: string): Promise<ChildRow | undefined> {

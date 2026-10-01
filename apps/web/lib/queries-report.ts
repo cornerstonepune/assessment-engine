@@ -41,17 +41,18 @@ export async function skillMap(id: string): Promise<MapNode[]> {
       from child_skill_state s join rung r on r.code = s.rung_code
       where s.child_id = ${id}::uuid and s.skill_code = any(r.skill_codes) and s.n_events > 0
       group by s.rung_code),
+    -- each signed-off answer once (answer_placed), not once per skill its question tests
     sig as (
-      select e.placed_rung as rung_code,
-             count(*) filter (where e.correct)::int as right,
-             count(*) filter (where e.correct = false and coalesce(ir.working_shown, 'none') = 'none')::int as wrong,
-             count(*) filter (where e.correct = false and coalesce(ir.working_shown, 'none') <> 'none')::int as wrong_working,
-             count(*) filter (where e.correct is null)::int as blank
-      from evidence_placed e
-      left join item_result ir on ir.id = e.item_result_id
+      select a.placed_rung as rung_code,
+             count(*) filter (where a.correct)::int as right,
+             count(*) filter (where a.correct = false and coalesce(ir.working_shown, 'none') = 'none')::int as wrong,
+             count(*) filter (where a.correct = false and coalesce(ir.working_shown, 'none') <> 'none')::int as wrong_working,
+             count(*) filter (where a.correct is null)::int as blank
+      from answer_placed a
+      left join item_result ir on ir.id = a.item_result_id
       left join capture c on c.id = ir.capture_id
-      where e.child_id = ${id}::uuid and e.confirmed_by is not null and (c.id is null or c.superseded_by is null)
-      group by e.placed_rung)
+      where a.child_id = ${id}::uuid and a.confirmed_by is not null and (c.id is null or c.superseded_by is null)
+      group by a.placed_rung)
     select ss.code, ss.name, coalesce(ss.learning_objective, '') as objective, r.code as rung_code,
            left(r.band, 2) as band, r.ladder_order, r.skill_codes[1] as lane, coalesce(k.name, r.skill_codes[1]) as lane_name,
            st.state, coalesce(sig.right, 0) as right, coalesce(sig.wrong, 0) as wrong,

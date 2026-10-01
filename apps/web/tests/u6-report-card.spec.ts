@@ -103,9 +103,26 @@ async function ria(): Promise<string> {
   })) as string;
 }
 
+// One right answer on a question of two skills: a sign-off writes a row per skill (`answer_evidence`), in the same
+// batch, and the card counts the answer once (goals/p0-one-answer-counts-once.yaml). Added to a child made before.
+async function twoSkills(id: string) {
+  await sql`
+    insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
+                                item_result_id, observed_at, confirmed_by, created_at)
+    select e.tenant_id, e.child_id, 'NUM.OPS.01', e.rung_code, true, '{}', 'item', e.item_result_id, e.observed_at,
+           e.confirmed_by, e.created_at
+    from evidence_event e
+    where e.child_id = ${id}::uuid and e.correct and e.item_result_id is not null
+      and not exists (select 1 from evidence_event x where x.child_id = e.child_id and x.skill_code = 'NUM.OPS.01'
+                                                      and x.item_result_id is not null)
+    order by e.item_result_id limit 1`;
+  await sql`select rebuild_child_skill_state(${id}::uuid)`;
+}
+
 let id = "";
 test.beforeAll(async () => {
   id = await ria();
+  await twoSkills(id);
   await waiting("remove"); // a run that stopped half way left one
 });
 test.afterAll(async () => {
@@ -145,7 +162,9 @@ test("the skill map places the grade's skill sets and one step either side, colo
 
   const states = await sql<{ code: string; state: string }[]>`
     select ss.code, s.state from child_skill_state s join skill_set ss on ss.rung_code = s.rung_code
-    where s.child_id = ${id}::uuid and s.n_events > 0`;
+    join rung r on r.code = s.rung_code
+    -- a skill set is coloured by the skills its own rung practises; another skill a question also tests is not it
+    where s.child_id = ${id}::uuid and s.n_events > 0 and s.skill_code = any(r.skill_codes)`;
   expect(states.length).toBe(3);
   for (const s of states)
     await expect(map.locator(`g[data-node="${s.code}"]`)).toHaveAttribute(
@@ -176,12 +195,20 @@ test("every number on the card is the signed-off answers', and it says when any 
   const [n] = await sql<
     { right: number; wrong: number; working: number; blank: number }[]
   >`
-    select count(*) filter (where e.correct)::int as right,
-           count(*) filter (where e.correct = false and coalesce(ir.working_shown, 'none') = 'none')::int as wrong,
-           count(*) filter (where e.correct = false and coalesce(ir.working_shown, 'none') <> 'none')::int as working,
-           count(*) filter (where e.correct is null)::int as blank
-    from evidence_event e left join item_result ir on ir.id = e.item_result_id
-    where e.child_id = ${id}::uuid and e.confirmed_by is not null`;
+    with answers as (
+      -- counted from the answers themselves, not from evidence rows: one answer is one, whatever its question tests
+      select case ir.status when 'correct' then true when 'wrong' then false end as correct,
+             coalesce(ir.working_shown, 'none') as working
+      from item_result ir join capture c on c.id = ir.capture_id join sheet_instance si on si.id = c.sheet_instance_id
+      where si.child_id = ${id}::uuid and ir.state = 'confirmed' and c.superseded_by is null
+      union all
+      select e.correct, 'none' from evidence_event e
+      where e.child_id = ${id}::uuid and e.item_result_id is null and e.confirmed_by is not null)
+    select count(*) filter (where correct)::int as right,
+           count(*) filter (where correct = false and working = 'none')::int as wrong,
+           count(*) filter (where correct = false and working <> 'none')::int as working,
+           count(*) filter (where correct is null)::int as blank
+    from answers`;
   await page.goto(`/growth/${id}/report`);
   const every = page.getByRole("region", { name: "Every answer" });
   await expect(every.locator('li[data-signal="right"]')).toContainText(

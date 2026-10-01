@@ -147,10 +147,9 @@ def homes(address: str | None = None, week: str | None = None):
     with db.connect(address or url()) as conn:
         conn.read_only = True
         kids = conn.execute(
-            "select c.id, c.section, c.roll_no, (select count(*) from evidence_placed e"
-            "  where e.child_id = c.id and e.confirmed_by is not null) as answers"
-            " from child c where c.active order by c.section, c.roll_no ~ '^[0-9]+$' desc,"
-            " case when c.roll_no ~ '^[0-9]+$' then c.roll_no::int end, c.roll_no"
+            "select c.id, c.section, c.roll_no, (select count(*) from answer_placed a"
+            "  where a.child_id = c.id and a.confirmed_by is not null) as answers"
+            " from child c where c.active order by c.section, roll_order(c.roll_no), c.roll_no"
         ).fetchall()
         for c in kids:
             done = focus_paper.approved(conn, str(c["id"]), week)

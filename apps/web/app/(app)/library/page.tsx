@@ -5,6 +5,7 @@ import { DIFFICULTIES } from "@/lib/queries";
 import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { Proposals } from "./proposals";
+import { requireStaff } from "@/lib/auth";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -12,6 +13,7 @@ const PER_PAGE = 50;
 const n = (x: number) => x.toLocaleString("en-IN");
 
 export default async function LibraryPage({ searchParams }: Props) {
+  await requireStaff();
   const q = await searchParams;
   const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);

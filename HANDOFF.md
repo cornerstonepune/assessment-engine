@@ -15,6 +15,8 @@ is verified. This file only says where the last session stopped.
     `'D'`).
   - **PR 3:** P0.6 the 15 correctness findings in the maker, colours and curriculum (PRs #141–#143), the `audit.run`
     crash on an item with no "ans" response, and the rows u10's test leaves in the copy.
+- **PR 2, built after PR 1:** P0.2 every page checks who asks, plus `proxy.ts`; P0.5 `answer_placed`, so an answer
+  counts once, and `roll_order()`. It was committed on the branch behind PR 1, to be pushed once PR 1 merges.
 - **For Nimish:**
   - Run the one live query in `goals/p0-the-database-answers-only-its-own.yaml`.
   - Confirm that Supabase backups are on.

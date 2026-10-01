@@ -8,12 +8,14 @@ import { sql } from "@/lib/db";
 import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
+import { requireStaff } from "@/lib/auth";
 
 type Props = { params: Promise<{ qr: string }> };
 
 // One paper, end to end: the page as it was printed, how the engine drew it from the bank, and the
 // key it is marked against. Every sentence is filled from the paper's own rows.
 export default async function PaperPage({ params }: Props) {
+  await requireStaff();
   const { qr } = await params;
   // A library worksheet (R22-H07) or a child's printed paper (CS + six hex): one address for both.
   if (LIBRARY_CODE.test(qr)) return <LibraryWorksheetPage code={qr} />;

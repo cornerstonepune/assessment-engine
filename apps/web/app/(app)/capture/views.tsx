@@ -7,7 +7,8 @@ import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import type { PaperRow } from "@/lib/queries-read";
 import { PaperTable, STANDING_HEADS, StandingCells, TotalRow, standing } from "./parts";
 
-const roll = (r: string) => Number(r.replace(/\D/g, "")) || 9999;
+// as the database orders a roll (`roll_order`): by its first number, a roll with none last
+const roll = (r: string) => Number(r.match(/\d{1,9}/)?.[0] ?? Number.MAX_SAFE_INTEGER);
 const groupBy = <T,>(rows: T[], key: (r: T) => string) =>
   rows.reduce<Map<string, T[]>>((m, r) => m.set(key(r), [...(m.get(key(r)) ?? []), r]), new Map());
 

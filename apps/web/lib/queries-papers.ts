@@ -128,7 +128,7 @@ export async function paperList(
       select c.id, n.first_name || ' · ' || c.section || ' roll ' || c.roll_no as label
       from child c, lateral pii.read_child(c.id, ${actor}) n
       where c.active and exists (select 1 from sheet_instance si where si.child_id = c.id and si.print_status <> 'void')
-      order by c.section, coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no`,
+      order by c.section, roll_order(c.roll_no), c.roll_no`,
   ]);
   const stages = Object.fromEntries(STAGES.map((s) => [s, 0])) as Record<Stage, number>;
   for (const c of counts) stages[c.stage] = c.n;

@@ -1,0 +1,35 @@
+name: p0-one-answer-counts-once
+goal: >
+  Every count of a child's answers counts each answer once, however many skills its question tests: the report card,
+  the parent report (its answers, its "can do" and "nearly" scores, what improved) and a child's answer count read
+  `answer_placed`, one row per signed-off answer, not the evidence rows behind it. And a class is listed in one order,
+  everywhere, by `roll_order()`: by the number in a roll ("2" before "10", "12A" after "12"), a roll with none last;
+  a roll with a letter in it no longer breaks a page.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked where "the weak points and the fragile points are
+# still". The review's fragile point 5: a right answer writes an evidence row per skill its question tests, and 49% of
+# the bank's questions test two or more, so the report card and the parent report counted one right answer up to three
+# times and a wrong one once. Fragile point 6: the roll order was written twelve times; three website copies sent '\D'
+# to Postgres as 'D', so "12A" broke the class page. On 2026-10-01: "go ahead with phase 0" (P0.5).
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_parent_report.py::test_one_answer_to_a_question_of_two_skills_counts_once
+  - words: "go ahead with phase 0"
+    proved_by: "apps/web/tests/u6-report-card.spec.ts::every number on the card is the signed-off answers', and it says when any still wait"
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_roll_order.py::test_a_class_is_listed_by_the_number_in_its_rolls
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_roll_order.py::test_no_query_orders_rolls_its_own_way
+manual:
+  - "On live, after the merge: a child's report card and parent report show as many right answers as the papers hold."
+scenarios: []
+criteria:
+  - name: answers counted once, and one roll order, on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_parent_report.py tests/test_roll_order.py -o addopts=
+    expect: "passed"
+  - name: the report card's numbers are the answers', on a production build against the local copy
+    run: cd apps/web && npx playwright test tests/u6-report-card.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

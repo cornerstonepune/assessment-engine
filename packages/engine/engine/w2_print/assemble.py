@@ -88,7 +88,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
         "select p.id, p.child_id, p.skill_set_code, p.difficulty, p.rule_fired, c.roll_no, c.band"
         " from prescription p join child c on c.id = p.child_id"
         " where c.section = %s and p.week = %s and p.kind = %s"
-        " order by coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no",
+        " order by roll_order(c.roll_no), c.roll_no",
         (section, week, kind),
     ).fetchall()
     if not rx:

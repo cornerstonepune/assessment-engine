@@ -271,7 +271,7 @@ export async function checkQueue(): Promise<QueueEntry[]> {
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
-    order by t.key ->> 'date' desc nulls last, ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
+    order by t.key ->> 'date' desc nulls last, roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
              nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int, i.item_key`;
 }
 

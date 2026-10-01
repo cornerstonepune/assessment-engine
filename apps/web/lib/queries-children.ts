@@ -54,7 +54,7 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
              order by n.created_at desc limit 1) as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
-    order by c.band, c.section, coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
+    order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */
@@ -69,7 +69,7 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
   return sql<{ id: string; roll_no: string; first_name: string }[]>`
     select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and c.section = ${section}
-    order by coalesce(nullif(regexp_replace(c.roll_no, '\D', '', 'g'), '')::int, 9999), c.roll_no`;
+    order by roll_order(c.roll_no), c.roll_no`;
 }
 
 /** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill

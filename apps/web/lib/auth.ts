@@ -1,25 +1,13 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
+import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
-export type Session = Staff & { devBypass: boolean };
-
-const COOKIE = "cs_staff";
-const DAYS = 30;
-
-// True only in development and only when asked for. Production never bypasses (auth rule: a
-// disabled gate is a ship blocker).
-export function devBypass(): boolean {
-  return process.env.NODE_ENV === "development" && process.env.AUTH_DEV_BYPASS === "1";
-}
-
-function secret(): string {
-  const s = process.env.AUTH_SECRET;
-  if (!s || s.length < 32) throw new Error("AUTH_SECRET is missing or too short (32+ chars).");
-  return s;
-}
+// Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
+export type Session = Omit<Staff, "password"> & { devBypass: boolean };
 
 // `scrypt$salt$hash`, both hex. scrypt is in node's standard library, so no dependency and no
 // bcrypt build step; the salt is per person so two people with the same password differ.
@@ -35,35 +23,18 @@ function passwordMatches(password: string, stored: string | undefined): boolean 
   return got.length === expected.length && timingSafeEqual(got, expected);
 }
 
-// `email.expiry.signature` — the signature is what stops a cookie being edited by hand.
-function sign(value: string): string {
-  return createHmac("sha256", secret()).update(value).digest("hex");
-}
-
-function readCookie(raw: string | undefined): string | null {
-  const [email, expiry, mac] = (raw ?? "").split(".");
-  if (!email || !expiry || !mac) return null;
-  const want = Buffer.from(sign(`${email}.${expiry}`));
-  const got = Buffer.from(mac);
-  if (want.length !== got.length || !timingSafeEqual(want, got)) return null;
-  if (Number(expiry) < Date.now()) return null;
-  return Buffer.from(email, "base64url").toString();
-}
-
 export async function startSession(email: string): Promise<void> {
-  const expiry = String(Date.now() + DAYS * 86_400_000);
-  const body = `${Buffer.from(email).toString("base64url")}.${expiry}`;
-  (await cookies()).set(COOKIE, `${body}.${sign(body)}`, {
+  (await cookies()).set(SESSION_COOKIE, sessionValue(email), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: DAYS * 86_400,
+    maxAge: SESSION_DAYS * 86_400,
   });
 }
 
 export async function endSession(): Promise<void> {
-  (await cookies()).delete(COOKIE);
+  (await cookies()).delete(SESSION_COOKIE);
 }
 
 /** The staff member whose password matched, or null. Both misses read the same to the caller so
@@ -76,16 +47,19 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
 // Who is signed in, or null when the cookie is missing, edited, expired or names nobody on the
 // staff list. A database that does not answer is NOT "signed out": it throws, and the person reads
 // that the database did not answer (app/error.tsx). Swallowing it once sent a signed-in founder to
-// the login page during an outage, which read as a broken password.
-export async function currentStaff(): Promise<Session | null> {
+// the login page during an outage, which read as a broken password. Once per request, however many
+// pages, layouts and data reads ask.
+export const currentStaff = cache(async (): Promise<Session | null> => {
   if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", devBypass: true };
-  const email = readCookie((await cookies()).get(COOKIE)?.value);
+  const email = sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
-  return staff ? { ...staff, devBypass: false } : null;
-}
+  // named fields, never the record: the password hash stays on the server
+  return staff ? { email: staff.email, name: staff.name, role: staff.role, devBypass: false } : null;
+});
 
-// For pages and server actions: the signed-in staff member, or a redirect to /login.
+// For every page, route and server action: the signed-in staff member, or a redirect to /login. Each calls it
+// itself; a layout's check alone is not enough (Next 16's auth guide, "Layouts and auth checks").
 export async function requireStaff(): Promise<Session> {
   const me = await currentStaff();
   if (me) return me;

@@ -43,7 +43,7 @@ export async function classHome(section: string, actor: string, week = isoWeek()
   const children = await sql<{ id: string; roll_no: string; first_name: string }[]>`
     select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and c.section = ${section}
-    order by coalesce(nullif(regexp_replace(c.roll_no, '\\D', '', 'g'), '')::int, 9999), c.roll_no`;
+    order by roll_order(c.roll_no), c.roll_no`;
   return Promise.all(
     children.map(async (c) => {
       const res = await engineGet(`/child/${c.id}/focus?week=${week}`);
