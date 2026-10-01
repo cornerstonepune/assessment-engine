@@ -307,6 +307,24 @@
    "value": 0.8333,
    "unit": "proportion",
    "description": "Agreed for the right reason: 5 of 6, v1's score (STATE.md, W1 gates 4 and 5, 2026-09-19)"
+  },
+  {
+   "key": "watch.stuck_minutes",
+   "value": 30,
+   "unit": "minutes",
+   "description": "A run still running after this long died or hangs: the live watcher says so (goals/p2-live-is-watched.yaml)"
+  },
+  {
+   "key": "watch.window_minutes",
+   "value": 30,
+   "unit": "minutes",
+   "description": "The live watcher reports a failed run or a website error this recent; longer than its ten-minute round, so a late round misses none"
+  },
+  {
+   "key": "watch.disk_free_gb",
+   "value": 2,
+   "unit": "GB",
+   "description": "Below this much free on the server's disk, the live watcher says so: scans, papers and every deploy's build live there"
   }
  ]
 }

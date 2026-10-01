@@ -1,0 +1,39 @@
+name: p2-live-is-watched
+goal: >
+  Nimish hears from the system, not from an educator, when live goes wrong. Every ten minutes a watcher outside the
+  server asks the engine what is wrong (`engine live watch`): a reading or a report still running past its limit, one
+  that failed in the window, an error a page of the website raised, the server's disk nearly full; and it checks that
+  the engine and the website answer at their public addresses. Anything wrong opens an issue that mentions him; the
+  issue gets a comment when what is wrong changes, and is closed when all is well. The repository is public, so every
+  line is counts and page patterns: never a child, a name, an id or the server's address. The limits are threshold
+  rows.
+
+# Written 2026-10-01, before the code. The code review of 2026-09-30: "Nobody is told when the engine is down or
+# marking badly", and "the website has no error tracking". On 2026-10-01 Nimish: "go ahead with phase 2", and "make
+# sure ... you're not unnecessarily complicating anything": one engine command decides, one workflow asks and tells.
+says:
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_watch.py::test_a_run_stuck_past_its_limit_is_a_problem
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_watch.py::test_a_run_that_failed_in_the_window_is_a_problem
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_watch.py::test_a_website_error_is_a_problem_named_by_its_page_pattern
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_watch.py::test_a_nearly_full_disk_is_a_problem
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_watch.py::test_no_problem_names_a_child_an_id_or_an_address
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_deploy.py::test_live_is_watched_every_ten_minutes_from_outside_the_server
+  - words: "go ahead with phase 2"
+    proved_by: apps/web/tests/p2-website-errors.spec.ts::an error a page raises is recorded by its page pattern, as the website's own role
+manual:
+  - "For an alert to reach a phone, the GitHub app must be signed in on it: an issue that mentions @nimishshah1989
+    notifies him whether or not he watches the repository."
+scenarios: []
+criteria:
+  - name: the watch, the roles and the files that run live
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_watch.py tests/test_roles.py tests/test_deploy.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

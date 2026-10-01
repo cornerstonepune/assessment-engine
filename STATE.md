@@ -4421,3 +4421,25 @@ Found while closing Phase 1 (`goals/p1-no-loose-ends.yaml`).
     criterion line without its tally.
   - `engine audit` on the local copy found the same 27 violations with and without the change. All are local data (26
     specs not ratified, one mistake-charge table not approved); none is about prompts.
+
+## Phase 2, PR 1: live is watched (2026-10-01)
+
+`goals/p2-live-is-watched.yaml`. Nimish: "go ahead with phase 2", built to ponytail's rules (the laziest thing that
+works; https://github.com/dietrichgebert/ponytail).
+
+- **`engine live watch`** (`checks/watch.py`) prints what is wrong on live, one line each:
+  - runs still running after `watch.stuck_minutes` (30);
+  - runs that failed, and website errors, in the last `watch.window_minutes` (30);
+  - the server's disk below `watch.disk_free_gb` (2).
+  It prints counts, flow names and page patterns only: never a run's error text, an id or an address.
+- **The website records each error a page raises** (`apps/web/instrumentation.ts` → `web_error`, by the page's
+  pattern). There is no message, because a message can carry a child's name; Vercel's log keeps it, found by its digest.
+  `app_web` may insert into `web_error`, and nowhere else new.
+- **`.github/workflows/watch-live.yml` runs every 10 minutes.** It asks the engine over SSH, checks the engine's
+  `/health` and the website's `/login`, and asks again a minute later before it says anything. Then it opens an issue
+  mentioning @nimishshah1989, keeps its body current, and closes it when all is well. The repository is public, so the
+  engine's address is masked in this workflow's logs, and now in the deploy's too.
+- **Checks:**
+  - `pytest -q tests/test_watch.py tests/test_roles.py tests/test_deploy.py` → 15 passed.
+  - `npx playwright test tests/p2-website-errors.spec.ts`, run as `app_web` → 1 passed.
+  - ruff, pyright, eslint and tsc are clean on the changed files.

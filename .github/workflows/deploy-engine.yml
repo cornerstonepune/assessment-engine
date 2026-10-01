@@ -146,6 +146,7 @@ jobs:
           # where the packs were recorded as rendered: read off the running engine, as go-live.sh set it
           PACKS=$($S "sudo docker inspect deploy-engine-1 --format '{{range .Mounts}}{{if eq .Source \"/home/ubuntu/cornerstone/packs\"}}{{.Destination}}{{end}}{{end}}'" || true)
           ENGINE_HOST="${HOST//./-}.sslip.io"
+          echo "::add-mask::$ENGINE_HOST"  # the repository is public, and so are its logs
           # the engine's data folder is the server's from now on (compose.server.yml); the papers the old container
           # rendered into its own layer come across once, while the folder is still empty
           $S 'mkdir -p ~/cornerstone/data
