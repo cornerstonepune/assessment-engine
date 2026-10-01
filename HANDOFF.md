@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — the parent report prints as it reads
+
+- Advika's report, printed from the browser (Nimish): page 1 was two-thirds empty, the last two lines took a fourth page,
+  the skill dots showed as a stray "○", the example tables printed as a narrow centred column, and the header said
+  "Grade 2 · G2".
+- Causes, in `growth/[id]/parent/letter.tsx`: every section was `break-inside-avoid`, so any section taller than the
+  space left jumped whole to the next page; Chrome drops background colours by default, so filled dots and table
+  shading vanished; the example grid was `inline-grid` centred. Now an entry (a skill, an example, a tip, the footer)
+  stays whole and a heading stays with what follows; the report prints its colours (`print-color-adjust: exact`); the
+  question takes half the row, left-aligned; a section named for its band is not repeated after the grade.
+- Checked by printing the same letter with Chromium (A4): 3 pages, none half empty. Not checked on live data.
+
 ## 2026-10-01 — Phase 0 of the code review: PR 3 of 3 (the maker makes what it shows)
 
 - **PR 1 (#144) and PR 2 (#145) are merged.** PR 1's deploy chain ran on live: CI, then the migration, then the engine
