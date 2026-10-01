@@ -62,10 +62,7 @@ const day = (d: string) =>
 function Dots({ right, of }: { right: number; of: number }) {
   if (of > 12) return null;
   return (
-    <span
-      className="ml-2 inline-flex gap-[3px] align-middle"
-      aria-hidden="true"
-    >
+    <span className="inline-flex gap-[3px]" aria-hidden="true">
       {Array.from({ length: of }, (_, i) => (
         <span
           key={i}
@@ -86,6 +83,13 @@ export function nextStep(next: Facts["next"], name: string): string | null {
     : `The educator gives ${name} more questions of ${skill}, at ${next.level}, until it is secure.`;
 }
 
+// "Grade 2 · G2" said the class twice: a section named for its band adds nothing to the grade beside it.
+export function classOf(grade: string, section: string): string {
+  return section === `G${grade.replace(/\D/g, "")}`
+    ? grade
+    : `${grade} · ${section}`;
+}
+
 function Section({
   title,
   children,
@@ -96,8 +100,8 @@ function Section({
   label: string;
 }) {
   return (
-    <section aria-label={label} className="mt-7 break-inside-avoid">
-      <h2 className="mb-3 border-b border-basalt/15 pb-1 font-heading text-[18px]">
+    <section aria-label={label} className="mt-7">
+      <h2 className="mb-3 break-after-avoid border-b border-basalt/15 pb-1 font-heading text-[18px]">
         {title}
       </h2>
       {children}
@@ -126,7 +130,7 @@ export function Letter({
   return (
     <article
       data-testid="parent-report"
-      className="relative mx-auto max-w-[800px] bg-chalk px-6 py-8 text-[15px] leading-[1.65] shadow-sm md:px-12 md:py-10 print:max-w-none print:shadow-none"
+      className="relative mx-auto max-w-[800px] bg-chalk px-6 py-8 text-[15px] leading-[1.65] shadow-sm [-webkit-print-color-adjust:exact] [print-color-adjust:exact] md:px-12 md:py-10 print:max-w-none print:bg-transparent print:p-0 print:shadow-none"
     >
       {note.approved_by ? null : (
         <p
@@ -146,7 +150,7 @@ export function Letter({
             {name}
           </h1>
           <div className="text-[13.5px] text-basalt/70">
-            {f.grade} · {section}
+            {classOf(f.grade, section)}
           </div>
         </div>
         <div className="text-right text-[13px] text-basalt/70">
@@ -166,7 +170,7 @@ export function Letter({
             {note.draft.can_do.map((c) => {
               const s = skills[c.id];
               return (
-                <li key={c.id} className="flex gap-3">
+                <li key={c.id} className="flex break-inside-avoid gap-3">
                   <span
                     className="mt-[2px] font-heading text-neem"
                     aria-hidden="true"
@@ -174,25 +178,21 @@ export function Letter({
                     ✓
                   </span>
                   <div>
-                    <div className="font-heading text-[15px]">
-                      {s?.skill}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-heading text-[15px]">
+                      <span>{s?.skill}</span>
                       {s?.answered ? (
                         <Dots right={s.right ?? 0} of={s.answered} />
                       ) : null}
                       {s?.ready_to_move_up ? (
-                        <span className="pill pill-neem ml-2 align-middle">
+                        <span className="pill pill-neem">
                           ready for the next step
                         </span>
                       ) : null}
                       {s?.not_yet ? (
-                        <span className="pill pill-bamboo ml-2 align-middle">
-                          nearly secure
-                        </span>
+                        <span className="pill pill-bamboo">nearly secure</span>
                       ) : null}
                       {s?.recent ? (
-                        <span className="pill pill-bamboo ml-2 align-middle">
-                          improving
-                        </span>
+                        <span className="pill pill-bamboo">improving</span>
                       ) : null}
                     </div>
                     <div className="text-basalt/80">{put(c.sentence)}</div>
@@ -228,11 +228,11 @@ export function Letter({
             {note.draft.working_on.map((w) => {
               const ex = slips[w.id]?.example;
               return (
-                <li key={w.id}>
+                <li key={w.id} className="break-inside-avoid">
                   <p>{put(w.explanation)}</p>
                   {ex ? (
-                    <div className="mt-2 inline-grid grid-cols-3 gap-[2px] text-center text-[13px]">
-                      <div className="bg-lime px-4 py-2">
+                    <div className="mt-2 grid max-w-[600px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-[2px] text-center text-[13px]">
+                      <div className="bg-lime px-4 py-2 text-left">
                         <div className="label">Question</div>
                         <div className="font-heading text-[15px]">
                           {ex.question}
@@ -262,7 +262,9 @@ export function Letter({
       <Section title="How you can help at home" label="At home">
         <ol className="grid list-decimal gap-2 pl-5">
           {note.draft.at_home.map((a, i) => (
-            <li key={i}>{put(a)}</li>
+            <li key={i} className="break-inside-avoid">
+              {put(a)}
+            </li>
           ))}
         </ol>
       </Section>
@@ -271,7 +273,7 @@ export function Letter({
         <p>{nextStep(f.next, name) ?? put(note.draft.next_at_school ?? "")}</p>
       </Section>
 
-      <footer className="mt-9 flex flex-wrap justify-between gap-3 border-t border-basalt/15 pt-3 text-[12.5px] text-basalt/65">
+      <footer className="mt-9 flex break-inside-avoid flex-wrap justify-between gap-3 border-t border-basalt/15 pt-3 text-[12.5px] text-basalt/65">
         <span>
           Written from {name}&apos;s own answers; every number here was counted,
           not estimated.
