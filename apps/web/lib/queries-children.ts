@@ -64,6 +64,9 @@ export type GridChild = { id: string; roll_no: string; first_name: string; state
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
 
+/** A taught skill of the class's grade no child of it has answered: named once, and checked for the whole class. */
+export type Unanswered = { code: string; name: string; levels: string[] };
+
 /** A class's children in roll order, each name read through pii.read_child, which logs who asked. */
 export async function classRoll(section: string, actor: string): Promise<{ id: string; roll_no: string; first_name: string }[]> {
   return sql<{ id: string; roll_no: string; first_name: string }[]>`
@@ -79,7 +82,7 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
 export async function classGrid(
   section: string,
   actor: string,
-): Promise<{ steps: Step[]; children: GridChild[]; notYet: string[]; band: string }> {
+): Promise<{ steps: Step[]; children: GridChild[]; notYet: Unanswered[]; band: string }> {
   const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
       select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.name as topic_name,
@@ -94,8 +97,8 @@ export async function classGrid(
     sql<{ child_id: string; skill_code: string; rung_code: string; state: string; n_events: number; n_correct: number }[]>`
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
-    sql<{ name: string }[]>`
-      select ss.name from skill_set ss
+    sql<Unanswered[]>`
+      select ss.code, ss.name, array(select jsonb_object_keys(ss.difficulty)) as levels from skill_set ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
       join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
       where r.band in (select band from child where section = ${section} and active)
@@ -112,7 +115,7 @@ export async function classGrid(
       ...c,
       states: Object.fromEntries(states.filter((s) => s.child_id === c.id).map((s) => [stepKey(s), s])),
     })),
-    notYet: notYet.map((n) => n.name),
+    notYet,
     band: grade?.band ?? "",
   };
 }
@@ -123,6 +126,8 @@ export type ChildSkill = {
   topic: string;
   rung_code: string;
   skill_code: string | null;
+  /** The skill's own name: a rung that tests two skills gives its skill set a line for each (`Money`, `Word problems`). */
+  skill_name: string | null;
   state: string | null;
   n_events: number;
   n_correct: number;
@@ -136,7 +141,7 @@ export type ChildSkill = {
  *  graph's state and score, in the shared tree's order. A skill with no answers has no state. */
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
-    select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, s.state,
+    select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
            array(select jsonb_object_keys(ss.difficulty)) as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
@@ -144,8 +149,9 @@ export async function childSkills(id: string): Promise<ChildSkill[]> {
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code and s.skill_code = any(r.skill_codes)
+    left join skill sk on sk.tenant_id = ss.tenant_id and sk.code = s.skill_code
     where r.band = (select band from child where id = ${id}::uuid) or s.n_events > 0
-    order by t.ord, r.ladder_order nulls last, ss.code`;
+    order by t.ord, r.ladder_order nulls last, ss.code, s.skill_code`;
 }
 
 /** The one sentence a child's page opens on: the skills their checked answers reach, counted by colour, red first;

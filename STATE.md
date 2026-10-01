@@ -4135,3 +4135,67 @@ Steps P0.2 and P0.5 of the plan Nimish approved ("go ahead with phase 0").
   - The full browser suite passed 123. As before, 1 failed (s7, which needs live's G2 class), 6 were skipped and 2
     did not run.
   - `tsc`, eslint and `bin/check` passed.
+
+## Phase 0, PR 3: the maker makes what it shows (2026-10-01)
+
+Step P0.6 of the plan Nimish approved ("go ahead with phase 0"): the code review's correctness pass over PRs #141–#143
+found 15 defects in the maker, the colours and the curriculum. PR 2 fixed one (the roll order); this PR fixes the other
+14 (`goals/p0-the-maker-makes-what-it-shows.yaml`), plus the `engine audit` crash found while proving them.
+
+- **The engine (`w2_print`):**
+  - **Two alike lines repeated questions.** What a paper may not use held other children's papers, never its own
+    lines. Now its own lines' questions are excluded too. With six questions left, main printed one of them twice.
+    A second line the bank cannot fill is now refused, saying "no line above on this paper holds".
+  - **N+1 catalogue reads.** Planning read the catalogue, levels, rule and names again for every child. They are now
+    read once per batch (`shelf.one_batch()`).
+  - **One browser per batch.** Making a class launched Chromium once per paper; a batch now shares one
+    (`render._browser`).
+  - **The split.** `focus_paper.py` reached 413 lines against the 400 ceiling. What a paper is drawn against (the
+    catalogue, the levels, the rule, a home paper's length, the per-batch cache) moved to `w2_print/shelf.py`, on
+    the same step in `workflows.json`; `focus_paper.py` is now 319 lines.
+  - **A paper says how it was chosen.** Every maker paper's page said "chosen from this child's own checked papers",
+    including class practice an educator chose. `print_paper` now keeps `how` (the engine's words) and `areas` on the
+    paper. The paper's page reads them; a paper from before says only "drawn for this child".
+  - **A changed child's paper length.** It was 12, the website's own `OWN_N`. It is now the `assemble.items_per_sheet`
+    row; the route takes a change with no length.
+- **The website:**
+  - **A slow engine.** It took down the maker (planning) or said "nothing was changed" of papers it went on to make
+    (making). Planning now says so on the maker. A make that gets no answer comes back with the same `once`, so the
+    form sent again makes the papers once. The test holds a lock the engine waits on and sends the form twice; the
+    copy then holds 2 papers, not 4.
+  - **A refused batch** came back with the whole class ticked (`batchQuery` lacked `of`), and a change for a child no
+    longer ticked made the engine refuse the plan (`forChildren`).
+  - **Make made the papers shown** even after the choice changed. Any change to the choice now stops the button until
+    the papers are seen again, and the button names the kind it makes.
+  - **Checks.**
+    - The class page gave a skill no child has answered no check. It now gets one for the whole class.
+    - A rung that tests two skills gave its skill two checks, on the class page and the child's. There is now one per
+      skill, and the child's two lines say which skill each is.
+  - **Words and counts.**
+    - Amber is said in the rule's own number of papers.
+    - `checkLevel` takes the level order from `DIFFICULTIES`.
+    - The waiting-skill count is per skill, not per row.
+    - The maker's first line starts at the home paper's length row.
+- **The audit crash.** `engine audit` stopped with `StopIteration` on a generated sum with no "ans" response; such a
+  sum is now named. These came from u6, u7, u9 and u10, which planted their test questions as generated items. They
+  now plant them as `legacy`, and the copy's 20 were converted.
+- **Checks:**
+  - **Engine.** The six new engine tests and the route test each fail on main's code: a repeated question,
+    catalogue read twice, `[]` for `[10]`, `KeyError: 'how'`, `StopIteration`, 3 Chromium launches, and 422 for a
+    change with no length. All seven pass here. The full engine suite passed 1,315.
+  - **Browser, on main's code with the copy** (labels adapted to main's button):
+    - 9 of the new or changed tests fail. Make stays enabled after a change. Chetan comes back ticked. The slow
+      engine shows no words. The paper's page says "own checked papers". There is no single check for
+      WORD.1_2STEP, and the class checks were keyed per column. Amber says "on one paper". The count says 25
+      waiting where 24 are distinct.
+    - The s11 wording change also fails there, as expected.
+  - **Browser, here.**
+    - Every test of m4, u11, u12, s11, u2, u5, u6, u7, u9 and u10 passed.
+    - The full suite passed 141. 2 failed:
+      - s7, as before: it needs live's G2 class;
+      - e2e's "every child's paper has its own code". The copy holds no G3 class (0 children, 0 prescriptions),
+        so the week page has no row. It fails the same way on main's code with this copy, and that page's code is
+        not touched here.
+    - 7 were skipped and 7 did not run (the rest of e2e's G3 tests, s4 without its readings, s7's).
+  - `tsc` and eslint (`app lib components tests proxy.ts`, 0 warnings) passed. `bin/check` passed.
+  - `engine promises`: every promise has its command.

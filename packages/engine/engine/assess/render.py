@@ -270,6 +270,15 @@ def sheet_html(sheet, week_label="Week __", layout=None):
 </script></body></html>"""
 
 
+def _browser(pw):
+    """The one browser a batch's Playwright renders every paper in: launched on its first paper, closed when the
+    batch's Playwright stops. A browser per paper made a class-sized batch outlive the website's wait (2026-09-30)."""
+    browser = getattr(pw, "_one_browser", None)
+    if browser is None or not browser.is_connected():
+        browser = pw._one_browser = pw.chromium.launch()
+    return browser
+
+
 def render_sheet(sheet, outdir, week_label="Week __", pw=None, layout=None):
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -278,7 +287,7 @@ def render_sheet(sheet, outdir, week_label="Week __", pw=None, layout=None):
     own = pw is None
     if own:
         pw = sync_playwright().start()
-    browser = pw.chromium.launch()
+    browser = pw.chromium.launch() if own else _browser(pw)
     page = browser.new_page(viewport={"width": 794, "height": 1123})
     page.goto(htmlpath.resolve().as_uri())
     page.wait_for_timeout(50)
@@ -290,8 +299,9 @@ def render_sheet(sheet, outdir, week_label="Week __", pw=None, layout=None):
         margin={"top": "0", "bottom": "0", "left": "0", "right": "0"},
         prefer_css_page_size=True,
     )
-    browser.close()
+    page.close()
     if own:
+        browser.close()
         pw.stop()
     key = dict(
         sheet_id=sheet.sheet_id,

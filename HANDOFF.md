@@ -3,6 +3,23 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 0 of the code review: PR 3 of 3 (the maker makes what it shows)
+
+- **PR 1 (#144) and PR 2 (#145) are merged.** PR 1's deploy chain ran on live: CI, then the migration, then the engine
+  at 0e00b3d, its commit recorded.
+- **PR 3** is P0.6: the 14 correctness findings P0.5 left (one, the roll order, went in PR 2), in
+  `goals/p0-the-maker-makes-what-it-shows.yaml`, plus the `engine audit` crash. Each has a test that fails on main's
+  code. STATE.md "Phase 0, PR 3" lists them.
+- **Rows the website tests leave in the copy:** u6, u7, u9 and u10 now plant their questions as `legacy` (an earlier
+  paper's), so the bank's recheck no longer reads them as generated sums. That is what crashed `engine audit` locally.
+- **Next, after the merge:**
+  - run `engine done` for the six p0 goals from main;
+  - Phase 1 (gates), which starts with eslint at zero warnings and Playwright in CI on a self-seeded database.
+- **For Nimish** (still open from PR 1):
+  - the one live query in `goals/p0-the-database-answers-only-its-own.yaml`;
+  - whether Supabase backups are on;
+  - whether `.claude/settings.json` should keep pre-approving merges.
+
 ## 2026-10-01 — Phase 0 of the code review: PR 1 of 3 (papers survive a deploy; live waits for CI; functions closed)
 
 - **The review** (2026-09-30) scored the code about 5/10 and named 12 fragile points. Nimish said "go ahead with

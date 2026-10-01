@@ -1,5 +1,6 @@
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { Body, PageHeader } from "@/components/shell";
 import { ColourKey, Swatch } from "@/components/colour-key";
 import { requireStaff } from "@/lib/auth";
@@ -20,22 +21,25 @@ export default async function ClassPage({ params }: Props) {
   const section = decodeURIComponent((await params).section);
   const [{ steps, children, notYet, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
   if (!children.length) notFound();
-  // every step some child has too few answers on, or none: the check that would place them
-  const unplaced = (s: Step) => children.filter((c) => (c.states[stepKey(s)]?.state ?? "not_enough_yet") === "not_enough_yet");
-  const checks: Check[] = steps
-    .map((s) => ({ s, kids: unplaced(s) }))
-    .filter(({ kids }) => kids.length)
-    .map(({ s, kids }) => {
-      const level = checkLevel(rules, band, s.levels);
-      return {
-        key: stepKey(s),
-        skill: s.descriptor,
-        who: <Who kids={kids} step={s} />,
-        level,
-        n: rules.checkSize,
-        href: checkHref(section, kids.map((k) => k.id), s.skill_set, level, rules.checkSize),
-      };
-    });
+  // the check that would place each child too few answers say anything about: one a skill, for every child grey on
+  // any of its columns (a rung that tests two skills is two columns, and was two checks of the one skill), then every
+  // skill of the grade no child has answered, for the whole class — it had no check at all (code review, 2026-09-30)
+  const check = (skill: { code: string; name: string; levels: string[] }, kids: GridChild[], who: ReactNode): Check => {
+    const level = checkLevel(rules, band, skill.levels);
+    const href = checkHref(section, kids.map((k) => k.id), skill.code, level, rules.checkSize);
+    return { key: skill.code, skill: skill.name, who, level, n: rules.checkSize, href };
+  };
+  const answered = [...new Map(steps.map((s) => [s.skill_set, { code: s.skill_set, name: s.descriptor, levels: s.levels }])).values()];
+  const checks: Check[] = [
+    ...answered.flatMap((skill) => {
+      const columns = steps.filter((s) => s.skill_set === skill.code);
+      const grey = (c: GridChild) => columns.some((s) => (c.states[stepKey(s)]?.state ?? "not_enough_yet") === "not_enough_yet");
+      const answers = (c: GridChild) => Math.max(...columns.map((s) => c.states[stepKey(s)]?.n_events ?? 0));
+      const kids = children.filter(grey);
+      return kids.length ? [check(skill, kids, <Who kids={kids} answers={answers} />)] : [];
+    }),
+    ...notYet.map((u) => check(u, children, `All ${children.length}: none has answered it yet`)),
+  ];
   const topics = [...new Set(steps.map((s) => s.topic_name))];
   const firstOfTopic = (i: number) => i === 0 || steps[i - 1].topic_name !== steps[i].topic_name;
 
@@ -102,7 +106,7 @@ export default async function ClassPage({ params }: Props) {
         </div>
         {notYet.length ? (
           <p className="note mt-3" data-testid="not-yet">
-            Not assessed yet in this class: {notYet.join(" · ")}
+            Not assessed yet in this class: {notYet.map((u) => u.name).join(" · ")}
           </p>
         ) : null}
         <p className="note mt-3">
@@ -139,12 +143,12 @@ function Cell({ step, first, got }: { step: Step; first: boolean; got?: { state:
   );
 }
 
-/** Who a check is for: each child, and how many answers they have on the step so far. */
-function Who({ kids, step }: { kids: GridChild[]; step: Step }) {
+/** Who a check is for: each child, and how many answers they have on the skill so far. */
+function Who({ kids, answers }: { kids: GridChild[]; answers: (k: GridChild) => number }) {
   return (
     <>
       {kids.map((k, i) => {
-        const n = k.states[stepKey(step)]?.n_events ?? 0;
+        const n = answers(k);
         return (
           <span key={k.id} className="whitespace-nowrap">
             {k.first_name} <span className="text-basalt/55">({n ? `${n} answer${n === 1 ? "" : "s"}` : "none"})</span>

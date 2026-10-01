@@ -63,7 +63,7 @@ export default async function PaperPage({ params }: Props) {
             )}
           </Panel>
 
-          <Panel title="How it was made">
+          <Panel title="How it was made" label="How it was made">
             <dl className="grid gap-[14px] text-[13.5px] leading-[1.5]">
               {facts(p).map(([label, value]) => (
                 <div key={label}>
@@ -124,7 +124,17 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
     [
       "Tests",
       <>
-        {p.skill_set_name} · <Pill tone="monsoon">{p.difficulty ?? "each at the child's own level"}</Pill>
+        {p.areas ? (
+          p.areas.map((a, i) => (
+            <span key={i} className="mr-2 inline-block">
+              {a.name} · <Pill tone="monsoon">{a.level}</Pill>
+            </span>
+          ))
+        ) : (
+          <>
+            {p.skill_set_name} · <Pill tone="monsoon">{p.difficulty ?? "each area at its own level"}</Pill>
+          </>
+        )}
         {p.rule_fired ? (
           <span className="note block">
             {RULE_WORDS[p.rule_fired] ?? p.rule_fired}
@@ -135,8 +145,10 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
     ],
     [
       "Questions",
+      // how it was chosen is the engine's to say: every maker paper was said to be "chosen from this child's own checked
+      // papers", a class practice an educator chose too (code review, 2026-09-30); a paper from before says only what holds
       p.source === "focus" ? (
-        `${p.n_items} chosen from this child's own checked papers — the areas they lag in, at their level, none they had been given before`
+        `${p.n_items} ${p.how ?? "drawn for this child"} — none they had been given before`
       ) : p.worksheet ? (
         <>
           Worksheet <Link href={`/worksheets/${p.worksheet}`}>{p.worksheet}</Link> from the library, one of {p.worksheets} at this

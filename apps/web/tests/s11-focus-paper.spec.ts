@@ -74,7 +74,8 @@ test("a child's page says which areas the home assessment works on and why, and 
   const qr = new URL(page.url()).searchParams.get("paper")!;
   await page.getByRole("region", { name: "Home assessment" }).getByRole("link", { name: qr }).click();
   await expect(page.getByRole("heading", { name: `Paper ${qr}` })).toBeVisible();
-  await expect(page.getByText("chosen from this child's own checked papers")).toBeVisible();
+  // in the engine's own words for how it was chosen, kept on the paper (goals/p0-the-maker-makes-what-it-shows.yaml)
+  await expect(page.getByText("12 chosen from their own checked papers")).toBeVisible();
   const [made] = await sql<{ n: number }[]>`
     select coalesce(array_length(st.item_ids, 1), 0) as n from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id where si.qr_code = ${qr}`;

@@ -3,10 +3,10 @@ import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
-import { KINDS, WAYS, planBatch, readBatch } from "@/lib/maker";
+import { forChildren, KINDS, planBatch, readBatch, UUID, WAYS } from "@/lib/maker";
 import { gradeWords, skillSets } from "@/lib/queries";
 import { classRoll } from "@/lib/queries-children";
-import { homeByClass } from "@/lib/queries-make";
+import { homeByClass, homeLength } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
 import { SkillLevelSelect } from "../../make/skill-level";
 import { Made, ThePapers } from "./parts";
@@ -37,18 +37,20 @@ export default async function Maker({ searchParams }: Props) {
   const q = await searchParams;
   const get = (k: string) => all(q[k]);
   const week = isoWeek();
-  const [classes, sets] = await deadline(Promise.all([homeByClass(week), skillSets()]));
+  const [classes, sets, homeN] = await deadline(Promise.all([homeByClass(week), skillSets(), homeLength()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
   const roll = cls ? await deadline(classRoll(cls.section, me.email)) : [];
   // every child is ticked until the form for this class has been sent
   const sent = get("picked").length > 0 && get("of")[0] === cls?.section;
   const read = cls ? readBatch(get, week) : null;
-  const batch = read && { ...read, children: roll.filter((c) => (sent ? read.children.includes(c.id) : true)).map((c) => c.id) };
+  const batch = read && forChildren(read, roll.filter((c) => (sent ? read.children.includes(c.id) : true)).map((c) => c.id));
   const ticked = new Set(batch ? batch.children : roll.map((c) => c.id));
   const kind = batch?.kind ?? "practice";
   const way = batch?.way ?? "each";
   const ready = batch && batch.children.length > 0 && (batch.way === "own" || batch.areas.length > 0) ? batch : null;
-  const planned = ready ? await deadline(planBatch(ready)) : null;
+  const planned = ready ? await planBatch(ready) : null;
+  // a form the engine did not answer on comes back with its own `once`, so sending it again makes its papers once
+  const once = UUID.test(get("once")[0] ?? "") ? get("once")[0] : randomUUID();
   const made = (get("made")[0] ?? "").split(".").filter((x) => QR.test(x));
   const lines = Array.from({ length: LINES }, (_, i) => batch?.areas[i]);
 
@@ -113,7 +115,7 @@ export default async function Maker({ searchParams }: Props) {
                     {lines.map((a, i) => (
                       <div key={i} className="grid grid-cols-[minmax(0,1fr)_72px] gap-2">
                         <SkillLevelSelect name="s" label={`Skill and level ${i + 1}`} value={a ? `${a.skill_set}~${a.level}` : ""} sets={sets} band={cls.band} />
-                        <input className="input" name="n" type="number" min={1} max={40} defaultValue={a?.n ?? (i === 0 ? 12 : "")} aria-label={`Questions ${i + 1}`} />
+                        <input className="input" name="n" type="number" min={1} max={40} defaultValue={a?.n ?? (i === 0 ? (homeN ?? "") : "")} aria-label={`Questions ${i + 1}`} />
                       </div>
                     ))}
                   </fieldset>
@@ -133,7 +135,7 @@ export default async function Maker({ searchParams }: Props) {
             {planned && "refused" in planned ? (
               <Notice tone="terracotta">{planned.refused}</Notice>
             ) : planned && ready && cls ? (
-              <ThePapers plan={planned.plan} batch={ready} roll={roll} sets={sets} band={cls.band} once={randomUUID()} />
+              <ThePapers plan={planned.plan} batch={ready} roll={roll} sets={sets} band={cls.band} once={once} />
             ) : (
               <Panel title="The papers">
                 <p className="note">

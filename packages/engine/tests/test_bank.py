@@ -351,3 +351,19 @@ def test_every_sample_sheet_is_titled_with_its_own_skill_set(conn, tmp_path):
             assert f" · {u['name']}" in page1, (u["code"], u["difficulty"], page1[:120])
             if "addition and subtraction" not in u["name"].lower():
                 assert "Addition and subtraction" not in page1, (u["code"], u["difficulty"])
+
+
+def test_recheck_names_a_sum_with_no_answer_box_rather_than_stop(conn):
+    """A generated sum whose answer is not `ans` stopped the recheck with StopIteration, and with it `engine audit`
+    and every row after it; it is named instead (2026-09-30, rows a website test had left)."""
+    t = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    conn.execute(
+        "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses)"
+        " values (%s, 'recheck/no-ans', 'recheck', 'R24', '{NUM.OPS.02}', 'Procedural', 'column_grid', %s, %s)",
+        (
+            t,
+            json.dumps({"op": "-", "a": 62, "b": 27, "layout": "column"}),
+            json.dumps([{"rid": "a", "answer": 35}]),
+        ),
+    )
+    assert "recheck/no-ans" in list(inventory.recheck(conn))

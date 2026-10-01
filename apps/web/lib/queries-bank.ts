@@ -125,7 +125,11 @@ export type PrintedPaper = {
   week: string;
   difficulty: Difficulty | null; // none on a paper chosen from a child's own work: each area has its own
   skill_set_name: string;
-  source: string; // 'library', 'generated', or 'focus' — chosen from one child's own work (step 11)
+  source: string; // 'library', 'generated', or 'focus' — drawn for one child (step 11, and the maker)
+  /** How a 'focus' paper's questions were chosen, in the engine's words, and the areas it works on with their levels;
+   *  null on a paper printed before the engine kept them (2026-10-01). */
+  how: string | null;
+  areas: { name: string; level: string }[] | null;
   n_items: number;
   roll_no: string | null;
   section: string | null;
@@ -145,7 +149,7 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
   const rows = await sql<PrintedPaper[]>`
     select si.qr_code, si.print_status, si.approved_by, si.pdf_path is not null as rendered,
            coalesce((si.key ->> 'pages')::int, (st.key ->> 'pages')::int, 1) as pages,
-           coalesce(si.week, st.week) as week, st.difficulty, st.source,
+           coalesce(si.week, st.week) as week, st.difficulty, st.source, si.key ->> 'how' as how, si.key -> 'areas' as areas,
            coalesce(s.name, (select string_agg(distinct s2.name, ' · ') from item i2
               join skill_set s2 on s2.tenant_id = i2.tenant_id and s2.code = i2.skill_set_code
               where i2.id = any(st.item_ids))) as skill_set_name,

@@ -46,11 +46,12 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const staffNames = Object.fromEntries(staff.map((x) => [x.email, x.name]));
   const count = (c: string) => shown.filter((s) => rag(s) === c).length;
   // the skills the colours cannot say yet — too few answers, then none at all — each with the check that would place
-  // the child (goals/u11-colours-said.yaml)
+  // the child (goals/u11-colours-said.yaml); one check a skill, where a rung that tests two skills gave it two lines
+  // (code review, 2026-09-30)
   const unplaced = [
     ...skills.filter((s) => s.n_events > 0 && (s.state ?? "not_enough_yet") === "not_enough_yet"),
     ...skills.filter((s) => s.n_events === 0),
-  ];
+  ].filter((s, i, all) => all.findIndex((x) => x.code === s.code) === i);
   const checks: Check[] = unplaced.map((s) => {
     const level = checkLevel(rules, child.band, s.levels);
     return {

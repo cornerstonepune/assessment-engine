@@ -7,7 +7,8 @@
  *
  * The class is the test's own, three Grade 2 children made once and kept: Asha has 2-digit + 2-digit right six times
  * (green); Bina has it right once (grey: too few answers); Chetan has not answered it, and takes the smaller digit
- * from the larger on 2-digit − 2-digit again and again (red).
+ * from the larger on 2-digit − 2-digit again and again (red); Dev has one word problem about money right, which is
+ * evidence for two skills, word problems and money, on the one rung.
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
@@ -26,6 +27,14 @@ const CHILDREN: { roll: string; name: string; answers: Answer[] }[] = [
     answers: [
       ...Array<Answer>(2).fill(["NUM.OPS.02", "R24", false, ["M_SMALL_FROM_LARGE"]]),
       ["NUM.OPS.02", "R24", false, []],
+    ],
+  },
+  {
+    roll: "4",
+    name: "Dev",
+    answers: [
+      ["NUM.PRB.02", "R8", true, []],
+      ["NUM.MEAS.04", "R8", true, []],
     ],
   },
 ];
@@ -74,6 +83,7 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
     await expect(key.locator("tbody tr")).toHaveCount(4);
     await expect(key.locator('tr[data-rag="red"]')).toContainText(`The same mistake twice or more, or under ${pc(r.demote)} right.`);
     await expect(key.locator('tr[data-rag="amber"]')).toContainText(`${pc(r.demote)} up to ${pc(r.promote)} right`);
+    await expect(key.locator('tr[data-rag="amber"]')).toContainText(`on fewer than ${r.min_obs} papers so far`);
     await expect(key.locator('tr[data-rag="green"]')).toContainText(`${pc(r.promote)} or more right, across ${r.min_obs} papers or more`);
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`Fewer than ${r.min_events} checked answers`);
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`A ${r.check}-question check places the child.`);
@@ -91,24 +101,24 @@ test("a grey or empty skill has the check that would place the child, and one cl
   await page.goto(`/growth/class/${SECTION}`);
   const checks = page.getByRole("region", { name: "Checks that would place them" });
   // 2-digit + 2-digit: Bina has one answer, Chetan none; Asha is green and is not in it
-  const add = checks.locator('tr[data-check="NUM.OPS.01|R22"]');
+  const add = checks.locator('tr[data-check="ADD.2D2D"]');
   await expect(add).toContainText("Bina (1 answer)");
   await expect(add).toContainText("Chetan (none)");
   await expect(add).not.toContainText("Asha");
   await expect(add).toContainText(`${r.check} questions · ${r.g2}`);
   // 2-digit − 2-digit: Chetan is red on it, placed; Asha and Bina have no answers
-  const sub = checks.locator('tr[data-check="NUM.OPS.02|R24"]');
+  const sub = checks.locator('tr[data-check="SUB.2D2D"]');
   await expect(sub).toContainText("Asha (none)");
   await expect(sub).not.toContainText("Chetan");
 
   await add.getByRole("link", { name: "Make this check →" }).click();
   await expect(page).toHaveURL(/\/papers\/make\?/);
   const plan = page.getByRole("table", { name: "Each child's paper" });
-  await expect(plan.locator("tbody tr")).toHaveCount(2);
+  await expect(plan.locator("tbody tr")).toHaveCount(3);
   await expect(plan.locator(`tr[data-child="${ids.Bina}"]`)).toContainText(`2-digit + 2-digit · ${r.g2} · ${r.check} questions`);
   await expect(plan.locator(`tr[data-child="${ids.Chetan}"]`)).toContainText(`2-digit + 2-digit · ${r.g2} · ${r.check} questions`);
   await expect(page.getByRole("radio", { name: /Class assessment/ })).toBeChecked();
-  await expect(page.getByRole("button", { name: "Make and approve 2 papers" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Make and approve 3 class assessment papers" })).toBeEnabled();
 
   // a child's own page: the same check, for them alone
   await page.goto(`/growth/${ids.Bina}`);
@@ -117,4 +127,38 @@ test("a grey or empty skill has the check that would place the child, and one cl
   const href = await hers.locator('tr[data-check="ADD.2D2D"]').getByRole("link").getAttribute("href");
   const q = new URL(href!, "http://x").searchParams;
   expect([q.getAll("c"), q.get("a"), q.get("kind"), q.get("way")]).toEqual([[ids.Bina], `ADD.2D2D~${r.g2}~${r.check}`, "assessment", "each"]);
+});
+
+test("a skill has one check, though its rung tests two skills, and a skill no child has answered has one for the class", async ({ page }) => {
+  // code review, 2026-09-30 (goals/p0-the-maker-makes-what-it-shows.yaml): a rung that tests two skills gave its skill
+  // two check rows, and a skill nobody in the class had answered had none at all
+  const r = await rules();
+  await page.goto(`/growth/class/${SECTION}`);
+  const checks = page.getByRole("region", { name: "Checks that would place them" });
+  const word = checks.locator('tr[data-check="WORD.1_2STEP"]');
+  await expect(word).toHaveCount(1);
+  await expect(word).toContainText("Dev (1 answer)");
+  await expect(word).toContainText("Asha (none)");
+
+  const [{ code, name }] = await sql<{ code: string; name: string }[]>`
+    select ss.code, ss.name from skill_set ss
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
+    where r.band = 'G2' and r.code not in ('R8', 'R22', 'R24')
+    order by t.ord, r.ladder_order nulls last limit 1`;
+  const none = checks.locator(`tr[data-check="${code}"]`);
+  await expect(none).toContainText(name);
+  await expect(none).toContainText(`All ${CHILDREN.length}: none has answered it yet`);
+  await expect(none).toContainText(`${r.check} questions`);
+  const href = await none.getByRole("link").getAttribute("href");
+  expect(new URL(href!, "http://x").searchParams.getAll("c").sort()).toEqual(Object.values(ids).sort());
+
+  // the child's own page: one check, and a line for each skill, saying which
+  await page.goto(`/growth/${ids.Dev}`);
+  const his = page.getByRole("region", { name: "Checks that would place Dev" });
+  await expect(his.locator('tr[data-check="WORD.1_2STEP"]')).toHaveCount(1);
+  const lines = page.getByRole("region", { name: "What their answers show" }).locator('li[data-skill="WORD.1_2STEP"]');
+  await expect(lines).toHaveCount(2);
+  await expect(lines.filter({ hasText: "· Money" })).toHaveCount(1);
+  await expect(lines.filter({ hasText: "· Word problems" })).toHaveCount(1);
 });

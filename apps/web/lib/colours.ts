@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { DIFFICULTIES } from "./queries";
 
 // What each colour means, and the check that places a child the colours cannot yet say anything about
 // (goals/u11-colours-said.yaml). Nimish, 2026-09-30: "The clarity of what each of the colors means has not been very
@@ -44,8 +45,7 @@ export async function colourRules(): Promise<ColourRules> {
  *  skill's easiest. */
 export function checkLevel(rules: ColourRules, band: string, defined: string[]): string {
   const start = rules.levels[band];
-  const order = ["Easy", "Medium", "Hard", "Advance"];
-  return start && defined.includes(start) ? start : (order.find((l) => defined.includes(l)) ?? start ?? "Easy");
+  return start && defined.includes(start) ? start : (DIFFICULTIES.find((l) => defined.includes(l)) ?? start ?? DIFFICULTIES[0]);
 }
 
 /** Where the maker opens with a check already chosen: a class assessment, the same skill and level for each child,
