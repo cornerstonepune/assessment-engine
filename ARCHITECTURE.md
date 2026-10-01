@@ -85,27 +85,14 @@ in pull requests like code. Editing in the n8n UI without exporting is a defect.
 
 ## 5. The engine's surface
 
-n8n's entire vocabulary. Nothing else is callable.
-
-```
-POST /bank/fill        {skill_set, difficulty, count}   -> items generated, validated, approved
-POST /declare          {class, week, transcript}        -> structured declaration for confirmation
-POST /prescribe        {class, week, kind}              -> one prescription per child + spares
-POST /assemble         {prescription_ids}               -> sheets from unexposed approved items
-POST /render           {sheet_ids}                      -> PDFs, answer keys, cell geometry
-POST /ingest           {drive_file}                     -> QR -> sheet -> child, or needs_rephoto
-POST /mark             {capture_id}                     -> item_results, misconception tags
-POST /read             {capture_id}                     -> narrative_observation (whole page)
-POST /commit           {result_ids, confirmed_by}       -> evidence_events (append-only)
-POST /graph/rebuild    {class?}                          -> child_skill_state, six states
-POST /cards            {class, week}                    -> class card
-POST /home             {class, week}                    -> home sheets + parent notes
-POST /reports          {class, month}                   -> parent reports in the Kabir format
-```
-
-Every one is idempotent and writes a `flow_run` row: what ran, how long, what it cost, what failed.
+n8n's and the website's entire vocabulary: the routes the engine serves, nothing else. Their list is not written
+here by hand (a list here named eight routes the engine never served). `bin/engine contract` writes it from the
+engine's own OpenAPI document to `apps/web/lib/engine-routes.ts`, `tests/test_contract.py` fails the day that file
+is stale, and the website's type check fails on a route or a field the engine does not have.
 
 ## 6. A week as a sequence of calls
+
+The calls below are named by what they do; the routes that do them are §5's generated list.
 
 ```
 Wed eve   teacher voice note ──n8n──> /declare ──n8n──> five lines back ──> Achal confirms

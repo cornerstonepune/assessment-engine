@@ -2,6 +2,7 @@ import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { sql, TENANT_SLUG } from "./db";
 import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
@@ -35,6 +36,21 @@ export async function startSession(email: string): Promise<void> {
 
 export async function endSession(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
+}
+
+// A password is not guessed by trying: past `sign_in.max_failures` wrong ones for an email inside
+// `sign_in.window_minutes`, that email waits out the window (goals/p2-live-recovers.yaml).
+// ponytail: per email, so anyone can make a known email wait; add a limit per address if that is ever used.
+export async function signInRefused(email: string): Promise<boolean> {
+  const [row] = await sql<{ refused: boolean | null }[]>`
+    select (select count(*) from sign_in_failure where email = ${email} and created_at > now()
+              - make_interval(mins => (select value from threshold where key = 'sign_in.window_minutes')::int))
+           >= (select value from threshold where key = 'sign_in.max_failures') as refused`;
+  return Boolean(row?.refused);
+}
+
+export async function signInFailed(email: string): Promise<void> {
+  await sql`insert into sign_in_failure (tenant_id, email) select id, ${email} from tenant where slug = ${TENANT_SLUG}`;
 }
 
 /** The staff member whose password matched, or null. Both misses read the same to the caller so

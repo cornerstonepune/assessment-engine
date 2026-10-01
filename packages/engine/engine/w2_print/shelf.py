@@ -8,7 +8,7 @@ import contextvars
 from contextlib import contextmanager
 from typing import Any
 
-from engine.w2_print.assemble import _config, _threshold
+from engine.core import settings
 
 _BATCH: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
     "focus_paper_batch", default=None
@@ -37,7 +37,7 @@ def _once(key, read):
 
 def home_length(conn) -> int:
     """How many questions a home paper holds: the `assemble.items_per_sheet` row."""
-    return int(_config(conn, "assemble.items_per_sheet", 12))
+    return int(settings.config(conn, "assemble.items_per_sheet", 12))
 
 
 def rule(conn) -> dict:
@@ -47,8 +47,12 @@ def rule(conn) -> dict:
 
 
 def _rule(conn) -> dict:
-    r = dict(_config(conn, "focus", {"reach": 2, "stretch": {"secure": "Hard", "stretch_ready": "Advance"}}))
-    r["easy_below"] = _threshold(conn, "next_sheet.demote_below", 0.5)
+    r = dict(
+        settings.config(
+            conn, "focus", {"reach": 2, "stretch": {"secure": "Hard", "stretch_ready": "Advance"}}
+        )
+    )
+    r["easy_below"] = settings.threshold(conn, "next_sheet.demote_below", 0.5)
     return r
 
 

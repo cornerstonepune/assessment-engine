@@ -11,14 +11,13 @@ from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
 from engine.api.routes import bank, capture, card, children, focus, graph, library, maker, parent, runs, week
-from engine.w3_read import inbox
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # a scan being read when the engine stopped was read by the process that stopped: say so on its run
+    # a run going when the engine stopped ran in the process that stopped: say so on it
     try:
-        inbox.orphaned()
+        runs.orphaned()
     except Exception:  # no database at start (tests, a first boot): nothing was running
         pass
     yield

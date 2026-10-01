@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from engine.api import deps
 from engine.api.app import app
+from engine.api.routes import runs
 from engine.core import db
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -68,3 +69,25 @@ def test_runs_refuses_without_the_engine_key(client, conn, tenant):
     ).fetchone()
     r = client.get(f"/runs/{row['id']}")
     assert r.status_code == 401
+
+
+def test_a_run_the_engine_was_killed_under_says_so_when_it_starts_again(monkeypatch):
+    """2026-09-25 and 26: two readings died under a deploy and said "running" until someone looked. A parent report
+    being written dies the same way, so every flow's runs are marked (goals/p2-live-recovers.yaml)."""
+    seen = []
+
+    class _Conn:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            pass
+
+        def execute(self, sql, params=None):
+            seen.append((sql, params))
+            return type("R", (), {"rowcount": 2})()
+
+    monkeypatch.setattr(runs.db, "connect", lambda *a, **k: _Conn())
+    assert runs.orphaned() == 2
+    [(sql, params)] = seen
+    assert "status = 'error'" in sql and sql.endswith("where status = 'running'") and params is None

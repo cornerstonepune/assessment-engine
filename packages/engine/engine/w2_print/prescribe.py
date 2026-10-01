@@ -6,18 +6,13 @@ fired, because a teacher who disagrees needs something to disagree with.
 """
 
 from engine.assess import graph
-from engine.core import db
+from engine.core import db, settings
 
 RULES = {
     "band_default": "not enough of their own work yet, so this is the starting level for their grade",
     "from_state": "from what this child's last papers showed",
     "override": "a teacher set this by hand",
 }
-
-
-def _config(conn, key, default=None):
-    row = conn.execute("select value from config where key = %s", (key,)).fetchone()
-    return row["value"] if row else default
 
 
 def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practice") -> list[dict]:
@@ -34,7 +29,7 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
     if not conn.execute("select 1 from skill_set where code = %s", (skill_set,)).fetchone():
         raise ValueError(f"no skill set {skill_set!r}")
 
-    defaults = _config(conn, "prescribe.band_default", {})
+    defaults = settings.config(conn, "prescribe.band_default", {})
     out = []
     for c in children:
         difficulty, rule, targets = graph.next_difficulty(conn, c["id"], skill_set)

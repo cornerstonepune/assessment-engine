@@ -1,0 +1,27 @@
+name: p2-less-code
+goal: >
+  Less code says the same, and no state is told by colour alone. The prototype's synthetic round trip in
+  assess/mark.py, which nothing has called since real scans arrived, is deleted: the file goes from 414 lines to 90
+  and off the frozen list. Every config and threshold row a workflow reads comes through one reader in
+  core/settings.py, where three private copies had grown. And each colour swatch carries a mark (! needs help,
+  ~ practising, ✓ got it), so an eye that cannot tell red from green reads a child's state.
+
+# Written 2026-10-01, before the code. The code review of 2026-09-30 named dead code in assess/mark.py, settings read
+# by several helpers, and "some states shown by colour alone". On 2026-10-01 Nimish: "go ahead with phase 2", the
+# ponytail way: deletion over addition. Traced and left as they are: the two "which level next" rules
+# (`next_difficulty()` for the week's practice paper, `assess/focus.py` for the home paper) are two agreed rules with one
+# owner each, not copies; `judgeOne` and `resolve_result` record a judgement the same way.
+says:
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_settings.py::test_every_setting_is_read_through_one_reader
+  - words: "go ahead with phase 2"
+    proved_by: "apps/web/tests/u11-colours-said.spec.ts::no colour is the only sign: each swatch carries its mark"
+manual: []
+scenarios: []
+criteria:
+  - name: one settings reader, the map's frozen numbers, the types
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_settings.py tests/test_layout.py tests/test_types.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

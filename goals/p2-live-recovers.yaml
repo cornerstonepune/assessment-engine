@@ -1,0 +1,30 @@
+name: p2-live-recovers
+goal: >
+  Live comes back from what goes wrong without anyone guessing. When the engine restarts, every run it was doing says
+  it died, whatever the flow, instead of "running" forever. A bad deploy is undone by giving the deploy an earlier
+  commit. Two rebuilds of one child at once both finish, the second after the first. And a password is not guessed by
+  trying: after `sign_in.max_failures` wrong passwords for one email inside `sign_in.window_minutes`, the sign-in page
+  refuses that email until the window passes.
+
+# Written 2026-10-01, before the code. The code review of 2026-09-30: "a failed read can show 'running' forever",
+# "no rollback", "two rebuilds of the same child at once fail with a duplicate key", "no rate limits". On 2026-10-01
+# Nimish: "go ahead with phase 2", the ponytail way: a restart marks its dead runs rather than a job queue, and a
+# rollback is a commit given to the deploy that exists.
+says:
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/api/test_runs_routes.py::test_a_run_the_engine_was_killed_under_says_so_when_it_starts_again
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_deploy.py::test_a_bad_deploy_is_undone_by_naming_an_earlier_commit
+  - words: "go ahead with phase 2"
+    proved_by: packages/engine/tests/test_graph.py::test_two_rebuilds_of_one_child_at_once_both_finish
+  - words: "go ahead with phase 2"
+    proved_by: apps/web/tests/gate.spec.ts::an email with too many wrong passwords waits, whatever password it tries
+manual: []
+scenarios: []
+criteria:
+  - name: restarts, rollbacks, rebuilds, and the website's writes
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/api/test_runs_routes.py tests/test_deploy.py tests/test_graph.py tests/test_roles.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

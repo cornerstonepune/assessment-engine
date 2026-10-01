@@ -162,3 +162,12 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
   await expect(lines.filter({ hasText: "· Money" })).toHaveCount(1);
   await expect(lines.filter({ hasText: "· Word problems" })).toHaveCount(1);
 });
+
+test("no colour is the only sign: each swatch carries its mark", async ({ page }) => {
+  // goals/p2-less-code.yaml: an eye that cannot tell red from green reads the mark inside
+  await page.goto(`/growth/class/${SECTION}`);
+  const swatch = (who: string, col: string) =>
+    page.locator(`tr[data-child="${ids[who]}"] td[data-col="${col}"] [role="img"]`);
+  await expect(swatch("Asha", "NUM.OPS.01|R22")).toHaveText("✓");
+  await expect(swatch("Chetan", "NUM.OPS.02|R24")).toHaveText("!");
+});

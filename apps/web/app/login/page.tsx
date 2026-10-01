@@ -28,6 +28,11 @@ export default async function LoginPage({ searchParams }: Props) {
           That email and password do not match a staff member.
         </p>
       ) : null}
+      {q.error === "wait" ? (
+        <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
+          Too many wrong passwords for that email. Wait a few minutes, then try again.
+        </p>
+      ) : null}
 
       <form action={signIn} className="mt-6 grid gap-4">
         <label className="field">

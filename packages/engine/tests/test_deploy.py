@@ -87,3 +87,12 @@ def test_live_is_watched_every_ten_minutes_from_outside_the_server():
     ):
         assert needed in script, needed
     assert spec["permissions"]["issues"] == "write"
+
+
+def test_a_bad_deploy_is_undone_by_naming_an_earlier_commit():
+    """Run by hand, the deploy takes the commit to roll back to and deploys exactly that (goals/p2-live-recovers.yaml)."""
+    spec = _load(WORKFLOWS / "deploy-engine.yml")
+    assert "commit" in _on(spec)["workflow_dispatch"]["inputs"]
+    sha = spec["jobs"]["deploy"]["env"]["SHA"]
+    assert "inputs.commit" in sha and sha.index("inputs.commit") < sha.index("github.sha")
+    assert spec["jobs"]["deploy"]["steps"][0]["with"]["ref"] == "${{ env.SHA }}"

@@ -17,7 +17,11 @@ on:
     workflows: [ci]
     types: [completed]
     branches: [main]
+  # By hand: main's newest, or an earlier commit to roll back to (goals/p2-live-recovers.yaml). The next merge deploys
+  # main again. Migrations only go forward; an older engine reads tables a newer one added and ignores them.
   workflow_dispatch:
+    inputs:
+      commit: { description: "a full commit id to roll back to; empty deploys main's newest", default: "" }
 
 concurrency: { group: deploy-engine, cancel-in-progress: false }
 
@@ -28,7 +32,7 @@ jobs:
     permissions: { contents: read, actions: read }
     env:
       # the commit CI passed on; `github.sha` is whatever main holds when this starts, which can be a later merge
-      SHA: "${{ github.event.workflow_run.head_sha || github.sha }}"
+      SHA: "${{ github.event.workflow_run.head_sha || inputs.commit || github.sha }}"
     steps:
       - uses: actions/checkout@v4
         with: { ref: "${{ env.SHA }}", fetch-depth: 0 }
