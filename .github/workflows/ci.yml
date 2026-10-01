@@ -107,9 +107,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: apps/web
       - run: bin/testdb fresh "$DATABASE_URL"
+      # The website and the engine reach the database as their own roles, as live will, with passwords made for this
+      # run alone; a page or a route needing a grant its role lacks fails here (goals/p1-the-roles-hold.yaml).
+      - run: >-
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "alter role app_web password 'ci-web'"
+          -c "alter role app_engine password 'ci-engine'"
       - run: npx playwright test --reporter=list,json
         working-directory: apps/web
-        env: { PLAYWRIGHT_JSON_OUTPUT_NAME: results.json }
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: results.json
+          TEST_WEB_DATABASE_URL: postgresql://app_web:ci-web@127.0.0.1:5432/postgres
+          TEST_ENGINE_DATABASE_URL: postgresql://app_engine:ci-engine@127.0.0.1:5432/postgres
       - name: no test skipped or left unrun
         working-directory: apps/web
         run: >-
