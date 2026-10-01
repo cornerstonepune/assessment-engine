@@ -10,18 +10,28 @@
 # The engine server and the bank (relabel, refill, library build) still go live with `bin/update-live`.
 name: migrate live
 on:
-  push:
+  # After CI passes on a merge to main, never beside it: on a push a red merge could change the live database while
+  # CI was still failing on it (code review, 2026-09-30; goals/p0-live-changes-wait-for-ci.yaml). GitHub runs this
+  # file as main has it, once CI on main completes; `db push` applies only what live lacks, so a merge without a
+  # migration changes nothing.
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
     branches: [main]
-    paths: ["supabase/migrations/**"]
   workflow_dispatch:
 
 concurrency: { group: migrate-live, cancel-in-progress: false }
 
 jobs:
   push:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    env:
+      # the commit CI passed on; `github.sha` is whatever main holds when this starts, which can be a later merge
+      SHA: "${{ github.event.workflow_run.head_sha || github.sha }}"
     steps:
       - uses: actions/checkout@v4
+        with: { ref: "${{ env.SHA }}" }
       - name: the secret is set
         env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
         run: |
@@ -29,8 +39,23 @@ jobs:
             echo "::error::LIVE_DATABASE_URL is not set; add it under Settings → Secrets and variables → Actions"
             exit 1
           fi
+      - name: this commit is main's newest
+        id: plan
+        env: { EVENT: "${{ github.event_name }}" }
+        # Two merges close together: the older one's CI can finish last, and `db push` from a commit that lacks a
+        # migration live already has refuses. Only main's newest pushes; it carries every older merge's migrations.
+        run: |
+          tip=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$EVENT" = workflow_run ] && [ "$tip" != "$SHA" ]; then
+            echo "main has moved on to ${tip::7}; its own run applies this merge's migrations with it"
+            echo "go=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          fi
       - uses: supabase/setup-cli@v1
+        if: steps.plan.outputs.go == 'yes'
         with: { version: latest }
       - name: apply what live is missing
+        if: steps.plan.outputs.go == 'yes'
         env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
         run: supabase db push --db-url "$LIVE" --yes

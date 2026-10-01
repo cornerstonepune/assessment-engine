@@ -2,8 +2,8 @@
 # --check) so it cannot drift back into hand formatting. The engine suite runs against a database built
 # from this repository alone (`bin/testdb fresh`: every migration, the seed, the question bank and the
 # worksheet library), so a test that reads the database runs here instead of skipping itself.
-# Deployment: Vercel deploys main on every merge, migrate.yml applies a merge's migrations to the live
-# database, and deploy-engine.yml rebuilds the engine server.
+# Deployment: Vercel deploys main on every merge. Once this passes on main, migrate.yml applies the merge's
+# migrations to the live database and deploy-engine.yml rebuilds the engine server; neither starts beside it.
 name: ci
 on:
   push:

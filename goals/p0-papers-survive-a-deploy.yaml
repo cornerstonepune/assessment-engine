@@ -1,0 +1,25 @@
+name: p0-papers-survive-a-deploy
+goal: >
+  A paper the engine rendered is still there after any deploy. The engine's data folder (`db.REPO_ROOT / "data"`,
+  /app/data in the image) is the server's own folder, mounted into each new container, so the papers, worksheets and
+  packs it holds outlive every rebuild; the one deploy that switches over carries the old container's papers across.
+  A paper made before a deploy prints after it.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30: "run a detailed codebase analysis … Tell me so that I can
+# understand where the weak points and the fragile points are still, and let's target a code quality of 9/10 from a
+# proper reviewer". The review's fragile point 2: every engine deploy recreated the container, and with it went every
+# paper the engine had rendered (compose.server.yml mounted nothing at /app/data), so "Print them all" refused after a
+# deploy. On 2026-10-01 he said "go ahead with phase 0"; this is its step P0.4.
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_deploy.py::test_the_engines_data_folder_is_on_the_servers_disk
+manual:
+  - "On live, after this merge's deploy: Papers shows a paper made before it, and it prints."
+scenarios: []
+criteria:
+  - name: the folder the engine writes to is mounted from the server's disk
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_deploy.py -o addopts=
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

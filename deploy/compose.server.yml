@@ -24,6 +24,11 @@ services:
       # the seed of the commit deployed, where the loader looks for it: `engine load --settings` runs on every
       # deploy (deploy-engine.yml), so a setting merged with the code that reads it is live with that code
       - ../supabase/seed:/app/supabase/seed:ro
+      # the engine's own data folder (`db.REPO_ROOT / "data"`, which is /app/data in the image): every paper it
+      # renders, the library's worksheets, the packs. In the container's own layer it went with every rebuild, so a
+      # paper made before a deploy could not be printed after it (code review, 2026-09-30). On the server's disk it
+      # outlives the container; deploy-engine.yml carried the old container's papers across once.
+      - ${HOME}/cornerstone/data:/app/data
     restart: unless-stopped
 
   caddy:

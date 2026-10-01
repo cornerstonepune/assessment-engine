@@ -1,0 +1,27 @@
+name: p0-live-changes-wait-for-ci
+goal: >
+  Nothing reaches the live engine or the live database before CI has passed on the commit that carries it. The engine
+  deploy and the live migration start when CI on main completes, and only when it succeeded; each takes the commit CI
+  passed on, not whatever main holds by then. Only main's newest commit changes live, so a slow CI on an older merge
+  never takes the server back. The engine is deployed only when something it runs changed since the commit the server
+  records, and only once live has every migration that commit carries.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked where "the weak points and the fragile points are
+# still" and to "target a code quality of 9/10 from a proper reviewer". The review's fragile point 1:
+# deploy-engine.yml and migrate.yml ran on every push to main, beside CI, so a red merge rebuilt the engine, re-marked
+# live answers and migrated the live database. On 2026-10-01: "go ahead with phase 0"; this is its step P0.3.
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_deploy.py::test_nothing_reaches_live_before_ci_passes_on_that_commit
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_deploy.py::test_only_mains_newest_commit_changes_live
+manual:
+  - "After this merge: the Actions tab shows `deploy engine` and `migrate live` starting only after `ci` succeeded on main."
+scenarios: []
+criteria:
+  - name: the workflows that change live wait for CI and deploy only main's newest
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_deploy.py -o addopts=
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

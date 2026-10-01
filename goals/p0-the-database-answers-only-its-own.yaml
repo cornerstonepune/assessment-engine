@@ -1,0 +1,27 @@
+name: p0-the-database-answers-only-its-own
+goal: >
+  No function of ours runs for the roles Supabase's REST API serves. Every function we own in public, pii and internal
+  executes for its owner alone, the seven SECURITY DEFINER ones that sign off, correct and write a child's evidence or
+  read a child's name among them; and a function made by a later migration starts closed the same way. The website
+  and the engine, which connect as the owner, run them as before.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked where "the weak points and the fragile points are
+# still". The review's fragile point 3: on a copy built from the migrations, `anon` could execute confirm_results,
+# correct_signed_off, resolve_result, answer_evidence, rebuild_child_skill_state, next_difficulty and pii.read_child,
+# so the project's publishable key and a paper's id were enough to sign off a child's marks. On 2026-10-01: "go ahead
+# with phase 0"; this is its step P0.1.
+says:
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_db_privileges.py::test_no_function_of_ours_runs_for_the_api_roles
+  - words: "go ahead with phase 0"
+    proved_by: packages/engine/tests/test_db_privileges.py::test_a_function_made_later_is_closed_to_them_too
+manual:
+  - "On live, after the migration: `select has_function_privilege('anon', 'public.confirm_results(uuid,text,uuid)', 'execute')` returns false."
+scenarios: []
+criteria:
+  - name: the API's roles run none of our functions, on the local copy
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_db_privileges.py -o addopts=
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
