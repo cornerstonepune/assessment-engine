@@ -4058,3 +4058,37 @@ deploys.
     is not set". After the fix → exit 0.
   - CI's own steps (typegen, `tsc`, build) with no DATABASE_URL → exit 0.
   - u9 and u3 → 7 passed.
+
+## Phase 0, PR 1: papers survive a deploy; live waits for CI; our functions answer only their owner (2026-10-01)
+
+Nimish on 2026-09-30 asked for a scored review and "a code quality of 9/10 from a proper reviewer". On 2026-10-01 he
+said "go ahead with phase 0". This PR is steps P0.4, P0.3 and P0.1, in that order: every later Phase 0 merge deploys,
+so papers had to survive a deploy first.
+
+- **Papers survive a deploy** (`goals/p0-papers-survive-a-deploy.yaml`).
+  - The engine writes papers, worksheets and packs under `db.REPO_ROOT / "data"`, which is `/app/data` in the image.
+    That folder was the container's own, so every deploy's rebuild deleted it.
+  - `compose.server.yml` now mounts `~/cornerstone/data` there.
+  - The deploy that switches over copies the old container's folder across once.
+- **Live waits for CI** (`goals/p0-live-changes-wait-for-ci.yaml`).
+  - `deploy-engine.yml` and `migrate.yml` start from `workflow_run` once `ci` completes on main, only on success, and
+    each checks out the commit CI passed on.
+  - Only main's newest commit changes live. The server records the commit it runs (`~/cornerstone/engine-commit`), and
+    a merge that touches nothing the engine runs leaves it alone.
+  - Before the engine restarts, live itself is asked whether it has every migration in that commit.
+- **Our functions answer only their owner** (`goals/p0-the-database-answers-only-its-own.yaml`).
+  - On a copy built from the migrations, `anon` and `authenticated` could execute all 12 functions we own. Seven of
+    them are SECURITY DEFINER, including `confirm_results`, `correct_signed_off` and `pii.read_child`.
+  - Migration `20261019090000` revokes EXECUTE from `public`, `anon` and `authenticated` on every function we own in
+    `public`, `pii` and `internal`. It also changes the default privileges, so later functions start closed.
+- **Checks:**
+  - `pytest tests/test_db_privileges.py` failed 2 of 3 before the migration and passed 3 after.
+  - `pytest tests/test_deploy.py` passed 4 on these files; on main's files it failed 3.
+  - The 10 engine test files that call those functions, plus the two new ones, passed 153 on the local copy.
+  - `bin/check` passed.
+- **Not proven here:**
+  - The live database's privileges, which need one query on live (the goal's manual step).
+  - The first `workflow_run` deploy itself, which this merge exercises.
+- **Known gap, Phase 1:** Vercel still publishes the website on the merge itself. Website code that reads a new table
+  can therefore reach live up to one CI run (about 15 minutes) before `migrate live` adds the table. Before this
+  change, the two started together.

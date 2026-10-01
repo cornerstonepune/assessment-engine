@@ -6,23 +6,32 @@
 # server, and the engine rebuilt and restarted. The server's settings (.env, the reader's AWS key) and its scans
 # stay as they are: they are the server's, put there once by go-live.sh, never carried by a deploy.
 #
-# Needs two repository secrets: LIGHTSAIL_SSH_KEY (Lightsail → Account → SSH keys → the Mumbai default key) and
-# LIGHTSAIL_HOST (the server's static address).
+# Needs repository secrets LIGHTSAIL_SSH_KEY (Lightsail → Account → SSH keys → the Mumbai default key),
+# LIGHTSAIL_HOST (the server's static address) and LIVE_DATABASE_URL (asked which migrations live has).
 name: deploy engine
 on:
-  push:
+  # After CI passes on a merge to main, never beside it: on a push this ran while CI was still running, so a red merge
+  # rebuilt the engine and re-marked live answers (code review, 2026-09-30; goals/p0-live-changes-wait-for-ci.yaml).
+  # GitHub runs this file as main has it, once CI on main completes.
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
     branches: [main]
-    paths: ["packages/engine/**", "deploy/**", "supabase/seed/**", ".github/workflows/deploy-engine.yml"]
   workflow_dispatch:
 
 concurrency: { group: deploy-engine, cancel-in-progress: false }
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions: { contents: read, actions: read }
+    env:
+      # the commit CI passed on; `github.sha` is whatever main holds when this starts, which can be a later merge
+      SHA: "${{ github.event.workflow_run.head_sha || github.sha }}"
     steps:
       - uses: actions/checkout@v4
+        with: { ref: "${{ env.SHA }}", fetch-depth: 0 }
       - name: the secrets are set
         env:
           KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
@@ -32,26 +41,6 @@ jobs:
             echo "::error::LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST must be set under Settings → Secrets and variables → Actions"
             exit 1
           fi
-      - name: live has this merge's migrations before the engine runs the code that reads them
-        if: github.event_name == 'push'
-        env: { GH_TOKEN: "${{ github.token }}", BEFORE: "${{ github.event.before }}", SHA: "${{ github.sha }}" }
-        # `migrate live` starts on the same push and nothing ordered the two, so the engine could restart on code that
-        # reads a table live does not have yet (2026-09-30: `key_correction`, read by the papers step below). A merge
-        # with no migration has no run to wait for; one with a migration waits for `migrate live` to succeed on it.
-        run: |
-          R="repos/$GITHUB_REPOSITORY"
-          n=$(gh api "$R/compare/$BEFORE...$SHA" -q '[.files[]?.filename | select(startswith("supabase/migrations/"))] | length')
-          [ "$n" = 0 ] && { echo "no migration in this merge"; exit 0; }
-          for _ in $(seq 60); do
-            s=$(gh api "$R/actions/workflows/migrate.yml/runs?head_sha=$SHA" -q '.workflow_runs[0] // empty | "\(.status) \(.conclusion)"')
-            case "$s" in
-              "completed success") echo "live has this merge's $n migration file(s)"; exit 0 ;;
-              completed*) echo "::error::migrate live ended $s; the engine keeps its old code until live has the schema"; exit 1 ;;
-            esac
-            echo "migrate live: ${s:-not started}; waiting"
-            sleep 10
-          done
-          echo "::error::migrate live did not finish in ten minutes"; exit 1
       - name: a way in
         env:
           KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
@@ -61,7 +50,50 @@ jobs:
           printf '%s\n' "$KEY" > ~/.ssh/server
           chmod 600 ~/.ssh/server
           ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: this commit is main's newest, and it changes what the server runs
+        id: plan
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}", EVENT: "${{ github.event_name }}" }
+        # Two merges close together: the older one's CI can finish last. Only main's newest is deployed — it carries
+        # every older merge — so the server never goes back to older code. The server records the commit it runs, and
+        # a merge that changes nothing it runs (the website alone) leaves it as it is. A run started by hand deploys.
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          if [ "$EVENT" = workflow_run ]; then
+            tip=$(git ls-remote origin refs/heads/main | cut -f1)
+            if [ "$tip" != "$SHA" ]; then
+              echo "main has moved on to ${tip::7}; its own run deploys this merge with it"
+              echo "go=no" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            was=$($S 'cat ~/cornerstone/engine-commit 2>/dev/null' || true)
+            if [ -n "$was" ] && git cat-file -e "$was^{commit}" 2>/dev/null \
+               && git diff --quiet "$was" "$SHA" -- packages/engine deploy supabase/seed .github/workflows/deploy-engine.yml; then
+              echo "the engine runs ${was::7}, and nothing it runs has changed since"
+              echo "go=no" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+          fi
+          echo "deploying ${SHA::7}"
+          echo "go=yes" >> "$GITHUB_OUTPUT"
+      - name: live has every migration this commit carries, before the engine runs code that reads them
+        if: steps.plan.outputs.go == 'yes'
+        env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
+        # `migrate live` runs after the same CI and nothing orders the two, so the engine could restart on code that
+        # reads a table live does not have yet (2026-09-30: `key_correction`, read by the papers step below). Live is
+        # asked itself: every version in this commit's supabase/migrations is recorded there.
+        run: |
+          command -v psql >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; }
+          want=$(ls supabase/migrations/*.sql | sed 's#.*/##; s#_.*##' | sort)
+          for _ in $(seq 60); do
+            have=$(psql "$LIVE" -Atc "select version from supabase_migrations.schema_migrations") \
+              || { echo "::error::could not ask live which migrations it has"; exit 1; }
+            have=$(echo "$have" | sort)
+            missing=$(comm -23 <(echo "$want") <(echo "$have") | tr '\n' ' ')
+            if [ -z "${missing// }" ]; then echo "live has all $(echo "$want" | wc -l) migrations"; exit 0; fi
+            echo "live lacks $missing; waiting for migrate live"
+            sleep 10
+          done
+          echo "::error::live still lacks $missing after ten minutes; the engine keeps its old code"; exit 1
       - name: room to read a scan — 2 GB of swap
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         # The server has 1.9 GB and no swap. The handwriting reader holds about 700 MB while it reads (ADR 0035);
         # with the system and the engine resident, the kernel killed the engine mid-read on 2026-09-26 and again
@@ -77,6 +109,7 @@ jobs:
             grep -q "^/swapfile " /etc/fstab || echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab >/dev/null
             free -m'
       - name: the code, exactly as committed
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
@@ -85,6 +118,7 @@ jobs:
           # the server's own settings go across to the new copy; they are never in git
           $S 'cp ~/assessment-engine/.env ~/assessment-engine.new/.env && rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
       - name: wait for scans being read
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         # Restarting the engine kills a reading in progress (2026-09-25: the first live read of the 24 Sep scan
         # never finished — a deploy restarted the engine under it). A run started in the last hour and still
@@ -105,12 +139,21 @@ jobs:
           done
           echo "::warning::a reading was still running after 30 minutes; deploying anyway"
       - name: start the engine
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           # where the packs were recorded as rendered: read off the running engine, as go-live.sh set it
           PACKS=$($S "sudo docker inspect deploy-engine-1 --format '{{range .Mounts}}{{if eq .Source \"/home/ubuntu/cornerstone/packs\"}}{{.Destination}}{{end}}{{end}}'" || true)
           ENGINE_HOST="${HOST//./-}.sslip.io"
+          # the engine's data folder is the server's from now on (compose.server.yml); the papers the old container
+          # rendered into its own layer come across once, while the folder is still empty
+          $S 'mkdir -p ~/cornerstone/data
+              if [ -z "$(ls -A ~/cornerstone/data)" ] && sudo docker inspect deploy-engine-1 >/dev/null 2>&1; then
+                sudo docker cp deploy-engine-1:/app/data/. ~/cornerstone/data/ 2>/dev/null \
+                  && echo "carried $(find ~/cornerstone/data -type f | wc -l) files across" \
+                  || echo "the old container had no data folder"
+              fi'
           $S "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$ENGINE_HOST HOME=/home/ubuntu PACKS_AS_RECORDED='${PACKS:-/unused/packs}' docker compose -f compose.server.yml up -d --build"
           for _ in $(seq 60); do
             if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://$ENGINE_HOST/health")" = 200 ]; then
@@ -122,11 +165,13 @@ jobs:
           echo "::error::the engine did not come up"
           exit 1
       - name: the settings the code reads — prompts, thresholds, config — from the seed it was merged with
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           $S 'sudo docker exec deploy-engine-1 engine load --settings'
       - name: the papers the engine marks against — each as its file now says
+        if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         # A paper's key or equation corrected in its file is live with the code that marks by it, as a setting is: on
         # 2026-09-29 question 5's "638 = 600 + [ ] + [ ]" marked 19 and 19 wrong until its file named the equation, and
@@ -136,10 +181,17 @@ jobs:
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           $S 'sudo docker exec deploy-engine-1 sh -c "for p in /app/supabase/seed/papers/*.json; do engine legacy paper \$p >/dev/null || exit 1; done"'
       - name: every answer a person read, marked by the rule as it now stands
-        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}", SHA: "${{ github.sha }}" }
+        if: steps.plan.outputs.go == 'yes'
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
         # A marking rule put right reaches answers already marked, signed off or not, with the deploy that carries it:
         # on 2026-09-30 "false" typed for "odd + odd = odd" stayed wrong against "Not true" on every signed-off paper.
         # Only a changed mark is written; a signed-off one gets a new batch of evidence, the old one kept. Names each.
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
           $S "sudo docker exec deploy-engine-1 engine legacy mark-again --by 'the marking rule, deploy ${SHA::7}'"
+      - name: the server records the commit it now runs
+        if: steps.plan.outputs.go == 'yes'
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S "mkdir -p ~/cornerstone && echo $SHA > ~/cornerstone/engine-commit"

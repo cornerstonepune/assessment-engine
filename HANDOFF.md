@@ -3,6 +3,23 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 0 of the code review: PR 1 of 3 (papers survive a deploy; live waits for CI; functions closed)
+
+- **The review** (2026-09-30) scored the code about 5/10 and named 12 fragile points. Nimish said "go ahead with
+  phase 0".
+- **Phase 0 is three PRs:**
+  - **PR 1 (this one):** P0.4 papers on the server's disk, P0.3 deploy and migrate only after CI, P0.1 functions closed
+    to the API's roles.
+  - **PR 2:** P0.2 a staff check in every page and data layer, plus `proxy.ts`; P0.5 report counts per answer, not
+    per evidence row; one roll-order function in place of 12 copies (three are wrong: `'\D'` reaches Postgres as
+    `'D'`).
+  - **PR 3:** P0.6 the 15 correctness findings in the maker, colours and curriculum (PRs #141–#143), the `audit.run`
+    crash on an item with no "ans" response, and the rows u10's test leaves in the copy.
+- **For Nimish:**
+  - Run the one live query in `goals/p0-the-database-answers-only-its-own.yaml`.
+  - Confirm that Supabase backups are on.
+  - Decide whether `.claude/settings.json` should keep pre-approving merges.
+
 ## 2026-09-30, late night — the colours said (goal u11) and the curriculum as one table (goal u12)
 
 - **u11:** "What the colours mean" is on Children, every class and every child, in the threshold rows' own numbers.
