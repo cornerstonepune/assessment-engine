@@ -27,7 +27,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["httpx>=0.27", "pytest>=8.3", "pytest-cov>=6.0", "ruff>=0.14"]
+dev = [
+    "httpx>=0.27",
+    # pinned: tests/test_types.py holds the engine to this checker's exact count, and the nodejs extra brings its own
+    # Node, so CI and a laptop read the same verdict
+    "pyright[nodejs]==1.1.414",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.14",
+]
 
 [project.scripts]
 engine = "engine.cli:app"
@@ -53,6 +61,17 @@ core = "sysmon"
 # 2026-10-01, read to one decimal; it may rise and never fall (`engine ratchet`, goals/p1-the-gates-hold.yaml).
 fail_under = 79.5
 precision = 1
+
+[tool.pyright]
+# Every engine file at pyright's basic level; the base and the maths library strictly (goals/p1-types-hold.yaml).
+# tests/test_types.py runs it and holds the verdict: nothing wrong anywhere, and only assess/'s missing annotations
+# stand, frozen per file in workflows.json.
+include = ["engine"]
+typeCheckingMode = "basic"
+strict = ["engine/assess", "engine/core"]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
 
 [tool.ruff]
 # 110 is the width this engine was written at; 88 would rewrap every line in the repository and

@@ -11,7 +11,7 @@ engine can check — then the right answer, then why.
 """
 
 from . import misconceptions as M
-from .items import Response, _cells, _item, sample_add, sample_sub
+from .items import Response, cells, item, sample_add, sample_sub
 
 NAMES = ["Ishaan", "Anaya", "Vihaan", "Saee", "Tara", "Arjun"]
 COLUMNS = ["ones", "tens", "hundreds", "thousands", "ten-thousands"]
@@ -135,7 +135,7 @@ def _shaped(rng, code, name):
                     "ans",
                     "digits",
                     str(right),
-                    cells=_cells(right),
+                    cells=cells(right),
                     misconceptions={code: wrong},
                     label="correct answer",
                 ),
@@ -173,7 +173,7 @@ def _shaped(rng, code, name):
         "ans",
         "digits",
         str(right),
-        cells=_cells(max(right, wrong)),
+        cells=cells(max(right, wrong)),
         misconceptions={code: wrong},
         label="correct answer",
     )
@@ -190,7 +190,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
         raise ValueError(f"{code} is not a mistake a worked answer can show")
     if code in SHAPES:
         stem, spec, rs = _shaped(rng, code, name)
-        return _item("FTM", rung, "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
+        return item("FTM", rung, "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
     if code in ALIGNED:
         a, b, mis = _aligned(rng, code, op, max(digits, 2))
     else:
@@ -206,7 +206,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
             "ans",
             "digits",
             str(right),
-            cells=_cells(max(right, wrong)),
+            cells=cells(max(right, wrong)),
             misconceptions=mis,
             label="correct answer",
         ),
@@ -216,7 +216,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
     stem = (
         f"{name} worked out {a} {'−' if op == '-' else op} {b}{lined} and wrote {wrong}. That is not right."
     )
-    return _item(
+    return item(
         "FTM",
         rung,  # the rung of the skill it practises: X2 on its own, a calculation skill's rung in its Advance
         "Conceptual",
@@ -270,7 +270,7 @@ def explain_claim(rng, rung, signal, a_range=(120, 480), claim_is_true=True, cla
         ),
         Response("why", "text", None, rubric=rubric),
     ]
-    return _item(
+    return item(
         "CLAIM",
         "X1",
         "Conceptual",

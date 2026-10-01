@@ -377,21 +377,28 @@ def test_generate_reads_the_effort_off_the_prompt_row(monkeypatch):
 
 
 def test_effort_is_sent_as_output_config_and_left_out_when_the_row_names_none(monkeypatch):
-    from types import SimpleNamespace as NS
+    """Read off the request that leaves for Anthropic, through the SDK itself: a row naming no effort sends no
+    `output_config` at all, since Haiku 4.5 answers one that names an effort with an error."""
+    import httpx2 as httpx  # the SDK's own HTTP client
 
-    sent = []
+    bodies = []
+    reply = {
+        "id": "m", "type": "message", "role": "assistant", "model": "m", "stop_reason": "end_turn",
+        "stop_sequence": None, "content": [{"type": "text", "text": '{"items": []}'}],
+        "usage": {"input_tokens": 5, "output_tokens": 2},
+    }  # fmt: skip
 
-    class Client:
-        def __init__(self, **kw):
-            self.messages = NS(create=lambda **kw: sent.append(kw) or NS(
-                stop_reason="end_turn", content=[NS(type="text", text='{"items": []}')],
-                usage=NS(input_tokens=5, output_tokens=2)))  # fmt: skip
+    def anthropic_answers(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply)
 
-    monkeypatch.setattr(llm.anthropic, "Anthropic", Client)
+    real = llm.anthropic.Anthropic
+    wire = httpx.Client(transport=httpx.MockTransport(anthropic_answers))
+    monkeypatch.setattr(llm.anthropic, "Anthropic", lambda **kw: real(**kw, http_client=wire))
     monkeypatch.setattr(llm.db, "env", lambda name: "k")
     llm._call_anthropic("claude-sonnet-5-5", "t", (), SCHEMA, "low")
     llm._call_anthropic("claude-haiku-4-5", "t", (), SCHEMA)
-    assert sent[0]["output_config"] == {"effort": "low"} and "output_config" not in sent[1]
+    assert bodies[0]["output_config"] == {"effort": "low"} and "output_config" not in bodies[1]
 
 
 def test_no_seeded_prompt_asks_a_model_for_an_effort_it_does_not_take():

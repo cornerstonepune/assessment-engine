@@ -63,10 +63,11 @@ def start(tenant, path: Path, actor: str) -> str:
     and the reading could not mark a row it could not see)."""
     with db.connect() as conn:
         return str(
-            conn.execute(
+            db.one(
+                conn,
                 "insert into flow_run (tenant_id, flow, trigger) values (%s, %s, %s) returning id",
                 (tenant, FLOW, f"{actor}: {path.name}"),
-            ).fetchone()["id"]
+            )["id"]
         )
 
 

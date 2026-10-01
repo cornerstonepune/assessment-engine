@@ -5,9 +5,27 @@
 // (rule 6), and marking a corrected reading, which is computation and therefore the engine's
 // (ARCHITECTURE.md §1). The key stays on the server — a browser never sees it, and never fetches
 // the engine directly.
+import type { EngineRoutes } from "./engine-routes";
+
 // Read at call time, not at module load: the repo-root .env is loaded by `lib/db`, and which of
 // these two modules a request touches first is not ours to decide.
 const base = () => (process.env.ENGINE_URL ?? "http://localhost:8000").replace(/\/$/, "");
+
+// The routes the engine serves, written from the engine itself (lib/engine-routes.ts): a path the engine does not
+// have, or a body field one of its routes does not take, does not compile (goals/p1-types-hold.yaml). A caller
+// writes a route as it calls it: each `{name}` in the engine's path is any text, and a query string may follow.
+type Filled<P extends string> = P extends `${infer A}{${string}}${infer B}` ? `${A}${string}${Filled<B>}` : P;
+type Called<P extends string> = Filled<P> | `${Filled<P>}?${string}`;
+type Route = keyof EngineRoutes;
+type PathOf<M extends string, R extends Route = Route> = R extends `${M} ${infer P}` ? Called<P> : never;
+export type GetPath = PathOf<"GET">;
+export type PostPath = PathOf<"POST">;
+/** The body the engine's POST route at `P` takes, as the engine declares it. */
+export type BodyOf<P extends string, R extends Route = Route> = R extends `POST ${infer Q}`
+  ? P extends Called<Q>
+    ? EngineRoutes[R]
+    : never
+  : never;
 
 export class EngineDown extends Error {}
 
@@ -21,7 +39,7 @@ function key(): string {
 // Vercel's five-minute limit. Rendering a printed paper takes a few seconds; nothing takes a minute.
 const ENGINE_WAIT_MS = 30_000;
 
-export async function engineGet(path: string): Promise<Response> {
+export async function engineGet(path: GetPath): Promise<Response> {
   try {
     return await fetch(`${base()}${path}`, {
       headers: { "X-Engine-Key": key() },
@@ -36,7 +54,7 @@ export async function engineGet(path: string): Promise<Response> {
 /** An image the engine makes or reads off the school's disk — a scan, a paper as printed, one
  *  question as it prints — handed on as the response. The caller has already checked that a member
  *  of staff is asking. */
-export async function engineImage(path: string): Promise<Response> {
+export async function engineImage(path: GetPath): Promise<Response> {
   try {
     const res = await engineGet(path);
     if (!res.ok) {
@@ -72,7 +90,7 @@ function said(headline: string, detail = ""): Response {
 
 /** A POST whose whole answer the caller reads, status and body — for a call where a refusal is
  *  itself the answer, such as the engine saying in words why it would not take a correction. */
-export async function engineSend(path: string, body: unknown): Promise<Response> {
+export async function engineSend<P extends PostPath>(path: P, body: BodyOf<P>): Promise<Response> {
   try {
     return await fetch(`${base()}${path}`, {
       method: "POST",
@@ -86,8 +104,8 @@ export async function engineSend(path: string, body: unknown): Promise<Response>
   }
 }
 
-export async function enginePost<T>(path: string, body: unknown): Promise<T> {
+export async function enginePost<P extends PostPath>(path: P, body: BodyOf<P>): Promise<unknown> {
   const res = await engineSend(path, body);
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was changed.`);
-  return (await res.json()) as T;
+  return await res.json();
 }

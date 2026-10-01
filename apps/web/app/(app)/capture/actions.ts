@@ -170,9 +170,11 @@ export async function nameMistake(formData: FormData): Promise<void> {
   const paper = String(formData.get("paper_id") ?? "");
   const code = String(formData.get("code") ?? "").slice(0, 80);
   if (!UUID.test(id) || !UUID.test(paper) || !code) redirect("/capture");
-  let proposed: unknown = [];
+  // Jev's shortlist as the person saw it, [[code, chance], …], as the engine takes it; anything else is not kept
+  let proposed: unknown[][] = [];
   try {
-    proposed = JSON.parse(String(formData.get("proposed") ?? "[]"));
+    const sent: unknown = JSON.parse(String(formData.get("proposed") ?? "[]"));
+    if (Array.isArray(sent)) proposed = sent.filter((x): x is unknown[] => Array.isArray(x));
   } catch {
     proposed = [];
   }

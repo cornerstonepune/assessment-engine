@@ -168,9 +168,9 @@ def read_eval_cmd(
         )
         return
     with db.connect() as conn:
-        version = conn.execute(
-            "select version from prompt where purpose = 'legacy_extract' and active"
-        ).fetchone()["version"]
+        version = db.one(conn, "select version from prompt where purpose = 'legacy_extract' and active")[
+            "version"
+        ]
         before = external.spend_today(conn)
         worst, per_run = read_eval.run(conn, runs, reader=reader)
         conn.commit()
@@ -229,12 +229,13 @@ def read_waiting() -> None:
             " group by 1 order by 2 desc"
         ).fetchall()
         # where each answer stands: the one definition the Marking screen counts from too (answer_standing)
-        totals = conn.execute(
+        totals = db.one(
+            conn,
             "select count(*) as all_answers,"
             " count(*) filter (where standing = 'engine') as engine,"
             " count(*) filter (where standing = 'person') as person"
-            " from answer_standing"
-        ).fetchone()
+            " from answer_standing",
+        )
 
     waiting = sum(r["n"] for r in rows)
     typer.echo(f"\n  {waiting} answers waiting for a person, of {totals['all_answers']}\n")
@@ -261,7 +262,8 @@ def read_coverage() -> None:
     waiting. W3 closes when nothing waits and every paper is signed off (ADR 0028). A paper is scored
     once nothing on it waits; it is signed off once every answer on it is confirmed evidence."""
     with db.connect() as conn:
-        c = conn.execute(
+        c = db.one(
+            conn,
             "with paper as (select c.sheet_instance_id,"
             "   bool_and(r.state = 'confirmed') as signed_off,"
             "   bool_and(r.status not in ('needs_teacher', 'unreadable')) as scored,"
@@ -269,8 +271,8 @@ def read_coverage() -> None:
             " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
             " group by c.sheet_instance_id)"
             " select count(*) as papers, count(*) filter (where signed_off) as signed_off,"
-            " count(*) filter (where scored) as scored, coalesce(sum(waiting), 0) as waiting from paper"
-        ).fetchone()
+            " count(*) filter (where scored) as scored, coalesce(sum(waiting), 0) as waiting from paper",
+        )
     typer.echo(
         f"  {c['papers']} papers · {c['signed_off']} signed off · {c['scored']} scored ·"
         f" {c['waiting']} answers waiting for a person"

@@ -32,9 +32,9 @@ def library_check() -> None:
     """Every rule a worksheet and a level must hold, read back from the rows. Exits 1 on any problem."""
     with db.connect() as conn:
         levels, found = library.check(conn)
-        sheets = conn.execute(
-            "select count(*) as n from sheet_template where source = 'library' and retired_at is null"
-        ).fetchone()["n"]
+        sheets = db.one(
+            conn, "select count(*) as n from sheet_template where source = 'library' and retired_at is null"
+        )["n"]
     for level, problems in list(found.items())[:20]:
         typer.echo(
             f"  {level}: {'; '.join(problems[:3])}"

@@ -77,11 +77,12 @@ def start(child_id, by):
     site's thirty seconds, so the request answers first and the writing follows."""
     with db.connect() as conn:
         return str(
-            conn.execute(
+            db.one(
+                conn,
                 "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
                 " returning id",
                 (FLOW, f"{by}: {child_id}", db.tenant_slug()),
-            ).fetchone()["id"]
+            )["id"]
         )
 
 

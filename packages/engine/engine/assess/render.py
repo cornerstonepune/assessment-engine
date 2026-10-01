@@ -16,7 +16,7 @@ import segno
 from playwright.sync_api import sync_playwright
 
 from engine.assess import answer_space
-from engine.assess.answer_space import _op, _text, _ticks, _work
+from engine.assess.answer_space import op_sign, textbox, ticks, working
 from engine.assess.geometry import GEOM_JS
 from engine.assess.page_css import CSS, overrides
 
@@ -25,8 +25,8 @@ MM = 25.4 / 96.0  # CSS px -> mm
 
 def render_item(sheet, it, n, layout=None):
     # the answer boxes as the layout draws them (`render.layouts`): today's unless a paper printed in another
-    _cells = functools.partial(answer_space._cells, boxes=(layout or {}).get("boxes", "digits"))
-    _grid = functools.partial(answer_space._grid, boxes=(layout or {}).get("boxes", "digits"))
+    _cells = functools.partial(answer_space.cells, boxes=(layout or {}).get("boxes", "digits"))
+    _grid = functools.partial(answer_space.grid, boxes=(layout or {}).get("boxes", "digits"))
     sid, iid, sp, R = sheet.sheet_id, it.item_id, it.spec, {r.rid: r for r in it.responses}
     big = sheet.grade == "G1"
     stem = html.escape(it.stem)
@@ -34,20 +34,20 @@ def render_item(sheet, it, n, layout=None):
     f = it.fmt
     if f == "bare_sum":
         line = (
-            f" {_op(sp['op'])} ".join(map(str, sp["addends"]))
+            f" {op_sign(sp['op'])} ".join(map(str, sp["addends"]))
             if sp.get("addends")
-            else f"{sp['a']} {_op(sp['op'])} {sp['b']}"
+            else f"{sp['a']} {op_sign(sp['op'])} {sp['b']}"
         )
         stem = (html.escape(it.stem) + "<br>" if it.stem else "") + f'<span class="eq">{line} =</span>'
-        body = _cells(sid, iid, R["ans"], big) + _work(it.working_lines)
+        body = _cells(sid, iid, R["ans"], big) + working(it.working_lines)
     elif f == "column_grid":
         rows = sp.get("addends") or [sp["a"], sp["b"]]
         stem = "Complete the calculation." if not sp.get("_slot", "").startswith("probe") else "Try this one."
-        body = _grid(sid, iid, rows, sp["op"], R["ans"]) + (_work(1) if len(str(rows[0])) >= 3 else "")
+        body = _grid(sid, iid, rows, sp["op"], R["ans"]) + (working(1) if len(str(rows[0])) >= 3 else "")
     elif f == "missing_number":
         stem = f'<span class="eq">{html.escape(sp["text"]).replace("□", "&#9633;")}</span>'
         body = (
-            '<span class="lab">&#9633; =</span>' + _cells(sid, iid, R["ans"], big) + _work(it.working_lines)
+            '<span class="lab">&#9633; =</span>' + _cells(sid, iid, R["ans"], big) + working(it.working_lines)
         )
     elif f == "balance_scale":
         L, Rr = sp["left"], sp["right"]
@@ -68,10 +68,10 @@ def render_item(sheet, it, n, layout=None):
     elif f == "number_line_jumps":
         a, op, tens, ones = sp["a"], sp["op"], sp["tens"], sp["ones"]
         d = 1 if op == "+" else -1
-        body = f'''<div class="row"><span class="eq">{a} {_op(op)} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>
+        body = f'''<div class="row"><span class="eq">{a} {op_sign(op)} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>
 <svg width="150mm" height="24mm" viewBox="0 0 300 48"><line x1="10" y1="34" x2="290" y2="34" stroke="#111" stroke-width="1.5"/><polygon points="290,34 283,30 283,38" fill="#111"/>
-<path d="M{40 if d > 0 else 260} 34 Q {(40 + 150) / 2 if d > 0 else (260 + 150) / 2} 2 150 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{95 if d > 0 else 205}" y="12" text-anchor="middle" font-size="10">{_op(op)}{tens}</text>
-<path d="M150 34 Q {(150 + 215) / 2 if d > 0 else (150 + 85) / 2} 12 {215 if d > 0 else 85} 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{182 if d > 0 else 118}" y="20" text-anchor="middle" font-size="10">{_op(op)}{ones}</text>
+<path d="M{40 if d > 0 else 260} 34 Q {(40 + 150) / 2 if d > 0 else (260 + 150) / 2} 2 150 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{95 if d > 0 else 205}" y="12" text-anchor="middle" font-size="10">{op_sign(op)}{tens}</text>
+<path d="M150 34 Q {(150 + 215) / 2 if d > 0 else (150 + 85) / 2} 12 {215 if d > 0 else 85} 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{182 if d > 0 else 118}" y="20" text-anchor="middle" font-size="10">{op_sign(op)}{ones}</text>
 <line x1="{40 if d > 0 else 260}" y1="30" x2="{40 if d > 0 else 260}" y2="38" stroke="#111"/><text x="{40 if d > 0 else 260}" y="47" text-anchor="middle" font-size="10">{a}</text>
 <line x1="150" y1="30" x2="150" y2="38" stroke="#111"/><line x1="{215 if d > 0 else 85}" y1="30" x2="{215 if d > 0 else 85}" y2="38" stroke="#111"/></svg>
 <div class="row" style="margin-left:{"58mm" if d > 0 else "30mm"}"><span class="lab">lands on</span>{_cells(sid, iid, R["land1"])}</div>'''
@@ -88,16 +88,16 @@ def render_item(sheet, it, n, layout=None):
             rows += f'<tr data-resp="{iid}|{r.rid}"><td>{html.escape(r.label)}</td><td>{t0}</td><td>{t1}</td></tr>'
         body = f'<table class="sort"><tr><th></th><th>{html.escape(sp["col_a"])}</th><th>{html.escape(sp["col_b"])}</th></tr>{rows}</table>'
     elif f == "estimate_then_calc":
-        body = f"""<div class="row"><span class="lab">estimate: {sp["ra"]} {_op(sp["op"])} {sp["rb"]} =</span>{_cells(sid, iid, R["est"])}</div>
-<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {_op(sp["op"])} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>""" + _work(
+        body = f"""<div class="row"><span class="lab">estimate: {sp["ra"]} {op_sign(sp["op"])} {sp["rb"]} =</span>{_cells(sid, iid, R["est"])}</div>
+<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>""" + working(
             2
         )
         if "sense" in R:
-            body += f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(R["sense"].label)}</span>{_ticks(sid, iid, R["sense"])}</div>'
+            body += f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(R["sense"].label)}</span>{ticks(sid, iid, R["sense"])}</div>'
     elif f == "missing_digit" and sp.get("shape") == "INEQUALITY":
         body = (
             f'<div class="row"><span class="lab">how many digits:</span>{_cells(sid, iid, R["count"])}</div>'
-            + _work(2)
+            + working(2)
         )
     elif f == "missing_digit":
         rows = [sp["a"], sp["b"], sp["c"]]
@@ -114,20 +114,20 @@ def render_item(sheet, it, n, layout=None):
                     cells += f'<div class="g{" res" if res else ""}">{ch.strip()}</div>'
             return f'<div class="g op">{opch}</div>' + cells
 
-        grid = f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(rows[0])}{rowhtml(rows[1], _op(sp["op"]))}{rowhtml(rows[2], res=True)}</div>"""
+        grid = f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(rows[0])}{rowhtml(rows[1], op_sign(sp["op"]))}{rowhtml(rows[2], res=True)}</div>"""
         letter = (
             f'<div class="row"><span class="lab">A =</span>{_cells(sid, iid, R["A"])}</div>'
             if "A" in R
             else ""
         )
-        body = grid + letter + _work(2)
+        body = grid + letter + working(2)
     elif f == "equation":
         stem = (
             html.escape(it.stem)
             + f'<br><span class="eq">{html.escape(sp["text"]).replace("□", "&#9633;")}</span>'
         )
         body = "".join(
-            _ticks(sid, iid, r)
+            ticks(sid, iid, r)
             if r.kind == "tick"
             else f'<span class="lab">&#9633; =</span>{_cells(sid, iid, r, big)}'
             for r in it.responses
@@ -141,21 +141,21 @@ def render_item(sheet, it, n, layout=None):
         chk, ok = R["check"], R["right"]
         body = (
             f'<div class="row"><span class="eq">{html.escape(chk.label).replace("□", "&#9633;")}</span>{_cells(sid, iid, chk)}</div>'
-            f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(ok.label)}</span>{_ticks(sid, iid, ok)}</div>'
-            + _work(it.working_lines)
+            f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(ok.label)}</span>{ticks(sid, iid, ok)}</div>'
+            + working(it.working_lines)
         )
     elif f in ("choose_estimate", "possible_answer", "odd_even"):
-        body = "".join(_ticks(sid, iid, r) for r in it.responses) + _work(it.working_lines)
+        body = "".join(ticks(sid, iid, r) for r in it.responses) + working(it.working_lines)
     elif f == "digit_cards":
         cards = "".join(f'<div class="card">{c}</div>' for c in sp["cards"])
         body = (
             f'<div class="cards">{cards}</div><div class="row"><span class="lab">largest total =</span>{_cells(sid, iid, R["largest"])}</div>'
-            + _text(sid, iid, R["how"], 13)
+            + textbox(sid, iid, R["how"], 13)
         )
     elif f == "efficient_method":
         body = (
             f'<div class="row"><span class="lab">answer =</span>{_cells(sid, iid, R["ans"])}</div>'
-            + _text(sid, iid, R["method"], 13)
+            + textbox(sid, iid, R["method"], 13)
         )
     elif f == "partial_worked":
         a, b, bp = sp["a"], sp["b"], sp["b_parts"]
@@ -163,19 +163,19 @@ def render_item(sheet, it, n, layout=None):
 <div class="row" style="margin-bottom:2mm"><span class="eq">&minus; {b} = {bp[0]} + {bp[1]} + {bp[2]}</span></div>
 <div class="row"><span class="eq">{a} &minus; {b} =</span>{_cells(sid, iid, R["ans"])}</div>"""
     elif f == "explain_claim":
-        body = _ticks(sid, iid, R["tick"], {"yes": "Yes, correct", "no": "No, not correct"}) + _text(
+        body = ticks(sid, iid, R["tick"], {"yes": "Yes, correct", "no": "No, not correct"}) + textbox(
             sid, iid, R["why"], 15
         )
     elif f == "find_mistake":
         where = (
-            f'<div class="row"><span class="lab">{html.escape(R["where"].label or "The mistake is in the")}</span>{_ticks(sid, iid, R["where"])}</div>'
+            f'<div class="row"><span class="lab">{html.escape(R["where"].label or "The mistake is in the")}</span>{ticks(sid, iid, R["where"])}</div>'
             if "where" in R
             else ""
         )
         body = (
             where
             + f'<div class="row" style="margin-top:2mm"><span class="lab">The correct answer is</span>{_cells(sid, iid, R["ans"])}</div>'
-            + _text(sid, iid, R["why"], 14)
+            + textbox(sid, iid, R["why"], 14)
         )
     elif f in ("word_1step", "word_2step"):
         table = ""
@@ -184,7 +184,7 @@ def render_item(sheet, it, n, layout=None):
             table = f'<table class="sort">{rows}</table>'
         body = (
             table
-            + _work(it.working_lines)
+            + working(it.working_lines)
             + f'<div class="row" style="margin-top:2mm"><span class="lab">Answer</span>{_cells(sid, iid, R["ans"], big)}</div>'
         )
     else:

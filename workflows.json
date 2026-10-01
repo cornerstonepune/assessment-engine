@@ -180,9 +180,9 @@
       "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 579,
-      "engine/core/loaders.py": 413,
+      "engine/core/loaders.py": 411,
       "engine/assess/misconceptions.py": 500,
-      "engine/assess/mark.py": 417
+      "engine/assess/mark.py": 414
     }
   },
   "complexity": {
@@ -200,7 +200,7 @@
       },
       "engine/assess/mark.py::roundtrip": {
         "C901": 11,
-        "PLR0915": 52
+        "PLR0915": 51
       },
       "engine/assess/mark.py::write_fake_answers": {
         "C901": 12
@@ -225,8 +225,8 @@
         "C901": 15
       },
       "engine/cli.py::eval_": {
-        "C901": 20,
-        "PLR0915": 85
+        "C901": 18,
+        "PLR0915": 74
       },
       "engine/w1_bank/bank.py::fill": {
         "C901": 13,
@@ -262,6 +262,45 @@
       "tests/test_spine_page.py::test_every_link_in_a_thread_says_where_it_comes_from": {
         "C901": 13
       }
+    }
+  },
+  "types": {
+    "unannotated": [
+      "reportMissingParameterType",
+      "reportMissingTypeArgument",
+      "reportUnknownArgumentType",
+      "reportUnknownLambdaType",
+      "reportUnknownMemberType",
+      "reportUnknownParameterType",
+      "reportUnknownVariableType"
+    ],
+    "frozen": {
+      "engine/assess/answer_space.py": 80,
+      "engine/assess/bands.py": 374,
+      "engine/assess/diagnosis.py": 242,
+      "engine/assess/draw.py": 441,
+      "engine/assess/equality.py": 171,
+      "engine/assess/equation.py": 71,
+      "engine/assess/estimate.py": 60,
+      "engine/assess/evaluate.py": 63,
+      "engine/assess/focus.py": 112,
+      "engine/assess/geometry.py": 20,
+      "engine/assess/graph.py": 26,
+      "engine/assess/items.py": 544,
+      "engine/assess/learned_rules.py": 164,
+      "engine/assess/mark.py": 320,
+      "engine/assess/misconceptions.py": 334,
+      "engine/assess/missing_digits.py": 289,
+      "engine/assess/page_css.py": 7,
+      "engine/assess/pick.py": 13,
+      "engine/assess/placing.py": 45,
+      "engine/assess/reasoning.py": 127,
+      "engine/assess/render.py": 411,
+      "engine/assess/skills.py": 93,
+      "engine/assess/tags.py": 283,
+      "engine/assess/taxonomy.py": 69,
+      "engine/assess/verify.py": 254,
+      "engine/assess/words.py": 203
     }
   }
 }

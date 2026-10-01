@@ -1,0 +1,42 @@
+name: p1-types-hold
+goal: >
+  The type checker reads every engine file on every change, and nothing it calls wrong stands anywhere. The base
+  (`core/`) and the maths library (`assess/`) are read strictly: the base is clean, and the library's missing
+  annotations — the only thing allowed to stand — are frozen per file in workflows.json at today's count, a number
+  that only falls. The website reaches the engine only by the routes the engine serves, with the bodies those
+  routes take: the list is written from the engine itself, a test fails the day it is stale, and the website's type
+  check fails on a route, a field or a value the engine does not have.
+
+# Written 2026-10-01, before the code. Nimish on 2026-09-30 asked for "a code quality of 9/10 from a proper
+# reviewer"; the review found no type checker run on the engine at all (5,099 strict errors in assess/ and core/,
+# 228 at pyright's basic level across the engine) and 36 calls from the website to the engine typed as any string
+# with any body. On 2026-10-01: "go ahead with phase 1". The third of Phase 1's gates.
+says:
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_types.py::test_nothing_the_type_checker_calls_wrong_stands
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_types.py::test_the_base_is_strict_and_clean
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_types.py::test_missing_annotations_stand_only_where_frozen_and_only_fall
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_ratchet.py::test_a_baseline_may_only_tighten
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_contract.py::test_the_websites_list_of_routes_is_what_the_engine_serves
+  - words: "go ahead with phase 1"
+    proved_by: packages/engine/tests/test_contract.py::test_the_website_reaches_the_engine_only_by_its_routes
+manual:
+  - "After the merge: main's CI run shows the engine's tests (the type check among them) and the website's tsc green."
+scenarios: []
+criteria:
+  - name: the type check, the route list and the ratchet
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_types.py tests/test_contract.py tests/test_ratchet.py
+    expect: "passed"
+  - name: the website type-checks against the engine's routes
+    run: cd apps/web && npx tsc --noEmit && echo "types clean"
+    expect: "types clean"
+  - name: no baseline loosened against main
+    run: bin/engine ratchet --base origin/main
+    expect: "every baseline held or tightened"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

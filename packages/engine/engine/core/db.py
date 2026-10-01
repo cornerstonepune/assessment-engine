@@ -1,13 +1,17 @@
 """The single database entry point. Nothing else in the engine opens a connection."""
 
 import os
+from collections.abc import Generator, Iterable
 from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import urlparse
+from uuid import UUID
 
 import psycopg
 from dotenv import load_dotenv
-from psycopg.rows import dict_row
+from psycopg import sql
+from psycopg.abc import Params, QueryNoTemplate
+from psycopg.rows import DictRow, dict_row
 
 
 def _repo_root_for(this_file: Path) -> Path:
@@ -55,11 +59,30 @@ def local_copy() -> str:
     return url
 
 
+Conn = psycopg.Connection[DictRow]
+"""The one kind of connection the engine opens: each row a dict by column name."""
+Id = UUID | str
+"""A row's id: a UUID as psycopg reads one, or its text as a caller sends it; Postgres takes either."""
+
+
 @contextmanager
-def connect(url: str | None = None):
-    with psycopg.connect(url or dsn(), row_factory=dict_row) as conn:
+def connect(url: str | None = None) -> Generator[Conn, None, None]:
+    # `psycopg.connect` is typed for tuple rows whatever factory it is handed; the class named with its row type
+    # says what `dict_row` makes, so every `row["id"]` downstream is checked against a dict, not a tuple.
+    with Conn.connect(url or dsn(), row_factory=dict_row) as conn:
         yield conn
 
 
-def counts(conn, tables) -> dict[str, int]:
-    return {t: conn.execute(f"select count(*) as n from {t}").fetchone()["n"] for t in tables}
+def one(conn: Conn, query: QueryNoTemplate, params: Params | None = None) -> DictRow:
+    """The row a query must return. A query that returns none here is a defect, and says which query it was rather
+    than failing later as "None is not subscriptable"."""
+    row = conn.execute(query, params).fetchone()
+    if row is None:
+        raise LookupError(f"no row where one must be: {query!r}")
+    return row
+
+
+def counts(conn: Conn, tables: Iterable[str]) -> dict[str, int]:
+    """→ each table's rows; a table named `schema.table` is quoted as two names."""
+    each = sql.SQL("select count(*) as n from {}")
+    return {t: one(conn, each.format(sql.Identifier(*t.split("."))))["n"] for t in tables}

@@ -8,7 +8,7 @@ Deterministic given an RNG. A ticked answer's wrong option carries the mistake i
 """
 
 from . import misconceptions as M
-from .items import Response, _cells, _item
+from .items import Response, cells, item
 from .rounding import half_up
 
 MINUS = "−"
@@ -50,7 +50,7 @@ def choose_estimate(rng, rung, signal, op="+", digits=3):
         )
     ]
     spec = dict(a=a, b=b, op=op, options=options, right=options.index(near))
-    return _item(
+    return item(
         "CLOSEST",
         rung,
         signal,
@@ -92,7 +92,7 @@ def possible_answer(rng, rung, signal, op="+", digits=3):
     ]
     spec = dict(a=a, b=b, op=op, claimed=claimed)
     stem = f"{name} says {a} {_sign(op)} {b} = {claimed:,}. Without working it out, could that be right?"
-    return _item("POSSIBLE", rung, signal, "possible_answer", stem, spec, rs, working_lines=1)
+    return item("POSSIBLE", rung, signal, "possible_answer", stem, spec, rs, working_lines=1)
 
 
 def odd_even(rng, rung, signal, op="+", digits=3):
@@ -110,7 +110,7 @@ def odd_even(rng, rung, signal, op="+", digits=3):
         )
     ]
     spec = dict(a=a, b=b, op=op)
-    return _item(
+    return item(
         "PARITY",
         rung,
         signal,
@@ -137,7 +137,7 @@ def break_apart(rng, rung, signal, op="+", digits=3):
             "land1",
             "digits",
             str(land),
-            cells=_cells(max(land, ans)),
+            cells=cells(max(land, ans)),
             label=f"{a} {_sign(op)} {tens} =",
             misconceptions={"M_FACT_PM10": land + step},
         ),
@@ -145,11 +145,11 @@ def break_apart(rng, rung, signal, op="+", digits=3):
             "ans",
             "digits",
             str(ans),
-            cells=_cells(max(land, ans)),
+            cells=cells(max(land, ans)),
             label=f"then {_sign(op)} {ones} =",
             misconceptions=M.predict(op, a, b),
         ),
     ]
     spec = dict(a=a, b=b, op=op, tens=tens, ones=ones)
     stem = f"Work out {a} {_sign(op)} {b} in two steps: the tens first, then the ones."
-    return _item("BREAK", rung, signal, "break_apart", stem, spec, rs, working_lines=0)
+    return item("BREAK", rung, signal, "break_apart", stem, spec, rs, working_lines=0)

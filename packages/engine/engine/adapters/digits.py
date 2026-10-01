@@ -60,6 +60,8 @@ def _load():
 
 def _words(image_bytes):
     """In the reader's process: one image → words in the shape `ocr.read` gives (x, w fractions; 0-100)."""
+    if _model is None:  # `_load` is the reader process's initializer and runs before any page comes in
+        raise ReaderStopped("the digit reader's model is not loaded in this process")
     img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
     h, w = img.shape[:2]
     r = _model.predict(img)[0]

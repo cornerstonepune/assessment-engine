@@ -15,7 +15,7 @@ import re
 from functools import lru_cache
 
 from engine.assess import misconceptions as M
-from engine.assess.items import Response, _cells, _item, sample_add, sample_sub
+from engine.assess.items import Response, cells, item, sample_add, sample_sub
 
 SEED = pathlib.Path(__file__).with_name("word_templates.json")
 
@@ -99,8 +99,8 @@ def word_1step(
     spec = dict(a=a, b=b, op=tpl["op"])
     if tpl.get("table"):
         spec["table"] = [[tpl["table"][0], a], [tpl["table"][1], b]]
-    r = Response("ans", "digits", str(ans), cells=_cells(max(ans, a + b)), misconceptions=mis)
-    return _item("WP1", rung, "Application", "word_1step", stem, spec, [r], working_lines=3)
+    r = Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)
+    return item("WP1", rung, "Application", "word_1step", stem, spec, [r], working_lines=3)
 
 
 def _two_step_numbers(rng, structure, digits_max):
@@ -141,9 +141,9 @@ def word_2step(rng, rung, signal, digits_max, structure=None):
     mis = {k: int(v) for k, v in mis.items() if v != ans and v >= 0 and v == int(v)}
     n = rng.choice(NAMES)
     stem = tpl["text"].format(a=a, b=b, c=c, n=n)
-    r = Response("ans", "digits", str(ans), cells=_cells(a + b + c), misconceptions=mis)
+    r = Response("ans", "digits", str(ans), cells=cells(a + b + c), misconceptions=mis)
     spec = dict(a=a, b=b, c=c)
-    return _item("WP2", rung, "Application", "word_2step", stem, spec, [r], working_lines=4)
+    return item("WP2", rung, "Application", "word_2step", stem, spec, [r], working_lines=4)
 
 
 def word_budget(rng, rung, signal, n_costs=3, budget_range=(5000, 12000), one_cost_is_a_product=False):
@@ -170,4 +170,4 @@ def word_budget(rng, rung, signal, n_costs=3, budget_range=(5000, 12000), one_co
     spec = dict(budget=budget, **names, costs=costs)
     if k:
         spec |= {"children": k, "each": p}
-    return _item("BUDGET", rung, "Application", "word_2step", stem, spec, rs, working_lines=4)
+    return item("BUDGET", rung, "Application", "word_2step", stem, spec, rs, working_lines=4)

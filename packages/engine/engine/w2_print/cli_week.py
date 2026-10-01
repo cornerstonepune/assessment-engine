@@ -15,10 +15,9 @@ week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
 def week_roster(path: str) -> None:
     """Import or update the class list. Names go to the pii schema and nowhere else."""
     counts = roster.load(Path(path))
-    changed = counts.pop("grade changed")
-    for k, v in counts.items():
-        typer.echo(f"  {k:<14}{v:>4}")
-    for c in changed:
+    for k in ("added", "already known"):
+        typer.echo(f"  {k:<14}{counts[k]:>4}")
+    for c in counts["grade changed"]:
         typer.echo(f"  grade changed  {c}")
 
 

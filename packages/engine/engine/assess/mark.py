@@ -86,7 +86,7 @@ def read_qr(canon):
             im2 = (
                 cv2.resize(im, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC) if scale != 1 else im
             )
-            s, pts, _ = det.detectAndDecode(im2)
+            s = det.detectAndDecode(im2)[0]
             if s:
                 return s
     return None
@@ -129,7 +129,7 @@ class TesseractReader(Reader):
             return "", 0.95
         g = cv2.resize(g, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
         _, g = cv2.threshold(g, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        g = cv2.copyMakeBorder(g, 40, 40, 40, 40, cv2.BORDER_CONSTANT, value=255)
+        g = cv2.copyMakeBorder(g, 40, 40, 40, 40, cv2.BORDER_CONSTANT, value=(255,))
         tmp = Path("/tmp/_cell.png")
         cv2.imwrite(str(tmp), g)
         for psm in ("10", "13", "8"):
@@ -276,7 +276,7 @@ def write_fake_answers(page_png, key, page, rng, out_path, error_rate=0.25):
     """Type answers into the cells of a rendered page (printed digits — a stand-in for handwriting),
     sometimes writing a misconception answer instead, so the marker has something to diagnose."""
     img = cv2.imread(str(page_png))
-    h, w = img.shape[:2]
+    w = img.shape[1]
     ppm = w / 210.0
     truth = {}
     items = {i["item_id"]: i for i in key["items"]}
@@ -338,9 +338,6 @@ def roundtrip(sheet_dir, sheet_id, seed=1, workdir="out/_roundtrip"):
     pages = sorted(p for p in workdir.glob(f"{sheet_id}-*.png") if p.stem.split("-")[-1].isdigit())
     canon_pages, truth, qr_ok = {}, {}, []
 
-    class R(random.Random):
-        pass
-
     for p, png in enumerate(pages, start=1):
         filled = workdir / f"{sheet_id}-p{p}-filled.png"
         t = write_fake_answers(png, key, p, prng, filled)
@@ -348,7 +345,7 @@ def roundtrip(sheet_dir, sheet_id, seed=1, workdir="out/_roundtrip"):
         photo = workdir / f"{sheet_id}-p{p}-photo.jpg"
         simulate_photo(filled, rng, photo)
         img = cv2.imread(str(photo))
-        canon, fids = deskew(img)
+        canon, _ = deskew(img)
         if canon is None:
             return dict(ok=False, error=f"fiducials not found on page {p}")
         cv2.imwrite(str(workdir / f"{sheet_id}-p{p}-deskewed.png"), canon)

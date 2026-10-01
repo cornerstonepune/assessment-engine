@@ -52,13 +52,15 @@ export async function correctItem(formData: FormData): Promise<void> {
   redirect(next);
 }
 
+const VERDICTS = ["remove", "keep", "adopt", "reject"] as const;
+
 // A person decides one of the bank's proposals, once (goals/s21-real-difficulty.yaml): remove the question — the
 // engine rebuilds its worksheets in the same transaction — or keep it. A refusal comes back in the engine's words.
 export async function decideProposal(formData: FormData): Promise<void> {
   const me = await requireStaff();
   const id = String(formData.get("id") ?? "");
-  const verdict = String(formData.get("verdict") ?? "");
-  if (!/^[0-9a-f-]{36}$/.test(id) || !["remove", "keep", "adopt", "reject"].includes(verdict)) redirect("/library");
+  const verdict = VERDICTS.find((v) => v === formData.get("verdict"));
+  if (!/^[0-9a-f-]{36}$/.test(id) || !verdict) redirect("/library");
   // a mistake adopted is named by the person adopting it; the engine refuses one without a name
   const note = String(formData.get("name") ?? "").trim().slice(0, 300);
   let next = "/library";

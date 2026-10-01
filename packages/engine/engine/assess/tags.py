@@ -229,7 +229,7 @@ def _missing_digit(t, sp):
         "unknown_type": "DIGIT" if count == 1 else "MULTIPLE_DIGITS",
     }
     if count == 1 and boxes:
-        name, s = boxes[0]
+        _, s = boxes[0]
         t["missing_place"] = PLACES[len(s) - 1 - s.index("□")]
     solved = sp.get("solved")
     if solved and {"a", "b"} <= solved.keys():
@@ -279,12 +279,14 @@ def _solved(sp):
     if not m or [m[1], m[3], m[4]].count("□") != 1:
         return sp
     x, op, y, z = _num(m[1]), m[2], _num(m[3]), _num(m[4])
-    if z is None:
+    if z is None and x is not None and y is not None:
         a, b, missing = x, y, "answer"
-    elif x is None:
+    elif x is None and y is not None and z is not None:
         a, b, missing = (z - y if op == "+" else z + y), y, "a"
-    else:
+    elif y is None and x is not None and z is not None:
         a, b, missing = x, (z - x if op == "+" else x - z), "b"
+    else:
+        return sp
     return sp | {"a": a, "b": b, "op": op, "missing": missing}
 
 

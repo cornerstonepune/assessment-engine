@@ -13,7 +13,7 @@ regroup reaches it, a fact one out.
 import itertools
 
 from . import misconceptions as M
-from .items import Response, _item, sample_add, sample_sub
+from .items import Response, item, sample_add, sample_sub
 
 ROWS = ("FIRST", "SECOND", "RESULT")
 PLACES = ["ONES", "TENS", "HUNDREDS", "THOUSANDS"]
@@ -144,7 +144,7 @@ def missing_digit(rng, rung, signal, rule):
     if len(_solutions(op, masks)) != 1:
         raise RuntimeError("more than one filling works; not a fair question")
     spec = dict(a=masks["FIRST"], b=masks["SECOND"], c=masks["RESULT"], op=op, solved=solved)
-    return _item(
+    return item(
         "MISSING.DIGIT",
         rung,
         signal,
@@ -175,7 +175,7 @@ def _same_letter(rng, rung, signal, op, numbers):
         )
     ]
     stem = f"{ma} {sign} {mb} = {c}. The letter A stands for the same digit both times. What is A?"
-    return _item("MISSING.LETTER", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
+    return item("MISSING.LETTER", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
 
 
 def _inequality(rng, rung, signal, op, numbers):
@@ -213,7 +213,7 @@ def _inequality(rng, rung, signal, op, numbers):
         )
     ]
     stem = f"{masked} {sign} {b} {rel} {target}. How many different digits could go in the box?"
-    return _item("MISSING.INEQ", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
+    return item("MISSING.INEQ", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
 
 
 def one(rng, rung, signal, rule, tries=300):

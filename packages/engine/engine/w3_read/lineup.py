@@ -67,7 +67,7 @@ SEEK = 3.0  # mm the boxes alone are looked for where the question's print says 
 # boxes; 0.08 where an earlier line-up left a creased answer 6 mm off (24 Sep copy 01, question 10).
 BOXES = 0.15
 
-_sift = cv2.SIFT_create(4000)
+_sift = cv2.SIFT.create(4000)
 
 
 def _grey(img, side):
@@ -99,7 +99,7 @@ def _printed(pdf, page_no):
     ref = blank(pdf, page_no)
     small, s = _grey(ref, SIDE)
     tiny, t_ref = _grey(ref, SIFT_SIDE)
-    keys, desc = _sift.detectAndCompute(tiny, None)
+    keys, desc = _sift.detectAndCompute(tiny, stencil.NO_MASK)
     page = cv2.resize(ref, (W * TPM // PPM, H * TPM // PPM), interpolation=cv2.INTER_AREA)
     t, r, step = round(TILE * TPM), round(REACH * TPM), round(STRIDE * TPM)
     tiles = [
@@ -115,7 +115,7 @@ def _by_sift(img, printed):
     """A first map by SIFT features, photograph pixels → the printed frame, or None."""
     tiny_ref, t_ref, k2, d2 = printed[2]
     tiny, t_child = _grey(img, SIFT_SIDE)
-    k1, d1 = _sift.detectAndCompute(tiny, None)
+    k1, d1 = _sift.detectAndCompute(tiny, stencil.NO_MASK)
     if d1 is None or d2 is None:
         return None
     # each printed feature matched once, both ways: many photographed features matched to one printed one pulled
@@ -123,8 +123,8 @@ def _by_sift(img, printed):
     pairs = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True).match(d1, d2)
     if len(pairs) < 12:
         return None
-    a = np.float32([k1[m.queryIdx].pt for m in pairs]).reshape(-1, 1, 2)
-    b = np.float32([k2[m.trainIdx].pt for m in pairs]).reshape(-1, 1, 2)
+    a = np.array([k1[m.queryIdx].pt for m in pairs], np.float32).reshape(-1, 1, 2)
+    b = np.array([k2[m.trainIdx].pt for m in pairs], np.float32).reshape(-1, 1, 2)
     Hm, _ = cv2.findHomography(a, b, cv2.RANSAC, FIT * SIFT_SIDE / 297)
     if Hm is None or not stencil.plausible(Hm, tiny.shape, tiny_ref.shape):
         return None
@@ -145,7 +145,7 @@ def _found(small, s_child, M, printed):
     middle on the printed page, and how far from it the photograph holds it."""
     page, tiles = printed[3], printed[4]
     seen = cv2.warpPerspective(
-        small, _scale(TPM / PPM) @ M @ _scale(1 / s_child), page.shape[::-1], borderValue=255
+        small, _scale(TPM / PPM) @ M @ _scale(1 / s_child), page.shape[::-1], borderValue=(255,)
     )
     t, r, k = round(TILE * TPM), round(REACH * TPM), round(2 * TPM)
     out = []
@@ -157,7 +157,7 @@ def _found(small, s_child, M, printed):
         score[max(0, by - k) : by + k + 1, max(0, bx - k) : bx + k + 1] = -1
         if best >= FOUND and best - score.max() >= CLEAR:
             out.append(((x + t / 2) / TPM, (y + t / 2) / TPM, (bx - r) / TPM, (by - r) / TPM))
-    return np.float32(out).reshape(-1, 4)
+    return np.array(out, np.float32).reshape(-1, 4)
 
 
 def _weights(at, tiles):
@@ -201,7 +201,9 @@ def line_up(img, pdf, page_no):
     tiles = printed[4]
     first = [M for M in (_by_orb(small, s_child, printed), _by_sift(img, printed)) if M is not None]
     best = max(
-        ((M, _found(small, s_child, M, printed)) for M in first), key=lambda m: len(m[1]), default=(None, ())
+        ((M, _found(small, s_child, M, printed)) for M in first),
+        key=lambda m: len(m[1]),
+        default=(None, np.zeros((0, 4), np.float32)),
     )
     M, found = best
     if M is None or len(found) < max(8, ENOUGH * len(tiles)):

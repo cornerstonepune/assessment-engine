@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — Phase 1 of the code review: PR C (the types hold)
+
+- **PR B's first CI run failed one s4 test.** The cause was order, not flake: settling an answer on a paper's own
+  page signs the paper off. The fix is in #150, and STATE.md "Phase 1, PR B" has it.
+- **PR C:** pyright reads the whole engine, strict on `assess/` and `core/`. Nothing it calls wrong stands, and
+  `assess/`'s missing annotations are frozen per file. The website's engine calls are typed by a route list the
+  engine writes (`bin/engine contract`). STATE.md "Phase 1, PR C" has the detail.
+- **After changing a route or a request model**, run `bin/engine contract`; `bin/check` fails until you do.
+- **Next:** D (database roles: the website writes five tables and calls two functions, and the engine is the
+  writer), E (`engine done` runs criteria and scenarios; eval bars as threshold rows).
+
 ## 2026-10-01 — Phase 1 of the code review: PR B (the browser suite in CI)
 
 - **PR A merged** after main moved: #147 and #148, from another session, landed first. Main was merged in, and only
