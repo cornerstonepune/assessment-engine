@@ -152,12 +152,23 @@ def latest(conn, child_id):
     }
 
 
+def _current(conn, child_id, note_id):
+    """Only the child's newest report, still true of their answers, is edited or approved. The page hides both buttons
+    otherwise, but a page left open is not refreshed when answers are signed off or the facts' rules change."""
+    now = latest(conn, child_id)
+    if not now or now["id"] != str(note_id):
+        raise LookupError("a newer report has replaced this one; read that one")
+    if now["stale"]:
+        raise LookupError("this report is out of date: what it rests on has changed since; write it again")
+
+
 def edit(conn, child_id, note_id, words, by):
     """An educator's own words for a report not yet approved, held to the same facts as the model's were, kept as a
     new version beside the one it replaces; the newest is the report. Nimish, 2026-09-29: "an option for the educator
     to also edit the draft ... and then that can become the report"."""
     if not by:
         raise ValueError(["an edit names the educator making it"])
+    _current(conn, child_id, note_id)
     row = conn.execute(
         "select body, week, prompt_version, approved_by from parent_note where id::text = %s and child_id = %s",
         (note_id, child_id),
@@ -187,6 +198,7 @@ def approve(conn, child_id, note_id, by):
     """An educator approves the report, by name, once; what they approved is what a parent sees."""
     if not by:
         raise ValueError("an approval names the educator giving it")
+    _current(conn, child_id, note_id)
     row = conn.execute(
         "update parent_note set approved_by = %s where id::text = %s and child_id = %s and approved_by is null"
         " returning id",

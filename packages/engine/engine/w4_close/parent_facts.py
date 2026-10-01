@@ -58,26 +58,29 @@ def _skill(s, **more):
     return {"id": s["code"], "skill": s["name"], "can": s["learning_objective"], **more}
 
 
-def _states(conn, child_id, state):
-    """The rungs on which some skill of the child's is in one state of the graph's."""
-    return [
+def _every(conn, child_id, states):
+    """The rungs on which every skill of the child's is in one of `states`. A set is secure, or ready to move up, only
+    when every skill of it the child answered is: Advika's report (2026-10-01) called word problems secure at 17 of 27
+    right, ready for the next step, and moved her on, because one skill of the set was."""
+    return {
         r["rung_code"]
         for r in conn.execute(
-            "select distinct rung_code from child_skill_state where child_id = %s and state = %s order by rung_code",
-            (child_id, state),
+            "select rung_code from child_skill_state where child_id = %s"
+            " group by rung_code having bool_and(state = any(%s))",
+            (child_id, list(states)),
         )
-    ]
+    }
 
 
-def _unsure(conn, child_id):
-    """The rungs on which some skill of the child's is in a state short of secure."""
-    return [
+def _any(conn, child_id, states):
+    """The rungs on which some skill of the child's is in one of `states`."""
+    return {
         r["rung_code"]
         for r in conn.execute(
-            "select distinct rung_code from child_skill_state where child_id = %s and state <> all(%s)",
-            (child_id, list(report.STRONG)),
+            "select distinct rung_code from child_skill_state where child_id = %s and state = any(%s)",
+            (child_id, list(states)),
         )
-    ]
+    }
 
 
 def _per_set(rows):
@@ -140,19 +143,17 @@ def facts(conn, child_id):
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     sets, rep = _sets(conn), report.build(conn, child_id)
     by_code = {s["code"]: s for s in sets.values()}
-    stretch = {sets[r]["code"] for r in _states(conn, child_id, "stretch_ready") if r in sets}
+    stretch = {sets[r]["code"] for r in _every(conn, child_id, ("stretch_ready",)) if r in sets}
     per_set = _per_set(rows)
     # one entry per skill set: a rung holds several of the registry's skills, and each can be strong or practising
     # on its own — the first eval listed ADD.2D2D twice, and held the words to a count they rightly would not repeat.
     # Its count is its answers, once each: adding up its skills' counts counted an answer once per skill.
-    # a set is secure only when every skill of it the child answered is: Advika's report (2026-10-01) called word
-    # problems secure at 17 of 27 right, and moved her on, because one skill of the set was
-    unsure = set(_unsure(conn, child_id))
+    secure = _every(conn, child_id, report.STRONG)
     strong = list(
         dict.fromkeys(
             s["skill_set"]
             for s in rep["strong"]
-            if s["skill_set"] in by_code and by_code[s["skill_set"]]["rung_code"] not in unsure
+            if s["skill_set"] in by_code and by_code[s["skill_set"]]["rung_code"] in secure
         )
     )
     can_do = [
@@ -163,7 +164,11 @@ def facts(conn, child_id):
     why = _not_yet(conn, child_id, rows)
     nearly = [
         _skill(sets[r], right=right, answered=n, not_yet=why.get(r, "not yet secure"))
-        for r in _states(conn, child_id, "practising")
+        # "nearly ... secure once it holds on another paper" promises one more paper is all it needs: never of a set
+        # with a skill still making its mistake, or only emerging
+        for r in sorted(
+            _any(conn, child_id, ("practising",)) - _any(conn, child_id, ("patterned_error", "emerging"))
+        )
         for right, n in [per_set.get(r, (0, 0))]
         if r in sets and sets[r]["code"] not in strong and n >= 3 and right / n >= NEARLY
     ]
@@ -175,7 +180,8 @@ def facts(conn, child_id):
         "grade": f"Grade {band[1:]}",
         "from": rows[0]["observed_at"].date().isoformat(),
         "to": rows[-1]["observed_at"].date().isoformat(),
-        "answers": len(rows),
+        # a question left blank is not an answer: the header said "112 answers" with the blank ones in the count
+        "answers": sum(r["correct"] is not None for r in rows),
         "can_do": can_do,
         "nearly": nearly,
         "improving": [i for i in _improving(rows, sets) if i["id"] not in said],
@@ -189,8 +195,7 @@ def facts(conn, child_id):
             level=rep["next"]["level"],
             # as the report shows it: a skill set it lists as "can do" is secure (v4 said "can do" and "more practice")
             why="secure already: next, harder questions of it"
-            if nxt["rung_code"] not in unsure
-            and (rep["next"]["state"] in report.STRONG or nxt["code"] in strong)
+            if nxt["rung_code"] in secure and (rep["next"]["state"] in report.STRONG or nxt["code"] in strong)
             else "still practising it: more questions of it",
         ),
         "days": (rows[-1]["observed_at"].date() - rows[0]["observed_at"].date()).days + 1,

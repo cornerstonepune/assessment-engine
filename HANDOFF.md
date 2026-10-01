@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — the parent report, read end to end after Advika's
+
+Nimish: "confirm with me that you have double-checked everything on the parent report". Five more found, each with a
+test that failed before its fix:
+- "ready for the next step" was said of a set when any one skill of it was ready (`_every`, as secure now is).
+- "nearly secure — secure once it holds on another paper" was said of a set with a skill still in a repeated mistake or
+  only emerging; now never.
+- a mistake's count (`report.build`, which the report card shows too) counted a wrong answer to a two-skill question
+  twice; now once per answer.
+- `answers` (the header's "112 answers", the summary's "has answered 112 questions") counted blank questions.
+- approval and the edit were refused only by hiding the buttons: a page left open could approve a report out of date
+  or one a newer draft had replaced. The engine refuses both now (409), and an out-of-date report is not printed.
+The out-of-date notice no longer says only "answers signed off since": a change in how the school counts makes a
+report out of date too, and every report the fixes above change goes out of date on its own once this is live.
+
 ## 2026-10-01 — a skill set is secure only when every skill of it is
 
 - Advika's approved parent report: "One- and two-step word problems — 17 of 27 right — secure", and "Next at school:
