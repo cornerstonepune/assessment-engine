@@ -175,13 +175,94 @@
   ],
   "ceilings": {
     "limit": 400,
+    "covers": ["engine/", "apps/web/"],
     "frozen": {
       "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 579,
       "engine/core/loaders.py": 413,
       "engine/assess/misconceptions.py": 500,
-      "engine/assess/mark.py": 417
+      "engine/assess/mark.py": 417,
+      "apps/web/tests/e2e.spec.ts": 466
+    }
+  },
+  "complexity": {
+    "limit": {"C901": 10, "PLR0915": 50},
+    "frozen": {
+      "engine/adapters/ocr.py::answers_for": {
+        "C901": 28,
+        "PLR0915": 78
+      },
+      "engine/assess/equality.py::equation": {
+        "PLR0915": 51
+      },
+      "engine/assess/learned_rules.py::answer": {
+        "C901": 14
+      },
+      "engine/assess/mark.py::roundtrip": {
+        "C901": 11,
+        "PLR0915": 52
+      },
+      "engine/assess/mark.py::write_fake_answers": {
+        "C901": 12
+      },
+      "engine/assess/render.py::render_item": {
+        "C901": 28,
+        "PLR0915": 90
+      },
+      "engine/assess/tags.py::derive": {
+        "C901": 13
+      },
+      "engine/assess/verify.py::dimension_problems": {
+        "C901": 15
+      },
+      "engine/assess/verify.py::problems": {
+        "C901": 20
+      },
+      "engine/checks/cli_check.py::goal": {
+        "C901": 11
+      },
+      "engine/checks/scenarios.py::_run_bank": {
+        "C901": 15
+      },
+      "engine/cli.py::eval_": {
+        "C901": 20,
+        "PLR0915": 85
+      },
+      "engine/w1_bank/bank.py::fill": {
+        "C901": 13,
+        "PLR0915": 53
+      },
+      "engine/w1_bank/cli_taxonomy.py::register": {
+        "C901": 16,
+        "PLR0915": 55
+      },
+      "engine/w2_print/library.py::check": {
+        "C901": 12
+      },
+      "engine/w3_read/copies.py::read": {
+        "C901": 11
+      },
+      "engine/w3_read/gold.py::outcome": {
+        "C901": 11
+      },
+      "engine/w3_read/legacy.py::import_scan": {
+        "C901": 13,
+        "PLR0915": 57
+      },
+      "engine/w3_read/marking.py::mark": {
+        "C901": 13
+      },
+      "engine/w3_read/profiles.py::build": {
+        "C901": 13
+      },
+      "engine/w4_close/parent_check.py::check": {
+        "C901": 26,
+        "PLR0915": 51
+      },
+      "tests/test_spine_page.py::test_every_link_in_a_thread_says_where_it_comes_from": {
+        "C901": 13
+      }
     }
   }
 }

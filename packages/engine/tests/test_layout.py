@@ -9,6 +9,9 @@ workflows which connect very well to each other") is held by a check, not by any
 import ast
 import json
 import pathlib
+import re
+import subprocess
+import sys
 
 import pytest
 
@@ -102,16 +105,81 @@ def test_a_workflow_reaches_another_only_through_a_declared_hand_over():
     assert declared == used, f"hand-overs declared but never made: {sorted(declared - used)}"
 
 
+def web_files():
+    """The website's own code — pages, components, queries, browser tests, its config — as `apps/web/…`; never
+    what a build or a test run writes."""
+    own = [p for d in ("app", "lib", "components", "tests") for p in (WEB / d).rglob("*")]
+    own += [p for p in WEB.iterdir() if p.name != "next-env.d.ts"]
+    return sorted(str(p.relative_to(REPO)) for p in own if p.suffix in {".ts", ".tsx", ".js", ".mjs"})
+
+
+def sized_files():
+    """{file: lines} for every file the ceiling covers (`ceilings.covers`): the engine's, and the website's."""
+    covers = MAP["ceilings"]["covers"]
+    sizes = {f: len((ENGINE / f).read_text().splitlines()) for f in engine_files()}
+    sizes |= {f: len((REPO / f).read_text().splitlines()) for f in web_files()}
+    return {f: n for f, n in sizes.items() if f.startswith(tuple(covers))}
+
+
 def test_no_file_grows_past_the_ceiling():
     limit, frozen = MAP["ceilings"]["limit"], MAP["ceilings"]["frozen"]
-    for f in engine_files():
-        n = len((ENGINE / f).read_text().splitlines())
+    for f, n in sized_files().items():
         ceiling = frozen.get(f, limit)
         assert n <= ceiling, (
             f"{f} has {n} lines; its ceiling is {ceiling} — split it along a real responsibility"
         )
     for f, ceiling in frozen.items():
         assert ceiling > limit, f"{f} is at or under {limit} lines now: take it off the frozen list"
+
+
+def test_the_ceiling_holds_the_website_too():
+    """The 400 lines held the engine alone; a page or a browser test could grow without end (code review,
+    2026-09-30; goals/p1-the-gates-hold.yaml)."""
+    sized = sized_files()
+    assert "apps/web/lib/maker.ts" in sized and "apps/web/tests/e2e.spec.ts" in sized
+    assert not [f for f in sized if "/.next" in f or "node_modules" in f or "test-results" in f]
+
+
+def complexity():
+    """{"file::function": {rule: measure}} for every function ruff finds past the map's limits: C901, the
+    branches a reader must hold at once, and PLR0915, the statements in one function."""
+    limit = MAP["complexity"]["limit"]
+    found = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", "engine", "tests", "--select", ",".join(limit),
+         "--config", f"lint.mccabe.max-complexity={limit['C901']}",
+         "--config", f"lint.pylint.max-statements={limit['PLR0915']}",
+         "--output-format", "json", "--exit-zero"],
+        cwd=ENGINE, capture_output=True, text=True, check=True,
+    ).stdout  # fmt: skip
+    out = {}
+    for v in json.loads(found):
+        path = pathlib.Path(v["filename"])
+        (name,) = [
+            n.name
+            for n in ast.walk(ast.parse(path.read_text()))
+            if isinstance(n, ast.FunctionDef | ast.AsyncFunctionDef) and n.lineno == v["location"]["row"]
+        ]
+        measure = int(re.search(r"\((\d+) > \d+\)", v["message"]).group(1))
+        out.setdefault(f"{path.relative_to(ENGINE)}::{name}", {})[v["code"]] = measure
+    return out
+
+
+def test_no_function_grows_more_complex_than_the_map_allows():
+    """A function past the limits is split, or frozen in the map at today's measure, where it may only shrink;
+    ruff measured 30 past them on 2026-10-01 (goals/p1-the-gates-hold.yaml)."""
+    limit, frozen = MAP["complexity"]["limit"], MAP["complexity"]["frozen"]
+    found = complexity()
+    for fn, measures in found.items():
+        for rule, n in measures.items():
+            allowed = frozen.get(fn, {}).get(rule, limit[rule])
+            assert n <= allowed, (
+                f"{fn} measures {rule} {n}, past {allowed}: split it along a real responsibility"
+            )
+    for fn, measures in frozen.items():
+        for rule in measures:
+            assert rule in found.get(fn, {}), (
+                f"{fn} is within the {rule} limit now: take it off the frozen list"
+            )
 
 
 def test_every_step_says_whether_it_works_for_any_subject():
