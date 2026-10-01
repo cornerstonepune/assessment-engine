@@ -3,20 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-01 — the parent report, read end to end after Advika's
+## 2026-10-01 — Phase 1 of the code review: PR D (each service its own role)
 
-Nimish: "confirm with me that you have double-checked everything on the parent report". Five more found, each with a
-test that failed before its fix:
-- "ready for the next step" was said of a set when any one skill of it was ready (`_every`, as secure now is).
-- "nearly secure — secure once it holds on another paper" was said of a set with a skill still in a repeated mistake or
-  only emerging; now never.
-- a mistake's count (`report.build`, which the report card shows too) counted a wrong answer to a two-skill question
-  twice; now once per answer.
-- `answers` (the header's "112 answers", the summary's "has answered 112 questions") counted blank questions.
-- approval and the edit were refused only by hiding the buttons: a page left open could approve a report out of date
-  or one a newer draft had replaced. The engine refuses both now (409), and an out-of-date report is not printed.
-The out-of-date notice no longer says only "answers signed off since": a change in how the school counts makes a
-report out of date too, and every report the fixes above change goes out of date on its own once this is live.
+- **PR B merged (#150).** PR C is #152.
+- **PR D:** a migration makes `app_web` and `app_engine`, each with only what its code needs, and the engine reads
+  names only through the logged accessors. `tests/test_roles.py` reads the grants back, and CI runs the browser suite
+  as the two roles. STATE.md "Phase 1, PR D" has the detail and Nimish's steps to switch live; ADR 0046 has the
+  alternatives rejected.
+- **A new table** gets both roles' policy, and a new ledger loses update, delete and truncate, from
+  `internal.apply_conventions()` at the end of its migration. **A table the website must write** needs a grant in
+  that migration, and `WEB_WRITES` in `tests/test_roles.py`.
+- **Local browser runs as the roles:** give both a password on the local copy (`alter role app_web password '…'`),
+  then set `TEST_WEB_DATABASE_URL` and `TEST_ENGINE_DATABASE_URL`. Without them both servers use the owner's URL, as
+  before.
+- **Next:** E (`engine done` runs criteria and scenarios; eval bars as threshold rows).
 
 ## 2026-10-01 — Phase 1 of the code review: PR C (the types hold)
 
@@ -118,6 +118,22 @@ report out of date too, and every report the fixes above change goes out of date
   - Run the one live query in `goals/p0-the-database-answers-only-its-own.yaml`.
   - Confirm that Supabase backups are on.
   - Decide whether `.claude/settings.json` should keep pre-approving merges.
+
+
+## 2026-10-01 — the parent report, read end to end after Advika's
+
+Nimish: "confirm with me that you have double-checked everything on the parent report". Five more found, each with a
+test that failed before its fix:
+- "ready for the next step" was said of a set when any one skill of it was ready (`_every`, as secure now is).
+- "nearly secure — secure once it holds on another paper" was said of a set with a skill still in a repeated mistake or
+  only emerging; now never.
+- a mistake's count (`report.build`, which the report card shows too) counted a wrong answer to a two-skill question
+  twice; now once per answer.
+- `answers` (the header's "112 answers", the summary's "has answered 112 questions") counted blank questions.
+- approval and the edit were refused only by hiding the buttons: a page left open could approve a report out of date
+  or one a newer draft had replaced. The engine refuses both now (409), and an out-of-date report is not printed.
+The out-of-date notice no longer says only "answers signed off since": a change in how the school counts makes a
+report out of date too, and every report the fixes above change goes out of date on its own once this is live.
 
 ## 2026-09-30, late night — the colours said (goal u11) and the curriculum as one table (goal u12)
 

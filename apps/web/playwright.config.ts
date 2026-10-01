@@ -10,8 +10,14 @@ import path from "node:path";
 const root = path.resolve(__dirname, "../..");
 if (existsSync(path.join(root, ".env"))) process.loadEnvFile(path.join(root, ".env"));
 const COPY = process.env.TEST_DATABASE_URL ?? "";
-if (!["127.0.0.1", "localhost"].includes(COPY ? new URL(COPY).hostname : "")) {
-  throw new Error("TEST_DATABASE_URL must name the local copy (bin/testdb) — refusing to test against any other database");
+// The website and the engine reach the copy as their own roles when given them (CI does: goals/p1-the-roles-hold.yaml),
+// so a grant too narrow for a page or a route fails here; a spec's own rows are written as the owner, as a migration's.
+const AS_WEB = process.env.TEST_WEB_DATABASE_URL ?? COPY;
+const AS_ENGINE = process.env.TEST_ENGINE_DATABASE_URL ?? COPY;
+for (const url of [COPY, AS_WEB, AS_ENGINE]) {
+  if (!["127.0.0.1", "localhost"].includes(url ? new URL(url).hostname : "")) {
+    throw new Error("TEST_DATABASE_URL must name the local copy (bin/testdb) — refusing to test against any other database");
+  }
 }
 // Every spec that reads rows for itself reads the copy.
 process.env.DATABASE_URL = COPY;
@@ -45,7 +51,7 @@ export default defineConfig({
       url: `http://127.0.0.1:${ENGINE_PORT}/health`,
       reuseExistingServer: false,
       timeout: 60_000,
-      env: { DATABASE_URL: COPY, ENGINE_KEY: process.env.E2E_ENGINE_KEY },
+      env: { DATABASE_URL: AS_ENGINE, ENGINE_KEY: process.env.E2E_ENGINE_KEY },
     },
     {
       command: `npx next build && npx next start --port ${WEB_PORT}`,
@@ -54,7 +60,7 @@ export default defineConfig({
       timeout: 300_000,
       env: {
         NEXT_DIST_DIR: ".next-test",
-        DATABASE_URL: COPY,
+        DATABASE_URL: AS_WEB,
         ENGINE_URL: `http://127.0.0.1:${ENGINE_PORT}`,
         ENGINE_KEY: process.env.E2E_ENGINE_KEY,
         AUTH_SECRET: process.env.E2E_AUTH_SECRET,

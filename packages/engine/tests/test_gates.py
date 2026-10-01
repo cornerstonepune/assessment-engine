@@ -81,3 +81,19 @@ def test_no_browser_test_can_skip_itself():
         if re.search(r"\b(test|describe)\.(skip|fixme|only)\(", line)
     ]
     assert found == []
+
+
+def test_ci_runs_every_browser_test_as_the_services_own_roles():
+    """A role's grants are wide enough only if its service works as it: CI gives both roles a password for the run and
+    starts the website and the engine as them, while each spec writes its own rows as the owner
+    (goals/p1-the-roles-hold.yaml)."""
+    runs = _runs("browser")
+    built = next(i for i, r in enumerate(runs) if r.startswith("bin/testdb fresh"))
+    (given,) = [i for i, r in enumerate(runs) if "alter role app_web password" in r]
+    (suite,) = [i for i, r in enumerate(runs) if r.startswith("npx playwright test")]
+    assert built < given < suite and "alter role app_engine password" in runs[given]
+    env = CI["jobs"]["browser"]["steps"][suite].get("env", {})
+    assert env.get("TEST_WEB_DATABASE_URL", "").startswith("postgresql://app_web:"), env
+    assert env.get("TEST_ENGINE_DATABASE_URL", "").startswith("postgresql://app_engine:"), env
+    config = (db.REPO_ROOT / "apps" / "web" / "playwright.config.ts").read_text()
+    assert "DATABASE_URL: AS_ENGINE" in config and "DATABASE_URL: AS_WEB" in config

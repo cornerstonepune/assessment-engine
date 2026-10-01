@@ -20,7 +20,7 @@ from engine.w3_read import marking
 WAITING = ("needs_teacher", "unreadable")
 
 
-def load(conn, path) -> int:
+def load(conn, path, actor="engine-cli") -> int:
     """The transcription → rows. The file names each child by first name, as the reports do, and lives
     beside the reports, outside the repository (rule 6): the name is looked up in `pii` here and only
     the id is stored. Loading the same file twice changes nothing; changing a finding withdraws its
@@ -28,7 +28,8 @@ def load(conn, path) -> int:
     spec = json.loads(Path(path).expanduser().read_text())
     for f in spec["findings"]:
         kids = conn.execute(
-            "select tenant_id, child_id from pii.child where first_name = %s", (f["child"],)
+            "select c.tenant_id, c.id as child_id from pii.find_child(null, %s, %s) f join child c on c.id = f",
+            (f["child"], actor),
         ).fetchall()
         if len(kids) != 1:
             raise ValueError(f"{len(kids)} children are named {f['child']!r}; a finding names exactly one")
@@ -65,7 +66,7 @@ def confirm(conn, by) -> int:
     ).rowcount
 
 
-def check(conn) -> list[dict]:
+def check(conn, actor="engine-cli") -> list[dict]:
     """Every finding, with where it stands between the child's page and the child's graph."""
     rows = conn.execute(
         """
@@ -92,7 +93,7 @@ def check(conn) -> list[dict]:
                           where s.child_id = g.child_id and s.skill_code = g.skill_code
                             and s.repeating_misconception is not null), '{}') as patterns
         from gold_finding g
-        join pii.child p on p.child_id = g.child_id
+        cross join lateral pii.read_child(g.child_id, %s) p
         left join lateral (
           select r.* from item_result r join item i on i.id = r.item_id
             join capture c on c.id = r.capture_id and c.superseded_by is null
@@ -100,7 +101,8 @@ def check(conn) -> list[dict]:
            where si.child_id = g.child_id and i.item_key = g.item_key
            order by r.created_at desc limit 1) r on true
         order by p.first_name, g.verdict, g.skill_code, g.item_key
-        """
+        """,
+        (actor,),
     ).fetchall()
     return [{**r, "outcome": outcome(r)} for r in rows]
 
