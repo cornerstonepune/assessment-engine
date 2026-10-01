@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-01 — a skill set is secure only when every skill of it is
+
+- Advika's approved parent report: "One- and two-step word problems — 17 of 27 right — secure", and "Next at school:
+  harder questions of it", above two word-problem mistakes. `parent_facts.facts` called a set "can do" when *any*
+  skill of it was secure in the graph, and printed the whole set's count beside it; `next` said "secure already" on
+  the same test.
+- Now a set is "can do" only when no skill of it the child answered is short of secure (`_unsure`), the rule the report
+  card already used (the weakest of its skills); `next` says "secure" only of such a set.
+- Test: `test_a_skill_set_is_secure_only_when_every_skill_of_it_the_child_answered_is` (failed before, passes).
+- **Owed:** every parent report written before this deploys may overstate a set; they are written again (the engine
+  does not mark them out of date, since no answer changed). Advika's first.
+
 ## 2026-10-01 — Phase 0 of the code review: PR 3 of 3 (the maker makes what it shows)
 
 - **PR 1 (#144) and PR 2 (#145) are merged.** PR 1's deploy chain ran on live: CI, then the migration, then the engine

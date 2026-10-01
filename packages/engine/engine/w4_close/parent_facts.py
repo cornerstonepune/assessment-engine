@@ -69,6 +69,17 @@ def _states(conn, child_id, state):
     ]
 
 
+def _unsure(conn, child_id):
+    """The rungs on which some skill of the child's is in a state short of secure."""
+    return [
+        r["rung_code"]
+        for r in conn.execute(
+            "select distinct rung_code from child_skill_state where child_id = %s and state <> all(%s)",
+            (child_id, list(report.STRONG)),
+        )
+    ]
+
+
 def _per_set(rows):
     """{rung: (right, answered)} over the child's answers, each once however many skills its question tests. A blank
     is not an answer here, as the graph does not count it either (`n_events`)."""
@@ -134,7 +145,16 @@ def facts(conn, child_id):
     # one entry per skill set: a rung holds several of the registry's skills, and each can be strong or practising
     # on its own — the first eval listed ADD.2D2D twice, and held the words to a count they rightly would not repeat.
     # Its count is its answers, once each: adding up its skills' counts counted an answer once per skill.
-    strong = list(dict.fromkeys(s["skill_set"] for s in rep["strong"] if s["skill_set"] in by_code))
+    # a set is secure only when every skill of it the child answered is: Advika's report (2026-10-01) called word
+    # problems secure at 17 of 27 right, and moved her on, because one skill of the set was
+    unsure = set(_unsure(conn, child_id))
+    strong = list(
+        dict.fromkeys(
+            s["skill_set"]
+            for s in rep["strong"]
+            if s["skill_set"] in by_code and by_code[s["skill_set"]]["rung_code"] not in unsure
+        )
+    )
     can_do = [
         _skill(by_code[code], right=right, answered=n, ready_to_move_up=code in stretch)
         for code in strong
@@ -169,7 +189,8 @@ def facts(conn, child_id):
             level=rep["next"]["level"],
             # as the report shows it: a skill set it lists as "can do" is secure (v4 said "can do" and "more practice")
             why="secure already: next, harder questions of it"
-            if rep["next"]["state"] in ("secure", "stretch_ready") or nxt["code"] in strong
+            if nxt["rung_code"] not in unsure
+            and (rep["next"]["state"] in report.STRONG or nxt["code"] in strong)
             else "still practising it: more questions of it",
         ),
         "days": (rows[-1]["observed_at"].date() - rows[0]["observed_at"].date()).days + 1,
