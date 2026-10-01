@@ -130,11 +130,15 @@ test("a teacher chooses skills, a level each and how many, sees the questions, a
 });
 
 test("a paper the bank cannot fill says why, and nothing prints", async ({ page }) => {
-  const [{ n }] = await sql<{ n: number }[]>`
-    select count(*)::int as n from item where status = 'active' and skill_set_code = 'SUB.1D1D' and difficulty = 'Medium'`;
-  test.skip(n >= 40, "this level holds enough questions for any count");
+  // Chetan has been given all but three of the level's questions, whatever the bank holds: the test skipped itself
+  // on a bank with 40 or more (goals/p1-browser-tests-in-ci.yaml). clearUp takes the exposures back.
+  await sql`
+    insert into item_exposure (tenant_id, child_id, item_id, week)
+    select i.tenant_id, ${ids.Chetan}, i.id, 'M2-SEEN' from item i
+    where i.status = 'active' and i.skill_set_code = 'SUB.1D1D' and i.difficulty = 'Medium' order by i.item_key offset 3
+    on conflict do nothing`;
   await page.goto(`/make/custom?child=${ids.Chetan}&a=SUB.1D1D~Medium~40`);
-  await expect(page.getByRole("status")).toContainText(`only ${n} questions this child has not seen`);
+  await expect(page.getByRole("status")).toContainText("only 3 questions this child has not seen");
   await expect(page.getByRole("button", { name: "Approve and print" })).toHaveCount(0);
 });
 

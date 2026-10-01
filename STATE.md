@@ -4232,3 +4232,50 @@ Nimish: "go ahead with phase 1". The first of Phase 1's five PRs (`goals/p1-the-
     - main's ci.yml: 3 of the CI tests fail.
   - `test_gates.py`, `test_ratchet.py` and `test_layout.py`: 17 passed. `bin/check` passed.
   - The full engine suite under coverage: 1,325 passed.
+
+## Phase 1, PR B: every browser test in CI, on a fresh database, none skipped (2026-10-01)
+
+The second of Phase 1's five PRs (`goals/p1-browser-tests-in-ci.yaml`).
+
+- **A browser job in CI.**
+  - It installs the engine and the website, builds a database from the repository alone (`bin/testdb fresh`), and
+    runs every spec against a production build and the engine, as `playwright.config.ts` starts them.
+  - A last step reads Playwright's JSON report and fails on any skipped, unexpected or flaky test.
+  - `test_gates.py` holds the job to this, and to no spec calling `test.skip`, `fixme` or `only`.
+- **Every spec builds its own rows** (`apps/web/tests/rows.ts`: `aClass`, `aWorksheet` through `engine legacy
+  paper`, `aReadPaper`):
+  - **s4, the answer queue:** a class of two, read on one worksheet. Asha's first paper holds every kind the queue
+    holds: a guess, two unclear readings, a judgement, a held wrong, a held blank, an explanation held blank, a
+    right answer, and one the reader gave up on. Her second paper has nothing waiting; Bina's has two answers
+    waiting. Nine tests skipped themselves without live's readings; their queries now read the spec's own papers.
+  - **s7, the week:** its own class of four, not live's "G2". The week is prescribed, assembled and rendered through
+    the engine's routes. e2e's seven week tests moved here from live's "G3" week T2W1. `e2e.spec.ts` is 314 lines
+    and off the frozen list.
+  - **screens:** a child of its own with four signed-off answers and a read paper, not the first class live listed.
+  - **m2:** Chetan is given all but three of a level's questions, so "the bank cannot fill it" holds whatever the
+    bank's size.
+  - **u9:** its setup sent `item_ids` as null into a not-null column. It passed only because the copy already held
+    those papers; on a fresh database it failed. It now sends an empty list.
+- **The concurrency test keeps one class.** It made a class each run, then deactivated it: a child cannot be
+  deleted, because `evidence_event`'s append-only trigger refuses even an empty cascade. That left 24 children in
+  the copy. It now uses one class, `CONCURSEC-TEST`, made once and kept.
+- **The coverage floor rises to today's number:** 79.5% at one decimal (CI measured 79.51% on PR A).
+- **CI's first run caught an order-dependent test** (149 passed; s4's spot-check found none, and the 7 after it did not
+  run):
+  - Settling an answer on a paper's own page signs the whole paper off (`resolve_result`, by design since
+    2026-09-24). s4's "Right" on Asha's first paper did so, and left that paper no spot-check. Her second had one only
+    when the smallest md5 of three random ids fell on an answer no one had checked: one run in three it did not.
+  - The spot-check now reads Chitra's paper, which no other test settles.
+  - A seeded paper holds only what the engine can write: a settled wrong or blank carries a person's reading, and
+    `aReadPaper` refuses one without. The engine's invariant test caught three such answers on a database the browser
+    suite had used.
+  - A paper read again is superseded, as the reader supersedes a scan, not deleted: a signed-off answer's evidence is
+    append-only, so the second local run failed to delete it.
+- **Checks:**
+  - **On a database built fresh here:** 155 passed, 0 skipped. The one failure was u9 (above), which then passed.
+  - **The full suite on another fresh database, in CI's order:** 157 passed. A statement log showed the one
+    `resolve_result` that signed Asha's paper off. After the fix, s4 and screens passed twice in a row on that
+    database (40 and 40), and the engine's invariant test passed on it.
+  - **On main's code:** s4 skipped 9, screens 2 and m2 1, and e2e's G3 tests and s7 failed without live's classes.
+  - `test_gates.py`: 6 passed. The concurrency test passed twice and leaves one class.
+  - `tsc`, eslint and `bin/check` passed.
