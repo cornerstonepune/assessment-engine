@@ -4501,3 +4501,50 @@ works; https://github.com/dietrichgebert/ponytail).
   - an automated accessibility checker: add one if a second colour-only state ships;
   - STATE.md compacted: BUILD-ORDER reads each workflow's gates here, so archiving them risks that process; archive
     by month when a session's reading cost bites.
+
+## Grade 1 as its educator taught it to September (2026-10-06)
+
+`goals/g1-taught-till-september.yaml`. Nimish forwarded the Grade 1 educator's list: *"Can we incorporate this part
+additionally for grade 1? Ensure that this is the entire thing that's mapped to what has been taught in grade 1."*
+
+- **What Grade 1 now holds** (a Grade 1 child's paper, worksheet and week note draw from these and nothing else):
+  - 1-digit + 1-digit and 1-digit − 1-digit, every level, as before;
+  - the Easy level of 2-digit + 1-digit, 2-digit + 2-digit, 2-digit − 1-digit and 2-digit − 2-digit. That level is
+    exactly "no carry, no exchange" (46 + 12, 25 − 13, 28 − 8). It moves to Grade 1 through `skill_set.level_band`:
+    from the seed for a new database, and by migration `20261024090000` for live. Their other levels stay Grade 2;
+  - **tally marks** (`DATA.TALLY`, rung R34, NUM.DATA.01): read a tally from 5 to 10 (Easy) or 11 to 20 (Medium);
+    two tallies, altogether or how many more (Advance);
+  - **equal groups** (`MUL.GROUPS`, rung R35, NUM.OPS.03): 2 to 3 groups (Easy) or 4 to 5 groups (Medium), each of 2
+    to 6, as a sum (4 + 4 + 4) or as rings of dots; and a story (Advance).
+- **Multiplication is two topics.** "Multiplication" holds equal groups and is taught. "Multiplication in columns"
+  holds `MUL.1D` and is still not taught: Nimish, 2026-09-23, "we haven't even started teaching multiplication". Tally
+  marks are under "Data handling", taught.
+- **Two new kinds of question:**
+  - `assess/counting.py` makes them: each key is computed, and each predicted wrong answer names a mistake. The new
+    mistakes are M_TALLY_FIVE_AS_FOUR, M_TALLY_CROSS_COUNTED, M_TALLY_BUNDLE_AS_ONE, M_GROUP_MISSED and M_ONE_GROUP;
+    M_WRONG_OP is reused;
+  - `assess/pictures.py` draws every kind that is a picture. The balance and the number line moved there unchanged,
+    so `render_item` fell from C901 28 to 27;
+  - `components/pictures.tsx` draws the same on the website.
+- **A level's grade is read the same way everywhere now.** Two places had still used the rung's grade:
+  - library worksheets printed a Grade 1 level as "Grade 2", with Grade 2's smaller boxes. A worksheet printed for
+    another grade than its level's is now retired and dealt again;
+  - a Grade 1 class's week note could not name the 2-digit skills.
+- **45 + 8 is not Grade 1.** 5 + 8 = 13 is an exchange, against her "without borrowing". It belongs to 2-digit
+  + 1-digit Medium, which stays Grade 2 until she confirms (BUILD-ORDER, inserted 2026-10-06).
+- **Types and ceilings, all down:**
+  - typing `items.item`, `items.cells`, `answer_space.op_sign`, `words.templates` and `verify.to_item` took 141
+    findings off eleven frozen files;
+  - `items.missing_part_20`, which no engine code called, is deleted, so `items.py` went from 579 lines to 571.
+- **Checks** (on a database built by `bin/testdb fresh` with these rows: 21,289 questions, 1,845 worksheets; every
+  Grade 1 level printed as G1):
+  - `pytest -q tests/test_counting.py tests/test_focus_paper.py tests/test_topics.py tests/test_library.py
+    tests/test_week_note.py tests/test_new_kinds.py tests/test_items.py tests/test_render.py tests/test_loaders.py`
+    → 236 passed;
+  - `bin/engine audit`: every structural invariant passes. The two failures are the approvals a fresh database never
+    has ("every spec is ratified", "what a mistake charges is approved");
+  - `bin/check` → 27 passed, and lint is clean. `npx tsc --noEmit` and `npx eslint` are clean on the changed web files.
+  - `npx playwright test tests/s28-grade-1-as-taught.spec.ts tests/s8-taxonomy.spec.ts tests/u12-curriculum-table.spec.ts`
+    (production build, roles) → 8 passed. The new spec's first run failed on the check itself: a vertical tally line has
+    no width, so Playwright called it hidden. The check now reads each drawing's own label;
+  - `engine ratchet --base origin/main` → every baseline held or tightened.

@@ -1,0 +1,77 @@
+name: g1-taught-till-september
+goal: >
+  Grade 1 is exactly what its educator taught to the end of September, and nothing else: 1-digit + and − 1-digit;
+  2-digit + and − a 1-digit or a 2-digit number with no exchange; tally marks; and multiplication begun as
+  repeated addition. A Grade 1 child's paper, a Grade 1 worksheet and a Grade 1 week note draw only from those
+  levels. Every one of them can be made as questions that are right, re-measured against their level's own rule and
+  diagnostic (every predicted wrong answer names a mistake). A Grade 1 worksheet prints as Grade 1. Column
+  multiplication stays untaught.
+
+# Written 2026-10-06, before the code. Nimish forwarded the Grade 1 educator's list ("This was covered till
+# September ... So i need h.e. and worksheet") and asked: "Can we incorporate this part? This is feedback from the
+# teacher. Can we incorporate this part additionally for grade 1? Ensure that this is the entire thing that's mapped
+# to what has been taught in grade 1." 45+8 needs an exchange (5 + 8 = 13), against her "without borrowing": Grade 1
+# waits for her word on it (BUILD-ORDER, inserted 2026-10-06).
+says:
+  - words: "Ensure that this is the entire thing that's mapped to what has been taught in grade 1"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_grade_1_is_exactly_what_its_educator_taught_to_september
+  - words: "Addition and subtraction 2 digit without borrowing"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_no_question_at_a_grade_1_level_needs_an_exchange
+  - words: "2 digit with 2 digit and with single digit"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_educators_examples_are_grade_1_questions
+  - words: "45+8"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_45_plus_8_needs_an_exchange_so_grade_1_waits_for_the_educator
+  - words: "Tally marks"
+    proved_by: packages/engine/tests/test_counting.py::test_a_tally_shows_as_many_lines_as_its_answer_in_bundles_of_five
+  - words: "Tally marks"
+    proved_by: packages/engine/tests/test_counting.py::test_every_counting_question_marks_right_and_names_its_mistakes
+  - words: "Multiplication as beginners with repeated addition"
+    proved_by: packages/engine/tests/test_counting.py::test_equal_groups_are_added_again_and_drawn_as_many_as_asked
+  - words: "Multiplication as beginners with repeated addition"
+    proved_by: packages/engine/tests/test_topics.py::test_multiplication_begun_in_grade_1_is_taught_and_column_multiplication_is_not
+  - words: "Can we incorporate this part additionally for grade 1?"
+    proved_by: packages/engine/tests/test_library.py::test_a_worksheet_prints_at_its_levels_grade_and_one_printed_at_another_is_replaced
+  - words: "Can we incorporate this part additionally for grade 1?"
+    proved_by: packages/engine/tests/test_week_note.py::test_a_grade_1_class_may_declare_every_skill_grade_1_teaches
+manual:
+  - "On live, once merged: `bin/update-live`. The two new skills, their questions and their worksheets reach live only
+    through `engine load`, `bank refill` and `library build`. Then approve the two new skills once, on Curriculum ->
+    Read and approve."
+  - "45 + 8: ask the Grade 1 educator whether Grade 1 adds with an exchange. If it does: Curriculum -> 2-digit +
+    1-digit -> Medium -> Grade 1."
+scenarios:
+  - name: tally marks, Easy — a tally up to ten read as a number
+    skill_set: DATA.TALLY
+    difficulty: Easy
+    n: 20
+  - name: tally marks, Medium — a tally from eleven to twenty
+    skill_set: DATA.TALLY
+    difficulty: Medium
+    n: 20
+  - name: tally marks, Advance — two tallies, altogether or how many more
+    skill_set: DATA.TALLY
+    difficulty: Advance
+    n: 20
+  - name: equal groups, Easy — two or three groups, as a sum and as a picture
+    skill_set: MUL.GROUPS
+    difficulty: Easy
+    n: 16
+  - name: equal groups, Medium — four or five groups
+    skill_set: MUL.GROUPS
+    difficulty: Medium
+    n: 16
+  - name: equal groups, Advance — a story of equal groups
+    skill_set: MUL.GROUPS
+    difficulty: Advance
+    n: 16
+  - name: 2-digit + 1-digit at the level Grade 1 now holds — no carry
+    skill_set: ADD.2D1D
+    difficulty: Easy
+    n: 20
+criteria:
+  - name: the Grade 1 map, its two kinds of question, its worksheets and week notes, on a copy built from the repository
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_counting.py tests/test_focus_paper.py tests/test_topics.py tests/test_library.py tests/test_week_note.py tests/test_new_kinds.py tests/test_items.py tests/test_render.py tests/test_loaders.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

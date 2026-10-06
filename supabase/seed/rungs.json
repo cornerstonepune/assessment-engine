@@ -241,6 +241,25 @@
       "skill_codes": [
         "NUM.OPS.02"
       ]
+    },
+    {
+      "code": "R34",
+      "band": "G1",
+      "ladder_order": null,
+      "descriptor": "Reads tally marks, each bundle as five",
+      "skill_codes": [
+        "NUM.DATA.01"
+      ]
+    },
+    {
+      "code": "R35",
+      "band": "G1",
+      "ladder_order": null,
+      "descriptor": "Equal groups added again: multiplication begun as repeated addition",
+      "skill_codes": [
+        "NUM.OPS.03",
+        "NUM.OPS.01"
+      ]
     }
   ]
 }

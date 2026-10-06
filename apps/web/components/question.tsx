@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
+import { Rings, Tally } from "@/components/pictures";
 import type { ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
@@ -25,6 +26,8 @@ export const KIND: Record<string, string> = {
   possible_answer: "could it be right?",
   odd_even: "odd or even",
   break_apart: "tens, then ones",
+  tally: "tally marks",
+  equal_groups: "equal groups",
 };
 
 // Kinds that print their own sentence. The other three draw their printed line from their numbers
@@ -82,6 +85,32 @@ export function Question({ it }: { it: ItemRow }) {
         <Stem text={it.stem}>
           <Wall base={s.base ?? []} />
         </Stem>
+      );
+    case "tally":
+      return (
+        <Stem text={it.stem}>
+          {s.shape === "READ" ? (
+            <Tally n={s.count ?? 0} />
+          ) : (
+            <span className="grid w-fit grid-cols-[auto_auto] items-center gap-x-4">
+              {(s.things ?? []).map((thing, i) => (
+                <Fragment key={thing}>
+                  <span>{thing}</span>
+                  <Tally n={Number(i ? s.b : s.a)} />
+                </Fragment>
+              ))}
+            </span>
+          )}
+        </Stem>
+      );
+    case "equal_groups":
+      if (s.shape === "SUM") return <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>;
+      return s.shape === "PICTURE" ? (
+        <Stem text={it.stem}>
+          <Rings groups={Number(s.a)} size={Number(s.b)} />
+        </Stem>
+      ) : (
+        <span>{it.stem}</span>
       );
     case "balance_scale":
       return (

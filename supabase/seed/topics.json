@@ -45,9 +45,27 @@
       "code": "MUL",
       "subject": "NUM",
       "name": "Multiplication",
+      "taught": true,
+      "skill_sets": [
+        "MUL.GROUPS"
+      ]
+    },
+    {
+      "code": "MULCOL",
+      "subject": "NUM",
+      "name": "Multiplication in columns",
       "taught": false,
       "skill_sets": [
         "MUL.1D"
+      ]
+    },
+    {
+      "code": "DATA",
+      "subject": "NUM",
+      "name": "Data handling",
+      "taught": true,
+      "skill_sets": [
+        "DATA.TALLY"
       ]
     }
   ]

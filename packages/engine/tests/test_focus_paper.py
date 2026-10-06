@@ -4,13 +4,17 @@ The child's checked answers go in as confirmed evidence; the graph is rebuilt fr
 sign-off rebuilds it; the plan and the paper are read back from there.
 """
 
+import json
 import os
 from pathlib import Path
 
 import pytest
 
-from engine.assess import graph
+from engine.assess import graph, verify
+from engine.assess import tags as T
+from engine.assess.items import Item
 from engine.core import db
+from engine.w1_bank import labels
 from engine.w2_print import focus_paper, shelf
 
 WEEK = "T3W1-focus-test"
@@ -258,3 +262,76 @@ def test_every_paper_made_for_a_child_prints_as_a_home_assessment_and_says_who_c
     assert focus_paper.heading("focus", areas, "Asha")[1].endswith("chosen from their own checked papers")
     assert focus_paper.heading("custom", areas, "Asha")[1].endswith("chosen by their educator")
     assert focus_paper.heading("focus", areas, None)[1].startswith("Home assessment · Home assessment")
+
+
+SEED = Path(__file__).resolve().parents[3] / "supabase/seed"
+SETS = json.loads((SEED / "skill_sets.json").read_text())["skill_sets"]
+RUNG_BAND = {r["code"]: r["band"] for r in json.loads((SEED / "rungs.json").read_text())["rungs"]}
+CASE_MATCH = {
+    c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]
+}
+# What Grade 1's educator taught to the end of September (Nimish, 2026-10-06), as levels of the bank's skills.
+GRADE_1 = {
+    "ADD.1D1D": {"Easy", "Medium", "Advance"},
+    "SUB.1D1D": {"Easy", "Medium", "Advance"},
+    "ADD.2D1D": {"Easy"},
+    "ADD.2D2D": {"Easy"},
+    "SUB.2D1D": {"Easy"},
+    "SUB.2D2D": {"Easy"},
+    "DATA.TALLY": {"Easy", "Medium", "Advance"},
+    "MUL.GROUPS": {"Easy", "Medium", "Advance"},
+}
+
+
+def _levels_holding(a, op, b):
+    """{(skill set, level): the grade it is taught in} for every level of the seed whose own rule holds a + b (or
+    a − b), written in a line or in columns."""
+    held = {}
+    for fmt in ("bare_sum", "column_grid"):
+        tags = T.derive(Item("", "", "", [], "", fmt, False, "", {"a": a, "b": b, "op": op}, []))
+        for s in SETS:
+            for d, level in s["difficulty"].items():
+                check = level.get("check") or {}
+                if check.get("cases") and not verify.dimension_problems(tags, check, fmt, CASE_MATCH):
+                    held[(s["code"], d)] = s.get("level_band", {}).get(d) or RUNG_BAND[s["rung_code"]]
+    return held
+
+
+def test_grade_1_is_exactly_what_its_educator_taught_to_september(conn):
+    """Nimish, 2026-10-06: "Ensure that this is the entire thing that's mapped to what has been taught in grade 1."
+    Her list: 1-digit + and − 1-digit; 2-digit + and − a 1-digit or 2-digit number with no exchange; tally marks;
+    multiplication begun as repeated addition. A Grade 1 child's paper draws from these levels and nothing else."""
+    taught = {c["code"] for c in shelf.catalog(conn)}
+    grade_1 = {
+        code: set(levels) for code, levels in shelf._levels(conn, "G1").items() if code in taught and levels
+    }
+    assert grade_1 == GRADE_1
+
+
+def test_no_question_at_a_grade_1_level_needs_an_exchange(conn):
+    """ "Addition and subtraction 2 digit without borrowing": every question the bank holds at a Grade 1 level of a
+    2-digit skill is measured again from its own numbers, and not one needs an exchange."""
+    rows = conn.execute(
+        "select i.fmt, i.stem, i.spec, s.rung_code from item i join skill_set s on s.code = i.skill_set_code"
+        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        " where i.status = 'active' and i.skill_set_code like any (array['ADD.2D%', 'SUB.2D%'])"
+        " and coalesce(s.level_band ->> i.difficulty, r.band) = 'G1'"
+    ).fetchall()
+    assert rows, "the bank holds Grade 1's 2-digit questions"
+    assert [r["spec"] for r in rows if labels.tags_of(r).get("regroup_columns")] == []
+
+
+@pytest.mark.parametrize("a,op,b", [(46, "+", 12), (25, "-", 13), (28, "-", 8)])
+def test_the_educators_examples_are_grade_1_questions(a, op, b):
+    """ "2 digit with 2 digit and with single digit: 46+12 ... 25-13 28-8": each is a question of a level Grade 1 is
+    taught."""
+    assert "G1" in _levels_holding(a, op, b).values()
+
+
+def test_45_plus_8_needs_an_exchange_so_grade_1_waits_for_the_educator():
+    """ "45+8": 5 + 8 = 13 makes a ten — an exchange, against her own "without borrowing". It is a question of
+    2-digit + 1-digit's Medium level (a carry into the tens), which stays Grade 2 until she says Grade 1 is taught
+    it; then that level moves to Grade 1 on the skill's page (BUILD-ORDER, inserted 2026-10-06)."""
+    held = _levels_holding(45, "+", 8)
+    assert held.get(("ADD.2D1D", "Medium")) == "G2"
+    assert "G1" not in held.values()

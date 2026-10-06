@@ -1117,6 +1117,9 @@
             ]
           }
         }
+      },
+      "level_band": {
+        "Easy": "G1"
       }
     },
     {
@@ -1225,6 +1228,9 @@
             ]
           }
         }
+      },
+      "level_band": {
+        "Easy": "G1"
       }
     },
     {
@@ -1332,6 +1338,9 @@
             ]
           }
         }
+      },
+      "level_band": {
+        "Easy": "G1"
       }
     },
     {
@@ -1439,6 +1448,9 @@
             ]
           }
         }
+      },
+      "level_band": {
+        "Easy": "G1"
       }
     },
     {
@@ -2440,6 +2452,130 @@
               "L6s"
             ]
           }
+        }
+      }
+    },
+    {
+      "code": "DATA.TALLY",
+      "rung_code": "R34",
+      "name": "Tally marks",
+      "learning_objective": "Reads a tally as a number, a bundle of four lines crossed by a fifth counting five, and puts two tallies together or finds how many more one shows.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "tally"
+      ],
+      "misconception_codes": [
+        "M_TALLY_BUNDLE_AS_ONE",
+        "M_TALLY_CROSS_COUNTED",
+        "M_TALLY_FIVE_AS_FOUR",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Reads a tally from 5 to 10, a bundle as five: a bundle and three lines is 8.",
+          "check": {
+            "format": "tally",
+            "shape": "READ",
+            "lo": 5,
+            "hi": 10
+          },
+          "min_items": 24
+        },
+        "Medium": {
+          "words": "Reads a tally from 11 to 20: two bundles and four lines is 14.",
+          "check": {
+            "format": "tally",
+            "shape": "READ",
+            "lo": 11,
+            "hi": 20
+          },
+          "min_items": 40
+        },
+        "Advance": {
+          "words": "Two tallies, each from 5 to 10: how many altogether, or how many more one shows than the other.",
+          "check": {
+            "format": "tally",
+            "shape": [
+              "ALTOGETHER",
+              "MORE"
+            ],
+            "lo": 5,
+            "hi": 10
+          },
+          "min_items": 48
+        }
+      }
+    },
+    {
+      "code": "MUL.GROUPS",
+      "rung_code": "R35",
+      "name": "Equal groups (repeated addition)",
+      "learning_objective": "Finds how many there are in all in equal groups by adding the same number again: 3 groups of 4 is 4 + 4 + 4 = 12.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "equal_groups"
+      ],
+      "misconception_codes": [
+        "M_GROUP_MISSED",
+        "M_ONE_GROUP",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Two or three equal groups of 2 to 6, as a sum and as a picture: 4 + 4 + 4 = 12; 3 groups of 4 dots.",
+          "check": {
+            "format": "equal_groups",
+            "shape": [
+              "SUM",
+              "PICTURE"
+            ],
+            "groups": [
+              2,
+              3
+            ],
+            "size": [
+              2,
+              6
+            ]
+          },
+          "min_items": 16
+        },
+        "Medium": {
+          "words": "Four or five equal groups of 2 to 6, as a sum and as a picture: 3 + 3 + 3 + 3 + 3 = 15.",
+          "check": {
+            "format": "equal_groups",
+            "shape": [
+              "SUM",
+              "PICTURE"
+            ],
+            "groups": [
+              4,
+              5
+            ],
+            "size": [
+              2,
+              6
+            ]
+          },
+          "min_items": 16
+        },
+        "Advance": {
+          "words": "A story of 2 to 5 equal groups of 2 to 6: 3 plates with 4 laddoos on each, how many laddoos in all?",
+          "check": {
+            "format": "equal_groups",
+            "shape": "STORY",
+            "groups": [
+              2,
+              5
+            ],
+            "size": [
+              2,
+              6
+            ]
+          },
+          "min_items": 16
         }
       }
     }

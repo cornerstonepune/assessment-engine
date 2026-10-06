@@ -15,7 +15,7 @@ from pathlib import Path
 import segno
 from playwright.sync_api import sync_playwright
 
-from engine.assess import answer_space
+from engine.assess import answer_space, pictures
 from engine.assess.answer_space import op_sign, textbox, ticks, working
 from engine.assess.geometry import GEOM_JS
 from engine.assess.page_css import CSS, overrides
@@ -49,14 +49,8 @@ def render_item(sheet, it, n, layout=None):
         body = (
             '<span class="lab">&#9633; =</span>' + _cells(sid, iid, R["ans"], big) + working(it.working_lines)
         )
-    elif f == "balance_scale":
-        L, Rr = sp["left"], sp["right"]
-        body = f"""<svg width="120mm" height="26mm" viewBox="0 0 240 52"><rect x="8" y="6" width="34" height="18" fill="none" stroke="#111"/><text x="25" y="19" text-anchor="middle" font-size="11">{L[0]}</text>
-<rect x="42" y="6" width="34" height="18" fill="none" stroke="#111"/><text x="59" y="19" text-anchor="middle" font-size="11">{L[1]}</text>
-<rect x="164" y="6" width="34" height="18" fill="none" stroke="#111" stroke-dasharray="3 2"/><text x="181" y="19" text-anchor="middle" font-size="14">?</text>
-<rect x="198" y="6" width="34" height="18" fill="none" stroke="#111"/><text x="215" y="19" text-anchor="middle" font-size="11">{Rr[1]}</text>
-<line x1="4" y1="26" x2="236" y2="26" stroke="#111" stroke-width="2"/><polygon points="120,26 108,46 132,46" fill="#999"/></svg>
-<div class="row"><span class="lab">? =</span>{_cells(sid, iid, R["ans"])}</div>"""
+    elif f in pictures.DRAW:  # a balance, a number line, a tally, equal groups: drawn in one place
+        body = pictures.DRAW[f](sp, R, functools.partial(_cells, sid, iid), big)
     elif f == "number_wall":
         b = sp["base"]
         # Every brick as wide as the widest answer's boxes (8.4 mm each), so no box spills out of its
@@ -65,16 +59,6 @@ def render_item(sheet, it, n, layout=None):
         body = f"""<div class="wall" style="--brick:{brick:.1f}mm"><div class="r"><div class="b">{_cells(sid, iid, R["top"])}</div></div>
 <div class="r"><div class="b">{_cells(sid, iid, R["m1"])}</div><div class="b">{_cells(sid, iid, R["m2"])}</div></div>
 <div class="r"><div class="b">{b[0]}</div><div class="b">{b[1]}</div><div class="b">{b[2]}</div></div></div>"""
-    elif f == "number_line_jumps":
-        a, op, tens, ones = sp["a"], sp["op"], sp["tens"], sp["ones"]
-        d = 1 if op == "+" else -1
-        body = f'''<div class="row"><span class="eq">{a} {op_sign(op)} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>
-<svg width="150mm" height="24mm" viewBox="0 0 300 48"><line x1="10" y1="34" x2="290" y2="34" stroke="#111" stroke-width="1.5"/><polygon points="290,34 283,30 283,38" fill="#111"/>
-<path d="M{40 if d > 0 else 260} 34 Q {(40 + 150) / 2 if d > 0 else (260 + 150) / 2} 2 150 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{95 if d > 0 else 205}" y="12" text-anchor="middle" font-size="10">{op_sign(op)}{tens}</text>
-<path d="M150 34 Q {(150 + 215) / 2 if d > 0 else (150 + 85) / 2} 12 {215 if d > 0 else 85} 34" fill="none" stroke="#111" stroke-width="1.2"/><text x="{182 if d > 0 else 118}" y="20" text-anchor="middle" font-size="10">{op_sign(op)}{ones}</text>
-<line x1="{40 if d > 0 else 260}" y1="30" x2="{40 if d > 0 else 260}" y2="38" stroke="#111"/><text x="{40 if d > 0 else 260}" y="47" text-anchor="middle" font-size="10">{a}</text>
-<line x1="150" y1="30" x2="150" y2="38" stroke="#111"/><line x1="{215 if d > 0 else 85}" y1="30" x2="{215 if d > 0 else 85}" y2="38" stroke="#111"/></svg>
-<div class="row" style="margin-left:{"58mm" if d > 0 else "30mm"}"><span class="lab">lands on</span>{_cells(sid, iid, R["land1"])}</div>'''
     elif f == "partition_scaffold":
         a, b = sp["a"], sp["b"]
         body = f"""<div class="row" style="margin-bottom:2mm"><span class="eq">{a} = {sp["a_h"]} +</span>{_cells(sid, iid, R["a_t"])}<span class="eq">+</span>{_cells(sid, iid, R["a_o"])}</div>

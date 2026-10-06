@@ -13,6 +13,7 @@ import json
 import pathlib
 import re
 from functools import lru_cache
+from typing import Any
 
 from engine.assess import misconceptions as M
 from engine.assess.items import Response, cells, item, sample_add, sample_sub
@@ -25,7 +26,9 @@ def _seed():
     return json.loads(SEED.read_text())
 
 
-def templates(fmt=None, op=None, structure=None):
+def templates(
+    fmt: str | None = None, op: str | None = None, structure: str | None = None
+) -> list[dict[str, Any]]:
     return [
         t
         for t in _seed()["word_templates"]
@@ -36,6 +39,7 @@ def templates(fmt=None, op=None, structure=None):
 
 
 NAMES = _seed()["names"]
+THINGS = _seed()["tally_things"]  # what a tally counts (`counting.tally`)
 
 
 @lru_cache(maxsize=1)

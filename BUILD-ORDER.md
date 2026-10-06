@@ -5,6 +5,24 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: Grade 1 as its educator taught it to September — Nimish, 2026-10-06
+
+Nimish forwarded the Grade 1 educator's list of what was taught to the end of September. She wants home papers and
+worksheets from October. Nimish: *"Can we incorporate this part additionally for grade 1? Ensure that this is the
+entire thing that's mapped to what has been taught in grade 1."*
+
+Grade 1 is now exactly:
+- 1-digit + and − 1-digit;
+- 2-digit + and − a 1-digit or a 2-digit number, with no exchange (46 + 12, 25 − 13, 28 − 8);
+- tally marks;
+- multiplication begun as repeated addition.
+
+These are W1 rows: two rungs, two skill sets and two new kinds of question, plus four existing levels moved to
+Grade 1. Goal: `goals/g1-taught-till-september.yaml`.
+
+Her fourth example, 45 + 8, needs an exchange (5 + 8 = 13). Grade 1 is held to her own rule, "without borrowing",
+until she says it is taught. Then it is one level moved to Grade 1 on the skill's page.
+
 ## Now: finish the engine, then its structure, then the screens — agreed with Nimish 2026-09-27
 
 Nimish, 2026-09-27: *"First, let's prioritize building the remaining elements out and then cleaning up the codebase,

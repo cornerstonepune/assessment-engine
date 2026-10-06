@@ -267,6 +267,30 @@
       "text": "Two numbers add up to {a}. One of them is {b} more than the other. What is the smaller number?",
       "answer": "a-b",
       "divide": 2
+    },
+    {
+      "fmt": "equal_groups",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "There are {a} plates. Each plate has {b} laddoos. How many laddoos are there in all?"
+    },
+    {
+      "fmt": "equal_groups",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "{n} has {a} bags. There are {b} marbles in each bag. How many marbles does {n} have in all?"
+    },
+    {
+      "fmt": "equal_groups",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "{a} children each have {b} pencils. How many pencils do they have in all?"
+    },
+    {
+      "fmt": "equal_groups",
+      "structure": "EQUAL_GROUPS",
+      "op": "×",
+      "text": "There are {a} vases with {b} flowers in each. How many flowers are there in all?"
     }
   ],
   "budget": {
@@ -287,5 +311,15 @@
     "Zoya",
     "Arjun",
     "Tara"
+  ],
+  "tally_things": [
+    "birds",
+    "kites",
+    "cars",
+    "flowers",
+    "balls",
+    "stars",
+    "shells",
+    "buttons"
   ]
 }

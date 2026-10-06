@@ -156,7 +156,7 @@ def missing_digit(rng, rung, signal, rule):
     )
 
 
-def _same_letter(rng, rung, signal, op, numbers):
+def _same_letter(rng, rung: str, signal: str, op, numbers):
     """A5 + 2A = 88: the tens of the first number and the ones of the second are one digit."""
     a, b, c = numbers
     solved = {"a": a, "b": b}
@@ -178,7 +178,7 @@ def _same_letter(rng, rung, signal, op, numbers):
     return item("MISSING.LETTER", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
 
 
-def _inequality(rng, rung, signal, op, numbers):
+def _inequality(rng, rung: str, signal: str, op, numbers):
     """3□ + 27 < 70 (addition) or 7□ − 25 > 50 (subtraction): how many digits could go in the box?"""
     a, b = numbers
     solved = {"a": a, "b": b}

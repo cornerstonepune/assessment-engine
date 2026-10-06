@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-06 — Grade 1 as its educator taught it to September
+
+- Grade 1 is exactly her list (`goals/g1-taught-till-september.yaml`, STATE.md "Grade 1 as its educator taught it"):
+  - 1-digit ± 1-digit;
+  - 2-digit ± 1-digit or 2-digit, with no exchange;
+  - tally marks;
+  - equal groups as repeated addition.
+- **On live after merge:**
+  - the migration moves the four 2-digit Easy levels to Grade 1 on its own;
+  - the two new skills, their questions and their worksheets need `bin/update-live`;
+  - the two new skills then need one approval each on Curriculum → Read and approve.
+- **Open with the educator:** 45 + 8 needs an exchange. If Grade 1 is taught it, move 2-digit + 1-digit Medium to
+  Grade 1 on that skill's page.
+
 ## 2026-10-01 — Phase 2, PR 2: live recovers
 
 - **A restart** marks every dead run (`runs.orphaned`).

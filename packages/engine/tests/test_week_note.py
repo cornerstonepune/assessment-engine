@@ -99,3 +99,23 @@ def test_an_eval_jev_cannot_answer_says_so_and_does_not_score_zero(conn):
 
     got = week_note.evaluate(conn, down, [{"band": "G2", "note": "a", "skill_sets": ["SUB.2D2D"]}])
     assert (got["n"], got["unanswered"]) == (1, 1) and "TYPESAFE_API_KEY" in got["error"]
+
+
+def test_a_grade_1_class_may_declare_every_skill_grade_1_teaches(conn):
+    """Nimish, 2026-10-06: "Can we incorporate this part additionally for grade 1?" A Grade 1 week note may name every
+    skill Grade 1 teaches — the 2-digit ones whose level with no exchange moved to Grade 1 among them — and nothing
+    else; Grade 2's still names those 2-digit skills, for their harder levels."""
+    grade_1 = {
+        "ADD.1D1D",
+        "SUB.1D1D",
+        "ADD.2D1D",
+        "ADD.2D2D",
+        "SUB.2D1D",
+        "SUB.2D2D",
+        "DATA.TALLY",
+        "MUL.GROUPS",
+    }
+    assert set(week_note.options(conn, "G1")) == grade_1
+    grade_2 = set(week_note.options(conn, "G2"))
+    assert {"ADD.2D1D", "ADD.2D2D", "SUB.2D1D", "SUB.2D2D"} <= grade_2
+    assert not {"ADD.1D1D", "SUB.1D1D", "DATA.TALLY", "MUL.GROUPS"} & grade_2

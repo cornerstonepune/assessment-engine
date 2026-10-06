@@ -25,18 +25,24 @@ def _bar(conn):
     return float(row["value"]) if row else BAR[1]
 
 
-def options(conn, band):
-    """{code: its name and what the child can do} for the skill sets a class in `band` works on: those of its grade,
-    and the ones for that grade and above ("G2+")."""
+def _of(level_grade, band):
+    """A level of `level_grade` is worked on by a class in `band`: its own grade, or one for that grade and above
+    ("G2+")."""
     grade = int(band[1:]) if band[1:].isdigit() else 0
+    above = level_grade.endswith("+") and level_grade[1:-1].isdigit() and int(level_grade[1:-1]) <= grade
+    return level_grade == band or above
+
+
+def options(conn, band):
+    """{code: its name and what the child can do} for the skill sets a class in `band` works on: those with a level
+    of its grade — the skill's own, or the one a level was moved to (`skill_set.level_band`) — and the ones for that
+    grade and above ("G2+")."""
     out = {}
     for r in conn.execute(
-        "select s.code, s.name, s.learning_objective, g.band from skill_set s join rung g"
+        "select s.code, s.name, s.learning_objective, g.band, s.level_band, s.difficulty from skill_set s join rung g"
         " on g.tenant_id = s.tenant_id and g.code = s.rung_code order by s.code"
     ):
-        b = r["band"]
-        from_grade = b.endswith("+") and b[1:-1].isdigit() and int(b[1:-1]) <= grade
-        if b == band or from_grade:
+        if any(_of((r["level_band"] or {}).get(d) or r["band"], band) for d in r["difficulty"] or {}):
             out[r["code"]] = f"{r['name']} — {r['learning_objective']}"
     return out
 

@@ -227,6 +227,13 @@
         ],
         "missing_digit": [
           "NUM.PRB.03"
+        ],
+        "tally": [
+          "NUM.DATA.01"
+        ],
+        "equal_groups": [
+          "NUM.OPS.03",
+          "NUM.OPS.01"
         ]
       },
       "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023)."

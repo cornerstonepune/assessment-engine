@@ -82,7 +82,7 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 26,  # R7, R8, R11, R13, R14, R16–R18, M1, X1, X2 and R19–R33, one per calculation skill (ADR 0034)
+    "rung": 28,  # R7, R8, R11, R13, R14, R16–R18, M1, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1, 2026-10-06)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 18,
@@ -92,7 +92,7 @@ EXPECTED = {
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill_set": 26,  # fifteen calculation skills by operation and digit shape (ADR 0034) and eleven others
+    "skill_set": 28,  # fifteen calculation skills (ADR 0034), eleven others, tally marks and equal groups (Grade 1)
     "subject": 1,
 }
 

@@ -271,7 +271,6 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
     made += [
         I.bare_sum(rng, "R5", "Procedural", "+", 2, 2, {1}, layout="horizontal"),
         I.bare_sum(rng, "R5", "Procedural", "+", 2, 2, {1}, layout="column"),
-        I.missing_part_20(rng, "R3", "Conceptual"),
         I.multi_add(rng, "R12", "Procedural"),
         MD.one(rng, "R9", "Conceptual", {"op": "+", "width": 3}),
         *(

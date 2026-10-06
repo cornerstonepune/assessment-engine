@@ -53,16 +53,28 @@ def test_each_skill_is_placed_under_its_topic_in_the_topics_order():
     assert placed == {"X": "A", "Y": "B"}
 
 
-def test_only_addition_and_subtraction_is_taught_today():
-    """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication"."""
+def test_multiplication_begun_in_grade_1_is_taught_and_column_multiplication_is_not():
+    """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication" — Grade 3's multiplication
+    in columns, still untaught. Grade 1's educator, 2026-10-06: "Multiplication as beginners with repeated addition"
+    and "Tally marks" were taught to September. So multiplication is two topics: begun as equal groups (taught) and
+    in columns (not yet), and a topic is taught or not as a whole."""
     tops = json.loads((SEED / "topics.json").read_text())["topics"]
-    assert [t["name"] for t in tops if t.get("taught")] == ["Addition & subtraction"]
+    assert [t["name"] for t in tops if t.get("taught")] == [
+        "Addition & subtraction",
+        "Multiplication",
+        "Data handling",
+    ]
+    holds = {code: t for t in tops for code in t["skill_sets"]}
+    assert holds["MUL.GROUPS"]["taught"] and holds["DATA.TALLY"]["taught"]
+    assert not holds["MUL.1D"]["taught"] and holds["MUL.1D"]["name"] == "Multiplication in columns"
 
 
 @pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 def test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught():
     """The taxonomy is what the school gave: every case in it is on the site, and a skill that holds none of its
-    cases is not — so hiding what is not taught never hides a piece of the taxonomy."""
+    cases is not — so hiding what is not taught never hides a piece of the taxonomy. The one addition is Grade 1's
+    own list of what it taught to September (2026-10-06), which the taxonomy of addition and subtraction does not
+    hold: tally marks and equal groups."""
     from engine.core import db
 
     with db.connect() as conn:
@@ -72,4 +84,7 @@ def test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught()
             " from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code"
         ).fetchall()
     assert rows
-    assert {r["code"] for r in rows if r["holds_cases"]} == {r["code"] for r in rows if r["taught"]}
+    grade_1_beyond_the_taxonomy = {"DATA.TALLY", "MUL.GROUPS"}
+    assert {r["code"] for r in rows if r["holds_cases"]} | grade_1_beyond_the_taxonomy == {
+        r["code"] for r in rows if r["taught"]
+    }

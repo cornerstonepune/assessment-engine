@@ -49,11 +49,22 @@ def _id(template, payload):
     return f"{template}-{h}"
 
 
-def cells(n):
+def cells(n: Any) -> int:
     return len(str(n)) + 1
 
 
-def item(template, rung, signal, fmt, stem, spec, responses, scaffolded=False, working_lines=2, skills=None):
+def item(
+    template: str,
+    rung: str,
+    signal: str,
+    fmt: str,
+    stem: str,
+    spec: dict[str, Any],
+    responses: list[Response],
+    scaffolded: bool = False,
+    working_lines: int = 2,
+    skills: list[str] | None = None,
+) -> Item:
     return Item(
         _id(template, spec),
         template,
@@ -530,25 +541,6 @@ def partial_worked(rng, rung, signal):
 
 
 # ---------------------------------------------------------------- word problems (deterministic contexts; LLM hook later)
-
-
-def missing_part_20(rng, rung, signal):
-    c = rng.randint(8, 20)
-    a = rng.randint(1, c - 1)
-    ans = c - a
-    r = Response(
-        "ans", "digits", str(ans), cells=2, misconceptions={"M_ADD_INSTEAD": a + c, "M_FACT_PM1": ans + 1}
-    )
-    return item(
-        "PPW20",
-        rung,
-        "Conceptual",
-        "missing_number",
-        f"{a} + □ = {c}",
-        dict(text=f"{a} + □ = {c}"),
-        [r],
-        working_lines=1,
-    )
 
 
 def multi_add(rng, rung, signal, n_addends=3, digits_each=4, xs=None, layout="column", shape=None):
