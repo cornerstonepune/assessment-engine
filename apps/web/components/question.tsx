@@ -90,7 +90,7 @@ export function Question({ it }: { it: ItemRow }) {
       return (
         <Stem text={it.stem}>
           {s.shape === "READ" ? (
-            <Tally n={s.count ?? 0} />
+            <Tally n={Number(s.count)} />
           ) : (
             <span className="grid w-fit grid-cols-[auto_auto] items-center gap-x-4">
               {(s.things ?? []).map((thing, i) => (

@@ -16,6 +16,8 @@ is verified. This file only says where the last session stopped.
   - the two new skills then need one approval each on Curriculum → Read and approve.
 - **Open with the educator:** 45 + 8 needs an exchange. If Grade 1 is taught it, move 2-digit + 1-digit Medium to
   Grade 1 on that skill's page.
+- **A new kind of question is proven by every browser spec, not the ones named for it.** Three specs passed here
+  while `e2e.spec.ts`, which reads every kind in the bank, failed in CI on the tally (STATE.md, the same section).
 
 ## 2026-10-01 — Phase 2, PR 2: live recovers
 

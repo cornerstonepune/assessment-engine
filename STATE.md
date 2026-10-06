@@ -4547,4 +4547,12 @@ additionally for grade 1? Ensure that this is the entire thing that's mapped to 
   - `npx playwright test tests/s28-grade-1-as-taught.spec.ts tests/s8-taxonomy.spec.ts tests/u12-curriculum-table.spec.ts`
     (production build, roles) → 8 passed. The new spec's first run failed on the check itself: a vertical tally line has
     no width, so Playwright called it hidden. The check now reads each drawing's own label;
+  - CI's run of every browser spec then failed on one these three do not cover: `e2e.spec.ts` "every kind of question
+    in the bank is drawn with its own numbers" looked for a digit in a question's words, and a tally's numbers are its
+    drawing. It now reads each drawing's label with the words, so a missing number still reads undefined or NaN; and a
+    one-tally question with no count draws "a tally of NaN", never a tally of 0. `npx playwright test` on a fresh
+    database: before the fix, "Error: tally" as in CI; after it, all 13 tests of `e2e.spec.ts` pass (the five CI never
+    reached among them), with s28 and s8. Here, the five tests that make a paper failed and the 19 after them in their
+    files did not run: the engine's Playwright wants a Chromium build the cloud container lacks (`/week/render` →
+    "Executable doesn't exist"). CI installs it and passed all 24 on 2f28b10;
   - `engine ratchet --base origin/main` → every baseline held or tightened.
