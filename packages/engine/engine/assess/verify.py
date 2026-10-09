@@ -8,11 +8,11 @@ item_key from either path, which is what stops the bank holding one sum twice.
 
 from typing import Any, cast
 
+from . import estimate as E
 from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
-from .rounding import half_up
 
 FORBIDDEN_WORDS = ("borrow",)
 # fmt -> (signal, working_lines, needs_stem); mirrors what items.py gives each format
@@ -135,12 +135,10 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     stale = _stale_mistakes(fmt, spec, responses)
     if stale:
         return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
-    if fmt == "estimate_then_calc":
-        to = spec.get("round_to", 10)
-        if (spec["ra"], spec["rb"]) != (half_up(spec["a"], to), half_up(spec["b"], to)):
-            return [
-                f"rounded a 5 down: {spec['a']} {spec['op']} {spec['b']} printed as {spec['ra']}, {spec['rb']}"
-            ]
+    if fmt == "estimate_then_calc" and (spec["ra"], spec["rb"]) != E.rounded(spec):
+        return [
+            f"rounded a 5 down: {spec['a']} {spec['op']} {spec['b']} printed as {spec['ra']}, {spec['rb']}"
+        ]
     if fmt == "choose_estimate" and "right" not in spec:
         return ["made when the closest hundred was always the middle option"]
     return []

@@ -5030,3 +5030,12 @@ What the three Advance levels need, measured:
 - **The methods are a slice of their own (M2d)**: nothing renders a grid, a lattice, an array or skip counting; the
   number line jumps only for + and −; and the two methods' mistakes, a grid cell dropped and tens partitioned as ones,
   are neither rows nor predicted. C06, finding that second mistake, goes with them.
+
+**Found while proving M2b, older than it (named here, fixed next, before M2d).** On a database built as CI builds it,
+the bank holds no question at all of these cases its levels list; on main `5916b28` the same cases draw nothing in
+300 tries each:
+- addition's and subtraction's Advance kinds: estimates R01, R02; missing numbers M01–M05, M24, M25; finding the
+  mistake X03, X06–X09; stories W02, W03, W06; and SUB.3D3D's straight SZ6 and SZ9, at Hard as well. R01 and R02
+  cannot be drawn because a case level names no `regroups` for the estimate it asks for.
+- Not a defect: a few small straight cases an Advance shares with Hard, which Hard holds whole (MUL.2D1D's T08, T10,
+  TZ05; MUL.3D1D's TZ06; MUL.FACTS's TF01, TF02; MUL.TENS's TP09). A question lives in one level.

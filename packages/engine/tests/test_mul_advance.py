@@ -2,6 +2,7 @@
 of the kinds an Advance asks for, each kind making × as it makes + and −. Every check here reads the question, never
 the generator: answers in plain arithmetic, boxes solved by trying every digit, a planted mistake worked by hand."""
 
+import dataclasses
 import functools
 import itertools
 import json
@@ -12,7 +13,7 @@ import re
 
 import pytest
 
-from engine.assess import draw, placing, render, tags, taxonomy
+from engine.assess import draw, placing, render, tags, taxonomy, verify
 from engine.assess import misconceptions as M
 from engine.assess.pick import Sheet
 from engine.assess.words import template_of
@@ -118,6 +119,10 @@ def test_every_advance_draws_its_own_cases_as_measured(skill):
             assert it.spec["op"] == "×" and _resp(it, "ans").answer == str(a * b), (case, it.spec)
         codes = {c for r in it.responses for c in (r.misconceptions or {})}
         assert codes and codes <= named, (case, codes - named)
+        # stored, it is no question the bank's own rules retire (`verify.key_problems`, `engine bank recheck`)
+        assert verify.key_problems(it.fmt, it.spec, [dataclasses.asdict(r) for r in it.responses]) == [], (
+            it.spec
+        )
 
 
 def test_a_times_advance_question_has_one_home():

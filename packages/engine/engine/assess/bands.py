@@ -94,7 +94,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
         rng, rung, signal, one_of(c["op"], rng), c["hi"]),
     "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
-        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), set(c.get("regroups", ())),
+        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), set(c["regroups"] if TK.digits(c) is None else ()),
         round_to=c.get("round_to", 10),
         judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance"), shape=c.get("shape")),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(

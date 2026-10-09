@@ -39,6 +39,17 @@ def _judged(shape: str, a: int, b: int) -> tuple[int, int, int]:
     return (len(str(a * b)) if shape == "ANSWER_DIGITS" else a * b % 10), a, b
 
 
+def rounded(spec: dict[str, Any]) -> tuple[int, int]:
+    """The two numbers a printed estimate shows, as its question rounds them: both to the nearest `round_to`, or what
+    a × estimate's `shape` rounds (the larger number, both, or neither where it asks the digits). The one rule
+    `verify.key_problems` holds a stored estimate to."""
+    if O.sign(spec.get("op")) == "×" and spec.get("shape") in TIMES:
+        _, ra, rb = _judged(spec["shape"], spec["a"], spec["b"])
+        return ra, rb
+    to = spec.get("round_to", 10)
+    return half_up(spec["a"], to), half_up(spec["b"], to)
+
+
 def times(rng: random.Random, rung: str, signal: str, shape: str, sizes: tuple[int, int]) -> Item:
     """One × estimate of this `shape`, its numbers `sizes` digits long."""
     if shape not in TIMES:
