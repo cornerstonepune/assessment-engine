@@ -71,16 +71,18 @@ def test_multiplication_begun_in_grade_1_is_taught_and_column_multiplication_is_
 
 @pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 def test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught():
-    """The taxonomy is what the school gave: every case in it is on the site, and a skill that holds none of its
-    cases is not — so hiding what is not taught never hides a piece of the taxonomy. The one addition is Grade 1's
-    own list of what it taught to September (2026-10-06), which the taxonomy of addition and subtraction does not
-    hold: tally marks and equal groups."""
+    """The taxonomy of addition and subtraction is what the school gave: every case in it is on the site, and a skill
+    that holds none of its cases is not — so hiding what is not taught never hides a piece of it. The one addition is
+    Grade 1's own list of what it taught to September (2026-10-06), which that taxonomy does not hold: tally marks
+    and equal groups. Multiplication and division's cases are rows too (goals/md1-taxonomy-rows.yaml), drafted by the
+    engine; they are taught when an educator says a grade has been taught them, never because a question holds one."""
     from engine.core import db
 
     with db.connect() as conn:
         rows = conn.execute(
             "select s.code, t.taught, exists (select 1 from item i where i.skill_set_code = s.code"
-            "   and i.status = 'active' and cardinality(i.case_codes) > 0) as holds_cases"
+            "   and i.status = 'active' and i.case_codes && (select array_agg(code) from taxonomy_case"
+            "   where taxonomy = 'ADD_SUB')) as holds_cases"
             " from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code"
         ).fetchall()
     assert rows

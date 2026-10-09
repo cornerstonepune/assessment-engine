@@ -84,12 +84,16 @@
     {
       "name": "regroup_columns",
       "allowed": [
-        "ONES",
-        "TENS",
-        "HUNDREDS",
-        "THOUSANDS"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
       ],
-      "why": "A child may succeed in one column but not another.",
+      "why": "Which columns regroup, counted from the ones (0): the same places as regroup_at, as numbers.",
       "source": "taxonomy section 12; why from section 1",
       "note": "Open-ended, and the one dimension whose stored shape differs from its allowed values: assess/tags.py emits a list of column indices counting from 0 at the ones. No coverage target uses this dimension until the report agrees on one representation."
     },
@@ -111,12 +115,27 @@
       "allowed": [
         "NONE",
         "INTERNAL",
+        "TRAILING",
+        "INTERNAL+TRAILING",
         "MULTIPLE",
-        "ANSWER_ZERO",
-        "TRAILING"
+        "ANSWER_ZERO"
       ],
-      "why": "Zeros change what carrying and exchanging demand.",
+      "why": "Zeros change what carrying and exchanging demand: where the zeros of the number worked on sit (inside 302, at the end of 230, both in 4050), or none there but one in the answer (25 × 4 = 100). Addition and subtraction say MULTIPLE where a number has two.",
       "source": "taxonomy section 12; why from section 1"
+    },
+    {
+      "name": "zero_count",
+      "allowed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "why": "How many zeros the number worked on has: 1008 has two, and each one a carry or an exchange can pass.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
       "name": "answer_digit_change",
@@ -645,20 +664,40 @@
     {
       "name": "regroup_at",
       "allowed": [
-        "ONES",
         "NONE",
+        "ONES",
         "TENS",
-        "ONES+TENS",
         "HUNDREDS",
+        "THOUSANDS",
+        "TEN_THOUSANDS",
+        "ONES+TENS",
         "ONES+HUNDREDS",
+        "ONES+THOUSANDS",
+        "ONES+TEN_THOUSANDS",
         "TENS+HUNDREDS",
-        "ONES+TENS+HUNDREDS",
+        "TENS+THOUSANDS",
+        "TENS+TEN_THOUSANDS",
         "HUNDREDS+THOUSANDS",
+        "HUNDREDS+TEN_THOUSANDS",
+        "THOUSANDS+TEN_THOUSANDS",
+        "ONES+TENS+HUNDREDS",
+        "ONES+TENS+THOUSANDS",
+        "ONES+TENS+TEN_THOUSANDS",
+        "ONES+HUNDREDS+THOUSANDS",
+        "ONES+HUNDREDS+TEN_THOUSANDS",
+        "ONES+THOUSANDS+TEN_THOUSANDS",
         "TENS+HUNDREDS+THOUSANDS",
+        "TENS+HUNDREDS+TEN_THOUSANDS",
+        "TENS+THOUSANDS+TEN_THOUSANDS",
+        "HUNDREDS+THOUSANDS+TEN_THOUSANDS",
         "ONES+TENS+HUNDREDS+THOUSANDS",
-        "HUNDREDS+TENS"
+        "ONES+TENS+HUNDREDS+TEN_THOUSANDS",
+        "ONES+TENS+THOUSANDS+TEN_THOUSANDS",
+        "ONES+HUNDREDS+THOUSANDS+TEN_THOUSANDS",
+        "TENS+HUNDREDS+THOUSANDS+TEN_THOUSANDS",
+        "ONES+TENS+HUNDREDS+THOUSANDS+TEN_THOUSANDS"
       ],
-      "why": "Which places carry (from the ones up) or exchange (from the left), joined: ONES+TENS.",
+      "why": "Which places carry or exchange, named from the ones up and joined: ONES+TENS, TENS+HUNDREDS.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
@@ -765,9 +804,12 @@
         "ROUND_ONE",
         "ROUND_BOTH",
         "ANSWER_DIGITS",
-        "LAST_DIGIT"
+        "LAST_DIGIT",
+        "PICTURE",
+        "SUM",
+        "STORY"
       ],
-      "why": "The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's.",
+      "why": "The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's, equal groups as a picture, a sum or a story.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {

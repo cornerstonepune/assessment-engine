@@ -35,7 +35,7 @@ FORMAT_UNKNOWN = {
 }
 MISSING_POSITION = {"a": "FIRST_OPERAND", "b": "SECOND_OPERAND", "answer": "RESULT"}
 RUNG_STRATEGY = {"R7": "MENTAL", "R11": "ESTIMATION", "R13": "COMPENSATION"}
-PLACES, SIDES = MD.PLACES, MD.SIDES
+SIDES = MD.SIDES
 
 
 def _regroup_columns(op, a, b):
@@ -154,7 +154,7 @@ def _two_numbers(t, op, a, b, layout):
         "presentation": "VERTICAL" if layout == "column" else "HORIZONTAL",
         "regrouping": {0: "NONE", 1: "SINGLE"}.get(len(cols), "MULTIPLE"),
         "regroup_columns": cols,
-        "regroup_at": "+".join(PLACES[i] for i in cols) or "NONE",
+        "regroup_at": "+".join(MD.place(i) for i in cols) or "NONE",
         "regroup_pattern": _pattern(op, a, b, cols),
         "zero_pattern": _zero_pattern(op, a, b, ans),
         "zero_operand": SIDES[(a == 0, b == 0)],
@@ -201,7 +201,7 @@ def _many_numbers(t, xs, layout):
         "alignment_required": "NO" if len(lengths) == 1 and layout == "column" else "YES",
         "operand_order": "EQUAL_LENGTH" if len(lengths) == 1 else "MIXED",
         "regrouping": {0: "NONE", 1: "SINGLE"}.get(len(carries), "MULTIPLE"),
-        "regroup_at": "+".join(PLACES[i] for i in carries) or "NONE",
+        "regroup_at": "+".join(MD.place(i) for i in carries) or "NONE",
         "carry_max": biggest,
     }
 
@@ -226,7 +226,7 @@ def _missing_digit(t: dict[str, Any], sp: dict[str, Any]) -> dict[str, Any]:
     }
     if count == 1 and boxes:
         _, s = boxes[0]
-        t["missing_place"] = PLACES[len(s) - 1 - s.index("□")]
+        t["missing_place"] = MD.place(len(s) - 1 - s.index("□"))
     if one in ("+", "-") and solved and {"a", "b"} <= solved.keys():
         cols = _regroup_columns(sp["op"], solved["a"], solved["b"])
         t["regrouping"] = {0: "NONE", 1: "SINGLE"}.get(len(cols), "MULTIPLE")
@@ -335,7 +335,7 @@ def _numbers(t: dict[str, Any], fmt: str, sp: dict[str, Any]) -> dict[str, Any]:
     times = O.sign(op) in ("×", "÷")
     if isinstance(a, int) and isinstance(b, int) and op in ("+", "-"):
         t = _two_numbers(t, op, a, b, layout)
-    elif isinstance(a, int) and isinstance(b, int) and isinstance(op, str) and times:
+    elif isinstance(a, int) and isinstance(b, int) and isinstance(op, str) and times and min(a, b) >= 0:
         t = MD.two_numbers(t, fmt, op, a, b, layout, sp)
     if fmt == "missing_number":
         t = MD.missing(t, sp) if times else _missing_number(t, sp)

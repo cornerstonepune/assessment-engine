@@ -8126,7 +8126,7 @@
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
-        "zero_pattern": "MULTIPLE"
+        "zero_pattern": "ANSWER_ZERO"
       }
     },
     {
@@ -8189,7 +8189,10 @@
         ],
         "operation": "MUL",
         "place_value_factor": "X10",
-        "zero_pattern": "TRAILING"
+        "zero_pattern": [
+          "TRAILING",
+          "INTERNAL+TRAILING"
+        ]
       }
     },
     {
@@ -8221,7 +8224,10 @@
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
-        "zero_pattern": "INTERNAL"
+        "zero_pattern": [
+          "INTERNAL",
+          "INTERNAL+TRAILING"
+        ]
       }
     },
     {
@@ -8810,8 +8816,8 @@
         ],
         "method": "LINE",
         "operation": "MUL",
-        "operand_order": "SHORTER_FIRST",
-        "digits_max": 3
+        "operand_1_digits": 1,
+        "operand_2_digits": 3
       }
     },
     {
@@ -9781,7 +9787,9 @@
         ],
         "operation": "MUL",
         "operand_1_digits": 4,
-        "zero_pattern": "MULTIPLE"
+        "zero_count": {
+          "gte": 2
+        }
       }
     },
     {
@@ -10896,7 +10904,7 @@
         "operand_1_digits": 3,
         "operand_2_digits": 1,
         "first_digit_smaller": "NO",
-        "regroup_at": "HUNDREDS+TENS",
+        "regroup_at": "TENS+HUNDREDS",
         "remainder": "NONE",
         "quotient_zero": "NONE"
       }
@@ -10968,7 +10976,7 @@
         "operand_1_digits": 3,
         "operand_2_digits": 1,
         "first_digit_smaller": "YES",
-        "regroup_at": "HUNDREDS+TENS",
+        "regroup_at": "TENS+HUNDREDS",
         "remainder": "NONE",
         "quotient_zero": "NONE"
       }

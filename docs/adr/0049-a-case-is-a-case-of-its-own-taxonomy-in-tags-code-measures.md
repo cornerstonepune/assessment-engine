@@ -24,8 +24,9 @@ subtraction cases are. Measuring before the build found three things the second 
    (`skills.operations`, the one owner of them): MUL_DIV when any of them is × or ÷. So a × odd-or-even question is
    never R06, and a story that multiplies and then adds is multiplication's.
 2. **The dimension rows are the vocabulary every case is written in.** `case_dimension` holds each tag a case of
-   either document reads, with the values it may take and why it matters (67 rows). A test fails on a case that reads
-   a tag no row names, or a value its row does not allow. `word_structure` is gone; `structure` is the tag every story
+   either document reads, with the values it may take and why it matters (68 rows). A test fails on a case that reads
+   a tag no row names or a value its row does not allow, and on any reading the code makes of a straight question
+   that its row does not allow. `word_structure` is gone; `structure` is the tag every story
    case reads. The loader removes a dimension the seed no longer names.
 3. **A case's match is measured, never typed.** `research/md_rows.py` gives each case an example and the list of tags
    it is about. Its match is what `tags.derive` reads those tags to be on that example, so it can only say what code
@@ -40,6 +41,8 @@ subtraction cases are. Measuring before the build found three things the second 
   each of those cases would stop holding its own questions.
 - **A "not × or ÷" condition in the matcher.** It is new grammar for one use, and it still leaves the question
   without a statement of which document it belongs to.
+- **A CHECK limiting `taxonomy_case.taxonomy` to ADD_SUB and MUL_DIV.** A third document (fractions) would then
+  need a migration; it is a seed row, and the seed's own test names every row's taxonomy.
 - **Judging duplicates by examples alone** (each case holds the other's example). Two cases about different things,
   a method and a carry pattern, may hold each other's examples and still be two cases: G11 (compact columns) and T07
   (a carry from the ones, the answer grows) both hold 34 × 6 in columns. Comparing the questions each holds tells a

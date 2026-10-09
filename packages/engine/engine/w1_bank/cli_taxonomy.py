@@ -40,11 +40,6 @@ def register(bank_app: typer.Typer) -> None:
         with db.connect() as conn:
             where = cases.placed(conn)
         _per_taxonomy(rows, where)
-        on = Counter(state for *_, state in where)
-        typer.echo(
-            f"  {len(where)} cases · {on['placed']} placed in a level · {on['pattern']} patterns the levels climb"
-            f" · {on['unplaced']} unplaced"
-        )
 
     @bank_app.command("rehome")
     def bank_rehome(dry_run: bool = typer.Option(False, "--dry-run", help="Count, change nothing")) -> None:
@@ -106,5 +101,10 @@ def _per_taxonomy(rows, where) -> None:
             f" · {by['thin']} thin"
         )
     for name in dict.fromkeys(t for _, t, *_ in where):
+        on = Counter(state for _, t, _, _, state in where if t == name)
+        typer.echo(
+            f"  {name}: {sum(on.values())} cases · {on['placed']} placed in a level"
+            f" · {on['pattern']} patterns the levels climb · {on['unplaced']} unplaced"
+        )
         if left := [code for code, t, _, _, state in where if t == name and state == "unplaced"]:
-            typer.echo(f"  {name}: {len(left)} unplaced, no level in use names them: {' '.join(left)}")
+            typer.echo(f"  {name}: no level in use names {' '.join(left)}")

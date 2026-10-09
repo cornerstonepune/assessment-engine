@@ -225,8 +225,7 @@
         "PLR0915": 53
       },
       "engine/w1_bank/cli_taxonomy.py::register": {
-        "C901": 14,
-        "PLR0915": 52
+        "C901": 14
       },
       "engine/w2_print/library.py::check": {
         "C901": 12

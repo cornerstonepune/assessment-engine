@@ -4823,8 +4823,8 @@ Goal `goals/md1-taxonomy-rows.yaml`; ADR 0049.
   (about 100,000 questions, 3,924 distinct readings). No two cases hold the same set. It found D03 and D04 were one
   case, since every 2-digit by 1-digit exchange goes past the tables. They are now by 2–5 and by 6–9 (`divisor_group`),
   and the document says so.
-- **The dimension rows are the vocabulary** of both documents: 67 rows. Every tag a case reads, and every value it
-  reads it at, is a row. `word_structure` is replaced by the measured `structure`, and the loader removes a dimension
+- **The dimension rows are the vocabulary** of both documents: 68 rows. Every tag a case reads, and every value it
+  reads it at, is a row; and every reading the code makes of every straight question is a value its row allows. `word_structure` is replaced by the measured `structure`, and the loader removes a dimension
   the seed no longer names.
 - **`engine bank taxonomy` counts both, each under its own name.** Local copy, after `engine load` and `engine bank
   relabel` (21,289 tags changed, all adding `taxonomy`; cases changed on 912 questions, the 864 + 48 above, and on no
@@ -4838,14 +4838,39 @@ Goal `goals/md1-taxonomy-rows.yaml`; ADR 0049.
   levels.
 - **Refill retires nothing.** × questions now carry `operand_1_digits`, so refill judges `MUL.1D` by its own declared
   digits. All 864 fit: `cases.outside_their_level` → 0.
-- `cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_cases.py tests/test_loaders.py` → `94 passed`;
+- **A second reader reviewed the diff and found eleven things; each is fixed at its cause and tested:**
+  - the website's taxonomy screen would have shown multiplication's cases under addition's chapters (both documents
+    number a §4, §7, §8, §9 and §11). It now reads the document its title names (`lib/queries-taxonomy.ts`);
+  - `zero_pattern` read the zeros of the 100 in 45 × 100, so 345 × 100 was no case and 10 × 45 was "×10 of a number
+    ending in zero". It reads the number multiplied, and where its zeros sit apart from how many (`zero_count`);
+  - ÷ with both numbers round missed its fact (80 ÷ 20, 200 ÷ 40);
+  - T13 held 12 × 345; it is 1-digit by 3-digit;
+  - missing numbers with no one answer (□ × 0 = 0, 42 ÷ □ = 5, □ × □ = 24) were given made-up numbers, and some
+    crashed. Each is now measured as nothing, as are negative numbers, and numbers past five places are named;
+  - "3 x □ = 12" was read as × by one reader and not by the other; both now read only ×;
+  - `engine bank taxonomy` said "247 unplaced" in the line `goals/s13-levels-by-taxonomy.yaml` reads; it now counts
+    each document on its own line;
+  - the story-shape reader would have offered the model multiplication's story shapes with no templates and no eval
+    (rule 7); it offers the addition and subtraction document's only, until M4 brings both;
+  - `test_topics` held "a skill holding a case is taught", which multiplication's untaught cases broke; it reads the
+    addition and subtraction document, which is what it promised;
+  - 0 × 12 was the 11–12 group; it is the 0–1;
+  - the tests now include 13 labels checked against plain arithmetic written in the test, not the code under test,
+    and every reading of every straight question checked against the vocabulary.
+- `cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_cases.py` → `118 passed`; the suites this
+  touches (`test_md_cases test_taxonomy test_topics test_loaders test_rehome test_story_shape test_bank
+  test_every_skill test_legacy test_division_is_an_operation`) → `913 passed`; the whole engine suite before the review
+  → `1799 passed, 1 failed` (`test_topics`, above);
   `packages/engine/.venv/bin/python research/md_taxonomy.py --check` → `247 cases in 13 sections, 38 mistakes,
   17 skills, 247 rows: every example recomputed and measured, every case placed or listed unplaced, 0 faults`;
   `bin/check` → `27 passed`.
-- **Gates.** `tags.derive` complexity 13 → 11; `cli_taxonomy.register` 16 → 14 (statements 55 → 52); `tags.py`
+- **The rehearsal on a copy of live** first failed restoring live's rows: the new column's default had been dropped, so
+  a row from before it had no value. The default stays (every row older than the column is addition and
+  subtraction's), and the loader writes the column for every seed row.
+- **Gates.** `tags.derive` complexity 13 → 11; `cli_taxonomy.register` 16 → 14 (statements 55 → under the limit); `tags.py`
   unannotated 283 → 253; `loaders.py` 409 → 405 lines. Each fallen value is written in `workflows.json`.
 
 **Waits for Nimish's next `bin/update-live`** (seed rows; a deploy loads only prompts, thresholds and config): the 517
-case rows, the 67 dimension rows, and the relabel that writes `taxonomy` onto every stored question. update-live runs
+case rows, the 68 dimension rows, and the relabel that writes `taxonomy` onto every stored question. update-live runs
 `engine load`, then `engine bank relabel`, before anything reads a case.
 

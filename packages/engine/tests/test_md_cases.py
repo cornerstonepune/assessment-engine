@@ -6,6 +6,7 @@ things, and add what two documents need: a question is a case of the taxonomy of
 tag a case reads is a dimension row naming its values.
 """
 
+import functools
 import itertools
 import json
 import os
@@ -99,6 +100,10 @@ def test_every_case_of_the_drafted_document_is_a_row_as_drafted():
         ("÷", 200, 4, "horizontal", "fact_zero", "YES"),
         ("÷", 120, 4, "horizontal", "fact_zero", "NO"),
         ("÷", 840, 4, "horizontal", "scaled_fact", "NO"),
+        # both numbers round: the fact once the zeros both end in are off (80 ÷ 20 is 8 ÷ 2; 200 ÷ 40 is 20 ÷ 4)
+        ("÷", 80, 20, "horizontal", "scaled_fact", "YES"),
+        ("÷", 600, 300, "horizontal", "scaled_fact", "YES"),
+        ("÷", 200, 40, "horizontal", "fact_zero", "YES"),
         # a 1-digit multiplier, column by column from the ones
         ("×", 56, 3, "column", "regroup_at", "ONES"),
         ("×", 23, 3, "column", "regrouping", "NONE"),
@@ -114,7 +119,15 @@ def test_every_case_of_the_drafted_document_is_a_row_as_drafted():
         ("×", 23, 3, "column", "answer_digit_change", "ONE_FEWER"),
         ("×", 230, 4, "column", "zero_pattern", "TRAILING"),
         ("×", 302, 3, "column", "zero_pattern", "INTERNAL"),
-        ("×", 1008, 6, "column", "zero_pattern", "MULTIPLE"),
+        ("×", 1008, 6, "column", "zero_pattern", "INTERNAL"),
+        ("×", 1008, 6, "column", "zero_count", 2),
+        # the zeros of the number worked on, never those of the 10, 100 or 1000 it is multiplied by
+        ("×", 345, 100, "horizontal", "zero_pattern", "ANSWER_ZERO"),
+        ("×", 10, 45, "horizontal", "zero_pattern", "ANSWER_ZERO"),
+        ("×", 405, 100, "horizontal", "zero_pattern", "INTERNAL"),
+        ("×", 4050, 10, "horizontal", "zero_pattern", "INTERNAL+TRAILING"),
+        ("×", 0, 12, "horizontal", "fact_group", "0-1"),
+        ("×", 9999999, 9, "column", "regroup_at", "ONES+TENS+HUNDREDS+THOUSANDS+TEN_THOUSANDS+PLACE_6"),
         ("×", 25, 4, "column", "zero_pattern", "ANSWER_ZERO"),
         ("×", 125, 8, "column", "answer_round", "YES"),
         ("×", 18, 6, "column", "answer_round", "NO"),
@@ -130,7 +143,7 @@ def test_every_case_of_the_drafted_document_is_a_row_as_drafted():
         ("×", 213, 102, "column", "multiplier_zero", "INTERNAL"),
         # short division, left to right
         ("÷", 72, 4, "column", "regroup_at", "TENS"),
-        ("÷", 588, 3, "column", "regroup_at", "HUNDREDS+TENS"),
+        ("÷", 588, 3, "column", "regroup_at", "TENS+HUNDREDS"),
         ("÷", 936, 3, "column", "regrouping", "NONE"),
         ("÷", 279, 3, "column", "first_digit_smaller", "YES"),
         ("÷", 279, 3, "column", "answer_digit_change", "ONE_FEWER"),
@@ -180,6 +193,35 @@ def test_a_missing_number_or_digit_in_a_times_or_divide_says_where_it_is():
     assert (factor["unknown_position"], factor["place_value_factor"]) == ("SECOND_OPERAND", "X100")
     digit = measure("missing_digit", {"a": "2□", "b": "4", "c": "92", "op": "×", "solved": {"a": 23, "b": 4}})
     assert (digit["operation"], digit["missing_place"], digit["missing_in"]) == ("MUL", "ONES", "FIRST")
+    zero = measure("missing_number", {"text": "7 × □ = 0"})
+    assert (zero["operation"], zero["unknown_position"]) == ("MUL", "SECOND_OPERAND"), "7 × 0 = 0: one answer"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "□ × 0 = 0",  # every number
+        "□ × 0 = 5",  # none
+        "0 × □ = 5",
+        "9 ÷ 0 = □",
+        "□ = 63 ÷ 0",
+        "38 ÷ 0 = 7 r □",
+        "□ × □ = 24",  # no number times itself
+        "□ × 6 = 40",  # 6 × 6 = 36, 7 × 6 = 42
+        "42 ÷ □ = 5",  # 42 ÷ 8 leaves 2
+        "3 x □ = 12",  # an x the operation reader does not read as ×, so neither does this
+    ],
+)
+def test_a_missing_number_with_no_one_answer_is_measured_as_nothing_never_a_made_up_one(text):
+    t = measure("missing_number", {"text": text})
+    assert "operation" not in t and "unknown_digits" not in t, (text, t)
+
+
+def test_a_question_the_arithmetic_cannot_work_is_measured_without_a_crash():
+    """Every stored question is measured on every relabel: one that cannot be worked is read as far as it goes."""
+    assert "answer_digits" not in measure("missing_number", {"a": 9, "b": 0, "op": "÷", "missing": "answer"})
+    assert "operation" not in measure("bare_sum", {"a": -5, "b": 3, "op": "×"})
+    assert measure("bare_sum", {"a": 123457, "b": 3, "op": "÷"})["regroup_at"]
 
 
 # ---------------------------------------------------------------------------------------------- the cases
@@ -211,6 +253,12 @@ def _straight_questions():
         yield c["example"]["fmt"], c["example"]["spec"]
 
 
+@functools.cache
+def _read():
+    """[(fmt, spec, tags)] for every straight question, measured once."""
+    return [(fmt, spec, measure(fmt, spec)) for fmt, spec in _straight_questions()]
+
+
 def test_every_case_holds_its_own_example_and_no_two_hold_the_same_questions():
     """A case is its example's case. Two cases holding exactly the same questions are one case written twice, so
     the count would credit every question to both: a fault in the document, fixed by sharpening one of them. Read
@@ -220,8 +268,7 @@ def test_every_case_holds_its_own_example_and_no_two_hold_the_same_questions():
         assert holds(c, c["example"]), f"{code} does not hold its own example {c['example_text']}"
     straight = {code: c for code, c in MD.items() if c["match"].get("fmt") == ["bare_sum", "column_grid"]}
     read = {}
-    for fmt, spec in _straight_questions():
-        t = measure(fmt, spec)
+    for fmt, _, t in _read():
         read.setdefault(json.dumps(t, sort_keys=True, default=str), (fmt, t))
     held = {
         code: frozenset(k for k, (fmt, t) in read.items() if taxonomy.matches(c["match"], fmt, t))
@@ -320,3 +367,81 @@ def test_engine_bank_taxonomy_counts_every_case_of_both_taxonomies(conn):
     assert out.exit_code == 0, out.output
     for name, n in (("ADD_SUB", len(ALL) - len(MD)), ("MUL_DIV", len(MD))):
         assert f"{name}: {n} cases" in out.output, out.output
+
+
+def test_every_reading_of_every_straight_question_is_a_value_its_dimension_allows():
+    """The vocabulary is what the code says, not only what the cases read: 2000 ÷ 40 must not say a place no row
+    names."""
+    allowed = {k: {str(v) for v in d["allowed"]} for k, d in DIMENSIONS.items()}
+    outside = set()
+    for _, spec, t in _read():
+        for key, value in t.items():
+            for v in value if isinstance(value, list) else [value]:
+                if key in allowed and str(v) not in allowed[key]:
+                    outside.add((key, str(v), spec["a"], spec["op"], spec["b"]))
+    assert not outside, sorted(outside)[:10]
+
+
+def _carries(n, d):
+    """The carries a 1-digit multiplication sends on, from the ones: worked here, not by the code under test."""
+    out, carry = [], 0
+    for x in reversed(str(n)):
+        carry = (int(x) * d + carry) // 10
+        out.append(carry)
+    return out[:-1]
+
+
+def _exchanges(n, d):
+    """The remainders short division exchanges, from the left, and the quotient: worked here, not by the code."""
+    out, r = [], 0
+    for x in str(n):
+        r = (r * 10 + int(x)) % d
+        out.append(r)
+    return out[:-1]
+
+
+# What each case's label says, worked with plain arithmetic: every question the case holds must be what it says.
+SAYS = {
+    "T01": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carries(a, b)) and a * b < 100 and col,
+    "T04": lambda a, b, col: len(str(a)) == 2 and b < 10 and _carries(a, b) == [1] and a * b < 100,
+    "T06": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carries(a, b)) and a * b >= 100,
+    "T07": lambda a, b, col: len(str(a)) == 2 and b < 10 and _carries(a, b) == [1] and a * b >= 100,
+    "T10": lambda a, b, col: b < 10 and max(_carries(a, b)) == 8,
+    "T13": lambda a, b, col: a < 10 and len(str(b)) == 3 and not col,
+    "TZ03": lambda a, b, col: (
+        b < 10 and any(x == "0" and c for x, c in zip(str(a)[::-1][1:], _carries(a, b)))
+    ),
+    # by 10 or 100 either way round (10 × 20 is 20 × 10): the other number is the one the label speaks of
+    "TP04": lambda a, b, col: 10 in (a, b) and (b if a == 10 else a) % 10 == 0,
+    "TP05": lambda a, b, col: 100 in (a, b) and "0" in str(b if a == 100 else a).rstrip("0"),
+    "D03": lambda a, b, col: (
+        len(str(a)) == 2 and 2 <= b <= 5 and _exchanges(a, b)[0] and a // 10 >= b and not a % b
+    ),
+    "D04": lambda a, b, col: (
+        len(str(a)) == 2 and 6 <= b <= 9 and _exchanges(a, b)[0] and a // 10 >= b and not a % b
+    ),
+    "DZ01": lambda a, b, col: "0" in str(a // b)[1:-1] and "0" in str(a) and not any(_exchanges(a, b)),
+    "DR02": lambda a, b, col: a % b == b - 1 and a // b < 10,
+}
+
+
+@pytest.mark.parametrize("code", sorted(SAYS))
+def test_every_question_a_case_holds_is_what_its_label_says(code):
+    """Read against plain arithmetic written here, so a tag measured wrong cannot make its own case look right."""
+    held = [
+        (spec["a"], spec["b"], spec["layout"] == "column")
+        for fmt, spec, t in _read()
+        if taxonomy.matches(MD[code]["match"], fmt, t)
+    ]
+    assert held, code
+    wrong = [h for h in held if not SAYS[code](*h)]
+    assert wrong == [], f"{code} ({MD[code]['label']}) holds {wrong[:5]}"
+
+
+def test_the_story_shape_reader_is_offered_only_the_shapes_its_stories_can_take(conn):
+    """It names the addition and subtraction stories the labeller cannot; multiplication and division's shapes join
+    its choices with their story templates and their eval (M4, rule 7), not because their cases are rows."""
+    from engine.w1_bank import story_shape
+
+    offered = {code for code, _ in story_shape.shapes(conn).values()}
+    assert offered and offered <= {code for code, c in ALL.items() if c["taxonomy"] == "ADD_SUB"}

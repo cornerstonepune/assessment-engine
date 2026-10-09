@@ -9,6 +9,7 @@ numbers — the method it prints (`method`), a story's shape (`structure`), what
 (`remainder_use`) — read from its spec, as `tags.py` reads a story's shape. Nothing here is typed by a person.
 """
 
+import math
 import re
 from typing import Any
 
@@ -40,12 +41,18 @@ MISSING = {
     "both": "MULTIPLE",
 }
 _N = r"(□|\d+)"
-_SUM = re.compile(rf"\s*{_N}\s*([×x÷])\s*{_N}\s*=\s*{_N}(?:\s*r\s*{_N})?\s*")
-_FIRST = re.compile(rf"\s*{_N}\s*=\s*{_N}\s*([×x÷])\s*{_N}\s*")
+# the signs `skills.operations` reads a question's operation from, so a box it calls × is one this solves, and no other
+_SUM = re.compile(rf"\s*{_N}\s*([×÷])\s*{_N}\s*=\s*{_N}(?:\s*r\s*{_N})?\s*")
+_FIRST = re.compile(rf"\s*{_N}\s*=\s*{_N}\s*([×÷])\s*{_N}\s*")
 
 
 def yes(flag: bool) -> str:
     return "YES" if flag else "NO"
+
+
+def place(i: int) -> str:
+    """The name of column `i` from the ones; past ten thousands, by its count (a question may run that long)."""
+    return PLACES[i] if i < len(PLACES) else f"PLACE_{i + 1}"
 
 
 def answer_zeros(ans: int) -> str:
@@ -64,7 +71,9 @@ def _trailing(n: int) -> int:
 
 
 def _fact_group(a: int, b: int) -> str:
-    """The easiest table holding a × b within its first ten rows: 8 × 3 is the 3 table's, 7 × 0 the 0's."""
+    """The easiest table holding a × b within its first ten rows: 8 × 3 is the 3 table's, 7 × 0 and 0 × 12 the 0's."""
+    if a in (0, 1) or b in (0, 1):
+        return "0-1"
     options = [GROUP[f] for f, other in ((a, b), (b, a)) if f in GROUP and other <= 10]
     return min(options, key=ORDER.index) if options else "11-12"
 
@@ -102,10 +111,13 @@ def _place_value(one: str, a: int, b: int) -> dict[str, str]:
         x, y = int(str(a).rstrip("0")), int(str(b).rstrip("0"))
         scaled, zero = _is_fact(x, y), (x * y) % 10 == 0
     else:
+        common = 0  # the zeros both numbers end in, taken off together: 200 ÷ 40 is 20 ÷ 4
         while a % 10 == 0 and b % 10 == 0:
-            a, b = a // 10, b // 10
+            a, b, common = a // 10, b // 10, common + 1
         za = _trailing(a)
-        found = [k for k in range(za, 0, -1) if (a // 10**k) % b == 0 and (a // 10**k) // b <= 12 and b <= 12]
+        # a fact read off the number divided once k of its zeros are off; k = 0 counts only when zeros came off both
+        ks = range(za, -1 if common else 0, -1)
+        found = [k for k in ks if (a // 10**k) % b == 0 and (a // 10**k) // b <= 12 and b <= 12]
         scaled, zero = bool(found), bool(found) and found[0] < za
     out = {"place_value_factor": kind, "scaled_fact": yes(scaled)}
     if scaled:
@@ -113,32 +125,37 @@ def _place_value(one: str, a: int, b: int) -> dict[str, str]:
     return out
 
 
-def _zeros(n: int, answer: int) -> str:
-    """The zeros of the larger number, or of the number divided; none there but one in the answer is its own case."""
-    count = str(n).count("0") if n else 0
-    if count >= 2:
-        return "MULTIPLE"
-    if count == 1:
-        return "TRAILING" if str(n).endswith("0") else "INTERNAL"
-    return "ANSWER_ZERO" if "0" in str(answer) else "NONE"
+def _zeros(n: int, answer: int) -> dict[str, Any]:
+    """Where the zeros of the number worked on sit — inside it (302), at its end (230), or both (4050) — and how
+    many it has (1008 has two); none there but one in the answer is its own case (25 × 4 = 100)."""
+    s = str(n)
+    if not n or "0" not in s:
+        return {"zero_pattern": "ANSWER_ZERO" if "0" in str(answer) else "NONE", "zero_count": 0}
+    inside, end = "0" in s.rstrip("0")[1:], s.endswith("0")
+    where = {(True, False): "INTERNAL", (False, True): "TRAILING"}.get((inside, end), "INTERNAL+TRAILING")
+    return {"zero_pattern": where, "zero_count": s.count("0")}
 
 
 def _regrouped(places: list[int]) -> dict[str, Any]:
+    """The columns that carry (×) or exchange (÷), named from the ones up either way: ONES+TENS, TENS+HUNDREDS."""
+    places = sorted(places)
     return {
         "regrouping": {0: "NONE", 1: "SINGLE"}.get(len(places), "MULTIPLE"),
         "regroup_columns": places,
-        "regroup_at": "+".join(PLACES[i] for i in places) or "NONE",
+        "regroup_at": "+".join(place(i) for i in places) or "NONE",
     }
 
 
 def _times(a: int, b: int, p: int) -> dict[str, Any]:
     """In columns: a 1-digit multiplier column by column, or a longer one as long multiplication's rows."""
     longer, shorter = (b, a) if len(str(a)) < len(str(b)) else (a, b)
+    # the number worked on: never the 10, 100 or 1000 it is multiplied by, whose zeros are the factor's own
+    worked = a if b in POWERS else (b if a in POWERS else longer)
     out: dict[str, Any] = {
         "answer_digit_change": "FULL" if len(str(p)) == len(str(a)) + len(str(b)) else "ONE_FEWER",
-        "zero_pattern": _zeros(longer, p),
         "multiplier_zero": "NONE",
     }
+    out |= _zeros(worked, p)
     if len(str(shorter)) == 1:
         cols = O.times_columns(longer, shorter)
         carries = [c["carry_out"] for c in cols[:-1]]
@@ -189,11 +206,11 @@ def _divide(a: int, b: int, q: int, r: int) -> dict[str, Any]:
             if qs[-1] == "0"
             else "NONE"
         ),
-        "zero_pattern": _zeros(a, q),
         "remainder": "NONE"
         if r == 0
         else ("DIVIDEND_SMALLER" if a < b else "LARGEST" if r == b - 1 else "SOME"),
     }
+    out |= _zeros(a, q)
     if b in GROUP:
         out["divisor_group"] = GROUP[b]  # the table a 1-digit divisor's steps are read from
     if lead >= 2:
@@ -266,26 +283,53 @@ def solved(sp: dict[str, Any]) -> dict[str, Any]:
         x, op, y, z, w = m[1], m[2], m[3], m[4], m[5]
     else:
         return sp
-    one = O.sign(op)
+    one = O.sign(op) or ""
     X, Y, Z, W = _num(x), _num(y), _num(z), _num(w)
     boxes = [v for v in (x, y, z, w) if v == "□"]
-    if x == "□" and y == "□" and Z is not None and one == "×":
-        root = round(Z**0.5)
-        return sp | {"a": root, "b": root, "op": one, "missing": "both", "answer_first": yes(bool(first))}
+    first_ = yes(bool(first))
+    if x == "□" and y == "□" and one == "×" and Z is not None and w is None:
+        root = math.isqrt(Z)  # □ × □ = 49: the same number twice, when there is one
+        return (
+            sp | {"a": root, "b": root, "op": one, "missing": "both", "answer_first": first_}
+            if root * root == Z
+            else sp
+        )
     if len(boxes) != 1:
         return sp
-    rest = W or 0
-    if Z is None and X is not None and Y is not None:
-        a, b, missing = X, Y, "answer"
-    elif w == "□" and X is not None and Y is not None:
-        a, b, missing = X, Y, "remainder"
-    elif X is None and Y is not None and Z is not None:
-        a, b, missing = (Z // Y if one == "×" else Z * Y + rest), Y, "a"
-    elif Y is None and X is not None and Z:
-        a, b, missing = X, (Z // X if one == "×" else (X - rest) // Z), "b"
-    else:
+    found = _unbox(one, X, Y, Z, W, w == "□")
+    if found is None:
         return sp
-    return sp | {"a": a, "b": b, "op": one, "missing": missing, "answer_first": yes(bool(first))}
+    a, b, missing = found
+    return sp | {"a": a, "b": b, "op": one, "missing": missing, "answer_first": first_}
+
+
+def _unbox(
+    one: str, x: int | None, y: int | None, z: int | None, w: int | None, remainder: bool
+) -> tuple[int, int, str] | None:
+    """(a, b, which is hidden) for `x one y = z [r w]` with one box, or None when no one number gives the question
+    back exactly: □ × 0 = 5 has none, □ × 0 = 0 has every one, 42 ÷ □ = 5 leaves 2 over."""
+    if z is None and x is not None and y is not None:
+        a, b, hidden = x, y, "answer"
+    elif remainder and x is not None and y is not None:
+        a, b, hidden = x, y, "remainder"
+    elif x is None and y and z is not None:
+        a, b, hidden = (z // y if one == "×" else z * y + (w or 0)), y, "a"
+    elif y is None and x is not None and z is not None and (z if one == "÷" else x):
+        a, b, hidden = x, (z // x if one == "×" else (x - (w or 0)) // z), "b"
+    else:
+        return None
+    if one == "×":
+        return (a, b, hidden) if z is None or a * b == z else None
+    if b <= 0:
+        return None
+    q, r = O.divide(a, b)
+    if (
+        (z is not None and q != z)
+        or (w is not None and r != w)
+        or (w is None and not remainder and z is not None and r)
+    ):
+        return None
+    return a, b, hidden
 
 
 def missing(t: dict[str, Any], sp: dict[str, Any]) -> dict[str, Any]:
@@ -294,8 +338,14 @@ def missing(t: dict[str, Any], sp: dict[str, Any]) -> dict[str, Any]:
     if hide in MISSING:
         t["unknown_position"] = MISSING[hide]
         hidden = {"a": sp.get("a"), "b": sp.get("b"), "both": sp.get("a")}.get(hide)
-        if hide in ("answer", "remainder") and isinstance(sp.get("a"), int) and isinstance(sp.get("b"), int):
-            q, r = O.divide(sp["a"], sp["b"]) if O.sign(sp["op"]) == "÷" else (sp["a"] * sp["b"], 0)
+        a, b, divides = sp.get("a"), sp.get("b"), O.sign(sp.get("op")) == "÷"
+        if (
+            hide in ("answer", "remainder")
+            and isinstance(a, int)
+            and isinstance(b, int)
+            and not (divides and b == 0)
+        ):
+            q, r = O.divide(a, b) if divides else (a * b, 0)
             hidden = r if hide == "remainder" else q
         if isinstance(hidden, int):
             t["unknown_digits"] = len(str(hidden))

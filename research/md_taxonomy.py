@@ -944,7 +944,15 @@ def matrix(made):
     """Every tag a multiplication or division case reads, as its `case_dimension` row says it."""
     dims = json.loads((R / "supabase/seed/case_dimensions.json").read_text())["case_dimensions"]
     read = {k for r in made for k in r["match"] if k != "fmt"}
-    return [(d["name"], " / ".join(map(str, d["allowed"])), d.get("why", "")) for d in dims if d["name"] in read]
+    return [(d["name"], _values(d["allowed"]), d.get("why", "")) for d in dims if d["name"] in read]
+
+
+def _values(allowed):
+    """A dimension's values as a reader takes them in: places joined (ONES+TENS) said once, not as every combination."""
+    places = [v for v in allowed if "+" not in str(v) and v != "NONE"]
+    if len(places) >= 4 and len(allowed) == 2 ** len(places):  # NONE and every combination of four or more places
+        return "NONE, or any of " + " / ".join(map(str, places)) + ", joined from the ones up"
+    return " / ".join(map(str, allowed))
 
 # ---------------------------------------------------------------- the document
 
