@@ -20,11 +20,20 @@ SETTLED = ("correct", "wrong", "blank")
 
 def _answers(conn):
     rows = conn.execute(
-        "select c.sheet_instance_id as paper, r.item_id, r.id, r.status,"
+        "select c.sheet_instance_id as paper, r.item_id, r.rid, r.id, r.status,"
         " r.raw_read::jsonb ->> 'child_answer' as read"
         " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
     ).fetchall()
-    return {(r["paper"], r["item_id"]): r for r in rows}
+    return {(r["paper"], r["item_id"], r["rid"]): r for r in rows}
+
+
+def old_papers(conn):
+    """The codes of the papers entered by hand (`engine legacy paper`): the only ones read from their paper's rows, and
+    so the only ones the replay and the reading eval can read again. A library worksheet's copy is read by `copies`,
+    and read afresh by sending its scan again (`POST /read/file`, `again`); here it fails, and is reported."""
+    return {
+        r["batch_id"] for r in conn.execute("select batch_id from sheet_template where source = 'legacy'")
+    }
 
 
 def files(conn, only=None):

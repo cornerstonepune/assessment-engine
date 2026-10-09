@@ -33,6 +33,8 @@ function reading(a: CaptureAnswer): string {
   if (a.answer_state === "written") return `The reader read ${a.read}.`;
   if (a.answer_state === "blank") return "The reader found nothing written here.";
   if (a.answer_state === "not_found") return "The reader could not find this question on the photograph.";
+  // A tick or a sentence is never handed to the digit reader: it is the educator's to read, not a failure.
+  if (a.answer_state === "for_a_person") return "The reader does not read ticks or sentences. Look at the photograph and say what the child ticked or wrote.";
   // The reader knows WHICH of five things went wrong, and saying so turns "your problem now" into
   // a question the teacher can answer at a glance: an answer under the floor she confirms or
   // corrects, a region holding four numbers for two answers she has to split herself.
@@ -75,6 +77,7 @@ export function AnswerCard({
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-3">
           <span className="label">Question {a.slot}</span>
+          {a.part ? <span className="text-[12.5px] text-basalt/70">{a.part}</span> : null}
           <MarkPill status={a.status} working={a.working_shown === "none" ? "" : a.working_shown} />
           {a.state === "confirmed" ? <Pill tone="neem">signed off</Pill> : null}
           {a.human_read !== null ? <span className="text-[12px] text-basalt/55">corrected by {a.corrected_by}</span> : null}

@@ -291,7 +291,7 @@ export type PendingResult = {
 export async function pendingResults(id: string): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
     select r.id, coalesce(t.key ->> 'title', t.code) as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
-           i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, i.responses -> 0 ->> 'answer' as answer,
+           i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
@@ -330,7 +330,7 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
     select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, coalesce(t.key ->> 'title', t.code) as paper, i.item_key,
            coalesce(i.spec ->> 'question', i.stem) as question,
-           coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
+           coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
            r.status, e.misconception_codes

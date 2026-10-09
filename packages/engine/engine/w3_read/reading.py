@@ -8,7 +8,49 @@ reader's guess for whatever is left doubted.
 """
 
 from engine.adapters import digits, ocr
-from engine.w3_read import boxes, crops, profiles, render_pdf, second_reader, stencil
+from engine.w3_read import boxes, crops, marking, profiles, render_pdf, second_reader, stencil
+
+
+def _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli):
+    """A page read by its printed words (`stencil`), each answer found in the region below its question, which ends at
+    the next question it is given. That reads one number a question; a printed copy that did not line up asks for more
+    — a second answer, a tick, a reason — and those are a person's, never a number from a region holding several. Every
+    question is still given, by its first slot, so that each bounds the one above it."""
+    path, paper, by_key = scan["path"], scan["paper"], scan["by_key"]
+    from engine.w3_read import legacy
+
+    def first(
+        k,
+    ):  # the slot a question's first answer is read under; on a paper with no boxes recorded, every slot
+        it = by_key[k]
+        return not paper.get("geometry") or marking.response_of(it).get("rid") == it["responses"][0].get(
+            "rid"
+        )
+
+    def one(k):
+        it = by_key[k]
+        return not paper.get("geometry") or (len(it["responses"]) == 1 and _digits(marking.response_of(it)))
+
+    readings = stencil.read_page(
+        jpeg,
+        {k: q for k, q in questions.items() if first(k)},
+        cfg,
+        cli,
+        form=paper.get("printed_as", scan["paper_code"]),
+        page_no=page_no,
+        symbolic=legacy.symbolic_slots(by_key),
+        use_boxes=paper.get("fields") in ("boxes", "cells"),
+        reread=legacy.second_look(path, page_no, fraction, cfg, cli),
+    )
+    for k in (k for k in questions if not one(k)):
+        digits = _digits(marking.response_of(by_key[k]))
+        state, why = ("not_found", boxes.UNALIGNED) if digits else ("for_a_person", boxes.FOR_A_PERSON)
+        readings[k] = {"child_answer": "", "answer_state": state, "why": why, "guess": "", "confidence": 0.0}
+    return readings
+
+
+def _digits(response):
+    return response.get("kind", "digits") == "digits"
 
 
 def read_pages(conn, scan, cli, child_id, notes=None, second=True):
@@ -16,7 +58,7 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
     page: page_no, the masked jpeg, the readings (None where the page prints no answers) and a note
     for a person. `notes` overrides the child's stored notebook — the replay passes the notebook built
     without this paper, or none."""
-    path, paper_code, paper, by_key = scan["path"], scan["paper_code"], scan["paper"], scan["by_key"]
+    path, paper, by_key = scan["path"], scan["paper"], scan["by_key"]
     page_numbers, images, masks = scan["page_numbers"], scan["images"], scan.get("masks")
     from engine.w3_read import legacy
 
@@ -56,17 +98,18 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
         if paper.get("geometry") and paper.get("printed"):
             # A paper this system printed: every box's place is recorded, so the boxes are cut out and read
             # where they are, and nothing outside them — the working — can be taken as the answer.
-            wanted = {
-                k: (it["item_key"], (it["responses"][0] or {}).get("rid", "ans"))
-                for k, it in by_key.items()
-                if it["spec"].get("page", 1) == page_no
+            on_page = {
+                k: marking.response_of(it) for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
             }
+            wanted = {k: (by_key[k]["item_key"], r.get("rid", "ans")) for k, r in on_page.items()}
+            # a tick or a sentence is not a number: the digit reader is never handed it, a person reads it
+            people = {k for k, r in on_page.items() if r.get("kind", "digits") != "digits"}
             img, frame = render_pdf.photo(path, file_page)
             # the digit reader's own floor (ADR 0035): a child's notebook floor was measured on Textract's scale
             floor = digits.settings(conn)
             readings = boxes.read_page(
                 img, page_no, paper["printed"], paper["geometry"], wanted, {**cfg, **floor}, frame=frame,
-                keep=crops.keeper(path, page_no),
+                keep=crops.keeper(path, page_no), for_a_person=people,
             )  # fmt: skip
             how = (
                 "read in its boxes"
@@ -74,17 +117,7 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
                 else "did not line up with the paper it printed from"
             )
         if readings is None:
-            readings = stencil.read_page(
-                jpeg,
-                questions,
-                cfg,
-                cli,
-                form=paper.get("printed_as", paper_code),
-                page_no=page_no,
-                symbolic=legacy.symbolic_slots(by_key),
-                use_boxes=paper.get("fields") in ("boxes", "cells"),
-                reread=legacy.second_look(path, page_no, fraction, cfg, cli),
-            )
+            readings = _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli)
         readings = profiles.apply(readings, notes, lambda k: (by_key.get(k) or {}).get("fmt", ""))
         note = how
         if (

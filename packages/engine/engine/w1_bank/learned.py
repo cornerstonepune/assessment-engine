@@ -33,7 +33,8 @@ def unexplained(conn) -> list[dict]:
         "               where judged is null order by item_result_id, created_at desc),"
         " named as (select distinct on (item_result_id) item_result_id, code from mistake_named"
         "           order by item_result_id, created_at desc)"
-        " select r.id as result_id, i.item_key, i.spec ->> 'op' as op, (i.spec ->> 'a') as a, (i.spec ->> 'b') as b,"
+        " select r.id as result_id, i.item_key, i.spec, result_response(i.responses, r.rid) as response,"
+        "        i.spec ->> 'op' as op, (i.spec ->> 'a') as a, (i.spec ->> 'b') as b,"
         "        coalesce(t.human_read, r.raw_read::jsonb ->> 'child_answer', '') as wrote"
         " from item_result r join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
         " left join typed t on t.item_result_id = r.id left join named n on n.item_result_id = r.id"
@@ -44,7 +45,8 @@ def unexplained(conn) -> list[dict]:
     out = []
     for r in rows:
         wrote = "".join(ch for ch in r["wrote"] if ch.isdigit())
-        if wrote and str(r["a"]).isdigit() and str(r["b"]).isdigit():
+        # only a wrong answer to the sum itself is a way of working it; its estimate or a check of it is not
+        if wrote and L.works_the_sum(r.pop("spec"), r.pop("response") or {}):
             out.append({**r, "a": int(r["a"]), "b": int(r["b"]), "wrote": int(wrote)})
     return out
 

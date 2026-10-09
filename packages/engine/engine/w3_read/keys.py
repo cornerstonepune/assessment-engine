@@ -20,7 +20,8 @@ LATEST = (
 
 
 def _key(item):
-    return (item["responses"] or [{}])[0].get("answer")
+    """The right answer of an answer's own question part (`marking.response_of`): a stored result selects its own."""
+    return marking.response_of(item).get("answer") if item["responses"] else None
 
 
 def _right(item):
@@ -35,12 +36,13 @@ def shown(conn, paper_id):
     """Every answer on a paper (its capture, or the copy the Marking page shows) → {id, slot, right, was, by, at}: the
     right answer its card prints, as stored, and who changed it from what, if an educator did."""
     rows = conn.execute(
-        "select r.id, i.item_key, i.spec, i.responses, k.was, k.by, k.created_at as at from item_result r"
+        "select r.id, i.item_key, i.spec, i.responses, result_response(i.responses, r.rid) as response, k.was, k.by,"
+        " k.created_at as at from item_result r"
         f" join item i on i.id = r.item_id {LATEST} where {naming.ONE_PAPER}",
         (paper_id,),
     ).fetchall()
     return [
-        {"id": str(r["id"]), "slot": r["item_key"].rsplit("/", 1)[1], "right": _right(r)}
+        {"id": str(r["id"]), "slot": r["item_key"].rsplit("/", 1)[-1], "right": _right(r)}
         | {"was": r["was"], "by": r["by"], "at": r["at"]}
         for r in rows
     ]

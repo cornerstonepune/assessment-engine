@@ -1,0 +1,32 @@
+name: md0a-every-answer-counts
+goal: >
+  Every answer a printed question asks for is read in its own boxes, marked against its own right answer (an
+  estimate within its own tolerance), waits for a person with the reason where the engine cannot read it (a tick, a
+  sentence), and counts as its own evidence when signed off. Nothing a question asks for is dropped from a library
+  worksheet: an estimate and its exact answer, a check and its verdict, a corrected answer and its reason. This is
+  what a remainder, a grid's cells and a long multiplication's rows need before multiplication and division are built.
+
+# Written 2026-10-09, before the code: slice M0a of BUILD-ORDER "Inserted now: multiplication and division". Measured
+# first (STATE.md "Multiplication and division — measured before the build"): a library worksheet question with more
+# than one answer was never read (`w3_read/copies.py`), 4,437 of 21,289 questions; everywhere a result was marked or
+# shown, its question's first answer stood in for its own; and an estimate's tolerance was read by nothing that marks.
+says:
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_every_answer.py::test_every_answer_on_a_copy_is_read_marked_and_counted
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_every_answer.py::test_each_answer_signed_off_is_its_own_evidence
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_each_answer.py::test_every_answer_of_a_question_is_read_in_its_own_boxes
+  - words: "this is a good test as to how our flow works"
+    proved_by: packages/engine/tests/test_every_answer.py::test_every_answer_names_a_response_of_its_question
+manual:
+  - "On live, once merged and deployed: a library worksheet copy read before this keeps its old reading, in which a question
+    asking for more than one answer was never read. Its scan's Drive link sent to `POST /read/file` with `again: true` reads it afresh
+    so they get rows; a copy a person already worked on stays as they left it (`copies.read`, `again`)."
+criteria:
+  - name: every answer read, marked, shown and counted on its own; the reading, marking, naming, notebook, report and roles it touches
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_every_answer.py tests/test_each_answer.py tests/test_copies.py tests/test_keys.py tests/test_boxes.py tests/test_legacy.py tests/test_crops.py tests/test_learned_mistakes.py tests/test_gold.py tests/test_second_reader.py tests/test_profiles.py tests/test_read_eval.py tests/test_read_again.py tests/test_report.py tests/test_mistake_guess.py tests/test_roles.py tests/test_audit.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

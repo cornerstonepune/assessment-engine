@@ -15,6 +15,7 @@ STRONG = ("secure", "stretch_ready")
 
 WRONG = """
 select coalesce(e.item_result_id, e.id) as answer, e.skill_code, e.misconception_codes, e.observed_at, i.item_key, i.fmt, i.stem, i.spec, i.responses,
+       result_response(i.responses, r.rid) as response,
        coalesce((select rc.human_read from read_correction rc where rc.item_result_id = r.id and rc.judged is null
                   order by rc.created_at desc limit 1), r.raw_read::jsonb ->> 'child_answer') as wrote
 from evidence_placed e
@@ -31,7 +32,7 @@ order by e.observed_at desc
 def _example(row):
     if not row["item_key"]:
         return None
-    right = next((x.get("answer") for x in row["responses"] or [] if x.get("answer") is not None), None)
+    right = (row["response"] or {}).get("answer")  # the answer this one was for, not its question's first
     return {
         "item_key": row["item_key"],
         "question": focus_paper.question_text(row),

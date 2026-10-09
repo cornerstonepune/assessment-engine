@@ -23,7 +23,8 @@ def remark(conn, child_id, item_id=None):
     blank the engine settled alone before ADR 0029 is held for a person here, its reading unchanged."""
     rows = conn.execute(
         "select r.id, r.capture_id, r.item_id, r.raw_read, r.status, r.misconception_codes, r.working_shown, i.spec,"
-        " i.responses, i.fmt from item_result r join item i on i.id = r.item_id"
+        " i.responses, result_response(i.responses, r.rid) as response, i.fmt from item_result r"
+        " join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
         " where (%(c)s::uuid is null or si.child_id = %(c)s) and (%(i)s::uuid is null or r.item_id = %(i)s)"
         " and r.state = 'candidate' and r.raw_read is not null and c.superseded_by is null"
@@ -34,7 +35,7 @@ def remark(conn, child_id, item_id=None):
     trust, rate, learned = profiles.kind_trust(conn), marking.spot_rate(conn), learned_mistakes.rules(conn)
     for r in rows:
         status, codes, working, read = marking.mark_read(
-            r["spec"], r["responses"][0], json.loads(r["raw_read"]), trust.get(r["fmt"], marking.UNTRUSTED),
+            r["spec"], marking.response_of(r), json.loads(r["raw_read"]), trust.get(r["fmt"], marking.UNTRUSTED),
             spot=marking.spot_checked(r["capture_id"], r["item_id"], rate),  # the same sample as when it was read
             learned=learned,
         )  # fmt: skip
@@ -80,7 +81,8 @@ def mark_again(conn, by, item_id=None):
     2026-09-30: "false" for "odd + odd = odd" stayed wrong on every paper signed off before the rule was put right."""
     rows = conn.execute(
         "select r.id, r.capture_id, r.state, r.status, r.raw_read, i.item_key, i.spec, i.responses,"
-        " k.human_read as typed, k.judged from item_result r join item i on i.id = r.item_id"
+        " result_response(i.responses, r.rid) as response, k.human_read as typed, k.judged from item_result r"
+        " join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id"
         " join lateral (select human_read, judged from read_correction where item_result_id = r.id"
         " order by created_at desc limit 1) k on true"
@@ -109,7 +111,8 @@ def by_new_key(conn, by, item_id, was):
       named for the educator where the new right answer marks its reading otherwise.
     What a person typed is `mark_again`'s; what no person has seen yet is `remark`'s."""
     rows = conn.execute(
-        "select r.id, r.state, r.status, r.raw_read, i.item_key, i.spec, i.responses, k.judged from item_result r"
+        "select r.id, r.state, r.status, r.raw_read, i.item_key, i.spec, i.responses,"
+        " result_response(i.responses, r.rid) as response, k.judged from item_result r"
         " join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
         " left join lateral (select id, judged from read_correction where item_result_id = r.id"
         " order by created_at desc limit 1) k on true"
@@ -119,7 +122,7 @@ def by_new_key(conn, by, item_id, was):
     ).fetchall()
     learned, changed, left = learned_mistakes.rules(conn), [], []
     for r in rows:
-        reading, response = marking._read(r), r["responses"][0]
+        reading, response = marking._read(r), marking.response_of(r)
         mark = marking.mark(r["spec"], response, reading, learned)
         before = marking.mark(r["spec"], {**response, "answer": was}, reading, learned)[0]
         if mark[0] == r["status"] or before != r["status"]:

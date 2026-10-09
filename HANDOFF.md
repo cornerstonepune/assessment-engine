@@ -3,6 +3,30 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M0a: every answer of a question with several answers counts
+
+- **Slice:** M0a of BUILD-ORDER "Inserted now: multiplication and division" (W1 gate 3, reopened). Goal
+  `goals/md0a-every-answer-counts.yaml`; tests `packages/engine/tests/test_every_answer.py`.
+- **What changed:**
+  - a library worksheet question with more than one answer is read: one slot per answer (`copies._slots`), the first
+    keeps the question's number, the rest are `n.rid`;
+  - a printed paper's tick or sentence never reaches the digit reader: `boxes.read_page(for_a_person=…)` hands it to a
+    person with its crop and the reason;
+  - every result is marked and shown against its own answer: `marking.response_of` in the engine, the SQL function
+    `result_response` in the engine's and the website's queries (migration `20261025090000`);
+  - an estimate is right within its own tolerance; a written reason goes to a person, never "unreadable";
+  - a card says which answer it is ("answer 2 of 2 · exact", `result_part`);
+  - `engine audit` names any result whose answer is not one its question asks for;
+  - after a second reader's review: the report, the second reader, mistake naming, the unaligned-page fallback, the
+    notebook and the card's question number each read an answer as its own (STATE.md, "M0a").
+- **On live after merge:** the migration runs on its own. Copies read before stay as read: a question with several
+  answers on them was never read. Sending a copy's Drive link to `POST /read/file` with `again: true` reads it afresh.
+- **G1 rehearsal (main 1c777cc, run 37928964729) passed on a copy of live.** On live, Nimish runs `bin/update-live`.
+  Then four skill sets wait for one approval each on Curriculum → Read and approve: `DATA.TALLY` and `MUL.GROUPS`
+  (new), and `ADD.1D1D` and `REASON.EXPLAIN` (their levels rewritten, `bank levels --apply`).
+- **Next:** M0b, `goals/md0b-division-is-an-operation.yaml`. ÷ is an operation wherever one is named. The first test:
+  `M.predict('÷', 85, 4)` today raises `KeyError`.
+
 ## 2026-10-09 — multiplication and division: the taxonomy drafted, the build planned
 
 - **The ask:** Nimish wants multiplication and division the way addition and subtraction were done, through the whole

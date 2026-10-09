@@ -34,6 +34,8 @@ EDGE = 0.8  # mm each printed pixel is grown by before it is removed: the line, 
 INSIDE = 0.7  # mm inside its printed line a cell is measured for ink, so the line itself never counts
 # A pencil digit fills 3-15% of its cell; JPEG noise and a shadow on white, measured under 0.3%.
 INK = 0.012
+# The reason an answer that is not a number waits: `second_reader` skips a reason that says "not a number".
+FOR_A_PERSON = "not a number: a person reads what the child ticked or wrote here"
 # A digit is written down its box; an educator's tick or a stray stroke lies across it. Measured on 23 Sep R8-H01 copy
 # 05: digits span 74–87% of their box's height, the tick in the box after them 23%, an empty box's specks 6%.
 DIGIT_TALL = 0.45
@@ -47,6 +49,9 @@ COARSE = 5  # a page's print and marks are compared at PPM / COARSE: 2 px a mm, 
 RULE = 6  # mm: a box's edge is 5.4–13 mm, a run of them longer; a pencil stroke across a box is shorter
 GROW = 1.5  # mm a mark and a printed line may sit apart and still be the same line: a curved photograph
 NOT_FOUND = "its printed question was not found where the page lines up: a crease may have moved it"
+UNALIGNED = (
+    "the page did not line up with the paper it printed from, so this answer's own boxes were not found"
+)
 # Telling one page of a worksheet from another (`_fits`): each page's own print is its words that no other page
 # prints within APART mm, looked for on the photograph within OWN_GROW mm, at PPM / FINE — 5 px a mm, a digit's
 # strokes apart. On the 2026-09-29 photographs this put all eight on their own page; the ruled lines alone, five.
@@ -318,10 +323,22 @@ def decide(words, inked, floor):
     return digits, conf, ""
 
 
-def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep=None):
+def _for_a_person(canon, to_photo, img, frame, cells, slot, keep):
+    """An answer that is not a number — a tick, a sentence — shown to a person where it was written, never read."""
+    out = {"working_shown": "none", "box": _back(to_photo, cells, img.shape, frame, 2), "boxes": len(cells),
+           "inked": 0, "seen": [], "child_answer": "", "answer_state": "for_a_person", "why": FOR_A_PERSON,
+           "guess": "", "confidence": 0.0}  # fmt: skip
+    if keep:
+        out["crop"] = keep(slot, photo(canon, cells))
+    return out
+
+
+def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep=None, for_a_person=()):
     """One page of a scan → {slot: reading} in the shape `ocr.answers_for` gives, or None when the page will
-    not line up with the paper. `wanted`: {slot: (item_key, rid)} for the questions printed on this page.
-    `keep`: (slot, png) → path — each answer's crop, blank or written, kept as read (`crops.keeper`)."""
+    not line up with the paper. `wanted`: {slot: (item_key, rid)} for the answers printed on this page.
+    `keep`: (slot, png) → path — each answer's crop, blank or written, kept as read (`crops.keeper`).
+    `for_a_person`: the slots whose answer is not a number (a tick, a sentence): each comes back for a person, with
+    the place it was written and its crop, and is never handed to the digit reader."""
     canon, to_photo = line_up(img, pdf, page_no)
     if canon is None:
         return None
@@ -331,6 +348,13 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
     runs, works = cells_of(geometry, page_no)
     out = {}
     for slot, (item_key, rid) in wanted.items():
+        if slot in for_a_person:
+            marks = [
+                g for g in geometry if g["page"] == page_no and (g["item"], g["resp"]) == (item_key, rid)
+            ]
+            if marks:
+                out[slot] = _for_a_person(canon, to_photo, img, frame, marks, slot, keep)
+            continue
         run = runs.get((item_key, rid))
         if not run:
             continue

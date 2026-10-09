@@ -20,7 +20,7 @@ from engine.assess import misconceptions as M
 from engine.assess.items import Item
 from engine.core import db
 from engine.w3_read import checked, reading, render_pdf
-from engine.w3_read.marking import _MINUS, normalise_answer, verdicts
+from engine.w3_read.marking import _MINUS, normalise_answer, response_of, verdicts
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
 # `capture_live_content_idx` forbids two LIVE captures of one file, so on a re-read the old row must
@@ -537,7 +537,7 @@ def import_scan(
                     summary["unmatched"].append(key)
                     continue
                 status, codes, working, read = judge(it, read)
-                rid = it["responses"][0].get("rid", "a")
+                rid, read = response_of(it).get("rid", "a"), {**read, "slot": key}  # its number on this copy
                 wrote = conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"

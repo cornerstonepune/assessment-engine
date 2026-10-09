@@ -41,6 +41,7 @@ def run(conn, child_ids, cli=None, second=True):
     for r in profiles.checked_rows(conn):
         by_child.setdefault(str(r["child_id"]), []).append(r)
     files = {(str(f["child_id"]), str(Path(f["path"]).expanduser())): f for f in reread.files(conn)}
+    old = reread.old_papers(conn)
     report = []
     for child in child_ids:
         mine = by_child.get(str(child), [])
@@ -50,6 +51,9 @@ def run(conn, child_ids, cli=None, second=True):
             path = Path(first["path"]).expanduser()
             f = files.get((str(child), str(path)))
             result = {"child": str(child), "paper": first["paper"], "file": path.name, "n": len(on_paper)}
+            if first["paper"] not in old:  # a library copy is read by `copies`, not from an old paper's rows
+                report.append({**result, "skipped": "not an old paper"})
+                continue
             if not f or not path.exists():
                 report.append({**result, "skipped": "scan not on this machine"})
                 continue

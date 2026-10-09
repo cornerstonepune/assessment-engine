@@ -71,7 +71,7 @@ def test_a_signed_off_answer_joins_the_gold_set_and_a_correction_on_the_same_ans
     """ADR 0032: a sign-off is a person saying the reader's reading is what the child wrote. It joins
     the set the reader is scored against, as a typed correction does — and where both exist for one
     answer, the typed one is the truth."""
-    from engine.w3_read import marking, profiles
+    from engine.w3_read import marking, profiles, reread
 
     row = {
         "paper": "G2-X",
@@ -87,6 +87,7 @@ def test_a_signed_off_answer_joins_the_gold_set_and_a_correction_on_the_same_ans
     monkeypatch.setattr(
         marking, "corrections", lambda conn: [{**row, "item_key": "G2-X/1/5", "human_read": "19"}]
     )
+    monkeypatch.setattr(reread, "old_papers", lambda conn: {"G2-X"})  # an old paper, entered by hand
     sheets = [s for s in read_eval.gold_sheets(conn=object()) if s["paper"] == "G2-X"]
     assert len(sheets) == 1
     assert sorted((a["n"], a["child_answer"]) for a in sheets[0]["answers"]) == [("4", "45"), ("5", "19")]
