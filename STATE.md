@@ -4732,3 +4732,53 @@ Goal `goals/md0b-division-is-an-operation.yaml`.
     stories, in M4;
   - the website's mistake names by operation go to M0c.
 - **Not done here:** ÷'s own mistakes, kinds and tags (M3 and M1).
+
+## M0c — a skill set is read as itself (2026-10-09)
+
+Goal `goals/md0c-a-skill-set-is-read-as-itself.yaml`; ADR 0048.
+
+**Measured before the build.**
+- About twenty-four places read a skill set through its rung: the graph's SQL functions, the class card, the child and
+  parent reports, and the website's children, report and curriculum queries. Nothing kept a second skill set off a
+  rung. The seed holds one on each (28 on 28), so no report is wrong today.
+- A skill set's own skill, which the next paper is chosen by (`w2_print/shelf._catalog`, read by `assess/focus.py` and
+  `w2_print/focus_paper.py`), was the most common skill among its questions, ties broken by the alphabet. On the local
+  copy, four of 28 differed from the skill their rung declares first:
+  ```
+  EQUALITY.INVERSE   | R16 | declared NUM.OPS.05  | counted NUM.OPS.01
+  MUL.GROUPS         | R35 | declared NUM.OPS.03  | counted NUM.OPS.01
+  STRATEGY.EFFICIENT | R13 | declared NUM.OPS.05  | counted NUM.OPS.01
+  WORD.BUDGET        | R14 | declared NUM.PRB.02  | counted NUM.MEAS.04
+  ```
+- `M_WRONG_OP` has three names: subtracted instead of adding, added instead of subtracting, added instead of
+  multiplying. The website's Marking cards, picker and lanes, the child's answers and skills panel, the charges table
+  and repeated mistakes each took whichever row came first.
+
+**Now.** Each claim with the command that proves it:
+- `cd packages/engine && .venv/bin/python -m pytest -q tests/test_a_skill_set_is_read_as_itself.py tests/test_focus.py
+  tests/test_focus_paper.py tests/test_maker.py` → `39 passed`. It covers:
+  - a second skill set on a taken rung is refused (`UniqueViolation`);
+  - every taught skill set's own skill is the one its rung declares, equal groups is Multiplication, and a skill set
+    with no question has none, so no paper is drawn from it;
+  - one rule names a mistake, in the database (`mistake_name`) and the engine (`name_of`), checked equal for every
+    mistake, every operation's skill, and every way an operation is written (`operation_sign` against
+    `operations.sign`, sign by sign). The rule: the question's own operation, else the operation of the skill the
+    mistake was charged to; failing that, its name for any operation, else its one name, else its code.
+- **Website:** every screen that names a mistake passes its question's operation and the skill each mistake was
+  charged to, and reads the database's answers (`lib/mistake-name.ts` looks them up and decides nothing). This covers
+  the Marking card, picker and lanes, the child's answers and skills panel, the charges table and repeated mistakes.
+  `cd apps/web && npx tsc --noEmit -p . && npx eslint . --max-warnings=0` → clean.
+- **`M_WRONG_OP` has a name for any operation**, "Chose the wrong operation", where none is known: a story with no
+  operation, or a mistake charged to Word problems, which the approval page and the class card showed as a code. It is
+  a seed row (`supabase/seed/misconceptions.json`), live after the next `bin/update-live`.
+- **A teacher-asked paper** finds the child's repeated mistake on its skill set's own rung (`focus_paper._asked`), so
+  `STRATEGY.EFFICIENT` keeps the mistakes charged to Addition and Subtraction there. Before, it took any lagging state
+  of the set's own skill from any rung.
+- **A second reader reviewed the diff** and found, among the five above, that `tests/test_bank.py` put a test skill set
+  on a taken rung (27 errors). Its fixture now gives it a rung of its own (`TEST.R`).
+- **Nothing else broke.** `cd packages/engine && .venv/bin/python -m pytest -q` → `1469 passed, 2 failed`:
+  - `test_roles`, which did not yet list `operation_sign` among the functions the website may call;
+  - `test_mistake_names`, which held "never a guess" as the raw code `M_WRONG_OP`. It now holds the name for any
+    operation, which is not a guess either.
+
+  Both fixed; the suites they and this slice touch → `76 passed`; `bin/check` → `27 passed`.

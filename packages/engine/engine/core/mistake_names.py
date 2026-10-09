@@ -5,7 +5,8 @@ addition, "added instead of subtracting" in a subtraction, "added instead of mul
 `misconception` row each (the table's key is code and op). A lookup by code alone keeps whichever row came last: on
 2026-09-28 a live report called "763 children, 427 girls, how many boys? — wrote 1190" added-instead-of-multiplying.
 The name is the one for the question's own operation; else the operation of the skill it was charged to
-(`skills.by_operation`, read backwards); a code whose rows all share one name needs neither.
+(`skills.by_operation`, read backwards); else its name for any operation; a code whose rows all share one name needs
+none of these. The website reads the same rule (`mistake_name`, migration 20261027090000), held to this by a test.
 """
 
 from collections.abc import Callable
@@ -40,8 +41,9 @@ def names(conn: db.Conn, field: Field = "name") -> HintOf:
 
     def name_of(code: str, op: str | None = None, skill: str | None = None) -> str | None:
         op = _op(op) or (op_of_skill.get(skill) if skill else None)
-        if (code, op) in exact:
-            return exact[(code, op)]
+        for key in ((code, op), (code, "any")):  # its operation's name, else its name in any operation
+            if key in exact:
+                return exact[key]
         only = alone.get(code, set())
         return next(iter(only)) if len(only) == 1 else (code if field == "name" else None)
 

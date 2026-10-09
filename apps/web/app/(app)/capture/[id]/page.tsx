@@ -1,3 +1,4 @@
+import { mistakeName } from "@/lib/mistake-name";
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Bar, Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
@@ -77,7 +78,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
       right: marked.filter((a) => a.status === "correct").length,
       marked: marked.length,
       open: rows.length - marked.length,
-      mistakes: [...new Set(marked.flatMap((a) => a.misconception_codes))],
+      mistakes: [...new Set(marked.flatMap((a) => a.misconception_codes.map((c) => mistakeName(names, c, a.op, a.mistake_skills?.[c] ?? a.skill_code))))],
     };
   });
 
@@ -145,7 +146,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
                     </ol>
                     {l.mistakes.length ? (
                       <p className="mt-2 text-[12.5px] text-terracotta">
-                        Mistake matched: {l.mistakes.map((c) => names[c] ?? c).join("; ")}
+                        Mistake matched: {l.mistakes.join("; ")}
                       </p>
                     ) : null}
                   </li>

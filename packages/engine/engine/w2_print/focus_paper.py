@@ -140,7 +140,9 @@ def _asked(conn, states, ask) -> list:
         if not isinstance(n, int) or not 1 <= n <= MOST_ASKED:
             raise ValueError(f"ask for 1 to {MOST_ASKED} questions in an area, not {n!r}")
         own = cat[code]["own"]
-        mine = [x for x in states if x["skill_code"] == own and x["state"] in focus.LAGGING]
+        # the child's states on this skill set's own rung (ADR 0048: a rung is one skill set), whatever skill a mistake
+        # there was charged to; a state of the same skill on another rung is another skill set's
+        mine = [x for x in states if x["rung_code"] == cat[code]["rung"] and x["state"] in focus.LAGGING]
         weakest = min(mine, key=lambda x: focus.LAGGING.index(x["state"]), default=None)
         mistake = weakest["repeating_misconception"] if weakest else None
         out.append((focus.Area(code, own, level, 0, 0, mistake, "asked"), n))
