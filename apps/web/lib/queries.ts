@@ -57,7 +57,7 @@ export async function chargesTable(): Promise<ChargesTable> {
   const pairs = Object.entries(table).flatMap(([kind, m]) => Object.entries(m).map(([code, skill]) => ({ kind, code, skill })));
   const names = pairs.length
     ? await sql<{ code: string; mistake: string; skill: string; skill_name: string }[]>`
-        select p.code, p.skill, (select m.name from misconception m where m.code = p.code order by m.op = 'any' desc limit 1) as mistake,
+        select p.code, p.skill, mistake_name(p.code, p.skill) as mistake,
                (select k.name from skill k where k.code = p.skill limit 1) as skill_name
         from jsonb_to_recordset(${sql.json(pairs as never)}::jsonb) as p(kind text, code text, skill text)`
     : [];
@@ -126,9 +126,18 @@ export async function numSkills(): Promise<Skill[]> {
     order by k.code`;
 }
 
+// Every mistake's name for each operation, for each operation's skill, and for neither, by the database's one rule
+// (`mistakeName` reads it).
 export async function misconceptionNames(): Promise<Record<string, string>> {
-  const rows = await sql<{ code: string; name: string }[]>`select distinct on (code) code, name from misconception order by code`;
-  return Object.fromEntries(rows.map((r) => [r.code, r.name]));
+  const rows = await sql<{ key: string; name: string }[]>`
+    with codes as (select distinct code from misconception),
+         ops as (select e.key as op, e.value as skill from config c, jsonb_each_text(c.value) e where c.key = 'skills.by_operation')
+    select codes.code || '@' || ops.op as key, mistake_name(codes.code, null, ops.op) as name from codes, ops
+    union all
+    select codes.code || '|' || ops.skill, mistake_name(codes.code, ops.skill) from codes, ops
+    union all
+    select code, mistake_name(code, null) from codes`;
+  return Object.fromEntries(rows.map((r) => [r.key, r.name]));
 }
 
 // Honest empty states read the real tables so a screen can say what exists, even when that is nothing.
@@ -281,6 +290,10 @@ export type PendingResult = {
   working: string;
   status: string;
   misconception_codes: string[];
+  // what a mistake on it is named for: its operation, else the skill each mistake was charged to, else its own skill
+  op: string | null;
+  mistake_skills: Record<string, string> | null;
+  skill_code: string;
   capture_id: string;
   paper_id: string;
   page: number;
@@ -300,7 +313,8 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
-           r.status, r.misconception_codes
+           r.status, r.misconception_codes, i.skill_codes[1] as skill_code,
+           operation_sign(i.spec ->> 'op') as op, i.mistake_skills
     from item_result r
     join item i on i.id = r.item_id
     join capture c on c.id = r.capture_id
@@ -322,6 +336,8 @@ export type Evidence = {
   working: string;
   status: string;
   misconception_codes: string[];
+  // the question's operation, as `operation_sign` folds it: what its mistakes are named for, before `skill_code`
+  op: string | null;
 };
 
 // Every confirmed answer, with the question and what the child wrote, so a rung's state can be
@@ -333,7 +349,7 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
-           r.status, e.misconception_codes
+           r.status, e.misconception_codes, operation_sign(i.spec ->> 'op') as op
     from evidence_placed e
     join item_result r on r.id = e.item_result_id
     join item i on i.id = r.item_id

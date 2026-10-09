@@ -113,6 +113,9 @@ export type CaptureAnswer = {
   kind: string;
   rung_code: string;
   skill_code: string;
+  // what a mistake on it is named for (`mistakeName`): its operation, else the skill each mistake was charged to
+  op: string | null;
+  mistake_skills: Record<string, string> | null;
   answer: string | null;
   read: string | null;
   answer_state: string | null;
@@ -157,6 +160,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
+           operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
@@ -297,6 +301,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
+           operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,

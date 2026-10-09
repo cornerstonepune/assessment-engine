@@ -29,9 +29,15 @@ RULE = {"op": "-", "digits": [3, 2], "regroups": [1]}
 @pytest.fixture
 def conn():
     with db.connect() as c:
+        # a rung of its own, as every skill set has (ADR 0048): a copy of SUB.3D2D's, off the ladder
+        c.execute(
+            "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes, milestone_id)"
+            " select tenant_id, 'TEST.R', band, null, descriptor, skill_codes, milestone_id from rung"
+            " where code = (select rung_code from skill_set where code = 'SUB.3D2D')"
+        )
         c.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
-            " difficulty, status) select tenant_id, %s, rung_code, 'the model path, under test', learning_objective,"
+            " difficulty, status) select tenant_id, %s, 'TEST.R', 'the model path, under test', learning_objective,"
             " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified'"
             " from skill_set where code = 'SUB.3D2D'",
             (
@@ -86,7 +92,7 @@ def test_spec_is_built_only_from_rows(conn):
     assert prompt_input["difficulty"].startswith("Hard:")
     assert any("exchange" in line.lower() for line in prompt_input["philosophy"])
     assert {m["code"] for m in prompt_input["misconceptions"]} >= {"M_SMALL_FROM_LARGE", "M_NO_DECREMENT"}
-    assert s["rung_code"] == "R30"  # SUB.3D2D's rung, which the fixture's skill set is made on
+    assert s["rung_code"] == "TEST.R"  # the fixture's own rung, a copy of SUB.3D2D's
 
 
 def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
@@ -108,7 +114,7 @@ def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
         "generated",
         SET,
         DIFF,
-        "R30",
+        "TEST.R",
     )
     assert row["tags"]["operation"] == "SUB" and row["tags"]["regrouping"] == "SINGLE"
 

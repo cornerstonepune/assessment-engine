@@ -193,7 +193,7 @@ export async function repeatedMistakes(id: string): Promise<Repeated[]> {
     from child_skill_state s
     join rung r on r.code = s.rung_code
     left join lateral (select name from skill where code = s.skill_code limit 1) k on true
-    left join lateral (select name from misconception where code = s.repeating_misconception order by op = 'any' desc limit 1) m on true
+    left join lateral (select mistake_name(s.repeating_misconception, s.skill_code) as name) m on true
     where s.child_id = ${id}::uuid and s.repeating_misconception is not null
     order by times desc, r.ladder_order`;
 }

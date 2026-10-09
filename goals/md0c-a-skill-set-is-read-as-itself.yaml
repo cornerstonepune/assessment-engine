@@ -1,0 +1,27 @@
+name: md0c-a-skill-set-is-read-as-itself
+goal: >
+  A skill set is read as itself everywhere it is read. A rung holds one skill set, and the database refuses a second, so
+  every report and the graph, which read a skill set through its rung, read the right one. A skill set's own skill is
+  the one its rung declares first, never a count of its questions' skills: equal groups is Multiplication, not Addition.
+  A mistake is named for its question's own operation on the website as in the engine, so "chose the wrong operation"
+  on a subtraction never reads "added instead of multiplying".
+
+# Written 2026-10-09, before the code: slice M0c of BUILD-ORDER "Inserted now: multiplication and division". Measured
+# first (STATE.md "M0c — measured before the build"): no constraint kept two skill sets off one rung though every
+# report and the graph join a skill set by its rung; four skill sets' own skill was a count of their questions' skills
+# (MUL.GROUPS and EQUALITY.INVERSE and STRATEGY.EFFICIENT counted as Addition, WORD.BUDGET as Money); and the website
+# took any one of M_WRONG_OP's three names.
+says:
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_a_skill_set_is_read_as_itself.py::test_a_skill_sets_own_skill_is_the_one_its_rung_declares
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_a_skill_set_is_read_as_itself.py::test_the_website_names_a_mistake_for_its_operation_as_the_engine_does
+  - words: "this is a good test as to how our flow works"
+    proved_by: packages/engine/tests/test_a_skill_set_is_read_as_itself.py::test_a_rung_holds_one_skill_set
+criteria:
+  - name: a skill set read as itself; the catalogue, papers, names and roles it touches
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_a_skill_set_is_read_as_itself.py tests/test_mistake_names.py tests/test_roles.py tests/test_focus_paper.py tests/test_focus.py tests/test_maker.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

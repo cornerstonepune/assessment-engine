@@ -36,7 +36,13 @@ CATALOG = [
         "skills": {"NUM.OPS.01", "NUM.OPS.05"},
     },
     {"code": "SUB.3D3D", "rung": "R10", "order": 10, "own": "NUM.OPS.02", "skills": {"NUM.OPS.02"}},
-    {"code": "WORD.BUDGET", "rung": "R14", "order": 14, "own": "NUM.MEAS.04", "skills": {"NUM.MEAS.04"}},
+    {
+        "code": "WORD.BUDGET",
+        "rung": "R14",
+        "order": 14,
+        "own": "NUM.PRB.02",
+        "skills": {"NUM.PRB.02", "NUM.MEAS.04"},
+    },
     {"code": "REASON.EXPLAIN", "rung": "X1", "order": None, "own": "NUM.PRB.03", "skills": {"NUM.PRB.03"}},
 ]
 RULE = {"most": 3, "reach": 2, "easy_below": 0.5}

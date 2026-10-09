@@ -1,6 +1,7 @@
 // One answer on the Marking page: the patch of the photograph it was read from, what the engine made of it, the right
 // answer as the engine stores it, and what a person is asked — what the child wrote, and, if the stored right answer is
 // wrong, what it is for every child (goals/s26-the-right-answer-shown-and-corrected.yaml).
+import { mistakeName } from "@/lib/mistake-name";
 import { MarkPill, Pill } from "@/components/shell";
 import { held, type CaptureAnswer } from "@/lib/queries-read";
 import { changeKey, correctRead, judgeRead, nameMistake } from "../actions";
@@ -92,7 +93,7 @@ export function AnswerCard({
         <p className="mt-2 text-[13.5px]">{reading(a)}</p>
         {a.misconception_codes.length ? (
           <p className="mt-1 text-[12.5px] text-terracotta">
-            The mistake this matches: {a.misconception_codes.map((c) => names[c] ?? c).join("; ")}
+            The mistake this matches: {a.misconception_codes.map((c) => mistakeName(names, c, a.op, a.mistake_skills?.[c] ?? a.skill_code)).join("; ")}
             <span className="fact ml-2 text-[11px] text-basalt/45">{a.misconception_codes.join(" ")}</span>
           </p>
         ) : null}
@@ -167,7 +168,7 @@ export function AnswerCard({
 // each, any other named mistake is in the list, and "none of these" is an answer too. Jev only proposes.
 function MistakePicker({ a, paperId, names, u }: { a: CaptureAnswer; paperId: string; names: Record<string, string>; u: Unnamed }) {
   const listed = new Set(u.shortlist.map(([c]) => c));
-  const label = (c: string) => (c === "NONE" ? "None of these" : (names[c] ?? c));
+  const label = (c: string) => (c === "NONE" ? "None of these" : mistakeName(names, c, a.op, a.mistake_skills?.[c] ?? a.skill_code));
   return (
     <div className="mt-3 border-l-2 border-terracotta/40 pl-3" aria-label={`Name the mistake for question ${a.slot}`}>
       <p className="text-[12.5px]">

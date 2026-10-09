@@ -415,6 +415,16 @@
       "external_ref": null
     },
     {
+      "code": "M_WRONG_OP",
+      "op": "any",
+      "name": "Chose the wrong operation",
+      "description": "Works the numbers with another operation than the one the question asks for: a story that takes away, added.",
+      "repair_hint": "Read the question aloud; identify the operation word",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md0c-a-skill-set-is-read-as-itself.yaml: its name where the question's operation is not known (a story with no operation, a mistake charged to Word problems)",
+      "external_ref": null
+    },
+    {
       "code": "M_MUL_UNITS_REVERSED",
       "op": "×",
       "name": "Writes only the units digit of each product, ones column first",

@@ -3,6 +3,26 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M0c: a skill set is read as itself
+
+- **Slice:** M0c (W1 gate 3). Goal `goals/md0c-a-skill-set-is-read-as-itself.yaml`; tests
+  `packages/engine/tests/test_a_skill_set_is_read_as_itself.py`; ADR 0048.
+- **M0b is merged:** main `020a2b1`.
+- **What changed:**
+  - migration `20261027090000`:
+    - a rung holds one skill set (unique index);
+    - `mistake_name(code, skill)` is the one rule for a mistake's name;
+  - the next paper's catalogue reads a skill set's own skill from its rung. That changes four of them, equal groups
+    now Multiplication;
+  - the website names every mistake for its answer's own skill.
+- **Why not re-key the reports by skill set:** ADR 0048. With one skill set per rung they were never wrong.
+- **Waiting for Nimish's next `bin/update-live`** (seed rows, not loaded by a deploy):
+  - `M_WRONG_OP`'s name for any operation (M0c);
+  - the case dimension `operation` allowing MUL and DIV (M0b).
+
+  M0b's `skills.by_operation` (÷ → `NUM.OPS.04`) is a config row and went live with its deploy.
+- **Next:** M1, the taxonomy as rows.
+
 ## 2026-10-09 — M0b: division is an operation wherever one is named
 
 - **Slice:** M0b of BUILD-ORDER "Inserted now: multiplication and division" (W1 gate 3). Goal

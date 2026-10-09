@@ -1,3 +1,4 @@
+import { mistakeName } from "@/lib/mistake-name";
 import { Panel, Pill } from "@/components/shell";
 import type { Evidence } from "@/lib/queries";
 import { STATE_WORDS } from "@/lib/queries";
@@ -64,7 +65,7 @@ function SkillLine({ s, of, answers, names }: { s: ChildSkill; of: string | null
           <Pill tone={words.tone}>{state === "not_enough_yet" ? "too few answers to say" : words.words}</Pill>
           {s.repeating_misconception ? (
             <span className="text-[12.5px] text-terracotta">
-              keeps: {names[s.repeating_misconception] ?? s.repeating_misconception}
+              keeps: {mistakeName(names, s.repeating_misconception, null, s.skill_code)}
             </span>
           ) : null}
           {blank ? <span className="text-[12px] text-basalt/62">{blank} left blank</span> : null}

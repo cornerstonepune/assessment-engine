@@ -21,7 +21,9 @@ def test_one_code_is_named_for_the_operation_of_its_question_or_of_its_skill():
     assert name_of("M_WRONG_OP", op="*") == "Added instead of multiplying"
     assert name_of("M_WRONG_OP", skill="NUM.OPS.01") == "Subtracted instead of adding"
     assert name_of("M_FACT_PM10") == "Tens miscounted", "one name in every operation needs no operation"
-    assert name_of("M_WRONG_OP") == "M_WRONG_OP", "never a guess at which one"
+    assert name_of("M_WRONG_OP") == "Chose the wrong operation", (
+        "with no operation known, its name for any operation: never a guess at which one (M0c)"
+    )
     assert name_of("M_NO_SUCH") == "M_NO_SUCH"
 
 

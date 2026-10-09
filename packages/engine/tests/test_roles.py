@@ -41,6 +41,8 @@ WEB_CALLS = {
     "result_part",
     "result_slot",
     "result_order",
+    "mistake_name",
+    "operation_sign",
 }
 
 
