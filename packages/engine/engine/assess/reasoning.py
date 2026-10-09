@@ -8,6 +8,7 @@ Deterministic given an RNG. A ticked answer's wrong option carries the mistake i
 """
 
 from . import misconceptions as M
+from . import operations as O
 from .items import Response, cells, item
 from .rounding import half_up
 
@@ -33,6 +34,7 @@ def choose_estimate(rng, rung, signal, op="+", digits=3):
     """Three hundreds in order, the nearest one right. It sits first, in the middle or last in turn, so
     ticking one place every time scores a third, not everything; an exact answer ending in 50 is equally
     near two of them, a question with two answers, so it is never asked."""
+    op = O.require("choose_estimate", op)
     a, b = _pair(rng, op, digits)
     exact = a + b if op == "+" else a - b
     if exact % 100 == 50:
@@ -64,6 +66,7 @@ def choose_estimate(rng, rung, signal, op="+", digits=3):
 
 def possible_answer(rng, rung, signal, op="+", digits=3):
     """Right or impossible by size: an extra digit, a lost digit, or the true answer."""
+    op = O.require("possible_answer", op)
     a, b = _pair(rng, op, digits)
     exact = a + b if op == "+" else a - b
     # right as often as wrong: drawn evenly from one right kind and two wrong ones, "no" was the answer two times in
@@ -96,6 +99,7 @@ def possible_answer(rng, rung, signal, op="+", digits=3):
 
 
 def odd_even(rng, rung, signal, op="+", digits=3):
+    op = O.require("odd_even", op)
     a, b = _pair(rng, op, digits)
     exact = a + b if op == "+" else a - b
     answer = "even" if exact % 2 == 0 else "odd"
@@ -124,6 +128,7 @@ def odd_even(rng, rung, signal, op="+", digits=3):
 
 def break_apart(rng, rung, signal, op="+", digits=3):
     """347 + 25: add the tens, then the ones — two boxes, one after the other (§8)."""
+    op = O.require("break_apart", op)
     lo, hi = 10 ** (digits - 1), 10**digits - 1
     a, b = rng.randint(lo, hi), rng.randint(11, 89)
     if b % 10 == 0 or (op == "-" and b >= a):

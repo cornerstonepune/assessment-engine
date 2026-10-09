@@ -22,7 +22,6 @@ WORKING_LINES = {
     "missing_digit": 2,
     "digit_cards": 3,
     "partition_scaffold": 0,
-    "sort_into_table": 0,
     "partial_worked": 0,
     "equation": 1,
     "fact_family": 0,

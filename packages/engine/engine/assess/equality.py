@@ -9,6 +9,7 @@ The wrong answers each one predicts are the equality mistakes the vocabulary nam
 answer comes next", adding every number in sight, turning a subtraction round.
 """
 
+from . import operations as O
 from .items import Response, cells, item
 
 MINUS = "−"
@@ -203,6 +204,7 @@ def fact_family(rng, rung, signal, shape, hi=20):
 
 def inverse_check(rng, rung, signal, op, digits=3):
     """An answer checked with the other operation (§7): 347 + 258 = 605? 605 − 258 = □. Right or not?"""
+    op = O.require("inverse_check", op)
     lo, hi = 10 ** (digits - 1), 10**digits - 1
     a, b = rng.randint(lo, hi), rng.randint(lo, hi)
     if op == "-" and b >= a:

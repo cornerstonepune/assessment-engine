@@ -2,8 +2,8 @@
   "case_dimensions": [
     {
       "name": "operation",
-      "allowed": ["ADD", "SUB"],
-      "why": "Different inverse relationships and regrouping logic.",
+      "allowed": ["ADD", "SUB", "MUL", "DIV"],
+      "why": "Different inverse relationships and regrouping logic; multiplying and dividing undo each other as adding and taking away do.",
       "source": "taxonomy section 12; why from section 1"
     },
     {

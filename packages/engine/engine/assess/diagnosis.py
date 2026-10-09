@@ -11,6 +11,7 @@ engine can check — then the right answer, then why.
 """
 
 from . import misconceptions as M
+from . import operations as O
 from .items import Response, cells, item, sample_add, sample_sub
 
 NAMES = ["Ishaan", "Anaya", "Vihaan", "Saee", "Tara", "Arjun"]
@@ -184,6 +185,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
     """A worked answer with one named mistake; the child finds it, corrects it and says why.
 
     With no `planted` mistake the choice is the two column slips of its operation, as it always was."""
+    op = O.require("find_mistake", op)
     name = rng.choice(NAMES)
     code = planted or rng.choice(COLUMN_SLIPS[op][:2])
     if code not in PLANTABLE:

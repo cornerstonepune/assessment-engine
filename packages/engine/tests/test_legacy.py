@@ -42,6 +42,9 @@ WHERE = (
     json.loads((SEED / "skill_sets.json").read_text())["skill_sets"],
     {c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]},
     {r["code"]: r["skill_codes"] for r in json.loads((SEED / "rungs.json").read_text())["rungs"]},
+    {r["key"]: r["value"] for r in json.loads((SEED / "config.json").read_text())["config"]}[
+        "skills.by_operation"
+    ],
 )
 
 
@@ -1188,7 +1191,7 @@ def test_every_old_paper_question_has_a_place_on_todays_ladder(path):
     }
     paper = json.loads(path.read_text())
     for it in paper["items"]:
-        t = legacy._template_item(paper, it, (skills, cases, rung_skills))
+        t = legacy._template_item(paper, it, (skills, cases, rung_skills, WHERE[3]))
         assert t["rung"] in rung_skills, (it["n"], t["rung"])
 
 

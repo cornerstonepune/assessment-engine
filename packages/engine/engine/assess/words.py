@@ -16,6 +16,7 @@ from functools import lru_cache
 from typing import Any
 
 from engine.assess import misconceptions as M
+from engine.assess import operations as O
 from engine.assess.items import Response, cells, item, sample_add, sample_sub
 
 SEED = pathlib.Path(__file__).with_name("word_templates.json")
@@ -72,7 +73,7 @@ def word_1step(
     digits_max,
     regroups=(0, 1),
     structure=None,
-    op=None,
+    op: str | None = None,
     table=False,
     digits=None,
     max_total=None,
@@ -80,6 +81,7 @@ def word_1step(
     """One step (§10.1). `structure` pins the story shape; `op` the operation the child carries out;
     `table` asks for a story whose numbers are read from a small table (§10.2), and only then.
     `digits` ([2, 1]: a teen and a single digit) and `max_total` bound the numbers, as a level's rule may."""
+    op = op and O.require("word_1step", op)  # its stories add and take away
     pool = [
         t
         for t in templates("word_1step", structure=structure)
@@ -118,9 +120,11 @@ def _two_step_numbers(rng, structure, digits_max):
     return a, b, c
 
 
-def evaluate(formula, nums, flip=False, divide=1):
+def evaluate(formula: str, nums: dict[str, int], flip: bool = False, divide: int = 1) -> float:
     """A template's answer, "a-b+c": a signed sum of its numbers. `flip` turns every operation after
     the first number round — the answer a child gets by choosing the wrong operation each time."""
+    if set(formula) - set("abc+-"):  # read as signed numbers, a × or ÷ would be added: say so instead
+        raise O.CannotMake(f"a story's answer adds and takes away its numbers, not {formula!r}")
     total = 0
     for i, (sign, name) in enumerate(re.findall(r"([+-]?)([abc])", formula)):
         s = -1 if sign == "-" else 1

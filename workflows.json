@@ -179,9 +179,9 @@
     "frozen": {
       "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
-      "engine/assess/items.py": 571,
+      "engine/assess/items.py": 540,
       "engine/core/loaders.py": 409,
-      "engine/assess/misconceptions.py": 500
+      "engine/assess/misconceptions.py": 489
     }
   },
   "complexity": {
@@ -198,8 +198,8 @@
         "C901": 14
       },
       "engine/assess/render.py::render_item": {
-        "C901": 27,
-        "PLR0915": 85
+        "C901": 25,
+        "PLR0915": 79
       },
       "engine/assess/tags.py::derive": {
         "C901": 13
@@ -268,31 +268,30 @@
     ],
     "frozen": {
       "engine/assess/answer_space.py": 75,
-      "engine/assess/bands.py": 369,
-      "engine/assess/diagnosis.py": 238,
-      "engine/assess/draw.py": 441,
-      "engine/assess/equality.py": 167,
-      "engine/assess/equation.py": 71,
-      "engine/assess/estimate.py": 59,
+      "engine/assess/bands.py": 337,
+      "engine/assess/diagnosis.py": 228,
+      "engine/assess/draw.py": 436,
+      "engine/assess/equality.py": 164,
+      "engine/assess/estimate.py": 54,
       "engine/assess/evaluate.py": 63,
       "engine/assess/focus.py": 112,
       "engine/assess/geometry.py": 20,
       "engine/assess/graph.py": 26,
-      "engine/assess/items.py": 489,
+      "engine/assess/items.py": 448,
       "engine/assess/learned_rules.py": 164,
       "engine/assess/mark.py": 50,
-      "engine/assess/misconceptions.py": 334,
-      "engine/assess/missing_digits.py": 280,
+      "engine/assess/misconceptions.py": 296,
+      "engine/assess/missing_digits.py": 273,
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
       "engine/assess/placing.py": 45,
-      "engine/assess/reasoning.py": 125,
-      "engine/assess/render.py": 397,
-      "engine/assess/skills.py": 93,
+      "engine/assess/reasoning.py": 123,
+      "engine/assess/render.py": 388,
+      "engine/assess/skills.py": 87,
       "engine/assess/tags.py": 283,
       "engine/assess/taxonomy.py": 69,
-      "engine/assess/verify.py": 191,
-      "engine/assess/words.py": 198
+      "engine/assess/verify.py": 102,
+      "engine/assess/words.py": 182
     }
   }
 }

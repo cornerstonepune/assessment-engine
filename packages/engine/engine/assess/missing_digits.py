@@ -13,6 +13,7 @@ regroup reaches it, a fact one out.
 import itertools
 
 from . import misconceptions as M
+from . import operations as O
 from .items import Response, item, sample_add, sample_sub
 
 ROWS = ("FIRST", "SECOND", "RESULT")
@@ -126,7 +127,7 @@ def _boxes(op, a, b, c, hidden):
 def missing_digit(rng, rung, signal, rule):
     """One missing-digit question for a level's `rule` (op, width, missing_count, missing_in,
     missing_place, shape, regroups). Raises RuntimeError when this draw's numbers cannot make it."""
-    op = rule.get("op", "+")
+    op = O.require("missing_digit", rule.get("op", "+"))
     a, b = _numbers(rng, op, rule.get("width", 2), rule.get("regroups", (0, 1, 2)))
     c = _calc(op, a, b)
     if rule.get("shape") == "SAME_LETTER":

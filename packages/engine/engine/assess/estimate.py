@@ -3,6 +3,7 @@ tolerance of that, the exact answer marked with every mistake the numbers can sh
 someone's answer is close to the estimate."""
 
 from . import misconceptions as M
+from . import operations as O
 from .items import Response, cells, item, sample_add, sample_sub
 from .rounding import half_up
 
@@ -14,6 +15,7 @@ def estimate_then_calc(
 ):
     """Estimate by rounding both numbers to the nearest `round_to`, then work it out (§9). `judged` adds
     the question the taxonomy asks next: is the exact answer close to the estimate?"""
+    op = O.require("estimate_then_calc", op)
     if op == "+":
         a, b = sample_add(rng, digits_a, digits_b, regroups)
     else:

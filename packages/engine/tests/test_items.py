@@ -287,7 +287,6 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         ),
         I.digit_cards(rng, "R13", "Conceptual"),
         I.partition_scaffold(rng, "R9", "Conceptual", {1}),
-        I.sort_into_table(rng, "R9", "Conceptual", "+"),
         I.partial_worked(rng, "R10", "Conceptual"),
         words.word_1step(rng, "R8", "Application", 2, (0, 1)),
         # kinds whose levels are made of taxonomy cases since step 8h, so the seed loop above no longer

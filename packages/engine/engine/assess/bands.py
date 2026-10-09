@@ -7,6 +7,7 @@ sampling, and the second one would have drifted from the first.
 
 import random
 from collections.abc import Callable
+from typing import Any
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
@@ -15,6 +16,7 @@ from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
+from engine.assess import operations as O
 from engine.assess import reasoning as RS
 from engine.assess import words as W
 
@@ -75,7 +77,7 @@ def pairs(check, n, seed=1):
     return out
 
 
-def one_of(v, rng):
+def one_of(v: Any, rng: random.Random) -> Any:
     """A check value that may be a single value or a list of alternatives (op, kind, …)."""
     return rng.choice(v) if isinstance(v, list) else v
 
@@ -100,7 +102,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
         rng, rung, signal, kind=one_of(c.get("kind"), rng)),
     "word_1step": lambda rng, rung, signal, c: W.word_1step(
         rng, rung, signal, c.get("digits_max", 2), tuple(c.get("regroups", (0, 1))), structure=c.get("structure"),
-        op=c.get("op"), table=c.get("table", False), digits=c.get("digits"), max_total=c.get("max_total")),
+        op=one_of(c.get("op"), rng), table=c.get("table", False), digits=c.get("digits"), max_total=c.get("max_total")),
     "word_2step": lambda rng, rung, signal, c: W.word_2step(rng, rung, signal, c["digits_max"], structure=c.get("structure")),
     "word_budget": lambda rng, rung, signal, c: W.word_budget(
         rng, rung, signal, c.get("n_costs", 3), tuple(c.get("budget_range", (5000, 12000))),
@@ -196,6 +198,8 @@ def codes(check, n=20, seed=1, rung="R0", signal="Procedural"):
         for _ in range(n):
             try:
                 item = native_item(fmt, check, rng, rung, signal)
+            except O.CannotMake:
+                raise  # the rule asks this kind for an operation it does not make: said, never an empty list
             except (KeyError, ValueError, RuntimeError):
                 break  # a rule this generator cannot serve claims no misconceptions, and says so
             out |= {c for r in item.responses for c in (r.misconceptions or {})}

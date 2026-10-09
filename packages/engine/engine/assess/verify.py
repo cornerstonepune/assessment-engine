@@ -6,9 +6,10 @@ marker and the tag deriver cannot tell the two apart — and the same operands p
 item_key from either path, which is what stops the bank holding one sum twice.
 """
 
-from typing import Any
+from typing import Any, cast
 
 from . import misconceptions as M
+from . import operations as O
 from . import taxonomy
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
 from .rounding import half_up
@@ -22,7 +23,6 @@ FORMATS = {
     "word_1step": ("Application", 3, True),
 }
 REGROUPS = {"+": regroup_count_add, "-": regroup_count_sub}
-OPS = {"−": "-", "–": "-", "x": "×", "X": "×", "*": "×"}  # symbols a model writes for the same operation
 SYMMETRIC = {
     "M_FACT_PM1": 1,
     "M_FACT_PM10": 10,
@@ -30,12 +30,24 @@ SYMMETRIC = {
 }  # "plus or minus": either direction is the mistake
 
 
-def normalise(c):
-    """The model's symbol for an operation, folded to the one the rules use. Nothing else changes."""
-    return c | {"op": OPS.get(c.get("op"), c.get("op"))}
+def normalise(c: dict[str, Any]) -> dict[str, Any]:
+    """The model's symbol for an operation, folded to the one the rules use (`operations.sign`). Nothing else changes."""
+    return c | {"op": O.sign(c.get("op")) or c.get("op")}
 
 
-def problems(c, check):
+def _unworkable(op: str | None, a: Any, b: Any, answer: Any) -> str | None:
+    """Why a candidate's arithmetic cannot be checked at all; None when it can. A division that leaves a remainder has
+    two answers, and these formats ask for one."""
+    if not all(isinstance(x, int) for x in (a, b, answer)):
+        return "operands and answer must be integers"
+    try:
+        M.compute(op, a, b)
+    except ValueError as e:
+        return str(e)
+    return None
+
+
+def problems(c: dict[str, Any], check: dict[str, Any]) -> list[str]:
     fmt = c.get("format")
     if fmt not in FORMATS:
         return [f"format {fmt!r} is not one the bank can render"]
@@ -43,11 +55,12 @@ def problems(c, check):
     allowed_ops = check["op"] if isinstance(check["op"], list) else [check["op"]]
     if op not in allowed_ops:
         return [f"op {op!r} is not one of the rule's {allowed_ops!r}"]
-    if not all(isinstance(x, int) for x in (a, b, answer)):
-        return ["operands and answer must be integers"]
+    unworkable = _unworkable(op, a, b, answer)
+    if unworkable:
+        return [unworkable]
 
-    out = []
-    correct = M.compute(op, a, b)
+    out: list[str] = []
+    correct = M.compute(op, cast(int, a), cast(int, b))  # whole numbers, `_unworkable` said
     if answer != correct:
         out.append(f"answer {answer} != {correct}")
     da, db = check["digits"]
@@ -71,7 +84,7 @@ def problems(c, check):
     if check.get("max_total") and correct > check["max_total"]:
         out.append(f"answer {correct} above max_total {check['max_total']}")
 
-    truth, table = M.predict(op, a, b), M.TABLES.get(op, {})
+    truth, table = M.predict(cast(str, op), cast(int, a), cast(int, b)), M.TABLES.get(op or "", {})
     for mc in c.get("misconceptions", []):
         code, wrong = mc.get("code"), mc.get("wrong_answer")
         if code not in table or code not in truth:
@@ -186,9 +199,8 @@ def dimension_problems(tags, check, fmt=None, case_matches=None):
 
 
 def _template(op, a, b):
-    if op in REGROUPS:
-        return f"{'ADD' if op == '+' else 'SUB'}.{len(str(a))}D{len(str(b))}D.REG{REGROUPS[op](a, b)}"
-    return f"MUL.{len(str(a))}D{len(str(b))}D"
+    shape = f"{O.NAMES[op]}.{len(str(a))}D{len(str(b))}D"
+    return f"{shape}.REG{REGROUPS[op](a, b)}" if op in REGROUPS else shape
 
 
 def _missing_distractors(op, a, b, ans, hidden_key, hidden):
@@ -196,6 +208,8 @@ def _missing_distractors(op, a, b, ans, hidden_key, hidden):
     if hidden_key == "answer":
         return M.predict(op, a, b)
     known = b if hidden_key == "a" else a
+    if op not in REGROUPS:
+        return {}  # no named wrong answer about a missing factor or divisor yet: none, rather than an addition's
     if op == "-" and hidden_key == "a":
         mis = {"M_SUB_INSTEAD": abs(ans - b), "M_FACT_PM1": hidden - 1}
     elif op == "-":

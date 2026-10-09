@@ -24,7 +24,7 @@ SIGN = {"+": "+", "-": "−"}
 def options(op):
     """{code: its name} for every named mistake of `op` that is a way of thinking, and NONE. An off-by-one or a
     tens miscount is a slip, which is what NONE is for."""
-    out = {c: name for c, (_, name, _) in M.TABLES[op].items() if not c.startswith("M_FACT")}
+    out = {c: name for c, (_, name, _) in M.TABLES.get(op, {}).items() if not c.startswith("M_FACT")}
     out[NONE] = "None of these: a slip, a miscount, or a mistake not listed"
     return out
 
