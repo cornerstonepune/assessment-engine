@@ -803,6 +803,66 @@
       "external_ref": null,
       "skill_from": "row",
       "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_TALLY_FIVE_AS_FOUR",
+      "op": "any",
+      "name": "Counts a bundle as four",
+      "description": "Misses the line across a bundle, so each bundle counts four: a bundle and three lines read as 7, not 8.",
+      "repair_hint": "Say 'five' on the line across; make bundles of four sticks with a fifth laid across them.",
+      "detectable_by": "answer_lookup",
+      "source": "Grade 1 educator's list of what was taught to September (Nimish, 2026-10-06)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.DATA.01"
+    },
+    {
+      "code": "M_TALLY_CROSS_COUNTED",
+      "op": "any",
+      "name": "Counts the line across as a sixth",
+      "description": "Counts the four lines and then the line across as one more, so each bundle counts six: a bundle and three lines read as 9.",
+      "repair_hint": "The line across is the fifth line, not an extra one: count a bundle 1, 2, 3, 4, 5.",
+      "detectable_by": "answer_lookup",
+      "source": "Grade 1 educator's list of what was taught to September (Nimish, 2026-10-06)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.DATA.01"
+    },
+    {
+      "code": "M_TALLY_BUNDLE_AS_ONE",
+      "op": "any",
+      "name": "Counts a bundle as one",
+      "description": "Counts each bundle as a single line: a bundle and three lines read as 4.",
+      "repair_hint": "Open a bundle into five sticks and count them; then count bundles in fives: 5, 10, 15.",
+      "detectable_by": "answer_lookup",
+      "source": "Grade 1 educator's list of what was taught to September (Nimish, 2026-10-06)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.DATA.01"
+    },
+    {
+      "code": "M_GROUP_MISSED",
+      "op": "×",
+      "name": "Leaves out a group",
+      "description": "Adds one group fewer than there are: 3 groups of 4 counted as 8, not 12.",
+      "repair_hint": "Touch and count the groups first, then add one number for each group.",
+      "detectable_by": "answer_lookup",
+      "source": "Grade 1 educator's list of what was taught to September (Nimish, 2026-10-06)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.03"
+    },
+    {
+      "code": "M_ONE_GROUP",
+      "op": "×",
+      "name": "Gives one group, not all of them",
+      "description": "Writes how many are in one group: 3 groups of 4 written as 4.",
+      "repair_hint": "Ask 'how many in all?' and circle every group before counting.",
+      "detectable_by": "answer_lookup",
+      "source": "Grade 1 educator's list of what was taught to September (Nimish, 2026-10-06)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.03"
     }
   ]
 }

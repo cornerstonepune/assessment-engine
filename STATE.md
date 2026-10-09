@@ -4501,3 +4501,105 @@ works; https://github.com/dietrichgebert/ponytail).
   - an automated accessibility checker: add one if a second colour-only state ships;
   - STATE.md compacted: BUILD-ORDER reads each workflow's gates here, so archiving them risks that process; archive
     by month when a session's reading cost bites.
+
+## Grade 1 as its educator taught it to September (2026-10-06)
+
+`goals/g1-taught-till-september.yaml`. Nimish forwarded the Grade 1 educator's list: *"Can we incorporate this part
+additionally for grade 1? Ensure that this is the entire thing that's mapped to what has been taught in grade 1."*
+
+- **What Grade 1 now holds** (a Grade 1 child's paper, worksheet and week note draw from these and nothing else):
+  - 1-digit + 1-digit and 1-digit − 1-digit, every level, as before;
+  - the Easy level of 2-digit + 1-digit, 2-digit + 2-digit, 2-digit − 1-digit and 2-digit − 2-digit. That level is
+    exactly "no carry, no exchange" (46 + 12, 25 − 13, 28 − 8). It moves to Grade 1 through `skill_set.level_band`:
+    from the seed for a new database, and by migration `20261024090000` for live. Their other levels stay Grade 2;
+  - **tally marks** (`DATA.TALLY`, rung R34, NUM.DATA.01): read a tally from 5 to 10 (Easy) or 11 to 20 (Medium);
+    two tallies, altogether or how many more (Advance);
+  - **equal groups** (`MUL.GROUPS`, rung R35, NUM.OPS.03): 2 to 3 groups (Easy) or 4 to 5 groups (Medium), each of 2
+    to 6, as a sum (4 + 4 + 4) or as rings of dots; and a story (Advance).
+- **Multiplication is two topics.** "Multiplication" holds equal groups and is taught. "Multiplication in columns"
+  holds `MUL.1D` and is still not taught: Nimish, 2026-09-23, "we haven't even started teaching multiplication". Tally
+  marks are under "Data handling", taught.
+- **Two new kinds of question:**
+  - `assess/counting.py` makes them: each key is computed, and each predicted wrong answer names a mistake. The new
+    mistakes are M_TALLY_FIVE_AS_FOUR, M_TALLY_CROSS_COUNTED, M_TALLY_BUNDLE_AS_ONE, M_GROUP_MISSED and M_ONE_GROUP;
+    M_WRONG_OP is reused;
+  - `assess/pictures.py` draws every kind that is a picture. The balance and the number line moved there unchanged,
+    so `render_item` fell from C901 28 to 27;
+  - `components/pictures.tsx` draws the same on the website.
+- **A level's grade is read the same way everywhere now.** Two places had still used the rung's grade:
+  - library worksheets printed a Grade 1 level as "Grade 2", with Grade 2's smaller boxes. A worksheet printed for
+    another grade than its level's is now retired and dealt again;
+  - a Grade 1 class's week note could not name the 2-digit skills.
+- **45 + 8 is not Grade 1.** 5 + 8 = 13 is an exchange, against her "without borrowing". It belongs to 2-digit
+  + 1-digit Medium, which stays Grade 2 until she confirms (BUILD-ORDER, inserted 2026-10-06).
+- **Types and ceilings, all down:**
+  - typing `items.item`, `items.cells`, `answer_space.op_sign`, `words.templates` and `verify.to_item` took 141
+    findings off eleven frozen files;
+  - `items.missing_part_20`, which no engine code called, is deleted, so `items.py` went from 579 lines to 571.
+- **Checks** (on a database built by `bin/testdb fresh` with these rows: 21,289 questions, 1,845 worksheets; every
+  Grade 1 level printed as G1):
+  - `pytest -q tests/test_counting.py tests/test_focus_paper.py tests/test_topics.py tests/test_library.py
+    tests/test_week_note.py tests/test_new_kinds.py tests/test_items.py tests/test_render.py tests/test_loaders.py`
+    → 236 passed;
+  - `bin/engine audit`: every structural invariant passes. The two failures are the approvals a fresh database never
+    has ("every spec is ratified", "what a mistake charges is approved");
+  - `bin/check` → 27 passed, and lint is clean. `npx tsc --noEmit` and `npx eslint` are clean on the changed web files.
+  - `npx playwright test tests/s28-grade-1-as-taught.spec.ts tests/s8-taxonomy.spec.ts tests/u12-curriculum-table.spec.ts`
+    (production build, roles) → 8 passed. The new spec's first run failed on the check itself: a vertical tally line has
+    no width, so Playwright called it hidden. The check now reads each drawing's own label;
+  - CI's run of every browser spec then failed on one these three do not cover: `e2e.spec.ts` "every kind of question
+    in the bank is drawn with its own numbers" looked for a digit in a question's words, and a tally's numbers are its
+    drawing. It now reads each drawing's label with the words, so a missing number still reads undefined or NaN; and a
+    one-tally question with no count draws "a tally of NaN", never a tally of 0. `npx playwright test` on a fresh
+    database: before the fix, "Error: tally" as in CI; after it, all 13 tests of `e2e.spec.ts` pass (the five CI never
+    reached among them), with s28 and s8. Here, the five tests that make a paper failed and the 19 after them in their
+    files did not run: the engine's Playwright wants a Chromium build the cloud container lacks (`/week/render` →
+    "Executable doesn't exist"). CI installs it and passed all 24 on 2f28b10;
+  - `engine ratchet --base origin/main` → every baseline held or tightened.
+
+## Multiplication and division — measured before the build (2026-10-09)
+
+Nimish asked for multiplication and division the way addition and subtraction were done, through the whole loop
+(BUILD-ORDER "Inserted now: multiplication and division"). Nothing was built; this is what the plan stands on. Measured
+on a database built by `bin/testdb fresh` from the repository (21,289 active questions), not on live.
+
+- **Division exists nowhere.** `cd packages/engine && .venv/bin/python -c "from engine.assess import misconceptions as
+  M; M.predict('÷', 85, 4)"` → `KeyError '÷'`.
+- **`MUL.1D` does not hold to its own levels' words.** Easy says "no carry into the tens" and Medium "product past 100":
+  `select difficulty, count(*), count(*) filter (where ((spec->>'a')::int % 10) * (spec->>'b')::int >= 10),
+  count(*) filter (where (spec->>'a')::int * (spec->>'b')::int < 100) from item where skill_set_code='MUL.1D' and
+  status='active' group by 1 order by 1` →
+  ```
+  Advance|216|216|0
+  Easy|216|137|216
+  Hard|216|165|0
+  Medium|216|179|6
+  ```
+  137 of 216 Easy questions carry from the ones; 6 Medium questions are under 100. It spans three digit shapes, against
+  ADR 0034, and carries no taxonomy tags (`tags.derive` measures two numbers only for + and −).
+- **A 2-digit × 2-digit question's real mistakes are not predicted.**
+  `.venv/bin/python -c "from engine.assess import misconceptions as M; print(M.predict('×', 68, 17))"` →
+  `{'M_MUL_ROW_OUT': 1088, 'M_WRONG_OP': 85}`: no placeholder zero (544), no column-by-column (656).
+- **A library worksheet question with more than one answer is never read** (`w3_read/copies.py`: `if
+  len(it["responses"]) > 1 … unread.append(n)`). `select count(*) filter (where jsonb_array_length(responses) > 1),
+  count(*) from item where status='active'` → `4437|21289`: estimate-then-calculate, find-the-mistake, fact families
+  and more, addition and subtraction included. A remainder needs exactly this, so M0 fixes it for every kind.
+- **July's real multiplication answers sit on one rung.** `grep -c '"rung": "M1"'` over G3-BASE16, G3-QUIZ20 and
+  G4-BASE16 → 5, 12, 6: table facts, 8 × ___ = 72, ×10 and ×100, 2-digit × 1-digit and 144 ÷ 12, all on `M1`.
+- **The taxonomy draft checks itself.** `packages/engine/.venv/bin/python research/md_taxonomy.py --check` →
+  `247 cases in 13 sections, 38 mistakes, 17 skills: every example recomputed, every case placed or listed unplaced,
+  0 faults`. Two checks were broken on purpose (a "carry 1" case given carry 2, a two-digit puzzle given a wrong
+  answer) and the run named both and failed.
+- **A second reader reviewed the draft before it shipped** and found what `--check` does not test. Each finding was
+  fixed in `research/md_taxonomy.py` and the doc:
+  - labels that did not match their numbers: 612 ÷ 6 given as a zero from a 0 digit; a "fewer digits" 2 × 2 case
+    that every other 2 × 2 case shared;
+  - two items that were the same item;
+  - wrong values that were typed rather than computed. Every mistake's wrong answer now comes from a predictor;
+  - implausible mistakes, replaced by common ones: a remainder added to the next digit (72 ÷ 4 → 11 r 1); a first
+    row's carry reused in the second (47 × 23 → 1281); "3 times as many" read as "3 more";
+  - a blank remainder named as a mistake, against rule 5;
+  - levels out of order within a skill;
+  - grades later than the school's own objectives place them.
+- **Not checked:** what the school teaches in each grade now, and which methods. Both are assumptions (ADR 0047, A1
+  and A6) until Achal corrects the doc or an educator declares them.

@@ -22,6 +22,9 @@ export type ItemSpec = {
   facts?: string[];
   options?: number[];
   table?: [string, number][]; // a story whose numbers sit in a table: [["Monday", 944], ["Tuesday", 533]]
+  count?: number; // a tally read as a number, of `thing`; two tallies are `a` and `b`, of `things`
+  thing?: string;
+  things?: string[];
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and

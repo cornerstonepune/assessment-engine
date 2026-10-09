@@ -114,10 +114,12 @@ def deal(questions, n, kind_order, count):
 
 
 def _levels(conn, only=None):
-    """Every skill at every level — or just `only`, a (skill set, level) pair."""
+    """Every skill at every level — or just `only`, a (skill set, level) pair — each with the grade it is taught in:
+    a level moved to another grade than its skill's (`skill_set.level_band`) prints as that grade's."""
     code, difficulty = only or (None, None)
     return conn.execute(
-        "select s.code, s.rung_code, s.formats, r.band, d.key as difficulty from skill_set s"
+        "select s.code, s.rung_code, s.formats, coalesce(s.level_band ->> d.key, r.band) as band, d.key as difficulty"
+        " from skill_set s"
         " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code, jsonb_object_keys(s.difficulty) d(key)"
         " where (%s::text is null or s.code = %s) and (%s::text is null or d.key = %s)"
         " order by r.ladder_order nulls last, s.code, d.key",
@@ -145,17 +147,20 @@ def _plan_level(conn, lv, n):
         (lv["code"], lv["difficulty"]),
     ).fetchall()
     sheets = conn.execute(
-        "select id, code, item_ids from sheet_template where source = 'library' and retired_at is null"
+        "select id, code, item_ids, band from sheet_template where source = 'library' and retired_at is null"
         " and skill_set_code = %s and difficulty = %s order by variant",
         (lv["code"], lv["difficulty"]),
     ).fetchall()
     active = {q["id"] for q in questions}
     fmt_of = {q["id"]: q["fmt"] for q in questions}
     share = Counter(fmt_of.values())
+    # a worksheet printed for another grade than the level's (its level moved) is replaced, never edited
     keep = [
         s
         for s in sheets
-        if set(s["item_ids"]) <= active and not _unfair(s["item_ids"], fmt_of, share, len(questions), n)
+        if s["band"] == lv["band"]
+        and set(s["item_ids"]) <= active
+        and not _unfair(s["item_ids"], fmt_of, share, len(questions), n)
     ]
     retire = [s for s in sheets if s not in keep]
     want = worksheets_needed(len(questions), n)

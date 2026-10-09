@@ -1,0 +1,2731 @@
+[
+ {
+  "code": "TF01",
+  "section": 2,
+  "label": "×0: anything times zero",
+  "example": "7 × 0",
+  "answer": "0",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "TF02",
+  "section": 2,
+  "label": "×1: anything times one",
+  "example": "1 × 8",
+  "answer": "8",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "TF03",
+  "section": 2,
+  "label": "The 2 table",
+  "example": "2 × 7",
+  "answer": "14",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "TF04",
+  "section": 2,
+  "label": "The 5 table",
+  "example": "5 × 6",
+  "answer": "30",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "TF05",
+  "section": 2,
+  "label": "The 10 table",
+  "example": "10 × 4",
+  "answer": "40",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "TF06",
+  "section": 2,
+  "label": "The 3 table",
+  "example": "3 × 8",
+  "answer": "24",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "TF07",
+  "section": 2,
+  "label": "The 4 table",
+  "example": "4 × 7",
+  "answer": "28",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "TF08",
+  "section": 2,
+  "label": "The 6 table",
+  "example": "6 × 7",
+  "answer": "42",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF09",
+  "section": 2,
+  "label": "The 7 table",
+  "example": "7 × 8",
+  "answer": "56",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF10",
+  "section": 2,
+  "label": "The 8 table",
+  "example": "8 × 6",
+  "answer": "48",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF11",
+  "section": 2,
+  "label": "The 9 table",
+  "example": "9 × 6",
+  "answer": "54",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF12",
+  "section": 2,
+  "label": "A square fact",
+  "example": "7 × 7",
+  "answer": "49",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF13",
+  "section": 2,
+  "label": "The 11 table",
+  "example": "11 × 4",
+  "answer": "44",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "TF14",
+  "section": 2,
+  "label": "The 12 table",
+  "example": "12 × 5",
+  "answer": "60",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "TF15",
+  "section": 2,
+  "label": "The table number second (the 3 table read the other way)",
+  "example": "8 × 3",
+  "answer": "24",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "TF16",
+  "section": 2,
+  "label": "A fact in columns",
+  "example": "7 over 6 in columns, ×",
+  "answer": "42",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "TF17",
+  "section": 2,
+  "label": "A cell of the multiplication square",
+  "example": "row 6, column 9",
+  "answer": "54",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Hard"
+  ]
+ },
+ {
+  "code": "TP01",
+  "section": 2,
+  "label": "×10",
+  "example": "45 × 10",
+  "answer": "450",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Easy"
+  ]
+ },
+ {
+  "code": "TP02",
+  "section": 2,
+  "label": "×100",
+  "example": "45 × 100",
+  "answer": "4500",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Medium"
+  ]
+ },
+ {
+  "code": "TP03",
+  "section": 2,
+  "label": "×1000",
+  "example": "7 × 1000",
+  "answer": "7000",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Medium"
+  ]
+ },
+ {
+  "code": "TP04",
+  "section": 2,
+  "label": "×10 of a number already ending in zero",
+  "example": "30 × 10",
+  "answer": "300",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Easy"
+  ]
+ },
+ {
+  "code": "TP05",
+  "section": 2,
+  "label": "×100 of a number with a zero inside",
+  "example": "405 × 100",
+  "answer": "40500",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Medium"
+  ]
+ },
+ {
+  "code": "TP06",
+  "section": 2,
+  "label": "A multiple of ten × 1 digit",
+  "example": "30 × 4",
+  "answer": "120",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Hard"
+  ]
+ },
+ {
+  "code": "TP07",
+  "section": 2,
+  "label": "A multiple of ten × a multiple of ten",
+  "example": "20 × 40",
+  "answer": "800",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Hard"
+  ]
+ },
+ {
+  "code": "TP08",
+  "section": 2,
+  "label": "A multiple of a hundred × 1 digit",
+  "example": "300 × 6",
+  "answer": "1800",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Hard"
+  ]
+ },
+ {
+  "code": "TP09",
+  "section": 2,
+  "label": "The fact makes its own zero",
+  "example": "50 × 4",
+  "answer": "200",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Hard"
+  ]
+ },
+ {
+  "code": "TP10",
+  "section": 2,
+  "label": "2 digits × a multiple of ten",
+  "example": "23 × 30",
+  "answer": "690",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Advance"
+  ]
+ },
+ {
+  "code": "T01",
+  "section": 3,
+  "label": "2 × 1 digits, no regrouping, in columns",
+  "example": "23 × 3",
+  "answer": "69",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Easy"
+  ]
+ },
+ {
+  "code": "T02",
+  "section": 3,
+  "label": "2 × 1 digits, no regrouping, in a line",
+  "example": "32 × 3 (in a line)",
+  "answer": "96",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Easy",
+   "MUL.2D1D:method"
+  ]
+ },
+ {
+  "code": "T03",
+  "section": 3,
+  "label": "The 1-digit number first",
+  "example": "3 × 21",
+  "answer": "63",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Easy"
+  ]
+ },
+ {
+  "code": "T04",
+  "section": 3,
+  "label": "Regroup from the ones, carry 1, 2-digit answer",
+  "example": "13 × 4",
+  "answer": "52",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Medium"
+  ]
+ },
+ {
+  "code": "T05",
+  "section": 3,
+  "label": "Regroup from the ones, carry more than 1, 2-digit answer",
+  "example": "19 × 5",
+  "answer": "95",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Medium"
+  ]
+ },
+ {
+  "code": "T06",
+  "section": 3,
+  "label": "No regrouping, but the answer grows to 3 digits",
+  "example": "42 × 3",
+  "answer": "126",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Medium"
+  ]
+ },
+ {
+  "code": "T07",
+  "section": 3,
+  "label": "Regroup from the ones and the answer grows (the quiz's 56 × 3)",
+  "example": "56 × 3",
+  "answer": "168",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "T08",
+  "section": 3,
+  "label": "The carry takes the tens to ten (knock-on): a zero only in the answer",
+  "example": "18 × 6",
+  "answer": "108",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "T09",
+  "section": 3,
+  "label": "Regroup and the ones write 0",
+  "example": "48 × 5",
+  "answer": "240",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "T10",
+  "section": 3,
+  "label": "The largest carry: 99 × 9",
+  "example": "99 × 9",
+  "answer": "891",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "T11",
+  "section": 3,
+  "label": "3 × 1 digits, no regrouping",
+  "example": "213 × 3",
+  "answer": "639",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Easy"
+  ]
+ },
+ {
+  "code": "T12",
+  "section": 3,
+  "label": "3 × 1 digits with regrouping (every pattern in the next section)",
+  "example": "357 × 4",
+  "answer": "1428",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "T13",
+  "section": 3,
+  "label": "3 × 1 digits, the 1-digit number first, in a line",
+  "example": "6 × 125 (in a line)",
+  "answer": "750",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Advance"
+  ]
+ },
+ {
+  "code": "T14",
+  "section": 3,
+  "label": "3 × 1 digits in a line",
+  "example": "785 × 4 (in a line)",
+  "answer": "3140",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:method"
+  ]
+ },
+ {
+  "code": "T15",
+  "section": 3,
+  "label": "4 × 1 digits, no regrouping",
+  "example": "2312 × 3",
+  "answer": "6936",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "T16",
+  "section": 3,
+  "label": "4 × 1 digits with regrouping",
+  "example": "3476 × 6",
+  "answer": "20856",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "T17",
+  "section": 3,
+  "label": "2 × 2 digits, no regrouping anywhere, a 3-digit answer",
+  "example": "21 × 13",
+  "answer": "273",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Easy"
+  ]
+ },
+ {
+  "code": "T18",
+  "section": 3,
+  "label": "2 × 2 digits, one row regroups, a 3-digit answer",
+  "example": "16 × 12",
+  "answer": "192",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Medium"
+  ]
+ },
+ {
+  "code": "T19",
+  "section": 3,
+  "label": "2 × 2 digits, both rows regroup, a 3-digit answer",
+  "example": "36 × 24",
+  "answer": "864",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Hard"
+  ]
+ },
+ {
+  "code": "T20",
+  "section": 3,
+  "label": "2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit",
+  "example": "47 × 23",
+  "answer": "1081",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Hard"
+  ]
+ },
+ {
+  "code": "T21",
+  "section": 3,
+  "label": "2 × 2 digits, a 4-digit answer with no carry in adding the rows",
+  "example": "52 × 34",
+  "answer": "1768",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Hard"
+  ]
+ },
+ {
+  "code": "T22",
+  "section": 3,
+  "label": "2 × 2 digits in a line",
+  "example": "34 × 26 (in a line)",
+  "answer": "884",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:method"
+  ]
+ },
+ {
+  "code": "T23",
+  "section": 3,
+  "label": "3 × 2 digits",
+  "example": "234 × 12",
+  "answer": "2808",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "T24",
+  "section": 3,
+  "label": "3 × 2 digits with regrouping in every row",
+  "example": "476 × 38",
+  "answer": "18088",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "T25",
+  "section": 3,
+  "label": "N × 1 digits (scales on)",
+  "example": "52341 × 7",
+  "answer": "366387",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "T26",
+  "section": 3,
+  "label": "3 × 3 digits with a zero in the middle of the multiplier",
+  "example": "213 × 102",
+  "answer": "21726",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "TC01",
+  "section": 4,
+  "label": "Regroup from the ones: no · from the tens: no · answer grows to 4 digits: no",
+  "example": "434 × 2",
+  "answer": "868",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Easy"
+  ]
+ },
+ {
+  "code": "TC02",
+  "section": 4,
+  "label": "Regroup from the ones: no · from the tens: no · answer grows to 4 digits: yes",
+  "example": "412 × 3",
+  "answer": "1236",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "TC03",
+  "section": 4,
+  "label": "Regroup from the ones: no · from the tens: yes · answer grows to 4 digits: no",
+  "example": "374 × 2",
+  "answer": "748",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "TC04",
+  "section": 4,
+  "label": "Regroup from the ones: no · from the tens: yes · answer grows to 4 digits: yes",
+  "example": "931 × 4",
+  "answer": "3724",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC05",
+  "section": 4,
+  "label": "Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: no",
+  "example": "119 × 4",
+  "answer": "476",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "TC06",
+  "section": 4,
+  "label": "Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: yes",
+  "example": "416 × 6",
+  "answer": "2496",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC07",
+  "section": 4,
+  "label": "Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: no",
+  "example": "487 × 2",
+  "answer": "974",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC08",
+  "section": 4,
+  "label": "Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: yes",
+  "example": "194 × 6",
+  "answer": "1164",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC09",
+  "section": 4,
+  "label": "A carry bigger than 1",
+  "example": "28 × 7",
+  "answer": "196",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC10",
+  "section": 4,
+  "label": "3 × 1 digits, a carry takes a column to ten (knock-on)",
+  "example": "125 × 4",
+  "answer": "500",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TC11",
+  "section": 4,
+  "label": "Every column regroups, the answer full of zeros",
+  "example": "667 × 3",
+  "answer": "2001",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TZ01",
+  "section": 4,
+  "label": "A zero at the end of the larger number",
+  "example": "230 × 4",
+  "answer": "920",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "TZ02",
+  "section": 4,
+  "label": "A zero in the middle, no carry reaches it",
+  "example": "302 × 3",
+  "answer": "906",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Easy"
+  ]
+ },
+ {
+  "code": "TZ03",
+  "section": 4,
+  "label": "A zero in the middle that a carry lands on",
+  "example": "506 × 7",
+  "answer": "3542",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TZ04",
+  "section": 4,
+  "label": "Two zeros in the larger number",
+  "example": "1008 × 6",
+  "answer": "6048",
+  "op": "×",
+  "placed_in": []
+ },
+ {
+  "code": "TZ05",
+  "section": 4,
+  "label": "A zero only in the answer",
+  "example": "25 × 4",
+  "answer": "100",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "TZ06",
+  "section": 4,
+  "label": "The answer is a round number",
+  "example": "125 × 8",
+  "answer": "1000",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "TZ07",
+  "section": 4,
+  "label": "A 2-digit multiplier ending in zero: one row",
+  "example": "23 × 40",
+  "answer": "920",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Medium"
+  ]
+ },
+ {
+  "code": "TZ08",
+  "section": 4,
+  "label": "Both numbers end in zero",
+  "example": "120 × 30",
+  "answer": "3600",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Advance"
+  ]
+ },
+ {
+  "code": "DF01",
+  "section": 5,
+  "label": "÷1",
+  "example": "8 ÷ 1",
+  "answer": "8",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF02",
+  "section": 5,
+  "label": "A number divided by itself",
+  "example": "7 ÷ 7",
+  "answer": "1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF03",
+  "section": 5,
+  "label": "Zero divided",
+  "example": "0 ÷ 5",
+  "answer": "0",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF04",
+  "section": 5,
+  "label": "The 2 table backwards",
+  "example": "14 ÷ 2",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "DF05",
+  "section": 5,
+  "label": "The 5 table backwards",
+  "example": "35 ÷ 5",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "DF06",
+  "section": 5,
+  "label": "The 10 table backwards",
+  "example": "60 ÷ 10",
+  "answer": "6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Easy"
+  ]
+ },
+ {
+  "code": "DF07",
+  "section": 5,
+  "label": "The 3 table backwards",
+  "example": "27 ÷ 3",
+  "answer": "9",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF08",
+  "section": 5,
+  "label": "The 4 table backwards",
+  "example": "32 ÷ 4",
+  "answer": "8",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF09",
+  "section": 5,
+  "label": "The 6 table backwards",
+  "example": "42 ÷ 6",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "DF10",
+  "section": 5,
+  "label": "The 7 table backwards",
+  "example": "56 ÷ 7",
+  "answer": "8",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "DF11",
+  "section": 5,
+  "label": "The 8 table backwards",
+  "example": "48 ÷ 8",
+  "answer": "6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "DF12",
+  "section": 5,
+  "label": "The 9 table backwards",
+  "example": "81 ÷ 9",
+  "answer": "9",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Hard"
+  ]
+ },
+ {
+  "code": "DF13",
+  "section": 5,
+  "label": "The 11 table backwards",
+  "example": "44 ÷ 11",
+  "answer": "4",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DF14",
+  "section": 5,
+  "label": "The 12 table backwards (the Grade 4 paper's 144 ÷ 12)",
+  "example": "144 ÷ 12",
+  "answer": "12",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DF15",
+  "section": 5,
+  "label": "How many groups: \"how many 6s make 42?\"",
+  "example": "How many 6s make 42?",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Medium"
+  ]
+ },
+ {
+  "code": "DF16",
+  "section": 5,
+  "label": "A 2-digit divisor, 1-digit quotient",
+  "example": "84 ÷ 12",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DP01",
+  "section": 5,
+  "label": "÷10",
+  "example": "450 ÷ 10",
+  "answer": "45",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Easy"
+  ]
+ },
+ {
+  "code": "DP02",
+  "section": 5,
+  "label": "÷100",
+  "example": "4500 ÷ 100",
+  "answer": "45",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Medium"
+  ]
+ },
+ {
+  "code": "DP03",
+  "section": 5,
+  "label": "÷1000",
+  "example": "7000 ÷ 1000",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Medium"
+  ]
+ },
+ {
+  "code": "DP04",
+  "section": 5,
+  "label": "A multiple of ten ÷ 1 digit",
+  "example": "120 ÷ 4",
+  "answer": "30",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Hard"
+  ]
+ },
+ {
+  "code": "DP05",
+  "section": 5,
+  "label": "A multiple of ten ÷ a multiple of ten",
+  "example": "800 ÷ 40",
+  "answer": "20",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Hard"
+  ]
+ },
+ {
+  "code": "DP06",
+  "section": 5,
+  "label": "The fact uses one of the zeros (20 ÷ 4 = 5)",
+  "example": "200 ÷ 4",
+  "answer": "50",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Hard"
+  ]
+ },
+ {
+  "code": "DP07",
+  "section": 5,
+  "label": "A multiple of a hundred ÷ 1 digit",
+  "example": "3600 ÷ 6",
+  "answer": "600",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Hard"
+  ]
+ },
+ {
+  "code": "D01",
+  "section": 6,
+  "label": "2 ÷ 1 digits, every digit divides, in the division layout",
+  "example": "84 ÷ 4 (division layout)",
+  "answer": "21",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Easy"
+  ]
+ },
+ {
+  "code": "D02",
+  "section": 6,
+  "label": "2 ÷ 1 digits, every digit divides, in a line",
+  "example": "69 ÷ 3",
+  "answer": "23",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Easy",
+   "DIV.2D1D:method"
+  ]
+ },
+ {
+  "code": "D03",
+  "section": 6,
+  "label": "2 ÷ 1 digits, one exchange from the tens",
+  "example": "72 ÷ 4",
+  "answer": "18",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Medium"
+  ]
+ },
+ {
+  "code": "D04",
+  "section": 6,
+  "label": "2 ÷ 1 digits, an exchange, the answer past the tables",
+  "example": "91 ÷ 7",
+  "answer": "13",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Medium"
+  ]
+ },
+ {
+  "code": "D05",
+  "section": 6,
+  "label": "3 ÷ 1 digits, no exchange",
+  "example": "936 ÷ 3",
+  "answer": "312",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Easy"
+  ]
+ },
+ {
+  "code": "D06",
+  "section": 6,
+  "label": "3 ÷ 1 digits: exchange after the hundreds: no · after the tens: yes",
+  "example": "476 ÷ 2",
+  "answer": "238",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "D07",
+  "section": 6,
+  "label": "3 ÷ 1 digits: exchange after the hundreds: yes · after the tens: no",
+  "example": "786 ÷ 6",
+  "answer": "131",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Medium"
+  ]
+ },
+ {
+  "code": "D08",
+  "section": 6,
+  "label": "3 ÷ 1 digits: exchange after the hundreds: yes · after the tens: yes",
+  "example": "588 ÷ 3",
+  "answer": "196",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "D09",
+  "section": 6,
+  "label": "3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: no",
+  "example": "279 ÷ 3",
+  "answer": "93",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "D10",
+  "section": 6,
+  "label": "3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: yes",
+  "example": "141 ÷ 3",
+  "answer": "47",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "D11",
+  "section": 6,
+  "label": "4 ÷ 1 digits, no exchange",
+  "example": "4862 ÷ 2",
+  "answer": "2431",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "D12",
+  "section": 6,
+  "label": "4 ÷ 1 digits, first digit smaller, exchanges",
+  "example": "5172 ÷ 6",
+  "answer": "862",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "D13",
+  "section": 6,
+  "label": "3 ÷ 2 digits, 2-digit quotient",
+  "example": "408 ÷ 12",
+  "answer": "34",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "D14",
+  "section": 6,
+  "label": "3 ÷ 2 digits where the first estimate must be corrected",
+  "example": "162 ÷ 18 (rounding 18 to 20 suggests 8; 8 × 18 = 144 leaves 18, so 9)",
+  "answer": "9",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "DZ01",
+  "section": 6,
+  "label": "A zero in the number divided gives a zero in the quotient",
+  "example": "804 ÷ 4",
+  "answer": "201",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DZ02",
+  "section": 6,
+  "label": "A zero at the end of the quotient",
+  "example": "840 ÷ 4",
+  "answer": "210",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DZ03",
+  "section": 6,
+  "label": "A zero in the quotient from a digit smaller than the divisor",
+  "example": "618 ÷ 6",
+  "answer": "103",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DZ04",
+  "section": 6,
+  "label": "A zero in the number divided, none in the quotient",
+  "example": "702 ÷ 6",
+  "answer": "117",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DZ05",
+  "section": 6,
+  "label": "Two zeros in the quotient",
+  "example": "8016 ÷ 8",
+  "answer": "1002",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "DZ06",
+  "section": 6,
+  "label": "First digit smaller and a zero in the quotient",
+  "example": "3015 ÷ 5",
+  "answer": "603",
+  "op": "÷",
+  "placed_in": []
+ },
+ {
+  "code": "DZ07",
+  "section": 6,
+  "label": "A zero at the end of the quotient from a last digit smaller than the divisor",
+  "example": "62 ÷ 3",
+  "answer": "20 r 2",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR01",
+  "section": 7,
+  "label": "A table fact with a remainder",
+  "example": "17 ÷ 5",
+  "answer": "3 r 2",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DR02",
+  "section": 7,
+  "label": "The largest remainder (divisor − 1)",
+  "example": "47 ÷ 6",
+  "answer": "7 r 5",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DR03",
+  "section": 7,
+  "label": "The number divided is smaller than the divisor",
+  "example": "3 ÷ 5",
+  "answer": "0 r 3",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "DR04",
+  "section": 7,
+  "label": "2 ÷ 1 digits, no exchange, a remainder",
+  "example": "85 ÷ 4",
+  "answer": "21 r 1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR05",
+  "section": 7,
+  "label": "2 ÷ 1 digits, an exchange and a remainder",
+  "example": "75 ÷ 4",
+  "answer": "18 r 3",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR06",
+  "section": 7,
+  "label": "3 ÷ 1 digits with a remainder",
+  "example": "457 ÷ 3",
+  "answer": "152 r 1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR07",
+  "section": 7,
+  "label": "A remainder and a zero in the quotient",
+  "example": "613 ÷ 6",
+  "answer": "102 r 1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR08",
+  "section": 7,
+  "label": "First digit smaller and a remainder",
+  "example": "157 ÷ 4",
+  "answer": "39 r 1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Hard"
+  ]
+ },
+ {
+  "code": "DR09",
+  "section": 7,
+  "label": "Checking a remainder: quotient × divisor + remainder",
+  "example": "21 × 4 + 1 = □ (is 85 ÷ 4 = 21 r 1?)",
+  "answer": "85",
+  "op": "÷",
+  "placed_in": [
+   "MD.EQUALITY:Advance"
+  ]
+ },
+ {
+  "code": "DR10",
+  "section": 7,
+  "label": "÷10 with a remainder",
+  "example": "457 ÷ 10",
+  "answer": "45 r 7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Advance"
+  ]
+ },
+ {
+  "code": "G01",
+  "section": 8,
+  "label": "Equal groups (a picture)",
+  "example": "3 groups of 4 dots: how many dots?",
+  "answer": "12",
+  "op": "×",
+  "placed_in": [
+   "MUL.GROUPS:Easy",
+   "MUL.GROUPS:Medium"
+  ]
+ },
+ {
+  "code": "G02",
+  "section": 8,
+  "label": "Repeated addition",
+  "example": "4 + 4 + 4 = 3 × □ = □",
+  "answer": "4 and 12",
+  "op": "×",
+  "placed_in": [
+   "MUL.GROUPS:Easy",
+   "MUL.GROUPS:Medium"
+  ]
+ },
+ {
+  "code": "G03",
+  "section": 8,
+  "label": "Skip counting",
+  "example": "5, 10, 15, 20, □",
+  "answer": "25",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Easy"
+  ]
+ },
+ {
+  "code": "G04",
+  "section": 8,
+  "label": "Jumps on a number line",
+  "example": "4 jumps of 3 from 0 land on □",
+  "answer": "12",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Medium"
+  ]
+ },
+ {
+  "code": "G05",
+  "section": 8,
+  "label": "An array",
+  "example": "3 rows of 5 stars: □ × □ = □",
+  "answer": "3 × 5 = 15 (5 × 3 = 15 is right too)",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Easy"
+  ]
+ },
+ {
+  "code": "G06",
+  "section": 8,
+  "label": "Doubling (×2, ×4 = double double, ×8)",
+  "example": "14 × 4: double 14 = 28, double 28 = □",
+  "answer": "56",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Easy"
+  ]
+ },
+ {
+  "code": "G07",
+  "section": 8,
+  "label": "Partitioning, in a line",
+  "example": "23 × 4 = 20 × 4 + 3 × 4 = 80 + 12 = □",
+  "answer": "92",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:method"
+  ]
+ },
+ {
+  "code": "G08",
+  "section": 8,
+  "label": "Grid (area) method, 2 × 1 digits",
+  "example": "23 × 4: cells 20 × 4 = 80 and 3 × 4 = 12",
+  "answer": "92",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:method"
+  ]
+ },
+ {
+  "code": "G09",
+  "section": 8,
+  "label": "Grid (area) method, 2 × 2 digits",
+  "example": "34 × 26: cells 600, 180, 80, 24",
+  "answer": "884",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:method"
+  ]
+ },
+ {
+  "code": "G10",
+  "section": 8,
+  "label": "Expanded columns: each product written in full",
+  "example": "34 × 6: 4 × 6 = 24, 30 × 6 = 180, 24 + 180 = □",
+  "answer": "204",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:method",
+   "MUL.3D1D:method"
+  ]
+ },
+ {
+  "code": "G11",
+  "section": 8,
+  "label": "Compact columns (the carry written small)",
+  "example": "34 × 6 in columns",
+  "answer": "204",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:method",
+   "MUL.3D1D:method"
+  ]
+ },
+ {
+  "code": "G12",
+  "section": 8,
+  "label": "Long multiplication: a row per digit, the second row moved a place (the zero kept)",
+  "example": "68 × 17: 476 + 680 = □",
+  "answer": "1156",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:method"
+  ]
+ },
+ {
+  "code": "G13",
+  "section": 8,
+  "label": "Lattice (gelosia) method",
+  "example": "47 × 23 in a 2 × 2 lattice: cells 08, 14 / 12, 21, added along the diagonals",
+  "answer": "1081",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:method"
+  ]
+ },
+ {
+  "code": "G14",
+  "section": 8,
+  "label": "Swap the order to use a known table",
+  "example": "9 × 2 = 2 × 9 = □",
+  "answer": "18",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Hard"
+  ]
+ },
+ {
+  "code": "G15",
+  "section": 8,
+  "label": "Equal sharing (a picture): how many each",
+  "example": "12 laddoos shared equally on 3 plates: how many on each?",
+  "answer": "4",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Easy"
+  ]
+ },
+ {
+  "code": "G16",
+  "section": 8,
+  "label": "Equal grouping (a picture): how many groups",
+  "example": "12 laddoos, 4 on each plate: how many plates?",
+  "answer": "3",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Easy"
+  ]
+ },
+ {
+  "code": "G17",
+  "section": 8,
+  "label": "Repeated subtraction",
+  "example": "15 − 3 − 3 − 3 − 3 − 3 = 0: how many 3s?",
+  "answer": "5",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Medium"
+  ]
+ },
+ {
+  "code": "G18",
+  "section": 8,
+  "label": "Jumps back on a number line",
+  "example": "From 20, jumps of 4 back to 0: how many jumps?",
+  "answer": "5",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Hard"
+  ]
+ },
+ {
+  "code": "G19",
+  "section": 8,
+  "label": "An array, divided",
+  "example": "20 stars in 4 equal rows: how many in each row?",
+  "answer": "5",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Medium"
+  ]
+ },
+ {
+  "code": "G20",
+  "section": 8,
+  "label": "The table backwards (inverse)",
+  "example": "42 ÷ 6 = □ because 6 × □ = 42",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "G21",
+  "section": 8,
+  "label": "Partitioning the number divided",
+  "example": "72 ÷ 4 = 40 ÷ 4 + 32 ÷ 4 = 10 + 8 = □",
+  "answer": "18",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:method"
+  ]
+ },
+ {
+  "code": "G22",
+  "section": 8,
+  "label": "Chunking: take away ten lots of the divisor, then the rest",
+  "example": "96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □",
+  "answer": "24",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:method",
+   "DIV.3D1D:method"
+  ]
+ },
+ {
+  "code": "G23",
+  "section": 8,
+  "label": "Short division (bus stop): the exchange written small",
+  "example": "72 ÷ 4: 7 ÷ 4 = 1 r 3, exchange → 32 ÷ 4 = 8",
+  "answer": "18",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:method",
+   "DIV.3D1D:method"
+  ]
+ },
+ {
+  "code": "G24",
+  "section": 8,
+  "label": "Long division: divide, multiply, take away, bring down",
+  "example": "516 ÷ 4: 5 ÷ 4 = 1, 5 − 4 = 1, bring down 1 → 11; 11 ÷ 4 = 2, 11 − 8 = 3, bring down 6 → 36; 36 ÷ 4 = 9, 36 − 36 = 0",
+  "answer": "129",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:method"
+  ]
+ },
+ {
+  "code": "G25",
+  "section": 8,
+  "label": "Halving (÷2, ÷4 = halve twice)",
+  "example": "96 ÷ 4: halve 96 = 48, halve 48 = □",
+  "answer": "24",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:method",
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "Q01",
+  "section": 9,
+  "label": "A missing factor (the quiz's own)",
+  "example": "8 × □ = 72",
+  "answer": "9",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q02",
+  "section": 9,
+  "label": "The first factor missing",
+  "example": "□ × 6 = 42",
+  "answer": "7",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q03",
+  "section": 9,
+  "label": "The number divided missing",
+  "example": "□ ÷ 4 = 7",
+  "answer": "28",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q04",
+  "section": 9,
+  "label": "The divisor missing",
+  "example": "56 ÷ □ = 8",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q05",
+  "section": 9,
+  "label": "The box first",
+  "example": "□ = 63 ÷ 9",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q06",
+  "section": 9,
+  "label": "The same number in both boxes",
+  "example": "□ × □ = 49",
+  "answer": "7",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance"
+  ]
+ },
+ {
+  "code": "Q07",
+  "section": 9,
+  "label": "A missing digit in the larger number",
+  "example": "2□ × 4 = 92",
+  "answer": "3",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q08",
+  "section": 9,
+  "label": "A missing digit in the answer",
+  "example": "47 × 3 = 1□1",
+  "answer": "4",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q09",
+  "section": 9,
+  "label": "A missing digit in the number divided",
+  "example": "7□ ÷ 4 = 18",
+  "answer": "2",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q10",
+  "section": 9,
+  "label": "A missing digit in the quotient",
+  "example": "936 ÷ 3 = 3□2",
+  "answer": "1",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q11",
+  "section": 9,
+  "label": "Two missing digits (Olympiad style)",
+  "example": "□7 × 6 = 3□2",
+  "answer": "5 and 4",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q12",
+  "section": 9,
+  "label": "The remainder missing",
+  "example": "38 ÷ 5 = 7 r □",
+  "answer": "3",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q13",
+  "section": 9,
+  "label": "The divisor missing, with a remainder",
+  "example": "38 ÷ □ = 7 r 3",
+  "answer": "5",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "Q14",
+  "section": 9,
+  "label": "The place-value factor missing",
+  "example": "45 × □ = 4500",
+  "answer": "100",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Advance"
+  ]
+ },
+ {
+  "code": "Q15",
+  "section": 9,
+  "label": "A missing row of a long multiplication",
+  "example": "34 × 26 = 204 + □",
+  "answer": "680",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Advance"
+  ]
+ },
+ {
+  "code": "Q16",
+  "section": 9,
+  "label": "A missing digit in a 3-digit number",
+  "example": "3□4 × 2 = 708",
+  "answer": "5",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Advance"
+  ]
+ },
+ {
+  "code": "Y01",
+  "section": 10,
+  "label": "Order does not change a product",
+  "example": "6 × 8 = 8 × □",
+  "answer": "6",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Easy"
+  ]
+ },
+ {
+  "code": "Y02",
+  "section": 10,
+  "label": "Three numbers, grouped either way",
+  "example": "(2 × 7) × 5 = 2 × (7 × 5) = □",
+  "answer": "70",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Medium"
+  ]
+ },
+ {
+  "code": "Y03",
+  "section": 10,
+  "label": "Partitioning a factor (distributive)",
+  "example": "7 × 12 = 7 × 10 + 7 × □",
+  "answer": "2",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Hard"
+  ]
+ },
+ {
+  "code": "Y04",
+  "section": 10,
+  "label": "Anything × 0",
+  "example": "456 × 0",
+  "answer": "0",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Easy"
+  ]
+ },
+ {
+  "code": "Y05",
+  "section": 10,
+  "label": "× 1 and ÷ 1 leave a number unchanged",
+  "example": "37 × 1 and 37 ÷ 1",
+  "answer": "37 and 37",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Easy"
+  ]
+ },
+ {
+  "code": "Y06",
+  "section": 10,
+  "label": "A number ÷ itself, and 0 ÷ a number",
+  "example": "9 ÷ 9 and 0 ÷ 9",
+  "answer": "1 and 0",
+  "op": "÷",
+  "placed_in": [
+   "MD.EQUALITY:Easy"
+  ]
+ },
+ {
+  "code": "Y07",
+  "section": 10,
+  "label": "True or false: 9 ÷ 0 = 0",
+  "example": "9 ÷ 0 = 0",
+  "answer": "false: there is no answer",
+  "op": "÷",
+  "placed_in": [
+   "MD.EQUALITY:Advance"
+  ]
+ },
+ {
+  "code": "Y08",
+  "section": 10,
+  "label": "True or false: 12 ÷ 3 = 3 ÷ 12",
+  "example": "12 ÷ 3 = 3 ÷ 12",
+  "answer": "false: division cannot be turned round",
+  "op": "÷",
+  "placed_in": [
+   "MD.EQUALITY:Advance"
+  ]
+ },
+ {
+  "code": "Y09",
+  "section": 10,
+  "label": "A fact family",
+  "example": "4, 7, 28: write the four facts",
+  "answer": "4 × 7 = 28, 7 × 4 = 28, 28 ÷ 4 = 7, 28 ÷ 7 = 4",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance",
+   "MD.EQUALITY:Medium"
+  ]
+ },
+ {
+  "code": "Y10",
+  "section": 10,
+  "label": "Check a division by multiplying",
+  "example": "96 ÷ 4 = 24? 24 × 4 = □",
+  "answer": "96",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance",
+   "MD.EQUALITY:Medium"
+  ]
+ },
+ {
+  "code": "Y11",
+  "section": 10,
+  "label": "Balance: × against −",
+  "example": "3 × 8 = 30 − □",
+  "answer": "6",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Hard"
+  ]
+ },
+ {
+  "code": "Y12",
+  "section": 10,
+  "label": "Balance: × against ÷",
+  "example": "6 × 4 = 48 ÷ □",
+  "answer": "2",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Hard"
+  ]
+ },
+ {
+  "code": "Y13",
+  "section": 10,
+  "label": "The missing sign",
+  "example": "6 □ 3 = 18 and 18 □ 3 = 6",
+  "answer": "× and ÷",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Hard"
+  ]
+ },
+ {
+  "code": "Y14",
+  "section": 10,
+  "label": "Compare without working",
+  "example": "25 × 4 ○ 25 × 5 and 48 ÷ 6 ○ 48 ÷ 8",
+  "answer": "< and >",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Hard"
+  ]
+ },
+ {
+  "code": "Y15",
+  "section": 10,
+  "label": "Double a factor, double the product",
+  "example": "12 × 5 = 60, so 12 × 10 = □",
+  "answer": "120",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Medium"
+  ]
+ },
+ {
+  "code": "Y16",
+  "section": 10,
+  "label": "True or false: 7 × 6 = 6 × 7",
+  "example": "7 × 6 = 6 × 7",
+  "answer": "true",
+  "op": "×",
+  "placed_in": [
+   "MD.EQUALITY:Easy"
+  ]
+ },
+ {
+  "code": "F01",
+  "section": 10,
+  "label": "Multiples of a number",
+  "example": "The multiples of 6 up to 60",
+  "answer": "6, 12, 18, 24, 30, 36, 42, 48, 54, 60",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Easy"
+  ]
+ },
+ {
+  "code": "F02",
+  "section": 10,
+  "label": "Is it a multiple?",
+  "example": "Is 45 a multiple of 5?",
+  "answer": "yes",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Easy"
+  ]
+ },
+ {
+  "code": "F03",
+  "section": 10,
+  "label": "All the factors of a number",
+  "example": "The factors of 12",
+  "answer": "1, 2, 3, 4, 6, 12",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Medium"
+  ]
+ },
+ {
+  "code": "F04",
+  "section": 10,
+  "label": "Factor pairs",
+  "example": "The factor pairs of 24",
+  "answer": "1 × 24, 2 × 12, 3 × 8, 4 × 6",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Medium"
+  ]
+ },
+ {
+  "code": "F05",
+  "section": 10,
+  "label": "A common multiple",
+  "example": "Common multiples of 3 and 4 below 30",
+  "answer": "12, 24",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Hard"
+  ]
+ },
+ {
+  "code": "F06",
+  "section": 10,
+  "label": "Divisible by 2, 5 and 10, from the last digit",
+  "example": "Is 340 divisible by 2, 5 and 10?",
+  "answer": "yes, all three",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Easy"
+  ]
+ },
+ {
+  "code": "F07",
+  "section": 10,
+  "label": "Divisible by 3, from the sum of the digits",
+  "example": "Is 117 divisible by 3? (1 + 1 + 7 = 9)",
+  "answer": "yes",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Advance"
+  ]
+ },
+ {
+  "code": "F08",
+  "section": 10,
+  "label": "Even and odd products",
+  "example": "Is 6 × 7 even or odd?",
+  "answer": "even",
+  "op": "×",
+  "placed_in": [
+   "MD.MULTIPLES:Medium"
+  ]
+ },
+ {
+  "code": "H01",
+  "section": 11,
+  "label": "×5 as ×10 then halve",
+  "example": "46 × 5 = 460 ÷ 2 = □",
+  "answer": "230",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.MENTAL:Medium"
+  ]
+ },
+ {
+  "code": "H02",
+  "section": 11,
+  "label": "×9 as ×10 take away one group",
+  "example": "23 × 9 = 230 − 23 = □",
+  "answer": "207",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "H03",
+  "section": 11,
+  "label": "×11 as ×10 and one more group",
+  "example": "14 × 11 = 140 + 14 = □",
+  "answer": "154",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "H04",
+  "section": 11,
+  "label": "Double one, halve the other",
+  "example": "16 × 5 = 8 × 10 = □; 35 × 4 = 70 × 2 = □",
+  "answer": "80 and 140",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Medium"
+  ]
+ },
+ {
+  "code": "H05",
+  "section": 11,
+  "label": "×8 as double three times",
+  "example": "13 × 8: 26, 52, □",
+  "answer": "104",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "H06",
+  "section": 11,
+  "label": "×25 as ×100 ÷ 4",
+  "example": "24 × 25 = 2400 ÷ 4 = □",
+  "answer": "600",
+  "op": "×",
+  "placed_in": [
+   "MD.MENTAL:Advance"
+  ]
+ },
+ {
+  "code": "H07",
+  "section": 11,
+  "label": "Near a round number (compensation)",
+  "example": "19 × 6 = 20 × 6 − 6 = □",
+  "answer": "114",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "H08",
+  "section": 11,
+  "label": "A fact from a known fact",
+  "example": "7 × 8 = 56, so 7 × 9 = 56 + 7 = □",
+  "answer": "63",
+  "op": "×",
+  "placed_in": [
+   "MUL.FACTS:Advance",
+   "MD.MENTAL:Medium"
+  ]
+ },
+ {
+  "code": "H09",
+  "section": 11,
+  "label": "÷5 as ÷10 then double",
+  "example": "240 ÷ 5 = 24 × 2 = □",
+  "answer": "48",
+  "op": "÷",
+  "placed_in": [
+   "DIV.TENS:Advance",
+   "MD.MENTAL:Hard"
+  ]
+ },
+ {
+  "code": "H10",
+  "section": 11,
+  "label": "A fact scaled by ten",
+  "example": "6 × 7 = 42, so 60 × 7 = □ and 600 × 7 = □",
+  "answer": "420 and 4200",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Advance",
+   "MD.MENTAL:Easy"
+  ]
+ },
+ {
+  "code": "V01",
+  "section": 12,
+  "label": "Round the larger number to the ten, then multiply",
+  "example": "48 × 6 ≈ 50 × 6 = □ (exact 288)",
+  "answer": "300",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.ESTIMATE:Medium"
+  ]
+ },
+ {
+  "code": "V02",
+  "section": 12,
+  "label": "Round both numbers",
+  "example": "38 × 21 ≈ 40 × 20 = □ (exact 798)",
+  "answer": "800",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Advance",
+   "MD.ESTIMATE:Hard"
+  ]
+ },
+ {
+  "code": "V03",
+  "section": 12,
+  "label": "How many digits will the product have?",
+  "example": "67 × 75 and 31 × 22",
+  "answer": "4 and 3",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Advance",
+   "MD.ESTIMATE:Medium"
+  ]
+ },
+ {
+  "code": "V04",
+  "section": 12,
+  "label": "How many digits will the quotient have?",
+  "example": "156 ÷ 4 and 456 ÷ 4",
+  "answer": "2 and 3",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Advance",
+   "MD.ESTIMATE:Medium"
+  ]
+ },
+ {
+  "code": "V05",
+  "section": 12,
+  "label": "Is this answer possible?",
+  "example": "23 × 4 = 812",
+  "answer": "no: 23 × 4 is less than 25 × 4 = 100",
+  "op": "×",
+  "placed_in": [
+   "MD.ESTIMATE:Advance"
+  ]
+ },
+ {
+  "code": "V06",
+  "section": 12,
+  "label": "Odd or even, without working",
+  "example": "7 × 9 and 6 × 13",
+  "answer": "odd and even",
+  "op": "×",
+  "placed_in": [
+   "MD.ESTIMATE:Easy"
+  ]
+ },
+ {
+  "code": "V07",
+  "section": 12,
+  "label": "The last digit, without working",
+  "example": "47 × 3 ends in □",
+  "answer": "1",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.ESTIMATE:Easy"
+  ]
+ },
+ {
+  "code": "V08",
+  "section": 12,
+  "label": "The closest estimate",
+  "example": "52 × 9 is closest to 400, 450 or 500?",
+  "answer": "450",
+  "op": "×",
+  "placed_in": [
+   "MD.ESTIMATE:Hard"
+  ]
+ },
+ {
+  "code": "V09",
+  "section": 12,
+  "label": "A remainder bigger than the divisor is wrong",
+  "example": "47 ÷ 6 = 6 r 11: possible?",
+  "answer": "no: 11 is more than 6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance",
+   "MD.ESTIMATE:Advance"
+  ]
+ },
+ {
+  "code": "V10",
+  "section": 12,
+  "label": "Estimate a quotient",
+  "example": "412 ÷ 8 ≈ 400 ÷ 8 = □ (exact 51 r 4)",
+  "answer": "50",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Advance",
+   "MD.ESTIMATE:Hard"
+  ]
+ },
+ {
+  "code": "B01",
+  "section": 13,
+  "label": "Equal groups, how many in all",
+  "example": "4 plates with 6 laddoos on each. How many laddoos in all?",
+  "answer": "24",
+  "op": "×",
+  "placed_in": [
+   "MUL.GROUPS:Advance",
+   "MD.WORD:Easy"
+  ]
+ },
+ {
+  "code": "B02",
+  "section": 13,
+  "label": "Sharing: how many in each group",
+  "example": "24 laddoos shared equally on 4 plates. How many on each plate?",
+  "answer": "6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Advance",
+   "MD.WORD:Easy"
+  ]
+ },
+ {
+  "code": "B03",
+  "section": 13,
+  "label": "Grouping: how many groups",
+  "example": "24 laddoos, 6 on each plate. How many plates?",
+  "answer": "4",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Advance",
+   "MD.WORD:Easy"
+  ]
+ },
+ {
+  "code": "B04",
+  "section": 13,
+  "label": "An array: how many in all",
+  "example": "5 rows of 7 chairs. How many chairs?",
+  "answer": "35",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Advance",
+   "MD.WORD:Medium"
+  ]
+ },
+ {
+  "code": "B05",
+  "section": 13,
+  "label": "An array: how many in a row",
+  "example": "35 chairs in 5 equal rows. How many in each row?",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Advance",
+   "MD.WORD:Medium"
+  ]
+ },
+ {
+  "code": "B06",
+  "section": 13,
+  "label": "Price: the cost of many",
+  "example": "One pencil costs ₹6. What do 8 pencils cost?",
+  "answer": "₹48",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.WORD:Easy"
+  ]
+ },
+ {
+  "code": "B07",
+  "section": 13,
+  "label": "Price: the cost of one",
+  "example": "8 pencils cost ₹48. What does one cost?",
+  "answer": "₹6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.FACTS:Advance",
+   "MD.WORD:Medium"
+  ]
+ },
+ {
+  "code": "B08",
+  "section": 13,
+  "label": "Times as many: the larger",
+  "example": "Riya has 4 stickers. Dev has 3 times as many. How many has Dev?",
+  "answer": "12",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance",
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B09",
+  "section": 13,
+  "label": "Times as many: the smaller",
+  "example": "Dev has 12 stickers, 3 times as many as Riya. How many has Riya?",
+  "answer": "4",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B10",
+  "section": 13,
+  "label": "Times as many: how many times",
+  "example": "Dev has 12 stickers and Riya has 4. How many times as many stickers as Riya does Dev have?",
+  "answer": "3",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B11",
+  "section": 13,
+  "label": "Twice as many",
+  "example": "Aman read 15 pages. Meera read twice as many. How many did Meera read?",
+  "answer": "30",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Advance",
+   "MD.WORD:Medium"
+  ]
+ },
+ {
+  "code": "B12",
+  "section": 13,
+  "label": "Combinations",
+  "example": "3 shirts and 4 shorts. How many different outfits?",
+  "answer": "12",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Advance",
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B13",
+  "section": 13,
+  "label": "Area in squares",
+  "example": "A rectangle 6 squares long and 4 squares wide. How many squares?",
+  "answer": "24",
+  "op": "×",
+  "placed_in": [
+   "MUL.MODELS:Advance",
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B14",
+  "section": 13,
+  "label": "A remainder dropped (full boxes)",
+  "example": "26 laddoos, 4 in each box. How many full boxes?",
+  "answer": "6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance",
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B15",
+  "section": 13,
+  "label": "A remainder rounded up",
+  "example": "26 children, 4 in each rickshaw. How many rickshaws are needed?",
+  "answer": "7",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance",
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B16",
+  "section": 13,
+  "label": "The remainder is the answer",
+  "example": "26 laddoos, 4 in each box. How many are left over?",
+  "answer": "2",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance",
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B17",
+  "section": 13,
+  "label": "Both asked",
+  "example": "26 laddoos into boxes of 4: how many boxes, how many left?",
+  "answer": "6 boxes, 2 left",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance",
+   "MD.WORD:Hard"
+  ]
+ },
+ {
+  "code": "B18",
+  "section": 13,
+  "label": "Two steps: ×, then +",
+  "example": "3 boxes of 12 pencils and 5 loose pencils. How many pencils?",
+  "answer": "41",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B19",
+  "section": 13,
+  "label": "Two steps: ×, then −",
+  "example": "Sara has ₹100 and buys 4 pens at ₹15 each. How much is left?",
+  "answer": "₹40",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B20",
+  "section": 13,
+  "label": "Two steps: ÷, then ×",
+  "example": "12 pencils cost ₹36. What do 5 pencils cost?",
+  "answer": "₹15",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B21",
+  "section": 13,
+  "label": "Two steps: two products added",
+  "example": "4 packets of 6 and 3 packets of 8. How many in all?",
+  "answer": "48",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B22",
+  "section": 13,
+  "label": "Two steps: +, then ÷",
+  "example": "18 red and 14 blue balloons shared equally by 4 children. How many each?",
+  "answer": "8",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B23",
+  "section": 13,
+  "label": "A bar model: one part is times another",
+  "example": "Ria and Sam have 32 marbles. Sam has 3 times as many as Ria. How many has Ria?",
+  "answer": "8",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B24",
+  "section": 13,
+  "label": "\"Each\" that means ÷",
+  "example": "30 stickers, 5 for each child. How many children?",
+  "answer": "6",
+  "op": "÷",
+  "placed_in": [
+   "DIV.GROUPS:Advance"
+  ]
+ },
+ {
+  "code": "B25",
+  "section": 13,
+  "label": "A number the question does not need",
+  "example": "A van carries 8 boxes of 9 mangoes and 3 drivers. How many mangoes?",
+  "answer": "72",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B26",
+  "section": 13,
+  "label": "Read from a price list",
+  "example": "Price list: pen ₹15, eraser ₹5. What do 3 pens cost?",
+  "answer": "₹45",
+  "op": "×",
+  "placed_in": [
+   "MD.WORD:Advance"
+  ]
+ },
+ {
+  "code": "B27",
+  "section": 13,
+  "label": "Half as many",
+  "example": "Meera read 30 pages. Aman read half as many. How many did Aman read?",
+  "answer": "15",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Medium"
+  ]
+ },
+ {
+  "code": "C01",
+  "section": 14,
+  "label": "Find the mistake: products side by side",
+  "example": "56 × 3 = 1518",
+  "answer": "M_MUL_CONCAT",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "C02",
+  "section": 14,
+  "label": "Find the mistake: carries left out",
+  "example": "34 × 6 = 84",
+  "answer": "M_MUL_NO_CARRY",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "C03",
+  "section": 14,
+  "label": "Find the mistake: the second row not moved",
+  "example": "68 × 17 = 544",
+  "answer": "M_MUL_PLACEHOLDER",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Advance"
+  ]
+ },
+ {
+  "code": "C04",
+  "section": 14,
+  "label": "Find the mistake: the zero left out of the quotient",
+  "example": "612 ÷ 6 = 12",
+  "answer": "M_DIV_QUOTIENT_ZERO_DROPPED",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Advance"
+  ]
+ },
+ {
+  "code": "C05",
+  "section": 14,
+  "label": "Find the mistake: a remainder too big",
+  "example": "85 ÷ 4 = 20 r 5",
+  "answer": "M_DIV_REMAINDER_TOO_BIG",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "C06",
+  "section": 14,
+  "label": "Find the mistake: partitioning, tens taken as ones",
+  "example": "23 × 4 = 2 × 4 + 3 × 4 = 20",
+  "answer": "M_PARTITION_TENS_AS_ONES",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D1D:Advance"
+  ]
+ },
+ {
+  "code": "C07",
+  "section": 14,
+  "label": "Say which step of a long division went wrong",
+  "example": "516 ÷ 4 = 12 r 3",
+  "answer": "M_DIV_BRING_DOWN_MISSED: the 6 was never brought down",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:Advance"
+  ]
+ },
+ {
+  "code": "C08",
+  "section": 14,
+  "label": "Explain, by multiplying back, why an answer cannot be right",
+  "example": "804 ÷ 4 = 21",
+  "answer": "21 × 4 = 84, not 804",
+  "op": "÷",
+  "placed_in": [
+   "MD.EQUALITY:Advance"
+  ]
+ },
+ {
+  "code": "C09",
+  "section": 14,
+  "label": "Find the mistake: the carry onto the zero left out",
+  "example": "506 × 7 = 3502",
+  "answer": "M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Advance"
+  ]
+ }
+]

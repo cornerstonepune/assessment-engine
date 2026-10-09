@@ -6,7 +6,9 @@ sampling, and the second one would have drifted from the first.
 """
 
 import random
+from collections.abc import Callable
 
+from engine.assess import counting as C
 from engine.assess import diagnosis as D
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
@@ -82,7 +84,7 @@ def one_of(v, rng):
 # call and no verify.problems detour either — these generators are trusted code, not untrusted
 # model output, the same guarantee the arithmetic sampler gets from its round trip through check.
 # fmt: off
-NATIVE_GENERATORS = {
+NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "missing_number": lambda rng, rung, signal, c: I.missing_number(rng, rung, signal, c["kind"], c["hi"]),
     "balance_scale": lambda rng, rung, signal, c: I.balance_scale(rng, rung, signal, c["hi"]),
     "number_wall": lambda rng, rung, signal, c: I.number_wall(rng, rung, signal, c["hi"]),
@@ -122,6 +124,8 @@ NATIVE_GENERATORS = {
     "odd_even": lambda rng, rung, signal, c: RS.odd_even(rng, rung, signal, one_of(c.get("op", "+"), rng), c.get("digits_max", 3)),
     "break_apart": lambda rng, rung, signal, c: RS.break_apart(
         rng, rung, signal, one_of(c.get("op", "+"), rng), c.get("digits_max", 3)),
+    "tally": C.tally,
+    "equal_groups": C.equal_groups,
 }
 
 # The rule keys each generator reads — and so the only keys a level of that kind may set (`engine audit`,
@@ -148,6 +152,8 @@ READS = {
     "possible_answer": {"op", "digits_max"},
     "odd_even": {"op", "digits_max"},
     "break_apart": {"op", "digits_max"},
+    "tally": {"shape", "lo", "hi"},
+    "equal_groups": {"shape", "groups", "size"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
 # `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)

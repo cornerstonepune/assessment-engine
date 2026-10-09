@@ -31,4 +31,6 @@ WORKING_LINES = {
     "possible_answer": 1,
     "odd_even": 0,
     "break_apart": 0,
+    "tally": 0,
+    "equal_groups": 0,
 }

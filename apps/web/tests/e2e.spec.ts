@@ -171,15 +171,21 @@ test("every question in the list shows its answer and opens its own page", async
 });
 
 // Twelve kinds of question, each drawn its own way. Before this, eight of them came out as
-// "undefined + undefined" because the screen only knew four.
+// "undefined + undefined" because the screen only knew four. A tally's numbers are its drawing, not
+// digits (components/pictures.tsx), so the drawing's label is read with the words: a number missing
+// from either says undefined or NaN.
 test("every kind of question in the bank is drawn with its own numbers", async ({ page }) => {
   const kinds = await sql<{ fmt: string }[]>`
     select distinct fmt from item where status = 'active' and source = 'generated' and exists (select 1 from skill_set s join topic t on t.code = s.topic_code and t.taught where s.code = item.skill_set_code) order by fmt`;
   for (const { fmt } of kinds) {
     await page.goto(`/library?fmt=${fmt}`);
     const question = page.locator("#questions tbody tr").first().locator("td").first();
-    await expect(question, fmt).toHaveText(/\d/);
-    await expect(question, fmt).not.toHaveText(/undefined|null|NaN/);
+    const shown = async () => {
+      const drawn = await question.locator("svg[aria-label]").evaluateAll((svgs) => svgs.map((s) => s.getAttribute("aria-label")));
+      return [await question.textContent(), ...drawn].join(" ");
+    };
+    await expect.poll(shown, fmt).toMatch(/\d/);
+    await expect.poll(shown, fmt).not.toMatch(/undefined|null|NaN/);
   }
 });
 

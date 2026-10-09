@@ -3,6 +3,44 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — multiplication and division: the taxonomy drafted, the build planned
+
+- **The ask:** Nimish wants multiplication and division the way addition and subtraction were done, through the whole
+  loop. Achal corrects the taxonomy, every method counts, and the remaining questions are answered by assumptions.
+- **What exists now:**
+  - the taxonomy draft `docs/design/multiplication-division-taxonomy.md`, also shared as a doc for Achal
+    (claude.ai/code/artifact/bdba6993-2e65-4a57-a251-c2926011b5b1);
+  - its cases as data, `docs/design/multiplication-division-cases.json`;
+  - its generator and checker, `research/md_taxonomy.py`: 247 cases, 38 mistakes, 17 skills, 0 faults;
+  - the twelve assumptions, ADR 0047;
+  - the plan, BUILD-ORDER "Inserted now: multiplication and division", slices M0 to M5;
+  - what was measured, STATE.md "Multiplication and division — measured before the build".
+- **Nothing in the engine changed.**
+- **Next:** M0. Write `goals/md0-every-answer-counts.yaml` and its tests first. The first test: a library worksheet
+  question with two answers is read and marked per answer; today `w3_read/copies.py` skips it.
+- **If Achal edits the doc:** carry his changes into `research/md_taxonomy.py`, rerun it, and commit both files. The
+  doc is not regenerated from the script, so his comments stay.
+- **Owed by people:**
+  - Achal: corrections to the doc;
+  - Nimish: approval of the new skills once their slice is live;
+  - an educator: what each grade has been taught.
+
+## 2026-10-06 — Grade 1 as its educator taught it to September
+
+- Grade 1 is exactly her list (`goals/g1-taught-till-september.yaml`, STATE.md "Grade 1 as its educator taught it"):
+  - 1-digit ± 1-digit;
+  - 2-digit ± 1-digit or 2-digit, with no exchange;
+  - tally marks;
+  - equal groups as repeated addition.
+- **On live after merge:**
+  - the migration moves the four 2-digit Easy levels to Grade 1 on its own;
+  - the two new skills, their questions and their worksheets need `bin/update-live`;
+  - the two new skills then need one approval each on Curriculum → Read and approve.
+- **Open with the educator:** 45 + 8 needs an exchange. If Grade 1 is taught it, move 2-digit + 1-digit Medium to
+  Grade 1 on that skill's page.
+- **A new kind of question is proven by every browser spec, not the ones named for it.** Three specs passed here
+  while `e2e.spec.ts`, which reads every kind in the bank, failed in CI on the tally (STATE.md, the same section).
+
 ## 2026-10-01 — Phase 2, PR 2: live recovers
 
 - **A restart** marks every dead run (`runs.orphaned`).

@@ -213,3 +213,28 @@ def test_a_worksheet_prints_in_every_layout_the_school_has_printed_and_today_s_b
 
     assert boxes_for_first_answer(printed["2026-09-21"]) == 3
     assert boxes_for_first_answer(printed[names[-1]]) == 2
+
+
+def _printed_as(conn, code, d):
+    return conn.execute(
+        "select id, band from sheet_template where source = 'library' and retired_at is null"
+        " and skill_set_code = %s and difficulty = %s",
+        (code, d),
+    ).fetchall()
+
+
+@needs_db
+def test_a_worksheet_prints_at_its_levels_grade_and_one_printed_at_another_is_replaced(conn):
+    """Nimish, 2026-10-06: "Can we incorporate this part additionally for grade 1?" 2-digit + 2-digit with no carry is
+    Grade 1 work now, so its worksheets print as Grade 1's — "Grade 1" on the page, Grade 1's bigger boxes — while its
+    harder levels stay Grade 2's. A worksheet printed for the grade its level was in before is retired and a new one
+    dealt, never edited."""
+    library.build(conn)
+    easy = _printed_as(conn, "ADD.2D2D", "Easy")
+    assert easy and {s["band"] for s in easy} == {"G1"}
+    assert {s["band"] for s in _printed_as(conn, "ADD.2D2D", "Hard")} == {"G2"}
+    conn.execute("update skill_set set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
+    library.build(conn)
+    again = _printed_as(conn, "ADD.2D2D", "Easy")
+    assert {s["band"] for s in again} == {"G2"}
+    assert not {s["id"] for s in easy} & {s["id"] for s in again}

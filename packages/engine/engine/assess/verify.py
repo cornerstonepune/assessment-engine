@@ -6,6 +6,8 @@ marker and the tag deriver cannot tell the two apart — and the same operands p
 item_key from either path, which is what stops the bank holding one sum twice.
 """
 
+from typing import Any
+
 from . import misconceptions as M
 from . import taxonomy
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
@@ -203,7 +205,7 @@ def _missing_distractors(op, a, b, ans, hidden_key, hidden):
     return {k: v for k, v in mis.items() if v != hidden and v >= 0}
 
 
-def to_item(c, rung, skills=None):
+def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     fmt, op, a, b = c["format"], c["op"], c["a"], c["b"]
     signal, lines, _ = FORMATS[fmt]
     ans = M.compute(op, a, b)

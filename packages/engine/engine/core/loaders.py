@@ -310,24 +310,22 @@ def _taxonomy_cases(conn: db.Conn, t: db.Id) -> None:
 def _skill_sets(conn: db.Conn, t: db.Id) -> None:
     """Insert only. The seed is the first draft of a set; after that the row belongs to Neha and
     Achal, who edit it in the app. An upsert here would silently overwrite their words and rules
-    on the next `engine load` — and they would have no way to know."""
+    on the next `engine load` — and they would have no way to know. A level the seed teaches in another grade than
+    the skill's own (`level_band`) is first drafted there too; a database loaded before is moved by a migration."""
     for s in settings.seed("skill_sets.json", "skill_sets"):
+        own = [s[k] for k in ("code", "rung_code", "name", "learning_objective", "philosophy", "formats")]
         conn.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
-            " philosophy, formats, misconception_codes, difficulty, eval_type)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " philosophy, formats, misconception_codes, difficulty, eval_type, level_band)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do nothing",
             (
                 t,
-                s["code"],
-                s["rung_code"],
-                s["name"],
-                s["learning_objective"],
-                s["philosophy"],
-                s["formats"],
+                *own,
                 s["misconception_codes"],
                 json.dumps(s["difficulty"]),
                 s.get("eval_type", "computable"),
+                json.dumps(s.get("level_band", {})),
             ),
         )
 

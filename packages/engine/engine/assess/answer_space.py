@@ -72,5 +72,5 @@ def grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
     return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
 
 
-def op_sign(o):
+def op_sign(o: str) -> str:
     return "−" if o == "-" else o
