@@ -16,7 +16,9 @@ export type TaxonomyCase = {
   held: Held[]; // where its questions sit on live library worksheets, the most first
 };
 
-/** Every case, in the document's order, with the levels set for it and the worksheets holding it. */
+/** Every case of the addition and subtraction document — the one this screen reads — in its order, with the levels
+ *  set for it and the worksheets holding it. Multiplication and division's cases are the other document's rows
+ *  (`taxonomy_case.taxonomy`, goals/md1-taxonomy-rows.yaml); both number a §4, §7, §8, §9 and §11. */
 export async function taxonomyMap(): Promise<TaxonomyCase[]> {
   return sql<TaxonomyCase[]>`
     with set_at as (
@@ -47,15 +49,18 @@ export async function taxonomyMap(): Promise<TaxonomyCase[]> {
                      from held h where h.code = tc.code), '[]'::jsonb) as held
     from taxonomy_case tc
     left join set_at sa on sa.code = tc.code
+    where tc.taxonomy = 'ADD_SUB'
     order by string_to_array(tc.section, '.')::int[], tc.code`;
 }
 
-/** Library worksheets that hold no taxonomy case — multiplication, explaining a claim — outside this document. */
+/** Library worksheets that hold none of this document's cases — multiplication, explaining a claim — outside it. */
 export async function worksheetsOutsideTaxonomy(): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`
     select count(*)::int as n from sheet_template t
     where t.source = 'library' and t.retired_at is null
-      and not exists (select 1 from unnest(t.item_ids) u(id) join item i on i.id = u.id where i.case_codes <> '{}')`;
+      and not exists (select 1 from unnest(t.item_ids) u(id) join item i on i.id = u.id
+                      join taxonomy_case tc on tc.tenant_id = i.tenant_id and tc.code = any(i.case_codes)
+                      where tc.taxonomy = 'ADD_SUB')`;
   return n;
 }
 
@@ -69,8 +74,8 @@ export async function worksheetCases(code: string): Promise<{ code: string; labe
     cross join lateral unnest(i.case_codes) x
     join taxonomy_case tc on tc.tenant_id = t.tenant_id and tc.code = x
     where t.code = ${code}
-    group by tc.code, tc.label, tc.section
-    order by string_to_array(tc.section, '.')::int[], tc.code`;
+    group by tc.code, tc.taxonomy, tc.label, tc.section
+    order by tc.taxonomy, string_to_array(tc.section, '.')::int[], tc.code`;
 }
 
 /** Where a case stands against the worksheets: on the level set for it, a pattern across levels, or not. */

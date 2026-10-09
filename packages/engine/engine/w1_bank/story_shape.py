@@ -34,10 +34,12 @@ def _bar(conn):
 
 def shapes(conn):
     """{shape: (case code, what it is — the case's label and one of the engine's own stories of that shape)} for every
-    taxonomy case that is a story's shape. The case rows alone say "work backwards" or "several conditions" with no
-    story to show; a story beside each is what a reader of shapes needs."""
+    addition and subtraction case that is a story's shape. The case rows alone say "work backwards" or "several
+    conditions" with no story to show; a story beside each is what a reader of shapes needs. Multiplication and
+    division's shapes are offered once their story templates and their eval exist (M4, rule 7), never before."""
     rows = conn.execute(
-        "select code, label, match->>'structure' as shape from taxonomy_case where match ? 'structure' order by code"
+        "select code, label, match->>'structure' as shape from taxonomy_case"
+        " where taxonomy = 'ADD_SUB' and match ? 'structure' order by code"
     ).fetchall()
     return {
         r["shape"]: (r["code"], f"{r['label']}. Stories of this shape: {_example(r['shape'])}") for r in rows

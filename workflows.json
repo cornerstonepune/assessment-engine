@@ -180,7 +180,7 @@
       "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
       "engine/assess/items.py": 540,
-      "engine/core/loaders.py": 409,
+      "engine/core/loaders.py": 405,
       "engine/assess/misconceptions.py": 489
     }
   },
@@ -202,7 +202,7 @@
         "PLR0915": 79
       },
       "engine/assess/tags.py::derive": {
-        "C901": 13
+        "C901": 11
       },
       "engine/assess/verify.py::dimension_problems": {
         "C901": 15
@@ -225,8 +225,7 @@
         "PLR0915": 53
       },
       "engine/w1_bank/cli_taxonomy.py::register": {
-        "C901": 16,
-        "PLR0915": 55
+        "C901": 14
       },
       "engine/w2_print/library.py::check": {
         "C901": 12
@@ -288,7 +287,7 @@
       "engine/assess/reasoning.py": 123,
       "engine/assess/render.py": 388,
       "engine/assess/skills.py": 87,
-      "engine/assess/tags.py": 283,
+      "engine/assess/tags.py": 253,
       "engine/assess/taxonomy.py": 69,
       "engine/assess/verify.py": 102,
       "engine/assess/words.py": 182

@@ -4782,3 +4782,95 @@ Goal `goals/md0c-a-skill-set-is-read-as-itself.yaml`; ADR 0048.
     operation, which is not a guess either.
 
   Both fixed; the suites they and this slice touch → `76 passed`; `bin/check` → `27 passed`.
+- **Live (2026-10-09).** PR #161 merged as `fee48d7`. `migrate live` run 37961033682: "Applying migration
+  20261027090000_a_skill_set_is_read_as_itself.sql... Finished supabase db push." `deploy engine` run 37961033754
+  records engine-commit `fee48d7`; 0 answers re-marked. Before the merge, `rehearse update-live` on the branch, against
+  a copy of live (run 37956466525), applied every migration (the unique index holds on live's own rows) with
+  misconception rows 77 → 78, 3114 worksheets and 0 problems.
+
+## M1 — the taxonomy as rows (2026-10-09)
+
+Goal `goals/md1-taxonomy-rows.yaml`; ADR 0049.
+
+**Measured before the build.**
+- `docs/design/multiplication-division-cases.json` held each case's words only: no match, and no example a tag could
+  measure.
+- `tags.derive` measured nothing of a × or ÷ question beyond its kind. The 864 `MUL.1D` questions and 48
+  `MUL.GROUPS` ones were cases of nothing.
+- 54 of the 270 addition and subtraction cases name no operation (R06 is any `odd_even` question), so the first ×
+  odd-or-even question would have counted as one.
+- `case_dimension` was the §12 matrix, read by nothing. 22 of the tags the 270 cases read were no dimension row, and
+  `word_structure`'s values were never measured.
+
+**Now.** Each claim with the command that proves it:
+- **The 247 cases are rows**, each with the drafted document's code, section, words and example, every straight
+  answer recomputed from the row's own numbers (`O.compute`, `O.divide`), not read from the document.
+- **Code measures every new tag.** `assess/md_tags.py` (303 lines) measures, among others:
+  - the fact, its table and group, and a table read the other way;
+  - by 10, 100 or 1000, or a round number whose fact is a table fact;
+  - which columns carry and how far, and a knock-on;
+  - a long multiplication's rows, whether each regroups, and whether adding them carries;
+  - short division's exchanges, a first digit smaller than the divisor, a zero in the quotient;
+  - the remainder, and an estimate that must be corrected.
+
+  Column arithmetic is in `assess/operations.py`. 75 hand-stated readings hold it: 56 × 3 carries from the ones,
+  804 ÷ 4 has a zero in the middle of its quotient, 47 ÷ 6 leaves the largest remainder, 84 ÷ 12 needs its estimate
+  corrected.
+- **A case is a case of its own taxonomy.** Each row and match names ADD_SUB or MUL_DIV. A question's `taxonomy` is
+  read from its own operations, so no case of one document holds an example of the other, and a × odd-or-even
+  question is not R06.
+- **No two cases are one.** The test reads every straight × and ÷ question to four digits, in a line and in columns
+  (about 100,000 questions, 3,924 distinct readings). No two cases hold the same set. It found D03 and D04 were one
+  case, since every 2-digit by 1-digit exchange goes past the tables. They are now by 2–5 and by 6–9 (`divisor_group`),
+  and the document says so.
+- **The dimension rows are the vocabulary** of both documents: 68 rows. Every tag a case reads, and every value it
+  reads it at, is a row; and every reading the code makes of every straight question is a value its row allows. `word_structure` is replaced by the measured `structure`, and the loader removes a dimension
+  the seed no longer names.
+- **`engine bank taxonomy` counts both, each under its own name.** Local copy, after `engine load` and `engine bank
+  relabel` (21,289 tags changed, all adding `taxonomy`; cases changed on 912 questions, the 864 + 48 above, and on no
+  addition or subtraction question):
+  ```
+  ADD_SUB: 270 cases · 269 covered · 0 missing · 1 thin
+  MUL_DIV: 247 cases · 26 covered · 205 missing · 16 thin
+  MUL_DIV: 247 unplaced, no level in use names them: TF01 TF02 …
+  ```
+  The 26 covered are what the old `MUL.1D` and `MUL.GROUPS` questions already are. The 247 unplaced wait for M2–M4's
+  levels.
+- **Refill retires nothing.** × questions now carry `operand_1_digits`, so refill judges `MUL.1D` by its own declared
+  digits. All 864 fit: `cases.outside_their_level` → 0.
+- **A second reader reviewed the diff and found eleven things; each is fixed at its cause and tested:**
+  - the website's taxonomy screen would have shown multiplication's cases under addition's chapters (both documents
+    number a §4, §7, §8, §9 and §11). It now reads the document its title names (`lib/queries-taxonomy.ts`);
+  - `zero_pattern` read the zeros of the 100 in 45 × 100, so 345 × 100 was no case and 10 × 45 was "×10 of a number
+    ending in zero". It reads the number multiplied, and where its zeros sit apart from how many (`zero_count`);
+  - ÷ with both numbers round missed its fact (80 ÷ 20, 200 ÷ 40);
+  - T13 held 12 × 345; it is 1-digit by 3-digit;
+  - missing numbers with no one answer (□ × 0 = 0, 42 ÷ □ = 5, □ × □ = 24) were given made-up numbers, and some
+    crashed. Each is now measured as nothing, as are negative numbers, and numbers past five places are named;
+  - "3 x □ = 12" was read as × by one reader and not by the other; both now read only ×;
+  - `engine bank taxonomy` said "247 unplaced" in the line `goals/s13-levels-by-taxonomy.yaml` reads; it now counts
+    each document on its own line;
+  - the story-shape reader would have offered the model multiplication's story shapes with no templates and no eval
+    (rule 7); it offers the addition and subtraction document's only, until M4 brings both;
+  - `test_topics` held "a skill holding a case is taught", which multiplication's untaught cases broke; it reads the
+    addition and subtraction document, which is what it promised;
+  - 0 × 12 was the 11–12 group; it is the 0–1;
+  - the tests now include 13 labels checked against plain arithmetic written in the test, not the code under test,
+    and every reading of every straight question checked against the vocabulary.
+- `cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_cases.py` → `118 passed`; the suites this
+  touches (`test_md_cases test_taxonomy test_topics test_loaders test_rehome test_story_shape test_bank
+  test_every_skill test_legacy test_division_is_an_operation`) → `913 passed`; the whole engine suite before the review
+  → `1799 passed, 1 failed` (`test_topics`, above);
+  `packages/engine/.venv/bin/python research/md_taxonomy.py --check` → `247 cases in 13 sections, 38 mistakes,
+  17 skills, 247 rows: every example recomputed and measured, every case placed or listed unplaced, 0 faults`;
+  `bin/check` → `27 passed`.
+- **The rehearsal on a copy of live** first failed restoring live's rows: the new column's default had been dropped, so
+  a row from before it had no value. The default stays (every row older than the column is addition and
+  subtraction's), and the loader writes the column for every seed row.
+- **Gates.** `tags.derive` complexity 13 → 11; `cli_taxonomy.register` 16 → 14 (statements 55 → under the limit); `tags.py`
+  unannotated 283 → 253; `loaders.py` 409 → 405 lines. Each fallen value is written in `workflows.json`.
+
+**Waits for Nimish's next `bin/update-live`** (seed rows; a deploy loads only prompts, thresholds and config): the 517
+case rows, the 68 dimension rows, and the relabel that writes `taxonomy` onto every stored question. update-live runs
+`engine load`, then `engine bank relabel`, before anything reads a case.
+

@@ -1057,7 +1057,7 @@
  {
   "code": "D03",
   "section": 6,
-  "label": "2 ÷ 1 digits, one exchange from the tens",
+  "label": "2 ÷ 1 digits, one exchange from the tens, by 2, 3, 4 or 5",
   "example": "72 ÷ 4",
   "answer": "18",
   "op": "÷",
@@ -1068,7 +1068,7 @@
  {
   "code": "D04",
   "section": 6,
-  "label": "2 ÷ 1 digits, an exchange, the answer past the tables",
+  "label": "2 ÷ 1 digits, one exchange from the tens, by 6, 7, 8 or 9",
   "example": "91 ÷ 7",
   "answer": "13",
   "op": "÷",

@@ -3,6 +3,27 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M1: the taxonomy as rows
+
+- **Slice:** M1 (W1 gate 3). Goal `goals/md1-taxonomy-rows.yaml`; tests `packages/engine/tests/test_md_cases.py`;
+  ADR 0049.
+- **M0c is merged and live:** main `fee48d7`, migration `20261027090000` applied, engine at `fee48d7`.
+- **What changed:**
+  - `assess/md_tags.py` measures every × and ÷ tag; column arithmetic is in `assess/operations.py`;
+  - every question carries `taxonomy` (ADD_SUB or MUL_DIV, from its own operations), and every case names its own;
+  - `research/md_rows.py` turns the 247 drafted cases into `taxonomy_case` rows, each match measured on its example
+    by the engine;
+  - `case_dimension` is the whole vocabulary (68 rows), held by a test;
+  - migration `20261028090000` gives `taxonomy_case` its `taxonomy` column;
+  - `engine bank taxonomy` counts and lists each document on its own, and so does the website's taxonomy screen;
+  - a second reader's eleven findings are fixed (STATE.md "M1").
+- **A correction to the drafted document:** D03 and D04 were one case (ADR 0049). D04 is now "by 6, 7, 8 or 9". The
+  shared doc Achal corrects still says the old words; republish it from `docs/design/multiplication-division-taxonomy.md`.
+- **Waiting for Nimish's next `bin/update-live`** (it now carries M0b, M0c and M1's seed rows): 517 case rows, 68
+  dimension rows, `M_WRONG_OP`'s name for any operation, and the relabel that writes `taxonomy` on every question.
+- **Next:** M2, multiplication. Its kinds must state the method, shape or structure their case reads (the examples in
+  `research/md_rows.py` are the contract).
+
 ## 2026-10-09 — M0c: a skill set is read as itself
 
 - **Slice:** M0c (W1 gate 3). Goal `goals/md0c-a-skill-set-is-read-as-itself.yaml`; tests
