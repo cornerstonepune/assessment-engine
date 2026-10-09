@@ -44,7 +44,9 @@ def test_a_note_in_the_educators_words_proposes_the_grades_skill_sets_it_covered
     assert "SUB.2D2D" in codes and "REASON.FIND_MISTAKE" in codes, (
         "the grade's own and the G2+ reasoning sets"
     )
-    assert not any(c.startswith(("ADD.3D", "SUB.3D", "MUL")) for c in codes), "never another grade's"
+    # the tables and 2-digit × 1-digit have Grade 2 levels (assumption A6); the rest of multiplication is later
+    later = ("ADD.3D", "SUB.3D", "MUL.3D1D", "MUL.2D2D", "MUL.TENS", "MUL.GROUPS")
+    assert not any(c.startswith(later) for c in codes), "never another grade's"
     rows = got["skill_sets"]
     assert [r["code"] for r in rows][:3] == ["SUB.2D2D", "WORD.1_2STEP", "SUB.2D1D"], "most likely first"
     assert {r["code"] for r in rows if r["ticked"]} == {"SUB.2D2D", "WORD.1_2STEP"}

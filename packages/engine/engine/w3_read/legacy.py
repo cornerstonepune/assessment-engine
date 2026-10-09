@@ -51,7 +51,7 @@ def where_they_go(conn):
 def rung_for(op, a, b, where):
     """The rung of the skill a bare sum practises, from its numbers alone — the one skill whose operation and
     digit shape it has (`assess/placing.py`), exactly as the bank's own questions are placed; None off them."""
-    if op not in ("+", "-") or (op == "-" and a < b):  # the taxonomy places + and − (M1 adds × and ÷)
+    if op not in placing.OPERATIONS or (op == "-" and a < b):
         return None
     t = tags.derive(Item("", "", "", [], "", "bare_sum", False, "", {"a": a, "b": b, "op": op}, []))
     home = placing.place("bare_sum", t, *where[:2])

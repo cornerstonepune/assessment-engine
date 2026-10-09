@@ -14,7 +14,7 @@
     {"n": 5, "page": 1, "expr": "3456 + 2789", "question": "3,456 + 2,789 ="},
     {"n": 6, "page": 1, "expr": "8000 - 3456", "question": "8,000 - 3,456 ="},
     {"n": 7, "page": 1, "rung": "M1", "skill": "NUM.OPS.03", "expr": "34 x 6", "question": "34 x 6 ="},
-    {"n": 8, "page": 1, "kind": "bare", "rung": "M1", "skill": "NUM.OPS.04", "answer": 12, "expr": "144 ÷ 12", "question": "144 ÷ 12 ="},
+    {"n": 8, "page": 1, "kind": "bare", "rung": "R16", "skill": "NUM.OPS.04", "answer": 12, "expr": "144 ÷ 12", "question": "144 ÷ 12 ="},
     {"n": 9, "page": 1, "kind": "bare", "rung": "R11", "skill": "NUM.FRAC.01", "answer": 4, "question": "What is half of 8?"},
     {"n": 10, "page": 1, "kind": "missing", "rung": "R11", "skill": "NUM.FRAC.01", "answer": "1/2", "question": "Which is bigger: 1/2 or 1/4?"},
     {"n": 11, "page": 1, "kind": "word", "rung": "R31", "answer": 137, "question": "A vendor had 500 apples. He sold 235 in the morning and 128 in the afternoon. How many apples are left?"},

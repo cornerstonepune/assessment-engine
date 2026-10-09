@@ -74,6 +74,7 @@ def test_every_replaced_skill_set_is_named_in_the_seed():
     assert set(old) == {
         "ADD.1D.WITHIN10", "ADD.1D.BRIDGE10", "SUB.1D.WITHIN20", "ADDSUB.2D.NOREG", "ADD.2D.REG",
         "SUB.2D.EXCH", "ADD.3D.REG", "SUB.3D.ZERO", "ADDSUB.4D.ADV", "ADD.MULTI.SMALL",
+        "MUL.1D",  # onto the five multiplication skills (M2a, ADR 0050)
     }  # fmt: skip
 
 

@@ -21,6 +21,6 @@
     {"n": 12, "page": 2, "kind": "text", "rung": "X1", "question": "In your own words, explain why we \"carry\" a number when adding two numbers."},
     {"n": 13, "page": 3, "kind": "text", "rung": "X2", "answer": 75, "question": "Akanksha added 48 + 27 and wrote 65. Is he correct? If not, find his mistake and write the correct answer."},
     {"n": 14, "page": 3, "kind": "word", "rung": "R8", "answer": 41, "question": "There are 45 mangoes in a basket. 12 are eaten, and then 8 more mangoes are added. How many mangoes are there now?"},
-    {"n": 15, "page": 3, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "answer": 20, "question": "A vendor has 3 boxes with 6 apples in each box, plus 2 more apples kept separately. How many apples does he have in total?"}
+    {"n": 15, "page": 3, "kind": "word", "rung": "R8", "skill": "NUM.OPS.03", "answer": 20, "question": "A vendor has 3 boxes with 6 apples in each box, plus 2 more apples kept separately. How many apples does he have in total?"}
   ]
 }

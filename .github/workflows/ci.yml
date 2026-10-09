@@ -16,7 +16,9 @@ jobs:
     defaults: { run: { working-directory: packages/engine } }
     services:
       postgres:
-        image: postgres:17
+        # Docker Hub's official image from AWS's copy of it: Docker Hub refuses anonymous pulls past a
+        # limit per address, and runners share addresses (2026-10-09: every job died before its first step, twice)
+        image: public.ecr.aws/docker/library/postgres:17
         env: { POSTGRES_PASSWORD: postgres }
         ports: ["5432:5432"]
         options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
@@ -85,7 +87,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        # Docker Hub's official image from AWS's copy of it: Docker Hub refuses anonymous pulls past a
+        # limit per address, and runners share addresses (2026-10-09: every job died before its first step, twice)
+        image: public.ecr.aws/docker/library/postgres:17
         env: { POSTGRES_PASSWORD: postgres }
         ports: ["5432:5432"]
         options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30

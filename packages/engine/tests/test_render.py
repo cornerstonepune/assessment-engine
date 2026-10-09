@@ -44,6 +44,75 @@ def test_there_are_as_many_answer_boxes_as_the_answer_has_digits(a, b, op, layou
     assert _boxes(html) == len(answer)
 
 
+@pytest.mark.parametrize(
+    "a, b, rows",
+    [(68, 17, 2), (47, 23, 2), (213, 12, 2), (17, 68, 2), (68, 7, 0), (7, 68, 0), (23, 40, 0), (45, 10, 0)],
+)
+def test_a_long_multiplication_prints_a_row_for_each_digit_of_its_multiplier(a, b, rows):
+    """Set out as the school writes it (goals/md2a-straight-multiplication.yaml, G12): a row for each digit of the
+    multiplier, the last with its + sign, then the answer. A 1-digit multiplier, or one whose ones are 0 (23 × 40 is
+    one row), writes its answer straight under the line. The rows are room to work: only the answer's boxes are read."""
+    ans = I.Response("ans", "digits", str(a * b), cells=len(str(a * b)) + 1)
+    html = answer_space.grid("S", "I", [a, b], "×", ans)
+    assert html.count('class="g op"') - 2 == rows  # two numbers' rows, then the rows worked
+    assert ('<div class="g op">+</div>' in html) == bool(rows)
+    assert not re.search(r'class="g worked"[^>]*data-', html)  # no answer box among them
+    assert _boxes(html) == len(str(a * b))
+
+
+def _times_item(a, b):
+    from engine.assess import verify
+
+    return verify.to_item(
+        {
+            "format": "column_grid",
+            "op": "×",
+            "a": a,
+            "b": b,
+            "answer": a * b,
+            "stem": "",
+            "missing": None,
+            "misconceptions": [],
+        },
+        "R40",
+    )
+
+
+def test_a_long_multiplications_rows_are_working_the_reader_never_reads_as_its_answer(tmp_path):
+    """Rule 5's third signal stays its own: the rows are one working space, and none of it reaches an answer box once
+    the reader's own inset is taken (`w3_read/boxes.py` WORK_INSIDE). A worksheet printed before the rows (layout
+    2026-09-24) re-renders as it printed, with no rows and no extra working space (second reader, 2026-10-09)."""
+    from playwright.sync_api import sync_playwright
+
+    from engine.w3_read.boxes import WORK_INSIDE
+
+    it = _times_item(68, 17)
+    old = next(r for r in _layouts() if r["name"] == "2026-09-24")
+    with sync_playwright() as pw:
+        today = render.render_sheet(Sheet("CS0000A1", "G4", "Easy", 1, "W1", [it]), tmp_path, pw=pw)
+        before = render.render_sheet(
+            Sheet("CS0000A2", "G4", "Easy", 1, "W1", [it]), tmp_path, pw=pw, layout=old
+        )
+    mine = [g for g in today["geometry"] if g["item"] == it.item_id]
+    digits = [g for g in mine if g["kind"] == "digit"]
+    works = [g for g in mine if g["kind"] == "work"]
+    assert (
+        len(digits) == 4 and len(works) == 1
+    )  # the answer's four boxes; the rows, the question's one working space
+    for w in works:
+        x0, y0, x1, y1 = (
+            w["x"] + WORK_INSIDE,
+            w["y"] + WORK_INSIDE,
+            w["x"] + w["w"] - WORK_INSIDE,
+            w["y"] + w["h"] - WORK_INSIDE,
+        )
+        for d in digits:
+            apart = d["x"] + d["w"] <= x0 or d["x"] >= x1 or d["y"] + d["h"] <= y0 or d["y"] >= y1
+            assert apart, (w, d)
+    assert [g for g in before["geometry"] if g["item"] == it.item_id and g["kind"] == "work"] == []
+    assert "worked" not in render.render_item(Sheet("S", "G4", "Easy", 1, "W1", [it]), it, 1, old)
+
+
 def test_a_question_of_two_steps_gets_the_most_room_to_work():
     it = word_2step(__import__("random").Random(3), "R0", "Application", 3)
     assert 'class="work h4"' in _html(it)
@@ -62,7 +131,7 @@ def test_a_worksheet_draws_in_each_layout_the_school_has_printed():
     """Nimish, 2026-09-28, of the 23 Sep papers printed before L3: "Recover layout". The renderer draws a question
     in any layout a paper has printed in: before L3 an answer had the room its question set (four boxes for 68),
     from L3 as many boxes as the answer has digits, with taller working space and a stronger QR."""
-    old, l3, today = _layouts()
+    old, l3, *_, today = _layouts()
     it = I.bare_sum(__import__("random").Random(1), "R0", "Procedural", "+", 2, 2, {0, 1, 2})
     it.spec.update(a=23, b=45, op="+", layout="horizontal")
     ans = next(r for r in it.responses if r.rid == "ans")

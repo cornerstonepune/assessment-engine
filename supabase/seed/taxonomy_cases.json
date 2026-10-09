@@ -8126,7 +8126,8 @@
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
-        "zero_pattern": "ANSWER_ZERO"
+        "zero_pattern": "ANSWER_ZERO",
+        "digits_max": 3
       }
     },
     {
@@ -8157,7 +8158,10 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "place_value_factor": "X1000"
+        "place_value_factor": "X1000",
+        "digits_min": {
+          "lte": 2
+        }
       }
     },
     {
@@ -8227,7 +8231,8 @@
         "zero_pattern": [
           "INTERNAL",
           "INTERNAL+TRAILING"
-        ]
+        ],
+        "digits_max": 3
       }
     },
     {
@@ -8260,7 +8265,8 @@
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
         "scaled_fact": "YES",
-        "fact_zero": "NO"
+        "fact_zero": "NO",
+        "digits_min": 1
       }
     },
     {
@@ -8323,7 +8329,9 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE"
+        "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE",
+        "scaled_fact": "YES",
+        "digits_min": 1
       }
     },
     {
@@ -8355,7 +8363,8 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
-        "fact_zero": "YES"
+        "fact_zero": "YES",
+        "digits_min": 1
       }
     },
     {
@@ -8387,8 +8396,44 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
-        "scaled_fact": "NO",
-        "operand_2_digits": 2
+        "digits_max": 2,
+        "digits_min": 2
+      }
+    },
+    {
+      "code": "TP11",
+      "taxonomy": "MUL_DIV",
+      "section": "2",
+      "section_name": "Multiplication facts and place value",
+      "label": "×100 of a number already ending in zero",
+      "example_text": "30 × 100",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 30,
+          "b": 100,
+          "op": "×",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "place_value_factor": "X100",
+        "zero_pattern": [
+          "TRAILING",
+          "INTERNAL+TRAILING"
+        ],
+        "digits_max": 3
       }
     },
     {
@@ -8415,8 +8460,8 @@
         ],
         "method": "COLUMNS",
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regrouping": "NONE",
         "answer_digit_change": "ONE_FEWER"
       }
@@ -8445,9 +8490,10 @@
         ],
         "method": "LINE",
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
-        "regrouping": "NONE"
+        "digits_max": 2,
+        "digits_min": 1,
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -8479,7 +8525,9 @@
         ],
         "operation": "MUL",
         "operand_order": "SHORTER_FIRST",
-        "digits_max": 2
+        "digits_max": 2,
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -8510,8 +8558,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "carry_size": "ONE",
         "answer_digit_change": "ONE_FEWER"
@@ -8545,8 +8593,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "carry_size": "MORE_THAN_ONE",
         "answer_digit_change": "ONE_FEWER"
@@ -8580,8 +8628,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regrouping": "NONE",
         "answer_digit_change": "FULL"
       }
@@ -8614,8 +8662,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "answer_digit_change": "FULL",
         "carry_size": "ONE",
@@ -8650,8 +8698,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "knock_on": "YES",
         "answer_zeros": "INTERNAL"
       }
@@ -8684,8 +8732,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "answer_zeros": "TRAILING"
       }
@@ -8718,8 +8766,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "carry_max": 8
       }
     },
@@ -8751,9 +8799,10 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
-        "regrouping": "NONE"
+        "digits_max": 3,
+        "digits_min": 1,
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -8784,8 +8833,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regrouping": [
           "SINGLE",
           "MULTIPLE"
@@ -8844,8 +8893,8 @@
         ],
         "method": "LINE",
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1
+        "digits_max": 3,
+        "digits_min": 1
       }
     },
     {
@@ -8876,8 +8925,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 4,
-        "operand_2_digits": 1,
+        "digits_max": 4,
+        "digits_min": 1,
         "regrouping": "NONE"
       }
     },
@@ -8909,8 +8958,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 4,
-        "operand_2_digits": 1,
+        "digits_max": 4,
+        "digits_min": 1,
         "regrouping": [
           "SINGLE",
           "MULTIPLE"
@@ -8945,8 +8994,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2,
+        "digits_max": 2,
+        "digits_min": 2,
         "row_regrouping": "NONE",
         "partial_sum_regrouping": "NONE",
         "answer_digits": 3
@@ -8980,8 +9029,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2,
+        "digits_max": 2,
+        "digits_min": 2,
         "row_regrouping": "SOME",
         "partial_sum_regrouping": "NONE",
         "answer_digits": 3
@@ -9015,8 +9064,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2,
+        "digits_max": 2,
+        "digits_min": 2,
         "row_regrouping": "ALL",
         "partial_sum_regrouping": "NONE",
         "answer_digits": 3
@@ -9050,8 +9099,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2,
+        "digits_max": 2,
+        "digits_min": 2,
         "row_regrouping": "ALL",
         "partial_sum_regrouping": [
           "SINGLE",
@@ -9088,8 +9137,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2,
+        "digits_max": 2,
+        "digits_min": 2,
         "partial_sum_regrouping": "NONE",
         "answer_digits": 4
       }
@@ -9118,8 +9167,8 @@
         ],
         "method": "LINE",
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 2
+        "digits_max": 2,
+        "digits_min": 2
       }
     },
     {
@@ -9150,8 +9199,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 2
+        "digits_max": 3,
+        "digits_min": 2
       }
     },
     {
@@ -9182,8 +9231,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 2,
+        "digits_max": 3,
+        "digits_min": 2,
         "row_regrouping": "ALL"
       }
     },
@@ -9215,10 +9264,10 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": {
+        "digits_max": {
           "gte": 5
         },
-        "operand_2_digits": 1
+        "digits_min": 1
       }
     },
     {
@@ -9249,9 +9298,87 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 3,
+        "digits_max": 3,
+        "digits_min": 3,
         "multiplier_zero": "INTERNAL"
+      }
+    },
+    {
+      "code": "T27",
+      "taxonomy": "MUL_DIV",
+      "section": "3",
+      "section_name": "Multiplication by digit shape",
+      "label": "2 × 2 digits, adding the rows carries, a 3-digit answer",
+      "example_text": "19 × 14",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 19,
+          "b": 14,
+          "op": "×",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 2,
+        "partial_sum_regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ],
+        "answer_digits": 3
+      }
+    },
+    {
+      "code": "T28",
+      "taxonomy": "MUL_DIV",
+      "section": "3",
+      "section_name": "Multiplication by digit shape",
+      "label": "2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit",
+      "example_text": "68 × 17",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 68,
+          "b": 17,
+          "op": "×",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 2,
+        "row_regrouping": [
+          "NONE",
+          "SOME"
+        ],
+        "partial_sum_regrouping": [
+          "SINGLE",
+          "MULTIPLE"
+        ],
+        "answer_digits": 4
       }
     },
     {
@@ -9282,8 +9409,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "NONE",
         "answer_digit_change": "ONE_FEWER",
         "zero_pattern": [
@@ -9320,8 +9447,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "NONE",
         "answer_digit_change": "FULL",
         "zero_pattern": [
@@ -9358,8 +9485,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "TENS",
         "answer_digit_change": "ONE_FEWER",
         "zero_pattern": [
@@ -9396,8 +9523,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "TENS",
         "answer_digit_change": "FULL",
         "zero_pattern": [
@@ -9434,8 +9561,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "answer_digit_change": "ONE_FEWER",
         "zero_pattern": [
@@ -9472,8 +9599,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "ONES",
         "answer_digit_change": "FULL",
         "zero_pattern": [
@@ -9510,8 +9637,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "ONES+TENS",
         "answer_digit_change": "ONE_FEWER",
         "zero_pattern": [
@@ -9548,8 +9675,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "ONES+TENS",
         "answer_digit_change": "FULL",
         "zero_pattern": [
@@ -9586,8 +9713,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "carry_size": "MORE_THAN_ONE",
         "answer_digit_change": "FULL"
       }
@@ -9620,8 +9747,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "knock_on": "YES"
       }
     },
@@ -9653,8 +9780,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "regroup_at": "ONES+TENS",
         "answer_zeros": "INTERNAL"
       }
@@ -9687,8 +9814,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "zero_pattern": "TRAILING"
       }
     },
@@ -9720,9 +9847,11 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_2_digits": 1,
+        "digits_min": 1,
         "zero_pattern": "INTERNAL",
-        "carry_into_zero": "NO"
+        "carry_into_zero": "NO",
+        "answer_digit_change": "ONE_FEWER",
+        "zero_operand": "NONE"
       }
     },
     {
@@ -9753,9 +9882,10 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_2_digits": 1,
+        "digits_min": 1,
         "zero_pattern": "INTERNAL",
-        "carry_into_zero": "YES"
+        "carry_into_zero": "YES",
+        "zero_operand": "NONE"
       }
     },
     {
@@ -9786,7 +9916,7 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 4,
+        "digits_max": 4,
         "zero_count": {
           "gte": 2
         }
@@ -9820,8 +9950,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 2,
-        "operand_2_digits": 1,
+        "digits_max": 2,
+        "digits_min": 1,
         "answer_round": "YES"
       }
     },
@@ -9853,8 +9983,8 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "operand_1_digits": 3,
-        "operand_2_digits": 1,
+        "digits_max": 3,
+        "digits_min": 1,
         "answer_round": "YES"
       }
     },
@@ -9882,6 +10012,8 @@
         ],
         "method": "LONG_MULTIPLICATION",
         "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 2,
         "multiplier_zero": "TRAILING",
         "partial_products": 1
       }
@@ -9915,7 +10047,43 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_BOTH",
-        "operand_1_digits": 3
+        "digits_max": 3,
+        "digits_min": 2
+      }
+    },
+    {
+      "code": "TZ09",
+      "taxonomy": "MUL_DIV",
+      "section": "4",
+      "section_name": "Multiplication carries and zeros",
+      "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+      "example_text": "401 × 3",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 401,
+          "b": 3,
+          "op": "×",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "digits_min": 1,
+        "zero_pattern": "INTERNAL",
+        "carry_into_zero": "NO",
+        "answer_digit_change": "FULL",
+        "zero_operand": "NONE"
       }
     },
     {

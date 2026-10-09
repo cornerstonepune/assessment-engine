@@ -873,6 +873,86 @@
       "external_ref": null,
       "skill_from": "row",
       "skill_code": "NUM.OPS.03"
+    },
+    {
+      "code": "M_MUL_CARRY_ONTO_ZERO_LOST",
+      "op": "×",
+      "name": "Forgets a carry that lands on a zero",
+      "description": "Writes 0 for a zero digit times the multiplier and forgets the carry waiting for that column: 506 × 7 written as 3502.",
+      "repair_hint": "Say the zero column aloud: nought times seven is nought, plus the four carried makes four",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_PLACEHOLDER",
+      "op": "×",
+      "name": "Second row not moved a place (the zero left out)",
+      "description": "In a long multiplication, writes the tens row under the ones row without moving it a place: 68 × 17 written as 544 (476 + 68).",
+      "repair_hint": "Write the zero first on the second row and say why: we are multiplying by tens",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_ONE_ROW",
+      "op": "×",
+      "name": "Multiplies by the ones of the multiplier only",
+      "description": "Works the ones row of a long multiplication and stops: 68 × 17 written as 476.",
+      "repair_hint": "Split the multiplier into tens and ones and write a row for each",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_COLUMNWISE",
+      "op": "×",
+      "name": "Multiplies tens by tens and ones by ones",
+      "description": "Pairs the digits as if adding, and multiplies each pair: 68 × 17 written as 656 (6 × 1, 8 × 7).",
+      "repair_hint": "Grid (area) method: four cells, not two",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_STALE_CARRY",
+      "op": "×",
+      "name": "Adds the first row's carry again in the second row",
+      "description": "Leaves the first row's carry written above the tens and adds it again in the second row: 47 × 23 written as 1281.",
+      "repair_hint": "Cross out each carry once it is used, before starting the next row",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_TENS_ZERO_DROPPED",
+      "op": "×",
+      "name": "Writes one zero fewer when multiplying by 10, 100 or a multiple of ten",
+      "description": "Places one zero fewer than the numbers' own zeros make: 45 × 100 written as 450, 23 × 40 as 92.",
+      "repair_hint": "Count the zeros in both numbers before writing the answer",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_ZERO_AS_ONE",
+      "op": "×",
+      "name": "Treats × 0 as leaving the number",
+      "description": "Answers the number itself when it is multiplied by zero: 7 × 0 written as 7.",
+      "repair_hint": "Zero groups of seven: how many altogether?",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_ONE_ADDED",
+      "op": "×",
+      "name": "Treats × 1 as adding one",
+      "description": "Adds one where the number is multiplied by one: 7 × 1 written as 8.",
+      "repair_hint": "One group of seven: how many altogether?",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
+      "external_ref": null
     }
   ]
 }

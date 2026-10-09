@@ -19,7 +19,7 @@
     {"n": 10, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "9 x 6", "question": "9 x 6 ="},
     {"n": 11, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "11 x 4", "question": "11 x 4 ="},
     {"n": 12, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "12 x 5", "question": "12 x 5 ="},
-    {"n": 13, "page": 2, "kind": "missing", "rung": "M1", "skill": "NUM.OPS.03", "answer": 9, "question": "Fill in the blank: 8 x ___ = 72"},
+    {"n": 13, "page": 2, "kind": "missing", "rung": "R16", "skill": "NUM.OPS.03", "answer": 9, "question": "Fill in the blank: 8 x ___ = 72"},
     {"n": 14, "page": 2, "kind": "word", "rung": "M1", "skill": "NUM.OPS.03", "expr": "9 x 12", "question": "There are 9 boxes. Each box has 12 pencils. How many pencils are there in total?"},
     {"n": 15, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "20 x 40", "question": "20 x 40 ="},
     {"n": 16, "page": 2, "rung": "M1", "skill": "NUM.OPS.03", "expr": "405 x 100", "question": "405 x 100 ="},

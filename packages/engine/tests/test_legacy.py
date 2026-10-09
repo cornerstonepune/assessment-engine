@@ -818,7 +818,8 @@ def test_a_one_digit_sum_is_not_a_two_digit_column_sum():
     assert legacy.rung_for("-", 9, 4, WHERE) == "R20"  # 1-digit − 1-digit
     assert legacy.rung_for("+", 23, 4, WHERE) == "R21"  # and two digits still read as two digits
     assert legacy.rung_for("+", 148, 7, WHERE) == "R25"
-    assert legacy.rung_for("×", 14, 3, WHERE) is None  # off the addition and subtraction skills
+    assert legacy.rung_for("×", 14, 3, WHERE) == "R38"  # 2-digit × 1-digit, multiplication's own (M2a)
+    assert legacy.rung_for("÷", 84, 4, WHERE) is None  # division's skills are M3's
 
 
 # ---- the scan, as a person is shown it

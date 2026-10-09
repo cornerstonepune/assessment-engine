@@ -8,15 +8,8 @@ Seeded from Neha S's teacher-authored list (Maths planning.docx, Aug 2026) and
 the arithmetic itself. Codes are the shared vocabulary for the `misconceptions` tab.
 """
 
-from engine.assess.operations import compute, sign  # what an operation is has one owner
-
-
-def digits(n, width):
-    return [int(c) for c in str(n).zfill(width)][::-1]  # index 0 = ones
-
-
-def from_digits(ds):
-    return int("".join(str(d) for d in ds[::-1])) if ds else 0
+from engine.assess.mul_mistakes import PREDICTORS as MUL_PREDICTORS  # multiplication's own (goals/md2a-…)
+from engine.assess.operations import compute, digits, from_digits, sign  # what an operation is has one owner
 
 
 def add_nocarry(a, b):
@@ -216,70 +209,6 @@ def carry_always_one(addends):
     return r if r != sum(addends) else None
 
 
-def mul_no_carry(a, b):
-    """Multiplies each digit and writes only the last digit of each product, dropping every carry.
-    34 x 6 -> 84 (4x6=24 writes 4, 3x6=18 writes 8)."""
-    if b >= 10:
-        return None
-    r = from_digits([(d * b) % 10 for d in digits(a, len(str(a)))])
-    return r if r != a * b else None
-
-
-def mul_concat(a, b):
-    """Writes each digit's whole product side by side. 34 x 6 -> 1824."""
-    if b >= 10:
-        return None
-    ds = digits(a, len(str(a)))[::-1]  # most significant first, as it is written
-    r = int("".join(str(d * b) for d in ds))
-    return r if r != a * b else None
-
-
-def mul_carry_added_before_multiplying(a, b):
-    """Adds the carry to the next digit and then multiplies it, instead of multiplying then adding.
-    34 x 6 -> 304 (4x6=24, write 4 carry 2; then (3+2)x6=30)."""
-    if b >= 10:
-        return None
-    out, carry = [], 0
-    for d in digits(a, len(str(a))):
-        product = (d + carry) * b
-        out.append(product % 10)
-        carry = product // 10
-    while carry:
-        out.append(carry % 10)
-        carry //= 10
-    r = from_digits(out)
-    return r if r != a * b else None
-
-
-def mul_ones_only(a, b):
-    """Multiplies the ones digit and stops. 34 x 6 -> 24."""
-    if b >= 10:
-        return None
-    r = (a % 10) * b
-    return r if r != a * b else None
-
-
-def mul_row_out(a, b):
-    """One row out in the table: 34 x 6 answered as 34 x 5."""
-    r = a * (b - 1)
-    return r if r != a * b and r > 0 else None
-
-
-def mul_added_instead(a, b):
-    """Adds where the question multiplies. 34 x 6 -> 40."""
-    r = a + b
-    return r if r != a * b else None
-
-
-def mul_units_reversed(a, b):
-    """Writes only the units digit of each digit's product, ones column first. 34 x 2 -> 86
-    (4x2=8, 3x2=6); 56 x 3 -> 85 (18, 15)."""
-    if b >= 10:
-        return None
-    r = int("".join(str(d * b % 10) for d in digits(a, len(str(a)))))
-    return r if r != a * b else None
-
-
 def digit_dropped(right, wrote):
     """A digit lost while copying out a long answer: 62413 written as 6243. Read off the right answer
     rather than the operands, because any one of its digits can be the one that goes."""
@@ -358,44 +287,6 @@ def predict_multi(addends):
             out[code] = v
     return out
 
-
-MUL_PREDICTORS = {
-    "M_MUL_NO_CARRY": (
-        mul_no_carry,
-        "Multiplies each digit and drops the carry",
-        "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'",
-    ),
-    "M_MUL_CONCAT": (
-        mul_concat,
-        "Writes each digit's whole product side by side",
-        "Grid (area) method first, then the column method beside it",
-    ),
-    "M_MUL_CARRY_FIRST": (
-        mul_carry_added_before_multiplying,
-        "Adds the carry before multiplying instead of after",
-        "Say the order aloud: multiply, then add what was carried",
-    ),
-    "M_MUL_ONES_ONLY": (
-        mul_ones_only,
-        "Multiplies the ones digit and stops",
-        "Grid method: show that both parts of the number are multiplied",
-    ),
-    "M_MUL_ROW_OUT": (
-        mul_row_out,
-        "One row out in the times table",
-        "Count on in that table; check against a known fact",
-    ),
-    "M_WRONG_OP": (
-        mul_added_instead,
-        "Added instead of multiplying",
-        "Read the question aloud; identify the operation word",
-    ),
-    "M_MUL_UNITS_REVERSED": (
-        mul_units_reversed,
-        "Writes only the units digit of each product, ones column first",
-        "Grid method: write each whole product in its place, then add them",
-    ),
-}
 
 # A comparison asks for a sign, not a number, so its one predictable mistake is the other sign.
 COMPARE_PREDICTORS = {

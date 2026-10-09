@@ -4874,3 +4874,134 @@ Goal `goals/md1-taxonomy-rows.yaml`; ADR 0049.
 case rows, the 68 dimension rows, and the relabel that writes `taxonomy` onto every stored question. update-live runs
 `engine load`, then `engine bank relabel`, before anything reads a case.
 
+**Live (2026-10-09).** Merged as `1649ed1` (PR #162). On main: `ci` run 444 success; `migrate live` run 37 success
+(18:26 UTC, "apply what live is missing"); `deploy engine` run 79 success (18:31 UTC), its step "live has every
+migration this commit carries" green, so `20261028090000_a_case_names_its_taxonomy.sql` is applied, and "the server
+records the commit it now runs" at `1649ed1`. The seed rows still wait for `bin/update-live`.
+
+## M2 — measured before the build (2026-10-09)
+
+- **The case drawer (`assess/draw.py`) wrote only + and −** (`OPS = {"ADD": "+", "SUB": "-"}`), so no × level could be
+  its cases. × was made only by the old sampler (`MUL.1D`: 2 × 1, 3 × 1, 2 × 2 digits) and by equal groups.
+- **`predict("×", 68, 17)` named two mistakes** (`M_MUL_ROW_OUT`, `M_WRONG_OP`), neither a long multiplication's; every
+  column predictor refused a 2-digit multiplier and any 1-digit number written first (3 × 21).
+- **Nothing printed a long multiplication's rows**: the column grid drew the two numbers and the answer.
+- **The drafted document's levels, held to the questions they would hold, had four defects** (ADR 0050): TP10 and
+  TZ07 hold the same questions in two skills; T03 read only the order, so 2-digit × 1-digit Easy held 7 × 99; the ×
+  cases read the written order, so 3 × 47 was no case at all; and 19 × 14 and 68 × 17 were in no 2 × 2 case.
+- M2 is three slices (BUILD-ORDER): M2a the drawer and the five straight skills; M2b the methods and Advance's kinds;
+  M2c `MUL.1D` re-homed.
+
+## M2a — straight multiplication (2026-10-09)
+
+Goal `goals/md2a-straight-multiplication.yaml`; ADR 0050. M2c, re-homing `MUL.1D`, ships here too: CI showed the five
+cannot fill while `MUL.1D` holds the same questions, since a question lives in one level.
+
+**Now.** Each claim with the command that proves it:
+- **Five skills on five rungs** (R36–R40, `NUM.OPS.03`), in two untaught topics (`MULFACT`, `MULCOL`): MUL.FACTS,
+  MUL.TENS, MUL.2D1D, MUL.3D1D, MUL.2D2D.
+  - Each level is its document's straight cases, held to `docs/design/multiplication-division-cases.json` by
+    `test_mul_levels.py`.
+  - Advance exists only where the document gives it straight questions no lower level holds: MUL.FACTS (the 11 and
+    12 tables) and MUL.TENS (a round number with no fact under it).
+  - Grades are the document's (A6), except that nothing of the tables is Grade 1's. The tables' Easy and Medium are
+    Grade 2's until the Grade 1 educator says otherwise.
+- **One home, and a level, for every question in reach.** Every straight × to 3 digits by 1, 2 by 2, the tables, and
+  round numbers by 10, 100 and 1000 to a 5-digit answer, in a line and in columns, has exactly one of the five shapes
+  and a level (`test_a_multiplication_has_exactly_one_home_among_the_five`,
+  `test_every_question_in_the_fives_reach_has_a_level_not_only_a_skill`). 3 digits by 2 and 4 by 1 stay the document's
+  unplaced cases, round or not.
+- **Every drawn question is what its case's label says**, checked in plain arithmetic written in the test
+  (`test_every_question_a_level_draws_is_what_its_cases_label_says`).
+- **The drawer makes ×** (`assess/draw_times.py`):
+  - facts come from the tables, and a number a case lets be round is a number times 10, 100 or 1000;
+  - nothing is × 1 unless the case is about it;
+  - in columns the longer number goes on top, and a 1-digit number written first is a line's;
+  - an even draw is dealt a case at a time, so cutting it never drops a whole case.
+- **A4 is what a level holds.** The tables' Easy to Hard leave out a fact that needs the 11 or 12 tables, measured by
+  `fact_group`; their Advance holds every table. An old paper's 12 × 7 is placed at Advance
+  (`test_the_eleven_and_twelve_tables_appear_only_at_advance`).
+- **Eight more mistakes predicted** (`assess/mul_mistakes.py`; `misconceptions.py` 489 → 380 lines):
+  - the second row not moved (68 × 17 → 544);
+  - one row (476);
+  - column by column (656);
+  - a stale carry (47 × 23 → 1281);
+  - a carry onto a zero lost (506 × 7 → 3502);
+  - a zero too few (45 × 100 → 450);
+  - × 0 kept (7);
+  - × 1 adding one (8).
+
+  Each is worked the longer number by the shorter. One wrong answer names one mistake where two would be the same
+  act (`test_one_wrong_answer_names_one_mistake_where_two_would_be_the_same_act`). The document's error table reads
+  them from the engine and checks each against a second, independent computation (`research/md_taxonomy.py`).
+- **A stored question keyed by a mistake rule since corrected leaves the bank** (`verify.key_problems`), and refill
+  draws its replacement. A printed paper still reads by its stored key.
+- **A long multiplication prints a row for each digit of its multiplier**, only in layout row `2026-10-09`
+  (`long_rows`). The rows are one working space the reader never takes for the answer, after its own inset. A page
+  printed in an older layout re-renders with none
+  (`test_a_long_multiplications_rows_are_working_the_reader_never_reads_as_its_answer`).
+- **`MUL.1D` re-homed and removed.** The five say they replace it. On the local copy, `engine bank rehome` gave `moved
+  596 questions · 268 retired, their story's shape unnamed · removed 1 skill sets and 1 rungs`: 864, none lost.
+  An old paper's × sums are filed on the five's rungs (`placing.OPERATIONS`; all 23 on the school's papers,
+  `test_every_times_question_on_the_schools_papers_has_a_skill_and_a_level`). The three papers' questions on M1 with no
+  sum to place are filed on rungs with a spec, each keeping its own skill:
+  - the two-step apple story → WORD.1_2STEP (R8);
+  - `8 × ___ = 72` → EQUALITY.INVERSE (R16);
+  - `144 ÷ 12` → EQUALITY.INVERSE (R16), until M3 gives division its rungs.
+
+  Rung M1 leaves the seed, and `bank rehome` removes it on live once nothing names it. The × sums' files still say
+  "M1": that is only the rung a deploy uses before `bin/update-live` has created the five, and `rung_for` files every
+  one of them on the five once they exist (test_legacy).
+- **The drafted document, measured** (251 cases, `research/md_taxonomy.py --check` → `0 faults`):
+  - TZ01 and TZ07 → MUL.TENS Advance;
+  - × cases read the longer and the shorter number;
+  - T03, T02, T11 and TZ02 keep to Easy's answer size;
+  - MUL.TENS's cases are bounded to their words;
+  - T27, T28, TZ09 and TP11 are added.
+
+**A second reader** reviewed `451ae0c` and found ten things; each is fixed at its cause:
+- long multiplication's rows were drawn as `.work`, so an answer read as "working shown";
+- MUL.TENS drew 6700 × 1000 at Grade 3;
+- MUL.3D1D's Advance added nothing harder, and × printed in columns put the 1-digit number on top;
+- Easy levels drew Medium's answers;
+- MUL.TENS columns drew rows for the wrong number;
+- one wrong answer named two or three mistakes by construction;
+- "one row out" was predicted for 68 × 17;
+- four tests could not fail;
+- the "one home" claim was wider than its test (it is now narrowed to the reach above, and a level is tested too);
+- 801 × 0 was a "zero in the middle" case.
+
+**CI on `def49e6` and `a61e0dc`** found two more; each is fixed at its cause:
+- **Every job died before a step ran**, twice: Docker Hub refused CI's anonymous pull of `postgres:17`
+  ("toomanyrequests"). CI now pulls the same official image from AWS's copy of it
+  (`public.ecr.aws/docker/library/postgres:17`).
+- **CI's bank filled MUL.2D1D Easy to 66 of its 69** (`test_every_invariant_holds`). The level's target is all it holds,
+  3 × 21 turns up once in about 3,000 random draws, and the drawer called a case dry after 2,000 misses. A × case that
+  runs dry is now listed whole (`draw._rest`, ADR 0050 decision 12). Three questions held back from each level drawn
+  whole are found whatever the random draws do
+  (`test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question`; the old drawer found 0 of 3 for
+  MUL.2D1D Easy). To keep `draw.py` under 400 lines, the three + and − cases built rather than drawn by digits moved to
+  `assess/draw_sums.py`.
+
+**Proof** (on a database built as CI builds it, `bin/testdb fresh`):
+- `bin/engine goal md2a-straight-multiplication` → `17/17 scenarios met the bar completely`, `3/3 criteria met · GOAL
+  ACHIEVED`. Its criteria are the suites this touches (`1011 passed`), `research/md_taxonomy.py --check` (`251 cases
+  … 0 faults`) and `bin/check` (`27 passed`).
+- The whole engine suite on that database: `1917 passed`, then the 6 it found fixed (the crosswalk's MUL.1D claim, rung
+  M1, three expectations) and those suites rerun, `171 passed`.
+- `bank refill` → `retired 0 questions outside their level · added 23343`.
+- `library build` → `made 2040 · retired 0`.
+- `library check` → `2040 worksheets · 121 of 121 skill-levels ready · 0 problems`.
+- `bank recheck` → `0 mismatches`.
+- Every MUL level is full. The smaller ones hold their whole range:
+  - MUL.FACTS 26 / 82 / 89 / 56 (Hard's own after Medium's, since a table read the other way is both);
+  - MUL.2D1D Easy 69.
+
+**Waits for Nimish's `bin/update-live`** (it carries M0b, M0c, M1 and M2a):
+- seed rows: the five skills, their rungs and topics, the eight mistake rows, the 251 case rows, the layout row;
+- `bank rehome`, which moves `MUL.1D` and files July's × answers on the five;
+- the questions and worksheets refill and the library make;
+- after that, the five wait on Curriculum → Read and approve.
+
+The week-note eval's gold names the new skills for its two multiplication notes, so `bin/engine eval week_skills`
+records its score again.

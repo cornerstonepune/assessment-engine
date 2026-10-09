@@ -50,6 +50,7 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 .grid .g { width: 8.4mm; height: 10mm; border: 1px solid #bbb; display: flex; align-items: center; justify-content: center; font-size: 14pt; margin: -0.5px; }
 .grid .g.op { border: none; font-size: 14pt; }
 .grid .g.carry { height: 5.5mm; border: 1px dashed #999; font-size: 8pt; }
+.grid .g.worked { border: 1px dashed #999; }
 .grid .g.ans { border: 1px solid #111; border-top: 2px solid #111; background: #fff; }
 .grid .g.line { border: none; border-top: 1.5px solid #111; height: 0; }
 .grid .g.res { border-top: 2px solid #111; }

@@ -19,11 +19,11 @@
     {"band": "G3", "note": "Estimating by rounding to the nearest ten first, then working out the exact answer.", "skill_sets": ["ESTIMATE.ROUND10"]},
     {"band": "G3", "note": "Rounding to the nearest hundred to judge whether an answer can be right.", "skill_sets": ["ESTIMATE.HUNDRED"]},
     {"band": "G3", "note": "Missing digits puzzles in addition and subtraction.", "skill_sets": ["MISSING.DIGIT"]},
-    {"band": "G3", "note": "Multiplying a 2-digit number by a single digit in columns.", "skill_sets": ["MUL.1D"]},
+    {"band": "G3", "note": "Multiplying a 2-digit number by a single digit in columns.", "skill_sets": ["MUL.2D1D"]},
     {"band": "G3", "note": "Adding a 2-digit number to a 3-digit number, lined up by the ones.", "skill_sets": ["ADD.3D2D"]},
     {"band": "G3", "note": "3-digit take away 2-digit, exchanging in one or two columns.", "skill_sets": ["SUB.3D2D"]},
     {"band": "G3", "note": "3-digit minus 1-digit with exchange across zero, and 3-digit plus 1-digit.", "skill_sets": ["SUB.3D1D", "ADD.3D1D"]},
     {"band": "G3", "note": "Column addition of 3-digit numbers and estimating to the nearest ten to check.", "skill_sets": ["ADD.3D3D", "ESTIMATE.ROUND10"]},
-    {"band": "G3", "note": "Times tables revision and multiplying by one digit; then finding mistakes in worked examples.", "skill_sets": ["MUL.1D", "REASON.FIND_MISTAKE"]}
+    {"band": "G3", "note": "Times tables revision and multiplying by one digit; then finding mistakes in worked examples.", "skill_sets": ["MUL.FACTS", "MUL.2D1D", "REASON.FIND_MISTAKE"]}
   ]
 }

@@ -50,9 +50,9 @@ def two(op, a, b, layout="horizontal"):
 
 
 def test_every_case_of_the_drafted_document_is_a_row_as_drafted():
-    """The 247 cases the engine drafted for Achal, each a row with the document's own words and example, and every
+    """The 251 cases the engine drafted for Achal, each a row with the document's own words and example, and every
     straight calculation's answer recomputed here from the row's own numbers, not read from the document."""
-    assert sorted(MD) == sorted(c["code"] for c in DOC) and len(MD) == 247
+    assert sorted(MD) == sorted(c["code"] for c in DOC) and len(MD) == 251
     computed = 0
     for d in DOC:
         row = MD[d["code"]]
@@ -401,15 +401,25 @@ def _exchanges(n, d):
 
 
 # What each case's label says, worked with plain arithmetic: every question the case holds must be what it says.
+def _two_by_one(a, b):
+    return sorted(len(str(x)) for x in (a, b)) == [1, 2]
+
+
+def _w(a, b):
+    """(the longer number, the shorter): a × case is either way round (A10), so 3 × 47 is read as 47 × 3."""
+    return (b, a) if len(str(a)) < len(str(b)) else (a, b)
+
+
 SAYS = {
-    "T01": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carries(a, b)) and a * b < 100 and col,
-    "T04": lambda a, b, col: len(str(a)) == 2 and b < 10 and _carries(a, b) == [1] and a * b < 100,
-    "T06": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carries(a, b)) and a * b >= 100,
-    "T07": lambda a, b, col: len(str(a)) == 2 and b < 10 and _carries(a, b) == [1] and a * b >= 100,
-    "T10": lambda a, b, col: b < 10 and max(_carries(a, b)) == 8,
-    "T13": lambda a, b, col: a < 10 and len(str(b)) == 3 and not col,
+    "T01": lambda a, b, col: _two_by_one(a, b) and not any(_carries(*_w(a, b))) and a * b < 100 and col,
+    "T04": lambda a, b, col: _two_by_one(a, b) and _carries(*_w(a, b)) == [1] and a * b < 100,
+    "T06": lambda a, b, col: _two_by_one(a, b) and not any(_carries(*_w(a, b))) and a * b >= 100,
+    "T07": lambda a, b, col: _two_by_one(a, b) and _carries(*_w(a, b)) == [1] and a * b >= 100,
+    "T10": lambda a, b, col: min(a, b) < 10 and max(_carries(*_w(a, b))) == 8,
+    "T13": lambda a, b, col: a < 10 and len(str(b)) == 3 and not col,  # the 1-digit number first: as written
     "TZ03": lambda a, b, col: (
-        b < 10 and any(x == "0" and c for x, c in zip(str(a)[::-1][1:], _carries(a, b)))
+        min(a, b) < 10
+        and any(x == "0" and c for x, c in zip(str(_w(a, b)[0])[::-1][1:], _carries(*_w(a, b))))
     ),
     # by 10 or 100 either way round (10 × 20 is 20 × 10): the other number is the one the label speaks of
     "TP04": lambda a, b, col: 10 in (a, b) and (b if a == 10 else a) % 10 == 0,

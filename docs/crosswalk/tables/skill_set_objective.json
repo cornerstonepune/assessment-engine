@@ -11,7 +11,7 @@
 {"skill_set_code": "ESTIMATE.ROUND10", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0938"},
 {"skill_set_code": "REASON.FIND_MISTAKE", "lo_code": "LO-G3-0938", "claim_id": "skill_set_objective:REASON.FIND_MISTAKE:LO-G3-0938"},
 {"skill_set_code": "ESTIMATE.HUNDRED", "lo_code": "LO-G3-0939", "claim_id": "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0939"},
-{"skill_set_code": "MUL.1D", "lo_code": "LO-G3-0944", "claim_id": "skill_set_objective:MUL.1D:LO-G3-0944"},
+{"skill_set_code": "MUL.2D1D", "lo_code": "LO-G3-0944", "claim_id": "skill_set_objective:MUL.2D1D:LO-G3-0944"},
 {"skill_set_code": "ESTIMATE.ROUND10", "lo_code": "LO-G3-0954", "claim_id": "skill_set_objective:ESTIMATE.ROUND10:LO-G3-0954"},
 {"skill_set_code": "ESTIMATE.HUNDRED", "lo_code": "LO-G3-0954", "claim_id": "skill_set_objective:ESTIMATE.HUNDRED:LO-G3-0954"},
 {"skill_set_code": "WORD.1_2STEP", "lo_code": "LO-G3-0959", "claim_id": "skill_set_objective:WORD.1_2STEP:LO-G3-0959"},

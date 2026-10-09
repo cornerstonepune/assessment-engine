@@ -25,6 +25,14 @@ GEOM_JS = """
       out.push({page:pi+1, item:it.dataset.item, resp:null, k:0, opt:null, kind:'work',
         x:(r.left-pr.left)*mm, y:(r.top-pr.top)*mm, w:r.width*mm, h:r.height*mm});
     });
+    // a long multiplication's rows: one working space around them all, clear of the answer row below them
+    pg.querySelectorAll('.item').forEach(it=>{
+      const rows=[...it.querySelectorAll('.g.worked')].map(el=>el.getBoundingClientRect()); if(!rows.length) return;
+      const x0=Math.min(...rows.map(r=>r.left)), y0=Math.min(...rows.map(r=>r.top));
+      const x1=Math.max(...rows.map(r=>r.right)), y1=Math.max(...rows.map(r=>r.bottom));
+      out.push({page:pi+1, item:it.dataset.item, resp:null, k:0, opt:null, kind:'work',
+        x:(x0-pr.left)*mm, y:(y0-pr.top)*mm, w:(x1-x0)*mm, h:(y1-y0)*mm});
+    });
   });
   return {pages: pages.length, cells: out};
 }

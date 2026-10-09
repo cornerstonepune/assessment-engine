@@ -297,6 +297,17 @@
   ]
  },
  {
+  "code": "TP11",
+  "section": 2,
+  "label": "×100 of a number already ending in zero",
+  "example": "30 × 100",
+  "answer": "3000",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Medium"
+  ]
+ },
+ {
   "code": "T01",
   "section": 3,
   "label": "2 × 1 digits, no regrouping, in columns",
@@ -572,6 +583,28 @@
   "placed_in": []
  },
  {
+  "code": "T27",
+  "section": 3,
+  "label": "2 × 2 digits, adding the rows carries, a 3-digit answer",
+  "example": "19 × 14",
+  "answer": "266",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Hard"
+  ]
+ },
+ {
+  "code": "T28",
+  "section": 3,
+  "label": "2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit",
+  "example": "68 × 17",
+  "answer": "1156",
+  "op": "×",
+  "placed_in": [
+   "MUL.2D2D:Hard"
+  ]
+ },
+ {
   "code": "TC01",
   "section": 4,
   "label": "Regroup from the ones: no · from the tens: no · answer grows to 4 digits: no",
@@ -700,7 +733,7 @@
   "answer": "920",
   "op": "×",
   "placed_in": [
-   "MUL.3D1D:Medium"
+   "MUL.TENS:Advance"
   ]
  },
  {
@@ -764,7 +797,7 @@
   "answer": "920",
   "op": "×",
   "placed_in": [
-   "MUL.2D2D:Medium"
+   "MUL.TENS:Advance"
   ]
  },
  {
@@ -776,6 +809,17 @@
   "op": "×",
   "placed_in": [
    "MUL.TENS:Advance"
+  ]
+ },
+ {
+  "code": "TZ09",
+  "section": 4,
+  "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+  "example": "401 × 3",
+  "answer": "1203",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
   ]
  },
  {

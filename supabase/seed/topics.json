@@ -51,12 +51,24 @@
       ]
     },
     {
+      "code": "MULFACT",
+      "subject": "NUM",
+      "name": "Multiplication facts and place value",
+      "taught": false,
+      "skill_sets": [
+        "MUL.FACTS",
+        "MUL.TENS"
+      ]
+    },
+    {
       "code": "MULCOL",
       "subject": "NUM",
       "name": "Multiplication in columns",
       "taught": false,
       "skill_sets": [
-        "MUL.1D"
+        "MUL.2D1D",
+        "MUL.3D1D",
+        "MUL.2D2D"
       ]
     },
     {

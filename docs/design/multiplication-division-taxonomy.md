@@ -11,9 +11,9 @@ Twelve decisions the engine took so the build need not wait. Each is a row or a 
 | A1 | Every method is a case. | Straight levels (Easy to Hard) print each calculation in every written method this document lists for its shape, in fair shares: in a line, in columns, expanded, partitioning, grid, and lattice for 2-digit × 2-digit; for division, in a line, short division, long division, partitioning the number and chunking. Pictures (groups, arrays, number lines) belong to the concept skills. | Nimish, 2026-10-09: "consider all of the methods for now". A level's methods are a row, so a grade that teaches one method narrows it without code. |
 | A2 | Division prints in a line by default. | "85 ÷ 4 = □ r □"; short division (bus stop), long division (quotient on top) and chunking are presentations of the same numbers. | The school's July papers write "144 ÷ 12 =". If the school writes the older "4 ) 85 ( 21" layout, it is one more presentation. |
 | A3 | A remainder is written "r" and is its own answer. | The quotient and the remainder each get their own boxes and are marked separately. | One box holding "21 r 1" cannot be read digit by digit, and a wrong remainder with a right quotient is a different mistake from the reverse. |
-| A4 | Tables run from 0 to 12. | ×11 and ×12 appear only at Advance. | The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 paper asks 144 ÷ 12. |
+| A4 | Tables run from 0 to 12. | ×11 and ×12 appear only at Advance: a fact that needs the 11 or 12 tables, either way round (3 × 12, 12 × 7), is no Easy, Medium or Hard question, and the tables' Advance holds every table. 12 × 0 and 11 × 1 are the facts of 0 and 1. | The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 paper asks 144 ÷ 12. |
 | A5 | The school's words. | "Regroup" for a multiplication carry, "exchange" when a remainder moves to the next digit, never "borrow". "Product, factor, dividend, divisor, quotient, remainder" from Grade 3; "times, groups of, shared equally, left over" before it. | CLAUDE.md: "exchange / regroup", never "borrow". |
-| A6 | Grades come from the school's own objectives. | Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. Where the lists disagree (one "Extended & Application" unit is repeated in G2, G3 and G4), a level goes to the earliest grade whose objective names it. | A level's grade is a row (`skill_set.level_band`); Achal moves it. |
+| A6 | Grades come from the school's own objectives. | Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. Where the lists disagree (one "Extended & Application" unit is repeated in G2, G3 and G4), a level goes to the earliest grade whose objective names it, except Grade 1, which is exactly what its educator taught to the end of September (2026-10-06): equal groups by adding again. A level the objectives put in Grade 1 sits in Grade 2 until the Grade 1 educator says it is taught. | A level's grade is a row (`skill_set.level_band`); Achal moves it. |
 | A7 | Taught stays the educator's word. | Every case is built and checked; nothing reaches a child's paper until the grade declares it taught. | The Grade 1 rule of 2026-10-06. |
 | A8 | Out of scope. | Remainders as fractions or decimals. Division by zero appears only as a true-or-false statement, never as a sum. | No G1 to G4 objective names them. |
 | A9 | Stories fit their numbers. | Each story template carries the range its numbers may take, so no box holds 933 pencils. | Today's multiplication bank prints "Each box has 933 pencils". |
@@ -80,6 +80,7 @@ Facts are grouped as tables are learned; ×10, ×100 and multiples of ten are th
 | TP08 | A multiple of a hundred × 1 digit | 300 × 6 | 1800 |
 | TP09 | The fact makes its own zero | 50 × 4 | 200 |
 | TP10 | 2 digits × a multiple of ten | 23 × 30 | 690 |
+| TP11 | ×100 of a number already ending in zero | 30 × 100 | 3000 |
 
 ## Multiplication by digit shape
 
@@ -113,6 +114,8 @@ One case per shape and per thing that changes the working; the next section cros
 | T24 | 3 × 2 digits with regrouping in every row | 476 × 38 | 18088 |
 | T25 | N × 1 digits (scales on) | 52341 × 7 | 366387 |
 | T26 | 3 × 3 digits with a zero in the middle of the multiplier | 213 × 102 | 21726 |
+| T27 | 2 × 2 digits, adding the rows carries, a 3-digit answer | 19 × 14 | 266 |
+| T28 | 2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit | 68 × 17 | 1156 |
 
 ## Multiplication carries and zeros
 
@@ -139,6 +142,7 @@ The carry matrix for 3-digit × 1-digit (no zeros), then carry sizes, then every
 | TZ06 | The answer is a round number | 125 × 8 | 1000 |
 | TZ07 | A 2-digit multiplier ending in zero: one row | 23 × 40 | 920 |
 | TZ08 | Both numbers end in zero | 120 × 30 | 3600 |
+| TZ09 | A zero in the middle, no carry reaches it, the answer grows to 4 digits | 401 × 3 | 1203 |
 
 ## Division facts and place value
 
@@ -384,15 +388,15 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | M_GROUP_MISSED | × | Adds one group fewer than there are | 3 groups of 4 | 12 | 8 | answer | the skill |
 | M_ONE_GROUP | × | Writes how many are in one group | 3 groups of 4 | 12 | 4 | answer | the skill |
 | M_WRONG_OP | × | Adds the numbers | 34 × 6 | 204 | 40 | answer | the skill |
-| M_ZERO_AS_ONE (new) | × | Treats × 0 as leaving the number | 7 × 0 | 0 | 7 | answer | the facts |
-| M_ONE_ADDED (new) | × | Treats × 1 as adding one | 7 × 1 | 7 | 8 | answer | the facts |
-| M_TENS_ZERO_DROPPED (new) | × | Writes one zero fewer when multiplying by 10, 100 or a multiple of ten | 45 × 100 | 4500 | 450 | answer | the skill |
+| M_ZERO_AS_ONE | × | Treats × 0 as leaving the number | 7 × 0 | 0 | 7 | answer | the facts |
+| M_ONE_ADDED | × | Treats × 1 as adding one | 7 × 1 | 7 | 8 | answer | the facts |
+| M_TENS_ZERO_DROPPED | × | Writes one zero fewer when multiplying by 10, 100 or a multiple of ten | 45 × 100 | 4500 | 450 | answer | the skill |
 | M_PARTITION_TENS_AS_ONES (new) | × | Partitions but multiplies the tens digit as ones | 23 × 4 | 92 | 20 | answer | the skill |
-| M_MUL_CARRY_ONTO_ZERO_LOST (new) | × | Forgets a carry that lands on a zero | 506 × 7 | 3542 | 3502 | answer | the skill |
-| M_MUL_PLACEHOLDER (new) | × | Second row not moved a place (the zero left out) | 68 × 17 | 1156 | 544 | answer | the skill |
-| M_MUL_COLUMNWISE (new) | × | Multiplies tens by tens and ones by ones | 68 × 17 | 1156 | 656 | answer | the skill |
-| M_MUL_ONE_ROW (new) | × | Multiplies by the ones of the multiplier only | 68 × 17 | 1156 | 476 | answer | the skill |
-| M_MUL_STALE_CARRY (new) | × | Adds the first row's carry again in the second row | 47 × 23 | 1081 | 1281 | answer | the skill |
+| M_MUL_CARRY_ONTO_ZERO_LOST | × | Forgets a carry that lands on a zero | 506 × 7 | 3542 | 3502 | answer | the skill |
+| M_MUL_PLACEHOLDER | × | Second row not moved a place (the zero left out) | 68 × 17 | 1156 | 544 | answer | the skill |
+| M_MUL_COLUMNWISE | × | Multiplies tens by tens and ones by ones | 68 × 17 | 1156 | 656 | answer | the skill |
+| M_MUL_ONE_ROW | × | Multiplies by the ones of the multiplier only | 68 × 17 | 1156 | 476 | answer | the skill |
+| M_MUL_STALE_CARRY | × | Adds the first row's carry again in the second row | 47 × 23 | 1081 | 1281 | answer | the skill |
 | M_NOCARRY on the rows (existing, addition) | × | Adds the two rows without carrying | 19 × 14 | 266 | 166 | answer | addition |
 | M_GRID_CELL_DROPPED (new) | × | Leaves the ones-by-ones cell out when adding a grid | 34 × 26 | 884 | 860 | working | the skill |
 | M_DIV_QUOTIENT_ZERO_DROPPED (new) | ÷ | Leaves the zero out of the quotient | 804 ÷ 4 | 201 | 21 | answer | the skill |
@@ -446,6 +450,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | context | BARE_NUMBER / WORD_PROBLEM / TABLE_OR_CHART | Application and operation selection: the operation must be inferred from the situation, not from one keyword. |
 | taxonomy | ADD_SUB / MUL_DIV | Which of the school's two documents a question is a case of: multiplication and division's when any of its operations is × or ÷. A case names its own, so neither document's case holds the other's question. |
 | digits_max | 1 / 2 / 3 / 4 / 5 / 6 | The longest number's digits. |
+| digits_min | 1 / 2 / 3 / 4 / 5 / 6 | The shortest number's digits. |
 | answer_digits | 1 / 2 / 3 / 4 / 5 / 6 / 7 | How many digits the answer has. |
 | answer_zeros | NONE / INTERNAL / TRAILING / INTERNAL+TRAILING | Where the answer's zeros sit: a zero inside an answer (108) is forgotten where one at its end (240) is not. |
 | answer_round | YES / NO | An answer that is one digit and zeros (100, 1000): every column but the first writes 0. |
@@ -483,19 +488,19 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 
 ## Suggested progression and the skills it becomes
 
-17 skills, every one of the 247 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and estimating. Grades are assumed (A6) and move as rows.
+17 skills, every one of the 251 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and estimating. A question has one home: every round-number multiplication that is not a table fact is MUL.TENS's, so a 3-digit number ending in zero (TZ01) and a multiplier ending in zero (TZ07) sit at its Advance with TP10, which holds the same questions. Grades are assumed (A6) and move as rows.
 
 | Skill | Can do | Grade by level | Easy | Medium | Hard | Advance | Methods printed at Easy to Hard |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MUL.GROUPS | Finds how many in equal groups by adding the same number again (exists, unchanged) | E:G1 M:G1 A:G1 | G01, G02 | G01, G02 | – | B01 | – |
-| MUL.MODELS | Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square | E:G1 M:G1 H:G2 A:G2 | G03, G05 | G04 | G14, TF17 | B04, B11, B13 | – |
-| MUL.FACTS | Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order | E:G1 M:G1 H:G2 A:G3 | TF03, TF04, TF05 | TF01, TF02, TF06, TF07, TF15 | TF08, TF09, TF10, TF11, TF12, TF16 | TF13, TF14, Q01, Q02, Q06, Y09, H08 | – |
-| MUL.TENS | Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros | E:G3 M:G3 H:G4 A:G4 | TP01, TP04 | TP02, TP03, TP05 | TP06, TP07, TP08, TP09 | TP10, Q14, H10, TZ08 | – |
+| MUL.MODELS | Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square | E:G2 M:G2 H:G2 A:G2 | G03, G05 | G04 | G14, TF17 | B04, B11, B13 | – |
+| MUL.FACTS | Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order | E:G2 M:G2 H:G2 A:G3 | TF03, TF04, TF05 | TF01, TF02, TF06, TF07, TF15 | TF08, TF09, TF10, TF11, TF12, TF16 | TF13, TF14, Q01, Q02, Q06, Y09, H08 | – |
+| MUL.TENS | Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros | E:G3 M:G3 H:G4 A:G4 | TP01, TP04 | TP02, TP03, TP05, TP11 | TP06, TP07, TP08, TP09 | TP10, Q14, H10, TZ08, TZ01, TZ07 | – |
 | MUL.2D1D | Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more | E:G2 M:G2 H:G3 A:G3 | T01, T02, T03 | T04, T05, T06 | T07, T08, T09, T10, TC09, TZ05 | Q07, Q08, Q11, C01, C02, C06, V01, V07, B06, B08, H01, H07 | T02, G07, G08, G10, G11 |
-| MUL.3D1D | Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero | E:G4 M:G4 H:G4 A:G4 | T11, TC01, TZ02 | TC02, TC03, TC05, TZ01 | T12, TC04, TC06, TC07, TC08, TC10, TC11, TZ03, TZ06 | T13, Q16, C09 | T14, G10, G11 |
-| MUL.2D2D | Multiplies two 2-digit numbers, a row for each digit with the second row moved a place | E:G4 M:G4 H:G4 A:G4 | T17 | T18, TZ07 | T19, T20, T21 | C03, V02, V03, Q15, B12 | T22, G09, G12, G13 |
-| DIV.GROUPS | Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back | E:G1 M:G1 H:G2 A:G2 | G15, G16 | G17, G19 | G18 | B02, B03, B05, B24 | – |
-| DIV.FACTS | Recalls division facts as the tables backwards, with a remainder when one is left | E:G1 M:G2 H:G2 A:G3 | DF04, DF05, DF06 | DF01, DF02, DF03, DF07, DF08, DF15 | DF09, DF10, DF11, DF12 | DF13, DF14, DF16, DR01, DR02, DR03, Q03, Q04, Q05, Y10, G20, B07 | – |
+| MUL.3D1D | Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero | E:G4 M:G4 H:G4 A:G4 | T11, TC01, TZ02 | TC02, TC03, TC05, TZ09 | T12, TC04, TC06, TC07, TC08, TC10, TC11, TZ03, TZ06 | T13, Q16, C09 | T14, G10, G11 |
+| MUL.2D2D | Multiplies two 2-digit numbers, a row for each digit with the second row moved a place | E:G4 M:G4 H:G4 A:G4 | T17 | T18 | T19, T20, T21, T27, T28 | C03, V02, V03, Q15, B12 | T22, G09, G12, G13 |
+| DIV.GROUPS | Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back | E:G2 M:G2 H:G2 A:G2 | G15, G16 | G17, G19 | G18 | B02, B03, B05, B24 | – |
+| DIV.FACTS | Recalls division facts as the tables backwards, with a remainder when one is left | E:G2 M:G2 H:G2 A:G3 | DF04, DF05, DF06 | DF01, DF02, DF03, DF07, DF08, DF15 | DF09, DF10, DF11, DF12 | DF13, DF14, DF16, DR01, DR02, DR03, Q03, Q04, Q05, Y10, G20, B07 | – |
 | DIV.TENS | Divides by 10, 100 and 1000 and by multiples of ten | E:G4 M:G4 H:G4 A:G4 | DP01 | DP02, DP03 | DP04, DP05, DP06, DP07 | DR10, H09 | – |
 | DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G2 M:G2 H:G3 A:G3 | D01, D02 | D03, D04 | DR04, DR05, DZ07 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17 | D02, G21, G22, G23, G25 |
 | DIV.3D1D | Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient | E:G4 M:G4 H:G4 A:G4 | D05 | D06, D07 | D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08 | Q10, C04, C07, V04, V10 | G22, G23, G24 |

@@ -6,9 +6,12 @@ it is a case of when it is a straight calculation, or at Advance when it is any 
 questions (`engine bank rehome`) and an old paper's questions (W3, `legacy`) are placed by the same rule.
 """
 
+from typing import Any
+
 from engine.assess import taxonomy, verify
 
 CALCULATION = ("bare_sum", "column_grid")
+OPERATIONS = ("+", "-", "×")  # the ones the skills place; ÷ waits for its own skills (BUILD-ORDER M3)
 STRAIGHT = ("Hard", "Medium", "Easy")  # hardest first: a carry onto a zero is Hard even if it is one carry
 
 
@@ -17,10 +20,11 @@ def shaped(skills):
     return [s for s in skills if any("within" in lv.get("check", {}) for lv in s["difficulty"].values())]
 
 
-def shape(skill):
-    return next(
-        lv["check"]["within"] for lv in skill["difficulty"].values() if "within" in lv.get("check", {})
-    )
+def shape(skill: dict[str, Any]) -> list[dict[str, Any]]:
+    """What any of the skill's levels holds: its levels' `within`, one or several. The tables' Easy to Hard leave out
+    the facts that need the 11 and 12 tables and their Advance holds them (assumption A4), so the skill is both."""
+    shapes = [lv["check"]["within"] for lv in skill["difficulty"].values() if "within" in lv.get("check", {})]
+    return [w for i, w in enumerate(shapes) if w not in shapes[:i]]
 
 
 def place(fmt, tags, skills, case_matches):

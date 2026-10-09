@@ -180,8 +180,10 @@ ASSUMPTIONS = [
     ("A remainder is written \"r\" and is its own answer.", "The quotient and the remainder each get their own boxes "
      "and are marked separately.", "One box holding \"21 r 1\" cannot be read digit by digit, and a wrong remainder "
      "with a right quotient is a different mistake from the reverse."),
-    ("Tables run from 0 to 12.", "×11 and ×12 appear only at Advance.", "The school's 24 Jul quiz asks 11 × 4 and "
-     "12 × 5; the Grade 4 paper asks 144 ÷ 12."),
+    ("Tables run from 0 to 12.", "×11 and ×12 appear only at Advance: a fact that needs the 11 or 12 tables, either "
+     "way round (3 × 12, 12 × 7), is no Easy, Medium or Hard question, and the tables' Advance holds every table. "
+     "12 × 0 and 11 × 1 are the facts of 0 and 1.", "The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 "
+     "paper asks 144 ÷ 12."),
     ("The school's words.", "\"Regroup\" for a multiplication carry, \"exchange\" when a remainder moves to the next "
      "digit, never \"borrow\". \"Product, factor, dividend, divisor, quotient, remainder\" from Grade 3; \"times, "
      "groups of, shared equally, left over\" before it.", "CLAUDE.md: \"exchange / regroup\", never \"borrow\"."),
@@ -189,8 +191,10 @@ ASSUMPTIONS = [
      "0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, "
      "3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, "
      "placed in no grade. Where the lists disagree (one \"Extended & Application\" unit is repeated in G2, G3 and G4), a "
-     "level goes to the earliest grade whose objective names it.", "A level's grade is a row (`skill_set.level_band`); "
-     "Achal moves it."),
+     "level goes to the earliest grade whose objective names it, except Grade 1, which is exactly what its educator "
+     "taught to the end of September (2026-10-06): equal groups by adding again. A level the objectives put in Grade 1 "
+     "sits in Grade 2 until the Grade 1 educator says it is taught.", "A level's grade is a row "
+     "(`skill_set.level_band`); Achal moves it."),
     ("Taught stays the educator's word.", "Every case is built and checked; nothing reaches a child's paper until "
      "the grade declares it taught.", "The Grade 1 rule of 2026-10-06."),
     ("Out of scope.", "Remainders as fractions or decimals. Division by zero appears only as a true-or-false "
@@ -272,6 +276,8 @@ case("TP07", "A multiple of ten × a multiple of ten", "20 × 40", 800)
 case("TP08", "A multiple of a hundred × 1 digit", "300 × 6", 1800)
 case("TP09", "The fact makes its own zero", "50 × 4", 200, [("5 × 4 ends in 0", (5 * 4) % 10 == 0)])
 case("TP10", "2 digits × a multiple of ten", "23 × 30", 690)
+# ×100 of a number already ending in zero, as TP04 is for ×10: no case held 30 × 100 (measured 2026-10-09)
+case("TP11", "×100 of a number already ending in zero", "30 × 100", 3000)
 
 # ---------------------------------------------------------------- 3. multiplication by digit shape
 
@@ -321,6 +327,14 @@ mul("T23", "3 × 2 digits", 234, 12)
 mul("T24", "3 × 2 digits with regrouping in every row", 476, 38, [("rows", all(partial_regroups(476, 38)))])
 mul("T25", "N × 1 digits (scales on)", 52341, 7)
 mul("T26", "3 × 3 digits with a zero in the middle of the multiplier", 213, 102, [("2 rows", len(partials(213, 102)) == 2)])
+# Every 2 × 2 digit question is one of T17 to T21, T27 and T28 (tests/test_mul_levels.py): the rows' regrouping, the
+# carry in adding them and the answer's digits, crossed. The first draft left out the two below, the error table's own
+# examples among them (19 × 14, 68 × 17), so no level could print them.
+mul("T27", "2 × 2 digits, adding the rows carries, a 3-digit answer", 19, 14,
+    [("3 digits", nd(19 * 14) == 3), ("sum carries", add_carries(*partials(19, 14)) >= 1)])
+mul("T28", "2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit", 68, 17,
+    [("4 digits", nd(68 * 17) == 4), ("rows", not all(partial_regroups(68, 17))),
+     ("sum carries", add_carries(*partials(68, 17)) >= 1)])
 
 # ---------------------------------------------------------------- 4. carries and zeros
 
@@ -343,13 +357,18 @@ mul("TC10", "3 × 1 digits, a carry takes a column to ten (knock-on)", 125, 4, [
 mul("TC11", "Every column regroups, the answer full of zeros", 667, 3,
     [("all carry", all(carries(667, 3))), ("zeros", str(667 * 3).count("0") >= 2)])
 mul("TZ01", "A zero at the end of the larger number", 230, 4)
-mul("TZ02", "A zero in the middle, no carry reaches it", 302, 3, [("no carry into zero", not carry_into_zero(302, 3))])
+mul("TZ02", "A zero in the middle, no carry reaches it", 302, 3, [("no carry into zero", not carry_into_zero(302, 3)),
+                                                                   ("3-digit answer", nd(302 * 3) == 3)])
 mul("TZ03", "A zero in the middle that a carry lands on", 506, 7, [("carry into zero", carry_into_zero(506, 7))])
 mul("TZ04", "Two zeros in the larger number", 1008, 6)
 mul("TZ05", "A zero only in the answer", 25, 4, [("no zero in numbers", "0" not in f"{25}{4}"), ("zero in answer", "0" in str(25 * 4))])
 mul("TZ06", "The answer is a round number", 125, 8, [("round", 125 * 8 % 1000 == 0)])
 mul("TZ07", "A 2-digit multiplier ending in zero: one row", 23, 40, [("one row", len(partials(23, 40)) == 1)])
 mul("TZ08", "Both numbers end in zero", 120, 30)
+# TZ02 is a zero in the middle whose answer stays 3 digits (Easy); the same with the answer grown is Medium's, as TC01
+# and TC02 split the questions with no zero (measured 2026-10-09: 401 × 3 had no case once TZ02 kept to its size)
+mul("TZ09", "A zero in the middle, no carry reaches it, the answer grows to 4 digits", 401, 3,
+    [("no carry into zero", not carry_into_zero(401, 3)), ("4-digit answer", nd(401 * 3) == 4)])
 
 # ---------------------------------------------------------------- 5. division facts and place value
 
@@ -681,13 +700,15 @@ def carry_first(a, d):
 
 
 def carry_onto_zero_lost(a, d):
-    """A carry that lands on a zero digit is dropped: 0 × d is written and the carry forgotten."""
-    out, carry = [], 0
-    for x in reversed(digits(a)):
-        v = x * d + (carry if x else 0)
-        out.append(v % 10)
-        carry = v // 10
-    return int(str(carry or "") + "".join(map(str, reversed(out))))
+    """Worked apart from the engine (assess/mul_mistakes.py): the right product less every carry that lands on a zero
+    digit, in that column's own place — the carry is all that column would have written, and it sends nothing on."""
+    carry, lost = 0, 0
+    for i, x in enumerate(reversed(str(a))):
+        if x == "0" and carry:
+            lost, carry = lost + carry * 10**i, 0
+        else:
+            carry = (int(x) * d + carry) // 10
+    return a * d - lost
 
 
 def placeholder(a, b):
@@ -699,12 +720,22 @@ def columnwise(a, b):
 
 
 def stale_carry(a, b):
-    """2 × 2 digits: the first row's carry stays written above the tens and is added again in the second row."""
-    a1, a0 = divmod(a, 10)
-    b1, b0 = divmod(b, 10)
-    first_carry, ones = (a0 * b0) // 10, a0 * b1
-    second = (a1 * b1 + ones // 10 + first_carry) * 10 + ones % 10
-    return a * b0 + second * 10
+    """Worked apart from the engine: the long multiplication written out, the first row's carries left above the
+    columns they went into and added again in the second row's same columns."""
+    top = [int(c) for c in reversed(str(a))]
+
+    def row(d, above):
+        out, carry, sent = 0, 0, {}
+        for i, x in enumerate(top):
+            v = x * d + carry + above.get(i, 0)
+            out, carry = out + (v % 10) * 10**i, v // 10
+            if carry and i + 1 < len(top):
+                sent[i + 1] = carry
+        return out + carry * 10 ** len(top), sent
+
+    first, written = row(b % 10, {})
+    second, _ = row(b // 10, written)
+    return first + second * 10
 
 
 def grid_cell_dropped(a, b):
@@ -762,8 +793,14 @@ def mistake(code, op, what, example, right, wrong, seen="answer", charges="the s
     MISTAKES.append((code, op, what, example, right, wrong, seen, charges))
 
 
+# every × mistake the engine predicts (assess/mul_mistakes.py), computed here a second way and held to the engine's
 for name, mine, a, b in [("M_MUL_NO_CARRY", no_carry, 34, 6), ("M_MUL_CONCAT", concat, 56, 3),
-                         ("M_MUL_CARRY_FIRST", carry_first, 34, 6)]:
+                         ("M_MUL_CARRY_FIRST", carry_first, 34, 6),
+                         ("M_MUL_CARRY_ONTO_ZERO_LOST", carry_onto_zero_lost, 506, 7),
+                         ("M_MUL_PLACEHOLDER", placeholder, 68, 17), ("M_MUL_COLUMNWISE", columnwise, 68, 17),
+                         ("M_MUL_STALE_CARRY", stale_carry, 47, 23), ("M_MUL_ONE_ROW", lambda a, b: a * (b % 10), 68, 17),
+                         ("M_TENS_ZERO_DROPPED", lambda a, b: a * b // 10, 45, 100),
+                         ("M_ZERO_AS_ONE", lambda a, b: a, 7, 0), ("M_ONE_ADDED", lambda a, b: a + 1, 7, 1)]:
     if mine(a, b) != E(name, a, b):
         FAULTS.append(f"{name}: this file computes {mine(a, b)} for {a} × {b}, the engine {E(name, a, b)}")
 
@@ -780,21 +817,23 @@ mistake("M_MUL_ROW_OUT", "×", "Answers the row next to it in the table (one gro
 mistake("M_GROUP_MISSED", "×", "Adds one group fewer than there are", "3 groups of 4", 3 * 4, (3 - 1) * 4)
 mistake("M_ONE_GROUP", "×", "Writes how many are in one group", "3 groups of 4", 3 * 4, 4)
 mistake("M_WRONG_OP", "×", "Adds the numbers", "34 × 6", 34 * 6, E("M_WRONG_OP", 34, 6))
-mistake("M_ZERO_AS_ONE (new)", "×", "Treats × 0 as leaving the number", "7 × 0", 7 * 0, 7, charges="the facts")
-mistake("M_ONE_ADDED (new)", "×", "Treats × 1 as adding one", "7 × 1", 7 * 1, 7 + 1, charges="the facts")
-mistake("M_TENS_ZERO_DROPPED (new)", "×", "Writes one zero fewer when multiplying by 10, 100 or a multiple of ten",
-        "45 × 100", 45 * 100, 45 * 100 // 10)
+mistake("M_ZERO_AS_ONE", "×", "Treats × 0 as leaving the number", "7 × 0", 7 * 0, E("M_ZERO_AS_ONE", 7, 0),
+        charges="the facts")
+mistake("M_ONE_ADDED", "×", "Treats × 1 as adding one", "7 × 1", 7 * 1, E("M_ONE_ADDED", 7, 1), charges="the facts")
+mistake("M_TENS_ZERO_DROPPED", "×", "Writes one zero fewer when multiplying by 10, 100 or a multiple of ten",
+        "45 × 100", 45 * 100, E("M_TENS_ZERO_DROPPED", 45, 100))
 mistake("M_PARTITION_TENS_AS_ONES (new)", "×", "Partitions but multiplies the tens digit as ones", "23 × 4", 23 * 4,
         sum(x * 4 for x in digits(23)))
-mistake("M_MUL_CARRY_ONTO_ZERO_LOST (new)", "×", "Forgets a carry that lands on a zero", "506 × 7", 506 * 7,
-        carry_onto_zero_lost(506, 7))
-mistake("M_MUL_PLACEHOLDER (new)", "×", "Second row not moved a place (the zero left out)", "68 × 17", 68 * 17,
-        placeholder(68, 17))
-mistake("M_MUL_COLUMNWISE (new)", "×", "Multiplies tens by tens and ones by ones", "68 × 17", 68 * 17,
-        columnwise(68, 17))
-mistake("M_MUL_ONE_ROW (new)", "×", "Multiplies by the ones of the multiplier only", "68 × 17", 68 * 17, 68 * 7)
-mistake("M_MUL_STALE_CARRY (new)", "×", "Adds the first row's carry again in the second row", "47 × 23", 47 * 23,
-        stale_carry(47, 23))
+mistake("M_MUL_CARRY_ONTO_ZERO_LOST", "×", "Forgets a carry that lands on a zero", "506 × 7", 506 * 7,
+        E("M_MUL_CARRY_ONTO_ZERO_LOST", 506, 7))
+mistake("M_MUL_PLACEHOLDER", "×", "Second row not moved a place (the zero left out)", "68 × 17", 68 * 17,
+        E("M_MUL_PLACEHOLDER", 68, 17))
+mistake("M_MUL_COLUMNWISE", "×", "Multiplies tens by tens and ones by ones", "68 × 17", 68 * 17,
+        E("M_MUL_COLUMNWISE", 68, 17))
+mistake("M_MUL_ONE_ROW", "×", "Multiplies by the ones of the multiplier only", "68 × 17", 68 * 17,
+        E("M_MUL_ONE_ROW", 68, 17))
+mistake("M_MUL_STALE_CARRY", "×", "Adds the first row's carry again in the second row", "47 × 23", 47 * 23,
+        E("M_MUL_STALE_CARRY", 47, 23))
 mistake("M_NOCARRY on the rows (existing, addition)", "×", "Adds the two rows without carrying", "19 × 14", 19 * 14,
         M.predict("+", *partials(19, 14)).get("M_NOCARRY"), charges="addition")
 mistake("M_GRID_CELL_DROPPED (new)", "×", "Leaves the ones-by-ones cell out when adding a grid", "34 × 26", 34 * 26,
@@ -860,32 +899,33 @@ SKILLS = [
     ("MUL.GROUPS", "Finds how many in equal groups by adding the same number again (exists, unchanged)",
      "G1 G1 – G1", {"Easy": ["G01", "G02"], "Medium": ["G01", "G02"], "Advance": ["B01"]}, []),
     ("MUL.MODELS", "Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square",
-     "G1 G1 G2 G2", {"Easy": ["G03", "G05"], "Medium": ["G04"], "Hard": ["G14", "TF17"],
+     "G2 G2 G2 G2", {"Easy": ["G03", "G05"], "Medium": ["G04"], "Hard": ["G14", "TF17"],
                      "Advance": ["B04", "B11", "B13"]}, []),
     ("MUL.FACTS", "Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order",
-     "G1 G1 G2 G3", {"Easy": ["TF03", "TF04", "TF05"], "Medium": ["TF01", "TF02", "TF06", "TF07", "TF15"],
+     "G2 G2 G2 G3", {"Easy": ["TF03", "TF04", "TF05"], "Medium": ["TF01", "TF02", "TF06", "TF07", "TF15"],
                      "Hard": ["TF08", "TF09", "TF10", "TF11", "TF12", "TF16"],
                      "Advance": ["TF13", "TF14", "Q01", "Q02", "Q06", "Y09", "H08"]}, []),
     ("MUL.TENS", "Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros",
-     "G3 G3 G4 G4", {"Easy": ["TP01", "TP04"], "Medium": ["TP02", "TP03", "TP05"],
-                     "Hard": ["TP06", "TP07", "TP08", "TP09"], "Advance": ["TP10", "Q14", "H10", "TZ08"]}, []),
+     "G3 G3 G4 G4", {"Easy": ["TP01", "TP04"], "Medium": ["TP02", "TP03", "TP05", "TP11"],
+                     "Hard": ["TP06", "TP07", "TP08", "TP09"],
+                     "Advance": ["TP10", "Q14", "H10", "TZ08", "TZ01", "TZ07"]}, []),
     ("MUL.2D1D", "Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more",
      "G2 G2 G3 G3", {"Easy": ["T01", "T02", "T03"], "Medium": ["T04", "T05", "T06"],
                      "Hard": ["T07", "T08", "T09", "T10", "TC09", "TZ05"],
                      "Advance": ["Q07", "Q08", "Q11", "C01", "C02", "C06", "V01", "V07", "B06", "B08", "H01", "H07"]},
      ["T02", "G07", "G08", "G10", "G11"]),
     ("MUL.3D1D", "Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero",
-     "G4 G4 G4 G4", {"Easy": ["T11", "TC01", "TZ02"], "Medium": ["TC02", "TC03", "TC05", "TZ01"],
+     "G4 G4 G4 G4", {"Easy": ["T11", "TC01", "TZ02"], "Medium": ["TC02", "TC03", "TC05", "TZ09"],
                      "Hard": ["T12", "TC04", "TC06", "TC07", "TC08", "TC10", "TC11", "TZ03", "TZ06"],
                      "Advance": ["T13", "Q16", "C09"]}, ["T14", "G10", "G11"]),
     ("MUL.2D2D", "Multiplies two 2-digit numbers, a row for each digit with the second row moved a place",
-     "G4 G4 G4 G4", {"Easy": ["T17"], "Medium": ["T18", "TZ07"], "Hard": ["T19", "T20", "T21"],
+     "G4 G4 G4 G4", {"Easy": ["T17"], "Medium": ["T18"], "Hard": ["T19", "T20", "T21", "T27", "T28"],
                      "Advance": ["C03", "V02", "V03", "Q15", "B12"]}, ["T22", "G09", "G12", "G13"]),
     ("DIV.GROUPS", "Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back",
-     "G1 G1 G2 G2", {"Easy": ["G15", "G16"], "Medium": ["G17", "G19"], "Hard": ["G18"],
+     "G2 G2 G2 G2", {"Easy": ["G15", "G16"], "Medium": ["G17", "G19"], "Hard": ["G18"],
                      "Advance": ["B02", "B03", "B05", "B24"]}, []),
     ("DIV.FACTS", "Recalls division facts as the tables backwards, with a remainder when one is left",
-     "G1 G2 G2 G3", {"Easy": ["DF04", "DF05", "DF06"], "Medium": ["DF01", "DF02", "DF03", "DF07", "DF08", "DF15"],
+     "G2 G2 G2 G3", {"Easy": ["DF04", "DF05", "DF06"], "Medium": ["DF01", "DF02", "DF03", "DF07", "DF08", "DF15"],
                      "Hard": ["DF09", "DF10", "DF11", "DF12"],
                      "Advance": ["DF13", "DF14", "DF16", "DR01", "DR02", "DR03", "Q03", "Q04", "Q05", "Y10", "G20",
                                  "B07"]}, []),
@@ -994,7 +1034,9 @@ def body(num):
         return (f"## Suggested progression and the skills it becomes\n\n{len(SKILLS)} skills, every one of the "
                 f"{n_cases} cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; "
                 "Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and "
-                "estimating. Grades are assumed "
+                "estimating. A question has one home: every round-number multiplication that is not a table "
+                "fact is MUL.TENS's, so a 3-digit number ending in zero (TZ01) and a multiplier ending in zero "
+                "(TZ07) sit at its Advance with TP10, which holds the same questions. Grades are assumed "
                 "(A6) and move as rows.\n\n"
                 + table(["Skill", "Can do", "Grade by level", "Easy", "Medium", "Hard", "Advance",
                          "Methods printed at Easy to Hard"], rows)

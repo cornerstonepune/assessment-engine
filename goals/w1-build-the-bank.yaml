@@ -27,8 +27,8 @@ scenarios:
     skill_set: ADD.1D1D
     difficulty: Easy
     n: 15
-  - name: multiplication — a topic added as rows only, no Python written for it
-    skill_set: MUL.1D
+  - name: multiplication — 2-digit × 1-digit with no regrouping, a skill of its own document's cases
+    skill_set: MUL.2D1D
     difficulty: Easy
     n: 20
   - name: four-digit advance, Medium — four addends, where a carry can be 2
