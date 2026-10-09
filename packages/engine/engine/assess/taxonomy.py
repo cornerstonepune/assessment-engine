@@ -7,8 +7,10 @@ every other key reads the question's tags. A value is equality, a list is "one o
 `{"lte": n}` compare numbers. A tag the question does not carry fails the condition.
 """
 
+from typing import Any
 
-def holds(want, got):
+
+def holds(want: Any, got: Any) -> bool:
     if isinstance(want, dict):
         return isinstance(got, int) and got >= want.get("gte", got) and got <= want.get("lte", got)
     if isinstance(want, list):

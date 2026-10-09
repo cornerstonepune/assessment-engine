@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M2a: straight multiplication
+
+- **Slice:** M2a (W1 gate 3). Goal `goals/md2a-straight-multiplication.yaml`; tests `test_mul_levels.py`,
+  `test_mul_mistakes.py`, `test_render.py`; ADR 0050.
+- **M1 is merged and live:** main `1649ed1`, migration `20261028090000` applied, engine at `1649ed1`.
+- **What changed:**
+  - the case drawer makes × (`assess/draw_times.py`); five skills on R36–R40, untaught;
+  - eight mistakes predicted (`assess/mul_mistakes.py`); a long multiplication prints its rows;
+  - the drafted document: TZ01 and TZ07 → MUL.TENS Advance, × cases read either way round, T03 regroups nothing, T27
+    and T28 added (249 cases). The shared doc Achal corrects needs republishing from
+    `docs/design/multiplication-division-taxonomy.md`.
+- **Next:** M2c in this session (re-home `MUL.1D`, which leaves three levels short until it moves), then M2b.
+- **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1 and M2a's seed rows, then approving the five skills.
+
 ## 2026-10-09 — M1: the taxonomy as rows
 
 - **Slice:** M1 (W1 gate 3). Goal `goals/md1-taxonomy-rows.yaml`; tests `packages/engine/tests/test_md_cases.py`;

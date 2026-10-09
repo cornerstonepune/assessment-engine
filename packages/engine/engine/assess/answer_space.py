@@ -6,6 +6,9 @@ by their ones, and only the answer's own columns have boxes.
 """
 
 import html
+from typing import Any
+
+from engine.assess import operations as O
 
 
 def _boxes(r, rule="digits"):
@@ -45,11 +48,20 @@ def working(lines):
     return f'<div class="work h{min(lines, 4)}">working</div>'
 
 
-def grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
+def grid(
+    sheet_id: str,
+    item_id: str,
+    rows: list[int],
+    op: str,
+    ans_resp: Any,
+    carry: bool = True,
+    boxes: str = "digits",
+) -> str:
     """rows: list of ints (addends or minuend/subtrahend), lined up by the ones under as many columns as the widest
     number or the answer needs; the answer row has a box only under the answer's own digits."""
-    boxes = _boxes(ans_resp, boxes)
-    w = max([boxes, *(len(str(n)) for n in rows)])
+    count = _boxes(ans_resp, boxes)
+    worked = _rows_worked(rows, op)
+    w = max([count, *(len(str(x)) for x in (*rows, *worked))])
     out = ['<div class="grid" style="grid-template-columns: 8.4mm repeat(%d, 8.4mm)">' % w]
     if carry:
         out.append('<div class="g blank"></div>' + "".join('<div class="g carry"></div>' for _ in range(w)))
@@ -60,16 +72,31 @@ def grid(sheet_id, item_id, rows, op, ans_resp, carry=True, boxes="digits"):
             f'<div class="g op">{opch if idx == len(rows) - 1 else ""}</div>'
             + "".join(f'<div class="g">{c.strip() or ""}</div>' for c in s)
         )
+    for k in range(len(worked)):  # the rows of a long multiplication, the last added with its +
+        out.append(
+            f'<div class="g op">{"+" if k == len(worked) - 1 else ""}</div>'
+            + '<div class="g work"></div>' * w
+        )
     out.append(
         '<div class="g blank"></div>'
-        + '<div class="g blank"></div>' * (w - boxes)
+        + '<div class="g blank"></div>' * (w - count)
         + "".join(
             f'<div class="g ans cell" data-s="{sheet_id}" data-i="{item_id}" data-r="{ans_resp.rid}" data-k="{k}"></div>'
-            for k in range(boxes)
+            for k in range(count)
         )
     )
     out.append("</div>")
     return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
+
+
+def _rows_worked(rows: list[int], op: str) -> list[int]:
+    """A long multiplication's rows, one for each digit of its multiplier (68 × 17 is 476 and 680), where it has two or
+    more; nothing for any other sum. Their room is drawn, never their numbers: the child writes them."""
+    if O.sign(op) != "×" or len(rows) != 2 or min(len(str(n)) for n in rows) < 2:
+        return []
+    top, multiplier = (rows[1], rows[0]) if len(str(rows[0])) < len(str(rows[1])) else (rows[0], rows[1])
+    worked = O.rows(top, multiplier)
+    return worked if len(worked) >= 2 else []
 
 
 def op_sign(o: str) -> str:

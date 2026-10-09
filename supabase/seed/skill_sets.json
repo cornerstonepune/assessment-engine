@@ -231,6 +231,527 @@
       }
     },
     {
+      "code": "MUL.FACTS",
+      "rung_code": "R36",
+      "name": "Multiplication facts",
+      "learning_objective": "Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_COLUMNWISE",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_ONE_ADDED",
+        "M_TENS_ZERO_DROPPED",
+        "M_WRONG_OP",
+        "M_ZERO_AS_ONE"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "The 2, 5 and 10 tables, in a line: 2 × 7, 5 × 6, 10 × 4.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "YES"
+            },
+            "cases": [
+              "TF03",
+              "TF04",
+              "TF05"
+            ],
+            "layout": "horizontal",
+            "operand_max": 10
+          },
+          "min_items": 26
+        },
+        "Medium": {
+          "words": "The 3 and 4 tables, × 0 and × 1, and a table read the other way: 3 × 8, 7 × 0, 1 × 8, 8 × 3.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "YES"
+            },
+            "cases": [
+              "TF01",
+              "TF02",
+              "TF06",
+              "TF07",
+              "TF15"
+            ],
+            "layout": "horizontal",
+            "operand_max": 10
+          },
+          "min_items": 74
+        },
+        "Hard": {
+          "words": "The 6, 7, 8 and 9 tables, a number times itself, and a fact in columns: 6 × 7, 9 × 6, 7 × 7.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "YES"
+            },
+            "cases": [
+              "TF08",
+              "TF09",
+              "TF10",
+              "TF11",
+              "TF12",
+              "TF16"
+            ],
+            "layout": "horizontal",
+            "operand_max": 10
+          },
+          "min_items": 121
+        },
+        "Advance": {
+          "words": "The 11 and 12 tables with the hardest of the rest: 11 × 4, 12 × 5, 7 × 8.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "YES"
+            },
+            "cases": [
+              "TF08",
+              "TF09",
+              "TF10",
+              "TF11",
+              "TF12",
+              "TF16",
+              "TF13",
+              "TF14"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 62
+        }
+      },
+      "level_band": {
+        "Easy": "G1",
+        "Medium": "G1",
+        "Hard": "G2",
+        "Advance": "G3"
+      }
+    },
+    {
+      "code": "MUL.TENS",
+      "rung_code": "R37",
+      "name": "Multiplying by 10, 100, 1000 and multiples of ten",
+      "learning_objective": "Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_COLUMNWISE",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_TENS_ZERO_DROPPED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "× 10, of a number with no zero and of one already ending in zero: 45 × 10, 30 × 10.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "TP01",
+              "TP04"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "× 100 and × 1000, a zero inside the number too: 45 × 100, 7 × 1000, 405 × 100.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "TP02",
+              "TP03",
+              "TP05"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "A table fact with its zeros, the fact making a zero of its own too: 30 × 4, 20 × 40, 300 × 6, 50 × 4.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "TP06",
+              "TP07",
+              "TP08",
+              "TP09"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "No table fact under the zeros, and both numbers round: 23 × 30, 230 × 4, 23 × 40 in columns, 120 × 30.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "TP06",
+              "TP07",
+              "TP08",
+              "TP09",
+              "TP10",
+              "TZ08",
+              "TZ01",
+              "TZ07"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G3",
+        "Medium": "G3",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
+    },
+    {
+      "code": "MUL.2D1D",
+      "rung_code": "R38",
+      "name": "2-digit × 1-digit",
+      "learning_objective": "Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No regrouping, in columns and in a line, the 1-digit number first too: 23 × 3, 32 × 3, 3 × 21.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "T01",
+              "T02",
+              "T03"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "Regrouping from the ones into a 2-digit answer, or none into a 3-digit one: 13 × 4, 19 × 5, 42 × 3.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "T04",
+              "T05",
+              "T06"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Regrouping and a 3-digit answer, a zero only in the answer, the largest carry: 56 × 3, 18 × 6, 48 × 5, 99 × 9.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "T07",
+              "T08",
+              "T09",
+              "T10",
+              "TC09",
+              "TZ05"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G3"
+      }
+    },
+    {
+      "code": "MUL.3D1D",
+      "rung_code": "R39",
+      "name": "3-digit × 1-digit",
+      "learning_objective": "Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CARRY_ONTO_ZERO_LOST",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "No regrouping, a zero in the middle that no carry reaches: 213 × 3, 434 × 2, 302 × 3.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "place_value_factor": "NONE",
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "T11",
+              "TC01",
+              "TZ02"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One column regroups, or none and the answer grows to 4 digits: 412 × 3, 374 × 2, 119 × 4.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "place_value_factor": "NONE",
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "TC02",
+              "TC03",
+              "TC05"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Regrouping in any column, a carry onto a zero, an answer full of zeros: 357 × 4, 194 × 6, 506 × 7, 125 × 8.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "place_value_factor": "NONE",
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "T12",
+              "TC04",
+              "TC06",
+              "TC07",
+              "TC08",
+              "TC10",
+              "TC11",
+              "TZ03",
+              "TZ06"
+            ]
+          }
+        },
+        "Advance": {
+          "words": "The hardest of Hard, and the 1-digit number first in a line: 667 × 3, 6 × 125.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "place_value_factor": "NONE",
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "T12",
+              "TC04",
+              "TC06",
+              "TC07",
+              "TC08",
+              "TC10",
+              "TC11",
+              "TZ03",
+              "TZ06",
+              "T13"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G4",
+        "Medium": "G4",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
+    },
+    {
+      "code": "MUL.2D2D",
+      "rung_code": "R40",
+      "name": "2-digit × 2-digit",
+      "learning_objective": "Multiplies two 2-digit numbers, a row for each digit with the second row moved a place.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_MUL_COLUMNWISE",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_STALE_CARRY",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "A row for each digit, no regrouping anywhere: 21 × 13.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "T17"
+            ]
+          }
+        },
+        "Medium": {
+          "words": "One row regroups, a 3-digit answer: 16 × 12.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "T18"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "A row regrouping, and adding the rows carrying: 36 × 24, 47 × 23, 52 × 34, 19 × 14, 68 × 17.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "T19",
+              "T20",
+              "T21",
+              "T27",
+              "T28"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G4",
+        "Medium": "G4",
+        "Hard": "G4"
+      }
+    },
+    {
       "code": "REASON.EXPLAIN",
       "rung_code": "X1",
       "name": "Explains the procedure or judges a claim",

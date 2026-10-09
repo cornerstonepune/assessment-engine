@@ -44,6 +44,22 @@ def test_there_are_as_many_answer_boxes_as_the_answer_has_digits(a, b, op, layou
     assert _boxes(html) == len(answer)
 
 
+@pytest.mark.parametrize(
+    "a, b, rows",
+    [(68, 17, 2), (47, 23, 2), (213, 12, 2), (17, 68, 2), (68, 7, 0), (7, 68, 0), (23, 40, 0), (45, 10, 0)],
+)
+def test_a_long_multiplication_prints_a_row_for_each_digit_of_its_multiplier(a, b, rows):
+    """Set out as the school writes it (goals/md2a-straight-multiplication.yaml, G12): a row for each digit of the
+    multiplier, the last with its + sign, then the answer. A 1-digit multiplier, or one whose ones are 0 (23 × 40 is
+    one row), writes its answer straight under the line. The rows are room to work: only the answer's boxes are read."""
+    ans = I.Response("ans", "digits", str(a * b), cells=len(str(a * b)) + 1)
+    html = answer_space.grid("S", "I", [a, b], "×", ans)
+    assert html.count('class="g op"') - 2 == rows  # two numbers' rows, then the rows worked
+    assert ('<div class="g op">+</div>' in html) == bool(rows)
+    assert not re.search(r'class="g work"[^>]*data-', html)  # nothing the reader reads
+    assert _boxes(html) == len(str(a * b))
+
+
 def test_a_question_of_two_steps_gets_the_most_room_to_work():
     it = word_2step(__import__("random").Random(3), "R0", "Application", 3)
     assert 'class="work h4"' in _html(it)

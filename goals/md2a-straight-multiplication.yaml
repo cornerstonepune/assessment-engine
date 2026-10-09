@@ -1,0 +1,132 @@
+name: md2a-straight-multiplication
+goal: >
+  Multiplication is five skills, each a ladder of its own document's cases, made by the same drawer as addition and
+  subtraction: the tables (MUL.FACTS); by 10, 100, 1000 and multiples of ten (MUL.TENS); 2 digits by 1 (MUL.2D1D);
+  3 digits by 1 (MUL.3D1D); and 2 digits by 2 (MUL.2D2D). A question belongs to exactly one of the five, whichever
+  way round it is written. Every level draws questions that are, as measured, the cases it lists, printed the way
+  the case says (in a line, in columns, as a long multiplication with a row for each digit of the multiplier), with
+  answers recomputed and no two alike. The 11 and 12 tables appear only at Advance. Every wrong answer the document
+  names for a column multiplication is predicted from the question's own numbers: the second row not moved a place,
+  one row only, tens by tens and ones by ones, the first row's carry added again, a carry onto a zero lost, a zero
+  too few, × 0 kept as the number and × 1 adding one. Every level fills its worksheets. None of it is taught until an
+  educator says so.
+
+# Written 2026-10-09, before the code: slice M2a of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M2 — measured before the build"): the case drawer (assess/draw.py) writes only + and −,
+# so no × level could be its cases; × is made only by the old sampler (MUL.1D, three digit shapes) and equal groups;
+# `predict("×", 68, 17)` names two mistakes, neither a long multiplication's; nothing prints the rows of a long
+# multiplication. Measuring the drafted document's levels found four things it got wrong, each fixed in
+# research/md_taxonomy.py and its rows: TP10 (23 × 30) and TZ07 (23 × 40) hold the same questions in two skills, so
+# every round-number × that is not a table fact is MUL.TENS's and TZ01 and TZ07 join TP10 at its Advance; T03 (3 × 21)
+# read the order only, so Easy held 7 × 99; the × cases read the order the numbers are written in, so 3 × 47 was in
+# no case at all (A10 asks both orders: they now read the longer number and the shorter); and 19 × 14 and 68 × 17,
+# the error table's own examples, were in no 2 × 2 case (T27, T28 added). MUL.2D1D's and MUL.2D2D's Advance are all
+# kinds M2b makes, so they wait for it: an Advance of Hard's cases alone is Hard again.
+says:
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_multiplication_is_five_skills_each_level_its_documents_cases
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_a_multiplication_has_exactly_one_home_among_the_five
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_every_level_draws_its_own_cases_as_measured
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_a_case_that_names_its_method_is_printed_that_way
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_render.py::test_a_long_multiplication_prints_a_row_for_each_digit_of_its_multiplier
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_mistakes.py::test_every_column_mistake_the_document_names_is_predicted
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_mistakes.py::test_a_number_written_first_is_still_the_number_multiplied
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_the_eleven_and_twelve_tables_appear_only_at_advance
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_mul_levels.py::test_every_level_of_the_five_fills_its_worksheets
+manual:
+  - "On live, once merged: `bin/update-live`. The five skills, their mistakes, questions and worksheets reach live
+    only through `engine load`, `bank refill` and `library build`. Then approve the five on Curriculum -> Read and
+    approve."
+  - "Achal: the five skills' levels and grades are the drafted document's (assumption A6). TZ01 and TZ07 moved to
+    MUL.TENS Advance; say if a 3-digit number ending in zero belongs to 3-digit by 1-digit instead."
+scenarios:
+  - name: MUL.FACTS, Easy — the 2, 5 and 10 tables in a line
+    skill_set: MUL.FACTS
+    difficulty: Easy
+    n: 20
+  - name: MUL.FACTS, Medium — the 3 and 4 tables, × 0, × 1, a table read the other way
+    skill_set: MUL.FACTS
+    difficulty: Medium
+    n: 20
+  - name: MUL.FACTS, Hard — the 6 to 9 tables, squares, a fact in columns
+    skill_set: MUL.FACTS
+    difficulty: Hard
+    n: 20
+  - name: MUL.FACTS, Advance — the 11 and 12 tables with the hardest of the rest
+    skill_set: MUL.FACTS
+    difficulty: Advance
+    n: 20
+  - name: MUL.TENS, Easy — × 10
+    skill_set: MUL.TENS
+    difficulty: Easy
+    n: 20
+  - name: MUL.TENS, Medium — × 100 and × 1000
+    skill_set: MUL.TENS
+    difficulty: Medium
+    n: 20
+  - name: MUL.TENS, Hard — a table fact with its zeros
+    skill_set: MUL.TENS
+    difficulty: Hard
+    n: 20
+  - name: MUL.TENS, Advance — no fact under the zeros; both numbers round
+    skill_set: MUL.TENS
+    difficulty: Advance
+    n: 20
+  - name: MUL.2D1D, Easy — no regrouping, either number first
+    skill_set: MUL.2D1D
+    difficulty: Easy
+    n: 20
+  - name: MUL.2D1D, Medium — regrouping from the ones, or a 3-digit answer
+    skill_set: MUL.2D1D
+    difficulty: Medium
+    n: 20
+  - name: MUL.2D1D, Hard — regrouping and a 3-digit answer, zeros only in the answer, the largest carry
+    skill_set: MUL.2D1D
+    difficulty: Hard
+    n: 20
+  - name: MUL.3D1D, Easy — no regrouping, a zero no carry reaches
+    skill_set: MUL.3D1D
+    difficulty: Easy
+    n: 20
+  - name: MUL.3D1D, Medium — one column regroups, or a 4-digit answer
+    skill_set: MUL.3D1D
+    difficulty: Medium
+    n: 20
+  - name: MUL.3D1D, Hard — regrouping anywhere, a carry onto a zero, answers full of zeros
+    skill_set: MUL.3D1D
+    difficulty: Hard
+    n: 20
+  - name: MUL.3D1D, Advance — the hardest, and the 1-digit number first in a line
+    skill_set: MUL.3D1D
+    difficulty: Advance
+    n: 20
+  - name: MUL.2D2D, Easy — a row for each digit, no regrouping
+    skill_set: MUL.2D2D
+    difficulty: Easy
+    n: 20
+  - name: MUL.2D2D, Medium — one row regroups
+    skill_set: MUL.2D2D
+    difficulty: Medium
+    n: 20
+  - name: MUL.2D2D, Hard — rows regrouping and adding them carrying
+    skill_set: MUL.2D2D
+    difficulty: Hard
+    n: 20
+criteria:
+  - name: the five skills, their drawer, mistakes and printing; the taxonomy, labels and levels they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_mul_levels.py tests/test_mul_mistakes.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_topics.py tests/test_rehome.py tests/test_every_skill.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

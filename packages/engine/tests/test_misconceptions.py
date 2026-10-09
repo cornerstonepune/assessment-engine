@@ -67,8 +67,8 @@ def test_catalogue_gives_every_code_a_repair_hint():
 def test_writes_only_the_units_digit_of_each_product_ones_first():
     """Aseem's report, Ishaan: "writes only the units digit of each partial product and records them
     in reverse order (34 × 2 = 86)". The same child wrote 85 for 56 × 3 — the rule predicts both."""
-    assert M.mul_units_reversed(34, 2) == 86
-    assert M.mul_units_reversed(56, 3) == 85
+    assert M.predict("×", 34, 2)["M_MUL_UNITS_REVERSED"] == 86
+    assert M.predict("×", 56, 3)["M_MUL_UNITS_REVERSED"] == 85
 
 
 def test_the_other_comparison_sign_is_the_reversed_sign_mistake():

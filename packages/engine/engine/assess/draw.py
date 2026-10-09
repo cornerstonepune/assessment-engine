@@ -9,13 +9,20 @@ generator (`bands.NATIVE_GENERATORS`), told what the case is about — a story's
 through the same rule keys a level can set.
 
 The drawing keeps a few defaults a question needs to test anything: no number ending in 0, no two equal
-numbers, no difference under 5. A case about exactly that — a zero, a zero answer, an answer that
-shrinks — lifts the default it is about, and only that one.
+numbers, no difference under 5, nothing multiplied by 1. A case about exactly that — a zero, a zero answer, an
+answer that shrinks, a round number, × 1 — lifts the default it is about, and only that one.
+
+A multiplication's numbers, and the defaults it keeps, are `assess/draw_times.py`'s. A case that names its method
+is printed that way: in a line, or in columns.
 """
 
 import math
+import random
+from collections.abc import Iterable
+from typing import Any
 
 from . import bands, tags, taxonomy, verify
+from . import draw_times as T
 from . import items as I
 from . import misconceptions as M
 from . import operations as O
@@ -23,10 +30,15 @@ from . import operations as O
 PLAIN = ("bare_sum", "column_grid")
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
-SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits"}
+SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
 HINTS = ("structure", "shape", "planted", "round_to", "missing_count", "missing_in", "missing_place")
 DIGITS = range(1, 5)
-OPS = {"ADD": "+", "SUB": "-"}
+OPS = {"ADD": "+", "SUB": "-", "MUL": "×"}
+LAYOUT = {
+    "LINE": "HORIZONTAL",
+    "COLUMNS": "VERTICAL",
+    "LONG_MULTIPLICATION": "VERTICAL",
+}  # a method, as printed
 POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
 
 
@@ -39,7 +51,7 @@ def _fmts(alt):
     return f if isinstance(f, list) else [f]
 
 
-def _pick(rng, want, pool):
+def _pick(rng: random.Random, want: Any, pool: Iterable[Any]) -> Any:
     """One value of `pool` a case condition allows, or None when none does."""
     ok = [v for v in pool if want is None or taxonomy.holds(want, v)]
     return rng.choice(ok) if ok else None
@@ -48,7 +60,7 @@ def _pick(rng, want, pool):
 def _op(rng, alt, check):
     """The operation this attempt draws: one the case allows, or None when it allows neither of ours."""
     if alt.get("operation"):
-        picked = _pick(rng, alt["operation"], ["ADD", "SUB"])
+        picked = _pick(rng, alt["operation"], list(OPS))
         return OPS[picked] if picked else None
     ops = check.get("op", ["+", "-"])
     return rng.choice(ops) if isinstance(ops, list) else ops
@@ -74,15 +86,20 @@ def _pairs(alt, check, op):
     return out
 
 
-def _number(rng, d, zero_ok):
+def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
     return rng.randint(0 if (d == 1 and zero_ok) else (1 if d == 1 else 10 ** (d - 1)), 10**d - 1)
 
 
-def _usable(op, a, b, about, check):
+def _usable(
+    op: str, a: int, b: int, about: set[str], check: dict[str, Any], alt: dict[str, Any] | None = None
+) -> bool:
     """The defaults every question keeps unless its case is about the very thing they rule out."""
+    zero_case, round_case, size_case = about & ZERO_KEYS, about & ROUND_KEYS, about & SIZE_KEYS
+    if op == "×":
+        lifts = {name for name, on in (("zero", zero_case), ("round", round_case), ("size", size_case)) if on}
+        return T.usable(a, b, about, check, alt or {}, lifts)
     if op == "-" and a < b:
         return False
-    zero_case, round_case, size_case = about & ZERO_KEYS, about & ROUND_KEYS, about & SIZE_KEYS
     if not zero_case and 0 in (a, b):
         return False
     if not (zero_case or round_case) and any(x >= 10 and x % 10 == 0 for x in (a, b)):
@@ -129,6 +146,9 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
         return None
     d1, d2 = rng.choice(pairs)
     zero_ok = "zero_operand" in about
+    if op == "×":
+        got = T.numbers(rng, alt, check, about, d1, d2)
+        return got if got and _usable(op, *got, about, check, alt) else None
     a, b = _number(rng, d1, zero_ok), _number(rng, d2, zero_ok)
     shrink = _pick(rng, alt.get("answer_digit_change"), ["-1", "-MULTIPLE", "ZERO"]) if op == "-" else None
     if shrink and "answer_digit_change" in alt:
@@ -152,8 +172,11 @@ def _plain(rng, alt, check, rung, k):
     if not got:
         return None
     a, b = got
-    pres = alt.get("presentation") or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(
-        check.get("layout")
+    method = alt.get("method") if isinstance(alt.get("method"), str) else None
+    pres = (
+        alt.get("presentation")
+        or LAYOUT.get(method or "")
+        or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(check.get("layout"))
     )
     column = pres == "VERTICAL" if pres else k % 2 == 0  # half in columns, half in a line
     cand = {
@@ -230,7 +253,7 @@ def _missing(rng, alt, check, rung, k):
         return None
     a, b = got
     ans = M.compute(op, a, b)
-    sign = "−" if op == "-" else "+"
+    sign = O.PRINTED[op]
     text = {"a": f"□ {sign} {b} = {ans}", "b": f"{a} {sign} □ = {ans}", "answer": f"{a} {sign} {b} = □"}[
         POSITIONS[where]
     ]
@@ -283,7 +306,7 @@ def one(rng, match, check, rung, k=0):
     alt = rng.choice(_alternatives(match))
     fmts = set(_fmts(alt))
     if fmts <= set(PLAIN):
-        many = (
+        many = alt.get("operation") != "MUL" and (  # a × case reads `carry_max` of one multiplication
             ("num_operands" in alt and any(taxonomy.holds(alt["num_operands"], n) for n in (3, 4, 5)))
             or "carry_max" in alt
             or alt.get("shape") == "FRIENDLY_PAIRS"
@@ -318,10 +341,8 @@ def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000, quotas=N
     seen = set() if seen is None else seen
     even = quotas is None
     quotas = dict.fromkeys(codes, math.ceil(n / len(codes))) if even else quotas
-    out = [
-        (code, it)
-        for code in codes
-        for it in _some(
+    drawn = {
+        code: _some(
             rng,
             matches[code],
             check,
@@ -330,6 +351,15 @@ def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000, quotas=N
             seen,
             max(1, quotas.get(code, 0)) * tries_per_item,
         )
+        for code in codes
+    }
+    # dealt a case at a time, so cutting an even draw to `n` takes one from each case in turn: nine cases asked for
+    # forty drew five each, and cutting the forty-five in case order left the ninth case out altogether
+    out = [
+        (c, its[i])
+        for i in range(max(map(len, drawn.values()), default=0))
+        for c, its in drawn.items()
+        if i < len(its)
     ]
     open_codes = list(codes)
     while len(out) < n and open_codes:

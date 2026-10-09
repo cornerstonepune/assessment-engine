@@ -74,6 +74,16 @@ def compute(op: str | None, a: int, b: int) -> int:
     raise ValueError(f"{op!r} is not an operation")
 
 
+def digits(n: int, width: int) -> list[int]:
+    """`n`'s digits from the ones, padded to `width` with zeros: 47 → [7, 4]; 47 at width 3 → [7, 4, 0]."""
+    return [int(c) for c in str(n).zfill(width)][::-1]
+
+
+def from_digits(ds: list[int]) -> int:
+    """The number whose digits from the ones are `ds`: [7, 4] → 47."""
+    return int("".join(str(d) for d in ds[::-1])) if ds else 0
+
+
 def times_columns(a: int, d: int) -> list[dict[str, int]]:
     """`a` times one digit `d` in columns, from the ones: each column's digit, its product, the carry it takes in, its
     value and the carry it sends on. 56 × 3: 6 × 3 = 18 sends 1; 5 × 3 + 1 = 16, the answer's lead."""
