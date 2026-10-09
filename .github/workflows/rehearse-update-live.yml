@@ -20,7 +20,9 @@ jobs:
     timeout-minutes: 120
     services:
       copy:
-        image: postgres:17
+        # Docker Hub's official image from AWS's copy of it: Docker Hub refuses anonymous pulls past a
+        # limit per address, and runners share addresses (2026-10-09: every job died before its first step, twice)
+        image: public.ecr.aws/docker/library/postgres:17
         env: { POSTGRES_PASSWORD: postgres }
         ports: ["5432:5432"]
         options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 20
