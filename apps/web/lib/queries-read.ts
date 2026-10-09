@@ -108,6 +108,8 @@ export type CaptureAnswer = {
   // the page of its copy's file the photograph is: the paper's page, unless the copy starts part-way
   file_page: number;
   question: string;
+  // which of its question's answers this is ("answer 2 of 2 · exact"), null where the question asks for one
+  part: string | null;
   kind: string;
   rung_code: string;
   skill_code: string;
@@ -153,9 +155,9 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
-           coalesce(i.spec ->> 'question', i.stem) as question,
+           coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
-           coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
+           coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,
@@ -291,9 +293,9 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
-           coalesce(i.spec ->> 'question', i.stem) as question,
+           coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
-           coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') as answer,
+           coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,

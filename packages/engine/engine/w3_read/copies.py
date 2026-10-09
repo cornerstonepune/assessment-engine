@@ -87,9 +87,31 @@ def _words(it) -> str:
     return f"{sp['a']} {sp['op']} {sp['b']}" if {"a", "b", "op"} <= set(sp) else ""
 
 
+def _slots(n, it, page, text, boxed) -> dict:
+    """Question `n`'s answers, each a slot read and marked against its own key (`marking.response_of`): `n` its first,
+    `n.rid` each after it. A copy whose boxes the renderer recorded is read in them, every answer of every kind — a
+    tick or a sentence comes back for a person (`boxes.read_page`); one that did not is read by its words, and only a
+    question that asks for one number. Nothing where the question's page is not known."""
+    rs = it["responses"]
+    if not boxed:
+        rs = rs if len(rs) == 1 and rs[0].get("kind") == "digits" else []
+    if page is None:
+        return {}
+    spec = {**it["spec"], "kind": "bare", "question": text or _words(it), "page": page}
+    return {
+        str(n) if k == 0 else f"{n}.{r['rid']}": {
+            **it,
+            "response": r,
+            "spec": {**spec, "answer": r.get("answer")},
+        }
+        for k, r in enumerate(rs)
+    }
+
+
 def paper(conn, code, pdf=None):
-    """A library worksheet as `legacy.import_scan` reads a paper: (template, {slot: question}), and the questions
-    it does not read — one asking for more than one number, or one whose page is not known, which a person marks.
+    """A library worksheet as `legacy.import_scan` reads a paper: (template, {slot: answer}), a slot for every answer
+    it reads (`_slots`), and the questions it reads nothing of — one whose page is not known, or, on a copy printed
+    before the renderer recorded its boxes, one asking for more than a number — named for the person reading it in.
     `pdf`: the copy as it was printed for its child, where that file is kept; else the worksheet as the library
     prints it."""
     t = conn.execute(
@@ -107,25 +129,15 @@ def paper(conn, code, pdf=None):
             "select id, item_key, fmt, stem, spec, responses from item where id = any(%s)", (t["item_ids"],)
         )
     }
-    by_key, unread = {}, []
+    by_key, unread, geometry = {}, [], _geometry(pdf)
     for n, iid in enumerate(t["item_ids"], 1):
-        it = rows[iid]
         found_page, text = words.get(n, (None, ""))
-        page, first = drawn.get(it["item_key"], found_page), it["responses"][0]
-        if len(it["responses"]) > 1 or first.get("kind") != "digits" or page is None:
+        slots = _slots(n, rows[iid], drawn.get(rows[iid]["item_key"], found_page), text, bool(geometry))
+        by_key |= slots
+        if not slots:
             unread.append(n)
-            continue
-        spec = {
-            **it["spec"],
-            "kind": "bare",
-            "question": text or _words(it),
-            "page": page,
-            "answer": first["answer"],
-        }
-        by_key[str(n)] = {**it, "spec": spec}
     pages = max([p for p, _ in words.values()] + list(drawn.values()) + [len(pymupdf.open(pdf))])
     key = {"code": code, "fields": "boxes", "pages": [{"n": p, "mask": band if p == 1 else 0} for p in range(1, pages + 1)]}  # fmt: skip
-    geometry = _geometry(pdf)
     if geometry:
         # the renderer's own record of where each box is: the scan is read in those boxes (`boxes.read_page`)
         key |= {"fields": "cells", "geometry": geometry, "printed": str(pdf)}

@@ -32,7 +32,14 @@ WEB_WRITES = {
     "public.sign_in_failure": {"INSERT"},
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name.
-WEB_CALLS = {"confirm_results", "resolve_result", "roll_order", "read_child"}
+WEB_CALLS = {
+    "confirm_results",
+    "resolve_result",
+    "roll_order",
+    "read_child",
+    "result_response",
+    "result_part",
+}
 
 
 @pytest.fixture

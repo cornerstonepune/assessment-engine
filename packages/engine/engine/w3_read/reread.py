@@ -20,11 +20,11 @@ SETTLED = ("correct", "wrong", "blank")
 
 def _answers(conn):
     rows = conn.execute(
-        "select c.sheet_instance_id as paper, r.item_id, r.id, r.status,"
+        "select c.sheet_instance_id as paper, r.item_id, r.rid, r.id, r.status,"
         " r.raw_read::jsonb ->> 'child_answer' as read"
         " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
     ).fetchall()
-    return {(r["paper"], r["item_id"]): r for r in rows}
+    return {(r["paper"], r["item_id"], r["rid"]): r for r in rows}
 
 
 def files(conn, only=None):

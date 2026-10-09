@@ -45,7 +45,10 @@ def mark(spec, response, read, learned=()):
         return "unreadable", [], working
     if state == "not_visible":
         return "needs_teacher", [], working
-    if spec.get("kind") == "text":  # a bank question carries no kind: it asks for a number
+    if "text" in (
+        spec.get("kind"),
+        response.get("kind"),
+    ):  # a paper's question, or a bank question's own answer
         if state == "blank" and not answer:
             return "blank", [], working
         # The judgement a "find the mistake" question asks for ("is Achal correct?") is not
@@ -80,7 +83,7 @@ def mark(spec, response, read, learned=()):
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
-    if want is not None and n == int(want):
+    if want is not None and _right_number(n, response):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     if not codes and want is not None:
@@ -89,6 +92,18 @@ def mark(spec, response, read, learned=()):
         # a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)
         codes = learned_mistakes.recognise(learned, spec.get("op"), int(spec["a"]), int(spec["b"]), n)
     return "wrong", codes, working
+
+
+def _right_number(n, response):
+    """`n` is the answer's key, or within the key's own tolerance where it has one (an estimate, `Response.tolerance`)."""
+    return abs(n - int(response["answer"])) <= (response.get("tolerance") or 0)
+
+
+def response_of(it):
+    """The answer a slot is for: the one it names (`copies.paper` makes a slot per answer), else its question's first —
+    a paper entered by hand asks for one answer a question. What a stored result is for is its own `rid`, read by
+    `result_response` (migration 20261025090000) as every query that marks or shows one selects it."""
+    return it.get("response") or it["responses"][0]
 
 
 # What the engine may not settle on its own reading (ADR 0029), and the reason it gives a person.
@@ -149,7 +164,7 @@ def verdicts(conn, capture_id):
     def judge(it, read):
         spot = spot_checked(capture_id, it["id"], rate)
         gate = trust.get(it["fmt"], UNTRUSTED)
-        return mark_read(it["spec"], it["responses"][0], read, gate, spot=spot, learned=learned)
+        return mark_read(it["spec"], response_of(it), read, gate, spot=spot, learned=learned)
 
     return judge
 
@@ -204,8 +219,8 @@ def correct(conn, result_id, human_read, by):
     20261015090000). A paper signed off by mistake is put right without editing a row.
     """
     row = conn.execute(
-        "select r.id, r.tenant_id, r.raw_read, r.capture_id, r.state, si.child_id, i.spec, i.responses"
-        " from item_result r join item i on i.id = r.item_id"
+        "select r.id, r.tenant_id, r.raw_read, r.capture_id, r.state, si.child_id, i.spec, i.responses,"
+        " result_response(i.responses, r.rid) as response from item_result r join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
         " where r.id = %s and r.state in ('candidate', 'confirmed')",
         (result_id,),
@@ -262,7 +277,7 @@ def _as_read(conn, row, typed, right, learned):
     """`mark` for what a person says the child wrote → (status, codes, working): right when the answer's side of its
     equation holds (`right`); a wrong answer keeps the mistake a person named on this very reading."""
     reading = {**_read(row), "child_answer": typed, "answer_state": "written" if typed.strip() else "blank"}
-    status, codes, working = mark(row["spec"], row["responses"][0], reading, learned)
+    status, codes, working = mark(row["spec"], response_of(row), reading, learned)
     if right:
         return "correct", [], working
     if status == "wrong" and not codes:  # a mistake a person named on this very reading still stands
@@ -276,7 +291,8 @@ def _group(conn, capture_id, expr, now):
     is 638 — as a person read it (`now`: {result id: the reading being saved}), or as the engine read it once it settled
     the box. A box still waiting for a person leaves its side undecided: each of its boxes is marked by its own key."""
     boxes = conn.execute(
-        "select r.id, r.state, r.status, i.item_key, i.spec, i.responses, r.raw_read, rc.human_read as typed"
+        "select r.id, r.state, r.status, i.item_key, i.spec, i.responses, result_response(i.responses, r.rid) as response,"
+        " r.raw_read, rc.human_read as typed"
         " from item_result r join item i on i.id = r.item_id left join lateral (select human_read from read_correction"
         " where item_result_id = r.id and judged is null order by created_at desc limit 1) rc on true"
         " where r.capture_id = %s and r.state <> 'rejected' and i.spec->>'holds' = %s",

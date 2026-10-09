@@ -75,6 +75,7 @@ export function AnswerCard({
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-3">
           <span className="label">Question {a.slot}</span>
+          {a.part ? <span className="text-[12.5px] text-basalt/70">{a.part}</span> : null}
           <MarkPill status={a.status} working={a.working_shown === "none" ? "" : a.working_shown} />
           {a.state === "confirmed" ? <Pill tone="neem">signed off</Pill> : null}
           {a.human_read !== null ? <span className="text-[12px] text-basalt/55">corrected by {a.corrected_by}</span> : null}

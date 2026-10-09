@@ -4603,3 +4603,30 @@ on a database built by `bin/testdb fresh` from the repository (21,289 active que
   - grades later than the school's own objectives place them.
 - **Not checked:** what the school teaches in each grade now, and which methods. Both are assumptions (ADR 0047, A1
   and A6) until Achal corrects the doc or an educator declares them.
+
+## M0a — every answer of a question with several answers counts (2026-10-09)
+
+Goal `goals/md0a-every-answer-counts.yaml`. Each claim with the command that proves it:
+
+- **A library worksheet question with several answers is read, one slot per answer, and every answer is marked,
+  queued and counted on its own.** `cd packages/engine && .venv/bin/python -m pytest -q tests/test_every_answer.py
+  tests/test_roles.py` → `16 passed`. It covers 4 estimate-then-calculate, 4 inverse-check and 4 find-the-mistake
+  questions on one copy:
+  - every answer gets its own row;
+  - an estimate is right within its tolerance and wrong outside it;
+  - an exact answer is marked against its own key, not the estimate's;
+  - a tick or a sentence goes to a person with its crop and the reason, and the digit reader is never called;
+  - signing off makes one evidence row per answer;
+  - each card shows its own right answer and says which answer it is;
+  - `engine audit` finds no result whose answer is not one its question asks for.
+- **What the change touches still passes.** `pytest -q tests/test_every_answer.py tests/test_copies.py
+  tests/test_keys.py tests/test_boxes.py tests/test_legacy.py tests/test_crops.py tests/test_learned_mistakes.py
+  tests/test_gold.py tests/test_roles.py tests/test_audit.py tests/test_inbox.py tests/test_ocr.py` → `195 passed,
+  1 failed`. The failure was `test_roles`: the new function was granted to the website while that run was going.
+  Rerun alone → passed (above).
+- **The questions this reaches.** `select count(*) filter (where jsonb_array_length(responses) > 1), count(*) from
+  item where status='active'` → `4437|21289` on the local database, the bank as seeded. Before this, none of the 4,437
+  was read on a library worksheet copy.
+- **Not checked:**
+  - a real child's handwriting in a second or third box (the tests stand in for both readers);
+  - copies read on live before this. They keep their old reading until read again (`POST /read/file`, `again: true`).

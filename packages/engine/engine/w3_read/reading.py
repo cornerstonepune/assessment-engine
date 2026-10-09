@@ -8,7 +8,7 @@ reader's guess for whatever is left doubted.
 """
 
 from engine.adapters import digits, ocr
-from engine.w3_read import boxes, crops, profiles, render_pdf, second_reader, stencil
+from engine.w3_read import boxes, crops, marking, profiles, render_pdf, second_reader, stencil
 
 
 def read_pages(conn, scan, cli, child_id, notes=None, second=True):
@@ -56,17 +56,18 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
         if paper.get("geometry") and paper.get("printed"):
             # A paper this system printed: every box's place is recorded, so the boxes are cut out and read
             # where they are, and nothing outside them — the working — can be taken as the answer.
-            wanted = {
-                k: (it["item_key"], (it["responses"][0] or {}).get("rid", "ans"))
-                for k, it in by_key.items()
-                if it["spec"].get("page", 1) == page_no
+            on_page = {
+                k: marking.response_of(it) for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
             }
+            wanted = {k: (by_key[k]["item_key"], r.get("rid", "ans")) for k, r in on_page.items()}
+            # a tick or a sentence is not a number: the digit reader is never handed it, a person reads it
+            people = {k for k, r in on_page.items() if r.get("kind", "digits") != "digits"}
             img, frame = render_pdf.photo(path, file_page)
             # the digit reader's own floor (ADR 0035): a child's notebook floor was measured on Textract's scale
             floor = digits.settings(conn)
             readings = boxes.read_page(
                 img, page_no, paper["printed"], paper["geometry"], wanted, {**cfg, **floor}, frame=frame,
-                keep=crops.keeper(path, page_no),
+                keep=crops.keeper(path, page_no), for_a_person=people,
             )  # fmt: skip
             how = (
                 "read in its boxes"

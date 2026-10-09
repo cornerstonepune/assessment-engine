@@ -117,6 +117,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
               <div className="grid content-start gap-3 text-[14px]">
                 <div>
                   <span className="label">The question</span>
+                  {a.part ? <span className="ml-2 text-[12.5px] text-basalt/70">{a.part}</span> : null}
                   <p className="mt-1 leading-snug">{a.question}</p>
                   <p className="mt-1">
                     <span className="label">Right answer</span>{" "}

@@ -235,6 +235,19 @@ def what_a_mistake_charges_is_approved(conn):
     return ["the table of what a mistake charges on each kind of question waits for one approval"]
 
 
+def every_answer_names_a_response_of_its_question(conn):
+    """A result is marked and shown against the response its `rid` names (`result_response`); one naming none would
+    be marked against its question's first answer, which is not its own (goals/md0a-every-answer-counts.yaml)."""
+    return [
+        f"{r['item_key']} has a result for {r['rid']!r}, which it does not ask for"
+        for r in conn.execute(
+            "select distinct i.item_key, r.rid from item_result r join item i on i.id = r.item_id"
+            " where not exists (select 1 from jsonb_array_elements(i.responses) x where x ->> 'rid' = r.rid)"
+            " order by 1, 2"
+        ).fetchall()
+    ]
+
+
 def referential_codes_all_resolve(_conn):
     return [f"{label}: {', '.join(codes)}" for label, codes in loaders.orphans().items() if codes]
 
@@ -276,6 +289,7 @@ INVARIANTS = [
     ("every unit meets its target", every_unit_meets_its_target),
     ("every stored item still satisfies its band", every_stored_item_still_satisfies_its_band),
     ("no choice is answered by ticking one place", no_choice_is_answered_by_ticking_one_place),
+    ("every answer names a response of its question", every_answer_names_a_response_of_its_question),
 ]
 
 
