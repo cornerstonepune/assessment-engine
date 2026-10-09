@@ -22,7 +22,6 @@ FORMAT_REASONING = {
     "inverse_check": "INVERSE",
     "find_mistake": "ERROR_DIAGNOSIS",
     "explain_claim": "ERROR_DIAGNOSIS",
-    "sort_into_table": "DIRECT",
     "estimate_then_calc": "DIRECT",
 }
 FORMAT_CONTEXT = {"word_1step": "WORD_PROBLEM", "word_2step": "WORD_PROBLEM"}

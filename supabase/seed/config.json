@@ -166,7 +166,8 @@
       "value": {
         "+": "NUM.OPS.01",
         "-": "NUM.OPS.02",
-        "×": "NUM.OPS.03"
+        "×": "NUM.OPS.03",
+        "÷": "NUM.OPS.04"
       },
       "description": "The registry skill each operation is. A question uses the skill of every operation a child carries out on it (ADR 0023)."
     },

@@ -1,0 +1,34 @@
+name: md0b-division-is-an-operation
+goal: >
+  Division is an operation the engine knows wherever it names one, as it knows the other three: 84 ÷ 4 is 21, and 85 ÷ 4
+  is 21 remainder 1, two answers, never one rounded down. It is written ÷, / or :, and is one operation however it is
+  written. It has a skill (Division), a mistake row may name it, a taxonomy case may be about it, an old paper's
+  "144 ÷ 12 =" is read as a sum and counts on Division, an equation with × and ÷ is solved in the order a child is
+  taught, and its mistakes are named by its own sign. Asking it for mistakes it has none of yet gives none rather than a
+  crash. A kind of question handed an operation it cannot make refuses, in a sentence naming the kind and the
+  operation, and never makes a subtraction or prints a + in its place.
+
+# Written 2026-10-09, before the code: slice M0b of BUILD-ORDER "Inserted now: multiplication and division". Measured
+# first (STATE.md "M0b — measured before the build"): `M.compute('÷', 85, 4)` raised KeyError; `skills.operations` and
+# the old-paper pattern did not see ÷; `misconception.op` refused it; and eleven kinds of question, handed ÷, made a
+# subtraction, several of them printing "+".
+says:
+  - words: "we need to integrate multiplication and division now"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_division_is_computed_exactly_and_a_remainder_is_its_own_answer
+  - words: "we need to integrate multiplication and division now"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_every_way_division_is_written_is_one_operation
+  - words: "same process"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_division_has_a_skill_a_mistake_row_and_a_case
+  - words: "same process"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_an_old_papers_division_is_a_sum_that_counts_on_division
+  - words: "we need to integrate multiplication and division now"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_an_equation_with_times_and_divide_is_solved_in_the_order_taught
+  - words: "this is a good test as to how our flow works"
+    proved_by: packages/engine/tests/test_division_is_an_operation.py::test_a_kind_handed_an_operation_it_cannot_make_refuses_in_a_sentence
+criteria:
+  - name: division wherever an operation is named; every kind refuses what it cannot make; what it touches
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_division_is_an_operation.py tests/test_misconceptions.py tests/test_verify.py tests/test_every_skill.py tests/test_legacy.py tests/test_equation.py tests/test_new_kinds.py tests/test_mistake_names.py tests/test_mistake_guess.py tests/test_roles.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

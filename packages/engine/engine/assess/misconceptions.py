@@ -8,6 +8,8 @@ Seeded from Neha S's teacher-authored list (Maths planning.docx, Aug 2026) and
 the arithmetic itself. Codes are the shared vocabulary for the `misconceptions` tab.
 """
 
+from engine.assess.operations import compute, sign  # what an operation is has one owner
+
 
 def digits(n, width):
     return [int(c) for c in str(n).zfill(width)][::-1]  # index 0 = ones
@@ -444,27 +446,14 @@ def predict_sign(answer):
     return out
 
 
-def compute(op, a, b):
-    return {"+": a + b, "-": a - b, "×": a * b}[op]
-
-
-def chain(op, numbers):
-    """The answer to a question with however many numbers it has, read left to right: `8000 - 25 - 40`
-    is 7935, not 7975. A budget question is a chain, and reading only its first two numbers is how a
-    proposal about one came to be thrown away for arithmetic that was never wrong.
-    """
-    total = numbers[0]
-    for n in numbers[1:]:
-        total = compute(op, total, n)
-    return total
-
-
-def predict(op, a, b):
+def predict(op: str, a: int, b: int) -> dict[str, int]:
     """Return {code: wrong_answer} for every misconception that can occur on these operands.
-    An operation with no predictor table yet (multiplication) returns {} — the verifier then
+    An operation with no predictor table yet (division) returns {} — the verifier then
     accepts a model's claims for it unchecked, by design (ADR 0005)."""
-    table = TABLES.get(op, {})
-    out = {}
+    table = TABLES.get(sign(op) or op)
+    if not table:
+        return {}
+    out: dict[str, int] = {}
     correct = compute(op, a, b)
     for code, (fn, _, _) in table.items():
         try:

@@ -11,6 +11,7 @@ The name is the one for the question's own operation; else the operation of the 
 from collections.abc import Callable
 from typing import Literal, overload
 
+from engine.assess import operations as O
 from engine.core import db
 
 Field = Literal["name", "repair_hint", "description"]
@@ -51,4 +52,4 @@ def _op(op: str | None) -> str | None:
     """The operation a question's spec writes, as the vocabulary writes it: a two-step story's first."""
     if not op:
         return None
-    return {"*": "×", "x": "×"}.get(op[0], op[0])
+    return O.sign(op[0]) or op[0]

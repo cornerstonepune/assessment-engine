@@ -4664,3 +4664,71 @@ Goal `goals/md0a-every-answer-counts.yaml`. Each claim with the command that pro
   - copies read on live before this. They keep their old reading until read again (`POST /read/file`, `again: true`),
     and their cards show no question number until then;
   - the website's screens with these answers, beyond the typecheck, lint and CI's Playwright run.
+
+## M0b — division is an operation wherever one is named (2026-10-09)
+
+Goal `goals/md0b-division-is-an-operation.yaml`.
+
+**Measured before the build.** A read-only sweep of every place the engine names an operation found:
+- ÷ in about sixty places, nearly all broken:
+  - `compute`, `chain` and `predict` raised KeyError on it;
+  - `skills.operations` and the old-paper pattern did not match it;
+  - `misconception.op` refused it, and `skills.by_operation` had no Division although the registry has `NUM.OPS.04`;
+  - the case dimension `operation` allowed ADD and SUB only;
+  - the equation parser read + and − only;
+- eleven kinds of question, handed × or ÷, made a subtraction, several printing "+":
+  - `number_line_jumps`, `estimate_then_calc`, `find_mistake`, `missing_digit`, `inverse_check`;
+  - `choose_estimate`, `possible_answer`, `odd_even`, `break_apart`;
+  - `bare_sum` and `word_1step`.
+
+  Only `MUL.1D` asks for × today, through the column sampler that makes it, so no seed level was producing a wrong
+  question. Nothing stopped one.
+- a story's answer formula read a × as a +;
+- the bank's missing-number stem printed "+" for any operation that was not −.
+
+**Now.** Each claim with the command that proves it:
+- **What an operation computes has one owner, `engine/assess/operations.py`, and division is in it.** `cd
+  packages/engine && .venv/bin/python -m pytest -q tests/test_division_is_an_operation.py` → `30 passed`. It covers:
+  - 84 ÷ 4 = 21;
+  - 85 ÷ 4 refused as one answer ("21 r 1: two answers") and given as `divide` → (21, 1);
+  - ÷, / and : as one operation;
+  - the verifier names a remainder in words and calls the shape `DIV.2D1D`;
+  - `predict('÷', …)` gives no mistakes rather than a KeyError, and "−" predicts as "-";
+  - Division is `NUM.OPS.04`, a case may be MUL or DIV, and a mistake row may name ÷;
+  - G4-BASE16's own "144 ÷ 12 =" is now a sum: its paper row gains `"expr": "144 ÷ 12"`. It counts on Division, and a
+    paper's own key ("21 r 1") is taken before anything is computed. "/" on an old paper is not ÷, since it may be a
+    fraction;
+  - an equation with × and ÷ is worked in the taught order and exactly;
+  - each of ten kinds refuses × and ÷ in a sentence naming itself and the operation, and `bare_sum` refuses too and
+    works "−" as a subtraction throughout;
+  - the refusal is heard where the bank, the case drawer and a level's mistake list ask (it was caught as "these
+    numbers did not fit" in the last two);
+  - a rule's list of operations is not read as one;
+  - a story formula with × is refused.
+- **Nothing else broke.** `cd packages/engine && .venv/bin/python -m pytest -q` → `1465 passed, 3 failed`. The three
+  were the map's gates (ceilings, complexity, types), which read `workflows.json` before its fallen figures were
+  written. Rerun with the suites this touches → `323 passed`; `bin/check` → `27 passed`.
+- **Older sign tables remain**, not yet read through the owner:
+  - `draw.py`, which prints − or +;
+  - `tags.py`;
+  - `marking._MINUS`;
+  - `equality.MINUS`;
+  - `mistake_guess.SIGN`, the sums Jev is asked about;
+  - `legacy._EXPR`, whose printed signs a test holds to `operations.PRINTED_SIGNS`.
+
+  Each handles + and − only, as their callers do. They move to the owner when M1 and M3 give × and ÷ tags, cases and
+  kinds.
+- **No file grew past its ceiling and none was raised.**
+  - The arithmetic moved out of `misconceptions.py` (500 → 489).
+  - `sort_into_table` left `items.py` (571 → 540), with its render, tag and layout rows. No seed level ever named that
+    kind, so the bank never made one, and it retires any item whose kind its level does not name.
+  - `legacy.py` stays at 652.
+  - Eleven files' untyped-code counts fell and were written down; `equation.py` is now fully typed (71 → 0).
+- **Migration `20261026090000`** lets a mistake row name ÷. A mistake a model proposes now keeps its example's
+  operation (× or ÷), where × used to fall to `any`.
+- **Found, and belonging to a later slice:**
+  - a two-step story that halves ("add up to", `divide: 2`) does not count on Division (`skills.operations` reads its
+    template's `op`, not its `divide`). That changes the skills of stories already on live, so it goes with the
+    stories, in M4;
+  - the website's mistake names by operation go to M0c.
+- **Not done here:** ÷'s own mistakes, kinds and tags (M3 and M1).

@@ -11,13 +11,12 @@ rung's order, so `skill_codes[1]` stays the question's own skill for every reade
 
 import re
 
+from . import operations as O
 from . import words as W
 
-MINUS = ("−", "-")
 
-
-def _sign(op):
-    return "-" if op in MINUS else op
+def _sign(op: str) -> str:
+    return O.sign(op) or op
 
 
 def operations(fmt, spec, stem=""):
@@ -38,7 +37,7 @@ def operations(fmt, spec, stem=""):
     if spec.get("op"):
         return [_sign(spec["op"])]
     text = spec.get("text") or ""
-    m = re.search(r"\d\s*([+−\-×])\s*[\d□]|□\s*([+−\-×])", text)
+    m = re.search(r"\d\s*([+−\-×÷])\s*[\d□]|□\s*([+−\-×÷])", text)  # as printed: a / may be a fraction
     return [_sign(m.group(1) or m.group(2))] if m else []
 
 

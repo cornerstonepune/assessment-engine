@@ -12,6 +12,7 @@ from collections import Counter
 from engine.adapters import llm
 from engine.assess import bands, tags, verify
 from engine.assess import misconceptions as M
+from engine.assess import operations as O
 from engine.assess import words as W
 from engine.core import db
 from engine.w1_bank import cases, labels
@@ -54,7 +55,7 @@ def _sampled(check, formats, n, seed):
         }
         if fmt == "missing_number":
             c["missing"] = "b"
-            c["stem"] = f"{a} {'−' if op == '-' else '+'} □ = {ans}"
+            c["stem"] = f"{a} {O.PRINTED[op]} □ = {ans}"
         elif fmt == "word_1step":
             op_ctx = [t for t in W.templates("word_1step", op=op) if not t.get("table")]
             if not op_ctx:

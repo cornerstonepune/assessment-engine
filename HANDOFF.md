@@ -3,6 +3,23 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M0b: division is an operation wherever one is named
+
+- **Slice:** M0b of BUILD-ORDER "Inserted now: multiplication and division" (W1 gate 3). Goal
+  `goals/md0b-division-is-an-operation.yaml`; tests `packages/engine/tests/test_division_is_an_operation.py`.
+- **M0a is merged and live:** main `4cea199`; `ci`, `migrate live` and `deploy engine` succeeded.
+- **What changed:**
+  - `engine/assess/operations.py` owns what an operation is: its signs, `compute`, `chain`, `divide`, and `require`,
+    the sentence a kind refuses with;
+  - division is in the verifier, the skill reader (`÷` → `NUM.OPS.04`), the case dimension, the old-paper sum, the
+    equation parser and mistake names;
+  - every kind that makes + and − refuses anything else;
+  - migration `20261026090000` lets a mistake row name ÷.
+- **BUILD-ORDER M0 is now M0a, M0b and M0c.** M0c: the reports and the website read a skill set as itself, not by its
+  rung; a skill set's own skill is declared, not counted (`MUL.GROUPS` counts as Addition today); the website names a
+  mistake by its own operation (`M_WRONG_OP` has three names, and Marking shows whichever comes first).
+- **Next:** M0c, then M1.
+
 ## 2026-10-09 — M0a: every answer of a question with several answers counts
 
 - **Slice:** M0a of BUILD-ORDER "Inserted now: multiplication and division" (W1 gate 3, reopened). Goal

@@ -27,41 +27,41 @@ PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
 # leave the live set BEFORE the new one is inserted — and at that moment its replacement does not
 # exist yet. It points at itself for those few statements, which is non-null (so it is no longer
 # live) and self-describing, and is repointed at the real replacement below.
-_EXPR = re.compile(r"^\s*(\d+)\s*([+\-−–×x])\s*(\d+)\s*=?\s*$")
-_SKILL_FOR_OP = {"+": "NUM.OPS.01", "-": "NUM.OPS.02"}
+_EXPR = re.compile(r"^\s*(\d+)\s*([+\-−–×x÷])\s*(\d+)\s*=?\s*$")
 
 
 def parse_expr(text):
-    """'348 + 27 =' → ('+', 348, 27); None when the line is not a bare two-operand sum."""
+    """'348 + 27 =' → ('+', 348, 27); None when the line is not a bare two-operand sum, its sign as printed (`/`, a fraction)."""
     m = _EXPR.match(text.translate(_MINUS))
     return (m.group(2), int(m.group(1)), int(m.group(3))) if m else None
 
 
 def where_they_go(conn):
-    """The skills, the taxonomy's cases and each rung's skills: what `rung_for` and `skill_for` read (ADR 0034)."""
+    """The skills, the taxonomy's cases, each rung's skills and each operation's: what `rung_for` and `skill_for` read."""
     skills = conn.execute("select code, rung_code, difficulty from skill_set").fetchall()
     cases = {r["code"]: r["match"] for r in conn.execute("select code, match from taxonomy_case")}
     return (
         skills,
         cases,
         {r["code"]: r["skill_codes"] for r in conn.execute("select code, skill_codes from rung")},
+        conn.execute("select value from config where key = 'skills.by_operation'").fetchone()["value"],
     )
 
 
 def rung_for(op, a, b, where):
     """The rung of the skill a bare sum practises, from its numbers alone — the one skill whose operation and
     digit shape it has (`assess/placing.py`), exactly as the bank's own questions are placed; None off them."""
-    if op == "×" or (op == "-" and a < b):
+    if op not in ("+", "-") or (op == "-" and a < b):  # the taxonomy places + and − (M1 adds × and ÷)
         return None
     t = tags.derive(Item("", "", "", [], "", "bare_sum", False, "", {"a": a, "b": b, "op": op}, []))
     home = placing.place("bare_sum", t, *where[:2])
     return home[0]["rung_code"] if home else None
 
 
-def skill_for(rung, op, rung_skills):
-    """The skill an old paper's question counts on: addition's or subtraction's for a sum, else its rung's."""
-    if op in _SKILL_FOR_OP:
-        return _SKILL_FOR_OP[op]
+def skill_for(rung, op, rung_skills, by_operation):
+    """The skill an old paper's question counts on: its operation's for a sum (`skills.by_operation`), else its rung's."""
+    if op in by_operation:
+        return by_operation[op]
     if not rung_skills.get(rung):
         raise ValueError(f"rung {rung!r} names no skill; give the item a skill")
     return rung_skills[rung][0]
@@ -80,7 +80,7 @@ def _template_item(paper, it, where):
     if parsed:
         op, a, b = parsed
         spec |= {"op": op, "a": a, "b": b}
-        answer = it.get("answer", M.compute(op, a, b))
+        answer = it["answer"] if "answer" in it else M.compute(op, a, b)  # a paper's own key first: 21 r 1
         predictions = M.predict(op, a, b)
         rung = rung_for(op, a, b, where) or it.get("rung")  # by its shape first, as bank rehome files it
         if rung is None:
@@ -94,7 +94,7 @@ def _template_item(paper, it, where):
         if rung is None:
             raise ValueError(f"item {it['n']}{it.get('part', '')} has no expr and no rung")
     spec["answer"] = answer
-    spec["skill"] = it.get("skill") or skill_for(rung, spec.get("op"), where[2])
+    spec["skill"] = it.get("skill") or skill_for(rung, spec.get("op"), where[2], where[3])
     spec["page"] = it.get("page", 1)
     signal = {"bare": "Procedural", "word": "Application", "missing": "Conceptual", "text": "Stretch"}[kind]
     return {

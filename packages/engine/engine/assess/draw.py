@@ -18,6 +18,7 @@ import math
 from . import bands, tags, taxonomy, verify
 from . import items as I
 from . import misconceptions as M
+from . import operations as O
 
 PLAIN = ("bare_sum", "column_grid")
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
@@ -118,7 +119,7 @@ def _built(rng, alt, op):
     return None
 
 
-def _pair(rng, alt, check, op, about, fix=None):
+def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     """Two numbers for this case, or None. `fix` pins one number's digit count (a missing number)."""
     built = _built(rng, alt, op)
     if built:
@@ -270,6 +271,8 @@ def _native(rng, alt, check, rung, k):
             hints["hi"] = 10**d1 - 1 + (10**d2 - 1 if hints.get("op", "+") == "+" else 0)
     try:
         return bands.native_item(fmt, {**check, **hints}, rng, rung, "Conceptual")
+    except O.CannotMake:
+        raise  # the case asks this kind for an operation it does not make: no draw can give it, say so
     except (KeyError, ValueError, RuntimeError):
         return None  # this attempt's numbers could not make the case; the next attempt draws again
 

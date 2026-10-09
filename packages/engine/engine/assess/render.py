@@ -64,13 +64,6 @@ def render_item(sheet, it, n, layout=None):
         body = f"""<div class="row" style="margin-bottom:2mm"><span class="eq">{a} = {sp["a_h"]} +</span>{_cells(sid, iid, R["a_t"])}<span class="eq">+</span>{_cells(sid, iid, R["a_o"])}</div>
 <div class="row" style="margin-bottom:2mm"><span class="eq">{b} =</span>{_cells(sid, iid, R["b_h"])}<span class="eq">+</span>{_cells(sid, iid, R["b_t"])}<span class="eq">+</span>{_cells(sid, iid, R["b_o"])}</div>
 <div class="row"><span class="eq">total =</span>{_cells(sid, iid, R["hund"])}<span class="eq">+</span>{_cells(sid, iid, R["tens"])}<span class="eq">+</span>{_cells(sid, iid, R["ones"])}<span class="eq">=</span>{_cells(sid, iid, R["ans"])}</div>"""
-    elif f == "sort_into_table":
-        rows = ""
-        for r in it.responses:
-            t0 = f'<span class="tick" data-s="{sid}" data-i="{iid}" data-r="{r.rid}" data-k="0" data-opt="regroup"></span>'
-            t1 = f'<span class="tick" data-s="{sid}" data-i="{iid}" data-r="{r.rid}" data-k="1" data-opt="none"></span>'
-            rows += f'<tr data-resp="{iid}|{r.rid}"><td>{html.escape(r.label)}</td><td>{t0}</td><td>{t1}</td></tr>'
-        body = f'<table class="sort"><tr><th></th><th>{html.escape(sp["col_a"])}</th><th>{html.escape(sp["col_b"])}</th></tr>{rows}</table>'
     elif f == "estimate_then_calc":
         body = f"""<div class="row"><span class="lab">estimate: {sp["ra"]} {op_sign(sp["op"])} {sp["rb"]} =</span>{_cells(sid, iid, R["est"])}</div>
 <div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>""" + working(

@@ -11,6 +11,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from . import misconceptions as M
+from . import operations as O
 
 
 @dataclass
@@ -177,6 +178,7 @@ def sample_sub(rng, digits_a, digits_b, regroups, across_zero=False, tries=4000,
 
 
 def bare_sum(rng, rung, signal, op, da, db, regroups, max_total=None, across_zero=False, layout="horizontal"):
+    op = O.require("bare_sum", op)
     if op == "+":
         a, b = sample_add(rng, da, db, regroups, max_total)
     else:
@@ -303,6 +305,7 @@ def number_line_jumps(rng, rung, signal, op, hi):
     Above hi=54 the jump splits into tens then ones. Below it there is no room for an 11-39
     second jump, so the jump bridges the next ten instead — the same picture at the scale a
     "within 20" rung actually works at."""
+    op = O.require("number_line_jumps", op)
     if hi < 54:
         a, b, land1 = _bridge_jump(rng, op, hi)
         ans = a + b if op == "+" else a - b
@@ -396,40 +399,6 @@ def partition_scaffold(rng, rung, signal, regroups):
         dict(a=a, b=b, a_h=da[2] * 100),
         rs,
         scaffolded=True,
-        working_lines=0,
-    )
-
-
-def sort_into_table(rng, rung, signal, op, n=4):
-    """n two-digit calculations; child ticks 'needs regrouping' or 'no regrouping'. Tests recognition."""
-    items, rs = [], []
-    want = [1, 0] * (n // 2)
-    rng.shuffle(want)
-    for i, w in enumerate(want):
-        if op == "+":
-            a, b = sample_add(rng, 2, 2, {w})
-        else:
-            a, b = sample_sub(rng, 2, 2, {w})
-        items.append(f"{a} {op} {b}")
-        rs.append(
-            Response(
-                f"s{i}",
-                "tick",
-                "regroup" if w else "none",
-                options=["regroup", "none"],
-                label=f"{a} {op} {b}",
-                misconceptions={},
-            )
-        )
-    word = "Change a ten for 10 ones" if op == "-" else "Make a new ten"
-    return item(
-        "SORT",
-        rung,
-        "Conceptual",
-        "sort_into_table",
-        "For each calculation, tick the box that describes it. Do not work out the answer.",
-        dict(items=items, col_a=word, col_b="No regrouping needed"),
-        rs,
         working_lines=0,
     )
 

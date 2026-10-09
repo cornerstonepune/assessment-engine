@@ -20,6 +20,7 @@ import re
 from engine.adapters import llm
 from engine.assess import bands, draw
 from engine.assess import misconceptions as M
+from engine.assess import operations as O
 from engine.core import db
 from engine.w1_bank import cases
 
@@ -240,9 +241,10 @@ def _check_proposal(m, covered):
         return p
     nums, op = list(ex["numbers"]), ex["op"]
     try:
-        correct = M.chain(op, nums)
-    except KeyError:
-        correct = None  # an operation with no arithmetic here: nothing to check, nothing claimed
+        correct = O.chain(op, nums)
+    except ValueError:
+        # no one answer here (no such operation, or a remainder): nothing to check, nothing claimed
+        correct = None
     if correct is not None and ex.get("correct_answer", correct) != correct:
         # The model stated the right answer wrongly, so its wrong answer proves nothing. This keeps
         # "did not name the mistake" apart from "named it and miscounted".
@@ -334,7 +336,8 @@ def _store(conn, s, covered, proposals, meta):
             codes.update(p["matches"])
             continue
         ex = p.get("example") or {}
-        op = ex.get("op") if ex.get("op") in ("+", "-") else "any"  # "×" and no-example share 'any'
+        # a mistake of its example's operation, however it was written; with no example, of 'any'
+        op = O.sign(ex.get("op")) or "any"
         note = p["how_it_goes"] + (f" [{p['downgraded']}]" if p["downgraded"] else "")
         conn.execute(
             "insert into misconception (tenant_id, code, op, name, description, repair_hint,"
