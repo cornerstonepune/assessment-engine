@@ -5005,3 +5005,28 @@ cannot fill while `MUL.1D` holds the same questions, since a question lives in o
 
 The week-note eval's gold names the new skills for its two multiplication notes, so `bin/engine eval week_skills`
 records its score again.
+
+## M2b — measured before the build (2026-10-09)
+
+M2a is live: main `5916b28`, `migrate live` and `deploy engine` green (22:34 and 22:40 UTC); no migration in that
+slice. `bin/engine done md2a-straight-multiplication` on a database built as CI builds it: every sentence PROVED,
+`17` of 17 scenarios MET, `3` of 3 criteria PASSED (`1016 passed`, `251 cases … 0 faults`, `27 passed`); it ends
+"NOT DONE" only because this container cannot read live's migrations, which the two runs on main stand for. Its data
+waits for `bin/update-live`.
+
+What the three Advance levels need, measured:
+- **Every kind they are made of refuses ×** (`O.require`, whose default makes + and − only): a missing digit
+  (`missing_digits.py:130`), finding the mistake (`diagnosis.py:188`), an estimate (`estimate.py:18`), a one-step story
+  (`words.py:84`, and its templates are filtered to + and −), and a shortcut, whose three kinds are all + or −.
+- **Their cases name no kind**: Q07, Q08, Q11, Q16, C01–C03, C09, V01–V03, V07, B06, B08, B12, H01, H07 and Q15 carry
+  no `fmt` in their match, so the drawer finds no generator for them; addition's kind cases name theirs (X12:
+  `find_mistake`).
+- **T13 (6 × 125 in a line) cannot be an Advance**: since a × case reads the longer number and the shorter (ADR 0050),
+  every T13 question is one MUL.3D1D's Easy to Hard already hold. It joins T14 among the ways that skill's questions
+  are printed.
+- **The measuring is there already** (M1): a × question's numbers, a missing digit's boxes and solved numbers, a
+  story's shape, a planted mistake, an estimate's shape, a shortcut's `strategy` are all read by `tags.py` and
+  `md_tags.py`.
+- **The methods are a slice of their own (M2d)**: nothing renders a grid, a lattice, an array or skip counting; the
+  number line jumps only for + and −; and the two methods' mistakes, a grid cell dropped and tens partitioned as ones,
+  are neither rows nor predicted. C06, finding that second mistake, goes with them.

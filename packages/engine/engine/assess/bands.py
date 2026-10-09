@@ -6,7 +6,7 @@ sampling, and the second one would have drifted from the first.
 """
 
 import random
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 from engine.assess import counting as C
@@ -18,6 +18,7 @@ from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
 from engine.assess import operations as O
 from engine.assess import reasoning as RS
+from engine.assess import times_kinds as TK
 from engine.assess import words as W
 
 # The shapes the arithmetic sampler can render from (op, a, b) alone. A band whose check names
@@ -25,7 +26,7 @@ from engine.assess import words as W
 SAMPLER_FORMATS = ["column_grid", "bare_sum", "missing_number", "word_1step"]
 
 
-def makeable(check):
+def makeable(check: dict[str, Any]) -> bool:
     """Can any generator produce a question for this band? The one authority — `engine audit`
     and a fill must agree, or a band passes the audit and then fills nothing."""
     if check.get("cases"):
@@ -93,28 +94,30 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
         rng, rung, signal, one_of(c["op"], rng), c["hi"]),
     "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
-        rng, rung, signal, one_of(c["op"], rng), c["digits"][0], c["digits"][1], set(c["regroups"]),
+        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), set(c.get("regroups", ())),
         round_to=c.get("round_to", 10),
-        judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance")),
+        judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance"), shape=c.get("shape")),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
         rng, rung, signal, c.get("n_addends", 3), c.get("digits_each", 4)),
-    "efficient_method": lambda rng, rung, signal, c: I.efficient_method(
-        rng, rung, signal, kind=one_of(c.get("kind"), rng)),
+    "efficient_method": lambda rng, rung, signal, c: TK.shortcut(rng, rung, signal, c["strategy"], TK.digits(c) or (2, 1))
+        if c.get("strategy") else I.efficient_method(rng, rung, signal, kind=one_of(c.get("kind"), rng)),
     "word_1step": lambda rng, rung, signal, c: W.word_1step(
         rng, rung, signal, c.get("digits_max", 2), tuple(c.get("regroups", (0, 1))), structure=c.get("structure"),
-        op=one_of(c.get("op"), rng), table=c.get("table", False), digits=c.get("digits"), max_total=c.get("max_total")),
+        op=one_of(c.get("op"), rng), table=c.get("table", False), digits=TK.digits(c) or c.get("digits"),
+        max_total=c.get("max_total")),
     "word_2step": lambda rng, rung, signal, c: W.word_2step(rng, rung, signal, c["digits_max"], structure=c.get("structure")),
     "word_budget": lambda rng, rung, signal, c: W.word_budget(
         rng, rung, signal, c.get("n_costs", 3), tuple(c.get("budget_range", (5000, 12000))),
         c.get("one_cost_is_a_product", False)),
     "find_mistake": lambda rng, rung, signal, c: D.find_mistake(
-        rng, rung, signal, op=one_of(c.get("op", "+"), rng), digits=c.get("digits", [2])[0],
+        rng, rung, signal, op=one_of(c.get("op", "+"), rng), digits=TK.digits(c) or c.get("digits", [2])[0],
         planted=one_of(c["planted"], rng) if c.get("planted") else None),
     "explain_claim": lambda rng, rung, signal, c: D.explain_claim(
         rng, rung, signal, a_range=tuple(c.get("a_range", (120, 480))),
         claim_is_true=one_of(c.get("claim_is_true", [True, False]), rng), claim_topic=c.get("claim_topic", "compensation")),
     "missing_digit": lambda rng, rung, signal, c: MD.missing_digit(
-        rng, rung, signal, {**c, "op": one_of(c.get("op", "+"), rng), "width": one_of(c.get("width", 2), rng)}),
+        rng, rung, signal, {**c, "op": one_of(c.get("op", "+"), rng),
+                            "width": one_of(c.get("width") or (TK.digits(c) or (2,))[0], rng)}),
     "equation": lambda rng, rung, signal, c: EQ.equation(rng, rung, signal, one_of(c["shape"], rng), c.get("hi", 50)),
     "fact_family": lambda rng, rung, signal, c: EQ.fact_family(rng, rung, signal, one_of(c["shape"], rng), c.get("hi", 20)),
     "inverse_check": lambda rng, rung, signal, c: EQ.inverse_check(
@@ -140,7 +143,7 @@ READS = {
     "number_line_jumps": {"op", "hi"},
     "estimate_then_calc": {"op", "digits", "regroups", "round_to", "shape", "tolerance"},
     "multi_add": {"n_addends", "digits_each"},
-    "efficient_method": {"kind"},
+    "efficient_method": {"kind", "strategy"},
     "word_1step": {"digits_max", "regroups", "structure", "op", "table", "digits", "max_total"},
     "word_2step": {"digits_max", "structure"},
     "word_budget": {"n_costs", "budget_range", "one_cost_is_a_product"},
@@ -164,7 +167,7 @@ CASE_LEVEL_READS = {"cases", "within", "max_total", "digits", "digits_max", "op"
 ALWAYS = {"format", "min_items"}
 
 
-def unread_keys(check, kinds=()):
+def unread_keys(check: dict[str, Any], kinds: Iterable[str] = ()) -> list[str]:
     """The keys a level's rule sets that nothing reads. `kinds` are the kinds of question a case level's
     cases draw (their generators read the level's rule too)."""
     if check.get("cases"):
@@ -179,7 +182,7 @@ def unread_keys(check, kinds=()):
 # fmt: on
 
 
-def native_item(fmt, check, rng, rung, signal):
+def native_item(fmt: str, check: dict[str, Any], rng: random.Random, rung: str, signal: str) -> I.Item:
     if fmt not in NATIVE_GENERATORS:
         raise ValueError(f"no native generator for format {fmt!r}")
     return NATIVE_GENERATORS[fmt](rng, rung, signal, check)

@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M2b: multiplication's Advance kinds (in progress)
+
+- **Slice:** M2b (W1 gate 3). Goal `goals/md2b-times-advance.yaml`; tests `test_mul_advance.py`; ADR 0051.
+- **M2a is merged and live:** main `5916b28`, `migrate live` and `deploy engine` green; no migration in it.
+- **What changed so far:**
+  - every kind an Advance needs makes ×: a missing digit, finding the mistake, an estimate, a one-step story and a
+    shortcut, plus a long multiplication's missing row (`assess/times_kinds.py`);
+  - MUL.2D1D, MUL.3D1D and MUL.2D2D have their Advance: Hard's straight cases with the document's kind cases (C06
+    waits for M2d; T13 is printing, not a level);
+  - every case that is not a straight sum names its kind in its row.
+- **Proved without a database:** `test_mul_advance.py`, `test_mul_levels.py`, the kinds' and division's suites, the
+  type and layout gates.
+- **Next:** the database proof (a fresh build, refill, the goal's scenarios at 100%), CI, the rehearsal, merge. Then M2d.
+
 ## 2026-10-09 — M2a: straight multiplication (with M2c's re-homing)
 
 - **Slice:** M2a (W1 gate 3). Goal `goals/md2a-straight-multiplication.yaml`; tests `test_mul_levels.py`,

@@ -177,6 +177,42 @@
       "text": "{n} walks {a} steps to school every day. How many steps is that in {b} days?"
     },
     {
+      "fmt": "word_1step",
+      "structure": "RATE_TOTAL",
+      "op": "×",
+      "text": "One box of crayons costs ₹{a}. {n} buys {b} boxes. How much does {n} pay?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "RATE_TOTAL",
+      "op": "×",
+      "text": "A bus ticket to the fort costs ₹{a}. How much do {b} tickets cost?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TIMES_AS_MANY_LARGER",
+      "op": "×",
+      "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TIMES_AS_MANY_LARGER",
+      "op": "×",
+      "text": "A small jar holds {a} beads. A big jar holds {b} times as many beads. How many beads does the big jar hold?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMBINATIONS",
+      "op": "×",
+      "text": "The canteen makes {a} kinds of sandwich and {b} kinds of juice. {n} picks one sandwich and one juice. How many different pairs can {n} pick?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMBINATIONS",
+      "op": "×",
+      "text": "A shop has shirts in {a} colours and caps in {b} colours. How many different shirt-and-cap pairs can be made?"
+    },
+    {
       "fmt": "word_2step",
       "structure": "SUB_SUB",
       "op": "-",

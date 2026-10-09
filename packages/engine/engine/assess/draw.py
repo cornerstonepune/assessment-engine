@@ -27,12 +27,22 @@ from . import draw_times as T
 from . import items as I
 from . import misconceptions as M
 from . import operations as O
+from . import times_kinds as TK
 
 PLAIN = ("bare_sum", "column_grid")
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
 SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
-HINTS = ("structure", "shape", "planted", "round_to", "missing_count", "missing_in", "missing_place")
+HINTS = (
+    "structure",
+    "shape",
+    "planted",
+    "round_to",
+    "missing_count",
+    "missing_in",
+    "missing_place",
+    "strategy",
+)
 DIGITS = range(1, 5)
 OPS = {"ADD": "+", "SUB": "-", "MUL": "×"}
 LAYOUT = {
@@ -211,8 +221,12 @@ def _many(rng, alt, check, rung, k):
     )
 
 
-def _missing(rng, alt, check, rung, k):
+def _missing(
+    rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
+) -> I.Item | None:
     """A missing number (§6.1, §6.3): which number the box hides and how many digits it has."""
+    if alt.get("shape") == "MISSING_ROW":
+        return TK.missing_row(rng, rung)  # a long multiplication's second row (34 × 26 = 204 + □)
     if isinstance(alt.get("num_operands"), dict):
         return bands.native_item(
             "missing_number",
@@ -256,9 +270,11 @@ def _one_value(rng, v):
     return v
 
 
-def _native(rng, alt, check, rung, k):
+def _native(
+    rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
+) -> I.Item | None:
     fmt = rng.choice(_fmts(alt))
-    hints = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
+    hints: dict[str, Any] = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
     if alt.get("context") == "TABLE_OR_CHART":
         hints["table"] = True
     if alt.get("operation"):

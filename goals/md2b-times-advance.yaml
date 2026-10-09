@@ -1,0 +1,75 @@
+name: md2b-times-advance
+goal: >
+  The three column skills of multiplication get their Advance, each the drafted document's cases of the kinds an
+  Advance asks for: MUL.2D1D a missing digit (in the larger number, in the answer, two at once), finding the mistake
+  (products written side by side, carries left out), an estimate (the larger number rounded, the last digit), a story
+  (the cost of many, times as many) and a shortcut (× 5 as × 10 then halved, a number near a round one); MUL.3D1D a
+  missing digit in a 3-digit number and a carry onto a zero lost; MUL.2D2D the second row not moved, both numbers
+  rounded, how many digits the product has, a long multiplication's missing row and combinations. Each kind makes ×
+  as it makes + and −: a missing-digit question has exactly one answer and names the digit a child writes who forgets
+  the carry; a planted mistake is the one the predictors compute from the question's own numbers; an estimate is the
+  one its question's rounding gives; a story's shape is its template's and its answer the product; a shortcut is worked
+  the way it is named; a missing row is the second row, moved its place. Every question is, as measured, a case of
+  its level, its answer recomputed, every wrong answer a named mistake, none held by two levels, and every level fills
+  its worksheets. None of it is taught until an educator says so.
+# Written 2026-10-09, before the code: slice M2b of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M2b — measured before the build"): every kind these Advance levels are made of refuses ×
+# (a missing digit, finding the mistake, an estimate, a one-step story, a shortcut); their cases name no kind, so the
+# drawer cannot draw them; and T13 (6 × 125 in a line) is a question MUL.3D1D's Easy to Hard already hold once a × case
+# reads the longer number and the shorter (ADR 0050), so it is no Advance. The methods (grid, lattice, arrays, skip
+# counting, partitioning) are M2d, with C06, the mistake of partitioning.
+says:
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_each_advance_is_its_documents_cases_of_the_kinds_it_needs
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_every_advance_draws_its_own_cases_as_measured
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_times_advance_question_has_one_home
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_missing_digit_in_a_multiplication_has_one_answer_and_names_the_forgotten_carry
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_planted_multiplication_mistake_is_the_one_the_predictors_compute
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_shortcut_is_worked_the_way_it_is_named
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_missing_row_is_the_second_row_moved_its_place
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_an_estimate_is_the_one_its_rounding_gives
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_times_story_is_its_templates_shape_and_its_answer_the_product
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_every_times_kind_prints_its_sign
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_every_advance_fills_its_worksheets
+manual:
+  - "On live, once merged: `bin/update-live`. The three Advance levels, their questions and worksheets reach live only
+    through `engine load`, `bank refill` and `library build`."
+  - "Achal: each Advance is the drafted document's cases, except T13 (6 × 125 in a line), which is a question the
+    skill's Easy to Hard already hold and is now among the ways they are printed; and C06 (partitioning, tens taken as
+    ones), which joins with the methods in M2d. Say if any of it belongs elsewhere."
+scenarios:
+  - name: MUL.2D1D, Advance — missing digits, the mistake found, estimates, stories, shortcuts
+    skill_set: MUL.2D1D
+    difficulty: Advance
+    n: 24
+    cases: [Q07, Q08, Q11, C01, C02, V01, V07, B06, B08, H01, H07]
+  - name: MUL.3D1D, Advance — a missing digit in a 3-digit number, a carry onto a zero lost
+    skill_set: MUL.3D1D
+    difficulty: Advance
+    n: 20
+    cases: [Q16, C09]
+  - name: MUL.2D2D, Advance — the second row not moved, rounding both, how many digits, a missing row, combinations
+    skill_set: MUL.2D2D
+    difficulty: Advance
+    n: 20
+    cases: [C03, V02, V03, Q15, B12]
+criteria:
+  - name: the three Advance levels, their kinds, mistakes and printing; the taxonomy, labels and levels they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_mul_advance.py tests/test_mul_levels.py tests/test_mul_mistakes.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_every_skill.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

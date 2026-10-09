@@ -2,7 +2,9 @@
 
 `find_mistake` shows another child's worked answer with one named mistake planted in it. The mistake is
 chosen (`planted`) from every one the taxonomy's §11 lists and the predictors can compute: a column
-slip in addition or subtraction, numbers lined up from the left, a carry of 1 where the column needs 2,
+slip in addition, subtraction or multiplication (`assess/mul_mistakes.py`: products side by side, carries left
+out, a carry onto a zero lost, the second row not moved), numbers lined up from the left, a carry of 1 where the
+column needs 2,
 a subtraction turned round, a missing digit that works in its own column only, = read as "the answer
 comes next". A column answer asks which digit of the child's answer is wrong first — a column the
 engine can check — then the right answer, then why.
@@ -10,9 +12,12 @@ engine can check — then the right answer, then why.
 `explain_claim` asks whether a statement about a calculation is true, and why (moved from `items.py`).
 """
 
+import random
+from collections.abc import Callable
+
 from . import misconceptions as M
 from . import operations as O
-from .items import Response, cells, item, sample_add, sample_sub
+from .items import Item, Response, cells, item, sample_add, sample_sub
 
 NAMES = ["Ishaan", "Anaya", "Vihaan", "Saee", "Tara", "Arjun"]
 COLUMNS = ["ones", "tens", "hundreds", "thousands", "ten-thousands"]
@@ -27,6 +32,10 @@ COLUMN_SLIPS = {
         "M_ZERO_DROPPED",
     ],
 }
+# a multiplication's: the number of digits each number has is its level's (2 × 1, 3 × 1, 2 × 2)
+COLUMN_SLIPS["×"] = ["M_MUL_NO_CARRY", "M_MUL_CONCAT", "M_MUL_CARRY_ONTO_ZERO_LOST", "M_MUL_PLACEHOLDER"]
+# the numbers a × slip needs when no level says: a zero for the carry to land on, a second row to leave unmoved
+NEEDS = {"M_MUL_CARRY_ONTO_ZERO_LOST": (3, 1), "M_MUL_PLACEHOLDER": (2, 2)}
 ACROSS_ZERO = {"M_ZERO_LENDER", "M_ZERO_NOT_NINE"}
 ALIGNED = {"M_ALIGN_LEFT", "M_H2V_SHIFT"}
 SHAPES = {
@@ -35,10 +44,10 @@ SHAPES = {
     "M_MISSING_DIGIT_LOCAL": "digit",
     "M_EQUALS_MEANS_ANSWER": "equals",
 }
-PLANTABLE = set(COLUMN_SLIPS["+"]) | set(COLUMN_SLIPS["-"]) | ALIGNED | set(SHAPES)
+PLANTABLE = set(COLUMN_SLIPS["+"]) | set(COLUMN_SLIPS["-"]) | set(COLUMN_SLIPS["×"]) | ALIGNED | set(SHAPES)
 
 
-def _first_wrong_column(right, wrong):
+def _first_wrong_column(right: int, wrong: int) -> int:
     r, w = str(right)[::-1], str(wrong)[::-1]
     for i in range(max(len(r), len(w))):
         if (r[i : i + 1] or "0") != (w[i : i + 1] or "0"):
@@ -59,17 +68,20 @@ def _where(right, wrong):
 
 
 def _why(code):
-    name = M.ADD_PREDICTORS.get(code) or M.SUB_PREDICTORS.get(code) or M.MULTI_PREDICTORS.get(code)
+    name = next((t[code] for t in (*M.TABLES.values(), M.MULTI_PREDICTORS) if code in t), None)
     return Response("why", "text", None, rubric=f"Names the mistake: {name[1] if name else code}")
 
 
-def _spread(rng, draw, what, tries=80, enough=10):
+def _spread[T](
+    rng: random.Random, draw: Callable[[], tuple[int, T] | None], what: str, tries: int = 80, enough: int = 10
+) -> T:
     """One of `tries` drawn candidates, its column chosen evenly among the columns the candidates' first wrong
     digit falls in. Asked "which column is the first wrong digit in?", a child who ticks the same box every time
     must not score: drawn as they come, a carry of 2 was always in the tens and a smaller-from-larger slip in the
     ones 83 times in 100 (`engine audit`, 2026-09-23). A mistake that can only ever show in one column (a
     dropped final carry) still does; a level mixes it with others."""
-    by, kept = {}, 0
+    by: dict[int, list[T]] = {}
+    kept = 0
     for _ in range(tries):
         got = draw()
         if got is not None:
@@ -83,7 +95,29 @@ def _spread(rng, draw, what, tries=80, enough=10):
     return rng.choice(by[rng.choice(sorted(by))])
 
 
-def _column(rng, code, op, digits):
+def _times(rng: random.Random, code: str, sizes: tuple[int, int]) -> tuple[int, int]:
+    """A multiplication of these digit counts, no table fact and nothing round, a carry onto a zero where that is
+    the mistake: 506 × 7."""
+    d1, d2 = sizes
+    a = rng.randint(10 ** (d1 - 1), 10**d1 - 1)
+    if code == "M_MUL_CARRY_ONTO_ZERO_LOST" and d1 >= 3:
+        a = a - (a // 10 % 10) * 10  # the tens a zero
+    b = rng.randint(2 if d2 == 1 else 10 ** (d2 - 1), 10**d2 - 1)
+    return (a, b) if a > 12 and a % 10 and b % 10 else _times(rng, code, sizes)
+
+
+def _times_column(rng: random.Random, code: str, sizes: tuple[int, int]) -> tuple[int, int, dict[str, int]]:
+    """A multiplication of these digit counts whose worked answer this slip gets wrong."""
+
+    def draw() -> tuple[int, tuple[int, int, dict[str, int]]] | None:
+        a, b = _times(rng, code, sizes)
+        mis = M.predict("×", a, b)
+        return (_first_wrong_column(a * b, mis[code]), (a, b, mis)) if code in mis else None
+
+    return _spread(rng, draw, f"{sizes[0]} × {sizes[1]} digits with {code}")
+
+
+def _column(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
     """A two-number calculation in columns whose answer this mistake would get wrong."""
 
     def draw():
@@ -99,7 +133,7 @@ def _column(rng, code, op, digits):
     return _spread(rng, draw, f"{digits}-digit {op} with {code}")
 
 
-def _aligned(rng, code, op, digits):
+def _aligned(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
     for _ in range(400):
         short = rng.randint(1, max(1, digits - 1))
         a, b = (sample_add if op == "+" else sample_sub)(rng, max(digits, 2), short, {0, 1, 2})
@@ -181,11 +215,18 @@ def _shaped(rng, code, name):
     return stem, spec, [ans, _why(code)]
 
 
-def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
+def find_mistake(
+    rng: random.Random,
+    rung: str,
+    signal: str,
+    op: str = "+",
+    digits: int | tuple[int, int] = 2,
+    planted: str | None = None,
+) -> Item:
     """A worked answer with one named mistake; the child finds it, corrects it and says why.
 
     With no `planted` mistake the choice is the two column slips of its operation, as it always was."""
-    op = O.require("find_mistake", op)
+    op = O.require("find_mistake", op, makes=("+", "-", "×"))
     name = rng.choice(NAMES)
     code = planted or rng.choice(COLUMN_SLIPS[op][:2])
     if code not in PLANTABLE:
@@ -193,13 +234,21 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
     if code in SHAPES:
         stem, spec, rs = _shaped(rng, code, name)
         return item("FTM", rung, "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
-    if code in ALIGNED:
-        a, b, mis = _aligned(rng, code, op, max(digits, 2))
+    width = digits if isinstance(digits, int) else digits[0]
+    if code in COLUMN_SLIPS["×"]:  # a slip only multiplication makes decides the operation, and its numbers
+        op = "×"
+        a, b, mis = _times_column(
+            rng, code, digits if isinstance(digits, tuple) else NEEDS.get(code, (width, 1))
+        )
+    elif op == "×":
+        raise O.CannotMake(f"{code} is not a mistake a multiplication's worked answer shows")
+    elif code in ALIGNED:
+        a, b, mis = _aligned(rng, code, op, max(width, 2))
     else:
         if code not in COLUMN_SLIPS[op]:
             op = "-" if op == "+" else "+"  # a slip only one operation can make decides the operation
         wide = code == "M_EXCHANGE_WRONG_PLACE" or code in ACROSS_ZERO  # both need a hundreds column
-        a, b, mis = _column(rng, code, op, max(digits, 3) if wide else digits)
+        a, b, mis = _column(rng, code, op, max(width, 3) if wide else width)
     wrong = mis[code]
     right = M.compute(op, a, b)
     rs = [
@@ -215,9 +264,7 @@ def find_mistake(rng, rung, signal, op="+", digits=2, planted=None):
         _why(code),
     ]
     lined = " (written in a line, then copied into columns)" if code == "M_H2V_SHIFT" else ""
-    stem = (
-        f"{name} worked out {a} {'−' if op == '-' else op} {b}{lined} and wrote {wrong}. That is not right."
-    )
+    stem = f"{name} worked out {a} {O.PRINTED[op]} {b}{lined} and wrote {wrong}. That is not right."
     return item(
         "FTM",
         rung,  # the rung of the skill it practises: X2 on its own, a calculation skill's rung in its Advance

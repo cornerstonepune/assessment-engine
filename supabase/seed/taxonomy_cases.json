@@ -8059,6 +8059,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "bare_sum",
         "operation": "MUL",
         "fact": "YES",
         "context": "TABLE_OR_CHART"
@@ -10538,6 +10539,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "bare_sum",
         "operation": "DIV",
         "shape": "HOW_MANY_GROUPS",
         "fact": "YES"
@@ -11823,6 +11825,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "inverse_check",
         "operation": "DIV",
         "reasoning_type": "INVERSE",
         "remainder": [
@@ -11884,6 +11887,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "MUL",
         "method": "GROUPS"
       }
@@ -11906,6 +11910,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "MUL",
         "method": "REPEATED_ADDITION"
       }
@@ -11928,6 +11933,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "bare_sum",
         "operation": "MUL",
         "method": "SKIP_COUNTING"
       }
@@ -11950,6 +11956,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "number_line_jumps",
         "operation": "MUL",
         "method": "NUMBER_LINE"
       }
@@ -11972,6 +11979,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "MUL",
         "method": "ARRAY"
       }
@@ -11994,6 +12002,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "method": "DOUBLING"
       }
@@ -12016,6 +12025,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "break_apart",
         "operation": "MUL",
         "method": "PARTITIONING"
       }
@@ -12039,6 +12049,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "GRID",
         "operand_2_digits": 1
@@ -12063,6 +12074,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "GRID",
         "operand_2_digits": 2
@@ -12087,6 +12099,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "EXPANDED"
       }
@@ -12110,6 +12123,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "COLUMNS"
       }
@@ -12133,6 +12147,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "LONG_MULTIPLICATION"
       }
@@ -12156,6 +12171,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "MUL",
         "method": "LATTICE"
       }
@@ -12179,6 +12195,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "SWAP_TO_A_KNOWN_TABLE"
       }
     },
@@ -12200,6 +12217,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "DIV",
         "method": "SHARING"
       }
@@ -12222,6 +12240,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "DIV",
         "method": "GROUPING"
       }
@@ -12244,6 +12263,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "bare_sum",
         "operation": "DIV",
         "method": "REPEATED_SUBTRACTION"
       }
@@ -12266,6 +12286,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "number_line_jumps",
         "operation": "DIV",
         "method": "NUMBER_LINE"
       }
@@ -12288,6 +12309,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equal_groups",
         "operation": "DIV",
         "method": "ARRAY"
       }
@@ -12309,6 +12331,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "inverse_check",
         "operation": "DIV",
         "reasoning_type": "INVERSE",
         "fact": "YES"
@@ -12332,6 +12355,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "break_apart",
         "operation": "DIV",
         "method": "PARTITION_DIVIDEND"
       }
@@ -12355,6 +12379,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "DIV",
         "method": "CHUNKING"
       }
@@ -12378,6 +12403,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "DIV",
         "method": "SHORT_DIVISION"
       }
@@ -12401,6 +12427,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "column_grid",
         "operation": "DIV",
         "method": "LONG_DIVISION"
       }
@@ -12423,6 +12450,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "DIV",
         "method": "HALVING"
       }
@@ -12442,6 +12470,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "MUL",
         "unknown_position": "SECOND_OPERAND",
         "fact": "YES",
@@ -12463,6 +12492,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "MUL",
         "unknown_position": "FIRST_OPERAND",
         "fact": "YES",
@@ -12484,6 +12514,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "DIV",
         "unknown_position": "FIRST_OPERAND",
         "remainder": "NONE"
@@ -12504,6 +12535,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "DIV",
         "unknown_position": "SECOND_OPERAND",
         "remainder": "NONE"
@@ -12524,6 +12556,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "DIV",
         "answer_first": "YES"
       }
@@ -12543,6 +12576,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "MUL",
         "unknown_position": "MULTIPLE"
       }
@@ -12569,6 +12603,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "MUL",
         "missing_in": "FIRST",
         "missing_count": 1,
@@ -12597,6 +12632,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "MUL",
         "missing_in": "RESULT",
         "missing_count": 1
@@ -12624,6 +12660,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "DIV",
         "missing_in": "FIRST",
         "missing_count": 1
@@ -12651,6 +12688,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "DIV",
         "missing_in": "RESULT",
         "missing_count": 1
@@ -12678,6 +12716,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "MUL",
         "missing_count": 2
       }
@@ -12697,6 +12736,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "DIV",
         "unknown_position": "REMAINDER"
       }
@@ -12716,6 +12756,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "DIV",
         "unknown_position": "SECOND_OPERAND",
         "remainder": [
@@ -12739,6 +12780,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "operation": "MUL",
         "unknown_position": "SECOND_OPERAND",
         "place_value_factor": [
@@ -12768,6 +12810,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_number",
         "shape": "MISSING_ROW"
       }
     },
@@ -12793,6 +12836,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "missing_digit",
         "operation": "MUL",
         "missing_in": "FIRST",
         "missing_count": 1,
@@ -12818,6 +12862,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "ORDER"
       }
     },
@@ -12840,6 +12885,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "GROUPED_EITHER_WAY"
       }
     },
@@ -12863,6 +12909,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "PARTITION_A_FACTOR"
       }
     },
@@ -12921,6 +12968,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "BY_ONE"
       }
     },
@@ -12943,6 +12991,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "BY_ITSELF_AND_OF_ZERO"
       }
     },
@@ -12965,6 +13014,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "TRUE_FALSE_DIVIDE_BY_ZERO"
       }
     },
@@ -12987,6 +13037,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "TRUE_FALSE_DIVISION_ORDER"
       }
     },
@@ -13008,6 +13059,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "fact_family",
         "operation": "MUL",
         "shape": "FROM_MULTIPLICATION"
       }
@@ -13029,6 +13081,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "inverse_check",
         "operation": "DIV",
         "reasoning_type": "INVERSE",
         "fact": "NO",
@@ -13055,6 +13108,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "BALANCE_TIMES_AND_MINUS"
       }
     },
@@ -13078,6 +13132,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "BALANCE_TIMES_AND_DIVIDE"
       }
     },
@@ -13101,6 +13156,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "MISSING_SIGN"
       }
     },
@@ -13124,6 +13180,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "COMPARE"
       }
     },
@@ -13146,6 +13203,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "DOUBLE_A_FACTOR"
       }
     },
@@ -13168,6 +13226,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "equation",
         "shape": "TRUE_FALSE_ORDER"
       }
     },
@@ -13191,6 +13250,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "MULTIPLES"
       }
     },
@@ -13214,6 +13274,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "IS_A_MULTIPLE"
       }
     },
@@ -13236,6 +13297,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "FACTORS"
       }
     },
@@ -13258,6 +13320,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "FACTOR_PAIRS"
       }
     },
@@ -13284,6 +13347,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "COMMON_MULTIPLES"
       }
     },
@@ -13306,6 +13370,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "DIVISIBLE_BY_2_5_10"
       }
     },
@@ -13328,6 +13393,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "multiples",
         "shape": "DIVISIBLE_BY_3"
       }
     },
@@ -13349,6 +13415,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "odd_even",
         "operation": "MUL",
         "shape": "PARITY_OF_A_PRODUCT"
       }
@@ -13371,6 +13438,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "TIMES_TEN_THEN_HALVE"
       }
@@ -13393,6 +13461,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "TIMES_TEN_LESS_A_GROUP"
       }
@@ -13415,6 +13484,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "TIMES_TEN_AND_A_GROUP"
       }
@@ -13437,6 +13507,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "DOUBLE_ONE_HALVE_THE_OTHER"
       }
@@ -13459,6 +13530,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "DOUBLE_THREE_TIMES"
       }
@@ -13481,6 +13553,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "TIMES_HUNDRED_THEN_QUARTER"
       }
@@ -13503,6 +13576,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "COMPENSATION"
       }
@@ -13525,6 +13599,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "FACT_DERIVED"
       }
@@ -13547,6 +13622,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "DIV",
         "strategy": "DIVIDE_BY_TEN_THEN_DOUBLE"
       }
@@ -13569,6 +13645,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "efficient_method",
         "operation": "MUL",
         "strategy": "SCALED_FACT"
       }
@@ -13591,6 +13668,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "MUL",
         "shape": "ROUND_ONE"
       }
@@ -13613,6 +13691,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "MUL",
         "shape": "ROUND_BOTH"
       }
@@ -13635,6 +13714,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "MUL",
         "shape": "ANSWER_DIGITS"
       }
@@ -13657,6 +13737,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "DIV",
         "shape": "ANSWER_DIGITS"
       }
@@ -13679,8 +13760,8 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "operation": "MUL",
-        "fmt": "possible_answer"
+        "fmt": "possible_answer",
+        "operation": "MUL"
       }
     },
     {
@@ -13700,8 +13781,8 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "operation": "MUL",
-        "fmt": "odd_even"
+        "fmt": "odd_even",
+        "operation": "MUL"
       }
     },
     {
@@ -13722,6 +13803,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "MUL",
         "shape": "LAST_DIGIT"
       }
@@ -13748,8 +13830,8 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "operation": "MUL",
-        "fmt": "choose_estimate"
+        "fmt": "choose_estimate",
+        "operation": "MUL"
       }
     },
     {
@@ -13770,8 +13852,8 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "operation": "DIV",
-        "fmt": "possible_answer"
+        "fmt": "possible_answer",
+        "operation": "DIV"
       }
     },
     {
@@ -13792,6 +13874,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "estimate_then_calc",
         "operation": "DIV",
         "shape": "ROUND_ONE"
       }
@@ -13814,6 +13897,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "EQUAL_GROUPS"
       }
@@ -13836,6 +13920,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "SHARING"
       }
@@ -13858,6 +13943,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
         "remainder": "NONE"
@@ -13881,6 +13967,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "ARRAY"
       }
@@ -13903,6 +13990,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "ARRAY"
       }
@@ -13925,6 +14013,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "RATE_TOTAL"
       }
@@ -13947,6 +14036,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "RATE_UNIT"
       }
@@ -13969,6 +14059,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "TIMES_AS_MANY_LARGER"
       }
@@ -13991,6 +14082,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "TIMES_AS_MANY_SMALLER"
       }
@@ -14013,6 +14105,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "HOW_MANY_TIMES"
       }
@@ -14035,6 +14128,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "TWICE_AS_MANY"
       }
@@ -14057,6 +14151,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "COMBINATIONS"
       }
@@ -14079,6 +14174,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "AREA"
       }
@@ -14102,6 +14198,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
         "remainder_use": "ROUND_DOWN"
@@ -14126,6 +14223,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
         "remainder_use": "ROUND_UP"
@@ -14150,6 +14248,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
         "remainder_use": "REMAINDER_ASKED"
@@ -14174,6 +14273,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
         "remainder_use": "BOTH_ASKED"
@@ -14201,6 +14301,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "MULTIPLY_THEN_ADD"
       }
     },
@@ -14226,6 +14327,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "MULTIPLY_THEN_SUBTRACT"
       }
     },
@@ -14251,6 +14353,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "DIVIDE_THEN_MULTIPLY"
       }
     },
@@ -14278,6 +14381,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "TWO_PRODUCTS_ADDED"
       }
     },
@@ -14303,6 +14407,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "ADD_THEN_DIVIDE"
       }
     },
@@ -14326,6 +14431,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_2step",
         "structure": "BAR_MODEL_TIMES_AS_MANY"
       }
     },
@@ -14347,6 +14453,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING_BY_EACH"
       }
@@ -14370,6 +14477,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "EXTRA_INFORMATION"
       }
@@ -14393,6 +14501,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "MUL",
         "structure": "RATE_TOTAL",
         "context": "TABLE_OR_CHART"
@@ -14416,6 +14525,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "word_1step",
         "operation": "DIV",
         "structure": "HALF_AS_MANY"
       }
@@ -14439,6 +14549,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "MUL",
         "planted": "M_MUL_CONCAT"
       }
@@ -14462,6 +14573,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "MUL",
         "planted": "M_MUL_NO_CARRY"
       }
@@ -14485,6 +14597,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "MUL",
         "planted": "M_MUL_PLACEHOLDER"
       }
@@ -14508,6 +14621,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "DIV",
         "planted": "M_DIV_QUOTIENT_ZERO_DROPPED"
       }
@@ -14531,6 +14645,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "DIV",
         "planted": "M_DIV_REMAINDER_TOO_BIG"
       }
@@ -14554,6 +14669,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "MUL",
         "planted": "M_PARTITION_TENS_AS_ONES"
       }
@@ -14577,6 +14693,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "DIV",
         "planted": "M_DIV_BRING_DOWN_MISSED"
       }
@@ -14602,8 +14719,8 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "operation": "DIV",
-        "fmt": "explain_claim"
+        "fmt": "explain_claim",
+        "operation": "DIV"
       }
     },
     {
@@ -14625,6 +14742,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
+        "fmt": "find_mistake",
         "operation": "MUL",
         "planted": "M_MUL_CARRY_ONTO_ZERO_LOST"
       }

@@ -7,31 +7,38 @@ how many digits could go in the box). Deterministic given an RNG.
 
 Every box names a wrong answer a child could write: the digit that works in its own column when the
 carry or the exchange from the column to its right is forgotten (M_MISSING_DIGIT_LOCAL), or, where no
-regroup reaches it, a fact one out.
+regroup reaches it, a fact one out. A multiplication by one digit (goals/md2b-times-advance.yaml) hides digits of
+the larger number or of the answer, and names the other digit its column alone allows: 2□ × 4 = 92, where 8 × 4
+ends in 2 as 3 × 4 does; it asks only where there is one.
 """
 
 import itertools
+import random
+from typing import Any
 
 from . import misconceptions as M
 from . import operations as O
-from .items import Response, item, sample_add, sample_sub
+from .items import Item, Response, item, sample_add, sample_sub
 
 ROWS = ("FIRST", "SECOND", "RESULT")
 PLACES = ["ONES", "TENS", "HUNDREDS", "THOUSANDS"]
 
 
-def _calc(op, a, b):
-    return a + b if op == "+" else a - b
+def _calc(op: str, a: int, b: int) -> int:
+    return O.compute(op, a, b)
 
 
-def _numbers(rng, op, width, regroups):
+def _numbers(rng: random.Random, op: str, width: int, regroups: Any) -> tuple[int, int]:
+    if op == "×":  # a number that is no table fact and not round, times one digit
+        a = rng.randint(10 ** (width - 1), 10**width - 1)
+        return (a, rng.randint(2, 9)) if a > 12 and a % 10 else _numbers(rng, op, width, regroups)
     if op == "+":
         return sample_add(rng, width, width, set(regroups))
     # a zero in the top number's lender column half the time, where there is one (§6.4: 4□2 − 185)
     return sample_sub(rng, width, width, set(regroups), across_zero=width >= 3 and rng.random() < 0.5)
 
 
-def _carry_into(op, a, b, col):
+def _carry_into(op: str, a: int, b: int, col: int) -> int:
     """The carry (addition) or the exchange (subtraction) arriving at column `col` from its right."""
     w = max(len(str(a)), len(str(b)))
     da, db = M.digits(a, w), M.digits(b, w)
@@ -44,7 +51,7 @@ def _carry_into(op, a, b, col):
     return carry
 
 
-def _local(op, row, col, a, b, c):
+def _local(op: str, row: str, col: int, a: int, b: int, c: int) -> int:
     """The digit a child writes in this box by working its column alone, without the regroup from the right."""
     w = max(len(str(a)), len(str(b)), len(str(c)))
     da, db, dc = M.digits(a, w), M.digits(b, w), M.digits(c, w)
@@ -56,7 +63,7 @@ def _local(op, row, col, a, b, c):
     return (dc[col] + db[col]) % 10 if row == "FIRST" else (da[col] - dc[col]) % 10
 
 
-def _masked(numbers, hidden):
+def _masked(numbers: dict[str, int], hidden: list[tuple[str, int]]) -> dict[str, str]:
     """Each row's digits with the hidden places boxed, left to right."""
     out = {}
     for row, n in numbers.items():
@@ -68,7 +75,7 @@ def _masked(numbers, hidden):
     return out
 
 
-def _solutions(op, masks):
+def _solutions(op: str, masks: dict[str, str]) -> list[tuple[int, ...]]:
     """Every digit filling that makes the boxed calculation true (a leading box is never 0)."""
     slots = [(row, i) for row in ROWS for i, ch in enumerate(masks[row]) if ch == "□"]
     found = []
@@ -84,14 +91,19 @@ def _solutions(op, masks):
     return found
 
 
-def _choose(rng, numbers, missing_count, missing_in, missing_place):
+def _choose(
+    rng: random.Random,
+    numbers: dict[str, int],
+    missing_count: int,
+    missing_in: str | None,
+    missing_place: str | None,
+) -> list[tuple[str, int]] | None:
     rows = missing_in.split("+") if missing_in else None
+    pair = (
+        ["FIRST", "RESULT"] if "SECOND" not in numbers else ["FIRST", "SECOND"]
+    )  # × hides no digit of its 1
     if rows is None:
-        rows = (
-            rng.sample(["FIRST", "SECOND"], 1)
-            if missing_count == 1
-            else ["FIRST", "SECOND"] + (["RESULT"] if missing_count > 2 else [])
-        )
+        rows = rng.sample(pair, 1) if missing_count == 1 else pair + (["RESULT"] if missing_count > 2 else [])
     if len(rows) > missing_count:
         return None
     hidden = []
@@ -109,7 +121,32 @@ def _choose(rng, numbers, missing_count, missing_in, missing_place):
     return hidden
 
 
-def _boxes(op, a, b, c, hidden):
+def _times_local(row: str, col: int, a: int, b: int, c: int) -> int | None:
+    """The one digit other than the right one that a × box's column allows alone, or None (see the module)."""
+    da, dc = str(a)[::-1], str(c)[::-1]
+    if row == "RESULT":
+        fits = {int(da[col]) * b % 10} if col < len(da) else set()
+        right = int(dc[col])
+    else:
+        lead = col == len(da) - 1  # the lead digit makes the whole rest of the answer, carry and all
+        fits = {x for x in range(10) if (x * b == c // 10**col if lead else x * b % 10 == int(dc[col]))}
+        right = int(da[col])
+    others = fits - {right}
+    return next(iter(others)) if len(others) == 1 else None
+
+
+def _boxes(op: str, a: int, b: int, c: int, hidden: list[tuple[str, int]]) -> list[Response]:
+    if op == "×":
+        order = sorted(hidden, key=lambda h: (ROWS.index(h[0]), -h[1]))
+        rs = []
+        for k, (row, col) in enumerate(order, 1):
+            right = M.digits({"FIRST": a, "RESULT": c}[row], 4)[col]
+            local = _times_local(row, col, a, b, c)
+            mis = {"M_MISSING_DIGIT_LOCAL": local} if local is not None else {}
+            rs.append(Response(f"d{k}", "digits", str(right), cells=1, label=f"box {k}", misconceptions=mis))
+        if not any(r.misconceptions for r in rs):
+            raise RuntimeError("no box names a digit a child could write")
+        return rs
     rs = []
     order = sorted(hidden, key=lambda h: (ROWS.index(h[0]), -h[1]))
     for k, (row, col) in enumerate(order, 1):
@@ -124,24 +161,26 @@ def _boxes(op, a, b, c, hidden):
     return rs
 
 
-def missing_digit(rng, rung, signal, rule):
+def missing_digit(rng: random.Random, rung: str, signal: str, rule: dict[str, Any]) -> Item:
     """One missing-digit question for a level's `rule` (op, width, missing_count, missing_in,
     missing_place, shape, regroups). Raises RuntimeError when this draw's numbers cannot make it."""
-    op = O.require("missing_digit", rule.get("op", "+"))
+    op = O.require("missing_digit", rule.get("op", "+"), makes=("+", "-", "×"))
     a, b = _numbers(rng, op, rule.get("width", 2), rule.get("regroups", (0, 1, 2)))
     c = _calc(op, a, b)
+    if op == "×" and rule.get("shape"):
+        raise O.CannotMake(f"a multiplication's missing digits have no {rule['shape']} shape")
     if rule.get("shape") == "SAME_LETTER":
         return _same_letter(rng, rung, signal, op, (a, b, c))
     if rule.get("shape") == "INEQUALITY":
         return _inequality(rng, rung, signal, op, (a, b))
     solved = {"a": a, "b": b}
-    numbers = {"FIRST": a, "SECOND": b, "RESULT": c}
+    numbers = {"FIRST": a, "RESULT": c} if op == "×" else {"FIRST": a, "SECOND": b, "RESULT": c}
     hidden = _choose(
         rng, numbers, int(rule.get("missing_count", 1)), rule.get("missing_in"), rule.get("missing_place")
     )
     if not hidden:
         raise RuntimeError("this shape does not fit these numbers")
-    masks = _masked(numbers, hidden)
+    masks = _masked(numbers, hidden) | ({"SECOND": str(b)} if op == "×" else {})
     if len(_solutions(op, masks)) != 1:
         raise RuntimeError("more than one filling works; not a fair question")
     spec = dict(a=masks["FIRST"], b=masks["SECOND"], c=masks["RESULT"], op=op, solved=solved)
@@ -157,7 +196,7 @@ def missing_digit(rng, rung, signal, rule):
     )
 
 
-def _same_letter(rng, rung: str, signal: str, op, numbers):
+def _same_letter(rng: random.Random, rung: str, signal: str, op: str, numbers: tuple[int, int, int]) -> Item:
     """A5 + 2A = 88: the tens of the first number and the ones of the second are one digit."""
     a, b, c = numbers
     solved = {"a": a, "b": b}
@@ -179,7 +218,7 @@ def _same_letter(rng, rung: str, signal: str, op, numbers):
     return item("MISSING.LETTER", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
 
 
-def _inequality(rng, rung: str, signal: str, op, numbers):
+def _inequality(rng: random.Random, rung: str, signal: str, op: str, numbers: tuple[int, int]) -> Item:
     """3□ + 27 < 70 (addition) or 7□ − 25 > 50 (subtraction): how many digits could go in the box?"""
     a, b = numbers
     solved = {"a": a, "b": b}
@@ -217,7 +256,7 @@ def _inequality(rng, rung: str, signal: str, op, numbers):
     return item("MISSING.INEQ", rung, signal, "missing_digit", stem, spec, rs, working_lines=2)
 
 
-def one(rng, rung, signal, rule, tries=300):
+def one(rng: random.Random, rung: str, signal: str, rule: dict[str, Any], tries: int = 300) -> Item:
     """A missing-digit question for this rule, drawing again until one is fair — the old generator's
     promise to the week's blueprints, which ask for one and expect it."""
     for _ in range(tries):
