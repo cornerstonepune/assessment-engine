@@ -19,7 +19,7 @@ from pathlib import Path
 
 from engine.adapters import ocr
 from engine.core import db
-from engine.w3_read import legacy, marking, profiles, stencil
+from engine.w3_read import legacy, marking, profiles, reread, stencil
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
 ASSESSMENTS = "~/cornerstone/assessments"
@@ -48,7 +48,12 @@ def gold_sheets(conn=None):
     by_file = {_resolved(f): s for s in sheets for f in (s.get("files") or [s["file"]])}
     # A sign-off is a person saying the reader's reading is what the child wrote (ADR 0032); where a
     # typed correction exists for the same answer it comes second and wins.
+    # A gold sheet is an old paper's, its answers named by the paper's own question numbers: a library worksheet's
+    # questions are numbered per copy, not in their keys, and are not re-read by this eval.
+    old = reread.old_papers(conn)
     for row in [*profiles.signed_off(conn), *marking.corrections(conn)]:
+        if row["paper"] not in old:
+            continue
         key = row["item_key"].rsplit("/", 1)[1]
         sheet = by_file.get(_resolved(row["path"]))
         if sheet is None:

@@ -16,7 +16,7 @@ says:
   - words: "create the whole loop that we have"
     proved_by: packages/engine/tests/test_every_answer.py::test_each_answer_signed_off_is_its_own_evidence
   - words: "consider all of the methods for now"
-    proved_by: packages/engine/tests/test_every_answer.py::test_every_answer_of_a_question_is_read_in_its_own_boxes
+    proved_by: packages/engine/tests/test_each_answer.py::test_every_answer_of_a_question_is_read_in_its_own_boxes
   - words: "this is a good test as to how our flow works"
     proved_by: packages/engine/tests/test_every_answer.py::test_every_answer_names_a_response_of_its_question
 manual:
@@ -24,8 +24,8 @@ manual:
     asking for more than one answer was never read. Its scan's Drive link sent to `POST /read/file` with `again: true` reads it afresh
     so they get rows; a copy a person already worked on stays as they left it (`copies.read`, `again`)."
 criteria:
-  - name: every answer read, marked, shown and counted on its own; the copies, marking and re-marking it touches
-    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_every_answer.py tests/test_copies.py tests/test_keys.py tests/test_boxes.py tests/test_legacy.py tests/test_crops.py tests/test_learned_mistakes.py tests/test_gold.py
+  - name: every answer read, marked, shown and counted on its own; the reading, marking, naming, notebook, report and roles it touches
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_every_answer.py tests/test_each_answer.py tests/test_copies.py tests/test_keys.py tests/test_boxes.py tests/test_legacy.py tests/test_crops.py tests/test_learned_mistakes.py tests/test_gold.py tests/test_second_reader.py tests/test_profiles.py tests/test_read_eval.py tests/test_read_again.py tests/test_report.py tests/test_mistake_guess.py tests/test_roles.py tests/test_audit.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

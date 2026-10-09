@@ -27,6 +27,15 @@ def _answers(conn):
     return {(r["paper"], r["item_id"], r["rid"]): r for r in rows}
 
 
+def old_papers(conn):
+    """The codes of the papers entered by hand (`engine legacy paper`): the only ones read from their paper's rows, and
+    so the only ones the replay and the reading eval can read again. A library worksheet's copy is read by `copies`,
+    and read afresh by sending its scan again (`POST /read/file`, `again`); here it fails, and is reported."""
+    return {
+        r["batch_id"] for r in conn.execute("select batch_id from sheet_template where source = 'legacy'")
+    }
+
+
 def files(conn, only=None):
     """Every live scan with its child, its paper and the pages its answers land on."""
     rows = conn.execute(

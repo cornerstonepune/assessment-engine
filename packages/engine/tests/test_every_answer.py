@@ -6,138 +6,36 @@ read, and wherever a result was marked or shown its question's first answer stoo
 read in its own boxes, marked against its own key, waits for a person where the engine cannot read it, and counts as its
 own evidence.
 
-The unit tests need nothing; the box test prints a real paper and stands a shape-matcher in for the reader
-(`test_boxes`); the end-to-end tests print a library worksheet and stand both readers in (`test_copies`), so they are
-about where each answer lands and how it is marked, not about handwriting.
+These print a library worksheet and stand both readers in (`test_copies`), so they are about where each answer lands and
+how it is marked, shown and counted, not about handwriting. Each answer on its own, with no database, is
+`test_each_answer.py`.
 """
 
+import json
 import os
-import random
 import uuid
 
 import pymupdf
 import pytest
 
 from engine.adapters import ocr
-from engine.assess import diagnosis, equality, estimate, geometry
-from engine.assess.pick import Sheet
-from engine.assess.render import render_sheet
 from engine.checks import audit
 from engine.core import db
+from engine.w1_bank import learned, mistake_guess
 from engine.w2_print import library
-from engine.w3_read import again, boxes, copies, keys, marking, render_pdf, second_reader
-from tests.test_boxes import StandIn, _scanned, _write
+from engine.w3_read import (
+    again,
+    boxes,
+    copies,
+    keys,
+    marking,
+    naming,
+    profiles,
+    second_reader,
+)
+from engine.w4_close import report
+from tests.test_each_answer import _wrote
 from tests.test_sorting import _scanned as _scanned_file
-
-
-def _wrote(text):
-    return {"child_answer": text, "answer_state": "written" if text else "blank", "working_shown": "none"}
-
-
-# ---------------------------------------------------------------------------------------------- marking, one answer
-
-
-def test_an_estimate_within_its_own_tolerance_is_right_and_one_outside_it_is_wrong():
-    """An estimate's key carries how far a fair estimate may land from it (`Response.tolerance`). Nothing that marked a
-    child's paper read it: 80 for an estimate keyed 70 within ten was marked wrong."""
-    est = {"rid": "est", "kind": "digits", "answer": "70", "tolerance": 10, "misconceptions": {}}
-    assert marking.mark({}, est, _wrote("70"))[0] == "correct"
-    assert marking.mark({}, est, _wrote("80"))[0] == "correct"
-    assert marking.mark({}, est, _wrote("85"))[0] == "wrong"
-    exact = {"rid": "ans", "kind": "digits", "answer": "75", "misconceptions": {}}
-    assert marking.mark({}, exact, _wrote("76"))[0] == "wrong", "an answer with no tolerance is exact"
-
-
-def test_a_written_reason_is_judged_by_a_person_never_marked_unreadable():
-    """A reason the child writes ("why") is a sentence. Its own kind says so; it was marked unreadable because only the
-    question's kind was asked."""
-    why = {"rid": "why", "kind": "text", "answer": None}
-    assert marking.mark({}, why, _wrote("she forgot to carry the one"))[0] == "needs_teacher"
-    assert marking.mark({}, why, _wrote(""))[0] == "blank"
-
-
-def test_each_answer_is_marked_against_its_own_key():
-    """A slot carries the answer it is for; the first answer of its question never stands in for it."""
-    est = {"rid": "est", "kind": "digits", "answer": "70", "tolerance": 10, "misconceptions": {}}
-    ans = {"rid": "ans", "kind": "digits", "answer": "68", "misconceptions": {"M_NOCARRY": "58"}}
-    slot = {"spec": {}, "responses": [est, ans], "response": ans}
-    assert marking.response_of(slot) is ans
-    assert marking.response_of({"spec": {}, "responses": [est, ans]}) is est, (
-        "a paper's own slot: its one answer"
-    )
-    assert marking.mark_read({}, marking.response_of(slot), _wrote("68"))[0] == "correct"
-
-
-# ---------------------------------------------------------------------------------------------- reading, every box
-
-
-@pytest.fixture(scope="module")
-def two_answer_paper(tmp_path_factory):
-    """Two estimate-then-work-it-out questions, a check with a tick and a corrected answer with a reason, printed."""
-    rng = random.Random(11)
-
-    def drawn(
-        make,
-    ):  # a generator refuses numbers that do not make its question: draw again, as the bank does
-        for _ in range(50):
-            try:
-                return make()
-            except RuntimeError:
-                continue
-        raise RuntimeError("no numbers in fifty draws")
-
-    qs = [
-        drawn(lambda: estimate.estimate_then_calc(rng, "R5", "Procedural", "+", 2, 2, [0, 1]))
-        for _ in range(2)
-    ]
-    qs.append(drawn(lambda: equality.inverse_check(rng, "R16", "Conceptual", "+", digits=2)))
-    qs.append(drawn(lambda: diagnosis.find_mistake(rng, "X2", "Stretch", "+", digits=2)))
-    out = tmp_path_factory.mktemp("two")
-    key = render_sheet(
-        Sheet("CS00C0D2", "G2", "Focus", 1, "W1", qs, title="Practice"), out, week_label="Practice"
-    )
-    return out / "CS00C0D2.pdf", key, qs
-
-
-def test_every_answer_of_a_question_is_read_in_its_own_boxes(two_answer_paper, tmp_path, monkeypatch):
-    """Each number a question asks for is read where it was written; a tick or a sentence is not a number, so the
-    digit reader is never handed it — a person reads it, shown the place it was written."""
-    reader = StandIn()
-    monkeypatch.setattr(boxes.digits, "read", reader.read)
-    pdf, key, qs = two_answer_paper
-    runs, _ = geometry.cells_of(key["geometry"], 1)
-    by_id = {it["item_id"]: q for it, q in zip(key["items"], qs, strict=True)}
-    written = {}
-    img = render_pdf.render(pdf, dpi=boxes.PPM * 25.4)[0]
-    for (item, rid), run in runs.items():
-        response = next(r for r in by_id[item].responses if r.rid == rid)
-        if response.kind != "digits":
-            continue
-        text = str(int(response.answer) + (1 if rid == "ans" else 0))[-len(run) :]  # the exact answer one out
-        written[(item, rid)] = text
-        for cell, ch in zip(run, text.rjust(len(run)), strict=True):
-            if ch.strip():
-                _write(img, cell, ch, boxes.PPM)
-    scan = _scanned(img, tmp_path / "scan.pdf")
-    answers = {(g["item"], g["resp"]) for g in key["geometry"] if g["page"] == 1 and g.get("kind") != "work"}
-    wanted = {f"{n}.{rid}": (item, rid) for n, (item, rid) in enumerate(sorted(answers))}
-    people = {
-        s for s, (item, rid) in wanted.items()
-        if next(r for r in by_id[item].responses if r.rid == rid).kind != "digits"
-    }  # fmt: skip
-    assert people, "the paper prints a tick and a sentence"
-    photo, frame = render_pdf.photo(scan, 1)
-    got = boxes.read_page(
-        photo, 1, pdf, key["geometry"], wanted, ocr.settings(), frame=frame, for_a_person=people
-    )
-    assert set(got) == set(wanted), "every answer the paper asks for comes back"
-    for slot, (item, rid) in wanted.items():
-        if slot in people:
-            assert got[slot]["answer_state"] == "for_a_person" and "a person" in got[slot]["why"]
-            assert got[slot]["child_answer"] == "" and len(got[slot]["box"]) == 4
-        else:
-            assert got[slot]["child_answer"] == written[(item, rid)], slot
-
 
 # ---------------------------------------------------------------------------------------------- a worksheet, end to end
 
@@ -236,7 +134,7 @@ def _read_copy(conn, worksheet, tmp_path, monkeypatch):
         out = {}
         for slot, (item_key, rid) in wanted.items():
             if slot in for_a_person:
-                out[slot] = {"child_answer": "", "answer_state": "for_a_person", "why": "a person reads this answer",
+                out[slot] = {"child_answer": "", "answer_state": "for_a_person", "why": boxes.FOR_A_PERSON,
                              "box": [0.1, 0.1, 0.2, 0.1], "confidence": 0.0, "working_shown": "none"}  # fmt: skip
             else:
                 out[slot] = {**_wrote(what(by_key[item_key], rid)), "confidence": 99.0}
@@ -287,9 +185,7 @@ def test_every_answer_on_a_copy_is_read_marked_and_counted(
     assert status[(ids[2], "ans")][1].startswith("read as blank")
     for i in ids[4:8]:
         assert status[(i, "check")][0] == "correct"
-        assert status[(i, "right")] == ("needs_teacher", "a person reads this answer"), (
-            "a tick waits for a person"
-        )
+        assert status[(i, "right")] == ("needs_teacher", boxes.FOR_A_PERSON), "a tick waits for a person"
     for i in ids[8:]:
         assert status[(i, "ans")][0] == "correct"
         assert status[(i, "why")][0] == "needs_teacher", "a reason waits for a person"
@@ -300,11 +196,12 @@ def test_a_person_typing_one_answer_marks_it_against_that_answers_own_key(
 ):
     _, ids, _, _ = worksheet
     _, rows, keys_ = _read_copy(conn, worksheet, tmp_path, monkeypatch)
-    second = rows[(ids[1], "ans")]
-    got = marking.correct(conn, second["id"], keys_[ids[1]]["ans"]["answer"], "test")
-    assert got["status"] == "correct", (
-        "the exact answer typed is right against the exact answer, not the estimate"
-    )
+    # the estimate's own key typed as the exact answer: right against the estimate, wrong against the exact answer
+    item = next(i for i in ids[:4] if keys_[i]["est"]["answer"] != keys_[i]["ans"]["answer"])
+    got = marking.correct(conn, rows[(item, "ans")]["id"], keys_[item]["est"]["answer"], "test")
+    assert got["status"] != "correct", "marked against its own key, not the estimate's"
+    got = marking.correct(conn, rows[(item, "ans")]["id"], keys_[item]["ans"]["answer"], "test")
+    assert got["status"] == "correct"
 
 
 def test_marking_again_keeps_each_answer_on_its_own_key(
@@ -324,8 +221,9 @@ def test_each_answer_signed_off_is_its_own_evidence(
 ):
     _, ids, _, child = worksheet
     _, rows, keys_ = _read_copy(conn, worksheet, tmp_path, monkeypatch)
-    second = ids[1]
+    first, second = ids[0], ids[1]
     marking.correct(conn, rows[(second, "ans")]["id"], str(int(keys_[second]["ans"]["answer"]) + 1), "test")
+    marking.correct(conn, rows[(first, "est")]["id"], str(int(keys_[first]["est"]["answer"]) + 500), "test")
     marking.confirm(conn, child, "test")
     evidence = conn.execute(
         "select distinct r.rid, e.correct from evidence_event e join item_result r on r.id = e.item_result_id"
@@ -333,6 +231,83 @@ def test_each_answer_signed_off_is_its_own_evidence(
         (second,),
     ).fetchall()
     assert {(e["rid"], e["correct"]) for e in evidence} == {("est", True), ("ans", False)}
+    # the child's report shows a wrong answer beside its own right answer, not its question's first
+    wrong = {r["answer"]: r for r in conn.execute(report.WRONG, (child, None, None))}
+    assert keys_[second]["ans"]["answer"] != keys_[second]["est"]["answer"], (
+        "the two keys differ on this question"
+    )
+    assert report._example(wrong[rows[(second, "ans")]["id"]])["right"] == keys_[second]["ans"]["answer"]
+    # a wrong answer to the sum no named mistake explains is a way of working it to learn; a wrong estimate is not
+    pair = [rows[(second, "ans")]["id"], rows[(first, "est")]["id"]]
+    conn.execute("update item_result set misconception_codes = '{}' where id = any(%s)", (pair,))
+    found = {str(r["result_id"]) for r in learned.unexplained(conn)}
+    assert str(rows[(second, "ans")]["id"]) in found and str(rows[(first, "est")]["id"]) not in found
+
+
+def test_the_second_reader_guesses_each_answer_into_its_own_row(
+    conn, worksheet, tmp_path, monkeypatch, every_kind_trusted
+):
+    """Two answers to one question, both waiting with a doubted reading: each gets its own guess. Keyed by question,
+    one reading stood for both and its guess was written into the other's row."""
+    _, ids, _, child = worksheet
+    _, rows, _ = _read_copy(conn, worksheet, tmp_path, monkeypatch)
+    pair = [rows[(ids[0], "est")]["id"], rows[(ids[0], "ans")]["id"]]
+    for k, rid in enumerate(pair):
+        conn.execute(
+            "update item_result set status = 'needs_teacher', raw_read = %s where id = %s",
+            (json.dumps({"child_answer": "", "answer_state": "written", "why": "under the confidence floor",
+                         "box": [0.1, 0.1 + k / 10, 0.3, 0.15 + k / 10], "guess": ""}), rid),
+        )  # fmt: skip
+    monkeypatch.setattr(profiles, "current", lambda conn, child_id: {})
+    monkeypatch.setattr(
+        second_reader, "propose", lambda conn, r, *a, **k: ({s: {**x, "guess": s} for s, x in r.items()}, "")
+    )
+    second_reader.backfill(conn, {}, [child])
+    guesses = {
+        str(r["id"]): r["guess"]
+        for r in conn.execute(
+            "select id, raw_read::jsonb ->> 'guess' as guess from item_result where id = any(%s)", (pair,)
+        )
+    }
+    assert all(guesses[str(rid)].endswith(str(rid)) for rid in pair), guesses
+
+
+def test_what_a_person_reads_and_names_is_each_answers_own(
+    conn, worksheet, tmp_path, monkeypatch, every_kind_trusted
+):
+    """A person names a mistake of the sum only on the sum's own answer; a tick a person read is no measure of the
+    reader; the second reader crops each answer from the page of the file it is on; and an answer a person already
+    worked on gets its number on the copy when the copy is read again, its reading left as they left it."""
+    code, ids, pdf, child = worksheet
+    _, rows, keys_ = _read_copy(conn, worksheet, tmp_path, monkeypatch)
+    est, ans = rows[(ids[1], "est")]["id"], rows[(ids[1], "ans")]["id"]
+    conn.execute(
+        "update item_result set status = 'wrong', misconception_codes = '{}' where id = any(%s)",
+        ([est, ans],),
+    )
+    with pytest.raises(ValueError, match="not its question's sum"):
+        naming.name_mistake(conn, est, mistake_guess.NONE, "test")
+    assert naming.name_mistake(conn, ans, mistake_guess.NONE, "test")["code"] == mistake_guess.NONE
+    tick = rows[(ids[4], "right")]["id"]
+    marking.correct(conn, tick, "right", "test")
+    seen = conn.execute(
+        "select never_read, page, file_page from answer_checked where item_result_id = %s", (tick,)
+    ).fetchone()
+    assert seen["never_read"] and seen["page"] == seen["file_page"] == 1
+    conn.execute(
+        "update item_result set status = 'needs_teacher', raw_read = (raw_read::jsonb"
+        ' || \'{"file_page": 2, "why": "under the floor"}\')::text where id = %s',
+        (est,),
+    )
+    waiting = {str(r["id"]): r["page"] for r in second_reader._waiting(conn, [child])}
+    assert waiting[str(est)] == 2, "cropped from the page of the file its photograph is"
+    conn.execute("update item_result set raw_read = (raw_read::jsonb - 'slot')::text where id = %s", (tick,))
+    copies.read(conn, tmp_path / "class.pdf", SECTION, ["Esha"], "test", pages_of=lambda c: len(pymupdf.open(pdf)),
+                again=True)  # fmt: skip
+    again_ = conn.execute("select raw_read::jsonb as raw from item_result where id = %s", (tick,)).fetchone()[
+        "raw"
+    ]
+    assert again_["slot"].endswith(".right") and again_["why"] == boxes.FOR_A_PERSON
 
 
 def test_the_right_answer_shown_on_each_card_is_its_own(
@@ -355,10 +330,33 @@ def test_the_right_answer_shown_on_each_card_is_its_own(
     # two cards for one question say which answer each is; a one-answer question's card is as it was
     assert picked["part"] == "answer 2 of 2 · exact", picked
     assert picked["alone"] is None
+    # each card is shown under its question's number on this copy, recorded when it was read
+    slots = {
+        rid: conn.execute(
+            "select result_slot(i.item_key, r.raw_read::jsonb) as slot, r.raw_read::jsonb ->> 'slot' as raw"
+            " from item_result r join item i on i.id = r.item_id where r.id = %s",
+            (rows[(ids[0], rid)]["id"],),
+        ).fetchone()
+        for rid in ("est", "ans")
+    }
+    assert (
+        slots["est"]["slot"] == slots["ans"]["slot"] == slots["est"]["raw"] and slots["est"]["slot"].isdigit()
+    )
+    assert slots["ans"]["raw"] == slots["est"]["raw"] + ".ans"
 
 
 def test_every_answer_names_a_response_of_its_question(
     conn, worksheet, tmp_path, monkeypatch, every_kind_trusted
 ):
-    _read_copy(conn, worksheet, tmp_path, monkeypatch)
-    assert audit.every_answer_names_a_response_of_its_question(conn) == []
+    _, ids, _, _ = worksheet
+    _, rows, _ = _read_copy(conn, worksheet, tmp_path, monkeypatch)
+    keys_of = {r["item_key"] for r in conn.execute("select item_key from item where id = any(%s)", (ids,))}
+
+    def mine():
+        return [
+            f for f in audit.every_answer_names_a_response_of_its_question(conn) if f.split()[0] in keys_of
+        ]
+
+    assert mine() == [], "every result this copy made is for an answer its question asks for"
+    conn.execute("update item_result set rid = 'nope' where id = %s", (rows[(ids[0], "est")]["id"],))
+    assert len(mine()) == 1 and "'nope'" in mine()[0], "one that is not is named"

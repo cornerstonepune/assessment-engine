@@ -49,6 +49,9 @@ COARSE = 5  # a page's print and marks are compared at PPM / COARSE: 2 px a mm, 
 RULE = 6  # mm: a box's edge is 5.4–13 mm, a run of them longer; a pencil stroke across a box is shorter
 GROW = 1.5  # mm a mark and a printed line may sit apart and still be the same line: a curved photograph
 NOT_FOUND = "its printed question was not found where the page lines up: a crease may have moved it"
+UNALIGNED = (
+    "the page did not line up with the paper it printed from, so this answer's own boxes were not found"
+)
 # Telling one page of a worksheet from another (`_fits`): each page's own print is its words that no other page
 # prints within APART mm, looked for on the photograph within OWN_GROW mm, at PPM / FINE — 5 px a mm, a digit's
 # strokes apart. On the 2026-09-29 photographs this put all eight on their own page; the ruled lines alone, five.

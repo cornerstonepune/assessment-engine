@@ -4610,23 +4610,57 @@ Goal `goals/md0a-every-answer-counts.yaml`. Each claim with the command that pro
 
 - **A library worksheet question with several answers is read, one slot per answer, and every answer is marked,
   queued and counted on its own.** `cd packages/engine && .venv/bin/python -m pytest -q tests/test_every_answer.py
-  tests/test_roles.py` → `16 passed`. It covers 4 estimate-then-calculate, 4 inverse-check and 4 find-the-mistake
-  questions on one copy:
+  tests/test_each_answer.py` covers 4 estimate-then-calculate, 4 inverse-check and 4 find-the-mistake questions on one
+  copy:
   - every answer gets its own row;
   - an estimate is right within its tolerance and wrong outside it;
   - an exact answer is marked against its own key, not the estimate's;
   - a tick or a sentence goes to a person with its crop and the reason, and the digit reader is never called;
   - signing off makes one evidence row per answer;
-  - each card shows its own right answer and says which answer it is;
-  - `engine audit` finds no result whose answer is not one its question asks for.
-- **What the change touches still passes.** `pytest -q tests/test_every_answer.py tests/test_copies.py
-  tests/test_keys.py tests/test_boxes.py tests/test_legacy.py tests/test_crops.py tests/test_learned_mistakes.py
-  tests/test_gold.py tests/test_roles.py tests/test_audit.py tests/test_inbox.py tests/test_ocr.py` → `195 passed,
-  1 failed`. The failure was `test_roles`: the new function was granted to the website while that run was going.
-  Rerun alone → passed (above).
+  - each card shows its own right answer and question number, and says which answer it is;
+  - `engine audit` names a result whose answer is not one its question asks for.
+- **Nothing else broke.** `cd packages/engine && .venv/bin/python -m pytest -q` → `1438 passed, 1 warning in 849.74s`.
+  `bin/check` → `27 passed`. `cd apps/web && npx tsc --noEmit -p . && npx eslint . --max-warnings=0` → clean.
 - **The questions this reaches.** `select count(*) filter (where jsonb_array_length(responses) > 1), count(*) from
   item where status='active'` → `4437|21289` on the local database, the bank as seeded. Before this, none of the 4,437
   was read on a library worksheet copy.
+- **A second reader reviewed the diff and found what the tests did not.** Each finding is fixed and has a test in
+  `tests/test_every_answer.py`:
+  - the child's report gave a wrong exact answer its estimate's key as the right answer (`report._example`);
+  - the second reader keyed a waiting reading by question, so one answer's guess was written into its sibling's row.
+    On a library copy it raised `IndexError` instead, because a library question's key has no `/`
+    (`second_reader._slot`). The reading eval and the replay raised the same error on any signed-off library copy; they
+    now read old papers only (`reread.old_papers`), which is what they can read;
+  - a wrong estimate or check was matched against rules for working the sum: learned mistakes, Jev's shortlist, rule
+    discovery. A rule about `a op b` now explains only an answer whose key is `a op b` worked exactly
+    (`learned_rules.works_the_sum`);
+  - on a printed copy that did not line up, the region reader was handed second answers, ticks and reasons; it reads
+    one number a question. The rest now go to a person with the reason (`reading._by_region`, `boxes.UNALIGNED`);
+  - a tick or a sentence counted as "the reader gave up" and became a handwriting sample shown to the second reader.
+    Both now leave out what the reader was never handed (`profiles.never_read`);
+  - a library copy's card showed "Question" with no number. The reader now records each answer's number on its result
+    (`raw_read.slot`); the website reads it, with a question's answers in print order (`result_slot`, `result_order`);
+  - two tests could not fail. The typed-answer test now types the estimate's key into the exact answer; the audit test
+    plants a result that names no answer and expects it named.
+- **A third reader reviewed those fixes and found what they reached or missed.** Each is fixed and tested:
+  - leaving a question out of the region reader moved the region of the question above it, which then read the next
+    question's answer. Every question is now given to it by its first answer, and only the answers it cannot read are
+    taken back for a person (`reading._by_region`);
+  - a tick on a page that did not line up was counted as the reader failing. It is now a person's to read, as on a page
+    that lined up;
+  - the second reader, now reaching library copies, cropped page 1 at a page-2 answer: a library question's page is not
+    in the bank's row. The page each answer's photograph is on is read from what the reader recorded, in the engine and
+    in `answer_checked` (`page`, `file_page`, migration `20261025090000`);
+  - the website's reader report still counted ticks and sentences. `answer_checked.never_read` is now the one test,
+    read by both;
+  - a person could still name a column mistake on an estimate by posting it directly (`naming.name_mistake` refuses);
+  - the notebook's "checked" count still included answers the reader never read;
+  - `engine read again` was narrowed to old papers, against its promise to read every live scan. That was undone: a
+    library copy there is a failure it reports, as before; it is read again through `POST /read/file` with `again`;
+  - an answer a person already worked on got no question number on a re-read. The re-read now adds it, leaving the
+    reading as they left it (`copies.read`).
 - **Not checked:**
   - a real child's handwriting in a second or third box (the tests stand in for both readers);
-  - copies read on live before this. They keep their old reading until read again (`POST /read/file`, `again: true`).
+  - copies read on live before this. They keep their old reading until read again (`POST /read/file`, `again: true`),
+    and their cards show no question number until then;
+  - the website's screens with these answers, beyond the typecheck, lint and CI's Playwright run.

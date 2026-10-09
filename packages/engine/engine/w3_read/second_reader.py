@@ -55,7 +55,7 @@ def _groups(readings):
     groups = {}
     for slot, r in readings.items():
         why = r.get("why") or ""
-        if not profiles.doubted(why) or r.get("guess") or not r.get("box") or "not a number" in why:
+        if not profiles.doubted(why) or r.get("guess") or not r.get("box") or profiles.never_read(why):
             continue
         groups.setdefault(tuple(r["box"]), []).append(slot)
     return {box: sorted(members) for box, members in groups.items()}
@@ -91,7 +91,10 @@ def propose(conn, readings, path, file_page, notes, cfg, exclude_capture=None):
 def _waiting(conn, child_ids=None):
     return conn.execute(
         "select r.id, r.raw_read, c.id as capture_id, c.path, c.pages as file_pages, si.child_id,"
-        "       coalesce((i.spec ->> 'page')::int, 1) as page, i.item_key"
+        # the page of the copy's file the answer's photograph is, as the reader recorded it: a library question's page
+        # is not in the bank's row, and read from it every answer of a two-page copy was cropped from page 1
+        "       coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int,"
+        "                (i.spec ->> 'page')::int, 1) as page, i.item_key"
         " from item_result r join item i on i.id = r.item_id join capture c on c.id = r.capture_id"
         " join sheet_instance si on si.id = c.sheet_instance_id"
         " where c.superseded_by is null and r.state = 'candidate' and r.status in ('unreadable', 'needs_teacher')"
@@ -100,6 +103,12 @@ def _waiting(conn, child_ids=None):
         " order by c.id, page, i.item_key",
         (child_ids, child_ids),
     ).fetchall()
+
+
+def _slot(r, result_id):
+    """A doubted answer's name on its page: its question, then the result itself. Two answers to one question are two
+    readings, never one (M0a), and a region's answers still sort in the order they print."""
+    return f"{r['item_key']}#{r[result_id]}"
 
 
 def backfill(conn, cfg, child_ids=None):
@@ -113,7 +122,7 @@ def backfill(conn, cfg, child_ids=None):
         by_page.setdefault((str(r["capture_id"]), r["page"]), []).append((r, read))
     guessed = asked = 0
     for (capture_id, page), rows in by_page.items():
-        readings = {r["item_key"].rsplit("/", 1)[1]: read for r, read in rows}
+        readings = {_slot(r, "id"): read for r, read in rows}
         if not _groups(readings):
             continue
         first = rows[0][0]
@@ -123,7 +132,7 @@ def backfill(conn, cfg, child_ids=None):
         got, _ = propose(conn, readings, first["path"], page if first["file_pages"] > 1 else 1, notes, cfg)
         asked += len(_groups(readings))
         for r, read in rows:
-            new = got[r["item_key"].rsplit("/", 1)[1]]
+            new = got[_slot(r, "id")]
             if new.get("guess") and new != read:
                 conn.execute("update item_result set raw_read = %s where id = %s", (json.dumps(new), r["id"]))
                 guessed += 1
@@ -139,7 +148,7 @@ def evaluate(conn, cfg, child_ids=None):
         for r in profiles.checked_rows(conn)
         if profiles.doubted(r["why"])
         and r["box"]
-        and "not a number" not in r["why"]
+        and not profiles.never_read(r["why"])
         and (not child_ids or str(r["child_id"]) in {str(c) for c in child_ids})
         and Path(r["path"]).expanduser().exists()
     ]
@@ -152,12 +161,12 @@ def evaluate(conn, cfg, child_ids=None):
     tally = {"n": 0, "right": 0, "by_kind": {}, "details": []}
     by_page = {}
     for r in rows:
-        by_page.setdefault((str(r["capture_id"]), r["page"]), []).append(r)
+        by_page.setdefault((str(r["capture_id"]), r["file_page"]), []).append(r)
     for (capture_id, page), group in by_page.items():
         child = str(group[0]["child_id"])
         notes = profiles.build([x for x in by_child[child] if str(x["capture_id"]) != capture_id])
         readings = {
-            r["item_key"].rsplit("/", 1)[1]: {"why": r["why"], "box": r["box"], "guess": ""} for r in group
+            _slot(r, "item_result_id"): {"why": r["why"], "box": r["box"], "guess": ""} for r in group
         }
         got, _ = propose(
             conn,
@@ -169,7 +178,7 @@ def evaluate(conn, cfg, child_ids=None):
             exclude_capture=capture_id,
         )
         for r in group:
-            guess = got[r["item_key"].rsplit("/", 1)[1]].get("guess", "")
+            guess = got[_slot(r, "item_result_id")].get("guess", "")
             right = profiles._norm(guess) == profiles._norm(r["human_read"])
             k = tally["by_kind"].setdefault(r["fmt"], {"n": 0, "right": 0})
             k["n"] += 1
@@ -177,7 +186,7 @@ def evaluate(conn, cfg, child_ids=None):
             tally["n"] += 1
             tally["right"] += right
             tally["details"].append(
-                (r["paper"], r["item_key"].rsplit("/", 1)[1], r["human_read"], guess, right)
+                (r["paper"], r["item_key"].rsplit("/", 1)[-1], r["human_read"], guess, right)
             )
     tally["spend_inr"] = external.spend_today(conn) - spent
     return tally

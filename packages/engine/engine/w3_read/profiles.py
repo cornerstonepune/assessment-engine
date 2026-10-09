@@ -37,8 +37,17 @@ def doubted(why):
     return bool(why) and not why.startswith("read as")
 
 
+def never_read(why):
+    """A reading the reader never attempted: its answer is not a number (`boxes.FOR_A_PERSON`, `ocr.answers_for`), so a
+    person reads it — no measure of the reader, and nothing the second reader is shown or asked about. A stored answer's
+    is `answer_checked.never_read`, the same test, which the website reads."""
+    return "not a number" in why
+
+
 def build(rows, route_above=0.25):
     """The notebook, from every answer of one child a person has settled (`checked_rows`, oldest first)."""
+    # a tick, a sentence or a sign the reader was never handed is not its reading, nor this child's handwriting
+    rows = [r for r in rows if not never_read(r.get("why") or "")]
     notes = {
         "checked": len(rows),
         "right": 0,
@@ -106,7 +115,9 @@ def build(rows, route_above=0.25):
         if not text or not r.get("box") or text in seen:
             continue
         seen.add(text)
-        samples.append({"capture_id": str(r["capture_id"]), "page": r["page"], "box": r["box"], "text": text})
+        # the page of the copy's file its photograph is, which `second_reader.examples` crops
+        page = r.get("file_page") or r["page"]
+        samples.append({"capture_id": str(r["capture_id"]), "page": page, "box": r["box"], "text": text})
         if len(samples) == SAMPLES:
             break
     notes["samples"] = samples[::-1]
@@ -151,7 +162,8 @@ def checked_rows(conn, child_id=None):
     an answer settled by Right/Wrong alone is not here. The view `answer_checked` is the one definition
     (goals/s19-validation-teaches.yaml); Marking counts from it too."""
     return conn.execute(
-        "select child_id, fmt, capture_id, path, file_pages, read_on as batch, page, item_key, paper, item_result_id,"
+        "select child_id, fmt, capture_id, path, file_pages, read_on as batch, page, file_page, item_key, paper,"
+        " item_result_id, never_read,"
         " reading as model_read, label as human_read, confidence, why, answer_state, guess, box, crop,"
         " how = 'typed' as corrected"
         " from answer_checked where (%s::uuid is null or child_id = %s::uuid) order by read_at, item_key",
@@ -179,8 +191,8 @@ def kind_trust(conn, window=50):
 def report(conn, window=50):
     """How the reader is doing, from every check people have made — the numbers `engine read report`
     prints and Capture & Mark shows (ADR 0032): the total, each kind's standing against the gate, each
-    batch's flag rate, and one line per child."""
-    rows = checked_rows(conn)
+    batch's flag rate, and one line per child. An answer the reader was never handed is not counted (`never_read`)."""
+    rows = [r for r in checked_rows(conn) if not never_read(r["why"] or "")]
     total = {
         "checked": len(rows),
         "stood_behind": 0,
@@ -225,6 +237,7 @@ def report(conn, window=50):
         " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'answer_state', '') not in ('written', 'blank')"
         "   or (coalesce(r.raw_read::jsonb ->> 'why', '') <> '' and r.raw_read::jsonb ->> 'why' not like 'read as%%')) as flagged"
         " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"
+        "   and coalesce(r.raw_read::jsonb ->> 'why', '') not like '%%not a number%%'"  # `never_read`, as the view
         " group by 1 order by 1"
     ).fetchall():
         batches.setdefault(

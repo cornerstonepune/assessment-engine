@@ -7,6 +7,7 @@ answer is right, this says why a wrong one is wrong."""
 
 import json
 
+from engine.assess import learned_rules as L
 from engine.w1_bank import mistake_guess
 
 
@@ -30,7 +31,7 @@ ONE_PAPER = (
 def _waiting(conn, where, arg):
     """Wrong answers not yet signed off that no mistake is named for, with what the child wrote."""
     rows = conn.execute(
-        "select r.id, i.spec, r.raw_read,"
+        "select r.id, i.spec, result_response(i.responses, r.rid) as response, r.raw_read,"
         " (select rc.human_read from read_correction rc where rc.item_result_id = r.id"
         "  order by rc.created_at desc limit 1) as typed"
         " from item_result r join item i on i.id = r.item_id"
@@ -60,8 +61,8 @@ def unnamed(conn, capture_id):
     out = {}
     for r, answer in _waiting(conn, ONE_PAPER, capture_id):
         op = (r["spec"] or {}).get("op")
-        if op not in mistake_guess.SIGN:
-            continue
+        if op not in mistake_guess.SIGN or not L.works_the_sum(r["spec"] or {}, r["response"] or {}):
+            continue  # Jev and the operation's mistakes explain a wrong sum, not a wrong estimate or check of it
         why = ""
         try:
             short = mistake_guess.shortlist(conn, r["spec"], answer) or []
@@ -86,6 +87,10 @@ def name_mistake(conn, result_id, code, by, proposed=()):
     op = (row["spec"] or {}).get("op")
     if op not in mistake_guess.SIGN or code not in mistake_guess.options(op):
         raise ValueError(f"{code!r} is not a named mistake of {op!r}, nor {mistake_guess.NONE}")
+    if not L.works_the_sum(row["spec"] or {}, row["response"] or {}):
+        raise ValueError(
+            f"answer {result_id} is not its question's sum worked out: no mistake of {op!r} names it"
+        )
     conn.execute(
         "insert into mistake_named (tenant_id, item_result_id, answer, code, proposed, by, created_at)"
         " select tenant_id, id, %s, %s, %s, %s, clock_timestamp() from item_result where id = %s",

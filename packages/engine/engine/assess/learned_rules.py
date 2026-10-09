@@ -12,6 +12,7 @@ who names it (`w1_bank/learned.py`). The search is exhaustive and small (a few h
 """
 
 from itertools import product
+from typing import Any
 
 # What a column writes, from its two digits and what came in from the column to its right.
 WRITES = {
@@ -190,3 +191,18 @@ def predict(rule, a, b):
 def explaining(op, a, b, wrote):
     """Every rule that gives exactly `wrote` for `a op b` when that is not the right answer, simplest first."""
     return [r for r in rules(op) if predict(r, a, b) == wrote] if op in WRITES else []
+
+
+def works_the_sum(spec: dict[str, Any], response: dict[str, Any]) -> bool:
+    """Whether `response` asks for its question's own two-number sum, worked exactly: the only answer a rule about
+    working that sum can explain. An estimate beside it (right within a tolerance), a check of it (the claimed answer
+    take away the second number) or a reason is not that sum, and no rule here, learned or named, explains it."""
+    a, b, op, want = (
+        str(spec.get("a", "")),
+        str(spec.get("b", "")),
+        spec.get("op"),
+        str(response.get("answer", "")),
+    )
+    if op not in WRITES or not (a.isdigit() and b.isdigit()) or response.get("tolerance") is not None:
+        return False
+    return want.lstrip("-").isdigit() and int(want) == (int(a) + int(b) if op == "+" else int(a) - int(b))

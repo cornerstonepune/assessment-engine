@@ -39,6 +39,8 @@ WEB_CALLS = {
     "read_child",
     "result_response",
     "result_part",
+    "result_slot",
+    "result_order",
 }
 
 

@@ -8,6 +8,7 @@ import json
 import re
 
 from engine.assess import equation
+from engine.assess import learned_rules as L
 from engine.assess import misconceptions as M
 from engine.w1_bank import learned as learned_mistakes
 from engine.w3_read import naming, profiles
@@ -88,7 +89,7 @@ def mark(spec, response, read, learned=()):
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     if not codes and want is not None:
         codes = sorted(code for code, (rule, _, _) in M.ANSWER_RULES.items() if rule(int(want), n))
-    if not codes and learned and str(spec.get("a", "")).isdigit() and str(spec.get("b", "")).isdigit():
+    if not codes and learned and L.works_the_sum(spec, response):
         # a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)
         codes = learned_mistakes.recognise(learned, spec.get("op"), int(spec["a"]), int(spec["b"]), n)
     return "wrong", codes, working

@@ -52,8 +52,8 @@ def readings(conn, capture_id) -> list[dict]:
     printed and how many held ink, what the reader saw — with no name and no image: what someone improving the
     reader needs to see why answers came back unclear, through the engine's API."""
     rows = conn.execute(
-        "select split_part(i.item_key, '/', 3) as slot, i.item_key, r.status, r.raw_read::jsonb as raw"
-        " from item_result r join item i on i.id = r.item_id where r.capture_id = %s order by i.item_key",
+        "select i.item_key, r.rid, r.status, r.raw_read::jsonb as raw"
+        " from item_result r join item i on i.id = r.item_id where r.capture_id = %s order by i.item_key, r.rid",
         (capture_id,),
     ).fetchall()
     keep = (
@@ -70,6 +70,11 @@ def readings(conn, capture_id) -> list[dict]:
         "working_shown",
     )
     return [
-        {"item": r["item_key"], "status": r["status"], **{k: (r["raw"] or {}).get(k) for k in keep}}
+        {
+            "item": r["item_key"],
+            "answer": r["rid"],
+            "status": r["status"],
+            **{k: (r["raw"] or {}).get(k) for k in keep},
+        }
         for r in rows
     ]

@@ -537,7 +537,7 @@ def import_scan(
                     summary["unmatched"].append(key)
                     continue
                 status, codes, working, read = judge(it, read)
-                rid = response_of(it).get("rid", "a")
+                rid, read = response_of(it).get("rid", "a"), {**read, "slot": key}  # its number on this copy
                 wrote = conn.execute(
                     "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status,"
                     " misconception_codes, working_shown, state)"

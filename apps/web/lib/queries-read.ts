@@ -151,8 +151,8 @@ export const toJudge = (a: Pick<CaptureAnswer, "status" | "answer_state" | "why"
 // reads them in, with the photograph beside them.
 export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
   return sql<CaptureAnswer[]>`
-    select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
-           nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
+    select r.id, r.capture_id, result_slot(i.item_key, r.raw_read::jsonb) as slot,
+           nullif(regexp_replace(result_slot(i.item_key, r.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
@@ -176,7 +176,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
        where rc.item_result_id = r.id and rc.judged is null order by rc.created_at desc limit 1
     ) k on true
     where c.sheet_instance_id = ${id}::uuid and c.superseded_by is null
-    order by page, n, slot`;
+    order by page, n, slot, result_order(i.responses, r.rid)`;
 }
 
 // ---- the queue: every answer the engine is unsure of, one at a time (goals/s4-validation-queue.yaml).
@@ -189,7 +189,8 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
 export type QueueEntry = { id: string; spot: boolean };
 
 // How the reader is doing, from every check people have made (ADR 0032) — the same numbers as
-// `engine read report`: an answer counts once a person typed its reading or signed it off unchanged.
+// `engine read report`: an answer counts once a person typed its reading or signed it off unchanged, and only one the
+// reader was handed (`never_read`: a tick, a sentence or a sign is a person's to read, no measure of the reader).
 export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean };
 // One row per day papers were read: how often the reader matched the people who checked that day's answers.
 export type ReaderDay = { day: string; checked: number; stood_behind: number; right: number; gave_up: number };
@@ -206,7 +207,7 @@ export async function readerReport(): Promise<ReaderReport> {
       select fmt, stood, reader_right as is_right,
              label <> '' and regexp_replace(lower(guess), '[[:space:],]', '', 'g') = regexp_replace(lower(label), '[[:space:],]', '', 'g') as guess_right,
              row_number() over (partition by fmt, stood order by read_at desc) as rn
-      from answer_checked)
+      from answer_checked where not never_read)
     select fmt, count(*)::int as checked,
            count(*) filter (where stood)::int as stood_behind,
            count(*) filter (where stood and is_right)::int as right,
@@ -220,13 +221,13 @@ export async function readerReport(): Promise<ReaderReport> {
            count(*) filter (where stood)::int as stood_behind,
            count(*) filter (where stood and reader_right)::int as right,
            count(*) filter (where not stood)::int as gave_up
-    from answer_checked group by read_on order by read_on desc`;
+    from answer_checked where not never_read group by read_on order by read_on desc`;
   const bands = await sql<ReaderBand[]>`
     with said as (
       select confidence,
              regexp_replace(lower(case when stood then reading else guess end), '[[:space:],]', '', 'g') as said,
              regexp_replace(lower(label), '[[:space:],]', '', 'g') as label
-      from answer_checked where label <> '')
+      from answer_checked where label <> '' and not never_read)
     select b.lo, b.hi, count(*)::int as n, count(*) filter (where s.said = s.label)::int as right
     from said s join (values (0, 50), (50, 70), (70, 80), (80, 85), (85, 90), (90, 95), (95, 101)) b(lo, hi)
       on s.confidence >= b.lo and s.confidence < b.hi
@@ -252,7 +253,7 @@ export async function readerReport(): Promise<ReaderReport> {
 export async function checkQueue(): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (
-      select r.id, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id
+      select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id
       from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null
     ),
     spot as (
@@ -274,7 +275,8 @@ export async function checkQueue(): Promise<QueueEntry[]> {
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
     order by t.key ->> 'date' desc nulls last, roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
-             nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int, i.item_key`;
+             nullif(regexp_replace(result_slot(i.item_key, l.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int, i.item_key,
+             result_order(i.responses, l.rid)`;
 }
 
 export type CheckItem = CaptureAnswer & {
@@ -289,8 +291,8 @@ export type CheckItem = CaptureAnswer & {
 // who asked (rule 6): one name per answer shown, never the whole queue's.
 export async function checkItem(id: string, actor: string): Promise<CheckItem | undefined> {
   const rows = await sql<CheckItem[]>`
-    select r.id, r.capture_id, split_part(i.item_key, '/', 3) as slot,
-           nullif(regexp_replace(split_part(i.item_key, '/', 3), '[^0-9]', '', 'g'), '')::int as n,
+    select r.id, r.capture_id, result_slot(i.item_key, r.raw_read::jsonb) as slot,
+           nullif(regexp_replace(result_slot(i.item_key, r.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int as n,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,

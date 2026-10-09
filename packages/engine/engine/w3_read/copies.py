@@ -19,7 +19,7 @@ import pymupdf
 
 from engine.core import db, roster
 from engine.w2_print import library
-from engine.w3_read import boxes, checked, legacy, read_eval, render_pdf, sorting
+from engine.w3_read import boxes, checked, legacy, marking, read_eval, render_pdf, sorting
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
@@ -337,13 +337,15 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
         # The paper's page each answer is on, and the page of this copy's file its photograph is — the same unless
         # the copy starts part-way: a worksheet question's page is not in the bank's row (`paper`), and the approval
         # screens show the photograph. Only where missing.
-        for it in (it for it in by_key.values() if it["spec"]["page"] in file_page):
+        # And its number on this copy (`raw_read.slot`), which a person's own answers, never read over, lack too.
+        for slot, it in ((k, it) for k, it in by_key.items() if it["spec"]["page"] in file_page):
             conn.execute(
-                "update item_result set raw_read = (raw_read::jsonb || jsonb_build_object('page', %s::int,"
-                " 'file_page', %s::int))::text where capture_id = %s and item_id = %s and raw_read is not null"
-                " and not (raw_read::jsonb ? 'file_page')",
-                (it["spec"]["page"], file_page[it["spec"]["page"]], s["capture_id"], it["id"]),
-            )
+                "update item_result set raw_read = (jsonb_build_object('page', %s::int, 'file_page', %s::int,"
+                " 'slot', %s::text) || raw_read::jsonb)::text where capture_id = %s and item_id = %s and rid = %s"
+                " and raw_read is not null and not (raw_read::jsonb ?& array['file_page', 'slot'])",
+                (it["spec"]["page"], file_page[it["spec"]["page"]], slot, s["capture_id"], it["id"],
+                 marking.response_of(it).get("rid", "a")),
+            )  # fmt: skip
         answers = s.get("already_results") if s.get("already") else len(s["results"])
         out.append({**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
                     "capture_id": s["capture_id"], "notes": [n for n in s["notes"] if n]})  # fmt: skip
