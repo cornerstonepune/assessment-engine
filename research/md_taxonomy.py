@@ -188,7 +188,9 @@ ASSUMPTIONS = [
     ("Grades come from the school's own objectives.", "Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to "
      "0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, "
      "3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, "
-     "placed in no grade.", "A level's grade is a row (`skill_set.level_band`); Achal moves it."),
+     "placed in no grade. Where the lists disagree (one \"Extended & Application\" unit is repeated in G2, G3 and G4), a "
+     "level goes to the earliest grade whose objective names it.", "A level's grade is a row (`skill_set.level_band`); "
+     "Achal moves it."),
     ("Taught stays the educator's word.", "Every case is built and checked; nothing reaches a child's paper until "
      "the grade declares it taught.", "The Grade 1 rule of 2026-10-06."),
     ("Out of scope.", "Remainders as fractions or decimals. Division by zero appears only as a true-or-false "
@@ -300,19 +302,20 @@ mul("T09", "Regroup and the ones write 0", 48, 5, [("ones write 0", (8 * 5) % 10
 mul("T10", "The largest carry: 99 × 9", 99, 9, [("carry 8", carries(99, 9) == [8])])
 mul("T11", "3 × 1 digits, no regrouping", 213, 3, [("no carry", not any(carries(213, 3)))])
 mul("T12", "3 × 1 digits with regrouping (every pattern in the next section)", 357, 4, [("carries", all(carries(357, 4)))])
-case("T13", "3 × 1 digits, the 1-digit number first, in a line", "6 × 125", 750)
+case("T13", "3 × 1 digits, the 1-digit number first, in a line", "6 × 125 (in a line)", 750)
 mul("T14", "3 × 1 digits in a line", 785, 4, line=True)
 mul("T15", "4 × 1 digits, no regrouping", 2312, 3, [("no carry", not any(carries(2312, 3)))])
 mul("T16", "4 × 1 digits with regrouping", 3476, 6, [("carries", sum(map(bool, carries(3476, 6))) >= 2)])
-mul("T17", "2 × 2 digits, no regrouping anywhere", 21, 13,
-    [("rows regroup", not any(partial_regroups(21, 13))), ("sum carries", add_carries(*partials(21, 13)) == 0)])
-mul("T18", "2 × 2 digits, one row regroups", 16, 12,
-    [("rows", partial_regroups(16, 12) == [True, False]), ("sum", add_carries(*partials(16, 12)) == 0)])
-mul("T19", "2 × 2 digits, both rows regroup", 36, 24,
-    [("rows", partial_regroups(36, 24) == [True, True]), ("sum", add_carries(*partials(36, 24)) == 0)])
-mul("T20", "2 × 2 digits, both rows regroup and adding the rows carries", 47, 23,
-    [("rows", all(partial_regroups(47, 23))), ("sum carries", add_carries(*partials(47, 23)) >= 1)])
-mul("T21", "2 × 2 digits, the answer has one digit fewer than it could", 31, 22, [("3 digits", nd(31 * 22) == 3)])
+mul("T17", "2 × 2 digits, no regrouping anywhere, a 3-digit answer", 21, 13,
+    [("3 digits", nd(21 * 13) == 3), ("rows regroup", not any(partial_regroups(21, 13))), ("sum carries", add_carries(*partials(21, 13)) == 0)])
+mul("T18", "2 × 2 digits, one row regroups, a 3-digit answer", 16, 12,
+    [("3 digits", nd(16 * 12) == 3), ("rows", partial_regroups(16, 12) == [True, False]), ("sum", add_carries(*partials(16, 12)) == 0)])
+mul("T19", "2 × 2 digits, both rows regroup, a 3-digit answer", 36, 24,
+    [("3 digits", nd(36 * 24) == 3), ("rows", partial_regroups(36, 24) == [True, True]), ("sum", add_carries(*partials(36, 24)) == 0)])
+mul("T20", "2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit", 47, 23,
+    [("4 digits", nd(47 * 23) == 4), ("rows", all(partial_regroups(47, 23))), ("sum carries", add_carries(*partials(47, 23)) >= 1)])
+mul("T21", "2 × 2 digits, a 4-digit answer with no carry in adding the rows", 52, 34,
+    [("4 digits", nd(52 * 34) == 4), ("sum", add_carries(*partials(52, 34)) == 0)])
 mul("T22", "2 × 2 digits in a line", 34, 26, line=True)
 mul("T23", "3 × 2 digits", 234, 12)
 mul("T24", "3 × 2 digits with regrouping in every row", 476, 38, [("rows", all(partial_regroups(476, 38)))])
@@ -335,11 +338,9 @@ for ones in (False, True):
             label = (f"Regroup from the ones: {'yes' if ones else 'no'} · from the tens: {'yes' if tens else 'no'} "
                      f"· answer grows to 4 digits: {'yes' if grow else 'no'}")
             mul(code, label, a, d)
-a, d = pick("TC09", [(a, d) for a in range(11, 100) for d in range(2, 10) if "0" not in str(a) and carries(a, d) == [1]])
-mul("TC09", "2 × 1 digits, the carry is 1", a, d)
-mul("TC10", "A carry bigger than 1", 28, 7, [("carry 5", carries(28, 7) == [5])])
-mul("TC11", "3 × 1 digits, a carry takes a column to ten (knock-on)", 125, 4, [("knock-on", knock_on(125, 4))])
-mul("TC12", "Every column regroups, the answer full of zeros", 667, 3,
+mul("TC09", "A carry bigger than 1", 28, 7, [("carry 5", carries(28, 7) == [5])])
+mul("TC10", "3 × 1 digits, a carry takes a column to ten (knock-on)", 125, 4, [("knock-on", knock_on(125, 4))])
+mul("TC11", "Every column regroups, the answer full of zeros", 667, 3,
     [("all carry", all(carries(667, 3))), ("zeros", str(667 * 3).count("0") >= 2)])
 mul("TZ01", "A zero at the end of the larger number", 230, 4)
 mul("TZ02", "A zero in the middle, no carry reaches it", 302, 3, [("no carry into zero", not carry_into_zero(302, 3))])
@@ -380,7 +381,7 @@ div("DP02", "÷100", 4500, 100)
 div("DP03", "÷1000", 7000, 1000)
 div("DP04", "A multiple of ten ÷ 1 digit", 120, 4)
 div("DP05", "A multiple of ten ÷ a multiple of ten", 800, 40)
-div("DP06", "The zero belongs to the fact (20 ÷ 4 = 5)", 200, 4, [("20 ÷ 4", 20 // 4 == 5)])
+div("DP06", "The fact uses one of the zeros (20 ÷ 4 = 5)", 200, 4, [("20 ÷ 4", 20 // 4 == 5)])
 div("DP07", "A multiple of a hundred ÷ 1 digit", 3600, 6)
 
 # ---------------------------------------------------------------- 6. division by digit shape
@@ -404,8 +405,8 @@ for fds, h_ex, t_ex in [(False, False, True), (False, True, False), (False, True
             if a % d == 0 and first_smaller(a, d) == fds and qzero(a, d) == "NONE"
             and ("HUNDREDS" in exchanges(a, d)) == h_ex and ("TENS" in exchanges(a, d)) == t_ex]
     a, d = pick(code, pool)
-    label = ("first digit smaller than the divisor · " if fds else "") + (
-        f"exchange after the hundreds: {'yes' if h_ex else 'no'} · after the tens: {'yes' if t_ex else 'no'}")
+    label = ("first digit smaller than the divisor, so the hundreds join the tens" if fds else
+             f"exchange after the hundreds: {'yes' if h_ex else 'no'}") + f" · after the tens: {'yes' if t_ex else 'no'}"
     div(code, f"3 ÷ 1 digits: {label}", a, d)
 div("D11", "4 ÷ 1 digits, no exchange", 4862, 2, [("no exchange", not exchanges(4862, 2))])
 div("D12", "4 ÷ 1 digits, first digit smaller, exchanges", 5172, 6, [("smaller", first_smaller(5172, 6))])
@@ -413,7 +414,8 @@ div("D13", "3 ÷ 2 digits, 2-digit quotient", 408, 12)
 div("D14", "3 ÷ 2 digits where the first estimate must be corrected", 162, 18,
     [("estimate from 20 is too small", 162 // 20 < 162 // 18)],
     shown="162 ÷ 18 (rounding 18 to 20 suggests 8; 8 × 18 = 144 leaves 18, so 9)")
-div("DZ01", "A zero in the middle of the quotient", 612, 6, [("middle", qzero(612, 6) == "MIDDLE")])
+div("DZ01", "A zero in the number divided gives a zero in the quotient", 804, 4,
+    [("middle", qzero(804, 4) == "MIDDLE"), ("no exchange", not exchanges(804, 4))])
 div("DZ02", "A zero at the end of the quotient", 840, 4, [("end", qzero(840, 4) == "END")])
 div("DZ03", "A zero in the quotient from a digit smaller than the divisor", 618, 6,
     [("middle", qzero(618, 6) == "MIDDLE"), ("1 < 6", 1 < 6)])
@@ -421,6 +423,8 @@ div("DZ04", "A zero in the number divided, none in the quotient", 702, 6, [("no 
 div("DZ05", "Two zeros in the quotient", 8016, 8, [("two", str(8016 // 8).count("0") == 2)])
 div("DZ06", "First digit smaller and a zero in the quotient", 3015, 5,
     [("smaller", first_smaller(3015, 5)), ("middle", qzero(3015, 5) == "MIDDLE")])
+div("DZ07", "A zero at the end of the quotient from a last digit smaller than the divisor", 62, 3,
+    [("end", qzero(62, 3) == "END"), ("2 < 3", digits(62)[-1] < 3)])
 
 # ---------------------------------------------------------------- 7. remainders
 
@@ -440,13 +444,13 @@ div("DR10", "÷10 with a remainder", 457, 10)
 # ---------------------------------------------------------------- 8. methods
 
 section(8, "Methods and pictures",
-        "Every way the school's objectives name, and the standard ones, each with the same numbers worked through.")
+        "Every way the school's objectives name, and the standard ones, each worked through on its own example.")
 a, d = 23, 4
 case("G01", "Equal groups (a picture)", "3 groups of 4 dots: how many dots?", 12)
 case("G02", "Repeated addition", "4 + 4 + 4 = 3 × □ = □", "4 and 12", [("sum", 4 + 4 + 4 == 3 * 4)])
 case("G03", "Skip counting", "5, 10, 15, 20, □", 25)
 case("G04", "Jumps on a number line", "4 jumps of 3 from 0 land on □", 12)
-case("G05", "An array", "3 rows of 5 stars: □ × □ = □", "3 × 5 = 15")
+case("G05", "An array", "3 rows of 5 stars: □ × □ = □", "3 × 5 = 15 (5 × 3 = 15 is right too)")
 case("G06", "Doubling (×2, ×4 = double double, ×8)", "14 × 4: double 14 = 28, double 28 = □", 56,
      [("×4", 14 * 4 == 56)])
 case("G07", "Partitioning, in a line", f"{a} × {d} = 20 × {d} + 3 × {d} = {20 * d} + {3 * d} = □", a * d,
@@ -499,7 +503,7 @@ def chunks(n, d):
 
 
 ch = chunks(96, 4)
-case("G22", "Chunking: take away tens of the divisor, then the rest",
+case("G22", "Chunking: take away ten lots of the divisor, then the rest",
      "96 ÷ 4: " + ", ".join(f"take {k} × 4" for k in ch) + f" → {' + '.join(map(str, ch))} = □", sum(ch),
      [("chunks", sum(ch) == 96 // 4)], op="÷")
 st = divide(72, 4)
@@ -507,7 +511,9 @@ case("G23", "Short division (bus stop): the exchange written small",
      f"72 ÷ 4: 7 ÷ 4 = {st[0]['q']} r {st[0]['r']}, exchange → {st[1]['value']} ÷ 4 = {st[1]['q']}", 18, op="÷")
 st = divide(516, 4)
 case("G24", "Long division: divide, multiply, take away, bring down",
-     "516 ÷ 4: " + "; ".join(f"{s['value']} ÷ 4 = {s['q']} r {s['r']}" for s in st), 516 // 4, op="÷")
+     "516 ÷ 4: " + "; ".join(f"{s['value']} ÷ 4 = {s['q']}, {s['value']} − {s['q'] * 4} = {s['r']}"
+                             + (f", bring down {x} → {s['r'] * 10 + x}" if x is not None else "")
+                             for s, x in zip(st, digits(516)[1:] + [None], strict=True)), 516 // 4, op="÷")
 case("G25", "Halving (÷2, ÷4 = halve twice)", "96 ÷ 4: halve 96 = 48, halve 48 = □", 24, op="÷")
 
 # ---------------------------------------------------------------- 9. missing numbers and digits
@@ -543,13 +549,14 @@ section(10, "Equality, inverse and properties; multiples and factors",
         "What × and ÷ are, beyond working them out: the rules they keep, how they undo each other, and what a "
         "multiple and a factor are.")
 case("Y01", "Order does not change a product", "6 × 8 = 8 × □", 6)
-case("Y02", "Three numbers, grouped either way", "2 × 7 × 5 = 2 × 5 × 7 = □", 70, [("assoc", 2 * 7 * 5 == 70)])
+case("Y02", "Three numbers, grouped either way", "(2 × 7) × 5 = 2 × (7 × 5) = □", 70,
+     [("assoc", (2 * 7) * 5 == 2 * (7 * 5) == 70)])
 case("Y03", "Partitioning a factor (distributive)", "7 × 12 = 7 × 10 + 7 × □", 2)
 case("Y04", "Anything × 0", "456 × 0", 0)
 case("Y05", "× 1 and ÷ 1 leave a number unchanged", "37 × 1 and 37 ÷ 1", "37 and 37")
 case("Y06", "A number ÷ itself, and 0 ÷ a number", "9 ÷ 9 and 0 ÷ 9", "1 and 0", op="÷")
 case("Y07", "True or false: 9 ÷ 0 = 0", "9 ÷ 0 = 0", "false: there is no answer", op="÷")
-case("Y08", "True or false: division cannot be turned round", "12 ÷ 3 = 3 ÷ 12", "false", op="÷")
+case("Y08", "True or false: 12 ÷ 3 = 3 ÷ 12", "12 ÷ 3 = 3 ÷ 12", "false: division cannot be turned round", op="÷")
 case("Y09", "A fact family", "4, 7, 28: write the four facts", "4 × 7 = 28, 7 × 4 = 28, 28 ÷ 4 = 7, 28 ÷ 7 = 4")
 case("Y10", "Check a division by multiplying", "96 ÷ 4 = 24? 24 × 4 = □", 96, op="÷")
 case("Y11", "Balance: × against −", "3 × 8 = 30 − □", 6, [("24", 30 - 6 == 24)])
@@ -619,9 +626,9 @@ case("B06", "Price: the cost of many", "One pencil costs ₹6. What do 8 pencils
 case("B07", "Price: the cost of one", "8 pencils cost ₹48. What does one cost?", "₹6", op="÷")
 case("B08", "Times as many: the larger", "Riya has 4 stickers. Dev has 3 times as many. How many has Dev?", 12)
 case("B09", "Times as many: the smaller", "Dev has 12 stickers, 3 times as many as Riya. How many has Riya?", 4, op="÷")
-case("B10", "Times as many: how many times", "Dev has 12 stickers and Riya has 4. How many times as many has Dev?", 3,
+case("B10", "Times as many: how many times", "Dev has 12 stickers and Riya has 4. How many times as many stickers as Riya does Dev have?", 3,
      op="÷")
-case("B11", "Twice and half", "Aman read 15 pages. Meera read twice as many. How many did Meera read?", 30)
+case("B11", "Twice as many", "Aman read 15 pages. Meera read twice as many. How many did Meera read?", 30)
 case("B12", "Combinations", "3 shirts and 4 shorts. How many different outfits?", 12)
 case("B13", "Area in squares", "A rectangle 6 squares long and 4 squares wide. How many squares?", 24)
 case("B14", "A remainder dropped (full boxes)", "26 laddoos, 4 in each box. How many full boxes?", 6,
@@ -645,8 +652,14 @@ case("B24", "\"Each\" that means ÷", "30 stickers, 5 for each child. How many c
 case("B25", "A number the question does not need", "A van carries 8 boxes of 9 mangoes and 3 drivers. How many "
      "mangoes?", 72)
 case("B26", "Read from a price list", "Price list: pen ₹15, eraser ₹5. What do 3 pens cost?", "₹45")
+case("B27", "Half as many", "Meera read 30 pages. Aman read half as many. How many did Aman read?", 15, op="÷")
 
 # ---------------------------------------------------------------- 14. error diagnosis
+
+
+def E(code, a, b):
+    """An existing mistake's wrong answer, from the engine's own predictor (assess/misconceptions.py)."""
+    return M.predict("×", a, b).get(code)
 
 
 def concat(a, d):
@@ -663,7 +676,17 @@ def carry_first(a, d):
         v = (x + carry) * d
         out.append(v % 10)
         carry = v // 10
-    return int(str(carry) + "".join(map(str, reversed(out)))) if carry else int("".join(map(str, reversed(out))))
+    return int(str(carry or "") + "".join(map(str, reversed(out))))
+
+
+def carry_onto_zero_lost(a, d):
+    """A carry that lands on a zero digit is dropped: 0 × d is written and the carry forgotten."""
+    out, carry = [], 0
+    for x in reversed(digits(a)):
+        v = x * d + (carry if x else 0)
+        out.append(v % 10)
+        carry = v // 10
+    return int(str(carry or "") + "".join(map(str, reversed(out))))
 
 
 def placeholder(a, b):
@@ -674,25 +697,68 @@ def columnwise(a, b):
     return int("".join(str(x * y) for x, y in zip(digits(a), digits(b), strict=True)))
 
 
+def stale_carry(a, b):
+    """2 × 2 digits: the first row's carry stays written above the tens and is added again in the second row."""
+    a1, a0 = divmod(a, 10)
+    b1, b0 = divmod(b, 10)
+    first_carry, ones = (a0 * b0) // 10, a0 * b1
+    second = (a1 * b1 + ones // 10 + first_carry) * 10 + ones % 10
+    return a * b0 + second * 10
+
+
+def grid_cell_dropped(a, b):
+    """A grid added without its ones-by-ones cell."""
+    return a * b - (a % 10) * (b % 10)
+
+
+def tens_zero_extra(n, d):
+    """÷ by a 1-digit number: the fact borrows one of the zeros, then every zero is written back."""
+    k = len(str(n)) - len(str(n).rstrip("0"))
+    core = n // 10**k
+    return (core * 10 // d if core < d else core // d) * 10**k
+
+
 def drop_qzero(n, d):
     return int(str(n // d).replace("0", ""))
-
-
-def right_to_left(n, d):
-    return int(str(n // d)[::-1])
 
 
 def digitwise(n, d):
     return int("".join(str(x // d) for x in digits(n)).lstrip("0") or "0")
 
 
+def remainder_added(n, d):
+    """The remainder is added to the next digit instead of becoming tens of it."""
+    q, r = "", 0
+    for x in digits(n):
+        v = r + x
+        q, r = q + str(v // d), v % d
+    return f"{int(q)} r {r}"
+
+
 def lead_dropped(n, d):
     return int(str(n)[1:]) // d
 
 
-def E(code, a, b):
-    """An existing mistake's wrong answer, from the engine's own predictor (assess/misconceptions.py)."""
-    return M.predict("×", a, b).get(code)
+def bring_down_missed(n, d):
+    return qr(n // 10, d)
+
+
+def too_big(n, d):
+    return f"{n // d - 1} r {n % d + d}"
+
+
+def bigger_by_smaller(n, d):
+    return qr(max(n, d), min(n, d))
+
+
+MISTAKES = []
+
+
+def mistake(code, op, what, example, right, wrong, seen="answer", charges="the skill"):
+    """One named mistake: its wrong answer is the value a predictor computed from the example's own numbers."""
+    if wrong is None or str(wrong) == str(right):
+        FAULTS.append(f"{code}: its wrong answer for {example} is {wrong}, not a wrong answer")
+    MISTAKES.append((code, op, what, example, right, wrong, seen, charges))
 
 
 for name, mine, a, b in [("M_MUL_NO_CARRY", no_carry, 34, 6), ("M_MUL_CONCAT", concat, 56, 3),
@@ -700,71 +766,77 @@ for name, mine, a, b in [("M_MUL_NO_CARRY", no_carry, 34, 6), ("M_MUL_CONCAT", c
     if mine(a, b) != E(name, a, b):
         FAULTS.append(f"{name}: this file computes {mine(a, b)} for {a} × {b}, the engine {E(name, a, b)}")
 
-MISTAKES = [
-    # code, op, what the child does, example, right, wrong, how it is seen, charges
-    ("M_MUL_NO_CARRY", "×", "Writes each column's product without its carry", "34 × 6", 204, E("M_MUL_NO_CARRY", 34, 6),
-     "answer", "the skill"),
-    ("M_MUL_CONCAT", "×", "Writes each digit's product side by side (Aseem's 56 × 3)", "56 × 3", 168,
-     E("M_MUL_CONCAT", 56, 3), "answer", "the skill"),
-    ("M_MUL_CARRY_FIRST", "×", "Adds the carry before multiplying", "34 × 6", 204, E("M_MUL_CARRY_FIRST", 34, 6),
-     "answer", "the skill"),
-    ("M_MUL_ONES_ONLY", "×", "Multiplies only the ones", "34 × 6", 204, E("M_MUL_ONES_ONLY", 34, 6), "answer",
-     "the skill"),
-    ("M_MUL_UNITS_REVERSED", "×", "Writes only each product's units digit, ones first", "34 × 2", 68,
-     E("M_MUL_UNITS_REVERSED", 34, 2), "answer", "the skill"),
-    ("M_MUL_ROW_OUT", "×", "Answers the row above in the table", "34 × 6", 204, E("M_MUL_ROW_OUT", 34, 6), "answer",
-     "the facts"),
-    ("M_GROUP_MISSED", "×", "Adds one group fewer than there are", "3 groups of 4", 12, 8, "answer", "the skill"),
-    ("M_ONE_GROUP", "×", "Writes how many are in one group", "3 groups of 4", 12, 4, "answer", "the skill"),
-    ("M_FACT_NEIGHBOUR (new)", "×", "Answers a neighbouring fact, one group more", "7 × 8", 56, 7 * 9, "answer",
-     "the facts"),
-    ("M_WRONG_OP", "×", "Adds the numbers", "34 × 6", 204, E("M_WRONG_OP", 34, 6), "answer", "the skill"),
-    ("M_MUL_ZERO_AS_ONE (new)", "×", "Treats × 0 as leaving the number", "7 × 0", 0, 7, "answer", "the facts"),
-    ("M_TENS_ZERO_DROPPED (new)", "×", "Drops a zero when multiplying by 10, 100 or a multiple of ten", "45 × 100",
-     4500, 450, "answer", "the skill"),
-    ("M_TENS_ZERO_EXTRA (new)", "×", "Writes the fact's zero and one more", "50 × 4", 200, 2000, "answer", "the skill"),
-    ("M_PARTITION_TENS_AS_ONES (new)", "×", "Partitions but multiplies the tens digit as ones", "23 × 4", 92,
-     2 * 4 + 3 * 4, "answer", "the skill"),
-    ("M_MUL_PLACEHOLDER (new)", "×", "Second row not moved a place (the zero left out)", "68 × 17", 1156,
-     placeholder(68, 17), "answer", "the skill"),
-    ("M_MUL_COLUMNWISE (new)", "×", "Multiplies tens by tens and ones by ones", "68 × 17", 1156, columnwise(68, 17),
-     "answer", "the skill"),
-    ("M_MUL_ONE_ROW (new)", "×", "Multiplies by the ones of the multiplier only", "68 × 17", 1156, 68 * 7, "answer",
-     "the skill"),
-    ("M_NOCARRY on the rows (existing, addition)", "×", "Adds the two rows without carrying", "19 × 14", 266,
-     M.predict("+", *partials(19, 14)).get("M_NOCARRY"), "answer", "addition"),
-    ("M_GRID_CELL_DROPPED (new)", "×", "Leaves one cell out when adding a grid", "34 × 26", 884, 884 - 24, "working",
-     "the skill"),
-    ("M_DIV_QUOTIENT_ZERO_DROPPED (new)", "÷", "Leaves the zero out of the quotient", "612 ÷ 6", "102",
-     drop_qzero(612, 6), "answer", "the skill"),
-    ("M_DIV_RIGHT_TO_LEFT (new)", "÷", "Divides from the ones, as in adding", "84 ÷ 4", "21", right_to_left(84, 4),
-     "answer", "the skill"),
-    ("M_DIV_EXCHANGE_LOST (new)", "÷", "Divides each digit alone; the remainder is never exchanged", "72 ÷ 4", "18",
-     digitwise(72, 4), "answer", "the skill"),
-    ("M_DIV_LEAD_DROPPED (new)", "÷", "Skips a first digit smaller than the divisor", "156 ÷ 4", "39",
-     lead_dropped(156, 4), "answer", "the skill"),
-    ("M_DIV_REMAINDER_TOO_BIG (new)", "÷", "Stops one group short: the remainder is not less than the divisor",
-     "85 ÷ 4", qr(85, 4), f"{85 // 4 - 1} r {85 % 4 + 4}", "answer", "the skill"),
-    ("M_DIV_REMAINDER_AS_DIGIT (new)", "÷", "Writes the remainder as the quotient's next digit", "85 ÷ 4", qr(85, 4),
-     f"{85 // 4}{85 % 4}", "answer", "the skill"),
-    ("M_DIV_REMAINDER_LEFT_OUT (new)", "÷", "Writes the quotient and nothing for the remainder (blank, not wrong)",
-     "85 ÷ 4", qr(85, 4), f"{85 // 4} r (blank)", "answer", "the skill"),
-    ("M_DIV_SWAPPED (new)", "÷", "Writes the quotient as the remainder and the remainder as the quotient", "85 ÷ 4",
-     qr(85, 4), f"{85 % 4} r {85 // 4}", "answer", "the skill"),
-    ("M_WRONG_OP (÷)", "÷", "Multiplies instead of dividing", "84 ÷ 4", "21", 84 * 4, "answer", "the skill"),
-    ("M_DIV_SUBTRACTED (new)", "÷", "Takes the divisor away once", "84 ÷ 4", "21", 84 - 4, "answer", "the skill"),
-    ("M_REMAINDER_NOT_ROUNDED_UP (new)", "÷", "Drops the remainder when the story needs one more", "26 children, 4 "
-     "a rickshaw", "7", 26 // 4, "answer", "word problems"),
-    ("M_KEYWORD_OVERGENERALISED (existing)", "÷", "Multiplies because the story says \"each\"", "24 laddoos shared, "
-     "4 plates", "6", 24 * 4, "answer", "word problems"),
-]
-for code, _op, _what, ex, right, wrong, _seen, _charges in MISTAKES:
-    if wrong is None or str(wrong) == str(right):
-        FAULTS.append(f"{code}: its wrong answer for {ex} is {wrong}, not a wrong answer")
+mistake("M_MUL_NO_CARRY", "×", "Writes each column's product without its carry", "34 × 6", 34 * 6,
+        E("M_MUL_NO_CARRY", 34, 6))
+mistake("M_MUL_CONCAT", "×", "Writes each digit's product side by side (Aseem's 56 × 3)", "56 × 3", 56 * 3,
+        E("M_MUL_CONCAT", 56, 3))
+mistake("M_MUL_CARRY_FIRST", "×", "Adds the carry before multiplying", "34 × 6", 34 * 6, E("M_MUL_CARRY_FIRST", 34, 6))
+mistake("M_MUL_ONES_ONLY", "×", "Multiplies only the ones", "34 × 6", 34 * 6, E("M_MUL_ONES_ONLY", 34, 6))
+mistake("M_MUL_UNITS_REVERSED", "×", "Writes only each product's units digit, ones first", "56 × 3", 56 * 3,
+        E("M_MUL_UNITS_REVERSED", 56, 3))
+mistake("M_MUL_ROW_OUT", "×", "Answers the row next to it in the table (one group fewer)", "7 × 8", 7 * 8,
+        E("M_MUL_ROW_OUT", 7, 8), charges="the facts")
+mistake("M_GROUP_MISSED", "×", "Adds one group fewer than there are", "3 groups of 4", 3 * 4, (3 - 1) * 4)
+mistake("M_ONE_GROUP", "×", "Writes how many are in one group", "3 groups of 4", 3 * 4, 4)
+mistake("M_WRONG_OP", "×", "Adds the numbers", "34 × 6", 34 * 6, E("M_WRONG_OP", 34, 6))
+mistake("M_ZERO_AS_ONE (new)", "×", "Treats × 0 as leaving the number", "7 × 0", 7 * 0, 7, charges="the facts")
+mistake("M_ONE_ADDED (new)", "×", "Treats × 1 as adding one", "7 × 1", 7 * 1, 7 + 1, charges="the facts")
+mistake("M_TENS_ZERO_DROPPED (new)", "×", "Writes one zero fewer when multiplying by 10, 100 or a multiple of ten",
+        "45 × 100", 45 * 100, 45 * 100 // 10)
+mistake("M_PARTITION_TENS_AS_ONES (new)", "×", "Partitions but multiplies the tens digit as ones", "23 × 4", 23 * 4,
+        sum(x * 4 for x in digits(23)))
+mistake("M_MUL_CARRY_ONTO_ZERO_LOST (new)", "×", "Forgets a carry that lands on a zero", "506 × 7", 506 * 7,
+        carry_onto_zero_lost(506, 7))
+mistake("M_MUL_PLACEHOLDER (new)", "×", "Second row not moved a place (the zero left out)", "68 × 17", 68 * 17,
+        placeholder(68, 17))
+mistake("M_MUL_COLUMNWISE (new)", "×", "Multiplies tens by tens and ones by ones", "68 × 17", 68 * 17,
+        columnwise(68, 17))
+mistake("M_MUL_ONE_ROW (new)", "×", "Multiplies by the ones of the multiplier only", "68 × 17", 68 * 17, 68 * 7)
+mistake("M_MUL_STALE_CARRY (new)", "×", "Adds the first row's carry again in the second row", "47 × 23", 47 * 23,
+        stale_carry(47, 23))
+mistake("M_NOCARRY on the rows (existing, addition)", "×", "Adds the two rows without carrying", "19 × 14", 19 * 14,
+        M.predict("+", *partials(19, 14)).get("M_NOCARRY"), charges="addition")
+mistake("M_GRID_CELL_DROPPED (new)", "×", "Leaves the ones-by-ones cell out when adding a grid", "34 × 26", 34 * 26,
+        grid_cell_dropped(34, 26), seen="working")
+mistake("M_DIV_QUOTIENT_ZERO_DROPPED (new)", "÷", "Leaves the zero out of the quotient", "804 ÷ 4", 804 // 4,
+        drop_qzero(804, 4))
+mistake("M_DIV_EXCHANGE_LOST (new)", "÷", "Divides each digit alone; the remainder is never exchanged", "72 ÷ 4",
+        72 // 4, digitwise(72, 4))
+mistake("M_DIV_REMAINDER_ADDED (new)", "÷", "Adds the remainder to the next digit instead of making it tens",
+        "72 ÷ 4", 72 // 4, remainder_added(72, 4))
+mistake("M_DIV_LEAD_DROPPED (new)", "÷", "Skips a first digit smaller than the divisor", "156 ÷ 4", 156 // 4,
+        lead_dropped(156, 4))
+mistake("M_DIV_BRING_DOWN_MISSED (new)", "÷", "Stops before bringing down the last digit", "516 ÷ 4", 516 // 4,
+        bring_down_missed(516, 4))
+mistake("M_DIV_REMAINDER_TOO_BIG (new)", "÷", "Stops one group short: the remainder is not less than the divisor",
+        "85 ÷ 4", qr(85, 4), too_big(85, 4))
+mistake("M_DIV_REMAINDER_AS_DIGIT (new)", "÷", "Writes the remainder as the quotient's next digit", "85 ÷ 4", qr(85, 4),
+        f"{85 // 4}{85 % 4}")
+mistake("M_DIV_SWAPPED (new)", "÷", "Writes the quotient and the remainder the wrong way round", "17 ÷ 5", qr(17, 5),
+        f"{17 % 5} r {17 // 5}")
+mistake("M_DIV_BIGGER_BY_SMALLER (new)", "÷", "Divides the bigger number by the smaller whichever comes first",
+        "3 ÷ 5", qr(3, 5), bigger_by_smaller(3, 5))
+mistake("M_DIV_SELF_AS_ZERO (new)", "÷", "Treats a number ÷ itself as nothing left", "7 ÷ 7", 7 // 7, 7 - 7,
+        charges="the facts")
+mistake("M_DIV_ZERO_DIVIDED (new)", "÷", "Answers the divisor when zero is divided", "0 ÷ 5", 0 // 5, 5,
+        charges="the facts")
+mistake("M_DIV_TENS_ZERO_LEFT (new)", "÷", "Takes away one zero fewer when dividing by 10 or 100", "4500 ÷ 100",
+        4500 // 100, 4500 // 100 * 10)
+mistake("M_DIV_TENS_ZERO_EXTRA (new)", "÷", "Uses a zero for the fact, then writes every zero back", "200 ÷ 4",
+        200 // 4, tens_zero_extra(200, 4))
+mistake("M_WRONG_OP (÷)", "÷", "Multiplies instead of dividing", "84 ÷ 4", 84 // 4, 84 * 4)
+mistake("M_DIV_SUBTRACTED (new)", "÷", "Takes the divisor away once", "84 ÷ 4", 84 // 4, 84 - 4)
+mistake("M_REMAINDER_NOT_ROUNDED_UP (new)", "÷", "Drops the remainder when the story needs one more",
+        "26 children, 4 to a rickshaw", -(-26 // 4), 26 // 4, charges="word problems")
+mistake("M_TIMES_AS_MORE (new)", "×", "Reads \"3 times as many\" as \"3 more\"", "4 stickers, 3 times as many",
+        4 * 3, 4 + 3, charges="word problems")
+mistake("M_KEYWORD_OVERGENERALISED (existing)", "÷", "Multiplies because the story says \"each\"",
+        "24 laddoos shared on 4 plates", 24 // 4, 24 * 4, charges="word problems")
+
 
 section(14, "Error diagnosis",
-        "Each mistake below is computed by code from the question's numbers; the table shows what it makes of one "
-        "example. Then the find-the-mistake cases that ask the child to spot one.")
+        "Every wrong answer below is computed by a predictor from its example's own numbers. A blank box is the blank "
+        "signal, never a named mistake (rule 5). Then the find-the-mistake cases that ask the child to spot one.")
 case("C01", "Find the mistake: products side by side", f"56 × 3 = {concat(56, 3)}", "M_MUL_CONCAT")
 case("C02", "Find the mistake: carries left out", f"34 × 6 = {no_carry(34, 6)}", "M_MUL_NO_CARRY")
 case("C03", "Find the mistake: the second row not moved", f"68 × 17 = {placeholder(68, 17)}", "M_MUL_PLACEHOLDER")
@@ -773,12 +845,12 @@ case("C04", "Find the mistake: the zero left out of the quotient", f"612 ÷ 6 = 
 case("C05", "Find the mistake: a remainder too big", "85 ÷ 4 = 20 r 5", "M_DIV_REMAINDER_TOO_BIG", op="÷")
 case("C06", "Find the mistake: partitioning, tens taken as ones", "23 × 4 = 2 × 4 + 3 × 4 = 20",
      "M_PARTITION_TENS_AS_ONES")
-case("C07", "Say which step of a long division went wrong", "516 ÷ 4 worked with the 6 never brought down",
-     "the bring-down step", op="÷")
-case("C08", "Explain why an answer cannot be right", "47 ÷ 6 = 6 r 11", "11 is more than 6: one more 6 fits",
-     op="÷")
+case("C07", "Say which step of a long division went wrong", f"516 ÷ 4 = {bring_down_missed(516, 4)}",
+     "M_DIV_BRING_DOWN_MISSED: the 6 was never brought down", op="÷")
+case("C08", "Explain, by multiplying back, why an answer cannot be right", "804 ÷ 4 = 21", "21 × 4 = 84, not 804",
+     [("84", 21 * 4 == 84)], op="÷")
 case("C09", "Find the mistake: the carry onto the zero left out", f"506 × 7 = {506 * 7 - 40}",
-     "the tens: 0 × 7 + 4 = 4", [("one carry lost", 506 * 7 - 40 == 3502)])
+     "M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4", [("one carry lost", carry_onto_zero_lost(506, 7) == 3502)])
 
 # ---------------------------------------------------------------- 16. the skills the cases become
 
@@ -786,33 +858,33 @@ SKILLS = [
     # code, outcome sentence, grades E/M/H/A, {level: cases}, methods at the straight levels
     ("MUL.GROUPS", "Finds how many in equal groups by adding the same number again (exists, unchanged)",
      "G1 G1 – G1", {"Easy": ["G01", "G02"], "Medium": ["G01", "G02"], "Advance": ["B01"]}, []),
-    ("MUL.MODELS", "Shows multiplication as skip counting, arrays, jumps on a number line and doubling",
-     "G1 G1 G2 G2", {"Easy": ["G03", "G05"], "Medium": ["G04", "G14"], "Hard": ["G06", "TF17"],
+    ("MUL.MODELS", "Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square",
+     "G1 G1 G2 G2", {"Easy": ["G03", "G05"], "Medium": ["G04"], "Hard": ["G14", "TF17"],
                      "Advance": ["B04", "B11", "B13"]}, []),
     ("MUL.FACTS", "Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order",
-     "G1 G2 G3 G4", {"Easy": ["TF03", "TF04", "TF05"], "Medium": ["TF01", "TF02", "TF06", "TF07", "TF15"],
+     "G1 G1 G2 G3", {"Easy": ["TF03", "TF04", "TF05"], "Medium": ["TF01", "TF02", "TF06", "TF07", "TF15"],
                      "Hard": ["TF08", "TF09", "TF10", "TF11", "TF12", "TF16"],
                      "Advance": ["TF13", "TF14", "Q01", "Q02", "Q06", "Y09", "H08"]}, []),
     ("MUL.TENS", "Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros",
      "G3 G3 G4 G4", {"Easy": ["TP01", "TP04"], "Medium": ["TP02", "TP03", "TP05"],
                      "Hard": ["TP06", "TP07", "TP08", "TP09"], "Advance": ["TP10", "Q14", "H10", "TZ08"]}, []),
     ("MUL.2D1D", "Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more",
-     "G2 G2 G3 G3", {"Easy": ["T01", "T02", "T03"], "Medium": ["T04", "T05", "TC09"],
-                     "Hard": ["T06", "T07", "T08", "T09", "T10", "TC10", "TZ05"],
+     "G2 G2 G3 G3", {"Easy": ["T01", "T02", "T03"], "Medium": ["T04", "T05", "T06"],
+                     "Hard": ["T07", "T08", "T09", "T10", "TC09", "TZ05"],
                      "Advance": ["Q07", "Q08", "Q11", "C01", "C02", "C06", "V01", "V07", "B06", "B08", "H01", "H07"]},
      ["T02", "G07", "G08", "G10", "G11"]),
     ("MUL.3D1D", "Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero",
      "G4 G4 G4 G4", {"Easy": ["T11", "TC01", "TZ02"], "Medium": ["TC02", "TC03", "TC05", "TZ01"],
-                     "Hard": ["T12", "TC04", "TC06", "TC07", "TC08", "TC11", "TC12", "TZ03", "TZ06"],
+                     "Hard": ["T12", "TC04", "TC06", "TC07", "TC08", "TC10", "TC11", "TZ03", "TZ06"],
                      "Advance": ["T13", "Q16", "C09"]}, ["T14", "G10", "G11"]),
     ("MUL.2D2D", "Multiplies two 2-digit numbers, a row for each digit with the second row moved a place",
-     "G4 G4 G4 G4", {"Easy": ["T17"], "Medium": ["T18", "T21", "TZ07"], "Hard": ["T19", "T20"],
+     "G4 G4 G4 G4", {"Easy": ["T17"], "Medium": ["T18", "TZ07"], "Hard": ["T19", "T20", "T21"],
                      "Advance": ["C03", "V02", "V03", "Q15", "B12"]}, ["T22", "G09", "G12", "G13"]),
     ("DIV.GROUPS", "Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back",
      "G1 G1 G2 G2", {"Easy": ["G15", "G16"], "Medium": ["G17", "G19"], "Hard": ["G18"],
                      "Advance": ["B02", "B03", "B05", "B24"]}, []),
     ("DIV.FACTS", "Recalls division facts as the tables backwards, with a remainder when one is left",
-     "G1 G2 G3 G4", {"Easy": ["DF04", "DF05", "DF06"], "Medium": ["DF01", "DF02", "DF03", "DF07", "DF08", "DF15"],
+     "G1 G2 G2 G3", {"Easy": ["DF04", "DF05", "DF06"], "Medium": ["DF01", "DF02", "DF03", "DF07", "DF08", "DF15"],
                      "Hard": ["DF09", "DF10", "DF11", "DF12"],
                      "Advance": ["DF13", "DF14", "DF16", "DR01", "DR02", "DR03", "Q03", "Q04", "Q05", "Y10", "G20",
                                  "B07"]}, []),
@@ -820,7 +892,7 @@ SKILLS = [
      {"Easy": ["DP01"], "Medium": ["DP02", "DP03"], "Hard": ["DP04", "DP05", "DP06", "DP07"],
       "Advance": ["DR10", "H09"]}, []),
     ("DIV.2D1D", "Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit",
-     "G3 G3 G4 G4", {"Easy": ["D01", "D02"], "Medium": ["D03", "D04"], "Hard": ["DR04", "DR05"],
+     "G2 G2 G3 G3", {"Easy": ["D01", "D02"], "Medium": ["D03", "D04"], "Hard": ["DR04", "DR05", "DZ07"],
                      "Advance": ["Q09", "Q12", "Q13", "C05", "V09", "B14", "B15", "B16", "B17"]},
      ["D02", "G21", "G22", "G23", "G25"]),
     ("DIV.3D1D", "Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient",
@@ -828,15 +900,15 @@ SKILLS = [
                      "Hard": ["D08", "D09", "D10", "DZ01", "DZ02", "DZ03", "DZ04", "DR06", "DR07", "DR08"],
                      "Advance": ["Q10", "C04", "C07", "V04", "V10"]}, ["G22", "G23", "G24"]),
     ("MD.WORD", "Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the "
-     "story needs", "G2 G2 G3 G4", {"Easy": ["B01", "B02", "B03", "B06"], "Medium": ["B04", "B05", "B07", "B11"],
+     "story needs", "G2 G2 G3 G4", {"Easy": ["B01", "B02", "B03", "B06"], "Medium": ["B04", "B05", "B07", "B11", "B27"],
                                     "Hard": ["B08", "B09", "B10", "B14", "B15", "B16", "B17"],
                                     "Advance": ["B12", "B13", "B18", "B19", "B20", "B21", "B22", "B23", "B25", "B26"]},
      []),
     ("MD.MENTAL", "Multiplies and divides in the head by doubling, halving, tens and known facts",
-     "G2 G3 G3 G4", {"Easy": ["G06", "G25", "H05"], "Medium": ["H01", "H04", "H08"],
-                     "Hard": ["H02", "H03", "H07", "H09", "H10"], "Advance": ["H06"]}, []),
+     "G2 G3 G3 G4", {"Easy": ["G06", "H10"], "Medium": ["H01", "H04", "H08"],
+                     "Hard": ["H02", "H03", "H05", "H07", "H09", "G25"], "Advance": ["H06"]}, []),
     ("MD.MULTIPLES", "Finds multiples and factors and tells divisibility by 2, 3, 5 and 10",
-     "G3 G3 G4 G4", {"Easy": ["F01", "F02"], "Medium": ["F03", "F04", "F08"], "Hard": ["F05", "F06"],
+     "G3 G3 G4 G4", {"Easy": ["F01", "F02", "F06"], "Medium": ["F03", "F04", "F08"], "Hard": ["F05"],
                      "Advance": ["F07"]}, []),
     ("MD.EQUALITY", "Uses × and ÷ as inverses, keeps a balance true and knows the rules of 0 and 1",
      "G3 G3 G4 G4", {"Easy": ["Y01", "Y04", "Y05", "Y06", "Y16"], "Medium": ["Y02", "Y09", "Y10", "Y15"],
@@ -930,7 +1002,8 @@ def body(num):
         n_cases = len(CASES)
         return (f"## Suggested progression and the skills it becomes\n\n{len(SKILLS)} skills, every one of the "
                 f"{n_cases} cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; "
-                "Advance mixes missing numbers, stories, finding the mistake and estimating. Grades are assumed "
+                "Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and "
+                "estimating. Grades are assumed "
                 "(A6) and move as rows.\n\n"
                 + table(["Skill", "Can do", "Grade by level", "Easy", "Medium", "Hard", "Advance",
                          "Methods printed at Easy to Hard"], rows)

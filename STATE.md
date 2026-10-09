@@ -4587,8 +4587,19 @@ on a database built by `bin/testdb fresh` from the repository (21,289 active que
 - **July's real multiplication answers sit on one rung.** `grep -c '"rung": "M1"'` over G3-BASE16, G3-QUIZ20 and
   G4-BASE16 → 5, 12, 6: table facts, 8 × ___ = 72, ×10 and ×100, 2-digit × 1-digit and 144 ÷ 12, all on `M1`.
 - **The taxonomy draft checks itself.** `packages/engine/.venv/bin/python research/md_taxonomy.py --check` →
-  `246 cases in 13 sections, 31 mistakes, 17 skills: every example recomputed, every case placed or listed unplaced,
+  `247 cases in 13 sections, 38 mistakes, 17 skills: every example recomputed, every case placed or listed unplaced,
   0 faults`. Two checks were broken on purpose (a "carry 1" case given carry 2, a two-digit puzzle given a wrong
   answer) and the run named both and failed.
+- **A second reader reviewed the draft before it shipped** and found what `--check` does not test. Each finding was
+  fixed in `research/md_taxonomy.py` and the doc:
+  - labels that did not match their numbers: 612 ÷ 6 given as a zero from a 0 digit; a "fewer digits" 2 × 2 case
+    that every other 2 × 2 case shared;
+  - two items that were the same item;
+  - wrong values that were typed rather than computed. Every mistake's wrong answer now comes from a predictor;
+  - implausible mistakes, replaced by common ones: a remainder added to the next digit (72 ÷ 4 → 11 r 1); a first
+    row's carry reused in the second (47 × 23 → 1281); "3 times as many" read as "3 more";
+  - a blank remainder named as a mistake, against rule 5;
+  - levels out of order within a skill;
+  - grades later than the school's own objectives place them.
 - **Not checked:** what the school teaches in each grade now, and which methods. Both are assumptions (ADR 0047, A1
   and A6) until Achal corrects the doc or an educator declares them.

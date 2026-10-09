@@ -11,7 +11,7 @@ is verified. This file only says where the last session stopped.
   - the taxonomy draft `docs/design/multiplication-division-taxonomy.md`, also shared as a doc for Achal
     (claude.ai/code/artifact/bdba6993-2e65-4a57-a251-c2926011b5b1);
   - its cases as data, `docs/design/multiplication-division-cases.json`;
-  - its generator and checker, `research/md_taxonomy.py`: 246 cases, 31 mistakes, 17 skills, 0 faults;
+  - its generator and checker, `research/md_taxonomy.py`: 247 cases, 38 mistakes, 17 skills, 0 faults;
   - the twelve assumptions, ADR 0047;
   - the plan, BUILD-ORDER "Inserted now: multiplication and division", slices M0 to M5;
   - what was measured, STATE.md "Multiplication and division — measured before the build".

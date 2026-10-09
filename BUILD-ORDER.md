@@ -21,8 +21,8 @@ most kinds silently treat × as subtraction; a library worksheet's question with
 144 ÷ 12 with them.
 
 **The taxonomy, drafted by the engine for Achal:** `docs/design/multiplication-division-taxonomy.md`, shared as a doc
-for him to correct (claude.ai/code/artifact/bdba6993-2e65-4a57-a251-c2926011b5b1). 246 cases in the add/sub document's
-shape, every method the school's objectives name and the standard ones, 31 named mistakes with their wrong answers
+for him to correct (claude.ai/code/artifact/bdba6993-2e65-4a57-a251-c2926011b5b1). 247 cases in the add/sub document's
+shape, every method the school's objectives name and the standard ones, 38 named mistakes with their wrong answers
 computed, 17 skills with every case placed or listed unplaced. `research/md_taxonomy.py --check` recomputes every
 example and fails on any case whose numbers lack its property. The twelve assumptions are ADR 0047; a correction from
 Achal is a change of rows run through M1's command, not a new plan.
@@ -36,7 +36,7 @@ workflow, recorded in STATE.md at M5.
 | Slice | Goal file | Green means |
 |---|---|---|
 | M0 | `goals/md0-every-answer-counts.yaml` | every answer of a question with several answers is read, marked, queued and counted on its own (the 4,437 included); ÷ is an operation wherever one is named (compute, verifier, `misconception.op`, `skills.by_operation` and its pattern, the case dimension, the old-paper sum pattern, the equation parser, mistake names); a kind handed an operation it cannot make refuses in a sentence, never subtracts; the reports read skill sets by skill set, not by rung; a skill set's own skill no longer falls to a tie (`MUL.GROUPS` reads as addition today); files over their ceiling split at real seams, no limit raised |
-| M1 | `goals/md1-taxonomy-rows.yaml` | the 246 cases are `taxonomy_case` rows and the new dimensions `case_dimension` rows; code measures every new tag for × and ÷; `engine bank taxonomy` counts every case; a test holds the rows to `docs/design/multiplication-division-cases.json` |
+| M1 | `goals/md1-taxonomy-rows.yaml` | the 247 cases are `taxonomy_case` rows and the new dimensions `case_dimension` rows; code measures every new tag for × and ÷; `engine bank taxonomy` counts every case; a test holds the rows to `docs/design/multiplication-division-cases.json` |
 | M2 | `goals/md2-multiplication.yaml` | seven skills (`MUL.GROUPS` unchanged, `MUL.MODELS`, `MUL.FACTS`, `MUL.TENS`, `MUL.2D1D`, `MUL.3D1D`, `MUL.2D2D`), each level its cases; every method printed (in a line, columns, expanded, partitioning, grid, lattice, long multiplication, arrays, skip counting, number line); the new mistakes predicted; `MUL.1D`'s 864 questions re-homed, none lost, and the set retired; July's answers re-placed on their real skills; ≥ 10 worksheets a level; every scenario 100% |
 | M3 | `goals/md3-division.yaml` | five skills (`DIV.GROUPS`, `DIV.FACTS`, `DIV.TENS`, `DIV.2D1D`, `DIV.3D1D`); a remainder its own answer; short division, long division, chunking, partitioning and the sharing and grouping pictures printed; zeros in the quotient; the new mistakes predicted; 144 ÷ 12 re-placed; worksheets; every scenario 100% |
 | M4 | `goals/md4-stories-and-reasoning.yaml` | `MD.WORD`, `MD.MENTAL`, `MD.MULTIPLES`, `MD.EQUALITY`, `MD.ESTIMATE`; story templates as rows, each with the range its numbers may take, and their eval (rule 7); the mistake → skill table drafted for one approval |

@@ -360,7 +360,7 @@
   "answer": "126",
   "op": "×",
   "placed_in": [
-   "MUL.2D1D:Hard"
+   "MUL.2D1D:Medium"
   ]
  },
  {
@@ -433,7 +433,7 @@
   "code": "T13",
   "section": 3,
   "label": "3 × 1 digits, the 1-digit number first, in a line",
-  "example": "6 × 125",
+  "example": "6 × 125 (in a line)",
   "answer": "750",
   "op": "×",
   "placed_in": [
@@ -472,7 +472,7 @@
  {
   "code": "T17",
   "section": 3,
-  "label": "2 × 2 digits, no regrouping anywhere",
+  "label": "2 × 2 digits, no regrouping anywhere, a 3-digit answer",
   "example": "21 × 13",
   "answer": "273",
   "op": "×",
@@ -483,7 +483,7 @@
  {
   "code": "T18",
   "section": 3,
-  "label": "2 × 2 digits, one row regroups",
+  "label": "2 × 2 digits, one row regroups, a 3-digit answer",
   "example": "16 × 12",
   "answer": "192",
   "op": "×",
@@ -494,7 +494,7 @@
  {
   "code": "T19",
   "section": 3,
-  "label": "2 × 2 digits, both rows regroup",
+  "label": "2 × 2 digits, both rows regroup, a 3-digit answer",
   "example": "36 × 24",
   "answer": "864",
   "op": "×",
@@ -505,7 +505,7 @@
  {
   "code": "T20",
   "section": 3,
-  "label": "2 × 2 digits, both rows regroup and adding the rows carries",
+  "label": "2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit",
   "example": "47 × 23",
   "answer": "1081",
   "op": "×",
@@ -516,12 +516,12 @@
  {
   "code": "T21",
   "section": 3,
-  "label": "2 × 2 digits, the answer has one digit fewer than it could",
-  "example": "31 × 22",
-  "answer": "682",
+  "label": "2 × 2 digits, a 4-digit answer with no carry in adding the rows",
+  "example": "52 × 34",
+  "answer": "1768",
   "op": "×",
   "placed_in": [
-   "MUL.2D2D:Medium"
+   "MUL.2D2D:Hard"
   ]
  },
  {
@@ -662,17 +662,6 @@
  {
   "code": "TC09",
   "section": 4,
-  "label": "2 × 1 digits, the carry is 1",
-  "example": "45 × 2",
-  "answer": "90",
-  "op": "×",
-  "placed_in": [
-   "MUL.2D1D:Medium"
-  ]
- },
- {
-  "code": "TC10",
-  "section": 4,
   "label": "A carry bigger than 1",
   "example": "28 × 7",
   "answer": "196",
@@ -682,7 +671,7 @@
   ]
  },
  {
-  "code": "TC11",
+  "code": "TC10",
   "section": 4,
   "label": "3 × 1 digits, a carry takes a column to ten (knock-on)",
   "example": "125 × 4",
@@ -693,7 +682,7 @@
   ]
  },
  {
-  "code": "TC12",
+  "code": "TC11",
   "section": 4,
   "label": "Every column regroups, the answer full of zeros",
   "example": "667 × 3",
@@ -1023,7 +1012,7 @@
  {
   "code": "DP06",
   "section": 5,
-  "label": "The zero belongs to the fact (20 ÷ 4 = 5)",
+  "label": "The fact uses one of the zeros (20 ÷ 4 = 5)",
   "example": "200 ÷ 4",
   "answer": "50",
   "op": "÷",
@@ -1134,7 +1123,7 @@
  {
   "code": "D09",
   "section": 6,
-  "label": "3 ÷ 1 digits: first digit smaller than the divisor · exchange after the hundreds: yes · after the tens: no",
+  "label": "3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: no",
   "example": "279 ÷ 3",
   "answer": "93",
   "op": "÷",
@@ -1145,7 +1134,7 @@
  {
   "code": "D10",
   "section": 6,
-  "label": "3 ÷ 1 digits: first digit smaller than the divisor · exchange after the hundreds: yes · after the tens: yes",
+  "label": "3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: yes",
   "example": "141 ÷ 3",
   "answer": "47",
   "op": "÷",
@@ -1192,9 +1181,9 @@
  {
   "code": "DZ01",
   "section": 6,
-  "label": "A zero in the middle of the quotient",
-  "example": "612 ÷ 6",
-  "answer": "102",
+  "label": "A zero in the number divided gives a zero in the quotient",
+  "example": "804 ÷ 4",
+  "answer": "201",
   "op": "÷",
   "placed_in": [
    "DIV.3D1D:Hard"
@@ -1250,6 +1239,17 @@
   "answer": "603",
   "op": "÷",
   "placed_in": []
+ },
+ {
+  "code": "DZ07",
+  "section": 6,
+  "label": "A zero at the end of the quotient from a last digit smaller than the divisor",
+  "example": "62 ÷ 3",
+  "answer": "20 r 2",
+  "op": "÷",
+  "placed_in": [
+   "DIV.2D1D:Hard"
+  ]
  },
  {
   "code": "DR01",
@@ -1412,7 +1412,7 @@
   "section": 8,
   "label": "An array",
   "example": "3 rows of 5 stars: □ × □ = □",
-  "answer": "3 × 5 = 15",
+  "answer": "3 × 5 = 15 (5 × 3 = 15 is right too)",
   "op": "×",
   "placed_in": [
    "MUL.MODELS:Easy"
@@ -1426,7 +1426,6 @@
   "answer": "56",
   "op": "×",
   "placed_in": [
-   "MUL.MODELS:Hard",
    "MD.MENTAL:Easy"
   ]
  },
@@ -1517,7 +1516,7 @@
   "answer": "18",
   "op": "×",
   "placed_in": [
-   "MUL.MODELS:Medium"
+   "MUL.MODELS:Hard"
   ]
  },
  {
@@ -1600,7 +1599,7 @@
  {
   "code": "G22",
   "section": 8,
-  "label": "Chunking: take away tens of the divisor, then the rest",
+  "label": "Chunking: take away ten lots of the divisor, then the rest",
   "example": "96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □",
   "answer": "24",
   "op": "÷",
@@ -1625,7 +1624,7 @@
   "code": "G24",
   "section": 8,
   "label": "Long division: divide, multiply, take away, bring down",
-  "example": "516 ÷ 4: 5 ÷ 4 = 1 r 1; 11 ÷ 4 = 2 r 3; 36 ÷ 4 = 9 r 0",
+  "example": "516 ÷ 4: 5 ÷ 4 = 1, 5 − 4 = 1, bring down 1 → 11; 11 ÷ 4 = 2, 11 − 8 = 3, bring down 6 → 36; 36 ÷ 4 = 9, 36 − 36 = 0",
   "answer": "129",
   "op": "÷",
   "placed_in": [
@@ -1641,7 +1640,7 @@
   "op": "÷",
   "placed_in": [
    "DIV.2D1D:method",
-   "MD.MENTAL:Easy"
+   "MD.MENTAL:Hard"
   ]
  },
  {
@@ -1835,7 +1834,7 @@
   "code": "Y02",
   "section": 10,
   "label": "Three numbers, grouped either way",
-  "example": "2 × 7 × 5 = 2 × 5 × 7 = □",
+  "example": "(2 × 7) × 5 = 2 × (7 × 5) = □",
   "answer": "70",
   "op": "×",
   "placed_in": [
@@ -1900,9 +1899,9 @@
  {
   "code": "Y08",
   "section": 10,
-  "label": "True or false: division cannot be turned round",
+  "label": "True or false: 12 ÷ 3 = 3 ÷ 12",
   "example": "12 ÷ 3 = 3 ÷ 12",
-  "answer": "false",
+  "answer": "false: division cannot be turned round",
   "op": "÷",
   "placed_in": [
    "MD.EQUALITY:Advance"
@@ -2061,7 +2060,7 @@
   "answer": "yes, all three",
   "op": "×",
   "placed_in": [
-   "MD.MULTIPLES:Hard"
+   "MD.MULTIPLES:Easy"
   ]
  },
  {
@@ -2139,7 +2138,7 @@
   "answer": "104",
   "op": "×",
   "placed_in": [
-   "MD.MENTAL:Easy"
+   "MD.MENTAL:Hard"
   ]
  },
  {
@@ -2198,7 +2197,7 @@
   "op": "×",
   "placed_in": [
    "MUL.TENS:Advance",
-   "MD.MENTAL:Hard"
+   "MD.MENTAL:Easy"
   ]
  },
  {
@@ -2429,7 +2428,7 @@
   "code": "B10",
   "section": 13,
   "label": "Times as many: how many times",
-  "example": "Dev has 12 stickers and Riya has 4. How many times as many has Dev?",
+  "example": "Dev has 12 stickers and Riya has 4. How many times as many stickers as Riya does Dev have?",
   "answer": "3",
   "op": "÷",
   "placed_in": [
@@ -2439,7 +2438,7 @@
  {
   "code": "B11",
   "section": 13,
-  "label": "Twice and half",
+  "label": "Twice as many",
   "example": "Aman read 15 pages. Meera read twice as many. How many did Meera read?",
   "answer": "30",
   "op": "×",
@@ -2620,6 +2619,17 @@
   ]
  },
  {
+  "code": "B27",
+  "section": 13,
+  "label": "Half as many",
+  "example": "Meera read 30 pages. Aman read half as many. How many did Aman read?",
+  "answer": "15",
+  "op": "÷",
+  "placed_in": [
+   "MD.WORD:Medium"
+  ]
+ },
+ {
   "code": "C01",
   "section": 14,
   "label": "Find the mistake: products side by side",
@@ -2689,8 +2699,8 @@
   "code": "C07",
   "section": 14,
   "label": "Say which step of a long division went wrong",
-  "example": "516 ÷ 4 worked with the 6 never brought down",
-  "answer": "the bring-down step",
+  "example": "516 ÷ 4 = 12 r 3",
+  "answer": "M_DIV_BRING_DOWN_MISSED: the 6 was never brought down",
   "op": "÷",
   "placed_in": [
    "DIV.3D1D:Advance"
@@ -2699,9 +2709,9 @@
  {
   "code": "C08",
   "section": 14,
-  "label": "Explain why an answer cannot be right",
-  "example": "47 ÷ 6 = 6 r 11",
-  "answer": "11 is more than 6: one more 6 fits",
+  "label": "Explain, by multiplying back, why an answer cannot be right",
+  "example": "804 ÷ 4 = 21",
+  "answer": "21 × 4 = 84, not 804",
   "op": "÷",
   "placed_in": [
    "MD.EQUALITY:Advance"
@@ -2712,7 +2722,7 @@
   "section": 14,
   "label": "Find the mistake: the carry onto the zero left out",
   "example": "506 × 7 = 3502",
-  "answer": "the tens: 0 × 7 + 4 = 4",
+  "answer": "M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4",
   "op": "×",
   "placed_in": [
    "MUL.3D1D:Advance"

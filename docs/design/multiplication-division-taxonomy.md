@@ -13,7 +13,7 @@ Twelve decisions the engine took so the build need not wait. Each is a row or a 
 | A3 | A remainder is written "r" and is its own answer. | The quotient and the remainder each get their own boxes and are marked separately. | One box holding "21 r 1" cannot be read digit by digit, and a wrong remainder with a right quotient is a different mistake from the reverse. |
 | A4 | Tables run from 0 to 12. | ×11 and ×12 appear only at Advance. | The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 paper asks 144 ÷ 12. |
 | A5 | The school's words. | "Regroup" for a multiplication carry, "exchange" when a remainder moves to the next digit, never "borrow". "Product, factor, dividend, divisor, quotient, remainder" from Grade 3; "times, groups of, shared equally, left over" before it. | CLAUDE.md: "exchange / regroup", never "borrow". |
-| A6 | Grades come from the school's own objectives. | Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. | A level's grade is a row (`skill_set.level_band`); Achal moves it. |
+| A6 | Grades come from the school's own objectives. | Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. Where the lists disagree (one "Extended & Application" unit is repeated in G2, G3 and G4), a level goes to the earliest grade whose objective names it. | A level's grade is a row (`skill_set.level_band`); Achal moves it. |
 | A7 | Taught stays the educator's word. | Every case is built and checked; nothing reaches a child's paper until the grade declares it taught. | The Grade 1 rule of 2026-10-06. |
 | A8 | Out of scope. | Remainders as fractions or decimals. Division by zero appears only as a true-or-false statement, never as a sum. | No G1 to G4 objective names them. |
 | A9 | Stories fit their numbers. | Each story template carries the range its numbers may take, so no box holds 933 pencils. | Today's multiplication bank prints "Each box has 933 pencils". |
@@ -99,15 +99,15 @@ One case per shape and per thing that changes the working; the next section cros
 | T10 | The largest carry: 99 × 9 | 99 × 9 | 891 |
 | T11 | 3 × 1 digits, no regrouping | 213 × 3 | 639 |
 | T12 | 3 × 1 digits with regrouping (every pattern in the next section) | 357 × 4 | 1428 |
-| T13 | 3 × 1 digits, the 1-digit number first, in a line | 6 × 125 | 750 |
+| T13 | 3 × 1 digits, the 1-digit number first, in a line | 6 × 125 (in a line) | 750 |
 | T14 | 3 × 1 digits in a line | 785 × 4 (in a line) | 3140 |
 | T15 | 4 × 1 digits, no regrouping | 2312 × 3 | 6936 |
 | T16 | 4 × 1 digits with regrouping | 3476 × 6 | 20856 |
-| T17 | 2 × 2 digits, no regrouping anywhere | 21 × 13 | 273 |
-| T18 | 2 × 2 digits, one row regroups | 16 × 12 | 192 |
-| T19 | 2 × 2 digits, both rows regroup | 36 × 24 | 864 |
-| T20 | 2 × 2 digits, both rows regroup and adding the rows carries | 47 × 23 | 1081 |
-| T21 | 2 × 2 digits, the answer has one digit fewer than it could | 31 × 22 | 682 |
+| T17 | 2 × 2 digits, no regrouping anywhere, a 3-digit answer | 21 × 13 | 273 |
+| T18 | 2 × 2 digits, one row regroups, a 3-digit answer | 16 × 12 | 192 |
+| T19 | 2 × 2 digits, both rows regroup, a 3-digit answer | 36 × 24 | 864 |
+| T20 | 2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit | 47 × 23 | 1081 |
+| T21 | 2 × 2 digits, a 4-digit answer with no carry in adding the rows | 52 × 34 | 1768 |
 | T22 | 2 × 2 digits in a line | 34 × 26 (in a line) | 884 |
 | T23 | 3 × 2 digits | 234 × 12 | 2808 |
 | T24 | 3 × 2 digits with regrouping in every row | 476 × 38 | 18088 |
@@ -128,10 +128,9 @@ The carry matrix for 3-digit × 1-digit (no zeros), then carry sizes, then every
 | TC06 | Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: yes | 416 × 6 | 2496 |
 | TC07 | Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: no | 487 × 2 | 974 |
 | TC08 | Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: yes | 194 × 6 | 1164 |
-| TC09 | 2 × 1 digits, the carry is 1 | 45 × 2 | 90 |
-| TC10 | A carry bigger than 1 | 28 × 7 | 196 |
-| TC11 | 3 × 1 digits, a carry takes a column to ten (knock-on) | 125 × 4 | 500 |
-| TC12 | Every column regroups, the answer full of zeros | 667 × 3 | 2001 |
+| TC09 | A carry bigger than 1 | 28 × 7 | 196 |
+| TC10 | 3 × 1 digits, a carry takes a column to ten (knock-on) | 125 × 4 | 500 |
+| TC11 | Every column regroups, the answer full of zeros | 667 × 3 | 2001 |
 | TZ01 | A zero at the end of the larger number | 230 × 4 | 920 |
 | TZ02 | A zero in the middle, no carry reaches it | 302 × 3 | 906 |
 | TZ03 | A zero in the middle that a carry lands on | 506 × 7 | 3542 |
@@ -168,7 +167,7 @@ The tables read backwards, then ÷10, ÷100 and multiples of ten.
 | DP03 | ÷1000 | 7000 ÷ 1000 | 7 |
 | DP04 | A multiple of ten ÷ 1 digit | 120 ÷ 4 | 30 |
 | DP05 | A multiple of ten ÷ a multiple of ten | 800 ÷ 40 | 20 |
-| DP06 | The zero belongs to the fact (20 ÷ 4 = 5) | 200 ÷ 4 | 50 |
+| DP06 | The fact uses one of the zeros (20 ÷ 4 = 5) | 200 ÷ 4 | 50 |
 | DP07 | A multiple of a hundred ÷ 1 digit | 3600 ÷ 6 | 600 |
 
 ## Division by digit shape
@@ -185,18 +184,19 @@ Short division read left to right: where a remainder is exchanged, whether the f
 | D06 | 3 ÷ 1 digits: exchange after the hundreds: no · after the tens: yes | 476 ÷ 2 | 238 |
 | D07 | 3 ÷ 1 digits: exchange after the hundreds: yes · after the tens: no | 786 ÷ 6 | 131 |
 | D08 | 3 ÷ 1 digits: exchange after the hundreds: yes · after the tens: yes | 588 ÷ 3 | 196 |
-| D09 | 3 ÷ 1 digits: first digit smaller than the divisor · exchange after the hundreds: yes · after the tens: no | 279 ÷ 3 | 93 |
-| D10 | 3 ÷ 1 digits: first digit smaller than the divisor · exchange after the hundreds: yes · after the tens: yes | 141 ÷ 3 | 47 |
+| D09 | 3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: no | 279 ÷ 3 | 93 |
+| D10 | 3 ÷ 1 digits: first digit smaller than the divisor, so the hundreds join the tens · after the tens: yes | 141 ÷ 3 | 47 |
 | D11 | 4 ÷ 1 digits, no exchange | 4862 ÷ 2 | 2431 |
 | D12 | 4 ÷ 1 digits, first digit smaller, exchanges | 5172 ÷ 6 | 862 |
 | D13 | 3 ÷ 2 digits, 2-digit quotient | 408 ÷ 12 | 34 |
 | D14 | 3 ÷ 2 digits where the first estimate must be corrected | 162 ÷ 18 (rounding 18 to 20 suggests 8; 8 × 18 = 144 leaves 18, so 9) | 9 |
-| DZ01 | A zero in the middle of the quotient | 612 ÷ 6 | 102 |
+| DZ01 | A zero in the number divided gives a zero in the quotient | 804 ÷ 4 | 201 |
 | DZ02 | A zero at the end of the quotient | 840 ÷ 4 | 210 |
 | DZ03 | A zero in the quotient from a digit smaller than the divisor | 618 ÷ 6 | 103 |
 | DZ04 | A zero in the number divided, none in the quotient | 702 ÷ 6 | 117 |
 | DZ05 | Two zeros in the quotient | 8016 ÷ 8 | 1002 |
 | DZ06 | First digit smaller and a zero in the quotient | 3015 ÷ 5 | 603 |
+| DZ07 | A zero at the end of the quotient from a last digit smaller than the divisor | 62 ÷ 3 | 20 r 2 |
 
 ## Remainders
 
@@ -217,7 +217,7 @@ A remainder is its own answer: from a table fact up to 3 digits, smallest to lar
 
 ## Methods and pictures
 
-Every way the school's objectives name, and the standard ones, each with the same numbers worked through.
+Every way the school's objectives name, and the standard ones, each worked through on its own example.
 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
@@ -225,7 +225,7 @@ Every way the school's objectives name, and the standard ones, each with the sam
 | G02 | Repeated addition | 4 + 4 + 4 = 3 × □ = □ | 4 and 12 |
 | G03 | Skip counting | 5, 10, 15, 20, □ | 25 |
 | G04 | Jumps on a number line | 4 jumps of 3 from 0 land on □ | 12 |
-| G05 | An array | 3 rows of 5 stars: □ × □ = □ | 3 × 5 = 15 |
+| G05 | An array | 3 rows of 5 stars: □ × □ = □ | 3 × 5 = 15 (5 × 3 = 15 is right too) |
 | G06 | Doubling (×2, ×4 = double double, ×8) | 14 × 4: double 14 = 28, double 28 = □ | 56 |
 | G07 | Partitioning, in a line | 23 × 4 = 20 × 4 + 3 × 4 = 80 + 12 = □ | 92 |
 | G08 | Grid (area) method, 2 × 1 digits | 23 × 4: cells 20 × 4 = 80 and 3 × 4 = 12 | 92 |
@@ -242,9 +242,9 @@ Every way the school's objectives name, and the standard ones, each with the sam
 | G19 | An array, divided | 20 stars in 4 equal rows: how many in each row? | 5 |
 | G20 | The table backwards (inverse) | 42 ÷ 6 = □ because 6 × □ = 42 | 7 |
 | G21 | Partitioning the number divided | 72 ÷ 4 = 40 ÷ 4 + 32 ÷ 4 = 10 + 8 = □ | 18 |
-| G22 | Chunking: take away tens of the divisor, then the rest | 96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □ | 24 |
+| G22 | Chunking: take away ten lots of the divisor, then the rest | 96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □ | 24 |
 | G23 | Short division (bus stop): the exchange written small | 72 ÷ 4: 7 ÷ 4 = 1 r 3, exchange → 32 ÷ 4 = 8 | 18 |
-| G24 | Long division: divide, multiply, take away, bring down | 516 ÷ 4: 5 ÷ 4 = 1 r 1; 11 ÷ 4 = 2 r 3; 36 ÷ 4 = 9 r 0 | 129 |
+| G24 | Long division: divide, multiply, take away, bring down | 516 ÷ 4: 5 ÷ 4 = 1, 5 − 4 = 1, bring down 1 → 11; 11 ÷ 4 = 2, 11 − 8 = 3, bring down 6 → 36; 36 ÷ 4 = 9, 36 − 36 = 0 | 129 |
 | G25 | Halving (÷2, ÷4 = halve twice) | 96 ÷ 4: halve 96 = 48, halve 48 = □ | 24 |
 
 ## Missing numbers and missing digits
@@ -277,13 +277,13 @@ What × and ÷ are, beyond working them out: the rules they keep, how they undo 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
 | Y01 | Order does not change a product | 6 × 8 = 8 × □ | 6 |
-| Y02 | Three numbers, grouped either way | 2 × 7 × 5 = 2 × 5 × 7 = □ | 70 |
+| Y02 | Three numbers, grouped either way | (2 × 7) × 5 = 2 × (7 × 5) = □ | 70 |
 | Y03 | Partitioning a factor (distributive) | 7 × 12 = 7 × 10 + 7 × □ | 2 |
 | Y04 | Anything × 0 | 456 × 0 | 0 |
 | Y05 | × 1 and ÷ 1 leave a number unchanged | 37 × 1 and 37 ÷ 1 | 37 and 37 |
 | Y06 | A number ÷ itself, and 0 ÷ a number | 9 ÷ 9 and 0 ÷ 9 | 1 and 0 |
 | Y07 | True or false: 9 ÷ 0 = 0 | 9 ÷ 0 = 0 | false: there is no answer |
-| Y08 | True or false: division cannot be turned round | 12 ÷ 3 = 3 ÷ 12 | false |
+| Y08 | True or false: 12 ÷ 3 = 3 ÷ 12 | 12 ÷ 3 = 3 ÷ 12 | false: division cannot be turned round |
 | Y09 | A fact family | 4, 7, 28: write the four facts | 4 × 7 = 28, 7 × 4 = 28, 28 ÷ 4 = 7, 28 ÷ 7 = 4 |
 | Y10 | Check a division by multiplying | 96 ÷ 4 = 24? 24 × 4 = □ | 96 |
 | Y11 | Balance: × against − | 3 × 8 = 30 − □ | 6 |
@@ -350,8 +350,8 @@ One-step structures first (the same numbers are harder in some), then remainders
 | B07 | Price: the cost of one | 8 pencils cost ₹48. What does one cost? | ₹6 |
 | B08 | Times as many: the larger | Riya has 4 stickers. Dev has 3 times as many. How many has Dev? | 12 |
 | B09 | Times as many: the smaller | Dev has 12 stickers, 3 times as many as Riya. How many has Riya? | 4 |
-| B10 | Times as many: how many times | Dev has 12 stickers and Riya has 4. How many times as many has Dev? | 3 |
-| B11 | Twice and half | Aman read 15 pages. Meera read twice as many. How many did Meera read? | 30 |
+| B10 | Times as many: how many times | Dev has 12 stickers and Riya has 4. How many times as many stickers as Riya does Dev have? | 3 |
+| B11 | Twice as many | Aman read 15 pages. Meera read twice as many. How many did Meera read? | 30 |
 | B12 | Combinations | 3 shirts and 4 shorts. How many different outfits? | 12 |
 | B13 | Area in squares | A rectangle 6 squares long and 4 squares wide. How many squares? | 24 |
 | B14 | A remainder dropped (full boxes) | 26 laddoos, 4 in each box. How many full boxes? | 6 |
@@ -367,10 +367,11 @@ One-step structures first (the same numbers are harder in some), then remainders
 | B24 | "Each" that means ÷ | 30 stickers, 5 for each child. How many children? | 6 |
 | B25 | A number the question does not need | A van carries 8 boxes of 9 mangoes and 3 drivers. How many mangoes? | 72 |
 | B26 | Read from a price list | Price list: pen ₹15, eraser ₹5. What do 3 pens cost? | ₹45 |
+| B27 | Half as many | Meera read 30 pages. Aman read half as many. How many did Aman read? | 15 |
 
 ## Error diagnosis
 
-Each mistake below is computed by code from the question's numbers; the table shows what it makes of one example. Then the find-the-mistake cases that ask the child to spot one.
+Every wrong answer below is computed by a predictor from its example's own numbers. A blank box is the blank signal, never a named mistake (rule 5). Then the find-the-mistake cases that ask the child to spot one.
 
 | Mistake | Op | What the child does | Example | Right | Wrong (computed) | Seen in | Counts against |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -378,33 +379,40 @@ Each mistake below is computed by code from the question's numbers; the table sh
 | M_MUL_CONCAT | × | Writes each digit's product side by side (Aseem's 56 × 3) | 56 × 3 | 168 | 1518 | answer | the skill |
 | M_MUL_CARRY_FIRST | × | Adds the carry before multiplying | 34 × 6 | 204 | 304 | answer | the skill |
 | M_MUL_ONES_ONLY | × | Multiplies only the ones | 34 × 6 | 204 | 24 | answer | the skill |
-| M_MUL_UNITS_REVERSED | × | Writes only each product's units digit, ones first | 34 × 2 | 68 | 86 | answer | the skill |
-| M_MUL_ROW_OUT | × | Answers the row above in the table | 34 × 6 | 204 | 170 | answer | the facts |
+| M_MUL_UNITS_REVERSED | × | Writes only each product's units digit, ones first | 56 × 3 | 168 | 85 | answer | the skill |
+| M_MUL_ROW_OUT | × | Answers the row next to it in the table (one group fewer) | 7 × 8 | 56 | 49 | answer | the facts |
 | M_GROUP_MISSED | × | Adds one group fewer than there are | 3 groups of 4 | 12 | 8 | answer | the skill |
 | M_ONE_GROUP | × | Writes how many are in one group | 3 groups of 4 | 12 | 4 | answer | the skill |
-| M_FACT_NEIGHBOUR (new) | × | Answers a neighbouring fact, one group more | 7 × 8 | 56 | 63 | answer | the facts |
 | M_WRONG_OP | × | Adds the numbers | 34 × 6 | 204 | 40 | answer | the skill |
-| M_MUL_ZERO_AS_ONE (new) | × | Treats × 0 as leaving the number | 7 × 0 | 0 | 7 | answer | the facts |
-| M_TENS_ZERO_DROPPED (new) | × | Drops a zero when multiplying by 10, 100 or a multiple of ten | 45 × 100 | 4500 | 450 | answer | the skill |
-| M_TENS_ZERO_EXTRA (new) | × | Writes the fact's zero and one more | 50 × 4 | 200 | 2000 | answer | the skill |
+| M_ZERO_AS_ONE (new) | × | Treats × 0 as leaving the number | 7 × 0 | 0 | 7 | answer | the facts |
+| M_ONE_ADDED (new) | × | Treats × 1 as adding one | 7 × 1 | 7 | 8 | answer | the facts |
+| M_TENS_ZERO_DROPPED (new) | × | Writes one zero fewer when multiplying by 10, 100 or a multiple of ten | 45 × 100 | 4500 | 450 | answer | the skill |
 | M_PARTITION_TENS_AS_ONES (new) | × | Partitions but multiplies the tens digit as ones | 23 × 4 | 92 | 20 | answer | the skill |
+| M_MUL_CARRY_ONTO_ZERO_LOST (new) | × | Forgets a carry that lands on a zero | 506 × 7 | 3542 | 3502 | answer | the skill |
 | M_MUL_PLACEHOLDER (new) | × | Second row not moved a place (the zero left out) | 68 × 17 | 1156 | 544 | answer | the skill |
 | M_MUL_COLUMNWISE (new) | × | Multiplies tens by tens and ones by ones | 68 × 17 | 1156 | 656 | answer | the skill |
 | M_MUL_ONE_ROW (new) | × | Multiplies by the ones of the multiplier only | 68 × 17 | 1156 | 476 | answer | the skill |
+| M_MUL_STALE_CARRY (new) | × | Adds the first row's carry again in the second row | 47 × 23 | 1081 | 1281 | answer | the skill |
 | M_NOCARRY on the rows (existing, addition) | × | Adds the two rows without carrying | 19 × 14 | 266 | 166 | answer | addition |
-| M_GRID_CELL_DROPPED (new) | × | Leaves one cell out when adding a grid | 34 × 26 | 884 | 860 | working | the skill |
-| M_DIV_QUOTIENT_ZERO_DROPPED (new) | ÷ | Leaves the zero out of the quotient | 612 ÷ 6 | 102 | 12 | answer | the skill |
-| M_DIV_RIGHT_TO_LEFT (new) | ÷ | Divides from the ones, as in adding | 84 ÷ 4 | 21 | 12 | answer | the skill |
+| M_GRID_CELL_DROPPED (new) | × | Leaves the ones-by-ones cell out when adding a grid | 34 × 26 | 884 | 860 | working | the skill |
+| M_DIV_QUOTIENT_ZERO_DROPPED (new) | ÷ | Leaves the zero out of the quotient | 804 ÷ 4 | 201 | 21 | answer | the skill |
 | M_DIV_EXCHANGE_LOST (new) | ÷ | Divides each digit alone; the remainder is never exchanged | 72 ÷ 4 | 18 | 10 | answer | the skill |
+| M_DIV_REMAINDER_ADDED (new) | ÷ | Adds the remainder to the next digit instead of making it tens | 72 ÷ 4 | 18 | 11 r 1 | answer | the skill |
 | M_DIV_LEAD_DROPPED (new) | ÷ | Skips a first digit smaller than the divisor | 156 ÷ 4 | 39 | 14 | answer | the skill |
+| M_DIV_BRING_DOWN_MISSED (new) | ÷ | Stops before bringing down the last digit | 516 ÷ 4 | 129 | 12 r 3 | answer | the skill |
 | M_DIV_REMAINDER_TOO_BIG (new) | ÷ | Stops one group short: the remainder is not less than the divisor | 85 ÷ 4 | 21 r 1 | 20 r 5 | answer | the skill |
 | M_DIV_REMAINDER_AS_DIGIT (new) | ÷ | Writes the remainder as the quotient's next digit | 85 ÷ 4 | 21 r 1 | 211 | answer | the skill |
-| M_DIV_REMAINDER_LEFT_OUT (new) | ÷ | Writes the quotient and nothing for the remainder (blank, not wrong) | 85 ÷ 4 | 21 r 1 | 21 r (blank) | answer | the skill |
-| M_DIV_SWAPPED (new) | ÷ | Writes the quotient as the remainder and the remainder as the quotient | 85 ÷ 4 | 21 r 1 | 1 r 21 | answer | the skill |
+| M_DIV_SWAPPED (new) | ÷ | Writes the quotient and the remainder the wrong way round | 17 ÷ 5 | 3 r 2 | 2 r 3 | answer | the skill |
+| M_DIV_BIGGER_BY_SMALLER (new) | ÷ | Divides the bigger number by the smaller whichever comes first | 3 ÷ 5 | 0 r 3 | 1 r 2 | answer | the skill |
+| M_DIV_SELF_AS_ZERO (new) | ÷ | Treats a number ÷ itself as nothing left | 7 ÷ 7 | 1 | 0 | answer | the facts |
+| M_DIV_ZERO_DIVIDED (new) | ÷ | Answers the divisor when zero is divided | 0 ÷ 5 | 0 | 5 | answer | the facts |
+| M_DIV_TENS_ZERO_LEFT (new) | ÷ | Takes away one zero fewer when dividing by 10 or 100 | 4500 ÷ 100 | 45 | 450 | answer | the skill |
+| M_DIV_TENS_ZERO_EXTRA (new) | ÷ | Uses a zero for the fact, then writes every zero back | 200 ÷ 4 | 50 | 500 | answer | the skill |
 | M_WRONG_OP (÷) | ÷ | Multiplies instead of dividing | 84 ÷ 4 | 21 | 336 | answer | the skill |
 | M_DIV_SUBTRACTED (new) | ÷ | Takes the divisor away once | 84 ÷ 4 | 21 | 80 | answer | the skill |
-| M_REMAINDER_NOT_ROUNDED_UP (new) | ÷ | Drops the remainder when the story needs one more | 26 children, 4 a rickshaw | 7 | 6 | answer | word problems |
-| M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 24 laddoos shared, 4 plates | 6 | 96 | answer | word problems |
+| M_REMAINDER_NOT_ROUNDED_UP (new) | ÷ | Drops the remainder when the story needs one more | 26 children, 4 to a rickshaw | 7 | 6 | answer | word problems |
+| M_TIMES_AS_MORE (new) | × | Reads "3 times as many" as "3 more" | 4 stickers, 3 times as many | 12 | 7 | answer | word problems |
+| M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 24 laddoos shared on 4 plates | 6 | 96 | answer | word problems |
 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
@@ -414,9 +422,9 @@ Each mistake below is computed by code from the question's numbers; the table sh
 | C04 | Find the mistake: the zero left out of the quotient | 612 ÷ 6 = 12 | M_DIV_QUOTIENT_ZERO_DROPPED |
 | C05 | Find the mistake: a remainder too big | 85 ÷ 4 = 20 r 5 | M_DIV_REMAINDER_TOO_BIG |
 | C06 | Find the mistake: partitioning, tens taken as ones | 23 × 4 = 2 × 4 + 3 × 4 = 20 | M_PARTITION_TENS_AS_ONES |
-| C07 | Say which step of a long division went wrong | 516 ÷ 4 worked with the 6 never brought down | the bring-down step |
-| C08 | Explain why an answer cannot be right | 47 ÷ 6 = 6 r 11 | 11 is more than 6: one more 6 fits |
-| C09 | Find the mistake: the carry onto the zero left out | 506 × 7 = 3502 | the tens: 0 × 7 + 4 = 4 |
+| C07 | Say which step of a long division went wrong | 516 ÷ 4 = 12 r 3 | M_DIV_BRING_DOWN_MISSED: the 6 was never brought down |
+| C08 | Explain, by multiplying back, why an answer cannot be right | 804 ÷ 4 = 21 | 21 × 4 = 84, not 804 |
+| C09 | Find the mistake: the carry onto the zero left out | 506 × 7 = 3502 | M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4 |
 
 ## Master tagging matrix
 
@@ -448,25 +456,25 @@ The addition and subtraction tags stay; these are added or widened. Code measure
 
 ## Suggested progression and the skills it becomes
 
-17 skills, every one of the 246 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes missing numbers, stories, finding the mistake and estimating. Grades are assumed (A6) and move as rows.
+17 skills, every one of the 247 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and estimating. Grades are assumed (A6) and move as rows.
 
 | Skill | Can do | Grade by level | Easy | Medium | Hard | Advance | Methods printed at Easy to Hard |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MUL.GROUPS | Finds how many in equal groups by adding the same number again (exists, unchanged) | E:G1 M:G1 A:G1 | G01, G02 | G01, G02 | – | B01 | – |
-| MUL.MODELS | Shows multiplication as skip counting, arrays, jumps on a number line and doubling | E:G1 M:G1 H:G2 A:G2 | G03, G05 | G04, G14 | G06, TF17 | B04, B11, B13 | – |
-| MUL.FACTS | Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order | E:G1 M:G2 H:G3 A:G4 | TF03, TF04, TF05 | TF01, TF02, TF06, TF07, TF15 | TF08, TF09, TF10, TF11, TF12, TF16 | TF13, TF14, Q01, Q02, Q06, Y09, H08 | – |
+| MUL.MODELS | Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square | E:G1 M:G1 H:G2 A:G2 | G03, G05 | G04 | G14, TF17 | B04, B11, B13 | – |
+| MUL.FACTS | Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order | E:G1 M:G1 H:G2 A:G3 | TF03, TF04, TF05 | TF01, TF02, TF06, TF07, TF15 | TF08, TF09, TF10, TF11, TF12, TF16 | TF13, TF14, Q01, Q02, Q06, Y09, H08 | – |
 | MUL.TENS | Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros | E:G3 M:G3 H:G4 A:G4 | TP01, TP04 | TP02, TP03, TP05 | TP06, TP07, TP08, TP09 | TP10, Q14, H10, TZ08 | – |
-| MUL.2D1D | Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more | E:G2 M:G2 H:G3 A:G3 | T01, T02, T03 | T04, T05, TC09 | T06, T07, T08, T09, T10, TC10, TZ05 | Q07, Q08, Q11, C01, C02, C06, V01, V07, B06, B08, H01, H07 | T02, G07, G08, G10, G11 |
-| MUL.3D1D | Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero | E:G4 M:G4 H:G4 A:G4 | T11, TC01, TZ02 | TC02, TC03, TC05, TZ01 | T12, TC04, TC06, TC07, TC08, TC11, TC12, TZ03, TZ06 | T13, Q16, C09 | T14, G10, G11 |
-| MUL.2D2D | Multiplies two 2-digit numbers, a row for each digit with the second row moved a place | E:G4 M:G4 H:G4 A:G4 | T17 | T18, T21, TZ07 | T19, T20 | C03, V02, V03, Q15, B12 | T22, G09, G12, G13 |
+| MUL.2D1D | Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more | E:G2 M:G2 H:G3 A:G3 | T01, T02, T03 | T04, T05, T06 | T07, T08, T09, T10, TC09, TZ05 | Q07, Q08, Q11, C01, C02, C06, V01, V07, B06, B08, H01, H07 | T02, G07, G08, G10, G11 |
+| MUL.3D1D | Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero | E:G4 M:G4 H:G4 A:G4 | T11, TC01, TZ02 | TC02, TC03, TC05, TZ01 | T12, TC04, TC06, TC07, TC08, TC10, TC11, TZ03, TZ06 | T13, Q16, C09 | T14, G10, G11 |
+| MUL.2D2D | Multiplies two 2-digit numbers, a row for each digit with the second row moved a place | E:G4 M:G4 H:G4 A:G4 | T17 | T18, TZ07 | T19, T20, T21 | C03, V02, V03, Q15, B12 | T22, G09, G12, G13 |
 | DIV.GROUPS | Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back | E:G1 M:G1 H:G2 A:G2 | G15, G16 | G17, G19 | G18 | B02, B03, B05, B24 | – |
-| DIV.FACTS | Recalls division facts as the tables backwards, with a remainder when one is left | E:G1 M:G2 H:G3 A:G4 | DF04, DF05, DF06 | DF01, DF02, DF03, DF07, DF08, DF15 | DF09, DF10, DF11, DF12 | DF13, DF14, DF16, DR01, DR02, DR03, Q03, Q04, Q05, Y10, G20, B07 | – |
+| DIV.FACTS | Recalls division facts as the tables backwards, with a remainder when one is left | E:G1 M:G2 H:G2 A:G3 | DF04, DF05, DF06 | DF01, DF02, DF03, DF07, DF08, DF15 | DF09, DF10, DF11, DF12 | DF13, DF14, DF16, DR01, DR02, DR03, Q03, Q04, Q05, Y10, G20, B07 | – |
 | DIV.TENS | Divides by 10, 100 and 1000 and by multiples of ten | E:G4 M:G4 H:G4 A:G4 | DP01 | DP02, DP03 | DP04, DP05, DP06, DP07 | DR10, H09 | – |
-| DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G3 M:G3 H:G4 A:G4 | D01, D02 | D03, D04 | DR04, DR05 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17 | D02, G21, G22, G23, G25 |
+| DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G2 M:G2 H:G3 A:G3 | D01, D02 | D03, D04 | DR04, DR05, DZ07 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17 | D02, G21, G22, G23, G25 |
 | DIV.3D1D | Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient | E:G4 M:G4 H:G4 A:G4 | D05 | D06, D07 | D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08 | Q10, C04, C07, V04, V10 | G22, G23, G24 |
-| MD.WORD | Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the story needs | E:G2 M:G2 H:G3 A:G4 | B01, B02, B03, B06 | B04, B05, B07, B11 | B08, B09, B10, B14, B15, B16, B17 | B12, B13, B18, B19, B20, B21, B22, B23, B25, B26 | – |
-| MD.MENTAL | Multiplies and divides in the head by doubling, halving, tens and known facts | E:G2 M:G3 H:G3 A:G4 | G06, G25, H05 | H01, H04, H08 | H02, H03, H07, H09, H10 | H06 | – |
-| MD.MULTIPLES | Finds multiples and factors and tells divisibility by 2, 3, 5 and 10 | E:G3 M:G3 H:G4 A:G4 | F01, F02 | F03, F04, F08 | F05, F06 | F07 | – |
+| MD.WORD | Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the story needs | E:G2 M:G2 H:G3 A:G4 | B01, B02, B03, B06 | B04, B05, B07, B11, B27 | B08, B09, B10, B14, B15, B16, B17 | B12, B13, B18, B19, B20, B21, B22, B23, B25, B26 | – |
+| MD.MENTAL | Multiplies and divides in the head by doubling, halving, tens and known facts | E:G2 M:G3 H:G3 A:G4 | G06, H10 | H01, H04, H08 | H02, H03, H05, H07, H09, G25 | H06 | – |
+| MD.MULTIPLES | Finds multiples and factors and tells divisibility by 2, 3, 5 and 10 | E:G3 M:G3 H:G4 A:G4 | F01, F02, F06 | F03, F04, F08 | F05 | F07 | – |
 | MD.EQUALITY | Uses × and ÷ as inverses, keeps a balance true and knows the rules of 0 and 1 | E:G3 M:G3 H:G4 A:G4 | Y01, Y04, Y05, Y06, Y16 | Y02, Y09, Y10, Y15 | Y03, Y11, Y12, Y13, Y14 | Y07, Y08, DR09, C08 | – |
 | MD.ESTIMATE | Estimates products and quotients and judges whether an answer can be right | E:G4 M:G4 H:G4 A:G4 | V06, V07 | V01, V03, V04 | V02, V08, V10 | V05, V09 | – |
 
