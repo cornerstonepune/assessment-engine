@@ -129,7 +129,8 @@ def test_only_advance_mixes_kinds_of_question(conn):
 
 
 def test_every_taxonomy_case_has_a_place(conn):
-    where = cases.placed(conn)
+    """Every addition and subtraction case; multiplication and division's are placed by M2 and M3's levels."""
+    where = [(c, s, w, state) for c, t, s, w, state in cases.placed(conn) if t == "ADD_SUB"]
     assert len(where) == 270
     assert [c for c, _, _, state in where if state == "unplaced"] == []
     assert {s for c, s, _, state in where if state == "pattern"} == {"5.1", "5.2"}

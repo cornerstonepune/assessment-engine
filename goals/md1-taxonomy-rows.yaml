@@ -1,0 +1,42 @@
+name: md1-taxonomy-rows
+goal: >
+  Every case of the multiplication and division taxonomy is a row the bank is counted against, as every addition and
+  subtraction case is. A case is a combination of tags. Code measures each tag from a question's own numbers (the
+  fact's table, a place-value factor, which columns carry, an exchange in a division, a zero in the quotient, how big
+  the remainder is), or reads it from what the kind that made the question states (the method it prints, a story's
+  shape, what a remainder is used for). Each case holds its own example, and no two cases hold each other's. A
+  question is a case of the taxonomy of its own operations and never of the other: a × odd-or-even question is not
+  an addition case. Every tag a case reads, in either taxonomy, is a dimension row naming the values it may take.
+  `engine bank taxonomy` counts every case of both, each under its own taxonomy. The rows are the drafted
+  document's own cases, held to it by a test.
+
+# Written 2026-10-09, before the code: slice M1 of BUILD-ORDER "Inserted now: multiplication and division". Measured
+# first (STATE.md "M1 — measured before the build"): docs/design/multiplication-division-cases.json holds each case's
+# words only, with no match and no example a tag can measure; `tags.derive` measures nothing of a × or ÷ question
+# beyond its kind; 54 of the 270 addition and subtraction cases name no operation (R06 is any odd_even question), so
+# the first × odd-or-even question would count as one; and 22 of the tags those 270 cases read are no dimension row.
+says:
+  - words: "need a properly drafted taxonomy by the system itself"
+    proved_by: packages/engine/tests/test_md_cases.py::test_every_case_of_the_drafted_document_is_a_row_as_drafted
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_md_cases.py::test_tags_measure_what_the_document_means_for_times_and_divide
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_md_cases.py::test_every_case_holds_its_own_example_and_no_two_hold_the_same_questions
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_cases.py::test_every_method_the_document_names_is_a_case_its_tag_measures
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_cases.py::test_a_question_is_a_case_of_its_own_operations_taxonomy_only
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_cases.py::test_every_tag_a_case_reads_is_a_dimension_row_with_its_values
+  - words: "this is a good test as to how our flow works"
+    proved_by: packages/engine/tests/test_md_cases.py::test_engine_bank_taxonomy_counts_every_case_of_both_taxonomies
+criteria:
+  - name: the cases as rows, measured; the taxonomy, labels and levels they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_cases.py tests/test_taxonomy.py tests/test_bank.py tests/test_every_skill.py tests/test_loaders.py tests/test_rehome.py tests/test_legacy.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

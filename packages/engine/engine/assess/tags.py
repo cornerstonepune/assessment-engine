@@ -9,8 +9,12 @@ someone meant to make. A case (`taxonomy_case.match`) is a combination of these 
 """
 
 import re
+from typing import Any
 
+from . import md_tags as MD
 from . import misconceptions as M
+from . import operations as O
+from . import skills as S
 from . import words as W
 
 FORMAT_REASONING = {
@@ -31,8 +35,7 @@ FORMAT_UNKNOWN = {
 }
 MISSING_POSITION = {"a": "FIRST_OPERAND", "b": "SECOND_OPERAND", "answer": "RESULT"}
 RUNG_STRATEGY = {"R7": "MENTAL", "R11": "ESTIMATION", "R13": "COMPENSATION"}
-PLACES = ["ONES", "TENS", "HUNDREDS", "THOUSANDS", "TEN_THOUSANDS"]
-SIDES = {(False, False): "NONE", (True, False): "FIRST", (False, True): "SECOND", (True, True): "BOTH"}
+PLACES, SIDES = MD.PLACES, MD.SIDES
 
 
 def _regroup_columns(op, a, b):
@@ -93,16 +96,6 @@ def _answer_change(ans, widest):
         return "ZERO"
     lost = widest - len(str(ans))
     return {0: "SAME", -1: "+1", 1: "-1"}.get(lost, "-MULTIPLE" if lost > 1 else "+1")
-
-
-def _answer_zeros(ans):
-    s = str(ans)
-    if ans == 0 or len(s) == 1:
-        return "NONE"
-    inside, end = "0" in s.rstrip("0")[1:], s.endswith("0")
-    return {(False, False): "NONE", (True, False): "INTERNAL", (False, True): "TRAILING"}.get(
-        (inside, end), "INTERNAL+TRAILING"
-    )
 
 
 def _has_lender_zero(n):
@@ -169,7 +162,7 @@ def _two_numbers(t, op, a, b, layout):
         "zeros_max": max(str(a)[:-1].count("0"), str(b)[:-1].count("0")),
         "answer_digits": len(str(abs(ans))),
         "answer_digit_change": _answer_change(ans, max(d1, d2)),
-        "answer_zeros": _answer_zeros(ans),
+        "answer_zeros": MD.answer_zeros(ans),
         "round_operand": _round_operand(b),
         "near_round": "YES" if _near_round(a) or _near_round(b) else "NO",
     }
@@ -213,7 +206,7 @@ def _many_numbers(t, xs, layout):
     }
 
 
-def _missing_digit(t, sp):
+def _missing_digit(t: dict[str, Any], sp: dict[str, Any]) -> dict[str, Any]:
     """Where the boxes are in a missing-digit question, and what the numbers do around them."""
     rows = {"FIRST": sp.get("a", ""), "SECOND": sp.get("b", ""), "RESULT": sp.get("c", "")}
     where = [name for name, s in rows.items() if "□" in str(s) or re.search(r"[A-Z]", str(s))]
@@ -221,8 +214,12 @@ def _missing_digit(t, sp):
     count = sum(s.count("□") for _, s in boxes) or len(
         {c for s in rows.values() for c in re.findall(r"[A-Z]", str(s))}
     )
+    one = O.sign(sp.get("op")) or "-"
+    solved = sp.get("solved")
+    if one in ("×", "÷") and solved and {"a", "b"} <= solved.keys():
+        t = MD.two_numbers(t, "missing_digit", one, solved["a"], solved["b"], "horizontal", sp)
     t |= {
-        "operation": "ADD" if sp.get("op") == "+" else "SUB",
+        "operation": O.NAMES[one],
         "missing_count": count,
         "missing_in": "+".join(where),
         "unknown_type": "DIGIT" if count == 1 else "MULTIPLE_DIGITS",
@@ -230,8 +227,7 @@ def _missing_digit(t, sp):
     if count == 1 and boxes:
         _, s = boxes[0]
         t["missing_place"] = PLACES[len(s) - 1 - s.index("□")]
-    solved = sp.get("solved")
-    if solved and {"a", "b"} <= solved.keys():
+    if one in ("+", "-") and solved and {"a", "b"} <= solved.keys():
         cols = _regroup_columns(sp["op"], solved["a"], solved["b"])
         t["regrouping"] = {0: "NONE", 1: "SINGLE"}.get(len(cols), "MULTIPLE")
         if sp["op"] == "-":
@@ -297,6 +293,10 @@ def derive(item) -> dict:
         "reasoning_type": FORMAT_REASONING.get(fmt, "DIRECT"),
         "strategy": sp.get("strategy") or RUNG_STRATEGY.get(item.rung, "STANDARD"),
     }
+    # the taxonomy a question is a case of is its own operations' (goals/md1-taxonomy-rows.yaml): a × odd-or-even
+    # question is multiplication's, never one of the addition document's cases that names no operation
+    ops: list[str] = S.operations(fmt, sp, item.stem)
+    t["taxonomy"] = "MUL_DIV" if {"×", "÷"} & set(ops) else "ADD_SUB"
     t["unknown_type"], t["unknown_position"] = FORMAT_UNKNOWN.get(fmt, ("NONE", "RESULT"))
     if fmt == "missing_number":
         t["unknown_type"] = "WHOLE_NUMBER"
@@ -321,15 +321,22 @@ def derive(item) -> dict:
     if fmt == "missing_digit":
         return _missing_digit(t, sp)
     if fmt == "missing_number":
-        sp = _solved(sp)
+        sp = MD.solved(_solved(sp))
     addends = sp.get("addends")
     if addends:
         return _many_numbers(t, addends, sp.get("layout", "column"))
+    return _numbers(t, fmt, sp)
+
+
+def _numbers(t: dict[str, Any], fmt: str, sp: dict[str, Any]) -> dict[str, Any]:
+    """A question's two numbers, measured as the four operations each are, and the box a missing number hides."""
     a, b, op = sp.get("a"), sp.get("b"), sp.get("op")
+    layout = sp.get("layout") or ("column" if fmt == "column_grid" else "horizontal")
+    times = O.sign(op) in ("×", "÷")
     if isinstance(a, int) and isinstance(b, int) and op in ("+", "-"):
-        t = _two_numbers(
-            t, op, a, b, sp.get("layout") or ("column" if fmt == "column_grid" else "horizontal")
-        )
+        t = _two_numbers(t, op, a, b, layout)
+    elif isinstance(a, int) and isinstance(b, int) and isinstance(op, str) and times:
+        t = MD.two_numbers(t, fmt, op, a, b, layout, sp)
     if fmt == "missing_number":
-        t = _missing_number(t, sp)
+        t = MD.missing(t, sp) if times else _missing_number(t, sp)
     return t

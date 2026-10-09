@@ -85,8 +85,8 @@ EXPECTED = {
     "rung": 28,  # R7, R8, R11, R13, R14, R16–R18, M1, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1, 2026-10-06)
     "level_rule": 12,
     "misconception": 39,
-    "case_dimension": 18,
-    "taxonomy_case": 270,  # the team's taxonomy, one row per case (step 8e)
+    "case_dimension": 67,  # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml)
+    "taxonomy_case": 517,  # both of the team's taxonomies, one row per case: 270 + and −, 247 × and ÷ (step 8e, M1)
     # prompts, thresholds and config are settings a PR adds to: counted from their seed files, never typed here
     # (2026-09-29: the typed 20, 26 and 16 had fallen to 37, 31 and 17 without anyone noticing)
     "prompt": _seeded("prompts"),

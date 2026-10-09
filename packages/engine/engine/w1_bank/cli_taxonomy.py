@@ -27,7 +27,7 @@ def register(bank_app: typer.Typer) -> None:
     def bank_taxonomy(
         show: str = typer.Option("gaps", "--show", help="gaps (missing and thin), all, or none"),
     ) -> None:
-        """Every case of the team's addition & subtraction taxonomy, and how many questions hold it."""
+        """Every case of the team's two taxonomies, and how many questions hold it, counted per taxonomy."""
         with db.connect() as conn:
             rows = cases.count(conn)
         for r in rows:
@@ -37,15 +37,9 @@ def register(bank_app: typer.Typer) -> None:
                     f"  {r['code']:<4} {r['state']:<8} {r['n']:>5}  columns {r['vertical']:>4} · line {r['horizontal']:>4}"
                     f"  {r['label'][:62]:<62}  {where}"
                 )
-        by = Counter(r["state"] for r in rows)
-        typer.echo(
-            f"  {len(rows)} cases · {by['covered']} covered · {by['missing']} missing · {by['thin']} thin"
-        )
         with db.connect() as conn:
             where = cases.placed(conn)
-        for code, section, _, state in where:
-            if state == "unplaced":
-                typer.echo(f"  {code:<4} §{section:<5} unplaced: no level in use names it")
+        _per_taxonomy(rows, where)
         on = Counter(state for *_, state in where)
         typer.echo(
             f"  {len(where)} cases · {on['placed']} placed in a level · {on['pattern']} patterns the levels climb"
@@ -101,3 +95,16 @@ def register(bank_app: typer.Typer) -> None:
         typer.echo(
             f"  retired {sum(retired.values())} questions outside their level · added {sum(added.values())}"
         )
+
+
+def _per_taxonomy(rows, where) -> None:
+    """Each document's own count, then the cases of it no level in use names, as one line of codes."""
+    for name in dict.fromkeys(r["taxonomy"] for r in rows):
+        by = Counter(r["state"] for r in rows if r["taxonomy"] == name)
+        typer.echo(
+            f"  {name}: {sum(by.values())} cases · {by['covered']} covered · {by['missing']} missing"
+            f" · {by['thin']} thin"
+        )
+    for name in dict.fromkeys(t for _, t, *_ in where):
+        if left := [code for code, t, _, _, state in where if t == name and state == "unplaced"]:
+            typer.echo(f"  {name}: {len(left)} unplaced, no level in use names them: {' '.join(left)}")

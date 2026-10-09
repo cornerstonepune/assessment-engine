@@ -1,4 +1,4 @@
-"""Every taxonomy case, counted in the bank. `engine bank taxonomy`.
+"""Every taxonomy case of both documents, counted in the bank. `engine bank taxonomy`.
 
 A case (`taxonomy_case`) is a combination of tags; a question is one when its stored tags satisfy it
 (`assess/taxonomy.py`). A case is covered when the active bank holds at least `min_items` such
@@ -31,7 +31,7 @@ def of(fmt, tags, all_matches):
 
 def count(conn):
     cases = conn.execute(
-        "select code, section, section_name, label, match, min_items from taxonomy_case order by id"
+        "select code, taxonomy, section, section_name, label, match, min_items from taxonomy_case order by id"
     ).fetchall()
     rows = conn.execute(
         "select fmt, tags, skill_set_code, difficulty from item where status = 'active' and skill_set_code is not null"
@@ -112,7 +112,8 @@ def outside_their_level(conn):
 def placed(conn):
     """Where every taxonomy case sits among the levels in use (goals/s13-levels-by-taxonomy.yaml): the levels
     that name it, or — for a section the `taxonomy.across_levels` row names — the rule those levels climb.
-    Returns [(code, section, [(skill, level), ...], 'placed' | 'pattern' | 'unplaced')], in the document's order."""
+    Returns [(code, taxonomy, section, [(skill, level), ...], 'placed' | 'pattern' | 'unplaced')], in each document's
+    order. A section number is its own document's: both have a §11."""
     row = conn.execute("select value from config where key = 'taxonomy.across_levels'").fetchone()
     across = set((row["value"] if row else {}).get("sections", []))
     named = defaultdict(list)
@@ -122,9 +123,12 @@ def placed(conn):
                 named[c].append((s["code"], level))
     out = []
     for c in conn.execute(
-        "select code, section from taxonomy_case order by string_to_array(section, '.')::int[], code"
+        "select code, taxonomy, section from taxonomy_case"
+        " order by taxonomy, string_to_array(section, '.')::int[], code"
     ):
         where = named.get(c["code"], [])
-        state = "placed" if where else ("pattern" if c["section"] in across else "unplaced")
-        out.append((c["code"], c["section"], where, state))
+        # the sections `taxonomy.across_levels` names are the addition and subtraction document's
+        pattern = c["taxonomy"] == "ADD_SUB" and c["section"] in across
+        state = "placed" if where else ("pattern" if pattern else "unplaced")
+        out.append((c["code"], c["taxonomy"], c["section"], where, state))
     return out

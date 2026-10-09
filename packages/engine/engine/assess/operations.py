@@ -74,6 +74,44 @@ def compute(op: str | None, a: int, b: int) -> int:
     raise ValueError(f"{op!r} is not an operation")
 
 
+def times_columns(a: int, d: int) -> list[dict[str, int]]:
+    """`a` times one digit `d` in columns, from the ones: each column's digit, its product, the carry it takes in, its
+    value and the carry it sends on. 56 × 3: 6 × 3 = 18 sends 1; 5 × 3 + 1 = 16, the answer's lead."""
+    cols: list[dict[str, int]] = []
+    carry = 0
+    for x in reversed(str(a)):
+        value = int(x) * d + carry
+        cols.append(
+            {
+                "digit": int(x),
+                "product": int(x) * d,
+                "carry_in": carry,
+                "value": value,
+                "carry_out": value // 10,
+            }
+        )
+        carry = value // 10
+    return cols
+
+
+def rows(a: int, b: int) -> list[int]:
+    """Long multiplication's rows, one for each digit of `b` from its ones, each moved its place along; a 0 digit
+    writes no row. 68 × 17 → [476, 680]."""
+    return [a * int(x) * 10**i for i, x in enumerate(reversed(str(b))) if x != "0"]
+
+
+def short_division(n: int, d: int) -> list[dict[str, int]]:
+    """`n` ÷ `d` left to right, as short division is written: each digit, the value it makes with the remainder
+    exchanged into it, that step's quotient digit and the remainder it exchanges on. 72 ÷ 4: 7 → 1 r 3; 32 → 8 r 0."""
+    steps: list[dict[str, int]] = []
+    r = 0
+    for x in str(n):
+        value = r * 10 + int(x)
+        steps.append({"digit": int(x), "value": value, "q": value // d, "r": value % d})
+        r = value % d
+    return steps
+
+
 def chain(op: str, numbers: list[int]) -> int:
     """The answer to a question with however many numbers it has, read left to right: `8000 - 25 - 40` is 7935, not
     7975. A budget question is a chain, and reading only its first two numbers is how a proposal about one came to be

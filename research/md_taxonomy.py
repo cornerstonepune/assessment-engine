@@ -392,9 +392,10 @@ section(6, "Division by digit shape",
 div("D01", "2 ÷ 1 digits, every digit divides, in the division layout", 84, 4, [("no exchange", not exchanges(84, 4))],
     shown="84 ÷ 4 (division layout)")
 div("D02", "2 ÷ 1 digits, every digit divides, in a line", 69, 3, [("no exchange", not exchanges(69, 3))])
-div("D03", "2 ÷ 1 digits, one exchange from the tens", 72, 4, [("exchange", exchanges(72, 4) == ["TENS"])])
-div("D04", "2 ÷ 1 digits, an exchange, the answer past the tables", 91, 7,
-    [("exchange", exchanges(91, 7) == ["TENS"]), ("quotient over 10", 91 // 7 > 10)])
+div("D03", "2 ÷ 1 digits, one exchange from the tens, by 2, 3, 4 or 5", 72, 4,
+    [("exchange", exchanges(72, 4) == ["TENS"]), ("an easier table", 4 in (2, 3, 4, 5))])
+div("D04", "2 ÷ 1 digits, one exchange from the tens, by 6, 7, 8 or 9", 91, 7,
+    [("exchange", exchanges(91, 7) == ["TENS"]), ("a harder table", 7 in (6, 7, 8, 9))])
 div("D05", "3 ÷ 1 digits, no exchange", 936, 3, [("no exchange", not exchanges(936, 3))])
 n = 4
 for fds, h_ex, t_ex in [(False, False, True), (False, True, False), (False, True, True), (True, True, False),
@@ -936,33 +937,14 @@ for c in UNPLACED:
 
 # ---------------------------------------------------------------- 15. tags
 
-TAGS = [
-    ("operation", "ADD / SUB / MUL / DIV"),
-    ("operand_1_digits, operand_2_digits", "1, 2, 3, 4, ..., N (for ÷: the number divided, then the divisor)"),
-    ("operand_order", "LONGER_FIRST / SHORTER_FIRST / EQUAL_LENGTH"),
-    ("fact_group", "0-1 / 2-5-10 / 3-4 / 6-9 / 11-12"),
-    ("place_value_factor", "NONE / X10 / X100 / X1000 / MULTIPLE_OF_TEN_ONE / MULTIPLE_OF_TEN_BOTH"),
-    ("method", "LINE / COLUMNS / EXPANDED / PARTITIONING / GRID / LATTICE / LONG_MULTIPLICATION / REPEATED_ADDITION "
-     "/ SKIP_COUNTING / NUMBER_LINE / ARRAY / GROUPS / DOUBLING / SHARING / GROUPING / REPEATED_SUBTRACTION / "
-     "PARTITION_DIVIDEND / CHUNKING / SHORT_DIVISION / LONG_DIVISION / HALVING"),
-    ("regrouping, regroup_columns", "NONE / SINGLE / MULTIPLE; ONES / TENS / HUNDREDS / ... (× carries, ÷ exchanges)"),
-    ("carry_size", "NONE / ONE / MORE_THAN_ONE"),
-    ("knock_on", "YES / NO"),
-    ("partial_products, partial_sum_regrouping", "1 / 2 / 3; NONE / SINGLE / MULTIPLE"),
-    ("first_digit_smaller", "YES / NO"),
-    ("quotient_zero", "NONE / MIDDLE / END"),
-    ("remainder", "NONE / SOME / LARGEST / DIVIDEND_SMALLER"),
-    ("zero_pattern", "NONE / INTERNAL / TRAILING / MULTIPLIER_ZERO / ANSWER_ZERO / CARRY_INTO_ZERO"),
-    ("answer_digit_change", "FULL / ONE_FEWER"),
-    ("unknown_type, unknown_position", "NONE / WHOLE_NUMBER / DIGIT / MULTIPLE_DIGITS / OPERATION; FIRST_OPERAND / "
-     "SECOND_OPERAND / RESULT / REMAINDER"),
-    ("reasoning_type", "DIRECT / INVERSE / BALANCE / CONSTRAINT / PROPERTY / ERROR_DIAGNOSIS"),
-    ("strategy", "STANDARD / MENTAL / DOUBLING / COMPENSATION / FACT_DERIVED / ESTIMATION"),
-    ("context", "BARE_NUMBER / WORD_PROBLEM / PICTURE / TABLE_OR_CHART"),
-    ("word_structure", "EQUAL_GROUPS / SHARING / GROUPING / ARRAY / ARRAY_SIDE / RATE_TOTAL / RATE_UNIT / "
-     "TIMES_LARGER / TIMES_SMALLER / TIMES_HOW_MANY / COMBINATIONS / AREA / TWO_STEP / BAR_MODEL"),
-    ("remainder_use", "NONE / ROUND_DOWN / ROUND_UP / REMAINDER_ASKED / BOTH_ASKED"),
-]
+MATRIX = []  # the master tagging matrix, read from the dimension rows once the cases are rows (see __main__)
+
+
+def matrix(made):
+    """Every tag a multiplication or division case reads, as its `case_dimension` row says it."""
+    dims = json.loads((R / "supabase/seed/case_dimensions.json").read_text())["case_dimensions"]
+    read = {k for r in made for k in r["match"] if k != "fmt"}
+    return [(d["name"], " / ".join(map(str, d["allowed"])), d.get("why", "")) for d in dims if d["name"] in read]
 
 # ---------------------------------------------------------------- the document
 
@@ -988,9 +970,10 @@ def body(num):
                 "question carries several tags at once; its case is the combination.\n\n"
                 + table(["Dimension", "Typical values", "Why it matters"], DIMENSIONS))
     if num == 15:
-        return ("## Master tagging matrix\n\nThe addition and subtraction tags stay; these are added or widened. "
-                "Code measures every tag from the question's numbers; none is typed.\n\n"
-                + table(["Tag", "Allowed values"], TAGS))
+        return ("## Master tagging matrix\n\nEvery tag a multiplication or division case reads, as its "
+                "`case_dimension` row says it. Code measures each from the question's numbers, or reads what the kind "
+                "that made it states (the method it prints, a story's shape, what a remainder is for); none is typed "
+                "by a person.\n\n" + table(["Tag", "Allowed values", "Why it matters"], MATRIX))
     if num == 16:
         rows = []
         for code, lo, grades, levels, methods in SKILLS:
@@ -1029,9 +1012,17 @@ if __name__ == "__main__":
     if FAULTS:
         print("\n".join(FAULTS))
         sys.exit(f"{len(FAULTS)} faults")
-    print(f"{len(CASES)} cases in {len(SECTIONS)} sections, {len(MISTAKES)} mistakes, {len(SKILLS)} skills: "
-          f"every example recomputed, every case placed or listed unplaced, 0 faults")
+    import md_rows  # the cases as rows, each measured by the engine (goals/md1-taxonomy-rows.yaml)
+
+    made = md_rows.rows(CASES, SECTIONS)
+    if bad := md_rows.faults(made):
+        print("\n".join(bad))
+        sys.exit(f"{len(bad)} faults")
+    print(f"{len(CASES)} cases in {len(SECTIONS)} sections, {len(MISTAKES)} mistakes, {len(SKILLS)} skills, "
+          f"{len(made)} rows: every example recomputed and measured, every case placed or listed unplaced, 0 faults")
+    MATRIX[:] = matrix(made)
     if "--check" not in sys.argv:
+        md_rows.write(made)
         doc = "\n\n".join([TITLE, LEAD] + [body(n) for n in ORDERED]) + "\n"
         (R / "docs/design/multiplication-division-taxonomy.md").write_text(doc)
         placed_in = {}

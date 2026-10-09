@@ -2,131 +2,871 @@
   "case_dimensions": [
     {
       "name": "operation",
-      "allowed": ["ADD", "SUB", "MUL", "DIV"],
+      "allowed": [
+        "ADD",
+        "SUB",
+        "MUL",
+        "DIV"
+      ],
       "why": "Different inverse relationships and regrouping logic; multiplying and dividing undo each other as adding and taking away do.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "operand_1_digits",
-      "allowed": [1, 2, 3, 4],
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "why": "Controls magnitude and place-value complexity.",
       "source": "taxonomy section 12; why from section 1",
       "note": "Open-ended: the taxonomy writes the values as '1, 2, 3, 4, ..., N'. Any positive integer is legal; 1 to 4 is what the ladder reaches today."
     },
     {
       "name": "operand_2_digits",
-      "allowed": [1, 2, 3, 4],
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "why": "Unequal lengths create alignment errors.",
       "source": "taxonomy section 12; why from section 1",
       "note": "Open-ended, as for operand_1_digits."
     },
     {
       "name": "operand_order",
-      "allowed": ["LONGER_FIRST", "SHORTER_FIRST", "EQUAL_LENGTH"],
+      "allowed": [
+        "LONGER_FIRST",
+        "SHORTER_FIRST",
+        "EQUAL_LENGTH",
+        "MIXED"
+      ],
       "why": "For addition, commutativity does not remove the diagnostic value of order.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "presentation",
-      "allowed": ["VERTICAL", "HORIZONTAL", "STORY", "EQUATION_BALANCE"],
+      "allowed": [
+        "VERTICAL",
+        "HORIZONTAL",
+        "STORY",
+        "EQUATION_BALANCE"
+      ],
       "why": "Horizontal questions also test conversion and place-value alignment.",
       "source": "taxonomy section 12; why from section 1",
       "note": "assess/tags.py derives only VERTICAL and HORIZONTAL today. STORY and EQUATION_BALANCE are legal values with no generator behind them yet, so no coverage target uses them."
     },
     {
       "name": "alignment_required",
-      "allowed": ["YES", "NO"],
+      "allowed": [
+        "YES",
+        "NO"
+      ],
       "why": "A learner can know the arithmetic but still fail because the shorter number is placed under the wrong column.",
       "source": "taxonomy section 12; why from section 4"
     },
     {
       "name": "regrouping",
-      "allowed": ["NONE", "SINGLE", "MULTIPLE"],
-      "why": "Separates basic calculation from carry/borrow proficiency.",
+      "allowed": [
+        "NONE",
+        "SINGLE",
+        "MULTIPLE"
+      ],
+      "why": "Separates basic calculation from regrouping: carrying, and exchanging.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "regroup_columns",
-      "allowed": ["ONES", "TENS", "HUNDREDS", "THOUSANDS"],
+      "allowed": [
+        "ONES",
+        "TENS",
+        "HUNDREDS",
+        "THOUSANDS"
+      ],
       "why": "A child may succeed in one column but not another.",
       "source": "taxonomy section 12; why from section 1",
       "note": "Open-ended, and the one dimension whose stored shape differs from its allowed values: assess/tags.py emits a list of column indices counting from 0 at the ones. No coverage target uses this dimension until the report agrees on one representation."
     },
     {
       "name": "regroup_pattern",
-      "allowed": ["ISOLATED", "CONSECUTIVE", "NON_ADJACENT", "CASCADING", "ACROSS_ZERO"],
-      "why": "Different carry/borrow chains expose different misconceptions.",
+      "allowed": [
+        "ISOLATED",
+        "CONSECUTIVE",
+        "NON_ADJACENT",
+        "CASCADING",
+        "ACROSS_ZERO"
+      ],
+      "why": "Different chains of carries and exchanges expose different misconceptions.",
       "source": "taxonomy section 12; why from section 1",
       "note": "assess/tags.py also emits NONE when no column regroups; that case is carried by regrouping = NONE."
     },
     {
       "name": "zero_pattern",
-      "allowed": ["NONE", "INTERNAL", "MULTIPLE", "ANSWER_ZERO"],
-      "why": "Zeros substantially change borrowing/carrying demands.",
+      "allowed": [
+        "NONE",
+        "INTERNAL",
+        "MULTIPLE",
+        "ANSWER_ZERO",
+        "TRAILING"
+      ],
+      "why": "Zeros change what carrying and exchanging demand.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "answer_digit_change",
-      "allowed": ["SAME", "+1", "-1", "-MULTIPLE", "ZERO"],
+      "allowed": [
+        "SAME",
+        "+1",
+        "-1",
+        "-MULTIPLE",
+        "ZERO",
+        "FULL",
+        "ONE_FEWER"
+      ],
       "why": "Tests whether the learner anticipates magnitude changes.",
       "source": "taxonomy section 12; why from section 1",
       "note": "assess/tags.py derives SAME, +1 and -1 today; -MULTIPLE and ZERO are legal and unreachable from the current generators, so no coverage target uses them."
     },
     {
       "name": "num_operands",
-      "allowed": [2, 3, "4+"],
+      "allowed": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "why": "Three or more addends in the same column can produce a carry greater than 1.",
       "source": "taxonomy section 12; why from sections 2.8 and 5.1",
       "note": "assess/tags.py emits the integer count, so a four-addend item reads 4, not '4+'."
     },
     {
       "name": "unknown_type",
-      "allowed": ["NONE", "WHOLE_NUMBER", "DIGIT", "MULTIPLE_DIGITS", "OPERATION"],
+      "allowed": [
+        "NONE",
+        "WHOLE_NUMBER",
+        "DIGIT",
+        "MULTIPLE_DIGITS",
+        "OPERATION"
+      ],
       "why": "Separates direct computation from reverse reasoning.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "unknown_position",
-      "allowed": ["FIRST_OPERAND", "SECOND_OPERAND", "RESULT", "MULTIPLE"],
+      "allowed": [
+        "FIRST_OPERAND",
+        "SECOND_OPERAND",
+        "RESULT",
+        "MULTIPLE",
+        "REMAINDER"
+      ],
       "why": "Where the blank sits changes the reasoning demand: a missing difference is direct calculation, a missing subtrahend or minuend is inverse reasoning.",
       "source": "taxonomy section 12; why from section 6.3"
     },
     {
       "name": "reasoning_type",
-      "allowed": ["DIRECT", "INVERSE", "BALANCE", "CONSTRAINT", "ERROR_DIAGNOSIS"],
+      "allowed": [
+        "DIRECT",
+        "INVERSE",
+        "BALANCE",
+        "CONSTRAINT",
+        "ERROR_DIAGNOSIS"
+      ],
       "why": "Measures calculation, application and reasoning separately.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
       "name": "strategy",
-      "allowed": ["STANDARD", "MENTAL", "COMPENSATION", "ESTIMATION"],
+      "allowed": [
+        "STANDARD",
+        "MENTAL",
+        "COMPENSATION",
+        "ESTIMATION",
+        "TIMES_TEN_THEN_HALVE",
+        "TIMES_TEN_LESS_A_GROUP",
+        "TIMES_TEN_AND_A_GROUP",
+        "DOUBLE_ONE_HALVE_THE_OTHER",
+        "DOUBLE_THREE_TIMES",
+        "TIMES_HUNDRED_THEN_QUARTER",
+        "FACT_DERIVED",
+        "DIVIDE_BY_TEN_THEN_DOUBLE",
+        "SCALED_FACT",
+        "SWAP"
+      ],
       "why": "Measures strategy choice, not only whether the final answer is correct.",
       "source": "taxonomy section 12; why from section 8"
     },
     {
       "name": "context",
-      "allowed": ["BARE_NUMBER", "WORD_PROBLEM", "TABLE_OR_CHART"],
+      "allowed": [
+        "BARE_NUMBER",
+        "WORD_PROBLEM",
+        "TABLE_OR_CHART"
+      ],
       "why": "Application and operation selection: the operation must be inferred from the situation, not from one keyword.",
       "source": "taxonomy section 12; why from sections 10 and 10.2"
     },
     {
-      "name": "word_structure",
+      "name": "taxonomy",
       "allowed": [
-        "RESULT_UNKNOWN_JOIN",
-        "CHANGE_UNKNOWN_JOIN",
-        "START_UNKNOWN_JOIN",
-        "RESULT_UNKNOWN_SEPARATE",
-        "CHANGE_UNKNOWN_SEPARATE",
-        "START_UNKNOWN_SEPARATE",
-        "PART_PART_WHOLE_WHOLE_UNKNOWN",
-        "PART_PART_WHOLE_PART_UNKNOWN",
-        "COMPARE_DIFFERENCE_UNKNOWN",
-        "COMPARE_LARGER_UNKNOWN",
-        "COMPARE_SMALLER_UNKNOWN"
+        "ADD_SUB",
+        "MUL_DIV"
       ],
-      "why": "The eleven one-step structures of section 10.1. On identical numbers, 'had some, gave away 13, now 24' is far harder than 'had 37, gave away 13', so the structure is the case, not the arithmetic.",
-      "source": "taxonomy section 10.1; added by SPEC section 3.2 as the eighteenth dimension",
-      "note": "The only dimension no generator tags yet: word_1step and word_2step emit no structure, so no coverage target uses it. The first target belongs at R8 once the word generators carry it."
+      "why": "Which of the school's two documents a question is a case of: multiplication and division's when any of its operations is × or ÷. A case names its own, so neither document's case holds the other's question.",
+      "source": "goals/md1-taxonomy-rows.yaml"
+    },
+    {
+      "name": "digits_max",
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "why": "The longest number's digits.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "digits_min",
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "why": "The shortest number's digits.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "answer_digits",
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "why": "How many digits the answer has.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "answer_zeros",
+      "allowed": [
+        "NONE",
+        "INTERNAL",
+        "TRAILING",
+        "INTERNAL+TRAILING"
+      ],
+      "why": "Where the answer's zeros sit: a zero inside an answer (108) is forgotten where one at its end (240) is not.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "answer_power_of_ten",
+      "allowed": [
+        10,
+        100,
+        1000
+      ],
+      "why": "An answer of exactly 10, 100 or 1000, where every column carries or every place exchanges.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "answer_round",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "An answer that is one digit and zeros (100, 1000): every column but the first writes 0.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "answer_first",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "The answer written before the sum (□ = 63 ÷ 9): the equals sign read both ways.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "carry_into_zero",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A carry lands on a column where a number shows 0 (208 + 96; 506 × 7).",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "carry_max",
+      "allowed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "why": "The largest carry a column sends on: 3 when four 1-digit numbers are added, 8 in 99 × 9.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "carry_size",
+      "allowed": [
+        "NONE",
+        "ONE",
+        "MORE_THAN_ONE"
+      ],
+      "why": "A multiplication's carry of 1, or of more: a carry of 4 is the one a child adds as 1.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "difference_small",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A subtraction across a hundred whose answer is 10 or less (503 − 498).",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "divisor_group",
+      "allowed": [
+        "0-1",
+        "2-5-10",
+        "3-4",
+        "6-9",
+        "11-12"
+      ],
+      "why": "The fact group a 1-digit divisor's table is in: each step of a division is read from that table.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "equal_operands",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "The same number twice: a square fact (7 × 7), a number divided by itself (7 ÷ 7).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "estimate_corrected",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A 2-digit divisor whose first estimate, rounded to its ten, must be put right (162 ÷ 18: 20 suggests 8, the answer is 9).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "exchange_zeros",
+      "allowed": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "why": "How many zeros an exchange passes through: 402 − 185 one, 1000 − 476 two.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "fact",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A table fact: two numbers to 12 multiplied, or one read backwards with nothing left over.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "fact_table",
+      "allowed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "why": "The table a fact is read from: its first number's, or the divisor's.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "fact_group",
+      "allowed": [
+        "0-1",
+        "2-5-10",
+        "3-4",
+        "6-9",
+        "11-12"
+      ],
+      "why": "The easiest table holding a fact in its first ten rows: the groups the tables are taught in.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "fact_swapped",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A fact whose second number's table is the easier one: the table read the other way (8 × 3).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "fact_zero",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A scaled fact whose own product ends in 0 (50 × 4: 5 × 4 = 20), or a division whose fact uses one of the zeros (200 ÷ 4: 20 ÷ 4).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "first_digit_smaller",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "The first digit (or digits) smaller than the divisor, so they join the next: the quotient is a digit shorter.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "highest_place_reduced",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A subtraction whose leading digit lends (105 − 97).",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "knock_on",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A carry or exchange that makes the next column need one it would not otherwise have (342 − 148; 18 × 6).",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "method",
+      "allowed": [
+        "LINE",
+        "COLUMNS",
+        "EXPANDED",
+        "PARTITIONING",
+        "GRID",
+        "LATTICE",
+        "LONG_MULTIPLICATION",
+        "REPEATED_ADDITION",
+        "SKIP_COUNTING",
+        "NUMBER_LINE",
+        "ARRAY",
+        "GROUPS",
+        "DOUBLING",
+        "SHARING",
+        "GROUPING",
+        "REPEATED_SUBTRACTION",
+        "PARTITION_DIVIDEND",
+        "CHUNKING",
+        "SHORT_DIVISION",
+        "LONG_DIVISION",
+        "HALVING"
+      ],
+      "why": "The way a multiplication or division is worked on the page: the standard ones in a line and in columns, and every method the school's objectives name.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "missing_count",
+      "allowed": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "why": "How many digits are missing.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "missing_in",
+      "allowed": [
+        "FIRST",
+        "SECOND",
+        "RESULT",
+        "FIRST+SECOND",
+        "FIRST+RESULT",
+        "SECOND+RESULT",
+        "FIRST+SECOND+RESULT"
+      ],
+      "why": "Which numbers have a missing digit.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "missing_place",
+      "allowed": [
+        "ONES",
+        "TENS",
+        "HUNDREDS",
+        "THOUSANDS"
+      ],
+      "why": "The place a single missing digit is in.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "multiplier_zero",
+      "allowed": [
+        "NONE",
+        "TRAILING",
+        "INTERNAL"
+      ],
+      "why": "A zero in the multiplier: one at its end writes no row (23 × 40), one inside writes none for that place (213 × 102).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "near_round",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A number within 2 of a hundred or 1 of a ten: the one a mental method rounds.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "one_operand",
+      "allowed": [
+        "NONE",
+        "FIRST",
+        "SECOND",
+        "BOTH"
+      ],
+      "why": "A 1 among the numbers: × 1 and ÷ 1 leave a number unchanged.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "partial_products",
+      "allowed": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "why": "How many rows a long multiplication writes: one for each digit of the multiplier that is not 0.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "partial_sum_regrouping",
+      "allowed": [
+        "NONE",
+        "SINGLE",
+        "MULTIPLE"
+      ],
+      "why": "Whether adding a long multiplication's rows carries, once or more.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "place_value_factor",
+      "allowed": [
+        "NONE",
+        "X10",
+        "X100",
+        "X1000",
+        "MULTIPLE_OF_TEN_ONE",
+        "MULTIPLE_OF_HUNDRED_ONE",
+        "MULTIPLE_OF_TEN_BOTH"
+      ],
+      "why": "By 10, 100 or 1000; or a round number, one or both, whose zeros are placed after the fact.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "planted",
+      "allowed": [
+        "M_ALIGN_LEFT",
+        "M_H2V_SHIFT",
+        "M_NOCARRY",
+        "M_CARRY_SKIP",
+        "M_CARRY_ALWAYS_1",
+        "M_DROP_CARRYOUT",
+        "M_SMALL_FROM_LARGE",
+        "M_NO_DECREMENT",
+        "M_EXCHANGE_WRONG_PLACE",
+        "M_ZERO_LENDER",
+        "M_ZERO_NOT_NINE",
+        "M_ZERO_DROPPED",
+        "M_SUB_INSTEAD",
+        "M_MISSING_DIGIT_LOCAL",
+        "M_EQUALS_MEANS_ANSWER",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_PLACEHOLDER",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_PARTITION_TENS_AS_ONES",
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_MUL_CARRY_ONTO_ZERO_LOST"
+      ],
+      "why": "The mistake a find-the-mistake question shows, as its misconception code.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "quotient_zero",
+      "allowed": [
+        "NONE",
+        "MIDDLE",
+        "END",
+        "MULTIPLE"
+      ],
+      "why": "Where the quotient has a zero: the one a child leaves out (612 ÷ 6 = 12).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "regroup_at",
+      "allowed": [
+        "ONES",
+        "NONE",
+        "TENS",
+        "ONES+TENS",
+        "HUNDREDS",
+        "ONES+HUNDREDS",
+        "TENS+HUNDREDS",
+        "ONES+TENS+HUNDREDS",
+        "HUNDREDS+THOUSANDS",
+        "TENS+HUNDREDS+THOUSANDS",
+        "ONES+TENS+HUNDREDS+THOUSANDS",
+        "HUNDREDS+TENS"
+      ],
+      "why": "Which places carry (from the ones up) or exchange (from the left), joined: ONES+TENS.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "remainder",
+      "allowed": [
+        "NONE",
+        "SOME",
+        "LARGEST",
+        "DIVIDEND_SMALLER"
+      ],
+      "why": "What is left over: nothing, some, the most a divisor allows, or the whole of a number smaller than the divisor.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "remainder_use",
+      "allowed": [
+        "NONE",
+        "ROUND_DOWN",
+        "ROUND_UP",
+        "REMAINDER_ASKED",
+        "BOTH_ASKED"
+      ],
+      "why": "What a story does with a remainder: drops it, rounds up, asks for it, or asks for both.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "round_operand",
+      "allowed": [
+        "NONE",
+        "POWER_OF_TEN",
+        "MULTIPLE_OF_TEN"
+      ],
+      "why": "A second number of 10, 100, 1000 or another round number.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "round_to",
+      "allowed": [
+        10,
+        100,
+        1000
+      ],
+      "why": "The place an estimate rounds to.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "row_regrouping",
+      "allowed": [
+        "NONE",
+        "SOME",
+        "ALL"
+      ],
+      "why": "Whether a long multiplication's rows carry: none, some or all of them.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "scaled_fact",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A round number's sum that is a table fact once its zeros are off (30 × 4 is 3 × 4).",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "shape",
+      "allowed": [
+        "SAME_LETTER",
+        "INEQUALITY",
+        "MISSING_SIGN",
+        "MISSING_SIGNS",
+        "FROM_ADDITION",
+        "FROM_SUBTRACTION",
+        "BALANCE_SAME_OP",
+        "BALANCE_TWO_OPS",
+        "SAME_BOTH_SIDES",
+        "TRUE_FALSE",
+        "COMPARE",
+        "FRIENDLY_PAIRS",
+        "JUDGED",
+        "HOW_MANY_GROUPS",
+        "SWAP_TO_A_KNOWN_TABLE",
+        "MISSING_ROW",
+        "ORDER",
+        "GROUPED_EITHER_WAY",
+        "PARTITION_A_FACTOR",
+        "BY_ONE",
+        "BY_ITSELF_AND_OF_ZERO",
+        "TRUE_FALSE_DIVIDE_BY_ZERO",
+        "TRUE_FALSE_DIVISION_ORDER",
+        "FROM_MULTIPLICATION",
+        "BALANCE_TIMES_AND_MINUS",
+        "BALANCE_TIMES_AND_DIVIDE",
+        "DOUBLE_A_FACTOR",
+        "TRUE_FALSE_ORDER",
+        "MULTIPLES",
+        "IS_A_MULTIPLE",
+        "FACTORS",
+        "FACTOR_PAIRS",
+        "COMMON_MULTIPLES",
+        "DIVISIBLE_BY_2_5_10",
+        "DIVISIBLE_BY_3",
+        "PARITY_OF_A_PRODUCT",
+        "ROUND_ONE",
+        "ROUND_BOTH",
+        "ANSWER_DIGITS",
+        "LAST_DIGIT"
+      ],
+      "why": "The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "structure",
+      "allowed": [
+        "JOIN_RESULT",
+        "JOIN_CHANGE",
+        "JOIN_START",
+        "SEPARATE_RESULT",
+        "SEPARATE_CHANGE",
+        "SEPARATE_START",
+        "PPW_WHOLE",
+        "PPW_PART",
+        "COMPARE_DIFFERENCE",
+        "COMPARE_LARGER",
+        "COMPARE_SMALLER",
+        "EXTRA_INFORMATION",
+        "ADD_ADD",
+        "SUB_SUB",
+        "SUB_ADD",
+        "ADD_SUB",
+        "UNKNOWN_FIRST",
+        "CONSTRAINT",
+        "EQUAL_GROUPS",
+        "SHARING",
+        "GROUPING",
+        "ARRAY",
+        "RATE_TOTAL",
+        "RATE_UNIT",
+        "TIMES_AS_MANY_LARGER",
+        "TIMES_AS_MANY_SMALLER",
+        "HOW_MANY_TIMES",
+        "TWICE_AS_MANY",
+        "COMBINATIONS",
+        "AREA",
+        "MULTIPLY_THEN_ADD",
+        "MULTIPLY_THEN_SUBTRACT",
+        "DIVIDE_THEN_MULTIPLY",
+        "TWO_PRODUCTS_ADDED",
+        "ADD_THEN_DIVIDE",
+        "BAR_MODEL_TIMES_AS_MANY",
+        "GROUPING_BY_EACH",
+        "HALF_AS_MANY"
+      ],
+      "why": "A story's shape, as its template declares it: who joins, shares, groups or compares, and in how many steps.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
+      "name": "topic",
+      "allowed": [
+        "compensation"
+      ],
+      "why": "What an explain-a-claim question is about.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "unknown_digits",
+      "allowed": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "why": "How many digits the hidden number has.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "zero_operand",
+      "allowed": [
+        "NONE",
+        "FIRST",
+        "SECOND",
+        "BOTH"
+      ],
+      "why": "A 0 among the numbers.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "zeros_in",
+      "allowed": [
+        "NONE",
+        "FIRST",
+        "SECOND",
+        "BOTH"
+      ],
+      "why": "Which numbers have a zero a regroup can pass through.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
+    },
+    {
+      "name": "zeros_max",
+      "allowed": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "why": "The most such zeros one number has.",
+      "source": "addition & subtraction taxonomy, as `tags.py` measures it"
     }
   ]
 }

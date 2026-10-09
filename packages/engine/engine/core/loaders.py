@@ -274,7 +274,8 @@ def _misconceptions(conn: db.Conn, t: db.Id) -> None:
 
 
 def _dimensions(conn: db.Conn, t: db.Id) -> None:
-    for i, d in enumerate(settings.seed("case_dimensions.json", "case_dimensions"), start=1):
+    rows = settings.seed("case_dimensions.json", "case_dimensions")
+    for i, d in enumerate(rows, start=1):
         conn.execute(
             "insert into case_dimension (tenant_id, code, name, description, allowed_values,"
             " dimension_order, source) values (%s,%s,%s,%s,%s,%s,%s)"
@@ -283,27 +284,22 @@ def _dimensions(conn: db.Conn, t: db.Id) -> None:
             " dimension_order=excluded.dimension_order, source=excluded.source, updated_at=now()",
             (t, d["name"], d["name"], d.get("why", ""), _text_array(d["allowed"]), i, d.get("source", "")),
         )
+    # the seed is the whole vocabulary every case is written in: a dimension it no longer names goes
+    names = [d["name"] for d in rows]
+    conn.execute("delete from case_dimension where tenant_id = %s and code <> all(%s)", (t, names))
 
 
 def _taxonomy_cases(conn: db.Conn, t: db.Id) -> None:
     for c in settings.seed("taxonomy_cases.json", "taxonomy_cases"):
+        words = (c["section"], c["section_name"], c["label"], c.get("example_text", ""))
+        held = (json.dumps(c["example"]), json.dumps(c["match"]), c.get("min_items", 12))
         conn.execute(
-            "insert into taxonomy_case (tenant_id, code, section, section_name, label, example_text, example,"
-            " match, min_items) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, code) do update set section=excluded.section,"
+            "insert into taxonomy_case (tenant_id, code, taxonomy, section, section_name, label, example_text,"
+            " example, match, min_items) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set taxonomy=excluded.taxonomy, section=excluded.section,"
             " section_name=excluded.section_name, label=excluded.label, example_text=excluded.example_text,"
             " example=excluded.example, match=excluded.match, min_items=excluded.min_items, updated_at=now()",
-            (
-                t,
-                c["code"],
-                c["section"],
-                c["section_name"],
-                c["label"],
-                c.get("example_text", ""),
-                json.dumps(c["example"]),
-                json.dumps(c["match"]),
-                c.get("min_items", 12),
-            ),
+            (t, c["code"], c["taxonomy"], *words, *held),
         )
 
 

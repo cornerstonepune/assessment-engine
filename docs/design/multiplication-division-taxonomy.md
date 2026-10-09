@@ -178,8 +178,8 @@ Short division read left to right: where a remainder is exchanged, whether the f
 | --- | --- | --- | --- |
 | D01 | 2 ÷ 1 digits, every digit divides, in the division layout | 84 ÷ 4 (division layout) | 21 |
 | D02 | 2 ÷ 1 digits, every digit divides, in a line | 69 ÷ 3 | 23 |
-| D03 | 2 ÷ 1 digits, one exchange from the tens | 72 ÷ 4 | 18 |
-| D04 | 2 ÷ 1 digits, an exchange, the answer past the tables | 91 ÷ 7 | 13 |
+| D03 | 2 ÷ 1 digits, one exchange from the tens, by 2, 3, 4 or 5 | 72 ÷ 4 | 18 |
+| D04 | 2 ÷ 1 digits, one exchange from the tens, by 6, 7, 8 or 9 | 91 ÷ 7 | 13 |
 | D05 | 3 ÷ 1 digits, no exchange | 936 ÷ 3 | 312 |
 | D06 | 3 ÷ 1 digits: exchange after the hundreds: no · after the tens: yes | 476 ÷ 2 | 238 |
 | D07 | 3 ÷ 1 digits: exchange after the hundreds: yes · after the tens: no | 786 ÷ 6 | 131 |
@@ -428,31 +428,57 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 
 ## Master tagging matrix
 
-The addition and subtraction tags stay; these are added or widened. Code measures every tag from the question's numbers; none is typed.
+Every tag a multiplication or division case reads, as its `case_dimension` row says it. Code measures each from the question's numbers, or reads what the kind that made it states (the method it prints, a story's shape, what a remainder is for); none is typed by a person.
 
-| Tag | Allowed values |
-| --- | --- |
-| operation | ADD / SUB / MUL / DIV |
-| operand_1_digits, operand_2_digits | 1, 2, 3, 4, ..., N (for ÷: the number divided, then the divisor) |
-| operand_order | LONGER_FIRST / SHORTER_FIRST / EQUAL_LENGTH |
-| fact_group | 0-1 / 2-5-10 / 3-4 / 6-9 / 11-12 |
-| place_value_factor | NONE / X10 / X100 / X1000 / MULTIPLE_OF_TEN_ONE / MULTIPLE_OF_TEN_BOTH |
-| method | LINE / COLUMNS / EXPANDED / PARTITIONING / GRID / LATTICE / LONG_MULTIPLICATION / REPEATED_ADDITION / SKIP_COUNTING / NUMBER_LINE / ARRAY / GROUPS / DOUBLING / SHARING / GROUPING / REPEATED_SUBTRACTION / PARTITION_DIVIDEND / CHUNKING / SHORT_DIVISION / LONG_DIVISION / HALVING |
-| regrouping, regroup_columns | NONE / SINGLE / MULTIPLE; ONES / TENS / HUNDREDS / ... (× carries, ÷ exchanges) |
-| carry_size | NONE / ONE / MORE_THAN_ONE |
-| knock_on | YES / NO |
-| partial_products, partial_sum_regrouping | 1 / 2 / 3; NONE / SINGLE / MULTIPLE |
-| first_digit_smaller | YES / NO |
-| quotient_zero | NONE / MIDDLE / END |
-| remainder | NONE / SOME / LARGEST / DIVIDEND_SMALLER |
-| zero_pattern | NONE / INTERNAL / TRAILING / MULTIPLIER_ZERO / ANSWER_ZERO / CARRY_INTO_ZERO |
-| answer_digit_change | FULL / ONE_FEWER |
-| unknown_type, unknown_position | NONE / WHOLE_NUMBER / DIGIT / MULTIPLE_DIGITS / OPERATION; FIRST_OPERAND / SECOND_OPERAND / RESULT / REMAINDER |
-| reasoning_type | DIRECT / INVERSE / BALANCE / CONSTRAINT / PROPERTY / ERROR_DIAGNOSIS |
-| strategy | STANDARD / MENTAL / DOUBLING / COMPENSATION / FACT_DERIVED / ESTIMATION |
-| context | BARE_NUMBER / WORD_PROBLEM / PICTURE / TABLE_OR_CHART |
-| word_structure | EQUAL_GROUPS / SHARING / GROUPING / ARRAY / ARRAY_SIDE / RATE_TOTAL / RATE_UNIT / TIMES_LARGER / TIMES_SMALLER / TIMES_HOW_MANY / COMBINATIONS / AREA / TWO_STEP / BAR_MODEL |
-| remainder_use | NONE / ROUND_DOWN / ROUND_UP / REMAINDER_ASKED / BOTH_ASKED |
+| Tag | Allowed values | Why it matters |
+| --- | --- | --- |
+| operation | ADD / SUB / MUL / DIV | Different inverse relationships and regrouping logic; multiplying and dividing undo each other as adding and taking away do. |
+| operand_1_digits | 1 / 2 / 3 / 4 / 5 / 6 | Controls magnitude and place-value complexity. |
+| operand_2_digits | 1 / 2 / 3 / 4 / 5 / 6 | Unequal lengths create alignment errors. |
+| operand_order | LONGER_FIRST / SHORTER_FIRST / EQUAL_LENGTH / MIXED | For addition, commutativity does not remove the diagnostic value of order. |
+| regrouping | NONE / SINGLE / MULTIPLE | Separates basic calculation from regrouping: carrying, and exchanging. |
+| zero_pattern | NONE / INTERNAL / MULTIPLE / ANSWER_ZERO / TRAILING | Zeros change what carrying and exchanging demand. |
+| answer_digit_change | SAME / +1 / -1 / -MULTIPLE / ZERO / FULL / ONE_FEWER | Tests whether the learner anticipates magnitude changes. |
+| unknown_position | FIRST_OPERAND / SECOND_OPERAND / RESULT / MULTIPLE / REMAINDER | Where the blank sits changes the reasoning demand: a missing difference is direct calculation, a missing subtrahend or minuend is inverse reasoning. |
+| reasoning_type | DIRECT / INVERSE / BALANCE / CONSTRAINT / ERROR_DIAGNOSIS | Measures calculation, application and reasoning separately. |
+| strategy | STANDARD / MENTAL / COMPENSATION / ESTIMATION / TIMES_TEN_THEN_HALVE / TIMES_TEN_LESS_A_GROUP / TIMES_TEN_AND_A_GROUP / DOUBLE_ONE_HALVE_THE_OTHER / DOUBLE_THREE_TIMES / TIMES_HUNDRED_THEN_QUARTER / FACT_DERIVED / DIVIDE_BY_TEN_THEN_DOUBLE / SCALED_FACT / SWAP | Measures strategy choice, not only whether the final answer is correct. |
+| context | BARE_NUMBER / WORD_PROBLEM / TABLE_OR_CHART | Application and operation selection: the operation must be inferred from the situation, not from one keyword. |
+| taxonomy | ADD_SUB / MUL_DIV | Which of the school's two documents a question is a case of: multiplication and division's when any of its operations is × or ÷. A case names its own, so neither document's case holds the other's question. |
+| digits_max | 1 / 2 / 3 / 4 / 5 / 6 | The longest number's digits. |
+| answer_digits | 1 / 2 / 3 / 4 / 5 / 6 / 7 | How many digits the answer has. |
+| answer_zeros | NONE / INTERNAL / TRAILING / INTERNAL+TRAILING | Where the answer's zeros sit: a zero inside an answer (108) is forgotten where one at its end (240) is not. |
+| answer_round | YES / NO | An answer that is one digit and zeros (100, 1000): every column but the first writes 0. |
+| answer_first | YES / NO | The answer written before the sum (□ = 63 ÷ 9): the equals sign read both ways. |
+| carry_into_zero | YES / NO | A carry lands on a column where a number shows 0 (208 + 96; 506 × 7). |
+| carry_max | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 | The largest carry a column sends on: 3 when four 1-digit numbers are added, 8 in 99 × 9. |
+| carry_size | NONE / ONE / MORE_THAN_ONE | A multiplication's carry of 1, or of more: a carry of 4 is the one a child adds as 1. |
+| divisor_group | 0-1 / 2-5-10 / 3-4 / 6-9 / 11-12 | The fact group a 1-digit divisor's table is in: each step of a division is read from that table. |
+| equal_operands | YES / NO | The same number twice: a square fact (7 × 7), a number divided by itself (7 ÷ 7). |
+| estimate_corrected | YES / NO | A 2-digit divisor whose first estimate, rounded to its ten, must be put right (162 ÷ 18: 20 suggests 8, the answer is 9). |
+| fact | YES / NO | A table fact: two numbers to 12 multiplied, or one read backwards with nothing left over. |
+| fact_table | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 | The table a fact is read from: its first number's, or the divisor's. |
+| fact_swapped | YES / NO | A fact whose second number's table is the easier one: the table read the other way (8 × 3). |
+| fact_zero | YES / NO | A scaled fact whose own product ends in 0 (50 × 4: 5 × 4 = 20), or a division whose fact uses one of the zeros (200 ÷ 4: 20 ÷ 4). |
+| first_digit_smaller | YES / NO | The first digit (or digits) smaller than the divisor, so they join the next: the quotient is a digit shorter. |
+| knock_on | YES / NO | A carry or exchange that makes the next column need one it would not otherwise have (342 − 148; 18 × 6). |
+| method | LINE / COLUMNS / EXPANDED / PARTITIONING / GRID / LATTICE / LONG_MULTIPLICATION / REPEATED_ADDITION / SKIP_COUNTING / NUMBER_LINE / ARRAY / GROUPS / DOUBLING / SHARING / GROUPING / REPEATED_SUBTRACTION / PARTITION_DIVIDEND / CHUNKING / SHORT_DIVISION / LONG_DIVISION / HALVING | The way a multiplication or division is worked on the page: the standard ones in a line and in columns, and every method the school's objectives name. |
+| missing_count | 1 / 2 / 3 / 4 | How many digits are missing. |
+| missing_in | FIRST / SECOND / RESULT / FIRST+SECOND / FIRST+RESULT / SECOND+RESULT / FIRST+SECOND+RESULT | Which numbers have a missing digit. |
+| multiplier_zero | NONE / TRAILING / INTERNAL | A zero in the multiplier: one at its end writes no row (23 × 40), one inside writes none for that place (213 × 102). |
+| one_operand | NONE / FIRST / SECOND / BOTH | A 1 among the numbers: × 1 and ÷ 1 leave a number unchanged. |
+| partial_products | 1 / 2 / 3 / 4 | How many rows a long multiplication writes: one for each digit of the multiplier that is not 0. |
+| partial_sum_regrouping | NONE / SINGLE / MULTIPLE | Whether adding a long multiplication's rows carries, once or more. |
+| place_value_factor | NONE / X10 / X100 / X1000 / MULTIPLE_OF_TEN_ONE / MULTIPLE_OF_HUNDRED_ONE / MULTIPLE_OF_TEN_BOTH | By 10, 100 or 1000; or a round number, one or both, whose zeros are placed after the fact. |
+| planted | M_ALIGN_LEFT / M_H2V_SHIFT / M_NOCARRY / M_CARRY_SKIP / M_CARRY_ALWAYS_1 / M_DROP_CARRYOUT / M_SMALL_FROM_LARGE / M_NO_DECREMENT / M_EXCHANGE_WRONG_PLACE / M_ZERO_LENDER / M_ZERO_NOT_NINE / M_ZERO_DROPPED / M_SUB_INSTEAD / M_MISSING_DIGIT_LOCAL / M_EQUALS_MEANS_ANSWER / M_MUL_CONCAT / M_MUL_NO_CARRY / M_MUL_PLACEHOLDER / M_DIV_QUOTIENT_ZERO_DROPPED / M_DIV_REMAINDER_TOO_BIG / M_PARTITION_TENS_AS_ONES / M_DIV_BRING_DOWN_MISSED / M_MUL_CARRY_ONTO_ZERO_LOST | The mistake a find-the-mistake question shows, as its misconception code. |
+| quotient_zero | NONE / MIDDLE / END / MULTIPLE | Where the quotient has a zero: the one a child leaves out (612 ÷ 6 = 12). |
+| regroup_at | ONES / NONE / TENS / ONES+TENS / HUNDREDS / ONES+HUNDREDS / TENS+HUNDREDS / ONES+TENS+HUNDREDS / HUNDREDS+THOUSANDS / TENS+HUNDREDS+THOUSANDS / ONES+TENS+HUNDREDS+THOUSANDS / HUNDREDS+TENS | Which places carry (from the ones up) or exchange (from the left), joined: ONES+TENS. |
+| remainder | NONE / SOME / LARGEST / DIVIDEND_SMALLER | What is left over: nothing, some, the most a divisor allows, or the whole of a number smaller than the divisor. |
+| remainder_use | NONE / ROUND_DOWN / ROUND_UP / REMAINDER_ASKED / BOTH_ASKED | What a story does with a remainder: drops it, rounds up, asks for it, or asks for both. |
+| row_regrouping | NONE / SOME / ALL | Whether a long multiplication's rows carry: none, some or all of them. |
+| scaled_fact | YES / NO | A round number's sum that is a table fact once its zeros are off (30 × 4 is 3 × 4). |
+| shape | SAME_LETTER / INEQUALITY / MISSING_SIGN / MISSING_SIGNS / FROM_ADDITION / FROM_SUBTRACTION / BALANCE_SAME_OP / BALANCE_TWO_OPS / SAME_BOTH_SIDES / TRUE_FALSE / COMPARE / FRIENDLY_PAIRS / JUDGED / HOW_MANY_GROUPS / SWAP_TO_A_KNOWN_TABLE / MISSING_ROW / ORDER / GROUPED_EITHER_WAY / PARTITION_A_FACTOR / BY_ONE / BY_ITSELF_AND_OF_ZERO / TRUE_FALSE_DIVIDE_BY_ZERO / TRUE_FALSE_DIVISION_ORDER / FROM_MULTIPLICATION / BALANCE_TIMES_AND_MINUS / BALANCE_TIMES_AND_DIVIDE / DOUBLE_A_FACTOR / TRUE_FALSE_ORDER / MULTIPLES / IS_A_MULTIPLE / FACTORS / FACTOR_PAIRS / COMMON_MULTIPLES / DIVISIBLE_BY_2_5_10 / DIVISIBLE_BY_3 / PARITY_OF_A_PRODUCT / ROUND_ONE / ROUND_BOTH / ANSWER_DIGITS / LAST_DIGIT | The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's. |
+| structure | JOIN_RESULT / JOIN_CHANGE / JOIN_START / SEPARATE_RESULT / SEPARATE_CHANGE / SEPARATE_START / PPW_WHOLE / PPW_PART / COMPARE_DIFFERENCE / COMPARE_LARGER / COMPARE_SMALLER / EXTRA_INFORMATION / ADD_ADD / SUB_SUB / SUB_ADD / ADD_SUB / UNKNOWN_FIRST / CONSTRAINT / EQUAL_GROUPS / SHARING / GROUPING / ARRAY / RATE_TOTAL / RATE_UNIT / TIMES_AS_MANY_LARGER / TIMES_AS_MANY_SMALLER / HOW_MANY_TIMES / TWICE_AS_MANY / COMBINATIONS / AREA / MULTIPLY_THEN_ADD / MULTIPLY_THEN_SUBTRACT / DIVIDE_THEN_MULTIPLY / TWO_PRODUCTS_ADDED / ADD_THEN_DIVIDE / BAR_MODEL_TIMES_AS_MANY / GROUPING_BY_EACH / HALF_AS_MANY | A story's shape, as its template declares it: who joins, shares, groups or compares, and in how many steps. |
+| zero_operand | NONE / FIRST / SECOND / BOTH | A 0 among the numbers. |
 
 ## Suggested progression and the skills it becomes
 
