@@ -5,7 +5,53 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
-## Inserted now: Grade 1 as its educator taught it to September — Nimish, 2026-10-06
+## Inserted now: multiplication and division, through the whole loop — Nimish, 2026-10-09
+
+Nimish: *"we need to integrate multiplication and division now - same process, break it down into LOs (look at how
+addition and subtraction were done); create assessments of different levels of difficulty and create the whole loop
+that we have. so essentially this is a good test as to how our flow works."* On the plan: *"Achal will do - but need a
+properly drafted taxonomy by the system itself. Consider all of the methods for now. Make all the required assumptions
+on other questions and create a build plan around this."*
+
+**W1, gate 3 reopened** ("any topic, by rows only"). Measured before planning (STATE.md "Multiplication and division —
+measured before the build"): division exists nowhere and `M.predict("÷", …)` raises; `MUL.1D` predates ADR 0034 — one
+skill over three digit shapes, its levels' words unread (137 of 216 "no carry" Easy questions carry), no taxonomy tags;
+most kinds silently treat × as subtraction; a library worksheet's question with more than one answer is never read
+(4,437 of 21,289 questions, add/sub included); July's 23 real multiplication answers all sit on `M1`, facts and
+144 ÷ 12 with them.
+
+**The taxonomy, drafted by the engine for Achal:** `docs/design/multiplication-division-taxonomy.md`, shared as a doc
+for him to correct (claude.ai/code/artifact/bdba6993-2e65-4a57-a251-c2926011b5b1). 246 cases in the add/sub document's
+shape, every method the school's objectives name and the standard ones, 31 named mistakes with their wrong answers
+computed, 17 skills with every case placed or listed unplaced. `research/md_taxonomy.py --check` recomputes every
+example and fails on any case whose numbers lack its property. The twelve assumptions are ADR 0047; a correction from
+Achal is a change of rows run through M1's command, not a new plan.
+
+**What "rows only" can honestly mean, and how the flow is scored.** The bank's questions are made by code (ADR 0010),
+so a new *operation* costs code once: its question makers, its mistake predictors, its tag measurement, its layouts.
+After that, every multiplication or division skill and level is rows, and printing, the graph and the reports need no
+× or ÷ branch — where they break today, the fix is made general. The score is the files each slice changed, per
+workflow, recorded in STATE.md at M5.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| M0 | `goals/md0-every-answer-counts.yaml` | every answer of a question with several answers is read, marked, queued and counted on its own (the 4,437 included); ÷ is an operation wherever one is named (compute, verifier, `misconception.op`, `skills.by_operation` and its pattern, the case dimension, the old-paper sum pattern, the equation parser, mistake names); a kind handed an operation it cannot make refuses in a sentence, never subtracts; the reports read skill sets by skill set, not by rung; a skill set's own skill no longer falls to a tie (`MUL.GROUPS` reads as addition today); files over their ceiling split at real seams, no limit raised |
+| M1 | `goals/md1-taxonomy-rows.yaml` | the 246 cases are `taxonomy_case` rows and the new dimensions `case_dimension` rows; code measures every new tag for × and ÷; `engine bank taxonomy` counts every case; a test holds the rows to `docs/design/multiplication-division-cases.json` |
+| M2 | `goals/md2-multiplication.yaml` | seven skills (`MUL.GROUPS` unchanged, `MUL.MODELS`, `MUL.FACTS`, `MUL.TENS`, `MUL.2D1D`, `MUL.3D1D`, `MUL.2D2D`), each level its cases; every method printed (in a line, columns, expanded, partitioning, grid, lattice, long multiplication, arrays, skip counting, number line); the new mistakes predicted; `MUL.1D`'s 864 questions re-homed, none lost, and the set retired; July's answers re-placed on their real skills; ≥ 10 worksheets a level; every scenario 100% |
+| M3 | `goals/md3-division.yaml` | five skills (`DIV.GROUPS`, `DIV.FACTS`, `DIV.TENS`, `DIV.2D1D`, `DIV.3D1D`); a remainder its own answer; short division, long division, chunking, partitioning and the sharing and grouping pictures printed; zeros in the quotient; the new mistakes predicted; 144 ÷ 12 re-placed; worksheets; every scenario 100% |
+| M4 | `goals/md4-stories-and-reasoning.yaml` | `MD.WORD`, `MD.MENTAL`, `MD.MULTIPLES`, `MD.EQUALITY`, `MD.ESTIMATE`; story templates as rows, each with the range its numbers may take, and their eval (rule 7); the mistake → skill table drafted for one approval |
+| M5 | `goals/md5-the-loop.yaml` | on a fresh database, for every new skill: a paper prints → its boxes are filled with known answers, planted mistakes among them → read, marked, each mistake named → evidence → the child's graph → the next paper aims at the repeat → the class card and the parent report say it in the school's words; Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`; the website draws every new kind; the files-per-workflow score recorded |
+
+**Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is
+its cases. Multiplication before division: a division is checked by multiplying. M4 after both: its stories and checks
+use both operations. M5 last: it proves the rest.
+
+**People, asked for when the code is live, never holding the next slice's code:** Achal corrects the taxonomy doc;
+Nimish approves the new skills once on Curriculum, and the mistake → skill table once; an educator declares what each
+grade has been taught (nothing reaches a child before that); one real class sitting, the only test of reading
+handwritten remainders.
+
+## Inserted: Grade 1 as its educator taught it to September — Nimish, 2026-10-06
 
 Nimish forwarded the Grade 1 educator's list of what was taught to the end of September. She wants home papers and
 worksheets from October. Nimish: *"Can we incorporate this part additionally for grade 1? Ensure that this is the

@@ -4556,3 +4556,39 @@ additionally for grade 1? Ensure that this is the entire thing that's mapped to 
     files did not run: the engine's Playwright wants a Chromium build the cloud container lacks (`/week/render` →
     "Executable doesn't exist"). CI installs it and passed all 24 on 2f28b10;
   - `engine ratchet --base origin/main` → every baseline held or tightened.
+
+## Multiplication and division — measured before the build (2026-10-09)
+
+Nimish asked for multiplication and division the way addition and subtraction were done, through the whole loop
+(BUILD-ORDER "Inserted now: multiplication and division"). Nothing was built; this is what the plan stands on. Measured
+on a database built by `bin/testdb fresh` from the repository (21,289 active questions), not on live.
+
+- **Division exists nowhere.** `cd packages/engine && .venv/bin/python -c "from engine.assess import misconceptions as
+  M; M.predict('÷', 85, 4)"` → `KeyError '÷'`.
+- **`MUL.1D` does not hold to its own levels' words.** Easy says "no carry into the tens" and Medium "product past 100":
+  `select difficulty, count(*), count(*) filter (where ((spec->>'a')::int % 10) * (spec->>'b')::int >= 10),
+  count(*) filter (where (spec->>'a')::int * (spec->>'b')::int < 100) from item where skill_set_code='MUL.1D' and
+  status='active' group by 1 order by 1` →
+  ```
+  Advance|216|216|0
+  Easy|216|137|216
+  Hard|216|165|0
+  Medium|216|179|6
+  ```
+  137 of 216 Easy questions carry from the ones; 6 Medium questions are under 100. It spans three digit shapes, against
+  ADR 0034, and carries no taxonomy tags (`tags.derive` measures two numbers only for + and −).
+- **A 2-digit × 2-digit question's real mistakes are not predicted.**
+  `.venv/bin/python -c "from engine.assess import misconceptions as M; print(M.predict('×', 68, 17))"` →
+  `{'M_MUL_ROW_OUT': 1088, 'M_WRONG_OP': 85}`: no placeholder zero (544), no column-by-column (656).
+- **A library worksheet question with more than one answer is never read** (`w3_read/copies.py`: `if
+  len(it["responses"]) > 1 … unread.append(n)`). `select count(*) filter (where jsonb_array_length(responses) > 1),
+  count(*) from item where status='active'` → `4437|21289`: estimate-then-calculate, find-the-mistake, fact families
+  and more, addition and subtraction included. A remainder needs exactly this, so M0 fixes it for every kind.
+- **July's real multiplication answers sit on one rung.** `grep -c '"rung": "M1"'` over G3-BASE16, G3-QUIZ20 and
+  G4-BASE16 → 5, 12, 6: table facts, 8 × ___ = 72, ×10 and ×100, 2-digit × 1-digit and 144 ÷ 12, all on `M1`.
+- **The taxonomy draft checks itself.** `packages/engine/.venv/bin/python research/md_taxonomy.py --check` →
+  `246 cases in 13 sections, 31 mistakes, 17 skills: every example recomputed, every case placed or listed unplaced,
+  0 faults`. Two checks were broken on purpose (a "carry 1" case given carry 2, a two-digit puzzle given a wrong
+  answer) and the run named both and failed.
+- **Not checked:** what the school teaches in each grade now, and which methods. Both are assumptions (ADR 0047, A1
+  and A6) until Achal corrects the doc or an educator declares them.
