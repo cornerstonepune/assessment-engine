@@ -78,6 +78,8 @@ def worksheet(conn, tmp_path, monkeypatch):
             for r in conn.execute(
                 "select id from item where fmt = %s and status = 'active' and (select string_agg(x->>'rid' || ':' ||"
                 " (x->>'kind'), ',' order by o) from jsonb_array_elements(responses) with ordinality t(x, o)) = %s"
+                # two keys a test can tell apart: 273 + 627 is estimated 900 and is 900, one answer said twice
+                " and responses->0->>'answer' is distinct from responses->1->>'answer'"
                 " order by item_key limit 4",
                 (fmt, shape),
             )
