@@ -260,6 +260,34 @@ def test_every_level_draws_its_own_cases_as_measured(skill, level):
         )
 
 
+WHOLE = [(s, lv) for s in FIVE for lv in LEVELS if "min_items" in SETS[s]["difficulty"].get(lv, {})]
+
+
+@pytest.mark.parametrize("skill, level", WHOLE)
+def test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question(skill, level):
+    """`min_items` is everything a level holds once the levels beside it hold theirs, so its fill must find the last
+    question too. MUL.2D1D Easy's 3 × 21 turns up once in about 3,000 random draws, and CI's bank stopped at 66 of 69
+    (2026-10-09): a case that runs dry is now listed whole (`draw._rest`), so three questions held back are found
+    whatever the random draws do."""
+    check = _check(skill, level)
+    matches = _matches(check)
+    whole = {it.item_id for c in check["cases"] for it in draw._rest(matches[c], check, "R9", 10**6, set())}
+    assert len(whole) >= SETS[skill]["difficulty"][level]["min_items"], (skill, level, len(whole))
+    held_back = sorted(whole)[:3]
+    seen = whole - set(held_back)
+    got = draw.level(
+        random.Random(0),
+        check,
+        matches,
+        "R9",
+        3,
+        seen=seen,
+        quotas=dict.fromkeys(check["cases"], 0),
+        tries_per_item=20,
+    )
+    assert sorted(it.item_id for _, it in got) == held_back
+
+
 # ---------------------------------------------------------------------------------------------- the labels, by hand
 # Each case's words as plain arithmetic written here, never the code under test (`assess/md_tags.py`): what the drawer
 # makes is held to what the label says, so a case whose match says less than its label is caught by what it draws.

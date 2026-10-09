@@ -12,6 +12,7 @@ from typing import Any
 
 from . import taxonomy
 
+LISTED = 20000  # pairs: 3 digits by 2 is 81 hundred
 ROUND = ("X10", "X100", "X1000", "MULTIPLE_OF_TEN_ONE", "MULTIPLE_OF_HUNDRED_ONE", "MULTIPLE_OF_TEN_BOTH")
 
 
@@ -25,8 +26,12 @@ def table(alt: dict[str, Any]) -> bool:
     return alt.get("fact") == "YES" or "fact_table" in alt or "fact_swapped" in alt
 
 
+def _span(d: int, zero_ok: bool) -> range:
+    return range(0 if (d == 1 and zero_ok) else (1 if d == 1 else 10 ** (d - 1)), 10**d)
+
+
 def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
-    return rng.randint(0 if (d == 1 and zero_ok) else (1 if d == 1 else 10 ** (d - 1)), 10**d - 1)
+    return rng.choice(_span(d, zero_ok))
 
 
 def numbers(
@@ -43,6 +48,25 @@ def numbers(
         za, zb = rng.randint(0, d1 - 1), rng.randint(0, d2 - 1)
         return _number(rng, d1 - za, zero_ok) * 10**za, _number(rng, d2 - zb, zero_ok) * 10**zb
     return _number(rng, d1, zero_ok), _number(rng, d2, zero_ok)
+
+
+def every(alt: dict[str, Any], about: set[str], d1: int, d2: int) -> list[tuple[int, int]] | None:
+    """Every pair `numbers` can draw for these digits, in order: the whole of a case, read when its random draws run
+    dry, since a small level's last questions turn up once in thousands of draws (3 × 21 in MUL.2D1D Easy). None past
+    LISTED pairs (× 1000 has 9000 four-digit numbers), a range no level drawn whole comes near (test_mul_levels.py)."""
+    zero_ok = "zero_operand" in about
+    if table(alt):
+        lo = 0 if zero_ok else 1
+        tables = [n for n in range(lo, 13) if "fact_table" not in alt or taxonomy.holds(alt["fact_table"], n)]
+        return [(t, n) for t in tables for n in range(lo, 13)]
+
+    def side(d: int) -> list[int]:
+        return sorted(
+            {x * 10**z for z in (range(d) if round_ok(alt) else [0]) for x in _span(d - z, zero_ok)}
+        )
+
+    xs, ys = side(d1), side(d2)
+    return [(a, b) for a in xs for b in ys] if len(xs) * len(ys) <= LISTED else None
 
 
 def usable(

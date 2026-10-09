@@ -16,8 +16,10 @@ is verified. This file only says where the last session stopped.
   - a long multiplication prints its rows in layout row `2026-10-09`, as working;
   - the drafted document: 251 cases (T27, T28, TZ09, TP11 added; × read either way round; MUL.TENS bounded), and
     Grade 1 holds no level the Grade 1 educator has not taught.
-- **CI's first run and a second reader** found what STATE.md "M2a" lists; every finding is fixed in this PR.
-- **The shared doc Achal corrects** needs republishing from `docs/design/multiplication-division-taxonomy.md`.
+- **CI's runs and a second reader** found what STATE.md "M2a" lists; every finding is fixed in this PR. Among them,
+  CI pulls Postgres from AWS's copy of the official image, not anonymously from Docker Hub; and a × case whose draws
+  run dry is listed whole, so a level whose target is all it holds fills to its last question.
+- **The shared doc Achal corrects** is republished (rev 57): 251 cases, A4 and A6, the skills table.
 - **Next:** M2b (methods, Advance's kinds for 2 × 1, 3 × 1 and 2 × 2, the three method mistakes).
 - **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1 and M2a's seed rows, `bank rehome`, then approving the five.
 

@@ -4971,6 +4971,18 @@ cannot fill while `MUL.1D` holds the same questions, since a question lives in o
 - the "one home" claim was wider than its test (it is now narrowed to the reach above, and a level is tested too);
 - 801 × 0 was a "zero in the middle" case.
 
+**CI on `def49e6` and `a61e0dc`** found two more; each is fixed at its cause:
+- **Every job died before a step ran**, twice: Docker Hub refused CI's anonymous pull of `postgres:17`
+  ("toomanyrequests"). CI now pulls the same official image from AWS's copy of it
+  (`public.ecr.aws/docker/library/postgres:17`).
+- **CI's bank filled MUL.2D1D Easy to 66 of its 69** (`test_every_invariant_holds`). The level's target is all it holds,
+  3 × 21 turns up once in about 3,000 random draws, and the drawer called a case dry after 2,000 misses. A × case that
+  runs dry is now listed whole (`draw._rest`, ADR 0050 decision 12). Three questions held back from each level drawn
+  whole are found whatever the random draws do
+  (`test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question`; the old drawer found 0 of 3 for
+  MUL.2D1D Easy). To keep `draw.py` under 400 lines, the three + and − cases built rather than drawn by digits moved to
+  `assess/draw_sums.py`.
+
 **Proof** (on a database built as CI builds it, `bin/testdb fresh`):
 - `bin/engine goal md2a-straight-multiplication` → `17/17 scenarios met the bar completely`, `3/3 criteria met · GOAL
   ACHIEVED`. Its criteria are the suites this touches (`1011 passed`), `research/md_taxonomy.py --check` (`251 cases

@@ -18,7 +18,7 @@ def holds(want: Any, got: Any) -> bool:
     return got == want
 
 
-def matches(match, fmt, tags):
+def matches(match: Any, fmt: str | None, tags: dict[str, Any]) -> bool:
     if isinstance(match, list):
         return any(matches(m, fmt, tags) for m in match)
     for key, want in match.items():
@@ -61,7 +61,7 @@ def _overlap(a, b):
     return {k: v for k, v in (("gte", lo), ("lte", hi)) if v is not None}
 
 
-def keys(match):
+def keys(match: Any) -> set[str]:
     """Every tag a case reads — the sampler relaxes its defaults only for the ones a case is about."""
     if isinstance(match, list):
         return set().union(*(keys(m) for m in match))

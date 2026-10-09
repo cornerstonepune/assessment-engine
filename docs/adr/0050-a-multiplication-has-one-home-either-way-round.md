@@ -84,7 +84,18 @@ A second reader then found ten more defects, among them:
 11. **`MUL.1D` is re-homed onto the five and removed** (`replaces`). An old paper's × sums are filed on the five's
     rungs (`placing.OPERATIONS`). Rung M1 stays for the papers' ÷ questions until M3.
 
+12. **A level whose target is all it holds is filled to its last question** (`draw._rest`, `draw_times.every`). CI's
+    bank stopped MUL.2D1D Easy at 66 of its 69. 3 × 21 turns up once in about 3,000 random draws, and the drawer
+    called a case dry after 2,000 misses in a row. Now a × case that runs dry is listed whole: every pair its numbers
+    can be, at most 20,000 for one pair of digit counts. A case too large to list keeps the misses; MUL.TENS's
+    × 1000 is one, and no level drawn whole is.
+
 ## Rejected
+
+- **`min_items` lowered to what the drawing happens to reach.** It would make the target a guess about luck,
+  not what the level holds.
+- **More tries before a case is called dry.** It makes the miss rarer, not impossible, and costs every refill.
+- **A fixed random seed in CI.** CI would pass while a fill on live stopped short.
 
 - **A shape that is a list of alternatives written by hand** (MUL.TENS as "a power of ten, or a scaled fact"). The
   shape is the union of the levels' own `within`, which the rows already state.

@@ -22,6 +22,7 @@ from collections.abc import Iterable
 from typing import Any
 
 from . import bands, tags, taxonomy, verify
+from . import draw_sums as S
 from . import draw_times as T
 from . import items as I
 from . import misconceptions as M
@@ -42,11 +43,11 @@ LAYOUT = {
 POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
 
 
-def _alternatives(match):
+def _alternatives(match: Any) -> list[dict[str, Any]]:
     return match if isinstance(match, list) else [match]
 
 
-def _fmts(alt):
+def _fmts(alt: dict[str, Any]) -> list[Any]:
     f = alt.get("fmt")
     return f if isinstance(f, list) else [f]
 
@@ -57,7 +58,7 @@ def _pick(rng: random.Random, want: Any, pool: Iterable[Any]) -> Any:
     return rng.choice(ok) if ok else None
 
 
-def _op(rng, alt, check):
+def _op(rng: random.Random, alt: dict[str, Any], check: dict[str, Any]) -> str | None:
     """The operation this attempt draws: one the case allows, or None when it allows neither of ours."""
     if alt.get("operation"):
         picked = _pick(rng, alt["operation"], list(OPS))
@@ -66,7 +67,7 @@ def _op(rng, alt, check):
     return rng.choice(ops) if isinstance(ops, list) else ops
 
 
-def _pairs(alt, check, op):
+def _pairs(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]]:
     """The (digits of the first number, digits of the second) a case and its level both allow."""
     level = check.get("digits")
     allowed = {tuple(p) for p in (level if isinstance(level[0], list) else [level])} if level else None
@@ -114,31 +115,9 @@ def _usable(
     return not (check.get("max_total") and top > check["max_total"])
 
 
-def _built(rng, alt, op):
-    """The three cases whose numbers are a construction, not a digit pattern: add or take 10, 100 or
-    1000 (347 + 100); make 100 or 1000 (68 + 32); count on across a hundred (503 − 498)."""
-    if alt.get("round_operand") == "POWER_OF_TEN":
-        b = rng.choice([10, 100, 1000])
-        a = rng.randint(b + 11, 9999 if b == 1000 else 999)
-        return a, b
-    if "answer_power_of_ten" in alt:
-        total = rng.choice(
-            alt["answer_power_of_ten"]
-            if isinstance(alt["answer_power_of_ten"], list)
-            else [alt["answer_power_of_ten"]]
-        )
-        a = rng.randint(total // 10 + 1, total - total // 10 - 1)
-        return a, total - a
-    if alt.get("difference_small") == "YES":
-        hundred = rng.randint(1, 9) * 100
-        a = hundred + rng.randint(1, 9)
-        return a, hundred - rng.randint(1, 9)
-    return None
-
-
 def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     """Two numbers for this case, or None. `fix` pins one number's digit count (a missing number)."""
-    built = _built(rng, alt, op)
+    built = S.built(rng, alt)
     if built:
         return built
     pairs = [p for p in _pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
@@ -169,9 +148,12 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
 def _plain(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int):
     op = _op(rng, alt, check)
     got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
-    if not got:
-        return None
-    a, b = got
+    return _set_out(alt, check, rung, k, op, *got) if op and got else None
+
+
+def _set_out(
+    alt: dict[str, Any], check: dict[str, Any], rung: str, k: int, op: str, a: int, b: int
+) -> I.Item:
     method = alt.get("method") if isinstance(alt.get("method"), str) else None
     pres = (
         alt.get("presentation")
@@ -323,14 +305,39 @@ def one(rng, match, check, rung, k=0):
     return it if it is not None and taxonomy.matches(match, it.fmt, tags.derive(it)) else None
 
 
-def _some(rng, match, check, rung, want, seen, tries):
-    out, k = [], 0
+def _some(
+    rng: random.Random, match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str], tries: int
+) -> list[I.Item]:
+    out: list[I.Item] = []
+    k = 0
     while len(out) < want and k < tries:
         it = one(rng, match, check, rung, len(seen))  # alternates the layout by questions kept, not tries
         k += 1
         if it is not None and it.item_id not in seen:
             seen.add(it.item_id)
             out.append(it)
+    return out if len(out) == want else out + _rest(match, check, rung, want - len(out), seen)
+
+
+def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str]) -> list[I.Item]:
+    """What a × case still holds when its draws run dry, read from every pair it can be (`draw_times.every`): dry is
+    then a fact, not 2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
+    out: list[I.Item] = []
+    for alt in [
+        x for x in _alternatives(match) if x.get("operation") == "MUL" and set(_fmts(x)) <= set(PLAIN)
+    ]:
+        about = taxonomy.keys(alt)
+        ranges = [T.every(alt, about, d1, d2) for d1, d2 in _pairs(alt, check, "×")]
+        pairs = [] if None in ranges else [p for r in ranges if r for p in r]
+        for a, b, k in [(a, b, k) for a, b in pairs if _usable("×", a, b, about, check, alt) for k in (0, 1)]:
+            it = _set_out(
+                alt, check, rung, k, "×", a, b
+            )  # both layouts: a level that does not fix one prints either
+            if it.item_id not in seen and taxonomy.matches(match, it.fmt, tags.derive(it)):
+                seen.add(it.item_id)
+                out.append(it)
+                if len(out) == want:
+                    return out
     return out
 
 
