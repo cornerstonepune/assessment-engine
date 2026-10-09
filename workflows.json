@@ -268,7 +268,7 @@
       "engine/assess/answer_space.py": 53,
       "engine/assess/bands.py": 337,
       "engine/assess/diagnosis.py": 228,
-      "engine/assess/draw.py": 378,
+      "engine/assess/draw.py": 357,
       "engine/assess/equality.py": 164,
       "engine/assess/estimate.py": 54,
       "engine/assess/evaluate.py": 63,
@@ -282,13 +282,13 @@
       "engine/assess/missing_digits.py": 267,
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
-      "engine/assess/placing.py": 45,
+      "engine/assess/placing.py": 36,
       "engine/assess/reasoning.py": 123,
-      "engine/assess/render.py": 387,
+      "engine/assess/render.py": 379,
       "engine/assess/skills.py": 87,
       "engine/assess/tags.py": 243,
       "engine/assess/taxonomy.py": 58,
-      "engine/assess/verify.py": 102,
+      "engine/assess/verify.py": 99,
       "engine/assess/words.py": 182
     }
   }

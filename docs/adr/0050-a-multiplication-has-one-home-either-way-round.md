@@ -17,44 +17,90 @@ levels against the questions they would hold, before writing them as rows, found
 - The 2 × 2 cases crossed the rows' regrouping with the carry in adding them and left two combinations out, among
   them the error table's own examples 19 × 14 and 68 × 17. No level could print them.
 
+CI then failed, for two more reasons. The five could not fill while the old `MUL.1D` held questions with the same
+numbers, since a question lives in one level; so the re-homing planned as M2c had to ship in this slice. And the
+tables' Easy and Medium sat in Grade 1, against the Grade 1 decision of 2026-10-06 (Grade 1 is exactly what its
+educator taught).
+
+A second reader then found ten more defects, among them:
+- the long multiplication's rows reused the `.work` class, so the reader took the answer boxes as working, and a page
+  printed in an older layout would have re-rendered differently;
+- MUL.TENS drew far past its labels (6700 × 1000 at Grade 3);
+- Easy levels drew Medium's answers;
+- one wrong answer named two mistakes by construction (7 × 1 → 8 as both "× 1 adds one" and "added the numbers");
+- "one row out in the table" was predicted for 68 × 17;
+- four tests could not fail.
+
 ## Decision
 
 1. **Five shapes, one home.** MUL.FACTS is every table fact (both numbers to 12). MUL.TENS is every round-number ×
    that is not a fact: by 10, 100 or 1000, or a multiple of ten, one or both numbers. MUL.2D1D, MUL.3D1D and MUL.2D2D
-   are the rest by their digits. A test reads every straight × a paper prints to four digits and finds exactly one
-   home for each. TZ01 (230 × 4) and TZ07 (23 × 40) join TP10 at MUL.TENS Advance.
+   are the rest by their digits. A skill's shape is what any of its levels holds (`placing.shape`). A test reads every
+   straight × in the five's reach and finds exactly one home, and a level, for each. TZ01 (230 × 4) and TZ07
+   (23 × 40) join TP10 at MUL.TENS Advance.
 2. **A × case reads the longer number and the shorter** (`digits_max`, `digits_min`; `research/md_rows.py` `DM`),
-   as `assess/md_tags.py` already measured the working. Only T03 and T13 are about the 1-digit number coming first,
-   and T03, like its example and like addition's A08, regroups nothing. ÷ keeps the order: 72 ÷ 4 is not 4 ÷ 72.
-3. **Every 2 × 2 question is a case.** T27 (adding the rows carries, a 3-digit answer: 19 × 14) and T28 (one row or
-   none regroups, adding the rows carries, a 4-digit answer: 68 × 17) are new, both at MUL.2D2D Hard. 249 cases.
-4. **An Advance only where the document gives it straight cases** (the 11 and 12 tables; round numbers with no fact
-   under them; the 1-digit number first). MUL.2D1D's and MUL.2D2D's Advance are all kinds M2b makes.
-5. **The drawer makes ×** (`assess/draw_times.py`). A fact comes from the tables, to a level's `operand_max` (the 11 and
-   12 tables only at Advance, assumption A4, as a row). A number a case lets be round is a number times 10, 100 or
-   1000. Nothing is × 1 unless its case is about × 1. A case that names its method is printed that way.
-6. **A mistake is worked the way the child sets it out**, the longer number by the shorter (`assess/mul_mistakes.py`).
-   The eight the document names for columns, zeros and the tables' edges are predicted from the question's numbers.
+   as `assess/md_tags.py` already measured the working. Only T03 and T13 are about the 1-digit number coming first;
+   they print in a line, and in columns the longer number goes on top. ÷ keeps the order: 72 ÷ 4 is not 4 ÷ 72.
+3. **Every question in reach is a case, and every case says what its label says.** New cases fill the gaps:
+   - T27 and T28 for 19 × 14 and 68 × 17;
+   - TZ09 for 401 × 3, a zero in the middle with the answer grown;
+   - TP11 for 30 × 100.
+
+   So there are 251 cases. Label and match now agree:
+   - Easy cases keep to Easy's answer size (T02, T03, T11, TZ02);
+   - MUL.TENS's cases are bounded to their words ("× 1 digit", "2 digits × a multiple of ten", "×1000 of a number to 2
+     digits");
+   - TP10 holds 11 × 20, as its words do.
+
+   A test holds every drawn question to its case's label, written in plain arithmetic in the test.
+4. **Assumption A4 is what a level holds, not only what it draws.**
+   - The tables' Easy to Hard leave out the facts that need the 11 or 12 tables, measured by `fact_group`, and their
+     Advance holds every table. So an old paper's 12 × 7 is placed at Advance.
+   - 12 × 0 and 11 × 1 are the facts of 0 and 1.
+   - MUL.TENS Hard holds 110 × 5, which is Grade 4's, after the tables' Advance at Grade 3.
+5. **Grade 1 stays its educator's list.** A level the objectives put in Grade 1 sits in Grade 2 until the Grade 1
+   educator says it is taught (the drafted document's A6 now says so).
+6. **An Advance only where the document gives it straight questions no lower level holds**: the 11 and 12 tables, and
+   a round number with no table fact under it. MUL.2D1D's, MUL.3D1D's and MUL.2D2D's Advance are kinds M2b makes.
+7. **The drawer makes ×** (`assess/draw_times.py`). A fact comes from the tables, a number a case lets be round is a
+   number times 10, 100 or 1000, nothing is × 1 unless its case is about × 1, and a case that names its method is
+   printed that way.
+8. **A mistake is worked the way the child sets it out, and one act names one mistake** (`assess/mul_mistakes.py`).
+   Where two predictors give one wrong answer on every such question, the less particular refuses:
+   - adding the numbers on × 0 and × 1;
+   - the placeholder row on a multiplier ending in 0;
+   - column by column on a repeated digit or two round numbers;
+   - reversed units on one digit or a round number;
+   - no carry where every carry lands on a zero;
+   - row-by-row mistakes on × 10, 100 and 1000.
+
+   "One row out" needs a multiplier with a table.
+9. **A stored question whose mistake key a predictor has since corrected leaves the bank** (`verify.key_problems`, the
+   comparison `engine bank recheck` already made). It is not changed in place, so a paper printed with it still reads
+   as it did.
+10. **A long multiplication's rows print only in the layout row that adds them** (`render.layouts` 2026-10-09,
+    `long_rows`). They are one working space for the reader, never an answer box. A page printed in an older layout
+    re-renders as it printed.
+11. **`MUL.1D` is re-homed onto the five and removed** (`replaces`). An old paper's × sums are filed on the five's
+    rungs (`placing.OPERATIONS`). Rung M1 stays for the papers' ÷ questions until M3.
 
 ## Rejected
 
-- **A shape that is a list of alternatives** (MUL.TENS as "a power of ten, or a scaled fact"). It is new grammar in
-  `taxonomy.within`, and it makes every case two alternatives, one of which can never hold.
-- **A new measured tag for "worked as a fact with zeros"** to split MUL.TENS from the column skills.
-  `place_value_factor` and `fact` already say it.
-- **A 1-digit-first case at every level, as addition has.** It doubles every × case to say what A10 says once: both
-  orders, everywhere. The order is its own case only where it is the point.
-- **Advance as Hard's cases for MUL.2D1D and MUL.2D2D until M2b.** `engine load` names two levels holding one region
-  as a defect, and a level that adds nothing to the one below is one.
-- **Drawing only what `placing` would put at that level.** Addition's levels overlap (ADD.2D1D Advance holds A14 to
-  A16), and a level is the union of its cases. The test that matters is the one home per skill.
+- **A shape that is a list of alternatives written by hand** (MUL.TENS as "a power of ten, or a scaled fact"). The
+  shape is the union of the levels' own `within`, which the rows already state.
+- **`operand_max`, a drawing-only bound for A4.** A question that arrives another way (a re-homing, an old paper)
+  ignored it, which is how 12 × 7 was re-homed to Medium.
+- **A 1-digit-first case at every level, as addition has.** It doubles every × case to say what A10 says once.
+- **Advance as Hard's cases until M2b.** `engine load` names two levels holding one region, and 3 × 1's Advance (T13)
+  held only questions Easy to Hard hold.
+- **M2c as its own slice.** It could not ship green alone.
+- **Changing a stored question's key in place.** A printed paper would no longer read as it did.
 
 ## Consequences
 
-- The five overlap the old `MUL.1D`, which holds questions of the same numbers until M2c re-homes it. A question
-  lives in one level, so three levels fill short until then: MUL.FACTS Hard 97 of 121 and Advance 38 of 62, and
-  MUL.2D1D Medium 208 of 216. M2c re-homes `MUL.1D` in the same session.
-- The stored `MUL.1D` questions keep their keys (`engine bank recheck` → 0 mismatches). A predictor added later
-  reaches a stored question only through the codes it already carries.
-- `taxonomy_case` gains T27 and T28 and rewrites the match of 44 × cases (their digits read either way round, and
-  T03's regrouping); `engine bank relabel` rewrites the cases every stored question is.
+- `MUL.1D`'s questions move by `engine bank rehome`. On the local copy, 596 of 864 moved and 268 stories were retired
+  and kept, with none lost. Some 2 × 2 questions carry keys this slice corrected, and refill retires and redraws them.
+- `taxonomy_case` gains T27, T28, TZ09 and TP11 and rewrites the matches of the × cases it bounds or reads either way
+  round. `engine bank relabel` rewrites the cases every stored question is.
+- The week-note eval's gold names the new skills for its two multiplication notes. Its score is recorded again by
+  `bin/engine eval week_skills` where the model is.

@@ -166,71 +166,6 @@
       }
     },
     {
-      "code": "MUL.1D",
-      "rung_code": "M1",
-      "name": "Multiplication by a single digit",
-      "learning_objective": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
-      "eval_type": "computable",
-      "philosophy": [],
-      "formats": [
-        "column_grid",
-        "bare_sum",
-        "word_1step"
-      ],
-      "misconception_codes": [
-        "M_KEYWORD_OVERGENERALISED",
-        "M_MUL_CARRY_FIRST",
-        "M_MUL_CONCAT",
-        "M_MUL_NO_CARRY",
-        "M_MUL_ONES_ONLY",
-        "M_MUL_ROW_OUT",
-        "M_WRONG_OP"
-      ],
-      "difficulty": {
-        "Easy": {
-          "check": {
-            "op": "×",
-            "digits": [
-              2,
-              1
-            ],
-            "max_total": 99
-          },
-          "words": "A 2-digit number times a single digit, product under 100 — no carry into the tens."
-        },
-        "Hard": {
-          "check": {
-            "op": "×",
-            "digits": [
-              3,
-              1
-            ]
-          },
-          "words": "A 3-digit number times a single digit."
-        },
-        "Medium": {
-          "check": {
-            "op": "×",
-            "digits": [
-              2,
-              1
-            ]
-          },
-          "words": "A 2-digit number times a single digit, product past 100."
-        },
-        "Advance": {
-          "check": {
-            "op": "×",
-            "digits": [
-              2,
-              2
-            ]
-          },
-          "words": "Two 2-digit numbers."
-        }
-      }
-    },
-    {
       "code": "MUL.FACTS",
       "rung_code": "R36",
       "name": "Multiplication facts",
@@ -243,7 +178,6 @@
       ],
       "misconception_codes": [
         "M_MUL_CARRY_FIRST",
-        "M_MUL_COLUMNWISE",
         "M_MUL_CONCAT",
         "M_MUL_NO_CARRY",
         "M_MUL_ONES_ONLY",
@@ -256,6 +190,9 @@
         "M_WRONG_OP",
         "M_ZERO_AS_ONE"
       ],
+      "replaces": [
+        "MUL.1D"
+      ],
       "difficulty": {
         "Easy": {
           "words": "The 2, 5 and 10 tables, in a line: 2 × 7, 5 × 6, 10 × 4.",
@@ -263,15 +200,20 @@
             "within": {
               "operation": "MUL",
               "num_operands": 2,
-              "fact": "YES"
+              "fact": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
             },
             "cases": [
               "TF03",
               "TF04",
               "TF05"
             ],
-            "layout": "horizontal",
-            "operand_max": 10
+            "layout": "horizontal"
           },
           "min_items": 26
         },
@@ -281,7 +223,13 @@
             "within": {
               "operation": "MUL",
               "num_operands": 2,
-              "fact": "YES"
+              "fact": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
             },
             "cases": [
               "TF01",
@@ -290,10 +238,9 @@
               "TF07",
               "TF15"
             ],
-            "layout": "horizontal",
-            "operand_max": 10
+            "layout": "horizontal"
           },
-          "min_items": 74
+          "min_items": 82
         },
         "Hard": {
           "words": "The 6, 7, 8 and 9 tables, a number times itself, and a fact in columns: 6 × 7, 9 × 6, 7 × 7.",
@@ -301,7 +248,13 @@
             "within": {
               "operation": "MUL",
               "num_operands": 2,
-              "fact": "YES"
+              "fact": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
             },
             "cases": [
               "TF08",
@@ -311,13 +264,12 @@
               "TF12",
               "TF16"
             ],
-            "layout": "horizontal",
-            "operand_max": 10
+            "layout": "horizontal"
           },
-          "min_items": 121
+          "min_items": 89
         },
         "Advance": {
-          "words": "The 11 and 12 tables with the hardest of the rest: 11 × 4, 12 × 5, 7 × 8.",
+          "words": "Every table to 12: a fact that needs the 11 or 12 tables, either way round, with the rest: 11 × 4, 12 × 5, 3 × 12, 7 × 8.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -325,6 +277,14 @@
               "fact": "YES"
             },
             "cases": [
+              "TF03",
+              "TF04",
+              "TF05",
+              "TF01",
+              "TF02",
+              "TF06",
+              "TF07",
+              "TF15",
               "TF08",
               "TF09",
               "TF10",
@@ -336,12 +296,12 @@
             ],
             "layout": "horizontal"
           },
-          "min_items": 62
+          "min_items": 56
         }
       },
       "level_band": {
-        "Easy": "G1",
-        "Medium": "G1",
+        "Easy": "G2",
+        "Medium": "G2",
         "Hard": "G2",
         "Advance": "G3"
       }
@@ -362,13 +322,14 @@
         "M_MUL_COLUMNWISE",
         "M_MUL_CONCAT",
         "M_MUL_NO_CARRY",
-        "M_MUL_ONES_ONLY",
         "M_MUL_ONE_ROW",
         "M_MUL_PLACEHOLDER",
         "M_MUL_ROW_OUT",
-        "M_MUL_UNITS_REVERSED",
         "M_TENS_ZERO_DROPPED",
         "M_WRONG_OP"
+      ],
+      "replaces": [
+        "MUL.1D"
       ],
       "difficulty": {
         "Easy": {
@@ -390,11 +351,12 @@
             "cases": [
               "TP01",
               "TP04"
-            ]
+            ],
+            "layout": "horizontal"
           }
         },
         "Medium": {
-          "words": "× 100 and × 1000, a zero inside the number too: 45 × 100, 7 × 1000, 405 × 100.",
+          "words": "× 100 and × 1000, with a zero inside or at the end of the number too: 45 × 100, 7 × 1000, 405 × 100, 30 × 100.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -412,8 +374,10 @@
             "cases": [
               "TP02",
               "TP03",
-              "TP05"
-            ]
+              "TP05",
+              "TP11"
+            ],
+            "layout": "horizontal"
           }
         },
         "Hard": {
@@ -437,7 +401,8 @@
               "TP07",
               "TP08",
               "TP09"
-            ]
+            ],
+            "layout": "horizontal"
           }
         },
         "Advance": {
@@ -465,7 +430,8 @@
               "TZ08",
               "TZ01",
               "TZ07"
-            ]
+            ],
+            "layout": "horizontal"
           }
         }
       },
@@ -496,6 +462,9 @@
         "M_MUL_UNITS_REVERSED",
         "M_WRONG_OP"
       ],
+      "replaces": [
+        "MUL.1D"
+      ],
       "difficulty": {
         "Easy": {
           "words": "No regrouping, in columns and in a line, the 1-digit number first too: 23 × 3, 32 × 3, 3 × 21.",
@@ -513,7 +482,8 @@
               "T02",
               "T03"
             ]
-          }
+          },
+          "min_items": 69
         },
         "Medium": {
           "words": "Regrouping from the ones into a 2-digit answer, or none into a 3-digit one: 13 × 4, 19 × 5, 42 × 3.",
@@ -582,6 +552,9 @@
         "M_MUL_UNITS_REVERSED",
         "M_WRONG_OP"
       ],
+      "replaces": [
+        "MUL.1D"
+      ],
       "difficulty": {
         "Easy": {
           "words": "No regrouping, a zero in the middle that no carry reaches: 213 × 3, 434 × 2, 302 × 3.",
@@ -601,7 +574,7 @@
           }
         },
         "Medium": {
-          "words": "One column regroups, or none and the answer grows to 4 digits: 412 × 3, 374 × 2, 119 × 4.",
+          "words": "One column regroups, or none and the answer grows to 4 digits, a zero in the middle too: 412 × 3, 374 × 2, 119 × 4, 401 × 3.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -613,7 +586,8 @@
             "cases": [
               "TC02",
               "TC03",
-              "TC05"
+              "TC05",
+              "TZ09"
             ]
           }
         },
@@ -639,37 +613,12 @@
               "TZ06"
             ]
           }
-        },
-        "Advance": {
-          "words": "The hardest of Hard, and the 1-digit number first in a line: 667 × 3, 6 × 125.",
-          "check": {
-            "within": {
-              "operation": "MUL",
-              "num_operands": 2,
-              "place_value_factor": "NONE",
-              "digits_max": 3,
-              "digits_min": 1
-            },
-            "cases": [
-              "T12",
-              "TC04",
-              "TC06",
-              "TC07",
-              "TC08",
-              "TC10",
-              "TC11",
-              "TZ03",
-              "TZ06",
-              "T13"
-            ]
-          }
         }
       },
       "level_band": {
         "Easy": "G4",
         "Medium": "G4",
-        "Hard": "G4",
-        "Advance": "G4"
+        "Hard": "G4"
       }
     },
     {
@@ -690,6 +639,9 @@
         "M_MUL_ROW_OUT",
         "M_MUL_STALE_CARRY",
         "M_WRONG_OP"
+      ],
+      "replaces": [
+        "MUL.1D"
       ],
       "difficulty": {
         "Easy": {

@@ -99,12 +99,12 @@ def outside_their_level(conn):
     case_matches = matches(conn)
     out = []
     for r in conn.execute(
-        "select id, tenant_id, item_key, fmt, tags, spec, skill_set_code, difficulty from item"
+        "select id, tenant_id, item_key, fmt, tags, spec, responses, skill_set_code, difficulty from item"
         " where status = 'active' and source = 'generated' and skill_set_code is not null"
     ).fetchall():
         region = regions.get((r["skill_set_code"], r["difficulty"]))
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
-        if why := why + verify.key_problems(r["fmt"], r["spec"]):
+        if why := why + verify.key_problems(r["fmt"], r["spec"], r["responses"]):
             out.append(dict(r, why=why))
     return out
 

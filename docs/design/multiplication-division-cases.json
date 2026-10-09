@@ -297,6 +297,17 @@
   ]
  },
  {
+  "code": "TP11",
+  "section": 2,
+  "label": "×100 of a number already ending in zero",
+  "example": "30 × 100",
+  "answer": "3000",
+  "op": "×",
+  "placed_in": [
+   "MUL.TENS:Medium"
+  ]
+ },
+ {
   "code": "T01",
   "section": 3,
   "label": "2 × 1 digits, no regrouping, in columns",
@@ -798,6 +809,17 @@
   "op": "×",
   "placed_in": [
    "MUL.TENS:Advance"
+  ]
+ },
+ {
+  "code": "TZ09",
+  "section": 4,
+  "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+  "example": "401 × 3",
+  "answer": "1203",
+  "op": "×",
+  "placed_in": [
+   "MUL.3D1D:Medium"
   ]
  },
  {

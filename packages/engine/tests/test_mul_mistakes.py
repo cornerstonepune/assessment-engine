@@ -58,19 +58,73 @@ def test_a_mistake_that_cannot_happen_on_these_numbers_is_not_predicted(a, b, co
     assert code not in M.predict("×", a, b)
 
 
-@pytest.mark.parametrize("short, long", [(3, 21), (6, 125), (4, 36), (7, 506)])
-def test_a_number_written_first_is_still_the_number_multiplied(short, long):
-    """3 × 21 is worked as 21 × 3, the longer number on top and the 1-digit number the multiplier (assumption A10:
-    both orders are asked): every column mistake is the same whichever is written first."""
-    assert M.predict("×", short, long) == M.predict("×", long, short)
+@pytest.mark.parametrize(
+    "a, b, want",
+    [
+        # 3 × 56 is worked as 56 × 3: 6 × 3 = 18, 5 × 3 = 15 (assumption A10, both orders asked)
+        (3, 56, {"M_MUL_NO_CARRY": 58, "M_MUL_CONCAT": 1518, "M_MUL_CARRY_FIRST": 188, "M_MUL_ONES_ONLY": 18,
+                 "M_MUL_UNITS_REVERSED": 85, "M_MUL_ROW_OUT": 112, "M_WRONG_OP": 59}),
+        # 7 × 506 as 506 × 7: 6 × 7 = 42, the 4 carried onto the 0 lost
+        (7, 506, {"M_MUL_CARRY_ONTO_ZERO_LOST": 3502}),
+    ],
+)  # fmt: skip
+def test_a_number_written_first_is_still_the_number_multiplied(a, b, want):
+    """Worked out here by hand: a 1-digit number written first is still the multiplier, so its mistakes are the
+    column mistakes of the longer number times it, not none."""
+    got = M.predict("×", a, b)
+    assert {code: got.get(code) for code in want} == want
 
 
-def test_no_prediction_is_the_right_answer_or_below_zero():
+@pytest.mark.parametrize(
+    "a, b, want",
+    [
+        (7, 1, {"M_ONE_ADDED": 8}),  # adding the numbers is the same act: × 1 taken as adding one
+        (7, 0, {"M_ZERO_AS_ONE": 7}),
+        (0, 1, {"M_ZERO_AS_ONE": 1}),
+        (45, 100, {"M_WRONG_OP": 145, "M_TENS_ZERO_DROPPED": 450}),  # × 100 is placing zeros, never rows
+    ],
+)
+def test_one_wrong_answer_names_one_mistake_where_two_would_be_the_same_act(a, b, want):
+    """A wrong answer two predictors give on every such question, by what they are rather than by chance, names the
+    more particular one: marking names every match (`w3_read/marking.py`), and a child is charged once for one act
+    (second reader, 2026-10-09)."""
+    assert M.predict("×", a, b) == want
+
+
+@pytest.mark.parametrize(
+    "a, b, code",
+    [
+        (23, 40, "M_MUL_PLACEHOLDER"),  # its one row is a zero dropped (92)
+        (80, 20, "M_MUL_COLUMNWISE"),  # 160 is a zero dropped
+        (21, 22, "M_MUL_COLUMNWISE"),  # 42 is one row: the multiplier is one digit twice
+        (7, 8, "M_MUL_UNITS_REVERSED"),  # one digit has no order to reverse: 6 is no carry
+        (20, 4, "M_MUL_UNITS_REVERSED"),  # 8 is a zero dropped
+        (105, 2, "M_MUL_NO_CARRY"),  # its one carry lands on the zero: 200 is that mistake
+        (68, 17, "M_MUL_ROW_OUT"),  # 17 has no table to be one row out in
+        (34, 10, "M_MUL_ROW_OUT"),  # 34 × 9 is no table slip
+        (30, 6, "M_MUL_ONES_ONLY"),  # 0 × 6 = 0 is no answer this mistake writes
+    ],
+)
+def test_a_mistake_that_is_another_on_these_numbers_names_none(a, b, code):
+    assert code not in M.predict("×", a, b)
+
+
+def test_a_table_fact_by_ten_is_still_one_row_out():
+    assert (
+        M.predict("×", 7, 10)["M_MUL_ROW_OUT"] == 60  # worked as 10 × 7, the row before: 10 × 6
+        and M.predict("×", 105, 2)["M_MUL_CARRY_ONTO_ZERO_LOST"] == 200
+    )
+
+
+def test_no_predictor_gives_the_right_answer_nothing_or_below_zero():
+    """Each predictor itself, not `predict`, which filters these out after the fact."""
+    from engine.assess.mul_mistakes import PREDICTORS
+
     for a in range(0, 130, 3):
-        for b in range(0, 60, 7):
-            right = a * b
-            for code, v in M.predict("×", a, b).items():
-                assert v != right and v >= 0, (a, b, code, v)
+        for b in (*range(0, 13), *range(13, 130, 7), 100, 1000):
+            for code, (fn, _, _) in PREDICTORS.items():
+                v = fn(a, b)
+                assert v is None or (v != a * b and v > 0), (a, b, code, v)
 
 
 def test_every_predicted_mistake_is_a_named_mistake_row():

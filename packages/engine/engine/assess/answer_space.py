@@ -56,11 +56,12 @@ def grid(
     ans_resp: Any,
     carry: bool = True,
     boxes: str = "digits",
+    long_rows: bool = True,
 ) -> str:
     """rows: list of ints (addends or minuend/subtrahend), lined up by the ones under as many columns as the widest
     number or the answer needs; the answer row has a box only under the answer's own digits."""
     count = _boxes(ans_resp, boxes)
-    worked = _rows_worked(rows, op)
+    worked = _rows_worked(rows, op) if long_rows else []  # a layout before 2026-10-09 printed none
     w = max([count, *(len(str(x)) for x in (*rows, *worked))])
     out = ['<div class="grid" style="grid-template-columns: 8.4mm repeat(%d, 8.4mm)">' % w]
     if carry:
@@ -75,7 +76,7 @@ def grid(
     for k in range(len(worked)):  # the rows of a long multiplication, the last added with its +
         out.append(
             f'<div class="g op">{"+" if k == len(worked) - 1 else ""}</div>'
-            + '<div class="g work"></div>' * w
+            + '<div class="g worked"></div>' * w
         )
     out.append(
         '<div class="g blank"></div>'
@@ -92,8 +93,8 @@ def grid(
 def _rows_worked(rows: list[int], op: str) -> list[int]:
     """A long multiplication's rows, one for each digit of its multiplier (68 × 17 is 476 and 680), where it has two or
     more; nothing for any other sum. Their room is drawn, never their numbers: the child writes them."""
-    if O.sign(op) != "×" or len(rows) != 2 or min(len(str(n)) for n in rows) < 2:
-        return []
+    if O.sign(op) != "×" or len(rows) != 2 or min(len(str(n)) for n in rows) < 2 or max(rows) <= 12:
+        return []  # a table fact in columns (11 × 12) is recalled, not worked in rows
     top, multiplier = (rows[1], rows[0]) if len(str(rows[0])) < len(str(rows[1])) else (rows[0], rows[1])
     worked = O.rows(top, multiplier)
     return worked if len(worked) >= 2 else []

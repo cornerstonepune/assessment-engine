@@ -1,8 +1,9 @@
 """A multiplication's two numbers, as its case allows (goals/md2a-straight-multiplication.yaml). Deterministic given an
 RNG; `assess/draw.py` asks it for the numbers of a × case and for the defaults a × question keeps.
 
-A table fact is drawn from the tables, to a level's `operand_max` where it sets one (the 11 and 12 tables only at
-Advance, assumption A4); 10 is then a table's number, not a round one. A number a case lets be round (MUL.TENS) is a
+A table fact is drawn from the tables, 0 to 12 (assumption A4); a level that leaves out the 11 and 12 tables says
+so in its own numbers (`within`), and the drawing keeps only what the level holds. 10 is a table's number, not a round
+one. A number a case lets be round (MUL.TENS) is a
 number times 10, 100 or 1000. Every other pair is two numbers of their digits, never × 1 unless the case is about it.
 """
 
@@ -29,13 +30,13 @@ def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
 
 
 def numbers(
-    rng: random.Random, alt: dict[str, Any], check: dict[str, Any], about: set[str], d1: int, d2: int
+    rng: random.Random, alt: dict[str, Any], about: set[str], d1: int, d2: int
 ) -> tuple[int, int] | None:
     """Two numbers to multiply, `d1` and `d2` digits where the case reads digits; None when the case's table is no
     table a level allows."""
     zero_ok = "zero_operand" in about
     if table(alt):
-        lo, hi = (0 if zero_ok else 1), check.get("operand_max", 12)
+        lo, hi = (0 if zero_ok else 1), 12
         tables = [n for n in range(lo, 13) if "fact_table" not in alt or taxonomy.holds(alt["fact_table"], n)]
         return (rng.choice(tables), rng.randint(lo, hi)) if tables else None
     if round_ok(alt):
@@ -55,7 +56,7 @@ def usable(
         x >= 10 and x % 10 == 0 for x in (a, b)
     ):
         return False
-    if 1 in (a, b) and "one_operand" not in about or max(a, b) > check.get("operand_max", max(a, b)):
+    if 1 in (a, b) and "one_operand" not in about:
         return False
     if a == b and not ("size" in lifts or a < 10):
         return False

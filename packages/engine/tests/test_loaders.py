@@ -82,17 +82,17 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 33,  # R7, R8, R11, R13, R14, R16–R18, M1, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a)
+    "rung": 32,  # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 68,  # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml)
-    "taxonomy_case": 519,  # both of the team's taxonomies, one row per case: 270 + and −, 249 × and ÷ (M1, M2a)
+    "taxonomy_case": 521,  # both of the team's taxonomies, one row per case: 270 + and −, 251 × and ÷ (M1, M2a)
     # prompts, thresholds and config are settings a PR adds to: counted from their seed files, never typed here
     # (2026-09-29: the typed 20, 26 and 16 had fallen to 37, 31 and 17 without anyone noticing)
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill_set": 33,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a)
+    "skill_set": 32,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a)
     "subject": 1,
 }
 
@@ -174,7 +174,7 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
     assert set(loaders.load_settings()) == {"prompt", "threshold", "config"} and touched == []
     with db.connect() as conn:
         layouts = conn.execute("select value from config where key = 'render.layouts'").fetchone()["value"]
-        assert [x["name"] for x in layouts] == ["2026-09-21", "2026-09-23-L3", "2026-09-24"]
+        assert [x["name"] for x in layouts] == ["2026-09-21", "2026-09-23-L3", "2026-09-24", "2026-10-09"]
         assert conn.execute("select 1 from prompt where purpose = 'mistake_guess' and active").fetchone()
 
 

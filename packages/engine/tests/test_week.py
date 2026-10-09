@@ -251,10 +251,10 @@ def test_a_multiplication_pack_is_titled_multiplication(conn, children, tmp_path
 
     import pymupdf
 
-    prescribe.for_class(conn, SECTION, WEEK, "MUL.1D")
+    prescribe.for_class(conn, SECTION, WEEK, "MUL.2D1D")
     built = assemble.for_week(conn, SECTION, WEEK)
     assemble.render(conn, built, tmp_path / "pack", WEEK, "tester@example.org")
-    name = conn.execute("select name from skill_set where code = 'MUL.1D'").fetchone()["name"]
+    name = conn.execute("select name from skill_set where code = 'MUL.2D1D'").fetchone()["name"]
     for s in built["sheets"] + built["spares"]:
         with pymupdf.open(tmp_path / "pack" / f"{s['qr']}.pdf") as doc:
             page1 = " ".join(unicodedata.normalize("NFKC", doc[0].get_text()).split())

@@ -8126,7 +8126,8 @@
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
-        "zero_pattern": "ANSWER_ZERO"
+        "zero_pattern": "ANSWER_ZERO",
+        "digits_max": 3
       }
     },
     {
@@ -8157,7 +8158,10 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "place_value_factor": "X1000"
+        "place_value_factor": "X1000",
+        "digits_min": {
+          "lte": 2
+        }
       }
     },
     {
@@ -8227,7 +8231,8 @@
         "zero_pattern": [
           "INTERNAL",
           "INTERNAL+TRAILING"
-        ]
+        ],
+        "digits_max": 3
       }
     },
     {
@@ -8260,7 +8265,8 @@
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
         "scaled_fact": "YES",
-        "fact_zero": "NO"
+        "fact_zero": "NO",
+        "digits_min": 1
       }
     },
     {
@@ -8323,7 +8329,9 @@
           "LONG_MULTIPLICATION"
         ],
         "operation": "MUL",
-        "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE"
+        "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE",
+        "scaled_fact": "YES",
+        "digits_min": 1
       }
     },
     {
@@ -8355,7 +8363,8 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
-        "fact_zero": "YES"
+        "fact_zero": "YES",
+        "digits_min": 1
       }
     },
     {
@@ -8387,8 +8396,44 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
-        "scaled_fact": "NO",
+        "digits_max": 2,
         "digits_min": 2
+      }
+    },
+    {
+      "code": "TP11",
+      "taxonomy": "MUL_DIV",
+      "section": "2",
+      "section_name": "Multiplication facts and place value",
+      "label": "×100 of a number already ending in zero",
+      "example_text": "30 × 100",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 30,
+          "b": 100,
+          "op": "×",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "place_value_factor": "X100",
+        "zero_pattern": [
+          "TRAILING",
+          "INTERNAL+TRAILING"
+        ],
+        "digits_max": 3
       }
     },
     {
@@ -8447,7 +8492,8 @@
         "operation": "MUL",
         "digits_max": 2,
         "digits_min": 1,
-        "regrouping": "NONE"
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -8480,7 +8526,8 @@
         "operation": "MUL",
         "operand_order": "SHORTER_FIRST",
         "digits_max": 2,
-        "regrouping": "NONE"
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -8754,7 +8801,8 @@
         "operation": "MUL",
         "digits_max": 3,
         "digits_min": 1,
-        "regrouping": "NONE"
+        "regrouping": "NONE",
+        "answer_digit_change": "ONE_FEWER"
       }
     },
     {
@@ -9801,7 +9849,9 @@
         "operation": "MUL",
         "digits_min": 1,
         "zero_pattern": "INTERNAL",
-        "carry_into_zero": "NO"
+        "carry_into_zero": "NO",
+        "answer_digit_change": "ONE_FEWER",
+        "zero_operand": "NONE"
       }
     },
     {
@@ -9834,7 +9884,8 @@
         "operation": "MUL",
         "digits_min": 1,
         "zero_pattern": "INTERNAL",
-        "carry_into_zero": "YES"
+        "carry_into_zero": "YES",
+        "zero_operand": "NONE"
       }
     },
     {
@@ -9961,6 +10012,8 @@
         ],
         "method": "LONG_MULTIPLICATION",
         "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 2,
         "multiplier_zero": "TRAILING",
         "partial_products": 1
       }
@@ -9994,7 +10047,43 @@
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_BOTH",
-        "digits_max": 3
+        "digits_max": 3,
+        "digits_min": 2
+      }
+    },
+    {
+      "code": "TZ09",
+      "taxonomy": "MUL_DIV",
+      "section": "4",
+      "section_name": "Multiplication carries and zeros",
+      "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+      "example_text": "401 × 3",
+      "example": {
+        "fmt": "column_grid",
+        "spec": {
+          "a": 401,
+          "b": 3,
+          "op": "×",
+          "layout": "column"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid"
+        ],
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION"
+        ],
+        "operation": "MUL",
+        "digits_min": 1,
+        "zero_pattern": "INTERNAL",
+        "carry_into_zero": "NO",
+        "answer_digit_change": "FULL",
+        "zero_operand": "NONE"
       }
     },
     {

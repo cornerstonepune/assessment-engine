@@ -146,7 +146,7 @@ def _old_papers(conn, skills, case_matches):
         "select id, rung_code, spec from item where source = 'legacy' and spec ? 'a' and spec ? 'b' and spec ? 'op'"
     ).fetchall():
         sp = r["spec"]
-        if sp["op"] not in ("+", "-") or (sp["op"] == "-" and sp["a"] < sp["b"]):
+        if sp["op"] not in placing.OPERATIONS or (sp["op"] == "-" and sp["a"] < sp["b"]):
             continue
         t = tags.derive(
             Item("", "", "", [], "", "bare_sum", False, "", {"a": sp["a"], "b": sp["b"], "op": sp["op"]}, [])

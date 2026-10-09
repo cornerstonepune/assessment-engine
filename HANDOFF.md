@@ -3,19 +3,23 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-09 — M2a: straight multiplication
+## 2026-10-09 — M2a: straight multiplication (with M2c's re-homing)
 
 - **Slice:** M2a (W1 gate 3). Goal `goals/md2a-straight-multiplication.yaml`; tests `test_mul_levels.py`,
-  `test_mul_mistakes.py`, `test_render.py`; ADR 0050.
+  `test_mul_mistakes.py`, `test_render.py`; ADR 0050. PR cornerstonepune/assessment-engine#163.
 - **M1 is merged and live:** main `1649ed1`, migration `20261028090000` applied, engine at `1649ed1`.
 - **What changed:**
-  - the case drawer makes × (`assess/draw_times.py`); five skills on R36–R40, untaught;
-  - eight mistakes predicted (`assess/mul_mistakes.py`); a long multiplication prints its rows;
-  - the drafted document: TZ01 and TZ07 → MUL.TENS Advance, × cases read either way round, T03 regroups nothing, T27
-    and T28 added (249 cases). The shared doc Achal corrects needs republishing from
-    `docs/design/multiplication-division-taxonomy.md`.
-- **Next:** M2c in this session (re-home `MUL.1D`, which leaves three levels short until it moves), then M2b.
-- **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1 and M2a's seed rows, then approving the five skills.
+  - the case drawer makes × (`assess/draw_times.py`); five skills on R36–R40, untaught; `MUL.1D` re-homed onto
+    them and removed; an old paper's × sums count on them;
+  - eight mistakes predicted (`assess/mul_mistakes.py`), one mistake per act; a stored question keyed by a corrected
+    rule leaves the bank;
+  - a long multiplication prints its rows in layout row `2026-10-09`, as working;
+  - the drafted document: 251 cases (T27, T28, TZ09, TP11 added; × read either way round; MUL.TENS bounded), and
+    Grade 1 holds no level the Grade 1 educator has not taught.
+- **CI's first run and a second reader** found what STATE.md "M2a" lists; every finding is fixed in this PR.
+- **The shared doc Achal corrects** needs republishing from `docs/design/multiplication-division-taxonomy.md`.
+- **Next:** M2b (methods, Advance's kinds for 2 × 1, 3 × 1 and 2 × 2, the three method mistakes).
+- **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1 and M2a's seed rows, `bank rehome`, then approving the five.
 
 ## 2026-10-09 — M1: the taxonomy as rows
 

@@ -66,7 +66,7 @@ def test_multiplication_begun_in_grade_1_is_taught_and_column_multiplication_is_
     ]
     holds = {code: t for t in tops for code in t["skill_sets"]}
     assert holds["MUL.GROUPS"]["taught"] and holds["DATA.TALLY"]["taught"]
-    assert not holds["MUL.1D"]["taught"] and holds["MUL.1D"]["name"] == "Multiplication in columns"
+    assert not holds["MUL.2D1D"]["taught"] and holds["MUL.2D1D"]["name"] == "Multiplication in columns"
 
 
 @pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")

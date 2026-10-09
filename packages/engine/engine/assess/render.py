@@ -11,6 +11,7 @@ import html
 import io
 import json
 from pathlib import Path
+from typing import Any
 
 import segno
 from playwright.sync_api import sync_playwright
@@ -23,10 +24,14 @@ from engine.assess.page_css import CSS, overrides
 MM = 25.4 / 96.0  # CSS px -> mm
 
 
-def render_item(sheet, it, n, layout=None):
+def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
     # the answer boxes as the layout draws them (`render.layouts`): today's unless a paper printed in another
     _cells = functools.partial(answer_space.cells, boxes=(layout or {}).get("boxes", "digits"))
-    _grid = functools.partial(answer_space.grid, boxes=(layout or {}).get("boxes", "digits"))
+    _grid = functools.partial(
+        answer_space.grid,
+        boxes=(layout or {}).get("boxes", "digits"),
+        long_rows=layout is None or layout.get("long_rows", False),
+    )
     sid, iid, sp, R = sheet.sheet_id, it.item_id, it.spec, {r.rid: r for r in it.responses}
     big = sheet.grade == "G1"
     stem = html.escape(it.stem)

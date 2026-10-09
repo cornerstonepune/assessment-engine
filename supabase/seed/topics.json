@@ -66,7 +66,6 @@
       "name": "Multiplication in columns",
       "taught": false,
       "skill_sets": [
-        "MUL.1D",
         "MUL.2D1D",
         "MUL.3D1D",
         "MUL.2D2D"

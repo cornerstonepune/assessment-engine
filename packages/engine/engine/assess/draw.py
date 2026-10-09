@@ -147,7 +147,7 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     d1, d2 = rng.choice(pairs)
     zero_ok = "zero_operand" in about
     if op == "×":
-        got = T.numbers(rng, alt, check, about, d1, d2)
+        got = T.numbers(rng, alt, about, d1, d2)
         return got if got and _usable(op, *got, about, check, alt) else None
     a, b = _number(rng, d1, zero_ok), _number(rng, d2, zero_ok)
     shrink = _pick(rng, alt.get("answer_digit_change"), ["-1", "-MULTIPLE", "ZERO"]) if op == "-" else None
@@ -166,7 +166,7 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     return (a, b) if _usable(op, a, b, about, check) else None
 
 
-def _plain(rng, alt, check, rung, k):
+def _plain(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int):
     op = _op(rng, alt, check)
     got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
     if not got:
@@ -176,9 +176,13 @@ def _plain(rng, alt, check, rung, k):
     pres = (
         alt.get("presentation")
         or LAYOUT.get(method or "")
-        or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(check.get("layout"))
+        or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(check.get("layout") or "")
     )
     column = pres == "VERTICAL" if pres else k % 2 == 0  # half in columns, half in a line
+    if op == "×" and alt.get("operand_order") == "SHORTER_FIRST":
+        column = False  # the 1-digit number written first is a line's: in columns it goes below the longer
+    elif op == "×" and column and len(str(a)) < len(str(b)):
+        a, b = b, a  # set out as the school writes it: the longer number on top, the 1-digit number below it
     cand = {
         "format": "column_grid" if column else "bare_sum",
         "op": op,

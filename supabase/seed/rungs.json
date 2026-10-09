@@ -50,15 +50,6 @@
       ]
     },
     {
-      "code": "M1",
-      "band": "G3",
-      "ladder_order": null,
-      "descriptor": "Multiplies by a single digit, with and without regrouping",
-      "skill_codes": [
-        "NUM.OPS.03"
-      ]
-    },
-    {
       "code": "X1",
       "band": "G2+",
       "ladder_order": null,
@@ -263,7 +254,7 @@
     },
     {
       "code": "R36",
-      "band": "G1",
+      "band": "G2",
       "ladder_order": null,
       "descriptor": "Recalls the multiplication tables",
       "skill_codes": [
