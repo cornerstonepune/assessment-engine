@@ -8049,17 +8049,26 @@
       "label": "A cell of the multiplication square",
       "example_text": "row 6, column 9",
       "example": {
-        "fmt": "bare_sum",
+        "fmt": "multiplication_square",
         "spec": {
           "a": 6,
           "b": 9,
           "op": "×",
-          "table": "MULTIPLICATION_SQUARE"
+          "rows": [
+            5,
+            6,
+            7
+          ],
+          "cols": [
+            8,
+            9,
+            10
+          ]
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "bare_sum",
+        "fmt": "multiplication_square",
         "operation": "MUL",
         "fact": "YES",
         "context": "TABLE_OR_CHART"
@@ -11923,7 +11932,7 @@
       "label": "Skip counting",
       "example_text": "5, 10, 15, 20, □",
       "example": {
-        "fmt": "bare_sum",
+        "fmt": "skip_counting",
         "spec": {
           "a": 5,
           "b": 5,
@@ -11933,7 +11942,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "bare_sum",
+        "fmt": "skip_counting",
         "operation": "MUL",
         "method": "SKIP_COUNTING"
       }
@@ -11974,7 +11983,7 @@
           "a": 3,
           "b": 5,
           "op": "×",
-          "method": "ARRAY"
+          "shape": "ARRAY"
         }
       },
       "match": {

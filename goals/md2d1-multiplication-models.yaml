@@ -1,0 +1,68 @@
+name: md2d1-multiplication-models
+goal: >
+  MUL.MODELS, taught in Grade 2, shows multiplication as the models a child meets first, each a question the bank makes
+  and a child answers on paper: skip counting (5, 10, 15, 20, □ is 5 × 5); an array read in three labelled boxes, how
+  many rows, how many in each row, how many in all; equal jumps on a number line from 0 (4 jumps of 3 land on 12); a
+  table swapped to one the level counts as known (9 × 2 = 2 × 9 = □); a cell of the multiplication square found from
+  its row and its column; and stories of an array, twice as many and area in squares. Easy holds skip counting and
+  arrays, Medium the jumps, Hard the swap and the square, Advance the three stories. Every question prints a box for
+  each of its answers and, once taught, shows on the website's question bank as the child meets it, its answer is
+  recomputed, and
+  every wrong answer is a named mistake: one group fewer, one group, the numbers added, the next row of the table, and
+  twice or three times as many read as two or three more.
+# Written 2026-10-10, before the code: slice M2d1 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M2d1 — measured before the build"): none of MUL.MODELS' eight cases draws today.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_every_case_mul_models_lists_draws_on_its_level
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_skip_counting_prints_the_steps_before_its_box
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_an_array_is_read_in_three_labelled_boxes
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_equal_jumps_from_zero_land_on_the_product
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_a_table_is_swapped_to_one_the_level_counts_as_known
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_models.py::test_a_cell_of_the_multiplication_square_is_found_from_its_row_and_column
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_models.py::test_three_stories_multiply_an_array_twice_as_many_and_an_area
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_models.py::test_every_model_question_prints_a_box_for_every_answer
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_models.py::test_every_model_answer_is_where_the_printed_key_says_it_is
+  - words: "create the whole loop that we have"
+    proved_by: apps/web/tests/s29-multiplication-models.spec.ts::once taught, multiplication's models are on the Question bank, drawn as the child meets them
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `bin/update-live` loads MUL.MODELS into a topic of its own, Multiplication models, and fills
+    its levels. No screen or paper shows it until an educator says Grade 2 has been taught it (the topic's `taught`)."
+scenarios:
+  - name: MUL.MODELS, Easy — skip counting and arrays
+    skill_set: MUL.MODELS
+    difficulty: Easy
+    n: 24
+    cases: [G03, G05]
+  - name: MUL.MODELS, Medium — equal jumps on a number line
+    skill_set: MUL.MODELS
+    difficulty: Medium
+    n: 16
+    cases: [G04]
+  - name: MUL.MODELS, Hard — a table swapped to a known one, a cell of the square
+    skill_set: MUL.MODELS
+    difficulty: Hard
+    n: 24
+    cases: [G14, TF17]
+  - name: MUL.MODELS, Advance — an array, twice as many and area, as stories
+    skill_set: MUL.MODELS
+    difficulty: Advance
+    n: 36
+    cases: [B04, B11, B13]
+criteria:
+  - name: the models drawn, printed and named; the kinds, levels, drawer and taxonomy they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_mul_models.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_mul_levels.py tests/test_mul_advance.py tests/test_division_is_an_operation.py tests/test_story_keys.py tests/test_render.py tests/test_every_skill.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_goal.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -296,6 +296,15 @@
       "skill_codes": [
         "NUM.OPS.03"
       ]
+    },
+    {
+      "code": "R41",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Multiplication as models: skip counting, arrays, jumps on a number line, the multiplication square",
+      "skill_codes": [
+        "NUM.OPS.03"
+      ]
     }
   ]
 }

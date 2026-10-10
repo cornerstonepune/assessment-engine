@@ -32,4 +32,6 @@ WORKING_LINES = {
     "break_apart": 0,
     "tally": 0,
     "equal_groups": 0,
+    "skip_counting": 0,
+    "multiplication_square": 0,
 }

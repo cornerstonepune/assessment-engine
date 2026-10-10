@@ -158,7 +158,8 @@ def test_a_story_whose_answer_multiplies_is_refused_never_added():
 
 
 # Every kind whose rule names an operation, and the rule it needs beyond `op`: each makes + and − only, and since
-# M2b four of them × too (goals/md2b-times-advance.yaml, `tests/test_mul_advance.py`); none makes ÷ yet.
+# M2b four of them × too (goals/md2b-times-advance.yaml, `tests/test_mul_advance.py`), and since M2d1 the number line,
+# as equal jumps from 0 (goals/md2d1-multiplication-models.yaml); none makes ÷ yet.
 PLUS_OR_MINUS = {
     "number_line_jumps": {"hi": 50},
     "estimate_then_calc": {"digits": [2, 2], "regroups": [0, 1]},
@@ -173,7 +174,7 @@ PLUS_OR_MINUS = {
 }
 
 
-TIMES_TOO = {"estimate_then_calc", "find_mistake", "missing_digit", "word_1step"}
+TIMES_TOO = {"estimate_then_calc", "find_mistake", "missing_digit", "word_1step", "number_line_jumps"}
 
 
 @pytest.mark.parametrize(

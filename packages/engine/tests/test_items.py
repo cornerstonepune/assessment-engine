@@ -9,13 +9,16 @@ import random
 
 import pytest
 
+from engine.assess import counting as C
 from engine.assess import diagnosis as D
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import missing_digits as MD
+from engine.assess import number_line as NL
 from engine.assess import reasoning as RS
 from engine.assess import tags
+from engine.assess import times_models as TM
 
 
 def test_sample_add_produces_exactly_the_requested_regrouping_count():
@@ -213,7 +216,7 @@ def test_number_line_bridges_one_ten_in_a_small_range(op):
     # and the whole question must stay inside the range.
     rng = random.Random(67)
     for _ in range(20):
-        item = I.number_line_jumps(rng, "R2", "Conceptual", op, 20)
+        item = NL.two_jumps(rng, "R2", "Conceptual", op, 20)
         a, b = item.spec["a"], item.spec["b"]
         land1 = int(next(r for r in item.responses if r.rid == "land1").answer)
         answer = int(next(r for r in item.responses if r.rid == "ans").answer)
@@ -224,7 +227,7 @@ def test_number_line_bridges_one_ten_in_a_small_range(op):
 
 def test_number_line_still_splits_into_tens_and_ones_at_full_scale():
     rng = random.Random(71)
-    item = I.number_line_jumps(rng, "R9", "Procedural", "+", 200)
+    item = NL.two_jumps(rng, "R9", "Procedural", "+", 200)
     assert item.spec["tens"] % 10 == 0 and 11 <= item.spec["b"] <= 39
 
 
@@ -293,7 +296,13 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         # reaches them through a `format`
         D.find_mistake(rng, "X2", "Conceptual"),
         I.efficient_method(rng, "R13", "Conceptual"),
-        I.number_line_jumps(rng, "R2", "Conceptual", "+", 20),
+        NL.two_jumps(rng, "R2", "Conceptual", "+", 20),
+        # multiplication's models (goals/md2d1-multiplication-models.yaml), reached through their cases too
+        TM.skip_counting(rng, "R41", "Conceptual", {"known": [2, 5, 10], "groups": [3, 6]}),
+        _first(lambda r: TM.multiplication_square(r, "R41", "Conceptual", {})),
+        C.equal_groups(rng, "R41", "Conceptual", {"method": "ARRAY"}),
+        NL.equal_jumps(rng, "R41", "Conceptual", {}),
+        EQ.swap(rng, "R41", "Conceptual", [2, 5, 10], [2, 10]),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"

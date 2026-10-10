@@ -3,7 +3,35 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (in progress)
+## 2026-10-10 — M2d1: MUL.MODELS (in progress)
+
+- **Slice:** M2d1 (W1 gate 3). Goal `goals/md2d1-multiplication-models.yaml`; tests `test_mul_models.py`.
+- **AS2 is merged and live:** main `7990be2`, `migrate live` and `deploy engine` green; `engine done` all PROVED.
+- **Measured** (STATE.md "M2d1 — measured before the build"): none of `MUL.MODELS`' eight cases draws today.
+- **Built** (ADR 0054; draft PR https://github.com/cornerstonepune/assessment-engine/pull/167):
+  - skip counting and a cell of the multiplication square are kinds of their own (`skip_counting`,
+    `multiplication_square`, `assess/times_models.py`): the drafted rows filed them as `bare_sum`, against the draft's
+    own rule; corrected in `research/md_rows.py` and written again by `research/md_taxonomy.py`;
+  - the array is a shape of equal groups (`ARRAY`), read in three labelled boxes, rows × in each row = in all;
+  - the number line is one kind drawn two ways (`assess/number_line.py`, moved whole and typed out of `items.py`);
+  - the swap is an equation shape reading the level's `known` tables, through `equality.from_rule`;
+  - × stories of an array, twice as many and area; "times as many" names adding its numbers `M_TIMES_AS_MORE`, both
+    ways into the bank, and an old-keyed one leaves the bank (`verify._stale_story`); `MUL.2D1D`'s list names it
+    (seed, migration `20261031090000`);
+  - `draw.py` gives what a case allows to `draw_case.py` and tells a kind the case's method;
+  - `MUL.MODELS` (R41) carries no `within`: `placing.py` reads a skill with one as a calculation skill, and 7 × 8
+    would belong to two. It sits in a topic of its own, Multiplication models, untaught until an educator says Grade 2
+    has been taught it (CI's `test_topics` caught it first filed under the taught Multiplication);
+  - the website draws each model on the Question bank (`components/question.tsx`, `pictures.tsx`).
+- **For Achal:** the drafted G05 printed □ × □ = □ and counted 5 × 3 right for 3 rows of 5; the build labels the boxes
+  (rows, in each row, in all), so one order is the question. Also: skip counting maps to Patterns & sequencing
+  (`skills.by_kind`), the Hard level's known tables are 2, 5 and 10, and twice as many doubles a number to 20 (the
+  draft's example doubles 15).
+- **Named, not changed** (STATE.md): the marker charges a wrong answer to every mistake that predicts it, the counting
+  kinds to none when two share it.
+- **Waiting for Nimish's `bin/update-live`:** M0b to AS2, then approving the 13 skill sets it lists.
+
+## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (merged)
 
 - **Slice:** AS2 (W1 gate 3). Goal `goals/as2-a-story-is-its-shape.yaml`; tests `test_story_keys.py`; ADR 0053.
 - **AS1 is merged and live:** main `9a4b366`, CI, `migrate live` and `deploy engine` green.

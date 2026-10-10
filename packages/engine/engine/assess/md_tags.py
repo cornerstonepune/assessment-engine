@@ -27,10 +27,11 @@ GROUP = {
 }
 ORDER = ["0-1", "2-5-10", "3-4", "6-9", "11-12"]
 POWERS = {10: "X10", 100: "X100", 1000: "X1000"}
-# what an equal-groups question's shape says it is: a picture of groups, the groups added, or a story of them
+# what an equal-groups question's shape says it is: a picture of groups, the groups added, rows of dots, or a story
 SHAPES: dict[str, dict[str, str]] = {
     "PICTURE": {"method": "GROUPS"},
     "SUM": {"method": "REPEATED_ADDITION"},
+    "ARRAY": {"method": "ARRAY"},
     "STORY": {"structure": "EQUAL_GROUPS", "context": "WORD_PROBLEM"},
 }
 MISSING = {

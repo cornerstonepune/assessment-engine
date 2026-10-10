@@ -135,7 +135,7 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     was always the middle one, a straight sum whose stored wrong answers a predictor has since corrected
     (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table"), and a worked answer that asks
     the column its mistake always shows in (`diagnosis.asks_where`)."""
-    stale = _stale_mistakes(fmt, spec, responses)
+    stale = _stale_mistakes(fmt, spec, responses) + _stale_story(fmt, spec, responses)
     if stale:
         return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
     if fmt == "estimate_then_calc" and (spec["ra"], spec["rb"]) != E.rounded(spec):
@@ -161,6 +161,19 @@ def _stale_mistakes(fmt: str, spec: dict[str, Any], responses: list[dict[str, An
     stored = next((r for r in responses if r.get("rid") == "ans"), {}).get("misconceptions") or {}
     now = M.predict(spec["op"], spec["a"], spec["b"]) if table else {}
     return sorted(c for c, v in stored.items() if c in table and now.get(c) != v)
+
+
+def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
+    """A "times as many" story keyed when adding its two numbers was named the wrong operation, before the mistake had
+    its own name (`words.added_by_shape`, ADR 0054); or one whose numbers added are its answer (2 times as many as 2),
+    which could never show that mistake."""
+    added = W.added_by_shape().get(spec.get("structure") or "") if fmt == "word_1step" else None
+    ans = [r for r in responses or [] if r.get("rid") == "ans"]
+    stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
+    a, b = spec.get("a"), spec.get("b")
+    if added and ("M_WRONG_OP" in stored or (isinstance(a, int) and isinstance(b, int) and a + b == a * b)):
+        return ["M_WRONG_OP"]
+    return []
 
 
 def dimension_problems(tags, check, fmt=None, case_matches=None):
@@ -271,15 +284,24 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
         mis["M_WRONG_OP"] = abs(a - b) if op == "+" else a + b
         # keyed as the drawer keys it when a template wrote its words (the sampler's do); a model's sentence names no
         # shape, so it is keyed by its numbers, as it always was (ADR 0053)
-        tpl = W.template_of(stem)
+        found = W.template_of(stem)
+        tpl = found if found and found["op"] == op else None
         return item(
             "WP1",
             rung,
             signal,
             fmt,
             stem,
-            W.story_spec(tpl, a=a, b=b) if tpl and tpl["op"] == op else dict(a=a, b=b, op=op),
-            [Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)],
+            W.story_spec(tpl, a=a, b=b) if tpl else dict(a=a, b=b, op=op),
+            [
+                Response(
+                    "ans",
+                    "digits",
+                    str(ans),
+                    cells=cells(max(ans, a + b)),
+                    misconceptions=W.added_as(tpl, mis),
+                )
+            ],
             working_lines=lines,
             skills=skills,
         )

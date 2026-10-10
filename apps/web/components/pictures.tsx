@@ -49,3 +49,34 @@ export function Rings({ groups, size }: { groups: number; size: number }) {
     </svg>
   );
 }
+
+// An array: rows of dots, evenly spaced, so its rows and the dots in each are read off it.
+export function Dots({ rows, each }: { rows: number; each: number }) {
+  return (
+    <svg width={each * 16 + 4} height={rows * 16 + 4} viewBox={`0 0 ${each * 16 + 4} ${rows * 16 + 4}`} fill="currentColor" aria-label={`${rows} rows of ${each}`}>
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: each }, (_, c) => <circle key={`${r}-${c}`} cx={10 + c * 16} cy={10 + r * 16} r={4} />),
+      )}
+    </svg>
+  );
+}
+
+// A part of the multiplication square: its rows and columns headed, every cell its row times its column but the one
+// asked, left blank.
+export function Square({ rows, cols, at }: { rows: number[]; cols: number[]; at: [number, number] }) {
+  const cell = "min-w-[2.2em] border border-basalt/40 px-1 text-center";
+  return (
+    <span className="fact grid w-fit" style={{ gridTemplateColumns: `repeat(${cols.length + 1}, auto)` }} aria-label="part of the multiplication square">
+      <span className={`${cell} bg-basalt/10`}>×</span>
+      {cols.map((c) => (
+        <span key={`c${c}`} className={`${cell} bg-basalt/10`}>{c}</span>
+      ))}
+      {rows.map((r) => [
+        <span key={`r${r}`} className={`${cell} bg-basalt/10`}>{r}</span>,
+        ...cols.map((c) => (
+          <span key={`${r}-${c}`} className={cell}>{r === at[0] && c === at[1] ? "___" : r * c}</span>
+        )),
+      ])}
+    </span>
+  );
+}

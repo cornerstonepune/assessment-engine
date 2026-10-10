@@ -174,14 +174,14 @@ def _strategy(a: int, b: int, op: str, strategy: str) -> tuple[str, dict[str, An
 
 # Every other case: the kind it is, the question it prints, and what it is about.
 OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
-    "TF17": ("bare_sum", _x(6, 9, table="MULTIPLICATION_SQUARE"), ["fact", "context"]),
+    "TF17": ("multiplication_square", _x(6, 9, rows=[5, 6, 7], cols=[8, 9, 10]), ["fact", "context"]),
     "DF15": ("bare_sum", _x(42, 6, "÷", shape="HOW_MANY_GROUPS"), ["shape", "fact"]),
     # methods and pictures
     "G01": ("equal_groups", _x(3, 4, shape="PICTURE"), ["method"]),
     "G02": ("equal_groups", _x(3, 4, shape="SUM"), ["method"]),
-    "G03": ("bare_sum", _x(5, 5, method="SKIP_COUNTING"), ["method"]),
+    "G03": ("skip_counting", _x(5, 5, method="SKIP_COUNTING"), ["method"]),
     "G04": ("number_line_jumps", _x(4, 3, method="NUMBER_LINE"), ["method"]),
-    "G05": ("equal_groups", _x(3, 5, method="ARRAY"), ["method"]),
+    "G05": ("equal_groups", _x(3, 5, shape="ARRAY"), ["method"]),
     "G06": ("efficient_method", _x(14, 4, method="DOUBLING"), ["method"]),
     "G07": ("break_apart", _x(23, 4, method="PARTITIONING"), ["method"]),
     "G08": ("column_grid", _x(23, 4, layout="column", method="GRID"), ["method", "operand_2_digits"]),

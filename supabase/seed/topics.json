@@ -51,6 +51,15 @@
       ]
     },
     {
+      "code": "MULMODEL",
+      "subject": "NUM",
+      "name": "Multiplication models",
+      "taught": false,
+      "skill_sets": [
+        "MUL.MODELS"
+      ]
+    },
+    {
       "code": "MULFACT",
       "subject": "NUM",
       "name": "Multiplication facts and place value",

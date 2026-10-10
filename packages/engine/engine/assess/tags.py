@@ -28,7 +28,11 @@ FORMAT_REASONING = {
     "explain_claim": "ERROR_DIAGNOSIS",
     "estimate_then_calc": "DIRECT",
 }
-FORMAT_CONTEXT = {"word_1step": "WORD_PROBLEM", "word_2step": "WORD_PROBLEM"}
+FORMAT_CONTEXT = {
+    "word_1step": "WORD_PROBLEM",
+    "word_2step": "WORD_PROBLEM",
+    "multiplication_square": "TABLE_OR_CHART",
+}
 FORMAT_UNKNOWN = {
     "missing_digit": ("DIGIT", "MULTIPLE"),
     "balance_scale": ("WHOLE_NUMBER", "SECOND_OPERAND"),
@@ -303,7 +307,7 @@ def derive(item) -> dict:
     for key in ("shape", "structure", "planted", "round_to"):
         if sp.get(key) is not None:
             t[key] = sp[key]
-    if fmt in FORMAT_CONTEXT and "structure" not in t:
+    if t["context"] == "WORD_PROBLEM" and "structure" not in t:
         # a story's shape is its template's (`words.template_of`); a budget is taken away step by step
         t["structure"] = "SUB_SUB" if "budget" in sp else W.structure_of(item.stem)
         if t["structure"] is None:

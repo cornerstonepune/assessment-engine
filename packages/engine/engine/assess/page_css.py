@@ -58,6 +58,9 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 table.sort { border-collapse: collapse; font-size: 10.5pt; }
 table.sort th, table.sort td { border: 1px solid #333; padding: 1.2mm 3mm; text-align: center; }
 table.sort td:first-child { text-align: left; font-family: "DejaVu Sans Mono", monospace; }
+table.square { border-collapse: collapse; font-size: 12pt; }
+table.square th, table.square td { border: 1px solid #333; min-width: 11mm; height: 9mm; padding: 0 1mm; text-align: center; }
+table.square th { background: #eee; }
 .wall { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .wall .r { display: flex; }
 .wall .b { width: var(--brick, 24mm); height: 11mm; border: 1px solid #111; display: flex; align-items: center; justify-content: center; font-size: 12pt; margin: -0.5px; }

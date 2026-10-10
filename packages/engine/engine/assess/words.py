@@ -15,7 +15,7 @@ import pathlib
 import random
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
@@ -131,11 +131,41 @@ def word_1step(
     )
 
 
+@lru_cache(maxsize=1)
+def added_by_shape() -> dict[str, str]:
+    """{story shape: the mistake adding its two numbers is}, from the template rows that name one (`added`)."""
+    return {t["structure"]: t["added"] for t in templates("word_1step") if t.get("added")}
+
+
+def added_as(tpl: dict[str, Any] | None, mis: dict[str, Any]) -> dict[str, Any]:
+    """A story's mistakes, with adding its two numbers named as its template names it (`added`): "three times as many"
+    read as three more is M_TIMES_AS_MORE, a misreading of the words, not the wrong operation picked (M_WRONG_OP).
+    The sampler (`_times`) and a sentence checked on its way in (`verify.to_item`) both name it here."""
+    if not tpl or not tpl.get("added"):
+        return mis
+    return {(tpl["added"] if k == "M_WRONG_OP" else k): v for k, v in mis.items()}
+
+
+def _own(rng: random.Random, v: Any) -> int:
+    """A number a template sets: one value, or a [lo, hi] range it is drawn from."""
+    if isinstance(v, list):
+        span = cast(list[int], v)
+        return rng.randint(span[0], span[-1])
+    return int(v)
+
+
 def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
-    """A story that multiplies: its numbers no table fact and not round, as its level's are."""
-    a, b = number(rng, sizes[0]), number(rng, sizes[1])
+    """A story that multiplies: its numbers no table fact and not round, as its level's are, but a number the story
+    itself sets (`numbers`): one it fixes ("twice as many" is × 2), or the range it takes (twice as many as a number to
+    20: doubling, not a 2-digit multiplication)."""
+    own: dict[str, Any] = tpl.get("numbers") or {}
+    a, b = (_own(rng, own[k]) if k in own else number(rng, d) for k, d in (("a", sizes[0]), ("b", sizes[1])))
+    if tpl.get("added") and a + b == a * b:
+        # twice as many as 2 read as two more is 4, and right: the question could not tell the misreading
+        raise RuntimeError("the numbers added would be the answer: draw again")
     n, n2 = rng.sample(NAMES, 2)
-    r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=M.predict("×", a, b))
+    mis = added_as(tpl, M.predict("×", a, b))
+    r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=mis)
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
     return item(
         "WP1", rung, "Application", "word_1step", stem, story_spec(tpl, a=a, b=b), [r], working_lines=3

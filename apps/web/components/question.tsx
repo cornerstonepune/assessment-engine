@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
-import { Rings, Tally } from "@/components/pictures";
+import { Dots, Rings, Square, Tally } from "@/components/pictures";
 import type { ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
@@ -28,6 +28,8 @@ export const KIND: Record<string, string> = {
   break_apart: "tens, then ones",
   tally: "tally marks",
   equal_groups: "equal groups",
+  skip_counting: "skip counting",
+  multiplication_square: "multiplication square",
 };
 
 // Kinds that print their own sentence. The other three draw their printed line from their numbers
@@ -105,12 +107,33 @@ export function Question({ it }: { it: ItemRow }) {
       );
     case "equal_groups":
       if (s.shape === "SUM") return <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>;
+      if (s.shape === "ARRAY")
+        return (
+          <Stem text={it.stem}>
+            <Dots rows={Number(s.a)} each={Number(s.b)} />
+            <span className="fact">rows ___ × in each row ___ = in all ___</span>
+          </Stem>
+        );
       return s.shape === "PICTURE" ? (
         <Stem text={it.stem}>
           <Rings groups={Number(s.a)} size={Number(s.b)} />
         </Stem>
       ) : (
         <span>{it.stem}</span>
+      );
+    case "skip_counting":
+      return (
+        <Stem text={it.stem}>
+          <span className="fact">
+            {Array.from({ length: Number(s.a) - 1 }, (_, k) => Number(s.b) * (k + 1)).join(", ")}, ___
+          </span>
+        </Stem>
+      );
+    case "multiplication_square":
+      return (
+        <Stem text={it.stem}>
+          <Square rows={s.rows ?? []} cols={s.cols ?? []} at={[Number(s.a), Number(s.b)]} />
+        </Stem>
       );
     case "balance_scale":
       return (

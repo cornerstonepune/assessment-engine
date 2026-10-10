@@ -82,7 +82,7 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 32,  # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a)
+    "rung": 33,  # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a), R41 (M2d1)
     "level_rule": 12,
     "misconception": 39,
     "case_dimension": 68,  # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml)
@@ -92,7 +92,8 @@ EXPECTED = {
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill_set": 32,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a)
+    "skill_set": 33,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
+    # multiplication's models (M2d1)
     "subject": 1,
 }
 

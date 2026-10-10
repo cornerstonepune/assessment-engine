@@ -807,7 +807,8 @@
         "LAST_DIGIT",
         "PICTURE",
         "SUM",
-        "STORY"
+        "STORY",
+        "ARRAY"
       ],
       "why": "The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's, equal groups as a picture, a sum or a story.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
