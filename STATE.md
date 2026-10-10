@@ -5394,3 +5394,55 @@ engine's own tags: to 4 digits by 1, 2-digit divisors to 12, ÷ 10, 100 and 1000
 
 M3 is four slices, as M2 was (BUILD-ORDER): M3a, the four straight skills, the remainder its own answer, the division
 layout and the mistakes; M3b, the kinds an Advance needs; M3c, `DIV.GROUPS`; M3d, the written methods.
+
+## M3a — straight division built (2026-10-10)
+
+What the measured failures became (ADR 0056), proved by `tests/test_div_levels.py` (25 tests),
+`tests/test_div_mistakes.py` (6), two in `tests/test_render.py`, one in `tests/test_md_cases.py` and
+`apps/web/tests/s31-straight-division.spec.ts`:
+- **Four skills on rungs of their own** (R42–R45, `NUM.OPS.04`), each level its document's straight cases:
+  `DIV.FACTS` (Easy to Advance, G2 G2 G2 G3), `DIV.TENS` (G4 ×4), `DIV.2D1D` (G2 G2 G3) and `DIV.3D1D` (G4 ×3). Two
+  topics, "Division facts and place value" and "Division by a 1-digit number", untaught until an educator says so.
+  Every division in reach has exactly one home among the four and a level in it, in a line and in the division layout.
+- **The drawer makes ÷** as it is checked: a divisor, a quotient and a remainder, the number divided made of them
+  (`assess/draw_divide.py`), every candidate of a case listed so its last questions are found by reading it. A
+  level's size and its skill's mistake list are counted from those lists, never typed: `DIV.FACTS` Easy holds 27
+  questions and Hard 36 (`min_items`), every other level 46 or more.
+- **A remainder is an answer of its own**, in a box after "r" only where there is one (`assess/division.py`,
+  `verify.division`). In a line, "85 ÷ 4 = □□ r □"; in the division layout, the quotient's boxes one over each digit
+  of the number divided, the divisor's bracket and the bar (`answer_space.divided`). Printed through Chromium, the
+  key's geometry holds every box; each box is marked against its own key.
+- **"How many 6s make 42?"** (DF15), a fact asked in words: its sentence a row of `word_templates.json`, printed and
+  shown without the ÷ sign.
+- **The 14 mistakes a calculation shows, and × in place of ÷, are rows under ÷**, each predicted from the question's
+  own numbers (`assess/div_mistakes.py`) and agreeing with a hand-worked rule on every straight division a level
+  prints. A box names every mistake that writes its value there; where two are the same act on these numbers only
+  the more particular is predicted (three pairs, measured), as multiplication's are.
+- **An old paper's ÷ sums are placed** (`placing.OPERATIONS`): July's 144 ÷ 12 is `DIV.FACTS`'s, and an exact
+  division's one answer is keyed by the quotient's mistakes (`misconceptions.predict`).
+
+Found while building, fixed here:
+- The first build keyed each box with the first-named mistake. 17 ÷ 5 answered 2 r 3 (swapped) then read as "one
+  group short" in the quotient's box and "the remainder added" in the remainder's. Each box now names every match,
+  and three same-act pairs predict only their more particular mistake (ADR 0056).
+- `DIV.2D1D` and `DIV.3D1D` were given an Advance of Hard's own questions; `engine load` refused it ("bands sharing
+  one region"). They have no Advance until M3b, as `MUL.2D1D` had none until M2b; the goal never promised one.
+- The test written first read DP06 ("the fact uses one of the zeros") as ÷ 1 digit only. Its label names no
+  divisor's size, and the engine's measure held 600 ÷ 50 = 12 and 2000 ÷ 40 = 50; the test now states the label in
+  arithmetic. The same test had no line for DF15; it has one now, and checks DF15's sentence never shows the sign.
+- `verify.py` reached 404 lines. A stored question's key made stale (`key_problems` and its rules) is its own module,
+  `assess/stale.py`; the native kinds' drawing left `draw.py` for `assess/draw_native.py` (draw.py 407 → 355).
+- The scenario runner recomputed every answer with `compute`, which refuses a division with a remainder: it now
+  recomputes the quotient and the remainder, each against its own box.
+- In a line the remainder's boxes followed the paper's layout row; in the division layout they followed the default.
+  One rule draws both now.
+- The first print of "How many 6s make 42?" chose "a sentence alone" by a stem and a shape together, which the 72
+  friendly-pairs sums in a fresh bank also have ("Add them in the easiest order."): on paper and on the website they
+  would have lost their numbers. A question asked in words now carries its printed sentence (`text`, as a missing
+  number does), and only that prints alone
+  (`test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instruction_its_numbers`, which fails on the
+  first rule).
+
+Ratchets: untyped findings fell in five files, written down in `workflows.json` (`draw.py` 127 → 72, `verify.py`
+96 → 81, `render.py` 367 → 348, `misconceptions.py` 236 → 231, `diagnosis.py` 48 → 47); the five new modules have
+none. `render_item` measures C901 23 and PLR0915 71 (was 24 and 77).

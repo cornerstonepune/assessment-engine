@@ -217,7 +217,7 @@ A remainder is its own answer: from a table fact up to 3 digits, smallest to lar
 | DR07 | A remainder and a zero in the quotient | 613 ÷ 6 | 102 r 1 |
 | DR08 | First digit smaller and a remainder | 157 ÷ 4 | 39 r 1 |
 | DR09 | Checking a remainder: quotient × divisor + remainder | 21 × 4 + 1 = □ (is 85 ÷ 4 = 21 r 1?) | 85 |
-| DR10 | ÷10 with a remainder | 457 ÷ 10 | 45 r 7 |
+| DR10 | ÷10, 100 or 1000 with a remainder | 457 ÷ 10 | 45 r 7 |
 
 ## Methods and pictures
 

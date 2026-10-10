@@ -13,7 +13,7 @@ from collections import Counter
 
 import pytest
 
-from engine.assess import draw, placing, render, skills, tags, taxonomy, verify
+from engine.assess import draw, placing, render, skills, stale, tags, taxonomy, verify
 from engine.assess import operations as O
 from engine.assess import written_methods as WM
 from engine.assess.items import Item
@@ -285,12 +285,12 @@ def test_a_long_multiplication_keyed_before_its_rows_mistake_had_a_name_leaves_t
         if _method(it) != "LONG_MULTIPLICATION":
             continue
         today = [dataclasses.asdict(r) for r in it.responses]
-        assert verify.key_problems(it.fmt, it.spec, today) == []
+        assert stale.key_problems(it.fmt, it.spec, today) == []
         before = [
             r | {"misconceptions": {k: v for k, v in r["misconceptions"].items() if k != "M_NOCARRY"}}
             for r in today
         ]
-        assert verify.key_problems(it.fmt, it.spec, before) == [
+        assert stale.key_problems(it.fmt, it.spec, before) == [
             "keyed by a mistake rule since corrected: M_NOCARRY"
         ]
 
@@ -307,9 +307,9 @@ def test_a_written_method_keyed_by_a_rule_since_changed_leaves_the_bank():
     }.items():
         it = WM.make(method, a, b, "R9")
         today = [dataclasses.asdict(r) for r in it.responses]
-        assert verify.key_problems(it.fmt, it.spec, today) == [], method
+        assert stale.key_problems(it.fmt, it.spec, today) == [], method
         moved = [today[0] | {"misconceptions": {**today[0]["misconceptions"], "M_ONE_ADDED": -1}}, *today[1:]]
-        assert verify.key_problems(it.fmt, it.spec, moved) == [
+        assert stale.key_problems(it.fmt, it.spec, moved) == [
             "keyed by a mistake rule since corrected: M_ONE_ADDED"
         ], method
         ans = today[-1]
@@ -317,7 +317,7 @@ def test_a_written_method_keyed_by_a_rule_since_changed_leaves_the_bank():
             *today[:-1],
             ans | {"misconceptions": {k: v for k, v in ans["misconceptions"].items() if k != "M_WRONG_OP"}},
         ]
-        assert verify.key_problems(it.fmt, it.spec, unnamed) == [
+        assert stale.key_problems(it.fmt, it.spec, unnamed) == [
             "keyed by a mistake rule since corrected: M_WRONG_OP"
         ], method
 

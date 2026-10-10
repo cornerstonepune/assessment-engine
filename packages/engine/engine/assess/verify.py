@@ -8,14 +8,13 @@ item_key from either path, which is what stops the bank holding one sum twice.
 
 from typing import Any, cast
 
-from . import diagnosis as D
-from . import estimate as E
+from . import division as DV
 from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
 from . import words as W
 from . import written_methods as WM
-from .items import Response, cells, item, regroup_count_add, regroup_count_sub
+from .items import Item, Response, cells, item, regroup_count_add, regroup_count_sub
 
 FORBIDDEN_WORDS = ("borrow",)
 # fmt -> (signal, working_lines, needs_stem); mirrors what items.py gives each format
@@ -129,91 +128,6 @@ FORMAT_DIMENSIONS = {
 }
 
 
-def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None = None) -> list[str]:
-    """A stored question made by a rule its kind has since corrected. It leaves the bank rather than being
-    changed in place, so a paper already printed with it still reads as it did: estimates that rounded a 5
-    down (665 printed as 660), closest-hundred questions from before the right option's place was drawn, when it
-    was always the middle one, a straight sum whose stored wrong answers a predictor has since corrected
-    (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table"), and a worked answer that asks
-    the column its mistake always shows in (`diagnosis.asks_where`), a long multiplication keyed before its rows
-    added without a carry had a name (`_stale_rows`), and a written method whose boxes its rules now key otherwise
-    (`_stale_method`)."""
-    stale = (
-        _stale_mistakes(fmt, spec, responses)
-        + _stale_story(fmt, spec, responses)
-        + _stale_rows(fmt, spec, responses)
-        + _stale_method(fmt, spec, responses)
-    )
-    if stale:
-        return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
-    if fmt == "estimate_then_calc" and (spec["ra"], spec["rb"]) != E.rounded(spec):
-        return [
-            f"rounded a 5 down: {spec['a']} {spec['op']} {spec['b']} printed as {spec['ra']}, {spec['rb']}"
-        ]
-    if fmt == "choose_estimate" and "right" not in spec:
-        return ["made when the closest hundred was always the middle option"]
-    if (
-        fmt == "find_mistake"
-        and any(r.get("rid") == "where" for r in responses or [])
-        and not D.asks_where(spec)
-    ):
-        return [f"asks the column {spec['planted']} always shows in"]
-    return []
-
-
-def _stale_mistakes(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
-    """The predicted mistakes a straight sum's stored key names at a value today's predictor no longer gives."""
-    if fmt not in ("bare_sum", "column_grid") or not responses or not {"a", "b", "op"} <= spec.keys():
-        return []
-    table = M.TABLES.get(spec["op"], {})
-    stored = next((r for r in responses if r.get("rid") == "ans"), {}).get("misconceptions") or {}
-    now = M.predict(spec["op"], spec["a"], spec["b"]) if table else {}
-    return sorted(c for c, v in stored.items() if c in table and now.get(c) != v)
-
-
-def _stale_rows(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
-    """A long multiplication whose key cannot name its rows added without a carry (19 × 14 written 166), stored before
-    the mistake was predicted on a multiplication (`written_methods.rows_added`, ADR 0055)."""
-    a, b = spec.get("a"), spec.get("b")
-    if (
-        fmt != "column_grid"
-        or O.sign(spec.get("op")) != "×"
-        or not (isinstance(a, int) and isinstance(b, int))
-    ):
-        return []
-    ans = [r for r in responses or [] if r.get("rid") == "ans"]
-    stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
-    rows = WM.rows_added(a, b)
-    return sorted(c for c, v in rows.items() if c not in stored and v not in stored.values())
-
-
-def _stale_method(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
-    """The mistakes a written method's stored boxes name at a value its rules, or the predictors its steps use, no
-    longer give, or do not name at all (ADR 0055): made again from its own numbers, every box is keyed as today."""
-    if fmt not in WM.KINDS.values() or not responses or not {"a", "b", "method"} <= spec.keys():
-        return []
-    now = {r.rid: r.misconceptions or {} for r in WM.make(spec["method"], spec["a"], spec["b"], "").responses}
-    stale: set[str] = set()
-    for r in responses:
-        old: dict[str, Any] = r.get("misconceptions") or {}
-        new: dict[str, Any] = now.get(r.get("rid") or "", {})
-        stale |= {c for c in old.keys() | new.keys() if old.get(c) != new.get(c)}
-    return sorted(stale)
-
-
-def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
-    """A "times as many" story keyed when adding its two numbers was named the wrong operation, before the mistake had
-    its own name (`words.added_by_shape`, ADR 0054); or one whose numbers added are its answer (2 times as many as 2),
-    which could never show that mistake."""
-    added = W.added_by_shape().get(spec.get("structure") or "") if fmt == "word_1step" else None
-    ans = [r for r in responses or [] if r.get("rid") == "ans"]
-    stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
-    a, b = spec.get("a"), spec.get("b")
-    if added and ("M_WRONG_OP" in stored or (isinstance(a, int) and isinstance(b, int) and a + b == a * b)):
-        return ["M_WRONG_OP"]
-    return []
-
-
 def dimension_problems(tags, check, fmt=None, case_matches=None):
     """The item as measured, against the band as declared (BUILD-ORDER gate 4, amended).
 
@@ -291,8 +205,41 @@ def _missing_distractors(op, a, b, ans, hidden_key, hidden):
     return {k: v for k, v in mis.items() if v != hidden and v >= 0}
 
 
+def division(
+    a: int,
+    b: int,
+    rung: str,
+    layout: str = "horizontal",
+    shape: str | None = None,
+    skills: list[str] | None = None,
+) -> Item:
+    """a ÷ b as a child answers it: the quotient's box, and the remainder's after "r" where there is one (ADR 0056),
+    each keyed by the mistakes predicted for it (`division.boxes`). In a line, in the division layout (`layout`
+    "column"), or asked in words, its sentence a row (`shape`: "How many 6s make 42?")."""
+    fmt = "column_grid" if layout == "column" else "bare_sum"
+    stem = W.templates(fmt, "÷", shape)[0]["text"].format(a=a, b=b) if shape else ""
+    # asked in words, the sentence is what is printed (`text`, as a missing number's line is), never the line too
+    spec: dict[str, Any] = dict(a=a, b=b, op="÷", layout=layout) | (
+        {"shape": shape, "text": stem} if shape else {}
+    )
+    signal, lines, _ = FORMATS[fmt]
+    return item(
+        _template("÷", a, b),
+        rung,
+        signal,
+        fmt,
+        stem,
+        spec,
+        DV.boxes(a, b),
+        working_lines=lines,
+        skills=skills,
+    )
+
+
 def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     fmt, op, a, b = c["format"], c["op"], c["a"], c["b"]
+    if fmt in ("bare_sum", "column_grid") and O.sign(op) == "÷":  # a division's own boxes (ADR 0056)
+        return division(a, b, rung, "column" if fmt == "column_grid" else "horizontal", skills=skills)
     signal, lines, _ = FORMATS[fmt]
     ans = M.compute(op, a, b)
     stem = (c.get("stem") or "").strip()

@@ -107,14 +107,16 @@ STRAIGHT: dict[str, list[Any]] = {
     "DF02": ["equal_operands"],
     "DF03": [("zero_operand", "FIRST")],
     **{f"DF{n:02d}": TABLE for n in range(4, 15)},
-    "DF16": [*D, "answer_digits"],
+    "DF16": ["operand_2_digits", "answer_digits"],  # about the divisor and the quotient: 100 ÷ 11 = 9 r 1 is one
     "DP01": ["place_value_factor", "fact", "remainder"],
-    "DP02": ["place_value_factor"],
-    "DP03": ["place_value_factor"],
-    "DP04": ["place_value_factor", "scaled_fact", "fact_zero"],
+    # a remainder by a power of ten waits for Advance (DR10), as ÷ 10's does: Medium printed 4567 ÷ 100 = 45 r 67
+    "DP02": ["place_value_factor", ("remainder", "NONE")],
+    "DP03": ["place_value_factor", ("remainder", "NONE")],
+    # "÷ 1 digit", as their labels say: 240 ÷ 12 is a 2-digit divisor
+    "DP04": ["place_value_factor", "scaled_fact", "fact_zero", "operand_2_digits"],
     "DP05": ["place_value_factor"],
     "DP06": ["fact_zero"],
-    "DP07": ["place_value_factor", "fact_zero"],
+    "DP07": ["place_value_factor", "fact_zero", "operand_2_digits"],
     "D01": [*D, "regrouping", "remainder", ("method", "SHORT_DIVISION")],
     "D02": [*D, "regrouping", "remainder", ("method", "LINE")],
     "D03": [*D, "regroup_at", "remainder", "first_digit_smaller", ("divisor_group", ["2-5-10", "3-4"])],
@@ -127,12 +129,13 @@ STRAIGHT: dict[str, list[Any]] = {
     "D14": [*D, "estimate_corrected", "answer_digits"],
     "DZ01": [*D, "quotient_zero", "zero_pattern", "regrouping"],
     "DZ02": [*D, "quotient_zero", "remainder", "scaled_fact"],
-    "DZ03": [*D, "quotient_zero", "zero_pattern"],
+    # the zero comes from a digit smaller than the divisor; one at the end of the number divided is beside it (210 ÷ 2)
+    "DZ03": [*D, "quotient_zero", ("zero_pattern", ["ANSWER_ZERO", "TRAILING"])],
     "DZ04": [*D, "zero_pattern", "quotient_zero"],
     "DZ05": ["quotient_zero"],
     "DZ06": ["operand_1_digits", "first_digit_smaller", "quotient_zero"],
     "DZ07": [*D, "quotient_zero", ("remainder", REMAINDERS)],
-    "DR01": [*D, "answer_digits", "remainder"],
+    "DR01": ["operand_2_digits", "answer_digits", "remainder"],  # 7 ÷ 3 = 2 r 1 is one, not only 17 ÷ 5
     "DR02": ["remainder", "answer_digits"],
     "DR03": ["remainder"],
     "DR04": [*D, "regrouping", ("remainder", REMAINDERS), "answer_digits"],
@@ -140,7 +143,7 @@ STRAIGHT: dict[str, list[Any]] = {
     "DR06": [*D, ("remainder", REMAINDERS)],
     "DR07": ["quotient_zero", ("remainder", REMAINDERS)],
     "DR08": [*D, "first_digit_smaller", ("remainder", REMAINDERS)],
-    "DR10": ["place_value_factor", ("remainder", REMAINDERS)],
+    "DR10": [("place_value_factor", ["X10", "X100", "X1000"]), ("remainder", REMAINDERS)],
 }
 
 

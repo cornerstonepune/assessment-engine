@@ -7,7 +7,7 @@ every other key reads the question's tags. A value is equality, a list is "one o
 `{"lte": n}` compare numbers. A tag the question does not carry fails the condition.
 """
 
-from typing import Any
+from typing import Any, cast
 
 
 def holds(want: Any, got: Any) -> bool:
@@ -47,6 +47,12 @@ def within(match: Any, shape: Any) -> Any:
             out[k] = mine
         elif isinstance(mine, dict) and isinstance(theirs, dict) and _overlap(mine, theirs):
             out[k] = _overlap(mine, theirs)
+        elif (
+            isinstance(mine, list)
+            and isinstance(theirs, list)
+            and (both := [v for v in cast(list[Any], mine) if v in cast(list[Any], theirs)])
+        ):
+            out[k] = both  # the values both allow: DR10's ÷ 10, 100 and 1000 in DIV.TENS
         else:
             raise ValueError(f"the case fixes {k}={mine} against the skill's shape {shape}")
     return out

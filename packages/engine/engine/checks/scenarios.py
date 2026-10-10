@@ -15,6 +15,7 @@ distractors include one unnamed code, has not met the goal. The number it report
 
 from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import misconceptions as M
+from engine.assess import operations as O
 from engine.checks import scenarios_week
 from engine.core import db
 from engine.w1_bank import bank, cases, refill, spec
@@ -27,16 +28,21 @@ def _vocabulary(conn):
 
 
 def _answer_is_right(item):
-    """Recompute from the numbers in the question, never trusting the stored answer."""
+    """Recompute from the numbers in the question, never trusting the stored answer: a division's quotient, and its
+    remainder in a box of its own only where there is one (ADR 0056)."""
     s = item.spec or {}
     nums = s.get("addends") or ([s["a"], s["b"]] if {"a", "b"} <= s.keys() else None)
     if not nums or not s.get("op") or not all(isinstance(x, int) for x in nums):
         return None  # a question with no arithmetic of its own (a story, an explanation, boxed digits)
-    want = sum(nums) if s["op"] == "+" and len(nums) > 2 else M.compute(s["op"], nums[0], nums[1])
     if s.get("missing"):
         return None  # a missing-number question's answer is an operand, checked by its own rule
-    stated = next((r.answer for r in item.responses if r.rid in ("ans", "answer")), None)
-    return None if stated is None else str(want) == str(stated).strip()
+    stated = {r.rid: str(r.answer).strip() for r in item.responses if r.answer is not None}
+    if O.sign(s["op"]) == "÷":
+        q, r = divmod(nums[0], nums[1])
+        return stated.get("ans") == str(q) and stated.get("rem") == (str(r) if r else None)
+    want = sum(nums) if s["op"] == "+" and len(nums) > 2 else M.compute(s["op"], nums[0], nums[1])
+    answer = stated.get("ans", stated.get("answer"))
+    return None if answer is None else str(want) == answer
 
 
 def run_one(conn, sc):

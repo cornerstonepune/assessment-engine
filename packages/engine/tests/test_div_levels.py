@@ -38,13 +38,15 @@ STRAIGHT = set(draw.STRAIGHT)
 GRADES = {
     "DIV.FACTS": ["G2", "G2", "G2", "G3"],
     "DIV.TENS": ["G4", "G4", "G4", "G4"],
-    "DIV.2D1D": ["G2", "G2", "G3", "G3"],
-    "DIV.3D1D": ["G4", "G4", "G4", "G4"],
+    "DIV.2D1D": ["G2", "G2", "G3"],
+    "DIV.3D1D": ["G4", "G4", "G4"],
 }
 # The two whose Advance the document gives straight questions no lower level holds: the 11 and 12 tables, a 2-digit
-# divisor and a remainder under a 1-digit quotient; ÷ 10, 100 or 1000 with a remainder. The other two's Advance is
-# Hard's straight cases until M3b adds the kinds an Advance needs.
+# divisor and a remainder under a 1-digit quotient; ÷ 10, 100 or 1000 with a remainder. The other two have no Advance
+# until M3b gives them the kinds an Advance needs, as multiplication's had none until M2b: an Advance of Hard's own
+# questions is no level (`engine load` refuses two levels on one region).
 ADVANCE = ["DIV.FACTS", "DIV.TENS"]
+LEVELS_OF = {s: LEVELS if s in ADVANCE else LEVELS[:3] for s in FOUR}
 
 
 def _straight(code):
@@ -104,24 +106,25 @@ def _measured(a, b):
 
 
 def test_division_is_four_skills_each_level_its_documents_cases():
-    """Easy to Hard are the document's straight cases for that level; Advance holds the hardest straight cases with the
-    document's own Advance straight cases, as multiplication's does; every level divides, at the document's grade, on a
-    rung of its own counting on Division, untaught until an educator says so."""
+    """Easy to Hard are the document's straight cases for that level; the tables' and ÷ 10's Advance holds the hardest
+    straight cases with the document's own Advance straight cases, as multiplication's does, and the other two have
+    none until M3b; every level divides, at the document's grade, on a rung of its own counting on Division, untaught
+    until an educator says so."""
     rungs = [SETS[s]["rung_code"] for s in FOUR]
     others = {x["rung_code"] for s, x in SETS.items() if s not in FOUR}
     assert len(set(rungs)) == 4 and not others & set(rungs)
     for skill in FOUR:
         s, doc = SETS[skill], _documents(skill)
         assert RUNGS[s["rung_code"]]["skill_codes"] == ["NUM.OPS.04"], skill
-        assert list(s["difficulty"]) == LEVELS, skill
+        assert list(s["difficulty"]) == LEVELS_OF[skill], skill
         for lv in ("Easy", "Medium", "Hard"):
             assert sorted(_check(skill, lv)["cases"]) == sorted(doc[lv]), (skill, lv)
-        below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "DIV.FACTS" else set()
-        own = set(doc["Advance"]) if skill in ADVANCE else set()
-        want = sorted(below | set(doc["Hard"]) | own)
-        assert sorted(c for c in _check(skill, "Advance")["cases"] if _straight(c)) == want, skill
-        assert all(_check(skill, lv)["within"]["operation"] == "DIV" for lv in LEVELS), skill
-        assert [s["level_band"][lv] for lv in LEVELS] == GRADES[skill], skill
+        if skill in ADVANCE:
+            below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "DIV.FACTS" else set()
+            want = sorted(below | set(doc["Hard"]) | set(doc["Advance"]))
+            assert sorted(c for c in _check(skill, "Advance")["cases"] if _straight(c)) == want, skill
+        assert all(_check(skill, lv)["within"]["operation"] == "DIV" for lv in LEVELS_OF[skill]), skill
+        assert [s["level_band"][lv] for lv in LEVELS_OF[skill]] == GRADES[skill], skill
         topic = next(t for t in TOPICS if skill in t["skill_sets"])
         assert topic["taught"] is False, f"{skill} is taught before an educator said so"
 
@@ -142,7 +145,8 @@ def _scaled(a, b):
 def _in_reach(a, b):
     """Within the four's numbers: a table read backwards, or one with a remainder under a 1-digit quotient; ÷ 10, 100
     or 1000 of a number at least as big, to 4 digits; a round number by one digit or by a round number whose zeros leave
-    a fact; 2 and 3 digits by 1. 4 digits by 1 and 3 by 2 are the document's unplaced cases (D11 to D14)."""
+    a fact; 2 and 3 digits by 1. 4 digits by 1 and 3 by 2 are the document's unplaced cases (D11 to D14), and a round
+    number by a 2-digit number not round (240 ÷ 12) is in none of its labels."""
     if b == 0:
         return False
     q, r = divmod(a, b)
@@ -152,7 +156,7 @@ def _in_reach(a, b):
         return b <= a < 10000
     if b < 10 and len(str(a)) in (2, 3):
         return True
-    return a % 10 == 0 and a < 10000 and _scaled(a, b)
+    return a % 10 == 0 and a < 10000 and (b < 10 or b % 10 == 0) and _scaled(a, b)
 
 
 def _every_division():
@@ -222,7 +226,7 @@ def test_every_division_on_the_schools_papers_has_a_skill_and_a_level():
 # ---------------------------------------------------------------------------------------------- the drawing
 
 
-@pytest.mark.parametrize("skill, level", [(s, lv) for s in FOUR for lv in LEVELS])
+@pytest.mark.parametrize("skill, level", [(s, lv) for s in FOUR for lv in LEVELS_OF[s]])
 def test_every_level_draws_its_own_cases_as_measured(skill, level):
     """Forty questions (or all a small level holds), no two alike, each one of its level's cases as measured; its
     quotient and remainder worked here, a remainder's box only where there is one, every wrong answer it names one of
@@ -266,6 +270,22 @@ def _qzero(a, b):
     return "MIDDLE" if "0" in q[1:-1] else ("END" if len(q) > 1 and q.endswith("0") else "NONE")
 
 
+def _uses_a_zero(a, b):
+    """The zeros both numbers end in taken off together, the number divided is a fact of the divisor's table to 12 only
+    with one of its own zeros left on: 200 ÷ 4 is 20 ÷ 4 = 5, 600 ÷ 50 is 60 ÷ 5 = 12, 2000 ÷ 40 is 20 ÷ 4 and a zero.
+    DP06 names no divisor's size; DP04 and DP07 say ÷ 1 digit. With no zero shared, a fact needs one zero off: 60 ÷ 5
+    alone is the 5 table's."""
+    common = 0
+    while a and a % 10 == 0 and b % 10 == 0:
+        a, b, common = a // 10, b // 10, common + 1
+    z = _tz(a)
+
+    def fact(n):
+        return b <= 12 and n % b == 0 and n // b <= 12
+
+    return z >= 1 and not fact(a // 10**z) and any(fact(a // 10**k) for k in range(0 if common else 1, z))
+
+
 # What each straight case's label says, worked with plain arithmetic: every question it holds must be what it says.
 SAYS = {
     "DF01": lambda a, b, col: b == 1 and a <= 12,
@@ -287,6 +307,7 @@ SAYS = {
             (14, 12),
         )
     },
+    "DF15": lambda a, b, col: a % b == 0 and 0 < a // b <= 12 and b <= 12 and not col,  # asked in words
     "DF16": lambda a, b, col: 10 <= b <= 99 and a // b <= 9,
     "DR01": lambda a, b, col: b <= 9 and 0 < a % b and a // b <= 9,
     "DR02": lambda a, b, col: a % b == b - 1 > 0 and a // b <= 9,
@@ -297,7 +318,7 @@ SAYS = {
     "DP03": lambda a, b, col: b == 1000 and a % 1000 == 0,
     "DP04": lambda a, b, col: b < 10 and _tz(a) == 1 and (a // 10) % b == 0 and a // 10 // b <= 12,
     "DP05": lambda a, b, col: a % 10 == 0 and b % 10 == 0 and b not in (10, 100, 1000),
-    "DP06": lambda a, b, col: b < 10 and _tz(a) >= 1 and (a // 10 ** _tz(a)) < b and a % b == 0,
+    "DP06": lambda a, b, col: _uses_a_zero(a, b),
     "DP07": lambda a, b, col: b < 10 and _tz(a) >= 2 and (a // 10 ** _tz(a)) % b == 0,
     "D01": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carried(a, b)) and a % b == 0 and col,
     "D02": lambda a, b, col: (
@@ -340,7 +361,7 @@ def test_every_question_a_level_draws_is_what_its_cases_label_says():
     """Read against plain arithmetic written here, so a tag measured wrong cannot make its own case look right."""
     seen = set()
     for skill in FOUR:
-        for level in LEVELS:
+        for level in LEVELS_OF[skill]:
             for code, it in _drawn(skill, level):
                 a, b, col = it.spec["a"], it.spec["b"], it.fmt == "column_grid"
                 assert SAYS[code](a, b, col), (
@@ -350,8 +371,13 @@ def test_every_question_a_level_draws_is_what_its_cases_label_says():
                     f"{a} ÷ {b}",
                     "columns" if col else "a line",
                 )
+                # "How many 6s make 42?": the numbers in words, never the sign that gives the operation away
+                worded = str(a) in it.stem and str(b) in it.stem and "÷" not in it.stem
+                assert worded == (code == "DF15"), (code, it.stem)
                 seen.add(code)
-    assert seen == {c for s in FOUR for lv in LEVELS for c in _check(s, lv)["cases"]}, "a case drew nothing"
+    assert seen == {c for s in FOUR for lv in LEVELS_OF[s] for c in _check(s, lv)["cases"]}, (
+        "a case drew nothing"
+    )
 
 
 def test_a_case_that_names_its_layout_is_printed_that_way():
@@ -359,7 +385,7 @@ def test_a_case_that_names_its_layout_is_printed_that_way():
     them; every other division in the division layout and in a line, in fair shares."""
     printed = {}
     for skill in FOUR:
-        for level in LEVELS:
+        for level in LEVELS_OF[skill]:
             for code, it in _drawn(skill, level):
                 printed.setdefault((skill, code), set()).add(it.fmt)
     for (skill, code), fmts in printed.items():
@@ -380,12 +406,11 @@ def test_a_remainder_is_an_answer_of_its_own():
     it = verify.division(85, 4, "R44")
     assert [(r.rid, r.answer) for r in it.responses] == [("ans", "21"), ("rem", "1")]
     assert [(r.rid, r.answer) for r in verify.division(84, 4, "R44").responses] == [("ans", "21")]
-    text = re.sub(
-        r"\s+",
-        " ",
-        re.sub(r"<[^>]+>", " ", render.render_item(Sheet("CS000000", "G3", "Hard", 1, "W1", [it]), it, 1)),
-    )
-    assert re.search(r"85 ÷ 4 = .* r ", text), text
+    page = render.render_item(Sheet("CS000000", "G3", "Hard", 1, "W1", [it]), it, 1)
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    assert "85 ÷ 4 =" in text and " r " in text, text
+    # the quotient's boxes, then "r", then the remainder's: "85 ÷ 4 = □□ r □"
+    assert page.index('data-r="ans"') < page.index(">r<") < page.index('data-r="rem"'), page
 
 
 def _wrote(text):
@@ -424,7 +449,7 @@ def test_every_level_of_the_four_fills_its_worksheets(conn):
 
     library.build(conn)
     for skill in FOUR:
-        for level in LEVELS:
+        for level in LEVELS_OF[skill]:
             n = conn.execute(
                 "select count(*) as n from sheet_template where source = 'library' and retired_at is null"
                 " and skill_set_code = %s and difficulty = %s",

@@ -55,6 +55,12 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 .grid .g.line { border: none; border-top: 1.5px solid #111; height: 0; }
 .grid .g.res { border-top: 2px solid #111; }
 .grid .g.blank { border: none; }
+/* the division layout: the divisor, its bracket, the number divided under its bar, "r" beside the quotient */
+.divide { display: inline-flex; align-items: flex-start; gap: 1.5mm; }
+.eq.rem { margin: 0 1.5mm; vertical-align: middle; }
+.divide .eq.rem { line-height: 10mm; margin: 0; }
+.grid .g.dv { width: auto; min-width: 8.4mm; padding: 0 1.5mm; border: none; border-right: 2px solid #111; }
+.grid .g.dd { border: none; border-top: 2px solid #111; }
 table.sort { border-collapse: collapse; font-size: 10.5pt; }
 table.sort th, table.sort td { border: 1px solid #333; padding: 1.2mm 3mm; text-align: center; }
 table.sort td:first-child { text-align: left; font-family: "DejaVu Sans Mono", monospace; }

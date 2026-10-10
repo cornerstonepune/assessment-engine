@@ -18,6 +18,7 @@ import segno
 from playwright.sync_api import sync_playwright
 
 from engine.assess import answer_space, pictures
+from engine.assess import operations as O
 from engine.assess.answer_space import op_sign, textbox, ticks, working
 from engine.assess.geometry import GEOM_JS
 from engine.assess.items import Response
@@ -39,18 +40,8 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
     stem = html.escape(it.stem)
     body = ""
     f = it.fmt
-    if f == "bare_sum":
-        line = (
-            f" {op_sign(sp['op'])} ".join(map(str, sp["addends"]))
-            if sp.get("addends")
-            else f"{sp['a']} {op_sign(sp['op'])} {sp['b']}"
-        )
-        stem = (html.escape(it.stem) + "<br>" if it.stem else "") + f'<span class="eq">{line} =</span>'
-        body = _cells(sid, iid, R["ans"], big) + working(it.working_lines)
-    elif f == "column_grid":
-        rows = sp.get("addends") or [sp["a"], sp["b"]]
-        stem = "Complete the calculation." if not sp.get("_slot", "").startswith("probe") else "Try this one."
-        body = _grid(sid, iid, rows, sp["op"], R["ans"]) + (working(1) if len(str(rows[0])) >= 3 else "")
+    if f in ("bare_sum", "column_grid"):
+        stem, body = _straight(sid, it, R, functools.partial(_cells, sid, iid), _grid, big)
     elif f == "missing_number":
         stem = f'<span class="eq">{html.escape(sp["text"]).replace("□", "&#9633;")}</span>'
         body = (
@@ -173,6 +164,33 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         else ""
     )
     return f'<div class="item{compact}" data-item="{iid}" data-rung="{it.rung}"><div class="q"><span class="n">{n}</span><span class="stem">{stem}</span></div><div class="body">{body}</div></div>'
+
+
+def _straight(
+    sid: str, it: Any, R: dict[str, Response], cells: Callable[..., str], grid: Callable[..., str], big: bool
+) -> tuple[str, str]:
+    """A straight calculation's question and its boxes: in a line ("85 ÷ 4 = □ r □", a remainder's box after "r"
+    where there is one), in columns, or in the division layout (`answer_space.divided`); a division asked in words
+    prints its sentence alone ("How many 6s make 42?")."""
+    sp, rem = it.spec, R.get("rem")
+    tail = f'<span class="eq rem">r</span>{cells(rem, big)}' if rem else ""
+    if it.fmt == "column_grid" and O.sign(sp["op"]) == "÷":
+        layout = answer_space.divided(sid, it.item_id, sp["a"], sp["b"], R["ans"], tail)
+        return "Complete the calculation.", layout + (working(1) if len(str(sp["a"])) >= 3 else "")
+    if it.fmt == "column_grid":
+        rows = sp.get("addends") or [sp["a"], sp["b"]]
+        stem = "Complete the calculation." if not sp.get("_slot", "").startswith("probe") else "Try this one."
+        return stem, grid(sid, it.item_id, rows, sp["op"], R["ans"]) + (
+            working(1) if len(str(rows[0])) >= 3 else ""
+        )
+    sign = f" {op_sign(sp['op'])} "
+    line = sign.join(map(str, sp["addends"])) if sp.get("addends") else f"{sp['a']}{sign}{sp['b']}"
+    # asked in words, the sentence alone; an instruction beside the numbers (a stem) prints them too
+    if sp.get("text"):
+        stem = html.escape(sp["text"])
+    else:
+        stem = (html.escape(it.stem) + "<br>" if it.stem else "") + f'<span class="eq">{line} =</span>'
+    return stem, cells(R["ans"], big) + tail + working(it.working_lines)
 
 
 def _estimate(

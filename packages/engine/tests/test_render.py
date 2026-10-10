@@ -176,6 +176,22 @@ def test_a_batch_shares_one_browser_however_many_papers_it_renders(tmp_path):
     assert sorted(p.name for p in tmp_path.glob("*.pdf")) == ["CS000000.pdf", "CS000001.pdf", "CS000002.pdf"]
 
 
+def test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instruction_its_numbers():
+    """ "How many 6s make 42?" prints the sentence alone, never the ÷ that gives it away; a sum whose sentence is only an
+    instruction ("Add them in the easiest order.") still prints its numbers under it. The one carries its printed
+    sentence (`text`), as a missing number does; the other only a stem."""
+    from engine.assess import verify
+
+    def text(it):
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", _html(it)))
+
+    worded = verify.division(42, 6, "R42", shape="HOW_MANY_GROUPS")
+    assert "How many 6s make 42?" in text(worded) and "÷" not in text(worded)
+    pairs = I.multi_add(__import__("random").Random(3), "R0", "Procedural", xs=[37, 48, 63], layout="horizontal",
+                        shape="FRIENDLY_PAIRS")  # fmt: skip
+    assert "Add them in the easiest order." in text(pairs) and "37 + 48 + 63 =" in text(pairs), text(pairs)
+
+
 @pytest.mark.parametrize("a,b", [(84, 4), (156, 4), (85, 4), (804, 4)])
 def test_a_division_in_the_division_layout_has_its_quotient_above_the_number_divided(a, b):
     """The division layout as the school writes it (D01, 84 ÷ 4): the quotient's boxes on top, one over each digit of

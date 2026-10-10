@@ -5,17 +5,18 @@ when the question as measured (`assess/tags.py`) is that case (`assess/taxonomy.
 level's own bounds — the case rule is the definition, the drawing only has to find members of it.
 
 Plain sums and missing numbers are sampled from their digits here. Every other kind comes from its own
-generator (`bands.NATIVE_GENERATORS`), told what the case is about — a story's shape, a planted mistake, the method
-it is printed by — through the same rule keys a level can set. What a case allows (its kinds, its operation, the
+generator, told what the case is about (`assess/draw_native.py`). What a case allows (its kinds, its operation, the
 digits of its numbers) is read in `assess/draw_case.py`.
 
 The drawing keeps a few defaults a question needs to test anything: no number ending in 0, no two equal
 numbers, no difference under 5, nothing multiplied by 1. A case about exactly that — a zero, a zero answer, an
 answer that shrinks, a round number, × 1 — lifts the default it is about, and only that one.
 
-A multiplication's numbers, and the defaults it keeps, are `assess/draw_times.py`'s. A case that names its method
-is printed that way: in a line, in columns, or in a written method of its own kind (`assess/written_methods.py`); a
-level that lists `methods` prints each case's calculations in every one of them, in fair shares (ADR 0055).
+A multiplication's numbers, and the defaults it keeps, are `assess/draw_times.py`'s; a division's are
+`assess/draw_divide.py`'s, a quotient's box and a remainder's its own (`verify.division`). A case that names its method
+is printed that way: in a line, in columns, in the division layout, or in a written method of its own kind
+(`assess/written_methods.py`); a level that lists `methods` prints each case's calculations in every one of them, in
+fair shares (ADR 0055).
 """
 
 import math
@@ -24,6 +25,8 @@ from typing import Any
 
 from . import bands, tags, taxonomy, verify
 from . import draw_case as K
+from . import draw_divide as DD
+from . import draw_native as N
 from . import draw_sums as S
 from . import draw_times as T
 from . import items as I
@@ -37,17 +40,6 @@ STRAIGHT = (*PLAIN, *WM.KINDS.values())  # every kind a straight calculation is 
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
 SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
-HINTS = (
-    "structure",
-    "shape",
-    "planted",
-    "round_to",
-    "missing_count",
-    "missing_in",
-    "missing_place",
-    "strategy",
-    "method",
-)
 POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
 
 
@@ -82,7 +74,14 @@ def _usable(
     return not (check.get("max_total") and top > check["max_total"])
 
 
-def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
+def _pair(
+    rng: random.Random,
+    alt: dict[str, Any],
+    check: dict[str, Any],
+    op: str,
+    about: set[str],
+    fix: tuple[int, int] | None = None,
+) -> tuple[int, int] | None:
     """Two numbers for this case, or None. `fix` pins one number's digit count (a missing number)."""
     built = S.built(rng, alt)
     if built:
@@ -90,6 +89,8 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     pairs = [p for p in K.pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
     if not pairs:
         return None
+    if op == "÷":  # one of the case's own, listed (`draw_divide.every`): its defaults are kept there
+        return DD.numbers(rng, alt, pairs)
     d1, d2 = rng.choice(pairs)
     zero_ok = "zero_operand" in about
     if op == "×":
@@ -130,6 +131,9 @@ def _set_out(
         or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(check.get("layout") or "")
     )
     column = pres == "VERTICAL" if pres else k % 2 == 0  # half in columns, half in a line
+    if op == "÷":  # in a line or the division layout, or asked in words (a shape: "How many 6s make 42?")
+        shape = alt.get("shape") if isinstance(alt.get("shape"), str) else None
+        return verify.division(a, b, rung, "column" if column else "horizontal", shape)
     if op == "×" and alt.get("operand_order") == "SHORTER_FIRST":
         column = False  # the 1-digit number written first is a line's: in columns it goes below the longer
     elif op == "×" and column and len(str(a)) < len(str(b)):
@@ -220,47 +224,6 @@ def _missing(
     return verify.to_item(cand | {"missing": POSITIONS[where], "misconceptions": []}, rung)
 
 
-def _one_value(rng, v):
-    """A hint the generator can use: one of a list, or a number inside a range (two or more boxes)."""
-    if isinstance(v, list):
-        return rng.choice(v)
-    if isinstance(v, dict):
-        return rng.randint(v.get("gte", 1), v.get("lte", v.get("gte", 1) + 1))
-    return v
-
-
-def _native(
-    rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
-) -> I.Item | None:
-    fmt = rng.choice([f for f in K.fmts(alt) if bands.makes(f, alt)] or K.fmts(alt))
-    hints: dict[str, Any] = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
-    if alt.get("context") == "TABLE_OR_CHART":
-        hints["table"] = True
-    if alt.get("operation"):
-        hints["op"] = K.op(rng, alt, check)
-        if hints["op"] is None:
-            return None  # the case allows neither operation this drawer writes
-    # The numbers' size, from the case as its level narrowed it (`within`), where the level's rule does not
-    # already say: a story or a number line left to its generator's own default wrote 2-digit numbers on a
-    # 1-digit level, and every one was refused by the case it was drawn for.
-    if "digits" not in check and any(
-        k in alt for k in ("operand_1_digits", "operand_2_digits", "digits_max")
-    ):
-        pairs = K.pairs(alt, check, hints.get("op") or "+")
-        if not pairs:
-            return None
-        d1, d2 = rng.choice(pairs)
-        hints["digits"] = [d1, d2]
-        if "hi" not in check:
-            hints["hi"] = 10**d1 - 1 + (10**d2 - 1 if hints.get("op", "+") == "+" else 0)
-    try:
-        return bands.native_item(fmt, {**check, **hints}, rng, rung, "Conceptual")
-    except O.CannotMake:
-        raise  # the case asks this kind for an operation it does not make: no draw can give it, say so
-    except RuntimeError:
-        return None  # numbers that did not fit, drawn again; a rule the kind cannot read is raised, not drawn past
-
-
 def one(rng, match, check, rung, k=0):
     """One candidate for a case, or None when this attempt's numbers are not that case. `k` counts the
     questions kept so far; where the case does not fix the layout, even is in columns, odd in a line."""
@@ -277,7 +240,7 @@ def one(rng, match, check, rung, k=0):
     elif fmts == {"missing_number"}:
         it = _missing(rng, alt, check, rung, k)
     else:
-        it = _native(rng, alt, check, rung, k)
+        it = N.native(rng, alt, check, rung, k)
     return it if it is not None and taxonomy.matches(match, it.fmt, tags.derive(it)) else None
 
 
@@ -295,20 +258,30 @@ def _some(
     return out if len(out) == want else out + _rest(match, check, rung, want - len(out), seen)
 
 
+def _every(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]]:
+    """Every pair a straight × or ÷ case can be (`draw_times.every`, `draw_divide.every`); none past what can be
+    listed."""
+    if op == "÷":
+        return DD.every(alt, K.pairs(alt, check, op))
+    about = taxonomy.keys(alt)
+    ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, op)]
+    pairs = [] if None in ranges else [p for r in ranges if r for p in r]
+    return [(a, b) for a, b in pairs if _usable(op, a, b, about, check, alt)]
+
+
 def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str]) -> list[I.Item]:
-    """What a × case still holds when its draws run dry, read from every pair it can be (`draw_times.every`): dry is
-    then a fact, not 2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
+    """What a × or ÷ case still holds when its draws run dry, read from every pair it can be: dry is then a fact, not
+    2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
     out: list[I.Item] = []
     for alt in [
-        x for x in K.alternatives(match) if x.get("operation") == "MUL" and set(K.fmts(x)) <= set(STRAIGHT)
+        x
+        for x in K.alternatives(match)
+        if x.get("operation") in ("MUL", "DIV") and set(K.fmts(x)) <= set(STRAIGHT)
     ]:
-        about = taxonomy.keys(alt)
-        ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, "×")]
-        pairs = [] if None in ranges else [p for r in ranges if r for p in r]
-        for a, b, k in [(a, b, k) for a, b in pairs if _usable("×", a, b, about, check, alt) for k in (0, 1)]:
-            it = _set_out(
-                alt, check, rung, k, "×", a, b
-            )  # both layouts: a level that does not fix one prints either
+        op = K.OPS[alt["operation"]]
+        for a, b, k in [(a, b, k) for a, b in _every(alt, check, op) for k in (0, 1)]:
+            # both layouts: a level that does not fix one prints either
+            it = _set_out(alt, check, rung, k, op, a, b)
             if it.item_id not in seen and taxonomy.matches(match, it.fmt, tags.derive(it)):
                 seen.add(it.item_id)
                 out.append(it)

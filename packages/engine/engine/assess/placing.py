@@ -13,7 +13,7 @@ from engine.assess import taxonomy, verify
 # a straight calculation, placed by its numbers: in a line, in columns or in a written method (ADR 0055)
 from engine.assess.draw import STRAIGHT as CALCULATION
 
-OPERATIONS = ("+", "-", "×")  # the ones the skills place; ÷ waits for its own skills (BUILD-ORDER M3)
+OPERATIONS = ("+", "-", "×", "÷")  # the ones the skills place
 STRAIGHT = ("Hard", "Medium", "Easy")  # hardest first: a carry onto a zero is Hard even if it is one carry
 
 

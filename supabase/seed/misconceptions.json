@@ -985,6 +985,156 @@
       "detectable_by": "answer_lookup",
       "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
       "external_ref": null
+    },
+    {
+      "code": "M_DIV_QUOTIENT_ZERO_DROPPED",
+      "op": "÷",
+      "name": "Leaves the zero out of the quotient",
+      "description": "Drops a zero the quotient needs: 804 ÷ 4 written as 21.",
+      "repair_hint": "Write a digit of the quotient over every digit divided: a 0 where a digit does not divide",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_EXCHANGE_LOST",
+      "op": "÷",
+      "name": "Divides each digit alone; the remainder is never exchanged",
+      "description": "Divides each digit by itself and drops what is left over: 72 ÷ 4 written as 10.",
+      "repair_hint": "Exchange what is left over into the next digit: 3 tens left are 30 ones",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_REMAINDER_ADDED",
+      "op": "÷",
+      "name": "Adds the remainder to the next digit instead of making it tens",
+      "description": "The 3 left after the tens added to the 2 as 5, not exchanged as 32: 72 ÷ 4 written as 11 r 1.",
+      "repair_hint": "A remainder of 3 tens is 30 ones: put it in front of the next digit",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_LEAD_DROPPED",
+      "op": "÷",
+      "name": "Skips a first digit smaller than the divisor",
+      "description": "Leaves out a first digit too small to divide and works the rest: 156 ÷ 4 written as 14.",
+      "repair_hint": "When the first digit is too small, take the first two digits together",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_BRING_DOWN_MISSED",
+      "op": "÷",
+      "name": "Stops before bringing down the last digit",
+      "description": "Never brings down the last digit: 516 ÷ 4 written as 12 r 3.",
+      "repair_hint": "Check that every digit of the number divided has a digit of the quotient above it",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_REMAINDER_TOO_BIG",
+      "op": "÷",
+      "name": "Stops one group short: the remainder is not less than the divisor",
+      "description": "Leaves a remainder another group still fits into: 85 ÷ 4 written as 20 r 5.",
+      "repair_hint": "Is the remainder smaller than the divisor? If not, one more group fits",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_REMAINDER_AS_DIGIT",
+      "op": "÷",
+      "name": "Writes the remainder as the quotient's next digit",
+      "description": "Joins the remainder to the quotient: 85 ÷ 4 written as 211.",
+      "repair_hint": "Write the remainder after r, apart from the quotient",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_SWAPPED",
+      "op": "÷",
+      "name": "Writes the quotient and the remainder the wrong way round",
+      "description": "Three groups of 5 and 2 left over, written the other way: 17 ÷ 5 written as 2 r 3.",
+      "repair_hint": "Say it aloud: how many groups, and how many left over",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_BIGGER_BY_SMALLER",
+      "op": "÷",
+      "name": "Divides the bigger number by the smaller, whichever comes first",
+      "description": "Works the division the other way round: 3 ÷ 5 written as 1 r 2.",
+      "repair_hint": "The first number is the one shared out: 3 shared among 5 is 0 each and 3 left over",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_SELF_AS_ZERO",
+      "op": "÷",
+      "name": "Treats a number divided by itself as nothing left",
+      "description": "Answers 0 when a number is divided by itself: 7 ÷ 7 written as 0.",
+      "repair_hint": "How many 7s are in 7? One",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_ZERO_DIVIDED",
+      "op": "÷",
+      "name": "Answers the divisor when zero is divided",
+      "description": "Answers the divisor when there is nothing to share: 0 ÷ 5 written as 5.",
+      "repair_hint": "Nothing shared among 5 is nothing each",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_TENS_ZERO_LEFT",
+      "op": "÷",
+      "name": "Takes away one zero fewer when dividing by 10, 100 or 1000",
+      "description": "Moves the digits one place too few: 4500 ÷ 100 written as 450.",
+      "repair_hint": "Each zero of the divisor moves the digits one place to the right",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_TENS_ZERO_EXTRA",
+      "op": "÷",
+      "name": "Uses a zero for the fact, then writes every zero back",
+      "description": "The fact took one of the zeros (20 ÷ 4 = 5), and both were written back: 200 ÷ 4 written as 500.",
+      "repair_hint": "If the fact used a zero, that zero is gone: 20 ÷ 4 = 5, so 200 ÷ 4 = 50",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_WRONG_OP",
+      "op": "÷",
+      "name": "Multiplied instead of dividing",
+      "description": "Writes the product where the quotient was asked: 84 ÷ 4 written as 336.",
+      "repair_hint": "Read the question aloud; identify the operation word",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_SUBTRACTED",
+      "op": "÷",
+      "name": "Takes the divisor away once",
+      "description": "Subtracts the divisor once instead of finding how many times it fits: 84 ÷ 4 written as 80.",
+      "repair_hint": "Division asks how many 4s fit, not what is left after taking one 4 away",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
+      "external_ref": null
     }
   ]
 }

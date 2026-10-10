@@ -8,6 +8,9 @@ Seeded from Neha S's teacher-authored list (Maths planning.docx, Aug 2026) and
 the arithmetic itself. Codes are the shared vocabulary for the `misconceptions` tab.
 """
 
+from collections.abc import Callable
+
+from engine.assess import div_mistakes as DM  # division's own, a quotient and a remainder (goals/md3a-…)
 from engine.assess.mul_mistakes import PREDICTORS as MUL_PREDICTORS  # multiplication's own (goals/md2a-…)
 from engine.assess.operations import compute, digits, from_digits, sign  # what an operation is has one owner
 
@@ -309,7 +312,12 @@ ANSWER_RULES = {
 
 # fmt: on
 
-TABLES = {"+": ADD_PREDICTORS, "-": SUB_PREDICTORS, "×": MUL_PREDICTORS}
+# (predictor, name, repair) by code, for each operation that has a table
+TABLES: dict[str, dict[str, tuple[Callable[..., int | None], str, str]]] = {
+    "+": ADD_PREDICTORS,
+    "-": SUB_PREDICTORS,
+    "×": MUL_PREDICTORS,
+}
 
 # Every code a predictor computes, in one place. A caller that re-types this union is one
 # table away from a silent gap — which is how multiplication came to have none.
@@ -338,9 +346,11 @@ def predict_sign(answer):
 
 
 def predict(op: str, a: int, b: int) -> dict[str, int]:
-    """Return {code: wrong_answer} for every misconception that can occur on these operands.
-    An operation with no predictor table yet (division) returns {} — the verifier then
-    accepts a model's claims for it unchecked, by design (ADR 0005)."""
+    """Return {code: wrong_answer} for every misconception that can occur on these operands. A division has one
+    answer only when it is exact: its quotient's box (`div_mistakes.in_box`); one with a remainder has two, and none
+    here (`division.boxes` keys both)."""
+    if (sign(op) or op) == "÷":
+        return DM.in_box(a, b, 0) if b > 0 and a >= 0 and not a % b else {}
     table = TABLES.get(sign(op) or op)
     if not table:
         return {}

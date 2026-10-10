@@ -42,7 +42,7 @@ def _judged(shape: str, a: int, b: int) -> tuple[int, int, int]:
 def rounded(spec: dict[str, Any]) -> tuple[int, int]:
     """The two numbers a printed estimate shows, as its question rounds them: both to the nearest `round_to`, or what
     a × estimate's `shape` rounds (the larger number, both, or neither where it asks the digits). The one rule
-    `verify.key_problems` holds a stored estimate to."""
+    `stale.key_problems` holds a stored estimate to."""
     if O.sign(spec.get("op")) == "×" and spec.get("shape") in TIMES:
         _, ra, rb = _judged(spec["shape"], spec["a"], spec["b"])
         return ra, rb

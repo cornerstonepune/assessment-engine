@@ -8,6 +8,8 @@ from the code that made the question."""
 import json
 import pathlib
 
+import pytest
+
 from engine.assess import div_mistakes as DM
 from engine.assess import verify
 
@@ -63,21 +65,32 @@ def _remainder_added(a, b):
     return int(q), r
 
 
-# Where each mistake can be made: a zero in the quotient, a digit whose remainder moves on, a first digit smaller than
-# the divisor, more than one digit, a remainder, a number divided smaller than its divisor, ÷ itself, 0 divided, ÷ 10,
-# 100 or 1000, a round number by one digit; the two the operation itself invites, always.
-def _can(code, a, b):
-    q, r = divmod(a, b)
+def _steps(a, b):
+    """The remainder each digit passes on, short division from the left."""
     steps, rem = [], 0
     for x in _digits(a):
         rem = (rem * 10 + x) % b
         steps.append(rem)
+    return steps
+
+
+# Where each mistake can be made: a zero in the quotient, a digit whose remainder moves on, a first digit smaller than
+# the divisor, more than one digit, a remainder, a number divided smaller than its divisor, ÷ itself, 0 divided, ÷ 10,
+# 100 or 1000, a round number by one digit; the two the operation itself invites, always. Not where a more particular
+# mistake is the same act on these numbers: an exchange lost that is only the first digit's, smaller than the divisor,
+# is that digit skipped (17 ÷ 5 → 1 r 2); stopping before the last digit of an exact division whose only zero ends the
+# quotient is that zero left out (840 ÷ 4 → 21); a number taken from itself is ÷ itself read as nothing left.
+def _can(code, a, b):
+    q, r = divmod(a, b)
+    steps = _steps(a, b)
+    only_the_first = _digits(a)[0] < b and not any(_steps(int(str(a)[1:] or 0), b)[:-1])
+    zero_last = r == 0 and q % 10 == 0 and "0" not in str(q // 10)
     return {
         "M_DIV_QUOTIENT_ZERO_DROPPED": "0" in str(q) and q >= 10,
-        "M_DIV_EXCHANGE_LOST": len(str(a)) >= 2 and any(steps[:-1]) and b < 10,
+        "M_DIV_EXCHANGE_LOST": len(str(a)) >= 2 and any(steps[:-1]) and b < 10 and not only_the_first,
         "M_DIV_REMAINDER_ADDED": len(str(a)) >= 2 and any(steps[:-1]) and b < 10,
         "M_DIV_LEAD_DROPPED": len(str(a)) >= 2 and _digits(a)[0] < b < 10,
-        "M_DIV_BRING_DOWN_MISSED": len(str(a)) >= 2 and q >= 10 and b < 10,
+        "M_DIV_BRING_DOWN_MISSED": len(str(a)) >= 2 and q >= 10 and b < 10 and not zero_last,
         "M_DIV_REMAINDER_TOO_BIG": r > 0 and q >= 1,
         "M_DIV_REMAINDER_AS_DIGIT": r > 0,
         "M_DIV_SWAPPED": r > 0,
@@ -87,7 +100,7 @@ def _can(code, a, b):
         "M_DIV_TENS_ZERO_LEFT": b in (10, 100, 1000) and r == 0,
         "M_DIV_TENS_ZERO_EXTRA": b < 10 and _tz(a) >= 1 and r == 0 and a // 10 ** _tz(a) < b,
         "M_WRONG_OP": b > 1,
-        "M_DIV_SUBTRACTED": b > 0 and a >= b,
+        "M_DIV_SUBTRACTED": b > 0 and a > b,
     }[code]
 
 
@@ -124,7 +137,8 @@ def _sample():
 def test_every_division_mistake_a_calculation_shows_is_predicted():
     """The fourteen the document names for a division a child works, and × in place of ÷: each predicted at its own
     example's wrong answer, and across every division a straight level prints, wherever it can be made and changes the
-    answer, at the value worked here by hand. A story's mistake (a remainder not rounded up) is a story's (M3b)."""
+    answer, at the value worked here by hand: every one, so two that meet by chance on one answer are both named, as
+    marking names every match. A story's mistake (a remainder not rounded up) is a story's (M3b)."""
     assert set(BY_HAND) == set(EXAMPLES)
     for code, (a, b, wrong) in EXAMPLES.items():
         assert BY_HAND[code](a, b) == wrong, code  # the hand-worked rule is the document's own
@@ -132,20 +146,26 @@ def test_every_division_mistake_a_calculation_shows_is_predicted():
     for a, b in _sample():
         right = divmod(a, b)
         got = DM.predict(a, b)
+        # wrong where its quotient differs, or a remainder it writes does: 0 × 5 written for 0 ÷ 5 is 0, and right
         want = {
-            c: f(a, b) for c, f in BY_HAND.items() if _can(c, a, b) and f(a, b) != right and f(a, b)[0] >= 0
+            c: f(a, b)
+            for c, f in BY_HAND.items()
+            if _can(c, a, b)
+            and f(a, b)[0] >= 0
+            and (f(a, b)[0] != right[0] or f(a, b)[1] not in (None, right[1]))
         }
-        assert set(got) <= set(want), (a, b, sorted(set(got) - set(want)))
-        for code, value in got.items():
-            assert value == want[code], (code, a, b, value, want[code])
-        # every wrong answer a child making one of them writes is named, once where two acts write the same
-        assert set(want.values()) == set(got.values()), (a, b, set(want.values()) - set(got.values()))
+        assert got == want, (
+            a,
+            b,
+            {c: (got.get(c), want.get(c)) for c in got.keys() | want.keys() if got.get(c) != want.get(c)},
+        )
 
 
 def test_a_mistake_is_named_in_the_box_it_shows_in():
     """85 ÷ 4 answered 20 r 5 shows the remainder too big in both boxes; 17 ÷ 5 answered 2 r 3, the two swapped, in both;
     804 ÷ 4 answered 21, its zero left out, in the quotient's only, since it has no remainder; 813 ÷ 4 answered 23 r 1
-    names the zero in the quotient's box and leaves the right remainder unnamed. One wrong value names one mistake."""
+    names the zero in the quotient's box and leaves the right remainder unnamed. A box is marked by itself, so it names
+    every mistake that writes its value there: 17 ÷ 5's quotient written 2 is the two swapped or one group short."""
     boxes = {r.rid: r for r in verify.division(85, 4, "R44").responses}
     assert (boxes["ans"].answer, boxes["rem"].answer) == ("21", "1")
     assert boxes["ans"].misconceptions["M_DIV_REMAINDER_TOO_BIG"] == 20
@@ -161,10 +181,45 @@ def test_a_mistake_is_named_in_the_box_it_shows_in():
     zero = {r.rid: r for r in verify.division(813, 4, "R45").responses}
     assert zero["ans"].misconceptions["M_DIV_QUOTIENT_ZERO_DROPPED"] == 23
     assert "M_DIV_QUOTIENT_ZERO_DROPPED" not in zero["rem"].misconceptions
+    assert swapped["ans"].misconceptions["M_DIV_REMAINDER_TOO_BIG"] == 2
     for a, b in _sample()[::37]:
-        for r in verify.division(a, b, "R44").responses:
-            values = list(r.misconceptions.values())
-            assert len(values) == len(set(values)), (a, b, r.rid, r.misconceptions)
+        q, r = divmod(a, b)
+        for box in verify.division(a, b, "R44").responses:
+            i, right = (0, q) if box.rid == "ans" else (1, r)
+            want = {c: v[i] for c, v in BY_HAND_ALL(a, b).items() if v[i] is not None and v[i] != right}
+            assert box.misconceptions == want, (a, b, box.rid)
+
+
+def BY_HAND_ALL(a, b):  # noqa: N802  every mistake that can be made on a ÷ b and changes its answer, worked by hand
+    right = divmod(a, b)
+    return {
+        c: f(a, b)
+        for c, f in BY_HAND.items()
+        if _can(c, a, b)
+        and f(a, b)[0] >= 0
+        and (f(a, b)[0] != right[0] or f(a, b)[1] not in (None, right[1]))
+    }
+
+
+@pytest.mark.parametrize(
+    "a, b, named, not_named",
+    [
+        (
+            17,
+            5,
+            "M_DIV_LEAD_DROPPED",
+            "M_DIV_EXCHANGE_LOST",
+        ),  # the only exchange is the 1's: skipping it is losing it
+        (840, 4, "M_DIV_QUOTIENT_ZERO_DROPPED", "M_DIV_BRING_DOWN_MISSED"),  # the last step is the zero
+        (7, 7, "M_DIV_SELF_AS_ZERO", "M_DIV_SUBTRACTED"),  # 7 taken from 7 is 7 ÷ 7 read as nothing left
+    ],
+)
+def test_one_wrong_answer_names_one_mistake_where_two_would_be_the_same_act(a, b, named, not_named):
+    """Two mistakes that write one answer on every such question, by what they are, name the more particular one, as
+    multiplication's do; two that meet by chance are both named (7 ÷ 3 written 21: the remainder as a digit, or ×)."""
+    got = DM.predict(a, b)
+    assert named in got and not_named not in got, got
+    assert {"M_DIV_REMAINDER_AS_DIGIT", "M_WRONG_OP"} <= set(DM.predict(7, 3))
 
 
 def test_every_division_mistake_is_a_row_and_on_the_lists_of_the_skills_that_show_it():

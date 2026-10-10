@@ -154,6 +154,19 @@ def test_matches_reads_lists_ranges_and_alternatives():
     assert not taxonomy.matches({"regroup_at": "ONES"}, "bare_sum", t)  # a tag it does not carry fails
 
 
+def test_a_case_narrowing_a_list_its_skill_allows_keeps_the_values_both_allow():
+    """DR10's ÷ 10, 100 or 1000 inside DIV.TENS's six kinds of place value is ÷ 10, 100 or 1000 (goals/md3a): two lists
+    keep the values both allow, and refuse only when they share none."""
+    kinds = ["X10", "X100", "X1000", "MULTIPLE_OF_TEN_ONE", "MULTIPLE_OF_HUNDRED_ONE", "MULTIPLE_OF_TEN_BOTH"]
+    got = taxonomy.within({"place_value_factor": ["X10", "X100", "X1000"]}, {"place_value_factor": kinds})
+    assert got["place_value_factor"] == ["X10", "X100", "X1000"]
+    assert taxonomy.within({"remainder": ["SOME", "LARGEST"]}, {"remainder": ["NONE", "SOME"]})[
+        "remainder"
+    ] == ["SOME"]
+    with pytest.raises(ValueError):
+        taxonomy.within({"remainder": ["SOME", "LARGEST"]}, {"remainder": ["NONE"]})
+
+
 def test_a_case_within_a_skills_shape_holds_only_questions_of_that_shape():
     """A skill is one operation and one digit shape (goals/s13-levels-by-taxonomy.yaml): a case that does not
     fix the digits — a story, a forgotten carry — is that case *on this skill's numbers* inside the skill."""

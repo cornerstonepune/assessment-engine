@@ -11160,7 +11160,6 @@
           "LONG_DIVISION"
         ],
         "operation": "DIV",
-        "operand_1_digits": 2,
         "operand_2_digits": 2,
         "answer_digits": 1
       }
@@ -11226,7 +11225,8 @@
           "LONG_DIVISION"
         ],
         "operation": "DIV",
-        "place_value_factor": "X100"
+        "place_value_factor": "X100",
+        "remainder": "NONE"
       }
     },
     {
@@ -11257,7 +11257,8 @@
           "LONG_DIVISION"
         ],
         "operation": "DIV",
-        "place_value_factor": "X1000"
+        "place_value_factor": "X1000",
+        "remainder": "NONE"
       }
     },
     {
@@ -11290,7 +11291,8 @@
         "operation": "DIV",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
         "scaled_fact": "YES",
-        "fact_zero": "NO"
+        "fact_zero": "NO",
+        "operand_2_digits": 1
       }
     },
     {
@@ -11384,7 +11386,8 @@
         ],
         "operation": "DIV",
         "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE",
-        "fact_zero": "NO"
+        "fact_zero": "NO",
+        "operand_2_digits": 1
       }
     },
     {
@@ -11976,7 +11979,10 @@
         "operand_1_digits": 3,
         "operand_2_digits": 1,
         "quotient_zero": "MIDDLE",
-        "zero_pattern": "ANSWER_ZERO"
+        "zero_pattern": [
+          "ANSWER_ZERO",
+          "TRAILING"
+        ]
       }
     },
     {
@@ -12142,7 +12148,6 @@
           "LONG_DIVISION"
         ],
         "operation": "DIV",
-        "operand_1_digits": 2,
         "operand_2_digits": 1,
         "answer_digits": 1,
         "remainder": "SOME"
@@ -12426,7 +12431,7 @@
       "taxonomy": "MUL_DIV",
       "section": "7",
       "section_name": "Remainders",
-      "label": "÷10 with a remainder",
+      "label": "÷10, 100 or 1000 with a remainder",
       "example_text": "457 ÷ 10",
       "example": {
         "fmt": "column_grid",
@@ -12449,7 +12454,11 @@
           "LONG_DIVISION"
         ],
         "operation": "DIV",
-        "place_value_factor": "X10",
+        "place_value_factor": [
+          "X10",
+          "X100",
+          "X1000"
+        ],
         "remainder": [
           "SOME",
           "LARGEST"

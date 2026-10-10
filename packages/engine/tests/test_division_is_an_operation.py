@@ -10,7 +10,7 @@ import random
 
 import pytest
 
-from engine.assess import bands, draw, equation, verify
+from engine.assess import bands, draw_native, equation, verify
 from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
@@ -35,9 +35,13 @@ def test_division_is_computed_exactly_and_a_remainder_is_its_own_answer():
         O.divide(5, 0)
     assert O.chain("÷", [100, 5, 2]) == 10 and O.chain("-", [8000, 25, 40]) == 7935
     assert M.compute is O.compute, "one owner of what an operation computes"
-    # it has no named mistakes yet (M3 names them): asking gives none, never a crash
-    assert M.predict("÷", 84, 4) == {} and M.predict("÷", 85, 4) == {}
-    assert M.applicable([("÷", 84, 4), ("+", 47, 28)]) == M.applicable([("+", 47, 28)])
+    # an exact division's one answer is its quotient's box, keyed by the mistakes M3 names (worked by hand: stopped
+    # before the 4, 8 ÷ 4; 4 taken away once; × in place of ÷); one with two answers gives none here, never a crash
+    assert M.predict("÷", 84, 4) == {"M_DIV_BRING_DOWN_MISSED": 2, "M_DIV_SUBTRACTED": 80, "M_WRONG_OP": 336}
+    assert M.predict("÷", 85, 4) == {}
+    assert M.applicable([("÷", 84, 4), ("+", 47, 28)]) == sorted(
+        {*M.applicable([("+", 47, 28)]), "M_DIV_BRING_DOWN_MISSED", "M_DIV_SUBTRACTED", "M_WRONG_OP"}
+    )
 
 
 def test_every_way_division_is_written_is_one_operation():
@@ -198,7 +202,7 @@ def test_a_refusal_is_heard_wherever_a_kind_is_asked():
     with pytest.raises(O.CannotMake, match="find_mistake"):
         bands.codes({"format": "find_mistake", "op": "÷"})
     with pytest.raises(O.CannotMake, match="find_mistake"):
-        draw._native(random.Random(1), {"fmt": "find_mistake"}, {"op": "÷", "digits": [2]}, "R1", 0)
+        draw_native.native(random.Random(1), {"fmt": "find_mistake"}, {"op": "÷", "digits": [2]}, "R1", 0)
     # a rule may list the operations a level mixes; that list is not one operation, and is drawn from, not read as one
     assert O.sign(["+", "-"]) is None and O.sign(5) is None
     assert bands.NATIVE_GENERATORS["word_1step"](

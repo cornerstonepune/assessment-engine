@@ -1396,7 +1396,7 @@
  {
   "code": "DR10",
   "section": 7,
-  "label": "÷10 with a remainder",
+  "label": "÷10, 100 or 1000 with a remainder",
   "example": "457 ÷ 10",
   "answer": "45 r 7",
   "op": "÷",
