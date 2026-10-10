@@ -8,8 +8,9 @@ goal: >
   key a story alike. Every story already stored is keyed again, once, by `engine bank rekey`, which update-live runs
   before anything reads a story's shape: no question's words, numbers or answer change; the reviews and gold findings
   that name a story follow it, and a key it had still leads to it (a proposal in its append-only ledger, a gold file, a
-  bookmarked page); a rewording keeps its own key and takes its story's shape, so a relabel no longer loses it and the
-  refill no longer retires it; a retired story stays retired under its new key; and a second run changes nothing.
+  bookmarked page, a copy printed before, whose boxes it still reads); a rewording keeps its own key and takes its
+  story's shape, so a relabel no longer loses it and the refill no longer retires it; a retired story stays retired
+  under its new key; and a second run changes nothing. The rehearsal on a copy of live runs what update-live runs.
 # Written 2026-10-10, before the code: slice AS2 of BUILD-ORDER "Inserted now: multiplication and division", the
 # rejected option of ADR 0011, its trigger met. Measured first (STATE.md "AS2 — measured before the build"): filled
 # whole as a scenario fills it, three seeds each, SUB.1D1D's Advance holds W11, W02 and W03 0 times and ADD.1D1D's
@@ -29,6 +30,12 @@ says:
     proved_by: packages/engine/tests/test_story_keys.py::test_bank_recheck_still_rebuilds_a_story_and_names_one_changed_by_hand
   - words: "same process"
     proved_by: packages/engine/tests/test_library.py::test_a_patched_worksheet_takes_each_kind_in_its_fair_share
+  - words: "a good test as to how our flow works"
+    proved_by: packages/engine/tests/test_copies.py::test_a_copy_printed_before_a_story_was_keyed_again_reads_its_boxes_by_the_key_it_has_now
+  - words: "same process"
+    proved_by: packages/engine/tests/test_story_keys.py::test_a_question_whose_key_never_changed_can_be_deleted_and_one_whose_key_did_cannot
+  - words: "same process"
+    proved_by: packages/engine/tests/test_update_live.py::test_the_rehearsal_runs_what_update_live_runs_in_its_order
   - words: "same process"
     proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
 manual:
@@ -49,7 +56,7 @@ scenarios:
     cases: [A02, A04, M01, M02, W01, W07, W10, W06, K02]
 criteria:
   - name: stories keyed by their shape, filled whole, stored ones keyed again; the kinds, levels, bank and taxonomy they touch
-    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_story_keys.py tests/test_every_listed_case.py tests/test_verify.py tests/test_question.py tests/test_rehome.py tests/test_bank.py tests/test_every_skill.py tests/test_new_kinds.py tests/test_taxonomy.py tests/test_md_cases.py tests/test_mul_advance.py tests/test_library.py tests/test_items.py tests/test_goal.py
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_story_keys.py tests/test_update_live.py tests/test_copies.py tests/test_every_listed_case.py tests/test_verify.py tests/test_question.py tests/test_rehome.py tests/test_bank.py tests/test_every_skill.py tests/test_new_kinds.py tests/test_taxonomy.py tests/test_md_cases.py tests/test_mul_advance.py tests/test_library.py tests/test_items.py tests/test_goal.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

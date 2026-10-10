@@ -5177,3 +5177,21 @@ Each 1-digit Advance level filled whole, as `bank refill` fills it and a scenari
   then key, all one kind (5 column sums where the fair share is 1.8); the patch failed its fairness check and all 19
   worksheets were retired and dealt again. CI's bank put that story on another worksheet, so CI passed. The filler
   now takes each kind to its fair share (`library._filler`); replayed, 18 worksheets kept and 1 made.
+- **CI on `2cd814c`: the browser suite, 152 passed, 4 failed, all one cause.** `item_key_change` named its question
+  `on delete cascade`, and its append-only trigger fires for each statement: every `delete from item`, which two browser
+  tests run to put their rows away, cascaded a DELETE into the ledger and was refused even with no row to remove. The
+  e2e rewording test's clean-up stopped half-way, its reworded question stayed active with no worksheet, and the bank
+  page lists the newest first, so both question-bank tests then found a first row with no worksheet link. The reference
+  now has no cascade (migration `20261030090000`, never applied to live): a question whose key never changed is deleted
+  as before, and one whose key did is kept, as its ledger row is.
+- **The rehearsal on a copy of live passed without running `bank rekey`.** It keeps its own list of update-live's steps,
+  and the new one was not in it. A test now holds the rehearsal to every command update-live runs, in its order
+  (`test_update_live.py`, failing first on the old list).
+- **A copy printed before a story was keyed again would not have read its boxes.** A worksheet's key file names each box
+  by its question's key as printed (ADR 0050 rejected changing a stored key in place for this), and the reader matched
+  boxes to the question's key now. `copies.paper` reads the key file through `current_item_key`; a test rewrites a
+  rendered worksheet's key file to name a story by its old key and reads every box by the key it has now.
+- **The rehearsal of `2cd814c` on a copy of live** (without `bank rekey`): 13 skill sets wait for approval (as AS1's);
+  `bank rehome` moves 606 and retires 258 stories whose shape no template names, as on every rehearsal since M2a (ADR
+  0050: `MUL.1D`'s); refill retires 541 and adds 4,561; 3,388 worksheets, 124 of 124 levels ready, 0 problems; every
+  after-check ok. Live holds 20 one-step stories with no shape, the model-written ones (the rehearsal's own listing).

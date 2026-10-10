@@ -35,10 +35,14 @@ Building it found two more:
    step 5, before `bank relabel` reads a story's shape. It finds a story's template from its words (`template_of`),
    changes no word, number or answer, and writes each change as a row of `item_key_change` (append-only).
 4. **A key a question had still leads to it.** One rule, `current_item_key()` in SQL, follows `item_key_change`; every
-   reader of a key that may be old uses it: `question._row` (the question page's engine side, a person's rewording or
-   removal, a proposal decided), `inventory.flag`, the website's question page, a gold file loaded. A row that may be
-   changed follows its question in place (`item_review.ref`, `gold_finding.item_key`); a row in an append-only ledger
-   never does (`bank_proposal.subject`), and is read through the rule — the "already proposed" check included.
+   reader of a key that may be old uses it: a printed copy's key file, whose boxes the reader finds by key
+   (`copies.paper`), `question._row` (the question page's engine side, a person's rewording or removal, a proposal
+   decided), `inventory.flag`, the website's question page, a gold file loaded. A row that may be changed follows its
+   question in place (`item_review.ref`, `gold_finding.item_key`); a row in an append-only ledger never does
+   (`bank_proposal.subject`), and is read through the rule — the "already proposed" check included. ADR 0050 rejected
+   changing a stored key in place because "a printed paper would no longer read as it did"; through this rule it does.
+   `item_key_change` names its question with no cascade: a cascade from a deleted question is a DELETE on the ledger,
+   which its trigger refuses even with no row to remove, and a question whose key changed is never deleted.
 5. **A rewording keeps its own key** (its words are part of it, `question.correct`) and takes the shape of the story it
    rewords, followed back through `corrected_from`; it copies its story's spec from then on, so its shape travels
    with it.
@@ -68,3 +72,5 @@ Building it found two more:
   its question.
 - `bank recheck` rebuilds a one-step story with its shape (its spec's `structure` is one `to_item` makes), so every
   one-step story stays inside the audit.
+- The rehearsal on a copy of live runs every command update-live runs, in its order, held by a test
+  (`test_update_live.py`): the two lists had drifted, and the first rehearsal of this slice passed without `bank rekey`.

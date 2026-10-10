@@ -11,6 +11,7 @@ import pathlib
 import random
 from collections import Counter, defaultdict
 
+import psycopg
 import pytest
 
 from engine.assess import draw, items, tags, taxonomy, verify
@@ -300,3 +301,20 @@ def test_bank_recheck_still_rebuilds_a_story_and_names_one_changed_by_hand(conn)
         (it.item_id,),
     )
     assert it.item_id in inventory.recheck(conn)
+
+
+def test_a_question_whose_key_never_changed_can_be_deleted_and_one_whose_key_did_cannot(conn):
+    """The key-change ledger is append-only, and must not make every question undeletable: a cascade from a deleted
+    question into it is a DELETE the ledger refuses even with no row to remove, and the browser tests' clean-up failed
+    on it (CI on 2cd814c). A question whose key changed stays, as the ledger that names it does."""
+    rng = random.Random(21)
+    make = lambda: W.word_1step(rng, RUNG, "Application", 2, structure="PPW_WHOLE")  # noqa: E731
+    _, was = _fresh(conn, make)
+    keyed_again = _stored(conn, was)
+    never, _ = _fresh(conn, make)
+    plain = _stored(conn, never)
+    story_keys.rekey(conn)
+    assert conn.execute("select 1 from item_key_change where item_id = %s", (keyed_again,)).fetchone()
+    conn.execute("delete from item where id = %s", (plain,))
+    with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
+        conn.execute("delete from item where id = %s", (keyed_again,))

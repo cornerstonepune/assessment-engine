@@ -5,7 +5,9 @@
 create table item_key_change (
   id          uuid primary key default gen_random_uuid(),
   tenant_id   uuid not null references tenant(id) on delete cascade,
-  item_id     uuid not null references item(id) on delete cascade,
+  -- no cascade: a cascade from a deleted question is a DELETE on this ledger, which its trigger refuses even with no
+  -- row to remove; a question whose key changed stays, as the row that names it does
+  item_id     uuid not null references item(id),
   old_key     text not null,
   new_key     text not null,
   why         text not null,

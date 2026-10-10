@@ -70,13 +70,26 @@ def _geometry(pdf) -> list:
     return json.loads(key.read_text(encoding="utf-8")).get("geometry", [])
 
 
-def _pages_in_key(pdf) -> dict:
+def _pages_in_key(pdf, geometry=None) -> dict:
     """{item_key: the page its answer boxes print on}, from the key the renderer wrote beside the PDF — the page
-    as it was drawn, not as it is read back."""
+    as it was drawn, not as it is read back. `geometry`: that key's boxes, already read (`_named_now`)."""
     pages = {}
-    for cell in _geometry(pdf):
+    for cell in _geometry(pdf) if geometry is None else geometry:
         pages[cell["item"]] = min(pages.get(cell["item"], cell["page"]), cell["page"])
     return pages
+
+
+def _named_now(conn, geometry) -> list:
+    """Each box named by its question's key now. A copy printed before a story was keyed again names the key it had
+    (`bank rekey`, ADR 0053), and `current_item_key` leads that to the question, so the copy reads as it did."""
+    keys = sorted({cell["item"] for cell in geometry})
+    now = {
+        r["k"]: r["now"]
+        for r in conn.execute(
+            "select k, public.current_item_key(k) as now from unnest(%s::text[]) k", (keys,)
+        )
+    }
+    return [{**cell, "item": now.get(cell["item"], cell["item"])} for cell in geometry]
 
 
 def _words(it) -> str:
@@ -122,14 +135,15 @@ def paper(conn, code, pdf=None):
     pdf = pdf or library.pdf(conn, code)
     words, band = printed(pdf)
     band = band or NAME_BAND  # question 1 not found: still never show the reader the name
-    drawn = _pages_in_key(pdf)
+    geometry = _named_now(conn, _geometry(pdf))
+    drawn = _pages_in_key(pdf, geometry)
     rows = {
         r["id"]: r
         for r in conn.execute(
             "select id, item_key, fmt, stem, spec, responses from item where id = any(%s)", (t["item_ids"],)
         )
     }
-    by_key, unread, geometry = {}, [], _geometry(pdf)
+    by_key, unread = {}, []
     for n, iid in enumerate(t["item_ids"], 1):
         found_page, text = words.get(n, (None, ""))
         slots = _slots(n, rows[iid], drawn.get(rows[iid]["item_key"], found_page), text, bool(geometry))

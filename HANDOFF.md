@@ -14,9 +14,13 @@ is verified. This file only says where the last session stopped.
     `item_key_change` (migration `20261030090000`), and `current_item_key()` leads an old key to its question;
   - a rewording takes its story's shape, so a relabel no longer loses it and the refill no longer retires it;
   - `bank recheck` keeps one-step stories in its audit;
-  - found on the way: one reworded story re-dealt its whole level; the patch's filler takes each kind's fair share.
-- **Next:** the goal on a database built as CI builds it, the PR, CI and the rehearsal (its `bank rekey` line says how
-  many stories, reviews, gold findings and rewordings live holds); then M2d.
+  - found on the way: one reworded story re-dealt its whole level; the patch's filler takes each kind's fair share;
+  - CI and the rehearsal found three more, each fixed: the ledger's cascade refused every `delete from item`; the
+    rehearsal ran without `bank rekey` (a test now holds it to update-live's commands); a copy printed before a key
+    changed reads its boxes through `current_item_key` (`copies.paper`).
+- **PR:** cornerstonepune/assessment-engine#166. The goal is ACHIEVED on a database built as CI builds it (2 of 2
+  scenarios, 1081 tests, `bin/check`). **Next:** CI and the rehearsal on the new head (its `bank rekey` line says how
+  many stories, reviews, gold findings and rewordings live holds), merge; then M2d.
 - **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1, M2a, M2b, AS1 and AS2's rows and steps, then approving the
   skills it lists.
 
