@@ -3,7 +3,22 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-09 — M2b: multiplication's Advance kinds (in progress)
+## 2026-10-10 — AS1: every case a level lists draws (in progress)
+
+- **Slice:** AS1 (W1 gate 3), found while proving M2b. Goal `goals/as1-every-listed-case-draws.yaml`; tests
+  `test_every_listed_case.py`; ADR 0052.
+- **M2b is merged:** main `d4435d8`. `engine done md2b-times-advance`: every sentence PROVED, 3 of 3 scenarios MET,
+  3 of 3 criteria PASSED; "NOT DONE" only for live's migrations, which this container cannot read.
+- **What changed:**
+  - an estimate on a level made of cases lets its case decide the regrouping;
+  - a + or − worked answer is drawn at the level's two sizes;
+  - 24 impossible case listings removed, SZ6 and SZ9 moved to SUB.4D;
+  - the drawer raises a rule a kind cannot read.
+- **Next:** the database proof and the PR; then AS2 (a story's shape in its key), then M2d.
+- **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1, M2a and M2b's rows, `bank rehome` and `bank refill`, then
+  approving the new skills.
+
+## 2026-10-09 — M2b: multiplication's Advance kinds (merged)
 
 - **Slice:** M2b (W1 gate 3). Goal `goals/md2b-times-advance.yaml`; tests `test_mul_advance.py`; ADR 0051.
 - **M2a is merged and live:** main `5916b28`, `migrate live` and `deploy engine` green; no migration in it.

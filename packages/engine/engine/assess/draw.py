@@ -273,7 +273,7 @@ def _one_value(rng, v):
 def _native(
     rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
 ) -> I.Item | None:
-    fmt = rng.choice(_fmts(alt))
+    fmt = rng.choice([f for f in _fmts(alt) if bands.makes(f, alt)] or _fmts(alt))
     hints: dict[str, Any] = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
     if alt.get("context") == "TABLE_OR_CHART":
         hints["table"] = True
@@ -298,8 +298,8 @@ def _native(
         return bands.native_item(fmt, {**check, **hints}, rng, rung, "Conceptual")
     except O.CannotMake:
         raise  # the case asks this kind for an operation it does not make: no draw can give it, say so
-    except (KeyError, ValueError, RuntimeError):
-        return None  # this attempt's numbers could not make the case; the next attempt draws again
+    except RuntimeError:
+        return None  # numbers that did not fit, drawn again; a rule the kind cannot read is raised, not drawn past
 
 
 def one(rng, match, check, rung, k=0):

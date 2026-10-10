@@ -92,7 +92,7 @@ def word_1step(
         if t["op"] in ((op,) if op else ("+", "-")) and bool(t.get("table")) == table
     ]
     if not pool:
-        raise ValueError(f"no one-step story for shape {structure!r} and operation {op!r}")
+        raise O.CannotMake(f"no one-step story for shape {structure!r} and operation {op!r}")
     tpl = rng.choice(pool)
     if digits and isinstance(digits[0], list):
         digits = rng.choice(digits)  # a level that allows several shapes, 2 + 1 digits or 1 + 2

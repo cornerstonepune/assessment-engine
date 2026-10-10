@@ -109,7 +109,11 @@ def _prints(it):
 def test_new_kind_is_its_case_prints_and_marks(case, fmt, rule):
     from engine.assess import draw
 
-    drawn = draw.level(random.Random(11), {**rule, "cases": [case]}, {case: CASES[case]["match"]}, "R16", 5)
+    match = CASES[case][
+        "match"
+    ]  # the case as this kind draws it: E07 is a balance scale too, which reads a level's hi
+    mine = [m for m in match if m.get("fmt") == fmt] if isinstance(match, list) else match
+    drawn = draw.level(random.Random(11), {**rule, "cases": [case]}, {case: mine}, "R16", 5)
     assert len(drawn) == 5, f"{case}: the level's rule made {len(drawn)} of 5"
     for _, it in drawn:
         assert it.fmt == fmt and taxonomy.matches(CASES[case]["match"], it.fmt, tags.derive(it)), (

@@ -136,10 +136,10 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
     for d, b in s["difficulty"].items():
         check = b.get("check") or {}
         if check.get("cases"):
-            # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f).
-            drawn = draw.level(
-                random.Random(1), check, cases.matches(conn, check["cases"]), s["rung_code"], n
-            )
+            # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f), each case on
+            # the level's own numbers as the bank draws it. Read raw, K02 on ADD.1D1D named no operation, its draws
+            # failed unseen, and the mistakes it shows were never counted.
+            drawn = draw.level(random.Random(1), check, cases.for_level(conn, check), s["rung_code"], n)
             out[d] = sorted({c for _, it in drawn for r in it.responses for c in (r.misconceptions or {})})
         else:
             out[d] = bands.codes(check, n, rung=s["rung_code"])

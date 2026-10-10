@@ -266,7 +266,7 @@
     ],
     "frozen": {
       "engine/assess/answer_space.py": 53,
-      "engine/assess/bands.py": 315,
+      "engine/assess/bands.py": 312,
       "engine/assess/diagnosis.py": 117,
       "engine/assess/draw.py": 183,
       "engine/assess/equality.py": 164,
