@@ -5917,3 +5917,6 @@ Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
   `test_layout.py` — 139 passed;
 - browser: u14 (2), u1 (3), u13 (4), u10 (3), s4 (16) — 28 passed;
 - `bin/check` 27 passed.
+- CI's whole engine suite on `8dd2f26`: 2,142 passed, 1 failed, `test_roles.py`. The website's exact list of the
+  functions it may call lacked `checks_to_trust`, which the `kind_trust` view runs as the website. Added to the list,
+  as `mistake_name` was: the list stays exact.

@@ -32,7 +32,8 @@ WEB_WRITES = {
     "public.sign_in_failure": {"INSERT"},
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name, a
-# question by a key it had before it was keyed again (`current_item_key`, the question page, ADR 0053).
+# question by a key it had before it was keyed again (`current_item_key`, the question page, ADR 0053), and the right
+# checks a kind still needs, which the `kind_trust` view it reads calls as the website (ADR 0060).
 WEB_CALLS = {
     "confirm_results",
     "resolve_result",
@@ -45,6 +46,7 @@ WEB_CALLS = {
     "mistake_name",
     "operation_sign",
     "current_item_key",
+    "checks_to_trust",
 }
 
 
