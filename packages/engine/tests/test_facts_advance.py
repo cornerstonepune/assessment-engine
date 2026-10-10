@@ -444,6 +444,20 @@ def test_every_new_kind_prints_its_numbers_and_sign():
             assert boxes == {r.rid for r in it.responses}, (case, boxes)
 
 
+def test_how_many_digits_is_never_answered_by_the_boxes_it_prints():
+    """Found while looking at M3b1's papers: "say how many digits 84 × 18 has, then work it out" printed the product in
+    exactly 4 boxes, as many as it has digits (the school's rule for every answer), so the boxes answered the question
+    (M2b's V03). Its exact answer has the room the longest such product needs, 2 + 2 digits, whichever this is."""
+    check = {**SETS["MUL.2D2D"]["difficulty"]["Advance"]["check"], "cases": ["V03"]}
+    drawn = draw.level(random.Random(5), check, _matches(check), "R40", 16)
+    lengths = set()
+    for _, it in drawn:
+        html = render.render_item(Sheet("CS000000", "G4", "Advance", 1, "W1", [it]), it, 1)
+        assert html.count('data-r="ans"') == len(str(it.spec["a"])) + len(str(it.spec["b"])) == 4, it.spec
+        lengths.add(len(_resp(it, "ans").answer))
+    assert lengths == {3, 4}  # 3- and 4-digit products, printed alike
+
+
 # ---------------------------------------------------------------------------------------------- the whole loop
 
 

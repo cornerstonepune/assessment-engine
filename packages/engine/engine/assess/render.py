@@ -6,6 +6,7 @@ response cell recorded in millimetres from the page origin so the marker can cro
 """
 
 import base64
+import dataclasses
 import functools
 import html
 import io
@@ -204,8 +205,14 @@ def _estimate(
         if sp.get("shape") in ("ANSWER_DIGITS", "LAST_DIGIT")
         else f"estimate: {sp['ra']} {op_sign(sp['op'])} {sp['rb']} ="
     )
+    exact = cells(R["ans"])
+    if sp.get("shape") == "ANSWER_DIGITS":
+        # how many digits it has is the question, so its exact answer has the room the longest such answer needs
+        # (84 × 18 in 4 boxes answered it): a product's two numbers' digits, a quotient's the number divided's
+        room = len(str(sp["a"])) + (len(str(sp["b"])) if op_sign(sp["op"]) == "×" else 0)
+        exact = answer_space.cells(sid, iid, dataclasses.replace(R["ans"], cells=room), boxes="cells")
     body = f"""<div class="row"><span class="lab">{first}</span>{cells(R["est"])}</div>
-<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{cells(R["ans"])}</div>""" + working(
+<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{exact}</div>""" + working(
         2
     )
     if "sense" in R:

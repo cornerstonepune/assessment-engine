@@ -6,12 +6,15 @@ by their ones, and only the answer's own columns have boxes.
 """
 
 import html
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from engine.assess import operations as O
 
+if TYPE_CHECKING:
+    from engine.assess.items import Response
 
-def _boxes(r, rule="digits"):
+
+def _boxes(r: "Response", rule: str = "digits") -> int:
     """As many boxes as the right answer has digits (Nimish, 2026-09-23: four boxes for a one- or two-digit answer
     confused the children). A response with no written number keeps the room its question set — as every answer
     did in the layout before L3 (`rule` "cells", a `render.layouts` row: goals/s18-read-as-printed.yaml)."""
@@ -19,7 +22,9 @@ def _boxes(r, rule="digits"):
     return len(ans) if rule == "digits" and r.kind == "digits" and ans.isdigit() else max(1, r.cells)
 
 
-def cells(sheet_id, item_id, r, big=False, cls="", boxes="digits"):
+def cells(
+    sheet_id: str, item_id: str, r: "Response", big: bool = False, cls: str = "", boxes: str = "digits"
+) -> str:
     n = _boxes(r, boxes)
     s = "".join(
         f'<span class="cell {cls}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="{k}"></span>'

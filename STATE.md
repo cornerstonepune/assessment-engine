@@ -5575,6 +5575,11 @@ Found while building, fixed here:
   - Every box is worked now from its own printed sentence where it is × or ÷, and compared as a number. What a
     scenario cannot work is counted apart (`answers_with_nothing_to_work`), never as recomputed. Over every
     case-based level: 3,062 worked and right, 526 with nothing to work, 0 wrong.
+- **"How many digits" answered itself on paper.** "Say how many digits 84 × 18 has, then work it out" (M2b's V03)
+  printed the product in as many boxes as it has digits, the school's rule for every answer, so the boxes gave the
+  first answer away. Seen on a rendered sheet of the new kinds, not by any test. A how-many-digits question's exact
+  answer now has the room the longest such answer needs: a product's two numbers' digits, a quotient's the number
+  divided's (M3b2's V04). `test_how_many_digits_is_never_answered_by_the_boxes_it_prints` fails on the old printing.
 - **Q14 drew 4000 × □ = 40000.** Its bound on the shorter number's digits cannot bind when the factor is 10, which has
   2 digits itself. It is bound on the number shown now.
 - **`MUL.FACTS` Advance's `min_items` of 56** was "all it holds"; once Easy to Hard hold theirs it holds 531, so its
@@ -5582,4 +5587,5 @@ Found while building, fixed here:
 - **M2a's and M3a's level tests drew every case of a level as straight**: they read its straight cases only now, as
   they already did for the column skills' Advance.
 - **Ratchets:** typing `draw.one` and `verify._missing_distractors` took their files' untyped findings from 72 to 40
-  and from 81 to 55, written down; the new module has none.
+  and from 81 to 55, and typing `answer_space.cells` took its file's from 53 to 33 and `render.py`'s from 348 to 347,
+  all written down; the new module has none.
