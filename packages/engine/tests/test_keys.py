@@ -242,3 +242,22 @@ def test_a_changed_right_answer_reaches_what_was_signed_off_as_read_and_leaves_w
     ).fetchall()
     assert [(e["correct"], e["confirmed_by"]) for e in evidence] == [(False, "neha@school")]
     assert again.mark_again(conn, "the marking rule", _item(conn, "4b")["id"]) == ([], [])
+
+
+def test_a_papers_division_is_checked_by_its_quotient_and_remainder_as_the_paper_writes_them():
+    """A paper's division is held to its arithmetic too, written as its one box is: 85 ÷ 4 is 21 r 1, so 20 r 5 is
+    refused for it and 21 r 1 is already its answer; an exact one is its quotient, so 144 ÷ 12 printed with 11 takes
+    12 (ADR 0056). Before, asking `compute` for one answer refused every change to a division with a remainder."""
+    paper = {
+        "spec": {"op": "÷", "a": 85, "b": 4, "expr": "85 ÷ 4"},
+        "responses": [{"rid": "a", "answer": "21 r 1"}],
+    }
+    with pytest.raises(ValueError, match=re.escape("85 ÷ 4 is 21 r 1, so 20 r 5 cannot be")):
+        keys.check(paper, "20 r 5")
+    with pytest.raises(ValueError, match="already"):
+        keys.check(paper, "21 r 1")
+    exact = {
+        "spec": {"op": "÷", "a": 144, "b": 12, "expr": "144 ÷ 12"},
+        "responses": [{"rid": "a", "answer": "11"}],
+    }
+    assert keys.check(exact, "12") == "12"

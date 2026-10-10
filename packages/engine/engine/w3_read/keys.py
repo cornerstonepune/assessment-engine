@@ -10,6 +10,7 @@ import json
 import re
 
 from engine.assess import misconceptions as M
+from engine.assess import operations as O
 from engine.w3_read import again, marking, naming
 
 JUDGED = "a person judges this one"
@@ -17,6 +18,13 @@ LATEST = (
     "left join lateral (select was, by, created_at, answer from key_correction where tenant_id = i.tenant_id"
     " and item_key = i.item_key order by created_at desc limit 1) k on true"
 )
+
+
+def _worked(spec):
+    """A paper's sum worked out as its one box is answered: a division with a remainder as "21 r 1" (ADR 0056)."""
+    if O.sign(spec["op"]) == "÷" and spec["a"] % spec["b"]:
+        return "{} r {}".format(*O.divide(spec["a"], spec["b"]))
+    return str(M.compute(spec["op"], spec["a"], spec["b"]))
 
 
 def _key(item):
@@ -60,8 +68,7 @@ def check(item, answer):
         raise ValueError(
             f"this box is marked by its equation, {spec['holds']}: any answer that makes its side come out is right"
         )
-    if spec.get("op") and new != str(M.compute(spec["op"], spec["a"], spec["b"])):
-        right = M.compute(spec["op"], spec["a"], spec["b"])
+    if spec.get("op") and new != (right := _worked(spec)):
         raise ValueError(f"{spec['expr']} is {right}, so {new or 'nothing'} cannot be its right answer")
     truth = marking._truth(str(key))
     if truth is not None:

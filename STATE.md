@@ -5406,8 +5406,9 @@ What the measured failures became (ADR 0056), proved by `tests/test_div_levels.p
   Every division in reach has exactly one home among the four and a level in it, in a line and in the division layout.
 - **The drawer makes ÷** as it is checked: a divisor, a quotient and a remainder, the number divided made of them
   (`assess/draw_divide.py`), every candidate of a case listed so its last questions are found by reading it. A
-  level's size and its skill's mistake list are counted from those lists, never typed: `DIV.FACTS` Easy holds 27
-  questions and Hard 36 (`min_items`), every other level 46 or more.
+  level's size and its skill's mistake list are counted from those lists, never typed. Seven levels hold fewer
+  questions than a class's week (216) and say so (`min_items`): `DIV.FACTS` Easy 27, Medium 132 and Hard 36,
+  `DIV.TENS` Medium 106, `DIV.2D1D` Easy 46 and Medium 108, `DIV.3D1D` Easy 208.
 - **A remainder is an answer of its own**, in a box after "r" only where there is one (`assess/division.py`,
   `verify.division`). In a line, "85 ÷ 4 = □□ r □"; in the division layout, the quotient's boxes one over each digit
   of the number divided, the divisor's bracket and the bar (`answer_space.divided`). Printed through Chromium, the
@@ -5436,6 +5437,18 @@ Found while building, fixed here:
   recomputes the quotient and the remainder, each against its own box.
 - In a line the remainder's boxes followed the paper's layout row; in the division layout they followed the default.
   One rule draws both now.
+- `engine audit` on a database refilled with division found four more, each a place that assumed one answer or
+  missed the new skill (`test_goal.py`'s invariants):
+  - `bank recheck` handed every stored sum's rebuild `compute`'s one answer, which a division with a remainder
+    refuses; the rebuild never read it. It now compares every box, the quotient's and the remainder's.
+  - `misconceptions.PREDICTED`, the one list of what a predictor computes, did not hold division's, so a mistake
+    only one case shows (3 ÷ 5 worked the other way round) read as computed by nothing.
+  - The seven small levels above first set `min_items` only under 40, and counted numbers where the bank counts
+    questions ("How many 3s make 24?" and 24 ÷ 3 are two): the bank's target is a class's week.
+  - An educator's new key for a paper's division was checked with `compute` too, so a paper printing 85 ÷ 4 = 21 r 1
+    could never have its key changed; it is checked as the paper writes it now
+    (`test_a_papers_division_is_checked_by_its_quotient_and_remainder_as_the_paper_writes_them`). No paper today
+    has one (the only ÷ is 144 ÷ 12).
 - The first print of "How many 6s make 42?" chose "a sentence alone" by a stem and a shape together, which the 72
   friendly-pairs sums in a fresh bank also have ("Add them in the easiest order."): on paper and on the website they
   would have lost their numbers. A question asked in words now carries its printed sentence (`text`, as a missing

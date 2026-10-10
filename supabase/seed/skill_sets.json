@@ -3382,7 +3382,8 @@
               "DF15"
             ],
             "layout": "horizontal"
-          }
+          },
+          "min_items": 132
         },
         "Hard": {
           "words": "The 6, 7, 8 and 9 tables read backwards: 42 ÷ 6, 56 ÷ 7, 48 ÷ 8, 81 ÷ 9.",
@@ -3517,7 +3518,8 @@
               "DP03"
             ],
             "layout": "horizontal"
-          }
+          },
+          "min_items": 106
         },
         "Hard": {
           "words": "A round number by a 1-digit number or by a round number, through a table fact: 120 ÷ 4, 800 ÷ 40, 200 ÷ 4, 3600 ÷ 6.",
@@ -3617,7 +3619,8 @@
               "D01",
               "D02"
             ]
-          }
+          },
+          "min_items": 46
         },
         "Medium": {
           "words": "One exchange from the tens, by 2 to 5 and by 6 to 9, in the division layout and in a line: 72 ÷ 4, 91 ÷ 7.",
@@ -3634,7 +3637,8 @@
               "D03",
               "D04"
             ]
-          }
+          },
+          "min_items": 108
         },
         "Hard": {
           "words": "A remainder, with or without an exchange, and a zero at the end of the quotient: 85 ÷ 4 = 21 r 1, 75 ÷ 4 = 18 r 3, 62 ÷ 3 = 20 r 2.",
@@ -3701,7 +3705,8 @@
             "cases": [
               "D05"
             ]
-          }
+          },
+          "min_items": 208
         },
         "Medium": {
           "words": "One exchange, after the hundreds or after the tens: 476 ÷ 2, 786 ÷ 6.",
