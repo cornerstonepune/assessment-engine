@@ -99,8 +99,10 @@ The drafted document, read against itself:
 ## Rejected
 
 - **Chunking ten lots at a time**, as drafted. The document's own placement on DIV.3D1D cannot print it.
-- **Halving among DIV.2D1D's methods.** It would give one question two homes. A1 does not list it, and its mirror,
-  doubling, is mental maths.
+- **Halving among DIV.2D1D's methods.** A1 does not list it among division's written methods, and its mirror,
+  doubling, is mental maths. On both skills, two levels would draw the same halvings, and a question lives in one
+  level, so whichever filled second would get what was left. A case on two skills is not a defect in itself:
+  addition's stories and found mistakes are on the operation skills' Advance and on a skill of their own.
 - **A line only for 2-digit division**, as the drafted table had it. Today's DIV.3D1D printed in a line, and A2 and the
   school's papers say a division is written so.
 - **Short division as a kind of its own.** The division layout already is short division: a new kind would leave every
