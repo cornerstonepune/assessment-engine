@@ -24,6 +24,30 @@
       "seed_once": true
     },
     {
+      "key": "people.decides",
+      "description": "Who decides each kind of thing that waits on a person, by the staff list's roles (app.staff). Drafted from ARCHITECTURE.md for Nimish to correct: the specialist confirms the answers the engine was unsure of and signs off what was read (N9), and confirms the home papers (N11); an educator approves the class papers that print (N7) and says what is taught; the coordinator approves the skills. Today shows each kind to the people whose role is here first.",
+      "value": {
+        "answers": [
+          "specialist"
+        ],
+        "papers": [
+          "specialist"
+        ],
+        "home_papers": [
+          "specialist"
+        ],
+        "class_papers": [
+          "educator"
+        ],
+        "skills": [
+          "coordinator"
+        ],
+        "topics": [
+          "educator"
+        ]
+      }
+    },
+    {
       "key": "prescribe.band_default",
       "description": "The difficulty a child starts at when their own evidence is not enough yet, per band. The teacher's declaration chooses the skill set; this chooses how hard it is.",
       "value": {

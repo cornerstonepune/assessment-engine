@@ -90,3 +90,30 @@ def test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught()
     assert {r["code"] for r in rows if r["holds_cases"]} | grade_1_beyond_the_taxonomy == {
         r["code"] for r in rows if r["taught"]
     }
+
+
+@pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+def test_a_topic_a_person_switched_stays_as_they_left_it():
+    """Nimish, 2026-10-10: "I'm not seeing any of the multiplication, division". A topic the rows leave off is switched
+    on by an educator on the site, in their own name, and a reload of the rows never switches it back: the rows decide a
+    topic only until a person has. One changed in the database with no name on it is no one's decision, and follows the
+    rows again."""
+    from engine.core import db, settings
+
+    with db.connect() as conn:
+        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        conn.execute(
+            "update topic set taught = true, taught_by = 'An educator', taught_at = now() where code = 'DIVCOL'"
+        )
+        conn.execute(
+            "update topic set taught = true, taught_by = null, taught_at = null where code = 'DIVFACT'"
+        )
+        topics.load(conn, tenant, settings.seed)
+        got = {
+            r["code"]: (r["taught"], r["taught_by"], r["taught_at"] is not None)
+            for r in conn.execute(
+                "select code, taught, taught_by, taught_at from topic where code in ('DIVCOL', 'DIVFACT')"
+            ).fetchall()
+        }
+        conn.rollback()
+    assert got == {"DIVCOL": (True, "An educator", True), "DIVFACT": (False, None, False)}
