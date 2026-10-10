@@ -13,7 +13,8 @@ export async function signIn(formData: FormData): Promise<void> {
     redirect("/login?error=denied");
   }
   await startSession(staff.email);
-  redirect("/");
+  // what waits on a person is the first page anyone sees (goals/ny1-needs-you.yaml)
+  redirect("/today");
 }
 
 export async function signOut(): Promise<void> {

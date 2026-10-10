@@ -1,7 +1,9 @@
 """Topics: the level of the shared tree between a subject and its skills (grade → subject → topic → skill →
 level). Rows from supabase/seed/topics.json; which skills a topic holds is that file's, so every skill set is
 placed on each load — unlike its words, which belong to the educators once loaded. Only a topic marked `taught`
-shows on the site or on a child's paper: the others keep their questions, out of sight, until the school teaches them."""
+shows on the site or on a child's paper: the others keep their questions, out of sight, until the school teaches them.
+Whether it is taught is the rows' only until a person says: an educator switches a topic on or off on Curriculum, in
+their own name (`taught_by`), and a load never switches it back (goals/ny1-needs-you.yaml)."""
 
 from collections.abc import Callable
 from typing import Any
@@ -18,7 +20,8 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
         conn.execute(
             "insert into topic (tenant_id, code, subject_code, name, ord, taught) values (%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do update set subject_code=excluded.subject_code,"
-            " name=excluded.name, ord=excluded.ord, taught=excluded.taught, updated_at=now()",
+            " name=excluded.name, ord=excluded.ord, updated_at=now(),"
+            " taught=case when topic.taught_by is null then excluded.taught else topic.taught end",
             (tenant, t["code"], t["subject"], t["name"], i, bool(t.get("taught"))),
         )
         for code in t["skill_sets"]:

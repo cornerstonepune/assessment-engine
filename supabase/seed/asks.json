@@ -159,6 +159,13 @@
       "question": "Question 5 of the 24 September paper: does any split that adds up count on Addition?",
       "drafted": "question 5's boxes count on Addition (NUM.OPS.01, rung R27), which any split that adds up shows; the key prints the place-value split (600 + 30 + 8) the third line adds column by column. If the school wants only that split, the three papers' `holds` lines come out and each box goes back to its own key.",
       "source": "goals/s24-a-split-that-holds-is-right.yaml"
+    },
+    {
+      "code": "NY.TAUGHT_WHOLE_SCHOOL",
+      "for_role": "specialist",
+      "question": "A topic is switched on for the whole school, not grade by grade: is that how the school decides what is taught?",
+      "drafted": "One switch a topic, on Curriculum, in the educator's name. Switched on, its skills reach every grade's children at the levels their grades hold, and every paper is still approved by a person before it prints. If a grade must say it for itself, the switch becomes one a grade.",
+      "source": "docs/adr/0059-a-person-says-what-is-taught-and-what-waits-is-someones.md"
     }
   ]
 }

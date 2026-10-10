@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { asksWaiting, skillsWaiting, topicsOff } from "./queries-people";
 import { checkQueue, papersToApprove } from "./queries-read";
 import { proposedHomePapers } from "./queries-make";
 
@@ -11,7 +12,9 @@ export type Waiting = {
   papers: number; // papers read with an answer not yet signed off, as /capture counts them
   packs: Pack[]; // class papers the engine proposed that no teacher has approved for print
   nextPapers: number; // children the engine proposes a home paper for this week, as Make papers counts them
-  skills: number; // skill sets awaiting approval
+  skills: number; // skill sets awaiting approval, taught or not: one is approved before its topic is on
+  topics: number; // topics not taught yet, as Curriculum lists them to switch on
+  asks: { for_role: string; n: number }[]; // the questions drafted for a person, still waiting, by whose they are
 };
 
 /** Class papers the engine made that no teacher has approved for print, pack by pack. */
@@ -25,12 +28,14 @@ export async function classPacksWaiting(): Promise<Pack[]> {
 }
 
 export async function waiting(actor: string): Promise<Waiting> {
-  const [queue, read, packs, next, [{ skills }]] = await Promise.all([
+  const [queue, read, packs, next, skills, topics, asks] = await Promise.all([
     checkQueue(),
     papersToApprove(actor),
     classPacksWaiting(),
     proposedHomePapers(),
-    sql<{ skills: number }[]>`select count(*)::int as skills from skill_set s where s.status <> 'ratified' and exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)`,
+    skillsWaiting(),
+    topicsOff(),
+    asksWaiting(),
   ]);
   return {
     answers: queue.filter((e) => !e.spot).length,
@@ -38,5 +43,7 @@ export async function waiting(actor: string): Promise<Waiting> {
     packs,
     nextPapers: next,
     skills,
+    topics,
+    asks,
   };
 }

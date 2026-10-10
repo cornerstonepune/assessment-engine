@@ -11,7 +11,7 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
-from engine.core import db, loaders
+from engine.core import asks, db, loaders, references
 from engine.w1_bank import bank, mistake_guess, review, spec, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
@@ -101,6 +101,17 @@ def set_password(email: str) -> None:
         conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
         conn.commit()
     typer.echo(f"  password set for {me['name']} ({me['role']}) — sign in with {me['email']}")
+
+
+@app.command("asks")
+def asks_(
+    waiting: bool = typer.Option(False, "--open", help="Only the questions no one has answered yet"),
+) -> None:
+    """Every question the engine drafted for a person, and what they answered on the site: agreed, or corrected in
+    their own words (goals/ny1-needs-you.yaml). `bin/update-live` prints it, so the next change starts from it."""
+    with db.connect() as conn:
+        lines = asks.report(conn, waiting)
+    typer.echo("\n".join(lines) if lines else "  no questions")
 
 
 @app.command("graph")
@@ -350,7 +361,7 @@ def load(
     for table, n in counts.items():
         typer.echo(f"  {table:<{width}}  {n:>5}")
 
-    bad = {k: v for k, v in loaders.orphans().items() if v}
+    bad = {k: v for k, v in references.orphans().items() if v}
     if bad:
         for label, codes in bad.items():
             typer.echo(f"ORPHAN  {label}: {', '.join(codes)}", err=True)

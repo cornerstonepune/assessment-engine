@@ -40,9 +40,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
   await requireStaff();
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = DIFFICULTIES.find((d) => d === q.level);
-  const [sets, examples, kinds, caught, book, sheets] = await deadline(
+  const [all, examples, kinds, caught, book, sheets] = await deadline(
     Promise.all([
-      skillSets(),
+      skillSets({ untaught: true }),
       levelExamples(code),
       skillKinds(code),
       skillMistakes(code),
@@ -50,8 +50,10 @@ export default async function SkillPage({ params, searchParams }: Props) {
       worksheets({ set: code, level }, 200, 0),
     ]),
   );
-  const s = sets.find((x) => x.code === code);
+  // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
+  const s = all.find((x) => x.code === code);
   if (!s) notFound();
+  const sets = all.filter((x) => x.taught);
   const example = (d: Difficulty) => examples.find((e) => e.difficulty === d);
   const ops = new Set(
     DIFFICULTIES.map((d) => s.difficulty[d]?.check?.op).filter(Boolean),
@@ -64,7 +66,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage={`${gradeWords(s.band)} · Skill ${sets.indexOf(s) + 1} of ${sets.length} · ${s.name}`}
+        stage={`${gradeWords(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
         title={s.learning_objective}
         sub="What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."
       />
@@ -78,6 +80,13 @@ export default async function SkillPage({ params, searchParams }: Props) {
         {q.approved ? (
           <Notice tone="neem">Approved as written, in your name.</Notice>
         ) : null}
+        {s.taught ? null : (
+          <Notice tone="terracotta">
+            Not taught yet: {s.topic_name ?? "its topic"} is switched off, so this skill is on no other page and no
+            child&rsquo;s paper. Read and approve it now; <Link href="/#not-taught">switch its topic on</Link> when the
+            school teaches it.
+          </Notice>
+        )}
 
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
           <Link href="/" className="chip">

@@ -90,6 +90,7 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
     // and switched off again, in a person's name, it is off
     await page.goto("/");
     const on = page.getByRole("region", { name: "Taught in this school", exact: true });
+    await on.locator("summary").click(); // switching a taught topic off is folded away from a stray click
     await on.getByRole("listitem").filter({ hasText: topic.name }).getByRole("button", { name: `Switch off, as ${TEST_STAFF.name}` }).click();
     await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).toContainText(topic.name);
   } finally {

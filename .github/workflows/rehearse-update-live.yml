@@ -108,6 +108,7 @@ jobs:
           bin/engine graph
           bin/engine library check
           bin/engine bank taxonomy
+          bin/engine asks  # what each person answered on live's site, read here by whoever builds next
       - name: answers still on a rung no skill holds (their questions; no names)
         if: always()
         run: |

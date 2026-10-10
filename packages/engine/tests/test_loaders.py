@@ -13,7 +13,7 @@ import pathlib
 
 import pytest
 
-from engine.core import db, loaders, settings
+from engine.core import db, loaders, references, settings
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -140,11 +140,11 @@ def test_a_second_run_changes_nothing(loaded):
 def test_no_two_bands_of_one_skill_set_declare_the_same_region(loaded):
     """Two bands with one rule draw from one pool and starve each other — R1's Medium and Hard
     did exactly this until Hard was pinned to a story (BUILD-ORDER gate 4, amended)."""
-    assert loaders.orphans()["skill_set bands sharing one region"] == []
+    assert references.orphans()["skill_set bands sharing one region"] == []
 
 
 def test_no_code_refers_to_something_that_does_not_exist(loaded):
-    assert {k: v for k, v in loaders.orphans().items() if v} == {}
+    assert {k: v for k, v in references.orphans().items() if v} == {}
 
 
 def test_only_one_prompt_version_is_active_per_purpose(loaded):

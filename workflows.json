@@ -15,8 +15,8 @@
       "takes": ["the skill registry", "the team's taxonomy"],
       "gives": ["skill_set", "rung", "taxonomy_case", "misconception"],
       "files": ["engine/w1_bank/spec.py"],
-      "commands": ["engine load", "engine bank levels"],
-      "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve"],
+      "commands": ["engine load", "engine bank levels", "engine asks"],
+      "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve", "/asks"],
       "subject": {"any": false, "note": "The shape (skill → four levels → cases, approved once) is any subject's. The content is maths: the add/sub ladder, the 269 cases and the named mistakes are rows a new subject writes for itself — no code."}
     },
     {
@@ -179,8 +179,7 @@
     "frozen": {
       "engine/adapters/ocr.py": 999,
       "engine/w3_read/legacy.py": 652,
-      "engine/assess/items.py": 439,
-      "engine/core/loaders.py": 405
+      "engine/assess/items.py": 439
     }
   },
   "complexity": {

@@ -5793,3 +5793,37 @@ seeing any of the multiplication, division." What stands between him and both:
   - the last record has no kind trusted;
   - answers already waiting are marked again only by a command;
   - no screen shows the waiting count over time, or how far a kind is from trust.
+
+## NY1 — what waits on a person, and who it is for, built (2026-10-10)
+
+ADR 0059. Goal `goals/ny1-needs-you.yaml`.
+
+- **A topic is switched on or off by a person.**
+  - Curriculum lists the topics not taught yet, each with its skills, and switches one on in the person's name.
+  - Switching a taught one off is folded away.
+  - `topic.taught_by` and `taught_at` say who and when (migration 20261102090000). `engine load` keeps a person's
+    switch and follows the rows only where no person has spoken (`core/topics.py`).
+- **A skill is approved before its topic is on.**
+  - The approval page and a skill's own page read every skill (`skillSets({ untaught: true })`), each saying "Not
+    taught yet".
+  - Today, Curriculum and the approval page count the same waiting skills (`queries-people.skillsWaiting`).
+- **Today is in two parts, "For you" and "For others".**
+  - Each card says whose it is, from `people.decides` (drafted from ARCHITECTURE.md, by the staff list's roles): by
+    name, or that no one on the staff list has that role yet.
+  - New cards: topics not taught yet, and one card of questions per role.
+  - Sign-in lands on Today.
+- **Questions for a person are rows** (`ask`, `core/asks.py`).
+  - 22 drafted: the taxonomy, A1 to A12, the eight slices' decisions drafted for Achal, and whether a topic is taught
+    for the whole school.
+  - Each is answered on `/asks`, agreed or corrected, in the person's name.
+  - A load never touches an answered one. `engine asks` prints them; `bin/update-live` and its rehearsal run it.
+- **`loaders.py` is under its ceiling.** Its reference checks are their own module (`core/references.py`), so it
+  dropped off the frozen list (405 → 368 lines).
+- **Tests updated to the new rule, not loosened:** Today's and Curriculum's count of waiting skills is every waiting
+  skill (`u1-today`, `u12-curriculum-table`).
+
+Run on the copy `ny1m` (fresh23's rows, this migration applied):
+- engine: `test_asks.py`, `test_topics.py`, `test_loaders.py`, `test_approval.py`, `test_layout.py`,
+  `test_update_live.py` — 34 passed;
+- browser: u13 (4), gate (12), u1 (3), u5, u12, screens, e2e, s2, s33, u10, u11, workflows — 80 passed;
+- `bin/check` 27 passed.
