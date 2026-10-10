@@ -6001,3 +6001,28 @@ Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank ref
 - browser: `s33-divide-advance.spec.ts` 2 passed (a worked division's page names its mistake by its row);
 - `research/md_taxonomy.py --check`: 0 faults.
 
+
+## M3c — measured before the build (2026-10-10)
+
+`DIV.GROUPS`' nine cases, each drawn alone through today's drawer on a level shaped as `MUL.MODELS`' (12 asked, 300
+tries each; `groups` and `size` 2 to 6):
+- G15 (dots shared into rings), G16 (dots ringed in groups), G19 (an array divided): 0 of 12, and nothing said.
+  `equal_groups` makes a × picture whatever operation the case asks, and the case's own match refuses each one.
+- G17 (taken away again and again to 0): 0 of 12, and nothing said. It prints as a straight division, which is not its
+  method. The draft filed it as a `bare_sum`, which every reader of that kind takes for "15 ÷ 3 = ___": the defect
+  ADR 0054 found in skip counting.
+- G18 (jumps back on a number line): `KeyError: 'hi'`, not a sentence. The number line hands ÷ to the + and − jumps.
+- B02, B03, B05, B24 (stories of sharing, grouping, an array, "each"): `CannotMake`, in a sentence. No ÷ template has
+  their shape and uses nothing left over.
+- Nothing bounds a story's numbers. A model skill carries no `within` (ADR 0054: placing would hold 12 ÷ 3 in two
+  skills), and B02's match alone allows 18,276 exact divisions with quotients up to 4,999. The four cases' own examples
+  are a table read backwards (24 ÷ 4, 24 ÷ 6, 35 ÷ 5, 30 ÷ 5); their rows do not say so.
+- **A right answer would count for the wrong skills.** `skills.by_kind` gives every `equal_groups` question
+  multiplication and addition (`NUM.OPS.03`, `NUM.OPS.01`: Grade 1's groups added again). A sharing picture would use
+  `NUM.OPS.04`, `NUM.OPS.03` and `NUM.OPS.01`, and `confirm_results` makes evidence for every skill a question uses.
+- `DIV.GROUPS` is no row: no rung, no topic. The mistakes a child makes with the models (counting them all, writing the
+  number the question gives for the one it asks, counting the start as a jump) are no rows.
+- `M_KEYWORD_OVERGENERALISED` has one row, for any operation, whose repair hint is about subtraction ("Give a
+  non-subtraction context containing the keyword"). The drafted table names it on ÷ stories that say "each".
+- A story template names the mistake its wrong operation is in a field called `added`, read as "adding its two
+  numbers". In a story that divides, the wrong operation is multiplying.

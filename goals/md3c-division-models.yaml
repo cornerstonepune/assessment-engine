@@ -1,0 +1,100 @@
+name: md3c-division-models
+goal: >
+  DIV.GROUPS, taught in Grade 2, shows division as the models a child meets first, each a question the bank makes and
+  a child answers on paper. Dots are shared equally into rings (12 dots into 3 rings: 4 in each). Dots are ringed in
+  equal groups (12 dots in groups of 4: 3 groups). One number is taken away again and again to 0
+  (15 − 3 − 3 − 3 − 3 − 3 = 0: five 3s). An array is divided by its rows, read in three labelled boxes: in all ÷ rows =
+  in each row. Jumps go back on a number line to 0 (from 20 in jumps of 4: 5 jumps). And there are stories of sharing,
+  grouping, an array and "each", dividing a table to 10 read backwards. Easy holds sharing and grouping, Medium
+  repeated subtraction and the array, Hard the jumps back, Advance the four stories. Every question prints a box for
+  each of its answers and, once taught, shows on the website's question bank as the child meets it. Its answer is
+  recomputed, and every wrong answer is a named mistake: multiplied, one group taken away, all of them counted, the
+  number given written for the number asked, the start counted as a jump, and multiplying because the story says
+  "each". A right answer counts for division alone, never for multiplication or addition. None of it is taught until
+  an educator says so.
+# Written 2026-10-10, before the code: slice M3c of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M3c — measured before the build"), each case drawn alone on a level shaped as MUL.MODELS's:
+# none of DIV.GROUPS' nine cases draws. Sharing, grouping and the array divided (G15, G16, G19) and repeated
+# subtraction (G17) draw nothing and say nothing: equal groups makes a × picture whatever the case asks, which the
+# case then refuses, and repeated subtraction prints as a straight division, which is not its method. The jumps back
+# (G18) stop on a KeyError ('hi'), not a sentence. The four stories refuse in a sentence: no ÷ template has their
+# shape. Repeated subtraction was filed by the draft as a `bare_sum`, which every reader takes for "15 ÷ 3 = ___"; as
+# ADR 0054 found for skip counting, it is a kind of its own. An equal-groups question uses multiplication and
+# addition by its kind (`skills.by_kind`), so a sharing picture answered right would count for both: a kind's skills
+# beyond its operation now depend on the operation.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_every_case_div_groups_lists_draws_on_its_level
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_dots_are_shared_equally_into_rings
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_dots_are_ringed_in_equal_groups
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_a_number_taken_away_again_and_again_to_zero_counts_its_groups
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_an_array_divided_is_read_in_three_labelled_boxes
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_models.py::test_jumps_back_on_a_number_line_to_zero_are_counted
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_models.py::test_four_stories_divide_a_table_read_backwards
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_div_models.py::test_each_in_a_story_that_divides_is_its_own_mistake
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_div_models.py::test_every_mistake_its_questions_name_is_on_its_list_and_is_a_row
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_div_models.py::test_a_right_answer_counts_for_division_alone
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_models.py::test_a_filled_level_holds_each_of_its_cases_as_often_as_the_case_asks
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_models.py::test_every_model_question_prints_a_box_for_every_answer
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_models.py::test_every_model_answer_is_where_the_printed_key_says_it_is
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s34-division-models.spec.ts::once taught, division's models are on the Question bank, drawn as the child meets them"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads DIV.GROUPS into a topic of its own,
+    Division models, and fills its levels. No screen or paper shows it until an educator switches Division models on
+    from Curriculum for Grade 2."
+  - "Achal: drafted for you to correct. The pictures are dots and rings, as multiplication's are. Repeated subtraction is
+    printed whole (15 − 3 − 3 − 3 − 3 − 3 = 0) and the child counts the 3s; you may want the child to write the
+    subtractions. An array divided is read as in all ÷ rows = in each row. Three new mistakes, their names and what to do
+    about them drafted for you: counts them all (12 dots into 3 rings, answered 12); gives the number the question gives
+    for the one it asks (answered 3, the rings); counts the start as a jump (20 back to 0 in 4s, answered 6). Multiplying
+    a story because it says 'each' is named on the 'each' stories (B24) and the wrong operation on the others; you may
+    want it on every story that says 'each'."
+scenarios:
+  - name: DIV.GROUPS, Easy — dots shared into rings, dots ringed in groups
+    skill_set: DIV.GROUPS
+    difficulty: Easy
+    n: 24
+    cases: [G15, G16]
+  - name: DIV.GROUPS, Medium — taken away again and again to 0, an array divided by its rows
+    skill_set: DIV.GROUPS
+    difficulty: Medium
+    n: 24
+    cases: [G17, G19]
+  - name: DIV.GROUPS, Hard — jumps back on a number line to 0
+    skill_set: DIV.GROUPS
+    difficulty: Hard
+    n: 16
+    cases: [G18]
+  - name: DIV.GROUPS, Advance — stories of sharing, grouping, an array and "each"
+    skill_set: DIV.GROUPS
+    difficulty: Advance
+    n: 48
+    cases: [B02, B03, B05, B24]
+criteria:
+  - name: the models drawn, printed and named; the kinds, levels, drawer, skills and taxonomy they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_div_models.py tests/test_mul_models.py tests/test_divide_stories.py tests/test_mistake_rows.py tests/test_skills.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_story_keys.py tests/test_render.py tests/test_every_skill.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_topics.py tests/test_asks.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank draws division's models
+    run: cd apps/web && npx playwright test tests/s34-division-models.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
