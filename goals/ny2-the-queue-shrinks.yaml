@@ -1,0 +1,47 @@
+name: ny2-the-queue-shrinks
+goal: >
+  The answers a person must check fall as the reader earns trust, and a person can see whether they do. How far the
+  reader is trusted on each kind of question is one rule, the database's, which the engine marks by and the website
+  shows: of the last checks of that kind the reader stood behind — how many is a row — enough matched the person, as
+  the agreement row says. Each kind says how many more right checks it needs before it is trusted. The moment a kind
+  earns trust, by a reading a person typed or a paper they signed off, every answer of that kind waiting only for that
+  trust is marked again and leaves the queue; every wrong and every blank still waits for a person (ADR 0029). Today
+  shows, week by week, how many answers were read, how many the engine settled alone, how many a person checked and how
+  many still wait, and how near the nearest kind is to trust.
+# Written 2026-10-10, before the code: slice NY2, inserted before M3b3 by Nimish, who allowed it to touch W3 while W1's
+# gate 3 is open (BUILD-ORDER "NY1 and NY2"). Measured first (STATE.md "NY2 — measured before the build"): the
+# website decides a kind's trust with its own SQL, its window a hard-coded 50 and ordered by the moment a paper was
+# read, which every answer of one paper shares, so where the 50th check falls inside a paper its count is arbitrary; the
+# engine decides it in Python. An answer held only for its kind's trust is marked again only by a command. No screen
+# shows the queue week by week. Live today (read only): nothing waits; no kind is trusted; the nearest, columns, at 47
+# of its last 50.
+says:
+  - words: "The system keeps learning from the number of data points that we keep validating"
+    proved_by: packages/engine/tests/test_profiles.py::test_a_kinds_standing_is_one_rule_the_engine_and_the_site_read
+  - words: "The system keeps learning from the number of data points that we keep validating"
+    proved_by: packages/engine/tests/test_profiles.py::test_checks_to_trust_counts_the_right_checks_the_window_still_needs
+  - words: "the number of data points that we then need to validate becomes lower"
+    proved_by: packages/engine/tests/test_read_again.py::test_answers_waiting_only_for_trust_leave_the_queue_the_moment_their_kind_earns_it
+  - words: "the number of data points that we then need to validate becomes lower"
+    proved_by: packages/engine/tests/api/test_capture_routes.py::test_a_check_or_a_sign_off_marks_again_what_trust_now_settles
+  - words: "We had aligned on this, right?"
+    proved_by: "apps/web/tests/u14-the-queue-shrinks.spec.ts::Today shows, week by week, how many answers needed a person"
+  - words: "I'm not even able to see that"
+    proved_by: "apps/web/tests/u14-the-queue-shrinks.spec.ts::each kind of question says how many more checks before the reader is trusted on it"
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live`; then Today shows the queue week by week
+    and Marking each kind's checks to trust."
+  - "Nimish: the queue falls only as the reader earns trust. On live today no kind is trusted: columns are nearest (47
+    of their last 50 right, against 48 needed), and where the reader stood behind a reading it was right 698 times in 906.
+    Every wrong and blank waits for a person whatever the reader's trust (ADR 0029), until a second reader is trusted."
+scenarios: []
+criteria:
+  - name: one rule for trust; checks to trust; the queue marked again when a kind earns it; each answer its own
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_profiles.py tests/test_read_again.py tests/test_every_answer.py tests/test_each_answer.py tests/test_legacy.py tests/api/test_capture_routes.py
+    expect: "passed"
+  - name: the queue week by week on Today, checks to trust on Marking; the pages they change
+    run: cd apps/web && npx playwright test tests/u14-the-queue-shrinks.spec.ts tests/u1-today.spec.ts tests/u13-needs-you.spec.ts tests/u10-tables-read-straight.spec.ts tests/s4-validation-queue.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

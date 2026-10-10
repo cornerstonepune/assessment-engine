@@ -3,7 +3,30 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — NY1: what waits on a person, and who it is for (built, proving)
+## 2026-10-10 — NY2: the queue shrinks, and a person sees whether it does (started)
+
+- **Slice:** NY2, W3 by Nimish's exception (BUILD-ORDER "NY1 and NY2").
+- **Measured** (STATE.md "NY2 — measured before the build"):
+  - trust is decided twice, by the engine and by the website, which can disagree;
+  - a kind earning trust leaves its waiting answers waiting;
+  - no screen shows the queue week by week.
+  - Live, read only: nothing waits; no kind is trusted; columns are nearest at 47 of 50.
+- **Goal** `goals/ny2-the-queue-shrinks.yaml`.
+- **Tests that fail for the right reasons:**
+  - `test_profiles.py`: no `kind_trust` view, no `checks_to_trust`;
+  - `test_read_again.py`: no `again.trusted`;
+  - `api/test_capture_routes.py`: no `/capture/trusted`;
+  - `u14-the-queue-shrinks.spec.ts`.
+- **Fixed with it:** `test_every_answer.py`'s worksheet takes only + and − questions (found proving NY1).
+- **Next:** build NY2:
+  - a migration for `checks_to_trust()` and the `kind_trust` view (the window a threshold row);
+  - `profiles.kind_trust` reads the view;
+  - `again.trusted`, called by `/capture/correct` and a new `/capture/trusted`, which the website calls after a
+    sign-off;
+  - the website's reader table and Today read the view, and Today shows the queue week by week.
+  - Then M3b3.
+
+## 2026-10-10 — NY1: what waits on a person, and who it is for (merged, live, done)
 
 - **Slice:** NY1, inserted before M3b3 (BUILD-ORDER "NY1 and NY2"). Nimish asked what validations are pending: he
   cannot see what he or Achal must validate, nor any multiplication or division. He chose this before M3b3 and allowed
@@ -25,8 +48,9 @@ is verified. This file only says where the last session stopped.
   - `/asks` and `engine asks`, which update-live prints;
   - sign-in landing on Today;
   - `core/references.py` split from the loader, which took `loaders.py` off the frozen list.
-- **Next:** the whole engine and browser suites on the copy, a rehearsal on a copy of live, then PR #172 ready and
-  merged. Then NY2 (W3), then M3b3, whose measurements are in STATE.md.
+- **Merged** as `d66bb35` (#172): `ci`, `migrate live` and `deploy engine` success. `engine done ny1-needs-you`: 10
+  of 10 sentences proved, 3 of 3 criteria passed (STATE.md "NY1 merged and live"). Its rows wait for
+  `bin/update-live`.
 
 ## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (merged, live, done)
 

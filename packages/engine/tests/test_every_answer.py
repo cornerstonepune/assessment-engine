@@ -80,6 +80,9 @@ def worksheet(conn, tmp_path, monkeypatch):
                 " (x->>'kind'), ',' order by o) from jsonb_array_elements(responses) with ordinality t(x, o)) = %s"
                 # two keys a test can tell apart: 273 + 627 is estimated 900 and is 900, one answer said twice
                 " and responses->0->>'answer' is distinct from responses->1->>'answer'"
+                # the sheet is ADD.2D2D's: its questions add and take away. Drawn first by key, a × or ÷ estimate or check
+                # the bank happened to hold put a multiplication on it (the bank is drawn afresh on every build)
+                " and spec->>'op' in ('+', '-')"
                 " order by item_key limit 4",
                 (fmt, shape),
             )

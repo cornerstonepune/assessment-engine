@@ -220,3 +220,64 @@ def test_kind_trust_is_the_last_fifty_checks_of_each_kind_against_the_gate(conn)
     profiles.rebuild(conn)
     r = profiles.report(conn)
     assert r["total"]["checked"] > 0 and set(r["kinds"]) == set(trust) and r["batches"] and r["children"]
+
+
+TRUST = "ny2_trust"  # a kind of question of the test's own, so no other check on the copy is in its window
+
+
+def test_a_kinds_standing_is_one_rule_the_engine_and_the_site_read(conn):
+    """Nimish, 2026-10-10: "The system keeps learning from the number of data points that we keep validating". A kind's
+    standing — of its last checks the reader stood behind, how many matched the person, and whether that is trust — is
+    the database's one rule (`kind_trust`): the engine marks by it and the website shows it, so the two never disagree.
+    How many checks is a row (`marking.agreement_window`), set to three here. Recomputed from the checked answers
+    themselves: the newest first, by when the paper was read and then by the question, a doubt never counted."""
+    conn.execute("update threshold set value = 3 where key = 'marking.agreement_window'")
+    first = a_read_paper(
+        conn,
+        [
+            {"status": "correct", "read": "35", "state": "confirmed"},
+            {"status": "correct", "read": "35", "state": "confirmed"},
+            {
+                "status": "wrong",
+                "read": "17",
+                "typed": "35",
+            },  # the reader stood behind 17; the child wrote 35
+            {"status": "correct", "read": "35", "state": "confirmed"},
+        ],
+        fmt=TRUST,
+    )
+    newest = conn.execute(
+        "select reader_right from answer_checked where fmt = %s and stood"
+        " order by read_at desc, item_key desc, item_result_id desc limit 3",
+        (TRUST,),
+    ).fetchall()
+    assert [r["reader_right"] for r in newest] == [True, False, True]
+    view = conn.execute(
+        'select n, "right", trusted, checks_to_trust from kind_trust where fmt = %s', (TRUST,)
+    ).fetchone()
+    assert dict(view) == {"n": 3, "right": 2, "trusted": False, "checks_to_trust": 2}
+    assert profiles.kind_trust(conn)[TRUST] == {"n": 3, "right": 2, "trusted": False, "to_trust": 2}
+    # three right checks on a paper read later: the window is theirs, and the kind is trusted
+    later = a_read_paper(conn, [{"status": "correct", "read": "35", "state": "confirmed"}] * 3, fmt=TRUST)
+    conn.execute(
+        "update capture set created_at = now() + interval '1 minute' where id = %s", (later["capture"],)
+    )
+    assert profiles.kind_trust(conn)[TRUST] == {"n": 3, "right": 3, "trusted": True, "to_trust": 0}
+    assert first["results"]
+
+
+def test_checks_to_trust_counts_the_right_checks_the_window_still_needs(conn):
+    """How far a kind is from trust: the right checks still needed, one after another, before its window holds enough of
+    them; none once trusted. Over fifty checks at 95%: none made yet needs fifty; forty-nine right needs one more; three
+    wrong among the oldest need one, to push the oldest out; three wrong among the newest need forty-eight."""
+
+    def to_trust(recent, size=50, bar=0.95):
+        return conn.execute(
+            "select checks_to_trust(%s::boolean[], %s, %s) as k", (recent, size, bar)
+        ).fetchone()["k"]
+
+    assert to_trust([]) == 50
+    assert to_trust([True] * 49) == 1
+    assert to_trust([True] * 50) == 0
+    assert to_trust([True] * 47 + [False] * 3) == 1
+    assert to_trust([False] * 3 + [True] * 47) == 48
