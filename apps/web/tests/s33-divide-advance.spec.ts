@@ -5,6 +5,10 @@
  * each Advance kind with its own numbers: a digit missing in the number divided, the remainder or the divisor missing,
  * a claimed answer to judge, a check by multiplying, how many digits a quotient has or the number divided rounded, and
  * ÷ 5 as ÷ 10 then doubled — named in words, never a code. The switch is put back after.
+ *
+ * And the last of them (goals/md3b3-divide-mistakes-and-stories.yaml): a worked division whose mistake the child finds,
+ * named on the Question bank by the mistake's own row — the words the school edits, which no code carries a copy of —
+ * and the stories that use what is left over.
  */
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
@@ -43,3 +47,28 @@ test("once taught, the column skills' Advance kinds are on the Question bank wit
     await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
   }
 });
+
+test("a worked division's mistake is named on the Question bank by its row", async ({ page }) => {
+  const topics = await sql<{ code: string }[]>`
+    select distinct t.code from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+    where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
+  // each mistake a worked division shows, by its row: what the Question bank must call it
+  const rows = await sql<{ code: string; name: string }[]>`
+    select code, name from misconception
+    where op = '÷' and code in ('M_DIV_REMAINDER_TOO_BIG', 'M_DIV_QUOTIENT_ZERO_DROPPED', 'M_DIV_BRING_DOWN_MISSED')`;
+  expect(rows.length, "each mistake a worked division shows has its row").toBe(3);
+  const name = Object.fromEntries(rows.map((r) => [r.code, r.name]));
+  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  try {
+    const worked = /\d+ ÷ \d+ and wrote \d+( r \d+)?/;
+    await shows(page, "DIV.2D1D", "find_mistake", worked, "a worked division with a remainder too big");
+    await expect(page.getByRole("main").getByRole("table").last()).toContainText(name.M_DIV_REMAINDER_TOO_BIG);
+    await shows(page, "DIV.3D1D", "find_mistake", worked, "a worked division with a zero left out or a digit missed");
+    const listed = page.getByRole("main").getByRole("table").last();
+    await expect(listed).toContainText(new RegExp(`${name.M_DIV_QUOTIENT_ZERO_DROPPED}|${name.M_DIV_BRING_DOWN_MISSED}`));
+    await shows(page, "DIV.2D1D", "word_1step", /left over|full|needed/, "a story that uses what is left over");
+  } finally {
+    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+  }
+});
+

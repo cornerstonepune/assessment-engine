@@ -5920,3 +5920,20 @@ Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
 - CI's whole engine suite on `8dd2f26`: 2,142 passed, 1 failed, `test_roles.py`. The website's exact list of the
   functions it may call lacked `checks_to_trust`, which the `kind_trust` view runs as the website. Added to the list,
   as `mistake_name` was: the list stays exact.
+
+## M3b3 — names, measured before the build (2026-10-10)
+
+- The code carries a copy of 41 mistakes' names and repair hints beside their predictors
+  (`misconceptions.py`'s tables, `mul_mistakes.PREDICTORS`, `written_methods.NAMES`).
+- Two names say otherwise than the rows the school edits: `M_ZERO_DROPPED` ("Drops a placeholder zero when writing the
+  answer" against the row's "Drops a leading, trailing or internal zero when writing the answer") and
+  `M_CARRY_ALWAYS_1` ("Carries 1 when the column total is 20 or more" against "Assumes a carry is always 1"). Six
+  repair hints differ.
+- Who reads the copies:
+  - a worked answer's "why" prints its name as the rubric (`diagnosis._why`), shown on the Question bank as "Looks for",
+    beside the planted mistake named from its row — two names for one mistake on one page, where they differ;
+  - Jev's shortlist is shown the code's names (`mistake_guess.options`);
+  - the repair hints are read by a test alone (`misconceptions.catalogue`).
+- A division's mistakes have no name in code, so a worked division's "why" would print a code.
+- So the rows are the one source (rule 1): the copies go, the "why" names no mistake, and Jev is shown the rows'
+  names. Jev's input changes for `M_ZERO_DROPPED` alone; `engine eval mistake_guess` is run after the deploy.

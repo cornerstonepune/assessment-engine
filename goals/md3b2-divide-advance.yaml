@@ -29,7 +29,7 @@ says:
   - words: "create assessments of different levels of difficulty"
     proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_draws_its_cases_as_measured
   - words: "break it down into LOs"
-    proved_by: packages/engine/tests/test_divide_advance.py::test_what_the_column_advances_still_wait_for_is_named
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_placement_on_the_column_advances_is_held
   - words: "same process"
     proved_by: packages/engine/tests/test_divide_advance.py::test_a_column_advance_question_has_one_home
   - words: "look at how addition and subtraction were done"

@@ -1,0 +1,93 @@
+name: md3b3-divide-mistakes-and-stories
+goal: >
+  The column skills' Advance levels hold the last of what the drafted document places on them. On DIV.2D1D (Grade 3) and
+  DIV.3D1D (Grade 4) a child finds the mistake in another child's division: a remainder too big (85 ÷ 4 = 20 r 5), the
+  zero left out of the quotient (612 ÷ 6 = 12), the last digit never brought down (516 ÷ 4 = 12 r 3). Each worked answer
+  is the named mistake made on the level's own numbers. The right answer goes in the division's own boxes, the
+  quotient's and the remainder's, keyed as a straight division's are. The child says why, and a person reads it against
+  the mistake's own row. On DIV.2D1D a story divides with something left over and uses it as the story needs: the full
+  boxes (the remainder dropped), the rickshaws needed (one more for those left), how many are left over, or both. Each
+  story's words are a template row that says what it does with the remainder, its answer is worked from its numbers and
+  that row, and every wrong answer is a named mistake; the remainder not rounded up is a mistake of its own, with its own
+  row. A mistake's name and what the school does about it are its row alone: no code carries a copy, nothing the code
+  prints names a mistake, and Jev is shown the rows' names. Every question is, as measured, a case of its level, its
+  answer recomputed, none held by two levels, and every level fills its worksheets. None of it is taught until an
+  educator says so.
+# Written 2026-10-10, before the code: slice M3b3 of BUILD-ORDER "Inserted now: multiplication and division", after NY1
+# and NY2. Measured first (STATE.md "M3b3 — measured before the build"), on each level's own numbers: DIV.2D1D holds 331
+# divisions, 254 with a remainder, and a remainder too big shows on all 254; DIV.3D1D holds 7,112, the zero left out
+# showing on 1,170 and the last digit not brought down on 7,035. No step is ticked: for the last digit missed, the
+# answer would always be "bring down", which a child ticking the same box every time would score, so the step is said
+# in the why. Finding the mistake needs a module of its own (diagnosis.py is at 397 lines); the stories need template
+# rows that say what they do with the remainder, a mistake no row holds, and a remainder's box printed after the answer.
+# Names, measured: 41 names and repair hints of mistakes are written in code beside their predictors. They are read
+# where a person sees them in one place only, the "why" a worked answer asks, and 2 of them say otherwise than the rows
+# the school edits (M_ZERO_DROPPED, M_CARRY_ALWAYS_1); the repair hints are read only by a test; Jev's shortlist is
+# shown the code's names. A division's mistakes have no name in code, so its "why" would print a code. The rows are the
+# one source (rule 1): the copies go.
+says:
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_draws_its_cases_as_measured
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_placement_on_the_column_advances_is_held
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_divide_found.py::test_a_worked_division_shows_its_named_mistake_on_the_levels_own_numbers
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_divide_found.py::test_the_right_answer_goes_in_the_divisions_own_boxes
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_found.py::test_no_step_is_ticked_the_why_says_it
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_divide_stories.py::test_a_story_uses_what_is_left_over_as_it_needs
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_stories.py::test_a_storys_words_are_a_row_that_says_what_it_does_with_the_remainder
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_stories.py::test_the_remainder_not_rounded_up_is_a_mistake_of_its_own
+  - words: "same process"
+    proved_by: packages/engine/tests/test_divide_stories.py::test_a_scenario_recomputes_a_storys_answer_by_what_it_does_with_the_remainder
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mistake_rows.py::test_a_mistakes_words_are_its_row_alone
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mistake_rows.py::test_every_mistake_the_code_can_name_has_its_row
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mistake_rows.py::test_jev_is_shown_the_rows_names
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_divide_stories.py::test_a_division_story_and_a_worked_division_print_the_remainders_box
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_fills_its_worksheets
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s33-divide-advance.spec.ts::a worked division's mistake is named on the Question bank by its row"
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live`. The two Advance levels' new questions and
+    worksheets, the template rows and the new mistake's row reach live only through `engine load`, `bank refill` and
+    `library build`."
+  - "After the deploy: `engine eval mistake_guess` (the `engine eval` workflow) with Jev shown the rows' names; its score
+    is recorded in DECISIONS-LOG.md."
+  - "Achal: drafted for you to correct. A worked division shows one named mistake on the level's own numbers; the child
+    writes the right answer in the division's boxes and says why. For the last digit not brought down, the child says
+    which step went wrong in the why: no box is ticked for it. The stories' words are drafted as template rows (laddoos in
+    boxes, children in rickshaws). Both asked is printed as the division writes it, 6 r 2. The remainder not rounded up
+    (26 children, 4 to a rickshaw, answered 6) is a new mistake, its name and what to do about it drafted for you."
+scenarios:
+  - name: DIV.2D1D, Advance — the boxes, estimates and checks, the mistake found, and the stories with something left over
+    skill_set: DIV.2D1D
+    difficulty: Advance
+    n: 40
+    cases: [Q09, Q12, Q13, V09, Y10, C05, B14, B15, B16, B17]
+  - name: DIV.3D1D, Advance — the boxes and estimates, the zero left out of the quotient and the last digit not brought down
+    skill_set: DIV.3D1D
+    difficulty: Advance
+    n: 40
+    cases: [Q10, V04, V10, H09, C04, C07]
+criteria:
+  - name: the two Advance levels' new kinds, their mistakes and printing; the names from the rows; the levels, taxonomy and scenarios they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_divide_found.py tests/test_divide_stories.py tests/test_mistake_rows.py tests/test_divide_advance.py tests/test_facts_advance.py tests/test_misconceptions.py tests/test_mistake_guess.py tests/test_mistake_names.py tests/test_items.py tests/test_mul_mistakes.py tests/test_mul_advance.py tests/test_mul_methods.py tests/test_mul_models.py tests/test_division_is_an_operation.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_every_skill.py tests/test_every_listed_case.py tests/test_verify.py tests/test_library.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank names a planted mistake by its row
+    run: cd apps/web && npx playwright test tests/s33-divide-advance.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -1,6 +1,8 @@
 """The column skills' Advance, ÷ (goals/md3b2-divide-advance.yaml): DIV.2D1D and DIV.3D1D hold the boxes, estimates and
 checks the drafted document places on them, each drawn on its level's own numbers (ADR 0057) and each box keyed by the
-act that finds it (STATE.md "M3b2 — measured before the build"). The mistake found and the remainder stories are M3b3's.
+act that finds it (STATE.md "M3b2 — measured before the build"); and, since M3b3 (goals/md3b3-divide-mistakes-and-
+stories.yaml), the mistake found and the stories that use what is left over (`test_divide_found.py`,
+`test_divide_stories.py`), so each level holds every case the document places on it.
 Every expected value here is worked from the named mistakes' own predictors, never read back from the code under test."""
 
 import dataclasses
@@ -30,9 +32,10 @@ CASES = {c["code"]: c for c in json.loads((SEED / "taxonomy_cases.json").read_te
 DOC = {
     c["code"]: c for c in json.loads((ROOT / "docs/design/multiplication-division-cases.json").read_text())
 }
-KINDS = {"DIV.2D1D": ["Q09", "Q12", "Q13", "V09", "Y10"], "DIV.3D1D": ["Q10", "V04", "V10", "H09"]}
-# the document's other placements on these two levels: the mistake found and the remainder stories, M3b3's
-LATER = {"DIV.2D1D": ["B14", "B15", "B16", "B17", "C05"], "DIV.3D1D": ["C04", "C07"]}
+KINDS = {
+    "DIV.2D1D": ["Q09", "Q12", "Q13", "V09", "Y10", "C05", "B14", "B15", "B16", "B17"],
+    "DIV.3D1D": ["Q10", "V04", "V10", "H09", "C04", "C07"],
+}
 FMT = {
     **dict.fromkeys(["Q09", "Q10"], "missing_digit"),
     **dict.fromkeys(["Q12", "Q13"], "missing_number"),
@@ -40,6 +43,8 @@ FMT = {
     "V09": "possible_answer",
     "Y10": "inverse_check",
     "H09": "efficient_method",
+    **dict.fromkeys(["C04", "C05", "C07"], "find_mistake"),
+    **dict.fromkeys(["B14", "B15", "B16", "B17"], "word_1step"),
 }
 GRADE = {"DIV.2D1D": "G3", "DIV.3D1D": "G4"}
 
@@ -120,13 +125,12 @@ def test_each_column_advance_holds_the_documents_boxes_estimates_and_checks():
             assert match.get("fmt") == FMT[c] and match.get("operation") == "DIV", (c, match)
 
 
-def test_what_the_column_advances_still_wait_for_is_named():
-    """The document's other placements on these levels, the mistake found and the remainder stories, wait for M3b3,
-    which BUILD-ORDER names; nothing else is placed there."""
-    assert "| M3b3 |" in (ROOT / "BUILD-ORDER.md").read_text()
+def test_every_placement_on_the_column_advances_is_held():
+    """Every case the document places on these two Advance levels is held by its level: the boxes, estimates and checks
+    (M3b2), the mistake found and the stories that use what is left over (M3b3). Nothing waits for a slice."""
     for skill in KINDS:
         placed = sorted(c for c, x in DOC.items() if f"{skill}:Advance" in x["placed_in"])
-        assert placed == sorted(KINDS[skill] + LATER[skill]), (skill, placed)
+        assert placed == sorted(KINDS[skill]), (skill, placed)
 
 
 # ---------------------------------------------------------------------------------------------- drawn
@@ -400,12 +404,13 @@ def test_a_scenario_recomputes_every_new_box():
 
 
 def test_every_new_kind_prints_its_numbers_and_sign():
-    """On paper each question shows its own numbers and ÷, and a box for every answer it asks."""
+    """On paper each question shows its own numbers and ÷ (a story its numbers in its words), and a box for every
+    answer it asks."""
     for skill in KINDS:
         for case, it in _drawn(skill)[:36]:
             html = render.render_item(Sheet("CS000000", GRADE[skill], "Advance", 1, "W1", [it]), it, 1)
             text = re.sub(r"<[^>]+>", " ", html)
-            assert "÷" in text, (case, text[:200])
+            assert "÷" in text or it.fmt == "word_1step", (case, text[:200])
             shown = it.spec.get("text") or f"{it.spec['a']} {it.spec['b']}"
             for n in re.findall(r"\d+", shown):
                 assert re.search(rf"(?<!\d){n}(?!\d)", text), (case, n, text[:300])
