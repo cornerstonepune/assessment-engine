@@ -128,3 +128,43 @@ def test_a_jev_eval_jev_cannot_answer_fails_and_says_why(purpose, monkeypatch):
     r = run("eval", purpose)
     assert r.exit_code == 1, r.output_plain
     assert "not answered" in r.output_plain and "TYPESAFE_API_KEY" in r.output_plain
+
+
+def test_read_report_says_each_kinds_standing_as_the_one_rule_gives_it(monkeypatch):
+    """`engine read report` prints each kind's window and the right checks it still needs as the database's one rule
+    gives them (`kind_trust`, ADR 0060) — never a 50 or a 95% of its own."""
+    from contextlib import nullcontext
+
+    from engine.core import db
+    from engine.w3_read import profiles
+
+    kind = {"checked": 9, "right": 7, "silently_wrong": 1, "gave_up": 1, "window_n": 8, "window_right": 7}
+    report = {
+        "total": {
+            "checked": 18,
+            "stood_behind": 16,
+            "right": 14,
+            "silently_wrong": 2,
+            "gave_up": 2,
+            "guess_right": 0,
+        },
+        "kinds": {
+            "bare_sum": {**kind, "trusted": True, "to_trust": 0},
+            "column_grid": {**kind, "trusted": False, "to_trust": 4},
+        },
+        "window": 8,
+        "batches": [],
+        "children": [],
+    }
+    monkeypatch.setattr(db, "connect", lambda: nullcontext(None))
+    monkeypatch.setattr(profiles, "report", lambda conn: report)
+    result = run("read", "report")
+    assert result.exit_code == 0, result.output
+    lines = result.output_plain.splitlines()
+    assert any("last 8" in line for line in lines)
+    assert [line.split()[-1] for line in lines if line.strip().startswith("bare_sum")] == ["trusted"]
+    assert any(
+        line.strip().startswith("column_grid")
+        and line.endswith("not trusted (7 of 8; 4 more right checks to trust)")
+        for line in lines
+    )
