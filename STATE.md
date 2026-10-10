@@ -5136,3 +5136,62 @@ Each (case, level) pair the seed lists, drawn alone on its level as the bank dra
     which withdraws the approval of the 11 skills AS1 changes.
 - **Not a defect:** EQUALITY.INVERSE's Advance holds a 3-digit M25 above its `hi` of 50. Its own words ask for "a
   3-digit number to work back to: □ − 275 = 418", and the 50 bounds its other cases.
+
+## AS2 — measured before the build (2026-10-10)
+
+AS1 is merged and deployed: main `9a4b366`, CI, `migrate live` (migration `20261029090000`) and `deploy engine` green
+(03:18 UTC).
+
+Each 1-digit Advance level filled whole, as `bank refill` fills it and a scenario asks for it (dry run, three seeds,
+`draw.level` with the level's own target), on AS1's tree:
+- **SUB.1D1D's Advance (108): W11, W02 and W03 held 0 times.** W04, W05, W08 and W09 took 9 each: all 36 pairs of two
+  1-digit numbers a − b. A story's key was its numbers, so the shapes listed after them found every pair taken. STATE
+  and BUILD-ORDER had named W02 and W03; W11 starves the same way.
+- **ADD.1D1D's Advance (216): W06 held 0 times.** W01, W07 and W10 took 24 each, all 72 pairs.
+- Every seed the same: the order of the case list decides which shapes a level never holds.
+
+## AS2 — found on the way (2026-10-10)
+
+- **A story a person reworded lost its shape at the next relabel, and the refill retired it.** A story's shape was read
+  from its words (`words.structure_of`), and a rewording matches no template. On a copy, rolled back: SUB.2D2D's
+  `WP1-004ec883` (JOIN_CHANGE, W02) reworded keeps its shape and case; `bank relabel` changes its tags, cases and
+  charged skills (shape `None`, cases `[]`); `cases.outside_their_level` then names it "dimension outside every case
+  the level holds". update-live runs `relabel` and `refill` every time, so every story an educator reworded would leave
+  the bank at the next update. The shape is now in the spec, which a rewording copies; `bank rekey` gives a stored
+  rewording its story's shape, followed back through `corrected_from`.
+- **A two-step story's key held no operation.** UNKNOWN_FIRST (a − b + c, a + b − c), EXTRA_INFORMATION (a − b, a + b)
+  and CONSTRAINT (a − b + c, (a − b) ÷ 2) each hold two arithmetics under one shape: two different questions shared a
+  key, and the second was dropped as held. The key holds the operations now; a test holds every pair of templates that
+  key alike to one answer.
+- **`bank_proposal` is append-only**, so a re-keyed story's proposal cannot follow it. A key change is a row of
+  `item_key_change`; `current_item_key()` leads an old key to its question for every reader that may hold one: the
+  question page (engine and website), a rewording or removal, a proposal decided, the "already proposed" check, a gold
+  file loaded.
+- **`bank recheck` would have dropped every one-step story from its audit.** It rebuilds only specs whose fields it
+  knows, and a story's spec now holds its shape. `structure` is one `verify.to_item` makes, so it is let through; a
+  test names a story whose answer was changed by hand.
+- **One reworded story re-dealt every worksheet of its level.** The whole suite on AS1's tree (fresh11): 2012 passed, 1
+  failed, `test_question::test_rewording_a_question_moves_it_onto_a_new_worksheet_and_retires_the_old_one`. Replayed on
+  the same copy: ADD.2D2D's Advance, 221 questions on 19 worksheets; the reworded story's worksheet (R22-A19, dealt
+  last) held the level's 7 repeated questions, so 5 were left uncovered; the patch filled the other 7 places by use and
+  then key, all one kind (5 column sums where the fair share is 1.8); the patch failed its fairness check and all 19
+  worksheets were retired and dealt again. CI's bank put that story on another worksheet, so CI passed. The filler
+  now takes each kind to its fair share (`library._filler`); replayed, 18 worksheets kept and 1 made.
+- **CI on `2cd814c`: the browser suite, 152 passed, 4 failed, all one cause.** `item_key_change` named its question
+  `on delete cascade`, and its append-only trigger fires for each statement: every `delete from item`, which two browser
+  tests run to put their rows away, cascaded a DELETE into the ledger and was refused even with no row to remove. The
+  e2e rewording test's clean-up stopped half-way, its reworded question stayed active with no worksheet, and the bank
+  page lists the newest first, so both question-bank tests then found a first row with no worksheet link. The reference
+  now has no cascade (migration `20261030090000`, never applied to live): a question whose key never changed is deleted
+  as before, and one whose key did is kept, as its ledger row is.
+- **The rehearsal on a copy of live passed without running `bank rekey`.** It keeps its own list of update-live's steps,
+  and the new one was not in it. A test now holds the rehearsal to every command update-live runs, in its order
+  (`test_update_live.py`, failing first on the old list).
+- **A copy printed before a story was keyed again would not have read its boxes.** A worksheet's key file names each box
+  by its question's key as printed (ADR 0050 rejected changing a stored key in place for this), and the reader matched
+  boxes to the question's key now. `copies.paper` reads the key file through `current_item_key`; a test rewrites a
+  rendered worksheet's key file to name a story by its old key and reads every box by the key it has now.
+- **The rehearsal of `2cd814c` on a copy of live** (without `bank rekey`): 13 skill sets wait for approval (as AS1's);
+  `bank rehome` moves 606 and retires 258 stories whose shape no template names, as on every rehearsal since M2a (ADR
+  0050: `MUL.1D`'s); refill retires 541 and adds 4,561; 3,388 worksheets, 124 of 124 levels ready, 0 problems; every
+  after-check ok. Live holds 20 one-step stories with no shape, the model-written ones (the rehearsal's own listing).

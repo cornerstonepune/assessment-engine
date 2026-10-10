@@ -4,7 +4,7 @@
 #
 # 1 main, pulled   2 new migrations onto the live database, before anything reads them
 # 3 the engine server on that code (deploy/go-live.sh)   4 the seed rows (engine load)
-# 5 every question's labels measured again, the old ladder's questions and papers moved onto the skills
+# 5 every stored story keyed by its shape (ADR 0053), every question's labels measured again, the old ladder's questions and papers moved onto the skills
 #   (rehome places by those labels, so it comes after relabel), questions made by an old rule replaced,
 #   worksheets rebuilt, each child's skills rebuilt from their answers (engine graph)
 # 6 the checks, printed; `engine live data` fails the run when the rows and the pages disagree.
@@ -40,6 +40,7 @@ for p in "$REPO"/supabase/seed/papers/*.json; do "$E" legacy paper "$p" >/dev/nu
 "$E" legacy mark-again --by "the marking rule (update-live)"   # every answer a person read, by the rule as it now stands
 
 say "5/6 the bank, the worksheets, each child's skills"
+"$E" bank rekey      # a story stored before its shape was in its key, keyed again; before relabel reads its shape
 "$E" bank relabel
 "$E" bank rehome
 "$E" bank refill

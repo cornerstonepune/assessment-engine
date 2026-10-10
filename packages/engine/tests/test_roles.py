@@ -31,7 +31,8 @@ WEB_WRITES = {
     # a wrong password for an email, so too many make it wait (goals/p2-live-recovers.yaml)
     "public.sign_in_failure": {"INSERT"},
 }
-# Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name.
+# Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name, a
+# question by a key it had before it was keyed again (`current_item_key`, the question page, ADR 0053).
 WEB_CALLS = {
     "confirm_results",
     "resolve_result",
@@ -43,6 +44,7 @@ WEB_CALLS = {
     "result_order",
     "mistake_name",
     "operation_sign",
+    "current_item_key",
 }
 
 

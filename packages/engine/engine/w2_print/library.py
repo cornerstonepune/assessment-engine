@@ -156,6 +156,20 @@ def _unfair(ids, fmt_of, share, total, n):
     ]
 
 
+def _filler(questions, used, uncovered, share, places):
+    """What fills the new worksheets' `places` beside `uncovered`: each kind up to its fair share of them (`_shares`, by
+    the level's own mix), the least used of it first, then the least used of any kind for what is left. Taken by use
+    and key alone, the filler came from whichever kind's keys sort first: a retired worksheet holding the level's
+    repeated questions left five uncovered, seven bare sums filled the rest, the patch was unfair, and one reworded
+    story re-dealt all nineteen worksheets of its level (STATE.md "AS2 — found on the way")."""
+    least = sorted((q for q in questions if q["id"] in used), key=lambda q: (used[q["id"]], q["item_key"]))
+    have = Counter(q["fmt"] for q in uncovered)
+    fair = {k: sum(v) for k, v in _shares(dict(share), places, 1).items()}
+    out = [q for k in fair for q in [q for q in least if q["fmt"] == k][: max(0, fair[k] - have[k])]]
+    taken = {q["id"] for q in out}
+    return out + [q for q in least if q["id"] not in taken][: max(0, places - len(uncovered) - len(out))]
+
+
 def _plan_level(conn, lv, n):
     """(worksheets to retire, question lists to make) for one skill at one level."""
     questions = conn.execute(
@@ -196,9 +210,8 @@ def _plan_level(conn, lv, n):
     if not count:
         return retire, []
     # What a retired worksheet or a new question left uncovered goes first; the rest of the new
-    # worksheets is filled with the questions used least so far.
-    fill = sorted((q for q in questions if q["id"] in used), key=lambda q: (used[q["id"]], q["item_key"]))
-    new = deal(uncovered + fill[: max(0, count * n - len(uncovered))], n, kinds, count)
+    # worksheets is filled, kind by kind, with the questions used least so far.
+    new = deal(uncovered + _filler(questions, used, uncovered, share, n * count), n, kinds, count)
     # The smallest change is taken only if it keeps every rule. A small level whose worksheets share
     # questions cannot always be patched evenly — then the level is dealt afresh, its worksheets all
     # retired (never edited) and a whole new set made.

@@ -5,8 +5,9 @@ The sentences are rows, not Python: `word_templates.json` beside this file, the 
 while it runs, and the server's image holds `engine/` alone (`tests/test_image.py`). Each template says its story shape (taxonomy §10:
 join or take away with the result, the change or the start unknown; two parts and a whole; compare, and
 which side is unknown; the two-step shapes) and the operation the child carries out, so a story's shape
-is known by construction, never guessed from its words. Old questions whose sentence predates the stored
-shape are matched back to their template by `structure_of`.
+is known by construction, never guessed from its words. A story is its numbers, its shape and its operations, so
+all three are in its spec and its key (`story_spec`, ADR 0053); one stored before that is matched back to its
+template by `template_of` and keyed again (`engine bank rekey`).
 """
 
 import json
@@ -46,9 +47,9 @@ THINGS = _seed()["tally_things"]  # what a tally counts (`counting.tally`)
 
 
 @lru_cache(maxsize=1)
-def _patterns():
+def _patterns() -> list[tuple[re.Pattern[str], dict[str, Any]]]:
     """Each template as a pattern that matches the sentences it wrote, whatever the names and numbers."""
-    out = []
+    out: list[tuple[re.Pattern[str], dict[str, Any]]] = []
     for t in templates():
         rx = re.escape(t["text"])
         rx = re.sub(r"\\\{(?:n|n2)\\\}", r"[A-Z][a-z]+", rx)
@@ -57,15 +58,31 @@ def _patterns():
     return out
 
 
-def template_of(stem):
-    """The template that wrote a stored sentence, or None. A story's shape and its operations are read
-    from it, never stored on the question, so the question's key is its numbers and words alone."""
+def template_of(stem: str | None) -> dict[str, Any] | None:
+    """The template that wrote a stored sentence, or None: how a story stored before its shape was in its spec
+    finds it (`engine bank rekey`), and how a sentence a person wrote is told from one a template wrote."""
     return next((t for rx, t in _patterns() if rx.fullmatch(stem or "")), None)
 
 
-def structure_of(stem):
+def structure_of(stem: str | None) -> str | None:
     t = template_of(stem)
     return t["structure"] if t else None
+
+
+def story_spec(tpl: dict[str, Any], **numbers: int) -> dict[str, Any]:
+    """What a story is: its numbers, its shape and its operations, everything its template says but the words (ADR
+    0053). Its key is made from this, so two shapes of one numbers pair are two questions; `bank rekey` builds a stored
+    story's here too, in the same order, since the key is the spec as written. A two-step story's operations tell apart
+    two templates of one shape whose answers differ (a number thought of, then added to or taken from)."""
+    spec: dict[str, Any] = dict(numbers)
+    if tpl["fmt"] == "word_1step":
+        spec["op"] = tpl["op"]
+    spec["structure"] = tpl["structure"]
+    if tpl["fmt"] == "word_2step":
+        spec["ops"] = list(dict.fromkeys(tpl["op"]))
+    if tpl.get("table"):
+        spec["table"] = [[tpl["table"][0], numbers["a"]], [tpl["table"][1], numbers["b"]]]
+    return spec
 
 
 def word_1step(
@@ -108,11 +125,10 @@ def word_1step(
     ans = a + b if tpl["op"] == "+" else a - b
     mis = M.predict(tpl["op"], a, b)
     mis["M_WRONG_OP"] = abs(a - b) if tpl["op"] == "+" else a + b
-    spec = dict(a=a, b=b, op=tpl["op"])
-    if tpl.get("table"):
-        spec["table"] = [[tpl["table"][0], a], [tpl["table"][1], b]]
     r = Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)
-    return item("WP1", rung, "Application", "word_1step", stem, spec, [r], working_lines=3)
+    return item(
+        "WP1", rung, "Application", "word_1step", stem, story_spec(tpl, a=a, b=b), [r], working_lines=3
+    )
 
 
 def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
@@ -121,7 +137,9 @@ def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int,
     n, n2 = rng.sample(NAMES, 2)
     r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=M.predict("×", a, b))
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
-    return item("WP1", rung, "Application", "word_1step", stem, dict(a=a, b=b, op="×"), [r], working_lines=3)
+    return item(
+        "WP1", rung, "Application", "word_1step", stem, story_spec(tpl, a=a, b=b), [r], working_lines=3
+    )
 
 
 def _two_step_numbers(rng, structure, digits_max):
@@ -165,8 +183,9 @@ def word_2step(rng, rung, signal, digits_max, structure=None):
     n = rng.choice(NAMES)
     stem = tpl["text"].format(a=a, b=b, c=c, n=n)
     r = Response("ans", "digits", str(ans), cells=cells(a + b + c), misconceptions=mis)
-    spec = dict(a=a, b=b, c=c)
-    return item("WP2", rung, "Application", "word_2step", stem, spec, [r], working_lines=4)
+    return item(
+        "WP2", rung, "Application", "word_2step", stem, story_spec(tpl, a=a, b=b, c=c), [r], working_lines=4
+    )
 
 
 def word_budget(rng, rung, signal, n_costs=3, budget_range=(5000, 12000), one_cost_is_a_product=False):

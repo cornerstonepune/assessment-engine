@@ -6,7 +6,7 @@ import typer
 
 from engine.adapters.llm import LLMError
 from engine.core import db
-from engine.w1_bank import bank, inventory, mistake_guess, review, spec, story_shape
+from engine.w1_bank import bank, inventory, mistake_guess, review, spec, story_keys, story_shape
 from engine.w1_bank.cli_taxonomy import register as register_taxonomy
 
 bank_app = typer.Typer(help="W1 — the question bank", no_args_is_help=True)
@@ -174,6 +174,24 @@ def bank_recheck() -> None:
     typer.echo(f"  {len(bad)} mismatches")
     if bad:
         raise typer.Exit(1)
+
+
+@bank_app.command("rekey")
+def bank_rekey(dry_run: bool = typer.Option(False, "--dry-run", help="Count, change nothing")) -> None:
+    """Key every story stored before its shape was part of it by its numbers, its shape and its operations (ADR 0053).
+    A review and a gold finding follow it; a key it had still leads to it. Nothing is reworded."""
+    with db.connect() as conn:
+        out = story_keys.rekey(conn)
+        if dry_run:
+            conn.rollback()
+        else:
+            conn.commit()
+    followed = " · ".join(f"{table} {n}" for table, n in out["followed"].items())
+    typer.echo(
+        f"  {'would key' if dry_run else 'keyed'} {out['keyed']} stories again ({followed} followed)"
+        f" · {out['reworded']} rewordings given their story's shape · {out['duplicates']} the same story twice,"
+        f" the older retired · {out['unwritten']} whose words no template wrote keep their key"
+    )
 
 
 @bank_app.command("flag")

@@ -35,7 +35,8 @@ def load(conn, path, actor="engine-cli") -> int:
             raise ValueError(f"{len(kids)} children are named {f['child']!r}; a finding names exactly one")
         conn.execute(
             "insert into gold_finding (tenant_id, child_id, verdict, skill_code, item_key, expect_mark,"
-            " child_answer, misconception_code, words, source) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " child_answer, misconception_code, words, source)"  # a file written before a key changed names the old one
+            " values (%s,%s,%s,%s,public.current_item_key(%s),%s,%s,%s,%s,%s)"
             " on conflict on constraint gold_finding_one_per_example do update set"
             " expect_mark = excluded.expect_mark, child_answer = excluded.child_answer,"
             " misconception_code = excluded.misconception_code, words = excluded.words,"

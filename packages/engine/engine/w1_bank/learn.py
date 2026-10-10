@@ -56,7 +56,8 @@ def refresh(conn) -> list[dict]:
         " cross join lateral (select case when s.p_correct > %s then 'easier' else 'harder' end as direction) d"
         " where s.flagged_mislevelled and i.status = 'active' and not exists ("
         "   select 1 from bank_proposal p where p.tenant_id = i.tenant_id and p.kind = 'mislevelled'"
-        "   and p.subject = i.item_key and p.direction = d.direction)",
+        "   and p.direction = d.direction and (p.subject = i.item_key"  # or the key it had then (ADR 0053)
+        "   or p.subject in (select k.old_key from item_key_change k where k.item_id = i.id)))",
         (high,),
     )
     learned.propose(conn)  # rules children's unexplained answers point to (goals/s22-learned-mistakes.yaml)

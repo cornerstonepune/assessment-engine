@@ -255,6 +255,31 @@ def test_a_question_whose_number_is_not_found_on_the_page_takes_its_page_from_th
     assert by_key["8"]["spec"]["question"].split()[:4] == words[8][1].split()[:4]
 
 
+def test_a_copy_printed_before_a_story_was_keyed_again_reads_its_boxes_by_the_key_it_has_now(conn, worksheet):
+    """A worksheet's key file names each box by its question's key as it was printed. A story keyed again since (`bank
+    rekey`, ADR 0053) is found through the key it had, so a copy printed before reads as it did: ADR 0050 rejected
+    changing a stored key in place for exactly this, before a key change was a row of its own."""
+    tenant, code, ids, pdf = worksheet
+    now = conn.execute("select item_key from item where id = %s", (ids[0],)).fetchone()["item_key"]
+    was = f"WP2-{uuid.uuid4().hex[:8]}"  # the key it was printed under
+    key_file = pdf.with_suffix(".key.json")
+    printed = json.loads(key_file.read_text(encoding="utf-8"))
+    assert any(cell["item"] == now for cell in printed["geometry"])
+    printed["geometry"] = [{**c, "item": was if c["item"] == now else c["item"]} for c in printed["geometry"]]
+    key_file.write_text(json.dumps(printed), encoding="utf-8")
+    conn.execute(
+        "insert into item_key_change (tenant_id, item_id, old_key, new_key, why) values (%s, %s, %s, %s, 'a test')",
+        (tenant, ids[0], was, now),
+    )
+    paper, by_key, unread = copies.paper(conn, code, pdf)
+    keys = {r["item_key"] for r in conn.execute("select item_key from item where id = any(%s)", (ids,))}
+    assert {
+        cell["item"] for cell in paper["key"]["geometry"]
+    } == keys  # every box named by its question's key now
+    assert unread == [] and "1" in by_key
+    assert copies._pages_in_key(pdf, paper["key"]["geometry"])[now] == by_key["1"]["spec"]["page"]
+
+
 def test_a_copy_cut_where_the_server_cannot_see_it_moves_to_where_the_scans_live(tmp_path, monkeypatch):
     """2026-09-24: the first copies were cut inside the repository, which the server does not mount; the next read
     moves each to `~/cornerstone/assessments/copies` rather than cutting it again, so its bytes — and so the

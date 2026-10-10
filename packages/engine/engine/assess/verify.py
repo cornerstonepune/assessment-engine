@@ -13,6 +13,7 @@ from . import estimate as E
 from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
+from . import words as W
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
 
 FORBIDDEN_WORDS = ("borrow",)
@@ -268,13 +269,16 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     mis |= {m["code"]: m["wrong_answer"] for m in c.get("misconceptions", []) if m["code"] not in table}
     if fmt == "word_1step":
         mis["M_WRONG_OP"] = abs(a - b) if op == "+" else a + b
+        # keyed as the drawer keys it when a template wrote its words (the sampler's do); a model's sentence names no
+        # shape, so it is keyed by its numbers, as it always was (ADR 0053)
+        tpl = W.template_of(stem)
         return item(
             "WP1",
             rung,
             signal,
             fmt,
             stem,
-            dict(a=a, b=b, op=op),
+            W.story_spec(tpl, a=a, b=b) if tpl and tpl["op"] == op else dict(a=a, b=b, op=op),
             [Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)],
             working_lines=lines,
             skills=skills,
