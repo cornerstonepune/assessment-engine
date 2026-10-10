@@ -3,7 +3,32 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3c: division's first models (built, PR #175)
+## 2026-10-10 — M3d: division's written methods (built)
+
+- **Slice:** M3d, W1 gate 3. DIV.2D1D and DIV.3D1D print each calculation of Easy to Hard in every written method their
+  levels list, in fair shares, as ADR 0055 did for multiplication.
+- **Goal** `goals/md3d-division-methods.yaml`; measured in STATE.md "M3d — measured before the build" (partitioning
+  refused, chunking and long division drew nothing, short division without its exchanges, no level listed methods).
+- **Built** (STATE.md "M3d — … built", ADR 0063):
+  - `assess/divide_methods.py`: partitioning the number divided, chunking by place, long division, every step a box;
+    `assess/divide_pages.py` prints them; `assess/written.py` names every written method of both operations;
+  - short division's exchanges, a small box before every digit, read where a remainder is exchanged
+    (`division.exchanges`, the print layout row `2026-10-10`);
+  - a slip inside a method counts against the operation it is made in (`skills.charges`, `skills.by_method`);
+  - the website draws each method (`components/methods.tsx`).
+- **Corrected at the source** (`research/md_taxonomy.py`): D15, a 3-digit division in a line (A2); chunking takes the
+  lots of each place; halving is MD.MENTAL's alone (M4); D01 and D02 as T01 and T02.
+- **Found by the local rehearsal, fixed at the cause:**
+  - a level is topped up in every way it prints a case (`refill.top_up`): per case, a full level kept its old ways;
+  - a division layout with exchange boxes is a question of its own (`spec.exchanged`): a retired one would have kept
+    its numbers out of the bank for good.
+- **Split along a responsibility:** `assess/straight_pages.py` out of `render.py`, `assess/draw_pair.py` out of
+  `draw.py`.
+- **Next:** CI and the rehearsal on the PR, merge, `engine done md3d-division-methods`. Then M4.
+- **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live`. `bank levels --apply` leaves
+  DIV.2D1D and DIV.3D1D waiting for one approval each on the Skill Map. Achal's question is on the site.
+
+## 2026-10-10 — M3c: division's first models (merged, #175)
 
 - **Slice:** M3c, W1 gate 3. `DIV.GROUPS`, Grade 2, the mirror of `MUL.MODELS`.
 - **Goal** `goals/md3c-division-models.yaml`; measured in STATE.md "M3c — measured before the build" (none of the nine
@@ -18,8 +43,8 @@ is verified. This file only says where the last session stopped.
   - the website's drawn kinds in `pictures.tsx`.
 - **Proved on the copy `m3c`:** 4 of 4 scenarios, the browser test, `bin/check`. The criteria's test list is corrected
   and run again.
-- **Next:** CI and the rehearsal on #175, merge, `engine done md3c-division-models`. Then M3d, the written methods of
-  division.
+- **Merged** as `97cb9cc` (#175), at the head CI had passed (`6350e65`); the rehearsal on a copy of live ran on
+  `f4ba7bc`, and nothing it ran changed after it (STATE.md "M3c merged").
 - **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live` loads Division models (untaught)
   and fills it. Achal's question is on the site.
 

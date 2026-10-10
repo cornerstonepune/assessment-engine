@@ -6010,6 +6010,15 @@ Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank ref
 - `engine eval mistake_guess` (v1, Jev shown the rows' names), on the server after the deploy (run 38089777698): the right
   mistake first 70/120, among the three 109/120, slips called NONE 30/30, slips given a mistake 0; every bar met
   (DECISIONS-LOG.md). Before: 108/120 among the three (run 36519894157).
+- `bin/engine done md3b3-divide-mistakes-and-stories` on main's code (a worktree at `0492849` with its own engine and
+  website installs), against `m3b3done` (`ny1m` and main's `engine load`):
+  - 15 of 15 of Nimish's sentences PROVED, s33 among them in the browser;
+  - 2 of 2 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,177 tests, the drafted document 0 faults, s33 2 passed, `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as for M3a to M3b2; the
+    `migrate live` run above is the proof they are there.
+  - The first run's s33 could not start the website: the worktree linked the branch's `node_modules`, which Next
+    refuses outside its project. Installed in the worktree, it passed.
 
 ## M3c — measured before the build (2026-10-10)
 
