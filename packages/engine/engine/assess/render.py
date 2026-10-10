@@ -102,7 +102,8 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
             else f'<span class="lab">&#9633; =</span>{_cells(sid, iid, r, big)}'
             for r in it.responses
         )
-    elif f in ("fact_family", "break_apart"):
+    elif f in ("fact_family", "break_apart") or (f == "inverse_check" and "right" not in R):
+        # each sentence a row and its box (the table backwards: the division, then its fact)
         body = "".join(
             f'<div class="row" style="margin-bottom:2mm"><span class="eq">{html.escape(r.label).replace("□", "&#9633;")}</span>{_cells(sid, iid, r)}</div>'
             for r in it.responses
@@ -213,11 +214,12 @@ def _estimate(
 
 
 def _efficient(sid: str, iid: str, R: dict[str, Response], cells: Callable[[Response], str]) -> str:
-    """A shortcut: the step it names, then the answer (46 × 10, then 46 × 5); or the answer and the method in words."""
-    if "step" in R:
+    """A shortcut: each box after its sentence (46 × 10, then 46 × 5; a fact from the one above it; a fact scaled by ten,
+    once and again); or the answer and the method in words."""
+    if "method" not in R:
         rows = (
-            f'<div class="row" style="margin-bottom:2mm"><span class="lab">{html.escape(R[k].label)}</span>{cells(R[k])}</div>'
-            for k in ("step", "ans")
+            f'<div class="row" style="margin-bottom:2mm"><span class="lab">{html.escape(r.label or "")}</span>{cells(r)}</div>'
+            for r in R.values()
         )
         return "".join(rows) + working(2)
     return f'<div class="row"><span class="lab">answer =</span>{cells(R["ans"])}</div>' + textbox(

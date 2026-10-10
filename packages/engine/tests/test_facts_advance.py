@@ -15,6 +15,7 @@ from collections import defaultdict
 import pytest
 
 from engine.assess import draw, placing, render, stale, tags, taxonomy, verify
+from engine.assess.items import Item, Response
 from engine.assess.pick import Sheet
 from engine.assess.words import template_of
 from engine.checks import scenarios
@@ -265,7 +266,7 @@ def test_a_missing_place_value_factor_hides_the_factor():
         r = _resp(it, "ans")
         hidden, known, c = int(r.answer), int(m[2] if m[1] == "□" else m[1]), int(m[3])
         assert _solutions(_sentence(it)) == [hidden] and hidden in POWERS, _sentence(it)
-        assert len(str(min(known, hidden))) <= 2, _sentence(it)
+        assert len(str(known)) <= 2, _sentence(it)  # the number shown, never 4000 × □ = 40000
         want = {"M_TENS_ZERO_DROPPED": hidden // 10, "M_WRONG_OP": c - known}
         assert r.misconceptions == {k: v for k, v in want.items() if v != hidden}, (
             _sentence(it),
@@ -276,7 +277,9 @@ def test_a_missing_place_value_factor_hides_the_factor():
 def test_a_fact_family_is_the_three_facts_its_fact_makes():
     """4 × 7 = 28 gives 7 × 4 = □, 28 ÷ 4 = □ and 28 ÷ 7 = □, as 7 + 5 = 12 gives its three: each box the one number
     its fact allows, the two numbers never equal (7 × 7 has two facts, not four), and each keyed as the same sum asked
-    the usual way: × read as + in the first, the two numbers multiplied and the divisor taken away in a division."""
+    the usual way: × read as + in the first, the divisor taken away in a division. A division's box names no "wrong
+    operation": a mistake is named by its question's operation (`core/mistake_names.py`), and in this × question that
+    name says "added instead of multiplying", where the child multiplied instead of dividing."""
     drawn = _of("MUL.FACTS", "Y09")
     assert drawn
     for it in drawn:
@@ -290,13 +293,14 @@ def test_a_fact_family_is_the_three_facts_its_fact_makes():
         first, by_a, by_b = it.responses
         assert first.misconceptions.get("M_WRONG_OP") == a + b
         for r, d in ((by_a, a), (by_b, b)):
-            assert r.misconceptions.get("M_WRONG_OP") == c * d, r.misconceptions
+            assert "M_WRONG_OP" not in r.misconceptions, r.misconceptions
             assert c - d == c // d or r.misconceptions.get("M_DIV_SUBTRACTED") == c - d, r.misconceptions
 
 
 def test_the_table_backwards_is_answered_by_dividing_and_by_its_fact():
     """42 ÷ 6 = □ because 6 × □ = 42: printed as the document's example, both boxes 7, a table fact read backwards with
-    nothing left over. The division's box names the division's mistakes, the fact's a missing factor's."""
+    nothing left over. The division's box names the division's mistakes, the fact's the table one row out; not × read
+    as +, whose code is named by this ÷ question's operation ("multiplied instead of dividing")."""
     drawn = _of("DIV.FACTS", "G20")
     assert drawn
     for it in drawn:
@@ -307,9 +311,7 @@ def test_the_table_backwards_is_answered_by_dividing_and_by_its_fact():
         assert (q.label, f.label) == (f"{a} ÷ {b} = □", f"{b} × □ = {a}")
         assert _solutions(q.label) == _solutions(f.label) == [int(q.answer)] == [int(f.answer)] == [a // b]
         assert q.misconceptions.get("M_WRONG_OP") == a * b
-        assert f.misconceptions == {
-            k: v for k, v in {"M_WRONG_OP": a - b, "M_MUL_ROW_OUT": a // b - 1}.items() if v != a // b
-        }
+        assert f.misconceptions == {"M_MUL_ROW_OUT": a // b - 1}
 
 
 def test_a_fact_from_a_known_fact_starts_from_the_row_above():
@@ -366,7 +368,7 @@ def test_the_documents_slips_are_corrected_where_they_were_drafted():
     assert DOC["Y10"]["placed_in"] == ["DIV.2D1D:Advance", "MD.EQUALITY:Medium"]
     assert DOC["H09"]["placed_in"] == ["DIV.3D1D:Advance", "MD.MENTAL:Hard"]
     assert CASES["Q05"]["match"]["remainder"] == "NONE" and CASES["B07"]["match"]["remainder"] == "NONE"
-    assert CASES["Q14"]["match"]["digits_min"] == {"lte": 2}
+    assert CASES["Q14"]["match"]["operand_1_digits"] == {"lte": 2}
     assert CASES["G20"]["match"]["shape"] == "TABLE_BACKWARDS" and "shape" not in CASES["Y10"]["match"]
     # why they moved, in the numbers: every exact division read off a table is a table fact, so no question is Y10's
     # (no fact, nothing left) and DIV.FACTS's (read off a table); and 240 ÷ 5 has no fact under its zero
@@ -379,7 +381,35 @@ def test_the_documents_slips_are_corrected_where_they_were_drafted():
 
 def test_a_scenario_recomputes_every_box_from_its_printed_sentence():
     """A scenario counted a question it could not recompute as recomputed. Every box of these kinds is recomputed from
-    its own sentence now, one changed box fails it, and the count says how many were recomputed."""
+    its own sentence now, one changed box fails it, and the count says how many were recomputed. Found on the way: a
+    question about a sentence (□ − 14 = 8, found wrong as 6) was read as the sum of its two numbers, 22 − 14, so every
+    such question read wrong; and a lattice's cell is keyed "03" for 3 × 1."""
+    found = Item(
+        "x",
+        "FTM",
+        "R9",
+        [],
+        "Conceptual",
+        "find_mistake",
+        False,
+        "Ishaan wrote 6 in the box.",
+        {"a": 22, "b": 14, "op": "-", "text": "□ − 14 = 8", "wrong": 6},
+        [Response("ans", "digits", "22", cells=2)],
+    )
+    assert scenarios._answer_is_right(found) is not False
+    cell = Item(
+        "x",
+        "LAT",
+        "R9",
+        [],
+        "Procedural",
+        "lattice",
+        False,
+        "",
+        {},
+        [Response("s1", "digits", "03", label="3 × 1 =")],
+    )
+    assert scenarios._answer_is_right(cell) is True
     for skill in KINDS:
         for case, it in _drawn(skill)[:12]:
             assert scenarios._answer_is_right(it) is True, (case, it.spec)

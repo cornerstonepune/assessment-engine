@@ -229,9 +229,13 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "Q11": _digit("□7", "6", "3□2", "×", (57, 6), "missing_count"),
     "Q12": _missing("38 ÷ 5 = 7 r □", "unknown_position"),
     "Q13": _missing("38 ÷ □ = 7 r 3", "unknown_position", ("remainder", REMAINDERS)),
-    # of a number to 2 digits, as TP03 is: drawn unbounded it reached 9500 × 1000 at Grade 4
+    # of a number to 2 digits, as TP03's × 1000 is: drawn unbounded it reached 9500 × 1000 at Grade 4. The bound is on
+    # the number shown, written first; the shorter number's digits cannot bound it where the factor is 10 (4000 × 10)
     "Q14": _missing(
-        "45 × □ = 4500", "unknown_position", ("place_value_factor", ["X10", "X100", "X1000"]), ("digits_min", {"lte": 2})
+        "45 × □ = 4500",
+        "unknown_position",
+        ("place_value_factor", ["X10", "X100", "X1000"]),
+        ("operand_1_digits", {"lte": 2}),
     ),
     "Q15": ("missing_number", {"text": "34 × 26 = 204 + □", "shape": "MISSING_ROW", "ops": ["×", "+"]}, ["shape"]),
     "Q16": _digit("3□4", "2", "708", "×", (354, 2), "missing_in", "missing_count", "operand_1_digits"),

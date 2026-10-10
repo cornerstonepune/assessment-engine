@@ -99,6 +99,9 @@ export function Question({ it }: { it: ItemRow }) {
         </Stem>
       );
     case "fact_family":
+    case "inverse_check":
+      // the table backwards is its two sentences (42 ÷ 6 = □, 6 × □ = 42); a check of a claimed answer says its sum
+      if (!s.facts) return <span>{it.stem}</span>;
       return (
         <Stem text={it.stem}>
           <span className="fact grid gap-[2px]">

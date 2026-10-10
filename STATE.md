@@ -5487,8 +5487,13 @@ Rehearsed on a copy of live (run 38050558566, `eb0616d`):
 
 ## M3b — measured before the build (2026-10-10)
 
-M3a is merged: main `d52c391`. M3b's cases were measured on it, each drawn alone (4 asked, 300 tries), then inside its
-level's own numbers, as the bank draws it (`cases.on_level`).
+M3a is merged and deployed: main `d52c391`, CI, `migrate live` and `deploy engine` green (13:30 UTC). `bin/engine done
+md3a-straight-division` on main's tree: 16 of 16 sentences PROVED (the browser test included), 14 of 14 scenarios MET,
+2 of 2 criteria PASSED (1,123 tests; `bin/check` 27); "NOT DONE" only for live's migrations, which this container
+cannot read and the two runs on main stand for. Its data waits for `bin/update-live`.
+
+M3b's cases were measured on it, each drawn alone (4 asked, 300 tries), then inside its level's own numbers, as the
+bank draws it (`cases.on_level`).
 - **None of the document's 21 ÷ kind cases draws a question its level can hold:**
   - 10 refuse in a sentence (`CannotMake`). Finding the mistake (C04, C05, C07), a missing digit (Q09, Q10), a
     possible answer (V09), the inverse check (Y10, G20) and the stories (B07, B14–B17) make +, − and × only.

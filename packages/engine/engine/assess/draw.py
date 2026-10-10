@@ -29,6 +29,7 @@ from . import draw_divide as DD
 from . import draw_native as N
 from . import draw_sums as S
 from . import draw_times as T
+from . import facts_kinds as FK
 from . import items as I
 from . import misconceptions as M
 from . import operations as O
@@ -40,7 +41,7 @@ STRAIGHT = (*PLAIN, *WM.KINDS.values())  # every kind a straight calculation is 
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
 SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
-POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
+POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer", "MULTIPLE": "both"}
 
 
 def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
@@ -201,7 +202,13 @@ def _missing(
     op = K.op(rng, alt, check)
     if op is None:
         return None
-    ways = ["FIRST_OPERAND", "SECOND_OPERAND"] + (["RESULT"] if op == "-" else [])
+    first = alt.get("answer_first") == "YES"  # □ = 63 ÷ 9: the answer's box written first
+    ways = (
+        ["RESULT"]
+        if first
+        else ["FIRST_OPERAND", "SECOND_OPERAND"]
+        + (["RESULT"] if op == "-" else ["MULTIPLE"] if op == "×" else [])
+    )
     where = K.pick(rng, alt.get("unknown_position"), ways)
     size = K.pick(rng, alt.get("unknown_digits"), K.DIGITS) if "unknown_digits" in alt else None
     if not where:
@@ -214,17 +221,39 @@ def _missing(
     got = _pair(rng, alt, check, op, taxonomy.keys(alt), fix)
     if not got:
         return None
-    a, b = got
+    a, b = (got[0], got[0]) if where == "MULTIPLE" else got  # □ × □ = 49: one number in both boxes
+    hide = POSITIONS[where]
+    if op == "×" and hide in ("a", "b") and FK.factor_missing(alt):
+        try:
+            a, b = FK.boxed_factor(a, b, hide)  # 45 × □ = 4500: the box hides 10, 100 or 1000
+        except RuntimeError:
+            return None
     ans = M.compute(op, a, b)
     sign = O.PRINTED[op]
-    text = {"a": f"□ {sign} {b} = {ans}", "b": f"{a} {sign} □ = {ans}", "answer": f"{a} {sign} {b} = □"}[
-        POSITIONS[where]
-    ]
+    text = {
+        "a": f"□ {sign} {b} = {ans}",
+        "b": f"{a} {sign} □ = {ans}",
+        "answer": f"□ = {a} {sign} {b}" if first else f"{a} {sign} {b} = □",
+        "both": f"□ {sign} □ = {ans}",
+    }[hide]
     cand = {"format": "missing_number", "op": op, "a": a, "b": b, "answer": ans, "stem": text}
-    return verify.to_item(cand | {"missing": POSITIONS[where], "misconceptions": []}, rung)
+    return verify.to_item(cand | {"missing": hide, "misconceptions": [], "answer_first": first}, rung)
 
 
-def one(rng, match, check, rung, k=0):
+def _paired(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, build: FK.Build):
+    """A kind built on its case's own two numbers (`facts_kinds`), drawn as a straight question's are: a table fact on a
+    tables level, a round number on the tens level."""
+    op = K.op(rng, alt, check)
+    got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
+    if not got:
+        return None
+    try:
+        return build(rng, *got, rung, alt)
+    except RuntimeError:
+        return None  # numbers this kind cannot use (7 × 7 has no fact family of four): drawn again
+
+
+def one(rng: random.Random, match: Any, check: dict[str, Any], rung: str, k: int = 0) -> I.Item | None:
     """One candidate for a case, or None when this attempt's numbers are not that case. `k` counts the
     questions kept so far; where the case does not fix the layout, even is in columns, odd in a line."""
     alt = rng.choice(K.alternatives(match))
@@ -239,6 +268,8 @@ def one(rng, match, check, rung, k=0):
         it = (_many if many else _plain)(rng, alt, check, rung, k)
     elif fmts == {"missing_number"}:
         it = _missing(rng, alt, check, rung, k)
+    elif len(fmts) == 1 and (build := FK.builder(alt, next(iter(fmts)))):
+        it = _paired(rng, alt, check, rung, build)
     else:
         it = N.native(rng, alt, check, rung, k)
     return it if it is not None and taxonomy.matches(match, it.fmt, tags.derive(it)) else None

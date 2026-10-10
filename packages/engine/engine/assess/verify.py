@@ -9,6 +9,7 @@ item_key from either path, which is what stops the bank holding one sum twice.
 from typing import Any, cast
 
 from . import division as DV
+from . import facts_kinds as FK
 from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
@@ -107,8 +108,8 @@ def problems(c: dict[str, Any], check: dict[str, Any]) -> list[str]:
             out.append(f"forbidden word {w!r} in stem")
     if fmt == "word_1step" and not (str(a) in stem and str(b) in stem):
         out.append("stem must contain both numbers")
-    if fmt == "missing_number" and c.get("missing") not in ("a", "b", "answer"):
-        out.append("missing must be a, b or answer")
+    if fmt == "missing_number" and c.get("missing") not in ("a", "b", "answer", "both"):
+        out.append("missing must be a, b, answer or both")
     return out
 
 
@@ -189,13 +190,15 @@ def _template(op, a, b):
     return f"{shape}.REG{REGROUPS[op](a, b)}" if op in REGROUPS else shape
 
 
-def _missing_distractors(op, a, b, ans, hidden_key, hidden):
+def _missing_distractors(op: str, a: int, b: int, ans: int, hidden_key: str, hidden: int) -> dict[str, int]:
     """Mirrors items.missing_number: the wrong answers are about the hidden number, not a op b."""
     if hidden_key == "answer":
         return M.predict(op, a, b)
+    if O.sign(op) in ("×", "÷"):  # × read as +, ÷ as −, the table one row out, a zero too few (`facts_kinds`)
+        return FK.missing_mistakes(O.sign(op) or op, a, b, hidden_key)
     known = b if hidden_key == "a" else a
     if op not in REGROUPS:
-        return {}  # no named wrong answer about a missing factor or divisor yet: none, rather than an addition's
+        return {}
     if op == "-" and hidden_key == "a":
         mis = {"M_SUB_INSTEAD": abs(ans - b), "M_FACT_PM1": hidden - 1}
     elif op == "-":
@@ -245,18 +248,19 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     stem = (c.get("stem") or "").strip()
 
     if fmt == "missing_number":
-        hidden = {"a": a, "b": b, "answer": ans}[c["missing"]]
+        hidden = {"a": a, "b": b, "answer": ans, "both": a}[c["missing"]]
         mis = _missing_distractors(op, a, b, ans, c["missing"], hidden)
         r = Response("ans", "digits", str(hidden), cells=cells(max(a, b, ans)), misconceptions=mis)
         # The renderer reads only `text`; a, b, op, missing are kept so recheck and the tag
-        # deriver can see the arithmetic behind the box.
+        # deriver can see the arithmetic behind the box, and a box written first says so.
+        spec = dict(text=stem, a=a, b=b, op=op, missing=c["missing"])
         return item(
             "MISSING.NUM",
             rung,
             signal,
             fmt,
             stem,
-            dict(text=stem, a=a, b=b, op=op, missing=c["missing"]),
+            spec | ({"answer_first": "YES"} if c.get("answer_first") else {}),
             [r],
             working_lines=lines,
             skills=skills,

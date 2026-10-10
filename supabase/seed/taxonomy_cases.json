@@ -13384,7 +13384,7 @@
           "X100",
           "X1000"
         ],
-        "digits_min": {
+        "operand_1_digits": {
           "lte": 2
         }
       }

@@ -14,6 +14,7 @@ distractors include one unnamed code, has not met the goal. The number it report
 """
 
 from engine.assess import bands, tags, taxonomy, verify
+from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
 from engine.checks import scenarios_week
@@ -27,16 +28,54 @@ def _vocabulary(conn):
     return {r["code"] for r in conn.execute("select distinct code from misconception").fetchall()}
 
 
+def _from_sentence(sentence):
+    """The one number a printed × or ÷ sentence's box stands for, worked as the tags read it (`md_tags.solved`): "28 ÷ 4
+    = □" is 7, "6 × □ = 42" 7, "□ × □ = 49" 7, "60 × 7 =" 420; None for a sentence that is no such arithmetic."""
+    text = sentence.strip()
+    sp = MD.solved({"text": f"{text} □" if text.endswith("=") else text})
+    hide, a, b = sp.get("missing"), sp.get("a"), sp.get("b")
+    if hide in ("a", "both"):
+        return a
+    if hide == "b":
+        return b
+    if hide in ("answer", "remainder") and isinstance(a, int) and isinstance(b, int):
+        q, r = O.divide(a, b) if sp["op"] == "÷" else (a * b, 0)
+        return r if hide == "remainder" else (None if r else q)
+    return None
+
+
 def _answer_is_right(item):
-    """Recompute from the numbers in the question, never trusting the stored answer: a division's quotient, and its
-    remainder in a box of its own only where there is one (ADR 0056)."""
+    """Recompute from the question as it is printed, never trusting the stored answer: a sum from its numbers (a
+    division's quotient, and its remainder in a box of its own only where there is one, ADR 0056); a missing number from
+    its sentence; and every box printed after a sentence of its own ("28 ÷ 4 = □", "60 × 7 =") from that sentence.
+    None when nothing in it can be worked: an explanation, boxed digits, a story with no numbers of its own."""
     s = item.spec or {}
+    stated = {r.rid: str(r.answer).strip() for r in item.responses if r.answer is not None}
+    checks = [
+        _same(stated.get(r.rid), want)
+        for r in item.responses
+        if r.label and (want := _from_sentence(r.label)) is not None
+    ]
+    # a question printed as a sentence with a box is that sentence's, never the sum of its two numbers: □ − 14 = 8,
+    # found wrong as 6, is 22, and was read as 22 − 14
+    if item.fmt == "missing_number" or "□" in (s.get("text") or ""):
+        want = _from_sentence(s.get("text") or "")
+        checks += [] if want is None else [_same(stated.get("ans"), want)]
+    elif (whole := _sum_is_right(s, stated)) is not None:
+        checks.append(whole)
+    return all(checks) if checks else None
+
+
+def _same(stated, want):
+    """A box's answer is the number worked out: a lattice's cell keyed "03" for 3 × 1 is 3."""
+    return stated is not None and (stated.isdigit() and int(stated) == want or stated == str(want))
+
+
+def _sum_is_right(s, stated):
+    """The question's own sum, recomputed from its numbers, against its answer's box; None where it has no sum."""
     nums = s.get("addends") or ([s["a"], s["b"]] if {"a", "b"} <= s.keys() else None)
     if not nums or not s.get("op") or not all(isinstance(x, int) for x in nums):
         return None  # a question with no arithmetic of its own (a story, an explanation, boxed digits)
-    if s.get("missing"):
-        return None  # a missing-number question's answer is an operand, checked by its own rule
-    stated = {r.rid: str(r.answer).strip() for r in item.responses if r.answer is not None}
     if O.sign(s["op"]) == "÷":
         q, r = divmod(nums[0], nums[1])
         return stated.get("ans") == str(q) and stated.get("rem") == (str(r) if r else None)
@@ -78,9 +117,10 @@ def _run_bank(conn, sc):
             + (f" · rejected for {counts.get('rejected_because')}" if counts.get("rejected_because") else "")
         )
 
-    wrong_answer, off_rule, undiagnosed = [], [], []
+    wrong_answer, off_rule, undiagnosed, worked = [], [], [], []
     for it in items:
         ok = _answer_is_right(it)
+        worked.append(ok)
         if ok is False:
             wrong_answer.append(it.item_id)
         problems = verify.dimension_problems(tags.derive(it), check, it.fmt, case_matches)
@@ -94,7 +134,10 @@ def _run_bank(conn, sc):
             undiagnosed.append(f"{it.item_id}: no named mistake to mark against")
     keys = [it.item_id for it in items]
     m |= {
-        "answers_recomputed": len(items) - len(wrong_answer),
+        "answers_recomputed": worked.count(True) + worked.count(False),
+        "answers_with_nothing_to_work": worked.count(
+            None
+        ),  # an explanation, boxed digits: counted, never as worked
         "off_rule": len(off_rule),
         "undiagnosed": len(undiagnosed),
         "distinct": len(set(keys)),
