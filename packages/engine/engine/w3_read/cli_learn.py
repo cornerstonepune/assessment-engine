@@ -78,14 +78,15 @@ def read_report() -> None:
         f" ({_pct(t['right'], t['stood_behind'])}) · silently wrong {t['silently_wrong']} · gave up {t['gave_up']}"
         f" (guess right {t['guess_right']})\n"
     )
+    last = f"last {r['window']}"
     typer.echo(
-        f"  {'by kind':<18} {'checked':>7} {'right':>6} {'silent':>7} {'gave up':>8} {'last 50':>9}   standing"
+        f"  {'by kind':<18} {'checked':>7} {'right':>6} {'silent':>7} {'gave up':>8} {last:>9}   standing"
     )
     for fmt, k in sorted(r["kinds"].items()):
         standing = (
             "trusted"
             if k["trusted"]
-            else f"not trusted ({k['window_right']} of {k['window_n']}; needs 95% of 50)"
+            else f"not trusted ({k['window_right']} of {k['window_n']}; {k['to_trust']} more right checks to trust)"
         )
         typer.echo(
             f"  {profiles.KIND_WORDS.get(fmt, fmt):<18} {k['checked']:>7} {k['right']:>6} {k['silently_wrong']:>7}"

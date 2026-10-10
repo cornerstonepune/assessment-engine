@@ -59,8 +59,8 @@ def every_kind_trusted(monkeypatch):
     a paper entered by hand), and no spot-check: a test about where each answer lands, not about the reader's standing."""
     from engine.w3_read import profiles
 
-    trusted = {"n": 50, "right": 50, "trusted": True}
-    monkeypatch.setattr(profiles, "kind_trust", lambda conn, window=50: {f: trusted for f, _ in SHAPES})
+    trusted = {"n": 50, "right": 50, "trusted": True, "to_trust": 0}
+    monkeypatch.setattr(profiles, "kind_trust", lambda conn: {f: trusted for f, _ in SHAPES})
     monkeypatch.setattr(marking, "spot_rate", lambda conn: 0.0)
 
 

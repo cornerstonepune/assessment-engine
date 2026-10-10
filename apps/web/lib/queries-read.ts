@@ -195,7 +195,9 @@ export type QueueEntry = { id: string; spot: boolean };
 // How the reader is doing, from every check people have made (ADR 0032) — the same numbers as
 // `engine read report`: an answer counts once a person typed its reading or signed it off unchanged, and only one the
 // reader was handed (`never_read`: a tick, a sentence or a sign is a person's to read, no measure of the reader).
-export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean };
+// A kind's standing — its newest checks the reader stood behind, how many were right, whether that is trust, and the right
+// checks still needed (`to_trust`) — is the database's one rule, `kind_trust`, which the engine marks by too.
+export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean; to_trust: number };
 // One row per day papers were read: how often the reader matched the people who checked that day's answers.
 export type ReaderDay = { day: string; checked: number; stood_behind: number; right: number; gave_up: number };
 // One row per band of the reader's own confidence: of the checked answers it read that surely, how many were what the
@@ -204,22 +206,27 @@ export type ReaderBand = { lo: number; hi: number; n: number; right: number };
 export type ReaderReport = { checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; kinds: ReaderKind[]; days: ReaderDay[]; bands: ReaderBand[]; floor: number; window: number; bar: number };
 
 export async function readerReport(): Promise<ReaderReport> {
-  const [gate] = await sql<{ bar: number }[]>`select coalesce((select value from threshold where key = 'marking.agreement_gate'), 0.95)::float as bar`;
-  // `answer_checked` is the one definition of a checked answer and its label (goals/s19-validation-teaches.yaml)
-  const rows = await sql<{ fmt: string; checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; window_n: number; window_right: number }[]>`
+  const [gate] = await sql<{ bar: number; window: number }[]>`
+    select coalesce((select value from threshold where key = 'marking.agreement_gate'), 0.95)::float as bar,
+           coalesce((select value from threshold where key = 'marking.agreement_window'), 50)::int as window`;
+  // `answer_checked` is the one definition of a checked answer and its label (goals/s19-validation-teaches.yaml); a kind
+  // the reader stood behind no reading of has no `kind_trust` row, and the whole window to go
+  const rows = await sql<(ReaderKind & { stood_behind: number; guess_right: number })[]>`
     with scored as (
-      select fmt, stood, reader_right as is_right,
-             label <> '' and regexp_replace(lower(guess), '[[:space:],]', '', 'g') = regexp_replace(lower(label), '[[:space:],]', '', 'g') as guess_right,
-             row_number() over (partition by fmt, stood order by read_at desc) as rn
+      select tenant_id, fmt, stood, reader_right as is_right,
+             label <> '' and regexp_replace(lower(guess), '[[:space:],]', '', 'g') = regexp_replace(lower(label), '[[:space:],]', '', 'g') as guess_right
       from answer_checked where not never_read)
-    select fmt, count(*)::int as checked,
-           count(*) filter (where stood)::int as stood_behind,
-           count(*) filter (where stood and is_right)::int as right,
-           count(*) filter (where not stood)::int as gave_up,
-           count(*) filter (where not stood and guess_right)::int as guess_right,
-           count(*) filter (where stood and rn <= 50)::int as window_n,
-           count(*) filter (where stood and rn <= 50 and is_right)::int as window_right
-    from scored group by fmt order by fmt`;
+    select s.fmt, count(*)::int as checked,
+           count(*) filter (where s.stood)::int as stood_behind,
+           count(*) filter (where s.stood and s.is_right)::int as right,
+           count(*) filter (where not s.stood)::int as gave_up,
+           count(*) filter (where not s.stood and s.guess_right)::int as guess_right,
+           coalesce(max(t.n), 0)::int as window_n,
+           coalesce(max(t."right"), 0)::int as window_right,
+           coalesce(bool_or(t.trusted), false) as trusted,
+           coalesce(max(t.checks_to_trust), ${gate.window})::int as to_trust
+    from scored s left join kind_trust t on t.tenant_id = s.tenant_id and t.fmt = s.fmt
+    group by s.fmt order by s.fmt`;
   const days = await sql<ReaderDay[]>`
     select read_on::text as day, count(*)::int as checked,
            count(*) filter (where stood)::int as stood_behind,
@@ -245,9 +252,9 @@ export async function readerReport(): Promise<ReaderReport> {
     right: sum("right"),
     gave_up: sum("gave_up"),
     guess_right: sum("guess_right"),
-    window: 50,
+    window: gate.window,
     bar: gate.bar,
-    kinds: rows.map((r) => ({ ...r, trusted: r.window_n >= 50 && r.window_right / r.window_n >= gate.bar })),
+    kinds: rows,
     days,
     bands,
     floor: floor.floor,

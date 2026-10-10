@@ -81,6 +81,10 @@ class CorrectResponse(BaseModel):
     now: str
 
 
+class TrustedResponse(BaseModel):
+    marked_again: int  # answers a kind's trust settled, now marked again (`again.trusted`)
+
+
 class KeyRequest(BaseModel):
     result_id: str  # the answer an educator changed it from: its question is the one changed, for every child
     answer: str = Field(max_length=40)

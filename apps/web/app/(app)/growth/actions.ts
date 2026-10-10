@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { engineSend } from "@/lib/engine";
+import { engineSend, markWhatTrustSettles } from "@/lib/engine";
 import { makePaper } from "@/lib/next-paper";
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -18,8 +18,10 @@ export async function confirmChild(formData: FormData): Promise<void> {
   const [{ n }] = await sql<
     { n: number }[]
   >`select confirm_results(${id}::uuid, ${me.email}) as n`;
+  const marked = await markWhatTrustSettles(); // a sign-off may be what earns a kind the reader's trust
   revalidatePath(`/growth/${id}`);
-  redirect(`/growth/${id}?confirmed=${n}`);
+  revalidatePath("/capture/check");
+  redirect(`/growth/${id}?confirmed=${n}${marked ? "" : "&later=1"}`);
 }
 
 /** A person settles one answer the machine could not read or mark. */

@@ -90,6 +90,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           {summary(child.first_name, shown, notYet)}
         </p>
         {q.confirmed ? <Notice tone="neem">Confirmed {q.confirmed} answers. What their answers show is rebuilt from them.</Notice> : null}
+        {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader&rsquo;s trust now settles leave the queue at the next check.</Notice> : null}
         {q.paper && /^CS[0-9A-F]{6}$/.test(q.paper) ? (
           <Notice tone="neem">Approved in your name: paper {q.paper}. Print it from its page.</Notice>
         ) : null}

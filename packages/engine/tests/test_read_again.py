@@ -98,17 +98,25 @@ def test_answers_waiting_only_for_trust_leave_the_queue_the_moment_their_kind_ea
     for rid, read in zip(waiting["results"], ("35", "17"), strict=True):
         raw = {"child_answer": read, "answer_state": "written", "confidence": 95.0, "why": HELD[read]}
         conn.execute("update item_result set raw_read = %s where id = %s", (json.dumps(raw), rid))
+
+    def status():
+        rows = conn.execute("select id, status from item_result where id = any(%s)", (waiting["results"],))
+        return {r["id"]: r["status"] for r in rows.fetchall()}
+
     a_read_paper(conn, [{"status": "correct", "read": "35", "state": "confirmed"}] * 2, fmt=TRUST)
-    assert again.trusted(conn) == 0, "two checks of three: not trusted yet, and nothing moves"
+    again.trusted(conn)  # and whatever a window of three settles of the copy's other kinds
+    assert set(status().values()) == {"needs_teacher"}, (
+        "two checks of three: not trusted yet, nothing of it moves"
+    )
     a_read_paper(conn, [{"status": "correct", "read": "35", "state": "confirmed"}], fmt=TRUST)
-    assert again.trusted(conn) == 1
-    status = {
-        r["id"]: r["status"]
-        for r in conn.execute(
-            "select id, status from item_result where id = any(%s)", (waiting["results"],)
-        ).fetchall()
-    }
-    assert status[waiting["results"][0]] == "correct", "read right, its kind trusted now: it settles"
-    assert status[waiting["results"][1]] == "needs_teacher", (
+    assert again.trusted(conn) == 1, (
+        "the third check earns the kind its trust: the one answer held for it moves"
+    )
+    assert status()[waiting["results"][0]] == "correct", "read right, its kind trusted now: it settles"
+    why = conn.execute(
+        "select raw_read::jsonb ->> 'why' as why from item_result where id = %s", (waiting["results"][0],)
+    ).fetchone()["why"]
+    assert why == "", "the hold is lifted and its reason with it: nothing says a person still checks it"
+    assert status()[waiting["results"][1]] == "needs_teacher", (
         "read wrong: a person checks it whatever the trust"
     )

@@ -1,5 +1,6 @@
 """W3/N9 — every answer marked again when its rule or its key changes, with no page read again.
-- `remark` covers what the reader read and no person has seen.
+- `remark` covers what the reader read and no person has seen; `trusted` runs it for the kinds the reader has earned
+  trust on, each time a person's check may have earned it.
 - `mark_again` covers what a person typed the reading of (ADR 0044).
 - `by_new_key` covers, for one question whose right answer an educator changed (`keys.change`, ADR 0045), what was
   signed off as the reader read it; a person's own call and a judgement are never overwritten.
@@ -12,10 +13,10 @@ from engine.w1_bank import learned as learned_mistakes
 from engine.w3_read import marking, profiles
 
 
-def remark(conn, child_id, item_id=None):
+def remark(conn, child_id, item_id=None, kinds=None):
     """Mark every candidate again from what was read, without asking the model again — for when the marking rule
-    improves after a page was read. `child_id` and `item_id` narrow it to one child, one question, or both. Returns how
-    many rows changed.
+    improves after a page was read. `child_id`, `item_id` and `kinds` (the kinds of question, `item.fmt`) narrow it to
+    one child, one question, some kinds, or any of them together. Returns how many rows changed.
 
     An answer a person has settled — typed what the child wrote, or judged it — is never marked again
     from the reader's own reading: that would put back the very reading the person corrected. Nor is
@@ -27,9 +28,10 @@ def remark(conn, child_id, item_id=None):
         " join item i on i.id = r.item_id"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
         " where (%(c)s::uuid is null or si.child_id = %(c)s) and (%(i)s::uuid is null or r.item_id = %(i)s)"
+        " and (%(k)s::text[] is null or i.fmt = any(%(k)s::text[]))"
         " and r.state = 'candidate' and r.raw_read is not null and c.superseded_by is null"
         " and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)",
-        {"c": child_id, "i": item_id},
+        {"c": child_id, "i": item_id, "k": kinds},
     ).fetchall()
     changed = 0
     trust, rate, learned = profiles.kind_trust(conn), marking.spot_rate(conn), learned_mistakes.rules(conn)
@@ -47,6 +49,16 @@ def remark(conn, child_id, item_id=None):
             )
             changed += 1
     return changed
+
+
+def trusted(conn):
+    """Nimish, 2026-10-10: "the number of data points that we then need to validate becomes lower". Every answer of a kind
+    the reader is trusted on now (`profiles.kind_trust`, ADR 0032) marked again from what was read: a right answer held
+    only until its kind earned that trust settles and leaves the queue; a wrong or a blank still waits for a person (ADR
+    0029). A person's check is what earns the trust, so each one asks for this: a reading typed (`POST /capture/correct`)
+    and a paper signed off (`POST /capture/trusted`). Returns how many answers changed."""
+    kinds = [fmt for fmt, k in profiles.kind_trust(conn).items() if k["trusted"]]
+    return remark(conn, None, kinds=kinds) if kinds else 0
 
 
 class _Held(Exception):

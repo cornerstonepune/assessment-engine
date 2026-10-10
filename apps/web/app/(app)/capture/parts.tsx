@@ -160,7 +160,7 @@ export function ReaderPanel({ r }: { r: ReaderReport }) {
           ? ` On the first papers it read (${fmtDate(first.day)}) it was right on ${pct(first.right, first.stood_behind)}; on the latest (${fmtDate(latest.day)}), ${pct(latest.right, latest.stood_behind)}.`
           : ""}{" "}
         Every check you make teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you{" "}
-        {Math.round(r.bar * 100)}% of the time over the last {r.window} checks.
+        {Math.round(r.bar * 100)}% of the time over the last {r.window} checks. By kind of question says how many more right checks each still needs.
       </p>
       {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} /> : null}
     </Panel>

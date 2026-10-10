@@ -3,28 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — NY2: the queue shrinks, and a person sees whether it does (started)
+## 2026-10-10 — NY2: the queue shrinks, and a person sees whether it does (built)
 
-- **Slice:** NY2, W3 by Nimish's exception (BUILD-ORDER "NY1 and NY2").
+- **Slice:** NY2, W3 by Nimish's exception (BUILD-ORDER "NY1 and NY2"). ADR 0060.
 - **Measured** (STATE.md "NY2 — measured before the build"):
-  - trust is decided twice, by the engine and by the website, which can disagree;
-  - a kind earning trust leaves its waiting answers waiting;
-  - no screen shows the queue week by week.
+  - trust was decided twice, by the engine and by the website, which could disagree;
+  - a kind earning trust left its waiting answers waiting;
+  - no screen showed the queue week by week.
   - Live, read only: nothing waits; no kind is trusted; columns are nearest at 47 of 50.
-- **Goal** `goals/ny2-the-queue-shrinks.yaml`.
-- **Tests that fail for the right reasons:**
-  - `test_profiles.py`: no `kind_trust` view, no `checks_to_trust`;
-  - `test_read_again.py`: no `again.trusted`;
-  - `api/test_capture_routes.py`: no `/capture/trusted`;
-  - `u14-the-queue-shrinks.spec.ts`.
-- **Fixed with it:** `test_every_answer.py`'s worksheet takes only + and − questions (found proving NY1).
-- **Next:** build NY2:
-  - a migration for `checks_to_trust()` and the `kind_trust` view (the window a threshold row);
-  - `profiles.kind_trust` reads the view;
-  - `again.trusted`, called by `/capture/correct` and a new `/capture/trusted`, which the website calls after a
+- **Built** (STATE.md "NY2 — … built"):
+  - one rule in the database (`kind_trust`, `checks_to_trust`, the window a row), read by the engine, the report and
+    the website;
+  - `again.trusted`, run by `/capture/correct` and by the new `/capture/trusted`, which the website calls after a
     sign-off;
-  - the website's reader table and Today read the view, and Today shows the queue week by week.
-  - Then M3b3.
+  - marking again drops an earlier hold's reason, so a settled answer stops saying a person checks it;
+  - Today's "Is the queue shrinking?", and Marking's "Checks to trust".
+- **Fixed with it:** `test_every_answer.py`'s worksheet takes only + and − questions (found proving NY1).
+- **Next:** prove on CI and a rehearsal on a copy of live, merge #173, confirm migrate and deploy, `engine done
+  ny2-the-queue-shrinks`. Then M3b3.
 
 ## 2026-10-10 — NY1: what waits on a person, and who it is for (merged, live, done)
 

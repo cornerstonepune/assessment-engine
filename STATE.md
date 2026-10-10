@@ -5883,3 +5883,37 @@ points that we then need to validate becomes lower."
     | old papers' missing numbers | 29 of 50 |
 
   - So the queue will fall only as fast as the reader gets more right. NY2 makes that visible; it cannot make it so.
+
+## NY2 — the queue shrinks, and a person sees whether it does, built (2026-10-10)
+
+ADR 0060. Goal `goals/ny2-the-queue-shrinks.yaml`.
+
+- **One rule for the reader's trust, in the database** (migration 20261103090000).
+  - `checks_to_trust()` and the `kind_trust` view give each kind its newest checks the reader stood behind, how many
+    matched, whether that is trust, and the right checks still needed.
+  - Checks are ordered by when the paper was read, then by question, then by answer.
+  - The window is a row, `marking.agreement_window` (50).
+  - The engine (`profiles.kind_trust`), `engine read report` and the website (`readerReport`, Today) all read it. The
+    Python rule and the website's own SQL are gone, and so are the fifties written into code.
+- **A check marks again what trust now settles** (`again.trusted`): every candidate of every trusted kind, from what
+  was read.
+  - A right answer held only for trust settles. A wrong or a blank still waits (ADR 0029). A spot-checked one still
+    waits.
+  - `POST /capture/correct` runs it in the same transaction as the check.
+  - The website asks `POST /capture/trusted` after a paper is signed off. If the engine is not answering, the sign-off
+    stands and the page says the answers leave the queue at the next check.
+- **Marking again starts from what the reader said.** `mark_read` removes an earlier hold's reason and guess before it
+  marks. Without that, an answer that settled went on saying a person checks it, and the website went on treating it
+  as waiting. The test fails without the fix and passes with it.
+- **Today shows "Is the queue shrinking?":**
+  - the last eight weeks of answers read: settled by the engine alone, checked by a person, still waiting, and the
+    share that needed a person (`answer_standing`);
+  - how many kinds are trusted, and how many more right checks the nearest one needs.
+- **Marking's "By kind of question" ends with "Checks to trust":** "trusted", or how many more.
+
+Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
+- engine: `test_profiles.py`, `test_read_again.py`, `test_every_answer.py`, `test_each_answer.py`, `test_legacy.py`,
+  `api/test_capture_routes.py`, `test_crops.py`, `test_gold.py`, `test_keys.py`, `test_contract.py`,
+  `test_layout.py` — 139 passed;
+- browser: u14 (2), u1 (3), u13 (4), u10 (3), s4 (16) — 28 passed;
+- `bin/check` 27 passed.
