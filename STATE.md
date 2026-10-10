@@ -5589,3 +5589,27 @@ Found while building, fixed here:
 - **Ratchets:** typing `draw.one` and `verify._missing_distractors` took their files' untyped findings from 72 to 40
   and from 81 to 55, and typing `answer_space.cells` took its file's from 53 to 33 and `render.py`'s from 348 to 347,
   all written down; the new module has none.
+- **A browser spec read the Question bank before it had arrived.** `s31-straight-division.spec.ts` (M3a) failed in CI
+  on `6915414`, a commit that touched no web code. Measured:
+  - Every page streams in behind its skeleton (`app/(app)/loading.tsx`). When `page.goto` returns, the main area still
+    holds the skeleton, and the page's own content is in a hidden block, swapped in 150–280ms later (12 of 12 loads,
+    each in a fresh browser context, as every test has one).
+  - s31 read the main area's labels once, without waiting, so it read the skeleton. It failed 19 times in 30 locally,
+    every run from the twelfth, once the server was warm and fast enough to beat the swap. In CI it ran 84th and
+    failed in 481ms.
+  - It waits now on what each check is about (the division layout drawn, the remainder's blank shown), as every other
+    spec does. Afterwards: 60 of 60 runs passed, s31 and s32 30 each, sixteen of them in the warm regime that had
+    failed. s32 waits the same way.
+- **Seven phone-fit checks measure the skeleton, not the page.** Found by the same measurement and fixed in the next
+  PR, which makes one helper own the check.
+  - m2-make-papers, s12, s3, s4, u2, u3 and workflows each take `scrollWidth` straight after `goto`, while the main
+    area is still the skeleton. None of them can fail when a page overflows a phone.
+  - u8's and e2e's reads straight after `goto` are sound: u8 reads the hidden block's rows by CSS, and e2e retries.
+
+Proved on `6915414` (database fresh21, built from `fe08360`, whose seeds and drawer are the head's):
+`bin/engine goal md3b1-facts-advance` GOAL ACHIEVED.
+- 3 of 3 scenarios at 100%: 80 questions, every answer recomputed, none with nothing to work, none off its rule.
+- Criteria: 1,126 tests passed, the drafted document 0 faults, and `bin/check` 27 passed.
+- Rehearsed on a copy of live, run 38058373712 on `fe19720`, all green:
+  - 554 questions retired and 7,042 added; 3,645 worksheets; 142 of 142 levels ready; 0 problems.
+  - Only printing and specs changed after it, and `update-live` prints nothing (`library build` renders on demand).

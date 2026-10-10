@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (built, proving)
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (proved, merging)
 
 - **Slice:** M3b1 (W1 gate 3); M3b split in two after measuring (STATE.md "M3b — measured before the build"). Goal
   `goals/md3b1-facts-advance.yaml`; ADR 0057; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`;
@@ -21,10 +21,18 @@ is verified. This file only says where the last session stopped.
   example is; Q05 and B07 exact; Q14 of a number to 2 digits (bound on the number shown); G20 printed as its example.
 - **Found and fixed:** the scenario check read a find-the-mistake about a sentence as its two numbers' sum, and a
   lattice cell "03" as text; it works every box from its printed sentence now and counts what it cannot work apart.
-- **Next:** CI and the rehearsal on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b2 (the
-  column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake found, a possible
-  answer, estimates, remainder stories, Y10, H09). `diagnosis.py` is at 397 lines: ÷'s find-the-mistake needs a
-  module of its own.
+- **Proved:** GOAL ACHIEVED on `6915414`; rehearsed on a copy of live (run 38058373712); STATE.md "M3b1" has the
+  numbers.
+- **CI found a spec reading the page before it arrives.** M3a's s31 read the Question bank once, straight after
+  `goto`, while the main area still held the skeleton (`app/(app)/loading.tsx`, swapped out some 200ms later). It
+  failed 19 times in 30 locally; it waits on what it checks now and passed 60 of 60.
+- **Next:**
+  - Merge, `migrate live` and `deploy engine`, `engine done`.
+  - Then one small PR: the seven phone-fit checks measure the skeleton, not the page (STATE.md "M3b1"); one helper
+    will wait for the page and then measure.
+  - Then M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
+    found, a possible answer, estimates, remainder stories, Y10 and H09. `diagnosis.py` is at 397 lines, so ÷'s
+    find-the-mistake needs a module of its own.
 
 ## 2026-10-10 — M3a: straight division (merged)
 

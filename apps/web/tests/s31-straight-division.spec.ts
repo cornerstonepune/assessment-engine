@@ -23,22 +23,22 @@ test("once taught, a division is on the Question bank in its layout, a box for i
   expect(topics.every((t) => !t.taught), "division waits for an educator's word").toBe(true);
   await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
   try {
+    // A page arrives after its skeleton (app/(app)/loading.tsx), some 200ms after `goto` returns: each read waits for
+    // what it is about. Read at once, the main area held the skeleton and no table (19 runs in 30, from the twelfth).
     await page.goto(`/library?set=DIV.3D1D&fmt=column_grid#questions`);
-    const main = page.getByRole("main");
-    const laid = main.getByRole("table").last();
-    const labels = await laid
-      .locator("[aria-label]")
-      .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label") ?? ""));
-    expect(
-      labels.some((l) => /^\d+ ÷ \d+ in the division layout$/.test(l)),
+    const laid = page.getByRole("main").getByRole("table").last();
+    await expect(
+      laid.getByRole("img", { name: /^\d+ ÷ \d+ in the division layout$/ }).first(),
       "the division layout is drawn",
-    ).toBe(true);
+    ).toBeVisible();
     expect(await laid.innerText(), "a code on the page").not.toMatch(CODE);
 
     await page.goto(`/library?set=DIV.2D1D&fmt=bare_sum#questions`);
-    const line = await page.getByRole("main").getByRole("table").last().innerText();
-    expect(line, "a remainder's own blank after r").toMatch(/\d+ ÷ \d+ = ___ r ___/);
-    expect(line, "a code on the page").not.toMatch(CODE);
+    const listed = page.getByRole("main").getByRole("table").last();
+    await expect(listed, "a remainder's own blank after r").toContainText(/\d+ ÷ \d+ = ___ r ___/, {
+      useInnerText: true,
+    });
+    expect(await listed.innerText(), "a code on the page").not.toMatch(CODE);
   } finally {
     await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
   }
