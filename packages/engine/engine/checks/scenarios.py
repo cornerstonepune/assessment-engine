@@ -13,6 +13,8 @@ test that across a couple of scenarios … till 100% accuracy is achieved."
 distractors include one unnamed code, has not met the goal. The number it reports is what fails.
 """
 
+import re
+
 from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
@@ -29,9 +31,15 @@ def _vocabulary(conn):
 
 
 def _from_sentence(sentence):
-    """The one number a printed × or ÷ sentence's box stands for, worked as the tags read it (`md_tags.solved`): "28 ÷ 4
-    = □" is 7, "6 × □ = 42" 7, "□ × □ = 49" 7, "60 × 7 =" 420; None for a sentence that is no such arithmetic."""
+    """The one number a printed sentence's box stands for: a × or ÷ sentence worked as the tags read it
+    (`md_tags.solved`), "28 ÷ 4 = □" 7, "6 × □ = 42" 7, "□ × □ = 49" 7, "60 × 7 =" 420; a digit among a division's
+    digits (`_digit`); a check worked left to right, × first ("21 × 4 + 2 = □" is 86); None for any other sentence."""
     text = sentence.strip()
+    worked = _worked(text)
+    if worked is not None:
+        return worked
+    if "□" in text and not re.search(r"(^|\s)□(\s|$)", text):
+        return _digit(text)
     sp = MD.solved({"text": f"{text} □" if text.endswith("=") else text})
     hide, a, b = sp.get("missing"), sp.get("a"), sp.get("b")
     if hide in ("a", "both"):
@@ -60,10 +68,107 @@ def _answer_is_right(item):
     # found wrong as 6, is 22, and was read as 22 − 14
     if item.fmt == "missing_number" or "□" in (s.get("text") or ""):
         want = _from_sentence(s.get("text") or "")
-        checks += [] if want is None else [_same(stated.get("ans"), want)]
+        box = "d1" if item.fmt == "missing_digit" else "ans"
+        checks += [] if want is None else [_same(stated.get(box), want)]
     elif (whole := _sum_is_right(s, stated)) is not None:
         checks.append(whole)
+    if item.fmt == "estimate_then_calc" and "est" in stated and (est := _estimate(s)) is not None:
+        checks.append(_same(stated["est"], est))
+    if (tick := _ticks(item.fmt, s, stated)) is not None:
+        checks.append(tick)
     return all(checks) if checks else None
+
+
+def _worked(text):
+    """A sentence asking what a calculation of + − × makes ("605 − 258 = □", "21 × 4 + 2 = □"), worked with × before
+    + and −; None for any other sentence."""
+    m = re.fullmatch(r"(\d+(?:\s*[+−×-]\s*\d+)+)\s*=\s*□?", text)
+    if not m or not re.search(r"[+−-]", m[1]):
+        return None  # a × or ÷ alone is `md_tags.solved`'s, which reads its boxes too
+    terms = re.split(r"\s*([+−-])\s*", m[1])
+    value = 0
+    for sign, term in zip(["+", *terms[1::2]], terms[0::2], strict=True):
+        part = 1
+        for f in re.split(r"\s*×\s*", term):
+            part *= int(f)
+        value += part if sign == "+" else -part
+    return value
+
+
+def _digit(text):
+    """The one digit that makes a printed division with a box among a number's digits true, its remainder less than its
+    divisor: "7□ ÷ 4 = 18" is 2, "936 ÷ 3 = 3□2" is 1. None when the sentence is no such division, or when no digit or
+    more than one fits: a box two digits fit is no question."""
+    m = re.fullmatch(r"(\S+) ÷ (\S+) = (\S+)(?: r (\S+))?", text)
+    if not m or text.count("□") != 1:
+        return None
+    fits = []
+    for d in range(10):
+        parts = [x.replace("□", str(d)) for x in m.groups() if x is not None]
+        if not all(x.isdigit() and (len(x) == 1 or x[0] != "0") for x in parts):
+            continue
+        a, b, q, r = [int(x) for x in parts] + [0] * (4 - len(parts))
+        if b and a == q * b + r and r < b:
+            fits.append(d)
+    return fits[0] if len(fits) == 1 else None
+
+
+def _half_up(n, to):
+    return (n + to // 2) // to * to
+
+
+def _estimate(s):
+    """An estimate's first box, from the rounding its question states: a + or − rounds both numbers to its `round_to`;
+    a × the larger number, or both, to the ten, or asks the product's digits or its last digit; a ÷ the number divided
+    to the hundred, or the quotient's digits. None where the question states none of these."""
+    a, b, op, shape = s.get("a"), s.get("b"), O.sign(s.get("op")), s.get("shape")
+    if not (isinstance(a, int) and isinstance(b, int) and b):
+        return None
+    if op == "÷":
+        hundred = _half_up(a, 100)
+        if shape == "ROUND_ONE":
+            return hundred // b if hundred % b == 0 else None
+        return len(str(a // b)) if shape == "ANSWER_DIGITS" else None
+    if op == "×":
+        big, small = max(a, b), min(a, b)
+        return {
+            "ROUND_ONE": _half_up(big, 10) * small,
+            "ROUND_BOTH": _half_up(a, 10) * _half_up(b, 10),
+            "ANSWER_DIGITS": len(str(a * b)),
+            "LAST_DIGIT": a * b % 10,
+        }.get(shape)
+    to = s.get("round_to", 10)
+    return M.compute(op, _half_up(a, to), _half_up(b, to)) if op in ("+", "-") else None
+
+
+def _claim_is_right(s):
+    """Whether the answer a question claims for its sum is its answer: "21 r 1" for 85 ÷ 4, 605 for 347 + 258. None
+    where it claims none."""
+    claimed, a, b, op = s.get("claimed"), s.get("a"), s.get("b"), O.sign(s.get("op"))
+    if claimed is None or not (isinstance(a, int) and isinstance(b, int)):
+        return None
+    m = re.fullmatch(r"(\d+)(?: r (\d+))?", str(claimed).replace(",", ""))
+    if not m:
+        return None
+    if op == "÷":
+        return b > 0 and (int(m[1]), int(m[2] or 0)) == O.divide(a, b)
+    return m[2] is None and int(m[1]) == M.compute(op, a, b)
+
+
+def _ticks(fmt, s, stated):
+    """A judged claim's tick, worked from the claim: "Could it be right?" is yes for a remainder less than its divisor
+    (and, for + and −, the answer itself); "Is the answer right?" yes for the answer. None for any other question."""
+    right = _claim_is_right(s)
+    if right is None:
+        return None
+    if fmt == "possible_answer" and "could" in stated:
+        if O.sign(s.get("op")) == "÷":
+            m = re.fullmatch(r"(\d+) r (\d+)", str(s["claimed"]))
+            right = bool(m) and int(m[2]) < s["b"]
+        return stated["could"] == ("yes" if right else "no")
+    if fmt == "inverse_check" and "right" in stated:
+        return stated["right"] == ("yes" if right else "no")
+    return None
 
 
 def _same(stated, want):
@@ -77,6 +182,8 @@ def _sum_is_right(s, stated):
     if not nums or not s.get("op") or not all(isinstance(x, int) for x in nums):
         return None  # a question with no arithmetic of its own (a story, an explanation, boxed digits)
     if O.sign(s["op"]) == "÷":
+        if "ans" not in stated:
+            return None  # a claim judged or checked: its ticks and boxes are worked on their own (`_ticks`)
         q, r = divmod(nums[0], nums[1])
         return stated.get("ans") == str(q) and stated.get("rem") == (str(r) if r else None)
     want = sum(nums) if s["op"] == "+" and len(nums) > 2 else M.compute(s["op"], nums[0], nums[1])

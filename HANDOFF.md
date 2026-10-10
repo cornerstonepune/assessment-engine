@@ -3,7 +3,39 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (proved, merging)
+## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (proved, merging)
+
+- **Slice:** M3b2 (W1 gate 3). Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases
+  on `DIV.2D1D`'s and `DIV.3D1D`'s Advance draws, and V04 and V10 alone crash (`times_kinds.sizes`). Split again:
+  M3b2 builds the nine boxes, estimates and checks; M3b3 the mistake found (a module of its own) and the remainder
+  stories (template rows, a new mistake).
+- **Goal** `goals/md3b2-divide-advance.yaml`; tests `test_divide_advance.py` (16 fail for the right reasons: no Advance
+  level yet, and the crash) and `apps/web/tests/s33-divide-advance.spec.ts`.
+- **Decided by measuring, drafted for Achal:** a box is keyed by the act that finds it.
+  - A digit in the number divided names the multiplication that finds it, read at the box's place, and any division
+    mistake that gives the shown quotient with another digit.
+  - A remainder names the taking away (and its multiplication).
+  - A quotient's digit names only wrong quotients as long as the printed one.
+  - An estimate rounds the number divided to the nearest hundred, asked only where it divides.
+- **Built** (STATE.md "M3b2 — … built", ADR 0058):
+  - the two Advance levels as rows, the document's kinds only (G3, G4);
+  - `assess/divide_kinds.py`, each kind on its case's pair;
+  - the remainder's and the divisor's boxes on the missing-number path M3b1 extended;
+  - the scenarios' recompute for every new box;
+  - printing, and the website.
+- **Found and fixed:**
+  - the crash of an estimate of ÷ drawn alone (`bands._estimate` asks the operation first);
+  - a division's missing digit printed as a column, and an estimate's remainder box apart from its "r" (seen on a
+    rendered sheet; a test pins both);
+  - the recompute would have called every judged or checked division wrong. Measured over all 26,954 questions: 0
+    read wrong.
+- **Proved:** GOAL ACHIEVED on `38d4863`; s31, s32 and s33 passed; rehearsed on a copy of live (run 38066563963).
+  STATE.md "M3b2" has the numbers.
+- **Next:** merge, `migrate live` and `deploy engine`, `engine done`; then M3b3: the mistake found (C04, C05, C07, a
+  module of its own) and the remainder stories (B14–B17, template rows, the remainder not rounded up as a new
+  mistake).
+
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged, live, done)
 
 - **Slice:** M3b1 (W1 gate 3); M3b split in two after measuring (STATE.md "M3b — measured before the build"). Goal
   `goals/md3b1-facts-advance.yaml`; ADR 0057; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`;
@@ -26,9 +58,10 @@ is verified. This file only says where the last session stopped.
 - **CI found a spec reading the page before it arrives.** M3a's s31 read the Question bank once, straight after
   `goto`, while the main area still held the skeleton (`app/(app)/loading.tsx`, swapped out some 200ms later). It
   failed 19 times in 30 locally; it waits on what it checks now and passed 60 of 60.
+- **Merged and live:** main `ad6c967` (PR #170), `migrate live` and `deploy engine` green; `engine done` 19 of 19 proved
+  (s32 on the main checkout), 3 of 3 met, 3 of 3 passed; live's migrations unreadable from this container (STATE.md).
 - **Next:**
-  - Merge, `migrate live` and `deploy engine`, `engine done`.
-  - Then M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
+  - M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
     found, a possible answer, estimates, remainder stories, Y10 and H09. `diagnosis.py` is at 397 lines, so ÷'s
     find-the-mistake needs a module of its own.
 

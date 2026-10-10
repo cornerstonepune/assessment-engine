@@ -197,8 +197,8 @@
         "C901": 14
       },
       "engine/assess/render.py::render_item": {
-        "C901": 23,
-        "PLR0915": 71
+        "C901": 19,
+        "PLR0915": 57
       },
       "engine/assess/tags.py::derive": {
         "C901": 11
@@ -266,7 +266,7 @@
     ],
     "frozen": {
       "engine/assess/answer_space.py": 33,
-      "engine/assess/bands.py": 289,
+      "engine/assess/bands.py": 279,
       "engine/assess/diagnosis.py": 47,
       "engine/assess/draw.py": 40,
       "engine/assess/equality.py": 164,
@@ -284,7 +284,7 @@
       "engine/assess/pick.py": 13,
       "engine/assess/placing.py": 1,
       "engine/assess/reasoning.py": 123,
-      "engine/assess/render.py": 347,
+      "engine/assess/render.py": 321,
       "engine/assess/skills.py": 1,
       "engine/assess/tags.py": 240,
       "engine/assess/taxonomy.py": 11,

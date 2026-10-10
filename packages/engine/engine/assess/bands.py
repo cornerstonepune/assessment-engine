@@ -102,6 +102,25 @@ def _regroups(c: dict[str, Any]) -> set[int]:
     return set(c["regroups"]) if "regroups" in c else set(range(max(TK.sizes(c)) + 1))
 
 
+def _estimate(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> I.Item:
+    """An estimate for its level's rule, the operation asked before the rule's numbers are sized: a ÷ estimate drawn
+    here read a × rule's digits and crashed (KeyError 'digits'); it is built on its case's own numbers
+    (`divide_kinds`), and this one refuses it in a sentence."""
+    op = O.require("estimate_then_calc", one_of(c["op"], rng), makes=("+", "-", "×"))
+    return E.estimate_then_calc(
+        rng,
+        rung,
+        signal,
+        op,
+        *TK.sizes(c),
+        _regroups(c),
+        round_to=c.get("round_to", 10),
+        judged=c.get("shape") == "JUDGED",
+        tolerance=c.get("tolerance"),
+        shape=c.get("shape"),
+    )
+
+
 def _widths(c: dict[str, Any]) -> tuple[int, int]:
     """A worked answer's two numbers' digits: a × level's longer and shorter, else the level's own two (one named, both
     that long). A + or − mistake was found in two numbers of the first's length, so a 2 by 1 level held none."""
@@ -118,10 +137,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "balance_scale": lambda rng, rung, signal, c: I.balance_scale(rng, rung, signal, c["hi"]),
     "number_wall": lambda rng, rung, signal, c: I.number_wall(rng, rung, signal, c["hi"]),
     "number_line_jumps": NL.number_line,
-    "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
-        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), _regroups(c),
-        round_to=c.get("round_to", 10),
-        judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance"), shape=c.get("shape")),
+    "estimate_then_calc": lambda rng, rung, signal, c: _estimate(rng, rung, signal, c),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
         rng, rung, signal, c.get("n_addends", 3), c.get("digits_each", 4)),
     "efficient_method": lambda rng, rung, signal, c: TK.shortcut(rng, rung, signal, c["strategy"], TK.digits(c) or (2, 1))

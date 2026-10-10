@@ -34,6 +34,7 @@ html, body { margin: 0; padding: 0; background: #fff; color: #111; font-family: 
 .item .stem { font-weight: 600; }
 .item .body { margin-left: 8.5mm; margin-top: 1.5mm; }
 .cells { display: inline-flex; gap: 0; vertical-align: middle; }
+.quotient { display: inline-flex; align-items: center; }  /* a quotient, "r" and its remainder: one answer */
 .cell { display: inline-block; width: 8.4mm; height: 10mm; border: 1px solid #111; margin-right: -1px; background: #fff; }
 .cell.sm { width: 5.4mm; height: 6.4mm; border-color: #666; }
 .cells.big .cell { width: 11mm; height: 13mm; }

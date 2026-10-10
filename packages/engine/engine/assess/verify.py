@@ -8,6 +8,7 @@ item_key from either path, which is what stops the bank holding one sum twice.
 
 from typing import Any, cast
 
+from . import divide_kinds as DK
 from . import division as DV
 from . import facts_kinds as FK
 from . import misconceptions as M
@@ -108,8 +109,8 @@ def problems(c: dict[str, Any], check: dict[str, Any]) -> list[str]:
             out.append(f"forbidden word {w!r} in stem")
     if fmt == "word_1step" and not (str(a) in stem and str(b) in stem):
         out.append("stem must contain both numbers")
-    if fmt == "missing_number" and c.get("missing") not in ("a", "b", "answer", "both"):
-        out.append("missing must be a, b, answer or both")
+    if fmt == "missing_number" and c.get("missing") not in ("a", "b", "answer", "both", "remainder"):
+        out.append("missing must be a, b, answer, both or remainder")
     return out
 
 
@@ -194,6 +195,8 @@ def _missing_distractors(op: str, a: int, b: int, ans: int, hidden_key: str, hid
     """Mirrors items.missing_number: the wrong answers are about the hidden number, not a op b."""
     if hidden_key == "answer":
         return M.predict(op, a, b)
+    if hidden_key == "remainder":  # 85 ÷ 4 = 21 r □: found by taking away (`divide_kinds`, ADR 0058)
+        return DK.remainder_mistakes(a, b)
     if O.sign(op) in ("×", "÷"):  # × read as +, ÷ as −, the table one row out, a zero too few (`facts_kinds`)
         return FK.missing_mistakes(O.sign(op) or op, a, b, hidden_key)
     known = b if hidden_key == "a" else a
@@ -244,11 +247,12 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     if fmt in ("bare_sum", "column_grid") and O.sign(op) == "÷":  # a division's own boxes (ADR 0056)
         return division(a, b, rung, "column" if fmt == "column_grid" else "horizontal", skills=skills)
     signal, lines, _ = FORMATS[fmt]
-    ans = M.compute(op, a, b)
     stem = (c.get("stem") or "").strip()
 
     if fmt == "missing_number":
-        hidden = {"a": a, "b": b, "answer": ans, "both": a}[c["missing"]]
+        # 85 ÷ □ = 21 r 1 and 85 ÷ 4 = 21 r □ leave a remainder; every other missing number is exact
+        ans, rem = O.divide(a, b) if O.sign(op) == "÷" else (M.compute(op, a, b), 0)
+        hidden = {"a": a, "b": b, "answer": ans, "both": a, "remainder": rem}[c["missing"]]
         mis = _missing_distractors(op, a, b, ans, c["missing"], hidden)
         r = Response("ans", "digits", str(hidden), cells=cells(max(a, b, ans)), misconceptions=mis)
         # The renderer reads only `text`; a, b, op, missing are kept so recheck and the tag
@@ -266,6 +270,7 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
             skills=skills,
         )
 
+    ans = M.compute(op, a, b)
     mis = M.predict(op, a, b)
     table = M.TABLES.get(op, {})
     mis |= {m["code"]: m["wrong_answer"] for m in c.get("misconceptions", []) if m["code"] not in table}

@@ -5615,3 +5615,116 @@ Proved on `6915414` (database fresh21, built from `fe08360`, whose seeds and dra
 - Rehearsed on a copy of live, run 38058373712 on `fe19720`, all green:
   - 554 questions retired and 7,042 added; 3,645 worksheets; 142 of 142 levels ready; 0 problems.
   - Only printing and specs changed after it, and `update-live` prints nothing (`library build` renders on demand).
+
+M3b1 merged and live (2026-10-10): main `ad6c967` (#170).
+- `migrate live` (run 38064590958) and `deploy engine` (run 38064590947) are green on it.
+- `engine done md3b1-facts-advance`, run on a clean worktree of main against a database built from its seeds:
+  - 18 of 19 of Nimish's words PROVED there. The 19th, s32, was not proved only because that worktree's website
+    could not build: its `node_modules` was a link, and Next's `find_package` failed. s32 passed on the main checkout
+    against the same database, and in CI's browser job on `ad6c967`.
+  - 3 of 3 scenarios MET, 3 of 3 criteria PASSED.
+  - NOT DONE for one reason this container cannot settle: it cannot read the live database's migrations
+    (`UndefinedTable`), as for M3a. The `migrate live` run above is the proof they are there.
+
+## M3b2 — measured before the build (2026-10-10)
+
+Measured on main `ad6c967`, through the drawer as merged with M3b1. Each of the 16 kind cases the drafted document
+places on `DIV.2D1D`'s and `DIV.3D1D`'s Advance was drawn alone, then on its level's own numbers (`cases.on_level`,
+Hard's `within`, since neither skill has an Advance yet).
+- **None draws a question its level can hold.**
+  - 13 refuse in a sentence: missing digits, finding the mistake, a possible answer, the check, an estimate inside the
+    level, and a story's shape.
+  - Q12 (the remainder missing) draws nothing.
+  - Q13 (the divisor missing with a remainder) raises: it is drawn into the one-answer path, and alone it drew
+    8930 ÷ 9.
+  - H09 raises: `times_kinds` knows only multiplication's shortcuts.
+  - V04 and V10 drawn alone crash with `KeyError: 'digits'`. `times_kinds.sizes` reads a × rule's digits before
+    anything asks the operation.
+- **The document places only kinds on these two Advance levels, no straight case.** Its grades are G3 (`DIV.2D1D`)
+  and G4 (`DIV.3D1D`).
+  - `MUL.2D1D`'s Advance also lists straight cases Hard holds. A question lives in one level, so those give Advance
+    nothing (named in M2b as not a defect). It is not copied here.
+
+What a box can name, measured over every question each level can hold. Each figure counts questions; an earlier tally
+of mine summed predicted values and is not used.
+- **A digit missing in the number divided (Q09, 7□ ÷ 4 = 18)** is found by multiplying, 18 × 4.
+  - The division's named mistakes run backwards alone leave 66 of 212 2-digit questions naming nothing.
+  - The multiplication's named mistakes, with every shown digit kept, leave 140 of 212.
+  - The union names every 2-digit question and all but 117 of 4,935 3-digit ones (2.4%, drawn again):
+    - the multiplication worked wrong, its digit at the box's place copied ("wrong operation" excepted, ADR 0057);
+    - a division mistake that, made with another digit there, gives the quotient shown.
+  - 102 of the 212 2-digit boxes have a digit that gives the quotient shown with something over (73 ÷ 4 = 18 r 1).
+    "A remainder left out" is no named mistake, and is drafted for Achal, not added.
+- **A digit missing in the quotient (Q10, 936 ÷ 3 = 3□2)**: the division's own mistakes, read at the box's place.
+  - Any length names all but 1 of 4,321, but takes digits from 933 or 2808 (÷ read as − or ×).
+  - A wrong quotient as long as the printed one leaves 483 (11%) naming nothing, drawn again.
+  - Every shown digit kept leaves 85%.
+  - The rule is "as long as the printed quotient": a wrong quotient that fits the printed boxes puts its digit in the
+    box, and one that does not fit says nothing about what is written there.
+- **The remainder missing with the quotient printed (Q12, 38 ÷ 5 = 7 r □)**: no named division mistake keeps the
+  printed quotient and changes only the remainder, so 556 of 556 name nothing.
+  - The box is found by taking away, 38 − 7 × 5. That subtraction's named mistakes, and the multiplication's with the
+    product taken away rightly ("wrong operation" excepted), name all 556 2-digit and all 5,555 3-digit questions.
+  - The multiplication one row out writes r + 5 there: the division's own "remainder too big", seen from its box.
+
+M3b is three slices now (BUILD-ORDER).
+- **M3b2:** the boxes, estimates and checks, nine cases in six kinds, which code checks alone: Q09, Q12, Q13, V09, Y10
+  on `DIV.2D1D`; Q10, V04, V10, H09 on `DIV.3D1D`.
+- **M3b3:** the mistake found (C04, C05, C07) and the remainder stories (B14–B17).
+  - Finding the mistake needs a module of its own: `diagnosis.py` is at 397 lines.
+  - The stories need template rows and a mistake no row holds yet: the remainder not rounded up.
+
+## M3b2 — the column skills' boxes, estimates and checks built (2026-10-10)
+
+What the measured failures became (ADR 0058), proved by `tests/test_divide_advance.py` and
+`apps/web/tests/s33-divide-advance.spec.ts`:
+- **Two Advance levels, the document's kinds alone** (no straight case Hard holds):
+  - `DIV.2D1D` (Grade 3): Q09, Q12, Q13, V09, Y10;
+  - `DIV.3D1D` (Grade 4): Q10, V04, V10, H09.
+  - Each is drawn on its case's own numbers (`assess/divide_kinds.py`, ADR 0057), and each question measures as its
+    case.
+- **Each box is keyed by the act that finds it** (ADR 0058):
+  - a digit in the number divided by the multiplication that finds it, read at the box's place, and by any division
+    mistake that gives the quotient shown with another digit;
+  - a remainder by the taking away, and its multiplication;
+  - a digit in the quotient by the division's own mistakes whose quotient fits the printed boxes;
+  - a check by the multiplication; a step by its own division.
+  - A box in another operation names no "wrong operation". Every code a box names has one name in every operation,
+    so the website names it in a division too.
+- **A claimed answer is right or a named mistake's**, one as often as the other: "could it be right?" against one
+  group short, and the check against a slip of the division layout.
+- **An estimate rounds the number divided to the nearest hundred**, asked only where it divides, or asks how many
+  digits the quotient has; its remainder is boxed after "r".
+
+Found while building, fixed here:
+- **An estimate of a division drawn alone crashed** (KeyError 'digits'). The estimate's rule read a × level's digits
+  before anything asked the operation; it asks the operation first now, and refuses ÷ in a sentence (`bands._estimate`).
+- **Seen on a rendered sheet, not by any test:**
+  - a digit missing from a division printed in a column under its own sentence, as a multiplication's does;
+  - an estimate's remainder box fell to the next line, away from its "r".
+  - A division prints as its sentence and one box now, on paper and on the website, and a quotient, its "r" and its
+    remainder stay one answer. `test_a_division_is_printed_as_a_division` fails on the old printing.
+- **The scenarios' recompute** works the new boxes from their printed numbers, by its own arithmetic:
+  - a digit among a division's digits (only one may fit);
+  - an estimate's first box, for every operation;
+  - a claim's tick;
+  - a check worked × before + ("21 × 4 + 2 = □", "605 − 258 = □").
+  - It would have called every judged or checked division wrong: it compared an answer box they do not have.
+  - Measured over all 26,954 questions of a database built from this tree: 0 read wrong. 1,396 estimates, 171
+    checks and 260 claims judged, once not worked, are worked now and right.
+- **`render_item` grew past its complexity.** Printing a missing digit is its own function now (a division as its
+  sentence, other operations in columns).
+- **Ratchets, all written down:** `render_item`'s branches 23 → 19 and statements 71 → 57; `render.py`'s untyped
+  findings 347 → 321 and `bands.py`'s 289 → 279. The new module has none.
+
+Proved on `38d4863` (database fresh23, built by `bin/testdb fresh` from this tree):
+`bin/engine goal md3b2-divide-advance` GOAL ACHIEVED.
+- 2 of 2 scenarios at 100%, 60 questions: every answer recomputed, none with nothing to work, none off its rule, none
+  undiagnosed, every case held.
+- Criteria: 1,145 tests passed, the drafted document 0 faults, and `bin/check` 27 passed.
+- s31, s32 and s33 passed in the browser against the same database.
+- Rehearsed on a copy of live, run 38066563963 on `38d4863`, all green:
+  - 554 questions retired and 7,479 added; 3,682 worksheets; 144 of 144 skill-levels ready; 0 problems.
+  - MUL_DIV: 179 cases covered, 68 missing (M3b3's and later slices'), 4 thin: unplaced patterns random draws happen
+    to match, as in M3b1's run.
+  - Every live data check ok.

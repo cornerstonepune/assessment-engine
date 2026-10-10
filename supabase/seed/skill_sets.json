@@ -3621,6 +3621,19 @@
         "M_DIV_REMAINDER_TOO_BIG",
         "M_DIV_SUBTRACTED",
         "M_DIV_SWAPPED",
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_NO_DECREMENT",
+        "M_ONE_ADDED",
+        "M_REVERSES_CLAIM_TRUTH",
+        "M_SMALL_FROM_LARGE",
+        "M_TENS_ZERO_DROPPED",
         "M_WRONG_OP"
       ],
       "replaces": [],
@@ -3678,12 +3691,33 @@
               "DR05"
             ]
           }
+        },
+        "Advance": {
+          "words": "The hardest divisions of a 2-digit number: a digit missing, the remainder or the divisor missing, an answer to judge and a check by multiplying: 7□ ÷ 4 = 18, 85 ÷ 4 = 21 r □, 85 ÷ □ = 21 r 1, could 85 ÷ 4 be 20 r 5?, 96 ÷ 4 = 24 checked as 24 × 4.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "Q09",
+              "Q12",
+              "Q13",
+              "V09",
+              "Y10"
+            ]
+          }
         }
       },
       "level_band": {
         "Easy": "G2",
         "Medium": "G2",
-        "Hard": "G3"
+        "Hard": "G3",
+        "Advance": "G3"
       }
     },
     {
@@ -3708,6 +3742,7 @@
         "M_DIV_SUBTRACTED",
         "M_DIV_SWAPPED",
         "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
         "M_WRONG_OP"
       ],
       "replaces": [],
@@ -3770,12 +3805,32 @@
               "DR08"
             ]
           }
+        },
+        "Advance": {
+          "words": "The hardest divisions of a 3-digit number: a digit missing in the quotient, how many digits it has, an estimate and ÷ 5 as ÷ 10 then doubled: 936 ÷ 3 = 3□2, how many digits 156 ÷ 4 has, 412 ÷ 8 ≈ 400 ÷ 8, 240 ÷ 5 as 24 doubled.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "Q10",
+              "V04",
+              "V10",
+              "H09"
+            ]
+          }
         }
       },
       "level_band": {
         "Easy": "G4",
         "Medium": "G4",
-        "Hard": "G4"
+        "Hard": "G4",
+        "Advance": "G4"
       }
     }
   ]
