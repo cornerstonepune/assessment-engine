@@ -89,8 +89,9 @@ The drafted document, read against itself:
 8. **A level is topped up in every way it prints a case** (`refill.top_up`, `draw.split`): a case's share is dealt over
    its ways, and each way is drawn what it is short of. Topped up per case, a level the bank filled before it listed
    methods stayed in its old ways: on the copy, DIV.2D1D's Easy kept its 46 questions in a line and in the division
-   layout and gained no partitioning or chunking. Multiplication's levels, filled the same way before ADR 0055, are
-   topped up in their methods too.
+   layout and gained no partitioning or chunking. Topped up per way, it gained 23 (12 partitioning, 11 chunking).
+   Multiplication's levels are read the same way; on the copy each already held its share of every method, and the
+   refill added none.
 9. **A scenario recomputes every step** (`scenarios._division_steps`), from its two numbers, apart from the code that
    made it: the exchanges, the parts, the take-aways and the long division's rows. On every number from 10 to 999 by 2
    to 9, 23,222 written divisions and every division layout agree.
