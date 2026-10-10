@@ -46,8 +46,8 @@ SIGN = {"MUL.FACTS": "×", "MUL.TENS": "×", "DIV.FACTS": "÷"}
 # The document's placements no level holds yet, each with the slice of BUILD-ORDER that will hold them. A slice's line
 # goes when it is built: a placement it leaves unheld fails here, and so does a line nothing waits for.
 SLICE_OF = {
-    "DIV.2D1D:Advance": "M3b2",
-    "DIV.3D1D:Advance": "M3b2",
+    "DIV.2D1D:Advance": "M3b3",
+    "DIV.3D1D:Advance": "M3b3",
     "DIV.2D1D:method": "M3d",
     "DIV.3D1D:method": "M3d",
     "DIV.GROUPS": "M3c",
@@ -223,7 +223,8 @@ def test_a_missing_factor_or_divisor_has_one_answer_and_names_the_operation_misr
                 want = {"M_DIV_SUBTRACTED": int(x) - c, "M_WRONG_OP": int(x) * c}
             want = {k: v for k, v in want.items() if v != hidden and v >= 0}
             assert r.misconceptions == want, (case, text, r.misconceptions)
-    # a box no rule here is about is refused, never keyed by another box's rule: the remainder's is M3b2's (Q12)
+    # a box no rule here is about is refused, never keyed by another box's rule: the remainder's is found by taking
+    # away, `divide_kinds`'s (M3b2, Q12)
     with pytest.raises(ValueError):
         FK.missing_mistakes("÷", 38, 5, "remainder")
 

@@ -28,6 +28,24 @@ TIMES = {
 }
 
 
+# a division's judgement (goals/md3b2-divide-advance.yaml): how many digits its quotient has, or the number divided
+# rounded to the nearest hundred and divided, asked only where the divisor divides that hundred
+DIVIDES = ("ANSWER_DIGITS", "ROUND_ONE")
+
+
+def divided(shape: str, a: int, b: int) -> tuple[int, int]:
+    """(the judgement, the number divided as rounded) for one ÷ shape: 156 ÷ 4's quotient has 2 digits; 412 ÷ 8 ≈ 400 ÷ 8
+    = 50. A RuntimeError where the divisor does not divide the hundred (drawn again); CannotMake for any other shape."""
+    if shape == "ANSWER_DIGITS":
+        return len(str(a // b)), a
+    if shape == "ROUND_ONE":
+        ra = half_up(a, 100)
+        if not ra or ra % b:
+            raise RuntimeError("the nearest hundred does not divide exactly: draw again")
+        return ra // b, ra
+    raise O.CannotMake(f"{shape!r} is no division estimate: {', '.join(DIVIDES)}")
+
+
 def _judged(shape: str, a: int, b: int) -> tuple[int, int, int]:
     """(the judgement, the first number as rounded, the second as rounded) for one × shape."""
     big = max(a, b)
@@ -41,8 +59,11 @@ def _judged(shape: str, a: int, b: int) -> tuple[int, int, int]:
 
 def rounded(spec: dict[str, Any]) -> tuple[int, int]:
     """The two numbers a printed estimate shows, as its question rounds them: both to the nearest `round_to`, or what
-    a × estimate's `shape` rounds (the larger number, both, or neither where it asks the digits). The one rule
+    a × estimate's `shape` rounds (the larger number, both, or neither where it asks the digits), or a ÷ estimate's
+    (the number divided to the nearest hundred, or neither). The one rule
     `stale.key_problems` holds a stored estimate to."""
+    if O.sign(spec.get("op")) == "÷" and spec.get("shape") in DIVIDES:
+        return (half_up(spec["a"], 100) if spec["shape"] == "ROUND_ONE" else spec["a"]), spec["b"]
     if O.sign(spec.get("op")) == "×" and spec.get("shape") in TIMES:
         _, ra, rb = _judged(spec["shape"], spec["a"], spec["b"])
         return ra, rb

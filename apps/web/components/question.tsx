@@ -87,7 +87,8 @@ export function Question({ it }: { it: ItemRow }) {
         </span>
       );
     case "missing_digit":
-      return s.shape ? (
+      // a division is its sentence (7□ ÷ 4 = 18), never a column
+      return s.shape || s.op === "÷" ? (
         <span>{it.stem}</span>
       ) : (
         <Column numbers={[s.a ?? "", s.b ?? ""]} op={sign(s.op)} result={s.c} />

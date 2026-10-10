@@ -412,6 +412,23 @@ def test_every_new_kind_prints_its_numbers_and_sign():
             assert set(re.findall(r'data-r="([^"]+)"', html)) == {r.rid for r in it.responses}, case
 
 
+def test_a_division_is_printed_as_a_division():
+    """Seen on a rendered sheet, not by any test: a digit missing from a division printed in a column under its own
+    sentence, as a multiplication's missing digit does, and an estimate's remainder box fell to the next line, away
+    from its "r". A ÷ missing digit prints its sentence and one box; a quotient, its "r" and its remainder stay one
+    answer."""
+    for skill in KINDS:
+        for case, it in _drawn(skill):
+            html = render.render_item(Sheet("CS000000", GRADE[skill], "Advance", 1, "W1", [it]), it, 1)
+            if it.fmt == "missing_digit":
+                assert 'class="grid"' not in html and html.count('data-r="d1"') == 1, (case, it.spec)
+            if it.fmt == "estimate_then_calc" and any(r.rid == "rem" for r in it.responses):
+                assert re.search(r'class="quotient">.*data-r="ans".*>r<.*data-r="rem"', html, re.S), (
+                    case,
+                    it.spec,
+                )
+
+
 # ---------------------------------------------------------------------------------------------- the whole loop
 
 

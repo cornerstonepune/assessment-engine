@@ -65,33 +65,8 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
 <div class="row"><span class="eq">total =</span>{_cells(sid, iid, R["hund"])}<span class="eq">+</span>{_cells(sid, iid, R["tens"])}<span class="eq">+</span>{_cells(sid, iid, R["ones"])}<span class="eq">=</span>{_cells(sid, iid, R["ans"])}</div>"""
     elif f == "estimate_then_calc":
         body = _estimate(sid, iid, sp, R, functools.partial(_cells, sid, iid))
-    elif f == "missing_digit" and sp.get("shape") == "INEQUALITY":
-        body = (
-            f'<div class="row"><span class="lab">how many digits:</span>{_cells(sid, iid, R["count"])}</div>'
-            + working(2)
-        )
     elif f == "missing_digit":
-        rows = [sp["a"], sp["b"], sp["c"]]
-        w = max(len(r) for r in rows)
-        boxes = iter([r for r in it.responses if r.kind == "digits" and r.rid != "A"])
-
-        def rowhtml(text, opch="", res=False):
-            cells = ""
-            for ch in text.rjust(w):
-                if ch == "□":
-                    r = next(boxes)
-                    cells += f'<div class="g ans cell" data-s="{sid}" data-i="{iid}" data-r="{r.rid}" data-k="0"></div>'
-                else:
-                    cells += f'<div class="g{" res" if res else ""}">{ch.strip()}</div>'
-            return f'<div class="g op">{opch}</div>' + cells
-
-        grid = f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(rows[0])}{rowhtml(rows[1], op_sign(sp["op"]))}{rowhtml(rows[2], res=True)}</div>"""
-        letter = (
-            f'<div class="row"><span class="lab">A =</span>{_cells(sid, iid, R["A"])}</div>'
-            if "A" in R
-            else ""
-        )
-        body = grid + letter + working(2)
+        body = _missing_digit(sid, iid, it, R, big, functools.partial(_cells, sid, iid))
     elif f == "equation":
         stem = (
             html.escape(it.stem)
@@ -195,6 +170,39 @@ def _straight(
     return stem, cells(R["ans"], big) + tail + working(it.working_lines)
 
 
+def _missing_digit(
+    sid: str, iid: str, it: Any, R: dict[str, Response], big: bool, cells: Callable[..., str]
+) -> str:
+    """A missing digit's boxes: how many digits fit, for an inequality; a division as its sentence (7□ ÷ 4 = 18), never a
+    column, the digit's box after it as a missing number's; any other operation in columns, each box in its place,
+    and a letter's own box."""
+    sp = it.spec
+    if sp.get("shape") == "INEQUALITY":
+        return (
+            f'<div class="row"><span class="lab">how many digits:</span>{cells(R["count"])}</div>'
+            + working(2)
+        )
+    if O.sign(sp.get("op")) == "÷":
+        return '<span class="lab">&#9633; =</span>' + cells(R["d1"], big) + working(2)
+    rows = [sp["a"], sp["b"], sp["c"]]
+    w = max(len(r) for r in rows)
+    boxes = iter([r for r in it.responses if r.kind == "digits" and r.rid != "A"])
+
+    def rowhtml(text: str, opch: str = "", res: bool = False) -> str:
+        out = ""
+        for ch in text.rjust(w):
+            if ch == "□":
+                r = next(boxes)
+                out += f'<div class="g ans cell" data-s="{sid}" data-i="{iid}" data-r="{r.rid}" data-k="0"></div>'
+            else:
+                out += f'<div class="g{" res" if res else ""}">{ch.strip()}</div>'
+        return f'<div class="g op">{opch}</div>' + out
+
+    grid = f"""<div class="grid" style="grid-template-columns: 8.4mm repeat({w}, 8.4mm)">{rowhtml(rows[0])}{rowhtml(rows[1], op_sign(sp["op"]))}{rowhtml(rows[2], res=True)}</div>"""
+    letter = f'<div class="row"><span class="lab">A =</span>{cells(R["A"])}</div>' if "A" in R else ""
+    return grid + letter + working(2)
+
+
 def _estimate(
     sid: str, iid: str, sp: dict[str, Any], R: dict[str, Response], cells: Callable[[Response], str]
 ) -> str:
@@ -211,6 +219,11 @@ def _estimate(
         # (84 × 18 in 4 boxes answered it): a product's two numbers' digits, a quotient's the number divided's
         room = len(str(sp["a"])) + (len(str(sp["b"])) if op_sign(sp["op"]) == "×" else 0)
         exact = answer_space.cells(sid, iid, dataclasses.replace(R["ans"], cells=room), boxes="cells")
+    rem = R.get(
+        "rem"
+    )  # a division that leaves a remainder: "r" and its box after the quotient's, one answer that
+    if rem:  # wraps whole (alone, the remainder's box fell to the next line, away from its "r")
+        exact = f'<span class="quotient">{exact}<span class="eq rem">r</span>{cells(rem)}</span>'
     body = f"""<div class="row"><span class="lab">{first}</span>{cells(R["est"])}</div>
 <div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{exact}</div>""" + working(
         2

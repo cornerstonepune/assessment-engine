@@ -55,6 +55,8 @@ says:
   - words: "create the whole loop that we have"
     proved_by: packages/engine/tests/test_divide_advance.py::test_every_new_kind_prints_its_numbers_and_sign
   - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_division_is_printed_as_a_division
+  - words: "create the whole loop that we have"
     proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_fills_its_worksheets
   - words: "create the whole loop that we have"
     proved_by: "apps/web/tests/s33-divide-advance.spec.ts::once taught, the column skills' Advance kinds are on the Question bank with their numbers"

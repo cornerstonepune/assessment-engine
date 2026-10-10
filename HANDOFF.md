@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (measured; failing tests)
+## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (built, proving)
 
 - **Slice:** M3b2 (W1 gate 3). Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases
   on `DIV.2D1D`'s and `DIV.3D1D`'s Advance draws, and V04 and V10 alone crash (`times_kinds.sizes`). Split again:
@@ -17,11 +17,22 @@ is verified. This file only says where the last session stopped.
   - A remainder names the taking away (and its multiplication).
   - A quotient's digit names only wrong quotients as long as the printed one.
   - An estimate rounds the number divided to the nearest hundred, asked only where it divides.
-- **Next:** build to the tests: the two Advance levels as rows (the document's kinds only, G3 and G4), a module for the
-  kinds (`assess/divide_kinds.py`, each on its case's pair as ADR 0057), the scenarios' recompute, tags, printing and the
-  website; then ADR 0058, prove, ship, rehearse, merge.
+- **Built** (STATE.md "M3b2 — … built", ADR 0058):
+  - the two Advance levels as rows, the document's kinds only (G3, G4);
+  - `assess/divide_kinds.py`, each kind on its case's pair;
+  - the remainder's and the divisor's boxes on the missing-number path M3b1 extended;
+  - the scenarios' recompute for every new box;
+  - printing, and the website.
+- **Found and fixed:**
+  - the crash of an estimate of ÷ drawn alone (`bands._estimate` asks the operation first);
+  - a division's missing digit printed as a column, and an estimate's remainder box apart from its "r" (seen on a
+    rendered sheet; a test pins both);
+  - the recompute would have called every judged or checked division wrong. Measured over all 26,954 questions: 0
+    read wrong.
+- **Next:** the goal on a database built from this tree, CI, a rehearsal of `bin/update-live` on a copy of live, merge,
+  `engine done`; then M3b3 (the mistake found, the remainder stories).
 
-## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged)
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged, live, done)
 
 - **Slice:** M3b1 (W1 gate 3); M3b split in two after measuring (STATE.md "M3b — measured before the build"). Goal
   `goals/md3b1-facts-advance.yaml`; ADR 0057; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`;
@@ -44,8 +55,8 @@ is verified. This file only says where the last session stopped.
 - **CI found a spec reading the page before it arrives.** M3a's s31 read the Question bank once, straight after
   `goto`, while the main area still held the skeleton (`app/(app)/loading.tsx`, swapped out some 200ms later). It
   failed 19 times in 30 locally; it waits on what it checks now and passed 60 of 60.
-- **Merged:** main `ad6c967` (PR #170). `migrate live`, `deploy engine` and `engine done` are confirmed in STATE.md once
-  they finish.
+- **Merged and live:** main `ad6c967` (PR #170), `migrate live` and `deploy engine` green; `engine done` 19 of 19 proved
+  (s32 on the main checkout), 3 of 3 met, 3 of 3 passed; live's migrations unreadable from this container (STATE.md).
 - **Next:**
   - M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
     found, a possible answer, estimates, remainder stories, Y10 and H09. `diagnosis.py` is at 397 lines, so ÷'s

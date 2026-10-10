@@ -38,14 +38,14 @@ STRAIGHT = set(draw.STRAIGHT)
 GRADES = {
     "DIV.FACTS": ["G2", "G2", "G2", "G3"],
     "DIV.TENS": ["G4", "G4", "G4", "G4"],
-    "DIV.2D1D": ["G2", "G2", "G3"],
-    "DIV.3D1D": ["G4", "G4", "G4"],
+    "DIV.2D1D": ["G2", "G2", "G3", "G3"],
+    "DIV.3D1D": ["G4", "G4", "G4", "G4"],
 }
 # The two whose Advance the document gives straight questions no lower level holds: the 11 and 12 tables, a 2-digit
 # divisor and a remainder under a 1-digit quotient; ÷ 10, 100 or 1000 with a remainder. DIV.FACTS's kinds came with
-# M3b1 (`tests/test_facts_advance.py`); these tests read its straight cases. The other two have no Advance until M3b2
-# gives them the kinds an Advance needs, as multiplication's had none until M2b: an Advance of Hard's own questions is
-# no level (`engine load` refuses two levels on one region).
+# M3b1 (`tests/test_facts_advance.py`); these tests read its straight cases. The other two's Advance is the document's
+# kinds alone, since M3b2 (`tests/test_divide_advance.py`), with no straight case: an Advance of Hard's own questions
+# is no level (`engine load` refuses two levels on one region). `LEVELS_OF` is the levels with straight cases.
 ADVANCE = ["DIV.FACTS", "DIV.TENS"]
 LEVELS_OF = {s: LEVELS if s in ADVANCE else LEVELS[:3] for s in FOUR}
 
@@ -111,24 +111,23 @@ def _measured(a, b):
 
 def test_division_is_four_skills_each_level_its_documents_cases():
     """Easy to Hard are the document's straight cases for that level; the tables' and ÷ 10's Advance holds the hardest
-    straight cases with the document's own Advance straight cases, as multiplication's does, and the other two have
-    none until M3b; every level divides, at the document's grade, on a rung of its own counting on Division, untaught
-    until an educator says so."""
+    straight cases with the document's own Advance straight cases, as multiplication's does, and the other two's
+    Advance is the document's kinds alone (M3b2), no straight case; every level divides, at the document's grade, on a
+    rung of its own counting on Division, untaught until an educator says so."""
     rungs = [SETS[s]["rung_code"] for s in FOUR]
     others = {x["rung_code"] for s, x in SETS.items() if s not in FOUR}
     assert len(set(rungs)) == 4 and not others & set(rungs)
     for skill in FOUR:
         s, doc = SETS[skill], _documents(skill)
         assert RUNGS[s["rung_code"]]["skill_codes"] == ["NUM.OPS.04"], skill
-        assert list(s["difficulty"]) == LEVELS_OF[skill], skill
+        assert list(s["difficulty"]) == LEVELS, skill
         for lv in ("Easy", "Medium", "Hard"):
             assert sorted(_check(skill, lv)["cases"]) == sorted(doc[lv]), (skill, lv)
-        if skill in ADVANCE:
-            below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "DIV.FACTS" else set()
-            want = sorted(below | set(doc["Hard"]) | set(doc["Advance"]))
-            assert sorted(c for c in _check(skill, "Advance")["cases"] if _straight(c)) == want, skill
-        assert all(_check(skill, lv)["within"]["operation"] == "DIV" for lv in LEVELS_OF[skill]), skill
-        assert [s["level_band"][lv] for lv in LEVELS_OF[skill]] == GRADES[skill], skill
+        below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "DIV.FACTS" else set()
+        want = sorted(below | set(doc["Hard"]) | set(doc["Advance"])) if skill in ADVANCE else []
+        assert sorted(c for c in _check(skill, "Advance")["cases"] if _straight(c)) == want, skill
+        assert all(_check(skill, lv)["within"]["operation"] == "DIV" for lv in LEVELS), skill
+        assert [s["level_band"][lv] for lv in LEVELS] == GRADES[skill], skill
         topic = next(t for t in TOPICS if skill in t["skill_sets"])
         assert topic["taught"] is False, f"{skill} is taught before an educator said so"
 

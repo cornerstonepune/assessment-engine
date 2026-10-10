@@ -24,6 +24,7 @@ import random
 from typing import Any
 
 from . import bands, tags, taxonomy, verify
+from . import divide_kinds as DK
 from . import draw_case as K
 from . import draw_divide as DD
 from . import draw_native as N
@@ -41,7 +42,13 @@ STRAIGHT = (*PLAIN, *WM.KINDS.values())  # every kind a straight calculation is 
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
 SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
-POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer", "MULTIPLE": "both"}
+POSITIONS = {
+    "FIRST_OPERAND": "a",
+    "SECOND_OPERAND": "b",
+    "RESULT": "answer",
+    "MULTIPLE": "both",
+    "REMAINDER": "remainder",
+}
 
 
 def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
@@ -207,7 +214,7 @@ def _missing(
         ["RESULT"]
         if first
         else ["FIRST_OPERAND", "SECOND_OPERAND"]
-        + (["RESULT"] if op == "-" else ["MULTIPLE"] if op == "×" else [])
+        + (["RESULT"] if op == "-" else ["MULTIPLE"] if op == "×" else ["REMAINDER"] if op == "÷" else [])
     )
     where = K.pick(rng, alt.get("unknown_position"), ways)
     size = K.pick(rng, alt.get("unknown_digits"), K.DIGITS) if "unknown_digits" in alt else None
@@ -228,13 +235,17 @@ def _missing(
             a, b = FK.boxed_factor(a, b, hide)  # 45 × □ = 4500: the box hides 10, 100 or 1000
         except RuntimeError:
             return None
-    ans = M.compute(op, a, b)
-    sign = O.PRINTED[op]
+    rem = O.divide(a, b)[1] if op == "÷" else 0
+    if (hide == "remainder" and not rem) or (rem and hide not in ("b", "remainder")):
+        return None  # a remainder's box needs one; with one, the divisor's box or the remainder's is asked (Q12, Q13)
+    ans = a // b if rem else M.compute(op, a, b)
+    sign, left = O.PRINTED[op], f" r {rem}" if rem else ""
     text = {
         "a": f"□ {sign} {b} = {ans}",
-        "b": f"{a} {sign} □ = {ans}",
+        "b": f"{a} {sign} □ = {ans}{left}",
         "answer": f"□ = {a} {sign} {b}" if first else f"{a} {sign} {b} = □",
         "both": f"□ {sign} □ = {ans}",
+        "remainder": f"{a} {sign} {b} = {ans} r □",
     }[hide]
     cand = {"format": "missing_number", "op": op, "a": a, "b": b, "answer": ans, "stem": text}
     return verify.to_item(cand | {"missing": hide, "misconceptions": [], "answer_first": first}, rung)
@@ -268,7 +279,7 @@ def one(rng: random.Random, match: Any, check: dict[str, Any], rung: str, k: int
         it = (_many if many else _plain)(rng, alt, check, rung, k)
     elif fmts == {"missing_number"}:
         it = _missing(rng, alt, check, rung, k)
-    elif len(fmts) == 1 and (build := FK.builder(alt, next(iter(fmts)))):
+    elif len(fmts) == 1 and (build := FK.builder(alt, f := next(iter(fmts))) or DK.builder(alt, f)):
         it = _paired(rng, alt, check, rung, build)
     else:
         it = N.native(rng, alt, check, rung, k)
