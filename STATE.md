@@ -6007,7 +6007,9 @@ Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank ref
 - Merged as `0492849` (#174), at the head CI and the rehearsal on a copy of live had passed (`f9f5804`: ci 38085843773,
   rehearse-update-live 38086482405).
 - Main: `ci` green (38087656889), then `migrate live` (38089427451) and `deploy engine` (38089427383) succeeded.
-- `engine eval mistake_guess` (v1, Jev shown the rows' names) dispatched on the server after the deploy: run 38089777698.
+- `engine eval mistake_guess` (v1, Jev shown the rows' names), on the server after the deploy (run 38089777698): the right
+  mistake first 70/120, among the three 109/120, slips called NONE 30/30, slips given a mistake 0; every bar met
+  (DECISIONS-LOG.md). Before: 108/120 among the three (run 36519894157).
 
 ## M3c — measured before the build (2026-10-10)
 
