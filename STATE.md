@@ -5216,3 +5216,29 @@ M2d is two slices (BUILD-ORDER): M2d1, `MUL.MODELS`; M2d2, the written methods a
 - `MUL.MODELS` is no row; `M_TIMES_AS_MORE` ("reads 3 times as many as 3 more", the drafted table's) is no mistake row.
 - `draw.py` is at its 400-line ceiling: passing `method` means first moving the cases a kind draws for itself (and
   what a case allows, its operation and sizes) into a module of their own.
+
+## M2d1 — MUL.MODELS built (2026-10-10)
+
+What the eight measured failures became (ADR 0054), each proved by `tests/test_mul_models.py` (9 tests):
+- G03 skip counting and TF17 a cell of the multiplication square are kinds of their own, `skip_counting` and
+  `multiplication_square` (`assess/times_models.py`); the drafted rows had filed them as `bare_sum`. Corrected in
+  `research/md_rows.py` and written again by `research/md_taxonomy.py` (251 rows, 0 faults); only G03, TF17 and G05's
+  example changed, and the shape vocabulary gained `ARRAY`.
+- G05 an array: a shape of equal groups, read in three labelled boxes (rows × in each row = in all).
+- G04 equal jumps: the number line is one kind drawn two ways (`assess/number_line.py`, moved typed out of `items.py`).
+- G14 the swap: an equation shape reading the level's `known` tables (`equality.from_rule`, `equality.swap`).
+- B04, B11, B13: × templates of an array, twice as many and area; "times as many" names adding its numbers
+  `M_TIMES_AS_MORE` both ways into the bank, a story whose misreading would be right (2 times as many as 2) is drawn
+  again, and one keyed before is a key problem, so the refill retires it (`verify._stale_story`).
+- `MUL.MODELS` (R41, topic Multiplication, Grade 2 at every level) has no `within`, so `placing` never reads it as a
+  calculation skill; `MUL.2D1D` names `M_TIMES_AS_MORE` (seed; migration `20261031090000` for a database loaded before).
+- A sheet of one question of every case, printed through Chromium as a paper is: every answer has its boxes in the
+  key's geometry, the array's three included (`test_every_model_answer_is_where_the_printed_key_says_it_is`).
+
+Ratchets, written down where they fell: `draw.py` 400 → 356 lines (`draw_case.py` holds what a case allows), `items.py`
+540 → 439 lines; untyped findings `bands.py` 312 → 289, `draw.py` 183 → 177, `items.py` 439 → 359; the four new
+modules carry none.
+
+Found and named, not changed (files this slice does not touch): the marker charges a wrong answer to every mistake
+that predicts it (`w3_read/marking.py`: 3 × 3 answered 6 is both `M_MUL_ROW_OUT` and `M_WRONG_OP`), while the counting
+kinds name neither when two mistakes share an answer (`assess/counting.named`). One rule should hold for both.

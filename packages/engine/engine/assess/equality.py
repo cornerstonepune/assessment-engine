@@ -6,11 +6,17 @@ Three kinds of question, each deterministic given an RNG:
 - `fact_family` — three facts that follow from one;
 - `inverse_check` — an answer checked with the other operation.
 The wrong answers each one predicts are the equality mistakes the vocabulary names: reading = as "the
-answer comes next", adding every number in sight, turning a subtraction round.
+answer comes next", adding every number in sight, turning a subtraction round. A level's rule reaches an
+equation through `from_rule`, which also makes multiplication's swap to a known table (9 × 2 = 2 × 9 = □).
 """
 
+from random import Random
+from typing import Any
+
+from . import misconceptions as M
 from . import operations as O
-from .items import Response, cells, item
+from .counting import one_of
+from .items import Item, Response, cells, item
 
 MINUS = "−"
 UNFIT = "these numbers do not make this question; draw again"
@@ -146,6 +152,33 @@ def equation(rng, rung, signal, shape, hi=50):
         raise ValueError(f"no equation shape {shape!r}")
     spec = dict(text=text, shape=shape, ops=ops)
     return item(f"EQ.{shape}", rung, signal, "equation", stem, spec, rs, working_lines=1)
+
+
+def from_rule(rng: Random, rung: str, signal: str, rule: dict[str, Any]) -> Item:
+    """An equation drawn from a level's rule: one of its shapes, its numbers within `hi`. The swap to a known table
+    reads the tables the level counts as known (`known`) and the range of the table turned round (`size`)."""
+    shape = one_of(rule["shape"], rng)
+    if shape == "SWAP_TO_A_KNOWN_TABLE":
+        return swap(rng, rung, signal, rule.get("known") or [], rule.get("size") or [2, 10])
+    return equation(rng, rung, signal, shape, rule.get("hi", 50))
+
+
+def swap(rng: Random, rung: str, signal: str, known: list[int], size: list[int]) -> Item:
+    """9 × 2 = 2 × 9 = □ (§8, G14): a table the child does not know yet turned round into one the level counts as
+    known, the swap printed whole and its answer asked. The known table is the second number; the first is any other
+    in `size`. Its mistakes are the known table's, worked on the fact as turned round (`misconceptions.predict`)."""
+    if not known:
+        raise ValueError(
+            "SWAP_TO_A_KNOWN_TABLE turns a table into one the level counts as known; it names none (`known`)"
+        )
+    others = [n for n in range(int(size[0]), int(size[-1]) + 1) if n not in known]
+    if not others:
+        raise ValueError(f"every table from {size[0]} to {size[-1]} is known: there is none to turn round")
+    a, k = rng.choice(others), int(rng.choice(known))
+    r = Response("ans", "digits", str(a * k), cells=cells(a * k), misconceptions=M.predict("×", k, a))
+    spec = dict(text=f"{a} × {k} = {k} × {a} = □", shape="SWAP_TO_A_KNOWN_TABLE", ops=["×"])
+    stem = "Use the table you know to find the answer."
+    return item("EQ.SWAP_TO_A_KNOWN_TABLE", rung, signal, "equation", stem, spec, [r], working_lines=1)
 
 
 def fact_family(rng, rung, signal, shape, hi=20):

@@ -192,13 +192,15 @@
       "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
-      "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?"
+      "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?",
+      "added": "M_TIMES_AS_MORE"
     },
     {
       "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
-      "text": "A small jar holds {a} beads. A big jar holds {b} times as many beads. How many beads does the big jar hold?"
+      "text": "A small jar holds {a} beads. A big jar holds {b} times as many beads. How many beads does the big jar hold?",
+      "added": "M_TIMES_AS_MORE"
     },
     {
       "fmt": "word_1step",
@@ -211,6 +213,50 @@
       "structure": "COMBINATIONS",
       "op": "×",
       "text": "A racing game has {a} cars and {b} tracks. Each race is one car on one track. How many different races are there?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "ARRAY",
+      "op": "×",
+      "text": "There are {a} rows of chairs in the hall. Each row has {b} chairs. How many chairs are there?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "ARRAY",
+      "op": "×",
+      "text": "{n} plants {a} rows of saplings, with {b} saplings in each row. How many saplings does {n} plant?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TWICE_AS_MANY",
+      "op": "×",
+      "numbers": {
+        "b": 2
+      },
+      "added": "M_TIMES_AS_MORE",
+      "text": "{n} read {a} pages. {n2} read twice as many pages. How many pages did {n2} read?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TWICE_AS_MANY",
+      "op": "×",
+      "numbers": {
+        "b": 2
+      },
+      "added": "M_TIMES_AS_MORE",
+      "text": "A small box holds {a} crayons. A big box holds twice as many crayons. How many crayons does the big box hold?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "AREA",
+      "op": "×",
+      "text": "A rectangle is {a} squares long and {b} squares wide. How many squares cover it?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "AREA",
+      "op": "×",
+      "text": "{n} tiles a floor {a} tiles long and {b} tiles wide. How many tiles does {n} use?"
     },
     {
       "fmt": "word_2step",

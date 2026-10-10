@@ -16,10 +16,13 @@ from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
+from engine.assess import number_line as NL
 from engine.assess import operations as O
 from engine.assess import reasoning as RS
 from engine.assess import times_kinds as TK
+from engine.assess import times_models as TM
 from engine.assess import words as W
+from engine.assess.counting import one_of
 
 # The shapes the arithmetic sampler can render from (op, a, b) alone. A band whose check names
 # a format outside this and outside NATIVE_GENERATORS cannot be made by anything.
@@ -78,11 +81,6 @@ def pairs(check, n, seed=1):
     return out
 
 
-def one_of(v: Any, rng: random.Random) -> Any:
-    """A check value that may be a single value or a list of alternatives (op, kind, …)."""
-    return rng.choice(v) if isinstance(v, list) else v
-
-
 def makes(fmt: str, case: dict[str, Any]) -> bool:
     """Whether this kind can make a case of this story shape: a story kind only the shapes its template rows hold.
     W25 (a number to leave out) lists the one-step kind, which reads such a story, but no one-step template has that
@@ -118,8 +116,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "missing_number": lambda rng, rung, signal, c: I.missing_number(rng, rung, signal, c["kind"], c["hi"]),
     "balance_scale": lambda rng, rung, signal, c: I.balance_scale(rng, rung, signal, c["hi"]),
     "number_wall": lambda rng, rung, signal, c: I.number_wall(rng, rung, signal, c["hi"]),
-    "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
-        rng, rung, signal, one_of(c["op"], rng), c["hi"]),
+    "number_line_jumps": NL.number_line,
     "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
         rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), _regroups(c),
         round_to=c.get("round_to", 10),
@@ -145,7 +142,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "missing_digit": lambda rng, rung, signal, c: MD.missing_digit(
         rng, rung, signal, {**c, "op": one_of(c.get("op", "+"), rng),
                             "width": one_of(c.get("width") or (TK.digits(c) or (2,))[0], rng)}),
-    "equation": lambda rng, rung, signal, c: EQ.equation(rng, rung, signal, one_of(c["shape"], rng), c.get("hi", 50)),
+    "equation": EQ.from_rule,
     "fact_family": lambda rng, rung, signal, c: EQ.fact_family(rng, rung, signal, one_of(c["shape"], rng), c.get("hi", 20)),
     "inverse_check": lambda rng, rung, signal, c: EQ.inverse_check(
         rng, rung, signal, one_of(c.get("op", "+"), rng), c.get("digits_max", 3)),
@@ -158,6 +155,8 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
         rng, rung, signal, one_of(c.get("op", "+"), rng), c.get("digits_max", 3)),
     "tally": C.tally,
     "equal_groups": C.equal_groups,
+    "skip_counting": TM.skip_counting,
+    "multiplication_square": TM.multiplication_square,
 }
 
 # The rule keys each generator reads — and so the only keys a level of that kind may set (`engine audit`,
@@ -167,7 +166,7 @@ READS = {
     "missing_number": {"kind", "hi"},
     "balance_scale": {"hi"},
     "number_wall": {"hi"},
-    "number_line_jumps": {"op", "hi"},
+    "number_line_jumps": {"op", "hi", "groups", "size"},
     "estimate_then_calc": {"op", "digits", "regroups", "round_to", "shape", "tolerance"},
     "multi_add": {"n_addends", "digits_each"},
     "efficient_method": {"kind", "strategy"},
@@ -177,7 +176,7 @@ READS = {
     "find_mistake": {"op", "digits", "planted"},
     "explain_claim": {"a_range", "claim_is_true", "claim_topic"},
     "missing_digit": {"op", "width", "missing_count", "missing_in", "missing_place", "shape", "regroups"},
-    "equation": {"shape", "hi"},
+    "equation": {"shape", "hi", "known", "size"},
     "fact_family": {"shape", "hi"},
     "inverse_check": {"op", "digits_max"},
     "choose_estimate": {"op", "digits_max"},
@@ -185,7 +184,9 @@ READS = {
     "odd_even": {"op", "digits_max"},
     "break_apart": {"op", "digits_max"},
     "tally": {"shape", "lo", "hi"},
-    "equal_groups": {"shape", "groups", "size"},
+    "equal_groups": {"shape", "method", "groups", "size"},
+    "skip_counting": {"known", "groups"},
+    "multiplication_square": {"groups", "size"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
 # `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)

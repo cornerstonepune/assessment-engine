@@ -7,6 +7,7 @@ import json
 import pathlib
 import random
 import re
+from collections import Counter
 
 import pytest
 
@@ -128,7 +129,8 @@ def test_a_table_is_swapped_to_one_the_level_counts_as_known():
 
 def test_a_cell_of_the_multiplication_square_is_found_from_its_row_and_column():
     """A part of the multiplication square, its rows and columns headed, one cell a box: every other cell printed as
-    its row times its column, none of them the answer; the next row of the table is a mistake it names."""
+    its row times its column, none of them the answer; the next row of the table, the cell beside it in its row or its
+    column, is a mistake it names."""
     for it in _drawn("TF17"):
         a, b = it.spec["a"], it.spec["b"]
         ans = _answers(it)["ans"]
@@ -140,7 +142,7 @@ def test_a_cell_of_the_multiplication_square_is_found_from_its_row_and_column():
             for c in it.spec["cols"]:
                 assert (r, c) == (a, b) or f'<td class="p">{r * c}</td>' in page
         assert f'<td class="p">{a * b}</td>' not in page  # the answer is never printed
-        assert ans.misconceptions["M_MUL_ROW_OUT"] == a * (b - 1)
+        assert ans.misconceptions["M_MUL_ROW_OUT"] in ((a - 1) * b, a * (b - 1))  # the cell beside it
 
 
 def test_three_stories_multiply_an_array_twice_as_many_and_an_area():
@@ -162,12 +164,54 @@ def test_three_stories_multiply_an_array_twice_as_many_and_an_area():
             )
             assert (checked.item_id, checked.responses[0].misconceptions) == (it.item_id, ans.misconceptions)
     assert set(shapes) == {"ARRAY", "TWICE_AS_MANY", "AREA"}
-    for seed in range(6):
-        it = words.word_1step(
-            random.Random(seed), "R1", "Application", 1, structure="TIMES_AS_MANY_LARGER", op="×"
-        )
+    made = []
+    for seed in range(30):
+        try:
+            made.append(
+                words.word_1step(
+                    random.Random(seed), "R1", "Application", 1, structure="TIMES_AS_MANY_LARGER", op="×"
+                )
+            )
+        except RuntimeError:
+            continue  # 2 times as many as 2 is drawn again: read as two more, it would be right
+    assert len(made) >= 20
+    for it in made:
         a, b = it.spec["a"], it.spec["b"]
-        assert _answers(it)["ans"].misconceptions["M_TIMES_AS_MORE"] == a + b
+        assert a + b != a * b and _answers(it)["ans"].misconceptions["M_TIMES_AS_MORE"] == a + b
+
+
+def _story(structure, seed=1):
+    for k in range(seed, seed + 50):
+        try:
+            return words.word_1step(
+                random.Random(k), "R1", "Application", 1, structure=structure, op="×"
+            ).to_dict()
+        except RuntimeError:
+            continue  # its misreading would be its answer: drawn again
+    raise AssertionError(structure)
+
+
+def test_a_times_as_many_story_keyed_before_its_mistake_had_a_name_leaves_the_bank():
+    """A "times as many" story stored when adding its two numbers was named the wrong operation is keyed by a rule
+    since corrected: it leaves the bank and is drawn again, as a straight sum keyed by an old predictor does, so no
+    printed paper changes under it. So does one whose numbers added are its answer. Every template of one shape names
+    the same mistake, so a story's shape alone says which."""
+    for shape, code in words.added_by_shape().items():
+        assert {t.get("added") for t in words.templates("word_1step", structure=shape)} == {code}
+    today = _story("TIMES_AS_MANY_LARGER")
+    assert verify.key_problems("word_1step", today["spec"], today["responses"]) == []
+    before = {**today, "responses": [dict(today["responses"][0])]}
+    mis = before["responses"][0]["misconceptions"]
+    before["responses"][0]["misconceptions"] = {
+        ("M_WRONG_OP" if c == "M_TIMES_AS_MORE" else c): v for c, v in mis.items()
+    }
+    stale = ["keyed by a mistake rule since corrected: M_WRONG_OP"]
+    assert verify.key_problems("word_1step", before["spec"], before["responses"]) == stale
+    two = {**today["spec"], "a": 2, "b": 2}
+    assert verify.key_problems("word_1step", two, today["responses"]) == stale
+    groups = _story("EQUAL_GROUPS")  # adding is the wrong operation there, and stays so named
+    assert "M_WRONG_OP" in groups["responses"][0]["misconceptions"]
+    assert verify.key_problems("word_1step", groups["spec"], groups["responses"]) == []
 
 
 def test_every_model_question_prints_a_box_for_every_answer():
@@ -178,3 +222,14 @@ def test_every_model_question_prints_a_box_for_every_answer():
             page = _html(it)
             for r in it.responses:
                 assert f'data-resp="{it.item_id}|{r.rid}"' in page, (case, r.rid)
+
+
+def test_every_model_answer_is_where_the_printed_key_says_it_is(tmp_path):
+    """A sheet of one question of every case, printed through Chromium as a paper is: the key's geometry holds each
+    answer's boxes, as many as its right answer has digits, so the reader finds every one (the array's three too)."""
+    its = [it for case in sorted(LEVEL_OF) for it in _drawn(case, n=1)]
+    key = render.render_sheet(Sheet("CS00D2D1", "G2", "Easy", 1, "W1", its), tmp_path)
+    boxes = Counter((g["item"], g["resp"]) for g in key["geometry"] if g["kind"] == "digit")
+    for it in its:
+        for r in it.responses:
+            assert boxes[(it.item_id, r.rid)] == len(r.answer), (it.fmt, r.rid)

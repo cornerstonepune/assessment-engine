@@ -875,6 +875,18 @@
       "skill_code": "NUM.OPS.03"
     },
     {
+      "code": "M_TIMES_AS_MORE",
+      "op": "×",
+      "name": "Reads 'times as many' as 'more'",
+      "description": "Adds the two numbers where a story says times as many: twice as many as 7 written as 9, three times as many as 6 written as 9.",
+      "repair_hint": "Draw the first amount, then draw it again as many times as the story says; count them all.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md2d1-multiplication-models.yaml (the multiplication & division taxonomy drafted 2026-10-09, B11 and B10)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
       "code": "M_MUL_CARRY_ONTO_ZERO_LOST",
       "op": "×",
       "name": "Forgets a carry that lands on a zero",

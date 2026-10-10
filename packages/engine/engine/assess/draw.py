@@ -5,8 +5,9 @@ when the question as measured (`assess/tags.py`) is that case (`assess/taxonomy.
 level's own bounds — the case rule is the definition, the drawing only has to find members of it.
 
 Plain sums and missing numbers are sampled from their digits here. Every other kind comes from its own
-generator (`bands.NATIVE_GENERATORS`), told what the case is about — a story's shape, a planted mistake —
-through the same rule keys a level can set.
+generator (`bands.NATIVE_GENERATORS`), told what the case is about — a story's shape, a planted mistake, the method
+it is printed by — through the same rule keys a level can set. What a case allows (its kinds, its operation, the
+digits of its numbers) is read in `assess/draw_case.py`.
 
 The drawing keeps a few defaults a question needs to test anything: no number ending in 0, no two equal
 numbers, no difference under 5, nothing multiplied by 1. A case about exactly that — a zero, a zero answer, an
@@ -18,10 +19,10 @@ is printed that way: in a line, or in columns.
 
 import math
 import random
-from collections.abc import Iterable
 from typing import Any
 
 from . import bands, tags, taxonomy, verify
+from . import draw_case as K
 from . import draw_sums as S
 from . import draw_times as T
 from . import items as I
@@ -42,59 +43,14 @@ HINTS = (
     "missing_in",
     "missing_place",
     "strategy",
+    "method",
 )
-DIGITS = range(1, 5)
-OPS = {"ADD": "+", "SUB": "-", "MUL": "×"}
 LAYOUT = {
     "LINE": "HORIZONTAL",
     "COLUMNS": "VERTICAL",
     "LONG_MULTIPLICATION": "VERTICAL",
 }  # a method, as printed
 POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
-
-
-def _alternatives(match: Any) -> list[dict[str, Any]]:
-    return match if isinstance(match, list) else [match]
-
-
-def _fmts(alt: dict[str, Any]) -> list[Any]:
-    f = alt.get("fmt")
-    return f if isinstance(f, list) else [f]
-
-
-def _pick(rng: random.Random, want: Any, pool: Iterable[Any]) -> Any:
-    """One value of `pool` a case condition allows, or None when none does."""
-    ok = [v for v in pool if want is None or taxonomy.holds(want, v)]
-    return rng.choice(ok) if ok else None
-
-
-def _op(rng: random.Random, alt: dict[str, Any], check: dict[str, Any]) -> str | None:
-    """The operation this attempt draws: one the case allows, or None when it allows neither of ours."""
-    if alt.get("operation"):
-        picked = _pick(rng, alt["operation"], list(OPS))
-        return OPS[picked] if picked else None
-    ops = check.get("op", ["+", "-"])
-    return rng.choice(ops) if isinstance(ops, list) else ops
-
-
-def _pairs(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]]:
-    """The (digits of the first number, digits of the second) a case and its level both allow."""
-    level = check.get("digits")
-    allowed = {tuple(p) for p in (level if isinstance(level[0], list) else [level])} if level else None
-    out = []
-    for d1 in DIGITS:
-        for d2 in DIGITS:
-            if (op == "-" and d2 > d1) or (allowed and (d1, d2) not in allowed):
-                continue
-            measured = {
-                "operand_1_digits": d1,
-                "operand_2_digits": d2,
-                "digits_max": max(d1, d2),
-                "digits_min": min(d1, d2),
-            }
-            if all(taxonomy.holds(alt[k], v) for k, v in measured.items() if k in alt):
-                out.append((d1, d2))
-    return out
 
 
 def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
@@ -130,7 +86,7 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
     built = S.built(rng, alt)
     if built:
         return built
-    pairs = [p for p in _pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
+    pairs = [p for p in K.pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
     if not pairs:
         return None
     d1, d2 = rng.choice(pairs)
@@ -139,7 +95,7 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
         got = T.numbers(rng, alt, about, d1, d2)
         return got if got and _usable(op, *got, about, check, alt) else None
     a, b = _number(rng, d1, zero_ok), _number(rng, d2, zero_ok)
-    shrink = _pick(rng, alt.get("answer_digit_change"), ["-1", "-MULTIPLE", "ZERO"]) if op == "-" else None
+    shrink = K.pick(rng, alt.get("answer_digit_change"), ["-1", "-MULTIPLE", "ZERO"]) if op == "-" else None
     if shrink and "answer_digit_change" in alt:
         # An answer that loses digits is rare among random pairs (105 − 97): choose the answer, then b.
         size = {"-1": d1 - 1, "-MULTIPLE": rng.randint(1, d1 - 2) if d1 > 2 else 0, "ZERO": 0}[shrink]
@@ -156,7 +112,7 @@ def _pair(rng, alt, check, op, about, fix=None) -> tuple[int, int] | None:
 
 
 def _plain(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int):
-    op = _op(rng, alt, check)
+    op = K.op(rng, alt, check)
     got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
     return _set_out(alt, check, rung, k, op, *got) if op and got else None
 
@@ -189,9 +145,9 @@ def _many(rng, alt, check, rung, k):
     """Three or more numbers (§2.8), or three with a friendly pair (§8, K07)."""
     about = taxonomy.keys(alt)
     friendly = alt.get("shape") == "FRIENDLY_PAIRS"
-    n = 3 if friendly else _pick(rng, alt.get("num_operands"), range(3, 6))
+    n = 3 if friendly else K.pick(rng, alt.get("num_operands"), range(3, 6))
     # a level's `digits_max` is the width of its widest number (ADDSUB.4D.ADV adds 4-digit numbers)
-    widest = _pick(
+    widest = K.pick(
         rng, alt.get("digits_max"), [check["digits_max"]] if "digits_max" in check else range(1, 5)
     )
     if not n or not widest:
@@ -200,7 +156,7 @@ def _many(rng, alt, check, rung, k):
         x = rng.randint(11, 89)
         xs = [x, rng.randint(11, 99), 100 - x]
     elif alt.get("operand_order") == "MIXED":
-        low = _pick(rng, alt.get("digits_min"), range(1, widest)) or 1
+        low = K.pick(rng, alt.get("digits_min"), range(1, widest)) or 1
         lengths = [widest, low] + [rng.randint(low, widest) for _ in range(n - 2)]
         rng.shuffle(lengths)
         xs = [_number(rng, d, False) for d in lengths]
@@ -235,12 +191,12 @@ def _missing(
             rung,
             "Conceptual",
         )
-    op = _op(rng, alt, check)
+    op = K.op(rng, alt, check)
     if op is None:
         return None
     ways = ["FIRST_OPERAND", "SECOND_OPERAND"] + (["RESULT"] if op == "-" else [])
-    where = _pick(rng, alt.get("unknown_position"), ways)
-    size = _pick(rng, alt.get("unknown_digits"), DIGITS) if "unknown_digits" in alt else None
+    where = K.pick(rng, alt.get("unknown_position"), ways)
+    size = K.pick(rng, alt.get("unknown_digits"), K.DIGITS) if "unknown_digits" in alt else None
     if not where:
         return None
     fix = (
@@ -273,12 +229,12 @@ def _one_value(rng, v):
 def _native(
     rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
 ) -> I.Item | None:
-    fmt = rng.choice([f for f in _fmts(alt) if bands.makes(f, alt)] or _fmts(alt))
+    fmt = rng.choice([f for f in K.fmts(alt) if bands.makes(f, alt)] or K.fmts(alt))
     hints: dict[str, Any] = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
     if alt.get("context") == "TABLE_OR_CHART":
         hints["table"] = True
     if alt.get("operation"):
-        hints["op"] = _op(rng, alt, check)
+        hints["op"] = K.op(rng, alt, check)
         if hints["op"] is None:
             return None  # the case allows neither operation this drawer writes
     # The numbers' size, from the case as its level narrowed it (`within`), where the level's rule does not
@@ -287,7 +243,7 @@ def _native(
     if "digits" not in check and any(
         k in alt for k in ("operand_1_digits", "operand_2_digits", "digits_max")
     ):
-        pairs = _pairs(alt, check, hints.get("op") or "+")
+        pairs = K.pairs(alt, check, hints.get("op") or "+")
         if not pairs:
             return None
         d1, d2 = rng.choice(pairs)
@@ -305,8 +261,8 @@ def _native(
 def one(rng, match, check, rung, k=0):
     """One candidate for a case, or None when this attempt's numbers are not that case. `k` counts the
     questions kept so far; where the case does not fix the layout, even is in columns, odd in a line."""
-    alt = rng.choice(_alternatives(match))
-    fmts = set(_fmts(alt))
+    alt = rng.choice(K.alternatives(match))
+    fmts = set(K.fmts(alt))
     if fmts <= set(PLAIN):
         many = alt.get("operation") != "MUL" and (  # a × case reads `carry_max` of one multiplication
             ("num_operands" in alt and any(taxonomy.holds(alt["num_operands"], n) for n in (3, 4, 5)))
@@ -340,10 +296,10 @@ def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str
     then a fact, not 2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
     out: list[I.Item] = []
     for alt in [
-        x for x in _alternatives(match) if x.get("operation") == "MUL" and set(_fmts(x)) <= set(PLAIN)
+        x for x in K.alternatives(match) if x.get("operation") == "MUL" and set(K.fmts(x)) <= set(PLAIN)
     ]:
         about = taxonomy.keys(alt)
-        ranges = [T.every(alt, about, d1, d2) for d1, d2 in _pairs(alt, check, "×")]
+        ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, "×")]
         pairs = [] if None in ranges else [p for r in ranges if r for p in r]
         for a, b, k in [(a, b, k) for a, b in pairs if _usable("×", a, b, about, check, alt) for k in (0, 1)]:
             it = _set_out(

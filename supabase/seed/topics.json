@@ -47,7 +47,8 @@
       "name": "Multiplication",
       "taught": true,
       "skill_sets": [
-        "MUL.GROUPS"
+        "MUL.GROUPS",
+        "MUL.MODELS"
       ]
     },
     {

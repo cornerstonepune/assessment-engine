@@ -248,6 +248,9 @@
         "equal_groups": [
           "NUM.OPS.03",
           "NUM.OPS.01"
+        ],
+        "skip_counting": [
+          "NUM.PAT.02"
         ]
       },
       "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023)."

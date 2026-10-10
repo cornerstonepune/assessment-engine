@@ -461,6 +461,7 @@
         "M_MUL_ONES_ONLY",
         "M_MUL_ROW_OUT",
         "M_MUL_UNITS_REVERSED",
+        "M_TIMES_AS_MORE",
         "M_WRONG_OP"
       ],
       "replaces": [
@@ -3112,6 +3113,117 @@
           },
           "min_items": 16
         }
+      }
+    },
+    {
+      "code": "MUL.MODELS",
+      "rung_code": "R41",
+      "name": "Multiplication models",
+      "learning_objective": "Shows multiplication as the models a child meets first: counting on in the tables it knows, an array read as rows × in each row, equal jumps from 0 on a number line, a table turned round into a known one, a cell of the multiplication square, and stories of an array, twice as many and area.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "skip_counting",
+        "equal_groups",
+        "number_line_jumps",
+        "equation",
+        "multiplication_square",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_GROUP_MISSED",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ROW_OUT",
+        "M_ONE_GROUP",
+        "M_TENS_ZERO_DROPPED",
+        "M_TIMES_AS_MORE",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Skip counting in 2s, 5s and 10s, and arrays of 2 to 6 rows of 2 to 5: 5, 10, 15, 20, □; 3 rows of 5 dots, read as rows × in each row = in all.",
+          "check": {
+            "cases": [
+              "G03",
+              "G05"
+            ],
+            "known": [
+              2,
+              5,
+              10
+            ],
+            "groups": [
+              2,
+              6
+            ],
+            "size": [
+              2,
+              5
+            ]
+          },
+          "min_items": 24
+        },
+        "Medium": {
+          "words": "Equal jumps from 0 on a number line, 2 to 6 jumps of 2 to 6: 4 jumps of 3 land on 12.",
+          "check": {
+            "cases": [
+              "G04"
+            ],
+            "groups": [
+              2,
+              6
+            ],
+            "size": [
+              2,
+              6
+            ]
+          },
+          "min_items": 16
+        },
+        "Hard": {
+          "words": "A table turned round into the 2, 5 or 10 table, and a cell of the multiplication square to 10 × 10: 9 × 2 = 2 × 9 = □; row 6, column 9.",
+          "check": {
+            "cases": [
+              "G14",
+              "TF17"
+            ],
+            "known": [
+              2,
+              5,
+              10
+            ],
+            "groups": [
+              2,
+              10
+            ],
+            "size": [
+              2,
+              10
+            ]
+          },
+          "min_items": 24
+        },
+        "Advance": {
+          "words": "Stories of an array, twice as many and area in squares, with 1-digit numbers: 5 rows of 7 chairs; twice as many as 8 pages; a rectangle 6 squares long and 4 wide.",
+          "check": {
+            "cases": [
+              "B04",
+              "B11",
+              "B13"
+            ],
+            "digits": [
+              1,
+              1
+            ]
+          },
+          "min_items": 24
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2",
+        "Advance": "G2"
       }
     }
   ]

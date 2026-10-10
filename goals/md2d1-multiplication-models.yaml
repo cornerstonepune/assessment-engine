@@ -28,6 +28,8 @@ says:
     proved_by: packages/engine/tests/test_mul_models.py::test_three_stories_multiply_an_array_twice_as_many_and_an_area
   - words: "same process"
     proved_by: packages/engine/tests/test_mul_models.py::test_every_model_question_prints_a_box_for_every_answer
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_models.py::test_every_model_answer_is_where_the_printed_key_says_it_is
   - words: "create the whole loop that we have"
     proved_by: apps/web/tests/s29-multiplication-models.spec.ts::multiplication's models are on the Question bank, drawn as the child meets them
   - words: "same process"

@@ -25,6 +25,8 @@ export type ItemSpec = {
   count?: number; // a tally read as a number, of `thing`; two tallies are `a` and `b`, of `things`
   thing?: string;
   things?: string[];
+  rows?: number[]; // a part of the multiplication square: its rows and columns; `a` and `b` are the cell asked
+  cols?: number[];
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and

@@ -1,4 +1,5 @@
-"""The questions a child answers from a drawing, drawn: a balance, a number line's jumps, a tally, equal groups. Pure.
+"""The questions a child answers from a drawing, drawn: a balance, a number line's jumps, a tally, equal groups and an
+array, steps counted on, a part of the multiplication square. Pure.
 
 `render.render_item` hands each of these kinds here with a way to draw an answer's boxes, so every picture on a page
 is drawn in one place and a new one is an entry in `DRAW`, not another branch in the page's renderer
@@ -63,6 +64,16 @@ def rings(groups: int, size: int) -> str:
     return _svg(groups * 46, 44, "".join(parts), ' fill="#111"')
 
 
+def dots(rows: int, each: int) -> str:
+    """An array: `rows` rows of `each` dots, evenly spaced, so its rows and the dots in each are read off the page."""
+    inside = "".join(
+        f'<circle class="dot" cx="{10 + c * 16}" cy="{10 + r * 16}" r="4"/>'
+        for r in range(rows)
+        for c in range(each)
+    )
+    return _svg(each * 16 + 4, rows * 16 + 4, inside, f' fill="#111" aria-label="{rows} rows of {each}"')
+
+
 def tally(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
     if sp["shape"] == "READ":
         drawn = f'<div class="row">{tally_marks(sp["count"])}</div>'
@@ -76,6 +87,13 @@ def tally(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> 
 
 
 def equal_groups(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    if sp["shape"] == "ARRAY":  # read as the sentence it is: rows × in each row = in all, a box for each
+        return (
+            f'<div class="row">{dots(sp["a"], sp["b"])}</div><div class="row">'
+            f'<span class="lab">rows</span>{box(R["rows"], big)}<span class="eq">×</span>'
+            f'<span class="lab">in each row</span>{box(R["each"], big)}<span class="eq">=</span>'
+            f'<span class="lab">in all</span>{box(R["ans"], big)}</div>'
+        )
     drawn = {
         "SUM": f'<span class="eq">{" + ".join([str(sp["b"])] * sp["a"])} =</span>',
         "PICTURE": rings(sp["a"], sp["b"]),
@@ -93,7 +111,35 @@ def balance_scale(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: b
 <div class="row"><span class="lab">? =</span>{box(R["ans"], False)}</div>"""
 
 
+def equal_jumps(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """`a` equal jumps of `b` from 0, each arc marked with its size, each landing a tick and none numbered but 0:
+    where the last lands is the box."""
+    a, b = sp["a"], sp["b"]
+    step = min(48, 260 // a)
+    rise = min(26, step)
+    arcs = "".join(
+        f'<path class="jump" d="M{14 + i * step} 34 Q {14 + i * step + step / 2} {34 - rise} {14 + (i + 1) * step} 34"'
+        f' fill="none" stroke="#111" stroke-width="1.2"/><text x="{14 + i * step + step / 2}" y="{34 - rise / 2 - 3}"'
+        f' text-anchor="middle" font-size="9">+{b}</text>'
+        for i in range(a)
+    )
+    ticks = "".join(
+        f'<line x1="{14 + i * step}" y1="30" x2="{14 + i * step}" y2="38" stroke="#111"/>'
+        for i in range(a + 1)
+    )
+    end = 14 + a * step + 16
+    line = (
+        f'<line x1="4" y1="34" x2="{end}" y2="34" stroke="#111" stroke-width="1.5"/>'
+        f'<polygon points="{end},34 {end - 7},30 {end - 7},38" fill="#111"/>'
+        '<text x="14" y="47" text-anchor="middle" font-size="10">0</text>'
+    )
+    drawn = _svg(end + 4, 50, line + arcs + ticks, f' aria-label="{a} jumps of {b} from 0"')
+    return f'<div class="row">{drawn}</div><div class="row"><span class="lab">lands on</span>{box(R["ans"], big)}</div>'
+
+
 def number_line_jumps(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    if sp["op"] == "×":
+        return equal_jumps(sp, R, box, big)
     a, op, tens, ones = sp["a"], sp["op"], sp["tens"], sp["ones"]
     d = 1 if op == "+" else -1
     return f'''<div class="row"><span class="eq">{a} {op_sign(op)} {sp["b"]} =</span>{box(R["ans"], False)}</div>
@@ -105,9 +151,35 @@ def number_line_jumps(sp: dict[str, Any], R: dict[str, Response], box: Boxes, bi
 <div class="row" style="margin-left:{"58mm" if d > 0 else "30mm"}"><span class="lab">lands on</span>{box(R["land1"], False)}</div>'''
 
 
+def skip_counting(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """Every step but the last, then the box: 5, 10, 15, 20, □."""
+    steps = ", ".join(str(sp["b"] * k) for k in range(1, sp["a"]))
+    return f'<div class="row"><span class="eq">{steps}, </span>{box(R["ans"], big)}</div>'
+
+
+def multiplication_square(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """Three rows and three columns of the square, headed by their numbers, every cell its row times its column but the
+    one asked, which is the box."""
+    head = "".join(f"<th>{c}</th>" for c in sp["cols"])
+    body = "".join(
+        f"<tr><th>{r}</th>"
+        + "".join(
+            f"<td>{box(R['ans'], big)}</td>"
+            if (r, c) == (sp["a"], sp["b"])
+            else f'<td class="p">{r * c}</td>'
+            for c in sp["cols"]
+        )
+        + "</tr>"
+        for r in sp["rows"]
+    )
+    return f'<table class="square" aria-label="part of the multiplication square"><tr><th>×</th>{head}</tr>{body}</table>'
+
+
 DRAW: dict[str, Callable[[dict[str, Any], dict[str, Response], Boxes, bool], str]] = {
     "balance_scale": balance_scale,
     "number_line_jumps": number_line_jumps,
     "tally": tally,
     "equal_groups": equal_groups,
+    "skip_counting": skip_counting,
+    "multiplication_square": multiplication_square,
 }

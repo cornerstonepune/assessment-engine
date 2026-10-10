@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
 
 // the kind, its name in words, what its questions show, and the label of its drawing (components/pictures.tsx)
 const KINDS: { fmt: string; label: string; shows: RegExp; drawn?: RegExp }[] = [
-  { fmt: "skip_counting", label: "skip counting", shows: /\b\d+, \d+, \d+, (\d+, )*___/ },
+  { fmt: "skip_counting", label: "skip counting", shows: /\b\d+, \d+, (\d+, )*___/ },
   { fmt: "equal_groups", label: "equal groups", shows: /rows/, drawn: /^\d+ rows of \d+$/ },
   { fmt: "number_line_jumps", label: "number line", shows: /\d+ jumps of \d+ from 0/ },
   { fmt: "multiplication_square", label: "multiplication square", shows: /\d+/, drawn: /^part of the multiplication square$/ },

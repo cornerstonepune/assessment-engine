@@ -8,14 +8,25 @@ is verified. This file only says where the last session stopped.
 - **Slice:** M2d1 (W1 gate 3). Goal `goals/md2d1-multiplication-models.yaml`; tests `test_mul_models.py`.
 - **AS2 is merged and live:** main `7990be2`, `migrate live` and `deploy engine` green; `engine done` all PROVED.
 - **Measured** (STATE.md "M2d1 — measured before the build"): none of `MUL.MODELS`' eight cases draws today.
-- **Plan:** skip counting and a cell of the multiplication square are kinds of their own (`skip_counting`,
-  `multiplication_square`): the drafted rows filed them as `bare_sum`, against the draft's own rule that a method is
-  "another kind, naming what it is", and a `bare_sum` prints "5 × 5 =" on the website and is checked as a straight
-  sum. The array is a shape of equal groups (`ARRAY`), its method measured from the shape as `PICTURE`'s is; the
-  number line learns ×; the swap is an equation shape reading the level's `known` tables. `draw.py` (at its ceiling)
-  splits its own-kind path into `draw_kinds.py` and passes a case's `method`. × templates for an array, twice as many
-  and area; "times as many" names adding its numbers `M_TIMES_AS_MORE`, both ways into the bank. `MUL.MODELS`
-  carries no `within`: `placing.py` reads a skill with one as a calculation skill, and 7 × 8 would belong to two.
+- **Built** (ADR 0054; draft PR https://github.com/cornerstonepune/assessment-engine/pull/167):
+  - skip counting and a cell of the multiplication square are kinds of their own (`skip_counting`,
+    `multiplication_square`, `assess/times_models.py`): the drafted rows filed them as `bare_sum`, against the draft's
+    own rule; corrected in `research/md_rows.py` and written again by `research/md_taxonomy.py`;
+  - the array is a shape of equal groups (`ARRAY`), read in three labelled boxes, rows × in each row = in all;
+  - the number line is one kind drawn two ways (`assess/number_line.py`, moved whole and typed out of `items.py`);
+  - the swap is an equation shape reading the level's `known` tables, through `equality.from_rule`;
+  - × stories of an array, twice as many and area; "times as many" names adding its numbers `M_TIMES_AS_MORE`, both
+    ways into the bank, and an old-keyed one leaves the bank (`verify._stale_story`); `MUL.2D1D`'s list names it
+    (seed, migration `20261031090000`);
+  - `draw.py` gives what a case allows to `draw_case.py` and tells a kind the case's method;
+  - `MUL.MODELS` (R41, topic Multiplication) carries no `within`: `placing.py` reads a skill with one as a
+    calculation skill, and 7 × 8 would belong to two;
+  - the website draws each model on the Question bank (`components/question.tsx`, `pictures.tsx`).
+- **For Achal:** the drafted G05 printed □ × □ = □ and counted 5 × 3 right for 3 rows of 5; the build labels the boxes
+  (rows, in each row, in all), so one order is the question. Also: skip counting maps to Patterns & sequencing
+  (`skills.by_kind`), and the Hard level's known tables are 2, 5 and 10.
+- **Named, not changed** (STATE.md): the marker charges a wrong answer to every mistake that predicts it, the counting
+  kinds to none when two share it.
 - **Waiting for Nimish's `bin/update-live`:** M0b to AS2, then approving the 13 skill sets it lists.
 
 ## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (merged)

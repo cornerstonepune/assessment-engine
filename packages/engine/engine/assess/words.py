@@ -131,11 +131,32 @@ def word_1step(
     )
 
 
+@lru_cache(maxsize=1)
+def added_by_shape() -> dict[str, str]:
+    """{story shape: the mistake adding its two numbers is}, from the template rows that name one (`added`)."""
+    return {t["structure"]: t["added"] for t in templates("word_1step") if t.get("added")}
+
+
+def added_as(tpl: dict[str, Any] | None, mis: dict[str, Any]) -> dict[str, Any]:
+    """A story's mistakes, with adding its two numbers named as its template names it (`added`): "three times as many"
+    read as three more is M_TIMES_AS_MORE, a misreading of the words, not the wrong operation picked (M_WRONG_OP).
+    The sampler (`_times`) and a sentence checked on its way in (`verify.to_item`) both name it here."""
+    if not tpl or not tpl.get("added"):
+        return mis
+    return {(tpl["added"] if k == "M_WRONG_OP" else k): v for k, v in mis.items()}
+
+
 def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
-    """A story that multiplies: its numbers no table fact and not round, as its level's are."""
-    a, b = number(rng, sizes[0]), number(rng, sizes[1])
+    """A story that multiplies: its numbers no table fact and not round, as its level's are, but a number the story
+    itself fixes (`numbers`: "twice as many" is × 2)."""
+    fixed: dict[str, int] = tpl.get("numbers") or {}
+    a, b = fixed.get("a") or number(rng, sizes[0]), fixed.get("b") or number(rng, sizes[1])
+    if tpl.get("added") and a + b == a * b:
+        # twice as many as 2 read as two more is 4, and right: the question could not tell the misreading
+        raise RuntimeError("the numbers added would be the answer: draw again")
     n, n2 = rng.sample(NAMES, 2)
-    r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=M.predict("×", a, b))
+    mis = added_as(tpl, M.predict("×", a, b))
+    r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=mis)
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
     return item(
         "WP1", rung, "Application", "word_1step", stem, story_spec(tpl, a=a, b=b), [r], working_lines=3
