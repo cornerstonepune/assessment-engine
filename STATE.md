@@ -5327,5 +5327,16 @@ hardest first by design, puts the same numbers on Hard: 27 of 360 questions draw
 (21 in a line or columns, 6 in a written method). Either a Hard case is narrowed to what Medium does not hold, or the
 overlap stands; Achal decides.
 
+Rehearsed on a copy of live (run 38038796192, `92db98f`):
+- 554 questions retired outside their level and 4,701 added. That is 13 more retired than M2d1's rehearsal (541) on
+  the same live bank. The refill prints a total, not reasons; by elimination they are the long multiplications keyed
+  before the rows' mistake had a name (`_stale_rows`), the only rule here that live's questions can fail.
+- Added per level, Easy · Medium · Hard · Advance: `MUL.2D1D` +35 · +125 · +94 · +216, `MUL.3D1D` +215 · +209 · +86 ·
+  +216, `MUL.2D2D` +214 · +216 · +198 · +220. The library made 1,238 and retired 746.
+- 3,430 worksheets, 128 of 128 skill-levels ready, 0 problems. "ADD_SUB: 270 cases · 270 covered" and "MUL_DIV: 251
+  cases · 109 covered · 141 missing · 1 thin". The thin one is T16 (4 × 1 digits), which no level names, held once by
+  a `MUL.TENS` Hard question.
+- Every `engine live data` check ok after the update; no signed-off answer left on a rung no skill holds.
+
 Ratchets: untyped findings fell in seven files, written down in `workflows.json` (ADR 0055's table). Lines:
 `diagnosis.py` 397, `draw.py` 382, `verify.py` 362, `written_methods.py` 187, `written_pages.py` 82, all under 400.
