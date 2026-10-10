@@ -191,7 +191,9 @@ def test_rules_are_rows_in_config(conn):
     assert "word_2step" in rules["by_kind"]
     registry = {r["code"] for r in conn.execute("select code from skill").fetchall()}
     named = set(rules["by_operation"].values()) | set(rules["by_symbol"].values())
-    named |= {s for v in rules["by_kind"].values() for s in v}
+    named |= {
+        s for v in rules["by_kind"].values() for s in (v if isinstance(v, list) else sum(v.values(), []))
+    }
     assert named <= registry, named - registry
 
 

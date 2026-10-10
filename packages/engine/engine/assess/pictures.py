@@ -1,5 +1,6 @@
 """The questions a child answers from a drawing, drawn: a balance, a number line's jumps, a tally, equal groups and an
-array, steps counted on, a part of the multiplication square. Pure.
+array, steps counted on, a part of the multiplication square; and division's: dots to share or to ring, an array's
+rows, a number taken away again and again, jumps back to 0. Pure.
 
 `render.render_item` hands each of these kinds here with a way to draw an answer's boxes, so every picture on a page
 is drawn in one place and a new one is an entry in `DRAW`, not another branch in the page's renderer
@@ -87,7 +88,51 @@ def tally(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> 
     return drawn + f'<div class="row"><span class="lab">Answer</span>{box(R["ans"], big)}</div>'
 
 
+LOOSE = 10  # dots to a row when they are loose, for a child to share or to ring: counted at a glance
+
+
+def loose(n: int, aria: str) -> str:
+    """`n` dots in rows of ten, evenly spaced and in no group: the child shares them out or rings them."""
+    inside = "".join(
+        f'<circle class="dot" cx="{10 + (i % LOOSE) * 16}" cy="{10 + (i // LOOSE) * 16}" r="4"/>'
+        for i in range(n)
+    )
+    rows = -(-n // LOOSE)
+    return _svg(min(n, LOOSE) * 16 + 4, rows * 16 + 4, inside, f' fill="#111" aria-label="{aria}"')
+
+
+def empty_rings(n: int) -> str:
+    """`n` rings with nothing in them, each wide enough for a child to draw a share of dots inside."""
+    inside = "".join(
+        f'<circle class="group" cx="{28 + g * 60}" cy="28" r="25" fill="none" stroke="#111" stroke-width="1.5"/>'
+        for g in range(n)
+    )
+    return _svg(n * 60, 56, inside)
+
+
+def divided(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """Equal groups that divide (`divide_models.equal_groups`): the dots loose and the rings empty, to share them; the
+    dots loose and no ring, to ring them in groups; or an array read as in all ÷ rows = in each row, a box for each."""
+    a, b = sp["a"], sp["b"]
+    if sp["method"] == "ARRAY":
+        return (
+            f'<div class="row">{dots(b, a // b)}</div><div class="row">'
+            f'<span class="lab">in all</span>{box(R["all"], big)}<span class="eq">÷</span>'
+            f'<span class="lab">rows</span>{box(R["rows"], big)}<span class="eq">=</span>'
+            f'<span class="lab">in each row</span>{box(R["ans"], big)}</div>'
+        )
+    if sp["method"] == "SHARING":
+        drawn = f'<div class="row">{loose(a, f"{a} dots to share into {b} rings")}</div>'
+        drawn += f'<div class="row">{empty_rings(b)}</div>'
+        label = "in each ring"
+    else:
+        drawn, label = f'<div class="row">{loose(a, f"{a} dots to ring in groups")}</div>', "groups"
+    return drawn + f'<div class="row"><span class="lab">{label}</span>{box(R["ans"], big)}</div>'
+
+
 def equal_groups(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    if sp["op"] == "÷":
+        return divided(sp, R, box, big)
     if sp["shape"] == "ARRAY":  # read as the sentence it is: rows × in each row = in all, a box for each
         return (
             f'<div class="row">{dots(sp["a"], sp["b"])}</div><div class="row">'
@@ -138,9 +183,35 @@ def equal_jumps(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: boo
     return f'<div class="row">{drawn}</div><div class="row"><span class="lab">lands on</span>{box(R["ans"], big)}</div>'
 
 
+def jumps_back(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """A line from 0 to `a`, a mark at every whole number, 0, every five and `a` numbered, and its start said; no jump
+    drawn, for the child jumps back `b` at a time to 0 and counts the jumps in the box."""
+    a = sp["a"]
+    step = min(16, 280 // a)
+    y = 62  # the line, low in its drawing: the room above it is for the child's jumps
+    marks = "".join(
+        f'<line class="mark" x1="{14 + n * step}" y1="{y - 4}" x2="{14 + n * step}" y2="{y + 4}" stroke="#111"/>'
+        for n in range(a + 1)
+    )
+    numbers = "".join(
+        f'<text x="{14 + n * step}" y="{y + 15}" text-anchor="middle" font-size="9">{n}</text>'
+        for n in range(a + 1)
+        if n % 5 == 0 or n == a
+    )
+    end = 14 + a * step + 10
+    line = f'<line x1="6" y1="{y}" x2="{end}" y2="{y}" stroke="#111" stroke-width="1.5"/>'
+    start = f'<text x="{end + 2}" y="{y + 3}" font-size="9">start</text>'
+    drawn = _svg(
+        end + 30, y + 18, line + marks + numbers + start, f' aria-label="a number line from 0 to {a}"'
+    )
+    return f'<div class="row">{drawn}</div><div class="row"><span class="lab">jumps</span>{box(R["ans"], big)}</div>'
+
+
 def number_line_jumps(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
     if sp["op"] == "×":
         return equal_jumps(sp, R, box, big)
+    if sp["op"] == "÷":
+        return jumps_back(sp, R, box, big)
     a, op, tens, ones = sp["a"], sp["op"], sp["tens"], sp["ones"]
     d = 1 if op == "+" else -1
     return f'''<div class="row"><span class="eq">{a} {op_sign(op)} {sp["b"]} =</span>{box(R["ans"], False)}</div>
@@ -156,6 +227,17 @@ def skip_counting(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: b
     """Every step but the last, then the box: 5, 10, 15, 20, □."""
     steps = ", ".join(str(sp["b"] * k) for k in range(1, sp["a"]))
     return f'<div class="row"><span class="eq">{steps}, </span>{box(R["ans"], big)}</div>'
+
+
+def repeated_subtraction(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
+    """The number taken away again and again, printed whole from its numbers (15 − 3 − 3 − 3 − 3 − 3 = 0), then how
+    many were taken away: the box."""
+    a, b = sp["a"], sp["b"]
+    line = " − ".join([str(a)] + [str(b)] * (a // b)) + " = 0"
+    return (
+        f'<div class="row"><span class="eq">{line}</span></div>'
+        f'<div class="row"><span class="lab">{b}s</span>{box(R["ans"], big)}</div>'
+    )
 
 
 def multiplication_square(sp: dict[str, Any], R: dict[str, Response], box: Boxes, big: bool) -> str:
@@ -183,5 +265,6 @@ DRAW: dict[str, Callable[[dict[str, Any], dict[str, Response], Boxes, bool], str
     "equal_groups": equal_groups,
     "skip_counting": skip_counting,
     "multiplication_square": multiplication_square,
+    "repeated_subtraction": repeated_subtraction,
     **WP.DRAW,  # the written methods (ADR 0055)
 }

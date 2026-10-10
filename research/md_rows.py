@@ -41,6 +41,8 @@ DM = ("digits_max", "digits_min")
 TC = (*DM, "regroup_at", "answer_digit_change", ("zero_pattern", ["NONE", "ANSWER_ZERO"]))
 D3 = (*D, "first_digit_smaller", "regroup_at", "remainder", "quotient_zero")
 TABLE = ["fact_table"]
+# a table to 10 read backwards: the fact, in any of the tables a child learns to ten rows, never the 11 and 12 tables
+TABLE_BACKWARDS = ("fact", ("fact_group", ["2-5-10", "3-4", "6-9"]))
 
 # A straight calculation: its numbers are its example's own ("56 × 3"), so only what it is about is written here.
 STRAIGHT: dict[str, list[Any]] = {
@@ -205,7 +207,8 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "G14": _shape("equation", "SWAP_TO_A_KNOWN_TABLE", ["×"], text="9 × 2 = 2 × 9 = □"),
     "G15": ("equal_groups", _x(12, 3, "÷", method="SHARING"), ["method"]),
     "G16": ("equal_groups", _x(12, 4, "÷", method="GROUPING"), ["method"]),
-    "G17": ("bare_sum", _x(15, 3, "÷", method="REPEATED_SUBTRACTION"), ["method"]),
+    # a number taken away again and again is printed whole, a kind of its own as skip counting is (ADR 0062)
+    "G17": ("repeated_subtraction", _x(15, 3, "÷", method="REPEATED_SUBTRACTION"), ["method"]),
     "G18": ("number_line_jumps", _x(20, 4, "÷", method="NUMBER_LINE"), ["method"]),
     "G19": ("equal_groups", _x(20, 4, "÷", method="ARRAY"), ["method"]),
     # the table backwards is answered twice, by dividing and by its fact; a check of a claimed answer (Y10) is not
@@ -288,10 +291,11 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "V10": ("estimate_then_calc", _x(412, 8, "÷", shape="ROUND_ONE"), ["shape"]),
     # word problems
     "B01": _story(4, 6, "×", "EQUAL_GROUPS"),
-    "B02": _story(24, 4, "÷", "SHARING"),
-    "B03": _story(24, 6, "÷", "GROUPING", "remainder"),
+    # a story that shares or groups divides a table to 10 read backwards, as every one of its examples does (ADR 0062)
+    "B02": _story(24, 4, "÷", "SHARING", *TABLE_BACKWARDS),
+    "B03": _story(24, 6, "÷", "GROUPING", "remainder", *TABLE_BACKWARDS),
     "B04": _story(5, 7, "×", "ARRAY"),
-    "B05": _story(35, 5, "÷", "ARRAY"),
+    "B05": _story(35, 5, "÷", "ARRAY", *TABLE_BACKWARDS),
     "B06": _story(8, 6, "×", "RATE_TOTAL"),
     "B07": _story(48, 8, "÷", "RATE_UNIT", "remainder"),  # the cost of one is an exact division
     "B08": _story(4, 3, "×", "TIMES_AS_MANY_LARGER"),
@@ -310,7 +314,7 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "B21": _two_step("TWO_PRODUCTS_ADDED", ["×", "×", "+"], a=4, b=6, c=3, d=8),
     "B22": _two_step("ADD_THEN_DIVIDE", ["+", "÷"], a=18, b=14, c=4),
     "B23": _two_step("BAR_MODEL_TIMES_AS_MANY", ["÷"], a=32, b=3),
-    "B24": _story(30, 5, "÷", "GROUPING_BY_EACH"),
+    "B24": _story(30, 5, "÷", "GROUPING_BY_EACH", *TABLE_BACKWARDS),
     "B25": _story(8, 9, "×", "EXTRA_INFORMATION", extra=3),
     "B26": _story(3, 15, "×", "RATE_TOTAL", "context", table="PRICE_LIST"),
     "B27": _story(30, 2, "÷", "HALF_AS_MANY"),

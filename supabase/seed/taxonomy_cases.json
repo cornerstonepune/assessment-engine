@@ -12846,7 +12846,7 @@
       "label": "Repeated subtraction",
       "example_text": "15 − 3 − 3 − 3 − 3 − 3 = 0: how many 3s?",
       "example": {
-        "fmt": "bare_sum",
+        "fmt": "repeated_subtraction",
         "spec": {
           "a": 15,
           "b": 3,
@@ -12856,7 +12856,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "bare_sum",
+        "fmt": "repeated_subtraction",
         "operation": "DIV",
         "method": "REPEATED_SUBTRACTION"
       }
@@ -14529,7 +14529,13 @@
         "taxonomy": "MUL_DIV",
         "fmt": "word_1step",
         "operation": "DIV",
-        "structure": "SHARING"
+        "structure": "SHARING",
+        "fact": "YES",
+        "fact_group": [
+          "2-5-10",
+          "3-4",
+          "6-9"
+        ]
       }
     },
     {
@@ -14553,7 +14559,13 @@
         "fmt": "word_1step",
         "operation": "DIV",
         "structure": "GROUPING",
-        "remainder": "NONE"
+        "remainder": "NONE",
+        "fact": "YES",
+        "fact_group": [
+          "2-5-10",
+          "3-4",
+          "6-9"
+        ]
       }
     },
     {
@@ -14599,7 +14611,13 @@
         "taxonomy": "MUL_DIV",
         "fmt": "word_1step",
         "operation": "DIV",
-        "structure": "ARRAY"
+        "structure": "ARRAY",
+        "fact": "YES",
+        "fact_group": [
+          "2-5-10",
+          "3-4",
+          "6-9"
+        ]
       }
     },
     {
@@ -15063,7 +15081,13 @@
         "taxonomy": "MUL_DIV",
         "fmt": "word_1step",
         "operation": "DIV",
-        "structure": "GROUPING_BY_EACH"
+        "structure": "GROUPING_BY_EACH",
+        "fact": "YES",
+        "fact_group": [
+          "2-5-10",
+          "3-4",
+          "6-9"
+        ]
       }
     },
     {

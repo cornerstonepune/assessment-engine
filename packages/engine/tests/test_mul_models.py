@@ -225,8 +225,8 @@ def test_a_times_as_many_story_keyed_before_its_mistake_had_a_name_leaves_the_ba
     since corrected: it leaves the bank and is drawn again, as a straight sum keyed by an old predictor does, so no
     printed paper changes under it. So does one whose numbers added are its answer. Every template of one shape names
     the same mistake, so a story's shape alone says which."""
-    for shape, code in words.added_by_shape().items():
-        assert {t.get("added") for t in words.templates("word_1step", structure=shape)} == {code}
+    for shape, code in words.wrong_op_by_shape().items():
+        assert {t.get("wrong_op_as") for t in words.templates("word_1step", structure=shape)} == {code}
     today = _story("TIMES_AS_MANY_LARGER")
     assert stale.key_problems("word_1step", today["spec"], today["responses"]) == []
     before = {**today, "responses": [dict(today["responses"][0])]}

@@ -161,6 +161,13 @@
       "source": "goals/md3b3-divide-mistakes-and-stories.yaml"
     },
     {
+      "code": "md3c-division-models",
+      "for_role": "specialist",
+      "question": "Division's first models: the pictures, repeated subtraction, the array's sentence, three new mistakes and “each” in a story",
+      "drafted": "drafted for you to correct. The pictures are dots and rings, as multiplication's are. Repeated subtraction is printed whole (15 − 3 − 3 − 3 − 3 − 3 = 0) and the child counts the 3s; you may want the child to write the subtractions. An array divided is read as in all ÷ rows = in each row. Three new mistakes, their names and what to do about them drafted for you: counts them all (12 dots into 3 rings, answered 12); gives the number the question gives for the one it asks (answered 3, the rings); counts the start as a jump (20 back to 0 in 4s, answered 6). Multiplying a story because it says 'each' is named on the 'each' stories (B24) and the wrong operation on the others; you may want it on every story that says 'each'.",
+      "source": "goals/md3c-division-models.yaml"
+    },
+    {
       "code": "s24-a-split-that-holds-is-right",
       "for_role": "specialist",
       "question": "Question 5 of the 24 September paper: does any split that adds up count on Addition?",

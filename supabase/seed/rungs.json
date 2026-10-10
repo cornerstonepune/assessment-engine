@@ -341,6 +341,15 @@
       "skill_codes": [
         "NUM.OPS.04"
       ]
+    },
+    {
+      "code": "R46",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Division as models: sharing and grouping, taking away again and again, an array's rows, jumps back on a number line",
+      "skill_codes": [
+        "NUM.OPS.04"
+      ]
     }
   ]
 }

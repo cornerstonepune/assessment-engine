@@ -269,15 +269,18 @@
         "tally": [
           "NUM.DATA.01"
         ],
-        "equal_groups": [
-          "NUM.OPS.03",
-          "NUM.OPS.01"
-        ],
+        "equal_groups": {
+          "×": [
+            "NUM.OPS.03",
+            "NUM.OPS.01"
+          ],
+          "÷": []
+        },
         "skip_counting": [
           "NUM.PAT.02"
         ]
       },
-      "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023)."
+      "description": "The skills a kind of question uses beyond its operations: a missing number is also a missing-number equation, a story is also a word problem, an estimate is also rounding (ADR 0023). A kind whose skills differ by its operation gives a list for each: equal groups that multiply are groups added again, and use addition too; equal groups that divide do not (ADR 0062)."
     },
     {
       "key": "skills.by_symbol",

@@ -54,13 +54,21 @@ def method(fmt: str, spec: dict[str, Any]) -> str | None:
     return MD.standard_method(_sign(spec["op"]), spec["a"], spec["b"], layout)
 
 
+def kind_skills(rules: dict[str, Any], fmt: str, ops: list[str]) -> list[str]:
+    """A kind's own skills (`skills.by_kind`): one list, or a list for each operation the question carries out. Equal
+    groups that multiply are Grade 1's groups added again and use addition too; equal groups that divide do not."""
+    own: list[str] | dict[str, list[str]] = rules["by_kind"].get(fmt, [])
+    return list(own) if isinstance(own, list) else [skill for op in ops for skill in own.get(op, [])]
+
+
 def used(
     fmt: str, spec: dict[str, Any], stem: str | None, rung_skills: list[str], rules: dict[str, Any]
 ) -> list[str]:
     """Every registry skill the question uses, the rung's own first."""
-    found = list(rules["by_kind"].get(fmt, []))
+    ops = operations(fmt, spec, stem)
+    found = kind_skills(rules, fmt, ops)
     found += [skill for symbol, skill in rules["by_symbol"].items() if symbol in (stem or "")]
-    found += [rules["by_operation"][op] for op in operations(fmt, spec, stem) if op in rules["by_operation"]]
+    found += [rules["by_operation"][op] for op in ops if op in rules["by_operation"]]
     found += rules["by_method"].get(method(fmt, spec) or "", [])
     found = list(dict.fromkeys(found))
     lead = [s for s in rung_skills if s in found]

@@ -275,7 +275,7 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
     table = M.TABLES.get(op, {})
     mis |= {m["code"]: m["wrong_answer"] for m in c.get("misconceptions", []) if m["code"] not in table}
     if fmt == "word_1step":
-        mis["M_WRONG_OP"] = abs(a - b) if op == "+" else a + b
+        # the other operation's answer is the predictors' (`misconceptions.predict`), for every operation: × for ÷
         # keyed as the drawer keys it when a template wrote its words (the sampler's do); a model's sentence names no
         # shape, so it is keyed by its numbers, as it always was (ADR 0053)
         found = W.template_of(stem)
@@ -293,7 +293,7 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
                     "digits",
                     str(ans),
                     cells=cells(max(ans, a + b)),
-                    misconceptions=W.added_as(tpl, mis),
+                    misconceptions=W.wrong_op_as(tpl, mis),
                 )
             ],
             working_lines=lines,

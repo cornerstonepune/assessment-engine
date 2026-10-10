@@ -1,5 +1,17 @@
 // The questions a child answers from a drawing, drawn as they print (engine/assess/pictures.py): the website shows
 // the child's question, never a code or a description of it.
+import { Fragment, type ReactNode } from "react";
+import type { ItemRow } from "@/lib/queries-bank";
+
+/** A question's sentence above what it draws. */
+export function Stem({ text, children }: { text: string; children: ReactNode }) {
+  return (
+    <span className="grid gap-[6px]">
+      <span>{text}</span>
+      {children}
+    </span>
+  );
+}
 
 // A tally: bundles of four lines crossed by a fifth, then the lines left over.
 export function Tally({ n }: { n: number }) {
@@ -58,6 +70,54 @@ export function Dots({ rows, each }: { rows: number; each: number }) {
         Array.from({ length: each }, (_, c) => <circle key={`${r}-${c}`} cx={10 + c * 16} cy={10 + r * 16} r={4} />),
       )}
     </svg>
+  );
+}
+
+// Dots in rows of ten and in no group, for the child to share out into rings or to ring in groups.
+export function Loose({ n, label }: { n: number; label: string }) {
+  const rows = Math.ceil(n / 10);
+  const width = Math.min(n, 10) * 16 + 4;
+  return (
+    <svg width={width} height={rows * 16 + 4} viewBox={`0 0 ${width} ${rows * 16 + 4}`} fill="currentColor" aria-label={label}>
+      {Array.from({ length: n }, (_, i) => (
+        <circle key={i} cx={10 + (i % 10) * 16} cy={10 + Math.floor(i / 10) * 16} r={4} />
+      ))}
+    </svg>
+  );
+}
+
+// Rings with nothing in them, each wide enough for a share drawn inside.
+export function EmptyRings({ n }: { n: number }) {
+  return (
+    <svg width={n * 60} height={56} viewBox={`0 0 ${n * 60} 56`} aria-label={`${n} empty rings`}>
+      {Array.from({ length: n }, (_, g) => (
+        <circle key={g} cx={28 + g * 60} cy={28} r={25} fill="none" stroke="currentColor" strokeWidth={1.5} />
+      ))}
+    </svg>
+  );
+}
+
+// Equal groups that divide (engine/assess/divide_models.py): dots to share into empty rings, dots to ring in groups, or
+// an array read as in all ÷ rows = in each row.
+function Divided({ it }: { it: ItemRow }) {
+  const a = Number(it.spec.a);
+  const b = Number(it.spec.b);
+  if (it.spec.method === "ARRAY")
+    return (
+      <Stem text={it.stem}>
+        <Dots rows={b} each={a / b} />
+        <span className="fact">in all ___ ÷ rows ___ = in each row ___</span>
+      </Stem>
+    );
+  return it.spec.method === "SHARING" ? (
+    <Stem text={it.stem}>
+      <Loose n={a} label={`${a} dots to share into ${b} rings`} />
+      <EmptyRings n={b} />
+    </Stem>
+  ) : (
+    <Stem text={it.stem}>
+      <Loose n={a} label={`${a} dots to ring in groups`} />
+    </Stem>
   );
 }
 
@@ -121,4 +181,70 @@ export function Lattice({ a, b }: { a: number; b: number }) {
       ])}
     </span>
   );
+}
+
+/** A question the child answers from a drawing, drawn as the paper draws it (engine/assess/pictures.py `DRAW`). */
+export function Drawn({ it }: { it: ItemRow }) {
+  const s = it.spec;
+  switch (it.fmt) {
+    case "tally":
+      return (
+        <Stem text={it.stem}>
+          {s.shape === "READ" ? (
+            <Tally n={Number(s.count)} />
+          ) : (
+            <span className="grid w-fit grid-cols-[auto_auto] items-center gap-x-4">
+              {(s.things ?? []).map((thing, i) => (
+                <Fragment key={thing}>
+                  <span>{thing}</span>
+                  <Tally n={Number(i ? s.b : s.a)} />
+                </Fragment>
+              ))}
+            </span>
+          )}
+        </Stem>
+      );
+    case "equal_groups":
+      if (s.op === "÷") return <Divided it={it} />;
+      if (s.shape === "SUM") return <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>;
+      if (s.shape === "ARRAY")
+        return (
+          <Stem text={it.stem}>
+            <Dots rows={Number(s.a)} each={Number(s.b)} />
+            <span className="fact">rows ___ × in each row ___ = in all ___</span>
+          </Stem>
+        );
+      return s.shape === "PICTURE" ? (
+        <Stem text={it.stem}>
+          <Rings groups={Number(s.a)} size={Number(s.b)} />
+        </Stem>
+      ) : (
+        <span>{it.stem}</span>
+      );
+    case "skip_counting":
+      return (
+        <Stem text={it.stem}>
+          <span className="fact">
+            {Array.from({ length: Number(s.a) - 1 }, (_, k) => Number(s.b) * (k + 1)).join(", ")}, ___
+          </span>
+        </Stem>
+      );
+    case "multiplication_square":
+      return (
+        <Stem text={it.stem}>
+          <Square rows={s.rows ?? []} cols={s.cols ?? []} at={[Number(s.a), Number(s.b)]} />
+        </Stem>
+      );
+    case "repeated_subtraction":
+      // the number taken away again and again, printed whole from its numbers: 15 − 3 − 3 − 3 − 3 − 3 = 0
+      return (
+        <Stem text={it.stem}>
+          <span className="fact">
+            {[s.a, ...Array(Number(s.a) / Number(s.b)).fill(s.b)].join(" − ")} = 0
+          </span>
+        </Stem>
+      );
+    default:
+      return <span>{it.stem}</span>;
+  }
 }

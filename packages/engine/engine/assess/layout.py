@@ -34,6 +34,7 @@ WORKING_LINES = {
     "equal_groups": 0,
     "skip_counting": 0,
     "multiplication_square": 0,
+    "repeated_subtraction": 0,
     "partitioning": 0,  # the written methods: every step a box, the boxes the working (ADR 0055)
     "grid_method": 0,
     "expanded_columns": 0,

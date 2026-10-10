@@ -6001,3 +6001,105 @@ Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank ref
 - browser: `s33-divide-advance.spec.ts` 2 passed (a worked division's page names its mistake by its row);
 - `research/md_taxonomy.py --check`: 0 faults.
 
+
+## M3b3 merged and live (2026-10-10)
+
+- Merged as `0492849` (#174), at the head CI and the rehearsal on a copy of live had passed (`f9f5804`: ci 38085843773,
+  rehearse-update-live 38086482405).
+- Main: `ci` green (38087656889), then `migrate live` (38089427451) and `deploy engine` (38089427383) succeeded.
+- `engine eval mistake_guess` (v1, Jev shown the rows' names), on the server after the deploy (run 38089777698): the right
+  mistake first 70/120, among the three 109/120, slips called NONE 30/30, slips given a mistake 0; every bar met
+  (DECISIONS-LOG.md). Before: 108/120 among the three (run 36519894157).
+
+## M3c — measured before the build (2026-10-10)
+
+`DIV.GROUPS`' nine cases, each drawn alone through today's drawer on a level shaped as `MUL.MODELS`' (12 asked, 300
+tries each; `groups` and `size` 2 to 6):
+- G15 (dots shared into rings), G16 (dots ringed in groups), G19 (an array divided): 0 of 12, and nothing said.
+  `equal_groups` makes a × picture whatever operation the case asks, and the case's own match refuses each one.
+- G17 (taken away again and again to 0): 0 of 12, and nothing said. It prints as a straight division, which is not its
+  method. The draft filed it as a `bare_sum`, which every reader of that kind takes for "15 ÷ 3 = ___": the defect
+  ADR 0054 found in skip counting.
+- G18 (jumps back on a number line): `KeyError: 'hi'`, not a sentence. The number line hands ÷ to the + and − jumps.
+- B02, B03, B05, B24 (stories of sharing, grouping, an array, "each"): `CannotMake`, in a sentence. No ÷ template has
+  their shape and uses nothing left over.
+- Nothing bounds a story's numbers. A model skill carries no `within` (ADR 0054: placing would hold 12 ÷ 3 in two
+  skills), and B02's match alone allows 18,276 exact divisions with quotients up to 4,999. The four cases' own examples
+  are a table read backwards (24 ÷ 4, 24 ÷ 6, 35 ÷ 5, 30 ÷ 5); their rows do not say so.
+- **A right answer would count for the wrong skills.** `skills.by_kind` gives every `equal_groups` question
+  multiplication and addition (`NUM.OPS.03`, `NUM.OPS.01`: Grade 1's groups added again). A sharing picture would use
+  `NUM.OPS.04`, `NUM.OPS.03` and `NUM.OPS.01`, and `confirm_results` makes evidence for every skill a question uses.
+- `DIV.GROUPS` is no row: no rung, no topic. The mistakes a child makes with the models (counting them all, writing the
+  number the question gives for the one it asks, counting the start as a jump) are no rows.
+- `M_KEYWORD_OVERGENERALISED` has one row, for any operation, whose repair hint is about subtraction ("Give a
+  non-subtraction context containing the keyword"). The drafted table names it on ÷ stories that say "each".
+- A story template names the mistake its wrong operation is in a field called `added`, read as "adding its two
+  numbers". In a story that divides, the wrong operation is multiplying.
+
+## M3c — division's first models, built (2026-10-10)
+
+ADR 0062. Goal `goals/md3c-division-models.yaml`.
+
+- **The models** (`assess/divide_models.py`). Each is made from its level's `groups` and `size`, as `MUL.MODELS`' are,
+  and each is the exact division `a ÷ b`.
+  - Equal groups that divide, by their case's method:
+    - SHARING (G15): the dots loose, the rings empty;
+    - GROUPING (G16): the dots loose, no ring;
+    - ARRAY (G19): read as in all ÷ rows = in each row, in three labelled boxes.
+
+    Asked for any other operation, equal groups refuse in a sentence (`bands._groups`).
+  - Jumps back to 0 on a number line (G18): a mark at every number, its start said, no jump drawn.
+  - A number taken away again and again to 0 (G17): a kind of its own, `repeated_subtraction`, printed whole from its
+    numbers. Its row is corrected in `research/md_rows.py` and written again by `research/md_taxonomy.py`.
+- **The mistakes.** Three are new, each a row drafted for Achal: `M_DIV_ALL_COUNTED`, `M_DIV_GROUPS_FOR_SIZE`,
+  `M_DIV_START_COUNTED`. They are named beside `M_WRONG_OP` (÷: multiplied) and `M_DIV_SUBTRACTED`, each where its act
+  can happen. The drafted document's error table holds all three, computed.
+- **The stories** (B02, B03, B05, B24). Eight template rows, two per shape: the grouping stories never say "each", and
+  the "each" stories do. They divide a table to 10 read backwards, as their four rows now say (`fact`, `fact_group`).
+  - A template names the mistake its other operation is: `wrong_op_as`, which was `added`, read as "adding" and wrong
+    for a division.
+  - "5 for each child" multiplied is `M_KEYWORD_OVERGENERALISED`, which has a ÷ row now; the "any" row's hint is about
+    subtraction.
+- **A right answer counts for division alone.** `skills.by_kind` may give a kind's skills per operation: equal groups
+  that multiply keep multiplication and addition, and equal groups that divide get division alone.
+- **Found and fixed with it.** `verify.to_item` wrote a story's other operation as `a + b` for every operation but +.
+  - For ÷ that named adding as "multiplied".
+  - For a + or − story with a 0 or a 1, it keyed the right answer, or another mistake's, as the wrong operation.
+  - The predictors already give each operation's own; the override is gone.
+- **Rows.**
+  - Rung `R46` (G2, `NUM.OPS.04`);
+  - skill set `DIV.GROUPS` (four levels, every one Grade 2, no `within`);
+  - topic Division models, untaught;
+  - four mistake rows, eight template rows, and the asks row of the decisions drafted for Achal.
+  - No migration: the set, rung, topic and mistakes are new rows, and cases are written again on every load.
+- **Website.**
+  - The drawn kinds (tally, equal groups, skip counting, the square, repeated subtraction) moved from `question.tsx`
+    (382 of 400 lines) to `pictures.tsx` as `Drawn`, where the engine's `pictures.py` keeps the paper's.
+  - The ÷ pictures and the subtraction drawn there.
+
+Run on the copy `m3c` (`ny1m`, then `engine load` and `bank refill`: DIV.GROUPS +112 questions, 0 retired anywhere):
+- `bin/engine goal md3c-division-models`: 4 of 4 scenarios met the bar completely (24, 24, 16 and 48 asked, each
+  produced, recomputed, on its rule, diagnosed and distinct);
+- `s34-division-models.spec.ts` passed; `research/md_taxonomy.py --check` 0 faults; `bin/check` 27 passed;
+- the criteria's test list named a file that does not exist (`test_skills.py`); it now names the files that test
+  skills. Run again: 1,118 passed, 1 failed, `test_loaders.py` holding the seed's exact counts (37 rungs, 37 skill
+  sets); R46 and DIV.GROUPS make 38 of each, written down, and the file passes (12).
+
+Rehearsed on a copy of live (rehearse-update-live 38089159350 on `f4ba7bc`, success). Live has not run `bin/update-live`
+since before M2a, so this is everything since, at once:
+- `engine load`: 39 skill sets, 40 rungs, 13 topics, 24 asks (Achal's M3c question among them), 109 mistakes;
+- `bank rehome` moved 606 questions and retired 258 whose story's shape is unnamed, removing `MUL.1D` and its rung;
+  `bank refill` retired 554 outside their level and added 7,590, DIV.GROUPS 24, 24, 16 and 48 of them;
+- `library build` made 1,530 and retired 746; `library check`: 3,722 worksheets, 148 of 148 skill-levels ready, 0
+  problems; every check after reads ok.
+- Seen, not explained from here: answers kept but not shown (their topic untaught) were 92 on `MUL.1D` before and 93
+  after (DIV.FACTS 1, MUL.2D1D 21, MUL.FACTS 59, MUL.TENS 12). `bank rehome` (M2c) places an answered question by its
+  shape, so one × question answered on a taught topic's skill would now wait with them. The checks that every
+  signed-off answer counts on a skill and every child's skills are rebuilt both read ok. Telling which answer it is
+  needs live's rows.
+
+CI on `fff76a9` (ci 38090232676): web and browser passed, the engine's suite 2,174 passed and 1 failed:
+`test_facts_advance.py` keeps a line for every slice the document's placements wait for, and fails once a slice holds
+all of them, so the line goes. DIV.GROUPS held every case placed on it, so its "waits for M3c" line is gone. The goal's
+criteria did not run that file, which is why it was not seen here; it runs them now. Reproduced on `m3c` (1 failed),
+then the file passes (20).
