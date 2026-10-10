@@ -101,6 +101,39 @@ def test_a_level_too_small_for_one_worksheet_gets_none():
     assert library.worksheets_needed(11, 12) == 0
 
 
+def test_a_patched_worksheet_takes_each_kind_in_its_fair_share():
+    """The worksheet a patch makes is filled kind by kind. Filled by use and key alone, its filler came from whichever
+    kind's keys sort first (a key starts with its kind's template): on ADD.2D2D's Advance, 221 questions on 19
+    worksheets, a retired worksheet holding the level's seven repeated questions left five uncovered, seven of one kind
+    filled the rest, and the unfair patch made one reworded story re-deal the whole level."""
+    mix = {
+        "bare_sum": 34,
+        "column_grid": 34,
+        "estimate_then_calc": 17,
+        "find_mistake": 34,
+        "missing_number": 34,
+    }
+    mix["word_1step"] = 68
+    questions = [
+        {"id": f"{k}{i}", "item_key": f"{k}-{i:03d}", "fmt": k} for k, m in mix.items() for i in range(m)
+    ]
+    share, fmt_of = Counter(mix), {q["id"]: q["fmt"] for q in questions}
+    uncovered = [
+        q for q in questions if q["id"] in {"word_1step0", "find_mistake0", "missing_number0", "word_1step1"}
+    ]
+    uncovered.append(questions[-1])
+    used = Counter({q["id"]: 1 for q in questions if q not in uncovered})
+    used.update(q["id"] for q in questions[100:107])  # the seven on two worksheets
+    sheet = library.deal(
+        uncovered + library._filler(questions, used, uncovered, share, 12), 12, list(mix), 1
+    )[0]
+    assert len({q["id"] for q in sheet}) == 12 and all(q in sheet for q in uncovered)
+    assert not library._unfair([q["id"] for q in sheet], fmt_of, share, len(questions), 12), Counter(
+        q["fmt"] for q in sheet
+    )
+    assert all(used[q["id"]] == 1 for q in sheet if q not in uncovered)  # the least used, as before
+
+
 # ---------------------------------------------------------------- on the local copy
 
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
