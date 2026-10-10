@@ -3,20 +3,28 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (goal and failing tests)
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (built, proving)
 
-- **Slice:** M3b1 (W1 gate 3). M3b split in two after measuring (STATE.md "M3b — measured before the build"); goal
-  `goals/md3b1-facts-advance.yaml`; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`.
-- **M3a is merged:** main `d52c391` (#169). `engine done md3a-straight-division` on main's tree: 16 of 16 sentences
-  PROVED (the browser test included), 14 of 14 scenarios MET, 2 of 2 criteria PASSED; NOT DONE only for live's
-  migrations, which this container cannot read.
+- **Slice:** M3b1 (W1 gate 3); M3b split in two after measuring (STATE.md "M3b — measured before the build"). Goal
+  `goals/md3b1-facts-advance.yaml`; ADR 0057; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`;
+  draft PR #170.
+- **M3a is merged and deployed:** main `d52c391`, `migrate live` and `deploy engine` green; `engine done` 16 of 16
+  PROVED, 14 of 14 MET, 2 of 2 PASSED, NOT DONE only for live's migrations this container cannot read.
 - **Found while measuring:** seven × cases the document places on `MUL.FACTS`'s and `MUL.TENS`'s Advance (Q01, Q02,
-  Q06, Y09, H08, Q14, H10) were on no level and deferred by nothing; M3b1 builds them with ÷'s, and a test now holds
-  every level to the document's placements (or names the slice that will hold them).
+  Q06, Y09, H08, Q14, H10) were on no level and deferred by nothing. M3b1 builds them with ÷'s, and a test holds every
+  level to the document's placements, or names the slice that will hold them.
+- **Built:** `assess/facts_kinds.py`, each kind drawn on its case's own numbers (`draw._pair`): a missing number with
+  the box first, the same number twice and a place-value factor hidden, with its mistakes drafted; a × fact family; the
+  table backwards through its fact; a fact from the row above; a fact scaled by ten; the cost of one. Printed and on
+  the website.
 - **Corrected in the drafted document:** Y10 → `DIV.2D1D` Advance and H09 → `DIV.3D1D` Advance (M3b2), each where its
-  example is; Q05 and B07 exact; Q14 of a number to 2 digits; G20 printed as its example (shape `TABLE_BACKWARDS`).
-- **Next:** build to the tests — each new kind takes its two numbers from its case (`draw._pair`); then prove, ship,
-  rehearse, merge; then M3b2.
+  example is; Q05 and B07 exact; Q14 of a number to 2 digits (bound on the number shown); G20 printed as its example.
+- **Found and fixed:** the scenario check read a find-the-mistake about a sentence as its two numbers' sum, and a
+  lattice cell "03" as text; it works every box from its printed sentence now and counts what it cannot work apart.
+- **Next:** CI and the rehearsal on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b2 (the
+  column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake found, a possible
+  answer, estimates, remainder stories, Y10, H09). `diagnosis.py` is at 397 lines: ÷'s find-the-mistake needs a
+  module of its own.
 
 ## 2026-10-10 — M3a: straight division (merged)
 

@@ -5537,3 +5537,49 @@ bank draws it (`cases.on_level`).
 M3b is two slices (BUILD-ORDER):
 - **M3b1:** the tables' and the tens' kinds, × and ÷, with the seven × cases.
 - **M3b2:** the column skills' kinds, `DIV.2D1D` and `DIV.3D1D` given their Advance.
+
+## M3b1 — the tables' and the tens' kinds built (2026-10-10)
+
+What the measured failures became (ADR 0057), proved by `tests/test_facts_advance.py` (19 tests) and
+`apps/web/tests/s32-facts-advance.spec.ts`:
+- **Each Advance holds its document's kind cases:**
+  - `MUL.FACTS`: Q01, Q02, Q06, Y09 and H08;
+  - `MUL.TENS`: Q14 and H10;
+  - `DIV.FACTS`: Q03, Q04, Q05, G20 and B07.
+  - Each holds a class's week (216): `DIV.FACTS` Advance 120 straight, 58 missing numbers, 19 of the table backwards
+    and 19 of the cost of one.
+- **Every kind is drawn on its case's own numbers**, as a straight question is (`draw._pair`): a tables level's are
+  table facts, the tens level's round numbers (`assess/facts_kinds.py`). A kind refuses numbers it cannot use (7 × 7
+  has no family of four), and they are drawn again.
+- **A missing number:**
+  - the box first (□ = 63 ÷ 9), keyed by the division's own mistakes;
+  - the same number twice (□ × □ = 49), a square;
+  - a place-value factor hidden (45 × □ = 4500), the box always on 10, 100 or 1000 and the number shown at most 2
+    digits.
+  - Its mistakes are drafted from + and −'s: × read as + (8 × □ = 72 → 64), ÷ read as − (□ ÷ 4 = 7 → 11), the table
+    one row out, a zero too few, and the two numbers multiplied where the divisor is the box.
+- **A fact family of ×** (4 × 7 = 28: 7 × 4, 28 ÷ 4, 28 ÷ 7), **the table backwards through its fact** (42 ÷ 6 = □
+  because 6 × □ = 42), **a fact from the row above** (7 × 8 = 56, so 7 × 9), **a fact scaled by ten** (6 × 7, so
+  60 × 7 and 600 × 7) and **the cost of one**, a ÷ story whose words are two template rows.
+- **A box in the other operation names no "wrong operation"**, whose name is its question's (`core/mistake_names.py`):
+  a × family's divisions name the divisor taken away and the rest, never "added instead of multiplying".
+- **Printed and on the website**, the table backwards is its two sentences and a shortcut each box after its sentence.
+- **Every level holds every case the document places on it, or the slice that will is named** (BUILD-ORDER). Today
+  M3b2, M3c, M3d and M4 are waiting.
+
+Found while building, fixed here:
+- **The scenario's own check was wrong twice.**
+  - A find-the-mistake about a sentence (□ − 14 = 8, found wrong as 6, answer 22) was read as 22 − 14, so every such
+    question read wrong in any scenario that drew it.
+  - A lattice's cell keyed "03" for 3 × 1 was compared as text.
+  - Every box is worked now from its own printed sentence where it is × or ÷, and compared as a number. What a
+    scenario cannot work is counted apart (`answers_with_nothing_to_work`), never as recomputed. Over every
+    case-based level: 3,062 worked and right, 526 with nothing to work, 0 wrong.
+- **Q14 drew 4000 × □ = 40000.** Its bound on the shorter number's digits cannot bind when the factor is 10, which has
+  2 digits itself. It is bound on the number shown now.
+- **`MUL.FACTS` Advance's `min_items` of 56** was "all it holds"; once Easy to Hard hold theirs it holds 531, so its
+  target is a class's week.
+- **M2a's and M3a's level tests drew every case of a level as straight**: they read its straight cases only now, as
+  they already did for the column skills' Advance.
+- **Ratchets:** typing `draw.one` and `verify._missing_distractors` took their files' untyped findings from 72 to 40
+  and from 81 to 55, written down; the new module has none.
