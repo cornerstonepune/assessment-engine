@@ -25,7 +25,11 @@ filled, and nothing said so.
 4. **The drawer counts only a `RuntimeError` as an unlucky draw**, as `operations.CannotMake` says the bank does. A
    `KeyError` or a `ValueError` is a rule the kind cannot read, and it is raised. Measured over every listed pair, the
    only ones swallowed were R01's and R02's missing `regroups`, 6,000 times each.
-5. **A test draws every case every level lists** (`tests/test_every_listed_case.py`), with the multiplication levels.
+5. **A case with several kinds is drawn by the kinds that can make its shape** (`bands.makes`, from the template
+   rows). Raising what the drawer once swallowed stopped a fresh bank at WORD.1_2STEP: W25 (a number to leave out)
+   lists the one-step kind, which reads such a story, but only the two-step templates hold that shape, so half its
+   draws had failed unseen. Its row keeps both kinds, since a one-step story read from a paper is still W25.
+6. **A test draws every case every level lists** (`tests/test_every_listed_case.py`), with the multiplication levels.
 
 ## Rejected
 
@@ -35,6 +39,8 @@ filled, and nothing said so.
   those are SUB.4D's: a question lives in one level.
 - **A check by key in `taxonomy.within` alone.** It would catch a box of the wrong size, but not SZ6, whose
   3-digit numbers can never pass an exchange through two zeros. Only drawing finds that.
+- **W25's row cut to the two-step kind.** The row says what a W25 is, read or drawn; one-step stories with a
+  number to leave out, read from a paper, would stop being W25.
 - **The stories W02, W03 and W06 here.** They draw on their own, and go missing only when a 1-digit level is filled
   whole, since a story's key is its numbers alone. That is ADR 0011's rejected option, and its trigger is met: AS2.
 

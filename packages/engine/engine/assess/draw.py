@@ -273,7 +273,7 @@ def _one_value(rng, v):
 def _native(
     rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int
 ) -> I.Item | None:
-    fmt = rng.choice(_fmts(alt))
+    fmt = rng.choice([f for f in _fmts(alt) if bands.makes(f, alt)] or _fmts(alt))
     hints: dict[str, Any] = {key: _one_value(rng, v) for key in HINTS if (v := alt.get(key)) is not None}
     if alt.get("context") == "TABLE_OR_CHART":
         hints["table"] = True

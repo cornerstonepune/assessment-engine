@@ -20,7 +20,7 @@ CASES = {
 }
 
 
-def _drawn(code, level, case, n=2, seed=5):
+def _drawn(code, level, case, n=4, seed=5):
     """[question] of one case drawn alone on its level, as the bank draws it."""
     check = SETS[code]["difficulty"][level]["check"]
     match = taxonomy.within(CASES[case]["match"], check.get("within"))
@@ -132,6 +132,14 @@ def test_subtracting_from_1000_is_the_4_digit_skills():
     for case in ("SZ6", "SZ9"):
         drawn, _ = _drawn("SUB.4D", "Hard", case, n=6)
         assert len(drawn) == 6 and all(len(str(it.spec["a"])) == 4 for it in drawn), case
+
+
+def test_a_story_is_drawn_by_a_kind_whose_templates_hold_its_shape():
+    """W25 (a number to leave out) lists the one-step kind, which reads such a story, and the two-step kind; only the
+    two-step's templates hold that shape. Half its draws asked the one-step kind and failed unseen, and once that
+    failure was raised a fresh bank stopped at WORD.1_2STEP. Every draw is now made, by the kind that can."""
+    drawn, _ = _drawn("WORD.1_2STEP", "Advance", "W25", n=12)
+    assert len(drawn) == 12 and {it.fmt for it in drawn} == {"word_2step"}
 
 
 def test_a_rule_a_kind_cannot_read_fails_aloud():

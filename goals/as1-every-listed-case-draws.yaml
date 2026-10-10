@@ -23,6 +23,8 @@ says:
     proved_by: packages/engine/tests/test_every_listed_case.py::test_subtracting_from_1000_is_the_4_digit_skills
   - words: "same process"
     proved_by: packages/engine/tests/test_every_listed_case.py::test_a_rule_a_kind_cannot_read_fails_aloud
+  - words: "Everything should have something."
+    proved_by: packages/engine/tests/test_every_listed_case.py::test_a_story_is_drawn_by_a_kind_whose_templates_hold_its_shape
 manual:
   - "On live, once merged: `bin/update-live`. The estimates, the mistakes found at the level's two sizes and SUB.4D's
     subtraction from 1000 reach the bank only through `engine load` and `bank refill`."

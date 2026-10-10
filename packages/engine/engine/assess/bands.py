@@ -7,7 +7,7 @@ sampling, and the second one would have drifted from the first.
 
 import random
 from collections.abc import Callable, Iterable
-from typing import Any
+from typing import Any, cast
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
@@ -81,6 +81,17 @@ def pairs(check, n, seed=1):
 def one_of(v: Any, rng: random.Random) -> Any:
     """A check value that may be a single value or a list of alternatives (op, kind, …)."""
     return rng.choice(v) if isinstance(v, list) else v
+
+
+def makes(fmt: str, case: dict[str, Any]) -> bool:
+    """Whether this kind can make a case of this story shape: a story kind only the shapes its template rows hold.
+    W25 (a number to leave out) lists the one-step kind, which reads such a story, but no one-step template has that
+    shape; its two-step templates are one calculation with a number the story does not need."""
+    shape: Any = case.get("structure")
+    if fmt not in ("word_1step", "word_2step") or not shape:
+        return True
+    shapes = cast(list[str], shape) if isinstance(shape, list) else [str(shape)]
+    return any(W.templates(fmt, structure=s) for s in shapes)
 
 
 def _regroups(c: dict[str, Any]) -> set[int]:

@@ -5119,5 +5119,13 @@ Each (case, level) pair the seed lists, drawn alone on its level as the bank dra
 - **Swallowed by the drawer:** `KeyError` 12,000 times (R01 and R02 only), `RuntimeError` 96 (numbers that did not fit),
   `ValueError` never.
 - **After the fix:** 0 pairs empty, and only `RuntimeError` swallowed (96). The survey takes 8 s.
+- **Raising what was swallowed found two more:**
+  - A fresh bank stopped at WORD.1_2STEP's Advance: `ValueError: no one-step story for shape 'EXTRA_INFORMATION'`.
+    W25 lists the one-step and the two-step kind, and only the two-step's templates hold a number to leave out. Half
+    its draws had failed unseen, and drawing 2 of each pair had missed it. The drawer now picks only a kind whose
+    templates hold the case's shape (`bands.makes`).
+  - E07's test drew its balance-scale kind with no `hi` (its real level, EQUALITY.INVERSE Medium, gives 50). That is a
+    defect of the test, which now draws the case by the kind it tests.
+  - Surveyed again at 20 draws a pair (605 pairs, 171 s): 0 empty, nothing raised, `RuntimeError` swallowed 703 times.
 - **Not a defect:** EQUALITY.INVERSE's Advance holds a 3-digit M25 above its `hi` of 50. Its own words ask for "a
   3-digit number to work back to: □ − 275 = 418", and the 50 bounds its other cases.
