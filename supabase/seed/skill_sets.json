@@ -177,7 +177,16 @@
         "column_grid"
       ],
       "misconception_codes": [
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
         "M_MUL_CARRY_FIRST",
+        "M_MUL_COLUMNWISE",
         "M_MUL_CONCAT",
         "M_MUL_NO_CARRY",
         "M_MUL_ONES_ONLY",
@@ -292,11 +301,15 @@
               "TF12",
               "TF16",
               "TF13",
-              "TF14"
+              "TF14",
+              "Q01",
+              "Q02",
+              "Q06",
+              "Y09",
+              "H08"
             ],
             "layout": "horizontal"
-          },
-          "min_items": 56
+          }
         }
       },
       "level_band": {
@@ -429,7 +442,9 @@
               "TP10",
               "TZ08",
               "TZ01",
-              "TZ07"
+              "TZ07",
+              "Q14",
+              "H10"
             ],
             "layout": "horizontal"
           }
@@ -3332,6 +3347,7 @@
         "M_DIV_TENS_ZERO_EXTRA",
         "M_DIV_TENS_ZERO_LEFT",
         "M_DIV_ZERO_DIVIDED",
+        "M_MUL_ROW_OUT",
         "M_WRONG_OP"
       ],
       "replaces": [],
@@ -3436,7 +3452,12 @@
               "DF16",
               "DR01",
               "DR02",
-              "DR03"
+              "DR03",
+              "Q03",
+              "Q04",
+              "Q05",
+              "G20",
+              "B07"
             ],
             "layout": "horizontal"
           }

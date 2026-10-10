@@ -190,6 +190,18 @@
     },
     {
       "fmt": "word_1step",
+      "structure": "RATE_UNIT",
+      "op": "÷",
+      "text": "{b} pencils cost ₹{a}. What does one pencil cost?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "RATE_UNIT",
+      "op": "÷",
+      "text": "{n} pays ₹{a} for {b} bus tickets to the fort. What does one ticket cost?"
+    },
+    {
+      "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?",

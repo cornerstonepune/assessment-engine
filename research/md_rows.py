@@ -208,7 +208,8 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "G17": ("bare_sum", _x(15, 3, "÷", method="REPEATED_SUBTRACTION"), ["method"]),
     "G18": ("number_line_jumps", _x(20, 4, "÷", method="NUMBER_LINE"), ["method"]),
     "G19": ("equal_groups", _x(20, 4, "÷", method="ARRAY"), ["method"]),
-    "G20": ("inverse_check", _x(42, 6, "÷"), ["reasoning_type", "fact"]),
+    # the table backwards is answered twice, by dividing and by its fact; a check of a claimed answer (Y10) is not
+    "G20": ("inverse_check", _x(42, 6, "÷", shape="TABLE_BACKWARDS"), ["reasoning_type", "fact", "shape"]),
     "G21": ("break_apart", _x(72, 4, "÷", method="PARTITION_DIVIDEND"), ["method"]),
     "G22": _col(96, 4, "÷", "CHUNKING"),
     "G23": _col(72, 4, "÷", "SHORT_DIVISION"),
@@ -219,7 +220,7 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "Q02": _missing("□ × 6 = 42", "unknown_position", "fact", "answer_first"),
     "Q03": _missing("□ ÷ 4 = 7", "unknown_position", "remainder"),
     "Q04": _missing("56 ÷ □ = 8", "unknown_position", "remainder"),
-    "Q05": _missing("□ = 63 ÷ 9", "answer_first"),
+    "Q05": _missing("□ = 63 ÷ 9", "answer_first", "remainder"),  # exact, as Q03 and Q04: no "□ r □ = 17 ÷ 5"
     "Q06": _missing("□ × □ = 49", "unknown_position"),
     "Q07": _digit("2□", "4", "92", "×", (23, 4), "missing_in", "missing_count", "operand_1_digits"),
     "Q08": _digit("47", "3", "1□1", "×", (47, 3), "missing_in", "missing_count"),
@@ -228,7 +229,14 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "Q11": _digit("□7", "6", "3□2", "×", (57, 6), "missing_count"),
     "Q12": _missing("38 ÷ 5 = 7 r □", "unknown_position"),
     "Q13": _missing("38 ÷ □ = 7 r 3", "unknown_position", ("remainder", REMAINDERS)),
-    "Q14": _missing("45 × □ = 4500", "unknown_position", ("place_value_factor", ["X10", "X100", "X1000"])),
+    # of a number to 2 digits, as TP03's × 1000 is: drawn unbounded it reached 9500 × 1000 at Grade 4. The bound is on
+    # the number shown, written first; the shorter number's digits cannot bound it where the factor is 10 (4000 × 10)
+    "Q14": _missing(
+        "45 × □ = 4500",
+        "unknown_position",
+        ("place_value_factor", ["X10", "X100", "X1000"]),
+        ("operand_1_digits", {"lte": 2}),
+    ),
     "Q15": ("missing_number", {"text": "34 × 26 = 204 + □", "shape": "MISSING_ROW", "ops": ["×", "+"]}, ["shape"]),
     "Q16": _digit("3□4", "2", "708", "×", (354, 2), "missing_in", "missing_count", "operand_1_digits"),
     # equality, inverse, properties; multiples and factors
@@ -285,7 +293,7 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "B04": _story(5, 7, "×", "ARRAY"),
     "B05": _story(35, 5, "÷", "ARRAY"),
     "B06": _story(8, 6, "×", "RATE_TOTAL"),
-    "B07": _story(48, 8, "÷", "RATE_UNIT"),
+    "B07": _story(48, 8, "÷", "RATE_UNIT", "remainder"),  # the cost of one is an exact division
     "B08": _story(4, 3, "×", "TIMES_AS_MANY_LARGER"),
     "B09": _story(12, 3, "÷", "TIMES_AS_MANY_SMALLER"),
     "B10": _story(12, 4, "÷", "HOW_MANY_TIMES"),

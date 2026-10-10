@@ -57,7 +57,10 @@ def _documents(skill):
 
 
 def _check(skill, level):
-    return SETS[skill]["difficulty"][level]["check"]
+    """A level's rule as these tests read it, its straight cases only: the kinds an Advance holds besides (a missing
+    number, a fact family, a story) are `test_facts_advance.py`'s and `test_mul_advance.py`'s."""
+    check = SETS[skill]["difficulty"][level]["check"]
+    return {**check, "cases": [c for c in check["cases"] if _straight(c)]}
 
 
 def _matches(check):
@@ -88,9 +91,9 @@ def _drawn(skill, level, seed=7):
 
 
 # The two whose Advance the document gives straight questions no lower level holds: the 11 and 12 tables, and a round
-# number with no table fact under its zeros. The other three's Advance is Hard's straight cases with kinds M2b makes
-# (missing digits, finding the mistake, estimates, stories: `tests/test_mul_advance.py`); the straight questions those
-# levels draw are what these tests read.
+# number with no table fact under its zeros; their kinds came with M3b1 (`tests/test_facts_advance.py`). The other
+# three's Advance is Hard's straight cases with kinds M2b makes (missing digits, finding the mistake, estimates,
+# stories: `tests/test_mul_advance.py`); the straight questions those levels draw are what these tests read.
 ADVANCE = ["MUL.FACTS", "MUL.TENS"]
 
 

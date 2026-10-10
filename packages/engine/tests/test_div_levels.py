@@ -42,9 +42,10 @@ GRADES = {
     "DIV.3D1D": ["G4", "G4", "G4"],
 }
 # The two whose Advance the document gives straight questions no lower level holds: the 11 and 12 tables, a 2-digit
-# divisor and a remainder under a 1-digit quotient; ÷ 10, 100 or 1000 with a remainder. The other two have no Advance
-# until M3b gives them the kinds an Advance needs, as multiplication's had none until M2b: an Advance of Hard's own
-# questions is no level (`engine load` refuses two levels on one region).
+# divisor and a remainder under a 1-digit quotient; ÷ 10, 100 or 1000 with a remainder. DIV.FACTS's kinds came with
+# M3b1 (`tests/test_facts_advance.py`); these tests read its straight cases. The other two have no Advance until M3b2
+# gives them the kinds an Advance needs, as multiplication's had none until M2b: an Advance of Hard's own questions is
+# no level (`engine load` refuses two levels on one region).
 ADVANCE = ["DIV.FACTS", "DIV.TENS"]
 LEVELS_OF = {s: LEVELS if s in ADVANCE else LEVELS[:3] for s in FOUR}
 
@@ -66,7 +67,10 @@ def _documents(skill):
 
 
 def _check(skill, level):
-    return SETS[skill]["difficulty"][level]["check"]
+    """A level's rule as these tests read it, its straight cases only: the kinds an Advance holds besides (a missing
+    number, a fact family, a story) are `test_facts_advance.py`'s and `test_mul_advance.py`'s."""
+    check = SETS[skill]["difficulty"][level]["check"]
+    return {**check, "cases": [c for c in check["cases"] if _straight(c)]}
 
 
 @functools.cache
