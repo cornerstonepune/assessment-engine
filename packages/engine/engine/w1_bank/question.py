@@ -27,10 +27,11 @@ DRAWN_FROM_NUMBERS = {"bare_sum", "column_grid", "missing_number"}
 
 
 def _row(conn, item_key):
+    """The question by its key now, or by one it had before it was keyed again (`inventory.current_key`)."""
     return conn.execute(
         "select i.*, r.band from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
         " where i.item_key = %s and i.source = 'generated'",
-        (item_key,),
+        (inventory.current_key(conn, item_key),),
     ).fetchone()
 
 
@@ -117,9 +118,9 @@ def correct(conn, item_key, stem, by, reason) -> dict:
         " on conflict do nothing",
         (new["id"], old["id"]),
     )
-    inventory.flag(conn, item_key, by, f"Corrected as {new_key}: {reason}")
+    inventory.flag(conn, old["item_key"], by, f"Corrected as {new_key}: {reason}")
     library.build(conn, only=(old["skill_set_code"], old["difficulty"]))
-    return {"item_key": new_key, "retired": item_key}
+    return {"item_key": new_key, "retired": old["item_key"]}
 
 
 def remove(conn, item_key, by, note) -> dict:
@@ -131,6 +132,6 @@ def remove(conn, item_key, by, note) -> dict:
     old = _row(conn, item_key)
     if not old:
         raise LookupError(f"no question {item_key!r} in the bank")
-    status = inventory.flag(conn, item_key, by, " ".join(note.split()))
+    status = inventory.flag(conn, old["item_key"], by, " ".join(note.split()))
     changed = library.build(conn, only=(old["skill_set_code"], old["difficulty"]))
-    return {"item_key": item_key, "status": status, "worksheets_retired": changed["retired"]}
+    return {"item_key": old["item_key"], "status": status, "worksheets_retired": changed["retired"]}

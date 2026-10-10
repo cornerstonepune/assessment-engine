@@ -236,6 +236,6 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
     left join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
     left join lateral (select actor, note from item_feedback
                        where item_id = i.id and verdict = 'retire' order by created_at desc limit 1) f on true
-    where i.item_key = ${key} and i.source = 'generated'`;
+    where i.item_key = current_item_key(${key}) and i.source = 'generated'`; // a key it had before leads to it (ADR 0053)
   return rows[0];
 }

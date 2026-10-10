@@ -3,7 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — AS1: every case a level lists draws (in progress)
+## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (in progress)
+
+- **Slice:** AS2 (W1 gate 3). Goal `goals/as2-a-story-is-its-shape.yaml`; tests `test_story_keys.py`; ADR 0053.
+- **AS1 is merged and live:** main `9a4b366`, CI, `migrate live` and `deploy engine` green.
+- **What changed:**
+  - a story's spec holds its shape and its operations, so its key does (`words.story_spec`); the sampler's path keys
+    it alike (`verify.to_item`);
+  - `engine bank rekey` (update-live step 5, first) keys every stored story again; each change is a row of
+    `item_key_change` (migration `20261030090000`), and `current_item_key()` leads an old key to its question;
+  - a rewording takes its story's shape, so a relabel no longer loses it and the refill no longer retires it;
+  - `bank recheck` keeps one-step stories in its audit;
+  - found on the way: one reworded story re-dealt its whole level; the patch's filler takes each kind's fair share.
+- **Next:** the goal on a database built as CI builds it, the PR, CI and the rehearsal (its `bank rekey` line says how
+  many stories, reviews, gold findings and rewordings live holds); then M2d.
+- **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1, M2a, M2b, AS1 and AS2's rows and steps, then approving the
+  skills it lists.
+
+## 2026-10-10 — AS1: every case a level lists draws (merged)
 
 - **Slice:** AS1 (W1 gate 3), found while proving M2b. Goal `goals/as1-every-listed-case-draws.yaml`; tests
   `test_every_listed_case.py`; ADR 0052.
@@ -14,7 +31,7 @@ is verified. This file only says where the last session stopped.
   - a + or − worked answer is drawn at the level's two sizes;
   - 24 impossible case listings removed, SZ6 and SZ9 moved to SUB.4D;
   - the drawer raises a rule a kind cannot read.
-- **Next:** the database proof and the PR; then AS2 (a story's shape in its key), then M2d.
+- **Merged:** PR cornerstonepune/assessment-engine#165, main `9a4b366`.
 - **Waiting for Nimish's `bin/update-live`:** M0b, M0c, M1, M2a and M2b's rows, `bank rehome` and `bank refill`, then
   approving the new skills.
 

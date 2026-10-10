@@ -70,8 +70,9 @@ def recheck(conn):
         sp = r["spec"]
         if not {"a", "b", "op"} <= sp.keys():
             continue  # an older row that kept only its printed text
-        if set(sp) - {"a", "b", "op", "layout", "missing", "text"}:
+        if set(sp) - {"a", "b", "op", "layout", "missing", "text", "structure"}:
             continue  # made by a generator with more than numbers (a story's table): not `to_item`'s to rebuild
+        # a story's shape is its template's, which `to_item` reads from its words, so a story is rebuilt with its key
         # a sum with no answer box is named, never a crash that hides every other row (2026-09-30)
         stored = next((x for x in r["responses"] if x["rid"] == "ans"), None)
         if stored is None:
@@ -135,8 +136,17 @@ def unclassified(conn, limit=50):
     ).fetchall()
 
 
+def current_key(conn, item_key):
+    """The key a question has now. A key it had before it was keyed again (`bank rekey`, ADR 0053) leads to it, so a
+    proposal in its append-only ledger, a gold file or a bookmarked page still finds its question. One rule, in SQL
+    (`current_item_key`), so the website's question page reads it the same way."""
+    return conn.execute("select public.current_item_key(%s) as k", (item_key,)).fetchone()["k"]
+
+
 def flag(conn, item_key, actor, note, verdict="retire"):
-    row = conn.execute("select id, tenant_id from item where item_key = %s", (item_key,)).fetchone()
+    row = conn.execute(
+        "select id, tenant_id from item where item_key = public.current_item_key(%s)", (item_key,)
+    ).fetchone()
     if not row:
         raise ValueError(f"no item {item_key!r}")
     conn.execute(

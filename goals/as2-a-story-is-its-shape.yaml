@@ -1,0 +1,56 @@
+name: as2-a-story-is-its-shape
+goal: >
+  A story is its numbers, its shape and its operations; its words are not. Two stories with the same numbers and
+  different shapes (7 − 3 as a take-away, as a comparison, as a start no one knows) are two questions, so a level of
+  small numbers holds every story shape it lists when it is filled whole: SUB.1D1D's Advance holds W02, W03 and W11
+  beside W04, W05, W08 and W09, and ADD.1D1D's holds W06 beside W01, W07 and W10. A two-step story is keyed by its
+  operations too, so two templates of one shape whose answers differ are never one question. Both ways into the bank
+  key a story alike. Every story already stored is keyed again, once, by `engine bank rekey`, which update-live runs
+  before anything reads a story's shape: no question's words, numbers or answer change; the reviews and gold findings
+  that name a story follow it, and a key it had still leads to it (a proposal in its append-only ledger, a gold file, a
+  bookmarked page); a rewording keeps its own key and takes its story's shape, so a relabel no longer loses it and the
+  refill no longer retires it; a retired story stays retired under its new key; and a second run changes nothing.
+# Written 2026-10-10, before the code: slice AS2 of BUILD-ORDER "Inserted now: multiplication and division", the
+# rejected option of ADR 0011, its trigger met. Measured first (STATE.md "AS2 — measured before the build"): filled
+# whole as a scenario fills it, three seeds each, SUB.1D1D's Advance holds W11, W02 and W03 0 times and ADD.1D1D's
+# holds W06 0 times; the story cases listed first take every number pair.
+says:
+  - words: "Everything should have something."
+    proved_by: packages/engine/tests/test_story_keys.py::test_a_level_filled_whole_holds_every_story_shape_it_lists
+  - words: "same process"
+    proved_by: packages/engine/tests/test_story_keys.py::test_a_story_is_its_numbers_its_shape_and_its_operations
+  - words: "same process"
+    proved_by: packages/engine/tests/test_story_keys.py::test_no_two_templates_share_a_key_and_compute_differently
+  - words: "same process"
+    proved_by: packages/engine/tests/test_story_keys.py::test_both_ways_into_the_bank_key_a_story_alike
+  - words: "Everything should have something."
+    proved_by: packages/engine/tests/test_story_keys.py::test_a_stored_story_is_keyed_again_and_what_names_it_follows
+  - words: "same process"
+    proved_by: packages/engine/tests/test_story_keys.py::test_bank_recheck_still_rebuilds_a_story_and_names_one_changed_by_hand
+  - words: "same process"
+    proved_by: packages/engine/tests/test_library.py::test_a_patched_worksheet_takes_each_kind_in_its_fair_share
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `bin/update-live`. Step 5 runs `bank rekey` first, before `bank relabel` reads a story's
+    shape; it prints how many stories it keyed again, how many reviews and gold findings followed them, how many
+    rewordings took their story's shape, and how many stories whose words no template wrote keep their key. `bank
+    refill` then fills SUB.1D1D's and ADD.1D1D's Advance with the shapes they lacked."
+scenarios:
+  - name: SUB.1D1D, Advance — filled whole, every story shape it lists
+    skill_set: SUB.1D1D
+    difficulty: Advance
+    n: 108
+    cases: [S03, S04, M21, M22, M23, W04, W05, W08, W09, W11, W02, W03]
+  - name: ADD.1D1D, Advance — filled whole, every story shape it lists
+    skill_set: ADD.1D1D
+    difficulty: Advance
+    n: 216
+    cases: [A02, A04, M01, M02, W01, W07, W10, W06, K02]
+criteria:
+  - name: stories keyed by their shape, filled whole, stored ones keyed again; the kinds, levels, bank and taxonomy they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_story_keys.py tests/test_every_listed_case.py tests/test_verify.py tests/test_question.py tests/test_rehome.py tests/test_bank.py tests/test_every_skill.py tests/test_new_kinds.py tests/test_taxonomy.py tests/test_md_cases.py tests/test_mul_advance.py tests/test_library.py tests/test_items.py tests/test_goal.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
