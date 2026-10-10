@@ -47,3 +47,29 @@ export async function waiting(actor: string): Promise<Waiting> {
     asks,
   };
 }
+
+// Whether the queue shrinks as the reader earns trust (goals/ny2-the-queue-shrinks.yaml). Nimish, 2026-10-10: "the number
+// of data points that we then need to validate becomes lower".
+export type Week = { week: string; read: number; alone: number; person: number; waiting: number };
+export type Trust = { trusted: number; kinds: number; nearest: { fmt: string; to_trust: number } | null };
+
+/** The answers read each ISO week, newest first, by where each stands (`answer_standing`, the one definition): settled
+ *  by the engine alone, checked by a person, still waiting. The last eight weeks: two months is the trend. */
+export async function queueByWeek(): Promise<Week[]> {
+  return sql<Week[]>`
+    select to_char(c.created_at, 'IYYY-"W"IW') as week, count(*)::int as read,
+           count(*) filter (where s.standing = 'engine')::int as alone,
+           count(*) filter (where s.standing = 'person')::int as person,
+           count(*) filter (where s.standing = 'waiting')::int as waiting
+    from answer_standing s join item_result r on r.id = s.item_result_id join capture c on c.id = r.capture_id
+    group by 1 order by 1 desc limit 8`;
+}
+
+/** How near the reader is to trust, by the one rule (`kind_trust`): the kinds trusted of those it has stood behind a
+ *  reading of, and the nearest not yet trusted — the fewest right checks still needed. */
+export async function trustNow(): Promise<Trust> {
+  const rows = await sql<{ fmt: string; trusted: boolean; to_trust: number }[]>`
+    select fmt, trusted, checks_to_trust as to_trust from kind_trust order by checks_to_trust, fmt`;
+  const near = rows.find((r) => !r.trusted);
+  return { trusted: rows.filter((r) => r.trusted).length, kinds: rows.length, nearest: near ? { fmt: near.fmt, to_trust: near.to_trust } : null };
+}

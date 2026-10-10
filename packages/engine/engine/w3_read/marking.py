@@ -142,7 +142,13 @@ def mark_read(spec, response, read, gate=None, spot=False, learned=()):
     `gate` is this kind of question's standing against `marking.agreement_gate` (ADR 0032,
     `profiles.kind_trust`): until the reader's readings of a kind have matched people 95% of the time
     over the last fifty checks, a right answer waits for a person too, its reading the one-click guess. Once it
-    is trusted, a right answer `spot` checked (`spot_checked`) still waits: the check that keeps the trust honest."""
+    is trusted, a right answer `spot` checked (`spot_checked`) still waits: the check that keeps the trust honest.
+
+    A reading marked again starts from what the reader said: a hold an earlier marking put on it ("read as …", which a
+    reader never writes — `profiles.doubted`) is not the reader's, so a hold lifted takes its reason and its guess with
+    it, and the website stops showing the answer as waiting (`queries-read.held`)."""
+    if (read.get("why") or "").startswith("read as"):
+        read = {**read, "why": "", "guess": ""}
     status, codes, working = mark(spec, response, read, learned)
     if status == "correct" and gate and not gate["trusted"]:
         why = f"read as a right answer; a person checks every answer of this kind until the reader is trusted on it ({gate['right']} of the last {gate['n']} right)"

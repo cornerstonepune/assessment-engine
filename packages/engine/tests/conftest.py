@@ -37,6 +37,6 @@ def every_kind_trusted(monkeypatch):
     monkeypatch.setattr(
         profiles,
         "kind_trust",
-        lambda conn, window=50: {f: {"n": 50, "right": 50, "trusted": True} for f in profiles.KIND_WORDS},
+        lambda conn: {f: {"n": 50, "right": 50, "trusted": True, "to_trust": 0} for f in profiles.KIND_WORDS},
     )
     monkeypatch.setattr(marking, "spot_rate", lambda conn: 0.0)

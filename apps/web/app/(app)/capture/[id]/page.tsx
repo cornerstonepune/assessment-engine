@@ -106,6 +106,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
 
         {q.confirmed ? <Notice tone="neem">Signed off {q.confirmed} answers in your name. {paper.first_name}&rsquo;s ladder is rebuilt from them.</Notice> : null}
         {q.corrected ? <Notice tone="neem">Saved: the child wrote {q.corrected}. The engine has marked it again, and your reading is now part of what the reader is measured against.</Notice> : null}
+        {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader&rsquo;s trust now settles leave the queue at the next check.</Notice> : null}
         {q.error === "engine" ? <Notice tone="terracotta">The engine is not answering, so nothing was changed. The page images and corrections both need it running.</Notice> : null}
         {q.error && q.error !== "engine" ? <Notice tone="terracotta">Nothing was changed: {q.error}</Notice> : null}
         {q.key ? <KeyChanged said={q.key} /> : null}

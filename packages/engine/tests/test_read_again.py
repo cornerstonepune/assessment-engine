@@ -69,3 +69,54 @@ def test_one_file_that_fails_does_not_stop_the_rest(conn, monkeypatch, tmp_path)
     monkeypatch.setattr(legacy, "import_scan", flaky)
     out = reread.run(conn, commit=False)
     assert out["failed"] == 1 and out["read"] == len(calls) - 1
+
+
+TRUST = "ny2_trust"  # a kind of question of the test's own
+HELD = {
+    "35": "read as a right answer; a person checks every answer of this kind until the reader is trusted on it"
+    " (0 of the last 0 right)",
+    "17": "read as a wrong answer; a person checks every wrong answer before it counts",
+}
+
+
+def test_answers_waiting_only_for_trust_leave_the_queue_the_moment_their_kind_earns_it(conn):
+    """Nimish, 2026-10-10: "the number of data points that we then need to validate becomes lower". An answer read right
+    but held because its kind was not yet trusted (ADR 0032) is marked again the moment the kind earns trust, and leaves
+    the queue; one read wrong still waits for a person (ADR 0029). Before the kind is trusted, nothing moves. Trust is
+    measured over three checks here, and no right answer is drawn for a spot-check."""
+    import json
+
+    from engine.w3_read import again
+
+    conn.execute("update threshold set value = 3 where key = 'marking.agreement_window'")
+    conn.execute("update threshold set value = 0 where key = 'marking.spot_check_rate'")
+    waiting = a_read_paper(
+        conn,
+        [{"status": "needs_teacher", "read": "35"}, {"status": "needs_teacher", "read": "17"}],
+        fmt=TRUST,
+    )
+    for rid, read in zip(waiting["results"], ("35", "17"), strict=True):
+        raw = {"child_answer": read, "answer_state": "written", "confidence": 95.0, "why": HELD[read]}
+        conn.execute("update item_result set raw_read = %s where id = %s", (json.dumps(raw), rid))
+
+    def status():
+        rows = conn.execute("select id, status from item_result where id = any(%s)", (waiting["results"],))
+        return {r["id"]: r["status"] for r in rows.fetchall()}
+
+    a_read_paper(conn, [{"status": "correct", "read": "35", "state": "confirmed"}] * 2, fmt=TRUST)
+    again.trusted(conn)  # and whatever a window of three settles of the copy's other kinds
+    assert set(status().values()) == {"needs_teacher"}, (
+        "two checks of three: not trusted yet, nothing of it moves"
+    )
+    a_read_paper(conn, [{"status": "correct", "read": "35", "state": "confirmed"}], fmt=TRUST)
+    assert again.trusted(conn) == 1, (
+        "the third check earns the kind its trust: the one answer held for it moves"
+    )
+    assert status()[waiting["results"][0]] == "correct", "read right, its kind trusted now: it settles"
+    why = conn.execute(
+        "select raw_read::jsonb ->> 'why' as why from item_result where id = %s", (waiting["results"][0],)
+    ).fetchone()["why"]
+    assert why == "", "the hold is lifted and its reason with it: nothing says a person still checks it"
+    assert status()[waiting["results"][1]] == "needs_teacher", (
+        "read wrong: a person checks it whatever the trust"
+    )

@@ -171,24 +171,29 @@ def checked_rows(conn, child_id=None):
     ).fetchall()
 
 
-def kind_trust(conn, window=50):
-    """Each kind of question's standing against `marking.agreement_gate` (ADR 0032): of the last
-    `window` readings of that kind the reader stood behind and a person checked, how many were what
-    the person said. Trusted only once the window is full and the bar is met."""
-    bar = _bar(conn)
-    last = {}
-    for r in checked_rows(conn):
-        if doubted(r["why"]):
-            continue
-        last.setdefault(r["fmt"], []).append(_norm(r["model_read"]) == _norm(r["human_read"]))
-    out = {}
-    for fmt, hits in last.items():
-        recent = hits[-window:]
-        out[fmt] = {"n": len(recent), "right": sum(recent), "trusted": kind_trust_of(recent, window, bar)}
-    return out
+def kind_trust(conn):
+    """Each kind of question's standing against `marking.agreement_gate` (ADR 0032): of its newest
+    `marking.agreement_window` checks the reader stood behind, how many were what the person said, whether that is
+    trust, and the right checks still needed (`to_trust`). The database's one rule (`kind_trust`, migration
+    20261103090000), which the website shows too, so the two never disagree."""
+    return {
+        r["fmt"]: {
+            "n": r["n"],
+            "right": r["right"],
+            "trusted": r["trusted"],
+            "to_trust": r["checks_to_trust"],
+        }
+        for r in conn.execute('select fmt, n, "right", trusted, checks_to_trust from kind_trust').fetchall()
+    }
 
 
-def report(conn, window=50):
+def window(conn):
+    """How many checks a kind's trust is measured over (`marking.agreement_window`)."""
+    row = conn.execute("select value from threshold where key = 'marking.agreement_window'").fetchone()
+    return int(row["value"]) if row else 50
+
+
+def report(conn):
     """How the reader is doing, from every check people have made — the numbers `engine read report`
     prints and Capture & Mark shows (ADR 0032): the total, each kind's standing against the gate, each
     batch's flag rate, and one line per child. An answer the reader was never handed is not counted (`never_read`)."""
@@ -203,9 +208,7 @@ def report(conn, window=50):
     }
     kinds, batches = {}, {}
     for r in rows:
-        k = kinds.setdefault(
-            r["fmt"], {"checked": 0, "right": 0, "silently_wrong": 0, "gave_up": 0, "hits": []}
-        )
+        k = kinds.setdefault(r["fmt"], {"checked": 0, "right": 0, "silently_wrong": 0, "gave_up": 0})
         b = batches.setdefault(
             r["batch"],
             {"batch": r["batch"], "read": 0, "flagged": 0, "checked": 0, "stood_behind": 0, "right": 0},
@@ -219,7 +222,6 @@ def report(conn, window=50):
             total["guess_right"] += bool(truth) and _norm(r["guess"]) == truth
             continue
         right = _norm(r["model_read"]) == truth
-        k["hits"].append(right)
         k["right"] += right
         k["silently_wrong"] += not right
         total["stood_behind"] += 1
@@ -227,11 +229,16 @@ def report(conn, window=50):
         total["silently_wrong"] += not right
         b["stood_behind"] += 1
         b["right"] += right
+    # each kind's standing is the one rule's; a kind the reader stood behind no reading of has the whole window to go
+    standing, size = kind_trust(conn), window(conn)
     for fmt, k in kinds.items():
-        recent = k["hits"][-window:]
-        k["window_n"], k["window_right"] = len(recent), sum(recent)
-        k["trusted"] = kind_trust_of(recent, window, _bar(conn))
-        del k["hits"]
+        s = standing.get(fmt, {"n": 0, "right": 0, "trusted": False, "to_trust": size})
+        k |= {
+            "window_n": s["n"],
+            "window_right": s["right"],
+            "trusted": s["trusted"],
+            "to_trust": s["to_trust"],
+        }
     for b in conn.execute(
         "select c.created_at::date as batch, count(*) as read,"
         " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'answer_state', '') not in ('written', 'blank')"
@@ -248,18 +255,10 @@ def report(conn, window=50):
     return {
         "total": total,
         "kinds": kinds,
+        "window": size,
         "batches": [batches[k] for k in sorted(batches)],
         "children": lines(conn),
     }
-
-
-def _bar(conn):
-    row = conn.execute("select value from threshold where key = 'marking.agreement_gate'").fetchone()
-    return float(row["value"]) if row else 0.95
-
-
-def kind_trust_of(recent, window, bar):
-    return len(recent) >= window and sum(recent) / len(recent) >= bar
 
 
 def signed_off(conn):

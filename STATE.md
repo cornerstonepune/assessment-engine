@@ -5827,3 +5827,96 @@ Run on the copy `ny1m` (fresh23's rows, this migration applied):
   `test_update_live.py` — 34 passed;
 - browser: u13 (4), gate (12), u1 (3), u5, u12, screens, e2e, s2, s33, u10, u11, workflows — 80 passed;
 - `bin/check` 27 passed.
+
+## NY1 merged and live (2026-10-10)
+
+- Merged as `d66bb35` (#172). On main: `ci` success (38074090256), `migrate live` success (38075174968), `deploy engine`
+  success (38075175020). The `ask` table and the topic switch's columns are on live.
+- `bin/engine done ny1-needs-you` on main's code (copy ny1m):
+  - 10 of 10 of Nimish's sentences PROVED;
+  - 3 of 3 criteria PASSED: 24 engine tests, 26 browser tests, `bin/check` 27.
+  - Its live line cannot read live from here, as before.
+- Rehearsed on a copy of live (run 38072254406, on `af10d0d`): the migration applied; `ask` 22 rows, all waiting for the
+  specialist; 144 of 144 skill-levels ready, 0 problems; every after-check ok.
+- On a copy built from this tree: browser 171 of 171; engine 2,136 passed and 2 failed, both in
+  `test_every_answer.py`.
+  - The two fail the same way on main's code.
+  - Cause: the fixture made an ADD.2D2D worksheet from the first estimates by key, whatever their operation. Since
+    multiplication's estimates joined the bank, one of them is a ×.
+  - The bank is drawn unseeded (`bank.py:241`), so CI's database, built afresh, held different questions and passed.
+  - Fixed in NY2: the fixture takes only + and − questions (9 of 9 pass on fresh23).
+- Its rows wait for `bin/update-live`: the 22 questions, and Curriculum's switch, which needs × and ÷ on live first.
+
+## NY2 — measured before the build (2026-10-10)
+
+Nimish: "The system keeps learning from the number of data points that we keep validating, and the number of data
+points that we then need to validate becomes lower."
+
+- **Trust has two owners, which can disagree.**
+  - The engine decides a kind's trust in Python (`profiles.kind_trust`), over the last 50 checks it stood behind,
+    ordered by when the paper was read and then by question key.
+  - The website decides it again in its own SQL (`queries-read.readerReport`), its 50 written in again, ordered by
+    when the paper was read alone.
+  - Every answer of one paper shares that moment, so where the 50th check falls inside a paper the website's window is
+    arbitrary.
+  - The window is written in code twice, not a row.
+- **A kind earning trust leaves its waiting answers waiting.** An answer held only for its kind's trust ("read as a
+  right answer; a person checks every answer of this kind until…") is marked again only by `engine legacy remark` or
+  `POST /mark`, which nothing calls.
+- **Checks arrive two ways:**
+  - a typed reading, through the engine (`/capture/correct`);
+  - a signed-off paper, through the website's SQL (`confirm_results`).
+- **No screen shows the queue week by week, or how far a kind is from trust.**
+- **Live, read only** (engine logs run 38074135981, 2026-10-10 ~18:02 UTC):
+  - nothing waits for a person; 867 old-paper answers on 71 papers and 420 printed-paper answers on 36 are checked;
+  - nothing has been read since 2026-09-29;
+  - where the reader stood behind a reading it was right 698 times in 906 (77%), and 208 times wrong without saying so;
+  - no kind is trusted. Its last 50, right:
+
+    | Kind | Right |
+    |---|---|
+    | columns | 47 of 50 |
+    | old papers' stories | 41 of 50 |
+    | sums in a line | 38 of 50 |
+    | two-step stories | 37 of 50 |
+    | old papers' sums | 35 of 50 |
+    | old papers' missing numbers | 29 of 50 |
+
+  - So the queue will fall only as fast as the reader gets more right. NY2 makes that visible; it cannot make it so.
+
+## NY2 — the queue shrinks, and a person sees whether it does, built (2026-10-10)
+
+ADR 0060. Goal `goals/ny2-the-queue-shrinks.yaml`.
+
+- **One rule for the reader's trust, in the database** (migration 20261103090000).
+  - `checks_to_trust()` and the `kind_trust` view give each kind its newest checks the reader stood behind, how many
+    matched, whether that is trust, and the right checks still needed.
+  - Checks are ordered by when the paper was read, then by question, then by answer.
+  - The window is a row, `marking.agreement_window` (50).
+  - The engine (`profiles.kind_trust`), `engine read report` and the website (`readerReport`, Today) all read it. The
+    Python rule and the website's own SQL are gone, and so are the fifties written into code.
+- **A check marks again what trust now settles** (`again.trusted`): every candidate of every trusted kind, from what
+  was read.
+  - A right answer held only for trust settles. A wrong or a blank still waits (ADR 0029). A spot-checked one still
+    waits.
+  - `POST /capture/correct` runs it in the same transaction as the check.
+  - The website asks `POST /capture/trusted` after a paper is signed off. If the engine is not answering, the sign-off
+    stands and the page says the answers leave the queue at the next check.
+- **Marking again starts from what the reader said.** `mark_read` removes an earlier hold's reason and guess before it
+  marks. Without that, an answer that settled went on saying a person checks it, and the website went on treating it
+  as waiting. The test fails without the fix and passes with it.
+- **Today shows "Is the queue shrinking?":**
+  - the last eight weeks of answers read: settled by the engine alone, checked by a person, still waiting, and the
+    share that needed a person (`answer_standing`);
+  - how many kinds are trusted, and how many more right checks the nearest one needs.
+- **Marking's "By kind of question" ends with "Checks to trust":** "trusted", or how many more.
+
+Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
+- engine: `test_profiles.py`, `test_read_again.py`, `test_every_answer.py`, `test_each_answer.py`, `test_legacy.py`,
+  `api/test_capture_routes.py`, `test_crops.py`, `test_gold.py`, `test_keys.py`, `test_contract.py`,
+  `test_layout.py` — 139 passed;
+- browser: u14 (2), u1 (3), u13 (4), u10 (3), s4 (16) — 28 passed;
+- `bin/check` 27 passed.
+- CI's whole engine suite on `8dd2f26`: 2,142 passed, 1 failed, `test_roles.py`. The website's exact list of the
+  functions it may call lacked `checks_to_trust`, which the `kind_trust` view runs as the website. Added to the list,
+  as `mistake_name` was: the list stays exact.

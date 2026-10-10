@@ -31,6 +31,7 @@ export type EngineRoutes = {
   "POST /bank/story/shape": { story: string };
   "POST /capture/correct": { result_id: string; human_read: string; by: string };
   "POST /capture/mistake": { result_id: string; code: string; by: string; proposed?: unknown[][] };
+  "POST /capture/trusted": null;
   "POST /card/{section}/{week}/confirm": { by: string };
   "POST /child/{child_id}/focus": { week: string; by: string };
   "POST /child/{child_id}/paper": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };

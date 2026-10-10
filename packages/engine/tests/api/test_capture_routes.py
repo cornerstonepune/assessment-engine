@@ -276,3 +276,28 @@ def test_each_answer_on_a_paper_comes_with_its_right_answer_as_stored(client, mo
     monkeypatch.setattr(keys, "shown", lambda conn, capture: shown if capture == "cap-1" else [])
     r = client.get("/capture/cap-1/keys", headers=HEADERS)
     assert r.status_code == 200 and r.json() == {"r1": shown[0]}
+
+
+# ---- a check earns its kind trust: what that trust settles is marked again at once
+
+
+def test_a_check_or_a_sign_off_marks_again_what_trust_now_settles(client, conn, monkeypatch):
+    """Nimish, 2026-10-10: "the number of data points that we then need to validate becomes lower". A person's check is
+    what earns a kind of question its trust (ADR 0032), so each one marks again, at once, every answer that trust now
+    settles (`again.trusted`): a reading they type (`/capture/correct`), or a paper they sign off, after which the
+    website asks `/capture/trusted`."""
+    from tests.rows import a_read_paper
+
+    calls = []
+    monkeypatch.setattr(again, "trusted", lambda c: calls.append(c is conn) or 2)
+    paper = a_read_paper(conn, [{"status": "needs_teacher", "read": "35"}])
+    r = client.post(
+        "/capture/correct",
+        json={"result_id": str(paper["results"][0]), "human_read": "35", "by": "tester@example.org"},
+        headers=HEADERS,
+    )
+    assert r.status_code == 200, r.text
+    assert calls == [True], "a typed reading marks again what trust settles, on the same connection"
+    r = client.post("/capture/trusted", json={}, headers=HEADERS)
+    assert r.status_code == 200, r.text
+    assert r.json() == {"marked_again": 2} and calls == [True, True]

@@ -60,7 +60,7 @@ def _read(conn, child, tmp_path, monkeypatch, wrote):
     monkeypatch.setattr(
         profiles,
         "kind_trust",
-        lambda conn, window=50: {f: {"n": 50, "right": 50, "trusted": True} for f in profiles.KIND_WORDS},
+        lambda conn: {f: {"n": 50, "right": 50, "trusted": True, "to_trust": 0} for f in profiles.KIND_WORDS},
     )
     # and none of the spot-check sample (step 4): it is keyed on the answer's ids, made afresh each run, so 15% of runs
     # held the right reading for a person and "read differently" came back "waiting for a person" (CI, 2026-09-29)

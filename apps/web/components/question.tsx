@@ -36,6 +36,16 @@ export const KIND: Record<string, string> = {
   lattice: "lattice",
 };
 
+// The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.
+const EARLIER: Record<string, string> = {
+  legacy_bare: "sum (earlier paper)",
+  legacy_missing: "missing number (earlier paper)",
+  legacy_word: "word problem (earlier paper)",
+  legacy_text: "written answer (earlier paper)",
+};
+/** A kind of question (`item.fmt`) in the school's words: the bank's, an earlier paper's, or its own name spelt out. */
+export const kindWords = (fmt: string) => KIND[fmt] ?? EARLIER[fmt] ?? fmt.replace(/_/g, " ");
+
 // Kinds that print their own sentence. The other three draw their printed line from their numbers
 // alone, so there is no wording to correct — the engine refuses it (`engine/question.py`); this only
 // decides whether the page offers it.

@@ -59,8 +59,8 @@ def every_kind_trusted(monkeypatch):
     a paper entered by hand), and no spot-check: a test about where each answer lands, not about the reader's standing."""
     from engine.w3_read import profiles
 
-    trusted = {"n": 50, "right": 50, "trusted": True}
-    monkeypatch.setattr(profiles, "kind_trust", lambda conn, window=50: {f: trusted for f, _ in SHAPES})
+    trusted = {"n": 50, "right": 50, "trusted": True, "to_trust": 0}
+    monkeypatch.setattr(profiles, "kind_trust", lambda conn: {f: trusted for f, _ in SHAPES})
     monkeypatch.setattr(marking, "spot_rate", lambda conn: 0.0)
 
 
@@ -80,6 +80,9 @@ def worksheet(conn, tmp_path, monkeypatch):
                 " (x->>'kind'), ',' order by o) from jsonb_array_elements(responses) with ordinality t(x, o)) = %s"
                 # two keys a test can tell apart: 273 + 627 is estimated 900 and is 900, one answer said twice
                 " and responses->0->>'answer' is distinct from responses->1->>'answer'"
+                # the sheet is ADD.2D2D's: its questions add and take away. Drawn first by key, a × or ÷ estimate or check
+                # the bank happened to hold put a multiplication on it (the bank is drawn afresh on every build)
+                " and spec->>'op' in ('+', '-')"
                 " order by item_key limit 4",
                 (fmt, shape),
             )

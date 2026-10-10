@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { EngineDown, enginePost, engineSend } from "@/lib/engine";
+import { EngineDown, enginePost, engineSend, markWhatTrustSettles } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
 // The validation queue sends its answers here too; after one is settled it goes back to the queue,
@@ -116,9 +116,11 @@ export async function confirmPaper(formData: FormData): Promise<void> {
   const [{ n }] = await sql<{ n: number }[]>`
     select coalesce(sum(confirm_results(${child}::uuid, ${me.email}, c.id)), 0)::int as n
       from capture c where c.sheet_instance_id = ${paper}::uuid and c.superseded_by is null`;
+  const marked = await markWhatTrustSettles(); // a sign-off may be what earns a kind the reader's trust
   revalidatePath(`/capture/${paper}`);
   revalidatePath(`/growth/${child}`);
-  redirect(`/capture/${paper}?confirmed=${n}`);
+  revalidatePath("/capture/check");
+  redirect(`/capture/${paper}?confirmed=${n}${marked ? "" : "&later=1"}`);
 }
 
 /** The few answers code cannot mark — a comparison symbol, "find the mistake" — where only a

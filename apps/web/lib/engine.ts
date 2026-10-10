@@ -109,3 +109,16 @@ export async function enginePost<P extends PostPath>(path: P, body: BodyOf<P>): 
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was changed.`);
   return await res.json();
 }
+
+/** After a person signs off a paper — checks the website writes itself — what the reader's trust now settles is marked
+ *  again (`POST /capture/trusted`, goals/ny2-the-queue-shrinks.yaml) → whether the engine did. The sign-off stands either
+ *  way: when the engine is not answering, the next check marks it again, and the page says so. */
+export async function markWhatTrustSettles(): Promise<boolean> {
+  try {
+    await enginePost("/capture/trusted", null);
+    return true;
+  } catch (e) {
+    if (e instanceof EngineDown) return false;
+    throw e;
+  }
+}

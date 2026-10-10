@@ -74,6 +74,12 @@
    "description": "Agreement with teacher marking before marks are trusted"
   },
   {
+   "key": "marking.agreement_window",
+   "value": 50,
+   "unit": "count",
+   "description": "The newest checks of one kind of question the reader stood behind that its trust is measured over (ADR 0032): trusted once there are this many and agreement_gate of them matched the person"
+  },
+  {
    "key": "marking.spot_check_rate",
    "value": 0.15,
    "unit": "proportion",

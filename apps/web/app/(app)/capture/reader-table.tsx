@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KIND } from "@/components/question";
+import { kindWords } from "@/components/question";
 import { Pill } from "@/components/shell";
 import type { ReaderReport } from "@/lib/queries-read";
 
@@ -10,14 +10,6 @@ import type { ReaderReport } from "@/lib/queries-read";
 // etc. … which very clearly shows how the engine is improving or not". By day comes first: each day's share right,
 // and how far it moved from the day before.
 
-// The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.
-const EARLIER: Record<string, string> = {
-  legacy_bare: "sum (earlier paper)",
-  legacy_missing: "missing number (earlier paper)",
-  legacy_word: "word problem (earlier paper)",
-  legacy_text: "written answer (earlier paper)",
-};
-const kindWords = (fmt: string) => KIND[fmt] ?? EARLIER[fmt] ?? fmt.replace(/_/g, " ");
 const share = (a: number, b: number) => (b ? Math.round((100 * a) / b) : null);
 const pct = (n: number | null) => (n === null ? "—" : `${n}%`);
 const day = (d: string) =>
@@ -98,6 +90,7 @@ export function ReaderTable({ r }: { r: ReaderReport }) {
                   <th className="num">Gave up</th>
                   <th className="num">Last {r.window}</th>
                   <th className="num">Standing</th>
+                  <th className="num">Checks to trust</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,6 +104,7 @@ export function ReaderTable({ r }: { r: ReaderReport }) {
                     <td className="num">
                       {k.trusted ? <Pill tone="neem">trusted: settles alone</Pill> : <Pill tone="bamboo">a person checks every answer</Pill>}
                     </td>
+                    <td className="num">{k.to_trust === 0 ? "trusted" : `${k.to_trust} more`}</td>
                   </tr>
                 ))}
               </tbody>

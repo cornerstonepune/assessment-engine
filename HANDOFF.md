@@ -3,7 +3,26 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — NY1: what waits on a person, and who it is for (built, proving)
+## 2026-10-10 — NY2: the queue shrinks, and a person sees whether it does (built)
+
+- **Slice:** NY2, W3 by Nimish's exception (BUILD-ORDER "NY1 and NY2"). ADR 0060.
+- **Measured** (STATE.md "NY2 — measured before the build"):
+  - trust was decided twice, by the engine and by the website, which could disagree;
+  - a kind earning trust left its waiting answers waiting;
+  - no screen showed the queue week by week.
+  - Live, read only: nothing waits; no kind is trusted; columns are nearest at 47 of 50.
+- **Built** (STATE.md "NY2 — … built"):
+  - one rule in the database (`kind_trust`, `checks_to_trust`, the window a row), read by the engine, the report and
+    the website;
+  - `again.trusted`, run by `/capture/correct` and by the new `/capture/trusted`, which the website calls after a
+    sign-off;
+  - marking again drops an earlier hold's reason, so a settled answer stops saying a person checks it;
+  - Today's "Is the queue shrinking?", and Marking's "Checks to trust".
+- **Fixed with it:** `test_every_answer.py`'s worksheet takes only + and − questions (found proving NY1).
+- **Next:** prove on CI and a rehearsal on a copy of live, merge #173, confirm migrate and deploy, `engine done
+  ny2-the-queue-shrinks`. Then M3b3.
+
+## 2026-10-10 — NY1: what waits on a person, and who it is for (merged, live, done)
 
 - **Slice:** NY1, inserted before M3b3 (BUILD-ORDER "NY1 and NY2"). Nimish asked what validations are pending: he
   cannot see what he or Achal must validate, nor any multiplication or division. He chose this before M3b3 and allowed
@@ -25,8 +44,9 @@ is verified. This file only says where the last session stopped.
   - `/asks` and `engine asks`, which update-live prints;
   - sign-in landing on Today;
   - `core/references.py` split from the loader, which took `loaders.py` off the frozen list.
-- **Next:** the whole engine and browser suites on the copy, a rehearsal on a copy of live, then PR #172 ready and
-  merged. Then NY2 (W3), then M3b3, whose measurements are in STATE.md.
+- **Merged** as `d66bb35` (#172): `ci`, `migrate live` and `deploy engine` success. `engine done ny1-needs-you`: 10
+  of 10 sentences proved, 3 of 3 criteria passed (STATE.md "NY1 merged and live"). Its rows wait for
+  `bin/update-live`.
 
 ## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (merged, live, done)
 

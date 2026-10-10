@@ -5,7 +5,8 @@ import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { staffList } from "@/lib/queries";
 import { decides, ROLE_WORDS } from "@/lib/queries-people";
-import { waiting } from "@/lib/queries-today";
+import { kindWords } from "@/components/question";
+import { queueByWeek, type Trust, trustNow, type Week, waiting } from "@/lib/queries-today";
 
 // Today — everything waiting on a person, and who it is for (goals/u1-today.yaml, goals/ny1-needs-you.yaml): each with
 // its count and one click to act, the signed-in person's first. Whose each kind is, is a row (`people.decides`, by the
@@ -13,7 +14,7 @@ import { waiting } from "@/lib/queries-today";
 // approves.
 export default async function Today() {
   const me = await requireStaff();
-  const [w, rows, staff] = await deadline(Promise.all([waiting(me.email), decides(), staffList()]));
+  const [w, rows, staff, weeks, trust] = await deadline(Promise.all([waiting(me.email), decides(), staffList(), queueByWeek(), trustNow()]));
   const packs = w.packs.reduce((n, p) => n + p.n, 0);
   const who = (roles: string[]) => {
     if (roles.includes(me.role)) return "For you";
@@ -75,8 +76,55 @@ export default async function Today() {
       <Body>
         <Part title="For you">{mine.map((c) => c.card)}</Part>
         <Part title="For others">{others.map((c) => c.card)}</Part>
+        <Shrinking weeks={weeks} trust={trust} />
       </Body>
     </>
+  );
+}
+
+// Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
+// near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
+function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
+  const title = "Is the queue shrinking?";
+  return (
+    <section aria-label={title} className="panel mb-6 p-4">
+      <h2 className="font-heading text-[17px]">{title}</h2>
+      <p className="mt-1 text-[13.5px] leading-snug">
+        The reader is trusted on {trust.kinds ? `${trust.trusted} of ${trust.kinds}` : "none of the"} kinds of question it has read
+        {trust.nearest ? `; the nearest, ${kindWords(trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more right ${trust.nearest.to_trust === 1 ? "check" : "checks"}` : ""}. A trusted kind&apos;s
+        right answers settle without a person; every wrong and every blank still waits for one.
+      </p>
+      {weeks.length ? (
+        <div className="mt-3 min-w-0 overflow-x-auto">
+          <table className="grid" aria-label="Answers read, week by week">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th className="num">Answers read</th>
+                <th className="num">Settled by the engine alone</th>
+                <th className="num">Checked by a person</th>
+                <th className="num">Still waiting</th>
+                <th className="num">Needed a person</th>
+              </tr>
+            </thead>
+            <tbody>
+              {weeks.map((k) => (
+                <tr key={k.week}>
+                  <td className="fact whitespace-nowrap">{k.week}</td>
+                  <td className="num">{k.read}</td>
+                  <td className="num">{k.alone}</td>
+                  <td className="num">{k.person}</td>
+                  <td className="num">{k.waiting}</td>
+                  <td className="num">{Math.round((100 * (k.person + k.waiting)) / k.read)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="note mt-2">No papers read yet.</p>
+      )}
+    </section>
   );
 }
 
