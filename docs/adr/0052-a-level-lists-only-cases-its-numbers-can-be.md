@@ -29,7 +29,14 @@ filled, and nothing said so.
    rows). Raising what the drawer once swallowed stopped a fresh bank at WORD.1_2STEP: W25 (a number to leave out)
    lists the one-step kind, which reads such a story, but only the two-step templates hold that shape, so half its
    draws had failed unseen. Its row keeps both kinds, since a one-step story read from a paper is still W25.
-6. **A test draws every case every level lists** (`tests/test_every_listed_case.py`), with the multiplication levels.
+6. **The audit draws a level as the bank does** (`spec.known_misconceptions` reads `cases.for_level`, each case on the
+   level's own numbers). Read raw, K02 on ADD.1D1D named no operation and its draws failed unseen. Numbers of every
+   size also counted mistakes no level of the skill makes. So **a skill claims only the mistakes its questions can
+   show**: M_CONCAT leaves ADD.1D1D, M_ALIGN_LEFT leaves ADD.3D3D and SUB.2D2D, and M_NO_DECREMENT and
+   M_SMALL_FROM_LARGE leave SUB.1D1D. The seed says so for a new database. A migration says it for one loaded
+   before, since `engine load` never overwrites a skill a person may have edited; the mistake list withdraws no
+   approval.
+7. **A test draws every case every level lists** (`tests/test_every_listed_case.py`), with the multiplication levels.
 
 ## Rejected
 
@@ -46,6 +53,8 @@ filled, and nothing said so.
 
 ## Consequences
 
-- On live, `bin/update-live` brings the new questions (`engine load`, `bank refill`); nothing stored is retired.
+- On live, `bin/update-live` carries the changed levels (`bank levels --apply`, which withdraws the approval of each
+  of the 11 skills whose levels changed) and the new questions (`bank refill`); nothing stored is retired. The
+  migration corrects the four mistake lists.
 - Achal is asked whether the school teaches subtraction from 1000 in Grade 3. If it does, SUB.3D3D's numbers need a
   rule of their own for it.

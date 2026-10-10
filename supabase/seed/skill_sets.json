@@ -1410,7 +1410,6 @@
       ],
       "misconception_codes": [
         "M_CARRY_SKIP",
-        "M_CONCAT",
         "M_DROP_CARRYOUT",
         "M_FACT_PM1",
         "M_FACT_PM10",
@@ -1496,8 +1495,6 @@
       "misconception_codes": [
         "M_FACT_PM1",
         "M_FACT_PM10",
-        "M_NO_DECREMENT",
-        "M_SMALL_FROM_LARGE",
         "M_WRONG_OP"
       ],
       "replaces": [
@@ -1911,7 +1908,6 @@
         "estimate_then_calc"
       ],
       "misconception_codes": [
-        "M_ALIGN_LEFT",
         "M_FACT_PM1",
         "M_FACT_PM10",
         "M_NO_DECREMENT",
@@ -2251,7 +2247,6 @@
         "find_mistake"
       ],
       "misconception_codes": [
-        "M_ALIGN_LEFT",
         "M_CARRY_SKIP",
         "M_CONCAT",
         "M_DROP_CARRYOUT",

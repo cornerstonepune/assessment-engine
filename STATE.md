@@ -5127,5 +5127,12 @@ Each (case, level) pair the seed lists, drawn alone on its level as the bank dra
   - E07's test drew its balance-scale kind with no `hi` (its real level, EQUALITY.INVERSE Medium, gives 50). That is a
     defect of the test, which now draws the case by the kind it tests.
   - Surveyed again at 20 draws a pair (605 pairs, 171 s): 0 empty, nothing raised, `RuntimeError` swallowed 703 times.
+  - The invariant audit raised `KeyError: 'op'`: it drew a level of cases from the raw rows, not on the level's own
+    numbers as the bank does (`cases.for_level`). K02 (number-line jumps) on ADD.1D1D names no operation, and its
+    level gives addition. Drawn as the bank draws it, the audit then found four claims no question can make good:
+    ADD.1D1D M_CONCAT, ADD.3D3D M_ALIGN_LEFT, SUB.1D1D M_NO_DECREMENT and M_SMALL_FROM_LARGE, SUB.2D2D M_ALIGN_LEFT.
+    They leave the seed, and migration `20261029090000` removes them from a database loaded before.
+  - `engine load` never overwrites a skill set. A changed level reaches live only through `bank levels --apply`,
+    which withdraws the approval of the 11 skills AS1 changes.
 - **Not a defect:** EQUALITY.INVERSE's Advance holds a 3-digit M25 above its `hi` of 50. Its own words ask for "a
   3-digit number to work back to: □ − 275 = 418", and the 50 bounds its other cases.
