@@ -5340,3 +5340,57 @@ Rehearsed on a copy of live (run 38038796192, `92db98f`):
 
 Ratchets: untyped findings fell in seven files, written down in `workflows.json` (ADR 0055's table). Lines:
 `diagnosis.py` 397, `draw.py` 382, `verify.py` 362, `written_methods.py` 187, `written_pages.py` 82, all under 400.
+
+## M3 — measured before the build (2026-10-10)
+
+M2d2 is merged and deployed: main `e84d285`, CI, `migrate live` (migration `20261101090000` applied) and `deploy engine`
+green. `bin/engine done md2d2-multiplication-methods` on main's tree: 14 of 14 sentences PROVED (the browser test
+included), 10 of 10 scenarios MET, 2 of 2 criteria PASSED; "NOT DONE" only for live's migrations, which this container
+cannot read.
+
+M3 is division (BUILD-ORDER): five skills, `DIV.GROUPS`, `DIV.FACTS`, `DIV.TENS`, `DIV.2D1D` and `DIV.3D1D`, on whose
+levels the drafted document places 77 cases, and 8 more as `DIV.2D1D`'s and `DIV.3D1D`'s methods.
+
+Each of the 85 drawn alone through today's drawer (4 asked, 300 tries each):
+- **Nothing draws.** The drawer's operations are +, − and × (`draw_case.OPS`), so it never offers ÷.
+- **With ÷ offered** (the measurement's own patch, never the code):
+  - 59 raise `ValueError: 69 ÷ 4 is 17 r 1: two answers, the quotient and the remainder`: the straight cases, the
+    column methods and the missing numbers, each computing one answer for a division that has two.
+    `compute` rightly refuses to fold a remainder into one answer, and nothing makes a question with two boxes. The
+    numbers are drawn with no idea which one is divided (6 ÷ 8685).
+  - 18 refuse in a sentence (`CannotMake`): stories, finding the mistake, a missing digit, a possible answer, the
+    inverse check and partitioning (`break_apart`) make +, − and × only.
+  - 4 crash: an estimate takes ×'s path (`KeyError: 'digits'`), the number line raises `KeyError: 'hi'`, and ÷ 10 then
+    double is no shortcut the kind knows.
+  - 5 draw nothing and say nothing: the sharing and grouping pictures and an array divided (× only), the remainder
+    missing, halving.
+- **No division mistake is a row**, and `predict("÷", …)` names nothing for any division. The draft names 15: 14 a
+  calculation shows (the zero left out of the quotient, the exchange lost, the remainder too big, …) and one a story
+  shows (a remainder not rounded up).
+- **Printed**, an exact division in a line is right ("72 ÷ 4 = □"). In columns it prints as a column sum ("7 2 ÷ 4"),
+  not the division layout, and one with a remainder cannot be made.
+- **July's 144 ÷ 12** waits on `EQUALITY.INVERSE` (R16) "until M3 gives division its rungs": `placing` places +, − and
+  × only.
+
+The drafted levels, held to the questions they would hold. Every straight division in reach was measured by the
+engine's own tags: to 4 digits by 1, 2-digit divisors to 12, ÷ 10, 100 and 1000, and multiples of ten.
+- **÷'s place value** called every round number divided "place value", whatever is under its zeros (30 ÷ 2 = 15).
+  That is against its own rule ("round numbers whose fact once the zeros are off is a table fact"). 7,758 such
+  divisions had no level, where 30 ÷ 2 is an exchange from the tens (D03) and 130 ÷ 2 a 3-digit division.
+- **Cases that kept their example's accident:**
+  - DR01 "a table fact with a remainder" read its example's 2-digit number divided, so 7 ÷ 3 = 2 r 1 had no level;
+    DF16 likewise (100 ÷ 11 = 9 r 1).
+  - DZ03 "a zero in the quotient from a digit smaller than the divisor" read its example's zeros, so 210 ÷ 2 = 105
+    had none.
+- **A remainder too early:** DP02 and DP03 (÷ 100, ÷ 1000, Medium) held divisions with a remainder, while ÷ 10's waits
+  for Advance (DR10). Medium would print 4567 ÷ 100 = 45 r 67.
+- **A table with a remainder, its quotient two digits** (21 ÷ 2 = 10 r 1), is short division's (DR04, `DIV.2D1D`), not
+  the tables'.
+- **Overlaps the document chose, named and not changed.** A number ÷ itself, ÷ 1 and 0 ÷ a number are both a table
+  backwards and Medium's own case (2 ÷ 2 is DF04 and DF02), as × has TF01, TF02 and TF12. 23 of `DIV.3D1D`'s are
+  Medium's D07 and Hard's DZ04 (302 ÷ 2).
+- **`taxonomy.within` refuses a case whose list narrows the skill's list** (DR10's ÷ 10, 100 and 1000 inside
+  `DIV.TENS`'s six kinds), where it should keep the values both allow.
+
+M3 is four slices, as M2 was (BUILD-ORDER): M3a, the four straight skills, the remainder its own answer, the division
+layout and the mistakes; M3b, the kinds an Advance needs; M3c, `DIV.GROUPS`; M3d, the written methods.

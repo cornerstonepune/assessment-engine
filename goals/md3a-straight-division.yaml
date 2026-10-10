@@ -1,0 +1,129 @@
+name: md3a-straight-division
+goal: >
+  Division is four skills, each a ladder of its own document's cases, made by the same drawer as the other three
+  operations: the tables read backwards (DIV.FACTS), with a remainder under a 1-digit quotient at its Advance; by 10,
+  100 and 1000 and the round numbers whose zeros leave a fact (DIV.TENS); 2 digits by 1 (DIV.2D1D); and 3 digits by 1
+  (DIV.3D1D), both worked digit by digit. A division belongs to exactly one of the four, and every division within
+  their reach has a level. Every level draws questions that are, as measured and as their labels say in arithmetic, the
+  cases it lists, printed the way the case says (in a line, or in the division layout with the quotient above the
+  number divided), with answers recomputed and no two alike. A remainder is an answer of its own, in a box of its own
+  after "r", read and marked by itself. Every wrong answer the document names for a division a child works is
+  predicted from the question's own numbers, each in the box it shows in. An old paper's divisions count on the four:
+  144 ÷ 12 on the tables' Advance. Every level fills its worksheets. None of it is taught until an educator says so.
+# Written 2026-10-10, before the code: slice M3a of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M3 — measured before the build"): none of the 85 division placements draws, since the
+# drawer offers +, − and × only; offered ÷, every straight case raises "two answers, the quotient and the remainder",
+# since nothing makes a question with a remainder box; no division mistake is a row; in columns a division prints as a
+# column sum; July's 144 ÷ 12 waits on EQUALITY.INVERSE. The drafted levels, held to every division in reach, found
+# five slips, corrected where they were drafted (research/md_rows.py): DR01 and DF16 read their examples' 2-digit
+# number divided (7 ÷ 3 = 2 r 1 and 100 ÷ 11 = 9 r 1 had no level), DZ03 its example's zeros (210 ÷ 2 = 105 had none),
+# and DP02 and DP03 held a remainder at Medium while ÷ 10's waits for Advance (DR10 is ÷ 10, 100 or 1000 with one now).
+# ÷'s place value is measured as its own rule says: a round number divided is place value only when its zeros leave a
+# fact (200 ÷ 4), so 30 ÷ 2 is an exchange from the tens. A table with a remainder is the tables' only under a 1-digit
+# quotient (`from_table`): 21 ÷ 2 = 10 r 1 is short division's.
+# Assumption (ADR 0056): a division that leaves a remainder has a box for it; one that leaves none is one answer, as
+# the drafted document writes its answers ("21 r 1", "18").
+says:
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_div_levels.py::test_division_is_four_skills_each_level_its_documents_cases
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_levels.py::test_a_division_has_exactly_one_home_among_the_four
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_levels.py::test_every_division_in_the_fours_reach_has_a_level_not_only_a_skill
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_levels.py::test_every_level_draws_its_own_cases_as_measured
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_levels.py::test_every_question_a_level_draws_is_what_its_cases_label_says
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_div_levels.py::test_a_remainder_is_an_answer_of_its_own
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_levels.py::test_each_box_of_a_division_is_marked_against_its_own_key
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_levels.py::test_a_case_that_names_its_layout_is_printed_that_way
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_render.py::test_a_division_in_the_division_layout_has_its_quotient_above_the_number_divided
+  - words: "same process"
+    proved_by: packages/engine/tests/test_render.py::test_a_divisions_boxes_are_where_the_printed_key_says_they_are
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_div_mistakes.py::test_every_division_mistake_a_calculation_shows_is_predicted
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_div_mistakes.py::test_a_mistake_is_named_in_the_box_it_shows_in
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_cases.py::test_the_division_slips_are_corrected_where_they_were_drafted
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_div_levels.py::test_every_level_of_the_four_fills_its_worksheets
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_div_levels.py::test_every_division_on_the_schools_papers_has_a_skill_and_a_level
+  - words: "create the whole loop that we have"
+    proved_by: apps/web/tests/s31-straight-division.spec.ts::once taught, a division is on the Question bank in its layout, a box for its remainder
+manual:
+  - "On live, once merged: `bin/update-live`. The four skills, their mistakes, questions and worksheets reach live
+    only through `engine load`, `bank refill` and `library build`; `bank relabel` re-measures every stored division.
+    Then approve the four on Curriculum -> Read and approve."
+  - "Achal: the four skills' levels and grades are the drafted document's (assumption A6). Five cases are corrected
+    where they were drafted (DR01, DF16, DZ03, DP02 and DP03 with DR10), and a remainder's box shows only where there
+    is one (ADR 0056); say if any of it is not how the school teaches it."
+scenarios:
+  - name: DIV.FACTS, Easy — the 2, 5 and 10 tables backwards
+    skill_set: DIV.FACTS
+    difficulty: Easy
+    n: 20
+  - name: DIV.FACTS, Medium — the 3 and 4 tables backwards, ÷ 1, a number ÷ itself, 0 divided
+    skill_set: DIV.FACTS
+    difficulty: Medium
+    n: 20
+  - name: DIV.FACTS, Hard — the 6 to 9 tables backwards
+    skill_set: DIV.FACTS
+    difficulty: Hard
+    n: 20
+  - name: DIV.FACTS, Advance — the 11 and 12 tables, a 2-digit divisor, a remainder under a 1-digit quotient
+    skill_set: DIV.FACTS
+    difficulty: Advance
+    n: 20
+  - name: DIV.TENS, Easy — ÷ 10
+    skill_set: DIV.TENS
+    difficulty: Easy
+    n: 20
+  - name: DIV.TENS, Medium — ÷ 100 and ÷ 1000
+    skill_set: DIV.TENS
+    difficulty: Medium
+    n: 20
+  - name: DIV.TENS, Hard — a fact under the zeros, a round number by a round number
+    skill_set: DIV.TENS
+    difficulty: Hard
+    n: 20
+  - name: DIV.TENS, Advance — ÷ 10, 100 or 1000 with a remainder
+    skill_set: DIV.TENS
+    difficulty: Advance
+    n: 20
+  - name: DIV.2D1D, Easy — every digit divides, in a line and in the division layout
+    skill_set: DIV.2D1D
+    difficulty: Easy
+    n: 20
+  - name: DIV.2D1D, Medium — one exchange from the tens
+    skill_set: DIV.2D1D
+    difficulty: Medium
+    n: 20
+  - name: DIV.2D1D, Hard — a remainder, with or without an exchange; a zero at the end of the quotient
+    skill_set: DIV.2D1D
+    difficulty: Hard
+    n: 20
+  - name: DIV.3D1D, Easy — no exchange
+    skill_set: DIV.3D1D
+    difficulty: Easy
+    n: 20
+  - name: DIV.3D1D, Medium — one exchange, after the hundreds or after the tens
+    skill_set: DIV.3D1D
+    difficulty: Medium
+    n: 20
+  - name: DIV.3D1D, Hard — exchanges anywhere, a first digit smaller, zeros in the quotient, remainders
+    skill_set: DIV.3D1D
+    difficulty: Hard
+    n: 20
+criteria:
+  - name: the four skills, their drawer, mistakes and printing; the taxonomy, labels, levels and placing they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_div_levels.py tests/test_div_mistakes.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_topics.py tests/test_rehome.py tests/test_every_skill.py tests/test_division_is_an_operation.py tests/test_legacy.py tests/test_every_listed_case.py tests/test_verify.py tests/test_library.py tests/test_each_answer.py tests/test_mul_levels.py tests/test_goal.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

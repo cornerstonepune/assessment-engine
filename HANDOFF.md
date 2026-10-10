@@ -3,7 +3,25 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M2d2: the written methods (in progress)
+## 2026-10-10 — M3a: straight division (in progress)
+
+- **Slice:** M3a (W1 gate 3). Goal `goals/md3a-straight-division.yaml`; tests `test_div_levels.py`,
+  `test_div_mistakes.py`, two in `test_render.py`, one in `test_md_cases.py`, `apps/web/tests/s31-straight-division.spec.ts`.
+- **M2d2 is merged and live:** main `e84d285`, `migrate live` and `deploy engine` green; `engine done` on main's tree
+  14 of 14 PROVED, 10 of 10 MET, 2 of 2 PASSED, NOT DONE only for live's migrations this container cannot read.
+- **Measured** (STATE.md "M3 — measured before the build"): none of the 85 division placements draws; offered ÷, every
+  straight case needs a remainder box nothing makes; no division mistake is a row; in columns a division prints as a
+  column sum; 144 ÷ 12 waits on `EQUALITY.INVERSE`. M3 is four slices (BUILD-ORDER): M3a, M3b, M3c, M3d.
+- **Designed before the tests** (checked numerically, scratch scripts in the session):
+  - four shapes, one home for every division in reach: `from_table` (a new tag: a table backwards, or a remainder
+    under a 1-digit quotient) is `DIV.FACTS`; place value is `DIV.TENS`; the rest by one digit is `DIV.2D1D` or
+    `DIV.3D1D`;
+  - ÷'s place value measured as its own rule says (30 ÷ 2 is no place value), five drafted cases corrected at their
+    source (DR01, DF16, DZ03, DP02 and DP03 with DR10), `taxonomy.within` to intersect a case's list with a shape's;
+  - a remainder's box only where there is one (ADR 0056, to write), the division layout as `answer_space`'s.
+- **Next:** build to the tests, then the goal's scenarios at 100%, rehearse, PR, merge.
+
+## 2026-10-10 — M2d2: the written methods (merged)
 
 - **Slice:** M2d2 (W1 gate 3). Goal `goals/md2d2-multiplication-methods.yaml`; tests `test_mul_methods.py`,
   `apps/web/tests/s30-multiplication-methods.spec.ts`; ADR 0055.
