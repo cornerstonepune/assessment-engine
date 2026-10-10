@@ -27,6 +27,9 @@ from engine.w1_bank import cases
 MISCONCEPTION_PROMPT = "misconception_list"
 FACT_SLIPS = ("M_FACT_PM1", "M_FACT_PM10")
 SAMPLE_PAIRS = 40  # per band: enough that a rare regrouping shape appears, cheap because it is free
+# and, on a level made of cases, never fewer than this many of each: a level's 40 shared among more cases left a case
+# too few to show its box's mistakes (DIV.2D1D's ten, 2026-10-10: the remainder missing found no exchange to slip on)
+SAMPLE_PER_CASE = 8
 
 
 def row(conn, code):
@@ -139,7 +142,8 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
             # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f), each case on
             # the level's own numbers as the bank draws it. Read raw, K02 on ADD.1D1D named no operation, its draws
             # failed unseen, and the mistakes it shows were never counted.
-            drawn = draw.level(random.Random(1), check, cases.for_level(conn, check), s["rung_code"], n)
+            each = max(n, SAMPLE_PER_CASE * len(check["cases"]))
+            drawn = draw.level(random.Random(1), check, cases.for_level(conn, check), s["rung_code"], each)
             out[d] = sorted({c for _, it in drawn for r in it.responses for c in (r.misconceptions or {})})
         else:
             out[d] = bands.codes(check, n, rung=s["rung_code"])

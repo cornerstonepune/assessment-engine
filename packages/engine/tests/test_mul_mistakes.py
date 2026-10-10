@@ -122,7 +122,7 @@ def test_no_predictor_gives_the_right_answer_nothing_or_below_zero():
 
     for a in range(0, 130, 3):
         for b in (*range(0, 13), *range(13, 130, 7), 100, 1000):
-            for code, (fn, _, _) in PREDICTORS.items():
+            for code, fn in PREDICTORS.items():
                 v = fn(a, b)
                 assert v is None or (v != a * b and v > 0), (a, b, code, v)
 

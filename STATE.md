@@ -5921,6 +5921,25 @@ Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
   functions it may call lacked `checks_to_trust`, which the `kind_trust` view runs as the website. Added to the list,
   as `mistake_name` was: the list stays exact.
 
+## NY2 merged and live (2026-10-10)
+
+- Merged as `5195c89` (#173). `bin/engine done ny2-the-queue-shrinks` on main's code (copy ny1m):
+  - 6 of 6 of Nimish's sentences PROVED;
+  - 3 of 3 criteria PASSED: 115 engine tests, 28 browser tests, `bin/check` 27;
+  - its live line cannot read live from here, as before.
+- **CI on main failed once, on two bank tests NY2 does not touch** (`test_bank.py`: 2 kept of 3). The same tree had
+  passed on the PR's head (716fe09). Cause: a test database's bank is drawn afresh, unseeded, so a test's fixed sum
+  was sometimes stored already. Fixed in #174 (`7a0af06`).
+- **Live, meanwhile:** Vercel deployed main's website on the merge, while `migrate live` and `deploy engine` waited for
+  CI and were skipped. Today and Marking on live read the `kind_trust` view live did not have, from about 19:47 UTC
+  until the migration. The migration was not pushed by hand: `migrate.yml` keeps live's database waiting for green CI
+  (goals/p0-live-changes-wait-for-ci.yaml).
+- One re-run of the failed job passed (run 38080955970, attempt 2). Then `migrate live` (38083876001) and `deploy
+  engine` (38083875988) succeeded.
+- **The gap, not closed from the repository:** the website deploys on merge, before CI; the database and the engine
+  wait for CI. A red main leaves the website ahead of its database. Closing it needs Vercel to deploy production only
+  after CI, or the website deployed by the same workflow after the migration. Both are Nimish's Vercel settings.
+
 ## M3b3 — names, measured before the build (2026-10-10)
 
 - The code carries a copy of 41 mistakes' names and repair hints beside their predictors
@@ -5967,11 +5986,18 @@ ADR 0061. Goal `goals/md3b3-divide-mistakes-and-stories.yaml`.
   document makes on the two levels is held (`test_divide_advance.py`); nothing waits for M3b3 in `test_facts_advance.py`.
 - **Ratchets:** pyright's unannotated counts fell, written down: `diagnosis.py` 47 → 42, `misconceptions.py`
   231 → 224, `render.py` 321 → 317. `render.py` is at 393 lines.
-- **Fixed with it:** `test_bank.py` draws only sums the bank does not already hold. It failed CI on main for the NY2
-  merge; reproduced on a copy with 478 − 87 stored.
+- **Fixed with it:**
+  - `test_bank.py` draws only sums the bank does not already hold. It failed CI on main for the NY2 merge; reproduced
+    on a copy with 478 − 87 stored.
+  - The audit's measure of what a level's own numbers can show (`spec.known_misconceptions`) draws at least eight
+    questions of each case (`SAMPLE_PER_CASE`). Its 40 per level, shared among DIV.2D1D's ten cases, left too few of
+    the remainder missing to show the subtraction mistakes its box names.
 
 Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank refill`:
 - M3b3's own tests (`test_divide_found.py`, `test_divide_stories.py`, `test_mistake_rows.py`, `test_divide_advance.py`,
   `test_facts_advance.py`, `test_mistake_guess.py`, `test_misconceptions.py`): 80 passed;
+- the goal's criteria list: 1,216 passed, 2 failed before these two fixes (a test still unpacking the old tuples, and
+  the audit's sample); `test_goal.py`, `test_mul_mistakes.py`, `test_spec.py` after them: 64 passed;
+- browser: `s33-divide-advance.spec.ts` 2 passed (a worked division's page names its mistake by its row);
 - `research/md_taxonomy.py --check`: 0 faults.
 

@@ -61,14 +61,24 @@ test("a worked division's mistake is named on the Question bank by its row", asy
   await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
   try {
     const worked = /\d+ ÷ \d+ and wrote \d+( r \d+)?/;
-    await shows(page, "DIV.2D1D", "find_mistake", worked, "a worked division with a remainder too big");
-    await expect(page.getByRole("main").getByRole("table").last()).toContainText(name.M_DIV_REMAINDER_TOO_BIG);
-    await shows(page, "DIV.3D1D", "find_mistake", worked, "a worked division with a zero left out or a digit missed");
-    const listed = page.getByRole("main").getByRole("table").last();
-    await expect(listed).toContainText(new RegExp(`${name.M_DIV_QUOTIENT_ZERO_DROPPED}|${name.M_DIV_BRING_DOWN_MISSED}`));
+    for (const [set, planted] of [
+      ["DIV.2D1D", [name.M_DIV_REMAINDER_TOO_BIG]],
+      ["DIV.3D1D", [name.M_DIV_QUOTIENT_ZERO_DROPPED, name.M_DIV_BRING_DOWN_MISSED]],
+    ] as const) {
+      await shows(page, set, "find_mistake", worked, `a worked division on ${set}`);
+      // the question's own page: its planted mistake among the wrong answers it catches, named by its row, and the why
+      // read against it, no name copied into the question
+      const [one] = await sql<{ item_key: string }[]>`
+        select item_key from item where skill_set_code = ${set} and difficulty = 'Advance' and fmt = 'find_mistake'
+          and status = 'active' order by item_key limit 1`;
+      await page.goto(`/library/${one.item_key}`);
+      const caught = page.getByRole("table", { name: "Wrong answers it catches" });
+      await expect(caught).toContainText(new RegExp(planted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")));
+      await expect(page.getByRole("main")).toContainText("Looks for: Names the mistake its worked answer shows");
+      expect(await page.getByRole("main").innerText(), "a code on the page").not.toMatch(CODE);
+    }
     await shows(page, "DIV.2D1D", "word_1step", /left over|full|needed/, "a story that uses what is left over");
   } finally {
     await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
   }
 });
-
