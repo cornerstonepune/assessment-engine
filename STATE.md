@@ -5253,3 +5253,31 @@ modules carry none.
 Found and named, not changed (files this slice does not touch): the marker charges a wrong answer to every mistake
 that predicts it (`w3_read/marking.py`: 3 × 3 answered 6 is both `M_MUL_ROW_OUT` and `M_WRONG_OP`), while the counting
 kinds name neither when two mistakes share an answer (`assess/counting.named`). One rule should hold for both.
+
+## M2d2 — measured before the build (2026-10-10)
+
+M2d1 is merged: main `4f548d5`. `bin/engine done md2d1-multiplication-models` on a database built from main's tree:
+11 of 11 sentences PROVED (the browser test included), 4 of 4 scenarios MET, 2 of 2 criteria PASSED (1,051 tests,
+`bin/check` 27); "NOT DONE" only for live's migrations, which this container cannot read.
+
+M2d2 is the written methods (BUILD-ORDER): assumption A1 has Easy to Hard print each calculation in every written method
+the document lists for the skill, in fair shares — `MUL.2D1D` in a line (T02), partitioning (G07), a grid (G08),
+expanded columns (G10) and columns (G11); `MUL.3D1D` in a line, the 1-digit number first too (T13, T14), expanded and
+columns; `MUL.2D2D` in a line (T22), a grid (G09), long multiplication (G12) and a lattice (G13).
+
+Each method case drawn on its skill's Easy, Medium and Hard through today's drawer (4 asked, 300 tries each):
+- In a line (T02, T13, T14, T22), columns (G11), long multiplication (G12): drawn.
+- Partitioning (G07): `CannotMake: break_apart makes + and − questions, not ×`.
+- A grid (G08, G09), expanded columns (G10), a lattice (G13): 0 of 4. The drawer prints a calculation in a line or in
+  columns and nothing else (`draw.LAYOUT`).
+- No level lists a method: the straight cases accept only a line, columns and long multiplication
+  (`match.method`), and T01 fixes columns, T02 a line and no regrouping. A grid of Easy's numbers would be none of
+  Easy's cases — outside its level — and T02, the document's "in a line" for `MUL.2D1D`, crossed with Medium's
+  regrouping numbers would hold no question at all.
+- `M_PARTITION_TENS_AS_ONES` (C06's planted mistake) and `M_GRID_CELL_DROPPED` are no rows, so C06 cannot draw.
+- No multiplication uses addition (`skills.operations` reads `op` alone), so `M_NOCARRY` on a multiplication's rows
+  would charge multiplication, against A11; and nothing adds more than two numbers without a carry (`add_nocarry`
+  takes two).
+- A long multiplication's rows are drawn and never read (`answer_space._rows_worked`): only its answer has boxes.
+- `verify._stale_mistakes` finds a stored mistake whose value changed, never one newly predicted: the long
+  multiplications on live would never name the rows added without a carry.

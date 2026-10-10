@@ -1,0 +1,110 @@
+name: md2d2-multiplication-methods
+goal: >
+  MUL.2D1D, MUL.3D1D and MUL.2D2D print each calculation of their Easy, Medium and Hard levels in every written method
+  the drafted document lists for the skill, in fair shares: in a line and in columns as before; partitioning, 23 × 4
+  worked as 20 × 4 = □ and 3 × 4 = □, then 23 × 4 = □; a grid, 2 × 1 and 2 × 2, a box in every cell and then the
+  total; expanded columns, each product written in full in a row of its own and then the total; a lattice, a box in
+  every cell and then the answer; and long multiplication as before. Every step is a box with its own key, printed
+  where the reader finds it and marked by itself, and every wrong step or total the bank predicts is a named mistake:
+  a part multiplied with its tens taken as ones (20 × 4 written 8), a grid added up without its ones-by-ones cell, and
+  steps or rows added without a carry, which is addition's mistake and counts against addition, not multiplication —
+  on long multiplication too, where a question keyed before the rows' mistake had a name leaves the bank. MUL.2D1D's
+  Advance holds C06, a partitioning worked with the tens taken as ones, for the child to find. Once taught, every
+  method shows on the website's question bank as the child meets it. Every level fills and every scenario is 100%.
+# Written 2026-10-10, before the code: slice M2d2 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M2d2 — measured before the build"): of the methods the document lists, a line, columns and
+# long multiplication draw; partitioning is refused, the grid, expanded columns and the lattice draw nothing.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_every_level_prints_each_calculation_in_every_method_it_lists
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_partitioning_is_worked_part_by_part_then_added
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_a_grid_has_a_box_in_every_cell_then_the_total
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_expanded_columns_write_each_product_in_full
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_a_lattice_has_a_box_in_every_cell_then_the_answer
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_a_part_with_its_tens_taken_as_ones_is_named
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_a_grid_added_without_its_ones_cell_is_named
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_steps_added_without_a_carry_count_against_addition
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_the_advance_holds_a_partitioning_to_find_the_mistake_in
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_every_step_is_where_the_printed_key_says_it_is
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_every_step_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_methods.py::test_a_long_multiplication_keyed_before_its_rows_mistake_had_a_name_leaves_the_bank
+  - words: "create the whole loop that we have"
+    proved_by: apps/web/tests/s30-multiplication-methods.spec.ts::once taught, every written method is on the Question bank, a blank for each step
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `bin/update-live` loads the corrected cases and the methods' mistakes, and `bank levels
+    --apply` carries the levels' methods to MUL.2D1D, MUL.3D1D and MUL.2D2D, which wait for one approval on the Skill
+    Map; the refill retires the long multiplications keyed before the rows' mistake had a name and fills every level
+    in its methods."
+  - "Achal: A1 (every method printed at Easy to Hard) and A11 (a slip adding the steps counts against addition) are
+    the drafted assumptions this slice builds; a grade that teaches fewer methods takes them out of its level's row."
+scenarios:
+  - name: MUL.2D1D, Easy — no regrouping, the 1-digit number first; in a line, partitioning, a grid, expanded, columns
+    skill_set: MUL.2D1D
+    difficulty: Easy
+    n: 30
+    cases: [T01, T03, T02, G07, G08, G10, G11]
+  - name: MUL.2D1D, Medium — regrouping from the ones; every method
+    skill_set: MUL.2D1D
+    difficulty: Medium
+    n: 30
+    cases: [T04, T05, T06, T02, G07, G08, G10, G11]
+  - name: MUL.2D1D, Hard — regrouping and a 3-digit answer; every method
+    skill_set: MUL.2D1D
+    difficulty: Hard
+    n: 30
+    cases: [T07, T08, T09, T10, TC09, TZ05, T02, G07, G08, G10, G11]
+  - name: MUL.2D1D, Advance — a partitioning worked with the tens taken as ones, among the rest
+    skill_set: MUL.2D1D
+    difficulty: Advance
+    n: 36
+    cases: [C06]
+  - name: MUL.3D1D, Easy — no regrouping, a zero no carry reaches; in a line, expanded, columns
+    skill_set: MUL.3D1D
+    difficulty: Easy
+    n: 24
+    cases: [T11, TC01, TZ02, T13, T14, G10, G11]
+  - name: MUL.3D1D, Medium — one column regrouping; every method
+    skill_set: MUL.3D1D
+    difficulty: Medium
+    n: 32
+    cases: [TC02, TC03, TC05, TZ09, T13, T14, G10, G11]
+  - name: MUL.3D1D, Hard — regrouping anywhere, a carry onto a zero; every method
+    skill_set: MUL.3D1D
+    difficulty: Hard
+    n: 36
+    cases: [T12, TC04, TC06, TC07, TC08, TC10, TC11, TZ03, TZ06, T13, T14, G10, G11]
+  - name: MUL.2D2D, Easy — no regrouping; in a line, a grid, long multiplication, a lattice
+    skill_set: MUL.2D2D
+    difficulty: Easy
+    n: 12
+    cases: [T17, T22, G09, G12, G13]
+  - name: MUL.2D2D, Medium — one row regrouping; every method
+    skill_set: MUL.2D2D
+    difficulty: Medium
+    n: 12
+    cases: [T18, T22, G09, G12, G13]
+  - name: MUL.2D2D, Hard — rows regrouping and added carrying; every method
+    skill_set: MUL.2D2D
+    difficulty: Hard
+    n: 20
+    cases: [T19, T20, T21, T27, T28, T22, G09, G12, G13]
+criteria:
+  - name: the methods drawn, printed, read and named; the kinds, levels, drawer, marking and taxonomy they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_mul_methods.py tests/test_mul_models.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_mul_levels.py tests/test_mul_advance.py tests/test_division_is_an_operation.py tests/test_story_keys.py tests/test_render.py tests/test_every_skill.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_each_answer.py tests/test_goal.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
