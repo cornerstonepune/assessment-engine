@@ -41,7 +41,9 @@ own rule, that "the methods, stories, missing numbers and the rest are other kin
    more — is drawn again: it could not show the mistake it names.
 6. **`MUL.MODELS` carries no `within`.** `placing.py` reads a skill whose levels say `within` as a calculation skill;
    `{"operation": "MUL"}` would hold 7 × 8 together with `MUL.FACTS`, two skills for one question. Its numbers are
-   its kinds' own rule keys: `groups`, `size`, `known`, `digits`.
+   its kinds' own rule keys: `groups`, `size`, `known`, `digits`. It sits in a topic of its own, Multiplication
+   models, untaught: multiplication's cases are taught when an educator says a grade has been taught them, never
+   because a question holds one (`test_topics`), and a topic is taught or not as a whole.
 7. **`draw.py`, at its ceiling, gives what a case allows to `draw_case.py`** — the kinds it names, the operation an
    attempt draws, the digits of its numbers — and tells a kind the case's method, as it tells its shape.
 

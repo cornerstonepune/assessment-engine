@@ -47,7 +47,15 @@
       "name": "Multiplication",
       "taught": true,
       "skill_sets": [
-        "MUL.GROUPS",
+        "MUL.GROUPS"
+      ]
+    },
+    {
+      "code": "MULMODEL",
+      "subject": "NUM",
+      "name": "Multiplication models",
+      "taught": false,
+      "skill_sets": [
         "MUL.MODELS"
       ]
     },

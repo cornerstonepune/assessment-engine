@@ -5236,8 +5236,10 @@ What the eight measured failures became (ADR 0054), each proved by `tests/test_m
   `test_a_filled_level_holds_each_of_its_cases_as_often_as_the_case_asks`. The same run: 541 retired outside their
   level and 4,561 + 88 added — the AS2 rehearsal's 541 and 4,561 and `MUL.MODELS`' 88 — so the slice retires nothing
   on live; 128 of 128 skill-levels ready, 0 problems.
-- `MUL.MODELS` (R41, topic Multiplication, Grade 2 at every level) has no `within`, so `placing` never reads it as a
-  calculation skill; `MUL.2D1D` names `M_TIMES_AS_MORE` (seed; migration `20261031090000` for a database loaded before).
+- `MUL.MODELS` (R41, Grade 2 at every level) has no `within`, so `placing` never reads it as a calculation skill. It
+  sits in a topic of its own, Multiplication models, untaught: CI's `test_topics` (run on `770c97e`) failed it filed
+  under the taught Multiplication, where it would have been taught by default. `MUL.2D1D` names `M_TIMES_AS_MORE`
+  (seed; migration `20261031090000` for a database loaded before).
 - A sheet of one question of every case, printed through Chromium as a paper is: every answer has its boxes in the
   key's geometry, the array's three included (`test_every_model_answer_is_where_the_printed_key_says_it_is`).
 

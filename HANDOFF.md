@@ -19,8 +19,9 @@ is verified. This file only says where the last session stopped.
     ways into the bank, and an old-keyed one leaves the bank (`verify._stale_story`); `MUL.2D1D`'s list names it
     (seed, migration `20261031090000`);
   - `draw.py` gives what a case allows to `draw_case.py` and tells a kind the case's method;
-  - `MUL.MODELS` (R41, topic Multiplication) carries no `within`: `placing.py` reads a skill with one as a
-    calculation skill, and 7 × 8 would belong to two;
+  - `MUL.MODELS` (R41) carries no `within`: `placing.py` reads a skill with one as a calculation skill, and 7 × 8
+    would belong to two. It sits in a topic of its own, Multiplication models, untaught until an educator says Grade 2
+    has been taught it (CI's `test_topics` caught it first filed under the taught Multiplication);
   - the website draws each model on the Question bank (`components/question.tsx`, `pictures.tsx`).
 - **For Achal:** the drafted G05 printed □ × □ = □ and counted 5 × 3 right for 3 rows of 5; the build labels the boxes
   (rows, in each row, in all), so one order is the question. Also: skip counting maps to Patterns & sequencing

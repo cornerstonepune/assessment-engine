@@ -6,7 +6,8 @@ goal: >
   table swapped to one the level counts as known (9 × 2 = 2 × 9 = □); a cell of the multiplication square found from
   its row and its column; and stories of an array, twice as many and area in squares. Easy holds skip counting and
   arrays, Medium the jumps, Hard the swap and the square, Advance the three stories. Every question prints a box for
-  each of its answers and shows on the website's question bank as the child meets it, its answer is recomputed, and
+  each of its answers and, once taught, shows on the website's question bank as the child meets it, its answer is
+  recomputed, and
   every wrong answer is a named mistake: one group fewer, one group, the numbers added, the next row of the table, and
   twice or three times as many read as two or three more.
 # Written 2026-10-10, before the code: slice M2d1 of BUILD-ORDER "Inserted now: multiplication and division".
@@ -31,12 +32,12 @@ says:
   - words: "same process"
     proved_by: packages/engine/tests/test_mul_models.py::test_every_model_answer_is_where_the_printed_key_says_it_is
   - words: "create the whole loop that we have"
-    proved_by: apps/web/tests/s29-multiplication-models.spec.ts::multiplication's models are on the Question bank, drawn as the child meets them
+    proved_by: apps/web/tests/s29-multiplication-models.spec.ts::once taught, multiplication's models are on the Question bank, drawn as the child meets them
   - words: "same process"
     proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
 manual:
-  - "On live, once merged: `bin/update-live` loads MUL.MODELS and fills its levels; it stays untaught until an educator
-    approves it on Curriculum."
+  - "On live, once merged: `bin/update-live` loads MUL.MODELS into a topic of its own, Multiplication models, and fills
+    its levels. No screen or paper shows it until an educator says Grade 2 has been taught it (the topic's `taught`)."
 scenarios:
   - name: MUL.MODELS, Easy — skip counting and arrays
     skill_set: MUL.MODELS
