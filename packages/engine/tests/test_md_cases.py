@@ -467,3 +467,31 @@ def test_the_story_shape_reader_is_offered_only_the_shapes_its_stories_can_take(
 
     offered = {code for code, _ in story_shape.shapes(conn).values()}
     assert offered and offered <= {code for code, c in ALL.items() if c["taxonomy"] == "ADD_SUB"}
+
+
+def test_the_division_slips_are_corrected_where_they_were_drafted():
+    """Held to every division in reach (STATE.md "M3 — measured before the build"), five cases had kept their
+    example's accident, corrected in research/md_rows.py: DR01 holds 7 ÷ 3 = 2 r 1, DF16 100 ÷ 11 = 9 r 1 and DZ03
+    210 ÷ 2 = 105; ÷ 100 and ÷ 1000 hold no remainder at Medium (DP02, DP03), and DR10 holds ÷ 10, 100 or 1000 with
+    one. ÷'s place value is as its own rule says, so 30 ÷ 2 is an exchange from the tens and 200 ÷ 4 a fact under its
+    zeros; and a table with a remainder is read off the table only under a 1-digit quotient (`from_table`)."""
+
+    def held(code, a, b):
+        return holds(
+            MD[code], {"fmt": "bare_sum", "spec": {"a": a, "b": b, "op": "÷", "layout": "horizontal"}}
+        )
+
+    assert held("DR01", 7, 3) and held("DF16", 100, 11) and held("DZ03", 210, 2)
+    assert not held("DP02", 4567, 100) and not held("DP03", 45678, 1000)
+    assert held("DR10", 457, 10) and held("DR10", 4567, 100) and held("DR10", 45678, 1000)
+    assert MD["DR10"]["label"] == "÷10, 100 or 1000 with a remainder"
+    assert two("÷", 30, 2)["place_value_factor"] == "NONE"
+    assert two("÷", 200, 4)["place_value_factor"] == "MULTIPLE_OF_HUNDRED_ONE"
+    assert [two("÷", a, b)["from_table"] for a, b in ((42, 6), (17, 5), (3, 5), (21, 2), (130, 2))] == [
+        "YES",
+        "YES",
+        "YES",
+        "NO",
+        "NO",
+    ]
+    assert "from_table" in DIMENSIONS and set(DIMENSIONS["from_table"]["allowed"]) == {"YES", "NO"}

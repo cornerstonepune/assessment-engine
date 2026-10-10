@@ -6,7 +6,7 @@ run produced (research/2026-09-17-prompt-generation-spike.md)."""
 import pytest
 
 from engine.assess import misconceptions as M
-from engine.assess import verify
+from engine.assess import stale, verify
 
 HARD_SUB = {"op": "-", "digits": [3, 3], "regroups": [1], "no_zero_top": True}
 
@@ -229,7 +229,7 @@ def test_multiplication_is_predicted_now_that_a_rung_asks_for_it():
 
 
 @pytest.mark.parametrize(
-    "fmt,spec,stale",
+    "fmt,spec,corrected",
     [
         ("estimate_then_calc", {"a": 665, "b": 247, "op": "-", "ra": 660, "rb": 250}, True),
         ("estimate_then_calc", {"a": 665, "b": 247, "op": "-", "ra": 670, "rb": 250}, False),
@@ -239,5 +239,5 @@ def test_multiplication_is_predicted_now_that_a_rung_asks_for_it():
         ("bare_sum", {"a": 483, "b": 367, "op": "+", "layout": "column"}, False),
     ],
 )
-def test_a_question_keyed_by_a_rule_since_corrected_is_named(fmt, spec, stale):
-    assert bool(verify.key_problems(fmt, spec)) is stale
+def test_a_question_keyed_by_a_rule_since_corrected_is_named(fmt, spec, corrected):
+    assert bool(stale.key_problems(fmt, spec)) is corrected

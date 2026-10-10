@@ -11,7 +11,7 @@ from collections import Counter
 
 import pytest
 
-from engine.assess import draw, render, tags, taxonomy, verify, words
+from engine.assess import draw, render, stale, tags, taxonomy, verify, words
 from engine.assess.pick import Sheet
 
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed"
@@ -228,19 +228,19 @@ def test_a_times_as_many_story_keyed_before_its_mistake_had_a_name_leaves_the_ba
     for shape, code in words.added_by_shape().items():
         assert {t.get("added") for t in words.templates("word_1step", structure=shape)} == {code}
     today = _story("TIMES_AS_MANY_LARGER")
-    assert verify.key_problems("word_1step", today["spec"], today["responses"]) == []
+    assert stale.key_problems("word_1step", today["spec"], today["responses"]) == []
     before = {**today, "responses": [dict(today["responses"][0])]}
     mis = before["responses"][0]["misconceptions"]
     before["responses"][0]["misconceptions"] = {
         ("M_WRONG_OP" if c == "M_TIMES_AS_MORE" else c): v for c, v in mis.items()
     }
-    stale = ["keyed by a mistake rule since corrected: M_WRONG_OP"]
-    assert verify.key_problems("word_1step", before["spec"], before["responses"]) == stale
+    corrected = ["keyed by a mistake rule since corrected: M_WRONG_OP"]
+    assert stale.key_problems("word_1step", before["spec"], before["responses"]) == corrected
     two = {**today["spec"], "a": 2, "b": 2}
-    assert verify.key_problems("word_1step", two, today["responses"]) == stale
+    assert stale.key_problems("word_1step", two, today["responses"]) == corrected
     groups = _story("EQUAL_GROUPS")  # adding is the wrong operation there, and stays so named
     assert "M_WRONG_OP" in groups["responses"][0]["misconceptions"]
-    assert verify.key_problems("word_1step", groups["spec"], groups["responses"]) == []
+    assert stale.key_problems("word_1step", groups["spec"], groups["responses"]) == []
 
 
 def test_every_model_question_prints_a_box_for_every_answer():

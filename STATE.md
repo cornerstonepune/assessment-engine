@@ -5340,3 +5340,147 @@ Rehearsed on a copy of live (run 38038796192, `92db98f`):
 
 Ratchets: untyped findings fell in seven files, written down in `workflows.json` (ADR 0055's table). Lines:
 `diagnosis.py` 397, `draw.py` 382, `verify.py` 362, `written_methods.py` 187, `written_pages.py` 82, all under 400.
+
+## M3 — measured before the build (2026-10-10)
+
+M2d2 is merged and deployed: main `e84d285`, CI, `migrate live` (migration `20261101090000` applied) and `deploy engine`
+green. `bin/engine done md2d2-multiplication-methods` on main's tree: 14 of 14 sentences PROVED (the browser test
+included), 10 of 10 scenarios MET, 2 of 2 criteria PASSED; "NOT DONE" only for live's migrations, which this container
+cannot read.
+
+M3 is division (BUILD-ORDER): five skills, `DIV.GROUPS`, `DIV.FACTS`, `DIV.TENS`, `DIV.2D1D` and `DIV.3D1D`, on whose
+levels the drafted document places 77 cases, and 8 more as `DIV.2D1D`'s and `DIV.3D1D`'s methods.
+
+Each of the 85 drawn alone through today's drawer (4 asked, 300 tries each):
+- **Nothing draws.** The drawer's operations are +, − and × (`draw_case.OPS`), so it never offers ÷.
+- **With ÷ offered** (the measurement's own patch, never the code):
+  - 59 raise `ValueError: 69 ÷ 4 is 17 r 1: two answers, the quotient and the remainder`: the straight cases, the
+    column methods and the missing numbers, each computing one answer for a division that has two.
+    `compute` rightly refuses to fold a remainder into one answer, and nothing makes a question with two boxes. The
+    numbers are drawn with no idea which one is divided (6 ÷ 8685).
+  - 18 refuse in a sentence (`CannotMake`): stories, finding the mistake, a missing digit, a possible answer, the
+    inverse check and partitioning (`break_apart`) make +, − and × only.
+  - 4 crash: an estimate takes ×'s path (`KeyError: 'digits'`), the number line raises `KeyError: 'hi'`, and ÷ 10 then
+    double is no shortcut the kind knows.
+  - 5 draw nothing and say nothing: the sharing and grouping pictures and an array divided (× only), the remainder
+    missing, halving.
+- **No division mistake is a row**, and `predict("÷", …)` names nothing for any division. The draft names 15: 14 a
+  calculation shows (the zero left out of the quotient, the exchange lost, the remainder too big, …) and one a story
+  shows (a remainder not rounded up).
+- **Printed**, an exact division in a line is right ("72 ÷ 4 = □"). In columns it prints as a column sum ("7 2 ÷ 4"),
+  not the division layout, and one with a remainder cannot be made.
+- **July's 144 ÷ 12** waits on `EQUALITY.INVERSE` (R16) "until M3 gives division its rungs": `placing` places +, − and
+  × only.
+
+The drafted levels, held to the questions they would hold. Every straight division in reach was measured by the
+engine's own tags: to 4 digits by 1, 2-digit divisors to 12, ÷ 10, 100 and 1000, and multiples of ten.
+- **÷'s place value** called every round number divided "place value", whatever is under its zeros (30 ÷ 2 = 15).
+  That is against its own rule ("round numbers whose fact once the zeros are off is a table fact"). 7,758 such
+  divisions had no level, where 30 ÷ 2 is an exchange from the tens (D03) and 130 ÷ 2 a 3-digit division.
+- **Cases that kept their example's accident:**
+  - DR01 "a table fact with a remainder" read its example's 2-digit number divided, so 7 ÷ 3 = 2 r 1 had no level;
+    DF16 likewise (100 ÷ 11 = 9 r 1).
+  - DZ03 "a zero in the quotient from a digit smaller than the divisor" read its example's zeros, so 210 ÷ 2 = 105
+    had none.
+- **A remainder too early:** DP02 and DP03 (÷ 100, ÷ 1000, Medium) held divisions with a remainder, while ÷ 10's waits
+  for Advance (DR10). Medium would print 4567 ÷ 100 = 45 r 67.
+- **A table with a remainder, its quotient two digits** (21 ÷ 2 = 10 r 1), is short division's (DR04, `DIV.2D1D`), not
+  the tables'.
+- **Overlaps the document chose, named and not changed.** A number ÷ itself, ÷ 1 and 0 ÷ a number are both a table
+  backwards and Medium's own case (2 ÷ 2 is DF04 and DF02), as × has TF01, TF02 and TF12. 23 of `DIV.3D1D`'s are
+  Medium's D07 and Hard's DZ04 (302 ÷ 2).
+- **`taxonomy.within` refuses a case whose list narrows the skill's list** (DR10's ÷ 10, 100 and 1000 inside
+  `DIV.TENS`'s six kinds), where it should keep the values both allow.
+
+M3 is four slices, as M2 was (BUILD-ORDER): M3a, the four straight skills, the remainder its own answer, the division
+layout and the mistakes; M3b, the kinds an Advance needs; M3c, `DIV.GROUPS`; M3d, the written methods.
+
+## M3a — straight division built (2026-10-10)
+
+What the measured failures became (ADR 0056), proved by `tests/test_div_levels.py` (25 tests),
+`tests/test_div_mistakes.py` (6), two in `tests/test_render.py`, one in `tests/test_md_cases.py` and
+`apps/web/tests/s31-straight-division.spec.ts`:
+- **Four skills on rungs of their own** (R42–R45, `NUM.OPS.04`), each level its document's straight cases:
+  `DIV.FACTS` (Easy to Advance, G2 G2 G2 G3), `DIV.TENS` (G4 ×4), `DIV.2D1D` (G2 G2 G3) and `DIV.3D1D` (G4 ×3). Two
+  topics, "Division facts and place value" and "Division by a 1-digit number", untaught until an educator says so.
+  Every division in reach has exactly one home among the four and a level in it, in a line and in the division layout.
+- **The drawer makes ÷** as it is checked: a divisor, a quotient and a remainder, the number divided made of them
+  (`assess/draw_divide.py`), every candidate of a case listed so its last questions are found by reading it. A
+  level's size and its skill's mistake list are counted from those lists, never typed. Seven levels hold fewer
+  questions than a class's week (216) and say so (`min_items`): `DIV.FACTS` Easy 27, Medium 134 and Hard 36,
+  `DIV.TENS` Medium 106, `DIV.2D1D` Easy 46 and Medium 108, `DIV.3D1D` Easy 208.
+- **A remainder is an answer of its own**, in a box after "r" only where there is one (`assess/division.py`,
+  `verify.division`). In a line, "85 ÷ 4 = □□ r □"; in the division layout, the quotient's boxes one over each digit
+  of the number divided, the divisor's bracket and the bar (`answer_space.divided`). Printed through Chromium, the
+  key's geometry holds every box; each box is marked against its own key.
+- **"How many 6s make 42?"** (DF15), a fact asked in words: its sentence a row of `word_templates.json`, printed and
+  shown without the ÷ sign.
+- **The 14 mistakes a calculation shows, and × in place of ÷, are rows under ÷**, each predicted from the question's
+  own numbers (`assess/div_mistakes.py`) and agreeing with a hand-worked rule on every straight division a level
+  prints. A box names every mistake that writes its value there; where two are the same act on these numbers only
+  the more particular is predicted (three pairs, measured), as multiplication's are.
+- **An old paper's ÷ sums are placed** (`placing.OPERATIONS`): July's 144 ÷ 12 is `DIV.FACTS`'s, and an exact
+  division's one answer is keyed by the quotient's mistakes (`misconceptions.predict`).
+
+Found while building, fixed here:
+- The first build keyed each box with the first-named mistake. 17 ÷ 5 answered 2 r 3 (swapped) then read as "one
+  group short" in the quotient's box and "the remainder added" in the remainder's. Each box now names every match,
+  and three same-act pairs predict only their more particular mistake (ADR 0056).
+- `DIV.2D1D` and `DIV.3D1D` were given an Advance of Hard's own questions; `engine load` refused it ("bands sharing
+  one region"). They have no Advance until M3b, as `MUL.2D1D` had none until M2b; the goal never promised one.
+- The test written first read DP06 ("the fact uses one of the zeros") as ÷ 1 digit only. Its label names no
+  divisor's size, and the engine's measure held 600 ÷ 50 = 12 and 2000 ÷ 40 = 50; the test now states the label in
+  arithmetic. The same test had no line for DF15; it has one now, and checks DF15's sentence never shows the sign.
+- `verify.py` reached 404 lines. A stored question's key made stale (`key_problems` and its rules) is its own module,
+  `assess/stale.py`; the native kinds' drawing left `draw.py` for `assess/draw_native.py` (draw.py 407 → 355).
+- The scenario runner recomputed every answer with `compute`, which refuses a division with a remainder: it now
+  recomputes the quotient and the remainder, each against its own box.
+- In a line the remainder's boxes followed the paper's layout row; in the division layout they followed the default.
+  One rule draws both now.
+- `engine audit` on a database refilled with division found four more, each a place that assumed one answer or
+  missed the new skill (`test_goal.py`'s invariants):
+  - `bank recheck` handed every stored sum's rebuild `compute`'s one answer, which a division with a remainder
+    refuses; the rebuild never read it. It now compares every box, the quotient's and the remainder's.
+  - `misconceptions.PREDICTED`, the one list of what a predictor computes, did not hold division's, so a mistake
+    only one case shows (3 ÷ 5 worked the other way round) read as computed by nothing.
+  - The seven small levels above first set `min_items` only under 40, and counted numbers where the bank counts
+    questions ("How many 3s make 24?" and 24 ÷ 3 are two): the bank's target is a class's week.
+  - An educator's new key for a paper's division was checked with `compute` too, so a paper printing 85 ÷ 4 = 21 r 1
+    could never have its key changed; it is checked as the paper writes it now
+    (`test_a_papers_division_is_checked_by_its_quotient_and_remainder_as_the_paper_writes_them`). No paper today
+    has one (the only ÷ is 144 ÷ 12).
+- The first print of "How many 6s make 42?" chose "a sentence alone" by a stem and a shape together, which the 72
+  friendly-pairs sums in a fresh bank also have ("Add them in the easiest order."): on paper and on the website they
+  would have lost their numbers. A question asked in words now carries its printed sentence (`text`, as a missing
+  number does), and only that prints alone
+  (`test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instruction_its_numbers`, which fails on the
+  first rule).
+- A rehearsal of `bed5038` on a copy of live (run 38049395861) read four ÷ cases as thin (fewer than a worksheet's 12):
+  ÷ 1, ÷ itself and 0 ÷ a number held 11 each. The drawer's defaults asked that every special thing a question is be
+  what its case is about, so 1 ÷ 1 (÷ itself and ÷ 1) and 0 ÷ 1 (0 divided and ÷ 1) were drawn by no case, though
+  placing puts both on Medium. A question that is two of them at once is either case's now: 12 each. ÷ 1000 holds 8
+  (2000 to 9000; 1000 ÷ 1000 is a number ÷ itself, which ÷ 1000 is not about), fewer than a worksheet by its own
+  numbers.
+
+Ratchets: untyped findings fell in five files, written down in `workflows.json` (`draw.py` 127 → 72, `verify.py`
+96 → 81, `render.py` 367 → 348, `misconceptions.py` 236 → 231, `diagnosis.py` 48 → 47); the five new modules have
+none. `render_item` measures C901 23 and PLR0915 71 (was 24 and 77).
+
+Proved on `eb0616d`:
+- `bin/engine goal md3a-straight-division` on a database built from this tree alone (`bin/testdb fresh`, 26,348
+  questions, 2,351 worksheets): 14 of 14 scenarios met (20 asked a level, every answer recomputed, the quotient and
+  the remainder each against its own box, 0 off its rule, 0 undiagnosed, 20 distinct), criteria 1,123 passed,
+  `bin/check` 27 passed: GOAL ACHIEVED.
+- CI green: engine (the whole suite, with coverage and the ratchet), web, browser (every spec, s31 among them).
+
+Rehearsed on a copy of live (run 38050558566, `eb0616d`):
+- 554 questions retired outside their level and 6,882 added: M2d2's 4,701 (live has not run `bin/update-live` since
+  M0b) and the four's 2,181, each ÷ level filled to what it holds, Easy · Medium · Hard · Advance: `DIV.FACTS` +27 ·
+  +134 · +36 · +216, `DIV.TENS` +216 · +106 · +216 · +216, `DIV.2D1D` +46 · +108 · +216, `DIV.3D1D` +208 · +216 ·
+  +220.
+- The library made 1,445 and retired 746: 3,637 worksheets, 142 of 142 skill-levels ready, 0 problems.
+- "MUL_DIV: 251 cases · 160 covered · 88 missing · 3 thin" (M2d2's: 109 · 141 · 1). Missing are M3b–M3d's kinds and
+  the cases no level names. Thin: ÷ 1000 (8, by its own numbers), D14 (an unplaced case, 3 of `DIV.FACTS` Advance's
+  2-digit divisors) and T16 as before.
+- Every `engine live data` check ok after the update. July's 144 ÷ 12 counts on `DIV.FACTS` (1 answer), kept and not
+  shown until an educator says the topic is taught.

@@ -88,6 +88,26 @@
       "skill_sets": [
         "DATA.TALLY"
       ]
+    },
+    {
+      "code": "DIVFACT",
+      "subject": "NUM",
+      "name": "Division facts and place value",
+      "taught": false,
+      "skill_sets": [
+        "DIV.FACTS",
+        "DIV.TENS"
+      ]
+    },
+    {
+      "code": "DIVCOL",
+      "subject": "NUM",
+      "name": "Division by a 1-digit number",
+      "taught": false,
+      "skill_sets": [
+        "DIV.2D1D",
+        "DIV.3D1D"
+      ]
     }
   ]
 }

@@ -3306,6 +3306,456 @@
         "Hard": "G2",
         "Advance": "G2"
       }
+    },
+    {
+      "code": "DIV.FACTS",
+      "rung_code": "R42",
+      "name": "Division facts",
+      "learning_objective": "Divides by reading the multiplication tables backwards, to 10 × 10 and then the 11 and 12 tables, and says the remainder when a table does not divide exactly.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum"
+      ],
+      "misconception_codes": [
+        "M_DIV_BIGGER_BY_SMALLER",
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SELF_AS_ZERO",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
+        "M_DIV_ZERO_DIVIDED",
+        "M_WRONG_OP"
+      ],
+      "replaces": [],
+      "difficulty": {
+        "Easy": {
+          "words": "The 2, 5 and 10 tables read backwards, in a line: 14 ÷ 2, 35 ÷ 5, 60 ÷ 10.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
+            },
+            "cases": [
+              "DF04",
+              "DF05",
+              "DF06"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 27
+        },
+        "Medium": {
+          "words": "The 3 and 4 tables, ÷ 1, a number ÷ itself, zero divided, and how many groups: 27 ÷ 3, 32 ÷ 4, 8 ÷ 1, 7 ÷ 7, 0 ÷ 5, how many 6s make 42?",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
+            },
+            "cases": [
+              "DF01",
+              "DF02",
+              "DF03",
+              "DF07",
+              "DF08",
+              "DF15"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 134
+        },
+        "Hard": {
+          "words": "The 6, 7, 8 and 9 tables read backwards: 42 ÷ 6, 56 ÷ 7, 48 ÷ 8, 81 ÷ 9.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "YES",
+              "fact_group": [
+                "0-1",
+                "2-5-10",
+                "3-4",
+                "6-9"
+              ]
+            },
+            "cases": [
+              "DF09",
+              "DF10",
+              "DF11",
+              "DF12"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 36
+        },
+        "Advance": {
+          "words": "Every table to 12, a 2-digit divisor and a remainder, with the rest: 44 ÷ 11, 144 ÷ 12, 84 ÷ 12, 17 ÷ 5 = 3 r 2, 47 ÷ 6 = 7 r 5, 3 ÷ 5 = 0 r 3.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "YES"
+            },
+            "cases": [
+              "DF04",
+              "DF05",
+              "DF06",
+              "DF01",
+              "DF02",
+              "DF03",
+              "DF07",
+              "DF08",
+              "DF15",
+              "DF09",
+              "DF10",
+              "DF11",
+              "DF12",
+              "DF13",
+              "DF14",
+              "DF16",
+              "DR01",
+              "DR02",
+              "DR03"
+            ],
+            "layout": "horizontal"
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2",
+        "Advance": "G3"
+      }
+    },
+    {
+      "code": "DIV.TENS",
+      "rung_code": "R43",
+      "name": "Dividing by 10, 100, 1000 and multiples of ten",
+      "learning_objective": "Divides by 10, 100 and 1000, and divides a round number using a table fact and place value.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum"
+      ],
+      "misconception_codes": [
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
+        "M_WRONG_OP"
+      ],
+      "replaces": [],
+      "difficulty": {
+        "Easy": {
+          "words": "÷ 10, the answer past the tables: 450 ÷ 10, 1200 ÷ 10.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "DP01"
+            ],
+            "layout": "horizontal"
+          }
+        },
+        "Medium": {
+          "words": "÷ 100 and ÷ 1000: 4500 ÷ 100, 7000 ÷ 1000.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "DP02",
+              "DP03"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 106
+        },
+        "Hard": {
+          "words": "A round number by a 1-digit number or by a round number, through a table fact: 120 ÷ 4, 800 ÷ 40, 200 ÷ 4, 3600 ÷ 6.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "DP04",
+              "DP05",
+              "DP06",
+              "DP07"
+            ],
+            "layout": "horizontal"
+          }
+        },
+        "Advance": {
+          "words": "÷ 10, 100 or 1000 with a remainder, with the Hard level's: 457 ÷ 10 = 45 r 7, 4567 ÷ 100 = 45 r 67, 800 ÷ 40.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": [
+                "X10",
+                "X100",
+                "X1000",
+                "MULTIPLE_OF_TEN_ONE",
+                "MULTIPLE_OF_HUNDRED_ONE",
+                "MULTIPLE_OF_TEN_BOTH"
+              ]
+            },
+            "cases": [
+              "DP04",
+              "DP05",
+              "DP06",
+              "DP07",
+              "DR10"
+            ],
+            "layout": "horizontal"
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G4",
+        "Medium": "G4",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
+    },
+    {
+      "code": "DIV.2D1D",
+      "rung_code": "R44",
+      "name": "2-digit ÷ 1-digit",
+      "learning_objective": "Divides a 2-digit number by a 1-digit number, exchanging a ten left over into the ones, with and without a remainder.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_WRONG_OP"
+      ],
+      "replaces": [],
+      "difficulty": {
+        "Easy": {
+          "words": "Every digit divides, in the division layout and in a line: 84 ÷ 4, 69 ÷ 3.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "D01",
+              "D02"
+            ]
+          },
+          "min_items": 46
+        },
+        "Medium": {
+          "words": "One exchange from the tens, by 2 to 5 and by 6 to 9, in the division layout and in a line: 72 ÷ 4, 91 ÷ 7.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "D03",
+              "D04"
+            ]
+          },
+          "min_items": 108
+        },
+        "Hard": {
+          "words": "A remainder, with or without an exchange, and a zero at the end of the quotient: 85 ÷ 4 = 21 r 1, 75 ÷ 4 = 18 r 3, 62 ÷ 3 = 20 r 2.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "DZ07",
+              "DR04",
+              "DR05"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G3"
+      }
+    },
+    {
+      "code": "DIV.3D1D",
+      "rung_code": "R45",
+      "name": "3-digit ÷ 1-digit",
+      "learning_objective": "Divides a 3-digit number by a 1-digit number digit by digit from the hundreds, exchanging into the next digit, with zeros and remainders.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "bare_sum",
+        "column_grid"
+      ],
+      "misconception_codes": [
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_WRONG_OP"
+      ],
+      "replaces": [],
+      "difficulty": {
+        "Easy": {
+          "words": "No exchange: 936 ÷ 3, 484 ÷ 4.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "D05"
+            ]
+          },
+          "min_items": 208
+        },
+        "Medium": {
+          "words": "One exchange, after the hundreds or after the tens: 476 ÷ 2, 786 ÷ 6.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "D06",
+              "D07"
+            ]
+          }
+        },
+        "Hard": {
+          "words": "Exchanges after both, a first digit smaller than the divisor, a zero in the quotient or in the number divided, and a remainder: 588 ÷ 3, 141 ÷ 3, 804 ÷ 4, 840 ÷ 4, 618 ÷ 6, 702 ÷ 6, 457 ÷ 3 = 152 r 1, 157 ÷ 4 = 39 r 1.",
+          "check": {
+            "within": {
+              "operation": "DIV",
+              "num_operands": 2,
+              "from_table": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 3,
+              "operand_2_digits": 1
+            },
+            "cases": [
+              "D08",
+              "D09",
+              "D10",
+              "DZ01",
+              "DZ02",
+              "DZ03",
+              "DZ04",
+              "DR06",
+              "DR07",
+              "DR08"
+            ]
+          }
+        }
+      },
+      "level_band": {
+        "Easy": "G4",
+        "Medium": "G4",
+        "Hard": "G4"
+      }
     }
   ]
 }

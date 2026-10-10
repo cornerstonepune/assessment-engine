@@ -197,8 +197,8 @@
         "C901": 14
       },
       "engine/assess/render.py::render_item": {
-        "C901": 24,
-        "PLR0915": 77
+        "C901": 23,
+        "PLR0915": 71
       },
       "engine/assess/tags.py::derive": {
         "C901": 11
@@ -267,8 +267,8 @@
     "frozen": {
       "engine/assess/answer_space.py": 53,
       "engine/assess/bands.py": 289,
-      "engine/assess/diagnosis.py": 48,
-      "engine/assess/draw.py": 127,
+      "engine/assess/diagnosis.py": 47,
+      "engine/assess/draw.py": 72,
       "engine/assess/equality.py": 164,
       "engine/assess/estimate.py": 16,
       "engine/assess/evaluate.py": 63,
@@ -278,17 +278,17 @@
       "engine/assess/items.py": 359,
       "engine/assess/learned_rules.py": 164,
       "engine/assess/mark.py": 50,
-      "engine/assess/misconceptions.py": 236,
+      "engine/assess/misconceptions.py": 231,
       "engine/assess/missing_digits.py": 10,
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
       "engine/assess/placing.py": 1,
       "engine/assess/reasoning.py": 123,
-      "engine/assess/render.py": 367,
+      "engine/assess/render.py": 348,
       "engine/assess/skills.py": 1,
       "engine/assess/tags.py": 240,
       "engine/assess/taxonomy.py": 11,
-      "engine/assess/verify.py": 96,
+      "engine/assess/verify.py": 81,
       "engine/assess/words.py": 118
     }
   }

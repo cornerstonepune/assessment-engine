@@ -84,7 +84,6 @@ def recheck(conn):
                 "op": sp["op"],
                 "a": sp["a"],
                 "b": sp["b"],
-                "answer": M.compute(sp["op"], sp["a"], sp["b"]),
                 "stem": r["stem"],
                 "missing": sp.get("missing"),
                 "misconceptions": [],
@@ -98,9 +97,13 @@ def recheck(conn):
             code in table and want.misconceptions.get(code) != value
             for code, value in stored["misconceptions"].items()
         )
+        # every box the answer is written in: a division's quotient, and its remainder where it has one (ADR 0056)
+        answers = {x.rid: x.answer for x in rebuilt.responses} != {
+            x["rid"]: x["answer"] for x in r["responses"]
+        }
         # A person's rewording keeps the numbers and so the rebuilt key; its own key names the wording.
         renamed = rebuilt.item_id != r["item_key"] and r["generator"] != "correction"
-        if want.answer != stored["answer"] or renamed or claims_disagree:
+        if answers or renamed or claims_disagree:
             bad.append(r["item_key"])
     return bad
 

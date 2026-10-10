@@ -381,6 +381,12 @@
       "structure": "EQUAL_GROUPS",
       "op": "×",
       "text": "There are {a} vases with {b} flowers in each. How many flowers are there in all?"
+    },
+    {
+      "fmt": "bare_sum",
+      "structure": "HOW_MANY_GROUPS",
+      "op": "÷",
+      "text": "How many {b}s make {a}?"
     }
   ],
   "budget": {

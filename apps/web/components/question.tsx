@@ -72,11 +72,18 @@ export function Question({ it }: { it: ItemRow }) {
   const s = it.spec;
   switch (it.fmt) {
     case "column_grid":
-      return <Column numbers={s.addends ?? [s.a ?? 0, s.b ?? 0]} op={sign(s.op)} />;
+      return s.op === "÷" ? (
+        <Divided a={s.a ?? 0} b={s.b ?? 0} rem={leaves(it)} />
+      ) : (
+        <Column numbers={s.addends ?? [s.a ?? 0, s.b ?? 0]} op={sign(s.op)} />
+      );
     case "bare_sum":
+      // asked in words, the sentence alone ("How many 6s make 42?"): the sign would give it away
+      if (s.text) return <span>{s.text}</span>;
       return (
         <span className="fact">
           {s.addends ? s.addends.join(` ${sign(s.op)} `) : `${s.a} ${sign(s.op)} ${s.b}`} = ___
+          {leaves(it) ? " r ___" : null}
         </span>
       );
     case "missing_digit":
@@ -223,6 +230,9 @@ export function Question({ it }: { it: ItemRow }) {
 
 const box = (n: number | null) => (n === null ? "□" : String(n));
 
+// A division that leaves a remainder asks for it in a box of its own, after "r" (ADR 0056).
+const leaves = (it: ItemRow) => it.responses.some((r) => r.rid === "rem");
+
 function Stem({ text, children }: { text: string; children: ReactNode }) {
   return (
     <span className="grid gap-[6px]">
@@ -240,6 +250,23 @@ function Column({ numbers, op, result }: { numbers: (number | string)[]; op: str
         <span key={i}>{i === numbers.length - 1 ? `${op} ${n}` : n}</span>
       ))}
       <span className="h-[1.3em] w-full border-t border-basalt/60">{result ?? null}</span>
+    </span>
+  );
+}
+
+// The division layout as the school writes it (D01, 84 ÷ 4): the quotient's line above the number divided, the divisor
+// and its bracket, "r" beside the quotient where there is a remainder (engine/assess/answer_space.py `divided`).
+function Divided({ a, b, rem }: { a: number | string; b: number | string; rem: boolean }) {
+  return (
+    <span
+      role="img"
+      aria-label={`${a} ÷ ${b} in the division layout`}
+      className="fact inline-grid grid-cols-[auto_auto] leading-[1.45]"
+    >
+      <span />
+      <span>___{rem ? " r ___" : null}</span>
+      <span className="border-r border-basalt/60 pr-[4px]">{b}</span>
+      <span className="border-t border-basalt/60 pl-[4px]">{a}</span>
     </span>
   );
 }

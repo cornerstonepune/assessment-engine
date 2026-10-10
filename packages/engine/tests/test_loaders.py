@@ -82,18 +82,21 @@ EXPECTED = {
     "activity_skill": 3711,
     "report_item": 885,
     "trait": 56,
-    "rung": 33,  # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a), R41 (M2d1)
+    # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a), R41 (M2d1), R42–R45
+    # (M3a)
+    "rung": 37,
     "level_rule": 12,
     "misconception": 39,
-    "case_dimension": 68,  # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml)
+    # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml); `from_table` (M3a)
+    "case_dimension": 69,
     "taxonomy_case": 521,  # both of the team's taxonomies, one row per case: 270 + and −, 251 × and ÷ (M1, M2a)
     # prompts, thresholds and config are settings a PR adds to: counted from their seed files, never typed here
     # (2026-09-29: the typed 20, 26 and 16 had fallen to 37, 31 and 17 without anyone noticing)
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill_set": 33,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
-    # multiplication's models (M2d1)
+    "skill_set": 37,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
+    # multiplication's models (M2d1), four ÷ (M3a)
     "subject": 1,
 }
 

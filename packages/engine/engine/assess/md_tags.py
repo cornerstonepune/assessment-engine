@@ -85,19 +85,28 @@ def _is_fact(a: int, b: int) -> bool:
 
 def _fact(one: str, a: int, b: int, q: int, r: int) -> dict[str, Any]:
     """A table fact: × of two numbers to 12; ÷ that is one read backwards. Its table is the first number's (the
-    divisor's), and a fact whose second number's table is the easier one is that table read the other way."""
+    divisor's), and a fact whose second number's table is the easier one is that table read the other way.
+
+    A division is read off a table (`from_table`) when it is a fact backwards, or leaves a remainder under a 1-digit
+    quotient, its divisor at most 12 (45 ÷ 6 = 7 r 3): 21 ÷ 2 = 10 r 1 is worked digit by digit."""
     x, y = (a, b) if one == "×" else (b, q)
+    table = (
+        {"from_table": yes(b > 0 and (_is_fact(b, q) if r == 0 else q <= 9 and b <= 12))}
+        if one == "÷"
+        else {}
+    )
     if not (_is_fact(a, b) if one == "×" else b > 0 and r == 0 and _is_fact(b, q)):
-        return {"fact": "NO"}
-    out: dict[str, Any] = {"fact": "YES", "fact_table": x, "fact_group": _fact_group(x, y)}
+        return {"fact": "NO", **table}
+    out: dict[str, Any] = {"fact": "YES", "fact_table": x, "fact_group": _fact_group(x, y), **table}
     if one == "×":
         out["fact_swapped"] = yes(b >= 2 and ORDER.index(GROUP[b]) < ORDER.index(GROUP[a]))
     return out
 
 
 def _place_value(one: str, a: int, b: int) -> dict[str, str]:
-    """By 10, 100 or 1000; or round numbers, one or both, whose fact once the zeros are off is a table fact
-    (30 × 4 is 3 × 4; 200 ÷ 4 is 20 ÷ 4, a fact that uses one of the zeros)."""
+    """By 10, 100 or 1000; or round numbers, one or both: × whatever is under their zeros (30 × 13 is MUL.TENS's, its
+    Advance's), ÷ only where the zeros, taken off, leave a table fact (200 ÷ 4 is 20 ÷ 4, a fact that uses one of the
+    zeros). 30 ÷ 2 is no place value: it is an exchange from the tens, worked digit by digit."""
     for n in (b,) if one == "÷" else (b, a):
         if n in POWERS:
             return {"place_value_factor": POWERS[n]}
@@ -120,6 +129,8 @@ def _place_value(one: str, a: int, b: int) -> dict[str, str]:
         ks = range(za, -1 if common else 0, -1)
         found = [k for k in ks if (a // 10**k) % b == 0 and (a // 10**k) // b <= 12 and b <= 12]
         scaled, zero = bool(found), bool(found) and found[0] < za
+        if not scaled:
+            return {"place_value_factor": "NONE", "scaled_fact": "NO"}
     out = {"place_value_factor": kind, "scaled_fact": yes(scaled)}
     if scaled:
         out["fact_zero"] = yes(zero)

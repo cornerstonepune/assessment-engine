@@ -90,6 +90,21 @@ def grid(
     return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
 
 
+def divided(sheet_id: str, item_id: str, a: int, b: int, ans: Any, tail: str = "") -> str:
+    """The division layout as the school writes it (D01, 84 ÷ 4): the quotient's boxes on top, one over each digit of
+    the number divided, so 156 ÷ 4 = 39 is written over the 5 and the 6 and the box over the 1 stays empty; then the
+    divisor and the number divided under its bar; `tail`, "r" and the remainder's boxes as the paper's layout draws
+    them, beside the quotient where there is a remainder (ADR 0056)."""
+    w = len(str(a))
+    top = "".join(
+        f'<div class="g ans cell" data-s="{sheet_id}" data-i="{item_id}" data-r="{ans.rid}" data-k="{k}"></div>'
+        for k in range(w)
+    )
+    under = f'<div class="g dv">{b}</div>' + "".join(f'<div class="g dd">{d}</div>' for d in str(a))
+    grid = f'<div class="grid" style="grid-template-columns: auto repeat({w}, 8.4mm)"><div class="g blank"></div>{top}{under}</div>'
+    return f'<span class="divide"><span data-resp="{item_id}|{ans.rid}">{grid}</span>{tail}</span>'
+
+
 def _rows_worked(rows: list[int], op: str) -> list[int]:
     """A long multiplication's rows, one for each digit of its multiplier (68 × 17 is 476 and 680), where it has two or
     more; nothing for any other sum. Their room is drawn, never their numbers: the child writes them."""

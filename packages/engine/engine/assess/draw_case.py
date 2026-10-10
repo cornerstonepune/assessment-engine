@@ -10,13 +10,15 @@ from typing import Any, cast
 from . import taxonomy
 
 DIGITS = range(1, 5)
-OPS = {"ADD": "+", "SUB": "-", "MUL": "×"}
+OPS = {"ADD": "+", "SUB": "-", "MUL": "×", "DIV": "÷"}
 LAYOUT = {
     "LINE": "HORIZONTAL",
     "COLUMNS": "VERTICAL",
     "LONG_MULTIPLICATION": "VERTICAL",
     "EXPANDED": "VERTICAL",
-}  # a method, as printed
+    "SHORT_DIVISION": "VERTICAL",
+    "LONG_DIVISION": "VERTICAL",
+}  # a method, as printed: a division's in the division layout
 
 
 def alternatives(match: Any) -> list[dict[str, Any]]:

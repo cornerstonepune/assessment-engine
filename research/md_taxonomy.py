@@ -459,7 +459,7 @@ div("DR07", "A remainder and a zero in the quotient", 613, 6, [("middle", qzero(
 div("DR08", "First digit smaller and a remainder", 157, 4, [("smaller", first_smaller(157, 4))])
 case("DR09", "Checking a remainder: quotient × divisor + remainder", "21 × 4 + 1 = □ (is 85 ÷ 4 = 21 r 1?)",
      21 * 4 + 1, [("85", 21 * 4 + 1 == 85)], op="÷")
-div("DR10", "÷10 with a remainder", 457, 10)
+div("DR10", "÷10, 100 or 1000 with a remainder", 457, 10)
 
 # ---------------------------------------------------------------- 8. methods
 

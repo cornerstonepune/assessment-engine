@@ -3,7 +3,30 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M2d2: the written methods (in progress)
+## 2026-10-10 — M3a: straight division (proved, merging)
+
+- **Slice:** M3a (W1 gate 3). Goal `goals/md3a-straight-division.yaml`; ADR 0056; STATE.md "M3a — straight division
+  built".
+- **Built:** four skills on R42–R45 (`DIV.FACTS`, `DIV.TENS` with an Advance; `DIV.2D1D`, `DIV.3D1D` Easy to Hard),
+  the drawer making ÷ from a divisor, a quotient and a remainder (`assess/draw_divide.py`), a remainder's box only
+  where there is one (`assess/division.py`, `verify.division`), the division layout (`answer_space.divided`) and on
+  the website (`components/question.tsx`), the 15 mistakes as rows under ÷ (`assess/div_mistakes.py`), "How many 6s
+  make 42?" as a sentence row, July's 144 ÷ 12 placed on `DIV.FACTS`.
+- **Decided while building** (ADR 0056): a box names every mistake that writes its value there (first-named-wins
+  called a swap "one group short"); three same-act pairs predict only the more particular; no Advance of Hard's own
+  questions (the loader refuses one; M3b gives `DIV.2D1D` and `DIV.3D1D` theirs).
+- **Moved, not grown:** `verify.key_problems` is `stale.key_problems` (`assess/stale.py`); the native kinds' drawing
+  is `assess/draw_native.py`.
+- **For Achal** (the drafted document's to settle): the special facts overlap the tables (2 ÷ 2 is DF02 and DF04);
+  302 ÷ 2 is both D07 (Medium) and DZ04 (Hard); the five slips corrected and DR10, DP04 and DP07 reworded; a
+  remainder's box only where there is one (A-assumption in ADR 0056).
+- **Proved on `eb0616d`:** GOAL ACHIEVED on a fresh database (14 of 14 scenarios, criteria 1,123 passed,
+  `bin/check`); CI green (engine, web, browser); rehearsed on a copy of live (run 38050558566): 6,882 added, 3,637
+  worksheets, 142 of 142 ready, every live-data check ok.
+- **Next:** CI green on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b. Live still needs
+  Nimish to run `bin/update-live` (it carries M0b to M3a).
+
+## 2026-10-10 — M2d2: the written methods (merged)
 
 - **Slice:** M2d2 (W1 gate 3). Goal `goals/md2d2-multiplication-methods.yaml`; tests `test_mul_methods.py`,
   `apps/web/tests/s30-multiplication-methods.spec.ts`; ADR 0055.

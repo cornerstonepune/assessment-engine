@@ -7,7 +7,7 @@ questions — one worksheet's worth — thin below that, missing at none.
 
 from collections import Counter, defaultdict
 
-from engine.assess import taxonomy, verify
+from engine.assess import stale, taxonomy, verify
 
 
 def matches(conn, codes=None):
@@ -101,7 +101,7 @@ def propose_levels(conn, codes=None):
 def outside_their_level(conn):
     """Every active generated question the rule of its own level no longer holds — re-measured against
     that level's region, not only its own arithmetic (BUILD-ORDER gate 4, amended; step 8h) — or keyed by
-    a rule its kind has since corrected (`verify.key_problems`)."""
+    a rule its kind has since corrected (`stale.key_problems`)."""
     regions = {
         (s["code"], band): spec.get("check", {})
         for s in conn.execute("select code, difficulty from skill_set").fetchall()
@@ -115,7 +115,7 @@ def outside_their_level(conn):
     ).fetchall():
         region = regions.get((r["skill_set_code"], r["difficulty"]))
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
-        if why := why + verify.key_problems(r["fmt"], r["spec"], r["responses"]):
+        if why := why + stale.key_problems(r["fmt"], r["spec"], r["responses"]):
             out.append(dict(r, why=why))
     return out
 

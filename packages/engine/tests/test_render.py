@@ -174,3 +174,59 @@ def test_a_batch_shares_one_browser_however_many_papers_it_renders(tmp_path):
             render.render_sheet(Sheet(f"CS00000{n}", "G2", "Easy", 1, "W1", [it]), tmp_path, pw=pw)
     assert len(launches) == 1
     assert sorted(p.name for p in tmp_path.glob("*.pdf")) == ["CS000000.pdf", "CS000001.pdf", "CS000002.pdf"]
+
+
+def test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instruction_its_numbers():
+    """ "How many 6s make 42?" prints the sentence alone, never the ÷ that gives it away; a sum whose sentence is only an
+    instruction ("Add them in the easiest order.") still prints its numbers under it. The one carries its printed
+    sentence (`text`), as a missing number does; the other only a stem."""
+    from engine.assess import verify
+
+    def text(it):
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", _html(it)))
+
+    worded = verify.division(42, 6, "R42", shape="HOW_MANY_GROUPS")
+    assert "How many 6s make 42?" in text(worded) and "÷" not in text(worded)
+    pairs = I.multi_add(__import__("random").Random(3), "R0", "Procedural", xs=[37, 48, 63], layout="horizontal",
+                        shape="FRIENDLY_PAIRS")  # fmt: skip
+    assert "Add them in the easiest order." in text(pairs) and "37 + 48 + 63 =" in text(pairs), text(pairs)
+
+
+@pytest.mark.parametrize("a,b", [(84, 4), (156, 4), (85, 4), (804, 4)])
+def test_a_division_in_the_division_layout_has_its_quotient_above_the_number_divided(a, b):
+    """The division layout as the school writes it (D01, 84 ÷ 4): the quotient's boxes on top, one over each digit of
+    the number divided, so 156 ÷ 4 = 39 is written over its 5 and 6 and the box over the 1 stays empty; then the divisor
+    and the number divided under its bar; a remainder's box after "r" where there is one (goals/md3a-straight-division)."""
+    from engine.assess import verify
+
+    it = verify.division(a, b, "R45", layout="column")
+    html = _html(it)
+    assert it.fmt == "column_grid" and _boxes(html) == len(str(a))
+    divided = re.findall(r'class="g dd">(\d)<', html)
+    assert divided == list(str(a)) and re.findall(r'class="g dv">(\d+)<', html) == [str(b)]
+    assert html.index('data-r="ans"') < html.index('class="g dv"') < html.index('class="g dd"')
+    assert _boxes(html, "rem") == (len(str(a % b)) if a % b else 0)
+
+
+def test_a_divisions_boxes_are_where_the_printed_key_says_they_are(tmp_path):
+    """A sheet of divisions, in a line and in the division layout, with and without a remainder, printed through
+    Chromium as a paper is: the key's geometry holds each answer's boxes, the quotient's and the remainder's, so the
+    reader finds every one and marking marks each by itself."""
+    from collections import Counter
+
+    from engine.assess import verify
+
+    its = [
+        verify.division(84, 4, "R44"),
+        verify.division(85, 4, "R44"),
+        verify.division(156, 4, "R45", layout="column"),
+        verify.division(457, 3, "R45", layout="column"),
+        verify.division(4567, 100, "R43"),
+    ]
+    key = render.render_sheet(Sheet("CS00D3A1", "G4", "Hard", 1, "W1", its), tmp_path)
+    boxes = Counter((g["item"], g["resp"]) for g in key["geometry"] if g["kind"] == "digit")
+    for it in its:
+        laid = it.fmt == "column_grid"
+        for r in it.responses:
+            want = len(str(it.spec["a"])) if laid and r.rid == "ans" else len(r.answer)
+            assert boxes[(it.item_id, r.rid)] == want, (it.spec, r.rid, boxes[(it.item_id, r.rid)])

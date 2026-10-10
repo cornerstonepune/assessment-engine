@@ -14,7 +14,7 @@ import re
 import pytest
 
 from engine.assess import diagnosis as D
-from engine.assess import draw, placing, render, tags, taxonomy, verify
+from engine.assess import draw, placing, render, stale, tags, taxonomy
 from engine.assess import estimate as E
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
@@ -127,8 +127,8 @@ def test_every_advance_draws_its_own_cases_as_measured(skill):
             assert it.spec["op"] == "×" and _resp(it, "ans").answer == str(a * b), (case, it.spec)
         codes = {c for r in it.responses for c in (r.misconceptions or {})}
         assert codes and codes <= named, (case, codes - named)
-        # stored, it is no question the bank's own rules retire (`verify.key_problems`, `engine bank recheck`)
-        assert verify.key_problems(it.fmt, it.spec, [dataclasses.asdict(r) for r in it.responses]) == [], (
+        # stored, it is no question the bank's own rules retire (`stale.key_problems`, `engine bank recheck`)
+        assert stale.key_problems(it.fmt, it.spec, [dataclasses.asdict(r) for r in it.responses]) == [], (
             it.spec
         )
 
@@ -376,7 +376,7 @@ def test_an_addition_or_subtraction_asks_the_column_by_the_same_rule(code, op, d
 
 def test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank():
     """Stored before the rule, a worked answer that asks the column its mistake always shows in is retired by `engine
-    bank recheck` (`verify.key_problems`), as other questions made by a since-corrected rule are; one whose column
+    bank recheck` (`stale.key_problems`), as other questions made by a since-corrected rule are; one whose column
     moves stays."""
     rng = random.Random(2)
     for code, op, digits, leaves in (
@@ -391,7 +391,7 @@ def test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank():
         if stored[0]["rid"] != "where":  # as it was made before: the column asked first
             right = M.compute(sp["op"], sp["a"], sp["b"])
             stored.insert(0, dataclasses.asdict(D._where(right, sp["wrong"])))
-        assert bool(verify.key_problems("find_mistake", sp, stored)) is leaves, (code, sp)
+        assert bool(stale.key_problems("find_mistake", sp, stored)) is leaves, (code, sp)
 
 
 def test_an_estimate_is_the_one_its_rounding_gives():

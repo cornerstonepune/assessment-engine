@@ -305,6 +305,42 @@
       "skill_codes": [
         "NUM.OPS.03"
       ]
+    },
+    {
+      "code": "R42",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Recalls division facts: the multiplication tables read backwards",
+      "skill_codes": [
+        "NUM.OPS.04"
+      ]
+    },
+    {
+      "code": "R43",
+      "band": "G4",
+      "ladder_order": null,
+      "descriptor": "Divides by 10, 100, 1000 and multiples of ten",
+      "skill_codes": [
+        "NUM.OPS.04"
+      ]
+    },
+    {
+      "code": "R44",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "2-digit ÷ 1-digit",
+      "skill_codes": [
+        "NUM.OPS.04"
+      ]
+    },
+    {
+      "code": "R45",
+      "band": "G4",
+      "ladder_order": null,
+      "descriptor": "3-digit ÷ 1-digit",
+      "skill_codes": [
+        "NUM.OPS.04"
+      ]
     }
   ]
 }

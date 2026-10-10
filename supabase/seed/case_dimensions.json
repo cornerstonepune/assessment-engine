@@ -415,6 +415,15 @@
       "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
+      "name": "from_table",
+      "allowed": [
+        "YES",
+        "NO"
+      ],
+      "why": "A division read off a table: a table fact backwards (42 ÷ 6), or one leaving a remainder under a 1-digit quotient, its divisor at most 12 (45 ÷ 6 = 7 r 3). 21 ÷ 2 = 10 r 1 is worked digit by digit.",
+      "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
+    },
+    {
       "name": "fact_table",
       "allowed": [
         0,
