@@ -13,9 +13,14 @@ is verified. This file only says where the last session stopped.
   - MUL.2D1D, MUL.3D1D and MUL.2D2D have their Advance: Hard's straight cases with the document's kind cases (C06
     waits for M2d; T13 is printing, not a level);
   - every case that is not a straight sum names its kind in its row.
-- **Proved without a database:** `test_mul_advance.py`, `test_mul_levels.py`, the kinds' and division's suites, the
-  type and layout gates.
-- **Next:** the database proof (a fresh build, refill, the goal's scenarios at 100%), CI, the rehearsal, merge. Then M2d.
+- **A second reader's four findings are fixed** (STATE.md "M2b — the second reader"):
+  - a × missing digit names the table one row out where no carry reaches;
+  - a find-the-mistake question asks the column only where its slip's first wrong digit can move, for + and − too
+    (ADR 0051, decision 7). On live, `bank refill` retires the stored ones that ask it and makes them again;
+  - three boxes are three boxes;
+  - a request no question can meet is refused by name.
+- **Next:** CI on the pushed head, the goal's run pasted in the PR, the rehearsal, merge; then the + and − levels whose
+  cases the bank never holds (STATE.md "Found while proving M2b"), then M2d.
 
 ## 2026-10-09 — M2a: straight multiplication (with M2c's re-homing)
 

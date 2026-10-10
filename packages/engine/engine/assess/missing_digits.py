@@ -8,8 +8,10 @@ how many digits could go in the box). Deterministic given an RNG.
 Every box names a wrong answer a child could write: the digit that works in its own column when the
 carry or the exchange from the column to its right is forgotten (M_MISSING_DIGIT_LOCAL), or, where no
 regroup reaches it, a fact one out. A multiplication by one digit (goals/md2b-times-advance.yaml) hides digits of
-the larger number or of the answer, and names the other digit its column alone allows: 2□ × 4 = 92, where 8 × 4
-ends in 2 as 3 × 4 does; it asks only where there is one.
+the larger number or of the answer. A box names the other digit its column allows alone where there is exactly one
+(2□ × 4 = 92: 8 × 4 ends in 2 as 3 × 4 does; 48 × 2 = □6: the carry forgotten), else a times-table row out, as a +
+or − box names a fact one out: the digit from the row before (M_MUL_ROW_OUT). The larger number's lead digit never
+has a column-alone digit: its column is the whole rest of the answer, which only the right digit makes.
 """
 
 import itertools
@@ -19,6 +21,7 @@ from typing import Any
 from . import misconceptions as M
 from . import operations as O
 from .items import Item, Response, item, sample_add, sample_sub
+from .times_kinds import number
 
 ROWS = ("FIRST", "SECOND", "RESULT")
 PLACES = ["ONES", "TENS", "HUNDREDS", "THOUSANDS"]
@@ -30,8 +33,11 @@ def _calc(op: str, a: int, b: int) -> int:
 
 def _numbers(rng: random.Random, op: str, width: int, regroups: Any) -> tuple[int, int]:
     if op == "×":  # a number that is no table fact and not round, times one digit
-        a = rng.randint(10 ** (width - 1), 10**width - 1)
-        return (a, rng.randint(2, 9)) if a > 12 and a % 10 else _numbers(rng, op, width, regroups)
+        if width < 2:
+            raise O.CannotMake(
+                "a × missing digit needs a number of 2 digits or more: 1 digit is a table fact"
+            )
+        return number(rng, width), rng.randint(2, 9)
     if op == "+":
         return sample_add(rng, width, width, set(regroups))
     # a zero in the top number's lender column half the time, where there is one (§6.4: 4□2 − 185)
@@ -103,61 +109,62 @@ def _choose(
         ["FIRST", "RESULT"] if "SECOND" not in numbers else ["FIRST", "SECOND"]
     )  # × hides no digit of its 1
     if rows is None:
-        rows = rng.sample(pair, 1) if missing_count == 1 else pair + (["RESULT"] if missing_count > 2 else [])
+        more = ["RESULT"] if missing_count > 2 and "RESULT" not in pair else []
+        rows = rng.sample(pair, 1) if missing_count == 1 else pair + more
     if len(rows) > missing_count:
         return None
-    hidden = []
+    hidden: list[tuple[str, int]] = []
     for row in rows:
         width = len(str(numbers[row]))
         col = PLACES.index(missing_place) if missing_place and missing_count == 1 else rng.randrange(width)
-        if col >= width:
+        if col >= width or (row, col) in hidden:
             return None
         hidden.append((row, col))
-    while len(hidden) < missing_count:
+    room = sum(len(str(numbers[row])) for row in set(rows))
+    for _ in range(200):  # bounded: more boxes than these rows have digits is no question, not a hang
+        if len(hidden) >= min(missing_count, room):
+            break
         row = rng.choice(rows)
         col = rng.randrange(len(str(numbers[row])))
         if (row, col) not in hidden:
             hidden.append((row, col))
-    return hidden
+    return hidden if len(hidden) == missing_count else None
 
 
-def _times_local(row: str, col: int, a: int, b: int, c: int) -> int | None:
-    """The one digit other than the right one that a × box's column allows alone, or None (see the module)."""
+def _times_named(row: str, col: int, a: int, b: int, c: int) -> dict[str, int]:
+    """The wrong digit a child writes in a × box, by its mistake (see the module); empty where neither names one."""
     da, dc = str(a)[::-1], str(c)[::-1]
     if row == "RESULT":
-        fits = {int(da[col]) * b % 10} if col < len(da) else set()
-        right = int(dc[col])
+        if col >= len(da):
+            return {}  # the answer's lead digits are the last carry: no column of their own
+        carry = O.times_columns(a, b)[col]["carry_in"]
+        alone, right = {int(da[col]) * b % 10}, int(dc[col])
+        row_out = (int(da[col]) * (b - 1) + carry) % 10
     else:
-        lead = col == len(da) - 1  # the lead digit makes the whole rest of the answer, carry and all
-        fits = {x for x in range(10) if (x * b == c // 10**col if lead else x * b % 10 == int(dc[col]))}
+        lead = col == len(da) - 1
+        alone = set() if lead else {x for x in range(10) if x * b % 10 == int(dc[col])}
         right = int(da[col])
-    others = fits - {right}
-    return next(iter(others)) if len(others) == 1 else None
+        row_out = right - 1 if right - 1 >= (1 if lead else 0) else right + 1
+    others = alone - {right}
+    if len(others) == 1:
+        return {"M_MISSING_DIGIT_LOCAL": next(iter(others))}
+    return {"M_MUL_ROW_OUT": row_out} if row_out != right and row_out <= 9 else {}
 
 
 def _boxes(op: str, a: int, b: int, c: int, hidden: list[tuple[str, int]]) -> list[Response]:
-    if op == "×":
-        order = sorted(hidden, key=lambda h: (ROWS.index(h[0]), -h[1]))
-        rs = []
-        for k, (row, col) in enumerate(order, 1):
-            right = M.digits({"FIRST": a, "RESULT": c}[row], 4)[col]
-            local = _times_local(row, col, a, b, c)
-            mis = {"M_MISSING_DIGIT_LOCAL": local} if local is not None else {}
-            rs.append(Response(f"d{k}", "digits", str(right), cells=1, label=f"box {k}", misconceptions=mis))
-        if not any(r.misconceptions for r in rs):
-            raise RuntimeError("no box names a digit a child could write")
-        return rs
-    rs = []
-    order = sorted(hidden, key=lambda h: (ROWS.index(h[0]), -h[1]))
-    for k, (row, col) in enumerate(order, 1):
+    rs: list[Response] = []
+    for k, (row, col) in enumerate(sorted(hidden, key=lambda h: (ROWS.index(h[0]), -h[1])), 1):
         right = M.digits({"FIRST": a, "SECOND": b, "RESULT": c}[row], 4)[col]
-        local = _local(op, row, col, a, b, c)
-        mis = (
-            {"M_MISSING_DIGIT_LOCAL": local}
-            if local != right and _carry_into(op, a, b, col)
-            else {"M_FACT_PM1": (right + 1) % 10}
-        )
+        if op == "×":
+            mis = _times_named(row, col, a, b, c)
+        else:
+            local = _local(op, row, col, a, b, c)
+            carried = local != right and _carry_into(op, a, b, col)
+            mis = {"M_MISSING_DIGIT_LOCAL": local} if carried else {"M_FACT_PM1": (right + 1) % 10}
         rs.append(Response(f"d{k}", "digits", str(right), cells=1, label=f"box {k}", misconceptions=mis))
+    # a + or − box always names one; a × answer's last carry names none
+    if not any(r.misconceptions for r in rs):
+        raise RuntimeError("no box names a digit a child could write")
     return rs
 
 

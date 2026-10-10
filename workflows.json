@@ -267,7 +267,7 @@
     "frozen": {
       "engine/assess/answer_space.py": 53,
       "engine/assess/bands.py": 315,
-      "engine/assess/diagnosis.py": 124,
+      "engine/assess/diagnosis.py": 117,
       "engine/assess/draw.py": 183,
       "engine/assess/equality.py": 164,
       "engine/assess/estimate.py": 16,
@@ -279,7 +279,7 @@
       "engine/assess/learned_rules.py": 164,
       "engine/assess/mark.py": 50,
       "engine/assess/misconceptions.py": 236,
-      "engine/assess/missing_digits.py": 21,
+      "engine/assess/missing_digits.py": 10,
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
       "engine/assess/placing.py": 35,

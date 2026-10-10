@@ -9,6 +9,7 @@ import random
 from typing import Any
 
 from . import misconceptions as M
+from . import operations as O
 from .items import Item, Response, cells, item
 
 STRATEGIES = ("TIMES_TEN_THEN_HALVE", "COMPENSATION")
@@ -40,21 +41,29 @@ def number(rng: random.Random, d: int) -> int:
     """A `d`-digit number a level of no table facts and nothing round can use: 2 to 9, or 13 and up, never x0."""
     if d == 1:
         return rng.randint(2, 9)
-    n = rng.randint(10 ** (d - 1), 10**d - 1)
-    return n if n > 12 and n % 10 else number(rng, d)
+    while True:
+        n = rng.randint(10 ** (d - 1), 10**d - 1)
+        if n > 12 and n % 10:
+            return n
 
 
 def shortcut(rng: random.Random, rung: str, signal: str, strategy: str, sizes: tuple[int, int]) -> Item:
     """× 5 as × 10 then halved (46 × 5: 460, then 230), or a number near a round one (19 × 6: 20 × 6, then one
     group of 6 fewer). The step is asked, then the answer."""
     if strategy == "TIMES_TEN_THEN_HALVE":
+        if sizes[0] < 2:
+            raise O.CannotMake(
+                "× 5 as × 10 then halved needs a number of 2 digits or more: 1 digit × 5 is a table fact"
+            )
         a, b = number(rng, sizes[0]), 5
         step, said = a * 10, f"{a} × 10"
         stem = f"Work out {a} × 5. First work out {a} × 10, then halve it."
     elif strategy == "COMPENSATION":
-        a, b = rng.randint(1, 9) * 10 + rng.choice([1, 9]), number(rng, sizes[1])
-        if a <= 12 or len(str(a)) != sizes[0]:
-            return shortcut(rng, rung, signal, strategy, sizes)
+        if sizes[0] != 2:
+            raise O.CannotMake(
+                "a number near a round one is a 2-digit number one from a ten (19, 41): no other size"
+            )
+        a, b = rng.choice([n for n in range(13, 100) if n % 10 in (1, 9)]), number(rng, sizes[1])
         r = (a + 5) // 10 * 10
         step, said = r * b, f"{r} × {b}"
         stem = f"Work out {a} × {b}. Start from {r} × {b}, then put it right."

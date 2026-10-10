@@ -6,8 +6,10 @@ goal: >
   (the cost of many, times as many) and a shortcut (× 5 as × 10 then halved, a number near a round one); MUL.3D1D a
   missing digit in a 3-digit number and a carry onto a zero lost; MUL.2D2D the second row not moved, both numbers
   rounded, how many digits the product has, a long multiplication's missing row and combinations. Each kind makes ×
-  as it makes + and −: a missing-digit question has exactly one answer and names the digit a child writes who forgets
-  the carry; a planted mistake is the one the predictors compute from the question's own numbers; an estimate is the
+  as it makes + and −: a missing-digit question has exactly one answer, is asked in every place after every multiplier,
+  and names the digit a child writes who forgets the carry or reads the table one row out; a planted mistake is the one
+  the predictors compute from the question's own numbers, and a worked answer asks the column of its first wrong digit
+  only where that column can move, for + and − as for ×; a request no question can meet is refused; an estimate is the
   one its question's rounding gives; a story's shape is its template's and its answer the product; a shortcut is worked
   the way it is named; a missing row is the second row, moved its place. Every question is, as measured, a case of
   its level, its answer recomputed, every wrong answer a named mistake, none held by two levels, and every level fills
@@ -18,6 +20,10 @@ goal: >
 # drawer cannot draw them; and T13 (6 × 125 in a line) is a question MUL.3D1D's Easy to Hard already hold once a × case
 # reads the longer number and the shorter (ADR 0050), so it is no Advance. The methods (grid, lattice, arrays, skip
 # counting, partitioning) are M2d, with C06, the mistake of partitioning.
+# Amended 2026-10-10 after a second reader: a box no carry reaches named nothing and was drawn again, so Q07 was only
+# ever the ones after an even multiplier; a carry lost onto a zero is always lost in the tens, and MUL.3D1D's Advance
+# plants only that, so its column tick was one box every time — as ADD.2D1D's, ADD.3D2D's and ADD.4D's Advance ticks
+# already were (STATE.md, "M2b — the second reader").
 says:
   - words: "create assessments of different levels of difficulty"
     proved_by: packages/engine/tests/test_mul_advance.py::test_each_advance_is_its_documents_cases_of_the_kinds_it_needs
@@ -28,7 +34,19 @@ says:
   - words: "look at how addition and subtraction were done"
     proved_by: packages/engine/tests/test_mul_advance.py::test_a_missing_digit_in_a_multiplication_has_one_answer_and_names_the_forgotten_carry
   - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_missing_digit_is_asked_in_every_place_after_every_multiplier
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_three_missing_digits_are_three_boxes
+  - words: "look at how addition and subtraction were done"
     proved_by: packages/engine/tests/test_mul_advance.py::test_a_planted_multiplication_mistake_is_the_one_the_predictors_compute
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_worked_answer_asks_its_first_wrong_column_only_where_that_column_can_move
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_an_addition_or_subtraction_asks_the_column_by_the_same_rule
+  - words: "same process"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_mul_advance.py::test_a_kind_asked_for_numbers_it_cannot_use_says_so
   - words: "consider all of the methods for now"
     proved_by: packages/engine/tests/test_mul_advance.py::test_a_shortcut_is_worked_the_way_it_is_named
   - words: "consider all of the methods for now"
@@ -43,7 +61,8 @@ says:
     proved_by: packages/engine/tests/test_mul_advance.py::test_every_advance_fills_its_worksheets
 manual:
   - "On live, once merged: `bin/update-live`. The three Advance levels, their questions and worksheets reach live only
-    through `engine load`, `bank refill` and `library build`."
+    through `engine load`, `bank refill` and `library build`; `bank refill` also retires the stored + and −
+    find-the-mistake questions that ask a column their mistake always shows in, and makes their replacements."
   - "Achal: each Advance is the drafted document's cases, except T13 (6 × 125 in a line), which is a question the
     skill's Easy to Hard already hold and is now among the ways they are printed; and C06 (partitioning, tens taken as
     ones), which joins with the methods in M2d. Say if any of it belongs elsewhere."

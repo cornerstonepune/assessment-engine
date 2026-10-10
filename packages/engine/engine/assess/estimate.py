@@ -54,6 +54,8 @@ def times(rng: random.Random, rung: str, signal: str, shape: str, sizes: tuple[i
     """One × estimate of this `shape`, its numbers `sizes` digits long."""
     if shape not in TIMES:
         raise ValueError(f"{shape!r} is no multiplication estimate: {', '.join(TIMES)}")
+    if min(sizes) < 2 and shape == "ROUND_BOTH" or max(sizes) < 2 and shape == "ROUND_ONE":
+        raise O.CannotMake(f"{shape} rounds a 1-digit number to the nearest ten, which makes it 0 or 10")
     a, b = number(rng, sizes[0]), number(rng, sizes[1])
     est, ra, rb = _judged(shape, a, b)
     what, ask = TIMES[shape]

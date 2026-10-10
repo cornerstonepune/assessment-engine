@@ -5039,3 +5039,49 @@ the bank holds no question at all of these cases its levels list; on main `5916b
   cannot be drawn because a case level names no `regroups` for the estimate it asks for.
 - Not a defect: a few small straight cases an Advance shares with Hard, which Hard holds whole (MUL.2D1D's T08, T10,
   TZ05; MUL.3D1D's TZ06; MUL.FACTS's TF01, TF02; MUL.TENS's TP09). A question lives in one level.
+
+## M2b — the second reader (2026-10-10)
+
+A second reader of the slice found four things wrong; each is fixed at its cause in this PR.
+
+- **A × missing-digit box no carry reaches named nothing and was drawn again**, so MUL.2D1D's Q07 was only ever the
+  ones after 2, 4, 6 or 8, and the test that checked it worked the same rule as the code. A box now names the table
+  one row out where its column alone allows no second digit (ADR 0051, decision 4).
+  - Check: 300 of Q07's draws now give an odd multiplier 153 times, a lead box 150 times, M_MUL_ROW_OUT 226 times and
+    M_MISSING_DIGIT_LOCAL 74 times.
+  - Test: `test_a_missing_digit_is_asked_in_every_place_after_every_multiplier`; each box's mistake is now worked from
+    its definition in the test (`_named`), not copied from the code.
+- **A column tick one slip always answers the same way**: a carry lost onto a zero (C09) is always lost in the tens,
+  and MUL.3D1D's Advance plants nothing else. The reader said C01 and C02 too; measured, they are not (2-digit by 1:
+  tens 457 and hundreds 60 of 517 pairs for C01, 497 and 92 of 589 for C02).
+  - The same was already true of addition and subtraction on live, behind the claim that "a level mixes it with
+    others". Measured over every level that plants a slip (each level's own cases drawn 160 times), ADD.2D1D's Advance
+    ticked the ones every time, ADD.3D2D's the ones, ADD.4D's the ten-thousands.
+  - The rule is now one for every operation (ADR 0051, decision 7): where a slip's first wrong digit is always in one
+    column, it asks the answer and why.
+  - Check: on fresh8, a database built before the rule, 485 of 1,199 active find-the-mistake questions are flagged by
+    `verify.key_problems`, every one a one-column slip. `DATABASE_URL=… bin/engine bank refill` then printed
+    `retired 507 questions outside their level · added 511` (4m12s): the 485, and MUL.2D2D's 22 combination stories in
+    their old words (below). After it, 0 active questions are flagged, and 498 of 1,186 finding the mistake ask the
+    column.
+  - Tests: `test_a_worked_answer_asks_its_first_wrong_column_only_where_that_column_can_move`,
+    `test_an_addition_or_subtraction_asks_the_column_by_the_same_rule`,
+    `test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank`.
+- **Three boxes in a multiplication could hide the answer's digit twice**, and a request for more boxes than digits
+  waited for ever. Now a box is chosen once, and the search for more is bounded; + and − draw as before.
+  - Test: `test_three_missing_digits_are_three_boxes`.
+  - Not a defect, and unchanged: three boxes in a 2-digit subtraction leave more than one filling 2 times in 30, on
+    main as now.
+- **A request no question can meet recursed for ever or printed 0**: a number near a round one of 3 digits, × 5 as
+  × 10 then halved on 1 digit, a × slip on a table fact, rounding a 1-digit number to the ten. Each is refused by name
+  (`CannotMake`). Test: `test_a_kind_asked_for_numbers_it_cannot_use_says_so`.
+
+Also: the two combination stories are worded for 2-digit counts (a sticker book's animals and backgrounds, a racing
+game's cars and tracks), where 34 kinds of sandwich read as nonsense.
+
+**+ and − draw as before.** Measured once, against a checkout of main `5916b28`: 919 questions drawn from the same
+seeds on both (every + and − slip at 2, 3 and 4 digits, 12 each; every missing-digit request of 1 to 3 boxes, 10 each).
+715 are identical. 204 differ only in the column tick a one-column slip no longer asks: lined up from the left 36,
+copied out of a line 36, a final carry dropped 36, an exchange from the wrong place 36, the two across-a-zero
+exchanges 24 each, a decrement forgotten 12 (2 digits only). Nothing else differs. Left out: three boxes asked in one
+row, which main waits on for ever (the third finding above).

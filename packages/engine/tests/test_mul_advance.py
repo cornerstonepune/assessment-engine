@@ -13,8 +13,13 @@ import re
 
 import pytest
 
+from engine.assess import diagnosis as D
 from engine.assess import draw, placing, render, tags, taxonomy, verify
+from engine.assess import estimate as E
 from engine.assess import misconceptions as M
+from engine.assess import missing_digits as MD
+from engine.assess import operations as O
+from engine.assess import times_kinds as TK
 from engine.assess.pick import Sheet
 from engine.assess.words import template_of
 from engine.core import db
@@ -155,21 +160,32 @@ def _fillings(a, b, c):
     return out
 
 
-def _others(a, b, row, col):
-    """The digits other than the right one that make the box's column come out alone: a child who works the column
-    by itself, the carry from the right forgotten or the carry it sends unchecked. 2□ × 4 = 92: 8 × 4 ends in 2 too."""
-    c, da = a * b, str(a)[::-1]
+def _named(a, b, row, col):
+    """The mistake a box names, worked here from its definition. In the larger number: the one other digit whose
+    product ends as the answer's digit there does, the carry from the right forgotten (2□ × 4 = 92: 8 × 4 ends in 2
+    too); a lead has none, the whole rest of the answer fixing it. In the answer: the digit written with the carry
+    left out, where a carry comes in. Else the table read one row out: the digit next to the right one, below where
+    that is a digit (a lead is never 0); in the answer, its column worked one group short."""
+    c, d = a * b, a // 10**col % 10
     if row == "RESULT":
-        return {int(da[col]) * b % 10} - {int(str(c)[::-1][col])} if col < len(da) else set()
-    right = int(da[col])
-    if col == len(da) - 1:  # the lead: the whole rest of the answer, carry and all
-        return {x for x in range(1, 10) if x * b == c // 10**col} - {right}
-    return {x for x in range(10) if x * b % 10 == int(str(c)[::-1][col])} - {right}
+        if col >= len(str(a)):
+            return {}  # the answer's last carry: no column of its own works it
+        right, alone = c // 10**col % 10, d * b % 10
+        if alone != right:
+            return {"M_MISSING_DIGIT_LOCAL": alone}
+        short = (d * (b - 1) + (a % 10**col) * b // 10**col) % 10
+        return {} if short == right else {"M_MUL_ROW_OUT": short}
+    lead = col == len(str(a)) - 1
+    others = set() if lead else {x for x in range(10) if x * b % 10 == c // 10**col % 10} - {d}
+    if len(others) == 1:
+        return {"M_MISSING_DIGIT_LOCAL": others.pop()}
+    return {"M_MUL_ROW_OUT": d - 1 if d - 1 >= (1 if lead else 0) else d + 1}
 
 
 def test_a_missing_digit_in_a_multiplication_has_one_answer_and_names_the_forgotten_carry():
-    """Exactly one filling makes it true; the boxes ask for that filling; a box whose column alone another digit
-    satisfies names that digit (M_MISSING_DIGIT_LOCAL), worked out here; and every question names one."""
+    """Exactly one filling makes it true; the boxes ask for that filling; each box names the mistake its definition
+    gives (`_named`, worked here: the carry forgotten where its column alone allows one other digit, else the table
+    one row out); and every question names one."""
     seen = 0
     for skill in ("MUL.2D1D", "MUL.3D1D"):
         for it in _of(skill, "Q07", "Q08", "Q11", "Q16"):
@@ -185,15 +201,66 @@ def test_a_missing_digit_in_a_multiplication_has_one_answer_and_names_the_forgot
                 for i, ch in enumerate(s)
                 if ch == "□"
             ]
-            named = 0
-            for r, (row, col) in zip(it.responses, boxes):
-                others = _others(a, b, row, col)
-                got = r.misconceptions.get("M_MISSING_DIGIT_LOCAL")
-                assert got == (next(iter(others)) if len(others) == 1 else None), (sp, row, col, others)
-                named += got is not None
-            assert named, sp
+            for r, (row, col) in zip(it.responses, boxes, strict=True):
+                assert r.misconceptions == _named(a, b, row, col), (sp, row, col)
+            assert any(r.misconceptions for r in it.responses), sp
             seen += 1
     assert seen
+
+
+def test_a_missing_digit_is_asked_in_every_place_after_every_multiplier():
+    """A box in the larger number comes after an odd multiplier as after an even one, in its lead as in its ones, and
+    names the carry forgotten or the table one row out. It was once drawn again until a box's column alone allowed a
+    second digit, so MUL.2D1D's Q07 was only ever the ones after 2, 4, 6 or 8."""
+    kinds = {**_check("MUL.2D1D"), "cases": ["Q07"]}
+    drawn = [
+        it
+        for _, it in draw.level(random.Random(3), kinds, _matches(kinds), SETS["MUL.2D1D"]["rung_code"], 40)
+    ]
+    assert len(drawn) == 40
+    assert {int(it.spec["b"]) % 2 for it in drawn} == {0, 1}
+    assert {it.spec["a"].index("□") for it in drawn} == {0, 1}  # the lead, the ones
+    named = {c for it in drawn for r in it.responses for c in r.misconceptions}
+    assert named == {"M_MISSING_DIGIT_LOCAL", "M_MUL_ROW_OUT"}
+
+
+@pytest.mark.parametrize("op,width", [("+", 2), ("-", 3), ("×", 2)])
+def test_three_missing_digits_are_three_boxes(op, width):
+    """Asked for three, a question hides three different digits: a multiplication's answer was once hidden twice
+    over, two boxes asking for one digit. Asked for more boxes than its numbers have digits, it is refused, where it
+    once waited for ever. (Three boxes in a 2-digit subtraction leave more than one filling 2 times in 30, as they
+    always have: the subtraction asked here is 3 digits.)"""
+    rng = random.Random(9)
+    for _ in range(30):
+        it = MD.one(rng, "R38", "Conceptual", {"op": op, "width": width, "missing_count": 3})
+        printed = "".join(str(it.spec[k]) for k in ("a", "b", "c"))
+        assert printed.count("□") == len(it.responses) == 3, it.spec
+    with pytest.raises(RuntimeError, match="no fair missing-digit question"):
+        MD.one(rng, "R38", "Conceptual", {"op": op, "width": width, "missing_count": 12}, tries=5)
+
+
+IMPOSSIBLE = {
+    "a number near a round one, 3 digits long": lambda rng: TK.shortcut(
+        rng, "R", "C", "COMPENSATION", (3, 1)
+    ),
+    "× 5 as × 10 then halved, on 1 digit": lambda rng: TK.shortcut(
+        rng, "R", "C", "TIMES_TEN_THEN_HALVE", (1, 1)
+    ),
+    "both rounded to the ten, one of 1 digit": lambda rng: E.times(rng, "R", "C", "ROUND_BOTH", (2, 1)),
+    "a slip in a table fact": lambda rng: D.find_mistake(rng, "R", "C", "×", (1, 1), "M_MUL_NO_CARRY"),
+    "carries left out by a 2-digit multiplier": lambda rng: D.find_mistake(
+        rng, "R", "C", "×", (2, 2), "M_MUL_NO_CARRY"
+    ),
+    "a missing digit in a table fact": lambda rng: MD.missing_digit(rng, "R", "C", {"op": "×", "width": 1}),
+}
+
+
+@pytest.mark.parametrize("what", IMPOSSIBLE)
+def test_a_kind_asked_for_numbers_it_cannot_use_says_so(what):
+    """A request no question can meet is refused by name (`CannotMake`), as a kind refuses ÷: never drawn again for
+    ever, nor answered with a number rounded to 0."""
+    with pytest.raises(O.CannotMake):
+        IMPOSSIBLE[what](random.Random(1))
 
 
 def _concat(a, b):
@@ -239,10 +306,88 @@ def test_a_planted_multiplication_mistake_is_the_one_the_predictors_compute():
             assert code == CASES[case]["match"]["planted"]
             assert sp["op"] == "×" and sp["wrong"] == BY_HAND[code](a, b) == M.predict("×", a, b)[code], sp
             assert sp["wrong"] != a * b and str(sp["wrong"]) in it.stem and f"{a} × {b}" in it.stem
-            assert [r.rid for r in it.responses] == ["where", "ans", "why"]
+            moves = len(_columns_by_hand(code, len(str(a)), len(str(b)))) > 1
+            assert [r.rid for r in it.responses] == ["where", "ans", "why"][0 if moves else 1 :], sp
             assert _resp(it, "ans").answer == str(a * b)
             seen.add(code)
     assert seen == set(BY_HAND)
+
+
+def _first_wrong(right, wrong):
+    """The column, from the ones, of the first digit a worked answer gets wrong."""
+    r, w = str(right)[::-1], str(wrong)[::-1]
+    return next(i for i in range(max(len(r), len(w))) if (r[i : i + 1] or "0") != (w[i : i + 1] or "0"))
+
+
+@functools.cache
+def _columns_by_hand(code, d1, d2):
+    """Every column a × slip's first wrong digit is in, worked by hand over every pair of these digit counts a slip is
+    drawn from: no table fact, nothing round, the tens a zero where a carry onto a zero is the slip."""
+    zero = code == "M_MUL_CARRY_ONTO_ZERO_LOST" and d1 >= 3
+    firsts = [a for a in range(10 ** (d1 - 1), 10**d1) if a > 12 and a % 10 and not (zero and a // 10 % 10)]
+    seconds = [b for b in range(2 if d2 == 1 else 10 ** (d2 - 1), 10**d2) if b % 10]
+    return {_first_wrong(a * b, w) for a in firsts for b in seconds if (w := BY_HAND[code](a, b)) != a * b}
+
+
+def test_a_worked_answer_asks_its_first_wrong_column_only_where_that_column_can_move():
+    """Asked "which column is the first wrong digit in?", a child who ticks one box every time must not score. A
+    carry lost onto a zero in 3 digits by 1 is always lost in the tens, and MUL.3D1D's Advance plants no other slip,
+    so it asks only the right answer and why; the others ask the column too, which falls in more than one."""
+    assert _columns_by_hand("M_MUL_CARRY_ONTO_ZERO_LOST", 3, 1) == {1}
+    for code, d1, d2 in (("M_MUL_CONCAT", 2, 1), ("M_MUL_NO_CARRY", 2, 1), ("M_MUL_PLACEHOLDER", 2, 2)):
+        assert len(_columns_by_hand(code, d1, d2)) > 1, code
+        rng, ticks = random.Random(5), set()
+        for _ in range(40):
+            it = D.find_mistake(rng, "X2", "Conceptual", "×", (d1, d2), code)
+            ticks.add(_resp(it, "where").answer)
+        assert len(ticks) > 1, (code, ticks)
+
+
+@pytest.mark.parametrize(
+    "code,op,digits",
+    [
+        ("M_ALIGN_LEFT", "+", 2),
+        ("M_H2V_SHIFT", "+", 3),
+        ("M_DROP_CARRYOUT", "+", 4),
+        ("M_EXCHANGE_WRONG_PLACE", "-", 3),
+        ("M_ZERO_LENDER", "-", 3),
+        ("M_NO_DECREMENT", "-", 2),
+        ("M_NO_DECREMENT", "-", 3),
+        ("M_NOCARRY", "+", 3),
+        ("M_SMALL_FROM_LARGE", "-", 2),
+    ],
+)
+def test_an_addition_or_subtraction_asks_the_column_by_the_same_rule(code, op, digits):
+    """The same rule for + and −: a final carry dropped is always the top digit (ADD.4D's Advance plants only that),
+    numbers lined up from the left always get the ones wrong (ADD.2D1D's plants only that), an exchange made from the
+    wrong place always the tens. The column each question's numbers put the first wrong digit in is worked here."""
+    rng, columns, asked = random.Random(17), set(), set()
+    for _ in range(150):
+        it = D.find_mistake(rng, "X2", "Conceptual", op, digits, code)
+        sp = it.spec
+        columns.add(_first_wrong(M.compute(sp["op"], sp["a"], sp["b"]), sp["wrong"]))
+        asked.add(any(r.rid == "where" for r in it.responses))
+    assert asked == {len(columns) > 1}, (columns, asked)
+
+
+def test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank():
+    """Stored before the rule, a worked answer that asks the column its mistake always shows in is retired by `engine
+    bank recheck` (`verify.key_problems`), as other questions made by a since-corrected rule are; one whose column
+    moves stays."""
+    rng = random.Random(2)
+    for code, op, digits, leaves in (
+        ("M_MUL_CARRY_ONTO_ZERO_LOST", "×", (3, 1), True),
+        ("M_DROP_CARRYOUT", "+", 4, True),
+        ("M_ALIGN_LEFT", "+", 2, True),
+        ("M_MUL_CONCAT", "×", (2, 1), False),
+        ("M_NOCARRY", "+", 3, False),
+    ):
+        it = D.find_mistake(rng, "X2", "Conceptual", op, digits, code)
+        sp, stored = it.spec, [dataclasses.asdict(r) for r in it.responses]
+        if stored[0]["rid"] != "where":  # as it was made before: the column asked first
+            right = M.compute(sp["op"], sp["a"], sp["b"])
+            stored.insert(0, dataclasses.asdict(D._where(right, sp["wrong"])))
+        assert bool(verify.key_problems("find_mistake", sp, stored)) is leaves, (code, sp)
 
 
 def test_an_estimate_is_the_one_its_rounding_gives():

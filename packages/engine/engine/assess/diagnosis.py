@@ -7,13 +7,16 @@ out, a carry onto a zero lost, the second row not moved), numbers lined up from 
 column needs 2,
 a subtraction turned round, a missing digit that works in its own column only, = read as "the answer
 comes next". A column answer asks which digit of the child's answer is wrong first — a column the
-engine can check — then the right answer, then why.
+engine can check — then the right answer, then why; where its mistake always puts that digit in the same column, it
+asks only the answer and why (`asks_where`).
 
 `explain_claim` asks whether a statement about a calculation is true, and why (moved from `items.py`).
 """
 
+import functools
 import random
 from collections.abc import Callable
+from typing import Any
 
 from . import misconceptions as M
 from . import operations as O
@@ -45,6 +48,9 @@ SHAPES = {
     "M_EQUALS_MEANS_ANSWER": "equals",
 }
 PLANTABLE = set(COLUMN_SLIPS["+"]) | set(COLUMN_SLIPS["-"]) | set(COLUMN_SLIPS["×"]) | ALIGNED | set(SHAPES)
+COUNTED = 2000  # calculations a slip's columns are counted over (`_columns`)
+# one calculation drawn for a slip: (the column its first wrong digit is in, (a, b, every mistake it shows))
+Drawn = tuple[int, tuple[int, int, dict[str, int]]] | None
 
 
 def _first_wrong_column(right: int, wrong: int) -> int:
@@ -78,8 +84,8 @@ def _spread[T](
     """One of `tries` drawn candidates, its column chosen evenly among the columns the candidates' first wrong
     digit falls in. Asked "which column is the first wrong digit in?", a child who ticks the same box every time
     must not score: drawn as they come, a carry of 2 was always in the tens and a smaller-from-larger slip in the
-    ones 83 times in 100 (`engine audit`, 2026-09-23). A mistake that can only ever show in one column (a
-    dropped final carry) still does; a level mixes it with others."""
+    ones 83 times in 100 (`engine audit`, 2026-09-23). A mistake that can only ever show in one column is not
+    asked the column at all (`asks_where`)."""
     by: dict[int, list[T]] = {}
     kept = 0
     for _ in range(tries):
@@ -99,47 +105,84 @@ def _times(rng: random.Random, code: str, sizes: tuple[int, int]) -> tuple[int, 
     """A multiplication of these digit counts, no table fact and nothing round, a carry onto a zero where that is
     the mistake: 506 × 7."""
     d1, d2 = sizes
-    a = rng.randint(10 ** (d1 - 1), 10**d1 - 1)
-    if code == "M_MUL_CARRY_ONTO_ZERO_LOST" and d1 >= 3:
-        a = a - (a // 10 % 10) * 10  # the tens a zero
-    b = rng.randint(2 if d2 == 1 else 10 ** (d2 - 1), 10**d2 - 1)
-    return (a, b) if a > 12 and a % 10 and b % 10 else _times(rng, code, sizes)
+    if d1 < 2:
+        raise O.CannotMake(f"{code} needs a number of 2 digits or more: 1 digit by 1 is a table fact")
+    while True:
+        a = rng.randint(10 ** (d1 - 1), 10**d1 - 1)
+        if code == "M_MUL_CARRY_ONTO_ZERO_LOST" and d1 >= 3:
+            a = a - (a // 10 % 10) * 10  # the tens a zero
+        b = rng.randint(2 if d2 == 1 else 10 ** (d2 - 1), 10**d2 - 1)
+        if a > 12 and a % 10 and b % 10:
+            return a, b
+
+
+def _shown(op: str, code: str, a: int, b: int, mis: dict[str, int]) -> Drawn:
+    """The calculation with the column its first wrong digit is in, or None where it does not show this slip."""
+    seen = "M_ALIGN_LEFT" if code in ALIGNED else code  # a sum copied out of a line is lined up from the left
+    if seen not in mis:
+        return None
+    mis = mis | {code: mis[seen]}
+    return _first_wrong_column(M.compute(op, a, b), mis[code]), (a, b, mis)
+
+
+def _drawn_times(rng: random.Random, code: str, sizes: tuple[int, int]) -> Drawn:
+    a, b = _times(rng, code, sizes)
+    return _shown("×", code, a, b, M.predict("×", a, b))
+
+
+def _drawn_sum(rng: random.Random, code: str, op: str, digits: int) -> Drawn:
+    if code in ALIGNED:
+        short = rng.randint(1, max(1, digits - 1))
+        a, b = (sample_add if op == "+" else sample_sub)(rng, max(digits, 2), short, {0, 1, 2})
+    elif op == "+":
+        a, b = sample_add(rng, digits, digits, {1, 2, 3})
+    else:
+        a, b = sample_sub(rng, digits, digits, {1, 2}, across_zero=code in ACROSS_ZERO)
+    return _shown(op, code, a, b, M.predict(op, a, b))
+
+
+@functools.cache
+def _columns(code: str, op: str, size: int | tuple[int, int]) -> frozenset[int]:
+    """The columns this slip's first wrong digit falls in, over `COUNTED` calculations drawn as its questions are,
+    from a seed of their own so every run counts the same; none where numbers of this size cannot show it."""
+    rng = random.Random(0)
+    if isinstance(size, tuple):
+        drawn = [_drawn_times(rng, code, size) for _ in range(COUNTED)]
+    else:
+        drawn = [_drawn_sum(rng, code, op, size) for _ in range(COUNTED)]
+    return frozenset(got[0] for got in drawn if got)
+
+
+def asks_where(spec: dict[str, Any]) -> bool:
+    """Whether a worked answer's question asks which column its first wrong digit is in: not where its mistake, on
+    numbers this size, always puts it in the same one, where a child ticking that box every time would score.
+    ADD.2D1D's Advance plants only numbers lined up from the left (always the ones), ADD.4D's only a final carry
+    dropped (always the top), MUL.3D1D's only a carry lost onto a zero (always the tens). Mistakes of their own
+    shape (`SHAPES`) decide their own questions."""
+    code, op = spec.get("planted"), O.sign(spec.get("op"))
+    if op is None or code not in set(COLUMN_SLIPS.get(op, [])) | ALIGNED:
+        return True
+    a, b = len(str(spec["a"])), len(str(spec["b"]))
+    return len(_columns(code, op, (a, b) if op == "×" else a)) > 1
 
 
 def _times_column(rng: random.Random, code: str, sizes: tuple[int, int]) -> tuple[int, int, dict[str, int]]:
     """A multiplication of these digit counts whose worked answer this slip gets wrong."""
-
-    def draw() -> tuple[int, tuple[int, int, dict[str, int]]] | None:
-        a, b = _times(rng, code, sizes)
-        mis = M.predict("×", a, b)
-        return (_first_wrong_column(a * b, mis[code]), (a, b, mis)) if code in mis else None
-
-    return _spread(rng, draw, f"{sizes[0]} × {sizes[1]} digits with {code}")
+    if not _columns(code, "×", sizes):
+        raise O.CannotMake(f"no {sizes[0]}-digit by {sizes[1]}-digit multiplication shows {code}")
+    return _spread(rng, lambda: _drawn_times(rng, code, sizes), f"{sizes[0]} × {sizes[1]} digits with {code}")
 
 
 def _column(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
     """A two-number calculation in columns whose answer this mistake would get wrong."""
-
-    def draw():
-        if op == "+":
-            a, b = sample_add(rng, digits, digits, {1, 2, 3})
-        else:
-            a, b = sample_sub(rng, digits, digits, {1, 2}, across_zero=code in ACROSS_ZERO)
-        mis = M.predict(op, a, b)
-        if code not in mis:
-            return None
-        return _first_wrong_column(M.compute(op, a, b), mis[code]), (a, b, mis)
-
-    return _spread(rng, draw, f"{digits}-digit {op} with {code}")
+    return _spread(rng, lambda: _drawn_sum(rng, code, op, digits), f"{digits}-digit {op} with {code}")
 
 
 def _aligned(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
     for _ in range(400):
-        short = rng.randint(1, max(1, digits - 1))
-        a, b = (sample_add if op == "+" else sample_sub)(rng, max(digits, 2), short, {0, 1, 2})
-        mis = M.predict(op, a, b)
-        if "M_ALIGN_LEFT" in mis:
-            return a, b, mis | {code: mis["M_ALIGN_LEFT"]}
+        got = _drawn_sum(rng, code, op, digits)
+        if got:
+            return got[1]
     raise RuntimeError(f"no {op} question shows {code}")
 
 
@@ -251,18 +294,16 @@ def find_mistake(
         a, b, mis = _column(rng, code, op, max(width, 3) if wide else width)
     wrong = mis[code]
     right = M.compute(op, a, b)
-    rs = [
-        _where(right, wrong),
-        Response(
-            "ans",
-            "digits",
-            str(right),
-            cells=cells(max(right, wrong)),
-            misconceptions=mis,
-            label="correct answer",
-        ),
-        _why(code),
-    ]
+    spec: dict[str, Any] = dict(a=a, b=b, op=op, wrong=wrong, planted=code)
+    ans = Response(
+        "ans",
+        "digits",
+        str(right),
+        cells=cells(max(right, wrong)),
+        misconceptions=mis,
+        label="correct answer",
+    )
+    rs = ([_where(right, wrong)] if asks_where(spec) else []) + [ans, _why(code)]
     lined = " (written in a line, then copied into columns)" if code == "M_H2V_SHIFT" else ""
     stem = f"{name} worked out {a} {O.PRINTED[op]} {b}{lined} and wrote {wrong}. That is not right."
     return item(
@@ -271,7 +312,7 @@ def find_mistake(
         "Conceptual",
         "find_mistake",
         stem,
-        dict(a=a, b=b, op=op, wrong=wrong, planted=code),
+        spec,
         rs,
         working_lines=2,
     )
