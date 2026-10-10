@@ -24,6 +24,7 @@ RULES = {
         "find_mistake": ["NUM.PRB.03"],
     },
     "by_symbol": {"₹": "NUM.MEAS.04"},
+    "by_method": {},
 }
 
 

@@ -172,11 +172,16 @@ def _stale_mistakes(fmt: str, spec: dict[str, Any], responses: list[dict[str, An
 def _stale_rows(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
     """A long multiplication whose key cannot name its rows added without a carry (19 × 14 written 166), stored before
     the mistake was predicted on a multiplication (`written_methods.rows_added`, ADR 0055)."""
-    if fmt != "column_grid" or O.sign(spec.get("op")) != "×" or not {"a", "b"} <= spec.keys():
+    a, b = spec.get("a"), spec.get("b")
+    if (
+        fmt != "column_grid"
+        or O.sign(spec.get("op")) != "×"
+        or not (isinstance(a, int) and isinstance(b, int))
+    ):
         return []
     ans = [r for r in responses or [] if r.get("rid") == "ans"]
     stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
-    rows = WM.rows_added(int(spec["a"]), int(spec["b"]))
+    rows = WM.rows_added(a, b)
     return sorted(c for c, v in rows.items() if c not in stored and v not in stored.values())
 
 

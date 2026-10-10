@@ -77,7 +77,7 @@ def test_division_has_a_skill_a_mistake_row_and_a_case():
     config = {r["key"]: r["value"] for r in json.loads((SEED / "config.json").read_text())["config"]}
     by_operation = config["skills.by_operation"]
     assert by_operation["÷"] == "NUM.OPS.04" and by_operation["×"] == "NUM.OPS.03"
-    rules = {"by_kind": {}, "by_symbol": {}, "by_operation": by_operation}
+    rules = {"by_kind": {}, "by_symbol": {}, "by_operation": by_operation, "by_method": {}}
     assert S.used("bare", {"text": "84 ÷ 4 = □"}, "", [], rules) == ["NUM.OPS.04"]
     dims = {d["name"]: d for d in json.loads((SEED / "case_dimensions.json").read_text())["case_dimensions"]}
     assert set(dims["operation"]["allowed"]) == {"ADD", "SUB", "MUL", "DIV"}
