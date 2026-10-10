@@ -98,7 +98,8 @@ def test_the_right_answer_goes_in_the_divisions_own_boxes(skill, case, code):
         wq, wr = DM.PREDICTORS[code](a, b)
         named = {**rs["ans"].misconceptions, **(rs["rem"].misconceptions if r else {})}
         assert code in named and wq in (q, rs["ans"].misconceptions.get(code)), it.spec
-        assert not wr or wr == r or rs["rem"].misconceptions.get(code) == wr, it.spec
+        # a remainder the worked answer writes is named in the remainder's box, where the right answer has one
+        assert not (wr and r) or wr == r or rs["rem"].misconceptions.get(code) == wr, it.spec
 
 
 @pytest.mark.parametrize(("skill", "case", "code"), EACH)

@@ -179,21 +179,21 @@ def _as_worked(fn: Predictor) -> Predictor:
 
 
 # fmt: off
-PREDICTORS: dict[str, tuple[Predictor, str, str]] = {
-    "M_MUL_NO_CARRY":       (_as_worked(no_carry), "Multiplies each digit and drops the carry", "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'"),
-    "M_MUL_CONCAT":         (_as_worked(concat), "Writes each digit's whole product side by side", "Grid (area) method first, then the column method beside it"),
-    "M_MUL_CARRY_FIRST":    (_as_worked(carry_first), "Adds the carry before multiplying instead of after", "Say the order aloud: multiply, then add what was carried"),
-    "M_MUL_ONES_ONLY":      (_as_worked(ones_only), "Multiplies the ones digit and stops", "Grid method: show that both parts of the number are multiplied"),
-    "M_MUL_ROW_OUT":        (_as_worked(row_out), "One row out in the times table", "Count on in that table; check against a known fact"),
-    "M_WRONG_OP":           (_as_worked(added), "Added instead of multiplying", "Read the question aloud; identify the operation word"),
-    "M_MUL_UNITS_REVERSED": (_as_worked(units_reversed), "Writes only the units digit of each product, ones column first", "Grid method: write each whole product in its place, then add them"),
-    "M_MUL_CARRY_ONTO_ZERO_LOST": (_as_worked(carry_onto_zero_lost), "Forgets a carry that lands on a zero", "Say the zero column aloud: nought times seven is nought, plus the four carried makes four"),
-    "M_MUL_PLACEHOLDER":    (_as_worked(placeholder), "Second row not moved a place (the zero left out)", "Write the zero first on the second row and say why: we are multiplying by tens"),
-    "M_MUL_ONE_ROW":        (_as_worked(one_row), "Multiplies by the ones of the multiplier only", "Split the multiplier into tens and ones and write a row for each"),
-    "M_MUL_COLUMNWISE":     (_as_worked(columnwise), "Multiplies tens by tens and ones by ones", "Grid (area) method: four cells, not two"),
-    "M_MUL_STALE_CARRY":    (_as_worked(stale_carry), "Adds the first row's carry again in the second row", "Cross out each carry once it is used, before starting the next row"),
-    "M_TENS_ZERO_DROPPED":  (_as_worked(tens_zero_dropped), "Writes one zero fewer when multiplying by 10, 100 or a multiple of ten", "Count the zeros in both numbers before writing the answer"),
-    "M_ZERO_AS_ONE":        (_as_worked(zero_as_one), "Treats × 0 as leaving the number", "Zero groups of seven: how many altogether?"),
-    "M_ONE_ADDED":          (_as_worked(one_added), "Treats × 1 as adding one", "One group of seven: how many altogether?"),
+PREDICTORS: dict[str, Predictor] = {
+    "M_MUL_NO_CARRY":       _as_worked(no_carry),
+    "M_MUL_CONCAT":         _as_worked(concat),
+    "M_MUL_CARRY_FIRST":    _as_worked(carry_first),
+    "M_MUL_ONES_ONLY":      _as_worked(ones_only),
+    "M_MUL_ROW_OUT":        _as_worked(row_out),
+    "M_WRONG_OP":           _as_worked(added),
+    "M_MUL_UNITS_REVERSED": _as_worked(units_reversed),
+    "M_MUL_CARRY_ONTO_ZERO_LOST": _as_worked(carry_onto_zero_lost),
+    "M_MUL_PLACEHOLDER":    _as_worked(placeholder),
+    "M_MUL_ONE_ROW":        _as_worked(one_row),
+    "M_MUL_COLUMNWISE":     _as_worked(columnwise),
+    "M_MUL_STALE_CARRY":    _as_worked(stale_carry),
+    "M_TENS_ZERO_DROPPED":  _as_worked(tens_zero_dropped),
+    "M_ZERO_AS_ONE":        _as_worked(zero_as_one),
+    "M_ONE_ADDED":          _as_worked(one_added),
 }
 # fmt: on

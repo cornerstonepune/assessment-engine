@@ -15,6 +15,8 @@ from collections.abc import Callable
 from typing import Any, cast
 
 from . import div_mistakes as DM
+from . import divide_found as DF
+from . import divide_stories as DS
 from . import division as D
 from . import estimate as E
 from . import misconceptions as M
@@ -250,6 +252,8 @@ BUILT: dict[tuple[str, str, str | None], Build] = {
     ("possible_answer", "DIV", None): could_be,
     ("inverse_check", "DIV", None): checked,
     ("efficient_method", "DIV", "DIVIDE_BY_TEN_THEN_DOUBLE"): ten_then_doubled,
+    ("find_mistake", "DIV", None): DF.found,  # the mistake found (goals/md3b3-…)
+    ("word_1step", "DIV", None): DS.story,  # a story that divides, exactly or with something left over
 }
 
 

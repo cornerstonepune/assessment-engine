@@ -76,11 +76,10 @@ def _where(right, wrong):
     )
 
 
-def _why(code):
-    name = next(
-        (t[code][1] for t in (*M.TABLES.values(), M.MULTI_PREDICTORS) if code in t), WM.NAMES.get(code)
-    )
-    return Response("why", "text", None, rubric=f"Names the mistake: {name or code}")
+def why() -> Response:
+    """Why the worked answer is wrong, in the child's words: a person reads it against the mistake's own row, the name
+    the reports use, which the question never copies (rule 1, goals/md3b3-divide-mistakes-and-stories.yaml)."""
+    return Response("why", "text", None, rubric="Names the mistake its worked answer shows")
 
 
 def _spread[T](
@@ -210,7 +209,7 @@ def _shaped(rng: random.Random, code: str, name: str) -> tuple[str, dict[str, An
             misconceptions={code: wrong},
             label="correct answer",
         )
-        return stem, dict(a=n, b=m, op="×", wrong=wrong, planted=code), [ans, _why(code)]
+        return stem, dict(a=n, b=m, op="×", wrong=wrong, planted=code), [ans, why()]
     if shape == "three":
 
         def draw():
@@ -239,7 +238,7 @@ def _shaped(rng: random.Random, code: str, name: str) -> tuple[str, dict[str, An
                     misconceptions={code: wrong},
                     label="correct answer",
                 ),
-                _why(code),
+                why(),
             ],
         )
     if shape == "reversed":
@@ -277,7 +276,7 @@ def _shaped(rng: random.Random, code: str, name: str) -> tuple[str, dict[str, An
         misconceptions={code: wrong},
         label="correct answer",
     )
-    return stem, spec, [ans, _why(code)]
+    return stem, spec, [ans, why()]
 
 
 def find_mistake(
@@ -328,7 +327,7 @@ def find_mistake(
         misconceptions=mis,
         label="correct answer",
     )
-    rs = ([_where(right, wrong)] if asks_where(spec) else []) + [ans, _why(code)]
+    rs = ([_where(right, wrong)] if asks_where(spec) else []) + [ans, why()]
     lined = " (written in a line, then copied into columns)" if code == "M_H2V_SHIFT" else ""
     stem = f"{name} worked out {a} {O.PRINTED[op]} {b}{lined} and wrote {wrong}. That is not right."
     return item(

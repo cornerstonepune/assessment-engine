@@ -5937,3 +5937,41 @@ Run on the copy `ny1m` (fresh23's rows, NY1's and this migration applied):
 - A division's mistakes have no name in code, so a worked division's "why" would print a code.
 - So the rows are the one source (rule 1): the copies go, the "why" names no mistake, and Jev is shown the rows'
   names. Jev's input changes for `M_ZERO_DROPPED` alone; `engine eval mistake_guess` is run after the deploy.
+
+## M3b3 — the mistake found in a division, and stories with something left over, built (2026-10-10)
+
+ADR 0061. Goal `goals/md3b3-divide-mistakes-and-stories.yaml`.
+
+- **Finding the mistake in a division** (`assess/divide_found.py`, a module of its own: `diagnosis.py` is at 396).
+  - C05 on DIV.2D1D; C04 and C07 on DIV.3D1D. Each worked answer is its planted mistake's own prediction on the
+    level's numbers.
+  - A question is made wherever the mistake shows, and nowhere else: 254, 1,170 and 7,035, as measured.
+  - The right answer goes in the division's own boxes (`division.boxes`). The "why" names no mistake, and no step is
+    ticked.
+- **Stories that divide** (`assess/divide_stories.py`; B07's exact story moved there from `facts_kinds.py`).
+  - B14 to B17 on DIV.2D1D: the full boxes, the rickshaws needed, how many are left over, or both.
+  - Their words are eight template rows, two for each use, each saying what it does with the remainder. The use is
+    in the story's spec, so it is part of its key.
+  - Each box names its own mistakes:
+    - the division's quotient box, or its remainder's;
+    - for the rickshaws, `M_REMAINDER_NOT_ROUNDED_UP` (a new row, drafted for Achal) and each division slip rounded
+      up as the child would.
+  - The scenarios recompute a story's answer by what it does with its remainder (`scenarios.USED`).
+- **Printed:** a story that asks both, and the right answer to a worked division, print the quotient's box, its "r" and
+  the remainder's box as one answer (`answer_space.answered`).
+- **A mistake's words are its row alone:**
+  - the code's tables hold predictors only; `written_methods.NAMES` and `misconceptions.catalogue` are gone;
+  - the "why" rubric names no mistake, and the Question bank shows that same sentence for questions stored before;
+  - Jev is shown the rows' names (`mistake_guess.options(conn, op)`).
+- **The two levels list the new cases** (`skill_sets.json`), and DIV.2D1D lists the new mistake. Every placement the
+  document makes on the two levels is held (`test_divide_advance.py`); nothing waits for M3b3 in `test_facts_advance.py`.
+- **Ratchets:** pyright's unannotated counts fell, written down: `diagnosis.py` 47 → 42, `misconceptions.py`
+  231 → 224, `render.py` 321 → 317. `render.py` is at 393 lines.
+- **Fixed with it:** `test_bank.py` draws only sums the bank does not already hold. It failed CI on main for the NY2
+  merge; reproduced on a copy with 478 − 87 stored.
+
+Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank refill`:
+- M3b3's own tests (`test_divide_found.py`, `test_divide_stories.py`, `test_mistake_rows.py`, `test_divide_advance.py`,
+  `test_facts_advance.py`, `test_mistake_guess.py`, `test_misconceptions.py`): 80 passed;
+- `research/md_taxonomy.py --check`: 0 faults.
+

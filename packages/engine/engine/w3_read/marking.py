@@ -88,7 +88,7 @@ def mark(spec, response, read, learned=()):
         return "correct", [], working
     codes = sorted(code for code, wrong in response.get("misconceptions", {}).items() if wrong == n)
     if not codes and want is not None:
-        codes = sorted(code for code, (rule, _, _) in M.ANSWER_RULES.items() if rule(int(want), n))
+        codes = sorted(code for code, rule in M.ANSWER_RULES.items() if rule(int(want), n))
     if not codes and learned and L.works_the_sum(spec, response):
         # a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)
         codes = learned_mistakes.recognise(learned, spec.get("op"), int(spec["a"]), int(spec["b"]), n)

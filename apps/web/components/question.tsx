@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
 import { Dots, Grid, Lattice, Rings, Square, Tally } from "@/components/pictures";
-import type { ItemRow, Mistake } from "@/lib/queries-bank";
+import type { ItemResponse, ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
 // lives beside the renderer that draws its question: a new kind needs both, so they arrive together.
@@ -302,6 +302,11 @@ function Wall({ base }: { base: number[] }) {
   );
 }
 
+// What a person reads an explanation against. A worked answer's "why" is read against its planted mistake's own row,
+// named beside it (`Mistakes`): never the name a question stored before M3b3, a copy the code kept, which could say
+// otherwise than the row the school edits (goals/md3b3-divide-mistakes-and-stories.yaml).
+const looksFor = (it: ItemRow, r: ItemResponse) => (it.spec.planted ? "Names the mistake its worked answer shows" : r.rubric);
+
 /** Everything the child writes for this question, each part named: an estimate and an exact answer
  *  are two answers, and an explanation is read by a person against its rubric (shown in full with
  *  `rubric`, as a hover otherwise). */
@@ -317,9 +322,9 @@ export function Answers({ it, rubric = false }: { it: ItemRow; rubric?: boolean 
               {r.tolerance ? ` (±${r.tolerance})` : ""}
             </span>
           ) : (
-            <span className="note" title={r.rubric ?? undefined}>
+            <span className="note" title={looksFor(it, r) ?? undefined}>
               in words · a teacher reads it
-              {rubric && r.rubric ? <span className="block text-basalt/70">Looks for: {r.rubric}</span> : null}
+              {rubric && looksFor(it, r) ? <span className="block text-basalt/70">Looks for: {looksFor(it, r)}</span> : null}
             </span>
           )}
         </span>

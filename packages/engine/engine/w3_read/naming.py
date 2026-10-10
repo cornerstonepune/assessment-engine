@@ -71,7 +71,7 @@ def unnamed(conn, capture_id):
         out[str(r["id"])] = {
             "answer": answer,
             "shortlist": [[c, p] for c, p in short],
-            "options": list(mistake_guess.options(op)),
+            "options": mistake_guess.codes(op),
             "why": why,
         }
     return out
@@ -85,7 +85,7 @@ def name_mistake(conn, result_id, code, by, proposed=()):
         raise ValueError(f"no wrong answer waiting to be named with id {result_id}")
     row, answer = found[0]
     op = (row["spec"] or {}).get("op")
-    if op not in mistake_guess.SIGN or code not in mistake_guess.options(op):
+    if op not in mistake_guess.SIGN or code not in mistake_guess.codes(op):
         raise ValueError(f"{code!r} is not a named mistake of {op!r}, nor {mistake_guess.NONE}")
     if not L.works_the_sum(row["spec"] or {}, row["response"] or {}):
         raise ValueError(

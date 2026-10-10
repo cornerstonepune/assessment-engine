@@ -28,11 +28,6 @@ KINDS = {
     "EXPANDED": "expanded_columns",
     "LATTICE": "lattice",
 }
-# the methods' own mistakes, by name, as their rows in `supabase/seed/misconceptions.json` say them
-NAMES = {
-    "M_PARTITION_TENS_AS_ONES": "Multiplies a partitioned tens digit as ones",
-    "M_GRID_CELL_DROPPED": "Leaves a cell out when adding a grid",
-}
 STEMS = {
     "PARTITIONING": "Partition the larger number. Multiply each part, then add.",
     "GRID": "Multiply in the grid, then add the cells.",

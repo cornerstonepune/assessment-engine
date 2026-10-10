@@ -59,8 +59,11 @@ def _matches(check):
 
 
 @functools.cache
-def _drawn(skill, n=72, seed=7):
+def _drawn(skill, n=None, seed=7):
+    """The level drawn as the bank draws it, fourteen questions of each of its cases by default: enough of each kind
+    for its own test, however many cases the level holds."""
     check = _check(skill)
+    n = n or 14 * len(check["cases"])
     return draw.level(random.Random(seed), check, _matches(check), SETS[skill]["rung_code"], n)
 
 

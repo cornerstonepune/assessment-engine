@@ -176,6 +176,16 @@ def _same(stated, want):
     return stated is not None and (stated.isdigit() and int(stated) == want or stated == str(want))
 
 
+# What a story that divides asks of its division (goals/md3b3-divide-mistakes-and-stories.yaml), worked here apart from
+# the code that wrote the story: the full groups, one more for those left over, what is left over, or both.
+USED = {
+    "ROUND_DOWN": lambda q, r: (q, None),
+    "ROUND_UP": lambda q, r: (q + (1 if r else 0), None),
+    "REMAINDER_ASKED": lambda q, r: (r, None),
+    "BOTH_ASKED": lambda q, r: (q, r),
+}
+
+
 def _sum_is_right(s, stated):
     """The question's own sum, recomputed from its numbers, against its answer's box; None where it has no sum."""
     nums = s.get("addends") or ([s["a"], s["b"]] if {"a", "b"} <= s.keys() else None)
@@ -184,8 +194,8 @@ def _sum_is_right(s, stated):
     if O.sign(s["op"]) == "÷":
         if "ans" not in stated:
             return None  # a claim judged or checked: its ticks and boxes are worked on their own (`_ticks`)
-        q, r = divmod(nums[0], nums[1])
-        return stated.get("ans") == str(q) and stated.get("rem") == (str(r) if r else None)
+        ans, rem = USED.get(s.get("remainder_use"), lambda q, r: (q, r or None))(*divmod(nums[0], nums[1]))
+        return stated.get("ans") == str(ans) and stated.get("rem") == (None if rem is None else str(rem))
     want = sum(nums) if s["op"] == "+" and len(nums) > 2 else M.compute(s["op"], nums[0], nums[1])
     answer = stated.get("ans", stated.get("answer"))
     return None if answer is None else str(want) == answer
