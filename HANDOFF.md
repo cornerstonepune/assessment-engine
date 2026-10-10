@@ -3,7 +3,22 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (in progress)
+## 2026-10-10 — M2d1: MUL.MODELS (in progress)
+
+- **Slice:** M2d1 (W1 gate 3). Goal `goals/md2d1-multiplication-models.yaml`; tests `test_mul_models.py`.
+- **AS2 is merged and live:** main `7990be2`, `migrate live` and `deploy engine` green; `engine done` all PROVED.
+- **Measured** (STATE.md "M2d1 — measured before the build"): none of `MUL.MODELS`' eight cases draws today.
+- **Plan:** skip counting and a cell of the multiplication square are kinds of their own (`skip_counting`,
+  `multiplication_square`): the drafted rows filed them as `bare_sum`, against the draft's own rule that a method is
+  "another kind, naming what it is", and a `bare_sum` prints "5 × 5 =" on the website and is checked as a straight
+  sum. The array is a shape of equal groups (`ARRAY`), its method measured from the shape as `PICTURE`'s is; the
+  number line learns ×; the swap is an equation shape reading the level's `known` tables. `draw.py` (at its ceiling)
+  splits its own-kind path into `draw_kinds.py` and passes a case's `method`. × templates for an array, twice as many
+  and area; "times as many" names adding its numbers `M_TIMES_AS_MORE`, both ways into the bank. `MUL.MODELS`
+  carries no `within`: `placing.py` reads a skill with one as a calculation skill, and 7 × 8 would belong to two.
+- **Waiting for Nimish's `bin/update-live`:** M0b to AS2, then approving the 13 skill sets it lists.
+
+## 2026-10-10 — AS2: a story is its numbers, its shape and its operations (merged)
 
 - **Slice:** AS2 (W1 gate 3). Goal `goals/as2-a-story-is-its-shape.yaml`; tests `test_story_keys.py`; ADR 0053.
 - **AS1 is merged and live:** main `9a4b366`, CI, `migrate live` and `deploy engine` green.

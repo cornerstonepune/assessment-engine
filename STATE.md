@@ -5195,3 +5195,24 @@ Each 1-digit Advance level filled whole, as `bank refill` fills it and a scenari
   `bank rehome` moves 606 and retires 258 stories whose shape no template names, as on every rehearsal since M2a (ADR
   0050: `MUL.1D`'s); refill retires 541 and adds 4,561; 3,388 worksheets, 124 of 124 levels ready, 0 problems; every
   after-check ok. Live holds 20 one-step stories with no shape, the model-written ones (the rehearsal's own listing).
+
+## M2d1 — measured before the build (2026-10-10)
+
+AS2 is merged and deployed: main `7990be2`, CI, `migrate live` (migration `20261030090000`) and `deploy engine` green
+(04:42 UTC). `bin/engine done as2-a-story-is-its-shape` on a database built as CI builds it: 11 of 11 sentences PROVED,
+2 of 2 scenarios MET, 2 of 2 criteria PASSED (1,099 tests, `bin/check` 27); "NOT DONE" only for live's migrations,
+which this container cannot read (`migrate live` on main applied them). `bin/engine done as1-every-listed-case-draws`
+on main `9a4b366`'s tree: 8 of 8 PROVED, 9 of 9 MET, both criteria PASSED (1,065 tests; `bin/check` 27 once a stray
+`pyrightconfig.json` in the session's scratch folder, above the worktree it ran from, was moved aside).
+
+M2d is two slices (BUILD-ORDER): M2d1, `MUL.MODELS`; M2d2, the written methods and their mistakes.
+
+`MUL.MODELS`' eight cases, each drawn alone on a × level through today's drawer (4 asked, 300 tries each):
+- G03 (skip counting), G05 (an array), TF17 (a cell of the multiplication square): 0 of 4. The drawer never passes a
+  case's `method` or its table to a kind, so every draw is refused by the case's own match.
+- G04 (equal jumps on a number line): `KeyError: 'hi'`. The number line makes + and − only.
+- G14 (a table swapped to a known one): `ValueError: no equation shape 'SWAP_TO_A_KNOWN_TABLE'`.
+- B04, B11, B13 (an array, twice as many, area in squares): `CannotMake`. No × story template holds those shapes.
+- `MUL.MODELS` is no row; `M_TIMES_AS_MORE` ("reads 3 times as many as 3 more", the drafted table's) is no mistake row.
+- `draw.py` is at its 400-line ceiling: passing `method` means first moving the cases a kind draws for itself (and
+  what a case allows, its operation and sizes) into a module of their own.
