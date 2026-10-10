@@ -5716,3 +5716,15 @@ Found while building, fixed here:
   sentence, other operations in columns).
 - **Ratchets, all written down:** `render_item`'s branches 23 → 19 and statements 71 → 57; `render.py`'s untyped
   findings 347 → 321 and `bands.py`'s 289 → 279. The new module has none.
+
+Proved on `38d4863` (database fresh23, built by `bin/testdb fresh` from this tree):
+`bin/engine goal md3b2-divide-advance` GOAL ACHIEVED.
+- 2 of 2 scenarios at 100%, 60 questions: every answer recomputed, none with nothing to work, none off its rule, none
+  undiagnosed, every case held.
+- Criteria: 1,145 tests passed, the drafted document 0 faults, and `bin/check` 27 passed.
+- s31, s32 and s33 passed in the browser against the same database.
+- Rehearsed on a copy of live, run 38066563963 on `38d4863`, all green:
+  - 554 questions retired and 7,479 added; 3,682 worksheets; 144 of 144 skill-levels ready; 0 problems.
+  - MUL_DIV: 179 cases covered, 68 missing (M3b3's and later slices'), 4 thin: unplaced patterns random draws happen
+    to match, as in M3b1's run.
+  - Every live data check ok.

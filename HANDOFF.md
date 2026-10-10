@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (built, proving)
+## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (proved, merging)
 
 - **Slice:** M3b2 (W1 gate 3). Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases
   on `DIV.2D1D`'s and `DIV.3D1D`'s Advance draws, and V04 and V10 alone crash (`times_kinds.sizes`). Split again:
@@ -29,8 +29,11 @@ is verified. This file only says where the last session stopped.
     rendered sheet; a test pins both);
   - the recompute would have called every judged or checked division wrong. Measured over all 26,954 questions: 0
     read wrong.
-- **Next:** the goal on a database built from this tree, CI, a rehearsal of `bin/update-live` on a copy of live, merge,
-  `engine done`; then M3b3 (the mistake found, the remainder stories).
+- **Proved:** GOAL ACHIEVED on `38d4863`; s31, s32 and s33 passed; rehearsed on a copy of live (run 38066563963).
+  STATE.md "M3b2" has the numbers.
+- **Next:** merge, `migrate live` and `deploy engine`, `engine done`; then M3b3: the mistake found (C04, C05, C07, a
+  module of its own) and the remainder stories (B14–B17, template rows, the remainder not rounded up as a new
+  mistake).
 
 ## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged, live, done)
 
