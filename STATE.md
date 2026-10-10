@@ -6113,6 +6113,19 @@ all of them, so the line goes. DIV.GROUPS held every case placed on it, so its "
 criteria did not run that file, which is why it was not seen here; it runs them now. Reproduced on `m3c` (1 failed),
 then the file passes (20).
 
+## M3c merged and live (2026-10-10)
+
+- Merged as `97cb9cc` (#175), at the head CI had passed (`6350e65`: ci 38091634852). The rehearsal on a copy of live
+  ran on `f4ba7bc` (38089159350); after it only documents and tests changed.
+- Main: `ci` green (38093378655), then `migrate live` (38094297507) and `deploy engine` (38094297496) succeeded.
+- `bin/engine done md3c-division-models` on main's code (the worktree at `97cb9cc`), against `m3c`:
+  - 15 of 15 of Nimish's sentences PROVED, s34 among them in the browser;
+  - 4 of 4 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,139 tests, the drafted document 0 faults, s34 1 passed, `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as for M3a to M3b3; the
+    `migrate live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a.
+
 ## M3d — measured before the build (2026-10-10)
 
 Each method case drawn alone on its skill's Hard level (main `0492849` with M3c's code; scratchpad `measure_m3d.py`, 6
