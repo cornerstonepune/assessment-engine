@@ -1,6 +1,6 @@
 """The tables' and the tens' kinds an Advance asks for, × and ÷ (goals/md3b1-facts-advance.yaml): a fact family, the
 table backwards through its fact, a fact from a known fact, a fact scaled by ten and the cost of one, and the mistakes a
-missing factor or divisor names. Each is built on the two numbers its case draws (`draw._pair`), as a straight
+missing factor or divisor names (ADR 0057). Each is built on the two numbers its case draws (`draw._pair`), as a straight
 question's are, so a tables level's are table facts and the tens level's round numbers; a kind that drew its own
 numbers almost never landed on a tables level. Deterministic given an RNG; pure: no I/O.
 
@@ -37,6 +37,8 @@ def missing_mistakes(op: str, a: int, b: int, hidden: str) -> dict[str, int]:
     row out (→ 8); a zero too few where the box is 10, 100 or 1000 and no table fact (45 × □ = 4500 → 10); a square's
     row out and its two numbers added (□ × □ = 64 → 32). ÷ read as −, the divisor taken away once (□ ÷ 4 = 7 → 11,
     56 ÷ □ = 8 → 48), and the two numbers multiplied where the divisor is the box (→ 448)."""
+    if hidden not in ("a", "b", "both") or (op == "÷" and (hidden == "both" or not b or a % b)):
+        raise ValueError(f"no rule names what a child writes in {a} {op} {b} with the box on {hidden!r}")
     if op == "×":
         c = a * b
         if hidden == "both":

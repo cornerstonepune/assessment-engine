@@ -15,6 +15,7 @@ from collections import defaultdict
 import pytest
 
 from engine.assess import draw, placing, render, stale, tags, taxonomy, verify
+from engine.assess import facts_kinds as FK
 from engine.assess.items import Item, Response
 from engine.assess.pick import Sheet
 from engine.assess.words import template_of
@@ -222,6 +223,9 @@ def test_a_missing_factor_or_divisor_has_one_answer_and_names_the_operation_misr
                 want = {"M_DIV_SUBTRACTED": int(x) - c, "M_WRONG_OP": int(x) * c}
             want = {k: v for k, v in want.items() if v != hidden and v >= 0}
             assert r.misconceptions == want, (case, text, r.misconceptions)
+    # a box no rule here is about is refused, never keyed by another box's rule: the remainder's is M3b2's (Q12)
+    with pytest.raises(ValueError):
+        FK.missing_mistakes("÷", 38, 5, "remainder")
 
 
 def test_the_box_first_asks_the_divisions_own_answer():
