@@ -28,7 +28,7 @@ def matches(match: Any, fmt: str | None, tags: dict[str, Any]) -> bool:
     return True
 
 
-def within(match, shape):
+def within(match: Any, shape: Any) -> Any:
     """The case on one skill's numbers: its conditions and the skill's shape (operation, digits) together.
     Where both speak of one tag the narrower wins when it satisfies the other (a skill of 4-digit numbers
     and a case of "4 digits or more"); a case the shape contradicts can never be on that skill, and says so."""
@@ -52,7 +52,7 @@ def within(match, shape):
     return out
 
 
-def _overlap(a, b):
+def _overlap(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any] | None:
     """Two ranges as one ("4 or more" inside "3 or more" is "4 or more"), or None when they share nothing."""
     lo = max((r["gte"] for r in (a, b) if "gte" in r), default=None)
     hi = min((r["lte"] for r in (a, b) if "lte" in r), default=None)

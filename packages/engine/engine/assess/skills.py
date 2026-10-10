@@ -7,10 +7,15 @@ money. Which operation maps to which skill, and which kind carries which skills,
 
 The rung's own skills decide the order and nothing else: the ones the question uses come first, in the
 rung's order, so `skill_codes[1]` stays the question's own skill for every reader that takes the first.
+
+A written method that adds its steps — partitioning, a grid, expanded columns, a lattice, long multiplication's rows —
+uses addition too (`skills.by_method`, assumption A11), so a slip adding them counts against addition (ADR 0055).
 """
 
 import re
+from typing import Any
 
+from . import md_tags as MD
 from . import operations as O
 from . import words as W
 
@@ -19,7 +24,7 @@ def _sign(op: str) -> str:
     return O.sign(op) or op
 
 
-def operations(fmt, spec, stem=""):
+def operations(fmt: str, spec: dict[str, Any], stem: str | None = "") -> list[str]:
     """The operations a child carries out on this question, in the order the question asks for them."""
     if "budget" in spec:
         return ["+", "-"]  # the costs are added up, and the total is taken from the budget
@@ -41,21 +46,42 @@ def operations(fmt, spec, stem=""):
     return [_sign(m.group(1) or m.group(2))] if m else []
 
 
-def used(fmt, spec, stem, rung_skills, rules):
+def method(fmt: str, spec: dict[str, Any]) -> str | None:
+    """The written method a question is worked in: its own, or a straight calculation's (`md_tags.standard_method`)."""
+    if spec.get("method") or not {"a", "b", "op"} <= spec.keys() or _sign(spec["op"]) not in ("×", "÷"):
+        return spec.get("method")
+    layout = spec.get("layout") or ("column" if fmt == "column_grid" else "horizontal")
+    return MD.standard_method(_sign(spec["op"]), spec["a"], spec["b"], layout)
+
+
+def used(
+    fmt: str, spec: dict[str, Any], stem: str | None, rung_skills: list[str], rules: dict[str, Any]
+) -> list[str]:
     """Every registry skill the question uses, the rung's own first."""
     found = list(rules["by_kind"].get(fmt, []))
     found += [skill for symbol, skill in rules["by_symbol"].items() if symbol in (stem or "")]
     found += [rules["by_operation"][op] for op in operations(fmt, spec, stem) if op in rules["by_operation"]]
+    found += rules["by_method"].get(method(fmt, spec) or "", [])
     found = list(dict.fromkeys(found))
     lead = [s for s in rung_skills if s in found]
     return lead + [s for s in found if s not in lead]
 
 
-def charges(fmt, spec, stem, skills_used, codes, vocab, rules):
+def charges(
+    fmt: str,
+    spec: dict[str, Any],
+    stem: str | None,
+    skills_used: list[str],
+    codes: list[str],
+    vocab: dict[tuple[str, str], tuple[str | None, str | None]],
+    rules: dict[str, Any],
+) -> dict[str, str | None]:
     """{mistake: skill} — the skill a wrong answer showing each mistake counts against (ADR 0023).
 
     In order: this kind's own table (`skills.charges_by_kind`, approved once by a person), then the
-    mistake's vocabulary row, then the question's operation when it has exactly one. A mistake that
+    mistake's vocabulary row, then the question's operation when it has exactly one. A mistake with no row for the
+    question's one operation and a row for exactly one other, which the question also carries out, is that one's —
+    the steps of a multiplication added without a carry are addition's (`M_NOCARRY`, assumption A11). A mistake that
     would charge a skill the question does not use — or that nothing names — charges the question's
     own skill, so a wrong answer never lands on a skill the question never asked for.
     """
@@ -66,14 +92,24 @@ def charges(fmt, spec, stem, skills_used, codes, vocab, rules):
     for code in codes:
         skill = table.get(code)
         if skill is None:
+            theirs = [op for c, op in vocab if c == code and op in rules["by_operation"]]
+            # a mistake of another operation the question carries out inside its own: a multiplication's steps added
+            # without a carry are addition's (A11); every other mistake reads as it always has
+            inside = (
+                len(ops) == 1
+                and (code, ops[0]) not in vocab
+                and len(theirs) == 1
+                and rules["by_operation"][theirs[0]] in skills_used
+            )
+            at = theirs if inside else ops
             skill_from, row_skill = (
-                vocab.get((code, ops[0]) if len(ops) == 1 else None)
+                (vocab.get((code, at[0])) if len(at) == 1 else None)
                 or vocab.get((code, "any"))
                 or (None, None)
             )
             if skill_from == "row":
                 skill = row_skill
-            elif len(ops) == 1:
-                skill = rules["by_operation"].get(ops[0])
+            elif len(at) == 1:
+                skill = rules["by_operation"].get(at[0])
         out[code] = skill if skill in skills_used else own
     return out

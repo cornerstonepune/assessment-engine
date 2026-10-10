@@ -88,8 +88,8 @@ One case per shape and per thing that changes the working; the next section cros
 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
-| T01 | 2 × 1 digits, no regrouping, in columns | 23 × 3 | 69 |
-| T02 | 2 × 1 digits, no regrouping, in a line | 32 × 3 (in a line) | 96 |
+| T01 | 2 × 1 digits, no regrouping | 23 × 3 | 69 |
+| T02 | 2 × 1 digits in a line | 32 × 3 (in a line) | 96 |
 | T03 | The 1-digit number first | 3 × 21 | 63 |
 | T04 | Regroup from the ones, carry 1, 2-digit answer | 13 × 4 | 52 |
 | T05 | Regroup from the ones, carry more than 1, 2-digit answer | 19 × 5 | 95 |
@@ -496,7 +496,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | MUL.MODELS | Shows multiplication as skip counting, arrays, jumps on a number line and the multiplication square | E:G2 M:G2 H:G2 A:G2 | G03, G05 | G04 | G14, TF17 | B04, B11, B13 | – |
 | MUL.FACTS | Recalls multiplication facts to 10 × 10, then ×11 and ×12, in either order | E:G2 M:G2 H:G2 A:G3 | TF03, TF04, TF05 | TF01, TF02, TF06, TF07, TF15 | TF08, TF09, TF10, TF11, TF12, TF16 | TF13, TF14, Q01, Q02, Q06, Y09, H08 | – |
 | MUL.TENS | Multiplies by 10, 100 and 1000 and by multiples of ten, placing the zeros | E:G3 M:G3 H:G4 A:G4 | TP01, TP04 | TP02, TP03, TP05, TP11 | TP06, TP07, TP08, TP09 | TP10, Q14, H10, TZ08, TZ01, TZ07 | – |
-| MUL.2D1D | Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more | E:G2 M:G2 H:G3 A:G3 | T01, T02, T03 | T04, T05, T06 | T07, T08, T09, T10, TC09, TZ05 | Q07, Q08, Q11, C01, C02, C06, V01, V07, B06, B08, H01, H07 | T02, G07, G08, G10, G11 |
+| MUL.2D1D | Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more | E:G2 M:G2 H:G3 A:G3 | T01, T03 | T04, T05, T06 | T07, T08, T09, T10, TC09, TZ05 | Q07, Q08, Q11, C01, C02, C06, V01, V07, B06, B08, H01, H07 | T02, G07, G08, G10, G11 |
 | MUL.3D1D | Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero | E:G4 M:G4 H:G4 A:G4 | T11, TC01, TZ02 | TC02, TC03, TC05, TZ09 | T12, TC04, TC06, TC07, TC08, TC10, TC11, TZ03, TZ06 | Q16, C09 | T13, T14, G10, G11 |
 | MUL.2D2D | Multiplies two 2-digit numbers, a row for each digit with the second row moved a place | E:G4 M:G4 H:G4 A:G4 | T17 | T18 | T19, T20, T21, T27, T28 | C03, V02, V03, Q15, B12 | T22, G09, G12, G13 |
 | DIV.GROUPS | Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back | E:G2 M:G2 H:G2 A:G2 | G15, G16 | G17, G19 | G18 | B02, B03, B05, B24 | – |

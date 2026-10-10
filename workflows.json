@@ -267,8 +267,8 @@
     "frozen": {
       "engine/assess/answer_space.py": 53,
       "engine/assess/bands.py": 289,
-      "engine/assess/diagnosis.py": 117,
-      "engine/assess/draw.py": 177,
+      "engine/assess/diagnosis.py": 48,
+      "engine/assess/draw.py": 127,
       "engine/assess/equality.py": 164,
       "engine/assess/estimate.py": 16,
       "engine/assess/evaluate.py": 63,
@@ -285,10 +285,10 @@
       "engine/assess/placing.py": 35,
       "engine/assess/reasoning.py": 123,
       "engine/assess/render.py": 367,
-      "engine/assess/skills.py": 77,
-      "engine/assess/tags.py": 241,
-      "engine/assess/taxonomy.py": 36,
-      "engine/assess/verify.py": 99,
+      "engine/assess/skills.py": 1,
+      "engine/assess/tags.py": 240,
+      "engine/assess/taxonomy.py": 11,
+      "engine/assess/verify.py": 96,
       "engine/assess/words.py": 118
     }
   }

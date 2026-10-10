@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
-import { Dots, Rings, Square, Tally } from "@/components/pictures";
+import { Dots, Grid, Lattice, Rings, Square, Tally } from "@/components/pictures";
 import type { ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
@@ -30,6 +30,10 @@ export const KIND: Record<string, string> = {
   equal_groups: "equal groups",
   skip_counting: "skip counting",
   multiplication_square: "multiplication square",
+  partitioning: "partitioning",
+  grid_method: "grid method",
+  expanded_columns: "expanded columns",
+  lattice: "lattice",
 };
 
 // Kinds that print their own sentence. The other three draw their printed line from their numbers
@@ -39,6 +43,29 @@ export const printsItsWording = (fmt: string) => !["bare_sum", "column_grid", "m
 
 const SIGN: Record<string, string> = { "-": "−", "*": "×" };
 const sign = (op?: string) => (op ? (SIGN[op] ?? op) : "");
+
+// A number by its places, its zero places left out (23 → 20, 3), as a written method partitions it
+// (engine/assess/written_methods.py).
+const parts = (n: number) =>
+  String(n)
+    .split("")
+    .map((d, i, all) => Number(d) * 10 ** (all.length - 1 - i))
+    .filter((p) => p > 0);
+
+// A written method's steps, each as the paper prints it with a blank to fill, then the total.
+function Steps({ it, plain }: { it: ItemRow; plain?: boolean }) {
+  return (
+    <span className="grid gap-[3px]">
+      {it.responses
+        .filter((r) => r.rid !== "ans")
+        .map((r) => (
+          <span key={r.rid} className="fact">
+            {plain ? (r.label ?? "").replace(/ =$/, "") : r.label} ___
+          </span>
+        ))}
+    </span>
+  );
+}
 
 /** The question as the child meets it on the page — the sum, the sentence, the wall — never a code. */
 export function Question({ it }: { it: ItemRow }) {
@@ -133,6 +160,38 @@ export function Question({ it }: { it: ItemRow }) {
       return (
         <Stem text={it.stem}>
           <Square rows={s.rows ?? []} cols={s.cols ?? []} at={[Number(s.a), Number(s.b)]} />
+        </Stem>
+      );
+    case "partitioning":
+      return (
+        <Stem text={it.stem}>
+          <Steps it={it} />
+          <span className="fact">{s.a} × {s.b} = ___</span>
+        </Stem>
+      );
+    case "expanded_columns":
+      return (
+        <Stem text={it.stem}>
+          <Column numbers={[s.a ?? 0, s.b ?? 0]} op="×" />
+          <Steps it={it} plain />
+          <span className="fact">total ___</span>
+        </Stem>
+      );
+    case "grid_method": {
+      const [a, b] = [Number(s.a), Number(s.b)];
+      const onTop = parts(a).length >= parts(b).length;
+      return (
+        <Stem text={it.stem}>
+          <Grid a={a} b={b} top={onTop ? parts(a) : parts(b)} side={onTop ? parts(b) : parts(a)} />
+          <span className="fact">{a} × {b} = ___</span>
+        </Stem>
+      );
+    }
+    case "lattice":
+      return (
+        <Stem text={it.stem}>
+          <Lattice a={Number(s.a)} b={Number(s.b)} />
+          <span className="fact">{s.a} × {s.b} = ___</span>
         </Stem>
       );
     case "balance_scale":

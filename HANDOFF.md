@@ -3,7 +3,31 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M2d1: MUL.MODELS (in progress)
+## 2026-10-10 — M2d2: the written methods (in progress)
+
+- **Slice:** M2d2 (W1 gate 3). Goal `goals/md2d2-multiplication-methods.yaml`; tests `test_mul_methods.py`,
+  `apps/web/tests/s30-multiplication-methods.spec.ts`; ADR 0055.
+- **M2d1 is merged and live:** main `4f548d5`, `migrate live` (migration `20261031090000`) and `deploy engine` green;
+  `engine done` 11 of 11 PROVED, 4 of 4 MET, 2 of 2 PASSED, NOT DONE only for live's migrations this container
+  cannot read.
+- **Measured** (STATE.md "M2d2 — measured before the build"): a line, columns and long multiplication drew;
+  partitioning was refused; the grid, expanded columns and the lattice drew nothing.
+- **Built:**
+  - four kinds, each step a box with its own key: `partitioning`, `grid_method`, `expanded_columns`, `lattice`
+    (`assess/written_methods.py` makes them, `assess/written_pages.py` prints them, the website draws them);
+  - a level's `methods` is a row, and the drawer deals each case's share over them in fair shares
+    (`draw_case.ways`, `draw.level`);
+  - the straight cases are about numbers and accept every written method; T01, T02, G07–G09, G10 and G13 corrected
+    at their source;
+  - mistakes named: `M_PARTITION_TENS_AS_ONES`, `M_GRID_CELL_DROPPED`, and the steps or rows added without a carry
+    (`M_NOCARRY`), which counts against addition (`skills.by_method`, `skills.charges`, A11);
+  - an old long multiplication is a key problem (`verify._stale_rows`); C06 is on `MUL.2D1D`'s Advance;
+  - migration `20261101090000` puts the mistakes on the three skills' lists.
+- **For Achal:** A1 prints five methods at `MUL.2D1D`'s every straight level, four at `MUL.3D1D`'s and `MUL.2D2D`'s; a
+  grade that teaches fewer takes them out of its level's `methods`. A11 counts a slip adding the steps against
+  addition.
+
+## 2026-10-10 — M2d1: MUL.MODELS (merged)
 
 - **Slice:** M2d1 (W1 gate 3). Goal `goals/md2d1-multiplication-models.yaml`; tests `test_mul_models.py`.
 - **AS2 is merged and live:** main `7990be2`, `migrate live` and `deploy engine` green; `engine done` all PROVED.

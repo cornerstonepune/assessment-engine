@@ -37,7 +37,7 @@ def fill_cases(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=N
         }
     )
     matches = cases.for_level(conn, check)
-    missing = sorted(set(check["cases"]) - set(matches))
+    missing = sorted({*check["cases"], *check.get("methods", [])} - set(matches))
     if missing:
         raise ValueError(f"{code} {difficulty} names cases that are not rows: {', '.join(missing)}")
     known, rules, vocab = bank._known_codes(conn), labels.rules(conn), labels.vocabulary(conn)

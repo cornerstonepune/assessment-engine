@@ -78,7 +78,7 @@ def every_key_a_level_sets_is_one_its_generator_reads(conn):
             check = band.get("check") or {}
             kinds = {
                 f
-                for c in check.get("cases", [])
+                for c in [*check.get("cases", []), *check.get("methods", [])]
                 for alt in _alternatives(matches.get(c, {}))
                 for f in _fmts(alt)
             }
@@ -94,7 +94,7 @@ def every_case_a_level_names_is_a_row(conn):
         f"{r['code']} {d}: {c}"
         for r in _skill_sets(conn)
         for d, band in r["difficulty"].items()
-        for c in (band.get("check") or {}).get("cases", [])
+        for c in [*(band.get("check") or {}).get("cases", []), *(band.get("check") or {}).get("methods", [])]
         if c not in known
     ]
 

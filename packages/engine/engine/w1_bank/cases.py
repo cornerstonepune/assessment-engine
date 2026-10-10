@@ -20,8 +20,10 @@ def matches(conn, codes=None):
 
 
 def for_level(conn, check):
-    """{case code: match} for one level's cases, each on the level's own numbers when its skill has a shape."""
-    return {c: taxonomy.within(m, check.get("within")) for c, m in matches(conn, check["cases"]).items()}
+    """{case code: match} for one level's cases, each on the level's own numbers when its skill has a shape, and the
+    written methods its calculations are printed in (`methods`, ADR 0055), which `draw.level` crosses them with."""
+    codes = [*check["cases"], *check.get("methods", [])]
+    return {c: taxonomy.within(m, check.get("within")) for c, m in matches(conn, codes).items()}
 
 
 def of(fmt, tags, all_matches):
@@ -119,7 +121,8 @@ def placed(conn):
     named = defaultdict(list)
     for s in conn.execute("select code, difficulty from skill_set order by code"):
         for level, spec in s["difficulty"].items():
-            for c in spec.get("check", {}).get("cases", []):
+            check = spec.get("check", {})
+            for c in [*check.get("cases", []), *check.get("methods", [])]:
                 named[c].append((s["code"], level))
     out = []
     for c in conn.execute(

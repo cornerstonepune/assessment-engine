@@ -22,6 +22,7 @@ from engine.assess import reasoning as RS
 from engine.assess import times_kinds as TK
 from engine.assess import times_models as TM
 from engine.assess import words as W
+from engine.assess import written_methods as WM
 from engine.assess.counting import one_of
 
 # The shapes the arithmetic sampler can render from (op, a, b) alone. A band whose check names
@@ -157,6 +158,10 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "equal_groups": C.equal_groups,
     "skip_counting": TM.skip_counting,
     "multiplication_square": TM.multiplication_square,
+    "partitioning": WM.partitioning,
+    "grid_method": WM.grid,
+    "expanded_columns": WM.expanded,
+    "lattice": WM.lattice,
 }
 
 # The rule keys each generator reads — and so the only keys a level of that kind may set (`engine audit`,
@@ -187,11 +192,16 @@ READS = {
     "equal_groups": {"shape", "method", "groups", "size"},
     "skip_counting": {"known", "groups"},
     "multiplication_square": {"groups", "size"},
+    "partitioning": {"digits"},
+    "grid_method": {"digits"},
+    "expanded_columns": {"digits"},
+    "lattice": {"digits"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
 # `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)
-# and measured against it (`verify.dimension_problems`)
-CASE_LEVEL_READS = {"cases", "within", "max_total", "digits", "digits_max", "op", "layout"}
+# and measured against it (`verify.dimension_problems`); `methods`, the written methods its calculations are printed in
+# (`draw.level`, ADR 0055)
+CASE_LEVEL_READS = {"cases", "methods", "within", "max_total", "digits", "digits_max", "op", "layout"}
 ALWAYS = {"format", "min_items"}
 
 

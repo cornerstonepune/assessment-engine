@@ -5256,7 +5256,8 @@ kinds name neither when two mistakes share an answer (`assess/counting.named`). 
 
 ## M2d2 — measured before the build (2026-10-10)
 
-M2d1 is merged: main `4f548d5`. `bin/engine done md2d1-multiplication-models` on a database built from main's tree:
+M2d1 is merged and deployed: main `4f548d5`, CI, `migrate live` (migration `20261031090000` applied) and `deploy
+engine` green (07:06 UTC). `bin/engine done md2d1-multiplication-models` on a database built from main's tree:
 11 of 11 sentences PROVED (the browser test included), 4 of 4 scenarios MET, 2 of 2 criteria PASSED (1,051 tests,
 `bin/check` 27); "NOT DONE" only for live's migrations, which this container cannot read.
 

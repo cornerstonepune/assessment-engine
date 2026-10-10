@@ -275,6 +275,27 @@
       "description": "Where a mistake charges a different skill on this kind of question than its own row says: choosing the wrong operation in a story is a word-problem slip, not an arithmetic one (ADR 0023, step 8b). Drafted by the engine; approved once by Nimish or Aseem."
     },
     {
+      "key": "skills.by_method",
+      "value": {
+        "PARTITIONING": [
+          "NUM.OPS.01"
+        ],
+        "GRID": [
+          "NUM.OPS.01"
+        ],
+        "EXPANDED": [
+          "NUM.OPS.01"
+        ],
+        "LATTICE": [
+          "NUM.OPS.01"
+        ],
+        "LONG_MULTIPLICATION": [
+          "NUM.OPS.01"
+        ]
+      },
+      "description": "The written methods that add their steps, and so use addition: a slip adding them counts against addition, not multiplication (assumption A11, ADR 0055)."
+    },
+    {
       "key": "skills.charges_by_kind.approved",
       "seed_once": true,
       "value": {},

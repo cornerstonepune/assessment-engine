@@ -14,6 +14,7 @@ from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
 from . import words as W
+from . import written_methods as WM
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
 
 FORBIDDEN_WORDS = ("borrow",)
@@ -134,8 +135,13 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     down (665 printed as 660), closest-hundred questions from before the right option's place was drawn, when it
     was always the middle one, a straight sum whose stored wrong answers a predictor has since corrected
     (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table"), and a worked answer that asks
-    the column its mistake always shows in (`diagnosis.asks_where`)."""
-    stale = _stale_mistakes(fmt, spec, responses) + _stale_story(fmt, spec, responses)
+    the column its mistake always shows in (`diagnosis.asks_where`), and a long multiplication keyed before its rows
+    added without a carry had a name (`_stale_rows`)."""
+    stale = (
+        _stale_mistakes(fmt, spec, responses)
+        + _stale_story(fmt, spec, responses)
+        + _stale_rows(fmt, spec, responses)
+    )
     if stale:
         return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
     if fmt == "estimate_then_calc" and (spec["ra"], spec["rb"]) != E.rounded(spec):
@@ -161,6 +167,17 @@ def _stale_mistakes(fmt: str, spec: dict[str, Any], responses: list[dict[str, An
     stored = next((r for r in responses if r.get("rid") == "ans"), {}).get("misconceptions") or {}
     now = M.predict(spec["op"], spec["a"], spec["b"]) if table else {}
     return sorted(c for c, v in stored.items() if c in table and now.get(c) != v)
+
+
+def _stale_rows(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
+    """A long multiplication whose key cannot name its rows added without a carry (19 × 14 written 166), stored before
+    the mistake was predicted on a multiplication (`written_methods.rows_added`, ADR 0055)."""
+    if fmt != "column_grid" or O.sign(spec.get("op")) != "×" or not {"a", "b"} <= spec.keys():
+        return []
+    ans = [r for r in responses or [] if r.get("rid") == "ans"]
+    stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
+    rows = WM.rows_added(int(spec["a"]), int(spec["b"]))
+    return sorted(c for c, v in rows.items() if c not in stored and v not in stored.values())
 
 
 def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
@@ -306,6 +323,10 @@ def to_item(c: dict[str, Any], rung: str, skills: list[str] | None = None):
             skills=skills,
         )
     layout = "column" if fmt == "column_grid" else "horizontal"
+    if (
+        fmt == "column_grid" and op == "×"
+    ):  # a long multiplication's rows added without a carry (A11, ADR 0055)
+        mis |= {c: v for c, v in WM.rows_added(a, b).items() if v not in mis.values()}
     r = Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=mis)
     return item(
         _template(op, a, b),

@@ -13,7 +13,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 
 // the kind, the skill set it is printed for, its name in words, what its question shows, and its drawing's label
 const KINDS: { fmt: string; set: string; label: string; shows: RegExp; drawn?: RegExp }[] = [
-  { fmt: "break_apart", set: "MUL.2D1D", label: "tens, then ones", shows: /\d+ × \d+ = ___[\s\S]*\d+ × \d+ = ___/ },
+  { fmt: "partitioning", set: "MUL.2D1D", label: "partitioning", shows: /\d+ × \d+ = ___[\s\S]*\d+ × \d+ = ___/ },
   { fmt: "grid_method", set: "MUL.2D2D", label: "grid method", shows: /= ___/, drawn: /^grid for \d+ × \d+$/ },
   { fmt: "expanded_columns", set: "MUL.3D1D", label: "expanded columns", shows: /\d+ × \d+ ___[\s\S]*\d+ × \d+ ___/ },
   { fmt: "lattice", set: "MUL.2D2D", label: "lattice", shows: /= ___/, drawn: /^lattice for \d+ × \d+$/ },

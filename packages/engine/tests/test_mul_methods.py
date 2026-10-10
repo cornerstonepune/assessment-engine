@@ -116,7 +116,7 @@ def test_every_level_prints_each_calculation_in_every_method_it_lists():
 def test_partitioning_is_worked_part_by_part_then_added():
     """23 × 4 is 20 × 4 = □ and 3 × 4 = □, then 23 × 4 = □; the 1-digit number written first keeps its place."""
     it = WM.make("PARTITIONING", 23, 4, "R38")
-    assert (it.fmt, it.spec["method"]) == ("break_apart", "PARTITIONING")
+    assert (it.fmt, it.spec["method"]) == ("partitioning", "PARTITIONING")
     assert _steps(it) == {"20 × 4": "80", "3 × 4": "12"}
     assert _answers(it)["ans"].answer == "92"
     assert _steps(WM.make("PARTITIONING", 3, 21, "R38")) == {"3 × 20": "60", "3 × 1": "3"}
@@ -286,7 +286,9 @@ def test_a_long_multiplication_keyed_before_its_rows_mistake_had_a_name_leaves_t
             r | {"misconceptions": {k: v for k, v in r["misconceptions"].items() if k != "M_NOCARRY"}}
             for r in today
         ]
-        assert verify.key_problems(it.fmt, it.spec, before) == ["M_NOCARRY"]
+        assert verify.key_problems(it.fmt, it.spec, before) == [
+            "keyed by a mistake rule since corrected: M_NOCARRY"
+        ]
 
 
 def test_every_mistake_the_methods_name_is_a_row_and_on_its_skills_list():

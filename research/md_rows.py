@@ -23,8 +23,16 @@ from engine.assess.items import Item
 
 R = Path(__file__).resolve().parents[1]
 SEED = R / "supabase/seed/taxonomy_cases.json"
-STRAIGHT_KINDS = ["bare_sum", "column_grid"]
-STANDARD = {"×": ["LINE", "COLUMNS", "LONG_MULTIPLICATION"], "÷": ["LINE", "SHORT_DIVISION", "LONG_DIVISION"]}
+# A straight calculation is about its numbers; the methods it may be printed in are every written method of its
+# operation (A1, ADR 0055), each by the kind that prints it. Division's own methods are printed from M3.
+STRAIGHT_KINDS = {
+    "×": ["bare_sum", "column_grid", "partitioning", "grid_method", "expanded_columns", "lattice"],
+    "÷": ["bare_sum", "column_grid"],
+}
+STANDARD = {
+    "×": ["LINE", "COLUMNS", "LONG_MULTIPLICATION", "EXPANDED", "PARTITIONING", "GRID", "LATTICE"],
+    "÷": ["LINE", "SHORT_DIVISION", "LONG_DIVISION"],
+}
 REMAINDERS = ["SOME", "LARGEST"]
 D = ("operand_1_digits", "operand_2_digits")  # ÷ as written: 72 ÷ 4 is not 4 ÷ 72
 # × either way round (assumption A10, both orders asked): 3 × 47 is 47 × 3's case, the longer number by the shorter;
@@ -53,8 +61,8 @@ STRAIGHT: dict[str, list[Any]] = {
     "TP08": ["place_value_factor", "scaled_fact", "digits_min"],  # × 1 digit, a table fact under the zeros
     "TP09": ["place_value_factor", "fact_zero", "digits_min"],
     "TP10": ["place_value_factor", *DM],  # 23 × 30 and 11 × 20 alike: 2 digits × a 2-digit multiple of ten
-    "T01": [*DM, "regrouping", ("method", "COLUMNS"), "answer_digit_change"],
-    "T02": [*DM, "regrouping", ("method", "LINE"), "answer_digit_change"],
+    "T01": [*DM, "regrouping", "answer_digit_change"],  # Easy's numbers, printed in every method its level lists
+    "T02": [*DM, ("method", "LINE")],  # in a line, MUL.2D1D's method as T14 is MUL.3D1D's and T22 MUL.2D2D's
     "T03": ["operand_order", "digits_max", "regrouping", "answer_digit_change"],  # 3 × 21: Easy regroups nothing, grows nothing
     "T04": [*DM, "regroup_at", "carry_size", "answer_digit_change"],
     "T05": [*DM, "regroup_at", "carry_size", "answer_digit_change"],
@@ -183,13 +191,14 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "G04": ("number_line_jumps", _x(4, 3, method="NUMBER_LINE"), ["method"]),
     "G05": ("equal_groups", _x(3, 5, shape="ARRAY"), ["method"]),
     "G06": ("efficient_method", _x(14, 4, method="DOUBLING"), ["method"]),
-    "G07": ("break_apart", _x(23, 4, method="PARTITIONING"), ["method"]),
-    "G08": ("column_grid", _x(23, 4, layout="column", method="GRID"), ["method", "operand_2_digits"]),
-    "G09": ("column_grid", _x(34, 26, layout="column", method="GRID"), ["method", "operand_2_digits"]),
-    "G10": _col(34, 6, "×", "EXPANDED"),
+    "G07": ("partitioning", _x(23, 4, method="PARTITIONING"), ["method"]),
+    # a grid's size is its shorter number's (A10: 3 × 21 is 21 × 3's case), so a 1-digit number written first is 2 × 1
+    "G08": ("grid_method", _x(23, 4, method="GRID"), ["method", "digits_min"]),
+    "G09": ("grid_method", _x(34, 26, method="GRID"), ["method", "digits_min"]),
+    "G10": ("expanded_columns", _x(34, 6, layout="column", method="EXPANDED"), ["method"]),
     "G11": _col(34, 6, "×", "COLUMNS"),
     "G12": _col(68, 17, "×", "LONG_MULTIPLICATION"),
-    "G13": _col(47, 23, "×", "LATTICE"),
+    "G13": ("lattice", _x(47, 23, method="LATTICE"), ["method"]),
     "G14": _shape("equation", "SWAP_TO_A_KNOWN_TABLE", ["×"], text="9 × 2 = 2 × 9 = □"),
     "G15": ("equal_groups", _x(12, 3, "÷", method="SHARING"), ["method"]),
     "G16": ("equal_groups", _x(12, 4, "÷", method="GROUPING"), ["method"]),
@@ -334,7 +343,7 @@ def match_of(code: str, fmt: str, spec: dict[str, Any], about: list[Any], straig
     t = measure(fmt, spec)
     m: dict[str, Any] = {"taxonomy": "MUL_DIV"}
     if straight:
-        m |= {"fmt": STRAIGHT_KINDS, "method": STANDARD[spec["op"]]}
+        m |= {"fmt": STRAIGHT_KINDS[spec["op"]], "method": STANDARD[spec["op"]]}
     else:
         m["fmt"] = fmt  # every other case names its kind, as addition's do, or nothing can draw it (M2b)
     if "operation" in t:
