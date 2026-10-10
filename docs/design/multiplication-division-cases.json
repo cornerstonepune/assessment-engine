@@ -1970,7 +1970,7 @@
   "answer": "96",
   "op": "÷",
   "placed_in": [
-   "DIV.FACTS:Advance",
+   "DIV.2D1D:Advance",
    "MD.EQUALITY:Medium"
   ]
  },
@@ -2227,7 +2227,7 @@
   "answer": "48",
   "op": "÷",
   "placed_in": [
-   "DIV.TENS:Advance",
+   "DIV.3D1D:Advance",
    "MD.MENTAL:Hard"
   ]
  },

@@ -5484,3 +5484,51 @@ Rehearsed on a copy of live (run 38050558566, `eb0616d`):
   2-digit divisors) and T16 as before.
 - Every `engine live data` check ok after the update. July's 144 ÷ 12 counts on `DIV.FACTS` (1 answer), kept and not
   shown until an educator says the topic is taught.
+
+## M3b — measured before the build (2026-10-10)
+
+M3a is merged: main `d52c391`. M3b's cases were measured on it, each drawn alone (4 asked, 300 tries), then inside its
+level's own numbers, as the bank draws it (`cases.on_level`).
+- **None of the document's 21 ÷ kind cases draws a question its level can hold:**
+  - 10 refuse in a sentence (`CannotMake`). Finding the mistake (C04, C05, C07), a missing digit (Q09, Q10), a
+    possible answer (V09), the inverse check (Y10, G20) and the stories (B07, B14–B17) make +, − and × only.
+  - 3 raise. The box first and the divisor missing with a remainder draw a division with a remainder, then compute
+    one answer for it (Q05, Q13: `ValueError: … two answers`). ÷ 5 as ÷ 10 then doubled is no shortcut the kind
+    knows (H09).
+  - 2 crash: an estimate takes ×'s path (V04, V10: `KeyError: 'digits'`).
+  - 1 draws nothing: the remainder missing (Q12) is no position the drawer asks.
+  - Q03 and Q04 draw inside their level's numbers (□ ÷ 12 = 8, 96 ÷ □ = 8) but name no mistake. `verify` keys none
+    "about a missing factor or divisor yet", so every one would be undiagnosed.
+- **Seven × cases the document places on `MUL.FACTS`'s and `MUL.TENS`'s Advance are held by no level, and nothing
+  defers them:**
+  - The cases: Q01 and Q02 (a missing factor), Q06 (□ × □ = 49), Y09 (a fact family) and H08 (a fact from a known
+    fact); Q14 (the place-value factor missing) and H10 (a fact scaled by ten).
+  - How they were missed: M2a gave those levels their straight Advance and M2b gave only the column skills their
+    kinds, and no line of BUILD-ORDER names these seven. Q01, Q02, Q06 and Q14 sit on no `MD.*` skill either, so no
+    later slice would have built them.
+  - Measured today:
+    - Q01, Q02 and Q14 draw but name no mistake.
+    - Q14 hides the number, not the factor (100 × □ = 58500), and reaches 9500 × 1000 at Grade 4, past the bound
+      `MUL.TENS`'s own × 1000 keeps (a number to 2 digits, TP03).
+    - Q06 and Y09 draw nothing.
+    - H08 and H10 are no shortcut the kind knows.
+  - The cause: nothing checks that a level holds every case the document places on it.
+  - The M3a rehearsal's "missing are M3b–M3d's kinds" left these seven out.
+- **Two placements no question can meet** (slips in the drafted document):
+  - Y10 (check a division by multiplying, `fact` NO) is placed on `DIV.FACTS`, whose every question is a table fact
+    backwards, so the two together hold nothing. Its example, 96 ÷ 4, is `DIV.2D1D`'s.
+  - H09 (÷ 5 as ÷ 10 then doubled) is placed on `DIV.TENS`, whose round numbers are those whose zeros leave a fact.
+    Its example, 240 ÷ 5, is not one (24 ÷ 5 is no fact) and is `DIV.3D1D`'s. On `DIV.TENS` it could hold only 350 ÷ 5
+    and its like, where the shortcut saves nothing.
+- **Q05, the box first (□ = 63 ÷ 9), allows a remainder**, which Q03 and Q04 do not. "□ r □ = 17 ÷ 5" is no sentence
+  a school writes.
+- **G20 and Y10 are one kind (`inverse_check`) that the document prints two ways**: G20 as "42 ÷ 6 = □ because
+  6 × □ = 42", Y10 as "96 ÷ 4 = 24? 24 × 4 = □". Nothing tells the drawer which way to print a case.
+- **The native kinds draw their own numbers** (a story's are 2-digit by 1, no table fact), and the case keeps only the
+  draws that land in it. On a tables level, almost none would.
+- **A scenario counted a question it could not recompute as recomputed.** `_answer_is_right` returns None for a
+  missing number, a fact family or any labelled box, and "answers_recomputed" counted None with True.
+
+M3b is two slices (BUILD-ORDER):
+- **M3b1:** the tables' and the tens' kinds, × and ÷, with the seven × cases.
+- **M3b2:** the column skills' kinds, `DIV.2D1D` and `DIV.3D1D` given their Advance.

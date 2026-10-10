@@ -1,0 +1,98 @@
+name: md3b1-facts-advance
+goal: >
+  The tables' and the tens' Advance levels, × and ÷, hold every kind the drafted document places on them, each drawn
+  from its level's own numbers as a straight question is: MUL.FACTS a missing factor (first or second), the same number
+  in both boxes, a fact family and a fact from a known fact; MUL.TENS the place-value factor missing and a fact scaled
+  by ten; DIV.FACTS the number divided or the divisor missing, the box first, the table backwards through its fact, and
+  the cost of one. Each kind makes × and ÷ as it makes + and −: a missing number has exactly one answer and names the
+  mistake of reading × as + or ÷ as −, of the table one row out, or of a zero too few; the box first asks a division's
+  own answer and names its mistakes; the same number in both boxes is a square; a missing place-value factor hides the
+  factor, of a number to 2 digits; a fact family is the three facts its fact makes; the table backwards is answered by
+  dividing and again by its fact; a fact from a known fact starts from the row above; a fact scaled by ten is worked
+  from its fact, once and again; the cost of one is an exact division in its template's words. Every level holds every
+  case the document places on it, or the slice that will is named. A scenario recomputes every box from its own printed
+  sentence. Every question is, as measured, a case of its level, its answer recomputed, every wrong answer a named
+  mistake, none held by two levels, and every level fills its worksheets. None of it is taught until an educator says
+  so.
+# Written 2026-10-10, before the code: slice M3b1 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M3b — measured before the build"): of the 21 ÷ kind cases none draws a question its level
+# can hold, and seven × cases the document places on MUL.FACTS's and MUL.TENS's Advance (Q01, Q02, Q06, Y09, H08, Q14,
+# H10) are held by no level and deferred by nothing: M2a gave those levels their straight Advance, M2b only the column
+# skills their kinds. The cause is that nothing held a level to the document's placements; a test does now. The kinds
+# draw their own numbers (a story's are 2 digits by 1, no table fact), which a tables level almost never holds, so each
+# new kind takes its two numbers from its case, as a straight question does (`draw._pair`). Two placements no question
+# can meet move to the levels their examples are, for M3b2: Y10 (a check by multiplying, no table fact) to DIV.2D1D,
+# H09 (÷ 5 as ÷ 10 then doubled; 240 ÷ 5 has no fact under its zero) to DIV.3D1D. Q05 (the box first) and B07 (the
+# cost of one) are exact, as Q03 and Q04 are; Q14 is of a number to 2 digits, as TP03 is; G20 is printed as its example
+# is, "42 ÷ 6 = □ because 6 × □ = 42" (shape TABLE_BACKWARDS), where Y10 checks a claimed answer.
+says:
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_each_advance_holds_its_documents_kind_cases
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_every_advance_draws_its_kind_cases_as_measured
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_every_case_the_document_places_on_a_level_is_held_or_its_slice_named
+  - words: "same process"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_facts_advance_question_has_one_home
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_missing_factor_or_divisor_has_one_answer_and_names_the_operation_misread
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_fact_family_is_the_three_facts_its_fact_makes
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_the_box_first_asks_the_divisions_own_answer
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_the_same_number_in_both_boxes_is_a_square
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_missing_place_value_factor_hides_the_factor
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_the_table_backwards_is_answered_by_dividing_and_by_its_fact
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_fact_from_a_known_fact_starts_from_the_row_above
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_fact_scaled_by_ten_is_worked_from_its_fact
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_the_cost_of_one_is_an_exact_division_in_its_templates_words
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_the_documents_slips_are_corrected_where_they_were_drafted
+  - words: "same process"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_a_scenario_recomputes_every_box_from_its_printed_sentence
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_every_new_kind_prints_its_numbers_and_sign
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_facts_advance.py::test_every_advance_fills_its_worksheets
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s32-facts-advance.spec.ts::once taught, the tables' kinds are on the Question bank with their numbers"
+manual:
+  - "On live, once merged: `bin/update-live`. The three Advance levels' new cases, their questions and worksheets reach
+    live only through `engine load`, `bank refill` and `library build`."
+  - "Achal: each Advance holds the drafted document's cases, corrected where they could hold nothing: Y10 (a check by
+    multiplying, 96 ÷ 4) moves to DIV.2D1D and H09 (÷ 5 as ÷ 10 then doubled, 240 ÷ 5) to DIV.3D1D; the box first and
+    the cost of one are exact; a missing place-value factor is of a number to 2 digits. A missing factor's mistakes are
+    drafted here: × read as + (8 × □ = 72 answered 64), ÷ read as − (□ ÷ 4 = 7 answered 11), the table one row out, a
+    zero too few. Say if any of it is not how the school teaches it."
+scenarios:
+  - name: MUL.FACTS, Advance — a missing factor, the same number twice, a fact family, a fact from a known fact
+    skill_set: MUL.FACTS
+    difficulty: Advance
+    n: 30
+    cases: [Q01, Q02, Q06, Y09, H08]
+  - name: MUL.TENS, Advance — the place-value factor missing, a fact scaled by ten
+    skill_set: MUL.TENS
+    difficulty: Advance
+    n: 20
+    cases: [Q14, H10]
+  - name: DIV.FACTS, Advance — the number divided or the divisor missing, the box first, the table backwards, the cost of one
+    skill_set: DIV.FACTS
+    difficulty: Advance
+    n: 30
+    cases: [Q03, Q04, Q05, G20, B07]
+criteria:
+  - name: the three Advance levels' kinds, their mistakes and printing; the taxonomy, levels and scenarios they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_facts_advance.py tests/test_mul_levels.py tests/test_div_levels.py tests/test_mul_advance.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_every_skill.py tests/test_every_listed_case.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_verify.py tests/test_library.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

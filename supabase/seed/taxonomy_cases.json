@@ -12919,7 +12919,8 @@
         "spec": {
           "a": 42,
           "b": 6,
-          "op": "÷"
+          "op": "÷",
+          "shape": "TABLE_BACKWARDS"
         }
       },
       "match": {
@@ -12927,7 +12928,8 @@
         "fmt": "inverse_check",
         "operation": "DIV",
         "reasoning_type": "INVERSE",
-        "fact": "YES"
+        "fact": "YES",
+        "shape": "TABLE_BACKWARDS"
       }
     },
     {
@@ -13151,7 +13153,8 @@
         "taxonomy": "MUL_DIV",
         "fmt": "missing_number",
         "operation": "DIV",
-        "answer_first": "YES"
+        "answer_first": "YES",
+        "remainder": "NONE"
       }
     },
     {
@@ -13380,7 +13383,10 @@
           "X10",
           "X100",
           "X1000"
-        ]
+        ],
+        "digits_min": {
+          "lte": 2
+        }
       }
     },
     {
@@ -14639,7 +14645,8 @@
         "taxonomy": "MUL_DIV",
         "fmt": "word_1step",
         "operation": "DIV",
-        "structure": "RATE_UNIT"
+        "structure": "RATE_UNIT",
+        "remainder": "NONE"
       }
     },
     {

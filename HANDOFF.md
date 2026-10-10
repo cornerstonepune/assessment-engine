@@ -3,7 +3,22 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3a: straight division (proved, merging)
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (goal and failing tests)
+
+- **Slice:** M3b1 (W1 gate 3). M3b split in two after measuring (STATE.md "M3b — measured before the build"); goal
+  `goals/md3b1-facts-advance.yaml`; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`.
+- **M3a is merged:** main `d52c391` (#169). `engine done md3a-straight-division` on main's tree: 16 of 16 sentences
+  PROVED (the browser test included), 14 of 14 scenarios MET, 2 of 2 criteria PASSED; NOT DONE only for live's
+  migrations, which this container cannot read.
+- **Found while measuring:** seven × cases the document places on `MUL.FACTS`'s and `MUL.TENS`'s Advance (Q01, Q02,
+  Q06, Y09, H08, Q14, H10) were on no level and deferred by nothing; M3b1 builds them with ÷'s, and a test now holds
+  every level to the document's placements (or names the slice that will hold them).
+- **Corrected in the drafted document:** Y10 → `DIV.2D1D` Advance and H09 → `DIV.3D1D` Advance (M3b2), each where its
+  example is; Q05 and B07 exact; Q14 of a number to 2 digits; G20 printed as its example (shape `TABLE_BACKWARDS`).
+- **Next:** build to the tests — each new kind takes its two numbers from its case (`draw._pair`); then prove, ship,
+  rehearse, merge; then M3b2.
+
+## 2026-10-10 — M3a: straight division (merged)
 
 - **Slice:** M3a (W1 gate 3). Goal `goals/md3a-straight-division.yaml`; ADR 0056; STATE.md "M3a — straight division
   built".
@@ -23,8 +38,7 @@ is verified. This file only says where the last session stopped.
 - **Proved on `eb0616d`:** GOAL ACHIEVED on a fresh database (14 of 14 scenarios, criteria 1,123 passed,
   `bin/check`); CI green (engine, web, browser); rehearsed on a copy of live (run 38050558566): 6,882 added, 3,637
   worksheets, 142 of 142 ready, every live-data check ok.
-- **Next:** CI green on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b. Live still needs
-  Nimish to run `bin/update-live` (it carries M0b to M3a).
+- **Merged** as `d52c391`. Live still needs Nimish to run `bin/update-live` (it carries M0b to M3a).
 
 ## 2026-10-10 — M2d2: the written methods (merged)
 
