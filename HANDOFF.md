@@ -3,6 +3,26 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-10 — M3b3: the mistake found in a division, and stories with something left over (built)
+
+- **Slice:** M3b3, W1 gate 3, after NY1 and NY2.
+- **Goal** `goals/md3b3-divide-mistakes-and-stories.yaml`; measured in STATE.md "M3b3 — measured before the build" and
+  "M3b3 — names, measured before the build".
+- **Tests that fail for the right reasons:**
+  - `test_divide_found.py`: the levels do not list C04, C05, C07; find_mistake refuses ÷;
+  - `test_divide_stories.py`: no story divides with something left over; no template row says what it does with it;
+    no row for the remainder not rounded up;
+  - `test_mistake_rows.py`: the code's tables carry names and repair hints; Jev's options do not read the rows;
+  - `test_divide_advance.py`, `test_facts_advance.py`: the levels hold M3b2's cases alone;
+  - `s33-divide-advance.spec.ts`: no worked division on the Question bank.
+- **Built** (STATE.md "M3b3 — … built", ADR 0061): `assess/divide_found.py`, `assess/divide_stories.py`, eight
+  template rows, the new mistake's row, the remainder's box printed, the scenarios' recompute by remainder use, and the
+  mistakes' names out of the code (Jev reads the rows).
+- **Also:** `test_bank.py` no longer fails when a randomly built bank already holds its sums; that failure stopped
+  main's deploy for the NY2 merge until one re-run passed.
+- **Next:** the goal's whole criteria list, the browser test, CI, a rehearsal on a copy of live, merge #174, then
+  `engine eval mistake_guess` on the server (the `engine eval` workflow) and its score in DECISIONS-LOG.md.
+
 ## 2026-10-10 — NY2: the queue shrinks, and a person sees whether it does (built)
 
 - **Slice:** NY2, W3 by Nimish's exception (BUILD-ORDER "NY1 and NY2"). ADR 0060.

@@ -1,6 +1,6 @@
 """The tables' and the tens' kinds an Advance asks for, × and ÷ (goals/md3b1-facts-advance.yaml): a fact family, the
-table backwards through its fact, a fact from a known fact, a fact scaled by ten and the cost of one, and the mistakes a
-missing factor or divisor names (ADR 0057). Each is built on the two numbers its case draws (`draw._pair`), as a straight
+table backwards through its fact, a fact from a known fact, a fact scaled by ten, and the mistakes a missing factor or
+divisor names (ADR 0057); the cost of one, a story that divides, is `divide_stories.py`'s. Each is built on the two numbers its case draws (`draw._pair`), as a straight
 question's are, so a tables level's are table facts and the tens level's round numbers; a kind that drew its own
 numbers almost never landed on a tables level. Deterministic given an RNG; pure: no I/O.
 
@@ -14,8 +14,6 @@ from typing import Any, cast
 
 from . import div_mistakes as DM
 from . import misconceptions as M
-from . import operations as O
-from . import words as W
 from .items import Item, Response, cells, item
 
 POWERS = (10, 100, 1000)
@@ -180,33 +178,11 @@ def scaled(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) -
     return item("EFFICIENT", rung, "Conceptual", "efficient_method", stem, spec, rs, working_lines=1)
 
 
-def story(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) -> Item:
-    """A story that divides (B07: 8 pencils cost ₹48. What does one cost?), its words a template row of its shape and
-    its numbers the case's own, an exact division."""
-    shape = alt.get("structure")
-    pool = W.templates("word_1step", "÷", shape if isinstance(shape, str) else None)
-    if not pool:
-        raise O.CannotMake(f"no one-step story divides for shape {shape!r}")
-    if b == 0 or a % b:
-        raise RuntimeError("the story's division leaves something over: draw again")
-    tpl = rng.choice(pool)
-    n, n2 = rng.sample(W.NAMES, 2)
-    q = a // b
-    r = Response(
-        "ans", "digits", str(q), cells=cells(a), misconceptions=W.added_as(tpl, _kept(DM.in_box(a, b, 0), q))
-    )
-    stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
-    return item(
-        "WP1", rung, "Application", "word_1step", stem, W.story_spec(tpl, a=a, b=b), [r], working_lines=3
-    )
-
-
 BUILT: dict[tuple[str, str, str | None], Build] = {
     ("fact_family", "MUL", "FROM_MULTIPLICATION"): family,
     ("inverse_check", "DIV", "TABLE_BACKWARDS"): backwards,
     ("efficient_method", "MUL", "FACT_DERIVED"): derived,
     ("efficient_method", "MUL", "SCALED_FACT"): scaled,
-    ("word_1step", "DIV", None): story,
 }
 
 

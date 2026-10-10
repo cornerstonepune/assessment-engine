@@ -5,6 +5,10 @@
  * each Advance kind with its own numbers: a digit missing in the number divided, the remainder or the divisor missing,
  * a claimed answer to judge, a check by multiplying, how many digits a quotient has or the number divided rounded, and
  * ÷ 5 as ÷ 10 then doubled — named in words, never a code. The switch is put back after.
+ *
+ * And the last of them (goals/md3b3-divide-mistakes-and-stories.yaml): a worked division whose mistake the child finds,
+ * named on the Question bank by the mistake's own row — the words the school edits, which no code carries a copy of —
+ * and the stories that use what is left over.
  */
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
@@ -39,6 +43,41 @@ test("once taught, the column skills' Advance kinds are on the Question bank wit
     await shows(page, "DIV.2D1D", "inverse_check", /\d+ × \d+( \+ \d+)? = □/, "the check by multiplying");
     await shows(page, "DIV.3D1D", "estimate_then_calc", /how many digits \d+ ÷ \d+|nearest hundred/, "an estimate");
     await shows(page, "DIV.3D1D", "efficient_method", /\d+ ÷ 10/, "÷ 5 as ÷ 10 then doubled");
+  } finally {
+    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+  }
+});
+
+test("a worked division's mistake is named on the Question bank by its row", async ({ page }) => {
+  const topics = await sql<{ code: string }[]>`
+    select distinct t.code from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+    where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
+  // each mistake a worked division shows, by its row: what the Question bank must call it
+  const rows = await sql<{ code: string; name: string }[]>`
+    select code, name from misconception
+    where op = '÷' and code in ('M_DIV_REMAINDER_TOO_BIG', 'M_DIV_QUOTIENT_ZERO_DROPPED', 'M_DIV_BRING_DOWN_MISSED')`;
+  expect(rows.length, "each mistake a worked division shows has its row").toBe(3);
+  const name = Object.fromEntries(rows.map((r) => [r.code, r.name]));
+  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  try {
+    const worked = /\d+ ÷ \d+ and wrote \d+( r \d+)?/;
+    for (const [set, planted] of [
+      ["DIV.2D1D", [name.M_DIV_REMAINDER_TOO_BIG]],
+      ["DIV.3D1D", [name.M_DIV_QUOTIENT_ZERO_DROPPED, name.M_DIV_BRING_DOWN_MISSED]],
+    ] as const) {
+      await shows(page, set, "find_mistake", worked, `a worked division on ${set}`);
+      // the question's own page: its planted mistake among the wrong answers it catches, named by its row, and the why
+      // read against it, no name copied into the question
+      const [one] = await sql<{ item_key: string }[]>`
+        select item_key from item where skill_set_code = ${set} and difficulty = 'Advance' and fmt = 'find_mistake'
+          and status = 'active' order by item_key limit 1`;
+      await page.goto(`/library/${one.item_key}`);
+      const caught = page.getByRole("table", { name: "Wrong answers it catches" });
+      await expect(caught).toContainText(new RegExp(planted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")));
+      await expect(page.getByRole("main")).toContainText("Looks for: Names the mistake its worked answer shows");
+      expect(await page.getByRole("main").innerText(), "a code on the page").not.toMatch(CODE);
+    }
+    await shows(page, "DIV.2D1D", "word_1step", /left over|full|needed/, "a story that uses what is left over");
   } finally {
     await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
   }

@@ -118,7 +118,7 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         )
         body = (
             where
-            + f'<div class="row" style="margin-top:2mm"><span class="lab">The correct answer is</span>{_cells(sid, iid, R["ans"])}</div>'
+            + f'<div class="row" style="margin-top:2mm"><span class="lab">The correct answer is</span>{answer_space.answered(functools.partial(_cells, sid, iid), R)}</div>'
             + textbox(sid, iid, R["why"], 14)
         )
     elif f in ("word_1step", "word_2step"):
@@ -129,7 +129,7 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         body = (
             table
             + working(it.working_lines)
-            + f'<div class="row" style="margin-top:2mm"><span class="lab">Answer</span>{_cells(sid, iid, R["ans"], big)}</div>'
+            + f'<div class="row" style="margin-top:2mm"><span class="lab">Answer</span>{answer_space.answered(functools.partial(_cells, sid, iid), R, big)}</div>'
         )
     else:
         body = "".join(_cells(sid, iid, r) for r in it.responses if r.kind == "digits")
@@ -219,11 +219,8 @@ def _estimate(
         # (84 × 18 in 4 boxes answered it): a product's two numbers' digits, a quotient's the number divided's
         room = len(str(sp["a"])) + (len(str(sp["b"])) if op_sign(sp["op"]) == "×" else 0)
         exact = answer_space.cells(sid, iid, dataclasses.replace(R["ans"], cells=room), boxes="cells")
-    rem = R.get(
-        "rem"
-    )  # a division that leaves a remainder: "r" and its box after the quotient's, one answer that
-    if rem:  # wraps whole (alone, the remainder's box fell to the next line, away from its "r")
-        exact = f'<span class="quotient">{exact}<span class="eq rem">r</span>{cells(rem)}</span>'
+    rem = R.get("rem")  # a division that leaves a remainder: its "r" and box kept with the quotient's
+    exact = answer_space.with_remainder(exact, cells(rem) if rem else None)
     body = f"""<div class="row"><span class="lab">{first}</span>{cells(R["est"])}</div>
 <div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{exact}</div>""" + working(
         2

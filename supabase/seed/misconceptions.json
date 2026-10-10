@@ -1135,6 +1135,18 @@
       "detectable_by": "answer_lookup",
       "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/div_mistakes.py (goals/md3a-straight-division.yaml)",
       "external_ref": null
+    },
+    {
+      "code": "M_REMAINDER_NOT_ROUNDED_UP",
+      "op": "÷",
+      "name": "Leaves out the group the ones left over still need",
+      "description": "Gives the full groups where a story needs a group for everyone: 26 children, 4 to a rickshaw, answered 6 rickshaws, so 2 children have none.",
+      "repair_hint": "Ask who is left without a group: the ones left over need one more, however few they are",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md3b3-divide-mistakes-and-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, B15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     }
   ]
 }

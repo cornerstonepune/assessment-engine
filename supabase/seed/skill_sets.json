@@ -3631,6 +3631,7 @@
         "M_MUL_UNITS_REVERSED",
         "M_NO_DECREMENT",
         "M_ONE_ADDED",
+        "M_REMAINDER_NOT_ROUNDED_UP",
         "M_REVERSES_CLAIM_TRUTH",
         "M_SMALL_FROM_LARGE",
         "M_TENS_ZERO_DROPPED",
@@ -3693,7 +3694,7 @@
           }
         },
         "Advance": {
-          "words": "The hardest divisions of a 2-digit number: a digit missing, the remainder or the divisor missing, an answer to judge and a check by multiplying: 7□ ÷ 4 = 18, 85 ÷ 4 = 21 r □, 85 ÷ □ = 21 r 1, could 85 ÷ 4 be 20 r 5?, 96 ÷ 4 = 24 checked as 24 × 4.",
+          "words": "The hardest divisions of a 2-digit number: a digit missing, the remainder or the divisor missing, an answer to judge, a check by multiplying, a mistake to find and stories that use what is left over: 7□ ÷ 4 = 18, 85 ÷ 4 = 21 r □, 85 ÷ □ = 21 r 1, could 85 ÷ 4 be 20 r 5?, 96 ÷ 4 = 24 checked as 24 × 4, what is wrong with 85 ÷ 4 = 20 r 5?, 26 children 4 to a rickshaw: how many rickshaws?",
           "check": {
             "within": {
               "operation": "DIV",
@@ -3708,7 +3709,12 @@
               "Q12",
               "Q13",
               "V09",
-              "Y10"
+              "Y10",
+              "C05",
+              "B14",
+              "B15",
+              "B16",
+              "B17"
             ]
           }
         }
@@ -3807,7 +3813,7 @@
           }
         },
         "Advance": {
-          "words": "The hardest divisions of a 3-digit number: a digit missing in the quotient, how many digits it has, an estimate and ÷ 5 as ÷ 10 then doubled: 936 ÷ 3 = 3□2, how many digits 156 ÷ 4 has, 412 ÷ 8 ≈ 400 ÷ 8, 240 ÷ 5 as 24 doubled.",
+          "words": "The hardest divisions of a 3-digit number: a digit missing in the quotient, how many digits it has, an estimate, ÷ 5 as ÷ 10 then doubled, and a mistake to find: 936 ÷ 3 = 3□2, how many digits 156 ÷ 4 has, 412 ÷ 8 ≈ 400 ÷ 8, 240 ÷ 5 as 24 doubled, what is wrong with 612 ÷ 6 = 12 or 516 ÷ 4 = 12 r 3?",
           "check": {
             "within": {
               "operation": "DIV",
@@ -3821,7 +3827,9 @@
               "Q10",
               "V04",
               "V10",
-              "H09"
+              "H09",
+              "C04",
+              "C07"
             ]
           }
         }

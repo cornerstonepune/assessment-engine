@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any
 from engine.assess import operations as O
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from engine.assess.items import Response
 
 
@@ -118,6 +120,23 @@ def _rows_worked(rows: list[int], op: str) -> list[int]:
     top, multiplier = (rows[1], rows[0]) if len(str(rows[0])) < len(str(rows[1])) else (rows[0], rows[1])
     worked = O.rows(top, multiplier)
     return worked if len(worked) >= 2 else []
+
+
+def answered(cells: "Callable[..., str]", R: "dict[str, Response]", big: bool = False) -> str:
+    """An answer's boxes, and a division's remainder's after its "r" where it has one: a story that asks both, the right
+    answer to a worked division (goals/md3b3-divide-mistakes-and-stories.yaml)."""
+    rem = R.get("rem")
+    return with_remainder(cells(R["ans"], big), cells(rem, big) if rem else None)
+
+
+def with_remainder(answer: str, remainder: str | None) -> str:
+    """A division's answer in a line: the quotient's boxes, "r" and the remainder's, kept as one answer that wraps whole
+    (alone, the remainder's box fell to the next line, away from its "r"); any other answer as it is."""
+    return (
+        f'<span class="quotient">{answer}<span class="eq rem">r</span>{remainder}</span>'
+        if remainder
+        else answer
+    )
 
 
 def op_sign(o: str) -> str:

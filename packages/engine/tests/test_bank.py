@@ -10,7 +10,7 @@ import random
 
 import pytest
 
-from engine.assess import bands
+from engine.assess import bands, verify
 from engine.assess import items as I
 from engine.assess import misconceptions as M
 from engine.core import db
@@ -54,7 +54,10 @@ def conn():
         c.rollback()
 
 
-def candidates(k, seed=3):
+def candidates(k, seed=3, conn=None):
+    """`k` subtractions as the model returns them. With `conn`, none the bank already holds: a database's bank is drawn
+    afresh each time it is built (`bank refill`, unseeded), so a fixed sum was sometimes there already, was not stored
+    again, and a fill meant to keep three kept two (CI on main, 2026-10-10)."""
     rng = random.Random(seed)
     out = []
     while len(out) < k:
@@ -73,7 +76,15 @@ def candidates(k, seed=3):
                 "misconceptions": [{"code": c, "wrong_answer": v} for c, v in M.predict("-", a, b).items()],
             }
         )
+        if conn is not None and _stored(conn, out[-1]):
+            out.pop()
     return out
+
+
+def _stored(conn, c):
+    """Whether the bank holds this question already, by the key it would be stored under."""
+    key = verify.to_item(verify.normalise(dict(c)), "TEST.R").item_id
+    return conn.execute("select 1 from item where item_key = %s", (key,)).fetchone() is not None
 
 
 def fake_model(batch):
@@ -96,7 +107,7 @@ def test_spec_is_built_only_from_rows(conn):
 
 
 def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
-    good = candidates(3)
+    good = candidates(3, conn=conn)
     bad = dict(
         good[0], a=good[0]["a"], answer=good[0]["answer"] + 1, format="bare_sum"
     )  # wrong key, same numbers
@@ -120,14 +131,14 @@ def test_fill_stores_verified_items_and_gates_the_rest(conn, monkeypatch):
 
 
 def test_fill_accepts_the_typographic_minus_the_model_actually_writes(conn, monkeypatch):
-    batch = [dict(c, op="−") for c in candidates(2, seed=11)]
+    batch = [dict(c, op="−") for c in candidates(2, seed=11, conn=conn)]
     monkeypatch.setattr(bank.llm, "generate", fake_model(batch))
     counts, _, accepted = bank.fill(conn, SET, DIFF, 2)
     assert counts["accepted"] == 2 and accepted[0].spec["op"] == "-"
 
 
 def test_filling_again_with_the_same_numbers_adds_nothing(conn, monkeypatch):
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3, conn=conn)))
     bank.fill(conn, SET, DIFF, 3)
     before = conn.execute("select count(*) as n from item").fetchone()["n"]
     counts, _, _ = bank.fill(conn, SET, DIFF, 3)
@@ -136,14 +147,14 @@ def test_filling_again_with_the_same_numbers_adds_nothing(conn, monkeypatch):
 
 
 def test_recheck_agrees_with_what_the_verifier_let_through(conn, monkeypatch):
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(4)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(4, conn=conn)))
     bank.fill(conn, SET, DIFF, 4)
     assert inventory.recheck(conn) == []
 
 
 def test_recheck_catches_an_answer_edited_behind_the_engines_back(conn, monkeypatch):
     """The audit exists for the case nobody plans for: a row changed by hand."""
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2, conn=conn)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 2)
     key = accepted[0].item_id
     conn.execute(
@@ -164,7 +175,7 @@ def test_recheck_passes_the_missing_number_items_the_samplers_make(conn):
 
 
 def test_a_flag_retires_the_item_by_trigger(conn, monkeypatch):
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(2, conn=conn)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 2)
     assert inventory.flag(conn, accepted[0].item_id, "nimish", "odd wording") == "retired"
     assert (
@@ -192,7 +203,7 @@ def test_sampled_refuses_a_skill_set_with_no_sampler_format():
 
 
 def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, monkeypatch):
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(3, conn=conn)))
     bank.fill(conn, SET, DIFF, 3)
     table = inventory.coverage(conn)
     # Every skill_set x every difficulty band, zeros included. Derived, not hardcoded: adding a
@@ -310,7 +321,7 @@ def test_fill_native_produces_no_flow_run_row(conn):
 
 
 def test_sheet_renders_only_active_items_of_that_set(conn, monkeypatch, tmp_path):
-    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(13)))
+    monkeypatch.setattr(bank.llm, "generate", fake_model(candidates(13, conn=conn)))
     _, _, accepted = bank.fill(conn, SET, DIFF, 13)
     # the bank never holds one sum twice: a candidate the refilled bank already has is not kept, so the sheet is
     # sized from what this fill kept, not from what it was offered (it hung on which sums the refill had drawn)

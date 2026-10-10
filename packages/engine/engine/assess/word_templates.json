@@ -202,6 +202,62 @@
     },
     {
       "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "ROUND_DOWN",
+      "text": "{a} laddoos are packed into boxes, {b} in each box. How many boxes are full?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "ROUND_DOWN",
+      "text": "{n} has {a} marbles and puts {b} in each bag. How many bags are full?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "ROUND_UP",
+      "text": "{a} children go to the fort, {b} in each rickshaw. How many rickshaws are needed?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "ROUND_UP",
+      "text": "{a} books are put on shelves, {b} on each shelf. How many shelves are needed for all the books?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "REMAINDER_ASKED",
+      "text": "{a} laddoos are packed into boxes, {b} in each box. How many laddoos are left over?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "REMAINDER_ASKED",
+      "text": "{n} has {a} stickers and sticks {b} on each page. How many stickers are left over?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "BOTH_ASKED",
+      "text": "{a} laddoos are packed into boxes of {b}. How many boxes are full, and how many laddoos are left over?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "remainder_use": "BOTH_ASKED",
+      "text": "{a} children stand in rows of {b}. How many full rows are there, and how many children are left over?"
+    },
+    {
+      "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?",

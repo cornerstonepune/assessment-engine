@@ -78,6 +78,8 @@ def story_spec(tpl: dict[str, Any], **numbers: int) -> dict[str, Any]:
     if tpl["fmt"] == "word_1step":
         spec["op"] = tpl["op"]
     spec["structure"] = tpl["structure"]
+    if tpl.get("remainder_use"):  # what a story that divides does with what is left over (goals/md3b3-…)
+        spec["remainder_use"] = tpl["remainder_use"]
     if tpl["fmt"] == "word_2step":
         spec["ops"] = list(dict.fromkeys(tpl["op"]))
     if tpl.get("table"):

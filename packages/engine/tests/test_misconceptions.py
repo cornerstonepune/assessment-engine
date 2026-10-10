@@ -57,13 +57,6 @@ def test_predict_never_offers_a_negative_answer():
         assert wrong >= 0, code
 
 
-def test_catalogue_gives_every_code_a_repair_hint():
-    rows = M.catalogue()
-    assert rows, "catalogue is empty"
-    for r in rows:
-        assert r["repair"].strip(), f"{r['code']} has no repair hint for the teacher"
-
-
 def test_writes_only_the_units_digit_of_each_product_ones_first():
     """Aseem's report, Ishaan: "writes only the units digit of each partial product and records them
     in reverse order (34 × 2 = 86)". The same child wrote 85 for 56 × 3 — the rule predicts both."""

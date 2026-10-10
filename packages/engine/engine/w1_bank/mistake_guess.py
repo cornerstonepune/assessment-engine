@@ -14,19 +14,26 @@ import random
 
 from engine.adapters import jev
 from engine.assess import misconceptions as M
+from engine.core import mistake_names
 
 PURPOSE = "mistake_guess"
 NONE = "NONE"
+NONE_WORDS = "None of these: a slip, a miscount, or a mistake not listed"
 SHORTLIST = 3
 SIGN = {"+": "+", "-": "−"}
 
 
-def options(op):
-    """{code: its name} for every named mistake of `op` that is a way of thinking, and NONE. An off-by-one or a
-    tens miscount is a slip, which is what NONE is for."""
-    out = {c: name for c, (_, name, _) in M.TABLES.get(op, {}).items() if not c.startswith("M_FACT")}
-    out[NONE] = "None of these: a slip, a miscount, or a mistake not listed"
-    return out
+def codes(op):
+    """Every named mistake of `op` that is a way of thinking, and NONE: what a wrong answer may be put down to. An
+    off-by-one or a tens miscount is a slip, which is what NONE is for."""
+    return [c for c in M.TABLES.get(op, {}) if not c.startswith("M_FACT")] + [NONE]
+
+
+def options(conn, op):
+    """{code: its name} for each of `codes(op)`: the name its row gives it for this operation, the words a person picks
+    from too — never a copy the code keeps (rule 1, goals/md3b3-divide-mistakes-and-stories.yaml)."""
+    name_of = mistake_names.names(conn)
+    return {c: NONE_WORDS if c == NONE else name_of(c, op) for c in codes(op)}
 
 
 def state(spec, wrote):
@@ -54,7 +61,7 @@ def shortlist(conn, spec, wrote, ask=None):
         or n in M.predict(spec["op"], spec["a"], spec["b"]).values()
     ):
         return None
-    out = (ask or jev.decide)(conn, PURPOSE, state(spec, str(wrote)), options(spec["op"]))
+    out = (ask or jev.decide)(conn, PURPOSE, state(spec, str(wrote)), options(conn, spec["op"]))
     return [(c, round(p, 3)) for c, p in out["ranked"][:SHORTLIST]]
 
 
@@ -91,9 +98,10 @@ def evaluate(conn, cases, ask=None):
     mistake they are not (the number that must stay 0)."""
     first = listed = slips_none = false_named = 0
     failed = []
+    shown = {op: options(conn, op) for op in SIGN}
     for c in cases:
         try:
-            out = (ask or jev.decide)(conn, PURPOSE, state(c, str(c["wrote"])), options(c["op"]))
+            out = (ask or jev.decide)(conn, PURPOSE, state(c, str(c["wrote"])), shown[c["op"]])
         except jev.JevError as e:
             failed.append(str(e))
             continue

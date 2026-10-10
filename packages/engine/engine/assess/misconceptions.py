@@ -239,39 +239,36 @@ def multi_concat(addends):
 
 
 # fmt: off
-# fmt: off
-# The mistake vocabulary is a TABLE, and its alignment is what makes it readable: one wrong method
-# per line, code and description and remedy in columns a person can scan. A formatter would give
-# each entry five lines and turn a page you can read into a page you have to parse. The formatter
-# is adopted everywhere else in this repository; this is the one place the shape carries meaning.
+# Each mistake by how it is made, one to a line: what it is called and what the school does about it are its row, the
+# words the school edits (`supabase/seed/misconceptions.json`, rule 1), never a copy here (goals/md3b3-…).
 ADD_PREDICTORS = {
-    "M_NOCARRY":       (add_nocarry, "Forgets to carry", "Place-value chart; exchange 10 ones for a ten with rods before recording"),
-    "M_CARRY_SKIP":    (add_carry_skips_column, "Carry placed one column too far left", "Column chart with the carry written above the correct column; two worked examples"),
-    "M_CONCAT":        (add_concat, "Writes the whole column sum instead of regrouping", "Ten-frame / rods: 'only one digit fits in a column'"),
-    "M_DROP_CARRYOUT": (add_drop_carry_out, "Drops the final carry-out (76+54 -> 30)", "Estimate first; 'can the answer be smaller than the bigger number?'"),
-    "M_FACT_PM1":      (lambda a, b: off_by(a + b, 1), "Fact off by one", "Number bonds; ten-frame fluency"),
-    "M_FACT_PM10":     (lambda a, b: off_by(a + b, 10), "Tens miscounted", "Count in tens on a 100-square"),
-    "M_WRONG_OP":      (wrong_operation_sub, "Subtracted instead of adding", "Read the question aloud; identify the operation word"),
-    "M_ALIGN_LEFT":    (lambda a, b: align_left("+", a, b), "Aligns unequal-length operands from the left, not the ones", "Place-value columns; write the ones digit first and build leftwards"),
-    "M_ZERO_DROPPED":  (lambda a, b: zero_dropped(a + b), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value: 'one thousand' has three zeros"),
+    "M_NOCARRY":       add_nocarry,
+    "M_CARRY_SKIP":    add_carry_skips_column,
+    "M_CONCAT":        add_concat,
+    "M_DROP_CARRYOUT": add_drop_carry_out,
+    "M_FACT_PM1":      lambda a, b: off_by(a + b, 1),
+    "M_FACT_PM10":     lambda a, b: off_by(a + b, 10),
+    "M_WRONG_OP":      wrong_operation_sub,
+    "M_ALIGN_LEFT":    lambda a, b: align_left("+", a, b),
+    "M_ZERO_DROPPED":  lambda a, b: zero_dropped(a + b),
 }
 SUB_PREDICTORS = {
-    "M_SMALL_FROM_LARGE": (sub_smaller_from_larger, "Subtracts the smaller digit from the larger regardless of row ('neeche wala number')", "Rods: show that the top number is the whole; act out the exchange"),
-    "M_NO_DECREMENT":     (sub_no_decrement, "Exchanges but does not reduce the lender column", "Cross out and rewrite the lender digit before subtracting"),
-    "M_ZERO_LENDER":      (sub_across_zero_lender_not_decremented, "Across zero: zero lends but the column to its left is not reduced", "Three-column rods; exchange a hundred for ten tens first"),
-    "M_ZERO_NOT_NINE":    (sub_across_zero_zero_not_reduced, "Across zero: zero becomes 10 and stays 10 (should be 9)", "Number line count-up as a check"),
-    "M_EXCHANGE_WRONG_PLACE": (sub_exchange_from_wrong_column, "Takes the exchange from the wrong column — the hundreds, not the tens", "Rods: the ten always comes from the column next door"),
-    "M_FACT_PM1":         (lambda a, b: off_by(a - b, -1), "Fact off by one", "Number bonds; count-up on a number line"),
-    "M_FACT_PM10":        (lambda a, b: off_by(a - b, 10), "Tens miscounted", "Count back in tens on a 100-square"),
-    "M_WRONG_OP":         (wrong_operation_add, "Added instead of subtracting", "Read the question aloud; identify the operation word"),
-    "M_ALIGN_LEFT":       (lambda a, b: align_left("-", a, b), "Aligns unequal-length operands from the left, not the ones", "Place-value columns; write the ones digit first and build leftwards"),
-    "M_ZERO_DROPPED":     (lambda a, b: zero_dropped(a - b), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value; check the column count"),
+    "M_SMALL_FROM_LARGE": sub_smaller_from_larger,
+    "M_NO_DECREMENT":     sub_no_decrement,
+    "M_ZERO_LENDER":      sub_across_zero_lender_not_decremented,
+    "M_ZERO_NOT_NINE":    sub_across_zero_zero_not_reduced,
+    "M_EXCHANGE_WRONG_PLACE": sub_exchange_from_wrong_column,
+    "M_FACT_PM1":         lambda a, b: off_by(a - b, -1),
+    "M_FACT_PM10":        lambda a, b: off_by(a - b, 10),
+    "M_WRONG_OP":         wrong_operation_add,
+    "M_ALIGN_LEFT":       lambda a, b: align_left("-", a, b),
+    "M_ZERO_DROPPED":     lambda a, b: zero_dropped(a - b),
 }
 
 MULTI_PREDICTORS = {
-    "M_CARRY_ALWAYS_1": (carry_always_one, "Carries 1 when the column total is 20 or more", "Three-addend columns with rods; count the tens being exchanged, not the act of exchanging"),
-    "M_CONCAT":         (multi_concat, "Writes the whole column sum instead of regrouping", "Ten-frame / rods: 'only one digit fits in a column'"),
-    "M_ZERO_DROPPED":   (lambda xs: zero_dropped(sum(xs)), "Drops a placeholder zero when writing the answer", "Read the answer aloud in place value before writing it"),
+    "M_CARRY_ALWAYS_1": carry_always_one,
+    "M_CONCAT":         multi_concat,
+    "M_ZERO_DROPPED":   lambda xs: zero_dropped(sum(xs)),
 }
 
 # fmt: on
@@ -281,7 +278,7 @@ def predict_multi(addends):
     """Errors that only become visible with three or more addends, so they need the whole list."""
     correct = sum(addends)
     out = {}
-    for code, (fn, _, _) in MULTI_PREDICTORS.items():
+    for code, fn in MULTI_PREDICTORS.items():
         try:
             v = fn(addends)
         except Exception:
@@ -293,27 +290,19 @@ def predict_multi(addends):
 
 # A comparison asks for a sign, not a number, so its one predictable mistake is the other sign.
 COMPARE_PREDICTORS = {
-    "M_COMPARE_REVERSED": (
-        lambda sign: {"<": ">", ">": "<"}.get(sign),
-        "Writes the comparison sign the wrong way round",
-        "The open side faces the bigger number; read it aloud as 'is less than'",
-    ),
+    "M_COMPARE_REVERSED": lambda sign: {"<": ">", ">": "<"}.get(sign),
 }
 
 # A mistake read off the right answer itself, not off the operands: several numbers can show it, so
 # it is a rule the marker applies when no predicted wrong answer matched, never a number on an item.
 ANSWER_RULES = {
-    "M_DIGIT_DROPPED": (
-        digit_dropped,
-        "Loses a digit when copying out the answer",
-        "Check the final answer against the working, digit by digit, before moving on",
-    ),
+    "M_DIGIT_DROPPED": digit_dropped,
 }
 
 # fmt: on
 
-# (predictor, name, repair) by code, for each operation that has a table
-TABLES: dict[str, dict[str, tuple[Callable[..., int | None], str, str]]] = {
+# the predictors by code, for each operation that has a table
+TABLES: dict[str, dict[str, Callable[..., int | None]]] = {
     "+": ADD_PREDICTORS,
     "-": SUB_PREDICTORS,
     "×": MUL_PREDICTORS,
@@ -339,7 +328,7 @@ PREDICTED = {
 def predict_sign(answer):
     """{code: wrong sign} for a question whose answer is a comparison sign; {} for anything else."""
     out = {}
-    for code, (fn, _, _) in COMPARE_PREDICTORS.items():
+    for code, fn in COMPARE_PREDICTORS.items():
         v = fn(str(answer).strip())
         if v:
             out[code] = v
@@ -357,7 +346,7 @@ def predict(op: str, a: int, b: int) -> dict[str, int]:
         return {}
     out: dict[str, int] = {}
     correct = compute(op, a, b)
-    for code, (fn, _, _) in table.items():
+    for code, fn in table.items():
         try:
             v = fn(a, b)
         except Exception:
@@ -379,13 +368,3 @@ def applicable(pairs):
     for op, a, b in pairs:
         out |= set(predict(op, a, b))
     return sorted(out)
-
-
-def catalogue():
-    rows = []
-    for op, table in (("+", ADD_PREDICTORS), ("-", SUB_PREDICTORS), ("+", MULTI_PREDICTORS)):
-        for code, (_, name, repair) in table.items():
-            if any(r["code"] == code and r["op"] == op for r in rows):
-                continue
-            rows.append(dict(code=code, op=op, name=name, repair=repair))
-    return rows
