@@ -24,7 +24,8 @@ is verified. This file only says where the last session stopped.
   - the website draws each model on the Question bank (`components/question.tsx`, `pictures.tsx`).
 - **For Achal:** the drafted G05 printed □ × □ = □ and counted 5 × 3 right for 3 rows of 5; the build labels the boxes
   (rows, in each row, in all), so one order is the question. Also: skip counting maps to Patterns & sequencing
-  (`skills.by_kind`), and the Hard level's known tables are 2, 5 and 10.
+  (`skills.by_kind`), the Hard level's known tables are 2, 5 and 10, and twice as many doubles a number to 20 (the
+  draft's example doubles 15).
 - **Named, not changed** (STATE.md): the marker charges a wrong answer to every mistake that predicts it, the counting
   kinds to none when two share it.
 - **Waiting for Nimish's `bin/update-live`:** M0b to AS2, then approving the 13 skill sets it lists.

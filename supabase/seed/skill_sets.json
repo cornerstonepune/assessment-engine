@@ -3132,8 +3132,12 @@
       ],
       "misconception_codes": [
         "M_GROUP_MISSED",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CONCAT",
         "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
         "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
         "M_ONE_GROUP",
         "M_TENS_ZERO_DROPPED",
         "M_TIMES_AS_MORE",
@@ -3204,7 +3208,7 @@
           "min_items": 24
         },
         "Advance": {
-          "words": "Stories of an array, twice as many and area in squares, with 1-digit numbers: 5 rows of 7 chairs; twice as many as 8 pages; a rectangle 6 squares long and 4 wide.",
+          "words": "Stories of an array and of area in squares with 1-digit numbers, and of twice as many as a number to 20: 5 rows of 7 chairs; a rectangle 6 squares long and 4 wide; twice as many as 15 pages.",
           "check": {
             "cases": [
               "B04",
@@ -3216,7 +3220,7 @@
               1
             ]
           },
-          "min_items": 24
+          "min_items": 36
         }
       },
       "level_band": {

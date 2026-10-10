@@ -231,6 +231,10 @@
       "structure": "TWICE_AS_MANY",
       "op": "×",
       "numbers": {
+        "a": [
+          3,
+          20
+        ],
         "b": 2
       },
       "added": "M_TIMES_AS_MORE",
@@ -241,6 +245,10 @@
       "structure": "TWICE_AS_MANY",
       "op": "×",
       "numbers": {
+        "a": [
+          3,
+          20
+        ],
         "b": 2
       },
       "added": "M_TIMES_AS_MORE",

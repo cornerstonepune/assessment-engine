@@ -35,8 +35,10 @@ own rule, that "the methods, stories, missing numbers and the rest are other kin
    reaches every equation through `equality.from_rule`; `equation`, frozen at 51 statements, is not touched.
 5. **"Times as many" read as "more" is its own mistake** (`M_TIMES_AS_MORE`), named by the template row that says it
    (`added`), on both ways into the bank (`words.added_as`: the sampler, and a sentence checked by
-   `verify.to_item`). Twice as many fixes its own 2 (`numbers`). A story whose misreading lands on the answer —
-   twice as many as 2 is 4, and so is two more — is drawn again: it could not show the mistake it names.
+   `verify.to_item`). A template sets a number of its own (`numbers`): twice as many fixes its 2 and takes a number to
+   20 — doubling, as the draft's own example doubles 15 — where 1-digit numbers gave it 7 questions and the bank
+   counts a case covered at 12. A story whose misreading lands on the answer — twice as many as 2 is 4, and so is two
+   more — is drawn again: it could not show the mistake it names.
 6. **`MUL.MODELS` carries no `within`.** `placing.py` reads a skill whose levels say `within` as a calculation skill;
    `{"operation": "MUL"}` would hold 7 × 8 together with `MUL.FACTS`, two skills for one question. Its numbers are
    its kinds' own rule keys: `groups`, `size`, `known`, `digits`.
@@ -57,6 +59,7 @@ own rule, that "the methods, stories, missing numbers and the rest are other kin
 
 - `MUL.2D1D`'s Advance holds "times as many" stories (B08), so its list names `M_TIMES_AS_MORE`: the seed for a new
   database, migration `20261031090000` for one loaded before.
+- Every level holds each case it lists as often as the case asks (12): Advance is 36, twelve of each story.
 - `items.py` is 101 lines shorter and its untyped findings 80 fewer; the number line is typed.
 - Found, not changed here: the marker charges a wrong answer to every mistake that predicts it (3 × 3 answered 6 is
   "one row out" and "the numbers added"), while the counting kinds name neither for certain (`counting.named`).

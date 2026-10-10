@@ -56,7 +56,7 @@ scenarios:
   - name: MUL.MODELS, Advance — an array, twice as many and area, as stories
     skill_set: MUL.MODELS
     difficulty: Advance
-    n: 24
+    n: 36
     cases: [B04, B11, B13]
 criteria:
   - name: the models drawn, printed and named; the kinds, levels, drawer and taxonomy they touch

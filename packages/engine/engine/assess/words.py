@@ -15,7 +15,7 @@ import pathlib
 import random
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
@@ -146,11 +146,20 @@ def added_as(tpl: dict[str, Any] | None, mis: dict[str, Any]) -> dict[str, Any]:
     return {(tpl["added"] if k == "M_WRONG_OP" else k): v for k, v in mis.items()}
 
 
+def _own(rng: random.Random, v: Any) -> int:
+    """A number a template sets: one value, or a [lo, hi] range it is drawn from."""
+    if isinstance(v, list):
+        span = cast(list[int], v)
+        return rng.randint(span[0], span[-1])
+    return int(v)
+
+
 def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
     """A story that multiplies: its numbers no table fact and not round, as its level's are, but a number the story
-    itself fixes (`numbers`: "twice as many" is × 2)."""
-    fixed: dict[str, int] = tpl.get("numbers") or {}
-    a, b = fixed.get("a") or number(rng, sizes[0]), fixed.get("b") or number(rng, sizes[1])
+    itself sets (`numbers`): one it fixes ("twice as many" is × 2), or the range it takes (twice as many as a number to
+    20: doubling, not a 2-digit multiplication)."""
+    own: dict[str, Any] = tpl.get("numbers") or {}
+    a, b = (_own(rng, own[k]) if k in own else number(rng, d) for k, d in (("a", sizes[0]), ("b", sizes[1])))
     if tpl.get("added") and a + b == a * b:
         # twice as many as 2 read as two more is 4, and right: the question could not tell the misreading
         raise RuntimeError("the numbers added would be the answer: draw again")

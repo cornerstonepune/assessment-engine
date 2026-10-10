@@ -180,6 +180,35 @@ def test_three_stories_multiply_an_array_twice_as_many_and_an_area():
         assert a + b != a * b and _answers(it)["ans"].misconceptions["M_TIMES_AS_MORE"] == a + b
 
 
+def test_a_filled_level_holds_each_of_its_cases_as_often_as_the_case_asks():
+    """A case is covered when the bank holds as many of it as its row asks (12 where it names none, as `engine load`
+    reads it); fewer is what `engine bank taxonomy` calls thin. Each level, filled as the bank fills it, holds every
+    case it lists that often: twice as many takes a number to 20, where 1-digit numbers gave it only 7 questions."""
+    for lv, d in MODELS["difficulty"].items():
+        check = d["check"]
+        matches = {c: taxonomy.within(CASES[c]["match"], check.get("within")) for c in check["cases"]}
+        held = Counter(
+            c for c, _ in draw.level(random.Random(5), check, matches, MODELS["rung_code"], d["min_items"])
+        )
+        for c in check["cases"]:
+            assert held[c] >= CASES[c].get("min_items", 12), (lv, c, held[c])
+
+
+def test_every_mistake_its_questions_name_is_on_its_list_and_is_a_row():
+    """What a question names a wrong answer is a mistake the skill set lists (so the curriculum shows it) and a row of
+    the vocabulary (so the marker and the reports can say it in words)."""
+    rows = {m["code"] for m in json.loads((SEED / "misconceptions.json").read_text())["misconceptions"]}
+    named = set()
+    for d in MODELS["difficulty"].values():
+        check = d["check"]
+        matches = {c: taxonomy.within(CASES[c]["match"], check.get("within")) for c in check["cases"]}
+        for _, it in draw.level(random.Random(2), check, matches, MODELS["rung_code"], d["min_items"]):
+            named |= {c for r in it.responses for c in r.misconceptions}
+    assert named <= set(MODELS["misconception_codes"]) and named <= rows, named - set(
+        MODELS["misconception_codes"]
+    )
+
+
 def _story(structure, seed=1):
     for k in range(seed, seed + 50):
         try:

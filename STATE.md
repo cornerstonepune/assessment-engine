@@ -5230,6 +5230,12 @@ What the eight measured failures became (ADR 0054), each proved by `tests/test_m
 - B04, B11, B13: × templates of an array, twice as many and area; "times as many" names adding its numbers
   `M_TIMES_AS_MORE` both ways into the bank, a story whose misreading would be right (2 times as many as 2) is drawn
   again, and one keyed before is a key problem, so the refill retires it (`verify._stale_story`).
+- The first rehearsal (run 38028938414, `770c97e`) found the three stories thin on a copy of live — 9, 7 and 8 held,
+  where a case is covered at 12 — because Advance asked 24 of three cases and twice as many over a 1-digit number has
+  7 questions. Advance is 36 now, and twice as many takes a number to 20 (its template's own range, `numbers`);
+  `test_a_filled_level_holds_each_of_its_cases_as_often_as_the_case_asks`. The same run: 541 retired outside their
+  level and 4,561 + 88 added — the AS2 rehearsal's 541 and 4,561 and `MUL.MODELS`' 88 — so the slice retires nothing
+  on live; 128 of 128 skill-levels ready, 0 problems.
 - `MUL.MODELS` (R41, topic Multiplication, Grade 2 at every level) has no `within`, so `placing` never reads it as a
   calculation skill; `MUL.2D1D` names `M_TIMES_AS_MORE` (seed; migration `20261031090000` for a database loaded before).
 - A sheet of one question of every case, printed through Chromium as a paper is: every answer has its boxes in the
