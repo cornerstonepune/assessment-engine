@@ -173,7 +173,7 @@ def test_jumps_back_on_a_number_line_to_zero_are_counted():
             q, [("M_DIV_SUBTRACTED", a - b), ("M_DIV_START_COUNTED", q + 1), ("M_DIV_GROUPS_FOR_SIZE", b)]
         )
         page = _html(it)
-        assert 'class="jump"' not in page and len(re.findall(r'class="tick"', page)) == a + 1
+        assert 'class="jump"' not in page and len(re.findall(r'class="mark"', page)) == a + 1
         assert f">{a}<" in page and ">0<" in page and ">jumps<" in page
 
 

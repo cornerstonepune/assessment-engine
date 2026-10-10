@@ -1,11 +1,13 @@
-"""The number line, one kind of question drawn two ways (goals/md2d1-multiplication-models.yaml): an addition or a
-subtraction as two jumps from a number (`two_jumps`), a multiplication as equal jumps from 0 (`equal_jumps`). A level's
-rule reaches it through `number_line`, which reads the operation and hands on. Pure, no I/O.
+"""The number line, one kind of question drawn three ways (goals/md2d1-multiplication-models.yaml,
+goals/md3c-division-models.yaml): an addition or a subtraction as two jumps from a number (`two_jumps`), a
+multiplication as equal jumps from 0 (`equal_jumps`), a division as jumps back to 0 (`divide_models.jumps_back`). A
+level's rule reaches it through `number_line`, which reads the operation and hands on. Pure, no I/O.
 """
 
 from random import Random
 from typing import Any
 
+from . import divide_models as DMOD
 from . import misconceptions as M
 from . import operations as O
 from .counting import named, one_of
@@ -13,10 +15,13 @@ from .items import Item, Response, cells, item
 
 
 def number_line(rng: Random, rung: str, signal: str, rule: dict[str, Any]) -> Item:
-    """A number line drawn from a level's rule: × as equal jumps from 0; + and − as two jumps within the level's `hi`."""
+    """A number line drawn from a level's rule: × as equal jumps from 0, ÷ as jumps back to 0
+    (`divide_models.jumps_back`); + and − as two jumps within the level's `hi`."""
     op = O.sign(one_of(rule["op"], rng))
     if op == "×":
         return equal_jumps(rng, rung, signal, rule)
+    if op == "÷":
+        return DMOD.jumps_back(rng, rung, signal, rule)
     return two_jumps(rng, rung, signal, op, rule["hi"])
 
 

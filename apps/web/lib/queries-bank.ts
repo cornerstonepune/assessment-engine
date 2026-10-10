@@ -27,6 +27,7 @@ export type ItemSpec = {
   things?: string[];
   rows?: number[]; // a part of the multiplication square: its rows and columns; `a` and `b` are the cell asked
   cols?: number[];
+  method?: string; // how it is worked or drawn: a division's equal groups are SHARING, GROUPING or ARRAY
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and

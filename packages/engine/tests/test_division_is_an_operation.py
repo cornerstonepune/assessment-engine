@@ -163,7 +163,8 @@ def test_a_story_whose_answer_multiplies_is_refused_never_added():
 
 # Every kind whose rule names an operation, and the rule it needs beyond `op`: each makes + and − only, and since
 # M2b four of them × too (goals/md2b-times-advance.yaml, `tests/test_mul_advance.py`), and since M2d1 the number line,
-# as equal jumps from 0 (goals/md2d1-multiplication-models.yaml); none makes ÷ yet.
+# as equal jumps from 0 (goals/md2d1-multiplication-models.yaml); since M3c the number line makes ÷ as well, as jumps
+# back to 0 (goals/md3c-division-models.yaml, `tests/test_div_models.py`).
 PLUS_OR_MINUS = {
     "number_line_jumps": {"hi": 50},
     "estimate_then_calc": {"digits": [2, 2], "regroups": [0, 1]},
@@ -179,11 +180,17 @@ PLUS_OR_MINUS = {
 
 
 TIMES_TOO = {"estimate_then_calc", "find_mistake", "missing_digit", "word_1step", "number_line_jumps"}
+DIVIDES_TOO = {"number_line_jumps"}
 
 
 @pytest.mark.parametrize(
     "fmt, op",
-    [(f, o) for f in sorted(PLUS_OR_MINUS) for o in ("×", "÷") if not (o == "×" and f in TIMES_TOO)],
+    [
+        (f, o)
+        for f in sorted(PLUS_OR_MINUS)
+        for o in ("×", "÷")
+        if not (o == "×" and f in TIMES_TOO) and not (o == "÷" and f in DIVIDES_TOO)
+    ],
 )
 def test_a_kind_handed_an_operation_it_cannot_make_refuses_in_a_sentence(fmt, op):
     """Handed × or ÷, a kind that makes + and − said nothing and made a subtraction — several printing "+"."""

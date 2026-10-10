@@ -866,12 +866,18 @@ mistake("M_DIV_TENS_ZERO_EXTRA (new)", "÷", "Uses a zero for the fact, then wri
         200 // 4, tens_zero_extra(200, 4))
 mistake("M_WRONG_OP (÷)", "÷", "Multiplies instead of dividing", "84 ÷ 4", 84 // 4, 84 * 4)
 mistake("M_DIV_SUBTRACTED (new)", "÷", "Takes the divisor away once", "84 ÷ 4", 84 // 4, 84 - 4)
+mistake("M_DIV_ALL_COUNTED (new)", "÷", "Counts them all, not one share or the groups", "12 dots shared into 3 rings",
+        12 // 3, 12)
+mistake("M_DIV_GROUPS_FOR_SIZE (new)", "÷", "Writes the number the question gives for the one it asks: the rings for "
+        "how many in each", "12 dots shared into 3 rings", 12 // 3, 3)
+mistake("M_DIV_START_COUNTED (new)", "÷", "Counts the number it starts from as one more jump",
+        "from 20 back to 0 in jumps of 4", 20 // 4, 20 // 4 + 1)
 mistake("M_REMAINDER_NOT_ROUNDED_UP (new)", "÷", "Drops the remainder when the story needs one more",
         "26 children, 4 to a rickshaw", -(-26 // 4), 26 // 4, charges="word problems")
 mistake("M_TIMES_AS_MORE (new)", "×", "Reads \"3 times as many\" as \"3 more\"", "4 stickers, 3 times as many",
         4 * 3, 4 + 3, charges="word problems")
 mistake("M_KEYWORD_OVERGENERALISED (existing)", "÷", "Multiplies because the story says \"each\"",
-        "24 laddoos shared on 4 plates", 24 // 4, 24 * 4, charges="word problems")
+        "30 stickers, 5 for each child", 30 // 5, 30 * 5, charges="word problems")
 
 
 section(14, "Error diagnosis",

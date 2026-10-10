@@ -11,6 +11,7 @@ import pytest
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
+from engine.assess import divide_models as DMOD
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
 from engine.assess import items as I
@@ -306,6 +307,10 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         EQ.swap(rng, "R41", "Conceptual", [2, 5, 10], [2, 10]),
         # the written methods (goals/md2d2-multiplication-methods.yaml), printed by a level's `methods`
         *(WM.make(m, 34, 26 if m in ("GRID", "LATTICE") else 6, "R40") for m in WM.KINDS),
+        # division's models (goals/md3c-division-models.yaml), reached through their cases
+        *(DMOD.equal_groups(rng, "R46", "Conceptual", {"method": m}) for m in DMOD.METHODS),
+        DMOD.repeated_subtraction(rng, "R46", "Conceptual", {}),
+        DMOD.jumps_back(rng, "R46", "Conceptual", {}),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"

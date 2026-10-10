@@ -3323,6 +3323,106 @@
       }
     },
     {
+      "code": "DIV.GROUPS",
+      "rung_code": "R46",
+      "name": "Division models",
+      "learning_objective": "Divides by sharing equally and by making equal groups: dots shared into rings and ringed in groups, a number taken away again and again to 0, an array read as in all ÷ rows = in each row, jumps back on a number line to 0, and stories of sharing, grouping, an array and \"each\".",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "equal_groups",
+        "repeated_subtraction",
+        "number_line_jumps",
+        "word_1step"
+      ],
+      "misconception_codes": [
+        "M_DIV_ALL_COUNTED",
+        "M_DIV_GROUPS_FOR_SIZE",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_START_COUNTED",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
+        "M_KEYWORD_OVERGENERALISED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Dots shared equally into 2 to 5 rings, and ringed in equal groups of 2 to 5: 12 dots shared into 3 rings, how many in each; 12 dots in groups of 4, how many groups.",
+          "check": {
+            "cases": [
+              "G15",
+              "G16"
+            ],
+            "groups": [
+              2,
+              5
+            ],
+            "size": [
+              2,
+              5
+            ]
+          },
+          "min_items": 24
+        },
+        "Medium": {
+          "words": "A number taken away again and again to 0, and an array divided by its rows, 2 to 6 groups of 2 to 6: 15 − 3 − 3 − 3 − 3 − 3 = 0, how many 3s; 20 dots in 4 equal rows, read as in all ÷ rows = in each row.",
+          "check": {
+            "cases": [
+              "G17",
+              "G19"
+            ],
+            "groups": [
+              2,
+              6
+            ],
+            "size": [
+              2,
+              6
+            ]
+          },
+          "min_items": 24
+        },
+        "Hard": {
+          "words": "Jumps back on a number line to 0, 2 to 6 jumps of 2 to 5: start at 20 and jump back 4 at a time to 0, how many jumps.",
+          "check": {
+            "cases": [
+              "G18"
+            ],
+            "groups": [
+              2,
+              6
+            ],
+            "size": [
+              2,
+              5
+            ]
+          },
+          "min_items": 16
+        },
+        "Advance": {
+          "words": "Stories of sharing, grouping, an array and \"each\", a table to 10 read backwards: 24 laddoos shared equally on 4 plates; 24 laddoos, 6 to a plate; 35 chairs in 5 equal rows; 30 stickers, 5 for each child.",
+          "check": {
+            "cases": [
+              "B02",
+              "B03",
+              "B05",
+              "B24"
+            ]
+          },
+          "min_items": 48
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2",
+        "Advance": "G2"
+      }
+    },
+    {
       "code": "DIV.FACTS",
       "rung_code": "R42",
       "name": "Division facts",

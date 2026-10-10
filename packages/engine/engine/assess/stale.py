@@ -96,13 +96,14 @@ def _changed(now: dict[str, dict[str, Any]], responses: list[dict[str, Any]]) ->
 
 
 def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
-    """A "times as many" story keyed when adding its two numbers was named the wrong operation, before the mistake had
-    its own name (`words.added_by_shape`, ADR 0054); or one whose numbers added are its answer (2 times as many as 2),
-    which could never show that mistake."""
-    added = W.added_by_shape().get(spec.get("structure") or "") if fmt == "word_1step" else None
+    """A story keyed when its other operation was named the wrong operation, before its shape's mistake had a name of
+    its own (`words.wrong_op_by_shape`, ADR 0054); or a "times as many" story whose numbers added are its answer (2
+    times as many as 2), which could never show that mistake."""
+    named = W.wrong_op_by_shape().get(spec.get("structure") or "") if fmt == "word_1step" else None
     ans = [r for r in responses or [] if r.get("rid") == "ans"]
     stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
     a, b = spec.get("a"), spec.get("b")
-    if added and ("M_WRONG_OP" in stored or (isinstance(a, int) and isinstance(b, int) and a + b == a * b)):
+    same = spec.get("op") == "×" and isinstance(a, int) and isinstance(b, int) and a + b == a * b
+    if named and ("M_WRONG_OP" in stored or same):
         return ["M_WRONG_OP"]
     return []

@@ -1,6 +1,6 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment } from "react";
 import Link from "@/components/link";
-import { Dots, Grid, Lattice, Rings, Square, Tally } from "@/components/pictures";
+import { Drawn, Grid, Lattice, Stem } from "@/components/pictures";
 import type { ItemResponse, ItemRow, Mistake } from "@/lib/queries-bank";
 
 // The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
@@ -30,6 +30,7 @@ export const KIND: Record<string, string> = {
   equal_groups: "equal groups",
   skip_counting: "skip counting",
   multiplication_square: "multiplication square",
+  repeated_subtraction: "repeated subtraction",
   partitioning: "partitioning",
   grid_method: "grid method",
   expanded_columns: "expanded columns",
@@ -137,52 +138,11 @@ export function Question({ it }: { it: ItemRow }) {
         </Stem>
       );
     case "tally":
-      return (
-        <Stem text={it.stem}>
-          {s.shape === "READ" ? (
-            <Tally n={Number(s.count)} />
-          ) : (
-            <span className="grid w-fit grid-cols-[auto_auto] items-center gap-x-4">
-              {(s.things ?? []).map((thing, i) => (
-                <Fragment key={thing}>
-                  <span>{thing}</span>
-                  <Tally n={Number(i ? s.b : s.a)} />
-                </Fragment>
-              ))}
-            </span>
-          )}
-        </Stem>
-      );
     case "equal_groups":
-      if (s.shape === "SUM") return <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>;
-      if (s.shape === "ARRAY")
-        return (
-          <Stem text={it.stem}>
-            <Dots rows={Number(s.a)} each={Number(s.b)} />
-            <span className="fact">rows ___ × in each row ___ = in all ___</span>
-          </Stem>
-        );
-      return s.shape === "PICTURE" ? (
-        <Stem text={it.stem}>
-          <Rings groups={Number(s.a)} size={Number(s.b)} />
-        </Stem>
-      ) : (
-        <span>{it.stem}</span>
-      );
     case "skip_counting":
-      return (
-        <Stem text={it.stem}>
-          <span className="fact">
-            {Array.from({ length: Number(s.a) - 1 }, (_, k) => Number(s.b) * (k + 1)).join(", ")}, ___
-          </span>
-        </Stem>
-      );
     case "multiplication_square":
-      return (
-        <Stem text={it.stem}>
-          <Square rows={s.rows ?? []} cols={s.cols ?? []} at={[Number(s.a), Number(s.b)]} />
-        </Stem>
-      );
+    case "repeated_subtraction":
+      return <Drawn it={it} />;
     case "partitioning":
       return (
         <Stem text={it.stem}>
@@ -246,15 +206,6 @@ const box = (n: number | null) => (n === null ? "□" : String(n));
 
 // A division that leaves a remainder asks for it in a box of its own, after "r" (ADR 0056).
 const leaves = (it: ItemRow) => it.responses.some((r) => r.rid === "rem");
-
-function Stem({ text, children }: { text: string; children: ReactNode }) {
-  return (
-    <span className="grid gap-[6px]">
-      <span>{text}</span>
-      {children}
-    </span>
-  );
-}
 
 // Numbers stacked on their place-value columns, the sign beside the last, a line to write under.
 function Column({ numbers, op, result }: { numbers: (number | string)[]; op: string; result?: string }) {

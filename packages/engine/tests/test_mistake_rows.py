@@ -69,7 +69,7 @@ def test_every_mistake_the_code_can_name_has_its_row():
     named = {r["code"] for r in ROWS if r["name"].strip() and r["repair_hint"].strip()}
     others = (
         set(D.PLANTABLE)
-        | {t["added"] for t in W.templates() if t.get("added")}
+        | {t["wrong_op_as"] for t in W.templates() if t.get("wrong_op_as")}
         | {"M_REMAINDER_NOT_ROUNDED_UP"}
     )
     assert others <= named, others - named

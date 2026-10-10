@@ -67,7 +67,7 @@ def story(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) ->
     tpl = rng.choice(pool)
     n, n2 = rng.sample(W.NAMES, 2)
     rs = [
-        dataclasses.replace(r, misconceptions=W.added_as(tpl, r.misconceptions or {}))
+        dataclasses.replace(r, misconceptions=W.wrong_op_as(tpl, r.misconceptions or {}))
         for r in boxes(use, a, b)
     ]
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)

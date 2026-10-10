@@ -11,6 +11,7 @@ from typing import Any, cast
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
+from engine.assess import divide_models as DMOD
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
 from engine.assess import items as I
@@ -128,6 +129,14 @@ def _widths(c: dict[str, Any]) -> tuple[int, int]:
     return TK.digits(c) or (int(named[0]), int(named[-1]))
 
 
+def _groups(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> I.Item:
+    """Equal groups multiply (`counting`) or divide (`divide_models`), as the case asks; any other operation is refused
+    in a sentence, never drawn as a multiplication its case then turns away."""
+    if O.require("equal_groups", one_of(c.get("op") or "×", rng), makes=("×", "÷")) == "÷":
+        return DMOD.equal_groups(rng, rung, signal, c)
+    return C.equal_groups(rng, rung, signal, c)
+
+
 # fmt -> (rng, rung, signal, check) -> Item. One entry per chunk-B generator (ADR 0010); no model
 # call and no verify.problems detour either — these generators are trusted code, not untrusted
 # model output, the same guarantee the arithmetic sampler gets from its round trip through check.
@@ -171,9 +180,10 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "break_apart": lambda rng, rung, signal, c: RS.break_apart(
         rng, rung, signal, one_of(c.get("op", "+"), rng), c.get("digits_max", 3)),
     "tally": C.tally,
-    "equal_groups": C.equal_groups,
+    "equal_groups": _groups,
     "skip_counting": TM.skip_counting,
     "multiplication_square": TM.multiplication_square,
+    "repeated_subtraction": DMOD.repeated_subtraction,
     "partitioning": WM.partitioning,
     "grid_method": WM.grid,
     "expanded_columns": WM.expanded,
@@ -208,6 +218,7 @@ READS = {
     "equal_groups": {"shape", "method", "groups", "size"},
     "skip_counting": {"known", "groups"},
     "multiplication_square": {"groups", "size"},
+    "repeated_subtraction": {"groups", "size"},
     "partitioning": {"digits"},
     "grid_method": {"digits"},
     "expanded_columns": {"digits"},

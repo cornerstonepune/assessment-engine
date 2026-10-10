@@ -258,17 +258,67 @@
     },
     {
       "fmt": "word_1step",
+      "structure": "SHARING",
+      "op": "÷",
+      "text": "{a} laddoos are shared equally on {b} plates. How many laddoos are on each plate?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SHARING",
+      "op": "÷",
+      "text": "{n} shares {a} pencils equally among {b} friends. How many pencils does each friend get?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "text": "{a} laddoos are put on plates, {b} to a plate. How many plates are used?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING",
+      "op": "÷",
+      "text": "{a} children make teams of {b}. How many teams are there?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "ARRAY",
+      "op": "÷",
+      "text": "{a} chairs are set out in {b} equal rows. How many chairs are in each row?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "ARRAY",
+      "op": "÷",
+      "text": "{n} plants {a} seeds in {b} equal rows. How many seeds are in each row?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING_BY_EACH",
+      "op": "÷",
+      "wrong_op_as": "M_KEYWORD_OVERGENERALISED",
+      "text": "{a} stickers are given out, {b} for each child. How many children get stickers?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "GROUPING_BY_EACH",
+      "op": "÷",
+      "wrong_op_as": "M_KEYWORD_OVERGENERALISED",
+      "text": "{n} has {a} beads and puts {b} on each bracelet. How many bracelets does {n} make?"
+    },
+    {
+      "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?",
-      "added": "M_TIMES_AS_MORE"
+      "wrong_op_as": "M_TIMES_AS_MORE"
     },
     {
       "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "A small jar holds {a} beads. A big jar holds {b} times as many beads. How many beads does the big jar hold?",
-      "added": "M_TIMES_AS_MORE"
+      "wrong_op_as": "M_TIMES_AS_MORE"
     },
     {
       "fmt": "word_1step",
@@ -305,7 +355,7 @@
         ],
         "b": 2
       },
-      "added": "M_TIMES_AS_MORE",
+      "wrong_op_as": "M_TIMES_AS_MORE",
       "text": "{n} read {a} pages. {n2} read twice as many pages. How many pages did {n2} read?"
     },
     {
@@ -319,7 +369,7 @@
         ],
         "b": 2
       },
-      "added": "M_TIMES_AS_MORE",
+      "wrong_op_as": "M_TIMES_AS_MORE",
       "text": "A small box holds {a} crayons. A big box holds twice as many crayons. How many crayons does the big box hold?"
     },
     {

@@ -134,18 +134,19 @@ def word_1step(
 
 
 @lru_cache(maxsize=1)
-def added_by_shape() -> dict[str, str]:
-    """{story shape: the mistake adding its two numbers is}, from the template rows that name one (`added`)."""
-    return {t["structure"]: t["added"] for t in templates("word_1step") if t.get("added")}
+def wrong_op_by_shape() -> dict[str, str]:
+    """{story shape: the mistake its other operation is}, from the template rows that name one (`wrong_op_as`)."""
+    return {t["structure"]: t["wrong_op_as"] for t in templates("word_1step") if t.get("wrong_op_as")}
 
 
-def added_as(tpl: dict[str, Any] | None, mis: dict[str, Any]) -> dict[str, Any]:
-    """A story's mistakes, with adding its two numbers named as its template names it (`added`): "three times as many"
-    read as three more is M_TIMES_AS_MORE, a misreading of the words, not the wrong operation picked (M_WRONG_OP).
-    The sampler (`_times`) and a sentence checked on its way in (`verify.to_item`) both name it here."""
-    if not tpl or not tpl.get("added"):
+def wrong_op_as(tpl: dict[str, Any] | None, mis: dict[str, Any]) -> dict[str, Any]:
+    """A story's mistakes, with the other operation named as its template names it (`wrong_op_as`): "three times as
+    many" added, read as three more, is M_TIMES_AS_MORE; "5 for each child" multiplied, because the story says "each",
+    is M_KEYWORD_OVERGENERALISED. Each is a misreading of the words, not the wrong operation picked (M_WRONG_OP). The
+    samplers (`_times`, `divide_stories.story`) and a sentence checked on its way in (`verify.to_item`) name it here."""
+    if not tpl or not tpl.get("wrong_op_as"):
         return mis
-    return {(tpl["added"] if k == "M_WRONG_OP" else k): v for k, v in mis.items()}
+    return {(tpl["wrong_op_as"] if k == "M_WRONG_OP" else k): v for k, v in mis.items()}
 
 
 def _own(rng: random.Random, v: Any) -> int:
@@ -162,11 +163,11 @@ def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int,
     20: doubling, not a 2-digit multiplication)."""
     own: dict[str, Any] = tpl.get("numbers") or {}
     a, b = (_own(rng, own[k]) if k in own else number(rng, d) for k, d in (("a", sizes[0]), ("b", sizes[1])))
-    if tpl.get("added") and a + b == a * b:
+    if tpl.get("wrong_op_as") and a + b == a * b:
         # twice as many as 2 read as two more is 4, and right: the question could not tell the misreading
         raise RuntimeError("the numbers added would be the answer: draw again")
     n, n2 = rng.sample(NAMES, 2)
-    mis = added_as(tpl, M.predict("×", a, b))
+    mis = wrong_op_as(tpl, M.predict("×", a, b))
     r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=mis)
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
     return item(

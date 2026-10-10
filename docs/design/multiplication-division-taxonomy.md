@@ -414,9 +414,12 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | M_DIV_TENS_ZERO_EXTRA (new) | ÷ | Uses a zero for the fact, then writes every zero back | 200 ÷ 4 | 50 | 500 | answer | the skill |
 | M_WRONG_OP (÷) | ÷ | Multiplies instead of dividing | 84 ÷ 4 | 21 | 336 | answer | the skill |
 | M_DIV_SUBTRACTED (new) | ÷ | Takes the divisor away once | 84 ÷ 4 | 21 | 80 | answer | the skill |
+| M_DIV_ALL_COUNTED (new) | ÷ | Counts them all, not one share or the groups | 12 dots shared into 3 rings | 4 | 12 | answer | the skill |
+| M_DIV_GROUPS_FOR_SIZE (new) | ÷ | Writes the number the question gives for the one it asks: the rings for how many in each | 12 dots shared into 3 rings | 4 | 3 | answer | the skill |
+| M_DIV_START_COUNTED (new) | ÷ | Counts the number it starts from as one more jump | from 20 back to 0 in jumps of 4 | 5 | 6 | answer | the skill |
 | M_REMAINDER_NOT_ROUNDED_UP (new) | ÷ | Drops the remainder when the story needs one more | 26 children, 4 to a rickshaw | 7 | 6 | answer | word problems |
 | M_TIMES_AS_MORE (new) | × | Reads "3 times as many" as "3 more" | 4 stickers, 3 times as many | 12 | 7 | answer | word problems |
-| M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 24 laddoos shared on 4 plates | 6 | 96 | answer | word problems |
+| M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 30 stickers, 5 for each child | 6 | 150 | answer | word problems |
 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
@@ -463,6 +466,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | estimate_corrected | YES / NO | A 2-digit divisor whose first estimate, rounded to its ten, must be put right (162 ÷ 18: 20 suggests 8, the answer is 9). |
 | fact | YES / NO | A table fact: two numbers to 12 multiplied, or one read backwards with nothing left over. |
 | fact_table | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 | The table a fact is read from: its first number's, or the divisor's. |
+| fact_group | 0-1 / 2-5-10 / 3-4 / 6-9 / 11-12 | The easiest table holding a fact in its first ten rows: the groups the tables are taught in. |
 | fact_swapped | YES / NO | A fact whose second number's table is the easier one: the table read the other way (8 × 3). |
 | fact_zero | YES / NO | A scaled fact whose own product ends in 0 (50 × 4: 5 × 4 = 20), or a division whose fact uses one of the zeros (200 ÷ 4: 20 ÷ 4). |
 | first_digit_smaller | YES / NO | The first digit (or digits) smaller than the divisor, so they join the next: the quotient is a digit shorter. |

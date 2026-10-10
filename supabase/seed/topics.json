@@ -90,6 +90,15 @@
       ]
     },
     {
+      "code": "DIVMODEL",
+      "subject": "NUM",
+      "name": "Division models",
+      "taught": false,
+      "skill_sets": [
+        "DIV.GROUPS"
+      ]
+    },
+    {
       "code": "DIVFACT",
       "subject": "NUM",
       "name": "Division facts and place value",
