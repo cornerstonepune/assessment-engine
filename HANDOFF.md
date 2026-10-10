@@ -3,6 +3,26 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-10 — M3c: division's first models (built, PR #175)
+
+- **Slice:** M3c, W1 gate 3. `DIV.GROUPS`, Grade 2, the mirror of `MUL.MODELS`.
+- **Goal** `goals/md3c-division-models.yaml`; measured in STATE.md "M3c — measured before the build" (none of the nine
+  cases drew; a sharing picture would have counted for multiplication and addition).
+- **Built** (STATE.md "M3c — … built", ADR 0062):
+  - `assess/divide_models.py`: sharing, grouping and the array divided as equal groups; jumps back as the number line's
+    third way; repeated subtraction, a kind of its own;
+  - eight story templates; three new mistake rows and a ÷ row for "each";
+  - `skills.by_kind` per operation;
+  - the template field `wrong_op_as` (was `added`);
+  - `verify.to_item` no longer overrides the predictors' other-operation answer;
+  - the website's drawn kinds in `pictures.tsx`.
+- **Proved on the copy `m3c`:** 4 of 4 scenarios, the browser test, `bin/check`. The criteria's test list is corrected
+  and run again.
+- **Next:** CI and the rehearsal on #175, merge, `engine done md3c-division-models`. Then M3d, the written methods of
+  division.
+- **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live` loads Division models (untaught)
+  and fills it. Achal's question is on the site.
+
 ## 2026-10-10 — M3b3: the mistake found in a division, and stories with something left over (built)
 
 - **Slice:** M3b3, W1 gate 3, after NY1 and NY2.

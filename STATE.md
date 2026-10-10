@@ -6002,6 +6002,13 @@ Run on the copy `ny1m`, after `engine load`, `bank levels --apply` and `bank ref
 - `research/md_taxonomy.py --check`: 0 faults.
 
 
+## M3b3 merged and live (2026-10-10)
+
+- Merged as `0492849` (#174), at the head CI and the rehearsal on a copy of live had passed (`f9f5804`: ci 38085843773,
+  rehearse-update-live 38086482405).
+- Main: `ci` green (38087656889), then `migrate live` (38089427451) and `deploy engine` (38089427383) succeeded.
+- `engine eval mistake_guess` (v1, Jev shown the rows' names) dispatched on the server after the deploy: run 38089777698.
+
 ## M3c — measured before the build (2026-10-10)
 
 `DIV.GROUPS`' nine cases, each drawn alone through today's drawer on a level shaped as `MUL.MODELS`' (12 asked, 300
@@ -6026,3 +6033,51 @@ tries each; `groups` and `size` 2 to 6):
   non-subtraction context containing the keyword"). The drafted table names it on ÷ stories that say "each".
 - A story template names the mistake its wrong operation is in a field called `added`, read as "adding its two
   numbers". In a story that divides, the wrong operation is multiplying.
+
+## M3c — division's first models, built (2026-10-10)
+
+ADR 0062. Goal `goals/md3c-division-models.yaml`.
+
+- **The models** (`assess/divide_models.py`). Each is made from its level's `groups` and `size`, as `MUL.MODELS`' are,
+  and each is the exact division `a ÷ b`.
+  - Equal groups that divide, by their case's method:
+    - SHARING (G15): the dots loose, the rings empty;
+    - GROUPING (G16): the dots loose, no ring;
+    - ARRAY (G19): read as in all ÷ rows = in each row, in three labelled boxes.
+
+    Asked for any other operation, equal groups refuse in a sentence (`bands._groups`).
+  - Jumps back to 0 on a number line (G18): a mark at every number, its start said, no jump drawn.
+  - A number taken away again and again to 0 (G17): a kind of its own, `repeated_subtraction`, printed whole from its
+    numbers. Its row is corrected in `research/md_rows.py` and written again by `research/md_taxonomy.py`.
+- **The mistakes.** Three are new, each a row drafted for Achal: `M_DIV_ALL_COUNTED`, `M_DIV_GROUPS_FOR_SIZE`,
+  `M_DIV_START_COUNTED`. They are named beside `M_WRONG_OP` (÷: multiplied) and `M_DIV_SUBTRACTED`, each where its act
+  can happen. The drafted document's error table holds all three, computed.
+- **The stories** (B02, B03, B05, B24). Eight template rows, two per shape: the grouping stories never say "each", and
+  the "each" stories do. They divide a table to 10 read backwards, as their four rows now say (`fact`, `fact_group`).
+  - A template names the mistake its other operation is: `wrong_op_as`, which was `added`, read as "adding" and wrong
+    for a division.
+  - "5 for each child" multiplied is `M_KEYWORD_OVERGENERALISED`, which has a ÷ row now; the "any" row's hint is about
+    subtraction.
+- **A right answer counts for division alone.** `skills.by_kind` may give a kind's skills per operation: equal groups
+  that multiply keep multiplication and addition, and equal groups that divide get division alone.
+- **Found and fixed with it.** `verify.to_item` wrote a story's other operation as `a + b` for every operation but +.
+  - For ÷ that named adding as "multiplied".
+  - For a + or − story with a 0 or a 1, it keyed the right answer, or another mistake's, as the wrong operation.
+  - The predictors already give each operation's own; the override is gone.
+- **Rows.**
+  - Rung `R46` (G2, `NUM.OPS.04`);
+  - skill set `DIV.GROUPS` (four levels, every one Grade 2, no `within`);
+  - topic Division models, untaught;
+  - four mistake rows, eight template rows, and the asks row of the decisions drafted for Achal.
+  - No migration: the set, rung, topic and mistakes are new rows, and cases are written again on every load.
+- **Website.**
+  - The drawn kinds (tally, equal groups, skip counting, the square, repeated subtraction) moved from `question.tsx`
+    (382 of 400 lines) to `pictures.tsx` as `Drawn`, where the engine's `pictures.py` keeps the paper's.
+  - The ÷ pictures and the subtraction drawn there.
+
+Run on the copy `m3c` (`ny1m`, then `engine load` and `bank refill`: DIV.GROUPS +112 questions, 0 retired anywhere):
+- `bin/engine goal md3c-division-models`: 4 of 4 scenarios met the bar completely (24, 24, 16 and 48 asked, each
+  produced, recomputed, on its rule, diagnosed and distinct);
+- `s34-division-models.spec.ts` passed; `research/md_taxonomy.py --check` 0 faults; `bin/check` 27 passed;
+- the criteria's test list named a file that does not exist (`test_skills.py`); it now names the files that test
+  skills, and is run again below.

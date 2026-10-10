@@ -114,6 +114,8 @@ def test_dots_are_shared_equally_into_rings():
         bands.native_item(
             "equal_groups", {"op": "-", "groups": [2, 3], "size": [2, 3]}, random.Random(1), "R1", ""
         )
+    with pytest.raises(ValueError, match="shared, grouped or an array"):  # a rule it cannot read, said aloud
+        bands.native_item("equal_groups", {"op": "÷", "method": "PICTURE"}, random.Random(1), "R1", "")
 
 
 def test_dots_are_ringed_in_equal_groups():
