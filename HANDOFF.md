@@ -19,6 +19,8 @@ is verified. This file only says where the last session stopped.
     (ADR 0051, decision 7). On live, `bank refill` retires the stored ones that ask it and makes them again;
   - three boxes are three boxes;
   - a request no question can meet is refused by name.
+- **The update-live rehearsal found an older defect** in printing, fixed here: a small level's deal could hold two
+  worksheets alike (G1's MUL.GROUPS Medium), and `build` kept them.
 - **Next:** CI on the pushed head, the goal's run pasted in the PR, the rehearsal, merge; then the + and − levels whose
   cases the bank never holds (STATE.md "Found while proving M2b"), then M2d.
 

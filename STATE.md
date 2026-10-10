@@ -5076,6 +5076,19 @@ A second reader of the slice found four things wrong; each is fixed at its cause
   × 10 then halved on 1 digit, a × slip on a table fact, rounding a 1-digit number to the ten. Each is refused by name
   (`CannotMake`). Test: `test_a_kind_asked_for_numbers_it_cannot_use_says_so`.
 
+- **The update-live rehearsal on `0ea78e8` failed at `library check`** (run 23): "MUL.GROUPS Medium: two worksheets hold
+  the same questions". This is older than M2b and is not multiplication's. The dealer never asked whether its
+  worksheets differ, and this slice's draws, which shift what refill makes, gave G1's 16-question level a deal with a
+  repeat.
+  - Measured: 16 questions dealt onto ten worksheets of twelve repeat one in 6 levels of 300; 14 questions of two
+    kinds and 16 of four kinds repeat too. The test of "no two alike" started at 22 questions.
+  - `deal` now takes the first of 20 rounds whose worksheets all differ. Round 0 is the deal as before, so a level
+    dealt before stays as it is. `build` also retires a worksheet that repeats an earlier one, which it used to keep,
+    so it repairs what `check` refuses.
+  - Tests: `test_a_small_levels_worksheets_all_differ`, `test_two_worksheets_alike_are_made_different_by_building_again`.
+  - Not a defect: a level of exactly 12 questions cannot make ten different worksheets, and `check` says so. None
+    holds fewer than 16.
+
 Also: the two combination stories are worded for 2-digit counts (a sticker book's animals and backgrounds, a racing
 game's cars and tracks), where 34 kinds of sandwich read as nonsense.
 

@@ -25,6 +25,7 @@ from engine.core import db
 from engine.w1_bank.inventory import item_from_row
 
 MIN_PER_LEVEL = 10
+ROUNDS = 20  # deals `deal` tries for worksheets that all differ before letting two alike stand for `check` to refuse
 LEVEL_LETTER = {"Easy": "E", "Medium": "M", "Hard": "H", "Advance": "A"}
 PDF_DIR = db.REPO_ROOT / "data" / "worksheets"
 
@@ -99,15 +100,31 @@ def deal(questions, n, kind_order, count):
     First each worksheet's share of each kind is fixed, so every worksheet holds the level's kinds
     in fair shares; then each kind's questions are dealt into those places in laps. Each worksheet
     comes back grouped by kind, in `kind_order`, as it will print.
+
+    No two worksheets hold the same questions where the level can make them differ: the deal is the first of
+    `ROUNDS` whose worksheets all differ, each round ordering the laps afresh. The first round is the deal as it
+    always was, so a level dealt before is dealt the same. 16 questions dealt onto ten worksheets of twelve repeated
+    one in 6 levels of 300, and the update-live rehearsal of 2026-10-10 dealt MUL.GROUPS Medium two alike.
     """
+    sheets = _dealt(questions, n, kind_order, count, 0)
+    for rnd in range(1, ROUNDS):
+        if len({frozenset(q["id"] for q in s) for s in sheets}) == len(sheets):
+            break
+        sheets = _dealt(questions, n, kind_order, count, rnd)
+    return sheets
+
+
+def _dealt(questions, n, kind_order, count, rnd):
+    """One round of `deal`: its laps ordered by a hash of the round, the lap and the question."""
     kind = _kind_rank(kind_order)
     by_kind = {}
     for q in sorted(questions, key=lambda q: (kind(q), q["fmt"], q["item_key"])):
         by_kind.setdefault(q["fmt"], []).append(q)
     share = _shares({k: len(v) for k, v in by_kind.items()}, n, count)
     sheets = [[] for _ in range(count)]
+    said = f"{rnd}|" if rnd else ""  # round 0 hashes as the deal always has
     for k, qs in by_kind.items():
-        salt = lambda lap, q: hashlib.sha1(f"{lap}|{q['item_key']}".encode()).hexdigest()  # noqa: E731
+        salt = lambda lap, q: hashlib.sha1(f"{said}{lap}|{q['item_key']}".encode()).hexdigest()  # noqa: E731
         for i, part in enumerate(_fill(qs, share[k], salt)):
             sheets[i] += part
     return [sorted(s, key=lambda q: (kind(q), q["item_key"])) for s in sheets]
@@ -154,14 +171,18 @@ def _plan_level(conn, lv, n):
     active = {q["id"] for q in questions}
     fmt_of = {q["id"]: q["fmt"] for q in questions}
     share = Counter(fmt_of.values())
-    # a worksheet printed for another grade than the level's (its level moved) is replaced, never edited
-    keep = [
-        s
-        for s in sheets
-        if s["band"] == lv["band"]
-        and set(s["item_ids"]) <= active
-        and not _unfair(s["item_ids"], fmt_of, share, len(questions), n)
-    ]
+    # a worksheet printed for another grade than the level's (its level moved) is replaced, never edited; so is
+    # one holding the same questions as a worksheet before it, which `check` refuses
+    keep, held = [], set()
+    for s in sheets:
+        if (
+            s["band"] == lv["band"]
+            and set(s["item_ids"]) <= active
+            and frozenset(s["item_ids"]) not in held
+            and not _unfair(s["item_ids"], fmt_of, share, len(questions), n)
+        ):
+            keep.append(s)
+            held.add(frozenset(s["item_ids"]))
     retire = [s for s in sheets if s not in keep]
     want = worksheets_needed(len(questions), n)
     if not want:
