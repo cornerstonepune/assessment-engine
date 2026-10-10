@@ -154,6 +154,13 @@
       "source": "goals/md3b2-divide-advance.yaml"
     },
     {
+      "code": "md3b3-divide-mistakes-and-stories",
+      "for_role": "specialist",
+      "question": "Division's mistake found, and the stories that use what is left over",
+      "drafted": "drafted for you to correct. A worked division shows one named mistake on the level's own numbers; the child writes the right answer in the division's boxes and says why. For the last digit not brought down, the child says which step went wrong in the why: no box is ticked for it. The stories' words are drafted as template rows (laddoos in boxes, children in rickshaws). Both asked is printed as the division writes it, 6 r 2. The remainder not rounded up (26 children, 4 to a rickshaw, answered 6) is a new mistake, its name and what to do about it drafted for you.",
+      "source": "goals/md3b3-divide-mistakes-and-stories.yaml"
+    },
+    {
       "code": "s24-a-split-that-holds-is-right",
       "for_role": "specialist",
       "question": "Question 5 of the 24 September paper: does any split that adds up count on Addition?",
