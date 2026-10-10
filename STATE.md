@@ -5728,3 +5728,102 @@ Proved on `38d4863` (database fresh23, built by `bin/testdb fresh` from this tre
   - MUL_DIV: 179 cases covered, 68 missing (M3b3's and later slices'), 4 thin: unplaced patterns random draws happen
     to match, as in M3b1's run.
   - Every live data check ok.
+
+## M3b2 merged (2026-10-10)
+
+- Merged as `76b7a20` (#171). On main: `ci` success (38068583348), `migrate live` success (38070431545), `deploy
+  engine` success (38070431558).
+- `bin/engine done md3b2-divide-advance` on main's code, against fresh23:
+  - 18 of 18 of Nimish's sentences PROVED, s33 among them in the browser;
+  - 2 of 2 scenarios MET;
+  - 3 of 3 criteria PASSED: 1,145 tests, the drafted document 0 faults, `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as for M3a and M3b1; the
+    `migrate live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live` (below: live has had none since before M2a).
+
+## M3b3 — measured before the build (2026-10-10; kept for it, NY1 and NY2 go first)
+
+On each level's own numbers (`draw_divide.every` within the level's shape, the drawer's own list):
+- `DIV.2D1D` holds 331 divisions, every quotient 2 digits, 254 with a remainder. C05 (a remainder too big) shows on
+  254 of them, all with a remainder.
+- `DIV.3D1D` holds 7,112 (3,541 two-digit quotients, 3,571 three-digit). C04 (the zero left out of the quotient)
+  shows on 1,170 (967 with a remainder); C07 (the last digit never brought down) on 7,035 (5,559 with a remainder).
+- No "which step went wrong" tick: for C07 its answer would always be "bring down", which a child ticking the same box
+  every time would score (the rule `diagnosis.asks_where` keeps). The step is said in the why.
+- B14 to B17 (a remainder dropped, rounded up, asked, or both) on `DIV.2D1D`'s 254 divisions with a remainder: every
+  question names a mistake, each by the act that finds its answer.
+- Printing: `find_mistake` and `word_1step` print one answer box; a division's remainder needs its own.
+- The scenarios' recompute checks a division's two boxes; a story's answer by what it does with its remainder needs
+  its own.
+- Names: 39 names and repair hints of mistakes are written in code beside their predictors. 4 names and 6 hints
+  differ from the rows the school edits (`supabase/seed/misconceptions.json`); the hints are read only by a test. A
+  division mistake has no name in code, so a ÷ worked answer's "why" would print a code.
+
+## NY — measured before the build (2026-10-10)
+
+Nimish: "I'm not even now able to figure out what all papers I need to validate or for Achal to validate … I'm not
+seeing any of the multiplication, division." What stands between him and both:
+
+- **Live has none of the multiplication and division** (rehearsal 38066563963, a copy of live taken 16:11 UTC):
+  - `MUL.1D` was still live's only multiplication skill;
+  - the update moved 606 questions off it and added 7,479, 6,056 of them × or ÷.
+  - So `bin/update-live` has not run on live since before M2a.
+  - On the same copy, each child's skills were not what their answers say (12 missing, 1 stale, 11 with other counts)
+    until update-live's `engine graph` ran.
+- **No screen switches a topic on, and every reload switches it back off.**
+  - Nothing in `apps/web` writes `topic.taught`.
+  - On a copy built from this tree (ny1m), `DIVCOL` set taught in the database was off again after `bin/engine load`:
+    the loader copies `taught` from `supabase/seed/topics.json` every time.
+  - Six topics are off there: REASON, MULMODEL, MULFACT, MULCOL, DIVFACT, DIVCOL. Their 11 skill sets are on no
+    screen.
+- **Nor can they be approved.**
+  - The approval page and Today's count read only taught topics (`skillSets()`, `queries-today.ts`).
+  - So the eleven can be neither seen nor approved; "untaught until an educator says so" has no place to say it.
+- **Nothing is anyone's to do.** Every count on Today is the school's:
+  - the signed-in person's role is loaded (`lib/auth.ts`) and read nowhere;
+  - sign-in lands on Curriculum, not Today;
+  - the design's "Achal confirms the doubtful" (ARCHITECTURE.md, N9) is no route.
+- **What Achal is asked is nowhere on the site:**
+  - the drafted taxonomy (a shared doc) and its twelve assumptions A1 to A12;
+  - the decisions drafted for him in eight goal files (S24, AS1, M2a, M2b, M2d2, M3a, M3b1, M3b2);
+  - their pull requests.
+- **The queue is built to shrink, but nothing shows it** (for NY2):
+  - a kind earns trust at 95% agreement over its last fifty checks (ADR 0032, wired 2026-09-22);
+  - every wrong and blank waits for a person (ADR 0029);
+  - the last record has no kind trusted;
+  - answers already waiting are marked again only by a command;
+  - no screen shows the waiting count over time, or how far a kind is from trust.
+
+## NY1 — what waits on a person, and who it is for, built (2026-10-10)
+
+ADR 0059. Goal `goals/ny1-needs-you.yaml`.
+
+- **A topic is switched on or off by a person.**
+  - Curriculum lists the topics not taught yet, each with its skills, and switches one on in the person's name.
+  - Switching a taught one off is folded away.
+  - `topic.taught_by` and `taught_at` say who and when (migration 20261102090000). `engine load` keeps a person's
+    switch and follows the rows only where no person has spoken (`core/topics.py`).
+- **A skill is approved before its topic is on.**
+  - The approval page and a skill's own page read every skill (`skillSets({ untaught: true })`), each saying "Not
+    taught yet".
+  - Today, Curriculum and the approval page count the same waiting skills (`queries-people.skillsWaiting`).
+- **Today is in two parts, "For you" and "For others".**
+  - Each card says whose it is, from `people.decides` (drafted from ARCHITECTURE.md, by the staff list's roles): by
+    name, or that no one on the staff list has that role yet.
+  - New cards: topics not taught yet, and one card of questions per role.
+  - Sign-in lands on Today.
+- **Questions for a person are rows** (`ask`, `core/asks.py`).
+  - 22 drafted: the taxonomy, A1 to A12, the eight slices' decisions drafted for Achal, and whether a topic is taught
+    for the whole school.
+  - Each is answered on `/asks`, agreed or corrected, in the person's name.
+  - A load never touches an answered one. `engine asks` prints them; `bin/update-live` and its rehearsal run it.
+- **`loaders.py` is under its ceiling.** Its reference checks are their own module (`core/references.py`), so it
+  dropped off the frozen list (405 → 368 lines).
+- **Tests updated to the new rule, not loosened:** Today's and Curriculum's count of waiting skills is every waiting
+  skill (`u1-today`, `u12-curriculum-table`).
+
+Run on the copy `ny1m` (fresh23's rows, this migration applied):
+- engine: `test_asks.py`, `test_topics.py`, `test_loaders.py`, `test_approval.py`, `test_layout.py`,
+  `test_update_live.py` — 34 passed;
+- browser: u13 (4), gate (12), u1 (3), u5, u12, screens, e2e, s2, s33, u10, u11, workflows — 80 passed;
+- `bin/check` 27 passed.

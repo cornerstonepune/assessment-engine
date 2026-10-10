@@ -1,0 +1,56 @@
+name: ny1-needs-you
+goal: >
+  The moment a person signs in they see everything that waits on a person and who it is for: answers to check, papers
+  to sign off, home and class papers to approve, skills to approve, topics not taught yet, and the questions the engine
+  drafted for Achal. Each shows its count, the count the page it opens shows, and one click to act; what is theirs
+  comes first, and what is someone else's names who, or says no one on the staff list does it yet. Who decides what is
+  a row. An educator switches a topic on from Curriculum, in their own name, and a reload of the rows never switches
+  it back; switched on, its skills are on Curriculum and the Question bank. A skill is approved before its topic is
+  switched on, so multiplication and division are read and approved as soon as they are built. Each question drafted
+  for Achal — the taxonomy, its twelve assumptions, each slice's drafted decision — is a row he agrees with or
+  corrects on the site in his own name; a reload never changes one he has answered, and `engine asks` prints the
+  answers, so the next change is built from what he said.
+# Written 2026-10-10, before the code: slice NY1, inserted before M3b3 (BUILD-ORDER "NY1 and NY2"). Measured first
+# (STATE.md "NY — measured before the build"): no screen switches a topic on and every `engine load` switches it back
+# off, so the eleven skill sets of the six topics that are off — multiplication and division among them — are on no
+# screen and cannot be approved; every count on Today is the school's, the signed-in person's role is read nowhere,
+# and sign-in lands on Curriculum; what Achal is asked sits in a shared doc, eight goal files and their pull requests.
+says:
+  - words: "what validations are pending?"
+    proved_by: "apps/web/tests/u13-needs-you.spec.ts::Today lists what waits on a person, yours first, each saying who it is for"
+  - words: "I'm not even now able to figure out what all papers I need to validate or for Achal to validate"
+    proved_by: packages/engine/tests/test_asks.py::test_every_kind_of_waiting_names_who_decides_it
+  - words: "I'm not even able to see that"
+    proved_by: "apps/web/tests/gate.spec.ts::a right password signs you in and lands on Today"
+  - words: "for Achal to validate"
+    proved_by: packages/engine/tests/test_asks.py::test_every_question_drafted_for_achal_is_a_row
+  - words: "for Achal to validate"
+    proved_by: "apps/web/tests/u13-needs-you.spec.ts::a question drafted for Achal is agreed or corrected on the site, in the name of who answers"
+  - words: "We had aligned on this, right?"
+    proved_by: packages/engine/tests/test_asks.py::test_an_answered_question_is_never_changed_by_a_reload
+  - words: "We had aligned on this, right?"
+    proved_by: packages/engine/tests/test_asks.py::test_engine_asks_prints_every_answer
+  - words: "I'm not seeing any of the multiplication, division"
+    proved_by: packages/engine/tests/test_topics.py::test_a_topic_a_person_switched_stays_as_they_left_it
+  - words: "I'm not seeing any of the multiplication, division, or any of the things embedded or on the assessment page"
+    proved_by: "apps/web/tests/u13-needs-you.spec.ts::an educator switches a topic on, in their name, and its skills are on Curriculum and the Question bank"
+  - words: "I'm not seeing any of the multiplication, division"
+    proved_by: "apps/web/tests/u13-needs-you.spec.ts::a skill is approved before its topic is switched on"
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live`. Then, on Curriculum, switch on the topics
+    the school teaches now; their skills reach Curriculum, the Question bank and children's papers from that moment."
+  - "Nimish: Achal answers his questions only once he can sign in. If he is not on the staff list as the specialist,
+    add him (config row `app.staff`) and he sets his password with `bin/engine set-password`."
+  - "Nimish: who decides what is drafted from ARCHITECTURE.md (`people.decides`); it is the first question on the site
+    for you."
+scenarios: []
+criteria:
+  - name: a topic stays as a person left it; every question for Achal a row; who decides what
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_topics.py tests/test_asks.py tests/test_loaders.py tests/test_approval.py
+    expect: "passed"
+  - name: Needs you, the topic switch, approving before it is on, answering Achal's questions; the pages they change
+    run: cd apps/web && npx playwright test tests/u13-needs-you.spec.ts tests/u1-today.spec.ts tests/u5-curriculum.spec.ts tests/u12-curriculum-table.spec.ts tests/gate.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

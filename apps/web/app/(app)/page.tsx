@@ -2,7 +2,9 @@ import Link from "@/components/link";
 import { Body, Notice, PageHeader } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { curriculumRows } from "@/lib/queries-curriculum";
+import { skillsWaiting, topics } from "@/lib/queries-people";
 import { CurriculumTable } from "./curriculum-table";
+import { Topics } from "./topics";
 import { requireStaff } from "@/lib/auth";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -12,11 +14,11 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 // and whether it is taught. A skill opens its page, where its levels, questions and worksheets are read, edited and
 // approved; a skill waiting for approval says so on its row.
 export default async function CurriculumPage({ searchParams }: Props) {
-  await requireStaff();
+  const me = await requireStaff();
   const q = await searchParams;
-  const { rows } = await deadline(curriculumRows());
-  // a skill is a row under every grade one of its levels belongs to; it waits once (code review, 2026-09-30)
-  const waiting = new Set(rows.filter((r) => r.draft).map((r) => r.href)).size;
+  // every skill waiting counts, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
+  const [{ rows }, waiting, all] = await deadline(Promise.all([curriculumRows(), skillsWaiting(), topics()]));
+  const switched = all.find((t) => t.code === (q.on ?? q.off));
 
   return (
     <>
@@ -27,6 +29,11 @@ export default async function CurriculumPage({ searchParams }: Props) {
       />
       <Body>
         {q.approved ? <Notice tone="neem">Approved {q.approved} as written, in your name.</Notice> : null}
+        {switched ? (
+          <Notice tone="neem">
+            {switched.name} is {q.on ? "taught now: its skills are on every page and can go on a child's paper" : "not taught now: its skills are out of sight"}, in your name.
+          </Notice>
+        ) : null}
         {waiting ? (
           <Notice tone="terracotta">
             {waiting} {waiting === 1 ? "skill waits" : "skills wait"} for approval.{" "}
@@ -41,6 +48,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
             Every question in the bank
           </Link>
         </p>
+        <Topics topics={all} me={me.name} />
         <CurriculumTable rows={rows} />
       </Body>
     </>

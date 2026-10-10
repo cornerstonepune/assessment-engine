@@ -50,6 +50,7 @@ say "5/6 the bank, the worksheets, each child's skills"
 say "6/6 checks"
 "$E" library check
 "$E" bank taxonomy
+"$E" asks            # what each person answered on the site, and what still waits on them (goals/ny1-needs-you.yaml)
 "$E" audit || true   # prints what waits on a person (approvals, the guessable levels); see HANDOFF
 "$E" live data
 }

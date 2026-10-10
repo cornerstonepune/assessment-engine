@@ -14,7 +14,7 @@ from collections import Counter, defaultdict
 
 from engine.assess import bands, verify
 from engine.assess import misconceptions as M
-from engine.core import db, loaders
+from engine.core import db, references
 from engine.w1_bank import cases, inventory, labels, spec
 
 PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_PREDICTORS) for c in table}
@@ -249,7 +249,7 @@ def every_answer_names_a_response_of_its_question(conn):
 
 
 def referential_codes_all_resolve(_conn):
-    return [f"{label}: {', '.join(codes)}" for label, codes in loaders.orphans().items() if codes]
+    return [f"{label}: {', '.join(codes)}" for label, codes in references.orphans().items() if codes]
 
 
 # Invariants a person closes, not code: an approval on the Skill Map. `engine audit` counts them like

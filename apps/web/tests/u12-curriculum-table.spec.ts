@@ -123,8 +123,11 @@ test("the skills waiting for approval are counted once, though a skill shows und
     const rows = depth(page, 3).filter({ hasText: "waiting for approval" });
     const ids = await rows.evaluateAll((trs) => trs.map((tr) => tr.getAttribute("data-row") ?? ""));
     expect(ids).toEqual(expect.arrayContaining([`G1/${skill.code}`, `G2/${skill.code}`]));
-    const skills = new Set(ids.map((id) => id.split("/")[1]));
-    await expect(page.getByText(/waits? for approval\./)).toContainText(`${skills.size} ${skills.size === 1 ? "skill waits" : "skills wait"}`);
+    // counted once: the notice counts skills, not rows — every waiting skill, taught or not, since one is approved before
+    // its topic is switched on (goals/ny1-needs-you.yaml)
+    const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from skill_set where status <> 'ratified'`;
+    expect(new Set(ids.map((id) => id.split("/")[1])).size).toBeLessThan(ids.length);
+    await expect(page.getByText(/waits? for approval\./)).toContainText(`${n} ${n === 1 ? "skill waits" : "skills wait"}`);
   } finally {
     await sql`update skill_set set level_band = '{}'::jsonb where code = ${skill.code}`;
   }

@@ -1,5 +1,5 @@
 import Link from "@/components/link";
-import { Body, Notice, PageHeader, Panel } from "@/components/shell";
+import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { KIND } from "@/components/question";
@@ -8,10 +8,11 @@ import { approveSkills } from "../[code]/actions";
 
 // Every skill waiting for approval on one page, in full — what the child can do and each level in
 // a sentence — so a person reads them once and approves them with one press, in their own name.
-// The engine prepared the words; the person approves or opens one to change it first.
+// The engine prepared the words; the person approves or opens one to change it first. A skill whose topic is not
+// taught yet is here too, said so: it is approved before it is switched on (goals/ny1-needs-you.yaml).
 export default async function ApproveSkills() {
   const me = await requireStaff();
-  const [sets, charges] = await deadline(Promise.all([skillSets(), chargesTable()]));
+  const [sets, charges] = await deadline(Promise.all([skillSets({ untaught: true }), chargesTable()]));
   const waiting = sets.filter((s) => s.status !== "ratified");
 
   return (
@@ -47,7 +48,7 @@ export default async function ApproveSkills() {
               </Panel>
             ) : null}
             {waiting.map((s) => (
-              <Panel key={s.code} title={`${gradeWords(s.band)} · ${s.name}`}>
+              <Panel key={s.code} title={`${gradeWords(s.band)} · ${s.name}`} label={s.name} aside={s.taught ? undefined : <Pill tone="monsoon">Not taught yet</Pill>}>
                 <input type="hidden" name="code" value={s.code} />
                 <input type="hidden" name="version" value={s.version} />
                 <p className="text-[15px] leading-snug">{s.learning_objective}</p>

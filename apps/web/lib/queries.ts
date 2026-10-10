@@ -38,6 +38,8 @@ export type SkillSet = {
   topic_code: string | null;
   topic_name: string | null;
   topic_ord: number | null;
+  /** Whether its topic is taught: switched on by a person, or by the rows until one has (goals/ny1-needs-you.yaml). */
+  taught: boolean;
 };
 
 /** The one table a person approves beside the skills (step 8b): on these kinds of question, this named
@@ -75,13 +77,15 @@ export async function chargesTable(): Promise<ChargesTable> {
   };
 }
 
-/** The skills the school teaches — a topic not taught yet is not on any screen (goals/v1-only-what-is-taught.yaml). */
-export async function skillSets(): Promise<SkillSet[]> {
+/** The skills the school teaches — a topic not taught yet is not on any screen (goals/v1-only-what-is-taught.yaml) —
+ *  or, with `untaught`, every skill: one is read and approved before its topic is switched on, on its own page and the
+ *  approval page (goals/ny1-needs-you.yaml). */
+export async function skillSets({ untaught = false }: { untaught?: boolean } = {}): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
            r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, r.descriptor, r.skill_codes, s.topic_code,
-           t.name as topic_name, t.ord as topic_ord,
+           t.name as topic_name, t.ord as topic_ord, coalesce(t.taught, false) as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active'
@@ -93,7 +97,7 @@ export async function skillSets(): Promise<SkillSet[]> {
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
-    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
+    where ${untaught} or exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
     order by r.ladder_order nulls last, s.code`;
 }
 
@@ -109,7 +113,7 @@ export const GRADE_GROUPS: [string, string][] = [
 export const gradeWords = (band: string) => GRADE_GROUPS.find(([b]) => b === band)?.[1] ?? band;
 
 export async function skillSet(code: string): Promise<SkillSet | undefined> {
-  const rows = await skillSets();
+  const rows = await skillSets({ untaught: true });
   return rows.find((s) => s.code === code);
 }
 

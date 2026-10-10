@@ -3,7 +3,32 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (proved, merging)
+## 2026-10-10 — NY1: what waits on a person, and who it is for (built, proving)
+
+- **Slice:** NY1, inserted before M3b3 (BUILD-ORDER "NY1 and NY2"). Nimish asked what validations are pending: he
+  cannot see what he or Achal must validate, nor any multiplication or division. He chose this before M3b3 and allowed
+  NY2 to touch W3.
+- **Measured** (STATE.md "NY — measured before the build"):
+  - no screen switches a topic on, and `engine load` switches it back off;
+  - the eleven skill sets of the six topics that are off are on no screen and cannot be approved;
+  - every count on Today is the school's, and the signed-in person's role is read nowhere;
+  - what Achal is asked sits in a shared doc, eight goal files and their pull requests.
+- **Live:** `bin/update-live` has not run since before M2a (rehearsal 38066563963). Nimish has the command to paste.
+- **Goal** `goals/ny1-needs-you.yaml`. Its rows are in: `supabase/seed/asks.json` (21 questions for Achal, each held
+  word for word to its source) and `people.decides` in `config.json`. Its tests fail for the right reasons:
+  `test_asks.py` and `test_topics.py` (no `ask` table, no `taught_by`), `u13-needs-you.spec.ts`, and `gate.spec.ts`'s
+  landing on Today.
+- **Built** (STATE.md "NY1 — … built", ADR 0059):
+  - the topic switch, recorded and kept by every load;
+  - approving before a topic is on;
+  - Today in two parts, each card saying whose it is;
+  - `/asks` and `engine asks`, which update-live prints;
+  - sign-in landing on Today;
+  - `core/references.py` split from the loader, which took `loaders.py` off the frozen list.
+- **Next:** the whole engine and browser suites on the copy, a rehearsal on a copy of live, then PR #172 ready and
+  merged. Then NY2 (W3), then M3b3, whose measurements are in STATE.md.
+
+## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (merged, live, done)
 
 - **Slice:** M3b2 (W1 gate 3). Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases
   on `DIV.2D1D`'s and `DIV.3D1D`'s Advance draws, and V04 and V10 alone crash (`times_kinds.sizes`). Split again:
@@ -31,9 +56,9 @@ is verified. This file only says where the last session stopped.
     read wrong.
 - **Proved:** GOAL ACHIEVED on `38d4863`; s31, s32 and s33 passed; rehearsed on a copy of live (run 38066563963).
   STATE.md "M3b2" has the numbers.
-- **Next:** merge, `migrate live` and `deploy engine`, `engine done`; then M3b3: the mistake found (C04, C05, C07, a
-  module of its own) and the remainder stories (B14–B17, template rows, the remainder not rounded up as a new
-  mistake).
+- **Merged** as `76b7a20` (#171): `ci`, `migrate live` and `deploy engine` success on main; `engine done` on main's code
+  18 of 18 sentences proved, 2 of 2 scenarios met, 3 of 3 criteria passed (STATE.md "M3b2 merged"). Its data waits
+  for `bin/update-live`.
 
 ## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged, live, done)
 
