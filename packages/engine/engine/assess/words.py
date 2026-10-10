@@ -11,13 +11,15 @@ shape are matched back to their template by `structure_of`.
 
 import json
 import pathlib
+import random
 import re
 from functools import lru_cache
 from typing import Any
 
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
-from engine.assess.items import Response, cells, item, sample_add, sample_sub
+from engine.assess.items import Item, Response, cells, item, sample_add, sample_sub
+from engine.assess.times_kinds import number
 
 SEED = pathlib.Path(__file__).with_name("word_templates.json")
 
@@ -67,25 +69,27 @@ def structure_of(stem):
 
 
 def word_1step(
-    rng,
-    rung,
-    signal,
-    digits_max,
-    regroups=(0, 1),
-    structure=None,
+    rng: random.Random,
+    rung: str,
+    signal: str,
+    digits_max: int,
+    regroups: Any = (0, 1),
+    structure: str | None = None,
     op: str | None = None,
-    table=False,
-    digits=None,
-    max_total=None,
-):
+    table: bool = False,
+    digits: Any = None,
+    max_total: int | None = None,
+) -> Item:
     """One step (§10.1). `structure` pins the story shape; `op` the operation the child carries out;
     `table` asks for a story whose numbers are read from a small table (§10.2), and only then.
-    `digits` ([2, 1]: a teen and a single digit) and `max_total` bound the numbers, as a level's rule may."""
-    op = op and O.require("word_1step", op)  # its stories add and take away
+    `digits` ([2, 1]: a teen and a single digit) and `max_total` bound the numbers, as a level's rule may.
+    Asked for ×, its stories multiply (the cost of many, times as many, combinations: goals/md2b-times-advance.yaml);
+    asked for no operation, they add and take away, as they always did."""
+    op = op and O.require("word_1step", op, makes=("+", "-", "×"))
     pool = [
         t
         for t in templates("word_1step", structure=structure)
-        if t["op"] in ("+", "-") and (op is None or t["op"] == op) and bool(t.get("table")) == table
+        if t["op"] in ((op,) if op else ("+", "-")) and bool(t.get("table")) == table
     ]
     if not pool:
         raise ValueError(f"no one-step story for shape {structure!r} and operation {op!r}")
@@ -93,6 +97,8 @@ def word_1step(
     if digits and isinstance(digits[0], list):
         digits = rng.choice(digits)  # a level that allows several shapes, 2 + 1 digits or 1 + 2
     da, db = digits or (digits_max, digits_max)
+    if tpl["op"] == "×":
+        return _times(rng, rung, tpl, (da, db))
     if tpl["op"] == "+":
         a, b = sample_add(rng, da, db, set(regroups), max_total=max_total)
     else:
@@ -107,6 +113,15 @@ def word_1step(
         spec["table"] = [[tpl["table"][0], a], [tpl["table"][1], b]]
     r = Response("ans", "digits", str(ans), cells=cells(max(ans, a + b)), misconceptions=mis)
     return item("WP1", rung, "Application", "word_1step", stem, spec, [r], working_lines=3)
+
+
+def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
+    """A story that multiplies: its numbers no table fact and not round, as its level's are."""
+    a, b = number(rng, sizes[0]), number(rng, sizes[1])
+    n, n2 = rng.sample(NAMES, 2)
+    r = Response("ans", "digits", str(a * b), cells=cells(a * b), misconceptions=M.predict("×", a, b))
+    stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
+    return item("WP1", rung, "Application", "word_1step", stem, dict(a=a, b=b, op="×"), [r], working_lines=3)
 
 
 def _two_step_numbers(rng, structure, digits_max):

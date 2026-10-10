@@ -454,6 +454,7 @@
         "column_grid"
       ],
       "misconception_codes": [
+        "M_MISSING_DIGIT_LOCAL",
         "M_MUL_CARRY_FIRST",
         "M_MUL_CONCAT",
         "M_MUL_NO_CARRY",
@@ -523,12 +524,45 @@
               "TZ05"
             ]
           }
+        },
+        "Advance": {
+          "words": "The hardest sums with a missing digit, the mistake found, an estimate, a story and a shortcut: 2□ × 4 = 92, 56 × 3 = 1518 found wrong, 48 × 6 ≈ 50 × 6, the cost of 8 boxes at ₹16, 46 × 5 as 460 halved.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "digits_max": 2,
+              "digits_min": 1
+            },
+            "cases": [
+              "T07",
+              "T08",
+              "T09",
+              "T10",
+              "TC09",
+              "TZ05",
+              "Q07",
+              "Q08",
+              "Q11",
+              "C01",
+              "C02",
+              "V01",
+              "V07",
+              "B06",
+              "B08",
+              "H01",
+              "H07"
+            ]
+          }
         }
       },
       "level_band": {
         "Easy": "G2",
         "Medium": "G2",
-        "Hard": "G3"
+        "Hard": "G3",
+        "Advance": "G3"
       }
     },
     {
@@ -543,6 +577,7 @@
         "column_grid"
       ],
       "misconception_codes": [
+        "M_MISSING_DIGIT_LOCAL",
         "M_MUL_CARRY_FIRST",
         "M_MUL_CARRY_ONTO_ZERO_LOST",
         "M_MUL_CONCAT",
@@ -613,12 +648,38 @@
               "TZ06"
             ]
           }
+        },
+        "Advance": {
+          "words": "The hardest sums with a missing digit in the 3-digit number and a carry onto a zero found lost: 3□4 × 2 = 708, 506 × 7 = 3502 found wrong.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "place_value_factor": "NONE",
+              "digits_max": 3,
+              "digits_min": 1
+            },
+            "cases": [
+              "T12",
+              "TC04",
+              "TC06",
+              "TC07",
+              "TC08",
+              "TC10",
+              "TC11",
+              "TZ03",
+              "TZ06",
+              "Q16",
+              "C09"
+            ]
+          }
         }
       },
       "level_band": {
         "Easy": "G4",
         "Medium": "G4",
-        "Hard": "G4"
+        "Hard": "G4",
+        "Advance": "G4"
       }
     },
     {
@@ -695,12 +756,38 @@
               "T28"
             ]
           }
+        },
+        "Advance": {
+          "words": "The hardest sums with the second row found not moved, both numbers rounded, how many digits the product has, a missing row and combinations: 68 × 17 = 544 found wrong, 38 × 21 ≈ 40 × 20, 34 × 26 = 204 + □.",
+          "check": {
+            "within": {
+              "operation": "MUL",
+              "num_operands": 2,
+              "fact": "NO",
+              "place_value_factor": "NONE",
+              "operand_1_digits": 2,
+              "operand_2_digits": 2
+            },
+            "cases": [
+              "T19",
+              "T20",
+              "T21",
+              "T27",
+              "T28",
+              "C03",
+              "V02",
+              "V03",
+              "Q15",
+              "B12"
+            ]
+          }
         }
       },
       "level_band": {
         "Easy": "G4",
         "Medium": "G4",
-        "Hard": "G4"
+        "Hard": "G4",
+        "Advance": "G4"
       }
     },
     {

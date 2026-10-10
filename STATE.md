@@ -5005,3 +5005,96 @@ cannot fill while `MUL.1D` holds the same questions, since a question lives in o
 
 The week-note eval's gold names the new skills for its two multiplication notes, so `bin/engine eval week_skills`
 records its score again.
+
+## M2b — measured before the build (2026-10-09)
+
+M2a is live: main `5916b28`, `migrate live` and `deploy engine` green (22:34 and 22:40 UTC); no migration in that
+slice. `bin/engine done md2a-straight-multiplication` on a database built as CI builds it: every sentence PROVED,
+`17` of 17 scenarios MET, `3` of 3 criteria PASSED (`1016 passed`, `251 cases … 0 faults`, `27 passed`); it ends
+"NOT DONE" only because this container cannot read live's migrations, which the two runs on main stand for. Its data
+waits for `bin/update-live`.
+
+What the three Advance levels need, measured:
+- **Every kind they are made of refuses ×** (`O.require`, whose default makes + and − only): a missing digit
+  (`missing_digits.py:130`), finding the mistake (`diagnosis.py:188`), an estimate (`estimate.py:18`), a one-step story
+  (`words.py:84`, and its templates are filtered to + and −), and a shortcut, whose three kinds are all + or −.
+- **Their cases name no kind**: Q07, Q08, Q11, Q16, C01–C03, C09, V01–V03, V07, B06, B08, B12, H01, H07 and Q15 carry
+  no `fmt` in their match, so the drawer finds no generator for them; addition's kind cases name theirs (X12:
+  `find_mistake`).
+- **T13 (6 × 125 in a line) cannot be an Advance**: since a × case reads the longer number and the shorter (ADR 0050),
+  every T13 question is one MUL.3D1D's Easy to Hard already hold. It joins T14 among the ways that skill's questions
+  are printed.
+- **The measuring is there already** (M1): a × question's numbers, a missing digit's boxes and solved numbers, a
+  story's shape, a planted mistake, an estimate's shape, a shortcut's `strategy` are all read by `tags.py` and
+  `md_tags.py`.
+- **The methods are a slice of their own (M2d)**: nothing renders a grid, a lattice, an array or skip counting; the
+  number line jumps only for + and −; and the two methods' mistakes, a grid cell dropped and tens partitioned as ones,
+  are neither rows nor predicted. C06, finding that second mistake, goes with them.
+
+**Found while proving M2b, older than it (named here, fixed next, before M2d).** On a database built as CI builds it,
+the bank holds no question at all of these cases its levels list; on main `5916b28` the same cases draw nothing in
+300 tries each:
+- addition's and subtraction's Advance kinds: estimates R01, R02; missing numbers M01–M05, M24, M25; finding the
+  mistake X03, X06–X09; stories W02, W03, W06; and SUB.3D3D's straight SZ6 and SZ9, at Hard as well. R01 and R02
+  cannot be drawn because a case level names no `regroups` for the estimate it asks for.
+- Not a defect: a few small straight cases an Advance shares with Hard, which Hard holds whole (MUL.2D1D's T08, T10,
+  TZ05; MUL.3D1D's TZ06; MUL.FACTS's TF01, TF02; MUL.TENS's TP09). A question lives in one level.
+
+## M2b — the second reader (2026-10-10)
+
+A second reader of the slice found four things wrong; each is fixed at its cause in this PR.
+
+- **A × missing-digit box no carry reaches named nothing and was drawn again**, so MUL.2D1D's Q07 was only ever the
+  ones after 2, 4, 6 or 8, and the test that checked it worked the same rule as the code. A box now names the table
+  one row out where its column alone allows no second digit (ADR 0051, decision 4).
+  - Check: 300 of Q07's draws now give an odd multiplier 153 times, a lead box 150 times, M_MUL_ROW_OUT 226 times and
+    M_MISSING_DIGIT_LOCAL 74 times.
+  - Test: `test_a_missing_digit_is_asked_in_every_place_after_every_multiplier`; each box's mistake is now worked from
+    its definition in the test (`_named`), not copied from the code.
+- **A column tick one slip always answers the same way**: a carry lost onto a zero (C09) is always lost in the tens,
+  and MUL.3D1D's Advance plants nothing else. The reader said C01 and C02 too; measured, they are not (2-digit by 1:
+  tens 457 and hundreds 60 of 517 pairs for C01, 497 and 92 of 589 for C02).
+  - The same was already true of addition and subtraction on live, behind the claim that "a level mixes it with
+    others". Measured over every level that plants a slip (each level's own cases drawn 160 times), ADD.2D1D's Advance
+    ticked the ones every time, ADD.3D2D's the ones, ADD.4D's the ten-thousands.
+  - The rule is now one for every operation (ADR 0051, decision 7): where a slip's first wrong digit is always in one
+    column, it asks the answer and why.
+  - Check: on fresh8, a database built before the rule, 485 of 1,199 active find-the-mistake questions are flagged by
+    `verify.key_problems`, every one a one-column slip. `DATABASE_URL=… bin/engine bank refill` then printed
+    `retired 507 questions outside their level · added 511` (4m12s): the 485, and MUL.2D2D's 22 combination stories in
+    their old words (below). After it, 0 active questions are flagged, and 498 of 1,186 finding the mistake ask the
+    column.
+  - Tests: `test_a_worked_answer_asks_its_first_wrong_column_only_where_that_column_can_move`,
+    `test_an_addition_or_subtraction_asks_the_column_by_the_same_rule`,
+    `test_a_stored_question_asking_a_column_that_never_moves_leaves_the_bank`.
+- **Three boxes in a multiplication could hide the answer's digit twice**, and a request for more boxes than digits
+  waited for ever. Now a box is chosen once, and the search for more is bounded; + and − draw as before.
+  - Test: `test_three_missing_digits_are_three_boxes`.
+  - Not a defect, and unchanged: three boxes in a 2-digit subtraction leave more than one filling 2 times in 30, on
+    main as now.
+- **A request no question can meet recursed for ever or printed 0**: a number near a round one of 3 digits, × 5 as
+  × 10 then halved on 1 digit, a × slip on a table fact, rounding a 1-digit number to the ten. Each is refused by name
+  (`CannotMake`). Test: `test_a_kind_asked_for_numbers_it_cannot_use_says_so`.
+
+- **The update-live rehearsal on `0ea78e8` failed at `library check`** (run 23): "MUL.GROUPS Medium: two worksheets hold
+  the same questions". This is older than M2b and is not multiplication's. The dealer never asked whether its
+  worksheets differ, and this slice's draws, which shift what refill makes, gave G1's 16-question level a deal with a
+  repeat.
+  - Measured: 16 questions dealt onto ten worksheets of twelve repeat one in 6 levels of 300; 14 questions of two
+    kinds and 16 of four kinds repeat too. The test of "no two alike" started at 22 questions.
+  - `deal` now takes the first of 20 rounds whose worksheets all differ. Round 0 is the deal as before, so a level
+    dealt before stays as it is. `build` also retires a worksheet that repeats an earlier one, which it used to keep,
+    so it repairs what `check` refuses.
+  - Tests: `test_a_small_levels_worksheets_all_differ`, `test_two_worksheets_alike_are_made_different_by_building_again`.
+  - Not a defect: a level of exactly 12 questions cannot make ten different worksheets, and `check` says so. None
+    holds fewer than 16.
+
+Also: the two combination stories are worded for 2-digit counts (a sticker book's animals and backgrounds, a racing
+game's cars and tracks), where 34 kinds of sandwich read as nonsense.
+
+**+ and − draw as before.** Measured once, against a checkout of main `5916b28`: 919 questions drawn from the same
+seeds on both (every + and − slip at 2, 3 and 4 digits, 12 each; every missing-digit request of 1 to 3 boxes, 10 each).
+715 are identical. 204 differ only in the column tick a one-column slip no longer asks: lined up from the left 36,
+copied out of a line 36, a final carry dropped 36, an exchange from the wrong place 36, the two across-a-zero
+exchanges 24 each, a decrement forgotten 12 (2 digits only). Nothing else differs. Left out: three boxes asked in one
+row, which main waits on for ever (the third finding above).

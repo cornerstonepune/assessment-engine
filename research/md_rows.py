@@ -335,6 +335,8 @@ def match_of(code: str, fmt: str, spec: dict[str, Any], about: list[Any], straig
     m: dict[str, Any] = {"taxonomy": "MUL_DIV"}
     if straight:
         m |= {"fmt": STRAIGHT_KINDS, "method": STANDARD[spec["op"]]}
+    else:
+        m["fmt"] = fmt  # every other case names its kind, as addition's do, or nothing can draw it (M2b)
     if "operation" in t:
         m["operation"] = t["operation"]
     for a in about:

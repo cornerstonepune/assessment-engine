@@ -3,6 +3,27 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-09 — M2b: multiplication's Advance kinds (in progress)
+
+- **Slice:** M2b (W1 gate 3). Goal `goals/md2b-times-advance.yaml`; tests `test_mul_advance.py`; ADR 0051.
+- **M2a is merged and live:** main `5916b28`, `migrate live` and `deploy engine` green; no migration in it.
+- **What changed so far:**
+  - every kind an Advance needs makes ×: a missing digit, finding the mistake, an estimate, a one-step story and a
+    shortcut, plus a long multiplication's missing row (`assess/times_kinds.py`);
+  - MUL.2D1D, MUL.3D1D and MUL.2D2D have their Advance: Hard's straight cases with the document's kind cases (C06
+    waits for M2d; T13 is printing, not a level);
+  - every case that is not a straight sum names its kind in its row.
+- **A second reader's four findings are fixed** (STATE.md "M2b — the second reader"):
+  - a × missing digit names the table one row out where no carry reaches;
+  - a find-the-mistake question asks the column only where its slip's first wrong digit can move, for + and − too
+    (ADR 0051, decision 7). On live, `bank refill` retires the stored ones that ask it and makes them again;
+  - three boxes are three boxes;
+  - a request no question can meet is refused by name.
+- **The update-live rehearsal found an older defect** in printing, fixed here: a small level's deal could hold two
+  worksheets alike (G1's MUL.GROUPS Medium), and `build` kept them.
+- **Next:** CI on the pushed head, the goal's run pasted in the PR, the rehearsal, merge; then the + and − levels whose
+  cases the bank never holds (STATE.md "Found while proving M2b"), then M2d.
+
 ## 2026-10-09 — M2a: straight multiplication (with M2c's re-homing)
 
 - **Slice:** M2a (W1 gate 3). Goal `goals/md2a-straight-multiplication.yaml`; tests `test_mul_levels.py`,

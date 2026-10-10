@@ -10,6 +10,7 @@ import functools
 import html
 import io
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,7 @@ from playwright.sync_api import sync_playwright
 from engine.assess import answer_space, pictures
 from engine.assess.answer_space import op_sign, textbox, ticks, working
 from engine.assess.geometry import GEOM_JS
+from engine.assess.items import Response
 from engine.assess.page_css import CSS, overrides
 
 MM = 25.4 / 96.0  # CSS px -> mm
@@ -70,12 +72,7 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
 <div class="row" style="margin-bottom:2mm"><span class="eq">{b} =</span>{_cells(sid, iid, R["b_h"])}<span class="eq">+</span>{_cells(sid, iid, R["b_t"])}<span class="eq">+</span>{_cells(sid, iid, R["b_o"])}</div>
 <div class="row"><span class="eq">total =</span>{_cells(sid, iid, R["hund"])}<span class="eq">+</span>{_cells(sid, iid, R["tens"])}<span class="eq">+</span>{_cells(sid, iid, R["ones"])}<span class="eq">=</span>{_cells(sid, iid, R["ans"])}</div>"""
     elif f == "estimate_then_calc":
-        body = f"""<div class="row"><span class="lab">estimate: {sp["ra"]} {op_sign(sp["op"])} {sp["rb"]} =</span>{_cells(sid, iid, R["est"])}</div>
-<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{_cells(sid, iid, R["ans"])}</div>""" + working(
-            2
-        )
-        if "sense" in R:
-            body += f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(R["sense"].label)}</span>{ticks(sid, iid, R["sense"])}</div>'
+        body = _estimate(sid, iid, sp, R, functools.partial(_cells, sid, iid))
     elif f == "missing_digit" and sp.get("shape") == "INEQUALITY":
         body = (
             f'<div class="row"><span class="lab">how many digits:</span>{_cells(sid, iid, R["count"])}</div>'
@@ -135,10 +132,7 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
             + textbox(sid, iid, R["how"], 13)
         )
     elif f == "efficient_method":
-        body = (
-            f'<div class="row"><span class="lab">answer =</span>{_cells(sid, iid, R["ans"])}</div>'
-            + textbox(sid, iid, R["method"], 13)
-        )
+        body = _efficient(sid, iid, R, functools.partial(_cells, sid, iid))
     elif f == "partial_worked":
         a, b, bp = sp["a"], sp["b"], sp["b_parts"]
         body = f"""<div class="row" style="margin-bottom:2mm"><span class="eq">{a} = {sp["p1"]} +</span>{_cells(sid, iid, R["p2"])}<span class="eq">+</span>{_cells(sid, iid, R["p3"])}</div>
@@ -179,6 +173,38 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         else ""
     )
     return f'<div class="item{compact}" data-item="{iid}" data-rung="{it.rung}"><div class="q"><span class="n">{n}</span><span class="stem">{stem}</span></div><div class="body">{body}</div></div>'
+
+
+def _estimate(
+    sid: str, iid: str, sp: dict[str, Any], R: dict[str, Response], cells: Callable[[Response], str]
+) -> str:
+    """An estimate, then the exact answer: the rounded numbers, or a × judgement named by its label (how many
+    digits, the digit it ends in); on a judged level, whether someone's answer is close to it."""
+    first = (
+        html.escape(R["est"].label) + ":"
+        if sp.get("shape") in ("ANSWER_DIGITS", "LAST_DIGIT")
+        else f"estimate: {sp['ra']} {op_sign(sp['op'])} {sp['rb']} ="
+    )
+    body = f"""<div class="row"><span class="lab">{first}</span>{cells(R["est"])}</div>
+<div class="row" style="margin-top:2mm"><span class="lab">exact: {sp["a"]} {op_sign(sp["op"])} {sp["b"]} =</span>{cells(R["ans"])}</div>""" + working(
+        2
+    )
+    if "sense" in R:
+        body += f'<div class="row" style="margin-top:2mm"><span class="lab">{html.escape(R["sense"].label)}</span>{ticks(sid, iid, R["sense"])}</div>'
+    return body
+
+
+def _efficient(sid: str, iid: str, R: dict[str, Response], cells: Callable[[Response], str]) -> str:
+    """A shortcut: the step it names, then the answer (46 × 10, then 46 × 5); or the answer and the method in words."""
+    if "step" in R:
+        rows = (
+            f'<div class="row" style="margin-bottom:2mm"><span class="lab">{html.escape(R[k].label)}</span>{cells(R[k])}</div>'
+            for k in ("step", "ans")
+        )
+        return "".join(rows) + working(2)
+    return f'<div class="row"><span class="lab">answer =</span>{cells(R["ans"])}</div>' + textbox(
+        sid, iid, R["method"], 13
+    )
 
 
 def _grade(band):

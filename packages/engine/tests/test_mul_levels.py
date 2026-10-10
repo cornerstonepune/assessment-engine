@@ -78,9 +78,9 @@ def _drawn(skill, level, seed=7):
 
 
 # The two whose Advance the document gives straight questions no lower level holds: the 11 and 12 tables, and a round
-# number with no table fact under its zeros. The others' Advance is kinds M2b makes (missing numbers, stories, finding
-# the mistake): 3 × 1 digits' one straight Advance case, the 1-digit number first in a line (T13), holds only questions
-# Easy to Hard hold, and an Advance that adds nothing harder is no level (second reader, 2026-10-09).
+# number with no table fact under its zeros. The other three's Advance is Hard's straight cases with kinds M2b makes
+# (missing digits, finding the mistake, estimates, stories: `tests/test_mul_advance.py`); the straight questions those
+# levels draw are what these tests read.
 ADVANCE = ["MUL.FACTS", "MUL.TENS"]
 
 
@@ -90,22 +90,20 @@ def _levels(skill):
 
 def test_multiplication_is_five_skills_each_level_its_documents_cases():
     """Easy to Hard are the document's straight cases for that level; Advance mixes the hardest straight cases (Hard's)
-    with the document's own straight Advance cases, as addition's Advance does (ADD.2D1D: A14 to A16)."""
+    with the document's own Advance cases, as addition's Advance does (ADD.2D1D: A14 to A16)."""
     rungs = [SETS[s]["rung_code"] for s in FIVE]
     others = {x["rung_code"] for s, x in SETS.items() if s not in FIVE}
     assert len(set(rungs)) == 5 and not others & set(rungs)
-    assert [s for s in FIVE if "Advance" in SETS[s]["difficulty"]] == ADVANCE
     for skill in FIVE:
         s, doc, levels = SETS[skill], _documents(skill), _levels(skill)
         assert RUNGS[s["rung_code"]]["skill_codes"] == ["NUM.OPS.03"], skill
-        assert list(s["difficulty"]) == levels, skill
+        assert list(s["difficulty"]) == LEVELS, skill
         for lv in ("Easy", "Medium", "Hard"):
             assert sorted(_check(skill, lv)["cases"]) == sorted(doc[lv]), (skill, lv)
-        if "Advance" in levels:
-            # the tables' Advance holds every table, so a fact that needs the 11 or 12 tables has a level (A4)
-            below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "MUL.FACTS" else set()
-            want = sorted(below | set(doc["Hard"]) | set(doc["Advance"]))
-            assert sorted(_check(skill, "Advance")["cases"]) == want, skill
+        # the tables' Advance holds every table, so a fact that needs the 11 or 12 tables has a level (A4)
+        below = set(doc["Easy"]) | set(doc["Medium"]) if skill == "MUL.FACTS" else set()
+        want = sorted(below | set(doc["Hard"]) | set(doc["Advance"]))
+        assert sorted(c for c in _check(skill, "Advance")["cases"] if _straight(c)) == want, skill
         shapes = {json.dumps(_check(skill, lv)["within"], sort_keys=True) for lv in levels}
         assert len(shapes) == (2 if skill == "MUL.FACTS" else 1), skill  # the tables: A4 below Advance
         assert all(_check(skill, lv)["within"]["operation"] == "MUL" for lv in levels), skill
@@ -237,9 +235,7 @@ def CASES_MATCHES():  # noqa: N802  the rows as `cases.matches` reads them
 # ---------------------------------------------------------------------------------------------- the drawing
 
 
-@pytest.mark.parametrize(
-    "skill, level", [(s, lv) for s in FIVE for lv in LEVELS if lv in SETS[s]["difficulty"]]
-)
+@pytest.mark.parametrize("skill, level", [(s, lv) for s in FIVE for lv in _levels(s)])
 def test_every_level_draws_its_own_cases_as_measured(skill, level):
     """Forty questions (or all a small level holds), no two alike, each one of its level's cases as measured, every
     case drawn, and each answer the product worked out here: the drawer is told the case, the check reads only the

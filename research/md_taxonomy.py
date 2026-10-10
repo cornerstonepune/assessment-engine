@@ -917,7 +917,7 @@ SKILLS = [
     ("MUL.3D1D", "Multiplies a 3-digit number by a 1-digit number, regrouping in any column and onto a zero",
      "G4 G4 G4 G4", {"Easy": ["T11", "TC01", "TZ02"], "Medium": ["TC02", "TC03", "TC05", "TZ09"],
                      "Hard": ["T12", "TC04", "TC06", "TC07", "TC08", "TC10", "TC11", "TZ03", "TZ06"],
-                     "Advance": ["T13", "Q16", "C09"]}, ["T14", "G10", "G11"]),
+                     "Advance": ["Q16", "C09"]}, ["T13", "T14", "G10", "G11"]),
     ("MUL.2D2D", "Multiplies two 2-digit numbers, a row for each digit with the second row moved a place",
      "G4 G4 G4 G4", {"Easy": ["T17"], "Medium": ["T18"], "Hard": ["T19", "T20", "T21", "T27", "T28"],
                      "Advance": ["C03", "V02", "V03", "Q15", "B12"]}, ["T22", "G09", "G12", "G13"]),

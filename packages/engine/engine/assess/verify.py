@@ -8,11 +8,12 @@ item_key from either path, which is what stops the bank holding one sum twice.
 
 from typing import Any, cast
 
+from . import diagnosis as D
+from . import estimate as E
 from . import misconceptions as M
 from . import operations as O
 from . import taxonomy
 from .items import Response, cells, item, regroup_count_add, regroup_count_sub
-from .rounding import half_up
 
 FORBIDDEN_WORDS = ("borrow",)
 # fmt -> (signal, working_lines, needs_stem); mirrors what items.py gives each format
@@ -130,19 +131,24 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     """A stored question made by a rule its kind has since corrected. It leaves the bank rather than being
     changed in place, so a paper already printed with it still reads as it did: estimates that rounded a 5
     down (665 printed as 660), closest-hundred questions from before the right option's place was drawn, when it
-    was always the middle one, and a straight sum whose stored wrong answers a predictor has since corrected
-    (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table")."""
+    was always the middle one, a straight sum whose stored wrong answers a predictor has since corrected
+    (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table"), and a worked answer that asks
+    the column its mistake always shows in (`diagnosis.asks_where`)."""
     stale = _stale_mistakes(fmt, spec, responses)
     if stale:
         return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
-    if fmt == "estimate_then_calc":
-        to = spec.get("round_to", 10)
-        if (spec["ra"], spec["rb"]) != (half_up(spec["a"], to), half_up(spec["b"], to)):
-            return [
-                f"rounded a 5 down: {spec['a']} {spec['op']} {spec['b']} printed as {spec['ra']}, {spec['rb']}"
-            ]
+    if fmt == "estimate_then_calc" and (spec["ra"], spec["rb"]) != E.rounded(spec):
+        return [
+            f"rounded a 5 down: {spec['a']} {spec['op']} {spec['b']} printed as {spec['ra']}, {spec['rb']}"
+        ]
     if fmt == "choose_estimate" and "right" not in spec:
         return ["made when the closest hundred was always the middle option"]
+    if (
+        fmt == "find_mistake"
+        and any(r.get("rid") == "where" for r in responses or [])
+        and not D.asks_where(spec)
+    ):
+        return [f"asks the column {spec['planted']} always shows in"]
     return []
 
 

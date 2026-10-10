@@ -53,6 +53,23 @@ def test_every_worksheet_holds_twelve_different_questions_and_use_is_even(n):
     assert len({frozenset(q["id"] for q in s) for s in sheets}) == len(sheets), "no two worksheets alike"
 
 
+@pytest.mark.parametrize("kinds", [["equal_groups"], ["tally", "equal_groups"], KINDS])
+def test_a_small_levels_worksheets_all_differ(kinds):
+    """A level of 13 to 40 questions has more different worksheets than the ten it is dealt, so no two are alike:
+    the rehearsal of update-live dealt MUL.GROUPS Medium's 16 questions onto two worksheets the same (2026-10-10),
+    and 16 questions dealt onto ten worksheets of twelve repeated one in 6 levels of 300."""
+    for n in range(13, 41):
+        for prefix in ("K", "EG", "T", "Q", "X"):
+            questions = [
+                {"id": f"q{i:03d}", "item_key": f"{prefix}-{i:03d}", "fmt": kinds[i % len(kinds)]}
+                for i in range(n)
+            ]
+            sheets = library.deal(questions, 12, kinds, library.worksheets_needed(n, 12))
+            assert len({frozenset(q["id"] for q in s) for s in sheets}) == len(sheets), (n, prefix)
+            counts = uses(sheets)
+            assert len(counts) == n and max(counts.values()) - min(counts.values()) <= 1, (n, prefix)
+
+
 def test_each_worksheet_holds_every_kind_in_its_fair_share():
     questions = (
         level(55, ["bare_sum"])
@@ -129,6 +146,20 @@ def test_a_level_with_too_few_questions_for_one_worksheet_is_refused_never_passe
     library.build(conn)
     problems = library.check(conn)[1]
     assert problems["SUB.2D2D Hard"][0].startswith("holds 0 questions, too few for one worksheet")
+
+
+@needs_db
+def test_two_worksheets_alike_are_made_different_by_building_again(conn):
+    """What `check` refuses, `build` repairs: a level holding two worksheets of the same questions keeps the first,
+    retires the other (never edits it) and is dealt what it lacks."""
+    library.build(conn)
+    first, second = _unit(conn, "MUL.GROUPS", "Medium")[:2]
+    conn.execute("update sheet_template set item_ids = %s where id = %s", (first["item_ids"], second["id"]))
+    assert "two worksheets hold the same questions" in library.check(conn)[1]["MUL.GROUPS Medium"]
+    assert library.build(conn)["retired"] >= 1
+    after = _unit(conn, "MUL.GROUPS", "Medium")
+    assert first["code"] in {s["code"] for s in after} and second["code"] not in {s["code"] for s in after}
+    assert library.check(conn)[1] == {}
 
 
 @needs_db
