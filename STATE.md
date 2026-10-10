@@ -5455,14 +5455,32 @@ Found while building, fixed here:
   number does), and only that prints alone
   (`test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instruction_its_numbers`, which fails on the
   first rule).
-
-Ratchets: untyped findings fell in five files, written down in `workflows.json` (`draw.py` 127 → 72, `verify.py`
-96 → 81, `render.py` 367 → 348, `misconceptions.py` 236 → 231, `diagnosis.py` 48 → 47); the five new modules have
-none. `render_item` measures C901 23 and PLR0915 71 (was 24 and 77).
-
 - A rehearsal of `bed5038` on a copy of live (run 38049395861) read four ÷ cases as thin (fewer than a worksheet's 12):
   ÷ 1, ÷ itself and 0 ÷ a number held 11 each. The drawer's defaults asked that every special thing a question is be
   what its case is about, so 1 ÷ 1 (÷ itself and ÷ 1) and 0 ÷ 1 (0 divided and ÷ 1) were drawn by no case, though
   placing puts both on Medium. A question that is two of them at once is either case's now: 12 each. ÷ 1000 holds 8
   (2000 to 9000; 1000 ÷ 1000 is a number ÷ itself, which ÷ 1000 is not about), fewer than a worksheet by its own
   numbers.
+
+Ratchets: untyped findings fell in five files, written down in `workflows.json` (`draw.py` 127 → 72, `verify.py`
+96 → 81, `render.py` 367 → 348, `misconceptions.py` 236 → 231, `diagnosis.py` 48 → 47); the five new modules have
+none. `render_item` measures C901 23 and PLR0915 71 (was 24 and 77).
+
+Proved on `eb0616d`:
+- `bin/engine goal md3a-straight-division` on a database built from this tree alone (`bin/testdb fresh`, 26,348
+  questions, 2,351 worksheets): 14 of 14 scenarios met (20 asked a level, every answer recomputed, the quotient and
+  the remainder each against its own box, 0 off its rule, 0 undiagnosed, 20 distinct), criteria 1,123 passed,
+  `bin/check` 27 passed: GOAL ACHIEVED.
+- CI green: engine (the whole suite, with coverage and the ratchet), web, browser (every spec, s31 among them).
+
+Rehearsed on a copy of live (run 38050558566, `eb0616d`):
+- 554 questions retired outside their level and 6,882 added: M2d2's 4,701 (live has not run `bin/update-live` since
+  M0b) and the four's 2,181, each ÷ level filled to what it holds, Easy · Medium · Hard · Advance: `DIV.FACTS` +27 ·
+  +134 · +36 · +216, `DIV.TENS` +216 · +106 · +216 · +216, `DIV.2D1D` +46 · +108 · +216, `DIV.3D1D` +208 · +216 ·
+  +220.
+- The library made 1,445 and retired 746: 3,637 worksheets, 142 of 142 skill-levels ready, 0 problems.
+- "MUL_DIV: 251 cases · 160 covered · 88 missing · 3 thin" (M2d2's: 109 · 141 · 1). Missing are M3b–M3d's kinds and
+  the cases no level names. Thin: ÷ 1000 (8, by its own numbers), D14 (an unplaced case, 3 of `DIV.FACTS` Advance's
+  2-digit divisors) and T16 as before.
+- Every `engine live data` check ok after the update. July's 144 ÷ 12 counts on `DIV.FACTS` (1 answer), kept and not
+  shown until an educator says the topic is taught.

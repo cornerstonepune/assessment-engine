@@ -20,9 +20,9 @@ is verified. This file only says where the last session stopped.
 - **For Achal** (the drafted document's to settle): the special facts overlap the tables (2 ÷ 2 is DF02 and DF04);
   302 ÷ 2 is both D07 (Medium) and DZ04 (Hard); the five slips corrected and DR10, DP04 and DP07 reworded; a
   remainder's box only where there is one (A-assumption in ADR 0056).
-- **Proved:** GOAL ACHIEVED on a fresh database (14 of 14 scenarios, criteria 1,123 passed, `bin/check`); the
-  browser test locally and in CI; rehearsed on a copy of live (run 38049395861): 6,880 added, 3,636 worksheets,
-  142 of 142 ready, every live-data check ok.
+- **Proved on `eb0616d`:** GOAL ACHIEVED on a fresh database (14 of 14 scenarios, criteria 1,123 passed,
+  `bin/check`); CI green (engine, web, browser); rehearsed on a copy of live (run 38050558566): 6,882 added, 3,637
+  worksheets, 142 of 142 ready, every live-data check ok.
 - **Next:** CI green on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b. Live still needs
   Nimish to run `bin/update-live` (it carries M0b to M3a).
 
