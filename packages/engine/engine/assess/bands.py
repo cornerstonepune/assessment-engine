@@ -83,6 +83,22 @@ def one_of(v: Any, rng: random.Random) -> Any:
     return rng.choice(v) if isinstance(v, list) else v
 
 
+def _regroups(c: dict[str, Any]) -> set[int]:
+    """The regroup counts a + or − estimate draws from: its level's rule's own, or, on a level made of cases, which
+    names none, every count its numbers' sizes allow, the case's match keeping what it asks for (R01 and R02 drew
+    nothing: the rule was read and missing). A × estimate rounds and never regroups."""
+    if TK.digits(c) is not None:
+        return set()
+    return set(c["regroups"]) if "regroups" in c else set(range(max(TK.sizes(c)) + 1))
+
+
+def _widths(c: dict[str, Any]) -> tuple[int, int]:
+    """A worked answer's two numbers' digits: a × level's longer and shorter, else the level's own two (one named, both
+    that long). A + or − mistake was found in two numbers of the first's length, so a 2 by 1 level held none."""
+    named: list[int] = c.get("digits", [2])
+    return TK.digits(c) or (int(named[0]), int(named[-1]))
+
+
 # fmt -> (rng, rung, signal, check) -> Item. One entry per chunk-B generator (ADR 0010); no model
 # call and no verify.problems detour either — these generators are trusted code, not untrusted
 # model output, the same guarantee the arithmetic sampler gets from its round trip through check.
@@ -94,7 +110,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "number_line_jumps": lambda rng, rung, signal, c: I.number_line_jumps(
         rng, rung, signal, one_of(c["op"], rng), c["hi"]),
     "estimate_then_calc": lambda rng, rung, signal, c: E.estimate_then_calc(
-        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), set(c["regroups"] if TK.digits(c) is None else ()),
+        rng, rung, signal, one_of(c["op"], rng), *TK.sizes(c), _regroups(c),
         round_to=c.get("round_to", 10),
         judged=c.get("shape") == "JUDGED", tolerance=c.get("tolerance"), shape=c.get("shape")),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
@@ -110,7 +126,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
         rng, rung, signal, c.get("n_costs", 3), tuple(c.get("budget_range", (5000, 12000))),
         c.get("one_cost_is_a_product", False)),
     "find_mistake": lambda rng, rung, signal, c: D.find_mistake(
-        rng, rung, signal, op=one_of(c.get("op", "+"), rng), digits=TK.digits(c) or c.get("digits", [2])[0],
+        rng, rung, signal, op=one_of(c.get("op", "+"), rng), digits=_widths(c),
         planted=one_of(c["planted"], rng) if c.get("planted") else None),
     "explain_claim": lambda rng, rung, signal, c: D.explain_claim(
         rng, rung, signal, a_range=tuple(c.get("a_range", (120, 480))),

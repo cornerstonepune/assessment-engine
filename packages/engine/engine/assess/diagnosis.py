@@ -125,62 +125,63 @@ def _shown(op: str, code: str, a: int, b: int, mis: dict[str, int]) -> Drawn:
     return _first_wrong_column(M.compute(op, a, b), mis[code]), (a, b, mis)
 
 
-def _drawn_times(rng: random.Random, code: str, sizes: tuple[int, int]) -> Drawn:
-    a, b = _times(rng, code, sizes)
-    return _shown("×", code, a, b, M.predict("×", a, b))
-
-
-def _drawn_sum(rng: random.Random, code: str, op: str, digits: int) -> Drawn:
-    if code in ALIGNED:
-        short = rng.randint(1, max(1, digits - 1))
-        a, b = (sample_add if op == "+" else sample_sub)(rng, max(digits, 2), short, {0, 1, 2})
+def _drawn(rng: random.Random, code: str, op: str, sizes: tuple[int, int]) -> Drawn:
+    """One calculation drawn the way this slip's question draws it, its two numbers `sizes` digits long (lined up from
+    the left, the second the shorter), or None where its numbers do not show the slip."""
+    d1, d2 = sizes
+    if op == "×":
+        a, b = _times(rng, code, sizes)
+    elif code in ALIGNED:
+        short = d2 if d2 < d1 else rng.randint(1, max(1, d1 - 1))
+        a, b = (sample_add if op == "+" else sample_sub)(rng, max(d1, 2), short, {0, 1, 2})
     elif op == "+":
-        a, b = sample_add(rng, digits, digits, {1, 2, 3})
+        a, b = sample_add(rng, d1, d2, {1, 2, 3})
     else:
-        a, b = sample_sub(rng, digits, digits, {1, 2}, across_zero=code in ACROSS_ZERO)
+        a, b = sample_sub(rng, d1, d2, {1, 2}, across_zero=code in ACROSS_ZERO)
     return _shown(op, code, a, b, M.predict(op, a, b))
 
 
 @functools.cache
-def _columns(code: str, op: str, size: int | tuple[int, int]) -> frozenset[int]:
+def _columns(code: str, op: str, sizes: tuple[int, int]) -> frozenset[int]:
     """The columns this slip's first wrong digit falls in, over `COUNTED` calculations drawn as its questions are,
-    from a seed of their own so every run counts the same; none where numbers of this size cannot show it."""
+    from a seed of their own so every run counts the same; none where numbers of these sizes cannot show it."""
     rng = random.Random(0)
-    if isinstance(size, tuple):
-        drawn = [_drawn_times(rng, code, size) for _ in range(COUNTED)]
-    else:
-        drawn = [_drawn_sum(rng, code, op, size) for _ in range(COUNTED)]
-    return frozenset(got[0] for got in drawn if got)
+    return frozenset(got[0] for got in (_drawn(rng, code, op, sizes) for _ in range(COUNTED)) if got)
 
 
 def asks_where(spec: dict[str, Any]) -> bool:
     """Whether a worked answer's question asks which column its first wrong digit is in: not where its mistake, on
-    numbers this size, always puts it in the same one, where a child ticking that box every time would score.
+    numbers these sizes, always puts it in the same one, where a child ticking that box every time would score.
     ADD.2D1D's Advance plants only numbers lined up from the left (always the ones), ADD.4D's only a final carry
     dropped (always the top), MUL.3D1D's only a carry lost onto a zero (always the tens). Mistakes of their own
     shape (`SHAPES`) decide their own questions."""
     code, op = spec.get("planted"), O.sign(spec.get("op"))
     if op is None or code not in set(COLUMN_SLIPS.get(op, [])) | ALIGNED:
         return True
-    a, b = len(str(spec["a"])), len(str(spec["b"]))
-    return len(_columns(code, op, (a, b) if op == "×" else a)) > 1
+    return len(_columns(code, op, (len(str(spec["a"])), len(str(spec["b"]))))) > 1
 
 
 def _times_column(rng: random.Random, code: str, sizes: tuple[int, int]) -> tuple[int, int, dict[str, int]]:
     """A multiplication of these digit counts whose worked answer this slip gets wrong."""
     if not _columns(code, "×", sizes):
         raise O.CannotMake(f"no {sizes[0]}-digit by {sizes[1]}-digit multiplication shows {code}")
-    return _spread(rng, lambda: _drawn_times(rng, code, sizes), f"{sizes[0]} × {sizes[1]} digits with {code}")
+    return _spread(rng, lambda: _drawn(rng, code, "×", sizes), f"{sizes[0]} × {sizes[1]} digits with {code}")
 
 
-def _column(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
-    """A two-number calculation in columns whose answer this mistake would get wrong."""
-    return _spread(rng, lambda: _drawn_sum(rng, code, op, digits), f"{digits}-digit {op} with {code}")
+def _column(
+    rng: random.Random, code: str, op: str, sizes: tuple[int, int]
+) -> tuple[int, int, dict[str, int]]:
+    """A two-number calculation in columns, its numbers `sizes` digits long, whose answer this mistake gets wrong."""
+    return _spread(
+        rng, lambda: _drawn(rng, code, op, sizes), f"{sizes[0]} by {sizes[1]} digit {op} with {code}"
+    )
 
 
-def _aligned(rng: random.Random, code: str, op: str, digits: int) -> tuple[int, int, dict[str, int]]:
+def _aligned(
+    rng: random.Random, code: str, op: str, sizes: tuple[int, int]
+) -> tuple[int, int, dict[str, int]]:
     for _ in range(400):
-        got = _drawn_sum(rng, code, op, digits)
+        got = _drawn(rng, code, op, sizes)
         if got:
             return got[1]
     raise RuntimeError(f"no {op} question shows {code}")
@@ -277,21 +278,24 @@ def find_mistake(
     if code in SHAPES:
         stem, spec, rs = _shaped(rng, code, name)
         return item("FTM", rung, "Conceptual", "find_mistake", stem, spec, rs, working_lines=2)
-    width = digits if isinstance(digits, int) else digits[0]
+    d1, d2 = (
+        (digits, digits) if isinstance(digits, int) else digits
+    )  # the level's two numbers, one given for both
     if code in COLUMN_SLIPS["×"]:  # a slip only multiplication makes decides the operation, and its numbers
         op = "×"
         a, b, mis = _times_column(
-            rng, code, digits if isinstance(digits, tuple) else NEEDS.get(code, (width, 1))
+            rng, code, digits if isinstance(digits, tuple) else NEEDS.get(code, (d1, 1))
         )
     elif op == "×":
         raise O.CannotMake(f"{code} is not a mistake a multiplication's worked answer shows")
     elif code in ALIGNED:
-        a, b, mis = _aligned(rng, code, op, max(width, 2))
+        a, b, mis = _aligned(rng, code, op, (max(d1, 2), d2))
     else:
         if code not in COLUMN_SLIPS[op]:
             op = "-" if op == "+" else "+"  # a slip only one operation can make decides the operation
-        wide = code == "M_EXCHANGE_WRONG_PLACE" or code in ACROSS_ZERO  # both need a hundreds column
-        a, b, mis = _column(rng, code, op, max(width, 3) if wide else width)
+        if code == "M_EXCHANGE_WRONG_PLACE" or code in ACROSS_ZERO:  # both need a hundreds column
+            d1, d2 = max(d1, 3), max(d1, 3) if d1 == d2 else d2
+        a, b, mis = _column(rng, code, op, (d1, d2))
     wrong = mis[code]
     right = M.compute(op, a, b)
     spec: dict[str, Any] = dict(a=a, b=b, op=op, wrong=wrong, planted=code)

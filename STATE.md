@@ -5098,3 +5098,26 @@ seeds on both (every + and − slip at 2, 3 and 4 digits, 12 each; every missing
 copied out of a line 36, a final carry dropped 36, an exchange from the wrong place 36, the two across-a-zero
 exchanges 24 each, a decrement forgotten 12 (2 digits only). Nothing else differs. Left out: three boxes asked in one
 row, which main waits on for ever (the third finding above).
+
+## AS1 — measured before the build (2026-10-10)
+
+M2b is merged and deployed: main `d4435d8`, CI, `migrate live` and `deploy engine` green (01:49 UTC); no migration.
+`bin/engine done md2b-times-advance` on a database built from that tree: 17 of 17 sentences PROVED, 3 of 3 scenarios
+MET, 3 of 3 criteria PASSED. It ends "NOT DONE" only because this container cannot read live's migrations
+(`UndefinedTable`); the runs on main stand for that.
+
+Each (case, level) pair the seed lists, drawn alone on its level as the bank draws it (605 pairs, 32 s):
+- **35 pairs gave nothing, for four causes.**
+  - An estimate on a level made of cases: R01, R02. Every draw raised `KeyError: 'regroups'`, swallowed by
+    `draw._native`, 6,000 times a level.
+  - A + or − mistake found in two numbers of the first's length: X03, X06 to X09 on the 2 by 1, 3 by 1 and 3 by 2
+    levels. All 300 of each made, all refused for the second number's size.
+  - A case its level's numbers can never be: 20 missing numbers (M01 to M05, M24, M25 where the box's size is no
+    number of the level's), and SZ6, SZ9 on SUB.3D3D (1000 − 476, 1000 − 999: a 4-digit first number).
+  - The stories W02, W03 (SUB.1D1D) and W06 (ADD.1D1D) draw on their own. They go missing only when the level is
+    filled whole: a story's key is its numbers, and the cases listed before them take all 36 (or 72). That is AS2.
+- **Swallowed by the drawer:** `KeyError` 12,000 times (R01 and R02 only), `RuntimeError` 96 (numbers that did not fit),
+  `ValueError` never.
+- **After the fix:** 0 pairs empty, and only `RuntimeError` swallowed (96). The survey takes 8 s.
+- **Not a defect:** EQUALITY.INVERSE's Advance holds a 3-digit M25 above its `hi` of 50. Its own words ask for "a
+  3-digit number to work back to: □ − 275 = 418", and the 50 bounds its other cases.

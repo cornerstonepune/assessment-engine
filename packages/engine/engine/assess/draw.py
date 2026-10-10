@@ -298,8 +298,8 @@ def _native(
         return bands.native_item(fmt, {**check, **hints}, rng, rung, "Conceptual")
     except O.CannotMake:
         raise  # the case asks this kind for an operation it does not make: no draw can give it, say so
-    except (KeyError, ValueError, RuntimeError):
-        return None  # this attempt's numbers could not make the case; the next attempt draws again
+    except RuntimeError:
+        return None  # numbers that did not fit, drawn again; a rule the kind cannot read is raised, not drawn past
 
 
 def one(rng, match, check, rung, k=0):
