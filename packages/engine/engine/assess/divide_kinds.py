@@ -1,7 +1,7 @@
 """The column skills' Advance kinds, ÷ (goals/md3b2-divide-advance.yaml): a digit missing in the number divided or in the
 quotient, the remainder missing, how many digits a quotient has, the number divided rounded, whether an answer could
 be right, a division checked by multiplying, and ÷ 5 as ÷ 10 then doubled. Each is built on the two numbers its case
-draws (`draw._pair`, ADR 0057), and each box is keyed by the act that finds it (ADR 0058): a digit in the number divided
+draws (`draw_pair.pair`, ADR 0057), and each box is keyed by the act that finds it (ADR 0058): a digit in the number divided
 by the multiplication that finds it, a remainder by the taking away, a digit in the quotient by the division's own
 mistakes whose quotient fits the printed boxes. Measured over every question a level can hold (STATE.md "M3b2 —
 measured before the build"). Deterministic given an RNG; pure: no I/O.

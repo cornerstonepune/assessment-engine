@@ -88,8 +88,9 @@ def charges(
 
     In order: this kind's own table (`skills.charges_by_kind`, approved once by a person), then the
     mistake's vocabulary row, then the question's operation when it has exactly one. A mistake with no row for the
-    question's one operation and a row for exactly one other, which the question also carries out, is that one's —
-    the steps of a multiplication added without a carry are addition's (`M_NOCARRY`, assumption A11). A mistake that
+    question's one operation and a row for exactly one other the question also carries out is that one's — the steps
+    of a multiplication added without a carry are addition's (`M_NOCARRY`, assumption A11), and a slip taking away
+    inside a long division subtraction's (`M_FACT_PM1`, whose + row the division never uses). A mistake that
     would charge a skill the question does not use — or that nothing names — charges the question's
     own skill, so a wrong answer never lands on a skill the question never asked for.
     """
@@ -100,15 +101,17 @@ def charges(
     for code in codes:
         skill = table.get(code)
         if skill is None:
-            theirs = [op for c, op in vocab if c == code and op in rules["by_operation"]]
+            # the operations the mistake has a row for that the question uses: a take-away slip inside a long
+            # division has a row for + and one for −, and only − is carried out there
+            theirs = [
+                op
+                for c, op in vocab
+                if c == code and op in rules["by_operation"] and rules["by_operation"][op] in skills_used
+            ]
             # a mistake of another operation the question carries out inside its own: a multiplication's steps added
-            # without a carry are addition's (A11); every other mistake reads as it always has
-            inside = (
-                len(ops) == 1
-                and (code, ops[0]) not in vocab
-                and len(theirs) == 1
-                and rules["by_operation"][theirs[0]] in skills_used
-            )
+            # without a carry are addition's (A11), a long division's take-away slips subtraction's; every other
+            # mistake reads as it always has
+            inside = len(ops) == 1 and (code, ops[0]) not in vocab and len(theirs) == 1
             at = theirs if inside else ops
             skill_from, row_skill = (
                 (vocab.get((code, at[0])) if len(at) == 1 else None)

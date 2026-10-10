@@ -11,6 +11,7 @@ import html
 from collections.abc import Callable
 from typing import Any
 
+from engine.assess import divide_pages as DP
 from engine.assess import written_pages as WP
 from engine.assess.answer_space import op_sign
 from engine.assess.items import Response
@@ -267,4 +268,5 @@ DRAW: dict[str, Callable[[dict[str, Any], dict[str, Response], Boxes, bool], str
     "multiplication_square": multiplication_square,
     "repeated_subtraction": repeated_subtraction,
     **WP.DRAW,  # the written methods (ADR 0055)
+    **DP.DRAW,  # division's (ADR 0063)
 }

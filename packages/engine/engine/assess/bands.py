@@ -11,6 +11,7 @@ from typing import Any, cast
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
+from engine.assess import divide_methods as DVM
 from engine.assess import divide_models as DMOD
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
@@ -137,6 +138,14 @@ def _groups(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> I.
     return C.equal_groups(rng, rung, signal, c)
 
 
+def _partitioning(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> I.Item:
+    """A number partitioned and each part multiplied (`written_methods`) or divided (`divide_methods`), as the level
+    asks; any other operation is refused in a sentence."""
+    if O.require("partitioning", one_of(c.get("op") or "×", rng), makes=("×", "÷")) == "÷":
+        return DVM.partitioning(rng, rung, signal, c)
+    return WM.partitioning(rng, rung, signal, c)
+
+
 # fmt -> (rng, rung, signal, check) -> Item. One entry per chunk-B generator (ADR 0010); no model
 # call and no verify.problems detour either — these generators are trusted code, not untrusted
 # model output, the same guarantee the arithmetic sampler gets from its round trip through check.
@@ -184,7 +193,9 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "skip_counting": TM.skip_counting,
     "multiplication_square": TM.multiplication_square,
     "repeated_subtraction": DMOD.repeated_subtraction,
-    "partitioning": WM.partitioning,
+    "partitioning": _partitioning,
+    "chunking": DVM.chunking,
+    "long_division": DVM.long_division,
     "grid_method": WM.grid,
     "expanded_columns": WM.expanded,
     "lattice": WM.lattice,
@@ -219,7 +230,9 @@ READS = {
     "skip_counting": {"known", "groups"},
     "multiplication_square": {"groups", "size"},
     "repeated_subtraction": {"groups", "size"},
-    "partitioning": {"digits"},
+    "partitioning": {"digits", "op"},
+    "chunking": {"digits"},
+    "long_division": {"digits"},
     "grid_method": {"digits"},
     "expanded_columns": {"digits"},
     "lattice": {"digits"},

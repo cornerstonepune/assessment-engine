@@ -10694,12 +10694,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "one_operand": "SECOND"
@@ -10725,12 +10730,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "equal_operands": "YES"
@@ -10756,12 +10766,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "zero_operand": "FIRST"
@@ -10787,12 +10802,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 2
@@ -10818,12 +10838,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 5
@@ -10849,12 +10874,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 10
@@ -10880,12 +10910,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 3
@@ -10911,12 +10946,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 4
@@ -10942,12 +10982,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 6
@@ -10973,12 +11018,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 7
@@ -11004,12 +11054,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 8
@@ -11035,12 +11090,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 9
@@ -11066,12 +11126,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 11
@@ -11097,12 +11162,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_table": 12
@@ -11152,12 +11222,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_2_digits": 2,
@@ -11184,12 +11259,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "X10",
@@ -11217,12 +11297,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "X100",
@@ -11249,12 +11334,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "X1000",
@@ -11281,12 +11371,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
@@ -11315,12 +11410,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "MULTIPLE_OF_TEN_BOTH"
@@ -11346,12 +11446,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "fact_zero": "YES"
@@ -11377,12 +11482,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE",
@@ -11395,8 +11505,8 @@
       "taxonomy": "MUL_DIV",
       "section": "6",
       "section_name": "Division by digit shape",
-      "label": "2 ÷ 1 digits, every digit divides, in the division layout",
-      "example_text": "84 ÷ 4 (division layout)",
+      "label": "2 ÷ 1 digits, every digit divides",
+      "example_text": "84 ÷ 4",
       "example": {
         "fmt": "column_grid",
         "spec": {
@@ -11410,9 +11520,18 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
-        "method": "SHORT_DIVISION",
+        "method": [
+          "LINE",
+          "SHORT_DIVISION",
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
+        ],
         "operation": "DIV",
         "operand_1_digits": 2,
         "operand_2_digits": 1,
@@ -11425,8 +11544,8 @@
       "taxonomy": "MUL_DIV",
       "section": "6",
       "section_name": "Division by digit shape",
-      "label": "2 ÷ 1 digits, every digit divides, in a line",
-      "example_text": "69 ÷ 3",
+      "label": "2 ÷ 1 digits in a line",
+      "example_text": "69 ÷ 3 (in a line)",
       "example": {
         "fmt": "bare_sum",
         "spec": {
@@ -11440,14 +11559,15 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": "LINE",
         "operation": "DIV",
         "operand_1_digits": 2,
-        "operand_2_digits": 1,
-        "regrouping": "NONE",
-        "remainder": "NONE"
+        "operand_2_digits": 1
       }
     },
     {
@@ -11470,12 +11590,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 2,
@@ -11509,12 +11634,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 2,
@@ -11545,12 +11675,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11581,12 +11716,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11617,12 +11757,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11653,12 +11798,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11689,12 +11839,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11725,12 +11880,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11761,12 +11921,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 4,
@@ -11794,12 +11959,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 4,
@@ -11831,12 +12001,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11864,18 +12039,54 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
         "operand_2_digits": 2,
         "estimate_corrected": "YES",
         "answer_digits": 1
+      }
+    },
+    {
+      "code": "D15",
+      "taxonomy": "MUL_DIV",
+      "section": "6",
+      "section_name": "Division by digit shape",
+      "label": "3 ÷ 1 digits in a line",
+      "example_text": "516 ÷ 4 (in a line)",
+      "example": {
+        "fmt": "bare_sum",
+        "spec": {
+          "a": 516,
+          "b": 4,
+          "op": "÷",
+          "layout": "horizontal"
+        }
+      },
+      "match": {
+        "taxonomy": "MUL_DIV",
+        "fmt": [
+          "bare_sum",
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
+        ],
+        "method": "LINE",
+        "operation": "DIV",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1
       }
     },
     {
@@ -11898,12 +12109,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11933,12 +12149,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -11968,12 +12189,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -12005,12 +12231,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -12039,12 +12270,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "quotient_zero": "MULTIPLE"
@@ -12070,12 +12306,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 4,
@@ -12103,12 +12344,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 2,
@@ -12140,12 +12386,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_2_digits": 1,
@@ -12173,12 +12424,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "remainder": "LARGEST",
@@ -12205,12 +12461,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "remainder": "DIVIDEND_SMALLER"
@@ -12236,12 +12497,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 2,
@@ -12274,12 +12540,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 2,
@@ -12312,12 +12583,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -12348,12 +12624,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "quotient_zero": "MIDDLE",
@@ -12383,12 +12664,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "operand_1_digits": 3,
@@ -12446,12 +12732,17 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "chunking",
+          "long_division"
         ],
         "method": [
           "LINE",
           "SHORT_DIVISION",
-          "LONG_DIVISION"
+          "LONG_DIVISION",
+          "PARTITION_DIVIDEND",
+          "CHUNKING"
         ],
         "operation": "DIV",
         "place_value_factor": [
@@ -12940,7 +13231,7 @@
       "label": "Partitioning the number divided",
       "example_text": "72 ÷ 4 = 40 ÷ 4 + 32 ÷ 4 = 10 + 8 = □",
       "example": {
-        "fmt": "break_apart",
+        "fmt": "partitioning",
         "spec": {
           "a": 72,
           "b": 4,
@@ -12950,7 +13241,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "break_apart",
+        "fmt": "partitioning",
         "operation": "DIV",
         "method": "PARTITION_DIVIDEND"
       }
@@ -12960,21 +13251,20 @@
       "taxonomy": "MUL_DIV",
       "section": "8",
       "section_name": "Methods and pictures",
-      "label": "Chunking: take away ten lots of the divisor, then the rest",
-      "example_text": "96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □",
+      "label": "Chunking: take away the lots of the divisor each place allows, the largest first, then the rest",
+      "example_text": "96 ÷ 4: take 20 × 4, take 4 × 4 → 20 + 4 = □",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "chunking",
         "spec": {
           "a": 96,
           "b": 4,
           "op": "÷",
-          "layout": "column",
           "method": "CHUNKING"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "chunking",
         "operation": "DIV",
         "method": "CHUNKING"
       }
@@ -13011,18 +13301,17 @@
       "label": "Long division: divide, multiply, take away, bring down",
       "example_text": "516 ÷ 4: 5 ÷ 4 = 1, 5 − 4 = 1, bring down 1 → 11; 11 ÷ 4 = 2, 11 − 8 = 3, bring down 6 → 36; 36 ÷ 4 = 9, 36 − 36 = 0",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "long_division",
         "spec": {
           "a": 516,
           "b": 4,
           "op": "÷",
-          "layout": "column",
           "method": "LONG_DIVISION"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "long_division",
         "operation": "DIV",
         "method": "LONG_DIVISION"
       }

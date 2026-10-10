@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import Link from "@/components/link";
+import { Chunking, DivisionLayout, LongDivision } from "@/components/methods";
 import { Drawn, Grid, Lattice, Stem } from "@/components/pictures";
 import type { ItemResponse, ItemRow, Mistake } from "@/lib/queries-bank";
 
@@ -35,6 +36,8 @@ export const KIND: Record<string, string> = {
   grid_method: "grid method",
   expanded_columns: "expanded columns",
   lattice: "lattice",
+  chunking: "chunking",
+  long_division: "long division",
 };
 
 // The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.
@@ -63,15 +66,17 @@ const parts = (n: number) =>
     .map((d, i, all) => Number(d) * 10 ** (all.length - 1 - i))
     .filter((p) => p > 0);
 
-// A written method's steps, each as the paper prints it with a blank to fill, then the total.
+// A written method's steps, each as the paper prints it with a blank to fill, then the total. A part of a division that
+// leaves a remainder has its "r" blank beside it (85 ÷ 4: 5 ÷ 4 = ___ r ___).
 function Steps({ it, plain }: { it: ItemRow; plain?: boolean }) {
+  const rids = new Set(it.responses.map((r) => r.rid));
   return (
     <span className="grid gap-[3px]">
       {it.responses
-        .filter((r) => r.rid !== "ans")
+        .filter((r) => r.rid !== "ans" && r.rid !== "rem" && !(r.rid.endsWith("r") && rids.has(r.rid.slice(0, -1))))
         .map((r) => (
           <span key={r.rid} className="fact">
-            {plain ? (r.label ?? "").replace(/ =$/, "") : r.label} ___
+            {plain ? (r.label ?? "").replace(/ =$/, "") : r.label} ___{rids.has(`${r.rid}r`) ? " r ___" : null}
           </span>
         ))}
     </span>
@@ -84,7 +89,7 @@ export function Question({ it }: { it: ItemRow }) {
   switch (it.fmt) {
     case "column_grid":
       return s.op === "÷" ? (
-        <Divided a={s.a ?? 0} b={s.b ?? 0} rem={leaves(it)} />
+        <DivisionLayout a={s.a ?? 0} b={s.b ?? 0} rem={leaves(it)} />
       ) : (
         <Column numbers={s.addends ?? [s.a ?? 0, s.b ?? 0]} op={sign(s.op)} />
       );
@@ -147,7 +152,21 @@ export function Question({ it }: { it: ItemRow }) {
       return (
         <Stem text={it.stem}>
           <Steps it={it} />
-          <span className="fact">{s.a} × {s.b} = ___</span>
+          <span className="fact">
+            {s.a} {sign(s.op)} {s.b} = ___{leaves(it) ? " r ___" : null}
+          </span>
+        </Stem>
+      );
+    case "chunking":
+      return (
+        <Stem text={it.stem}>
+          <Chunking it={it} />
+        </Stem>
+      );
+    case "long_division":
+      return (
+        <Stem text={it.stem}>
+          <LongDivision it={it} />
         </Stem>
       );
     case "expanded_columns":
@@ -215,23 +234,6 @@ function Column({ numbers, op, result }: { numbers: (number | string)[]; op: str
         <span key={i}>{i === numbers.length - 1 ? `${op} ${n}` : n}</span>
       ))}
       <span className="h-[1.3em] w-full border-t border-basalt/60">{result ?? null}</span>
-    </span>
-  );
-}
-
-// The division layout as the school writes it (D01, 84 ÷ 4): the quotient's line above the number divided, the divisor
-// and its bracket, "r" beside the quotient where there is a remainder (engine/assess/answer_space.py `divided`).
-function Divided({ a, b, rem }: { a: number | string; b: number | string; rem: boolean }) {
-  return (
-    <span
-      role="img"
-      aria-label={`${a} ÷ ${b} in the division layout`}
-      className="fact inline-grid grid-cols-[auto_auto] leading-[1.45]"
-    >
-      <span />
-      <span>___{rem ? " r ___" : null}</span>
-      <span className="border-r border-basalt/60 pr-[4px]">{b}</span>
-      <span className="border-t border-basalt/60 pl-[4px]">{a}</span>
     </span>
   );
 }

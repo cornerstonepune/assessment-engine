@@ -24,14 +24,14 @@ from engine.assess.items import Item
 R = Path(__file__).resolve().parents[1]
 SEED = R / "supabase/seed/taxonomy_cases.json"
 # A straight calculation is about its numbers; the methods it may be printed in are every written method of its
-# operation (A1, ADR 0055), each by the kind that prints it. Division's own methods are printed from M3.
+# operation (A1, ADR 0055 and goals/md3d-division-methods.yaml), each by the kind that prints it.
 STRAIGHT_KINDS = {
     "×": ["bare_sum", "column_grid", "partitioning", "grid_method", "expanded_columns", "lattice"],
-    "÷": ["bare_sum", "column_grid"],
+    "÷": ["bare_sum", "column_grid", "partitioning", "chunking", "long_division"],
 }
 STANDARD = {
     "×": ["LINE", "COLUMNS", "LONG_MULTIPLICATION", "EXPANDED", "PARTITIONING", "GRID", "LATTICE"],
-    "÷": ["LINE", "SHORT_DIVISION", "LONG_DIVISION"],
+    "÷": ["LINE", "SHORT_DIVISION", "LONG_DIVISION", "PARTITION_DIVIDEND", "CHUNKING"],
 }
 REMAINDERS = ["SOME", "LARGEST"]
 D = ("operand_1_digits", "operand_2_digits")  # ÷ as written: 72 ÷ 4 is not 4 ÷ 72
@@ -119,8 +119,8 @@ STRAIGHT: dict[str, list[Any]] = {
     "DP05": ["place_value_factor"],
     "DP06": ["fact_zero"],
     "DP07": ["place_value_factor", "fact_zero", "operand_2_digits"],
-    "D01": [*D, "regrouping", "remainder", ("method", "SHORT_DIVISION")],
-    "D02": [*D, "regrouping", "remainder", ("method", "LINE")],
+    "D01": [*D, "regrouping", "remainder"],  # Easy's numbers, printed in every method its level lists
+    "D02": [*D, ("method", "LINE")],  # in a line, DIV.2D1D's method as D15 is DIV.3D1D's
     "D03": [*D, "regroup_at", "remainder", "first_digit_smaller", ("divisor_group", ["2-5-10", "3-4"])],
     "D04": [*D, "regroup_at", "remainder", "first_digit_smaller", "divisor_group"],
     "D05": [*D, "regrouping", "remainder", "quotient_zero", "first_digit_smaller"],
@@ -128,6 +128,7 @@ STRAIGHT: dict[str, list[Any]] = {
     "D11": [*D, "regrouping"],
     "D12": [*D, "first_digit_smaller", ("regrouping", ["SINGLE", "MULTIPLE"])],
     "D13": [*D, "answer_digits"],
+    "D15": [*D, ("method", "LINE")],
     "D14": [*D, "estimate_corrected", "answer_digits"],
     "DZ01": [*D, "quotient_zero", "zero_pattern", "regrouping"],
     "DZ02": [*D, "quotient_zero", "remainder", "scaled_fact"],
@@ -213,10 +214,12 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "G19": ("equal_groups", _x(20, 4, "÷", method="ARRAY"), ["method"]),
     # the table backwards is answered twice, by dividing and by its fact; a check of a claimed answer (Y10) is not
     "G20": ("inverse_check", _x(42, 6, "÷", shape="TABLE_BACKWARDS"), ["reasoning_type", "fact", "shape"]),
-    "G21": ("break_apart", _x(72, 4, "÷", method="PARTITION_DIVIDEND"), ["method"]),
-    "G22": _col(96, 4, "÷", "CHUNKING"),
+    # a written division is a kind of its own, each step a box, as a written multiplication is (ADR 0055); short
+    # division is the division layout, its exchanges written small, as compact columns are columns
+    "G21": ("partitioning", _x(72, 4, "÷", method="PARTITION_DIVIDEND"), ["method"]),
+    "G22": ("chunking", _x(96, 4, "÷", method="CHUNKING"), ["method"]),
     "G23": _col(72, 4, "÷", "SHORT_DIVISION"),
-    "G24": _col(516, 4, "÷", "LONG_DIVISION"),
+    "G24": ("long_division", _x(516, 4, "÷", method="LONG_DIVISION"), ["method"]),
     "G25": ("efficient_method", _x(96, 4, "÷", method="HALVING"), ["method"]),
     # missing numbers and digits
     "Q01": _missing("8 × □ = 72", "unknown_position", "fact", "answer_first"),

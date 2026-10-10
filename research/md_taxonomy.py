@@ -408,9 +408,10 @@ div("DP07", "A multiple of a hundred ÷ 1 digit", 3600, 6)
 section(6, "Division by digit shape",
         "Short division read left to right: where a remainder is exchanged, whether the first digit is smaller than "
         "the divisor, and where the quotient has a zero.")
-div("D01", "2 ÷ 1 digits, every digit divides, in the division layout", 84, 4, [("no exchange", not exchanges(84, 4))],
-    shown="84 ÷ 4 (division layout)")
-div("D02", "2 ÷ 1 digits, every digit divides, in a line", 69, 3, [("no exchange", not exchanges(69, 3))])
+# a straight case is about its numbers and printed in every method its level lists; the line is a method of its own,
+# for each shape as multiplication's T02 and T14 are (ADR 0055, goals/md3d-division-methods.yaml)
+div("D01", "2 ÷ 1 digits, every digit divides", 84, 4, [("no exchange", not exchanges(84, 4))])
+div("D02", "2 ÷ 1 digits in a line", 69, 3, shown="69 ÷ 3 (in a line)")
 div("D03", "2 ÷ 1 digits, one exchange from the tens, by 2, 3, 4 or 5", 72, 4,
     [("exchange", exchanges(72, 4) == ["TENS"]), ("an easier table", 4 in (2, 3, 4, 5))])
 div("D04", "2 ÷ 1 digits, one exchange from the tens, by 6, 7, 8 or 9", 91, 7,
@@ -434,6 +435,7 @@ div("D13", "3 ÷ 2 digits, 2-digit quotient", 408, 12)
 div("D14", "3 ÷ 2 digits where the first estimate must be corrected", 162, 18,
     [("estimate from 20 is too small", 162 // 20 < 162 // 18)],
     shown="162 ÷ 18 (rounding 18 to 20 suggests 8; 8 × 18 = 144 leaves 18, so 9)")
+div("D15", "3 ÷ 1 digits in a line", 516, 4, shown="516 ÷ 4 (in a line)")
 div("DZ01", "A zero in the number divided gives a zero in the quotient", 804, 4,
     [("middle", qzero(804, 4) == "MIDDLE"), ("no exchange", not exchanges(804, 4))])
 div("DZ02", "A zero at the end of the quotient", 840, 4, [("end", qzero(840, 4) == "END")])
@@ -514,18 +516,17 @@ case("G21", "Partitioning the number divided", "72 ÷ 4 = 40 ÷ 4 + 32 ÷ 4 = 10
 
 
 def chunks(n, d):
-    out, left = [], n
-    while left:
-        k = 10 if left >= 10 * d else left // d
-        out.append(k)
-        left -= k * d
-    return out
+    """The lots of the divisor taken away, the most each place of the quotient allows, largest first (96 ÷ 4: 20, 4).
+    Ten lots at a time cannot print a 3-digit division: 588 ÷ 3 would be nineteen take-aways of 30, then 6."""
+    q = str(n // d)
+    return [int(x) * 10 ** (len(q) - 1 - i) for i, x in enumerate(q) if x != "0"]
 
 
 ch = chunks(96, 4)
-case("G22", "Chunking: take away ten lots of the divisor, then the rest",
+case("G22", "Chunking: take away the lots of the divisor each place allows, the largest first, then the rest",
      "96 ÷ 4: " + ", ".join(f"take {k} × 4" for k in ch) + f" → {' + '.join(map(str, ch))} = □", sum(ch),
-     [("chunks", sum(ch) == 96 // 4)], op="÷")
+     [("chunks", sum(ch) == 96 // 4), ("three takes at most", max(len(chunks(a, d)) for a in range(100, 1000)
+                                                                 for d in range(2, 10)) == 3)], op="÷")
 st = divide(72, 4)
 case("G23", "Short division (bus stop): the exchange written small",
      f"72 ÷ 4: 7 ÷ 4 = {st[0]['q']} r {st[0]['r']}, exchange → {st[1]['value']} ÷ 4 = {st[1]['q']}", 18, op="÷")
@@ -939,13 +940,13 @@ SKILLS = [
      {"Easy": ["DP01"], "Medium": ["DP02", "DP03"], "Hard": ["DP04", "DP05", "DP06", "DP07"],
       "Advance": ["DR10"]}, []),
     ("DIV.2D1D", "Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit",
-     "G2 G2 G3 G3", {"Easy": ["D01", "D02"], "Medium": ["D03", "D04"], "Hard": ["DR04", "DR05", "DZ07"],
+     "G2 G2 G3 G3", {"Easy": ["D01"], "Medium": ["D03", "D04"], "Hard": ["DR04", "DR05", "DZ07"],
                      "Advance": ["Q09", "Q12", "Q13", "C05", "V09", "B14", "B15", "B16", "B17", "Y10"]},
-     ["D02", "G21", "G22", "G23", "G25"]),
+     ["D02", "G21", "G22", "G23"]),
     ("DIV.3D1D", "Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient",
      "G4 G4 G4 G4", {"Easy": ["D05"], "Medium": ["D06", "D07"],
                      "Hard": ["D08", "D09", "D10", "DZ01", "DZ02", "DZ03", "DZ04", "DR06", "DR07", "DR08"],
-                     "Advance": ["Q10", "C04", "C07", "V04", "V10", "H09"]}, ["G22", "G23", "G24"]),
+                     "Advance": ["Q10", "C04", "C07", "V04", "V10", "H09"]}, ["D15", "G22", "G23", "G24"]),
     ("MD.WORD", "Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the "
      "story needs", "G2 G2 G3 G4", {"Easy": ["B01", "B02", "B03", "B06"], "Medium": ["B04", "B05", "B07", "B11", "B27"],
                                     "Hard": ["B08", "B09", "B10", "B14", "B15", "B16", "B17"],

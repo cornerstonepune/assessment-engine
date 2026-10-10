@@ -3713,14 +3713,18 @@
         "column_grid"
       ],
       "misconception_codes": [
+        "M_DIV_BIGGER_BY_SMALLER",
         "M_DIV_BRING_DOWN_MISSED",
         "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
         "M_DIV_QUOTIENT_ZERO_DROPPED",
         "M_DIV_REMAINDER_ADDED",
         "M_DIV_REMAINDER_AS_DIGIT",
         "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SELF_AS_ZERO",
         "M_DIV_SUBTRACTED",
         "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
         "M_FACT_PM1",
         "M_FACT_PM10",
         "M_MUL_CARRY_FIRST",
@@ -3735,7 +3739,8 @@
         "M_REVERSES_CLAIM_TRUTH",
         "M_SMALL_FROM_LARGE",
         "M_TENS_ZERO_DROPPED",
-        "M_WRONG_OP"
+        "M_WRONG_OP",
+        "M_ZERO_DROPPED"
       ],
       "replaces": [],
       "difficulty": {
@@ -3751,8 +3756,13 @@
               "operand_2_digits": 1
             },
             "cases": [
-              "D01",
-              "D02"
+              "D01"
+            ],
+            "methods": [
+              "D02",
+              "G21",
+              "G22",
+              "G23"
             ]
           },
           "min_items": 46
@@ -3771,6 +3781,12 @@
             "cases": [
               "D03",
               "D04"
+            ],
+            "methods": [
+              "D02",
+              "G21",
+              "G22",
+              "G23"
             ]
           },
           "min_items": 108
@@ -3790,6 +3806,12 @@
               "DZ07",
               "DR04",
               "DR05"
+            ],
+            "methods": [
+              "D02",
+              "G21",
+              "G22",
+              "G23"
             ]
           }
         },
@@ -3838,6 +3860,7 @@
         "column_grid"
       ],
       "misconception_codes": [
+        "M_DIV_BIGGER_BY_SMALLER",
         "M_DIV_BRING_DOWN_MISSED",
         "M_DIV_EXCHANGE_LOST",
         "M_DIV_LEAD_DROPPED",
@@ -3849,7 +3872,17 @@
         "M_DIV_SWAPPED",
         "M_DIV_TENS_ZERO_EXTRA",
         "M_DIV_TENS_ZERO_LEFT",
-        "M_WRONG_OP"
+        "M_FACT_PM1",
+        "M_FACT_PM10",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ROW_OUT",
+        "M_NO_DECREMENT",
+        "M_ONE_ADDED",
+        "M_SMALL_FROM_LARGE",
+        "M_TENS_ZERO_DROPPED",
+        "M_WRONG_OP",
+        "M_ZERO_AS_ONE",
+        "M_ZERO_DROPPED"
       ],
       "replaces": [],
       "difficulty": {
@@ -3866,6 +3899,12 @@
             },
             "cases": [
               "D05"
+            ],
+            "methods": [
+              "D15",
+              "G22",
+              "G23",
+              "G24"
             ]
           },
           "min_items": 208
@@ -3884,6 +3923,12 @@
             "cases": [
               "D06",
               "D07"
+            ],
+            "methods": [
+              "D15",
+              "G22",
+              "G23",
+              "G24"
             ]
           }
         },
@@ -3909,6 +3954,12 @@
               "DR06",
               "DR07",
               "DR08"
+            ],
+            "methods": [
+              "D15",
+              "G22",
+              "G23",
+              "G24"
             ]
           }
         },

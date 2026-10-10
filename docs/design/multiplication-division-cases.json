@@ -1077,8 +1077,8 @@
  {
   "code": "D01",
   "section": 6,
-  "label": "2 ÷ 1 digits, every digit divides, in the division layout",
-  "example": "84 ÷ 4 (division layout)",
+  "label": "2 ÷ 1 digits, every digit divides",
+  "example": "84 ÷ 4",
   "answer": "21",
   "op": "÷",
   "placed_in": [
@@ -1088,12 +1088,11 @@
  {
   "code": "D02",
   "section": 6,
-  "label": "2 ÷ 1 digits, every digit divides, in a line",
-  "example": "69 ÷ 3",
+  "label": "2 ÷ 1 digits in a line",
+  "example": "69 ÷ 3 (in a line)",
   "answer": "23",
   "op": "÷",
   "placed_in": [
-   "DIV.2D1D:Easy",
    "DIV.2D1D:method"
   ]
  },
@@ -1220,6 +1219,17 @@
   "answer": "9",
   "op": "÷",
   "placed_in": []
+ },
+ {
+  "code": "D15",
+  "section": 6,
+  "label": "3 ÷ 1 digits in a line",
+  "example": "516 ÷ 4 (in a line)",
+  "answer": "129",
+  "op": "÷",
+  "placed_in": [
+   "DIV.3D1D:method"
+  ]
  },
  {
   "code": "DZ01",
@@ -1642,8 +1652,8 @@
  {
   "code": "G22",
   "section": 8,
-  "label": "Chunking: take away ten lots of the divisor, then the rest",
-  "example": "96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □",
+  "label": "Chunking: take away the lots of the divisor each place allows, the largest first, then the rest",
+  "example": "96 ÷ 4: take 20 × 4, take 4 × 4 → 20 + 4 = □",
   "answer": "24",
   "op": "÷",
   "placed_in": [
@@ -1682,7 +1692,6 @@
   "answer": "24",
   "op": "÷",
   "placed_in": [
-   "DIV.2D1D:method",
    "MD.MENTAL:Hard"
   ]
  },
