@@ -87,7 +87,7 @@ scenarios:
     cases: [B02, B03, B05, B24]
 criteria:
   - name: the models drawn, printed and named; the kinds, levels, drawer, skills and taxonomy they touch
-    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_div_models.py tests/test_mul_models.py tests/test_divide_stories.py tests/test_mistake_rows.py tests/test_every_skill.py tests/test_items.py tests/test_verify.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_story_keys.py tests/test_story_shape.py tests/test_render.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_topics.py tests/test_asks.py tests/test_goal.py
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_div_models.py tests/test_facts_advance.py tests/test_mul_models.py tests/test_divide_stories.py tests/test_mistake_rows.py tests/test_every_skill.py tests/test_items.py tests/test_verify.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_story_keys.py tests/test_story_shape.py tests/test_render.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_topics.py tests/test_asks.py tests/test_goal.py
     expect: "passed"
   - name: the drafted document recomputed and checked
     run: packages/engine/.venv/bin/python research/md_taxonomy.py --check

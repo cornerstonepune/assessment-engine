@@ -48,7 +48,6 @@ SIGN = {"MUL.FACTS": "×", "MUL.TENS": "×", "DIV.FACTS": "÷"}
 SLICE_OF = {
     "DIV.2D1D:method": "M3d",
     "DIV.3D1D:method": "M3d",
-    "DIV.GROUPS": "M3c",
     **dict.fromkeys(["MD.WORD", "MD.MENTAL", "MD.MULTIPLES", "MD.EQUALITY", "MD.ESTIMATE"], "M4"),
 }
 POWERS = (10, 100, 1000)

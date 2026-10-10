@@ -6097,3 +6097,9 @@ since before M2a, so this is everything since, at once:
   shape, so one × question answered on a taught topic's skill would now wait with them. The checks that every
   signed-off answer counts on a skill and every child's skills are rebuilt both read ok. Telling which answer it is
   needs live's rows.
+
+CI on `fff76a9` (ci 38090232676): web and browser passed, the engine's suite 2,174 passed and 1 failed:
+`test_facts_advance.py` keeps a line for every slice the document's placements wait for, and fails once a slice holds
+all of them, so the line goes. DIV.GROUPS held every case placed on it, so its "waits for M3c" line is gone. The goal's
+criteria did not run that file, which is why it was not seen here; it runs them now. Reproduced on `m3c` (1 failed),
+then the file passes (20).
