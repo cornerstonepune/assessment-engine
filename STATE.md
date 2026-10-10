@@ -6103,3 +6103,32 @@ CI on `fff76a9` (ci 38090232676): web and browser passed, the engine's suite 2,1
 all of them, so the line goes. DIV.GROUPS held every case placed on it, so its "waits for M3c" line is gone. The goal's
 criteria did not run that file, which is why it was not seen here; it runs them now. Reproduced on `m3c` (1 failed),
 then the file passes (20).
+
+## M3d — measured before the build (2026-10-10)
+
+Each method case drawn alone on its skill's Hard level (main `0492849` with M3c's code; scratchpad `measure_m3d.py`, 6
+asked, 300 tries each):
+- G21, partitioning the number divided (DIV.2D1D's methods): refused, "break_apart makes + and − questions, not ÷".
+- G22, chunking (both skills): 0 of 6, nothing said. G24, long division (DIV.3D1D): 0 of 6, nothing said: a division in
+  columns by one digit is measured as short division, so nothing the drawer prints is long division.
+- G23, short division (both): 6 of 6, printed as the plain division layout (the quotient's boxes and the remainder's):
+  no exchange written small, none read.
+- G25, halving (DIV.2D1D's methods and MD.MENTAL's Hard): 0 of 6, nothing said.
+- No level of DIV.2D1D or DIV.3D1D lists `methods` (ADR 0055's fair shares): every division prints in a line or in the
+  division layout.
+
+The drafted document, read against itself:
+- **DIV.3D1D prints in no line.** Its methods column is G22, G23, G24, against A2 ("division prints in a line by
+  default", from the school's July papers). Today DIV.3D1D does print in a line, because no level lists methods;
+  following the column would take the line away.
+- **Halving has two homes.** G25 is on DIV.2D1D's methods and MD.MENTAL's Hard. A1 lists division's written methods
+  as "in a line, short division, long division, partitioning the number and chunking", not halving; doubling, its
+  mirror, is MD.MENTAL's alone.
+- **Chunking cannot print a 3-digit division.** It takes ten lots at a time (`md_taxonomy.chunks`), and the document
+  places it on DIV.3D1D: 588 ÷ 3 is nineteen take-aways of 30 and then 6, 998 ÷ 2 forty-nine.
+- **D02 is a case and a method at once**, on DIV.2D1D's Easy and its methods, as T02 was before ADR 0055 made it
+  MUL.2D1D's in-a-line method.
+
+Charges: a long division's take-away slips name subtraction's mistakes, `M_FACT_PM1` among them, which has a row for +
+and one for −; `skills.charges` charges another operation's mistake only when it has one row, so it would count against
+division.

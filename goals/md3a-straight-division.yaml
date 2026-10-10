@@ -39,7 +39,7 @@ says:
   - words: "same process"
     proved_by: packages/engine/tests/test_div_levels.py::test_each_box_of_a_division_is_marked_against_its_own_key
   - words: "consider all of the methods for now"
-    proved_by: packages/engine/tests/test_div_levels.py::test_a_case_that_names_its_layout_is_printed_that_way
+    proved_by: packages/engine/tests/test_div_levels.py::test_a_case_is_printed_as_its_level_says
   - words: "consider all of the methods for now"
     proved_by: packages/engine/tests/test_render.py::test_a_division_in_the_division_layout_has_its_quotient_above_the_number_divided
   - words: "same process"

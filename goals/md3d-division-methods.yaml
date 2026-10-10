@@ -1,0 +1,125 @@
+name: md3d-division-methods
+goal: >
+  DIV.2D1D (Grades 2 and 3) and DIV.3D1D (Grade 4) print each calculation of their Easy, Medium and Hard levels in
+  every written method the drafted document lists for the skill, in fair shares. In a line, as before. Partitioning
+  the number divided: 72 ÷ 4 worked as 40 ÷ 4 = □ and 32 ÷ 4 = □, then 72 ÷ 4 = □, a part that leaves a remainder
+  with a box for it. Chunking: the lots of each place taken away, 96 ÷ 4 as 20 lots of 4 and then 4 lots, a box for
+  the lots, what they take away and what is left. Short division: the division layout with each remainder exchanged
+  into the next digit written small, in a box of its own. Long division: 516 ÷ 4 divided, multiplied, taken away and
+  brought down, a box for every product and every number left. Every step is a box with its own key, printed where the
+  reader finds it and marked by itself, and every wrong step or total the bank predicts is a named mistake: the zero
+  left out of a part's quotient, one group short, a digit not brought down, an exchange's own slips, and a product's
+  or a take-away's slip, which counts against multiplication or subtraction, not division. A division stored in its
+  layout before its exchanges had boxes leaves the bank. Three corrections are made to the drafted document at its
+  source: DIV.3D1D prints in a line too (A2), chunking takes the lots of each place (ten lots at a time would print
+  nineteen take-aways for 588 ÷ 3), and halving is mental maths alone, one home, as doubling is. Once taught, every
+  method shows on the website's question bank as the child meets it. Every level fills, each case in every method it
+  lists, a level the bank filled before it listed them topped up in each; and every scenario is 100%.
+  None of it is taught until an educator says so.
+# Written 2026-10-10, before the code: slice M3d of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M3d — measured before the build"), each method case drawn alone on its skill's Hard level:
+# partitioning the number divided is refused ("break_apart makes + and − questions, not ÷"); chunking, long division
+# and halving draw nothing and say nothing; short division draws, but as the plain division layout, its exchanges
+# neither written nor read. No level of DIV.2D1D or DIV.3D1D lists `methods`, so a division prints in a line or in
+# the division layout and nothing else. The document places halving on two homes (DIV.2D1D's methods and MD.MENTAL's
+# Hard) and gives DIV.3D1D no line, against its own A1 and A2; its chunking takes ten lots at a time, which a 3-digit
+# division it places on DIV.3D1D cannot print.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_every_level_prints_each_calculation_in_every_method_it_lists
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_partitioning_divides_each_part_then_adds
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_chunking_takes_away_the_lots_of_each_place_then_the_rest
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_short_division_writes_each_exchange_small
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_long_division_divides_multiplies_takes_away_and_brings_down
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_level_filled_before_it_listed_methods_is_topped_up_in_each
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_quotients_zero_left_out_is_named_on_the_part_and_on_the_total
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_methods.py::test_one_group_short_is_named_where_the_lots_are_chosen
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_methods.py::test_an_exchange_names_its_own_divisions_remainder_slips
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_digit_not_brought_down_is_named
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_step_that_multiplies_or_takes_away_names_its_slips_and_counts_against_that_operation
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_div_methods.py::test_the_document_prints_a_division_in_a_line_and_halving_is_mental_maths_alone
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_written_division_that_cannot_set_out_its_numbers_is_refused_and_never_drawn
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_written_division_is_placed_where_its_calculation_in_a_line_is
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_methods.py::test_every_step_is_where_the_printed_key_says_it_is
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_methods.py::test_every_step_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_division_layout_printed_before_its_exchanges_were_read_leaves_the_bank
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_methods.py::test_a_written_division_keyed_by_a_rule_since_changed_leaves_the_bank
+  - words: "same process"
+    proved_by: packages/engine/tests/test_div_methods.py::test_every_mistake_the_methods_name_is_a_row_and_on_its_skills_list
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s35-division-methods.spec.ts::once taught, every written division is on the Question bank, a blank for each step"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads the corrected cases, and `bank levels
+    --apply` carries the levels' methods to DIV.2D1D and DIV.3D1D, which wait for one approval on the Skill Map; the
+    refill retires the divisions printed in the layout before their exchanges had boxes and fills every level in its
+    methods."
+  - "Achal: drafted for you to correct. Every written method is printed at Easy to Hard (A1): DIV.2D1D in a line,
+    partitioning, chunking and short division; DIV.3D1D in a line, chunking, short division and long division. Three
+    changes to the draft: a 3-digit division prints in a line too; chunking takes the lots of each place at once (96 ÷ 4:
+    20 lots, then 4), since ten lots at a time would print nineteen take-aways for 588 ÷ 3; halving is MD.MENTAL's alone,
+    as doubling is. A slip taking away inside a division counts against subtraction, and one multiplying against
+    multiplication, as a slip adding the parts counts against addition (A11). A grade that teaches fewer methods takes
+    them out of its level's row."
+scenarios:
+  - name: DIV.2D1D, Easy — every digit divides; in a line, partitioning, chunking, short division
+    skill_set: DIV.2D1D
+    difficulty: Easy
+    n: 16
+    cases: [D01, D02, G21, G22, G23]
+  - name: DIV.2D1D, Medium — one exchange from the tens; every method
+    skill_set: DIV.2D1D
+    difficulty: Medium
+    n: 24
+    cases: [D03, D04, D02, G21, G22, G23]
+  - name: DIV.2D1D, Hard — a remainder, an exchange and a zero at the end of the quotient; every method
+    skill_set: DIV.2D1D
+    difficulty: Hard
+    n: 24
+    cases: [DR04, DR05, DZ07, D02, G21, G22, G23]
+  - name: DIV.3D1D, Easy — no exchange; in a line, chunking, short division, long division
+    skill_set: DIV.3D1D
+    difficulty: Easy
+    n: 16
+    cases: [D05, D15, G22, G23, G24]
+  - name: DIV.3D1D, Medium — an exchange after the hundreds or the tens; every method
+    skill_set: DIV.3D1D
+    difficulty: Medium
+    n: 24
+    cases: [D06, D07, D15, G22, G23, G24]
+  - name: DIV.3D1D, Hard — exchanges, zeros and remainders in the quotient; every method
+    skill_set: DIV.3D1D
+    difficulty: Hard
+    n: 40
+    cases: [D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08, D15, G22, G23, G24]
+criteria:
+  - name: the methods drawn, printed, read and named; the levels, drawer, marking, skills and taxonomy they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_div_methods.py tests/test_div_levels.py tests/test_facts_advance.py tests/test_divide_advance.py tests/test_divide_found.py tests/test_divide_stories.py tests/test_div_models.py tests/test_mul_methods.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_every_skill.py tests/test_mistake_rows.py tests/test_items.py tests/test_verify.py tests/test_render.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_each_answer.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank shows every written division, a blank for each step
+    run: cd apps/web && npx playwright test tests/s35-division-methods.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
