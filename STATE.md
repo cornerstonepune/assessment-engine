@@ -6154,3 +6154,62 @@ The drafted document, read against itself:
 Charges: a long division's take-away slips name subtraction's mistakes, `M_FACT_PM1` among them, which has a row for +
 and one for −; `skills.charges` charges another operation's mistake only when it has one row, so it would count against
 division.
+
+## M3d — division's written methods, built (2026-10-10)
+
+ADR 0063. Goal `goals/md3d-division-methods.yaml`.
+
+- **The methods** (`assess/divide_methods.py`, every step a box with its own key):
+  - partitioning the number divided: the most tens of lots of the divisor, then the rest, each divided, then the total
+    (72 ÷ 4: 40 ÷ 4 = 10, 32 ÷ 4 = 8, 18); a part that leaves a remainder has its box after "r";
+  - chunking: for each place of the quotient, largest first, the lots, what they take away and what is left (96 ÷ 4:
+    20, 80, 16; 4, 16, 0; 24);
+  - long division: the first number divided is the leading digits, as few as reach the divisor; then each product and
+    each number left with its digit brought down (516 ÷ 4: 4, 11, 8, 36, 36, 0; 129);
+  - short division is the division layout, a small box before every digit but the first, read where a remainder is
+    exchanged into it (72 ÷ 4: 3; 588 ÷ 3: 2, then 1). A new print layout row, `2026-10-10`, draws them.
+  - Printed by `assess/divide_pages.py` (partitioning by `written_pages`), drawn on the website by
+    `components/methods.tsx`. `assess/written.py` names every written method of both operations.
+- **The levels' methods** (`skill_sets.json`): DIV.2D1D D02, G21, G22, G23; DIV.3D1D D15, G22, G23, G24. DIV.2D1D's
+  Easy holds D01 alone.
+- **The mistakes, from the numbers, no new code.**
+  - The zero left out of a part's or a lot's quotient, carried into the total.
+  - One group short, and a digit not brought down.
+  - An exchange's small division's remainder slips.
+  - A product's multiplication slips, and a take-away's subtraction slips. Never the wrong operation, whose name on a
+    division is the division's.
+  - The skills' mistake lists gain what the steps name; migration `20261104090000` carries them to a database loaded
+    before.
+- **What a slip counts against.** `skills.charges` charges a mistake with no row for the question's operation to the one
+  other operation it has a row for among those the question carries out. Long division and chunking multiply and take
+  away (`skills.by_method`). The copy's 26,102 stored questions with mistakes: none is charged otherwise.
+- **Corrected at the source** (`research/md_taxonomy.py`, 252 cases): D15 (A2); chunking by place; halving MD.MENTAL's
+  alone (M4); D01 and D02 as T01 and T02; G21, G22, G24 name the kinds that print them; a straight division accepts
+  every written method of its operation.
+- **The scenarios recompute every step** from the two numbers (`scenarios._division_steps`): on every number from 10 to
+  999 by 2 to 9, 23,222 written divisions and every division layout agree.
+- **Found by the local rehearsal, fixed at the cause:**
+  - The refill topped a level up per case, so a level the bank filled before it listed methods kept its old ways.
+    DIV.2D1D's Easy held 46 questions, all in a line or the division layout. Now each case is topped up in every way its
+    level prints it (`refill.top_up`, `draw.split`): Easy gained 12 partitioning and 11 chunking.
+  - A division layout with exchange boxes kept the key of the layout it replaced, so the retired ones blocked their own
+    numbers for good (Medium refilled with no division layout at all). Now its spec says where its exchanges are
+    (`exchanged`), which makes it a question of its own; the inventory rebuilds it with them.
+  - A sample sheet read a chunking question back and found no working space for it (`layout.WORKING_LINES`).
+- **Split as files passed 400 lines:** `assess/straight_pages.py` out of `render.py` (403), `assess/draw_pair.py` out of
+  `draw.py` (397 before). A division's numbers now pass the method's own check (`draw_pair.sets_out`). Untyped findings
+  fell: `answer_space.py` 33 to 0, `render.py` 317 to 314.
+- **Rows:** 252 case rows (D15 added), the levels' methods, the layout row, `skills.by_method`, the two mistake lists,
+  Achal's question (`md3d-division-methods`).
+
+Rehearsed on the copy `m3d` (`m3c`, then the migration, `engine load`, `bank levels --apply`, `bank refill`,
+`library build`, as `bin/update-live` runs them):
+- the migration updated 2 skill sets; `bank levels --apply` left DIV.2D1D and DIV.3D1D waiting for one approval each;
+- `bank refill` retired 292 questions (division layouts printed before their exchanges had boxes) and added 614:
+  DIV.2D1D Easy 23, Medium 58, Hard 126; DIV.3D1D Easy 104, Medium 162, Hard 141. No multiplication level was short of
+  a method;
+- every level holds every method it lists (DIV.2D1D Easy: 23 in a line, 23 in the layout, 12 partitioned, 11 chunked);
+- `library build` made 211 worksheets and retired 130; `library check`: 2,478 worksheets, 148 of 148 skill-levels
+  ready, 0 problems; MUL_DIV 252 cases, 200 covered, 49 missing (M4's and the unplaced), 3 thin;
+- the goal's six scenarios met the bar completely: 16, 24, 24, 16, 24 and 40 asked, each produced, recomputed step by
+  step, on its rule, diagnosed and distinct, every listed case held.
