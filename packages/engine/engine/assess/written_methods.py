@@ -91,8 +91,8 @@ def _partitioning(a: int, b: int) -> tuple[list[Response], list[tuple[str, int]]
 
 
 def grid_axes(a: int, b: int) -> tuple[list[int], list[int], bool]:
-    """(the parts across the top, the parts down the side, whether `a`'s are on top): the number of more parts across
-    the top, as a grid is drawn, so 3 × 21 has 20 and 1 along the top and 3 at the side."""
+    """(the parts across the top, the parts down the side, whether `a`'s are on top): the number with more parts goes
+    across the top, as a grid is drawn, so 3 × 21 has 20 and 1 along the top and 3 at the side."""
     on_top = len(parts(a)) >= len(parts(b))
     return (parts(a), parts(b), True) if on_top else (parts(b), parts(a), False)
 

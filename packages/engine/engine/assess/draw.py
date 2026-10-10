@@ -325,10 +325,8 @@ def _shared(
 ) -> list[I.Item]:
     """A case's share dealt over the ways its level prints it, the first ones one more where it does not divide, and
     taken a way at a time, so a share cut short keeps every method."""
-    base, extra = divmod(want, len(ways))
-    got = [
-        _some(rng, w, check, rung, base + (i < extra), seen, (base + 1) * tries) for i, w in enumerate(ways)
-    ]
+    shares = [want // len(ways) + (i < want % len(ways)) for i in range(len(ways))]
+    got = [_some(rng, w, check, rung, k, seen, max(1, k) * tries) for w, k in zip(ways, shares, strict=True)]
     return [its[i] for i in range(max(map(len, got), default=0)) for its in got if i < len(its)]
 
 
