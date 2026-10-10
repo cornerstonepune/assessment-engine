@@ -5235,7 +5235,10 @@ What the eight measured failures became (ADR 0054), each proved by `tests/test_m
   7 questions. Advance is 36 now, and twice as many takes a number to 20 (its template's own range, `numbers`);
   `test_a_filled_level_holds_each_of_its_cases_as_often_as_the_case_asks`. The same run: 541 retired outside their
   level and 4,561 + 88 added — the AS2 rehearsal's 541 and 4,561 and `MUL.MODELS`' 88 — so the slice retires nothing
-  on live; 128 of 128 skill-levels ready, 0 problems.
+  on live; 128 of 128 skill-levels ready, 0 problems. The second rehearsal (run 38029876300, `eda75e3`): `MUL.MODELS`
+  Easy +24, Medium +16, Hard +24, Advance +36; "MUL_DIV: 251 cases · 103 covered · 148 missing · 0 thin" and
+  "ADD_SUB: 270 cases · 270 covered · 0 missing · 0 thin"; 128 of 128 skill-levels ready, 0 problems; every
+  `engine live data` check ok after the update.
 - `MUL.MODELS` (R41, Grade 2 at every level) has no `within`, so `placing` never reads it as a calculation skill. It
   sits in a topic of its own, Multiplication models, untaught: CI's `test_topics` (run on `770c97e`) failed it filed
   under the taught Multiplication, where it would have been taught by default. `MUL.2D1D` names `M_TIMES_AS_MORE`
