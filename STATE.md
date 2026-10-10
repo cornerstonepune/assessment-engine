@@ -5407,7 +5407,7 @@ What the measured failures became (ADR 0056), proved by `tests/test_div_levels.p
 - **The drawer makes ÷** as it is checked: a divisor, a quotient and a remainder, the number divided made of them
   (`assess/draw_divide.py`), every candidate of a case listed so its last questions are found by reading it. A
   level's size and its skill's mistake list are counted from those lists, never typed. Seven levels hold fewer
-  questions than a class's week (216) and say so (`min_items`): `DIV.FACTS` Easy 27, Medium 132 and Hard 36,
+  questions than a class's week (216) and say so (`min_items`): `DIV.FACTS` Easy 27, Medium 134 and Hard 36,
   `DIV.TENS` Medium 106, `DIV.2D1D` Easy 46 and Medium 108, `DIV.3D1D` Easy 208.
 - **A remainder is an answer of its own**, in a box after "r" only where there is one (`assess/division.py`,
   `verify.division`). In a line, "85 ÷ 4 = □□ r □"; in the division layout, the quotient's boxes one over each digit
@@ -5459,3 +5459,10 @@ Found while building, fixed here:
 Ratchets: untyped findings fell in five files, written down in `workflows.json` (`draw.py` 127 → 72, `verify.py`
 96 → 81, `render.py` 367 → 348, `misconceptions.py` 236 → 231, `diagnosis.py` 48 → 47); the five new modules have
 none. `render_item` measures C901 23 and PLR0915 71 (was 24 and 77).
+
+- A rehearsal of `bed5038` on a copy of live (run 38049395861) read four ÷ cases as thin (fewer than a worksheet's 12):
+  ÷ 1, ÷ itself and 0 ÷ a number held 11 each. The drawer's defaults asked that every special thing a question is be
+  what its case is about, so 1 ÷ 1 (÷ itself and ÷ 1) and 0 ÷ 1 (0 divided and ÷ 1) were drawn by no case, though
+  placing puts both on Medium. A question that is two of them at once is either case's now: 12 each. ÷ 1000 holds 8
+  (2000 to 9000; 1000 ÷ 1000 is a number ÷ itself, which ÷ 1000 is not about), fewer than a worksheet by its own
+  numbers.

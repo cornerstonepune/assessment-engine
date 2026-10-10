@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3a: straight division (built, proving)
+## 2026-10-10 — M3a: straight division (proved, merging)
 
 - **Slice:** M3a (W1 gate 3). Goal `goals/md3a-straight-division.yaml`; ADR 0056; STATE.md "M3a — straight division
   built".
@@ -20,7 +20,11 @@ is verified. This file only says where the last session stopped.
 - **For Achal** (the drafted document's to settle): the special facts overlap the tables (2 ÷ 2 is DF02 and DF04);
   302 ÷ 2 is both D07 (Medium) and DZ04 (Hard); the five slips corrected and DR10, DP04 and DP07 reworded; a
   remainder's box only where there is one (A-assumption in ADR 0056).
-- **Next:** the browser test, CI, a rehearsal on a copy of live, PR #169, merge, `engine done`; then M3b.
+- **Proved:** GOAL ACHIEVED on a fresh database (14 of 14 scenarios, criteria 1,123 passed, `bin/check`); the
+  browser test locally and in CI; rehearsed on a copy of live (run 38049395861): 6,880 added, 3,636 worksheets,
+  142 of 142 ready, every live-data check ok.
+- **Next:** CI green on the head, merge, `migrate live` and `deploy engine`, `engine done`; then M3b. Live still needs
+  Nimish to run `bin/update-live` (it carries M0b to M3a).
 
 ## 2026-10-10 — M2d2: the written methods (merged)
 

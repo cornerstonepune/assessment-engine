@@ -12,7 +12,8 @@ numbers are (`skill_sets.json`, `within`):
   division (D13, D14), which no level holds yet.
 
 A remainder only where the case is about one, except that a case worked digit by digit and silent on it has either.
-Never ÷ 0; ÷ 1, 0 ÷ a number and a number ÷ itself only where the case is about it. The four's numbers are few enough
+Never ÷ 0; ÷ 1, 0 ÷ a number and a number ÷ itself only where the case is about it, and one that is two of them at
+once (1 ÷ 1, 0 ÷ 1) where it is about either. The four's numbers are few enough
 to list (÷ 10, 100 or 1000 of a number to 4 digits, the most, is under 30,000), so every draw is one of the list
 (`every`), and a case's last questions are found by reading it, not by luck."""
 
@@ -78,11 +79,14 @@ def _listed(key: str, pairs: tuple[tuple[int, int], ...]) -> tuple[tuple[int, in
     out: set[tuple[int, int]] = set()
     for b, q, r in _triples(alt, {d for d, _ in pairs}):
         a = q * b + r
+        special = {
+            k
+            for k, on in (("one_operand", b == 1), ("zero_operand", a == 0), ("equal_operands", a == b))
+            if on
+        }
         if (
             (len(str(a)), len(str(b))) in pairs
-            and (b != 1 or "one_operand" in about)
-            and (a != 0 or "zero_operand" in about)
-            and (a != b or "equal_operands" in about)
+            and (not special or special & about)
             and (want is None or taxonomy.holds(want, _rest(r, q, b)))
         ):
             out.add((a, b))

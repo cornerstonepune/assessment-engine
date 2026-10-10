@@ -3383,7 +3383,7 @@
             ],
             "layout": "horizontal"
           },
-          "min_items": 132
+          "min_items": 134
         },
         "Hard": {
           "words": "The 6, 7, 8 and 9 tables read backwards: 42 ÷ 6, 56 ÷ 7, 48 ÷ 8, 81 ÷ 9.",
