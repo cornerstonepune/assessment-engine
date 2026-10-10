@@ -3,7 +3,25 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (proved, merging)
+## 2026-10-10 — M3b2: the column skills' Advance boxes, estimates and checks (measured; failing tests)
+
+- **Slice:** M3b2 (W1 gate 3). Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases
+  on `DIV.2D1D`'s and `DIV.3D1D`'s Advance draws, and V04 and V10 alone crash (`times_kinds.sizes`). Split again:
+  M3b2 builds the nine boxes, estimates and checks; M3b3 the mistake found (a module of its own) and the remainder
+  stories (template rows, a new mistake).
+- **Goal** `goals/md3b2-divide-advance.yaml`; tests `test_divide_advance.py` (16 fail for the right reasons: no Advance
+  level yet, and the crash) and `apps/web/tests/s33-divide-advance.spec.ts`.
+- **Decided by measuring, drafted for Achal:** a box is keyed by the act that finds it.
+  - A digit in the number divided names the multiplication that finds it, read at the box's place, and any division
+    mistake that gives the shown quotient with another digit.
+  - A remainder names the taking away (and its multiplication).
+  - A quotient's digit names only wrong quotients as long as the printed one.
+  - An estimate rounds the number divided to the nearest hundred, asked only where it divides.
+- **Next:** build to the tests: the two Advance levels as rows (the document's kinds only, G3 and G4), a module for the
+  kinds (`assess/divide_kinds.py`, each on its case's pair as ADR 0057), the scenarios' recompute, tags, printing and the
+  website; then ADR 0058, prove, ship, rehearse, merge.
+
+## 2026-10-10 — M3b1: the tables' and the tens' Advance kinds, × and ÷ (merged)
 
 - **Slice:** M3b1 (W1 gate 3); M3b split in two after measuring (STATE.md "M3b — measured before the build"). Goal
   `goals/md3b1-facts-advance.yaml`; ADR 0057; tests `test_facts_advance.py`, `apps/web/tests/s32-facts-advance.spec.ts`;
@@ -26,9 +44,10 @@ is verified. This file only says where the last session stopped.
 - **CI found a spec reading the page before it arrives.** M3a's s31 read the Question bank once, straight after
   `goto`, while the main area still held the skeleton (`app/(app)/loading.tsx`, swapped out some 200ms later). It
   failed 19 times in 30 locally; it waits on what it checks now and passed 60 of 60.
+- **Merged:** main `ad6c967` (PR #170). `migrate live`, `deploy engine` and `engine done` are confirmed in STATE.md once
+  they finish.
 - **Next:**
-  - Merge, `migrate live` and `deploy engine`, `engine done`.
-  - Then M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
+  - M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
     found, a possible answer, estimates, remainder stories, Y10 and H09. `diagnosis.py` is at 397 lines, so ÷'s
     find-the-mistake needs a module of its own.
 

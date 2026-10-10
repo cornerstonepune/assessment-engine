@@ -5615,3 +5615,51 @@ Proved on `6915414` (database fresh21, built from `fe08360`, whose seeds and dra
 - Rehearsed on a copy of live, run 38058373712 on `fe19720`, all green:
   - 554 questions retired and 7,042 added; 3,645 worksheets; 142 of 142 levels ready; 0 problems.
   - Only printing and specs changed after it, and `update-live` prints nothing (`library build` renders on demand).
+
+## M3b2 — measured before the build (2026-10-10)
+
+Measured on main `ad6c967`, through the drawer as merged with M3b1. Each of the 16 kind cases the drafted document
+places on `DIV.2D1D`'s and `DIV.3D1D`'s Advance was drawn alone, then on its level's own numbers (`cases.on_level`,
+Hard's `within`, since neither skill has an Advance yet).
+- **None draws a question its level can hold.**
+  - 13 refuse in a sentence: missing digits, finding the mistake, a possible answer, the check, an estimate inside the
+    level, and a story's shape.
+  - Q12 (the remainder missing) draws nothing.
+  - Q13 (the divisor missing with a remainder) raises: it is drawn into the one-answer path, and alone it drew
+    8930 ÷ 9.
+  - H09 raises: `times_kinds` knows only multiplication's shortcuts.
+  - V04 and V10 drawn alone crash with `KeyError: 'digits'`. `times_kinds.sizes` reads a × rule's digits before
+    anything asks the operation.
+- **The document places only kinds on these two Advance levels, no straight case.** Its grades are G3 (`DIV.2D1D`)
+  and G4 (`DIV.3D1D`).
+  - `MUL.2D1D`'s Advance also lists straight cases Hard holds. A question lives in one level, so those give Advance
+    nothing (named in M2b as not a defect). It is not copied here.
+
+What a box can name, measured over every question each level can hold. Each figure counts questions; an earlier tally
+of mine summed predicted values and is not used.
+- **A digit missing in the number divided (Q09, 7□ ÷ 4 = 18)** is found by multiplying, 18 × 4.
+  - The division's named mistakes run backwards alone leave 66 of 212 2-digit questions naming nothing.
+  - The multiplication's named mistakes, with every shown digit kept, leave 140 of 212.
+  - The union names every 2-digit question and all but 117 of 4,935 3-digit ones (2.4%, drawn again):
+    - the multiplication worked wrong, its digit at the box's place copied ("wrong operation" excepted, ADR 0057);
+    - a division mistake that, made with another digit there, gives the quotient shown.
+  - 102 of the 212 2-digit boxes have a digit that gives the quotient shown with something over (73 ÷ 4 = 18 r 1).
+    "A remainder left out" is no named mistake, and is drafted for Achal, not added.
+- **A digit missing in the quotient (Q10, 936 ÷ 3 = 3□2)**: the division's own mistakes, read at the box's place.
+  - Any length names all but 1 of 4,321, but takes digits from 933 or 2808 (÷ read as − or ×).
+  - A wrong quotient as long as the printed one leaves 483 (11%) naming nothing, drawn again.
+  - Every shown digit kept leaves 85%.
+  - The rule is "as long as the printed quotient": a wrong quotient that fits the printed boxes puts its digit in the
+    box, and one that does not fit says nothing about what is written there.
+- **The remainder missing with the quotient printed (Q12, 38 ÷ 5 = 7 r □)**: no named division mistake keeps the
+  printed quotient and changes only the remainder, so 556 of 556 name nothing.
+  - The box is found by taking away, 38 − 7 × 5. That subtraction's named mistakes, and the multiplication's with the
+    product taken away rightly ("wrong operation" excepted), name all 556 2-digit and all 5,555 3-digit questions.
+  - The multiplication one row out writes r + 5 there: the division's own "remainder too big", seen from its box.
+
+M3b is three slices now (BUILD-ORDER).
+- **M3b2:** the boxes, estimates and checks, nine cases in six kinds, which code checks alone: Q09, Q12, Q13, V09, Y10
+  on `DIV.2D1D`; Q10, V04, V10, H09 on `DIV.3D1D`.
+- **M3b3:** the mistake found (C04, C05, C07) and the remainder stories (B14–B17).
+  - Finding the mistake needs a module of its own: `diagnosis.py` is at 397 lines.
+  - The stories need template rows and a mistake no row holds yet: the remainder not rounded up.

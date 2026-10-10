@@ -1,0 +1,90 @@
+name: md3b2-divide-advance
+goal: >
+  The column skills' Advance levels, DIV.2D1D (Grade 3) and DIV.3D1D (Grade 4), hold every box, estimate and check the
+  drafted document places on them, each drawn from its level's own numbers as a straight question is: on DIV.2D1D a
+  digit missing in the number divided, the remainder missing, the divisor missing with a remainder, whether an answer
+  could be right, and a division checked by multiplying; on DIV.3D1D a digit missing in the quotient, how many digits a
+  quotient has before it is worked, an estimate with the number divided rounded to the nearest hundred, and ÷ 5 as ÷ 10
+  then doubled. Each box has exactly one answer and names the mistakes a child makes finding it, by the act that finds
+  it: a digit in the number divided is found by multiplying, a remainder by taking away, and each names that act's
+  mistakes; a digit in the quotient names the division's own mistakes whose quotient fits the boxes printed; a box worked
+  in another operation never names "wrong operation". A claimed answer is right or a named mistake's, one as often as
+  the other. How many digits is never answered by the boxes it prints. The mistake found and the remainder stories
+  wait for M3b3, named. Every question is, as measured, a case of its level, its answer recomputed, every wrong answer a
+  named mistake, none held by two levels, and every level fills its worksheets. None of it is taught until an educator
+  says so.
+# Written 2026-10-10, before the code: slice M3b2 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M3b2 — measured before the build"): none of the 16 kind cases the document places on these
+# two Advance levels draws a question its level can hold, and V04 and V10 drawn alone crash. What a box can name was
+# measured over every question each level can hold: a digit missing in the number divided names nothing on 66 of 212
+# 2-digit questions by the division's mistakes alone, and every one when it is keyed by the multiplication that finds
+# it; the remainder's box, with the quotient printed, names nothing by any division mistake (556 of 556), and every
+# question by the taking away that finds it. So a box is keyed by the act that finds it, as ADR 0057 keyed a box in the
+# other operation. The document places only kinds on these levels; they list no straight case Hard holds. M3b is three
+# slices: finding the mistake needs a module of its own (diagnosis.py is at 397 lines) and the remainder stories need
+# template rows and a mistake no row holds, so both are M3b3's.
+says:
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_each_column_advance_holds_the_documents_boxes_estimates_and_checks
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_draws_its_cases_as_measured
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_what_the_column_advances_still_wait_for_is_named
+  - words: "same process"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_column_advance_question_has_one_home
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_digit_missing_in_the_number_divided_is_found_by_multiplying
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_digit_missing_in_the_quotient_names_the_divisions_mistakes_that_fit_its_boxes
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_the_remainder_missing_is_found_by_taking_away
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_the_divisor_missing_with_a_remainder_has_one_answer
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_how_many_digits_a_quotient_has_is_asked_before_it_is_worked
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_an_estimate_rounds_the_number_divided_to_the_nearest_hundred
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_could_it_be_right_judges_the_remainder_against_the_divisor
+  - words: "look at how addition and subtraction were done"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_division_is_checked_by_multiplying
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_five_is_ten_then_doubled_on_a_number_with_no_fact_under_its_zero
+  - words: "same process"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_a_scenario_recomputes_every_new_box
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_new_kind_prints_its_numbers_and_sign
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_divide_advance.py::test_every_column_advance_fills_its_worksheets
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s33-divide-advance.spec.ts::once taught, the column skills' Advance kinds are on the Question bank with their numbers"
+manual:
+  - "On live, once merged: `bin/update-live`. The two Advance levels, their questions and worksheets reach live only
+    through `engine load`, `bank refill` and `library build`."
+  - "Achal: each box is keyed by the act that finds it, drafted here for you to correct. A digit missing in the number
+    divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the carry left out gives 42, so 4 in a tens
+    box); a remainder missing names the taking away's (38 ÷ 5 = 7 r □: 38 − 35); a digit missing in the quotient names
+    only a wrong quotient as long as the one printed. An estimate rounds the number divided to the nearest hundred, and
+    is asked only where that hundred divides exactly (412 ÷ 8 ≈ 400 ÷ 8 = 50). Not added, for you to decide: a digit that
+    gives the quotient shown with something over (73 ÷ 4 = 18 r 1, answered 3 in 7□ ÷ 4 = 18) is no named mistake."
+scenarios:
+  - name: DIV.2D1D, Advance — a digit missing in the number divided, the remainder or the divisor missing, could it be right, the check
+    skill_set: DIV.2D1D
+    difficulty: Advance
+    n: 30
+    cases: [Q09, Q12, Q13, V09, Y10]
+  - name: DIV.3D1D, Advance — a digit missing in the quotient, how many digits, the number divided rounded, ÷ 5 as ÷ 10 then doubled
+    skill_set: DIV.3D1D
+    difficulty: Advance
+    n: 30
+    cases: [Q10, V04, V10, H09]
+criteria:
+  - name: the two Advance levels' kinds, their mistakes and printing; the taxonomy, levels and scenarios they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_divide_advance.py tests/test_facts_advance.py tests/test_div_levels.py tests/test_mul_levels.py tests/test_mul_advance.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_render.py tests/test_bank.py tests/test_loaders.py tests/test_every_skill.py tests/test_every_listed_case.py tests/test_new_kinds.py tests/test_division_is_an_operation.py tests/test_verify.py tests/test_library.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
