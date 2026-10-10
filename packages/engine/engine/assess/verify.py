@@ -135,12 +135,14 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     down (665 printed as 660), closest-hundred questions from before the right option's place was drawn, when it
     was always the middle one, a straight sum whose stored wrong answers a predictor has since corrected
     (`engine bank recheck`'s own test: 68 × 17 once named "one row out in the table"), and a worked answer that asks
-    the column its mistake always shows in (`diagnosis.asks_where`), and a long multiplication keyed before its rows
-    added without a carry had a name (`_stale_rows`)."""
+    the column its mistake always shows in (`diagnosis.asks_where`), a long multiplication keyed before its rows
+    added without a carry had a name (`_stale_rows`), and a written method whose boxes its rules now key otherwise
+    (`_stale_method`)."""
     stale = (
         _stale_mistakes(fmt, spec, responses)
         + _stale_story(fmt, spec, responses)
         + _stale_rows(fmt, spec, responses)
+        + _stale_method(fmt, spec, responses)
     )
     if stale:
         return [f"keyed by a mistake rule since corrected: {', '.join(stale)}"]
@@ -183,6 +185,20 @@ def _stale_rows(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] 
     stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
     rows = WM.rows_added(a, b)
     return sorted(c for c, v in rows.items() if c not in stored and v not in stored.values())
+
+
+def _stale_method(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
+    """The mistakes a written method's stored boxes name at a value its rules, or the predictors its steps use, no
+    longer give, or do not name at all (ADR 0055): made again from its own numbers, every box is keyed as today."""
+    if fmt not in WM.KINDS.values() or not responses or not {"a", "b", "method"} <= spec.keys():
+        return []
+    now = {r.rid: r.misconceptions or {} for r in WM.make(spec["method"], spec["a"], spec["b"], "").responses}
+    stale: set[str] = set()
+    for r in responses:
+        old: dict[str, Any] = r.get("misconceptions") or {}
+        new: dict[str, Any] = now.get(r.get("rid") or "", {})
+        stale |= {c for c in old.keys() | new.keys() if old.get(c) != new.get(c)}
+    return sorted(stale)
 
 
 def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:

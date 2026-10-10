@@ -23,6 +23,7 @@ from engine.assess import times_kinds as TK
 from engine.assess.pick import Sheet
 from engine.assess.words import template_of
 from engine.core import db
+from engine.w1_bank import cases
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SEED = ROOT / "supabase/seed"
@@ -37,17 +38,17 @@ GRADE = {
     "MUL.3D1D": "G4",
     "MUL.2D2D": "G4",
 }  # the document's Advance grades (assumption A6)
-# The document's Advance cases each level holds now: C06 (partitioning, tens taken as ones) comes with the methods
-# (M2d). T13 (6 × 125 in a line) left 3 × 1's Advance: its every question is one Easy to Hard hold (STATE.md, M2b).
+# The document's Advance cases each level holds: C06 (a partitioning, its tens taken as ones) came with the written
+# methods (M2d2, ADR 0055). T13 (6 × 125 in a line) left 3 × 1's Advance: its every question is one Easy to Hard hold
+# (STATE.md, M2b).
 KINDS = {
-    "MUL.2D1D": ["Q07", "Q08", "Q11", "C01", "C02", "V01", "V07", "B06", "B08", "H01", "H07"],
+    "MUL.2D1D": ["Q07", "Q08", "Q11", "C01", "C02", "C06", "V01", "V07", "B06", "B08", "H01", "H07"],
     "MUL.3D1D": ["Q16", "C09"],
     "MUL.2D2D": ["C03", "V02", "V03", "Q15", "B12"],
 }
-LATER = {"MUL.2D1D": {"C06"}, "MUL.3D1D": set(), "MUL.2D2D": set()}
 FMT = {
     **dict.fromkeys(["Q07", "Q08", "Q11", "Q16"], "missing_digit"),
-    **dict.fromkeys(["C01", "C02", "C03", "C09"], "find_mistake"),
+    **dict.fromkeys(["C01", "C02", "C03", "C06", "C09"], "find_mistake"),
     **dict.fromkeys(["V01", "V02", "V03", "V07"], "estimate_then_calc"),
     **dict.fromkeys(["B06", "B08", "B12"], "word_1step"),
     **dict.fromkeys(["H01", "H07"], "efficient_method"),
@@ -60,7 +61,9 @@ def _check(skill, level="Advance"):
 
 
 def _matches(check):
-    return {c: taxonomy.within(CASES[c]["match"], check["within"]) for c in check["cases"]}
+    """The level's cases and the written methods it prints them in (ADR 0055), on its own numbers, as the bank reads
+    them (`cases.on_level`)."""
+    return cases.on_level(check, {c: row["match"] for c, row in CASES.items()})
 
 
 @functools.cache
@@ -96,7 +99,7 @@ def test_each_advance_is_its_documents_cases_of_the_kinds_it_needs():
         assert _check(skill)["within"] == hard["within"], skill
         assert s["level_band"]["Advance"] == GRADE[skill], skill
         placed = {c for c, x in DOC.items() for w in x["placed_in"] if w == f"{skill}:Advance"}
-        assert placed == set(KINDS[skill]) | LATER[skill], skill
+        assert placed == set(KINDS[skill]), skill
         for c in KINDS[skill]:
             fmt = CASES[c]["match"].get("fmt")
             assert fmt == FMT[c], (c, fmt)  # a case names its kind, or the drawer has nothing to draw it with
@@ -295,11 +298,12 @@ BY_HAND = {
 
 def test_a_planted_multiplication_mistake_is_the_one_the_predictors_compute():
     """The worked answer shown is the planted mistake's, worked here by hand, and the one `predict` gives; the child
-    is asked the first wrong column, the right answer, and why."""
+    is asked the first wrong column, the right answer, and why. C06's slip is a partitioning's, not a column's: worked
+    by hand in test_mul_methods."""
     seen = set()
     for skill in THREE:
         for case, it in _drawn(skill):
-            if it.fmt != "find_mistake":
+            if it.fmt != "find_mistake" or case == "C06":
                 continue
             sp = it.spec
             a, b, code = sp["a"], sp["b"], sp["planted"]
@@ -469,7 +473,7 @@ def test_every_times_kind_prints_its_sign():
             assert "×" in html or it.fmt == "word_1step", (case, it.fmt)  # a story says it in words
             text = re.sub(r"<[^>]+>", " ", html)
             assert "−" not in text, (case, it.fmt)
-            if case != "Q15":  # a missing row adds its two rows
+            if case not in ("Q15", "C06"):  # a missing row adds its two rows; a worked partitioning its parts
                 assert not re.search(r"\d\s*\+\s*[\d□]", text), (case, it.fmt, text[:200])
 
 

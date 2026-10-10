@@ -282,7 +282,7 @@
       "engine/assess/missing_digits.py": 10,
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
-      "engine/assess/placing.py": 35,
+      "engine/assess/placing.py": 1,
       "engine/assess/reasoning.py": 123,
       "engine/assess/render.py": 367,
       "engine/assess/skills.py": 1,

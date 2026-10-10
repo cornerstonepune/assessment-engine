@@ -60,6 +60,9 @@ def _usable(
 ) -> bool:
     """The defaults every question keeps unless its case is about the very thing they rule out."""
     zero_case, round_case, size_case = about & ZERO_KEYS, about & ROUND_KEYS, about & SIZE_KEYS
+    method = (alt or {}).get("method")
+    if isinstance(method, str) and method in WM.WORK and not WM.prints(a, b):
+        return False  # a zero case lifts the rule against a zero, but a written method has no part of 0 to multiply
     if op == "×":
         lifts = {name for name, on in (("zero", zero_case), ("round", round_case), ("size", size_case)) if on}
         return T.usable(a, b, about, check, alt or {}, lifts)

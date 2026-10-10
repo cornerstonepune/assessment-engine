@@ -11,8 +11,12 @@ import pathlib
 import random
 from collections import Counter
 
-from engine.assess import draw, render, skills, tags, taxonomy, verify
+import pytest
+
+from engine.assess import draw, placing, render, skills, tags, taxonomy, verify
+from engine.assess import operations as O
 from engine.assess import written_methods as WM
+from engine.assess.items import Item
 from engine.assess.pick import Sheet
 from engine.w3_read import marking
 
@@ -289,6 +293,72 @@ def test_a_long_multiplication_keyed_before_its_rows_mistake_had_a_name_leaves_t
         assert verify.key_problems(it.fmt, it.spec, before) == [
             "keyed by a mistake rule since corrected: M_NOCARRY"
         ]
+
+
+def test_a_written_method_keyed_by_a_rule_since_changed_leaves_the_bank():
+    """A stored written method whose box names a slip today's rules no longer give, or leaves out one they now name, is
+    a key problem: the refill retires it and draws another, never changing a printed key in place. One keyed today is
+    not."""
+    for method, (a, b) in {
+        "PARTITIONING": (23, 4),
+        "GRID": (23, 14),
+        "EXPANDED": (304, 6),
+        "LATTICE": (47, 26),
+    }.items():
+        it = WM.make(method, a, b, "R9")
+        today = [dataclasses.asdict(r) for r in it.responses]
+        assert verify.key_problems(it.fmt, it.spec, today) == [], method
+        moved = [today[0] | {"misconceptions": {**today[0]["misconceptions"], "M_ONE_ADDED": -1}}, *today[1:]]
+        assert verify.key_problems(it.fmt, it.spec, moved) == [
+            "keyed by a mistake rule since corrected: M_ONE_ADDED"
+        ], method
+        ans = today[-1]
+        unnamed = [
+            *today[:-1],
+            ans | {"misconceptions": {k: v for k, v in ans["misconceptions"].items() if k != "M_WRONG_OP"}},
+        ]
+        assert verify.key_problems(it.fmt, it.spec, unnamed) == [
+            "keyed by a mistake rule since corrected: M_WRONG_OP"
+        ], method
+
+
+def test_a_written_method_of_a_zero_is_refused_and_never_drawn():
+    """A zero has no parts to multiply: asked for one, every method says it cannot make it, as every kind refuses
+    numbers it cannot use. A zero case (TZ02, 302 × 3) lifts the rule against drawing a 0, so its draws try 0 × 146;
+    printed in a written method, those numbers are passed over and others drawn."""
+    for method in WM.WORK:
+        for a, b in ((0, 23), (23, 0)):
+            with pytest.raises(O.CannotMake):
+                WM.make(method, a, b, "R9")
+    drawn = [it for _, it in _drawn("MUL.3D1D", "Easy", 24, cases=["TZ02"])]
+    assert "EXPANDED" in {_method(it) for it in drawn}
+    assert all(it.spec["a"] and it.spec["b"] for it in drawn)
+
+
+def test_a_written_method_is_placed_where_its_calculation_in_a_line_is():
+    """Placed as a child's answer is placed (`assess/placing.py`), a written method lands where the same numbers in a
+    line land: its own skill, at a straight level. Advance is for the kinds that are not a calculation."""
+    sets, matches = list(SETS.values()), {c: x["match"] for c, x in CASES.items()}
+    placed = 0
+    for skill in SKILLS:
+        for level in STRAIGHT:
+            for _, it in _drawn(skill, level, 30):
+                if it.fmt not in WM.KINDS.values():
+                    continue
+                line = Item(
+                    "x", "x", it.rung, [], "P", "bare_sum", False, "", {**it.spec, "layout": "horizontal"}, []
+                )
+                home = placing.place(it.fmt, tags.derive(it), sets, matches)
+                as_line = placing.place("bare_sum", tags.derive(line), sets, matches)
+                assert home and home[0]["code"] == skill and home[1] in STRAIGHT, (
+                    skill,
+                    level,
+                    it.fmt,
+                    it.spec,
+                )
+                assert (home[0]["code"], home[1]) == (as_line[0]["code"], as_line[1]), (it.fmt, it.spec)
+                placed += 1
+    assert placed >= 100, placed
 
 
 def test_every_mistake_the_methods_name_is_a_row_and_on_its_skills_list():

@@ -19,11 +19,20 @@ def matches(conn, codes=None):
     return {r["code"]: r["match"] for r in rows}
 
 
+def listed(check):
+    """The cases a level holds and the written methods it prints them in (`methods`, ADR 0055)."""
+    return [*check["cases"], *check.get("methods", [])]
+
+
+def on_level(check, rows):
+    """{case code: match} of the level's `listed` cases among `rows` ({case code: match}), each on the level's own
+    numbers when its skill has a shape: what `draw.level` draws from, crossing the cases with the methods."""
+    return {c: taxonomy.within(rows[c], check.get("within")) for c in listed(check) if c in rows}
+
+
 def for_level(conn, check):
-    """{case code: match} for one level's cases, each on the level's own numbers when its skill has a shape, and the
-    written methods its calculations are printed in (`methods`, ADR 0055), which `draw.level` crosses them with."""
-    codes = [*check["cases"], *check.get("methods", [])]
-    return {c: taxonomy.within(m, check.get("within")) for c, m in matches(conn, codes).items()}
+    """`on_level` from the database's rows."""
+    return on_level(check, matches(conn, listed(check)))
 
 
 def of(fmt, tags, all_matches):

@@ -11,6 +11,7 @@ import pytest
 
 from engine.assess import draw, tags, taxonomy
 from engine.assess import operations as O
+from engine.w1_bank import cases
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SETS = {s["code"]: s for s in json.loads((ROOT / "supabase/seed/skill_sets.json").read_text())["skill_sets"]}
@@ -21,13 +22,12 @@ CASES = {
 
 
 def _drawn(code, level, case, n=4, seed=5):
-    """[question] of one case drawn alone on its level, as the bank draws it."""
-    check = SETS[code]["difficulty"][level]["check"]
-    match = taxonomy.within(CASES[case]["match"], check.get("within"))
-    got = draw.level(
-        random.Random(seed), {**check, "cases": [case]}, {case: match}, SETS[code]["rung_code"], n
-    )
-    return [it for _, it in got], match
+    """[question] of one case drawn alone on its level, as the bank draws it: in every written method the level prints
+    it in (ADR 0055), from the level's own matches (`cases.on_level`)."""
+    check = {**SETS[code]["difficulty"][level]["check"], "cases": [case]}
+    matches = cases.on_level(check, {c: row["match"] for c, row in CASES.items()})
+    got = draw.level(random.Random(seed), check, matches, SETS[code]["rung_code"], n)
+    return [it for _, it in got], matches[case]
 
 
 def _sizes(it):

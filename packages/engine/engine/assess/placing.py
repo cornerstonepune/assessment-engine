@@ -10,12 +10,14 @@ from typing import Any
 
 from engine.assess import taxonomy, verify
 
-CALCULATION = ("bare_sum", "column_grid")
+# a straight calculation, placed by its numbers: in a line, in columns or in a written method (ADR 0055)
+from engine.assess.draw import STRAIGHT as CALCULATION
+
 OPERATIONS = ("+", "-", "×")  # the ones the skills place; ÷ waits for its own skills (BUILD-ORDER M3)
 STRAIGHT = ("Hard", "Medium", "Easy")  # hardest first: a carry onto a zero is Hard even if it is one carry
 
 
-def shaped(skills):
+def shaped(skills: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The skills that have a shape: rows with `difficulty` whose levels say `within`."""
     return [s for s in skills if any("within" in lv.get("check", {}) for lv in s["difficulty"].values())]
 
@@ -27,7 +29,9 @@ def shape(skill: dict[str, Any]) -> list[dict[str, Any]]:
     return [w for i, w in enumerate(shapes) if w not in shapes[:i]]
 
 
-def place(fmt, tags, skills, case_matches):
+def place(
+    fmt: str, tags: dict[str, Any], skills: list[dict[str, Any]], case_matches: dict[str, Any]
+) -> tuple[dict[str, Any], str] | None:
     """(skill, level) for one question, or None. Raises when two skills' shapes both hold it — a map defect."""
     home = [s for s in shaped(skills) if taxonomy.matches(shape(s), fmt, tags)]
     if len(home) > 1:

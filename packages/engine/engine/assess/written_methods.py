@@ -130,11 +130,18 @@ def _lattice(a: int, b: int) -> tuple[list[Response], list[tuple[str, int]]]:
 WORK = {"PARTITIONING": _partitioning, "GRID": _grid, "EXPANDED": _expanded, "LATTICE": _lattice}
 
 
+def prints(a: int, b: int) -> bool:
+    """Whether a written method can set out `a × b`: it multiplies the numbers' parts, and a zero has none."""
+    return bool(a and b)
+
+
 def make(method: str, a: int, b: int, rung: str) -> Item:
     """`a × b` printed in `method`, a box for every step and then the total. A column method sets the longer number on
     top, as the school writes it; the others keep the order the question gives."""
     if method not in WORK:
         raise O.CannotMake(f"no written method {method!r}: {', '.join(WORK)}")
+    if not prints(a, b):
+        raise O.CannotMake(f"{a} × {b} in {method}: a written method multiplies parts, and a zero has none")
     if method == "EXPANDED" and len(str(a)) < len(str(b)):
         a, b = b, a
     steps, own = WORK[method](a, b)

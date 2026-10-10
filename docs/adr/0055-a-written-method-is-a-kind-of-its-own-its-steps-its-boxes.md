@@ -43,6 +43,9 @@ for the skill, in fair shares. Measured before the build (STATE.md "M2d2 — mea
    - T02 is "2 × 1 digits in a line": `MUL.2D1D`'s in-a-line method, as T14 is `MUL.3D1D`'s and T22 `MUL.2D2D`'s.
    - `MUL.2D1D`'s Easy holds T01 and T03.
    - A grid's size is its shorter number's (`digits_min`, A10), so 3 × 21 in a grid is a 2 × 1 grid.
+   - A written method is a straight calculation wherever one is read: drawn on Easy to Hard, and placed as a child's
+     answer is placed where its numbers in a line would be (`placing.CALCULATION` is `draw.STRAIGHT`), never at
+     Advance.
 4. **The methods' mistakes**, worked from the numbers:
    - a part with its tens taken as ones (`M_PARTITION_TENS_AS_ONES`): 20 × 4 written 8, and the total it makes,
      2 × 4 + 3 × 4 = 20;
@@ -58,8 +61,13 @@ for the skill, in fair shares. Measured before the build (STATE.md "M2d2 — mea
      carries out, counts against that other one (`skills.charges`). So the rows added without a carry count against
      addition.
    - Every other mistake is charged as it was.
-6. **An old long multiplication is a key problem.** One keyed before its rows' mistake had a name is flagged
-   (`verify._stale_rows`), so the refill retires it and draws another. Stored questions are never changed in place.
+6. **An old key is a key problem.** The refill retires the question and draws another; stored questions are never
+   changed in place.
+   - A long multiplication keyed before its rows' mistake had a name (`verify._stale_rows`).
+   - A written method whose boxes its rules, or the predictors its steps use, now key otherwise (`verify._stale_method`):
+     made again from its own numbers, every box is compared. Without it, a × slip predicted later would never reach the
+     steps already in the bank.
+   - A written method of a zero is refused (`CannotMake`), as every kind refuses numbers it cannot use: 0 has no parts.
 7. **C06 plants the partitioning slip in a worked answer** (`diagnosis._shaped`, "partitioned"), on `MUL.2D1D`'s
    Advance.
 
@@ -92,3 +100,4 @@ for the skill, in fair shares. Measured before the build (STATE.md "M2d2 — mea
   | `taxonomy.py` | 36 | 11 |
   | `tags.py` | 241 | 240 |
   | `verify.py` | 99 | 96 |
+  | `placing.py` | 35 | 1 |

@@ -23,9 +23,16 @@ is verified. This file only says where the last session stopped.
     (`M_NOCARRY`), which counts against addition (`skills.by_method`, `skills.charges`, A11);
   - an old long multiplication is a key problem (`verify._stale_rows`); C06 is on `MUL.2D1D`'s Advance;
   - migration `20261101090000` puts the mistakes on the three skills' lists.
+- **Found while proving, fixed** (STATE.md "M2d2 — the written methods built"):
+  - the straight-case test checked only division's cases once × listed six kinds;
+  - `written_methods.make` crashed on a zero, and the zero cases' expanded columns asked it for one;
+  - a stored written method was never re-keyed (`verify._stale_method`);
+  - three tests drew levels without their methods (`cases.on_level`);
+  - `placing` sent every written method to Advance or nowhere: it now reads the drawer's straight kinds.
 - **For Achal:** A1 prints five methods at `MUL.2D1D`'s every straight level, four at `MUL.3D1D`'s and `MUL.2D2D`'s; a
   grade that teaches fewer takes them out of its level's `methods`. A11 counts a slip adding the steps against
-  addition.
+  addition. Some Medium questions are also Hard's (25 × 2: T04 and T09, TZ05; `MUL.3D1D`'s TC03 and TC05 within T12):
+  narrow a Hard case, or let the overlap stand (STATE.md, "M2d2 — the written methods built").
 
 ## 2026-10-10 — M2d1: MUL.MODELS (merged)
 
