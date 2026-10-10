@@ -28,8 +28,6 @@ is verified. This file only says where the last session stopped.
   failed 19 times in 30 locally; it waits on what it checks now and passed 60 of 60.
 - **Next:**
   - Merge, `migrate live` and `deploy engine`, `engine done`.
-  - Then one small PR: the seven phone-fit checks measure the skeleton, not the page (STATE.md "M3b1"); one helper
-    will wait for the page and then measure.
   - Then M3b2, the column skills' kinds: missing digits, the remainder or the divisor with one missing, the mistake
     found, a possible answer, estimates, remainder stories, Y10 and H09. `diagnosis.py` is at 397 lines, so ÷'s
     find-the-mistake needs a module of its own.

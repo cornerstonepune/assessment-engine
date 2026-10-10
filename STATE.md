@@ -5600,11 +5600,13 @@ Found while building, fixed here:
   - It waits now on what each check is about (the division layout drawn, the remainder's blank shown), as every other
     spec does. Afterwards: 60 of 60 runs passed, s31 and s32 30 each, sixteen of them in the warm regime that had
     failed. s32 waits the same way.
-- **Seven phone-fit checks measure the skeleton, not the page.** Found by the same measurement and fixed in the next
-  PR, which makes one helper own the check.
-  - m2-make-papers, s12, s3, s4, u2, u3 and workflows each take `scrollWidth` straight after `goto`, while the main
-    area is still the skeleton. None of them can fail when a page overflows a phone.
-  - u8's and e2e's reads straight after `goto` are sound: u8 reads the hidden block's rows by CSS, and e2e retries.
+- **Every other read straight after `goto` is sound, as measured.**
+  - The seven phone-fit checks (m2-make-papers, s12, s3, s4, u2, u3, workflows) load with `waitUntil: "networkidle"`,
+    which waits for 500ms with nothing on the network, longer than the swap. In 40 of 40 loads of eight of their pages,
+    each in a fresh context, the page had arrived.
+  - u8 reads the hidden block's rows by CSS, and e2e retries its read.
+  - The previous commit said the phone-fit checks measured the skeleton. That was read off the code before
+    `networkidle` was seen, and is withdrawn.
 
 Proved on `6915414` (database fresh21, built from `fe08360`, whose seeds and drawer are the head's):
 `bin/engine goal md3b1-facts-advance` GOAL ACHIEVED.
