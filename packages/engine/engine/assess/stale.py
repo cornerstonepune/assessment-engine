@@ -52,9 +52,8 @@ def _stale_mistakes(fmt: str, spec: dict[str, Any], responses: list[dict[str, An
     """The predicted mistakes a straight sum's stored key names at a value today's predictor no longer gives."""
     if fmt not in ("bare_sum", "column_grid") or not responses or not {"a", "b", "op"} <= spec.keys():
         return []
-    if (
-        O.sign(spec["op"]) == "÷"
-    ):  # a quotient's box, a remainder's and an exchange's, each keyed again (ADR 0056)
+    # a division's quotient box, its remainder's and its exchanges', each keyed again (ADR 0056, 0063)
+    if O.sign(spec["op"]) == "÷":
         now = DV.boxes(spec["a"], spec["b"], "column" if fmt == "column_grid" else "horizontal")
         return _changed({r.rid: r.misconceptions for r in now}, responses)
     table = M.TABLES.get(spec["op"], {})

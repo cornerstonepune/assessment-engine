@@ -46,8 +46,6 @@ SIGN = {"MUL.FACTS": "×", "MUL.TENS": "×", "DIV.FACTS": "÷"}
 # The document's placements no level holds yet, each with the slice of BUILD-ORDER that will hold them. A slice's line
 # goes when it is built: a placement it leaves unheld fails here, and so does a line nothing waits for.
 SLICE_OF = {
-    "DIV.2D1D:method": "M3d",
-    "DIV.3D1D:method": "M3d",
     **dict.fromkeys(["MD.WORD", "MD.MENTAL", "MD.MULTIPLES", "MD.EQUALITY", "MD.ESTIMATE"], "M4"),
 }
 POWERS = (10, 100, 1000)
