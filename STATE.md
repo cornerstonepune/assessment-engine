@@ -6082,4 +6082,18 @@ Run on the copy `m3c` (`ny1m`, then `engine load` and `bank refill`: DIV.GROUPS 
   produced, recomputed, on its rule, diagnosed and distinct);
 - `s34-division-models.spec.ts` passed; `research/md_taxonomy.py --check` 0 faults; `bin/check` 27 passed;
 - the criteria's test list named a file that does not exist (`test_skills.py`); it now names the files that test
-  skills, and is run again below.
+  skills. Run again: 1,118 passed, 1 failed, `test_loaders.py` holding the seed's exact counts (37 rungs, 37 skill
+  sets); R46 and DIV.GROUPS make 38 of each, written down, and the file passes (12).
+
+Rehearsed on a copy of live (rehearse-update-live 38089159350 on `f4ba7bc`, success). Live has not run `bin/update-live`
+since before M2a, so this is everything since, at once:
+- `engine load`: 39 skill sets, 40 rungs, 13 topics, 24 asks (Achal's M3c question among them), 109 mistakes;
+- `bank rehome` moved 606 questions and retired 258 whose story's shape is unnamed, removing `MUL.1D` and its rung;
+  `bank refill` retired 554 outside their level and added 7,590, DIV.GROUPS 24, 24, 16 and 48 of them;
+- `library build` made 1,530 and retired 746; `library check`: 3,722 worksheets, 148 of 148 skill-levels ready, 0
+  problems; every check after reads ok.
+- Seen, not explained from here: answers kept but not shown (their topic untaught) were 92 on `MUL.1D` before and 93
+  after (DIV.FACTS 1, MUL.2D1D 21, MUL.FACTS 59, MUL.TENS 12). `bank rehome` (M2c) places an answered question by its
+  shape, so one × question answered on a taught topic's skill would now wait with them. The checks that every
+  signed-off answer counts on a skill and every child's skills are rebuilt both read ok. Telling which answer it is
+  needs live's rows.
