@@ -7,21 +7,28 @@ tag a case reads is a dimension row naming its values.
 """
 
 import functools
+import importlib
 import itertools
 import json
 import os
 import pathlib
+import sys
 
 import pytest
 from typer.testing import CliRunner
 
 from engine.assess import operations as O
 from engine.assess import tags, taxonomy
+from engine.assess import written_methods as WM
 from engine.assess.items import Item
 from engine.core import db
 from engine.w1_bank import cases
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
+if str(ROOT / "research") not in sys.path:
+    sys.path.insert(0, str(ROOT / "research"))
+# the cases `research/md_rows.py` writes as straight: about their numbers, in any written method of their operation
+ROWS = importlib.import_module("md_rows")
 SEED = json.loads((ROOT / "supabase/seed/taxonomy_cases.json").read_text())["taxonomy_cases"]
 DOC = json.loads((ROOT / "docs/design/multiplication-division-cases.json").read_text())
 DIMENSIONS = {
@@ -228,8 +235,9 @@ def test_a_question_the_arithmetic_cannot_work_is_measured_without_a_crash():
 
 
 def _straight_questions():
-    """Every straight × and ÷ a school paper prints up to four digits, in a line and in columns: the questions two
-    cases are compared on. Thinned where the numbers run past a thousand, never where a case's property sits."""
+    """Every straight × and ÷ a school paper prints up to four digits, in a line and in columns, and every × in each
+    written method as the engine sets it out (ADR 0055): the questions two cases are compared on. Thinned where the
+    numbers run past a thousand, never where a case's property sits."""
     sums = [(a, b) for a in range(1000) for b in range(13)]
     sums += [(a, b) for a in range(10, 100) for b in range(10, 100)]
     sums += [(a, b) for a in range(100, 1000, 7) for b in range(10, 100, 3)]
@@ -249,6 +257,9 @@ def _straight_questions():
                     "column_grid" if layout == "column" else "bare_sum",
                     {"a": a, "b": b, "op": op, "layout": layout},
                 )
+            for method in WM.WORK if op == "×" and a and b else ():
+                it = WM.make(method, a, b, "R9")
+                yield it.fmt, it.spec
     for c in MD.values():
         yield c["example"]["fmt"], c["example"]["spec"]
 
@@ -266,7 +277,7 @@ def test_every_case_holds_its_own_example_and_no_two_hold_the_same_questions():
     (a method and a carry) may each hold the other's example and still be two cases."""
     for code, c in ALL.items():
         assert holds(c, c["example"]), f"{code} does not hold its own example {c['example_text']}"
-    straight = {code: c for code, c in MD.items() if c["match"].get("fmt") == ["bare_sum", "column_grid"]}
+    straight = {code: c for code, c in MD.items() if code in ROWS.STRAIGHT}
     read = {}
     for fmt, _, t in _read():
         read.setdefault(json.dumps(t, sort_keys=True, default=str), (fmt, t))
@@ -411,7 +422,7 @@ def _w(a, b):
 
 
 SAYS = {
-    "T01": lambda a, b, col: _two_by_one(a, b) and not any(_carries(*_w(a, b))) and a * b < 100 and col,
+    "T01": lambda a, b, col: _two_by_one(a, b) and not any(_carries(*_w(a, b))) and a * b < 100,
     "T04": lambda a, b, col: _two_by_one(a, b) and _carries(*_w(a, b)) == [1] and a * b < 100,
     "T06": lambda a, b, col: _two_by_one(a, b) and not any(_carries(*_w(a, b))) and a * b >= 100,
     "T07": lambda a, b, col: _two_by_one(a, b) and _carries(*_w(a, b)) == [1] and a * b >= 100,
@@ -438,8 +449,9 @@ SAYS = {
 @pytest.mark.parametrize("code", sorted(SAYS))
 def test_every_question_a_case_holds_is_what_its_label_says(code):
     """Read against plain arithmetic written here, so a tag measured wrong cannot make its own case look right."""
+    # set out in columns where the question says so: a written method only in expanded columns
     held = [
-        (spec["a"], spec["b"], spec["layout"] == "column")
+        (spec["a"], spec["b"], spec.get("layout") == "column")
         for fmt, spec, t in _read()
         if taxonomy.matches(MD[code]["match"], fmt, t)
     ]

@@ -20,6 +20,8 @@ from typing import Any
 
 from . import misconceptions as M
 from . import operations as O
+from . import times_kinds as TK
+from . import written_methods as WM
 from .items import Item, Response, cells, item, sample_add, sample_sub
 
 NAMES = ["Ishaan", "Anaya", "Vihaan", "Saee", "Tara", "Arjun"]
@@ -46,6 +48,7 @@ SHAPES = {
     "M_SUB_INSTEAD": "reversed",
     "M_MISSING_DIGIT_LOCAL": "digit",
     "M_EQUALS_MEANS_ANSWER": "equals",
+    "M_PARTITION_TENS_AS_ONES": "partitioned",  # C06: 23 × 4 worked as 2 × 4 + 3 × 4 = 20
 }
 PLANTABLE = set(COLUMN_SLIPS["+"]) | set(COLUMN_SLIPS["-"]) | set(COLUMN_SLIPS["×"]) | ALIGNED | set(SHAPES)
 COUNTED = 2000  # calculations a slip's columns are counted over (`_columns`)
@@ -74,8 +77,10 @@ def _where(right, wrong):
 
 
 def _why(code):
-    name = next((t[code] for t in (*M.TABLES.values(), M.MULTI_PREDICTORS) if code in t), None)
-    return Response("why", "text", None, rubric=f"Names the mistake: {name[1] if name else code}")
+    name = next(
+        (t[code][1] for t in (*M.TABLES.values(), M.MULTI_PREDICTORS) if code in t), WM.NAMES.get(code)
+    )
+    return Response("why", "text", None, rubric=f"Names the mistake: {name or code}")
 
 
 def _spread[T](
@@ -187,9 +192,25 @@ def _aligned(
     raise RuntimeError(f"no {op} question shows {code}")
 
 
-def _shaped(rng, code, name):
+def _shaped(rng: random.Random, code: str, name: str) -> tuple[str, dict[str, Any], list[Response]]:
     """(stem, spec, responses) for the mistakes that are not column slips."""
     shape = SHAPES[code]
+    if (
+        shape == "partitioned"
+    ):  # a 2-digit number partitioned and each part multiplied with its tens taken as ones
+        n, m = TK.number(rng, 2), rng.randint(3, 9)
+        right, wrong = n * m, sum(WM.ones(p) * m for p in WM.parts(n))
+        worked = " + ".join(f"{WM.ones(p)} × {m}" for p in WM.parts(n))
+        stem = f"{name} partitioned {n} to work out {n} × {m}: {worked} = {wrong}. That is not right."
+        ans = Response(
+            "ans",
+            "digits",
+            str(right),
+            cells=cells(right),
+            misconceptions={code: wrong},
+            label="correct answer",
+        )
+        return stem, dict(a=n, b=m, op="×", wrong=wrong, planted=code), [ans, _why(code)]
     if shape == "three":
 
         def draw():

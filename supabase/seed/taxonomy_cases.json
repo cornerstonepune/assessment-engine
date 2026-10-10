@@ -7560,12 +7560,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "zero_operand": [
@@ -7595,12 +7603,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "one_operand": [
@@ -7630,12 +7646,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 2
@@ -7661,12 +7685,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 5
@@ -7692,12 +7724,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 10
@@ -7723,12 +7763,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 3
@@ -7754,12 +7802,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 4
@@ -7785,12 +7841,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 6
@@ -7816,12 +7880,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 7
@@ -7847,12 +7919,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 8
@@ -7878,12 +7958,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 9
@@ -7909,12 +7997,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "equal_operands": "YES",
@@ -7941,12 +8037,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 11
@@ -7972,12 +8076,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_table": 12
@@ -8003,12 +8115,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "fact_swapped": "YES"
@@ -8034,7 +8154,11 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "COLUMNS",
         "operation": "MUL",
@@ -8094,12 +8218,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X10",
@@ -8127,12 +8259,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
@@ -8160,12 +8300,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X1000",
@@ -8194,12 +8342,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X10",
@@ -8229,12 +8385,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
@@ -8265,12 +8429,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
@@ -8299,12 +8471,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_BOTH",
@@ -8331,12 +8511,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_HUNDRED_ONE",
@@ -8364,12 +8552,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
@@ -8397,12 +8593,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_ONE",
@@ -8430,12 +8634,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "X100",
@@ -8451,7 +8663,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 1 digits, no regrouping, in columns",
+      "label": "2 × 1 digits, no regrouping",
       "example_text": "23 × 3",
       "example": {
         "fmt": "column_grid",
@@ -8466,9 +8678,21 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
-        "method": "COLUMNS",
+        "method": [
+          "LINE",
+          "COLUMNS",
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
+        ],
         "operation": "MUL",
         "digits_max": 2,
         "digits_min": 1,
@@ -8481,7 +8705,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 1 digits, no regrouping, in a line",
+      "label": "2 × 1 digits in a line",
       "example_text": "32 × 3 (in a line)",
       "example": {
         "fmt": "bare_sum",
@@ -8496,14 +8720,16 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "LINE",
         "operation": "MUL",
         "digits_max": 2,
-        "digits_min": 1,
-        "regrouping": "NONE",
-        "answer_digit_change": "ONE_FEWER"
+        "digits_min": 1
       }
     },
     {
@@ -8526,12 +8752,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "operand_order": "SHORTER_FIRST",
@@ -8560,12 +8794,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8595,12 +8837,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8630,12 +8880,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8664,12 +8922,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8700,12 +8966,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8734,12 +9008,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8768,12 +9050,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -8801,12 +9091,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -8835,12 +9133,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -8871,7 +9177,11 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "LINE",
         "operation": "MUL",
@@ -8899,7 +9209,11 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "LINE",
         "operation": "MUL",
@@ -8927,12 +9241,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 4,
@@ -8960,12 +9282,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 4,
@@ -8996,12 +9326,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9031,12 +9369,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9066,12 +9412,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9101,12 +9455,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9139,12 +9501,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9173,7 +9543,11 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "LINE",
         "operation": "MUL",
@@ -9201,12 +9575,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9233,12 +9615,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9266,12 +9656,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": {
@@ -9300,12 +9698,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9333,12 +9739,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9370,12 +9784,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9411,12 +9833,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9449,12 +9879,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9487,12 +9925,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9525,12 +9971,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9563,12 +10017,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9601,12 +10063,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9639,12 +10109,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9677,12 +10155,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9715,12 +10201,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9749,12 +10243,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9782,12 +10284,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9816,12 +10326,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -9849,12 +10367,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_min": 1,
@@ -9884,12 +10410,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_min": 1,
@@ -9918,12 +10452,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 4,
@@ -9952,12 +10494,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 2,
@@ -9985,12 +10535,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_max": 3,
@@ -10018,7 +10576,11 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": "LONG_MULTIPLICATION",
         "operation": "MUL",
@@ -10048,12 +10610,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "place_value_factor": "MULTIPLE_OF_TEN_BOTH",
@@ -10081,12 +10651,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "digits_min": 1,
@@ -12024,7 +12602,7 @@
       "label": "Partitioning, in a line",
       "example_text": "23 × 4 = 20 × 4 + 3 × 4 = 80 + 12 = □",
       "example": {
-        "fmt": "break_apart",
+        "fmt": "partitioning",
         "spec": {
           "a": 23,
           "b": 4,
@@ -12034,7 +12612,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "break_apart",
+        "fmt": "partitioning",
         "operation": "MUL",
         "method": "PARTITIONING"
       }
@@ -12047,21 +12625,20 @@
       "label": "Grid (area) method, 2 × 1 digits",
       "example_text": "23 × 4: cells 20 × 4 = 80 and 3 × 4 = 12",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "grid_method",
         "spec": {
           "a": 23,
           "b": 4,
           "op": "×",
-          "layout": "column",
           "method": "GRID"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "grid_method",
         "operation": "MUL",
         "method": "GRID",
-        "operand_2_digits": 1
+        "digits_min": 1
       }
     },
     {
@@ -12072,21 +12649,20 @@
       "label": "Grid (area) method, 2 × 2 digits",
       "example_text": "34 × 26: cells 600, 180, 80, 24",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "grid_method",
         "spec": {
           "a": 34,
           "b": 26,
           "op": "×",
-          "layout": "column",
           "method": "GRID"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "grid_method",
         "operation": "MUL",
         "method": "GRID",
-        "operand_2_digits": 2
+        "digits_min": 2
       }
     },
     {
@@ -12097,7 +12673,7 @@
       "label": "Expanded columns: each product written in full",
       "example_text": "34 × 6: 4 × 6 = 24, 30 × 6 = 180, 24 + 180 = □",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "expanded_columns",
         "spec": {
           "a": 34,
           "b": 6,
@@ -12108,7 +12684,7 @@
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "expanded_columns",
         "operation": "MUL",
         "method": "EXPANDED"
       }
@@ -12169,18 +12745,17 @@
       "label": "Lattice (gelosia) method",
       "example_text": "47 × 23 in a 2 × 2 lattice: cells 08, 14 / 12, 21, added along the diagonals",
       "example": {
-        "fmt": "column_grid",
+        "fmt": "lattice",
         "spec": {
           "a": 47,
           "b": 23,
           "op": "×",
-          "layout": "column",
           "method": "LATTICE"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
-        "fmt": "column_grid",
+        "fmt": "lattice",
         "operation": "MUL",
         "method": "LATTICE"
       }
@@ -12942,12 +13517,20 @@
         "taxonomy": "MUL_DIV",
         "fmt": [
           "bare_sum",
-          "column_grid"
+          "column_grid",
+          "partitioning",
+          "grid_method",
+          "expanded_columns",
+          "lattice"
         ],
         "method": [
           "LINE",
           "COLUMNS",
-          "LONG_MULTIPLICATION"
+          "LONG_MULTIPLICATION",
+          "EXPANDED",
+          "PARTITIONING",
+          "GRID",
+          "LATTICE"
         ],
         "operation": "MUL",
         "zero_operand": [

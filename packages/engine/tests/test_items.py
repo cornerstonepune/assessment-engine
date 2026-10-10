@@ -19,6 +19,7 @@ from engine.assess import number_line as NL
 from engine.assess import reasoning as RS
 from engine.assess import tags
 from engine.assess import times_models as TM
+from engine.assess import written_methods as WM
 
 
 def test_sample_add_produces_exactly_the_requested_regrouping_count():
@@ -303,6 +304,8 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         C.equal_groups(rng, "R41", "Conceptual", {"method": "ARRAY"}),
         NL.equal_jumps(rng, "R41", "Conceptual", {}),
         EQ.swap(rng, "R41", "Conceptual", [2, 5, 10], [2, 10]),
+        # the written methods (goals/md2d2-multiplication-methods.yaml), printed by a level's `methods`
+        *(WM.make(m, 34, 26 if m in ("GRID", "LATTICE") else 6, "R40") for m in WM.KINDS),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"

@@ -14,7 +14,8 @@ numbers, no difference under 5, nothing multiplied by 1. A case about exactly th
 answer that shrinks, a round number, × 1 — lifts the default it is about, and only that one.
 
 A multiplication's numbers, and the defaults it keeps, are `assess/draw_times.py`'s. A case that names its method
-is printed that way: in a line, or in columns.
+is printed that way: in a line, in columns, or in a written method of its own kind (`assess/written_methods.py`); a
+level that lists `methods` prints each case's calculations in every one of them, in fair shares (ADR 0055).
 """
 
 import math
@@ -29,8 +30,10 @@ from . import items as I
 from . import misconceptions as M
 from . import operations as O
 from . import times_kinds as TK
+from . import written_methods as WM
 
 PLAIN = ("bare_sum", "column_grid")
+STRAIGHT = (*PLAIN, *WM.KINDS.values())  # every kind a straight calculation is printed in
 ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
 ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
 SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
@@ -45,11 +48,6 @@ HINTS = (
     "strategy",
     "method",
 )
-LAYOUT = {
-    "LINE": "HORIZONTAL",
-    "COLUMNS": "VERTICAL",
-    "LONG_MULTIPLICATION": "VERTICAL",
-}  # a method, as printed
 POSITIONS = {"FIRST_OPERAND": "a", "SECOND_OPERAND": "b", "RESULT": "answer"}
 
 
@@ -62,6 +60,9 @@ def _usable(
 ) -> bool:
     """The defaults every question keeps unless its case is about the very thing they rule out."""
     zero_case, round_case, size_case = about & ZERO_KEYS, about & ROUND_KEYS, about & SIZE_KEYS
+    method = (alt or {}).get("method")
+    if isinstance(method, str) and method in WM.WORK and not WM.prints(a, b):
+        return False  # a zero case lifts the rule against a zero, but a written method has no part of 0 to multiply
     if op == "×":
         lifts = {name for name, on in (("zero", zero_case), ("round", round_case), ("size", size_case)) if on}
         return T.usable(a, b, about, check, alt or {}, lifts)
@@ -121,9 +122,11 @@ def _set_out(
     alt: dict[str, Any], check: dict[str, Any], rung: str, k: int, op: str, a: int, b: int
 ) -> I.Item:
     method = alt.get("method") if isinstance(alt.get("method"), str) else None
+    if method in WM.KINDS:
+        return WM.make(method, a, b, rung)  # a written method, a box for every step (ADR 0055)
     pres = (
         alt.get("presentation")
-        or LAYOUT.get(method or "")
+        or K.LAYOUT.get(method or "")
         or {"column": "VERTICAL", "horizontal": "HORIZONTAL"}.get(check.get("layout") or "")
     )
     column = pres == "VERTICAL" if pres else k % 2 == 0  # half in columns, half in a line
@@ -263,7 +266,8 @@ def one(rng, match, check, rung, k=0):
     questions kept so far; where the case does not fix the layout, even is in columns, odd in a line."""
     alt = rng.choice(K.alternatives(match))
     fmts = set(K.fmts(alt))
-    if fmts <= set(PLAIN):
+    # a straight calculation: in a line or in columns, or in the one written method it names (`_set_out`)
+    if fmts <= set(STRAIGHT) and (fmts & set(PLAIN) or isinstance(alt.get("method"), str)):
         many = alt.get("operation") != "MUL" and (  # a × case reads `carry_max` of one multiplication
             ("num_operands" in alt and any(taxonomy.holds(alt["num_operands"], n) for n in (3, 4, 5)))
             or "carry_max" in alt
@@ -296,7 +300,7 @@ def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str
     then a fact, not 2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
     out: list[I.Item] = []
     for alt in [
-        x for x in K.alternatives(match) if x.get("operation") == "MUL" and set(K.fmts(x)) <= set(PLAIN)
+        x for x in K.alternatives(match) if x.get("operation") == "MUL" and set(K.fmts(x)) <= set(STRAIGHT)
     ]:
         about = taxonomy.keys(alt)
         ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, "×")]
@@ -313,27 +317,48 @@ def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str
     return out
 
 
-def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000, quotas=None):
+def _shared(
+    rng: random.Random,
+    ways: list[Any],
+    check: dict[str, Any],
+    rung: str,
+    want: int,
+    seen: set[str],
+    tries: int,
+) -> list[I.Item]:
+    """A case's share dealt over the ways its level prints it, the first ones one more where it does not divide, and
+    taken a way at a time, so a share cut short keeps every method."""
+    shares = [want // len(ways) + (i < want % len(ways)) for i in range(len(ways))]
+    got = [_some(rng, w, check, rung, k, seen, max(1, k) * tries) for w, k in zip(ways, shares, strict=True)]
+    return [its[i] for i in range(max(map(len, got), default=0)) for its in got if i < len(its)]
+
+
+def level(
+    rng: random.Random,
+    check: dict[str, Any],
+    matches: dict[str, Any],
+    rung: str,
+    n: int,
+    seen: set[str] | None = None,
+    tries_per_item: int = 2000,
+    quotas: dict[str, int] | None = None,
+) -> list[tuple[str, I.Item]]:
     """Up to `n` distinct [(case, question)] for a level: the same number from each case it holds, then —
     where a case's numbers run out (7 − 7 has nine) — the rest from the cases that still have more.
 
     With `quotas` (what each case is still short of) every case is drawn its own shortfall as far as its
     numbers go, and `n` is only what the level as a whole still needs: a case that has run out stays
-    short for good, and letting that spill onto the others made every refill add more of them."""
+    short for good, and letting that spill onto the others made every refill add more of them.
+
+    A level that lists `methods` prints each case's share in every written method it can be printed in, in fair
+    shares (`draw_case.ways`, assumption A1); `matches` then holds the methods' cases too."""
     codes = list(check["cases"])
     seen = set() if seen is None else seen
     even = quotas is None
     quotas = dict.fromkeys(codes, math.ceil(n / len(codes))) if even else quotas
+    ways = {c: K.ways(matches[c], [matches[m] for m in check.get("methods", [])]) for c in codes}
     drawn = {
-        code: _some(
-            rng,
-            matches[code],
-            check,
-            rung,
-            quotas.get(code, 0),
-            seen,
-            max(1, quotas.get(code, 0)) * tries_per_item,
-        )
+        code: _shared(rng, ways[code], check, rung, quotas.get(code, 0), seen, tries_per_item)
         for code in codes
     }
     # dealt a case at a time, so cutting an even draw to `n` takes one from each case in turn: nine cases asked for
@@ -347,7 +372,8 @@ def level(rng, check, matches, rung, n, seen=None, tries_per_item=2000, quotas=N
     open_codes = list(codes)
     while len(out) < n and open_codes:
         for code in list(open_codes):
-            more = _some(rng, matches[code], check, rung, 1, seen, tries_per_item)
+            either = [a for w in ways[code] for a in K.alternatives(w)]
+            more = _some(rng, either, check, rung, 1, seen, tries_per_item)
             if not more:
                 open_codes.remove(code)
             out += [(code, it) for it in more]

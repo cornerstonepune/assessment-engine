@@ -5253,3 +5253,90 @@ modules carry none.
 Found and named, not changed (files this slice does not touch): the marker charges a wrong answer to every mistake
 that predicts it (`w3_read/marking.py`: 3 × 3 answered 6 is both `M_MUL_ROW_OUT` and `M_WRONG_OP`), while the counting
 kinds name neither when two mistakes share an answer (`assess/counting.named`). One rule should hold for both.
+
+## M2d2 — measured before the build (2026-10-10)
+
+M2d1 is merged and deployed: main `4f548d5`, CI, `migrate live` (migration `20261031090000` applied) and `deploy
+engine` green (07:06 UTC). `bin/engine done md2d1-multiplication-models` on a database built from main's tree:
+11 of 11 sentences PROVED (the browser test included), 4 of 4 scenarios MET, 2 of 2 criteria PASSED (1,051 tests,
+`bin/check` 27); "NOT DONE" only for live's migrations, which this container cannot read.
+
+M2d2 is the written methods (BUILD-ORDER): assumption A1 has Easy to Hard print each calculation in every written method
+the document lists for the skill, in fair shares — `MUL.2D1D` in a line (T02), partitioning (G07), a grid (G08),
+expanded columns (G10) and columns (G11); `MUL.3D1D` in a line, the 1-digit number first too (T13, T14), expanded and
+columns; `MUL.2D2D` in a line (T22), a grid (G09), long multiplication (G12) and a lattice (G13).
+
+Each method case drawn on its skill's Easy, Medium and Hard through today's drawer (4 asked, 300 tries each):
+- In a line (T02, T13, T14, T22), columns (G11), long multiplication (G12): drawn.
+- Partitioning (G07): `CannotMake: break_apart makes + and − questions, not ×`.
+- A grid (G08, G09), expanded columns (G10), a lattice (G13): 0 of 4. The drawer prints a calculation in a line or in
+  columns and nothing else (`draw.LAYOUT`).
+- No level lists a method: the straight cases accept only a line, columns and long multiplication
+  (`match.method`), and T01 fixes columns, T02 a line and no regrouping. A grid of Easy's numbers would be none of
+  Easy's cases — outside its level — and T02, the document's "in a line" for `MUL.2D1D`, crossed with Medium's
+  regrouping numbers would hold no question at all.
+- `M_PARTITION_TENS_AS_ONES` (C06's planted mistake) and `M_GRID_CELL_DROPPED` are no rows, so C06 cannot draw.
+- No multiplication uses addition (`skills.operations` reads `op` alone), so `M_NOCARRY` on a multiplication's rows
+  would charge multiplication, against A11; and nothing adds more than two numbers without a carry (`add_nocarry`
+  takes two).
+- A long multiplication's rows are drawn and never read (`answer_space._rows_worked`): only its answer has boxes.
+- `verify._stale_mistakes` finds a stored mistake whose value changed, never one newly predicted: the long
+  multiplications on live would never name the rows added without a carry.
+
+## M2d2 — the written methods built (2026-10-10)
+
+What the measured failures became (ADR 0055), proved by `tests/test_mul_methods.py` (16 tests) and
+`apps/web/tests/s30-multiplication-methods.spec.ts`:
+- **Four kinds, every step a box.** `partitioning`, `grid_method`, `expanded_columns` and `lattice`:
+  `assess/written_methods.py` makes them, `assess/written_pages.py` prints them, the website draws them. A sheet of
+  every method printed through Chromium has every step's boxes where the key's geometry says, each marked against its
+  own key.
+- **A level's `methods` is a row**, and the drawer deals each case's share over them in fair shares (`draw_case.ways`,
+  `draw.level`). `bin/engine goal md2d2-multiplication-methods`: 10 of 10 scenarios met (12 to 36 asked a level, every
+  answer recomputed, 0 off its rule, 0 undiagnosed, 0 alike), C06 on `MUL.2D1D`'s Advance among them.
+- **The straight cases are about numbers.** T01 is "no regrouping" in any method, T02 `MUL.2D1D`'s "in a line", a grid
+  sized by its shorter number (`digits_min`); corrected in `research/md_rows.py`, rows written again by
+  `research/md_taxonomy.py`.
+- **The methods' mistakes are rows:** `M_PARTITION_TENS_AS_ONES` and `M_GRID_CELL_DROPPED`; the steps or rows added
+  without a carry (`M_NOCARRY`) count against addition (`skills.by_method`, `skills.charges`). Migration
+  `20261101090000` puts them on the three skills' lists of a database loaded before.
+
+Found while proving, fixed here:
+- `test_md_cases` chose the straight cases as those listing exactly a line and columns. Once × straight cases listed
+  six kinds, it silently checked only division's 52 of the 128. It now takes them from `research/md_rows.STRAIGHT`
+  and compares them on every × in each written method as well: no two hold the same questions, every label holds.
+- `written_methods.make` crashed on a zero (a grid of 0 × 23: `max()` of nothing). It now refuses (`CannotMake`), and
+  the drawer never asks: a zero case (TZ02, TZ03, TZ09 on `MUL.3D1D`) lifts the rule against drawing a 0, and its
+  expanded columns made 0 × 146 as 6 × 0, 40 × 0 and 100 × 0 before the case's own match threw it away
+  (`written_methods.prints`, `draw._usable`).
+- Nothing re-keyed a stored written method, so a × slip predicted later would never reach its steps.
+  `verify._stale_method` makes each again from its own numbers and compares every box: of the 786 the refill stored
+  on a fresh database, 0 flagged (nor any of its 12,358 straight sums).
+- Three tests drew a level by hand without its methods (`test_every_listed_case`, `test_mul_levels`,
+  `test_mul_advance`). They now read a level's matches through the bank's own rule (`cases.on_level`).
+- `placing` (where a child's answer, an old paper's or a re-homed question goes) counted only a line and columns as a
+  calculation, a copy of the old pair: every written method went to Advance or nowhere. It reads the drawer's own
+  straight kinds now (`draw.STRAIGHT`), so a written method lands where its numbers in a line land
+  (`test_a_written_method_is_placed_where_its_calculation_in_a_line_is`). CI's run on `c56f773` found the same pair in
+  `test_rehome`, which the goal's criteria did not run; they run it now, and `test_verify`.
+
+Found and named, not changed (the drafted document's to settle): some of Medium's questions are also Hard's. 25 × 2 is
+`MUL.2D1D` Medium's T04 and Hard's T09 (the ones write 0) and TZ05 (a zero only in the answer); 2 × 274 and 6 × 115
+are `MUL.3D1D` Medium's TC03 and TC05 and Hard's T12 (every pattern). The drawer draws them for Medium, and `placing`,
+hardest first by design, puts the same numbers on Hard: 27 of 360 questions drawn on the three skills' straight levels
+(21 in a line or columns, 6 in a written method). Either a Hard case is narrowed to what Medium does not hold, or the
+overlap stands; Achal decides.
+
+Rehearsed on a copy of live (run 38038796192, `92db98f`):
+- 554 questions retired outside their level and 4,701 added. That is 13 more retired than M2d1's rehearsal (541) on
+  the same live bank. The refill prints a total, not reasons; by elimination they are the long multiplications keyed
+  before the rows' mistake had a name (`_stale_rows`), the only rule here that live's questions can fail.
+- Added per level, Easy · Medium · Hard · Advance: `MUL.2D1D` +35 · +125 · +94 · +216, `MUL.3D1D` +215 · +209 · +86 ·
+  +216, `MUL.2D2D` +214 · +216 · +198 · +220. The library made 1,238 and retired 746.
+- 3,430 worksheets, 128 of 128 skill-levels ready, 0 problems. "ADD_SUB: 270 cases · 270 covered" and "MUL_DIV: 251
+  cases · 109 covered · 141 missing · 1 thin". The thin one is T16 (4 × 1 digits), which no level names, held once by
+  a `MUL.TENS` Hard question.
+- Every `engine live data` check ok after the update; no signed-off answer left on a rung no skill holds.
+
+Ratchets: untyped findings fell in seven files, written down in `workflows.json` (ADR 0055's table). Lines:
+`diagnosis.py` 397, `draw.py` 382, `verify.py` 362, `written_methods.py` 187, `written_pages.py` 82, all under 400.

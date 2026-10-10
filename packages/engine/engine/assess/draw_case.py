@@ -1,6 +1,7 @@
 """What a taxonomy case allows a drawing (`assess/draw.py`): the kinds it names, the operation an attempt draws, the
-digits of its two numbers, one value of a condition. Deterministic given an RNG; the case rule is read through
-`assess/taxonomy.py`, so drawing for a case and measuring a question against it read one rule alike."""
+digits of its two numbers, one value of a condition, and the written methods its level prints it in. Deterministic
+given an RNG; the case rule is read through `assess/taxonomy.py`, so drawing for a case and measuring a question
+against it read one rule alike."""
 
 import random
 from collections.abc import Iterable
@@ -10,6 +11,12 @@ from . import taxonomy
 
 DIGITS = range(1, 5)
 OPS = {"ADD": "+", "SUB": "-", "MUL": "×"}
+LAYOUT = {
+    "LINE": "HORIZONTAL",
+    "COLUMNS": "VERTICAL",
+    "LONG_MULTIPLICATION": "VERTICAL",
+    "EXPANDED": "VERTICAL",
+}  # a method, as printed
 
 
 def alternatives(match: Any) -> list[dict[str, Any]]:
@@ -56,3 +63,32 @@ def pairs(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int
             if all(taxonomy.holds(alt[k], v) for k, v in measured.items() if k in alt):
                 out.append((d1, d2))
     return out
+
+
+def _first(alt: dict[str, Any]) -> bool:
+    """The case writes the 1-digit number first (3 × 21)."""
+    one, two = alt.get("operand_1_digits"), alt.get("operand_2_digits")
+    return alt.get("operand_order") == "SHORTER_FIRST" or (
+        isinstance(one, int) and isinstance(two, int) and one < two
+    )
+
+
+def _crossed(case: dict[str, Any], method: dict[str, Any]) -> dict[str, Any] | None:
+    """A case's numbers printed in one method, or None when they cannot be: the method contradicts the case, or sets
+    the longer number on top (in columns) where the case writes the 1-digit number first."""
+    try:
+        both = cast(dict[str, Any], taxonomy.within(case, method))
+    except ValueError:
+        return None
+    return None if _first(both) and LAYOUT.get(both.get("method") or "") == "VERTICAL" else both
+
+
+def ways(match: Any, methods: list[Any]) -> list[Any]:
+    """A case on its level, once for each written method the level prints it in (`methods`, assumption A1), in the
+    level's order: each a match the drawing fills in its share. A level that lists no method draws the case as it is."""
+    out: list[Any] = []
+    for method in methods:
+        crossed = [x for a in alternatives(match) for b in alternatives(method) if (x := _crossed(a, b))]
+        if crossed:
+            out.append(crossed if len(crossed) > 1 else crossed[0])
+    return out or [match]

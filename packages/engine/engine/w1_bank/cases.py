@@ -19,9 +19,20 @@ def matches(conn, codes=None):
     return {r["code"]: r["match"] for r in rows}
 
 
+def listed(check):
+    """The cases a level holds and the written methods it prints them in (`methods`, ADR 0055)."""
+    return [*check["cases"], *check.get("methods", [])]
+
+
+def on_level(check, rows):
+    """{case code: match} of the level's `listed` cases among `rows` ({case code: match}), each on the level's own
+    numbers when its skill has a shape: what `draw.level` draws from, crossing the cases with the methods."""
+    return {c: taxonomy.within(rows[c], check.get("within")) for c in listed(check) if c in rows}
+
+
 def for_level(conn, check):
-    """{case code: match} for one level's cases, each on the level's own numbers when its skill has a shape."""
-    return {c: taxonomy.within(m, check.get("within")) for c, m in matches(conn, check["cases"]).items()}
+    """`on_level` from the database's rows."""
+    return on_level(check, matches(conn, listed(check)))
 
 
 def of(fmt, tags, all_matches):
@@ -119,7 +130,8 @@ def placed(conn):
     named = defaultdict(list)
     for s in conn.execute("select code, difficulty from skill_set order by code"):
         for level, spec in s["difficulty"].items():
-            for c in spec.get("check", {}).get("cases", []):
+            check = spec.get("check", {})
+            for c in [*check.get("cases", []), *check.get("methods", [])]:
                 named[c].append((s["code"], level))
     out = []
     for c in conn.execute(

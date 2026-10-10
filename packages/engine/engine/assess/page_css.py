@@ -61,6 +61,22 @@ table.sort td:first-child { text-align: left; font-family: "DejaVu Sans Mono", m
 table.square { border-collapse: collapse; font-size: 12pt; }
 table.square th, table.square td { border: 1px solid #333; min-width: 11mm; height: 9mm; padding: 0 1mm; text-align: center; }
 table.square th { background: #eee; }
+.method .step { margin-bottom: 2.5mm; }
+.expanded { display: inline-grid; grid-template-columns: max-content calc(var(--w) * 8.4mm + 2mm); column-gap: 3mm; row-gap: 1.5mm; align-items: center; }
+.expanded .lab { white-space: nowrap; font-size: 11pt; }
+.expanded .xn { display: flex; justify-content: flex-end; }
+.expanded .xn.sum { border-top: 1px solid #111; padding-top: 1.5mm; }
+.expanded .xd { display: inline-block; width: 8.4mm; text-align: center; font-size: 13pt; }
+.expanded .xop { font-size: 13pt; text-align: right; }
+table.gridm, table.lattice { border-collapse: collapse; font-size: 12pt; margin-bottom: 3mm; }
+table.gridm th, table.gridm td { border: 1px solid #333; padding: 1.5mm 2mm; text-align: center; }
+table.gridm th { background: #eee; min-width: 11mm; }
+table.lattice th { min-width: 22mm; height: 8mm; text-align: center; }
+table.lattice td.lat { position: relative; width: 22mm; height: 22mm; border: 1px solid #333; padding: 0;
+  background: linear-gradient(to bottom right, transparent calc(50% - 0.6px), #333 calc(50% - 0.6px), #333 calc(50% + 0.6px), transparent calc(50% + 0.6px)); }
+table.lattice td.lat .cells { position: absolute; inset: 0; }
+table.lattice td.lat .cell:nth-child(1) { position: absolute; left: 1.8mm; top: 1.8mm; }
+table.lattice td.lat .cell:nth-child(2) { position: absolute; right: 1.8mm; bottom: 1.8mm; }
 .wall { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .wall .r { display: flex; }
 .wall .b { width: var(--brick, 24mm); height: 11mm; border: 1px solid #111; display: flex; align-items: center; justify-content: center; font-size: 12pt; margin: -0.5px; }

@@ -887,6 +887,26 @@
       "skill_code": "NUM.PRB.02"
     },
     {
+      "code": "M_PARTITION_TENS_AS_ONES",
+      "op": "×",
+      "name": "Multiplies a partitioned tens digit as ones",
+      "description": "Partitions a number and multiplies its tens (or hundreds) digit as if it were ones: 20 × 4 written as 8, so 23 × 4 = 2 × 4 + 3 × 4 = 20.",
+      "repair_hint": "Say each part aloud as tens before multiplying: twenty times four is eighty, not eight",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/written_methods.py (goals/md2d2-multiplication-methods.yaml)",
+      "external_ref": null
+    },
+    {
+      "code": "M_GRID_CELL_DROPPED",
+      "op": "×",
+      "name": "Leaves a cell out when adding a grid",
+      "description": "Fills every cell of a grid and adds all but the ones-by-ones cell: 34 × 26 written as 860 (600 + 180 + 80, the 24 left out).",
+      "repair_hint": "Tick each cell as it is added; count the ticks against the cells",
+      "detectable_by": "answer_lookup",
+      "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/written_methods.py (goals/md2d2-multiplication-methods.yaml)",
+      "external_ref": null
+    },
+    {
       "code": "M_MUL_CARRY_ONTO_ZERO_LOST",
       "op": "×",
       "name": "Forgets a carry that lands on a zero",

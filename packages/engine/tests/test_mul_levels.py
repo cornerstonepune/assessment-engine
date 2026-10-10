@@ -13,7 +13,9 @@ import random
 import pytest
 
 from engine.assess import draw, placing, tags, taxonomy
+from engine.assess import draw_case as K
 from engine.core import db
+from engine.w1_bank import cases
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SEED = ROOT / "supabase/seed"
@@ -26,7 +28,8 @@ DOC = {
 }
 FIVE = ["MUL.FACTS", "MUL.TENS", "MUL.2D1D", "MUL.3D1D", "MUL.2D2D"]
 LEVELS = ["Easy", "Medium", "Hard", "Advance"]
-STRAIGHT = {"bare_sum", "column_grid"}
+# a straight calculation, in a line, in columns or in a written method (ADR 0055)
+STRAIGHT = set(draw.STRAIGHT)
 # The document's grades (assumption A6), Easy · Medium · Hard · Advance
 GRADES = {
     "MUL.FACTS": ["G2", "G2", "G2", "G3"],  # Grade 1 is what its educator taught (2026-10-06)
@@ -58,7 +61,14 @@ def _check(skill, level):
 
 
 def _matches(check):
-    return {c: taxonomy.within(CASES[c]["match"], check["within"]) for c in check["cases"]}
+    """The level's cases and the written methods it prints them in (ADR 0055), on its own numbers, as the bank reads
+    them (`cases.on_level`)."""
+    return cases.on_level(check, {c: row["match"] for c, row in CASES.items()})
+
+
+def _ans(it):
+    """The question's own answer: a written method's last box, after its steps."""
+    return next(r for r in it.responses if r.rid == "ans")
 
 
 def _want(skill, level):
@@ -249,11 +259,9 @@ def test_every_level_draws_its_own_cases_as_measured(skill, level):
         t = tags.derive(it)
         assert taxonomy.matches(matches[code], it.fmt, t), (skill, level, code, it.spec)
         a, b = it.spec["a"], it.spec["b"]
-        assert it.spec["op"] == "×" and it.responses[0].answer == str(a * b)
-        assert set(it.responses[0].misconceptions) <= set(SETS[skill]["misconception_codes"]), (
-            skill,
-            it.spec,
-        )
+        assert it.spec["op"] == "×" and _ans(it).answer == str(a * b)
+        named = {c for r in it.responses for c in r.misconceptions}
+        assert named <= set(SETS[skill]["misconception_codes"]), (skill, it.spec)
 
 
 WHOLE = [(s, lv) for s in FIVE for lv in LEVELS if "min_items" in SETS[s]["difficulty"].get(lv, {})]
@@ -267,7 +275,13 @@ def test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question(ski
     whatever the random draws do."""
     check = _check(skill, level)
     matches = _matches(check)
-    whole = {it.item_id for c in check["cases"] for it in draw._rest(matches[c], check, "R9", 10**6, set())}
+    methods = [matches[m] for m in check.get("methods", [])]
+    whole = {
+        it.item_id
+        for c in check["cases"]
+        for way in K.ways(matches[c], methods)  # each case in every method its level prints it in (ADR 0055)
+        for it in draw._rest(way, check, "R9", 10**6, set())
+    }
     assert len(whole) >= SETS[skill]["difficulty"][level]["min_items"], (skill, level, len(whole))
     held_back = sorted(whole)[:3]
     seen = whole - set(held_back)
@@ -374,8 +388,7 @@ LABEL = {
     "TZ01": lambda a, b, col: THREE_BY(a, b) and max(a, b) % 10 == 0,
     "TZ07": lambda a, b, col: col and TWO_BY_TWO(a, b) and b % 10 == 0,
     "TZ08": lambda a, b, col: a % 10 == 0 and b % 10 == 0 and _digits(a, b) == [2, 3],
-    "T01": lambda a, b, col: ONE_BY(a, b) and not any(_carries(a, b)) and a * b < 100 and col,
-    "T02": lambda a, b, col: ONE_BY(a, b) and not any(_carries(a, b)) and a * b < 100 and not col,
+    "T01": lambda a, b, col: ONE_BY(a, b) and not any(_carries(a, b)) and a * b < 100,
     "T03": lambda a, b, col: a < 10 <= b < 100 and not any(_carries(a, b)) and a * b < 100 and not col,
     "T04": lambda a, b, col: ONE_BY(a, b) and _carries(a, b) == [1] and a * b < 100,
     "T05": lambda a, b, col: ONE_BY(a, b) and _carries(a, b)[0] > 1 and a * b < 100,
@@ -424,30 +437,38 @@ def test_every_question_a_level_draws_is_what_its_cases_label_says():
     assert seen == set(LABEL), sorted(set(LABEL) ^ seen)
 
 
+# the kind each written method is printed by, written here: a line as a sum; columns and long multiplication in columns
+PRINTED_BY = {
+    "LINE": "bare_sum",
+    "COLUMNS": "column_grid",
+    "LONG_MULTIPLICATION": "column_grid",
+    "PARTITIONING": "partitioning",
+    "GRID": "grid_method",
+    "EXPANDED": "expanded_columns",
+    "LATTICE": "lattice",
+}
+
+
 def test_a_case_that_names_its_method_is_printed_that_way():
-    """In columns when the case is about columns or a long multiplication, in a line when it is about a line, and the
-    tables in a line except where the case is a fact in columns (TF16)."""
+    """The tables and the round numbers, whose levels list no written method, in a line, and in columns only where the
+    case is about columns (TF16, TZ07). The levels that list methods print each calculation in every one of them
+    (ADR 0055): the 1-digit number written first never in columns, where the longer number goes on top."""
     printed = {}
     for skill in FIVE:
         for level in _levels(skill):
             for code, it in _drawn(skill, level):
                 printed.setdefault(code, set()).add(it.fmt)
-    assert printed["T01"] == {"column_grid"} and printed["T02"] == {"bare_sum"}
     assert printed["TF16"] == {"column_grid"} and printed["TZ07"] == {"column_grid"}
-    assert printed["T03"] == {
-        "bare_sum"
-    }  # in columns the longer number goes on top: the 1-digit number is first only in a line
     for code in ("TP01", "TP04", "TP06", "TP10", "TZ01", "TZ08"):  # zeros are placed in a line
         assert printed[code] == {"bare_sum"}, code
     for code in ("TF01", "TF02", "TF03", "TF04", "TF05", "TF06", "TF07", "TF15"):
         assert printed[code] == {"bare_sum"}, code
-    for code in (
-        "T04",
-        "T17",
-        "T19",
-        "TC07",
-    ):  # no method of its own: in columns and in a line, in fair shares
-        assert printed[code] == {"bare_sum", "column_grid"}, code
+    # a case on each skill's straight levels, printed by the kind of every method its levels list
+    for skill, code in {"MUL.2D1D": "T01", "MUL.3D1D": "TC07", "MUL.2D2D": "T17"}.items():
+        kinds = {PRINTED_BY[CASES[m]["match"]["method"]] for m in _check(skill, "Easy")["methods"]}
+        assert printed[code] == kinds, (skill, code, printed[code])
+    # the 1-digit number first: in a line, partitioned or in a grid, never in columns
+    assert printed["T03"] == {"bare_sum", "partitioning", "grid_method"}
 
 
 def test_the_eleven_and_twelve_tables_appear_only_at_advance():

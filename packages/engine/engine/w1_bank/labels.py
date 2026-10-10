@@ -19,6 +19,7 @@ RULE_KEYS = {
     "by_kind": "skills.by_kind",
     "by_symbol": "skills.by_symbol",
     "charges_by_kind": "skills.charges_by_kind",
+    "by_method": "skills.by_method",
 }
 
 

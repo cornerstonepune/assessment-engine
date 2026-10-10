@@ -451,9 +451,13 @@
       "philosophy": [],
       "formats": [
         "bare_sum",
-        "column_grid"
+        "column_grid",
+        "partitioning",
+        "grid_method",
+        "expanded_columns"
       ],
       "misconception_codes": [
+        "M_GRID_CELL_DROPPED",
         "M_MISSING_DIGIT_LOCAL",
         "M_MUL_CARRY_FIRST",
         "M_MUL_CONCAT",
@@ -461,6 +465,9 @@
         "M_MUL_ONES_ONLY",
         "M_MUL_ROW_OUT",
         "M_MUL_UNITS_REVERSED",
+        "M_NOCARRY",
+        "M_ONE_ADDED",
+        "M_PARTITION_TENS_AS_ONES",
         "M_TIMES_AS_MORE",
         "M_WRONG_OP"
       ],
@@ -469,7 +476,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No regrouping, in columns and in a line, the 1-digit number first too: 23 × 3, 32 × 3, 3 × 21.",
+          "words": "No regrouping, the 1-digit number first too: 23 × 3, 32 × 3, 3 × 21. Each in a line, partitioned, in a grid, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -481,14 +488,20 @@
             },
             "cases": [
               "T01",
-              "T02",
               "T03"
+            ],
+            "methods": [
+              "T02",
+              "G07",
+              "G08",
+              "G10",
+              "G11"
             ]
           },
           "min_items": 69
         },
         "Medium": {
-          "words": "Regrouping from the ones into a 2-digit answer, or none into a 3-digit one: 13 × 4, 19 × 5, 42 × 3.",
+          "words": "Regrouping from the ones into a 2-digit answer, or none into a 3-digit one: 13 × 4, 19 × 5, 42 × 3. Each in a line, partitioned, in a grid, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -502,11 +515,18 @@
               "T04",
               "T05",
               "T06"
+            ],
+            "methods": [
+              "T02",
+              "G07",
+              "G08",
+              "G10",
+              "G11"
             ]
           }
         },
         "Hard": {
-          "words": "Regrouping and a 3-digit answer, a zero only in the answer, the largest carry: 56 × 3, 18 × 6, 48 × 5, 99 × 9.",
+          "words": "Regrouping and a 3-digit answer, a zero only in the answer, the largest carry: 56 × 3, 18 × 6, 48 × 5, 99 × 9. Each in a line, partitioned, in a grid, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -523,6 +543,13 @@
               "T10",
               "TC09",
               "TZ05"
+            ],
+            "methods": [
+              "T02",
+              "G07",
+              "G08",
+              "G10",
+              "G11"
             ]
           }
         },
@@ -549,6 +576,7 @@
               "Q11",
               "C01",
               "C02",
+              "C06",
               "V01",
               "V07",
               "B06",
@@ -575,7 +603,8 @@
       "philosophy": [],
       "formats": [
         "bare_sum",
-        "column_grid"
+        "column_grid",
+        "expanded_columns"
       ],
       "misconception_codes": [
         "M_MISSING_DIGIT_LOCAL",
@@ -586,6 +615,10 @@
         "M_MUL_ONES_ONLY",
         "M_MUL_ROW_OUT",
         "M_MUL_UNITS_REVERSED",
+        "M_NOCARRY",
+        "M_ONE_ADDED",
+        "M_PARTITION_TENS_AS_ONES",
+        "M_TENS_ZERO_DROPPED",
         "M_WRONG_OP"
       ],
       "replaces": [
@@ -593,7 +626,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No regrouping, a zero in the middle that no carry reaches: 213 × 3, 434 × 2, 302 × 3.",
+          "words": "No regrouping, a zero in the middle that no carry reaches: 213 × 3, 434 × 2, 302 × 3. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -606,11 +639,17 @@
               "T11",
               "TC01",
               "TZ02"
+            ],
+            "methods": [
+              "T13",
+              "T14",
+              "G10",
+              "G11"
             ]
           }
         },
         "Medium": {
-          "words": "One column regroups, or none and the answer grows to 4 digits, a zero in the middle too: 412 × 3, 374 × 2, 119 × 4, 401 × 3.",
+          "words": "One column regroups, or none and the answer grows to 4 digits, a zero in the middle too: 412 × 3, 374 × 2, 119 × 4, 401 × 3. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -624,11 +663,17 @@
               "TC03",
               "TC05",
               "TZ09"
+            ],
+            "methods": [
+              "T13",
+              "T14",
+              "G10",
+              "G11"
             ]
           }
         },
         "Hard": {
-          "words": "Regrouping in any column, a carry onto a zero, an answer full of zeros: 357 × 4, 194 × 6, 506 × 7, 125 × 8.",
+          "words": "Regrouping in any column, a carry onto a zero, an answer full of zeros: 357 × 4, 194 × 6, 506 × 7, 125 × 8. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -647,6 +692,12 @@
               "TC11",
               "TZ03",
               "TZ06"
+            ],
+            "methods": [
+              "T13",
+              "T14",
+              "G10",
+              "G11"
             ]
           }
         },
@@ -692,14 +743,22 @@
       "philosophy": [],
       "formats": [
         "bare_sum",
-        "column_grid"
+        "column_grid",
+        "grid_method",
+        "lattice"
       ],
       "misconception_codes": [
+        "M_GRID_CELL_DROPPED",
         "M_MUL_COLUMNWISE",
+        "M_MUL_NO_CARRY",
         "M_MUL_ONE_ROW",
         "M_MUL_PLACEHOLDER",
         "M_MUL_ROW_OUT",
         "M_MUL_STALE_CARRY",
+        "M_NOCARRY",
+        "M_ONE_ADDED",
+        "M_PARTITION_TENS_AS_ONES",
+        "M_TENS_ZERO_DROPPED",
         "M_WRONG_OP"
       ],
       "replaces": [
@@ -707,7 +766,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "A row for each digit, no regrouping anywhere: 21 × 13.",
+          "words": "A row for each digit, no regrouping anywhere: 21 × 13. Each in a line, in a grid, by long multiplication and in a lattice.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -719,11 +778,17 @@
             },
             "cases": [
               "T17"
+            ],
+            "methods": [
+              "T22",
+              "G09",
+              "G12",
+              "G13"
             ]
           }
         },
         "Medium": {
-          "words": "One row regroups, a 3-digit answer: 16 × 12.",
+          "words": "One row regroups, a 3-digit answer: 16 × 12. Each in a line, in a grid, by long multiplication and in a lattice.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -735,11 +800,17 @@
             },
             "cases": [
               "T18"
+            ],
+            "methods": [
+              "T22",
+              "G09",
+              "G12",
+              "G13"
             ]
           }
         },
         "Hard": {
-          "words": "A row regrouping, and adding the rows carrying: 36 × 24, 47 × 23, 52 × 34, 19 × 14, 68 × 17.",
+          "words": "A row regrouping, and adding the rows carrying: 36 × 24, 47 × 23, 52 × 34, 19 × 14, 68 × 17. Each in a line, in a grid, by long multiplication and in a lattice.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -755,6 +826,12 @@
               "T21",
               "T27",
               "T28"
+            ],
+            "methods": [
+              "T22",
+              "G09",
+              "G12",
+              "G13"
             ]
           }
         },

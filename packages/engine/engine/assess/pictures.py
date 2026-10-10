@@ -10,6 +10,7 @@ import html
 from collections.abc import Callable
 from typing import Any
 
+from engine.assess import written_pages as WP
 from engine.assess.answer_space import op_sign
 from engine.assess.items import Response
 
@@ -182,4 +183,5 @@ DRAW: dict[str, Callable[[dict[str, Any], dict[str, Response], Boxes, bool], str
     "equal_groups": equal_groups,
     "skip_counting": skip_counting,
     "multiplication_square": multiplication_square,
+    **WP.DRAW,  # the written methods (ADR 0055)
 }

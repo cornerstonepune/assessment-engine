@@ -290,9 +290,9 @@ def mul(code, label, a, b, checks=(), line=False):
     case(code, label, shown, a * b, checks)
 
 
-mul("T01", "2 × 1 digits, no regrouping, in columns", 23, 3, [("no carry", not any(carries(23, 3))),
+mul("T01", "2 × 1 digits, no regrouping", 23, 3, [("no carry", not any(carries(23, 3))),
                                                              ("2-digit answer", nd(69) == 2)])
-mul("T02", "2 × 1 digits, no regrouping, in a line", 32, 3, [("no carry", not any(carries(32, 3)))], line=True)
+mul("T02", "2 × 1 digits in a line", 32, 3, line=True)
 case("T03", "The 1-digit number first", "3 × 21", 63, [("no carry", not any(carries(21, 3)))])
 mul("T04", "Regroup from the ones, carry 1, 2-digit answer", 13, 4,
     [("carry 1", carries(13, 4) == [1]), ("2-digit answer", nd(52) == 2)])
@@ -910,7 +910,7 @@ SKILLS = [
                      "Hard": ["TP06", "TP07", "TP08", "TP09"],
                      "Advance": ["TP10", "Q14", "H10", "TZ08", "TZ01", "TZ07"]}, []),
     ("MUL.2D1D", "Multiplies a 2-digit number by a 1-digit number, regrouping when a column makes ten or more",
-     "G2 G2 G3 G3", {"Easy": ["T01", "T02", "T03"], "Medium": ["T04", "T05", "T06"],
+     "G2 G2 G3 G3", {"Easy": ["T01", "T03"], "Medium": ["T04", "T05", "T06"],
                      "Hard": ["T07", "T08", "T09", "T10", "TC09", "TZ05"],
                      "Advance": ["Q07", "Q08", "Q11", "C01", "C02", "C06", "V01", "V07", "B06", "B08", "H01", "H07"]},
      ["T02", "G07", "G08", "G10", "G11"]),

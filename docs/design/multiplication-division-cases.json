@@ -310,7 +310,7 @@
  {
   "code": "T01",
   "section": 3,
-  "label": "2 × 1 digits, no regrouping, in columns",
+  "label": "2 × 1 digits, no regrouping",
   "example": "23 × 3",
   "answer": "69",
   "op": "×",
@@ -321,12 +321,11 @@
  {
   "code": "T02",
   "section": 3,
-  "label": "2 × 1 digits, no regrouping, in a line",
+  "label": "2 × 1 digits in a line",
   "example": "32 × 3 (in a line)",
   "answer": "96",
   "op": "×",
   "placed_in": [
-   "MUL.2D1D:Easy",
    "MUL.2D1D:method"
   ]
  },
