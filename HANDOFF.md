@@ -3,7 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-11 — M4b1: estimating products and quotients (built); Achal is a teacher; update-live's OpenCV
+## 2026-10-11 — M4b2: measured; MD.EQUALITY next
+
+- **Slice:** M4b2, W1 gate 3, measured before any code (STATE.md "M4b2 — measured before the build"): eleven shapes
+  no kind makes, two that make + and − only, a division check that refuses a remainder, a claim to explain that is
+  addition's only, three rows without their sizes, and a scenario check that works out one operation only.
+- **Next:** M4b2's goal and failing tests, then the build.
+
+## 2026-10-11 — M4b1: estimating products and quotients (merged, live, done); Achal is a teacher; update-live's OpenCV
 
 - **Slice:** M4b1, W1 gate 3. `MD.ESTIMATE`, Grade 4 (STATE.md "M4b1 — … built", ADR 0065): every estimate on its
   example's sizes; odd or even, the closest estimate and whether an answer can be right for ×; a mistake named on
@@ -13,7 +20,8 @@ is verified. This file only says where the last session stopped.
 - **Nimish's update-live stopped** on an empty OpenCV; reproduced and guarded in `bin/update-live` (STATE.md).
 - **Proved on copies:** 19 unit tests; criteria files (1,003 without a database; 181 with one, the last fixed); six
   scenarios met completely; s36, s37, u13 in the browser; the update-live rehearsal (120 added, 0 retired, 0 problems).
-- **Next:** CI and the rehearsal on the PR, merge, `engine done md4b1-estimates` on main's code. Then M4b2.
+- **Merged** as `00a107b` (#178) after CI and the rehearsal passed on `5fe61c5`; migrated and deployed; its done
+  report on main's code is in STATE.md "M4b1 merged and live" (19 of 19 proved, 6 of 6 scenarios met).
 - **For Nimish:** `uv sync --directory ~/cornerstone/assessment-engine/packages/engine --reinstall-package
   opencv-contrib-python`, then `~/cornerstone/assessment-engine/bin/update-live --no-server`; after this PR merges,
   `bin/update-live` again. Achal's role on the staff list (`app.staff`) must say educator.
