@@ -576,8 +576,10 @@ case("Y03", "Partitioning a factor (distributive)", "7 × 12 = 7 × 10 + 7 × �
 case("Y04", "Anything × 0", "456 × 0", 0)
 case("Y05", "× 1 and ÷ 1 leave a number unchanged", "37 × 1 and 37 ÷ 1", "37 and 37")
 case("Y06", "A number ÷ itself, and 0 ÷ a number", "9 ÷ 9 and 0 ÷ 9", "1 and 0", op="÷")
-case("Y07", "True or false: 9 ÷ 0 = 0", "9 ÷ 0 = 0", "false: there is no answer", op="÷")
-case("Y08", "True or false: 12 ÷ 3 = 3 ÷ 12", "12 ÷ 3 = 3 ÷ 12", "false: division cannot be turned round", op="÷")
+case("Y07", "True or false: 9 ÷ 0 = 0, beside 0 ÷ 9 = 0", "9 ÷ 0 = 0 and 0 ÷ 9 = 0", "false and true",
+     [("0 ÷ 9", 0 // 9 == 0)], op="÷")  # 9 ÷ 0 has no answer; asked alone it is false every time, so ticked by guessing
+case("Y08", "True or false: 12 ÷ 3 = 3 ÷ 12, beside 12 × 3 = 3 × 12", "12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12",
+     "false and true", [("12 ÷ 3", 12 // 3 == 4 and 3 < 12), ("12 × 3", 12 * 3 == 3 * 12)], op="÷")
 case("Y09", "A fact family", "4, 7, 28: write the four facts", "4 × 7 = 28, 7 × 4 = 28, 28 ÷ 4 = 7, 28 ÷ 7 = 4")
 case("Y10", "Check a division by multiplying", "96 ÷ 4 = 24? 24 × 4 = □", 96, op="÷")
 case("Y11", "Balance: × against −", "3 × 8 = 30 − □", 6, [("24", 30 - 6 == 24)])
@@ -585,7 +587,8 @@ case("Y12", "Balance: × against ÷", "6 × 4 = 48 ÷ □", 2, [("24", 48 // 2 =
 case("Y13", "The missing sign", "6 □ 3 = 18 and 18 □ 3 = 6", "× and ÷")
 case("Y14", "Compare without working", "25 × 4 ○ 25 × 5 and 48 ÷ 6 ○ 48 ÷ 8", "< and >")
 case("Y15", "Double a factor, double the product", "12 × 5 = 60, so 12 × 10 = □", 120)
-case("Y16", "True or false: 7 × 6 = 6 × 7", "7 × 6 = 6 × 7", "true")
+case("Y16", "True or false: 7 × 6 = 6 × 7, beside 9 − 4 = 4 − 9", "7 × 6 = 6 × 7 and 9 − 4 = 4 − 9", "true and false",
+     [("7 × 6", 7 * 6 == 6 * 7), ("9 − 4", 9 - 4 != 4 - 9)])
 case("F01", "Multiples of a number", "The multiples of 6 up to 60", ", ".join(str(6 * k) for k in range(1, 11)))
 case("F02", "Is it a multiple?", "Is 45 a multiple of 5?", "yes")
 case("F03", "All the factors of a number", "The factors of 12", ", ".join(str(k) for k in range(1, 13) if 12 % k == 0))
@@ -862,6 +865,12 @@ mistake("M_DIV_SELF_AS_ZERO (new)", "÷", "Treats a number ÷ itself as nothing 
         charges="the facts")
 mistake("M_DIV_ZERO_DIVIDED (new)", "÷", "Answers the divisor when zero is divided", "0 ÷ 5", 0 // 5, 5,
         charges="the facts")
+mistake("M_DIV_BY_ZERO_AS_ZERO (new)", "÷", "Reads ÷ 0 as 0", "9 ÷ 0 = 0: true or false?", "false", "true",
+        seen="tick", charges="the facts")
+mistake("M_DIV_REMAINDER_LEFT_OUT (new)", "÷", "Multiplies back to check a division and leaves its remainder out",
+        "85 ÷ 4 = 21 r 1: 21 × 4 + 1", 21 * 4 + 1, 21 * 4)
+mistake("M_DIV_BIGGER_DIVISOR (new)", "÷", "Takes a bigger divisor to give a bigger answer", "48 ÷ 6 ○ 48 ÷ 8",
+        ">" if 48 // 6 > 48 // 8 else "<", "<" if 48 // 6 > 48 // 8 else ">", seen="tick")
 mistake("M_DIV_TENS_ZERO_LEFT (new)", "÷", "Takes away one zero fewer when dividing by 10 or 100", "4500 ÷ 100",
         4500 // 100, 4500 // 100 * 10)
 mistake("M_DIV_TENS_ZERO_EXTRA (new)", "÷", "Uses a zero for the fact, then writes every zero back", "200 ÷ 4",

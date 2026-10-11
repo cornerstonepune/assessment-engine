@@ -1940,9 +1940,9 @@
  {
   "code": "Y07",
   "section": 10,
-  "label": "True or false: 9 ÷ 0 = 0",
-  "example": "9 ÷ 0 = 0",
-  "answer": "false: there is no answer",
+  "label": "True or false: 9 ÷ 0 = 0, beside 0 ÷ 9 = 0",
+  "example": "9 ÷ 0 = 0 and 0 ÷ 9 = 0",
+  "answer": "false and true",
   "op": "÷",
   "placed_in": [
    "MD.EQUALITY:Advance"
@@ -1951,9 +1951,9 @@
  {
   "code": "Y08",
   "section": 10,
-  "label": "True or false: 12 ÷ 3 = 3 ÷ 12",
-  "example": "12 ÷ 3 = 3 ÷ 12",
-  "answer": "false: division cannot be turned round",
+  "label": "True or false: 12 ÷ 3 = 3 ÷ 12, beside 12 × 3 = 3 × 12",
+  "example": "12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12",
+  "answer": "false and true",
   "op": "÷",
   "placed_in": [
    "MD.EQUALITY:Advance"
@@ -2041,9 +2041,9 @@
  {
   "code": "Y16",
   "section": 10,
-  "label": "True or false: 7 × 6 = 6 × 7",
-  "example": "7 × 6 = 6 × 7",
-  "answer": "true",
+  "label": "True or false: 7 × 6 = 6 × 7, beside 9 − 4 = 4 − 9",
+  "example": "7 × 6 = 6 × 7 and 9 − 4 = 4 − 9",
+  "answer": "true and false",
   "op": "×",
   "placed_in": [
    "MD.EQUALITY:Easy"

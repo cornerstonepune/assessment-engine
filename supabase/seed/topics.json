@@ -135,6 +135,15 @@
       "skill_sets": [
         "MD.ESTIMATE"
       ]
+    },
+    {
+      "code": "MDEQUALITY",
+      "subject": "NUM",
+      "name": "Equations with × and ÷",
+      "taught": false,
+      "skill_sets": [
+        "MD.EQUALITY"
+      ]
     }
   ]
 }

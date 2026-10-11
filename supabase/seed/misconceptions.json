@@ -1209,6 +1209,36 @@
       "skill_code": "NUM.OPS.04"
     },
     {
+      "code": "M_DIV_BY_ZERO_AS_ZERO",
+      "op": "÷",
+      "name": "Reads ÷ 0 as 0",
+      "description": "Takes a number divided by 0 to be 0, as if nothing shared were nothing each: ticks 9 ÷ 0 = 0 as true. No number of 0s ever makes 9, so 9 ÷ 0 has no answer; it is 0 ÷ 9 that is 0.",
+      "repair_hint": "How many 0s make 9? However many you take, they make 0, never 9: so 9 ÷ 0 has no answer. Then share 0 among 9: each gets 0.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4b2-equality.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 10; drafted for Achal to correct)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_REMAINDER_LEFT_OUT",
+      "op": "÷",
+      "name": "Leaves the remainder out when multiplying back",
+      "description": "Checks a division with a remainder by multiplying the quotient back and stops there: 85 ÷ 4 = 21 r 1 checked as 21 × 4 = 84, so a right answer looks wrong.",
+      "repair_hint": "What was left over is part of the number you started with: 21 fours make 84, and the 1 left over makes 85.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4b2-equality.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 10; drafted for Achal to correct)",
+      "external_ref": null
+    },
+    {
+      "code": "M_DIV_BIGGER_DIVISOR",
+      "op": "÷",
+      "name": "Takes a bigger divisor to give a bigger answer",
+      "description": "Compares two divisions of one number as if dividing by more gave more: 48 ÷ 8 > 48 ÷ 6. Shared among more, each share is smaller.",
+      "repair_hint": "Share 48 counters among 6, then among 8: with more to share among, does each get more or fewer?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4b2-equality.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 10; drafted for Achal to correct)",
+      "external_ref": null
+    },
+    {
       "code": "M_KEYWORD_OVERGENERALISED",
       "op": "÷",
       "name": "Multiplies because the story says ‘each’",

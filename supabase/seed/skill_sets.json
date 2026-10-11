@@ -3723,6 +3723,7 @@
         "M_DIV_QUOTIENT_ZERO_DROPPED",
         "M_DIV_REMAINDER_ADDED",
         "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_LEFT_OUT",
         "M_DIV_REMAINDER_TOO_BIG",
         "M_DIV_SELF_AS_ZERO",
         "M_DIV_SUBTRACTED",
@@ -4173,6 +4174,116 @@
       "level_band": {
         "Easy": "G4",
         "Medium": "G4",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
+    },
+    {
+      "code": "MD.EQUALITY",
+      "rung_code": "R49",
+      "name": "Equations with × and ÷",
+      "learning_objective": "Reads = as \"is the same as\" with × and ÷: completes an equation, or judges one true or false, by what × and ÷ keep — a product turned round, × 0, × 1 and ÷ 1, a number ÷ itself and 0 ÷ a number, three numbers grouped either way, a factor doubled or partitioned, a balance against − or against ÷ — finds the missing sign, compares without working, and checks a division, its remainder too, by multiplying back.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "equation",
+        "bare_sum",
+        "column_grid",
+        "fact_family",
+        "inverse_check",
+        "explain_claim"
+      ],
+      "misconception_codes": [
+        "M_ADD_ALL",
+        "M_COMPARE_REVERSED",
+        "M_DIV_BIGGER_BY_SMALLER",
+        "M_DIV_BIGGER_DIVISOR",
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_BY_ZERO_AS_ZERO",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_LEFT_OUT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SELF_AS_ZERO",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_DIV_TENS_ZERO_LEFT",
+        "M_DIV_ZERO_DIVIDED",
+        "M_EQUALS_MEANS_ANSWER",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_COLUMNWISE",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_ONE_ADDED",
+        "M_REVERSES_CLAIM_TRUTH",
+        "M_SUB_INSTEAD",
+        "M_TENS_ZERO_DROPPED",
+        "M_WRONG_OP",
+        "M_ZERO_AS_ONE"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "A product turned round, anything × 0, × 1 and ÷ 1, a number ÷ itself and 0 ÷ a number, and true or false about turning round, each beside its other: 6 × 8 = 8 × □; 456 × 0; 37 × 1 and 37 ÷ 1; 9 ÷ 9 and 0 ÷ 9; 7 × 6 = 6 × 7 and 9 − 4 = 4 − 9.",
+          "check": {
+            "cases": [
+              "Y01",
+              "Y04",
+              "Y05",
+              "Y06",
+              "Y16"
+            ],
+            "layout": "horizontal"
+          },
+          "min_items": 60
+        },
+        "Medium": {
+          "words": "Three numbers grouped either way, a fact family, a division checked by multiplying, and a factor doubled: (2 × 7) × 5 = 2 × (7 × 5) = □; 4, 7, 28; 96 ÷ 4 = 24? 24 × 4 = □; 12 × 5 = 60, so 12 × 10 = □.",
+          "check": {
+            "cases": [
+              "Y02",
+              "Y09",
+              "Y10",
+              "Y15"
+            ]
+          },
+          "min_items": 48
+        },
+        "Hard": {
+          "words": "A factor partitioned, a balance against − and against ÷, the missing sign, and comparing without working: 7 × 12 = 7 × 10 + 7 × □; 3 × 8 = 30 − □; 6 × 4 = 48 ÷ □; 6 □ 3 = 18 and 18 □ 3 = 6; 25 × 4 ○ 25 × 5 and 48 ÷ 6 ○ 48 ÷ 8.",
+          "check": {
+            "cases": [
+              "Y03",
+              "Y11",
+              "Y12",
+              "Y13",
+              "Y14"
+            ]
+          },
+          "min_items": 60
+        },
+        "Advance": {
+          "words": "True or false about ÷ 0 and about a division turned round, each beside its other, a remainder checked by multiplying back, and a wrong answer explained by it: 9 ÷ 0 = 0 and 0 ÷ 9 = 0; 12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12; 85 ÷ 4 = 21 r 1? 21 × 4 + 1 = □; 804 ÷ 4 = 21: 21 × 4 = □, and why.",
+          "check": {
+            "cases": [
+              "Y07",
+              "Y08",
+              "DR09",
+              "C08"
+            ]
+          },
+          "min_items": 48
+        }
+      },
+      "level_band": {
+        "Easy": "G3",
+        "Medium": "G3",
         "Hard": "G4",
         "Advance": "G4"
       }

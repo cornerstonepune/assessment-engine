@@ -21,6 +21,7 @@ HINTS = (
     "missing_place",
     "strategy",
     "method",
+    "taxonomy",  # a case's own: × and ÷ write their missing sign and comparison, + and − theirs (`equality.from_rule`)
 )
 
 

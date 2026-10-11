@@ -20,6 +20,7 @@ from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
 from engine.checks import scenarios_week
+from engine.checks import sentences as SN
 from engine.core import db
 from engine.w1_bank import bank, cases, refill, spec
 
@@ -33,7 +34,8 @@ def _vocabulary(conn):
 def _from_sentence(sentence):
     """The one number a printed sentence's box stands for: a × or ÷ sentence worked as the tags read it
     (`md_tags.solved`), "28 ÷ 4 = □" 7, "6 × □ = 42" 7, "□ × □ = 49" 7, "60 × 7 =" 420; a digit among a division's
-    digits (`_digit`); a check worked left to right, × first ("21 × 4 + 2 = □" is 86); None for any other sentence."""
+    digits (`_digit`); a check worked left to right, × first ("21 × 4 + 2 = □" is 86); any other equation as it reads
+    (`sentences.box`: "6 × 8 = 8 × □" 6, "□ − 275 = 418" 693); None for a sentence that is none of these."""
     text = sentence.strip()
     worked = _worked(text)
     if worked is not None:
@@ -49,7 +51,7 @@ def _from_sentence(sentence):
     if hide in ("answer", "remainder") and isinstance(a, int) and isinstance(b, int):
         q, r = O.divide(a, b) if sp["op"] == "÷" else (a * b, 0)
         return r if hide == "remainder" else (None if r else q)
-    return None
+    return SN.box(text)
 
 
 def _answer_is_right(item):
@@ -65,9 +67,10 @@ def _answer_is_right(item):
         if r.label and (want := _from_sentence(r.label)) is not None
     ]
     # a question printed as a sentence with a box is that sentence's, never the sum of its two numbers: □ − 14 = 8,
-    # found wrong as 6, is 22, and was read as 22 − 14
-    if item.fmt == "missing_number" or "□" in (s.get("text") or ""):
-        want = _from_sentence(s.get("text") or "")
+    # found wrong as 6, is 22, and was read as 22 − 14; a balance's two pans are one sentence
+    printed = SN.printed(s)
+    if item.fmt == "missing_number" or "□" in printed:
+        want = _from_sentence(printed)
         box = "d1" if item.fmt == "missing_digit" else "ans"
         checks += [] if want is None else [_same(stated.get(box), want)]
     elif (whole := _sum_is_right(s, stated)) is not None:
@@ -79,6 +82,9 @@ def _answer_is_right(item):
         checks.append(tick)
     if (judged := _without_working(item.fmt, s, stated)) is not None:
         checks.append(judged)
+    checks += SN.ticks(
+        s, item.responses, stated
+    )  # a sign, a comparison, true or false: from its own sentence
     return all(checks) if checks else None
 
 

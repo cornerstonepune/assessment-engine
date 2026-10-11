@@ -201,6 +201,13 @@
       "question": "Estimating products and quotients: its grade, each estimate on its example's numbers, the closest estimate's options, and a new rounding mistake",
       "drafted": "drafted for you to correct. MD.ESTIMATE's levels are Grade 4's, as the document drafted them: no school objective names estimating a product, so the draft's grade stands. Each estimate is asked on its example's numbers (48 × 6, 67 × 75, 156 ÷ 4). The closest estimate's options are what rounding to a ten gives (52 × 9: 360, 450 or 540), so a wrong choice shows how the child rounded: up always, or down always, a new mistake drafted for you with what to do about it. Odd or even of a product is asked past the tables here (6 × 13), and on a table fact in multiples and factors (6 × 7). A right answer judged wrong is now named on addition's and subtraction's questions too.",
       "source": "goals/md4b1-estimates.yaml"
+    },
+    {
+      "code": "md4b2-equality",
+      "for_role": "educator",
+      "question": "Equations with × and ÷: their grades, each true-or-false asked beside its other, a wrong answer explained by multiplying back, and three new mistakes",
+      "drafted": "drafted for you to correct. MD.EQUALITY is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as the document drafted it; the school's objective \"Missing numbers in equations\" is at both grades. A true-or-false is asked beside its other, so it is not answered by guessing: a product turned round beside a difference (7 × 6 = 6 × 7, 9 − 4 = 4 − 9), 9 ÷ 0 = 0 beside 0 ÷ 9 = 0, a division turned round beside a product; the missing sign and the comparison ask a × sentence and a ÷ sentence. A wrong answer is explained by multiplying back with the product written (804 ÷ 4 = 21: 21 × 4 = 84), not by ticking yes or no. Three new mistakes, their names and what to do about them drafted for you: ÷ 0 read as 0, a remainder left out of its check (85 ÷ 4 = 21 r 1 checked as 21 × 4 = 84), and a bigger divisor taken to give a bigger answer (48 ÷ 8 > 48 ÷ 6).",
+      "source": "goals/md4b2-equality.yaml"
     }
   ]
 }

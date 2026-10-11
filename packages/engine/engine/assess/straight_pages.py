@@ -1,6 +1,7 @@
 """A calculation's question and its boxes on the page, and the kinds made of one (`render.render_item`): a sum in a
 line or in columns, a division in its layout with its exchanges; a missing digit; an estimate, then the calculation; the
-quickest method. Pure: HTML fragments, read back by the key's geometry (`render.render_sheet`)."""
+quickest method; an equation, each sentence with its own box or ticks; a claim judged, or multiplied back. Pure: HTML
+fragments, read back by the key's geometry (`render.render_sheet`)."""
 
 import dataclasses
 import html
@@ -124,3 +125,41 @@ def efficient(sid: str, iid: str, R: dict[str, Response], cells: Callable[[Respo
     return f'<div class="row"><span class="lab">answer =</span>{cells(R["ans"])}</div>' + textbox(
         sid, iid, R["method"], 13
     )
+
+
+def _box_sign(text: str) -> str:
+    return html.escape(text).replace("□", "&#9633;")
+
+
+def _sentence(sid: str, iid: str, r: Response, cells: Callable[..., str], big: bool = False) -> str:
+    """One sentence on its own row with its answer: a box where its □ stands, or its ticks after it."""
+    if r.kind == "tick":
+        return f'<div class="row" style="margin-bottom:2mm"><span class="eq">{_box_sign(r.label)}</span>{ticks(sid, iid, r)}</div>'
+    before, _, after = r.label.partition("□")
+    tail = f'<span class="eq">{html.escape(after)}</span>' if after.strip() else ""
+    return f'<div class="row" style="margin-bottom:2mm"><span class="eq">{html.escape(before)}</span>{cells(r, big)}{tail}</div>'
+
+
+def equation(sid: str, iid: str, it: Any, cells: Callable[..., str], big: bool) -> tuple[str, str]:
+    """An equation's question and its answers. A × or ÷ one prints each sentence on its own row, its box where its □
+    stands or its ticks after it (goals/md4b2-equality.yaml); any other its one sentence under the instruction, then its
+    box after "□ =" or its ticks."""
+    sp = it.spec
+    if sp.get("sentences"):
+        return html.escape(it.stem), "".join(_sentence(sid, iid, r, cells, big) for r in it.responses)
+    stem = html.escape(it.stem) + f'<br><span class="eq">{_box_sign(sp["text"])}</span>'
+    return stem, "".join(
+        ticks(sid, iid, r) if r.kind == "tick" else f'<span class="lab">&#9633; =</span>{cells(r, big)}'
+        for r in it.responses
+    )
+
+
+def claim(sid: str, iid: str, R: dict[str, Response], cells: Callable[..., str]) -> str:
+    """A claim to explain: judged yes or no, then why (addition's); or a division multiplied back, its product in a box,
+    then why it cannot be right (goals/md4b2-equality.yaml)."""
+    first = (
+        _sentence(sid, iid, R["check"], cells)
+        if "check" in R
+        else ticks(sid, iid, R["tick"], {"yes": "Yes, correct", "no": "No, not correct"})
+    )
+    return first + textbox(sid, iid, R["why"], 15)

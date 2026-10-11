@@ -337,7 +337,8 @@ def test_a_division_is_checked_by_multiplying():
     """96 ÷ 4 = 24? 24 × 4 = □: exact; the claim is the right answer or what a named mistake of the division layout
     writes, its remainder with it (96 ÷ 4 = 21 r 2, each digit divided alone), one as often as the other. The check
     multiplies the claim back and adds its remainder; its box names the multiplication's mistakes ("wrong operation"
-    excepted, ADR 0057), and a verdict the wrong way round is M_REVERSES_CLAIM_TRUTH."""
+    excepted, ADR 0057) and, where the claim carries a remainder, the product written without it (ADR 0066), which no
+    other mistake then names; a verdict the wrong way round is M_REVERSES_CLAIM_TRUTH."""
     drawn = _of("DIV.2D1D", "Y10")
     assert len(drawn) >= 10
     seen = set()
@@ -356,11 +357,13 @@ def test_a_division_is_checked_by_multiplying():
         check = _resp(it, "check")
         assert check.label == (f"{cq} × {b} + {cr} = □" if cr else f"{cq} × {b} = □"), check.label
         assert check.answer == str(cq * b + cr)
-        want = {
+        times = {
             c: p + cr
             for c, p in M.predict("×", cq, b).items()
             if c != "M_WRONG_OP" and isinstance(p, int) and 0 <= p != cq * b
         }
+        left_out = {"M_DIV_REMAINDER_LEFT_OUT": cq * b} if cr else {}
+        want = left_out | {c: v for c, v in times.items() if v not in left_out.values()}
         assert check.misconceptions == want, (check.misconceptions, want)
         verdict = _resp(it, "right")
         assert verdict.answer == ("yes" if right else "no")

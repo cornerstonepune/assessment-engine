@@ -287,8 +287,8 @@ What × and ÷ are, beyond working them out: the rules they keep, how they undo 
 | Y04 | Anything × 0 | 456 × 0 | 0 |
 | Y05 | × 1 and ÷ 1 leave a number unchanged | 37 × 1 and 37 ÷ 1 | 37 and 37 |
 | Y06 | A number ÷ itself, and 0 ÷ a number | 9 ÷ 9 and 0 ÷ 9 | 1 and 0 |
-| Y07 | True or false: 9 ÷ 0 = 0 | 9 ÷ 0 = 0 | false: there is no answer |
-| Y08 | True or false: 12 ÷ 3 = 3 ÷ 12 | 12 ÷ 3 = 3 ÷ 12 | false: division cannot be turned round |
+| Y07 | True or false: 9 ÷ 0 = 0, beside 0 ÷ 9 = 0 | 9 ÷ 0 = 0 and 0 ÷ 9 = 0 | false and true |
+| Y08 | True or false: 12 ÷ 3 = 3 ÷ 12, beside 12 × 3 = 3 × 12 | 12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12 | false and true |
 | Y09 | A fact family | 4, 7, 28: write the four facts | 4 × 7 = 28, 7 × 4 = 28, 28 ÷ 4 = 7, 28 ÷ 7 = 4 |
 | Y10 | Check a division by multiplying | 96 ÷ 4 = 24? 24 × 4 = □ | 96 |
 | Y11 | Balance: × against − | 3 × 8 = 30 − □ | 6 |
@@ -296,7 +296,7 @@ What × and ÷ are, beyond working them out: the rules they keep, how they undo 
 | Y13 | The missing sign | 6 □ 3 = 18 and 18 □ 3 = 6 | × and ÷ |
 | Y14 | Compare without working | 25 × 4 ○ 25 × 5 and 48 ÷ 6 ○ 48 ÷ 8 | < and > |
 | Y15 | Double a factor, double the product | 12 × 5 = 60, so 12 × 10 = □ | 120 |
-| Y16 | True or false: 7 × 6 = 6 × 7 | 7 × 6 = 6 × 7 | true |
+| Y16 | True or false: 7 × 6 = 6 × 7, beside 9 − 4 = 4 − 9 | 7 × 6 = 6 × 7 and 9 − 4 = 4 − 9 | true and false |
 | F01 | Multiples of a number | The multiples of 6 up to 60 | 6, 12, 18, 24, 30, 36, 42, 48, 54, 60 |
 | F02 | Is it a multiple? | Is 45 a multiple of 5? | yes |
 | F03 | All the factors of a number | The factors of 12 | 1, 2, 3, 4, 6, 12 |
@@ -411,6 +411,9 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | M_DIV_BIGGER_BY_SMALLER (new) | ÷ | Divides the bigger number by the smaller whichever comes first | 3 ÷ 5 | 0 r 3 | 1 r 2 | answer | the skill |
 | M_DIV_SELF_AS_ZERO (new) | ÷ | Treats a number ÷ itself as nothing left | 7 ÷ 7 | 1 | 0 | answer | the facts |
 | M_DIV_ZERO_DIVIDED (new) | ÷ | Answers the divisor when zero is divided | 0 ÷ 5 | 0 | 5 | answer | the facts |
+| M_DIV_BY_ZERO_AS_ZERO (new) | ÷ | Reads ÷ 0 as 0 | 9 ÷ 0 = 0: true or false? | false | true | tick | the facts |
+| M_DIV_REMAINDER_LEFT_OUT (new) | ÷ | Multiplies back to check a division and leaves its remainder out | 85 ÷ 4 = 21 r 1: 21 × 4 + 1 | 85 | 84 | answer | the skill |
+| M_DIV_BIGGER_DIVISOR (new) | ÷ | Takes a bigger divisor to give a bigger answer | 48 ÷ 6 ○ 48 ÷ 8 | > | < | tick | the skill |
 | M_DIV_TENS_ZERO_LEFT (new) | ÷ | Takes away one zero fewer when dividing by 10 or 100 | 4500 ÷ 100 | 45 | 450 | answer | the skill |
 | M_DIV_TENS_ZERO_EXTRA (new) | ÷ | Uses a zero for the fact, then writes every zero back | 200 ÷ 4 | 50 | 500 | answer | the skill |
 | M_WRONG_OP (÷) | ÷ | Multiplies instead of dividing | 84 ÷ 4 | 21 | 336 | answer | the skill |
