@@ -1,6 +1,7 @@
 import { DatabaseSlow, deadline, PAGE_WAIT_MS } from "./deadline";
 import { EngineDown, engineSend } from "./engine";
 import { readArea, type Area } from "./next-paper";
+import { levelsOf, type SkillSet } from "./queries";
 
 // The maker (goals/m3-the-maker.yaml): papers for any children of one class at once. The engine draws, checks and
 // prints them (`w2_print/maker.py`); this reads the educator's choices from the form or the address and asks it.
@@ -129,4 +130,15 @@ export async function makeBatch(b: Batch, by: string, once: string): Promise<{ m
 async function refusal(res: Response, otherwise: string): Promise<string> {
   const detail = ((await res.json().catch(() => ({}))) as { detail?: unknown }).detail;
   return typeof detail === "string" ? detail : otherwise;
+}
+
+/** A class's default assessment on a topic (goals/ui2-assessments.yaml): the topic's skills at the class's grade, in
+ *  the ladder's order and as many as a paper has lines, each at Medium where it has one, else its first level, the
+ *  paper's length shared between them — as whole areas, `skill~level~n`, which the educator then sees and can change.
+ *  Nimish, 2026-10-11: "I can choose a class, I can choose the topic, and then it generates the default assessments". */
+export function topicLines(sets: SkillSet[], topic: string, band: string, length: number | null, lines: number): string[] {
+  const here = sets.filter((x) => x.topic_code === topic && x.band === band).slice(0, lines);
+  if (!here.length || !length) return [];
+  const each = Math.max(1, Math.round(length / here.length));
+  return here.map((x) => `${x.code}~${levelsOf(x).includes("Medium") ? "Medium" : levelsOf(x)[0]}~${each}`);
 }

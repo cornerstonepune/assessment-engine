@@ -7,6 +7,15 @@ import { sql } from "./db";
 export const STAGES = ["made", "printed", "scanned", "checked", "signed off"] as const;
 export type Stage = (typeof STAGES)[number];
 
+/** Each stage said as the work it waits for (goals/ui2-assessments.yaml); the stored names stay the filter's values. */
+export const STAGE_WORDS: Record<Stage, string> = {
+  made: "to approve",
+  printed: "with the children",
+  scanned: "to check",
+  checked: "to sign off",
+  "signed off": "done",
+};
+
 /** A paper's kind in the school's words; `earlier` is a paper sat before our QR sheets, which has no kind. */
 export const KIND_WORDS: Record<string, string> = {
   practice: "Class practice",
@@ -25,6 +34,8 @@ export type PaperListRow = {
   /** Its skill and level, or a whole paper's title. */
   title: string;
   section: string | null;
+  /** The grade the paper is for: its child's, or its worksheet's. */
+  band: string | null;
   child_id: string | null;
   child: string | null;
   week: string | null;
@@ -42,7 +53,7 @@ const LIMIT = 300;
 const papersCte = () => sql`
   papers as (
     select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id,
-           coalesce(si.section, ch.section) as section, coalesce(si.week, t.week) as week,
+           coalesce(si.section, ch.section) as section, coalesce(ch.band, t.band) as band, coalesce(si.week, t.week) as week,
            coalesce(t.key ->> 'date', si.created_at::date::text) as day, si.created_at,
            coalesce(ss.name || coalesce(' · ' || t.difficulty, ''), t.key ->> 'title', drawn.title, t.code, t.batch_id,
                     si.qr_code) as title,
@@ -110,7 +121,7 @@ export async function paperList(
         select c.id, n.first_name from child c, lateral pii.read_child(c.id, ${actor}) n
         where c.id in (select child_id from shown where child_id is not null)
       )
-      select s.id, s.qr, s.kind, s.title, s.section, s.child_id, names.first_name as child, s.week, s.stage,
+      select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.week, s.stage,
              s.waiting, s.right, s.scored
       from shown s left join names on names.id = s.child_id
       order by s.day desc nulls last, s.created_at desc, s.section, s.qr`,

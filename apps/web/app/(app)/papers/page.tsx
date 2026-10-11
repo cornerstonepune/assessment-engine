@@ -2,11 +2,23 @@ import Link from "@/components/link";
 import { Body, PageHeader, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { checkQueue } from "@/lib/queries-read";
-import { KIND_WORDS, paperList, STAGES, type PaperFilter, type PaperListRow, type Stage } from "@/lib/queries-papers";
+import { KIND_WORDS, paperList, STAGE_WORDS, STAGES, type PaperFilter, type PaperListRow, type Stage } from "@/lib/queries-papers";
+import { classWords } from "@/lib/needs-you";
+import { weekWords } from "@/lib/week";
 import { deadline } from "@/lib/deadline";
 import { ReadScan } from "../capture/read-scan";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
+
+// The four ways an educator makes an assessment (goals/ui2-assessments.yaml), each opening the maker ready for that use.
+// Nimish, 2026-10-11: "for every child, there is a customized assessment and the capability to create their own
+// assessments or generate assessments as and when required for a particular class".
+const STARTS: [string, string, string][] = [
+  ["For a class", "/papers/make?kind=assessment&way=same", "one assessment for every child of a class: choose the class, then a topic or the skills"],
+  ["For each child", "/make", "this week's home assessment for each child, made from their own record, to approve"],
+  ["For one child", "/papers/make?kind=assessment&way=own&one=1", "a follow-up for one child: the engine proposes their next step, and you can change it"],
+  ["A ready-made worksheet", "/worksheets", "a worksheet from the library, printed for the children you choose"],
+];
 
 const UUID = /^[0-9a-f-]{36}$/;
 // A stage's material: what waits on a person reads warm, what is done reads settled (pills never red or green).
@@ -65,13 +77,21 @@ export default async function PapersPage({ searchParams }: Props) {
       <PageHeader
         stage="Assessments"
         title="Assessments"
-        sub="Every assessment paper, from made to signed off. Filter them; click one to print it, or to check its answers once it is read."
+        sub="Make an assessment, then follow every one from approval to done. Click a paper to print it, or to check its answers once it is read."
       />
       <Body>
+        <section aria-label="Make an assessment" className="mb-[18px]">
+          <h2 className="label mb-2">Make an assessment</h2>
+          <div className="grid gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
+            {STARTS.map(([title, href, words]) => (
+              <Link key={title} href={href} className="panel flex flex-col gap-1 p-4 text-basalt no-underline hover:border-basalt">
+                <span className="font-heading text-[16px]">{title}</span>
+                <span className="text-[13px] text-basalt/65">{words}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
-          <Link href="/papers/make" className="btn">
-            Make a paper
-          </Link>
           <Link href="/capture/check" className="btn secondary">
             {toCheck} answers to check →
           </Link>
@@ -83,12 +103,12 @@ export default async function PapersPage({ searchParams }: Props) {
         <nav aria-label="Papers by stage" className="mb-3 flex flex-wrap gap-2">
           <Link href={query(f, { stage: undefined })} className={`chip ${!f.stage ? "on" : ""}`}
             aria-current={!f.stage ? "page" : undefined}>
-            every stage <span className="fact ml-1 opacity-70">{all}</span>
+            Every stage <span className="fact ml-1 opacity-70">{all}</span>
           </Link>
           {STAGES.map((s) => (
             <Link key={s} href={query(f, { stage: s })} className={`chip ${f.stage === s ? "on" : ""}`}
               aria-current={f.stage === s ? "page" : undefined}>
-              {s} <span className="fact ml-1 opacity-70">{stages[s]}</span>
+              {STAGE_WORDS[s][0].toUpperCase() + STAGE_WORDS[s].slice(1)} <span className="fact ml-1 opacity-70">{stages[s]}</span>
             </Link>
           ))}
         </nav>
@@ -98,7 +118,7 @@ export default async function PapersPage({ searchParams }: Props) {
           <Select name="class" label="Class" value={f.class} all="Every class" options={options.classes.map((c) => [c, c])} />
           <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
           <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
-          <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, w])} />
+          <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
           <button type="submit" className="btn">Show</button>
           {f.class || f.child || f.kind || f.week || f.stage ? (
             <Link href="/papers" className="text-[13px]">Clear</Link>
@@ -130,11 +150,13 @@ export default async function PapersPage({ searchParams }: Props) {
                       </Link>
                     </td>
                     <td className="whitespace-nowrap">{KIND_WORDS[p.kind] ?? p.kind}</td>
-                    <td className="num whitespace-nowrap">{p.section ?? <span className="text-basalt/45">—</span>}</td>
+                    <td className="num whitespace-nowrap">
+                      {p.section ? (p.band ? classWords(p.band, p.section) : p.section) : <span className="text-basalt/45">—</span>}
+                    </td>
                     <td className="whitespace-nowrap">{p.child ?? <span className="text-basalt/45">spare copy</span>}</td>
-                    <td className="num fact whitespace-nowrap">{p.week ?? <span className="text-basalt/45">—</span>}</td>
+                    <td className="num fact whitespace-nowrap">{p.week ? weekWords(p.week) : <span className="text-basalt/45">—</span>}</td>
                     <td className="num">
-                      <Pill tone={STAGE_TONE[p.stage]}>{p.stage}</Pill>
+                      <Pill tone={STAGE_TONE[p.stage]}>{STAGE_WORDS[p.stage]}</Pill>
                     </td>
                     <td className="num">{p.waiting ? p.waiting : <span className="text-basalt/45">—</span>}</td>
                     <td className="num whitespace-nowrap">

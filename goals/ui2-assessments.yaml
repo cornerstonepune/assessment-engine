@@ -1,0 +1,39 @@
+name: ui2-assessments
+goal: >
+  Assessments opens on the four ways an educator makes one, each opening the maker ready for that use: for a class (one
+  assessment for every child), for each child (their own, from their record), for one child, and a ready-made
+  worksheet. A class and a topic make the class's default assessment: the topic's skills at the class's grade, each at
+  its level for that grade, the paper's length shared between them, every child's paper seen before anything is made.
+  Every assessment's stage is said as the work it waits for (to approve, with the children, to check, to sign off,
+  done), its class as Grade 2 · 2B and its week as week of 5 Oct. An answer is checked and a paper is signed off: one
+  word for each, on every page.
+# Written 2026-10-11, before the code: Step 2 of the navigation plan Nimish approved
+# (https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD; BUILD-ORDER "UI1 to UI4", his exception to W1 gate 3). Measured
+# first (STATE.md "UI2 — measured before the build"): the maker already makes class practice, class assessments and home
+# assessments, one paper for all, the same skill for each, or each child's own next step; nothing opens it ready for a
+# use, a class with a topic fills nothing, the stages read made / printed / scanned / checked / signed off, classes and
+# weeks are codes, and a child's page says settle and confirm where the queue says check and the paper says sign off.
+says:
+  - words: "for every child, there is a customized assessment and the capability to create their own assessments or generate assessments as and when required for a particular class"
+    proved_by: "apps/web/tests/u16-assessments.spec.ts::Assessments opens on four ways to make one, each opening the maker ready for its use"
+  - words: "I can choose a class, I can choose the topic, and then it generates the default assessments for that"
+    proved_by: "apps/web/tests/u16-assessments.spec.ts::a class and a topic make the class's default assessment, every child's paper seen first"
+  - words: "Multiple combinations of how assessments can be developed from the question bank should have a very clean UI to be able to do multiple of those things based on use cases."
+    proved_by: "apps/web/tests/u16-assessments.spec.ts::every assessment's stage, class and week are said in words"
+  - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
+    proved_by: "apps/web/tests/u16-assessments.spec.ts::an answer is checked and a paper signed off, one word for each"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+  - "Picking single questions from the bank into a paper is not built: the engine makes papers from skills and levels or
+    hands out a ready-made worksheet. Building it is engine work (W2), put to Nimish."
+scenarios: []
+criteria:
+  - name: Assessments, the maker, the papers list and the pages whose words changed
+    run: cd apps/web && npx playwright test tests/u16-assessments.spec.ts tests/u9-papers.spec.ts tests/m4-the-maker.spec.ts tests/u2-children.spec.ts tests/u3-marking.spec.ts tests/s7-paper-from-library.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

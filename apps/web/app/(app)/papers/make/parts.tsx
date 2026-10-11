@@ -153,7 +153,7 @@ export function Made({ qrs, section, kind, week, already }: {
           Print them all
         </a>
         <Link href={`/papers?class=${encodeURIComponent(section)}&week=${week}&kind=${kind}`} className="btn secondary">
-          See them in Papers
+          See them in Assessments
         </Link>
       </div>
     </Panel>
