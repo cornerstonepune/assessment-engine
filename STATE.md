@@ -6261,3 +6261,40 @@ On main `d75767c` and the rehearsed copy `m3d`. M4 places 74 cases on five skill
 - **The mistake table (A11):** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is
   empty, addition's table included.
 - **Split** (BUILD-ORDER): M4a MD.MENTAL, M4b MD.EQUALITY and MD.ESTIMATE, M4c MD.MULTIPLES, M4d MD.WORD.
+
+## M4a — mental multiplication and division, built (2026-10-11)
+
+Goal `goals/md4a-mental-methods.yaml`, ADR 0064.
+- **Each method asked as the sums it works out** (`assess/mental.py`): a box for every step, its sum printed beside it,
+  then the answer's (13 × 8 as 13 × 2, 13 × 4, 13 × 8). Seven new: doubling (× 2, × 4), halving (÷ 2, ÷ 4), × 8
+  doubled three times, × 9 as ten groups less one, × 11 as ten groups and one more, double one and halve the other,
+  × 25 as a hundred groups divided by 4. The five built before draw on MD.MENTAL's levels; a fact scaled by ten builds
+  its numbers where a level names no round ones (`draw_times.built`). The website draws every step with a blank.
+- **Levels by the school's objectives (A6):** Easy G2 (G06, G25), Medium G3 (H10, H01, H04, H08), Hard G3 (H02, H03,
+  H05, H07), Advance G4 (H06, H09). Corrected at the source: halving to Grade 2, H10 to Grade 3, H09 to Grade 4; G06 is
+  × 2 and × 4 (`research/md_taxonomy.py`, 252 cases, 0 faults).
+- **Mistakes, the method's own first on its answer:** `M_MENTAL_STOPS_SHORT` and `M_MENTAL_ONE_NOT_GROUP` are new;
+  `M_COMPENSATION_SIGN` and `M_CONFUSES_COMPENSATION` gain a × row (the wrong way; both doubled). A step's slips are its
+  operation's as it names them; halving 74 as 32 is short division's exchange lost. The five built shortcuts name their
+  methods' own too; copies stored before keep a key that names fewer, never wrongly. Each method's own counts against
+  mental maths (NUM.OPS.05).
+- **Found while building, fixed at the cause:**
+  - `named` lived in `counting.py` and made `mental` → `counting` → `words` → `times_kinds` → `mental` a cycle: it moved
+    to `misconceptions.py`, the mistake module, and its six users import it from there.
+  - A first cut named one mistake per wrong answer across a whole box, which would have dropped division's own second
+    name (720 ÷ 5 answered 100 is the exchange lost and the remainder added, `div_mistakes.in_box`): only the method's
+    own now take a value from the rest.
+  - The goal named two new codes for acts compensation already names; it reuses those rows.
+- **Rows:** MD.MENTAL on rung R47 (NUM.OPS.05) in topic MDMENTAL, draft and untaught; four mistake rows; Achal's
+  question; migration `20261105090000` (MUL.2D1D and DIV.3D1D's lists). `bands.py`'s untyped findings fell 279 to 272.
+
+Proved on copies:
+- **Tests:** `test_mental.py` 19 passed. The goal's criteria list on a fresh database (`bin/testdb fresh`, as CI): 1,177
+  of 1,178 passed, the last the loader's counts of rungs and skill sets (fixed, 12 passed). `bin/check` 27 passed.
+- **The goal's four scenarios** on the fresh database: 16, 24, 24 and 16 asked, each produced, every answer and step
+  recomputed from its printed sums, on its rule, diagnosed and distinct, every listed case held.
+- **Browser** on a copy: s35 and s36, 2 passed.
+- **The update-live rehearsal** on a copy of `m3d` (the migration, `engine load`, `bank levels --apply`, `rekey`,
+  `relabel`, `rehome`, `refill`, `library build`, `library check`, `bank taxonomy`): the migration updated 2 skill
+  sets; MD.MENTAL loaded as a draft in an untaught topic; the refill added 144 (24, 48, 48, 24) and retired none;
+  `library build` made 40; `library check`: 2,518 worksheets, 152 of 152 skill-levels ready, 0 problems.

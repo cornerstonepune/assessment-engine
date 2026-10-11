@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4a: mental multiplication and division (built)
+
+- **Slice:** M4a, W1 gate 3. `MD.MENTAL`, Grades 2 to 4: every mental method asked as the sums it works out.
+- **Goal** `goals/md4a-mental-methods.yaml`; **built** (STATE.md "M4a — … built", ADR 0064): `assess/mental.py`, seven
+  methods; the five built before on MD.MENTAL's numbers; the levels by the school's objectives; the methods' own
+  mistakes first; `named` moved to `misconceptions.py`.
+- **Proved on copies:** 19 unit tests; the criteria list on a fresh database (1,178); four scenarios met completely;
+  s36 in the browser; the update-live rehearsal (144 added, 0 retired, 0 problems).
+- **Next:** CI and the rehearsal on the PR, merge, `engine done md4a-mental-methods` on main's code. Then M4b.
+- **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live`. MD.MENTAL then waits for one
+  approval on the Skill Map, and for an educator to switch "Mental multiplication and division" on. Achal's question
+  is on the site.
+
 ## 2026-10-11 — M4: measured and split; M4a, MD.MENTAL, next
 
 - **Slice:** M4, W1 gate 3, measured before any code (STATE.md "M4 — measured before the build").
