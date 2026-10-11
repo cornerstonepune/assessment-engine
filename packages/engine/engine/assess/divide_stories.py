@@ -14,6 +14,7 @@ from typing import Any
 from . import div_mistakes as DM
 from . import division as DV
 from . import operations as O
+from . import own_stories as OS
 from . import words as W
 from .items import Item, Response, cells, item
 
@@ -57,7 +58,10 @@ def story(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) ->
     exact where its case says nothing of a remainder, with one where it does; drawn again where the numbers are not."""
     shape, use = alt.get("structure"), alt.get("remainder_use")
     shape, use = (shape if isinstance(shape, str) else None), (use if isinstance(use, str) else None)
-    pool = [t for t in W.templates("word_1step", "÷", shape) if t.get("remainder_use") == use]
+    own = OS.pool("word_1step", shape, "÷", False) if use is None else []
+    if own:  # a shape whose template says its own numbers (half as many is ÷ 2): drawn on those, not the case's pair
+        return OS.make(rng, rung, rng.choice(own))
+    pool = [t for t in W.older("word_1step", "÷", shape) if t.get("remainder_use") == use]
     if not pool:
         raise O.CannotMake(f"no one-step story divides for shape {shape!r} using its remainder as {use!r}")
     if b == 0 or bool(a % b) != bool(use):

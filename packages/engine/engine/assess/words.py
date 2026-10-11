@@ -42,6 +42,19 @@ def templates(
     ]
 
 
+def owns(tpl: dict[str, Any]) -> bool:
+    """A story that says its own numbers and its answer (`numbers`, `answer`): `own_stories` makes it; the older makers
+    here, sized by a level's rule, never draw it (goals/md4d1-times-stories.yaml)."""
+    return bool(tpl.get("numbers")) and bool(tpl.get("answer"))
+
+
+def older(
+    fmt: str | None = None, op: str | None = None, structure: str | None = None
+) -> list[dict[str, Any]]:
+    """The templates the older makers draw from: every one but a story that says its own numbers."""
+    return [t for t in templates(fmt, op, structure) if not owns(t)]
+
+
 NAMES = _seed()["names"]
 THINGS = _seed()["tally_things"]  # what a tally counts (`counting.tally`)
 
@@ -82,8 +95,13 @@ def story_spec(tpl: dict[str, Any], **numbers: int) -> dict[str, Any]:
         spec["remainder_use"] = tpl["remainder_use"]
     if tpl["fmt"] == "word_2step":
         spec["ops"] = list(dict.fromkeys(tpl["op"]))
-    if tpl.get("table"):
-        spec["table"] = [[tpl["table"][0], numbers["a"]], [tpl["table"][1], numbers["b"]]]
+    if tpl.get(
+        "table"
+    ):  # each label beside a and b; or each beside the number it names (a price list: "b", "c")
+        spec["table"] = [
+            [t[0], numbers[t[1]]] if isinstance(t, list) else [t, numbers[k]]
+            for t, k in zip(tpl["table"], "ab")
+        ]
     return spec
 
 
@@ -107,7 +125,7 @@ def word_1step(
     op = op and O.require("word_1step", op, makes=("+", "-", "×"))
     pool = [
         t
-        for t in templates("word_1step", structure=structure)
+        for t in older("word_1step", structure=structure)
         if t["op"] in ((op,) if op else ("+", "-")) and bool(t.get("table")) == table
     ]
     if not pool:
@@ -200,7 +218,7 @@ def evaluate(formula: str, nums: dict[str, int], flip: bool = False, divide: int
 
 def word_2step(rng, rung, signal, digits_max, structure=None):
     """Two steps (§10.3), or one step with a number the story does not need (§10.2)."""
-    pool = templates("word_2step", structure=structure)
+    pool = older("word_2step", structure=structure)
     if not pool:
         raise ValueError(f"no two-step story for shape {structure!r}")
     tpl = rng.choice(pool)

@@ -505,6 +505,544 @@
       "structure": "HOW_MANY_GROUPS",
       "op": "÷",
       "text": "How many {b}s make {a}?"
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TIMES_AS_MANY_SMALLER",
+      "op": "÷",
+      "text": "{n} has {a} stickers, {b} times as many as {n2}. How many stickers has {n2}?",
+      "numbers": {
+        "a": [
+          12,
+          96
+        ],
+        "b": [
+          2,
+          9
+        ]
+      },
+      "answer": "a/b",
+      "least": 2,
+      "also": {
+        "M_TIMES_WORD_MULTIPLIED": "a*b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "TIMES_AS_MANY_SMALLER",
+      "op": "÷",
+      "text": "A shop has {a} red pens. That is {b} times as many as its blue pens. How many blue pens does it have?",
+      "numbers": {
+        "a": [
+          12,
+          96
+        ],
+        "b": [
+          2,
+          9
+        ]
+      },
+      "answer": "a/b",
+      "least": 2,
+      "also": {
+        "M_TIMES_WORD_MULTIPLIED": "a*b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "HOW_MANY_TIMES",
+      "op": "÷",
+      "text": "{n} has {a} stickers and {n2} has {b}. How many times as many stickers as {n2} does {n} have?",
+      "numbers": {
+        "a": [
+          12,
+          96
+        ],
+        "b": [
+          3,
+          12
+        ]
+      },
+      "answer": "a/b",
+      "least": 2,
+      "also": {
+        "M_TIMES_AS_MORE": "a-b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "HOW_MANY_TIMES",
+      "op": "÷",
+      "text": "A mango tree has {a} mangoes and a guava tree has {b} guavas. How many times as many mangoes as guavas are there?",
+      "numbers": {
+        "a": [
+          12,
+          96
+        ],
+        "b": [
+          3,
+          12
+        ]
+      },
+      "answer": "a/b",
+      "least": 2,
+      "also": {
+        "M_TIMES_AS_MORE": "a-b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "HALF_AS_MANY",
+      "op": "÷",
+      "text": "{n} read {a} pages. {n2} read half as many. How many pages did {n2} read?",
+      "numbers": {
+        "a": [
+          10,
+          98
+        ],
+        "b": 2
+      },
+      "answer": "a/b",
+      "least": 5,
+      "also": {
+        "M_HALF_AS_DOUBLE": "a*b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "HALF_AS_MANY",
+      "op": "÷",
+      "text": "A big tree has {a} birds on it. A small tree has half as many. How many birds are on the small tree?",
+      "numbers": {
+        "a": [
+          10,
+          98
+        ],
+        "b": 2
+      },
+      "answer": "a/b",
+      "least": 5,
+      "also": {
+        "M_HALF_AS_DOUBLE": "a*b"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EXTRA_INFORMATION",
+      "op": "×",
+      "text": "A van carries {a} boxes of {b} mangoes and {extra} drivers. How many mangoes are in the van?",
+      "numbers": {
+        "a": [
+          3,
+          12
+        ],
+        "b": [
+          6,
+          25
+        ],
+        "extra": [
+          2,
+          6
+        ]
+      },
+      "answer": "a*b",
+      "also": {
+        "M_EXTRA_NUMBER_USED": "a*b*extra"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "EXTRA_INFORMATION",
+      "op": "×",
+      "text": "{a} children each bring {b} pencils to class, and {extra} teachers help them. How many pencils do the children bring?",
+      "numbers": {
+        "a": [
+          3,
+          12
+        ],
+        "b": [
+          6,
+          25
+        ],
+        "extra": [
+          2,
+          6
+        ]
+      },
+      "answer": "a*b",
+      "also": {
+        "M_EXTRA_NUMBER_USED": "a*b*extra"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "RATE_TOTAL",
+      "op": "×",
+      "text": "Use the price list. What do {a} pens cost, in rupees?",
+      "table": [
+        [
+          "Pen (₹)",
+          "b"
+        ],
+        [
+          "Eraser (₹)",
+          "c"
+        ]
+      ],
+      "numbers": {
+        "a": [
+          3,
+          9
+        ],
+        "b": [
+          12,
+          45
+        ],
+        "c": [
+          5,
+          30
+        ]
+      },
+      "answer": "a*b",
+      "also": {
+        "M_WRONG_PRICE_READ": "a*c"
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "RATE_TOTAL",
+      "op": "×",
+      "text": "Use the price list. What do {a} notebooks cost, in rupees?",
+      "table": [
+        [
+          "Notebook (₹)",
+          "b"
+        ],
+        [
+          "Pencil (₹)",
+          "c"
+        ]
+      ],
+      "numbers": {
+        "a": [
+          3,
+          9
+        ],
+        "b": [
+          15,
+          60
+        ],
+        "c": [
+          4,
+          20
+        ]
+      },
+      "answer": "a*b",
+      "also": {
+        "M_WRONG_PRICE_READ": "a*c"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "MULTIPLY_THEN_ADD",
+      "op": "×+",
+      "text": "There are {a} boxes of {b} pencils and {c} loose pencils. How many pencils are there in all?",
+      "numbers": {
+        "a": [
+          3,
+          9
+        ],
+        "b": [
+          6,
+          25
+        ],
+        "c": [
+          2,
+          9
+        ]
+      },
+      "answer": "a*b+c",
+      "also": {
+        "M_ONE_STEP_ONLY": "a*b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "MULTIPLY_THEN_ADD",
+      "op": "×+",
+      "text": "{n} plants {a} rows of {b} seeds, then {c} more seeds. How many seeds does {n} plant?",
+      "numbers": {
+        "a": [
+          3,
+          9
+        ],
+        "b": [
+          6,
+          25
+        ],
+        "c": [
+          2,
+          9
+        ]
+      },
+      "answer": "a*b+c",
+      "also": {
+        "M_ONE_STEP_ONLY": "a*b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "MULTIPLY_THEN_SUBTRACT",
+      "op": "×-",
+      "text": "{n} has ₹{a} and buys {b} pens at ₹{c} each. How much money is left?",
+      "numbers": {
+        "a": [
+          60,
+          200
+        ],
+        "b": [
+          2,
+          6
+        ],
+        "c": [
+          5,
+          25
+        ]
+      },
+      "answer": "a-b*c",
+      "also": {
+        "M_ONE_STEP_ONLY": "b*c"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "MULTIPLY_THEN_SUBTRACT",
+      "op": "×-",
+      "text": "A shop has {a} eggs. It sells {b} trays of {c} eggs. How many eggs are left?",
+      "numbers": {
+        "a": [
+          60,
+          200
+        ],
+        "b": [
+          2,
+          6
+        ],
+        "c": [
+          6,
+          30
+        ]
+      },
+      "answer": "a-b*c",
+      "also": {
+        "M_ONE_STEP_ONLY": "b*c"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "DIVIDE_THEN_MULTIPLY",
+      "op": "÷×",
+      "text": "{a} pencils cost ₹{b}. What do {c} pencils cost?",
+      "numbers": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          12,
+          120
+        ],
+        "c": [
+          2,
+          12
+        ]
+      },
+      "answer": "b/a*c",
+      "also": {
+        "M_ONE_STEP_ONLY": "b/a"
+      },
+      "differ": [
+        [
+          "a",
+          "c"
+        ]
+      ]
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "DIVIDE_THEN_MULTIPLY",
+      "op": "÷×",
+      "text": "{a} bags hold {b} marbles, the same in each. How many marbles are in {c} bags?",
+      "numbers": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          12,
+          120
+        ],
+        "c": [
+          2,
+          12
+        ]
+      },
+      "answer": "b/a*c",
+      "also": {
+        "M_ONE_STEP_ONLY": "b/a"
+      },
+      "differ": [
+        [
+          "a",
+          "c"
+        ]
+      ]
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "TWO_PRODUCTS_ADDED",
+      "op": "××+",
+      "text": "{n} buys {a} packets of {b} stickers and {c} packets of {d} stickers. How many stickers does {n} buy?",
+      "numbers": {
+        "a": [
+          2,
+          9
+        ],
+        "b": [
+          4,
+          12
+        ],
+        "c": [
+          2,
+          9
+        ],
+        "d": [
+          4,
+          12
+        ]
+      },
+      "answer": "a*b+c*d",
+      "also": {
+        "M_ONE_STEP_ONLY": "a*b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "TWO_PRODUCTS_ADDED",
+      "op": "××+",
+      "text": "A hall has {a} rows of {b} chairs and {c} rows of {d} benches. How many seats are there in all?",
+      "numbers": {
+        "a": [
+          2,
+          9
+        ],
+        "b": [
+          4,
+          12
+        ],
+        "c": [
+          2,
+          9
+        ],
+        "d": [
+          4,
+          12
+        ]
+      },
+      "answer": "a*b+c*d",
+      "also": {
+        "M_ONE_STEP_ONLY": "a*b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_THEN_DIVIDE",
+      "op": "+÷",
+      "text": "There are {a} red balloons and {b} blue balloons, shared equally among {c} children. How many balloons does each child get?",
+      "numbers": {
+        "a": [
+          10,
+          40
+        ],
+        "b": [
+          10,
+          40
+        ],
+        "c": [
+          2,
+          9
+        ]
+      },
+      "answer": "(a+b)/c",
+      "also": {
+        "M_ONE_STEP_ONLY": "a+b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "ADD_THEN_DIVIDE",
+      "op": "+÷",
+      "text": "{n} has {a} stamps and {n2} has {b}. They put them all into {c} equal piles. How many stamps are in each pile?",
+      "numbers": {
+        "a": [
+          10,
+          40
+        ],
+        "b": [
+          10,
+          40
+        ],
+        "c": [
+          2,
+          9
+        ]
+      },
+      "answer": "(a+b)/c",
+      "also": {
+        "M_ONE_STEP_ONLY": "a+b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "BAR_MODEL_TIMES_AS_MANY",
+      "op": "+÷",
+      "text": "{n} and {n2} have {a} marbles in all. {n2} has {b} times as many as {n}. How many marbles does {n} have?",
+      "numbers": {
+        "a": [
+          12,
+          100
+        ],
+        "b": [
+          2,
+          5
+        ]
+      },
+      "answer": "a/(b+1)",
+      "least": 2,
+      "also": {
+        "M_BAR_PART_MISSED": "a/b"
+      }
+    },
+    {
+      "fmt": "word_2step",
+      "structure": "BAR_MODEL_TIMES_AS_MANY",
+      "op": "+÷",
+      "text": "A farm has {a} hens and ducks in all. There are {b} times as many hens as ducks. How many ducks are there?",
+      "numbers": {
+        "a": [
+          12,
+          100
+        ],
+        "b": [
+          2,
+          5
+        ]
+      },
+      "answer": "a/(b+1)",
+      "least": 2,
+      "also": {
+        "M_BAR_PART_MISSED": "a/b"
+      }
     }
   ],
   "budget": {

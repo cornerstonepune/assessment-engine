@@ -57,7 +57,8 @@ def _sampled(check, formats, n, seed):
             c["missing"] = "b"
             c["stem"] = f"{a} {O.PRINTED[op]} □ = {ans}"
         elif fmt == "word_1step":
-            op_ctx = [t for t in W.templates("word_1step", op=op) if not t.get("table")]
+            # a story sized by these two numbers: never one that says its own numbers (half as many is ÷ 2)
+            op_ctx = [t for t in W.older("word_1step", op=op) if not t.get("table")]
             if not op_ctx:
                 raise ValueError(
                     f"no word-problem story written for {op!r}; add one to engine/assess/word_templates.json"

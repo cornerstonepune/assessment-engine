@@ -97,8 +97,11 @@ test("changing a skill's words saves them and sends the skill back for approval"
   const [before] = await sql`select name, learning_objective, difficulty, status, ratified_by from skill_set where code = 'ADD.2D2D'`;
   const easy = "A 2-digit number plus a 1-digit number, one regroup in the ones, total under 100 (edited by a test).";
   try {
-    await page.goto("/skill-sets/ADD.2D2D/edit");
+    // the page live first: a box filled before the page's script takes over is put back to its printed words, and the
+    // typing lands in front of them (CI, 2026-10-11: the words saved as the new ones followed by the old)
+    await page.goto("/skill-sets/ADD.2D2D/edit", { waitUntil: "networkidle" });
     await page.getByLabel("Easy").fill(easy);
+    await expect(page.getByLabel("Easy")).toHaveValue(easy);
     await page.getByRole("button", { name: "Save the words" }).click();
     await expect(page.getByRole("status")).toContainText("Saved");
     const [after] = await sql<{ status: string; difficulty: Record<string, { words: string; check: unknown }> }[]>`

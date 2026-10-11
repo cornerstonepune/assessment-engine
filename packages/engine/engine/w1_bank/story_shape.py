@@ -46,21 +46,27 @@ def shapes(conn):
     }
 
 
+def _templates(shape, fmt=None):
+    """The engine's own + and − stories of a shape: the shapes read here are addition and subtraction's, and a shape
+    × and ÷ share by name (a number the story does not need) is read by its + and − stories alone until M4d2."""
+    return [t for t in W.templates(fmt, structure=shape) if set(t["op"]) <= set("+-")]
+
+
 def _example(shape):
     """Every one of the engine's own stories of the shape, not the first: CONSTRAINT's first reads like working
     backwards, and a reader shown only that one took "two numbers, their total and their difference" for a compare."""
-    stories = [t["text"].format(a=45, b=12, c=8, n="Asha", n2="Ravi") for t in W.templates(structure=shape)]
+    stories = [t["text"].format(a=45, b=12, c=8, n="Asha", n2="Ravi") for t in _templates(shape)]
     return " / ".join(stories)
 
 
 def counts(shape):
     """How many numbers the engine's own stories of this shape print ({2} for a one-step shape, {3} for most of two)."""
-    return {len(set(re.findall(r"\{([abc])\}", t["text"]))) for t in W.templates(structure=shape)}
+    return {len(set(re.findall(r"\{([abc])\}", t["text"]))) for t in _templates(shape)}
 
 
 def one_step_op(shape):
     """'+' or '-' for a one-step shape, as the engine's own stories of that shape carry it; None for any other."""
-    ops = {t["op"] for t in W.templates("word_1step", structure=shape)}
+    ops = {t["op"] for t in _templates(shape, "word_1step")}
     return ops.pop() if len(ops) == 1 and ops <= {"+", "-"} else None
 
 

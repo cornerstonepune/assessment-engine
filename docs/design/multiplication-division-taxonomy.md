@@ -435,6 +435,12 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | M_LAST_DIGIT_RULE_MISAPPLIED (new) | × | Judges by the last digit where that does not work | is 34 a multiple of 4? | no | yes | answer | the skill |
 | M_FIRST_DIGIT_FOR_LAST (new) | × | Reads the first digit for the last | is 805 divisible by 2? | no | yes | answer | the skill |
 | M_FIVE_AS_TEN (new) | × | Takes divisible by 5 to mean divisible by 10 | is 345 divisible by 10? | no | yes | answer | the skill |
+| M_TIMES_WORD_MULTIPLIED (new) | ÷ | Multiplies because the story says 'times', when it asks for the smaller | Dev has 12 stickers, 3 times as many as Riya | 4 | 36 | answer | word problems |
+| M_HALF_AS_DOUBLE (new) | ÷ | Doubles for 'half as many' | Meera read 30 pages, Aman half as many | 15 | 60 | answer | word problems |
+| M_TIMES_AS_MORE (new, ÷) | ÷ | Answers how many more when the story asks how many times | Dev has 12 stickers and Riya has 4: how many times as many? | 3 | 8 | answer | word problems |
+| M_EXTRA_NUMBER_USED (new) | × | Uses a number the story does not need | 8 boxes of 9 mangoes and 3 drivers | 72 | 216 | answer | word problems |
+| M_WRONG_PRICE_READ (new) | × | Reads the other item's price from a price list | Price list: pen ₹15, eraser ₹5. What do 3 pens cost? | 45 | 15 | answer | word problems |
+| M_BAR_PART_MISSED (new) | ÷ | Divides by the times alone, leaving the smaller one's own part out of the bar | Ria and Sam have 32 marbles, Sam 3 times as many as Ria | 8 | 10 | answer | word problems |
 | M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 30 stickers, 5 for each child | 6 | 150 | answer | word problems |
 
 | ID | Case | Example | Answer |

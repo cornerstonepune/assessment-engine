@@ -215,6 +215,13 @@
       "question": "Multiples and factors: their grades, a list written in any order with room for more than it holds, and twelve new mistakes",
       "drafted": "drafted for you to correct. MD.MULTIPLES is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as the document drafted it; \"Tables, multiples and factors\" is the school's objective at both grades, and divisibility by 3 from the sum of the digits, which no objective names, is Advance. A list (the factors of 12) is written in any order, in groups of boxes with two more than the list needs and the words \"You may not need every space\", so the number of boxes does not tell the child how many there are; it is marked as one answer, so one factor left out is one mistake. All the factors are asked of numbers up to 60 with a factor pair from the tables (28, never 57), and factor pairs of numbers up to 100. Twelve new mistakes, their names and what to do about them drafted for you.",
       "source": "goals/md4c-multiples-and-factors.yaml"
+    },
+    {
+      "code": "md4d1-stories",
+      "for_role": "educator",
+      "question": "Stories with × and ÷: their grades, the range each new story's numbers take, and six new mistakes",
+      "drafted": "drafted for you to correct. MD.WORD is Grade 2 at Easy and Medium, Grade 3 at Hard and Grade 4 at Advance, as the document drafted it; \"Solve multi-step word problems using bar models\" is the school's objective at Grades 2, 3 and 4. Each new story says the range its numbers take: times as many and how many times, numbers to 96; half as many, an even number to 98; the two-step stories, numbers a Grade 4 child works in the head or on paper (₹60 to ₹200, packets of 4 to 12). A story that needs one more step names stopping after the first. Six new mistakes, their names and what to do about them drafted for you.",
+      "source": "goals/md4d1-times-stories.yaml"
     }
   ]
 }

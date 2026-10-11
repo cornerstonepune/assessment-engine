@@ -6585,3 +6585,93 @@ Proved on copies:
   (MD.MULTIPLES's 36, 36, 24 and 24); `library build` made 40 and retired 0; `library check`: 2,638 worksheets, 164 of
   164 skill-levels ready, 0 problems. MD.MULTIPLES is a draft until approved; Achal's question waits, an educator's.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 56 mistakes, 0 faults. `bin/check` 27 passed.
+
+## M4c merged and live (2026-10-11)
+
+- Merged as `1062d83` (#180), at the head CI had passed (`a55461c`: ci 38123027773) and the rehearsal had passed on
+  (38123036281). CI's failures on `de2a9fb` were the goal's tests committed before the build, as intended; those on
+  `b8546f9`, `1ac41c9` and `e044900` were the three the fix in `a55461c` answers (a kind with no working space, two
+  tests; Achal's question and the goal's line to him).
+- Main: `ci` green (38124737098), then `migrate live` (38126061390) and `deploy engine` (38126061368) succeeded. The
+  website deployed on Vercel once the repository was public again: from 07:35 to the switch Vercel refused this
+  private organization's repository on its Hobby plan, so nothing deployed in that window.
+- `bin/engine done md4c-multiples-and-factors` on main's code (the worktree at `1062d83`), against a copy of the
+  rehearsed database:
+  - 19 of 19 of Nimish's sentences PROVED, s39 among them in the browser;
+  - 4 of 4 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,093 tests, the drafted document 0 faults (252 cases, 56 mistakes), s39 1 passed,
+    `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as before; M4c has no
+    migration.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a.
+
+## M4d — measured before the build (2026-10-11)
+
+On main `1062d83`. MD.WORD holds 26 cases, drafted G2 G2 G3 G4. Each drawn alone (`draw.level`, 12, rows as seeded):
+- **Sixteen draw:** B01, B02, B03, B06 (Easy); B04, B05, B07, B11 (Medium); B08, B14, B15, B16, B17 (Hard); B12, B13
+  (Advance). Fifteen of them sit on another skill's level too; B01 is MD.WORD's alone.
+- **Ten draw nothing:**
+  - B09 (times as many: the smaller), B10 (how many times), B27 (half as many): "no one-step story divides for shape
+    …" — no template.
+  - B18 to B23, the two-step stories with × and ÷: `word_2step` raises `KeyError: 'digits_max'` (a case's rule gives no
+    size), and `words.word_2step` works a story's first step with + or − only; its 13 templates are all + and −.
+  - B25 (a number the story does not need) and B26 (a price list): "no one-step story for shape … and operation '×'".
+- **A9:** 2 of the 76 templates say the range their numbers may take (`numbers`: twice as many, a 3 to 20); the rest
+  take their sizes from the level.
+- **The eval rule 7 asks for** (`story_shape`): 65 gold stories, 18 shapes, all + and −; Jev reachable here.
+- **Halving:** `skills.operations` reads a two-step story's `op`, never its `divide`.
+- **A11:** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is empty.
+- **Split** (BUILD-ORDER): M4d1 the ten stories on MD.WORD's own rows, each new template with its range; M4d2 the older
+  templates' ranges, `story_shape` for × and ÷ with its eval, halving on Division, the A11 table.
+
+## M4d1 — stories with × and ÷, built (2026-10-11)
+
+Goal `goals/md4d1-times-stories.yaml`, ADR 0068.
+- **Ten stories that drew nothing now draw:** times as many, the smaller (B09) and how many times (B10); half as many
+  (B27); × then + (B18), × then − (B19), ÷ then × (B20), two products added (B21), + then ÷ (B22) and a bar model
+  (B23); a number the story does not need (B25); a price list (B26).
+- **A template that says its own numbers** (`assess/own_stories.py`): 22 new template rows, each with the range of each
+  number, its answer as a formula worked exactly (a division that leaves something over draws again), the wrong
+  answer behind each mistake, the smallest answer that asks something and the numbers it must tell apart. The older
+  makers never draw one (`words.owns`, `words.older`). A price list is a template's table with its numbers named.
+- **Found while looking at what MD.WORD drew, fixed at the cause:** its older stories, on a level that gave no size,
+  drew 2 digits by 2 at Grade 2 ("A shelf holds 75 books. How many books are there on 72 shelves?"; "₹9459 for 3 bus
+  tickets"; 4-digit remainders). Each MD.WORD level now says its sizes as a row: 1 or 2 digits by 1 at Grades 2 and 3,
+  as MUL.2D1D's Grade 2 levels place 2 digits by 1. Two of the new stories asked for what they gave ("2 pencils cost
+  ₹50. What do 2 pencils cost?"): their two counts must differ.
+- **Every question names a mistake;** six drafted for Achal (multiplying because the story says "times", doubling for
+  half as many, how many more answered for how many times, the unneeded number used, the other price read, a bar
+  model divided by the times alone), each counting against NUM.PRB.02; in the draft's table too (56 to 62). MD.WORD
+  names 26 on its list.
+- **Rows:** MD.WORD on R51 (NUM.OPS.03, NUM.OPS.04: "Solve multi-step word problems using bar models", the school's
+  objective at Grades 2, 3 and 4), Grade 2 at Easy and Medium, 3 at Hard, 4 at Advance; topic MDWORD "Stories with ×
+  and ÷", untaught; Achal's question `md4d1-stories`. No migration.
+- **The scenarios' check works out every two-step story** from its numbers and shape (`checks/stories.py`), a second
+  time and apart from its template's formula.
+- **Found while proving, fixed at the cause:** two more readers took every template, the new ones included. The story
+  reader for + and − (`story_shape`) shares one shape's name with × (a number the story does not need): its examples
+  failed on `{extra}` and its counts would have changed + and −'s. The bank's own candidates for a one-step story
+  (`bank`) picked a story by operation alone and filled its words with two numbers: a story that says its own
+  numbers (half as many is ÷ 2) is never one of them now (`words.older`). Eight `story_shape` tests that run only with
+  a database caught the first.
+- **Found in CI, fixed:** s2's edit of a skill's words, on a commit of documents alone, saved the new words followed by
+  the old — the box was filled before the page's script took over. The spec reaches the page live (networkidle) and
+  checks the box before Save. Ratchet fell: `bands.py` untyped 268 to 253.
+- **Found in CI, fixed at the test:** rewording a question held its new one to exactly one worksheet. The library
+  promises less: a level the patch cannot keep even is dealt afresh (ADR 0026), and its new question can be one of
+  those dealt twice. Reworded one by one on a copy, ADD.2D2D Advance's 68 stories went 1→1 (65), 2→1 (2) and 1→2 (1);
+  CI's draw picked the last kind. The test now holds what is promised: the old question on no worksheet, the new one
+  on worksheets all newly made, no worksheet edited, `check` clean. All 68 hold; an edited worksheet is caught.
+
+Proved on copies:
+- **Tests:** `test_md_word.py` 12 passed; the story and kind tests without a database, 413 passed.
+- **The goal's four scenarios** on a database built fresh as CI builds it: 312 of 312 produced, every answer worked
+  out again (the two-step stories too), on its rule, diagnosed and distinct, every listed case held.
+- **Browser:** s40 and s39, 2 passed; s2, 6 passed; on the rehearsed copy.
+- **The printed paper,** one of each new story, looked at: each sentence whole, the price list a table beside its
+  question, an answer box for each.
+- **The update-live rehearsal** on a copy of the post-M4c rehearsed database: no migration; `engine load` (rungs 43,
+  skill sets 43, mistakes 137); nothing re-keyed, relabelled or re-homed; the refill retired 0 and added 312 (MD.WORD's
+  48, 60, 84 and 120); `library build` made 40 and retired 0; `library check`: 2,678 worksheets, 168 of 168
+  skill-levels ready, 0 problems.
+- **The draft:** `md_taxonomy.py --check` 252 cases, 62 mistakes, 0 faults. `bin/check` 27 passed.

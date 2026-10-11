@@ -22,6 +22,7 @@ from engine.assess import operations as O
 from engine.checks import multiples as ML
 from engine.checks import scenarios_week
 from engine.checks import sentences as SN
+from engine.checks import stories as ST
 from engine.core import db
 from engine.w1_bank import bank, cases, refill, spec
 
@@ -89,6 +90,7 @@ def _answer_is_right(item):
     checks += ML.checks(
         item.fmt, item.stem, item.responses, stated
     )  # a list, a multiple or not, from its words
+    checks += ST.checks(item.fmt, s, stated)  # a two-step story with × and ÷, from its numbers and its shape
     return all(checks) if checks else None
 
 
