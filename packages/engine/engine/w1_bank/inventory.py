@@ -70,7 +70,8 @@ def recheck(conn):
         sp = r["spec"]
         if not {"a", "b", "op"} <= sp.keys():
             continue  # an older row that kept only its printed text
-        if set(sp) - {"a", "b", "op", "layout", "missing", "text", "structure"}:
+        # a division layout says where its exchanges are written (ADR 0063), which `to_item` makes again from its numbers
+        if set(sp) - {"a", "b", "op", "layout", "missing", "text", "structure", "exchanged"}:
             continue  # made by a generator with more than numbers (a story's table): not `to_item`'s to rebuild
         # a story's shape is its template's, which `to_item` reads from its words, so a story is rebuilt with its key
         # a sum with no answer box is named, never a crash that hides every other row (2026-09-30)

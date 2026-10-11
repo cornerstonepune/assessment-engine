@@ -57,9 +57,9 @@ def two(op, a, b, layout="horizontal"):
 
 
 def test_every_case_of_the_drafted_document_is_a_row_as_drafted():
-    """The 251 cases the engine drafted for Achal, each a row with the document's own words and example, and every
+    """The 252 cases the engine drafted for Achal, each a row with the document's own words and example, and every
     straight calculation's answer recomputed here from the row's own numbers, not read from the document."""
-    assert sorted(MD) == sorted(c["code"] for c in DOC) and len(MD) == 251
+    assert sorted(MD) == sorted(c["code"] for c in DOC) and len(MD) == 252
     computed = 0
     for d in DOC:
         row = MD[d["code"]]

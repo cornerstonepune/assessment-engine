@@ -196,16 +196,23 @@ def test_a_question_asked_in_words_prints_its_sentence_and_one_with_an_instructi
 def test_a_division_in_the_division_layout_has_its_quotient_above_the_number_divided(a, b):
     """The division layout as the school writes it (D01, 84 ÷ 4): the quotient's boxes on top, one over each digit of
     the number divided, so 156 ÷ 4 = 39 is written over its 5 and 6 and the box over the 1 stays empty; then the divisor
-    and the number divided under its bar; a remainder's box after "r" where there is one (goals/md3a-straight-division)."""
+    and the number divided under its bar; a remainder's box after "r" where there is one (goals/md3a-straight-division).
+    A small box stands before every digit but the first, read where a remainder is exchanged into it (156 ÷ 4: the 1
+    into the tens, 3 into the ones; goals/md3d-division-methods.yaml)."""
     from engine.assess import verify
 
     it = verify.division(a, b, "R45", layout="column")
     html = _html(it)
     assert it.fmt == "column_grid" and _boxes(html) == len(str(a))
-    divided = re.findall(r'class="g dd">(\d)<', html)
+    divided = re.findall(r'class="g dd[^"]*">(?:<span class="xc"[^>]*></span>)?(\d)<', html)
     assert divided == list(str(a)) and re.findall(r'class="g dv">(\d+)<', html) == [str(b)]
-    assert html.index('data-r="ans"') < html.index('class="g dv"') < html.index('class="g dd"')
+    assert html.index('data-r="ans"') < html.index('class="g dv"') < html.index('class="g dd')
     assert _boxes(html, "rem") == (len(str(a % b)) if a % b else 0)
+    assert html.count('class="xc"') == len(str(a)) - 1
+    exchanged = [r.rid for r in it.responses if r.rid.startswith("x")]
+    assert [len(re.findall(rf'class="xc" [^>]*data-r="{x}"', html)) for x in exchanged] == [1] * len(
+        exchanged
+    )
 
 
 def test_a_divisions_boxes_are_where_the_printed_key_says_they_are(tmp_path):

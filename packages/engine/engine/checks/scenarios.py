@@ -74,9 +74,66 @@ def _answer_is_right(item):
         checks.append(whole)
     if item.fmt == "estimate_then_calc" and "est" in stated and (est := _estimate(s)) is not None:
         checks.append(_same(stated["est"], est))
+    checks += [_same(stated.get(rid), want) for rid, want in _division_steps(item.fmt, s).items()]
     if (tick := _ticks(item.fmt, s, stated)) is not None:
         checks.append(tick)
     return all(checks) if checks else None
+
+
+def _exchanged(a, b):
+    """The division layout's exchanges: each digit's remainder carried into the next, where there is one."""
+    out, r = {}, 0
+    for d in str(a)[:-1]:
+        r = (r * 10 + int(d)) % b
+        if r:
+            out[f"x{len(out) + 1}"] = r
+    return out
+
+
+def _parted(a, b):
+    """Partitioning's parts, the most tens of lots of the divisor and the rest, each divided."""
+    first = a - a % (10 * b)
+    rest = a - first
+    return {"s1": first // b, "s2": rest // b} | ({"s2r": rest % b} if rest % b else {})
+
+
+def _chunked(a, b):
+    """Chunking's lots of each place of the quotient, largest first, what they take away and what is left."""
+    out, left, q = {}, a, str(a // b)
+    for i, d in enumerate(q):
+        lots = int(d) * 10 ** (len(q) - 1 - i)
+        if lots:
+            left -= lots * b
+            for value in (lots, lots * b, left):
+                out[f"s{len(out) + 1}"] = value
+    return out
+
+
+def _long(a, b):
+    """Long division's products, and each number left with the next digit brought down; the first number divided is
+    the leading digits, as few as reach the divisor."""
+    digits = [int(d) for d in str(a)]
+    k = next((i for i in range(1, len(digits) + 1) if int(str(a)[:i]) >= b), len(digits))
+    out, partial = {}, int(str(a)[:k])
+    for nxt in [*digits[k:], None]:
+        taken = partial // b * b
+        partial = (partial - taken) * 10 + nxt if nxt is not None else partial - taken
+        out |= {f"s{len(out) + 1}": taken, f"s{len(out) + 2}": partial}
+    return out
+
+
+STEPS = {"PARTITION_DIVIDEND": _parted, "CHUNKING": _chunked, "LONG_DIVISION": _long}
+
+
+def _division_steps(fmt, s):
+    """{box: the number it holds} for a written division's steps, worked here from its two numbers apart from the code
+    that made them (goals/md3d-division-methods.yaml): the division layout's exchanges, partitioning's parts,
+    chunking's take-aways and long division's rows. Empty for any other question."""
+    a, b = s.get("a"), s.get("b")
+    if O.sign(s.get("op")) != "÷" or not (isinstance(a, int) and isinstance(b, int) and 2 <= b <= 9):
+        return {}
+    work = _exchanged if fmt == "column_grid" else STEPS.get(s.get("method"))
+    return work(a, b) if work else {}
 
 
 def _worked(text):

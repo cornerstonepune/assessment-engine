@@ -221,13 +221,18 @@ def division(
 ) -> Item:
     """a ÷ b as a child answers it: the quotient's box, and the remainder's after "r" where there is one (ADR 0056),
     each keyed by the mistakes predicted for it (`division.boxes`). In a line, in the division layout (`layout`
-    "column"), or asked in words, its sentence a row (`shape`: "How many 6s make 42?")."""
+    "column", each exchange a small box of its own), or asked in words, its sentence a row (`shape`: "How many 6s make
+    42?")."""
     fmt = "column_grid" if layout == "column" else "bare_sum"
     stem = W.templates(fmt, "÷", shape)[0]["text"].format(a=a, b=b) if shape else ""
     # asked in words, the sentence is what is printed (`text`, as a missing number's line is), never the line too
     spec: dict[str, Any] = dict(a=a, b=b, op="÷", layout=layout) | (
         {"shape": shape, "text": stem} if shape else {}
     )
+    if layout == "column" and (written := DV.exchanged(a, b)):
+        # where its exchanges are written, a box each: printed so, it is a question of its own, so one printed before
+        # its exchanges had boxes, retired, never stops the bank drawing these numbers again (ADR 0063)
+        spec["exchanged"] = written
     signal, lines, _ = FORMATS[fmt]
     return item(
         _template("÷", a, b),
@@ -236,7 +241,7 @@ def division(
         fmt,
         stem,
         spec,
-        DV.boxes(a, b),
+        DV.boxes(a, b, layout),
         working_lines=lines,
         skills=skills,
     )

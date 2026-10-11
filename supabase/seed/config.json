@@ -69,7 +69,7 @@
     },
     {
       "key": "render.layouts",
-      "description": "Every layout the renderer has printed, oldest first; the last is today's. A copy of a library worksheet is read in the one its page matches (goals/s18-read-as-printed.yaml), so a row is never edited or removed once a paper has printed in it — a change is a new row. boxes: 'cells' gives an answer the room its question set, 'digits' as many boxes as the right answer has digits (L3). work_mm: the working space's height for one to four lines of working; paired_work_mm: for questions printed side by side. qr_error: the QR's error correction. long_rows: a long multiplication prints a row for each digit of its multiplier (goals/md2a-straight-multiplication.yaml); a layout without it prints none.",
+      "description": "Every layout the renderer has printed, oldest first; the last is today's. A copy of a library worksheet is read in the one its page matches (goals/s18-read-as-printed.yaml), so a row is never edited or removed once a paper has printed in it — a change is a new row. boxes: 'cells' gives an answer the room its question set, 'digits' as many boxes as the right answer has digits (L3). work_mm: the working space's height for one to four lines of working; paired_work_mm: for questions printed side by side. qr_error: the QR's error correction. long_rows: a long multiplication prints a row for each digit of its multiplier (goals/md2a-straight-multiplication.yaml); a layout without it prints none; exchanges: short division writes each exchange small, in a box of its own (goals/md3d-division-methods.yaml); a layout without it prints none.",
       "value": [
         {
           "name": "2026-09-21",
@@ -119,6 +119,20 @@
           "paired_work_mm": 12,
           "qr_error": "h",
           "long_rows": true
+        },
+        {
+          "name": "2026-10-10",
+          "boxes": "digits",
+          "work_mm": [
+            14,
+            20,
+            26,
+            34
+          ],
+          "paired_work_mm": 12,
+          "qr_error": "h",
+          "long_rows": true,
+          "exchanges": true
         }
       ]
     },
@@ -318,9 +332,17 @@
         ],
         "LONG_MULTIPLICATION": [
           "NUM.OPS.01"
+        ],
+        "CHUNKING": [
+          "NUM.OPS.03",
+          "NUM.OPS.02"
+        ],
+        "LONG_DIVISION": [
+          "NUM.OPS.03",
+          "NUM.OPS.02"
         ]
       },
-      "description": "The written methods that add their steps, and so use addition: a slip adding them counts against addition, not multiplication (assumption A11, ADR 0055)."
+      "description": "The written methods that carry out another operation inside their own, and so use it: those that add their steps use addition, and a slip adding them counts against addition, not multiplication (assumption A11, ADR 0055); long division and chunking multiply and take away, so their slips count against multiplication and subtraction. Partitioning a number divided, and chunking's lots, put tens and ones together, which never carries: no addition is carried out (ADR 0063)."
     },
     {
       "key": "skills.charges_by_kind.approved",

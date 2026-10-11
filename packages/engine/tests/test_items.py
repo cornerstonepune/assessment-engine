@@ -11,6 +11,7 @@ import pytest
 
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
+from engine.assess import divide_methods as DVM
 from engine.assess import divide_models as DMOD
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
@@ -311,6 +312,8 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         *(DMOD.equal_groups(rng, "R46", "Conceptual", {"method": m}) for m in DMOD.METHODS),
         DMOD.repeated_subtraction(rng, "R46", "Conceptual", {}),
         DMOD.jumps_back(rng, "R46", "Conceptual", {}),
+        # division's written methods (goals/md3d-division-methods.yaml), printed by a level's `methods`
+        *(DVM.make(m, 72 if m == "PARTITION_DIVIDEND" else 516, 4, "R45") for m in DVM.KINDS),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"

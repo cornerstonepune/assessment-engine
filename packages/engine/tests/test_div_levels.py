@@ -323,10 +323,8 @@ SAYS = {
     "DP05": lambda a, b, col: a % 10 == 0 and b % 10 == 0 and b not in (10, 100, 1000),
     "DP06": lambda a, b, col: _uses_a_zero(a, b),
     "DP07": lambda a, b, col: b < 10 and _tz(a) >= 2 and (a // 10 ** _tz(a)) % b == 0,
-    "D01": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carried(a, b)) and a % b == 0 and col,
-    "D02": lambda a, b, col: (
-        len(str(a)) == 2 and b < 10 and not any(_carried(a, b)) and a % b == 0 and not col
-    ),
+    # every digit divides, printed in every method its level lists (D02, in a line, is one: goals/md3d)
+    "D01": lambda a, b, col: len(str(a)) == 2 and b < 10 and not any(_carried(a, b)) and a % b == 0,
     "D03": lambda a, b, col: (
         len(str(a)) == 2 and 2 <= b <= 5 and _carried(a, b) and a % b == 0 and a // 10 >= b
     ),
@@ -383,9 +381,10 @@ def test_every_question_a_level_draws_is_what_its_cases_label_says():
     )
 
 
-def test_a_case_that_names_its_layout_is_printed_that_way():
-    """The tables and ÷ 10, 100 and 1000 in a line; D01 in the division layout and D02 in a line, as the document names
-    them; every other division in the division layout and in a line, in fair shares."""
+def test_a_case_is_printed_as_its_level_says():
+    """The tables and ÷ 10, 100 and 1000 in a line; the two column skills in every written method their levels list
+    (`methods`, goals/md3d-division-methods.yaml), each case in each: DIV.2D1D in a line, partitioning, chunking and
+    the division layout, DIV.3D1D in a line, chunking, the division layout and long division."""
     printed = {}
     for skill in FOUR:
         for level in LEVELS_OF[skill]:
@@ -394,10 +393,13 @@ def test_a_case_that_names_its_layout_is_printed_that_way():
     for (skill, code), fmts in printed.items():
         if skill in ("DIV.FACTS", "DIV.TENS"):
             assert fmts == {"bare_sum"}, (skill, code, fmts)
-    assert printed[("DIV.2D1D", "D01")] == {"column_grid"} and printed[("DIV.2D1D", "D02")] == {"bare_sum"}
-    for code in ("D03", "DR05", "D05", "D08", "DR06"):
-        skill = "DIV.2D1D" if code in ("D03", "DR05") else "DIV.3D1D"
-        assert printed[(skill, code)] == {"bare_sum", "column_grid"}, (code, printed[(skill, code)])
+    kinds = {
+        "DIV.2D1D": {"bare_sum", "partitioning", "chunking", "column_grid"},
+        "DIV.3D1D": {"bare_sum", "chunking", "column_grid", "long_division"},
+    }
+    for code in ("D01", "D03", "DR05", "D05", "D08", "DR06"):
+        skill = "DIV.2D1D" if code in ("D01", "D03", "DR05") else "DIV.3D1D"
+        assert printed[(skill, code)] == kinds[skill], (code, printed[(skill, code)])
 
 
 # ---------------------------------------------------------------------------------------------- the answer

@@ -180,8 +180,8 @@ Short division read left to right: where a remainder is exchanged, whether the f
 
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
-| D01 | 2 ÷ 1 digits, every digit divides, in the division layout | 84 ÷ 4 (division layout) | 21 |
-| D02 | 2 ÷ 1 digits, every digit divides, in a line | 69 ÷ 3 | 23 |
+| D01 | 2 ÷ 1 digits, every digit divides | 84 ÷ 4 | 21 |
+| D02 | 2 ÷ 1 digits in a line | 69 ÷ 3 (in a line) | 23 |
 | D03 | 2 ÷ 1 digits, one exchange from the tens, by 2, 3, 4 or 5 | 72 ÷ 4 | 18 |
 | D04 | 2 ÷ 1 digits, one exchange from the tens, by 6, 7, 8 or 9 | 91 ÷ 7 | 13 |
 | D05 | 3 ÷ 1 digits, no exchange | 936 ÷ 3 | 312 |
@@ -194,6 +194,7 @@ Short division read left to right: where a remainder is exchanged, whether the f
 | D12 | 4 ÷ 1 digits, first digit smaller, exchanges | 5172 ÷ 6 | 862 |
 | D13 | 3 ÷ 2 digits, 2-digit quotient | 408 ÷ 12 | 34 |
 | D14 | 3 ÷ 2 digits where the first estimate must be corrected | 162 ÷ 18 (rounding 18 to 20 suggests 8; 8 × 18 = 144 leaves 18, so 9) | 9 |
+| D15 | 3 ÷ 1 digits in a line | 516 ÷ 4 (in a line) | 129 |
 | DZ01 | A zero in the number divided gives a zero in the quotient | 804 ÷ 4 | 201 |
 | DZ02 | A zero at the end of the quotient | 840 ÷ 4 | 210 |
 | DZ03 | A zero in the quotient from a digit smaller than the divisor | 618 ÷ 6 | 103 |
@@ -246,7 +247,7 @@ Every way the school's objectives name, and the standard ones, each worked throu
 | G19 | An array, divided | 20 stars in 4 equal rows: how many in each row? | 5 |
 | G20 | The table backwards (inverse) | 42 ÷ 6 = □ because 6 × □ = 42 | 7 |
 | G21 | Partitioning the number divided | 72 ÷ 4 = 40 ÷ 4 + 32 ÷ 4 = 10 + 8 = □ | 18 |
-| G22 | Chunking: take away ten lots of the divisor, then the rest | 96 ÷ 4: take 10 × 4, take 10 × 4, take 4 × 4 → 10 + 10 + 4 = □ | 24 |
+| G22 | Chunking: take away the lots of the divisor each place allows, the largest first, then the rest | 96 ÷ 4: take 20 × 4, take 4 × 4 → 20 + 4 = □ | 24 |
 | G23 | Short division (bus stop): the exchange written small | 72 ÷ 4: 7 ÷ 4 = 1 r 3, exchange → 32 ÷ 4 = 8 | 18 |
 | G24 | Long division: divide, multiply, take away, bring down | 516 ÷ 4: 5 ÷ 4 = 1, 5 − 4 = 1, bring down 1 → 11; 11 ÷ 4 = 2, 11 − 8 = 3, bring down 6 → 36; 36 ÷ 4 = 9, 36 − 36 = 0 | 129 |
 | G25 | Halving (÷2, ÷4 = halve twice) | 96 ÷ 4: halve 96 = 48, halve 48 = □ | 24 |
@@ -492,7 +493,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 
 ## Suggested progression and the skills it becomes
 
-17 skills, every one of the 251 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and estimating. A question has one home: every round-number multiplication that is not a table fact is MUL.TENS's, so a 3-digit number ending in zero (TZ01) and a multiplier ending in zero (TZ07) sit at its Advance with TP10, which holds the same questions. Grades are assumed (A6) and move as rows.
+17 skills, every one of the 252 cases placed in a level or listed as unplaced. Easy to Hard are straight calculation; Advance mixes the hardest straight cases with missing numbers, stories, finding the mistake and estimating. A question has one home: every round-number multiplication that is not a table fact is MUL.TENS's, so a 3-digit number ending in zero (TZ01) and a multiplier ending in zero (TZ07) sit at its Advance with TP10, which holds the same questions. Grades are assumed (A6) and move as rows.
 
 | Skill | Can do | Grade by level | Easy | Medium | Hard | Advance | Methods printed at Easy to Hard |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -506,8 +507,8 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | DIV.GROUPS | Divides by sharing equally and by making equal groups, with pictures, arrays and jumps back | E:G2 M:G2 H:G2 A:G2 | G15, G16 | G17, G19 | G18 | B02, B03, B05, B24 | – |
 | DIV.FACTS | Recalls division facts as the tables backwards, with a remainder when one is left | E:G2 M:G2 H:G2 A:G3 | DF04, DF05, DF06 | DF01, DF02, DF03, DF07, DF08, DF15 | DF09, DF10, DF11, DF12 | DF13, DF14, DF16, DR01, DR02, DR03, Q03, Q04, Q05, G20, B07 | – |
 | DIV.TENS | Divides by 10, 100 and 1000 and by multiples of ten | E:G4 M:G4 H:G4 A:G4 | DP01 | DP02, DP03 | DP04, DP05, DP06, DP07 | DR10 | – |
-| DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G2 M:G2 H:G3 A:G3 | D01, D02 | D03, D04 | DR04, DR05, DZ07 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17, Y10 | D02, G21, G22, G23, G25 |
-| DIV.3D1D | Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient | E:G4 M:G4 H:G4 A:G4 | D05 | D06, D07 | D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08 | Q10, C04, C07, V04, V10, H09 | G22, G23, G24 |
+| DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G2 M:G2 H:G3 A:G3 | D01 | D03, D04 | DR04, DR05, DZ07 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17, Y10 | D02, G21, G22, G23 |
+| DIV.3D1D | Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient | E:G4 M:G4 H:G4 A:G4 | D05 | D06, D07 | D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08 | Q10, C04, C07, V04, V10, H09 | D15, G22, G23, G24 |
 | MD.WORD | Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the story needs | E:G2 M:G2 H:G3 A:G4 | B01, B02, B03, B06 | B04, B05, B07, B11, B27 | B08, B09, B10, B14, B15, B16, B17 | B12, B13, B18, B19, B20, B21, B22, B23, B25, B26 | – |
 | MD.MENTAL | Multiplies and divides in the head by doubling, halving, tens and known facts | E:G2 M:G3 H:G3 A:G4 | G06, H10 | H01, H04, H08 | H02, H03, H05, H07, H09, G25 | H06 | – |
 | MD.MULTIPLES | Finds multiples and factors and tells divisibility by 2, 3, 5 and 10 | E:G3 M:G3 H:G4 A:G4 | F01, F02, F06 | F03, F04, F08 | F05 | F07 | – |

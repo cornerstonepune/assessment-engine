@@ -24,8 +24,17 @@ SKILLS = [
 MATCHES = {
     c["code"]: c["match"] for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]
 }
-# a straight calculation: in a line, in columns, or in a written method (ADR 0055)
-CALCULATION = {"bare_sum", "column_grid", "partitioning", "grid_method", "expanded_columns", "lattice"}
+# a straight calculation: in a line, in columns, or in a written method of × (ADR 0055) or ÷ (ADR 0063)
+CALCULATION = {
+    "bare_sum",
+    "column_grid",
+    "partitioning",
+    "grid_method",
+    "expanded_columns",
+    "lattice",
+    "chunking",
+    "long_division",
+}
 
 
 def _place(fmt, spec):

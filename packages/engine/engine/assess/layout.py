@@ -39,4 +39,6 @@ WORKING_LINES = {
     "grid_method": 0,
     "expanded_columns": 0,
     "lattice": 0,
+    "chunking": 0,  # division's (ADR 0063)
+    "long_division": 0,
 }

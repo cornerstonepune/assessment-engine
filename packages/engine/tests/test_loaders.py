@@ -89,7 +89,9 @@ EXPECTED = {
     "misconception": 39,
     # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml); `from_table` (M3a)
     "case_dimension": 69,
-    "taxonomy_case": 521,  # both of the team's taxonomies, one row per case: 270 + and −, 251 × and ÷ (M1, M2a)
+    # both of the team's taxonomies, one row per case: 270 + and −, 252 × and ÷ (M1, M2a; D15 a 3-digit division in a
+    # line, M3d)
+    "taxonomy_case": 522,
     # prompts, thresholds and config are settings a PR adds to: counted from their seed files, never typed here
     # (2026-09-29: the typed 20, 26 and 16 had fallen to 37, 31 and 17 without anyone noticing)
     "prompt": _seeded("prompts"),
@@ -178,7 +180,13 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
     assert set(loaders.load_settings()) == {"prompt", "threshold", "config"} and touched == []
     with db.connect() as conn:
         layouts = conn.execute("select value from config where key = 'render.layouts'").fetchone()["value"]
-        assert [x["name"] for x in layouts] == ["2026-09-21", "2026-09-23-L3", "2026-09-24", "2026-10-09"]
+        assert [x["name"] for x in layouts] == [
+            "2026-09-21",
+            "2026-09-23-L3",
+            "2026-09-24",
+            "2026-10-09",
+            "2026-10-10",
+        ]
         assert conn.execute("select 1 from prompt where purpose = 'mistake_guess' and active").fetchone()
 
 

@@ -13,6 +13,7 @@ import random
 from collections import Counter
 
 from engine.assess import draw, taxonomy
+from engine.assess import draw_case as K
 from engine.core import db
 from engine.w1_bank import bank, cases, inventory, labels
 from engine.w1_bank.spec import read as spec
@@ -75,29 +76,41 @@ def retire_outside(conn, actor=ACTOR):
     return out
 
 
-def _held_per_case(conn, code, difficulty, check, matches):
+def _held_per_way(conn, code, difficulty, check, matches):
+    """{case: what the level holds of it in each way it is printed in} and how many questions it holds. A level that
+    lists written methods holds each case's share in every one of them (ADR 0055), so a level full of an older way's
+    questions is still short of a new method's (goals/md3d-division-methods.yaml)."""
     rows = conn.execute(
         "select fmt, tags from item where status = 'active' and skill_set_code = %s and difficulty = %s",
         (code, difficulty),
     ).fetchall()
+    methods = [matches[m] for m in check.get("methods", [])]
     # A question that is two cases at once (no exchange, and a zero inside) counts for both: crediting
     # only the first listed made the later cases look short and the level overfilled.
-    have = Counter(
-        c for r in rows for c in check["cases"] if taxonomy.matches(matches[c], r["fmt"], r["tags"])
-    )
+    have = {
+        c: [
+            sum(taxonomy.matches(way, r["fmt"], r["tags"]) for r in rows)
+            for way in K.ways(matches[c], methods)
+        ]
+        for c in check["cases"]
+    }
     return have, len(rows)
 
 
 def top_up(conn, code, difficulty, target, rng=None):
-    """Fill one level to `target`. Returns how many questions it added."""
+    """Fill one level to `target`, each case to its share in every way the level prints it. Returns how many questions
+    it added."""
     _, _, check = spec(conn, code, difficulty)
     if check.get("cases"):
         matches = cases.for_level(conn, check)
-        have, total = _held_per_case(conn, code, difficulty, check, matches)
+        have, total = _held_per_way(conn, code, difficulty, check, matches)
         share = math.ceil(target / len(check["cases"]))
-        quotas = {c: max(0, share - have[c]) for c in check["cases"]}
+        quotas = {
+            c: [max(0, k - h) for k, h in zip(draw.split(share, len(held)), held, strict=True)]
+            for c, held in have.items()
+        }
         want = max(0, target - total)
-        if not want and not any(quotas.values()):
+        if not want and not any(map(sum, quotas.values())):
             return 0
         counts, _, _ = fill_cases(conn, code, difficulty, want, rng=rng, quotas=quotas)
         return counts["accepted"]

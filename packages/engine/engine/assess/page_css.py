@@ -75,6 +75,23 @@ table.square th { background: #eee; }
 .expanded .xn.sum { border-top: 1px solid #111; padding-top: 1.5mm; }
 .expanded .xd { display: inline-block; width: 8.4mm; text-align: center; font-size: 13pt; }
 .expanded .xop { font-size: 13pt; text-align: right; }
+/* chunking: a take-away and its lots, then what is left, ruled under; long division: rows under the digits they use */
+.chunk { display: inline-grid; grid-template-columns: max-content calc(var(--w) * 8.4mm + 2mm) max-content; column-gap: 3mm; row-gap: 1.5mm; align-items: center; margin-bottom: 2mm; }
+.chunk .xn { display: flex; justify-content: flex-end; }
+.chunk .xn.sum { border-top: 1px solid #111; padding-top: 1.5mm; }
+.chunk .xd { display: inline-block; width: 8.4mm; text-align: center; font-size: 13pt; }
+.chunk .xop { font-size: 13pt; text-align: right; }
+.longdiv { --dv: 10mm; display: inline-flex; flex-direction: column; gap: 1.5mm; }
+.longdiv .ld { margin-left: calc(var(--dv) + var(--at) * 8.4mm); display: flex; }
+.longdiv .ld.sub { border-bottom: 1.5px solid #111; padding-bottom: 1mm; width: max-content; }
+.longdiv .ld.head { margin-left: 0; }
+.longdiv .dv { width: var(--dv); text-align: right; padding-right: 1.5mm; border-right: 2px solid #111; font-size: 13pt; box-sizing: border-box; }
+.longdiv .dd { border-top: 2px solid #111; display: flex; }
+.longdiv .xd { display: inline-block; width: 8.4mm; text-align: center; font-size: 13pt; }
+/* short division: a small box before a digit, where its exchange is written */
+.grid .g.dd { position: relative; }
+.grid .g.dd.x { justify-content: flex-end; padding-right: 0.8mm; box-sizing: border-box; }
+.grid .g.dd .xc { position: absolute; left: 0.3mm; top: 0.3mm; width: 3.6mm; height: 4.2mm; border: 1px solid #666; background: #fff; }
 table.gridm, table.lattice { border-collapse: collapse; font-size: 12pt; margin-bottom: 3mm; }
 table.gridm th, table.gridm td { border: 1px solid #333; padding: 1.5mm 2mm; text-align: center; }
 table.gridm th { background: #eee; min-width: 11mm; }

@@ -180,6 +180,13 @@
       "question": "A topic is switched on for the whole school, not grade by grade: is that how the school decides what is taught?",
       "drafted": "One switch a topic, on Curriculum, in the educator's name. Switched on, its skills reach every grade's children at the levels their grades hold, and every paper is still approved by a person before it prints. If a grade must say it for itself, the switch becomes one a grade.",
       "source": "docs/adr/0059-a-person-says-what-is-taught-and-what-waits-is-someones.md"
+    },
+    {
+      "code": "md3d-division-methods",
+      "for_role": "specialist",
+      "question": "Division's written methods: every one printed, three changes to the draft, and what a slip inside one counts against",
+      "drafted": "drafted for you to correct. Every written method is printed at Easy to Hard (A1): DIV.2D1D in a line, partitioning, chunking and short division; DIV.3D1D in a line, chunking, short division and long division. Three changes to the draft: a 3-digit division prints in a line too; chunking takes the lots of each place at once (96 ÷ 4: 20 lots, then 4), since ten lots at a time would print nineteen take-aways for 588 ÷ 3; halving is MD.MENTAL's alone, as doubling is. A slip taking away inside a division counts against subtraction, and one multiplying against multiplication, as a slip adding the parts counts against addition (A11). A grade that teaches fewer methods takes them out of its level's row.",
+      "source": "goals/md3d-division-methods.yaml"
     }
   ]
 }

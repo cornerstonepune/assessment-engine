@@ -35,8 +35,8 @@ def cells(
     return f'<span class="cells{" big" if big else ""}" data-resp="{item_id}|{r.rid}">{s}</span>'
 
 
-def ticks(sheet_id, item_id, r, labels=None):
-    out = []
+def ticks(sheet_id: str, item_id: str, r: "Response", labels: dict[str, str] | None = None) -> str:
+    out: list[str] = []
     for j, o in enumerate(r.options):
         lab = (labels or {}).get(o, o)
         out.append(
@@ -45,11 +45,11 @@ def ticks(sheet_id, item_id, r, labels=None):
     return f'<span data-resp="{item_id}|{r.rid}">{"".join(out)}</span>'
 
 
-def textbox(sheet_id, item_id, r, h=16):
+def textbox(sheet_id: str, item_id: str, r: "Response", h: int = 16) -> str:
     return f'<div class="textbox" data-resp="{item_id}|{r.rid}" data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="0" style="min-height:{h}mm"></div>'
 
 
-def working(lines):
+def working(lines: int) -> str:
     if not lines:
         return ""
     return f'<div class="work h{min(lines, 4)}">working</div>'
@@ -97,17 +97,37 @@ def grid(
     return f'<span data-resp="{item_id}|{ans_resp.rid}">{"".join(out)}</span>'
 
 
-def divided(sheet_id: str, item_id: str, a: int, b: int, ans: Any, tail: str = "") -> str:
+def divided(
+    sheet_id: str,
+    item_id: str,
+    a: int,
+    b: int,
+    ans: Any,
+    tail: str = "",
+    exchanges: "dict[int, Any] | None" = None,
+) -> str:
     """The division layout as the school writes it (D01, 84 ÷ 4): the quotient's boxes on top, one over each digit of
     the number divided, so 156 ÷ 4 = 39 is written over the 5 and the 6 and the box over the 1 stays empty; then the
     divisor and the number divided under its bar; `tail`, "r" and the remainder's boxes as the paper's layout draws
-    them, beside the quotient where there is a remainder (ADR 0056)."""
+    them, beside the quotient where there is a remainder (ADR 0056). Where the layout writes exchanges (`exchanges`,
+    {a digit's place from the left: its exchange's box}), a small box stands before every digit but the first, as
+    columns draw a carry's room over every column: the ones a remainder is exchanged into are read, the rest are room
+    (goals/md3d-division-methods.yaml)."""
     w = len(str(a))
     top = "".join(
         f'<div class="g ans cell" data-s="{sheet_id}" data-i="{item_id}" data-r="{ans.rid}" data-k="{k}"></div>'
         for k in range(w)
     )
-    under = f'<div class="g dv">{b}</div>' + "".join(f'<div class="g dd">{d}</div>' for d in str(a))
+
+    def small(i: int) -> str:
+        r = (exchanges or {}).get(i)
+        read = f' data-s="{sheet_id}" data-i="{item_id}" data-r="{r.rid}" data-k="0"' if r else ""
+        return f'<span class="xc"{read}></span>' if exchanges is not None and i else ""
+
+    x = " x" if exchanges is not None else ""
+    under = f'<div class="g dv">{b}</div>' + "".join(
+        f'<div class="g dd{x if i else ""}">{small(i)}{d}</div>' for i, d in enumerate(str(a))
+    )
     grid = f'<div class="grid" style="grid-template-columns: auto repeat({w}, 8.4mm)"><div class="g blank"></div>{top}{under}</div>'
     return f'<span class="divide"><span data-resp="{item_id}|{ans.rid}">{grid}</span>{tail}</span>'
 

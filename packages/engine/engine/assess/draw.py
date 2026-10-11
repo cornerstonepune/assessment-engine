@@ -4,9 +4,9 @@ A level whose rule lists `cases` holds exactly those cases. For each, candidates
 when the question as measured (`assess/tags.py`) is that case (`assess/taxonomy.py`) and inside the
 level's own bounds — the case rule is the definition, the drawing only has to find members of it.
 
-Plain sums and missing numbers are sampled from their digits here. Every other kind comes from its own
-generator, told what the case is about (`assess/draw_native.py`). What a case allows (its kinds, its operation, the
-digits of its numbers) is read in `assess/draw_case.py`.
+Plain sums and missing numbers are sampled from their digits (`assess/draw_pair.py`). Every other kind comes from its
+own generator, told what the case is about (`assess/draw_native.py`). What a case allows (its kinds, its operation,
+the digits of its numbers) is read in `assess/draw_case.py`.
 
 The drawing keeps a few defaults a question needs to test anything: no number ending in 0, no two equal
 numbers, no difference under 5, nothing multiplied by 1. A case about exactly that — a zero, a zero answer, an
@@ -15,8 +15,8 @@ answer that shrinks, a round number, × 1 — lifts the default it is about, and
 A multiplication's numbers, and the defaults it keeps, are `assess/draw_times.py`'s; a division's are
 `assess/draw_divide.py`'s, a quotient's box and a remainder's its own (`verify.division`). A case that names its method
 is printed that way: in a line, in columns, in the division layout, or in a written method of its own kind
-(`assess/written_methods.py`); a level that lists `methods` prints each case's calculations in every one of them, in
-fair shares (ADR 0055).
+(`assess/written.py`); a level that lists `methods` prints each case's calculations in every one of them, in fair
+shares (ADR 0055, 0063).
 """
 
 import math
@@ -28,20 +28,18 @@ from . import divide_kinds as DK
 from . import draw_case as K
 from . import draw_divide as DD
 from . import draw_native as N
-from . import draw_sums as S
+from . import draw_pair as P
 from . import draw_times as T
 from . import facts_kinds as FK
 from . import items as I
 from . import misconceptions as M
 from . import operations as O
 from . import times_kinds as TK
-from . import written_methods as WM
+from . import written as WR
 
 PLAIN = ("bare_sum", "column_grid")
-STRAIGHT = (*PLAIN, *WM.KINDS.values())  # every kind a straight calculation is printed in
-ZERO_KEYS = {"zero_operand", "zeros_in", "zeros_max", "exchange_zeros", "carry_into_zero", "answer_zeros"}
-ROUND_KEYS = {"round_operand", "answer_power_of_ten"}
-SIZE_KEYS = {"answer_digit_change", "difference_small", "unknown_digits", "equal_operands"}
+# every kind a straight calculation is printed in
+STRAIGHT = tuple(dict.fromkeys((*PLAIN, *WR.KINDS.values())))
 POSITIONS = {
     "FIRST_OPERAND": "a",
     "SECOND_OPERAND": "b",
@@ -51,79 +49,9 @@ POSITIONS = {
 }
 
 
-def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
-    return rng.randint(0 if (d == 1 and zero_ok) else (1 if d == 1 else 10 ** (d - 1)), 10**d - 1)
-
-
-def _usable(
-    op: str, a: int, b: int, about: set[str], check: dict[str, Any], alt: dict[str, Any] | None = None
-) -> bool:
-    """The defaults every question keeps unless its case is about the very thing they rule out."""
-    zero_case, round_case, size_case = about & ZERO_KEYS, about & ROUND_KEYS, about & SIZE_KEYS
-    method = (alt or {}).get("method")
-    if isinstance(method, str) and method in WM.WORK and not WM.prints(a, b):
-        return False  # a zero case lifts the rule against a zero, but a written method has no part of 0 to multiply
-    if op == "×":
-        lifts = {name for name, on in (("zero", zero_case), ("round", round_case), ("size", size_case)) if on}
-        return T.usable(a, b, about, check, alt or {}, lifts)
-    if op == "-" and a < b:
-        return False
-    if not zero_case and 0 in (a, b):
-        return False
-    if not (zero_case or round_case) and any(x >= 10 and x % 10 == 0 for x in (a, b)):
-        return False
-    if a == b and not (size_case or a < 10):
-        return False
-    if op == "-" and a == b and not size_case:
-        return False
-    if op == "-" and a >= 10 and a - b < 5 and not size_case:
-        return False
-    top = a + b if op == "+" else a
-    return not (check.get("max_total") and top > check["max_total"])
-
-
-def _pair(
-    rng: random.Random,
-    alt: dict[str, Any],
-    check: dict[str, Any],
-    op: str,
-    about: set[str],
-    fix: tuple[int, int] | None = None,
-) -> tuple[int, int] | None:
-    """Two numbers for this case, or None. `fix` pins one number's digit count (a missing number)."""
-    built = S.built(rng, alt)
-    if built:
-        return built
-    pairs = [p for p in K.pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
-    if not pairs:
-        return None
-    if op == "÷":  # one of the case's own, listed (`draw_divide.every`): its defaults are kept there
-        return DD.numbers(rng, alt, pairs)
-    d1, d2 = rng.choice(pairs)
-    zero_ok = "zero_operand" in about
-    if op == "×":
-        got = T.numbers(rng, alt, about, d1, d2)
-        return got if got and _usable(op, *got, about, check, alt) else None
-    a, b = _number(rng, d1, zero_ok), _number(rng, d2, zero_ok)
-    shrink = K.pick(rng, alt.get("answer_digit_change"), ["-1", "-MULTIPLE", "ZERO"]) if op == "-" else None
-    if shrink and "answer_digit_change" in alt:
-        # An answer that loses digits is rare among random pairs (105 − 97): choose the answer, then b.
-        size = {"-1": d1 - 1, "-MULTIPLE": rng.randint(1, d1 - 2) if d1 > 2 else 0, "ZERO": 0}[shrink]
-        answer = 0 if shrink == "ZERO" else (_number(rng, size, False) if size else None)
-        if answer is None:
-            return None
-        if shrink == "ZERO":
-            b = a
-        else:
-            a = answer + b  # the answer and the number taken away first; the top number follows
-            if len(str(a)) != d1:
-                return None
-    return (a, b) if _usable(op, a, b, about, check) else None
-
-
 def _plain(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, k: int):
     op = K.op(rng, alt, check)
-    got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
+    got = op and P.pair(rng, alt, check, op, taxonomy.keys(alt))
     return _set_out(alt, check, rung, k, op, *got) if op and got else None
 
 
@@ -131,8 +59,8 @@ def _set_out(
     alt: dict[str, Any], check: dict[str, Any], rung: str, k: int, op: str, a: int, b: int
 ) -> I.Item:
     method = alt.get("method") if isinstance(alt.get("method"), str) else None
-    if method in WM.KINDS:
-        return WM.make(method, a, b, rung)  # a written method, a box for every step (ADR 0055)
+    if method in WR.KINDS:
+        return WR.make(method, a, b, rung)  # a written method, a box for every step (ADR 0055, 0063)
     pres = (
         alt.get("presentation")
         or K.LAYOUT.get(method or "")
@@ -174,10 +102,10 @@ def _many(rng, alt, check, rung, k):
         low = K.pick(rng, alt.get("digits_min"), range(1, widest)) or 1
         lengths = [widest, low] + [rng.randint(low, widest) for _ in range(n - 2)]
         rng.shuffle(lengths)
-        xs = [_number(rng, d, False) for d in lengths]
+        xs = [P.number(rng, d, False) for d in lengths]
     else:
-        xs = [_number(rng, widest, False) for _ in range(n)]
-    if not (about & ZERO_KEYS) and any(x % 10 == 0 for x in xs):
+        xs = [P.number(rng, widest, False) for _ in range(n)]
+    if not (about & P.ZERO_KEYS) and any(x % 10 == 0 for x in xs):
         return None
     if check.get("max_total") and sum(xs) > check["max_total"]:
         return None
@@ -225,7 +153,7 @@ def _missing(
         if size and where == "FIRST_OPERAND"
         else ((1, size) if size and where == "SECOND_OPERAND" else None)
     )
-    got = _pair(rng, alt, check, op, taxonomy.keys(alt), fix)
+    got = P.pair(rng, alt, check, op, taxonomy.keys(alt), fix)
     if not got:
         return None
     a, b = (got[0], got[0]) if where == "MULTIPLE" else got  # □ × □ = 49: one number in both boxes
@@ -255,7 +183,7 @@ def _paired(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung
     """A kind built on its case's own two numbers (`facts_kinds`), drawn as a straight question's are: a table fact on a
     tables level, a round number on the tens level."""
     op = K.op(rng, alt, check)
-    got = op and _pair(rng, alt, check, op, taxonomy.keys(alt))
+    got = op and P.pair(rng, alt, check, op, taxonomy.keys(alt))
     if not got:
         return None
     try:
@@ -303,12 +231,12 @@ def _some(
 def _every(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]]:
     """Every pair a straight × or ÷ case can be (`draw_times.every`, `draw_divide.every`); none past what can be
     listed."""
-    if op == "÷":
-        return DD.every(alt, K.pairs(alt, check, op))
+    if op == "÷":  # its defaults kept in the listing; the method it is printed in still has its own say
+        return [(a, b) for a, b in DD.every(alt, K.pairs(alt, check, op)) if P.sets_out(alt, a, b)]
     about = taxonomy.keys(alt)
     ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, op)]
     pairs = [] if None in ranges else [p for r in ranges if r for p in r]
-    return [(a, b) for a, b in pairs if _usable(op, a, b, about, check, alt)]
+    return [(a, b) for a, b in pairs if P.usable(op, a, b, about, check, alt)]
 
 
 def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str]) -> list[I.Item]:
@@ -332,18 +260,23 @@ def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str
     return out
 
 
+def split(want: int, ways: int) -> list[int]:
+    """A share dealt over `ways`, the first ones one more where it does not divide: 10 over 4 is 3, 3, 2, 2."""
+    return [want // ways + (i < want % ways) for i in range(ways)]
+
+
 def _shared(
     rng: random.Random,
     ways: list[Any],
     check: dict[str, Any],
     rung: str,
-    want: int,
+    want: int | list[int],
     seen: set[str],
     tries: int,
 ) -> list[I.Item]:
-    """A case's share dealt over the ways its level prints it, the first ones one more where it does not divide, and
-    taken a way at a time, so a share cut short keeps every method."""
-    shares = [want // len(ways) + (i < want % len(ways)) for i in range(len(ways))]
+    """A case's share dealt over the ways its level prints it (`split`), or what each way is short of, and taken a way
+    at a time, so a share cut short keeps every method."""
+    shares = want if isinstance(want, list) else split(want, len(ways))
     got = [_some(rng, w, check, rung, k, seen, max(1, k) * tries) for w, k in zip(ways, shares, strict=True)]
     return [its[i] for i in range(max(map(len, got), default=0)) for its in got if i < len(its)]
 
@@ -356,24 +289,24 @@ def level(
     n: int,
     seen: set[str] | None = None,
     tries_per_item: int = 2000,
-    quotas: dict[str, int] | None = None,
+    quotas: dict[str, int | list[int]] | None = None,
 ) -> list[tuple[str, I.Item]]:
     """Up to `n` distinct [(case, question)] for a level: the same number from each case it holds, then —
     where a case's numbers run out (7 − 7 has nine) — the rest from the cases that still have more.
 
-    With `quotas` (what each case is still short of) every case is drawn its own shortfall as far as its
-    numbers go, and `n` is only what the level as a whole still needs: a case that has run out stays
-    short for good, and letting that spill onto the others made every refill add more of them.
+    With `quotas` (what each case is still short of, or each way it is printed in) every case is drawn its own
+    shortfall as far as its numbers go, and `n` is only what the level as a whole still needs: a case that has run out
+    stays short for good, and letting that spill onto the others made every refill add more of them.
 
     A level that lists `methods` prints each case's share in every written method it can be printed in, in fair
     shares (`draw_case.ways`, assumption A1); `matches` then holds the methods' cases too."""
     codes = list(check["cases"])
     seen = set() if seen is None else seen
     even = quotas is None
-    quotas = dict.fromkeys(codes, math.ceil(n / len(codes))) if even else quotas
+    shares: dict[str, int | list[int]] = dict.fromkeys(codes, math.ceil(n / len(codes))) if even else quotas
     ways = {c: K.ways(matches[c], [matches[m] for m in check.get("methods", [])]) for c in codes}
     drawn = {
-        code: _shared(rng, ways[code], check, rung, quotas.get(code, 0), seen, tries_per_item)
+        code: _shared(rng, ways[code], check, rung, shares.get(code, 0), seen, tries_per_item)
         for code in codes
     }
     # dealt a case at a time, so cutting an even draw to `n` takes one from each case in turn: nine cases asked for

@@ -1,6 +1,6 @@
 """The tables' and the tens' kinds an Advance asks for, × and ÷ (goals/md3b1-facts-advance.yaml): a fact family, the
 table backwards through its fact, a fact from a known fact, a fact scaled by ten, and the mistakes a missing factor or
-divisor names (ADR 0057); the cost of one, a story that divides, is `divide_stories.py`'s. Each is built on the two numbers its case draws (`draw._pair`), as a straight
+divisor names (ADR 0057); the cost of one, a story that divides, is `divide_stories.py`'s. Each is built on the two numbers its case draws (`draw_pair.pair`), as a straight
 question's are, so a tables level's are table facts and the tens level's round numbers; a kind that drew its own
 numbers almost never landed on a tables level. Deterministic given an RNG; pure: no I/O.
 
