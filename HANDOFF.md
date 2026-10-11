@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI3 live; the done report asks live, not the copy
+
+- **UI3** merged (#185) and live on Vercel; done report 7/7, 3/3 (STATE.md "UI3 merged and live").
+- **Fixed on the way:** `engine done` blamed live for the test copy's missing migration record; it now asks live's
+  read-only address and says plainly when live does not answer from where it ran (STATE.md "The done report asks
+  live, not the copy").
+- **Next:** UI4 (Children; the staff list off the public repository; Achal's and Neha's emails asked for then, never
+  their passwords).
+
 ## 2026-10-11 — UI2 live; UI3: Curriculum (built, proved on copies)
 
 - **UI2** merged (#184) and live on Vercel; done report 4/4, 3/3 (STATE.md "UI2 merged and live").
