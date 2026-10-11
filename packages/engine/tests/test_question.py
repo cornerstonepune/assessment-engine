@@ -157,20 +157,35 @@ def _live_worksheets_of(conn, item_id):
     ]
 
 
+def _live(conn):
+    rows = conn.execute(
+        "select code, item_ids from sheet_template where source = 'library' and retired_at is null"
+    )
+    return {r["code"]: r["item_ids"] for r in rows.fetchall()}
+
+
 def test_rewording_a_question_moves_it_onto_a_new_worksheet_and_retires_the_old_one(conn):
     q = _on_a_worksheet(conn)
+    before = _live(conn)
     stem = conn.execute("select stem from item where id = %s", (q["id"],)).fetchone()["stem"]
     # an edit every story takes: not every story asks "How many", and which one comes first is the bank's draw
     new = question.correct(conn, q["item_key"], stem + " Show how you know.", BY, "clearer")
     assert _live_worksheets_of(conn, q["id"]) == []
     new_id = conn.execute("select id from item where item_key = %s", (new["item_key"],)).fetchone()["id"]
-    assert len(_live_worksheets_of(conn, new_id)) == 1
+    on = _live_worksheets_of(conn, new_id)
+    # on a new worksheet, never one edited: a level the patch cannot keep even is dealt afresh (ADR 0026), and then
+    # the new question can be one of those its level deals twice — 1 of ADD.2D2D Advance's 68 stories, on 2026-10-11
+    assert on and not set(on) & set(before)
+    assert all(before[c] == ids for c, ids in _live(conn).items() if c in before)
     assert library.check(conn)[1] == {}
 
 
 def test_removing_a_question_retires_its_worksheet_and_every_other_question_stays_on_one(conn):
     q = _on_a_worksheet(conn)
+    before = _live(conn)
     question.remove(conn, q["item_key"], BY, "a duplicate of another question")
     assert _status(conn, q["id"]) == "retired"
     assert _live_worksheets_of(conn, q["id"]) == []
+    # its worksheets retired and new ones made, never one edited
+    assert all(before[c] == ids for c, ids in _live(conn).items() if c in before)
     assert library.check(conn)[1] == {}

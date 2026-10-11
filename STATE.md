@@ -6657,6 +6657,11 @@ Goal `goals/md4d1-times-stories.yaml`, ADR 0068.
 - **Found in CI, fixed:** s2's edit of a skill's words, on a commit of documents alone, saved the new words followed by
   the old — the box was filled before the page's script took over. The spec reaches the page live (networkidle) and
   checks the box before Save. Ratchet fell: `bands.py` untyped 268 to 253.
+- **Found in CI, fixed at the test:** rewording a question held its new one to exactly one worksheet. The library
+  promises less: a level the patch cannot keep even is dealt afresh (ADR 0026), and its new question can be one of
+  those dealt twice. Reworded one by one on a copy, ADD.2D2D Advance's 68 stories went 1→1 (65), 2→1 (2) and 1→2 (1);
+  CI's draw picked the last kind. The test now holds what is promised: the old question on no worksheet, the new one
+  on worksheets all newly made, no worksheet edited, `check` clean. All 68 hold; an edited worksheet is caught.
 
 Proved on copies:
 - **Tests:** `test_md_word.py` 12 passed; the story and kind tests without a database, 413 passed.
