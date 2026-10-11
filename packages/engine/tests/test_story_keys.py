@@ -19,7 +19,7 @@ from engine.assess import misconceptions as M
 from engine.assess import words as W
 from engine.core import db
 from engine.w1_bank import bank, inventory, labels, question, story_keys
-from tests.rows import a_child, tenant
+from tests.rows import a_child, drawn, tenant
 
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed"
 SETS = {s["code"]: s for s in json.loads((SEED / "skill_sets.json").read_text())["skill_sets"]}
@@ -34,16 +34,6 @@ def _target(level):
         "assemble.items_per_sheet"
     ]
     return int(level.get("min_items") or need)
-
-
-def _made(make):
-    """A story drawn as the bank draws one: numbers no story of its shape holds are drawn again (`draw._paired`)."""
-    for _ in range(200):
-        try:
-            return make()
-        except RuntimeError:
-            continue
-    raise AssertionError("no story drawn in 200 tries")
 
 
 def _key(template, spec):
@@ -78,7 +68,7 @@ def test_a_story_is_its_numbers_its_shape_and_its_operations():
     one_step = [t for t in W.templates("word_1step") if t["op"] in "+-" and not t.get("table")]
     for shape in sorted({t["structure"] for t in one_step}):
         for _ in range(30):
-            it = _made(lambda: W.word_1step(rng, "R1", "Application", 1, regroups=(0,), structure=shape))
+            it = drawn(lambda: W.word_1step(rng, "R1", "Application", 1, regroups=(0,), structure=shape))
             a, b, op = it.spec["a"], it.spec["b"], it.spec["op"]
             assert it.spec == {"a": a, "b": b, "op": op, "structure": shape}
             assert it.item_id == _key("WP1", {"a": a, "b": b, "op": op, "structure": shape})
@@ -88,7 +78,7 @@ def test_a_story_is_its_numbers_its_shape_and_its_operations():
     assert all(len({k for _, k in ks}) == len({s for s, _ in ks}) for ks in shared)
     for shape in ("UNKNOWN_FIRST", "EXTRA_INFORMATION", "CONSTRAINT", "SUB_SUB"):
         for _ in range(12):
-            it = _made(lambda: W.word_2step(rng, "R12", "Application", 3, structure=shape))
+            it = drawn(lambda: W.word_2step(rng, "R12", "Application", 3, structure=shape))
             tpl = W.template_of(it.stem)
             assert tpl and tpl["structure"] == shape
             ops = list(dict.fromkeys(tpl["op"]))
@@ -124,7 +114,7 @@ def test_both_ways_into_the_bank_key_a_story_alike():
     story whose words no template wrote names no shape, and is keyed by its numbers, as it always was."""
     rng = random.Random(8)
     for t in [t for t in W.templates("word_1step") if t["op"] in "+-" and not t.get("table")]:
-        it = _made(lambda: W.word_1step(rng, "R5", "Application", 2, structure=t["structure"], op=t["op"]))
+        it = drawn(lambda: W.word_1step(rng, "R5", "Application", 2, structure=t["structure"], op=t["op"]))
         c = {
             "format": "word_1step",
             "op": it.spec["op"],
@@ -160,7 +150,7 @@ def conn():
 def _fresh(conn, make, as_it_was=True):
     """A story the bank does not hold yet, under the key it has now and, `as_it_was`, the key it had before."""
     for _ in range(200):
-        it = _made(make)
+        it = drawn(make)
         old = {k: v for k, v in it.spec.items() if k not in ("structure", "ops")}
         was = dataclasses.replace(it, item_id=_key(it.template, old), spec=old)
         keys = [it.item_id, was.item_id] if as_it_was else [it.item_id]

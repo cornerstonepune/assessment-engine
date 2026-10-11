@@ -20,7 +20,7 @@ manual:
 scenarios: []
 criteria:
   - name: every story in range, every case still drawn, the story makers' own tests
-    run: cd packages/engine && uv run pytest -q tests/test_story_ranges.py tests/test_every_listed_case.py tests/test_md_word.py tests/test_divide_stories.py tests/test_story_keys.py tests/test_story_shape.py
+    run: cd packages/engine && uv run pytest -q tests/test_story_ranges.py tests/test_every_listed_case.py tests/test_md_word.py tests/test_divide_stories.py tests/test_story_keys.py tests/test_story_shape.py tests/test_rehome.py tests/test_bank.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

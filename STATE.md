@@ -7029,8 +7029,14 @@ waits on a person there. The screenshots hold children's names and stayed on the
   case (W08) drew nothing: none of its stories held a 3-digit whole with a 1- or 2-digit part.
 - **A stored story outside its range is outside its level** (`cases.outside_their_level`), so `bin/update-live`'s
   refill retires it and `library build` replaces the worksheets that held it.
-- **Tests that called a maker directly now draw as the bank does:** `test_story_keys` retries a story whose numbers no
-  template of its shape holds, as `draw._paired` always has.
+- **Tests that called a maker directly now draw as the bank does** (`tests/rows.drawn`, shared): `test_story_keys` and
+  `test_rehome` retry a story whose numbers no template of its shape holds, as `draw._paired` and `bank.fill` always
+  have.
+- **CI caught a fifth path the local run did not reach:** the bank's offline sampler (`bank._sampled`, `engine bank
+  fill --offline`) chose any story of its operation for its numbers; it now chooses among those that hold them, and a
+  pair none holds is not drawn as a story. Seen failing three runs in three on the old `bank.py` (`test_bank`'s recheck
+  named the story it had just made), passing on the new. Locally the copy's bank was drawn before ranges: `engine bank
+  refill` retired 745 stories outside their ranges and drew 744 in their place, as `bin/update-live` will on live.
 - **Proved:** `test_story_ranges.py` written first: the template test seen failing (159 numbers with no range); the
   every-level test seen failing with the ranges in place and the old makers ("Anaya has 601 marbles", "407 mangoes in
   a basket … 3442 more", "A shelf holds 61 books"); the bank test seen failing on the old `cases.py` (the story named

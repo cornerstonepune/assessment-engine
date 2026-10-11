@@ -14,6 +14,7 @@ from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
 from engine.core import db
 from engine.w1_bank import cases, rehome
+from tests.rows import drawn
 
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase/seed"
 SKILLS = [
@@ -221,7 +222,11 @@ def test_every_one_step_story_has_a_home_whatever_is_unknown_in_it(digits, op):
     rng = random.Random(f"{digits}{op}")
     seen = set()
     for _ in range(80):
-        it = words.word_1step(rng, "R8", "Application", max(digits), regroups=(0, 1, 2), op=op, digits=digits)
+        it = drawn(
+            lambda: words.word_1step(
+                rng, "R8", "Application", max(digits), regroups=(0, 1, 2), op=op, digits=digits
+            )
+        )
         t = tags.derive(it)
         seen.add(t.get("structure"))
         assert placing.place(it.fmt, t, SKILLS, MATCHES), (it.stem, t.get("structure"))

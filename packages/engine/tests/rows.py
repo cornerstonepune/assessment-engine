@@ -8,6 +8,17 @@ import uuid
 from engine.core import db
 
 
+def drawn(make):
+    """A question drawn as the bank draws one: a maker's "draw again" (numbers no story of its shape holds, a fact
+    family 7 × 7 cannot make) is drawn again, as `draw._paired` and `bank.fill` always have."""
+    for _ in range(200):
+        try:
+            return make()
+        except RuntimeError:
+            continue
+    raise AssertionError("nothing drawn in 200 tries")
+
+
 def tenant(conn):
     return conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
 
