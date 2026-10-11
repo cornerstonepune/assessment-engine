@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI4a live; C1: the whole curriculum (built, proved on copies)
+
+- **UI4a** merged (#187) and live on Vercel; done report 4/4, 4/4 (STATE.md "UI4a merged and live").
+- **Slice:** C1, Nimish 2026-10-11 ("Achal will review the progression. Get the version live … build the whole
+  platform accordingly for multiplication"): the Curriculum shows the whole mapping, taught or not, marked; a level
+  moved to another grade carries the mover's name; the registry's broken text repaired (STATE.md "C1").
+- **For Nimish:** `~/cornerstone/assessment-engine/bin/update-live` brings M2a to M4d1, the logins and C1 to live.
+- **Next:** UI4b (Children by topic), then UI5 (Assessments by topic, with filters), then M4d2.
+
 ## 2026-10-11 — UI4a: the staff list and the search (built, proved on copies)
 
 - **Slice:** UI4a (BUILD-ORDER "UI1 to UI4"; UI4 split so the sign-in ships first). `engine staff add` puts an

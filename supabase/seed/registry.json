@@ -20027,7 +20027,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Numbers and the Number System",
-   "title": "Place value (reading/writing large numbers, pVisual artsitioning, rounding)",
+   "title": "Place value (reading/writing large numbers, partitioning, rounding)",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20072,7 +20072,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Time and Timetables",
-   "title": "Finding stVisual arts/end times",
+   "title": "Finding start/end times",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20198,7 +20198,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Fractions",
-   "title": "PVisual artss of a whole",
+   "title": "Parts of a whole",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20270,7 +20270,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Multiplication & Division – Extended & Application",
-   "title": "Multiply 2-digit numbers by 1-digit numbers using pVisual artsitioning, grid/area model, and expanded layouts",
+   "title": "Multiply 2-digit numbers by 1-digit numbers using partitioning, grid/area model, and expanded layouts",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20296,7 +20296,7 @@
    "code": "LO-G4-1357",
    "band": "G4",
    "subject": "Numeracy",
-   "unit": "Position & Movement (Geometry – PVisual arts 2)",
+   "unit": "Position & Movement (Geometry – Part 2)",
    "title": "Use directional vocabulary: left, right, clockwise, anti-clockwise",
    "signal": "Foundational",
    "confidence": "high"
@@ -20305,8 +20305,8 @@
    "code": "LO-G4-1358",
    "band": "G4",
    "subject": "Numeracy",
-   "unit": "Position & Movement (Geometry – PVisual arts 2)",
-   "title": "Understand quVisual artser-turns, half-turns, and full-turns",
+   "unit": "Position & Movement (Geometry – Part 2)",
+   "title": "Understand quarter-turns, half-turns, and full-turns",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20314,7 +20314,7 @@
    "code": "LO-G4-1359",
    "band": "G4",
    "subject": "Numeracy",
-   "unit": "Position & Movement (Geometry – PVisual arts 2)",
+   "unit": "Position & Movement (Geometry – Part 2)",
    "title": "Describe movement along grids and pathways",
    "signal": "Foundational",
    "confidence": "high"
@@ -20323,7 +20323,7 @@
    "code": "LO-G4-1360",
    "band": "G4",
    "subject": "Numeracy",
-   "unit": "Position & Movement (Geometry – PVisual arts 2)",
+   "unit": "Position & Movement (Geometry – Part 2)",
    "title": "Follow and create simple routes",
    "signal": "Foundational",
    "confidence": "high"
@@ -20332,7 +20332,7 @@
    "code": "LO-G4-1361",
    "band": "G4",
    "subject": "Numeracy",
-   "unit": "Position & Movement (Geometry – PVisual arts 2)",
+   "unit": "Position & Movement (Geometry – Part 2)",
    "title": "Identify movement sequences in patterns",
    "signal": "Foundational",
    "confidence": "high"
@@ -20423,7 +20423,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Data Handling (Statistics)",
-   "title": "Represent data using pictograms, bar chVisual artss, and tables",
+   "title": "Represent data using pictograms, bar charts, and tables",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20432,7 +20432,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Data Handling (Statistics)",
-   "title": "Interpret chVisual artss (biggest/smallest category, differences between quantities)",
+   "title": "Interpret charts (biggest/smallest category, differences between quantities)",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20531,7 +20531,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Problem Solving & Reasoning",
-   "title": "Use diagrams, bar models, and chVisual artss",
+   "title": "Use diagrams, bar models, and charts",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20711,7 +20711,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Projects",
-   "title": "Decode coded clues using place value chVisual artss and large numbers.",
+   "title": "Decode coded clues using place value charts and large numbers.",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -20792,7 +20792,7 @@
    "band": "G4",
    "subject": "Numeracy",
    "unit": "Projects",
-   "title": "Plan and construct a simple model with measured pVisual artss (box, bridge).",
+   "title": "Plan and construct a simple model with measured parts (box, bridge).",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -22934,7 +22934,7 @@
    "band": "G4",
    "subject": "Primary Computing",
    "unit": "Presenting Data",
-   "title": "Key Concepts: ChVisual artss, graphs",
+   "title": "Key Concepts: Charts, graphs",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -23032,7 +23032,7 @@
    "code": "LO-G4-1661",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Title: Lines Around Us",
    "signal": "Foundational",
    "confidence": "high"
@@ -23041,7 +23041,7 @@
    "code": "LO-G4-1662",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Focus: Identify and explore different types of lines",
    "signal": "Foundational",
    "confidence": "high"
@@ -23050,7 +23050,7 @@
    "code": "LO-G4-1663",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Key Concepts: Line, thick/thin, straight/curved, pattern",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23086,7 +23086,7 @@
    "code": "LO-G4-1667",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Drawing with Patterns / • Focus: Combine line, shape, and pattern in Visual artswork / • Key Concepts: Composition, pattern, space",
+   "unit": "• Title: Drawing with Patterns / • Focus: Combine line, shape, and pattern in artwork / • Key Concepts: Composition, pattern, space",
    "title": "",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23095,7 +23095,7 @@
    "code": "LO-G4-1668",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Visual artsist Study – Line & Pattern / • Focus: Explore Visual artsists using line and pattern / • Key Concepts: Style, Visual artsist inspiration, design",
+   "unit": "• Title: Artist Study – Line & Pattern / • Focus: Explore artists using line and pattern / • Key Concepts: Style, artist inspiration, design",
    "title": "",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23131,7 +23131,7 @@
    "code": "LO-G4-1672",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Visual artsist Study – Starry Night / • Focus: Explore use of color and brush strokes in Visual arts / • Key Concepts: Brushstroke, texture, movement",
+   "unit": "• Title: Artist Study – Starry Night / • Focus: Explore use of color and brush strokes in Visual arts / • Key Concepts: Brushstroke, texture, movement",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23140,7 +23140,7 @@
    "code": "LO-G4-1673",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Colour Reflection / • Focus: Reflect and discuss Visual artswork / • Key Concepts: Observation, reflection, Visual arts vocabulary",
+   "unit": "• Title: Colour Reflection / • Focus: Reflect and discuss artwork / • Key Concepts: Observation, reflection, Visual arts vocabulary",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23177,7 +23177,7 @@
    "band": "G4",
    "subject": "Visual Arts",
    "unit": "Geography",
-   "title": "Key Concepts: Globe, EVisual artsh, location, land, water",
+   "title": "Key Concepts: Globe, Earth, location, land, water",
    "signal": "Foundational",
    "confidence": "high"
   },
@@ -23194,7 +23194,7 @@
    "code": "LO-G4-1679",
    "band": "G4",
    "subject": "Visual Arts",
-   "unit": "• Title: Continents and Oceans / • Focus: Recognize EVisual artsh is divided into land (continents) and water (oceans) / • Key Concepts: Continents, oceans, land, water",
+   "unit": "• Title: Continents and Oceans / • Focus: Recognize Earth is divided into land (continents) and water (oceans) / • Key Concepts: Continents, oceans, land, water",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23203,7 +23203,7 @@
    "code": "LO-G4-1680",
    "band": "G4",
    "subject": "Visual Arts",
-   "unit": "• Title: Asia and India’s Place / • Focus: Identify Asia as a continent and understand India is pVisual arts of Asia / • Key Concepts: Continent, Asia, location, world map",
+   "unit": "• Title: Asia and India’s Place / • Focus: Identify Asia as a continent and understand India is part of Asia / • Key Concepts: Continent, Asia, location, world map",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23266,7 +23266,7 @@
    "code": "LO-G4-1687",
    "band": "G4",
    "subject": "Visual Arts",
-   "unit": "• Title: Agriculture Begins / • Focus: Understand how farming stVisual artsed / • Key Concepts: Farming, settlement / /",
+   "unit": "• Title: Agriculture Begins / • Focus: Understand how farming started / • Key Concepts: Farming, settlement / /",
    "title": "",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23275,7 +23275,7 @@
    "code": "LO-G4-1688",
    "band": "G4",
    "subject": "Visual Arts",
-   "unit": "• Title: Trade and Exchange / • Focus: Understand how people exchanged goods / • Key Concepts: Trade, bVisual artser / /",
+   "unit": "• Title: Trade and Exchange / • Focus: Understand how people exchanged goods / • Key Concepts: Trade, barter / /",
    "title": "",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23284,7 +23284,7 @@
    "code": "LO-G4-1689",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Title: Paper Sculpture",
    "signal": "Foundational",
    "confidence": "high"
@@ -23293,7 +23293,7 @@
    "code": "LO-G4-1690",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Focus: Create 3D forms using paper techniques",
    "signal": "Foundational",
    "confidence": "high"
@@ -23302,7 +23302,7 @@
    "code": "LO-G4-1691",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "Visual Visual artss",
+   "unit": "Visual arts",
    "title": "Key Concepts: 3D, structure, form",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23383,7 +23383,7 @@
    "code": "LO-G4-1700",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Portfolio Building / • Focus: Organize and reflect on Visual artswork / • Key Concepts: Reflection, selection, growth",
+   "unit": "• Title: Portfolio Building / • Focus: Organize and reflect on artwork / • Key Concepts: Reflection, selection, growth",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23392,7 +23392,7 @@
    "code": "LO-G4-1701",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Final Visual artswork Project / • Focus: Create a personal Visual artswork using learned skills / • Key Concepts: Creativity, integration, expression",
+   "unit": "• Title: Final Artwork Project / • Focus: Create a personal artwork using learned skills / • Key Concepts: Creativity, integration, expression",
    "title": "",
    "signal": "Foundational",
    "confidence": "medium"
@@ -23401,7 +23401,7 @@
    "code": "LO-G4-1702",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Exhibition Preparation / • Focus: Prepare Visual artswork for display / • Key Concepts: Presentation, display, curation",
+   "unit": "• Title: Exhibition Preparation / • Focus: Prepare artwork for display / • Key Concepts: Presentation, display, curation",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23410,7 +23410,7 @@
    "code": "LO-G4-1703",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Visual arts Exhibition / • Focus: Present and celebrate Visual artswork / • Key Concepts: Expression, confidence, appreciation",
+   "unit": "• Title: Visual arts Exhibition / • Focus: Present and celebrate artwork / • Key Concepts: Expression, confidence, appreciation",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23446,7 +23446,7 @@
    "code": "LO-G4-1707",
    "band": "G4",
    "subject": "Global perspectives",
-   "unit": "• Title: Natural Resources / • Focus: Identify basic resources provided by EVisual artsh and their uses / • Key Concepts: Water, air, soil, natural resources",
+   "unit": "• Title: Natural Resources / • Focus: Identify basic resources provided by Earth and their uses / • Key Concepts: Water, air, soil, natural resources",
    "title": "",
    "signal": "Foundational",
    "confidence": "high"
@@ -23563,7 +23563,7 @@
    "code": "LO-G4-1720",
    "band": "G4",
    "subject": "Routines",
-   "unit": "Assembly PVisual artsicipation",
+   "unit": "Assembly Participation",
    "title": "Encourages public speaking, discipline, and a sense of community",
    "signal": "Procedural",
    "confidence": "high"

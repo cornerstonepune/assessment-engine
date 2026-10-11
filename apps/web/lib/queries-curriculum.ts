@@ -8,7 +8,8 @@ export type CurriculumSkill = SkillSet & { sheets: Record<string, string[]> };
 
 export async function curriculum(): Promise<{ subject: string; skills: CurriculumSkill[] }> {
   const [sets, sheets, [subject]] = await Promise.all([
-    skillSets(),
+    // the whole mapping, taught or not (goals/c1-whole-curriculum.yaml): showing a skill is not putting it on a paper
+    skillSets({ untaught: true }),
     sql<{ code: string; level: string; codes: string[] }[]>`
       select t.skill_set_code as code, t.difficulty as level, array_agg(t.code order by t.code) as codes
       from sheet_template t
@@ -32,6 +33,8 @@ export type CurriculumRow = {
   sub?: string;
   href?: string;
   draft?: boolean;
+  /** Its topic is not switched on: shown, and on no child's paper until an educator switches it on. */
+  off?: boolean;
   questions: number;
   worksheets: number;
   /** Questions at each level of this grade; a level another grade holds is null. */
@@ -87,6 +90,7 @@ export async function curriculumRows(): Promise<{ subject: string; rows: Curricu
             sub: s.name,
             href: `/skill-sets/${s.code}`,
             draft: s.status !== "ratified",
+            off: !s.taught,
             questions: levels.reduce((n, d) => n + (s.counts[d] ?? 0), 0),
             worksheets: levels.reduce((n, d) => n + (s.worksheets[d] ?? 0), 0),
             levels: Object.fromEntries(DIFFICULTIES.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
@@ -103,6 +107,7 @@ export async function curriculumRows(): Promise<{ subject: string; rows: Curricu
         parent: subj.id,
         depth: 2,
         label: t.topic_name ?? "Other",
+        off: !t.taught,
         questions: sum(skillRows, "questions"),
         worksheets: sum(skillRows, "worksheets"),
         levels: levelSums(skillRows),

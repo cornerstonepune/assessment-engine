@@ -84,7 +84,13 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                       </span>
                       {r.label}
                     </button>
-                  ) : (
+                  ) : null}
+                  {under(r.id).length && r.off ? (
+                    <span className="ml-2 inline-block align-middle">
+                      <Pill tone="monsoon">not taught yet</Pill>
+                    </span>
+                  ) : null}
+                  {under(r.id).length ? null : (
                     <div className="text-[13.5px]">
                       {r.href ? (
                         <Link href={r.href} className="text-basalt">
@@ -96,6 +102,7 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-basalt/62">
                         {r.sub}
                         {r.draft ? <Pill tone="bamboo">waiting for approval</Pill> : null}
+                        {r.off ? <Pill tone="monsoon">not taught yet</Pill> : null}
                       </div>
                     </div>
                   )}

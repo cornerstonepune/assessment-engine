@@ -28,6 +28,9 @@ export type SkillSet = {
   band: string;
   /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
   level_band: Partial<Record<Difficulty, string>>;
+  /** Who last moved a level to another grade, and when (goals/c1-whole-curriculum.yaml). */
+  level_band_by: string | null;
+  level_band_at: string | null;
   descriptor: string;
   skill_codes: string[];
   version: number;
@@ -84,7 +87,7 @@ export async function skillSets({ untaught = false }: { untaught?: boolean } = {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
-           r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, r.descriptor, r.skill_codes, s.topic_code,
+           r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, coalesce(t.taught, false) as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item

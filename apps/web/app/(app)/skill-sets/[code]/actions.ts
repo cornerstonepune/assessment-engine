@@ -82,7 +82,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
  *  column, not in the level's words: it moves where the level is taught, not what it asks, so the approval stays.
  *  A level in the skill's own grade is not written down; only one moved elsewhere is. */
 export async function saveGrades(formData: FormData): Promise<void> {
-  await requireStaff();
+  const me = await requireStaff();
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const [row] = await sql<{ difficulty: Record<Difficulty, Band>; band: string }[]>`
@@ -94,7 +94,10 @@ export async function saveGrades(formData: FormData): Promise<void> {
       .map((d) => [d, String(formData.get(`grade:${d}`) ?? "")] as const)
       .filter(([, g]) => /^G[1-9]\+?$/.test(g) && g !== row.band),
   );
-  await sql`update skill_set set level_band = ${sql.json(moved as never)} where code = ${code}`;
+  // in the mover's name (goals/c1-whole-curriculum.yaml): Achal reviews the progression by moving levels here
+  await sql`
+    update skill_set set level_band = ${sql.json(moved as never)}, level_band_by = ${me.name}, level_band_at = now()
+    where code = ${code}`;
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);
   redirect(`/skill-sets/${code}?grades=1`);
