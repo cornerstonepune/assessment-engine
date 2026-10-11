@@ -6904,8 +6904,17 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **The registry reads as the school wrote it:** the 40 broken strings repaired (three titles' capitals restored by
   hand: "Artist Study" twice, "Final Artwork Project"), the crosswalk's two tables and its design key with them;
   `test_registry_text.py` fails if a regenerated registry brings them back. The Skill Map Review artifact it is
-  generated from carries the same breakage. The spine (`docs/spine/`) is left as built: its notes name the garbling
-  and the units it left unmapped because of it, and its next build reads the repaired registry.
+  generated from carries the same breakage.
+- **The spine reads the repaired registry too.** CI's engine run on #188 failed where the local run had not looked:
+  `test_spine_page.py` holds `docs/spine/plan.json` to what `research/plan_build.py` builds, and the plan finds each
+  objective's unit by its words in `docs/spine/sources/school_units.json`, still broken (`unit.370`, "Geometry –
+  PVisual arts 2"). That table is repaired in place, every id kept, as the seats' records cite them; 12 of its 16
+  broken units were halves of a unit the broken text had split in two (`unit.188` and `unit.370`; `unit.359` and
+  `unit.427` — the seats had already named `unit.438` "the G4 copy of unit.303 … split off by the garbling"), and the
+  plan puts such a unit's objectives under its first id. `spine.json` and the plan rebuilt by their own commands;
+  the six broken words left in `spine.json` are the seats' notes quoting the breakage. `test_registry_text.py` holds
+  the unit table and the plan to the registry. Every engine test that reads the registry, 11 files, on a fresh copy:
+  157 passed — the local run had covered only the files the change touched.
 - **Proved on copies:** `test_registry_text.py` and u19 written first and seen failing (a broken objective; no
   multiplication facts in Grade 2; no grades panel to name). C1's browser criteria on a database built fresh: 48 of 48.
   Engine: registry, loaders, topics, papers, approvals 39 passed.
