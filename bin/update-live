@@ -22,6 +22,12 @@ say() { printf '\n==> %s\n' "$*"; }
 say "1/6 main"
 git -C "$REPO" checkout main && git -C "$REPO" pull --ff-only origin main
 (cd "$REPO/packages/engine" && uv sync -q)
+# OpenCV's builds share one `cv2` folder: removing one deletes the files the other installed, uv still counts that one
+# installed, and every engine command then stops on starting (2026-10-11: "module 'cv2' has no attribute 'SIFT'").
+# It is put back here, and the run stops in a sentence where it cannot be.
+opencv() { "$REPO/packages/engine/.venv/bin/python" -c 'import cv2; cv2.SIFT.create' 2>/dev/null; }
+opencv || uv sync -q --directory "$REPO/packages/engine" --reinstall-package opencv-contrib-python
+opencv || { echo "OpenCV in packages/engine/.venv still has no SIFT after reinstalling it: nothing else ran" >&2; exit 1; }
 
 say "2/6 migrations onto the live database"
 (cd "$REPO" && supabase db push --db-url "$LIVE" --yes)
