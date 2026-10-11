@@ -1,5 +1,6 @@
 import { sql } from "./db";
 import { rag, type Rag } from "./rag";
+import { reportState, type ReportState } from "./queries-reports";
 
 // Children (goals/u2-children.yaml): a grade's classes, a class as its children against every step, and what a
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
@@ -18,14 +19,15 @@ export type ChildRow = {
   practising: number;
   /** The last day a paper of theirs was read. */
   last_read: string | null;
-  /** Their newest parent report: approved, or a draft; out of date once answers were signed off after it was written. */
-  report: { approved: boolean; out_of_date: boolean; written: string } | null;
+  /** Their newest parent report and whether there are answers to write one from (`queries-reports`). */
+  report: ReportState;
 };
 
-/** Every child on roll, grade by grade, with their standing on each taught skill as the graph's own states give it
- *  (one skill set counted once, in the worst state of its skills), the last paper read, and their newest parent
- *  report. Names through pii.read_child, which logs who asked. */
-export async function childTable(actor: string): Promise<ChildRow[]> {
+/** Every child on roll, grade by grade, with their standing on each taught skill — or one taught topic's skills
+ *  (goals/ui4b2-class-by-topic.yaml) — as the graph's own states give it (one skill set counted once, in the worst
+ *  state of its skills), the last paper read, and their newest parent report. Names through pii.read_child, which
+ *  logs who asked. */
+export async function childTable(actor: string, topic: string | null = null): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     with st as (
       select s.child_id, s.rung_code, ss.name,
@@ -34,7 +36,7 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
              sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share
       from child_skill_state s
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
-      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught ${topic ? sql`and t.code = ${topic}` : sql``}
       group by s.child_id, s.rung_code, ss.name
     )
     select c.id, c.band, c.section, c.roll_no, p.first_name,
@@ -45,13 +47,7 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
            (select count(*)::int from st where st.child_id = c.id and st.sev = 3) as practising,
            (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null) as last_read,
-           (select jsonb_build_object(
-                     'approved', n.approved_by is not null,
-                     'written', n.created_at::date::text,
-                     'out_of_date', exists (select 1 from evidence_event e where e.child_id = c.id
-                                             and e.confirmed_by is not null and e.created_at > n.created_at))
-              from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
-             order by n.created_at desc limit 1) as report
+           ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
@@ -59,13 +55,22 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
 
 /** One column of the class grid: a rung, for one skill it carries. */
 /** One step of the class grid: its skill, and the skill set a paper on it is drawn from, with the levels it has. */
-export type Step = { skill_code: string; skill_name: string; rung_code: string; descriptor: string; topic_name: string; skill_set: string; levels: string[] };
+export type Step = {
+  skill_code: string;
+  skill_name: string;
+  rung_code: string;
+  descriptor: string;
+  topic_code: string;
+  topic_name: string;
+  skill_set: string;
+  levels: string[];
+};
 export type GridChild = { id: string; roll_no: string; first_name: string; states: Record<string, { state: string; n_events: number; n_correct: number }> };
 
 export const stepKey = (s: { skill_code: string; rung_code: string }) => `${s.skill_code}|${s.rung_code}`;
 
 /** A taught skill of the class's grade no child of it has answered: named once, and checked for the whole class. */
-export type Unanswered = { code: string; name: string; levels: string[] };
+export type Unanswered = { code: string; name: string; levels: string[]; topic_code: string };
 
 /** A class's children in roll order, each name read through pii.read_child, which logs who asked. */
 export async function classRoll(section: string, actor: string): Promise<{ id: string; roll_no: string; first_name: string }[]> {
@@ -85,7 +90,7 @@ export async function classGrid(
 ): Promise<{ steps: Step[]; children: GridChild[]; notYet: Unanswered[]; band: string }> {
   const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
-      select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.name as topic_name,
+      select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
              ss.code as skill_set, array(select jsonb_object_keys(ss.difficulty)) as levels, t.ord, r.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
       join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
@@ -98,7 +103,7 @@ export async function classGrid(
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
     sql<Unanswered[]>`
-      select ss.code, ss.name, array(select jsonb_object_keys(ss.difficulty)) as levels from skill_set ss
+      select ss.code, ss.name, array(select jsonb_object_keys(ss.difficulty)) as levels, t.code as topic_code from skill_set ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
       join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
       where r.band in (select band from child where section = ${section} and active)
@@ -124,6 +129,7 @@ export type ChildSkill = {
   code: string;
   name: string;
   topic: string;
+  topic_code: string;
   rung_code: string;
   skill_code: string | null;
   /** The skill's own name: a rung that tests two skills gives its skill set a line for each (`Money`, `Word problems`). */
@@ -141,7 +147,7 @@ export type ChildSkill = {
  *  graph's state and score, in the shared tree's order. A skill with no answers has no state. */
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
-    select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
+    select ss.code, ss.name, t.name as topic, t.code as topic_code, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
            array(select jsonb_object_keys(ss.difficulty)) as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen

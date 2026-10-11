@@ -6918,3 +6918,72 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** `test_registry_text.py` and u19 written first and seen failing (a broken objective; no
   multiplication facts in Grade 2; no grades panel to name). C1's browser criteria on a database built fresh: 48 of 48.
   Engine: registry, loaders, topics, papers, approvals 39 passed.
+
+## UI4b1 — a child's profile by topic, built (2026-10-11)
+
+- **A child's page opens on their profile by topic** ("By topic", `growth/[id]/profile.tsx`): one row per taught topic
+  they have answers in, its skills counted as needing help, practising, secure, too few answers, and not assessed yet
+  (the rest of their grade's skills in that topic), counted by `lib/profile.ts` `byTopic` from the graph's states.
+  A topic's name opens its skills further down, each topic a section of its own, those needing help first, then
+  practising, then secure; the skills not yet assessed are one line under them, not a wall of grey.
+- **Their papers come next and the parent report last**, its state in words: out of date, written and waiting for a
+  person to approve it, not written yet, or nothing to report yet (`report-panel.tsx`).
+- **Parent reports waiting on a person are one list** (`/growth/reports`): out of date first, then written and
+  waiting for approval, then not written; each name opens the report. Today's "Parent reports to approve" opens it.
+- **A child none of whose answers is signed off is on no one's list:** the engine writes no report from nothing
+  (`parent_facts.SIGNED`), and the first draft of the list asked for one for every such child — 34 on the test copy,
+  most of the school on live, burying the two waiting for approval. The list reads signed-off answers as the engine
+  does (`lib/queries-reports.ts` `signed`); such a child's page says "Nothing to report yet" with no link.
+- **One owner for a report's state:** the Children list had its own copy of the "out of date" query and its own words
+  ("draft"). Both now come from `lib/queries-reports.ts` (`reportState`, `reportRank`, `reportWords`), so the Children
+  list, a child's page and the reports list say "to approve", "to write" and "out of date" alike.
+- **Proved on copies:** u20 written first and each of its three tests seen failing alone on the old code (no "By
+  topic" table; no topic link to open; the page ended on "Their papers"). The goal's browser criteria, with u8 and u18
+  (the Children list's report column), on a database built fresh: 59 of 59; u20 twice on one copy, 3 of 3 each.
+  Types and lint clean.
+
+## UI4b2 — measured before the build (2026-10-11)
+
+- **The Children list** counts every taught topic together: "Needs help on", Secure and Practising are a child's
+  across all of them, with no way to ask about one topic.
+- **A class** (`/growth/class/[section]`) is one grid of every skill anyone in it has answered, topic headings over
+  the columns: a column for every skill of every topic switched on. The tree has fifteen topics, twelve of them
+  multiplication and division, not yet switched on; once they are, a Grade 3 class's grid runs to dozens of columns.
+
+## UI4b2 — Children by topic, a class and the list, built (2026-10-11)
+
+- **The Children list reads one topic at a time:** "All topics" or any taught topic, chosen at the top; with one
+  chosen, "Needs help on", Secure and Practising are that topic's alone (`childTable(actor, topic)`), a sort keeps
+  the topic, and only a taught topic narrows the table.
+- **A class opens on its children against its topics** (`class/[section]/topics.tsx`): each cell counts the child's
+  skills in the topic that need help, are practising, are secure and have too few answers, each count in words
+  beside its mark, the cell the colour of what needs help first. A topic's name opens the skill grid for that topic
+  alone, its unanswered skills and checks with it; "Every topic's skills" shows them all again.
+- **One test changed with the page:** screens' "a child's page is in words" clicked the first link in a class's
+  first table, a child's name until the topic grid came first; it now clicks the first child's name.
+- **Proved on copies:** u21 written first, each of its two tests seen failing alone on the old code (no topic choice;
+  no topic grid). The goal's browser criteria on a database built fresh: 47 of 47. Types and lint clean.
+
+## UI5 — measured before the build (2026-10-11)
+
+- **Assessments** (`/papers`) is one table of every child's copy, newest first, up to 300 rows, filtered by class,
+  child, kind, week and stage: a class assessment for 30 children is 30 rows, and there is no topic.
+- **What one assessment is:** a class's papers are each child's own worksheet of the same skill set and level
+  (`w2_print/assemble.py` hands each child a different library worksheet), so a copy's template does not name its
+  assessment; a kind of paper given to a class in a week on one skill set does. A school's own earlier papers share one
+  worksheet and carry no skill set (their questions name none), so they have no topic.
+
+## UI5 — Assessments by assessment, built (2026-10-11)
+
+- **Assessments opens on one row for each assessment** (`assessmentList`): its kind, class, week, how many copies, how
+  many stand at each stage in words, the answers waiting for a person, and its score across the copies that are
+  checked. A class's home assessments or chosen papers for a week are one row. A row opens its copies, one row each
+  ("Each paper", the list as it was), under the same filters.
+- **A topic chosen at the top** keeps the assessments on that topic's skills: a paper's topics are its skill set's,
+  or each of its questions' own. Only a taught topic narrows the list.
+- **The stage, class, child, kind and week filters** narrow both views; a stage keeps the copies at that stage.
+- **Moved with the page:** the maker's "See them in Assessments" opens each paper just made; u9's and u16's
+  paper-by-paper checks open "Each paper" (`view=papers`), where that list now is. Each table is a file of its own.
+- **Proved on copies:** u22 written first, each of its two tests seen failing alone on the old code (no view choice;
+  no topic choice). The goal's browser criteria on a database built fresh: 46 of 46. Types and lint clean.
+

@@ -64,6 +64,9 @@ export function linesOf(w: Waiting): NeedsYou {
         n: w.reports.length,
         words: "written for a parent and waiting for a person to read and approve",
         items: w.reports.map((r) => ({ label: `${classWords(r.band, r.section)} · Roll ${r.roll_no}`, href: `/growth/${r.child_id}/parent` })),
+        // every report waiting on a person, in one list (goals/ui4b1-child-by-topic.yaml)
+        href: "/growth/reports",
+        action: "Open the list",
         waits: true,
       },
     ],

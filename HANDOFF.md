@@ -3,6 +3,29 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI5: Assessments by assessment (built, proved on copies)
+
+- **Slice:** UI5. Assessments opens on one row for each assessment, its copies counted by stage; a topic chosen at
+  the top; an assessment opens its copies (STATE.md "UI5"). Ships with UI4b1 and UI4b2 once C1 (#188) is merged.
+- **Next:** M4d2 (the older story templates' ranges, `story_shape` for × and ÷), then M5.
+
+## 2026-10-11 — UI4b2: Children by topic, a class and the list (built, proved on copies)
+
+- **Slice:** UI4b2. The Children list for every topic or one; a class opening on its children against its topics, a
+  topic opening its skills alone (STATE.md "UI4b2"). Ships with UI4b1 in one pull request, after C1.
+- **C1** (#188): CI's engine run caught the spine's unit table still holding the registry's broken text; repaired
+  and pushed (STATE.md "C1 — the whole curriculum, built").
+- **Next:** UI5 (Assessments by topic, with filters), then M4d2.
+
+## 2026-10-11 — UI4b1: a child's profile by topic (built, proved on copies)
+
+- **Slice:** UI4b1 (BUILD-ORDER; UI4b split: a child first, then a class). A child's page opens on their profile by
+  topic, each topic opening its skills, those needing help first; papers next, the parent report last; parent reports
+  waiting on a person as one list, `/growth/reports`, never a child with nothing signed off (STATE.md "UI4b1").
+- **C1** (#188) waits on its engine run in CI; merged once green.
+- **Next:** UI4b2 (the Children list and a class's grid by topic), then UI5 (Assessments by topic, with filters), then
+  M4d2.
+
 ## 2026-10-11 — UI4a live; C1: the whole curriculum (built, proved on copies)
 
 - **UI4a** merged (#187) and live on Vercel; done report 4/4, 4/4 (STATE.md "UI4a merged and live").

@@ -14,6 +14,10 @@ import { FocusPanel } from "./focus-panel";
 import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
 import { SkillsPanel } from "./skills-panel";
+import { TopicProfile } from "./profile";
+import { ParentReportPanel } from "./report-panel";
+import { byTopic } from "@/lib/profile";
+import { reportOf } from "@/lib/queries-reports";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 const MACHINE = ["correct", "wrong", "blank"];
@@ -23,7 +27,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const q = await searchParams;
-  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
@@ -34,6 +38,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     childSheets(id),
     staffList(),
     colourRules(),
+    reportOf(id),
   ]));
   if (!child) notFound();
 
@@ -111,6 +116,8 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
+            <TopicProfile topics={byTopic(skills)} />
+
             <SkillsPanel skills={skills} answers={evidence} names={names} />
 
             <ChecksPanel title={`Checks that would place ${child.first_name}`} whoHeading="Answers" checks={checks} />
@@ -184,6 +191,8 @@ export default async function ChildPage({ params, searchParams }: Props) {
             <FocusPanel childId={id} name={child.first_name} staff={staffNames} />
 
             <TheirPapers sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
+
+            <ParentReportPanel childId={id} report={report} approver={report.note?.approved_by ? (staffNames[report.note.approved_by] ?? report.note.approved_by) : null} />
           </div>
         </div>
       </Body>

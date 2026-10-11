@@ -1,0 +1,31 @@
+name: ui5-assessments-readable
+goal: >
+  Assessments reads as assessments, not as a long list of copies. It opens on one row for each assessment — a kind of
+  paper given to one class in one week on one skill set, or a class's home assessments for a week — with how many
+  copies it has, how many stand at each stage in words, the answers waiting for a person, and its score once checked.
+  A topic chosen at the top keeps the assessments on that topic's skills, a stage keeps the copies at that stage, and
+  class, kind and week narrow it as before. An assessment's row opens its copies, one row each, and every paper on
+  its own is one click away, under the same filters.
+# Written 2026-10-11, before the code: UI5 (BUILD-ORDER). Nimish, the same day: "the assessment page needs to have the
+# filter and the view by topic and all. This cannot be just such a freaking long list of stuff. Need to make it more
+# readable." Measured first (STATE.md "UI5 — measured before the build"): Assessments is one table of every child's
+# copy, newest first, up to 300 rows, filtered by class, child, kind, week and stage; a class assessment for 30
+# children is 30 rows; there is no topic.
+says:
+  - words: "This cannot be just such a freaking long list of stuff. Need to make it more readable."
+    proved_by: "apps/web/tests/u22-assessments-readable.spec.ts::Assessments opens on one row for each assessment, its copies counted by stage"
+  - words: "the assessment page needs to have the filter and the view by topic and all"
+    proved_by: "apps/web/tests/u22-assessments-readable.spec.ts::a topic keeps the assessments on its skills, and an assessment opens its copies"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration."
+scenarios: []
+criteria:
+  - name: Assessments, grouped and paper by paper, and the pages that open it
+    run: cd apps/web && npx playwright test tests/u22-assessments-readable.spec.ts tests/u9-papers.spec.ts tests/u16-assessments.spec.ts tests/m4-the-maker.spec.ts tests/u15-menu-and-today.spec.ts tests/u10-tables-read-straight.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -152,7 +152,8 @@ export function Made({ qrs, section, kind, week, already }: {
         <a className="btn" href={`/api/papers/print?${qrs.map((q) => `qr=${q}`).join("&")}`} target="_blank" rel="noreferrer">
           Print them all
         </a>
-        <Link href={`/papers?class=${encodeURIComponent(section)}&week=${week}&kind=${kind}`} className="btn secondary">
+        {/* each paper just made, one row each (goals/ui5-assessments-readable.yaml) */}
+        <Link href={`/papers?view=papers&class=${encodeURIComponent(section)}&week=${week}&kind=${kind}`} className="btn secondary">
           See them in Assessments
         </Link>
       </div>

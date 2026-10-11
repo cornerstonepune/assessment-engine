@@ -25,7 +25,8 @@ export const KIND_WORDS: Record<string, string> = {
   earlier: "Earlier paper",
 };
 
-export type PaperFilter = { class?: string; child?: string; kind?: string; week?: string; stage?: string };
+/** `topic`: papers on a taught topic's skills; `set`: one assessment's copies (`AssessmentRow.set`). */
+export type PaperFilter = { class?: string; child?: string; kind?: string; week?: string; stage?: string; topic?: string; set?: string };
 
 export type PaperListRow = {
   id: string;
@@ -61,7 +62,18 @@ const papersCte = () => sql`
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
-           a.waiting, a.right, a.scored
+           a.waiting, a.right, a.scored,
+           -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
+           -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
+           -- assessments and chosen papers for a week are one assessment, each child's drawn for them
+           case when coalesce(si.kind, 'earlier') in ('focus', 'custom') then null
+                else coalesce(t.skill_set_code, t.id::text) end as set_key,
+           coalesce(ss.name, t.key ->> 'title', t.code, t.batch_id, si.qr_code) as set_name,
+           -- the topics its questions are on: its skill set's, or each of its questions' own
+           array(select distinct s.topic_code from skill_set s
+                 where s.tenant_id = t.tenant_id and s.topic_code is not null
+                   and (s.code = t.skill_set_code
+                        or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as topics
     from sheet_instance si
     join sheet_template t on t.id = si.sheet_template_id
     left join child ch on ch.id = si.child_id
@@ -94,37 +106,39 @@ const narrowed = (f: PaperFilter) => sql`
   (${f.class ?? null}::text is null or section = ${f.class ?? null})
   and (${f.child ?? null}::uuid is null or child_id = ${f.child ?? null}::uuid)
   and (${f.kind ?? null}::text is null or kind = ${f.kind ?? null})
-  and (${f.week ?? null}::text is null or week = ${f.week ?? null})`;
+  and (${f.week ?? null}::text is null or week = ${f.week ?? null})
+  and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
+  and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})`;
 
 /** The papers a filter leaves, newest first (at most 300), with each child's name read once, through pii.read_child,
- *  which logs who asked; how many papers stand at each stage under the other filters; and every value each filter
- *  can take. */
-export async function paperList(
+ *  which logs who asked. */
+export async function paperList(f: PaperFilter, actor: string): Promise<{ rows: PaperListRow[]; more: boolean }> {
+  const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
+  const rows = await sql<(PaperListRow & { name: string | null })[]>`
+    with ${papersCte()},
+    shown as (
+      select * from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
+      order by day desc nulls last, created_at desc, section, qr
+      limit ${LIMIT + 1}
+    ),
+    names as (
+      select c.id, n.first_name from child c, lateral pii.read_child(c.id, ${actor}) n
+      where c.id in (select child_id from shown where child_id is not null)
+    )
+    select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.week, s.stage,
+           s.waiting, s.right, s.scored
+    from shown s left join names on names.id = s.child_id
+    order by s.day desc nulls last, s.created_at desc, s.section, s.qr`;
+  return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
+}
+
+/** How many papers stand at each stage under the other filters, and every value each filter can take; children's
+ *  names read through pii.read_child, which logs who asked. */
+export async function paperFilters(
   f: PaperFilter,
   actor: string,
-): Promise<{
-  rows: PaperListRow[];
-  more: boolean;
-  stages: Record<Stage, number>;
-  options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] };
-}> {
-  const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
-  const [rows, counts, classes, weeks, children] = await Promise.all([
-    sql<(PaperListRow & { name: string | null })[]>`
-      with ${papersCte()},
-      shown as (
-        select * from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
-        order by day desc nulls last, created_at desc, section, qr
-        limit ${LIMIT + 1}
-      ),
-      names as (
-        select c.id, n.first_name from child c, lateral pii.read_child(c.id, ${actor}) n
-        where c.id in (select child_id from shown where child_id is not null)
-      )
-      select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.week, s.stage,
-             s.waiting, s.right, s.scored
-      from shown s left join names on names.id = s.child_id
-      order by s.day desc nulls last, s.created_at desc, s.section, s.qr`,
+): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
+  const [counts, classes, weeks, children] = await Promise.all([
     sql<{ stage: Stage; n: number }[]>`
       with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f)} group by stage`,
     sql<{ section: string }[]>`
@@ -143,10 +157,47 @@ export async function paperList(
   ]);
   const stages = Object.fromEntries(STAGES.map((s) => [s, 0])) as Record<Stage, number>;
   for (const c of counts) stages[c.stage] = c.n;
-  return {
-    rows: rows.slice(0, LIMIT),
-    more: rows.length > LIMIT,
-    stages,
-    options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week), children },
-  };
+  return { stages, options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week), children } };
 }
+
+export type AssessmentRow = {
+  kind: string;
+  section: string | null;
+  band: string | null;
+  week: string | null;
+  /** Its skill set or worksheet, which opens its copies; none for a class's home assessments, which the class, week and
+   *  kind already name. */
+  set: string | null;
+  title: string;
+  copies: number;
+  /** Its copies at each stage. */
+  by: Record<Stage, number>;
+  waiting: number;
+  right: number;
+  scored: number;
+};
+
+/** The assessments a filter leaves (goals/ui5-assessments-readable.yaml), newest first, at most 300: each a kind of
+ *  paper given to a class in a week on one skill set or worksheet, or a class's home assessments for a week, with its
+ *  copies counted by stage — a stage chosen keeps the copies at that stage — the answers waiting for a person, and its
+ *  score across the copies that are checked. */
+export async function assessmentList(f: PaperFilter): Promise<{ rows: AssessmentRow[]; more: boolean }> {
+  const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
+  const rows = await sql<AssessmentRow[]>`
+    with ${papersCte()}
+    select kind, section, min(band) as band, week, set_key as set, min(set_name) as title, count(*)::int as copies,
+           jsonb_build_object('made', count(*) filter (where stage = 'made'),
+                              'printed', count(*) filter (where stage = 'printed'),
+                              'scanned', count(*) filter (where stage = 'scanned'),
+                              'checked', count(*) filter (where stage = 'checked'),
+                              'signed off', count(*) filter (where stage = 'signed off')) as by,
+           sum(waiting)::int as waiting,
+           coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
+           coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored
+    from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
+    group by kind, section, week, set_key
+    order by max(day) desc nulls last, max(created_at) desc, section, min(set_name)
+    limit ${LIMIT + 1}`;
+  return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
+}
+

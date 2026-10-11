@@ -4,25 +4,28 @@ import type { Evidence } from "@/lib/queries";
 import { STATE_WORDS } from "@/lib/queries";
 import type { ChildSkill } from "@/lib/queries-children";
 import { rag } from "@/lib/rag";
+import { NEED } from "@/lib/profile";
 import { AnswerTable, fmtDate } from "./answers";
 
-// What a child's checked answers show (goals/v2-what-answers-show.yaml): one line per skill their answers reach,
-// topic by topic — its score, what it means, the mistake that repeats — opening to the answers behind it. Skills no
-// paper has reached are named once, in a line, not drawn as a wall of grey.
+// What a child's checked answers show (goals/v2-what-answers-show.yaml), topic by topic (goals/ui4b1-child-by-topic.yaml):
+// each topic they are taught, its skills one line each, those that need help first — its score, what it means, the
+// mistake that repeats — opening to the answers behind it. A topic's skills no paper has reached are named once, in a
+// line under it, not drawn as a wall of grey.
 export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; answers: Evidence[]; names: Record<string, string> }) {
+  const topics = [...new Map(skills.map((s) => [s.topic_code, s.topic])).entries()];
   const assessed = skills.filter((s) => s.n_events > 0);
-  const notYet = skills.filter((s) => s.n_events === 0);
-  const topics = [...new Set(assessed.map((s) => s.topic))];
   return (
     <Panel id="skills" label="What their answers show" title="What their answers show" aside="from checked answers only">
-      {assessed.length ? (
-        topics.map((t) => (
-          <div key={t} className="mb-4 last:mb-0">
-            <h3 className="mb-2 font-heading text-[15px]">{t}</h3>
-            <ul aria-label={t} className="grid gap-2">
-              {assessed
-                .filter((s) => s.topic === t)
-                .map((s) => (
+      {assessed.length ? null : <p className="note mb-4">No checked answers yet. This fills in once a paper is read and checked.</p>}
+      {topics.map(([code, name]) => {
+        const here = assessed.filter((s) => s.topic_code === code).sort((a, b) => NEED[rag(a.state)] - NEED[rag(b.state)]);
+        const notYet = skills.filter((s) => s.topic_code === code && s.n_events === 0);
+        return (
+          <section key={code} id={`topic-${code}`} className="mb-5 scroll-mt-6 last:mb-0">
+            <h3 className="mb-2 font-heading text-[15px]">{name}</h3>
+            {here.length ? (
+              <ul aria-label={name} className="grid gap-2">
+                {here.map((s) => (
                   <SkillLine
                     key={`${s.code}|${s.skill_code}`}
                     s={s}
@@ -32,17 +35,16 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
                     names={names}
                   />
                 ))}
-            </ul>
-          </div>
-        ))
-      ) : (
-        <p className="note">No checked answers yet. This fills in once a paper is read and checked.</p>
-      )}
-      {notYet.length ? (
-        <p className="note mt-4" data-testid="not-yet">
-          Not assessed yet: {notYet.map((s) => s.name).join(" · ")}
-        </p>
-      ) : null}
+              </ul>
+            ) : null}
+            {notYet.length ? (
+              <p className="note mt-2" data-testid="not-yet">
+                Not assessed yet: {notYet.map((s) => s.name).join(" · ")}
+              </p>
+            ) : null}
+          </section>
+        );
+      })}
     </Panel>
   );
 }

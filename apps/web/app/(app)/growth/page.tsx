@@ -7,14 +7,14 @@ import { deadline } from "@/lib/deadline";
 import { ColourKey } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
 import { ChildFinder } from "./finder";
+import { reportRank, reportWords } from "@/lib/queries-reports";
+import { topics } from "@/lib/queries-people";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 const fmtDay = (d: string) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }).replace(/ /g, "-");
 
-// What needs doing first: a report out of date, then a draft, then none, then approved.
-const reportRank = (r: ChildRow["report"]) => (!r ? 2 : r.out_of_date ? 0 : r.approved ? 3 : 1);
 const helpRank = (h: ChildRow["help"]) => (!h ? 2 : h.rag === "red" ? 0 : 1);
 
 // Each column, in order: its heading, how it sorts (none: the roll order, as the class list has it), and which way,
@@ -37,30 +37,39 @@ const COLUMNS: { key: string; label: string; num?: boolean; dir?: Dir; by?: (a: 
   { key: "report", label: "Parent report", num: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
 
+// A parent report's state in the words every page uses (`reportWords`); a child with nothing to report is a dash.
 function Report({ r }: { r: ChildRow["report"] }) {
-  if (!r) return <span className="text-basalt/45">—</span>;
-  const [tone, words] = r.out_of_date
-    ? (["terracotta", "out of date"] as const)
-    : r.approved
-      ? (["neem", "approved"] as const)
-      : (["bamboo", "draft"] as const);
+  if (!r.note && !r.signed) return <span className="text-basalt/45">—</span>;
+  const { tone, short } = reportWords(r);
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <Pill tone={tone}>{words}</Pill>
-      <span className="text-[11.5px] text-basalt/55">{fmtDay(r.written)}</span>
+      <Pill tone={tone}>{short}</Pill>
+      {r.note ? <span className="text-[11.5px] text-basalt/55">{fmtDay(r.note.written)}</span> : null}
     </span>
   );
 }
 
 // Children (goals/u8-children-table.yaml): each grade a table of its children, one row each with their standing and
-// next step; a click anywhere on a row opens the child, any heading sorts. A class still opens as its children against
-// every skill (goals/u2-children.yaml).
+// next step; a click anywhere on a row opens the child, any heading sorts. Their standing is every taught topic's, or
+// one topic's, chosen at the top (goals/ui4b2-class-by-topic.yaml). A class still opens as its children against every
+// skill (goals/u2-children.yaml).
 export default async function ChildrenPage({ searchParams }: Props) {
   const me = await requireStaff();
-  const asked = (await searchParams).sort;
+  const q = await searchParams;
   // a heading that does not sort (Grade), or no heading at all, is the roll order
-  const sort = COLUMNS.find((c) => c.key === asked && c.dir)?.key ?? "roll";
-  const [rows, rules] = await deadline(Promise.all([childTable(me.email), colourRules()]));
+  const sort = COLUMNS.find((c) => c.key === q.sort && c.dir)?.key ?? "roll";
+  const taught = (await deadline(topics())).filter((t) => t.taught);
+  // only a topic that is taught narrows the table; any other word is every topic
+  const topic = taught.find((t) => t.code === q.topic) ?? null;
+  const [rows, rules] = await deadline(Promise.all([childTable(me.email, topic?.code ?? null), colourRules()]));
+  const href = (to: { sort?: string; topic?: string | null }) => {
+    const p = new URLSearchParams();
+    const t = to.topic === undefined ? topic?.code : to.topic;
+    if (t) p.set("topic", t);
+    const s = to.sort ?? sort;
+    if (s !== "roll") p.set("sort", s);
+    return p.size ? `/growth?${p}` : "/growth";
+  };
   const by = COLUMNS.find((c) => c.key === sort)?.by;
   const grades = [...new Set(rows.map((r) => r.band))];
 
@@ -69,9 +78,24 @@ export default async function ChildrenPage({ searchParams }: Props) {
       <PageHeader
         stage="Children"
         title="Children"
-        sub="Every child, grade by grade: the skill they most need help on, what is secure, and where their parent report stands. Click a child to open them; click a heading to sort."
+        sub="Every child, grade by grade: the skill they most need help on, what is secure, and where their parent report stands — across every topic, or in one. Click a child to open them; click a heading to sort."
       />
       <Body>
+        <nav aria-label="Topic" className="mb-3 flex flex-wrap gap-2">
+          <Link href={href({ topic: null })} className={`chip ${!topic ? "on" : ""}`} aria-current={!topic ? "page" : undefined}>
+            All topics
+          </Link>
+          {taught.map((t) => (
+            <Link
+              key={t.code}
+              href={href({ topic: t.code })}
+              className={`chip ${topic?.code === t.code ? "on" : ""}`}
+              aria-current={topic?.code === t.code ? "page" : undefined}
+            >
+              {t.name}
+            </Link>
+          ))}
+        </nav>
         {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : <ChildFinder within="children" />}
         <div id="children" className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
           {grades.map((band) => {
@@ -109,7 +133,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
                               c.label
                             ) : (
                               <Link
-                                href={c.key === "roll" ? "/growth" : `/growth?sort=${c.key}`}
+                                href={href({ sort: c.key })}
                                 className={`no-underline ${c.key === sort ? "text-basalt" : "text-inherit"}`}
                               >
                                 {c.label}
@@ -172,9 +196,9 @@ export default async function ChildrenPage({ searchParams }: Props) {
             );
           })}
           <p className="note">
-            From checked papers only. &ldquo;Needs help on&rdquo; is the child&rsquo;s red skill (a dot in red) where they have one,
-            else their amber one; secure counts the green. A parent report is out of date once answers were signed off after it was
-            written.
+            From checked papers only{topic ? `, in ${topic.name} alone` : ", across every topic switched on"}. &ldquo;Needs help on&rdquo; is
+            the child&rsquo;s red skill (a dot in red) where they have one, else their amber one; secure counts the green. A parent report
+            is out of date once answers were signed off after it was written.
           </p>
           <ColourKey rules={rules} />
         </div>

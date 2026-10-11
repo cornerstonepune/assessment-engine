@@ -94,7 +94,8 @@ test("the menu marks where you are", async ({ page }) => {
 // with answers opens to the work behind it.
 test("a child's page is in words, with the answers behind each skill", async ({ page }) => {
   await page.goto("/growth/class/SCREENS-TEST");
-  await page.getByRole("table").getByRole("link").first().click();
+  // a child's name opens them; the class opens on its topics, whose headings open a topic (goals/ui4b2-class-by-topic.yaml)
+  await page.getByRole("table").first().locator("tbody").getByRole("link").first().click();
   await expect(page).toHaveURL(/\/growth\/[0-9a-f-]{36}$/);
   const shown = page.getByRole("region", { name: "What their answers show" });
   await expect(shown).toBeVisible();
