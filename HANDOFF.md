@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4b2 merged and live; M4c measured
+
+- **M4b2:** merged as `a66d16d` (#179) after CI and the rehearsal passed on `cae1954`; migrated and deployed; its done
+  report on main's code in STATE.md "M4b2 merged and live" (21 of 21 proved, 7 of 7 scenarios met, 4 of 4 criteria).
+- **Slice now:** M4c, W1 gate 3, measured before any code (STATE.md "M4c — measured before the build"): seven of
+  MD.MULTIPLES's eight cases name a kind no generator makes; four answers are lists, which the reader and marking
+  treat one number at a time.
+- **Next:** M4c's goal and failing tests, then the build.
+- **For Nimish:** `~/cornerstone/assessment-engine/bin/update-live` (M2a to M4b2). Still open: did update-live finish
+  after the OpenCV repair; Achal's role on the live staff list; is skill approval Achal's too.
+
 ## 2026-10-11 — M4b2: equations with × and ÷ (built, proved on copies; PR #179)
 
 - **Slice:** M4b2, W1 gate 3. `MD.EQUALITY`, Grades 3 and 4 (STATE.md "M4b2 — equations with × and ÷, built", ADR

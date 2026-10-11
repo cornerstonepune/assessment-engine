@@ -6499,3 +6499,39 @@ Proved on copies:
   retired ones' places); `library build` made 42 and retired 2; `library check`: 2,598 worksheets, 160 of 160
   skill-levels ready, 0 problems. MD.EQUALITY is a draft until approved; Achal's question waits, an educator's.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 44 mistakes, 0 faults. `bin/check` 27 passed.
+
+## M4b2 merged and live (2026-10-11)
+
+- Merged as `a66d16d` (#179), at the head CI had passed (`cae1954`: ci 38116856364); the rehearsal on a copy of live ran
+  on the same head (38116872773). The CI failure on `73b06cd` was the goal's tests committed before the build, as
+  intended.
+- Main: `ci` green (38118495794), then `migrate live` (38120153585) and `deploy engine` (38120153580) succeeded.
+- `bin/engine done md4b2-equality` on main's code (the worktree at `a66d16d`), against a copy of the rehearsed database:
+  - 21 of 21 of Nimish's sentences PROVED, s38 among them in the browser;
+  - 7 of 7 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,113 tests, the drafted document 0 faults (252 cases, 44 mistakes), s38 1 passed,
+    `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as before; the `migrate
+    live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a; it also retires live's two
+  sign questions below zero.
+
+## M4c — measured before the build (2026-10-11)
+
+On main `a66d16d`. MD.MULTIPLES holds 8 cases, placed G3 G3 G4 G4: Easy F01 (the multiples of 6 up to 60), F02 (is 45
+a multiple of 5?), F06 (is 340 divisible by 2, 5 and 10?); Medium F03 (the factors of 12), F04 (the factor pairs of 24),
+F08 (is 6 × 7 even or odd?); Hard F05 (common multiples of 3 and 4 below 30); Advance F07 (is 117 divisible by 3, from
+the sum of its digits?).
+- **Seven draw nothing:** F01 to F07 name the kind `multiples`, which no generator makes ("no native generator for
+  format 'multiples'"). F08 draws (odd or even of a table fact, M4b1).
+- **Grades:** "Tables, multiples and factors" is the school's objective at Grade 3 (LO-G3-0942) and Grade 4
+  (LO-G4-1339): the draft's grades stand. Divisibility by 3 from the sum of the digits names no school objective; it
+  is Advance.
+- **Four answers are lists** (F01, F03, F04, F05). The reader reads one strip of boxes per answer, a blank box no
+  position in it (`boxes.read_page`); marking marks each answer by itself (`marking.mark`), and is reached from four
+  places (the reading, marked again, a person's reading, a key changed). A list keyed box by box would mark every box
+  after one missed factor wrong; marking compares a key of several numbers by its numbers in order already, for what a
+  person types (`marking._against_the_key`). A list answer today would go to a person unread (`reading.py`: every
+  answer not `digits`).
+- **Mistakes:** no rows yet for a multiple written for a factor, a number past the limit, a multiple of one number only
+  taken as common, divisibility by 3 judged from the last digit, or a factor pair counted twice.
