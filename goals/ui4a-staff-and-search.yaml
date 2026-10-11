@@ -1,0 +1,41 @@
+name: ui4a-staff-and-search
+goal: >
+  Nimish puts an educator on the staff list with one command run on his own machine — their email, their name, their
+  role, and a password typed where only he sees it — and they sign in with that email and password, every decision
+  they take then carrying their name. The staff list is not in the public repository: it lives in the database, and
+  the seed's list is empty, so an educator's email never enters the repository. Children finds a child by name or roll
+  number as it is typed, across every grade, and the name never goes into the page's address.
+# Written 2026-10-11, before the code: Step 4a of the navigation plan Nimish approved
+# (https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD; BUILD-ORDER "UI1 to UI4", his exception to W1 gate 3). UI4 is
+# split so the sign-in ships first: 4a is the staff list and the search, 4b the child's page in the order help,
+# practising, secure, papers, parent report, and parent reports as one list. Measured first (STATE.md "UI4 — measured
+# before the build"): sign-in by email and password already exists; a person reaches the staff list only by an edit to
+# the database, and the seed's list, in the public repository, holds a staff email; Children has no search.
+says:
+  - words: "Maybe we can simply add a user ID/password for them: simple user ID/password, nothing complex."
+    proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts"
+  - words: "I think we'll have to figure out a simpler login mechanism as well so that the decisions start getting logged in by them."
+    proved_by: "apps/web/tests/u18-staff-and-search.spec.ts::an educator put on the staff list signs in, and a decision carries their name"
+  - words: "Right now, this is majorly used by Achal and Neha ma'am. They are the educators, the teachers, so we don't have any more layers in there."
+    proved_by: "packages/engine/tests/test_staff.py::test_the_staff_list_is_not_in_the_public_repository"
+  - words: "There should be a proper Children tab where, at a child level, we are able to evaluate performance and all of these things."
+    proved_by: "apps/web/tests/u18-staff-and-search.spec.ts::Children finds a child by name or roll as it is typed, and the name stays out of the address"
+manual:
+  - "Nimish runs ~/cornerstone/assessment-engine/bin/update-live (it brings his checkout to main), then
+    ~/cornerstone/assessment-engine/bin/engine staff add <email> --name <name> on his own machine, once for each
+    educator, and tells each their password himself. Their emails never pass through Claude or the repository."
+  - "Website and engine command: Vercel deploys the website on merge. No migration and no update-live."
+scenarios: []
+criteria:
+  - name: the staff command, the seed and the sign-in
+    run: cd packages/engine && uv run pytest -q tests/test_staff.py tests/test_cli.py tests/test_loaders.py
+    expect: "passed"
+  - name: Children, its search, sign-in, and the pages whose steps changed
+    run: cd apps/web && npx playwright test tests/u18-staff-and-search.spec.ts tests/u8-children-table.spec.ts tests/u2-children.spec.ts tests/gate.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -104,7 +104,7 @@ def test_a_staff_password_is_hashed_exactly_as_the_web_app_checks_it():
     for this fixture (`node -e 'scryptSync("fixture-not-a-real-password", "0011…eeff", 64)'`), so a
     hash this command writes is one the sign-in form will accept — the only property that matters,
     and one no Python-only test could show."""
-    from engine.cli import staff_hash
+    from engine.core.staff import staff_hash
 
     assert staff_hash("fixture-not-a-real-password", "00112233445566778899aabbccddeeff") == (
         "scrypt$00112233445566778899aabbccddeeff$"

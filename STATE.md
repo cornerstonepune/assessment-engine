@@ -6831,3 +6831,30 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **What that shows from this container:** the address is set, but live does not answer here (outbound is an HTTPS
   proxy; Postgres does not pass). So a report written here says live's migrations are unchecked, and NOT DONE stands
   for that line alone, as it should. Whether the website is live is read from Vercel's production deploy of the merge.
+
+## UI4 — measured before the build (2026-10-11)
+
+- **Sign-in** by email and password already works (`apps/web/lib/auth.ts`, `engine set-password`); what was missing is
+  a way onto the list. `app.staff` was seeded from `supabase/seed/config.json`, in the public repository, with a staff
+  email in it, and `engine set-password` refused anyone not already on it.
+- **Children** (`/growth`): one table per grade, 35 children on the copy, no search.
+- **A class's children against its skills** is there already: `/growth/class/[section]`, opened from each grade (14
+  children by 11 skills on the copy).
+- **A child's page** (1,754 px on the copy): what their answers show, checks, the colour key, repeated mistakes, the
+  home assessment, their papers; the parent report only as a link at the top. Parent reports are listed only on Today.
+- UI4 is split so the sign-in ships first: UI4a the staff list and the search, UI4b the child's page and the reports.
+
+## UI4a — the staff list and the search, built (2026-10-11)
+
+- **`engine staff add <email> --name <name> [--role educator]`** puts a person on the list in the database with a
+  password typed twice and never shown, hashed as the website checks it; refuses an email already on it, a role no
+  decision names, and a password under ten characters or typed differently twice. `engine staff list` shows who.
+  Both, with `engine set-password`, are `engine/core/cli_staff.py`; the list's rules are `engine/core/staff.py`.
+- **The seed's staff list is empty** (ADR 0069): the list is the database's alone, so an educator's email never enters
+  the public repository. Nimish's email is still in an n8n notification (`n8n/workflows/f1-build-the-bank.json`); that
+  is where he is told, not who signs in, and is left as it is.
+- **Children finds a child as it is typed**, by part of a name or a roll number, across every grade, in the browser:
+  the words go nowhere, so a name never enters an address or a log.
+- **Proved on copies:** `test_staff.py` written first and seen failing (no command); u18's search seen failing (no
+  search box); its sign-in test passed before the build, as sign-in already worked for anyone on the list. Engine:
+  41 passed (staff, cli, loaders). Browser: u18 4 of 4 over two runs; the goal's browser criteria below.

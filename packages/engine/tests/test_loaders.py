@@ -54,13 +54,21 @@ def test_load_config_keeps_a_password_set_in_the_app():
     with db.connect() as conn:
         tenant = loaders._tenant(conn)
         staff = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
-        staff[0]["password"] = "scrypt$test$hash"
+        # the seed's list is empty (goals/ui4a-staff-and-search.yaml): someone `engine staff add` put on it
+        staff.append(
+            {
+                "email": "kept@cornerstone.test",
+                "name": "Kept",
+                "role": "educator",
+                "password": "scrypt$test$hash",
+            }
+        )
         conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
 
         settings.load_config(conn, tenant)
 
         after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
-        assert after[0].get("password") == "scrypt$test$hash", "loading the seed took a password away"
+        assert after == staff, "loading the seed took someone, or a password, away"
         conn.rollback()
 
 
