@@ -57,7 +57,7 @@ export default async function Maker({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Papers · make"
+        stage="Assessments · make"
         title="Make papers"
         sub="Class practice, class assessments and home assessments, for any children of a class: one paper for all, the same skill with different questions for each, or each child's own next step. You see every paper before anything prints."
       />

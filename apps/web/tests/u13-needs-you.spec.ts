@@ -1,9 +1,10 @@
 /**
- * NY1 — what waits on a person, and who it is for (goals/ny1-needs-you.yaml). Nimish, 2026-10-10: "I'm not even now
- * able to figure out what all papers I need to validate or for Achal to validate … I'm not seeing any of the
- * multiplication, division". Today names whose each thing is (`people.decides`, the staff list's roles), the
- * signed-in person's first; Curriculum switches a topic on in a person's name; a skill is approved before its topic is
- * on; a question the engine drafted for Achal is answered on the site. Every change is put back after.
+ * NY1 — what waits on a person (goals/ny1-needs-you.yaml). Nimish, 2026-10-10: "I'm not even now able to figure out
+ * what all papers I need to validate or for Achal to validate … I'm not seeing any of the multiplication, division".
+ * Today lists every one of those things under the tab where it is done, shown to everyone signed in — the school's two
+ * educators are its only layer (goals/ui1-menu-and-today.yaml); Curriculum switches a topic on in a person's name; a
+ * skill is approved before its topic is on; a question the engine drafted for Achal is answered on the site. Every
+ * change is put back after.
  */
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
@@ -16,57 +17,41 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-type Staff = { name: string; role: string };
-/** Each card on Today, by the kind of waiting `people.decides` names. */
-const CARDS: Record<string, string> = {
-  "Answers to check": "answers",
-  "Papers to sign off": "papers",
-  "Home assessments to approve": "home_papers",
-  "Class papers to approve": "class_papers",
-  "Skills to approve": "skills",
-  "Topics not taught yet": "topics",
+/** Each kind of thing that waits, by the tab where Today lists it (goals/ui1-menu-and-today.yaml). */
+const UNDER: Record<string, string> = {
+  "Answers to check": "Assessments",
+  "Papers to sign off": "Assessments",
+  "Home assessments to approve": "Assessments",
+  "Class papers to approve": "Assessments",
+  "Skills to approve": "Curriculum",
+  "Questions the engine drafted for you": "Curriculum",
+  "Topics not taught yet": "Curriculum",
 };
-const ROLE_WORDS: Record<string, string> = { coordinator: "a coordinator", educator: "an educator", specialist: "a specialist" };
 
-/** The number a Today card shows, or 0 when it says nothing is waiting. */
-async function count(page: Page, card: string): Promise<number> {
-  const c = page.getByRole("region", { name: card, exact: true });
-  await expect(c).toBeVisible();
-  if (await c.getByText("Nothing waiting").isVisible()) return 0;
+/** The number a Today line shows, or 0 when nothing of its kind waits and the line is left out. */
+async function count(page: Page, line: string): Promise<number> {
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
+  const c = page.getByRole("region", { name: line, exact: true });
+  if (!(await c.count())) return 0;
   return Number((await c.getByTestId("count").innerText()).replace(/\D/g, ""));
 }
 
-/** Who a card says it is for, worked from the rows: "For you", the names of those whose role it is, or no one yet. */
-function whoFor(roles: string[], staff: Staff[]): string {
-  if (roles.includes(TEST_STAFF.role)) return "For you";
-  const names = staff.filter((s) => roles.includes(s.role)).map((s) => s.name);
-  return names.length ? `For ${names.join(", ")}` : `No one on the staff list is ${roles.map((r) => ROLE_WORDS[r]).join(" or ")} yet`;
-}
-
-test("Today lists what waits on a person, yours first, each saying who it is for", async ({ page }) => {
-  const [{ value: decides }] = await sql<{ value: Record<string, string[]> }[]>`select value from config where key = 'people.decides'`;
-  const [{ value: staff }] = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
+test("Today lists what waits on a person, under the tab where it is done, hidden from no one", async ({ page }) => {
   await page.goto("/today");
-  const mine = page.getByRole("region", { name: "For you", exact: true });
-  const others = page.getByRole("region", { name: "For others", exact: true });
-  for (const [title, kind] of Object.entries(CARDS)) {
-    const roles = decides[kind];
-    const card = (roles.includes(TEST_STAFF.role) ? mine : others).getByRole("region", { name: title, exact: true });
-    await expect(card, title).toBeVisible();
-    await expect(card, title).toContainText(whoFor(roles, staff));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
+  // the school's two educators are its only layer: no line is filed under someone else's name
+  await expect(page.getByText(/For others|For you|No one on the staff list/)).toHaveCount(0);
+  for (const [line, tab] of Object.entries(UNDER)) {
+    const it = page.getByRole("region", { name: line, exact: true });
+    if (await it.count()) await expect(page.getByRole("region", { name: tab, exact: true }).getByRole("region", { name: line, exact: true }), line).toBeVisible();
   }
   // the topics no one has switched on yet, as Curriculum lists them, and one click to it
   const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic where not taught`;
   expect(await count(page, "Topics not taught yet")).toBe(off);
-  // each person's questions to answer, in their own card: an educator's are Achal's, a teacher's
-  const open = await sql<{ for_role: string; n: number }[]>`
-    select for_role, count(*)::int as n from ask where answer is null group by for_role order by for_role`;
-  expect(open.length, "the engine has drafted questions to answer").toBeGreaterThan(0);
-  for (const { for_role, n } of open) {
-    const title = `Questions for ${ROLE_WORDS[for_role]}`;
-    expect(await count(page, title)).toBe(n);
-    await expect(page.getByRole("region", { name: title, exact: true })).toContainText(whoFor([for_role], staff));
-  }
+  // every question the engine drafted, still waiting, whoever it was drafted for
+  const [{ open }] = await sql<{ open: number }[]>`select count(*)::int as open from ask where answer is null`;
+  expect(open, "the engine has drafted questions to answer").toBeGreaterThan(0);
+  expect(await count(page, "Questions the engine drafted for you")).toBe(open);
   await page.getByRole("region", { name: "Topics not taught yet", exact: true }).getByRole("link").first().click();
   await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).toBeVisible();
 });
@@ -126,7 +111,7 @@ test("a question drafted for Achal is agreed or corrected on the site, in the na
   const asked = await sql<{ code: string; question: string }[]>`
     select code, question from ask where code in ('MD.A2', 'MD.A3') and answer is null order by code`;
   expect(asked.map((a) => a.code)).toEqual(["MD.A2", "MD.A3"]);
-  const [{ n: before }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and for_role = 'educator'`;
+  const [{ n: before }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null`;
   try {
     await page.goto("/asks");
     const a2 = page.getByRole("region", { name: asked[0].question, exact: true });
@@ -144,7 +129,7 @@ test("a question drafted for Achal is agreed or corrected on the site, in the na
       { code: "MD.A3", answer: "corrected", correction: "A remainder is written in words first, then with r from Grade 3", answered_by: TEST_STAFF.name },
     ]);
     await page.goto("/today");
-    expect(await count(page, "Questions for an educator")).toBe(before - 2);
+    expect(await count(page, "Questions the engine drafted for you")).toBe(before - 2);
   } finally {
     await sql`update ask set answer = null, correction = null, answered_by = null, answered_at = null where code in ('MD.A2', 'MD.A3')`;
   }

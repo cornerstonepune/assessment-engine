@@ -6675,3 +6675,44 @@ Proved on copies:
   48, 60, 84 and 120); `library build` made 40 and retired 0; `library check`: 2,678 worksheets, 168 of 168
   skill-levels ready, 0 problems.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 62 mistakes, 0 faults. `bin/check` 27 passed.
+
+## UI1 — measured before the build (2026-10-11)
+
+Every one of the website's 27 pages opened on a copy of the data (the post-M4d1 rehearsed database, test classes and
+all), screenshotted at a laptop and a phone, and inventoried: how it is reached from the menu, what it shows, what
+waits on a person there. The screenshots hold children's names and stayed on the machine that took them.
+- **16 kinds of thing wait on a person.** The 18 answers the reader could not settle wait on "Check the answers",
+  which is not in the menu: Today's card or a button on Papers reaches it. Today filed 6 of its 7 queues under "For
+  others", because no one on the copy's staff list is an educator. Topics to switch on and skills to approve are
+  reached from Curriculum; the questions drafted for an educator only from a Today card, which goes when they do.
+- **One act, four words:** an answer is checked (/capture/check), signed off (a paper's page) and settled or
+  confirmed (a child's page). Marking is "Marking", "Scans, and how the reader is doing" and "Papers to sign off".
+- **Codes where words belong:** weeks as `2026-W41`, class packs as `U9-TEST · U9-W · practice`, worksheets as
+  `R22-A19`, mistakes as `M_CARRY_SKIP`. How it works, in every educator's sidebar, is the engineering map.
+- **Long lists with nothing to narrow them:** approving the skills is one page of 43 with one button at the bottom; the
+  questions for an educator, 30 over 10,700 pixels; the question bank, 393 pages of 50 with no search.
+- **Not the website's, the copy's:** the parent report that would not open (`{"facts": {}, "draft": {}}`, written by
+  u8-children-table.spec.ts) and the class pack no page approves (made by u9-papers.spec.ts without the plan the
+  weekly flow writes) are test rows. Live's packs come from `/week/assemble`, which writes the plan `/worksheets` reads.
+- **The plan** (four tabs, one list on Today, each step live on its own) published as
+  https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD; Nimish approved it and named the educators: Achal and Neha.
+
+## UI1 — the menu and Today, built (2026-10-11)
+
+- **The menu** is Today, Curriculum, Assessments (the Papers tab, renamed; its address stays /papers), Children. Each
+  tab carries the count of what waits in it, from `lib/needs-you.ts`, the one list Today shows; the count is the link's
+  description, not its name. How it works shows to a coordinator only.
+- **Today** is one list under three headings, Assessments first (the day's checking), then Curriculum and Children.
+  Each line says how many, what it is, and opens the place it is done: answers to check, papers to sign off, class
+  papers to approve (each pack its own link, "Grade 2 · 2B · class practice · week of 5 Oct"), home assessments, scans
+  that came back empty (new: they were on Marking only), skills to approve, the engine's questions (one line, whoever
+  they were drafted for), topics not taught yet (shown, not counted: switching one on is the school's choice), parent
+  reports to approve (new: no page listed them). No line is anyone else's: "For you / For others" is gone, and
+  `decides()` with it (the `people.decides` row stays; the engine's `asks` reads it).
+- **Weeks in words** (`weekWords`, "week of 5 Oct", by the ISO week's Monday) on Today's packs and its week-by-week table.
+- **Measured:** the list costs 46 ms a page warm on the rehearsed copy (228 ms cold); it runs in the layout, so every
+  page's menu has it.
+- **Proved on copies:** the goal's browser criteria on a database built fresh: 80 tests, 79 passed and one failed on a
+  race in the test (it counted Today's lines before they streamed in), fixed and passed; u15 and u1 twice running on
+  one copy (a second run found the test child's report not made again; fixed). `tsc`, `eslint` clean. `bin/check` 27
+  passed. Looked at Today on the rehearsed copy at a laptop's width.

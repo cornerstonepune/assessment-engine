@@ -15,7 +15,7 @@ export default async function MakePapers() {
   return (
     <>
       <PageHeader
-        stage="Papers · home assessments"
+        stage="Assessments · home assessments"
         title="Home assessments"
         sub="Each child's home assessment for the week — one skill, from their own map, or one you choose for them. Nothing prints until you approve it."
       />

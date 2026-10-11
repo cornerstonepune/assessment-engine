@@ -96,7 +96,7 @@ const setName = async (code: string) =>
 
 test("every paper is one row, what it is, whose, and where it stands, filtered by class, kind and stage", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Papers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
   const table = page.getByRole("table", { name: "Every paper" });
   await expect(table.locator("thead th")).toHaveText([/Paper/, /Kind/, /Class/, /Child/, /Week/, /Stage/, /Waiting/, /Score/]);
   await expect(table.locator("tbody tr")).toHaveCount(4);
@@ -130,20 +130,20 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await expect(table.locator("tbody tr")).toHaveCount(2);
 });
 
-test("one Papers in the menu for marking and making, and a row opens the paper where its work is", async ({ page }) => {
+test("one Assessments in the menu for marking and making, and a row opens the paper where its work is", async ({ page }) => {
   await page.goto("/papers");
   const menu = page.getByRole("navigation", { name: "Sections" });
-  await expect(menu.getByRole("link", { name: "Papers" })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
   await expect(menu.getByRole("link", { name: "Marking" })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Make papers" })).toHaveCount(0);
   // making, reading a scan and the queue of answers to check are all here
   await expect(page.getByRole("link", { name: "Make a paper" })).toHaveAttribute("href", "/papers/make");
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
-  // the pages it merged are still Papers
+  // the pages it merged are still Assessments
   for (const path of ["/capture", "/make"]) {
     await page.goto(path);
-    await expect(menu.getByRole("link", { name: "Papers" })).toHaveAttribute("aria-current", "page");
+    await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
   }
 
   // a scanned paper opens to check its answers; one not yet scanned opens as printed; a click anywhere on the row

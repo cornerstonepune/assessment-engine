@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI1: the menu and Today (built, proved on copies)
+
+- **Slice:** UI1, Nimish's exception to W1 gate 3 (BUILD-ORDER "UI1 to UI4"). The plan he approved:
+  https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD. The menu is Today, Curriculum, Assessments, Children, each with
+  the count of what waits in it; Today is one list under those tabs, each line opening its place; no "For others";
+  weeks in words; How it works the coordinator's (STATE.md "UI1 — the menu and Today, built").
+- **Next:** UI2 (Assessments: make one from four starting points, every assessment by stage in words, answers checked
+  a paper at a time). Then UI3 (Curriculum), UI4 (Children; the staff list off the public repository so Achal and Neha
+  sign in with their own email and password; Nimish sends their emails then, never their passwords).
+- **M4d1 merged (#182)** while this was built; M4d2 waits behind UI1–UI4.
+- **For Nimish:** UI1 is the website alone: Vercel deploys it on merge, nothing to run. M2a to M4d1's question bank
+  still reaches live only with `~/cornerstone/assessment-engine/bin/update-live`; the change that would run it after
+  every merge is built and held (auto mode refused the edit as a production deploy) until he allows it.
+
 ## 2026-10-11 — M4d1: stories with × and ÷ (built, proved on copies; PR #182)
 
 - **Slice:** M4d1, W1 gate 3. `MD.WORD`, Grades 2 to 4 (STATE.md "M4d1 — stories with × and ÷, built", ADR 0068): ten

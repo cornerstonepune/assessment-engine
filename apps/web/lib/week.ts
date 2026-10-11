@@ -7,3 +7,16 @@ export function isoWeek(d = new Date()): string {
   const n = Math.ceil(((t.getTime() - first.getTime()) / 86_400_000 + 1) / 7);
   return `${t.getUTCFullYear()}-W${String(n).padStart(2, "0")}`;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** An ISO week said as a person says it, by its Monday: "2026-W41" is "week of 5 Oct". A week named any other way (a
+ *  test's own, an old paper's) is shown as it is: it names no dates to say. */
+export function weekWords(week: string): string {
+  const m = /^(\d{4})-W(\d{2})$/.exec(week);
+  if (!m) return week;
+  // week 1 is the one holding 4 January; its Monday is the Monday on or before it
+  const jan4 = new Date(Date.UTC(Number(m[1]), 0, 4));
+  const monday = new Date(jan4.getTime() + (1 - (jan4.getUTCDay() || 7) + (Number(m[2]) - 1) * 7) * 86_400_000);
+  return `week of ${monday.getUTCDate()} ${MONTHS[monday.getUTCMonth()]}`;
+}

@@ -63,9 +63,9 @@ export default async function PapersPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Papers"
-        title="Papers"
-        sub="Every paper, from made to signed off. Filter them; click one to print it, or to check its answers once it is read."
+        stage="Assessments"
+        title="Assessments"
+        sub="Every assessment paper, from made to signed off. Filter them; click one to print it, or to check its answers once it is read."
       />
       <Body>
         <div className="mb-[18px] flex flex-wrap items-center gap-3">

@@ -3,18 +3,18 @@ import { Nav, type NavItem } from "./nav";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 
-// The menu is the teacher's week (BUILD-ORDER, "the website as the teacher's week"): what waits on them, the
-// children, their papers going out and coming back (one item, goals/u9-papers.yaml: Nimish, 2026-09-30, "I really
-// don't think marking and marking papers as two different types are essential"), and what is taught. A child's own
-// paper (CS + six hex) is a paper; a library worksheet is curriculum.
+// The menu is the school's order of work (goals/ui1-menu-and-today.yaml): what waits today, what is taught, the
+// assessments made from it, and the children they tell about. Each tab carries the count of what waits in it, from the
+// list Today shows (lib/needs-you.ts). A child's own paper (CS + six hex) is an assessment; a library worksheet is
+// curriculum. Papers, marking and making a paper are one tab (goals/u9-papers.yaml); its address stays /papers.
 export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
+  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets", "/asks"] },
+  { href: "/papers", label: "Assessments", icon: "sheet", match: ["/papers", "/capture", "/make", "/home", "/worksheets/CS"] },
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
-  { href: "/papers", label: "Papers", icon: "sheet", match: ["/papers", "/capture", "/make", "/home", "/worksheets/CS"] },
-  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets"] },
 ];
 
-export function Shell({ me, children }: { me: Session; children: ReactNode }) {
+export function Shell({ me, waiting, children }: { me: Session; waiting: Partial<Record<string, number>>; children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="flex w-full flex-col bg-basalt px-[18px] py-[26px] text-lime md:w-[230px] md:shrink-0 print:hidden">
@@ -22,11 +22,14 @@ export function Shell({ me, children }: { me: Session; children: ReactNode }) {
           <Mark />
           <div className="font-heading text-[19px] text-lime">cornerstone</div>
         </div>
-        <Nav items={NAV} />
+        <Nav items={NAV.map((it) => ({ ...it, count: waiting[it.label] }))} />
         <div className="mt-auto pt-8">
-          <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
-            How it works
-          </a>
+          {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
+          {me.role === "coordinator" ? (
+            <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
+              How it works
+            </a>
+          ) : null}
           <div className="label !text-bamboo opacity-75">Grade 1–4 · Maths</div>
           <div className="mt-3 flex items-center justify-between gap-2 text-[12.5px] text-bamboo">
             <span className="truncate" title={me.email}>{me.name}</span>

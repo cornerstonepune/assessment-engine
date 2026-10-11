@@ -17,7 +17,7 @@ goal: >
 # and sign-in lands on Curriculum; what Achal is asked sits in a shared doc, eight goal files and their pull requests.
 says:
   - words: "what validations are pending?"
-    proved_by: "apps/web/tests/u13-needs-you.spec.ts::Today lists what waits on a person, yours first, each saying who it is for"
+    proved_by: "apps/web/tests/u13-needs-you.spec.ts::Today lists what waits on a person, under the tab where it is done, hidden from no one"
   - words: "I'm not even now able to figure out what all papers I need to validate or for Achal to validate"
     proved_by: packages/engine/tests/test_asks.py::test_every_kind_of_waiting_names_who_decides_it
   - words: "I'm not even able to see that"
