@@ -497,7 +497,8 @@ def test_the_document_prints_a_division_in_a_line_and_halving_is_mental_maths_al
     assert (d15["method"], d15["operand_1_digits"], d15["operand_2_digits"]) == ("LINE", 3, 1), d15
     assert DOC["D15"]["placed_in"] == ["DIV.3D1D:method"], DOC["D15"]["placed_in"]
     assert DOC["D02"]["placed_in"] == ["DIV.2D1D:method"], DOC["D02"]["placed_in"]
-    assert DOC["G25"]["placed_in"] == ["MD.MENTAL:Hard"], DOC["G25"]["placed_in"]
+    # beside doubling at Grade 2, as the school's objective has them (LO-G2-0498, goals/md4a-mental-methods.yaml)
+    assert DOC["G25"]["placed_in"] == ["MD.MENTAL:Easy"], DOC["G25"]["placed_in"]
     assert DOC["G06"]["placed_in"] == ["MD.MENTAL:Easy"], DOC["G06"]["placed_in"]
     assert {CASES[c]["match"]["fmt"] for c in ("G21", "G22", "G24")} == {
         "partitioning",
