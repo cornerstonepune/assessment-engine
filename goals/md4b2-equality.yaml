@@ -1,0 +1,130 @@
+name: md4b2-equality
+goal: >
+  MD.EQUALITY (Grades 3 and 4) asks a child to complete or judge × and ÷ written as equations, each sentence printed
+  with its own box or its own tick. Easy, Grade 3: a product turned round (6 × 8 = 8 × □), anything × 0 (456 × 0),
+  × 1 and ÷ 1 (37 × 1 = □, 37 ÷ 1 = □), a number ÷ itself and 0 ÷ a number (9 ÷ 9 = □, 0 ÷ 9 = □), and true or false
+  about turning round, a product's beside a difference's (7 × 6 = 6 × 7, 9 − 4 = 4 − 9). Medium, Grade 3: three numbers
+  grouped either way ((2 × 7) × 5 = 2 × (7 × 5) = □), a fact family (4, 7, 28), a division checked by multiplying
+  (96 ÷ 4 = 24? 24 × 4 = □), and a factor doubled (12 × 5 = 60, so 12 × 10 = □). Hard, Grade 4: a factor partitioned
+  (7 × 12 = 7 × 10 + 7 × □), a balance against − and against ÷ (3 × 8 = 30 − □, 6 × 4 = 48 ÷ □), the missing sign
+  (6 □ 3 = 18, 18 □ 3 = 6) and comparing without working (25 × 4 ○ 25 × 5, 48 ÷ 6 ○ 48 ÷ 8). Advance, Grade 4: true or
+  false about ÷ 0 beside 0 ÷ a number (9 ÷ 0 = 0, 0 ÷ 9 = 0) and about a division turned round beside a product
+  (12 ÷ 3 = 3 ÷ 12, 12 × 3 = 3 × 12), a remainder checked by multiplying back (85 ÷ 4 = 21 r 1? 21 × 4 + 1 = □), and a
+  wrong answer explained by multiplying back (804 ÷ 4 = 21: 21 × 4 = □, and why). A true-or-false, a sign and a
+  comparison are right one way as often as the other, so no tick is answered by guessing. Every question names a
+  mistake its wrong answer shows: = read as "the answer comes next", every number added, × 0 kept as the number, × 1
+  adding one, a number ÷ itself as 0, 0 ÷ a number as the number, the wrong sign, a comparison turned round, a division
+  or a difference turned round, a claim's truth reversed, and three new, drafted for Achal: ÷ 0 read as 0, a remainder
+  left out of its check, and a bigger divisor taken to give a bigger answer. Five rows say their examples' sizes
+  (456 × 0, a table fact, 96 ÷ 4, 85 ÷ 4, 804 ÷ 4), so none is drawn past its grade. The scenario works out every equation from the
+  sentence it prints, + and − equations and missing numbers among three numbers too, where it worked out none; and a
+  comparison of two equal sums names the mistake a wrong tick shows, one changed number seen and its partner's change
+  missed. Every level fills and every scenario is 100%. None of it is taught until an educator says so.
+# Written 2026-10-11, before the code: slice M4b2 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M4b2 — measured before the build"): of MD.EQUALITY's 18 cases, eleven are shapes no kind
+# makes, the missing sign and the comparison make + and − only, the division check refuses a remainder (DR09), the
+# claim to explain is addition's only (C08), and Y04, Y09, Y10 drew past their examples' sizes. A true-or-false whose
+# answer is always false (9 ÷ 0 = 0, 12 ÷ 3 = 3 ÷ 12) is answered by ticking one place; each is asked beside a true one.
+# EQUALITY.INVERSE's + and − equations, drawn as scenarios on main 00a107b: the check worked out none of Medium's 24 or
+# Advance's 24 answers and 12 of Hard's 24, and a comparison of two equal sums (EQ.COMPARE) named no mistake.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_product_turned_round_and_true_or_false_about_turning_round
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_times_one_divided_by_one_by_itself_and_zero_divided
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_three_numbers_grouped_either_way_and_a_factor_doubled
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_factor_partitioned_and_a_balance_against_minus_and_divide
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_the_missing_sign_and_comparing_without_working_for_times_and_divide
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_true_or_false_about_dividing_by_zero_and_a_division_turned_round
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_remainder_checked_by_multiplying_back
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_wrong_answer_explained_by_multiplying_back
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_equality.py::test_each_level_holds_its_cases_at_the_grade_the_document_gives
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_equality.py::test_every_case_draws_on_its_examples_sizes
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_equality.py::test_no_tick_is_answered_by_guessing
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_equality.py::test_every_question_names_a_mistake_its_wrong_answer_shows
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_equality.py::test_the_three_new_mistakes_are_rows_drafted_for_achal
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_equality.py::test_the_document_pairs_each_true_or_false_with_its_other
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_right_answer_counts_for_equations_and_the_operation
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_equality.py::test_a_scenario_works_out_every_equation_from_its_sentence
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_equality.py::test_every_box_is_where_the_printed_key_says_it_is
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_equality.py::test_every_box_and_tick_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_equality.py::test_every_level_fills_each_case_as_often_as_it_asks
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s38-equality.spec.ts::once taught, every equation is on the Question bank as the child meets it"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.EQUALITY into a topic of its own,
+    Equations with × and ÷, and fills its levels. No screen or paper shows it until an educator switches it on from
+    Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
+  - "Achal: drafted for you to correct. MD.EQUALITY is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as
+    the document drafted it; the school's objective \"Missing numbers in equations\" is at both grades. A true-or-false
+    is asked beside its other, so it is not answered by guessing: a product turned round beside a difference
+    (7 × 6 = 6 × 7, 9 − 4 = 4 − 9), 9 ÷ 0 = 0 beside 0 ÷ 9 = 0, a division turned round beside a product; the missing
+    sign and the comparison ask a × sentence and a ÷ sentence. A wrong answer is explained by multiplying back with
+    the product written (804 ÷ 4 = 21: 21 × 4 = 84), not by ticking yes or no. Three new mistakes, their names and what
+    to do about them drafted for you: ÷ 0 read as 0, a remainder left out of its check (85 ÷ 4 = 21 r 1 checked as
+    21 × 4 = 84), and a bigger divisor taken to give a bigger answer (48 ÷ 8 > 48 ÷ 6)."
+scenarios:
+  - name: MD.EQUALITY, Easy — turned round, × 0, × 1 and ÷ 1, ÷ itself and 0 ÷, true or false about turning round
+    skill_set: MD.EQUALITY
+    difficulty: Easy
+    n: 60
+    cases: [Y01, Y04, Y05, Y06, Y16]
+  - name: MD.EQUALITY, Medium — grouped either way, a fact family, a division checked, a factor doubled
+    skill_set: MD.EQUALITY
+    difficulty: Medium
+    n: 48
+    cases: [Y02, Y09, Y10, Y15]
+  - name: MD.EQUALITY, Hard — partitioned, balances, the missing sign, comparing without working
+    skill_set: MD.EQUALITY
+    difficulty: Hard
+    n: 60
+    cases: [Y03, Y11, Y12, Y13, Y14]
+  - name: MD.EQUALITY, Advance — ÷ 0, a division turned round, a remainder checked, a wrong answer explained
+    skill_set: MD.EQUALITY
+    difficulty: Advance
+    n: 48
+    cases: [Y07, Y08, DR09, C08]
+  - name: EQUALITY.INVERSE, Medium — the missing sign or signs and the balances, + and −, each worked out from its sentence
+    skill_set: EQUALITY.INVERSE
+    difficulty: Medium
+    n: 24
+  - name: EQUALITY.INVERSE, Hard — checks, true or false and comparisons, + and −, a comparison of equal sums named
+    skill_set: EQUALITY.INVERSE
+    difficulty: Hard
+    n: 24
+  - name: EQUALITY.INVERSE, Advance — the same number in both boxes and missing numbers among three, worked out
+    skill_set: EQUALITY.INVERSE
+    difficulty: Advance
+    n: 24
+criteria:
+  - name: the equations drawn, printed, read and named; the drawer, the rows, the checks and the scenario check they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_equality.py tests/test_facts_advance.py tests/test_divide_advance.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_every_skill.py tests/test_mistake_rows.py tests/test_items.py tests/test_verify.py tests/test_render.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_each_answer.py tests/test_asks.py tests/test_audit.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank shows every equation as the child meets it
+    run: cd apps/web && npx playwright test tests/s38-equality.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
