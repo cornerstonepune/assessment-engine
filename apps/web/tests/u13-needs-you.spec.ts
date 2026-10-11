@@ -65,6 +65,8 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
     const row = off.getByRole("listitem").filter({ hasText: topic.name });
     await expect(row).toContainText("2-digit ÷ 1-digit");
     await expect(row).toContainText("3-digit ÷ 1-digit");
+    // switching on is confirmed from inside its fold, once the person has read what it does (goals/ui3-curriculum.yaml)
+    await row.getByText("Switch on", { exact: true }).click();
     await row.getByRole("button", { name: `Switch on, as ${TEST_STAFF.name}` }).click();
     await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).not.toContainText(topic.name);
     const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`select taught, taught_by from topic where code = 'DIVCOL'`;
@@ -114,9 +116,12 @@ test("a question drafted for Achal is agreed or corrected on the site, in the na
   const [{ n: before }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null`;
   try {
     await page.goto("/asks");
+    // each question is one line until it is opened (goals/ui3-curriculum.yaml)
     const a2 = page.getByRole("region", { name: asked[0].question, exact: true });
+    await a2.locator("summary").click();
     await a2.getByRole("button", { name: `Agree as drafted, as ${TEST_STAFF.name}` }).click();
     const a3 = page.getByRole("region", { name: asked[1].question, exact: true });
+    await a3.locator("summary").click();
     await a3.getByLabel("What it should say").fill("A remainder is written in words first, then with r from Grade 3");
     await a3.getByRole("button", { name: `Correct it, as ${TEST_STAFF.name}` }).click();
     const answered = page.getByRole("region", { name: "Answered", exact: true });

@@ -21,7 +21,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 // A class and a week of the test's own: the week's rows are removed afterwards; the class is kept.
 const SECTION = "S7-TEST";
 const WEEK = "S7-WEEK";
-const LIST = `/worksheets?section=${SECTION}&week=${WEEK}&kind=practice`;
+const LIST = `/papers/approve?section=${SECTION}&week=${WEEK}&kind=practice`;
 
 async function engine(path: string, body: object) {
   const r = await fetch(`http://127.0.0.1:${ENGINE_PORT}${path}`, {
@@ -108,7 +108,7 @@ test("a paper opens from its code: the page as printed, how it was drawn, and it
     order by si.created_at limit 1`;
   expect(paper, "a paper of the week, rendered").toBeTruthy();
 
-  await page.goto(`/worksheets?section=${paper.section}&week=${paper.week}&kind=${paper.kind}`);
+  await page.goto(`/papers/approve?section=${paper.section}&week=${paper.week}&kind=${paper.kind}`);
   await page.getByRole("link", { name: paper.qr, exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Paper ${paper.qr}`);
   await expect(page.getByRole("table", { name: "Answer key" }).locator("tbody tr")).toHaveCount(paper.n);

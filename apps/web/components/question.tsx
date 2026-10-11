@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
 import { Chunking, DivisionLayout, LongDivision } from "@/components/methods";
 import { Drawn, Grid, Lattice, Stem } from "@/components/pictures";
@@ -87,28 +87,33 @@ function Steps({ it, plain }: { it: ItemRow; plain?: boolean }) {
 /** The question as the child meets it on the page — the sum, the sentence, the wall — never a code. */
 export function Question({ it }: { it: ItemRow }) {
   const s = it.spec;
+  // a drawing with the sentence the paper prints above it ("Add them in the easiest order."), when it has one: the
+  // sentence is the question, and the bank's search finds a question by it
+  const said = (drawing: ReactNode) => (it.stem ? <Stem text={it.stem}>{drawing}</Stem> : drawing);
   switch (it.fmt) {
     case "column_grid":
-      return s.op === "÷" ? (
-        <DivisionLayout a={s.a ?? 0} b={s.b ?? 0} rem={leaves(it)} />
-      ) : (
-        <Column numbers={s.addends ?? [s.a ?? 0, s.b ?? 0]} op={sign(s.op)} />
+      return said(
+        s.op === "÷" ? (
+          <DivisionLayout a={s.a ?? 0} b={s.b ?? 0} rem={leaves(it)} />
+        ) : (
+          <Column numbers={s.addends ?? [s.a ?? 0, s.b ?? 0]} op={sign(s.op)} />
+        ),
       );
     case "bare_sum":
       // asked in words, the sentence alone ("How many 6s make 42?"): the sign would give it away
       if (s.text) return <span>{s.text}</span>;
-      return (
+      return said(
         <span className="fact">
           {s.addends ? s.addends.join(` ${sign(s.op)} `) : `${s.a} ${sign(s.op)} ${s.b}`} = ___
           {leaves(it) ? " r ___" : null}
-        </span>
+        </span>,
       );
     case "missing_digit":
       // a division is its sentence (7□ ÷ 4 = 18), never a column
       return s.shape || s.op === "÷" ? (
         <span>{it.stem}</span>
       ) : (
-        <Column numbers={[s.a ?? "", s.b ?? ""]} op={sign(s.op)} result={s.c} />
+        said(<Column numbers={[s.a ?? "", s.b ?? ""]} op={sign(s.op)} result={s.c} />)
       );
     case "equation":
       return (
@@ -136,7 +141,8 @@ export function Question({ it }: { it: ItemRow }) {
         </Stem>
       );
     case "missing_number":
-      return <span className="fact">{s.text ?? it.stem}</span>;
+      // a missing row is its sentence above its sum ("Write the missing row."); a number sentence is its own question
+      return s.text && s.text !== it.stem ? said(<span className="fact">{s.text}</span>) : <span className="fact">{s.text ?? it.stem}</span>;
     case "number_wall":
       return (
         <Stem text={it.stem}>

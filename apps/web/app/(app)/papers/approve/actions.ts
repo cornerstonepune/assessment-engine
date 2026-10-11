@@ -8,8 +8,8 @@ import { EngineDown, engineSend } from "@/lib/engine";
 import { DIFFICULTIES } from "@/lib/queries";
 
 const BACK = (f: FormData) => {
-  const back = String(f.get("back") ?? "/worksheets");
-  return back.startsWith("/worksheets") ? back : "/worksheets";
+  const back = String(f.get("back") ?? "/papers/approve");
+  return back.startsWith("/papers/approve?") ? back : "/papers/approve?";
 };
 
 /** The teacher changes one child's level. A reason is required and is kept — the prescriber
@@ -27,7 +27,7 @@ export async function overrideChild(formData: FormData): Promise<void> {
     update prescription set difficulty = ${difficulty}, rule_fired = 'override',
       override_by = ${me.email}, override_reason = ${reason}, updated_at = now()
     where id = ${id}::uuid`;
-  revalidatePath("/worksheets");
+  revalidatePath("/papers/approve");
   redirect(`${back}&changed=1`);
 }
 
@@ -42,6 +42,6 @@ export async function approvePack(formData: FormData): Promise<void> {
   const back = BACK(formData);
   const res = await engineSend("/week/approve", { section, week, kind, by: me.email });
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was approved.`);
-  revalidatePath("/worksheets");
+  revalidatePath("/papers/approve");
   redirect(`${back}&approved=1`);
 }

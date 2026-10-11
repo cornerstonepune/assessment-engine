@@ -77,7 +77,7 @@ export default async function ParentReport({ params, searchParams }: Props) {
     <>
       <div className="print:hidden">
         <PageHeader
-          stage={`Parent report · ${child.section}`}
+          stage={`Children · parent report · ${child.section}`}
           title={name}
           sub="Written from the answers an educator signed off, held to them by the engine, and approved by an educator before a parent reads it."
         />

@@ -64,7 +64,9 @@ function Mark() {
 export function PageHeader({ stage, title, sub }: { stage: string; title: string; sub: string }) {
   return (
     <header className="border-b border-basalt/12 px-5 pt-6 pb-[18px] md:px-9">
-      <div className="label mb-2 !text-monsoon !tracking-[0.08em]">{stage}</div>
+      <div className="label mb-2 !text-monsoon !tracking-[0.08em]" data-testid="stage">
+        {stage}
+      </div>
       <h1 className="text-[26px] leading-tight">{title}</h1>
       <p className="mt-[6px] max-w-[620px] text-[13.5px] leading-[1.5] text-basalt/62">{sub}</p>
       <div className="chalkline" />

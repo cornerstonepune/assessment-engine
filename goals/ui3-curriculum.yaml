@@ -1,0 +1,43 @@
+name: ui3-curriculum
+goal: >
+  A skill's page is in five parts, each one click from its top — what it means, its levels, the mistakes it watches
+  for, its questions and its worksheets — its worksheets one level at a time and named in words, and no mistake code on
+  it. A skill is approved on its own, from a page grouped by grade, as well as all at once. A topic is switched on only
+  after the person has read what switching it on does. Each question the engine drafted is one line until it is opened.
+  The question bank finds a question by its words, within the choices made. Every page says the tab it is under, and
+  the menu marks that tab; a class's papers are approved under Assessments, and Worksheets is the library alone.
+# Written 2026-10-11, before the code: Step 3 of the navigation plan Nimish approved
+# (https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD; BUILD-ORDER "UI1 to UI4", his exception to W1 gate 3). Measured
+# first (STATE.md "UI3 — measured before the build"): a skill's page is one 5,200-pixel scroll with its 73 worksheets
+# listed by code and its mistakes by code; approving is one button under 43 skills; twelve "Switch on" buttons switch a
+# topic on for the whole school in one click; the engine's 30 questions are 10,700 pixels. Found during the build: the
+# bank had no search; a class's papers sat under the worksheet library, so Today's "Class papers to approve" opened the
+# Curriculum tab; eleven pages said "Stage 2", "Stage 5" or "Papers" above their title, none the tab they were under.
+says:
+  - words: "When I go to the curriculum, it has grade-wise, topic-wise descriptions, and people can open and look at the skills and the whole mapping of the curriculum."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a skill's page is in five parts, its worksheets one level at a time, and no code on it"
+  - words: "If there are edits, some changes, tagging, etc., or definitions that need to be changed, one can do that."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a skill is approved on its own, from skills grouped by grade"
+  - words: "If there are edits, some changes, tagging, etc., or definitions that need to be changed, one can do that."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a topic is switched on only after the person has read what it does"
+  - words: "Most of the things come as a long list of items, and some of the views are not useful."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::each question the engine drafted is one line until it is opened"
+  - words: "Most of the things come as a long list of items, and some of the views are not useful."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::the question bank finds a question by its words, within the choices made"
+  - words: "I think we can make a few of these changes: better UI, better navigation, and better linking."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::every page says the tab it is under, above its title, and the menu marks that tab"
+  - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a class's papers are approved under Assessments, and Worksheets is the library alone"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+scenarios: []
+criteria:
+  - name: Curriculum, a skill's page, approving, the topic switch and the questions, and the pages whose steps changed
+    run: cd apps/web && npx playwright test tests/u17-curriculum.spec.ts tests/u13-needs-you.spec.ts tests/u15-menu-and-today.spec.ts tests/u1-today.spec.ts tests/u5-curriculum.spec.ts tests/u12-curriculum-table.spec.ts tests/s2-skill-map.spec.ts tests/s3-worksheets.spec.ts tests/s7-paper-from-library.spec.ts tests/m2-make-papers.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

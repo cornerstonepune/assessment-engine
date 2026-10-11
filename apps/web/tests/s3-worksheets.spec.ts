@@ -39,6 +39,8 @@ test("every skill shows its worksheets at each level, at least ten, and the filt
   const hard = rows.find((r) => r.code === "ADD.2D2D" && r.difficulty === "Hard")!.n;
   await page.goto("/skill-sets/ADD.2D2D#worksheets");
   await page.getByLabel("Show worksheets for").getByRole("link", { name: `Hard · ${hard}` }).click();
+  // every level has as many worksheets, so the count alone would pass on the page before the click
+  await expect(page).toHaveURL(/level=Hard/);
   const list = page.getByRole("table", { name: "Worksheets for this skill" }).locator("tbody tr");
   await expect(list).toHaveCount(hard);
   for (const cell of await list.locator("td:nth-child(2)").allInnerTexts()) expect(cell).toBe("Hard");

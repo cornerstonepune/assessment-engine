@@ -70,7 +70,7 @@ export default async function MakePapers() {
               <ul className="grid gap-1 text-[13.5px]" aria-label="Class papers waiting for approval">
                 {packs.map((p) => (
                   <li key={`${p.section}|${p.week}|${p.kind}`}>
-                    <Link href={`/worksheets?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
+                    <Link href={`/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
                       {p.section} · {p.week} · {p.kind === "assessment" ? "class assessment" : "class practice"}
                     </Link>{" "}
                     <span className="text-basalt/62">— {p.n} papers</span>

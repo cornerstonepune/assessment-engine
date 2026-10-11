@@ -20,17 +20,17 @@ export default async function Asks({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Today"
+        stage="Curriculum"
         title="Questions to answer"
-        sub="What the engine drafted and wants a person to agree with or correct. Agree as drafted, or write what it should say; your name goes on it, and the next change is built from what you said."
+        sub="What the engine drafted about the curriculum and wants a person to agree with or correct. Open one to read it; agree as drafted, or write what it should say. Your name goes on it, and the next change is built from what you said."
       />
       <Body>
-        <Link href="/today" className="chip mb-[18px] inline-block">
-          ← Today
+        <Link href="/" className="chip mb-[18px] inline-block">
+          ← Curriculum
         </Link>
         {q.empty ? <Notice tone="terracotta">A correction needs its words: write what it should say.</Notice> : null}
         {mineFirst.length === 0 ? <Notice tone="neem">Every question is answered.</Notice> : null}
-        <div className="grid gap-[18px]">
+        <div className="grid gap-[10px]">
           {mineFirst.map((a) => (
             <Question key={a.code} a={a} me={me.name} />
           ))}
@@ -55,40 +55,45 @@ export default async function Asks({ searchParams }: Props) {
   );
 }
 
+// One question, one line until it is opened (goals/ui3-curriculum.yaml): thirty of them in full were 10,700 pixels.
 function Question({ a, me }: { a: Ask; me: string }) {
   return (
-    <Panel title={a.question} label={a.question} aside={`for ${ROLE_WORDS[a.for_role] ?? a.for_role}`}>
-      <p className="text-[15px] leading-snug">{a.drafted}</p>
-      {a.why ? <p className="mt-2 text-[13px] text-basalt/70">Why: {a.why}</p> : null}
-      <p className="mt-2 text-[12px] text-basalt/55">
-        Drafted in {a.source}
-        {a.link ? (
-          <>
-            {" "}
-            · <a href={a.link}>read it in full</a>
-          </>
-        ) : null}
-      </p>
-      <div className="mt-3 flex flex-wrap items-start gap-3">
-        <form action={answerAsk}>
-          <input type="hidden" name="code" value={a.code} />
-          <input type="hidden" name="answer" value="agreed" />
-          <button className="btn" type="submit">
-            Agree as drafted, as {me}
-          </button>
-        </form>
-        <form action={answerAsk} className="grid flex-1 gap-2">
-          <input type="hidden" name="code" value={a.code} />
-          <input type="hidden" name="answer" value="corrected" />
-          <label className="grid gap-1 text-[13px]">
-            What it should say
-            <textarea name="correction" rows={2} className="border border-basalt/35 p-2" />
-          </label>
-          <button className="chip self-start" type="submit">
-            Correct it, as {me}
-          </button>
-        </form>
-      </div>
-    </Panel>
+    <section aria-label={a.question} className="panel">
+      <details>
+        <summary className="panel-head cursor-pointer">
+          <h2 className="text-[15.5px]">{a.question}</h2>
+          <span className="fact text-[11px] text-basalt/55">for {ROLE_WORDS[a.for_role] ?? a.for_role}</span>
+        </summary>
+        <div className="panel-body">
+          <p className="text-[15px] leading-snug">{a.drafted}</p>
+          {a.why ? <p className="mt-2 text-[13px] text-basalt/70">Why: {a.why}</p> : null}
+          {a.link ? (
+            <p className="mt-2 text-[12px] text-basalt/55">
+              <a href={a.link}>Read it in full</a>
+            </p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap items-start gap-3">
+            <form action={answerAsk}>
+              <input type="hidden" name="code" value={a.code} />
+              <input type="hidden" name="answer" value="agreed" />
+              <button className="btn" type="submit">
+                Agree as drafted, as {me}
+              </button>
+            </form>
+            <form action={answerAsk} className="grid flex-1 gap-2">
+              <input type="hidden" name="code" value={a.code} />
+              <input type="hidden" name="answer" value="corrected" />
+              <label className="grid gap-1 text-[13px]">
+                What it should say
+                <textarea name="correction" rows={2} className="border border-basalt/35 p-2" />
+              </label>
+              <button className="chip self-start" type="submit">
+                Correct it, as {me}
+              </button>
+            </form>
+          </div>
+        </div>
+      </details>
+    </section>
   );
 }

@@ -15,7 +15,8 @@ const n = (x: number) => x.toLocaleString("en-IN");
 export default async function LibraryPage({ searchParams }: Props) {
   await requireStaff();
   const q = await searchParams;
-  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status };
+  const find = q.find?.trim().slice(0, 80) || undefined;
+  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
   const [grid, totals, total, rows] = await deadline(Promise.all([
     bankGrid(),
@@ -43,7 +44,7 @@ export default async function LibraryPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Stage 2 · The bank"
+        stage="Curriculum · Question bank"
         title="Question bank"
         sub={`${n(totals.active)} questions ready to print, every one of them on a numbered worksheet.`}
       />
@@ -127,13 +128,27 @@ export default async function LibraryPage({ searchParams }: Props) {
 
         <section id="questions" className="mt-[18px] scroll-mt-4">
           <Panel
-            title={chosen ? `${chosen.name}${q.difficulty ? ` · ${q.difficulty}` : ""}` : "Every question"}
+            label="Questions"
+            title={`${chosen ? `${chosen.name}${q.difficulty ? ` · ${q.difficulty}` : ""}` : "Every question"}${find ? `, with “${find}”` : ""}`}
             aside={
               total
                 ? `${n((page - 1) * PER_PAGE + 1)}–${n(Math.min(page * PER_PAGE, total))} of ${n(total)}`
                 : "none"
             }
           >
+            {/* a question found by its words, within the choices already made: they ride along as hidden fields */}
+            <form role="search" aria-label="Find a question" action="/library#questions" className="mb-4 flex flex-wrap items-end gap-2">
+              {(["set", "difficulty", "fmt", "status"] as const).map((k) =>
+                q[k] ? <input key={k} type="hidden" name={k} value={q[k]} /> : null,
+              )}
+              <label className="field min-w-[260px] flex-1">
+                <span className="label">Words or numbers in the question</span>
+                <input className="input" type="search" name="find" defaultValue={find ?? ""} maxLength={80} />
+              </label>
+              <button className="btn" type="submit">
+                Find
+              </button>
+            </form>
             <div className="mb-3 flex flex-wrap gap-2">
               {chip("difficulty", undefined, "Any level")}
               {DIFFICULTIES.map((d) => chip("difficulty", d, d))}
@@ -147,7 +162,7 @@ export default async function LibraryPage({ searchParams }: Props) {
             <div className="mb-4 flex flex-wrap items-center gap-2">
               {chip("status", undefined, "Ready to print")}
               {chip("status", "retired", "Removed")}
-              {q.set || q.difficulty || q.fmt || q.status ? (
+              {q.set || q.difficulty || q.fmt || q.status || find ? (
                 <Link href="/library#questions" className="ml-2 text-[12.5px]">
                   Clear all choices
                 </Link>
@@ -155,7 +170,7 @@ export default async function LibraryPage({ searchParams }: Props) {
             </div>
 
             {rows.length === 0 ? (
-              <p className="note">No questions match these choices. Try another level or kind.</p>
+              <p className="note">No questions match these choices. Try other words, or another level or kind.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="grid">

@@ -6756,3 +6756,58 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** the goal's browser criteria on a database built fresh, 58 of 58 (u16 written first and seen
   failing for the absent "Make an assessment"; m4's opening and u16's own waits fixed on the way). `tsc`, `eslint`
   clean. The Assessments page looked at on the rehearsed copy.
+
+## UI2 merged and live (2026-10-11)
+
+- Merged as `20419f1` (#184) at the head CI had passed on (`65622ac`: engine, web and browser green). Vercel's
+  production deploy of `20419f1` succeeded at 15:33 UTC; the website is the whole of UI2, so nothing waits on
+  update-live.
+- `bin/engine done ui2-assessments` on main's code against a database built fresh: 4 of 4 of Nimish's sentences
+  PROVED, 3 of 3 criteria PASSED (58 browser tests, types and lint clean, `bin/check` 27 passed). Its live line cannot
+  read the live database's migrations from here (`UndefinedTable`), as for UI1; UI2 has no migration.
+
+## UI3 — measured before the build (2026-10-11)
+
+- **A skill's page** (ADD.2D2D) was one 5,200-pixel scroll: what it means, its levels, its mistakes each under its
+  `M_…` code, and its 73 worksheets every level at once, each named by its code. Nothing on the page said where a part
+  began.
+- **Approving** was one button under all 43 draft skills: an educator could approve every skill or none.
+- **Switching a topic on** was twelve "Switch on" buttons on Curriculum, each switching its topic on for the whole
+  school in one click, with nothing said of what that does.
+- **The engine's questions** (`/asks`) were 30 panels at full length, 10,700 pixels, each with its draft, its reason
+  and its form open.
+- **Found during the build:** the Question bank had no search, and drew some questions without the sentence the paper
+  prints above them ("Add them in the easiest order.", "Write the missing digits.", "Write the missing row."); a class's
+  week of papers sat at the foot of the worksheet library, so Today's "Class papers to approve" opened the Curriculum
+  tab; eleven pages said "Stage 2", "Stage 5" or "Papers" above their title, none the tab they were under.
+
+## UI3 — Curriculum, built (2026-10-11)
+
+- **A skill's page is in five parts**, each one click from its top: What it means, Levels, Mistakes, Questions (the
+  Question bank, filtered to the skill) and Worksheets. Its worksheets show one level at a time (the first, or the one
+  chosen; "Every level" shows all), each named "Medium · sheet 3" with its code small and grey; a mistake is named in
+  words, its code gone from the page.
+- **A skill is approved on its own**, from the approve page grouped under one heading per grade, each skill with its
+  own "Approve this skill, as …" button (`only` in `approveSkills`; the charges table is skipped for one skill); the
+  button for all of them stays.
+- **A topic is switched on only after the person has read what it does:** "Switch on" opens a fold saying it switches
+  the topic on for the whole school, and the button inside it switches it.
+- **Each question the engine drafted is one line** until it is opened; its draft, reason and answer form are in the
+  fold.
+- **The Question bank finds a question by its words** (its sentence or its sum), within the skill, level and kind
+  already chosen; what is typed is looked for as it is (`%` and `_` are not wildcards). Every kind of question now
+  shows the sentence the paper prints above it, so what the search found is what the page shows.
+- **Every page says the tab it is under** above its title, and the menu marks that tab. **A class's papers are
+  approved under Assessments** (`/papers/approve`, step N7 on the map): each child's paper, its level and why, a level
+  changed with its reason, the pack approved; Worksheets is the library alone, and a week's old address there opens
+  it at the new one.
+- **Proved on copies:** u17 was written first and each of its seven tests seen failing on the old pages for its own
+  reason (no parts menu; no grade heading; the switch visible; the answer buttons visible; no search box; no tab
+  above a title; the week still under Worksheets). s3's level filter raced the page (every level has as many
+  worksheets, so the count passed before the click landed); it now waits for the address. CI caught the same race in
+  u17's approval, which waited for an address the page already had and read the database before the approval landed;
+  it now waits for `?approved=1` and the notice (21 of 21 over three runs). Three faults in u17 itself
+  were fixed on the way: a heading match that took panel titles too (the panels no longer repeat the grade their
+  heading gives), a restore that left `taught_at` set against `topic_taught_by_a_person`, and a count of folded
+  buttons that read the accessibility tree, where a closed fold's buttons are absent and "hidden" would have passed
+  with none. `tsc`, `eslint` clean.

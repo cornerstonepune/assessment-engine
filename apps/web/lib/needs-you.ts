@@ -45,7 +45,7 @@ export function linesOf(w: Waiting): NeedsYou {
         words: "papers made for a class, waiting for a person before they print",
         items: w.packs.map((p) => ({
           label: `${classWords(p.band, p.section)} · ${KIND_WORDS[p.kind] ?? p.kind} · ${weekWords(p.week)}`,
-          href: `/worksheets?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`,
+          href: `/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`,
           n: p.n,
         })),
         waits: true,

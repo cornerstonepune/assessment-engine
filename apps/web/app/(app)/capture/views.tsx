@@ -168,7 +168,7 @@ export function ChildPapers({ papers, id }: { papers: PaperRow[]; id: string }) 
   return (
     <>
       <PageHeader
-        stage={`Papers · marking · ${c.section}`}
+        stage={`Assessments · marking · ${c.section}`}
         title={c.first_name}
         sub={`Roll ${c.roll_no}. ${read.length} paper${read.length === 1 ? "" : "s"} read, ${s.toSign} still to sign off. Open a paper, check every answer against ${c.first_name}'s writing, then sign it off.`}
       />

@@ -40,6 +40,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   await requireStaff();
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = DIFFICULTIES.find((d) => d === q.level);
+  const everyLevel = q.level === "all";
   const [all, examples, kinds, caught, book, sheets] = await deadline(
     Promise.all([
       skillSets({ untaught: true }),
@@ -59,6 +60,10 @@ export default async function SkillPage({ params, searchParams }: Props) {
     DIFFICULTIES.map((d) => s.difficulty[d]?.check?.op).filter(Boolean),
   );
   const op = ops.size === 1 ? String([...ops][0]) : undefined;
+  // the worksheets of one level at a time (goals/ui3-curriculum.yaml): the one asked for, every one when asked, else the
+  // first that has any — a skill's 73 worksheets listed at once were a page of codes
+  const shownLevel = level ?? (everyLevel ? undefined : levelsOf(s).find((d) => sheets.some((w) => w.difficulty === d)));
+  const shown = shownLevel ? sheets.filter((w) => w.difficulty === shownLevel) : sheets;
   const mistakes = caught
     .map((m) => ({ ...m, said: mistakeOf(book, m.code, op) }))
     .filter((m) => m.said);
@@ -66,7 +71,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage={`${gradeWords(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
+        stage={`Curriculum · ${gradeWords(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
         title={s.learning_objective}
         sub="What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."
       />
@@ -77,7 +82,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
             skill&rsquo;s words.
           </Notice>
         ) : null}
-        {q.approved ? (
+        {q.approved === "0" ? (
+          <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
+        ) : q.approved ? (
           <Notice tone="neem">Approved as written, in your name.</Notice>
         ) : null}
         {s.taught ? null : (
@@ -88,7 +95,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
           </Notice>
         )}
 
-        <div className="mb-[18px] flex flex-wrap items-center gap-3">
+        <div id="means" className="mb-[18px] flex scroll-mt-6 flex-wrap items-center gap-3">
           <Link href="/" className="chip">
             ← Curriculum
           </Link>
@@ -117,6 +124,13 @@ export default async function SkillPage({ params, searchParams }: Props) {
           </Link>
         </div>
 
+        {/* the skill in five parts, each one click from here (goals/ui3-curriculum.yaml) */}
+        <nav aria-label="Parts of this skill" className="mb-[18px] flex flex-wrap gap-2">
+          {[["What it means", "#means"], ["Levels", "#levels"], ["Mistakes", "#mistakes"], ["Questions", `/library?set=${s.code}#questions`], ["Worksheets", "#worksheets"]].map(([words, href]) => (
+            <Link key={words} href={href} className="chip">{words}</Link>
+          ))}
+        </nav>
+
         <div className="grid gap-[18px]">
           <Panel title="Which grade each level belongs to" aside="each level to one grade; a child is given a level of their grade or below">
             {q.grades ? <Notice tone="neem">Saved: each level is now taught in the grade shown.</Notice> : null}
@@ -144,6 +158,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
             </p>
           </Panel>
           <Panel
+            id="levels"
             title="At each level"
             aside="the level in words, and a real question from the bank"
           >
@@ -237,6 +252,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
           </Panel>
 
           <Panel
+            id="mistakes"
             title="Mistakes it watches for"
             aside="the wrong answers its questions are built to recognise"
           >
@@ -249,7 +265,6 @@ export default async function SkillPage({ params, searchParams }: Props) {
                       name={m.said!.name}
                       example={m.said!.description}
                       n={m.n}
-                      code={m.code}
                     />
                   ))}
                 </ul>
@@ -265,7 +280,6 @@ export default async function SkillPage({ params, searchParams }: Props) {
                           name={m.said!.name}
                           example={m.said!.description}
                           n={m.n}
-                          code={m.code}
                         />
                       ))}
                     </ul>
@@ -283,15 +297,15 @@ export default async function SkillPage({ params, searchParams }: Props) {
           <section id="worksheets" className="scroll-mt-6">
             <Panel
               title="Worksheets"
-              aside={`${sheets.length} ${level ? `at ${level}` : "at every level"}`}
+              aside={`${shown.length} ${shownLevel ? `at ${shownLevel}` : "at every level"}`}
             >
               <div
                 className="mb-3 flex flex-wrap items-center gap-2"
                 aria-label="Show worksheets for"
               >
                 <Link
-                  href={`/skill-sets/${s.code}#worksheets`}
-                  className={`chip ${level ? "" : "on"}`}
+                  href={`/skill-sets/${s.code}?level=all#worksheets`}
+                  className={`chip ${shownLevel ? "" : "on"}`}
                 >
                   Every level
                 </Link>
@@ -299,13 +313,13 @@ export default async function SkillPage({ params, searchParams }: Props) {
                   <Link
                     key={d}
                     href={`/skill-sets/${s.code}?level=${d}#worksheets`}
-                    className={`chip ${level === d ? "on" : ""}`}
+                    className={`chip ${shownLevel === d ? "on" : ""}`}
                   >
                     {d} · {s.worksheets[d] ?? 0}
                   </Link>
                 ))}
               </div>
-              {sheets.length ? (
+              {shown.length ? (
                 <div className="overflow-x-auto">
                   <table
                     className="grid"
@@ -319,10 +333,14 @@ export default async function SkillPage({ params, searchParams }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {sheets.map((w) => (
+                      {shown.map((w) => (
                         <tr key={w.code}>
-                          <td className="fact whitespace-nowrap">
-                            <Link href={`/worksheets/${w.code}`}>{w.code}</Link>
+                          <td className="whitespace-nowrap">
+                            {/* named by its level and number; the code printed on the sheet beside it */}
+                            <Link href={`/worksheets/${w.code}`}>
+                              {w.difficulty} · sheet {Number(w.code.split("-").pop()!.slice(1))}
+                            </Link>{" "}
+                            <span className="fact text-[11px] text-basalt/45">{w.code}</span>
                           </td>
                           <td className="num">{w.difficulty}</td>
                           <td className="text-[12.5px] text-basalt/70">
@@ -352,24 +370,13 @@ export default async function SkillPage({ params, searchParams }: Props) {
   );
 }
 
-function Mistake({
-  name,
-  example,
-  n,
-  code,
-}: {
-  name: string;
-  example: string | null;
-  n: number;
-  code: string;
-}) {
+function Mistake({ name, example, n }: { name: string; example: string | null; n: number }) {
   return (
     <li className="grid gap-[2px] text-[13.5px]">
       <span>{name}</span>
       {example ? <span className="text-basalt/70">{example}</span> : null}
       <span className="note">
-        caught by {n} {n === 1 ? "question" : "questions"}{" "}
-        <span className="fact ml-1 text-[10.5px] text-basalt/45">{code}</span>
+        caught by {n} {n === 1 ? "question" : "questions"}
       </span>
     </li>
   );

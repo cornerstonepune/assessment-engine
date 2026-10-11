@@ -44,9 +44,17 @@ export async function saveWords(formData: FormData): Promise<void> {
  *  waiting and bumps its version, and the form carries the version it showed. */
 export async function approveSkills(formData: FormData): Promise<void> {
   const me = await requireStaff();
-  const shown = formData.getAll("code").map(String).filter((c) => CODE.test(c));
-  const versions = formData.getAll("version").map(Number);
-  const back = String(formData.get("back") ?? "/");
+  let shown = formData.getAll("code").map(String).filter((c) => CODE.test(c));
+  let versions = formData.getAll("version").map(Number);
+  let back = String(formData.get("back") ?? "/");
+  // one skill of the page, approved on its own (goals/ui3-curriculum.yaml): its own code and version, and back to the
+  // page to approve the next; the table of what a mistake charges waits for its own approval
+  const only = String(formData.get("only") ?? "");
+  if (CODE.test(only)) {
+    const i = shown.indexOf(only);
+    if (i < 0) redirect("/");
+    [shown, versions, back] = [[only], [versions[i]], "/skill-sets/approve"];
+  }
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
   const approved = await sql<{ code: string }[]>`
@@ -57,7 +65,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
   // The table of what a mistake charges, approved exactly as the page showed it: if it changed since,
   // the update matches nothing and it keeps waiting. `::text` first: postgres.js sends a string it
   // sees bound for jsonb as a JSON string, which would never equal the table.
-  const table = formData.get("charges_table");
+  const table = CODE.test(only) ? null : formData.get("charges_table");
   if (typeof table === "string" && table) {
     await sql`
       update config set value = jsonb_build_object('by', ${me.name}::text, 'table', t.value), updated_at = now()
@@ -66,8 +74,8 @@ export async function approveSkills(formData: FormData): Promise<void> {
   }
   revalidatePath("/");
   for (const c of approved) revalidatePath(`/skill-sets/${c.code}`);
-  // Only back to the map or a skill page: a return address from a form is never trusted to leave the site.
-  redirect(`${/^\/(skill-sets\/[A-Z0-9._]+)?$/.test(back) ? back : "/"}?approved=${approved.length}`);
+  // Only back to the map, a skill page or the approval page: a return address from a form never leaves the site.
+  redirect(`${/^\/(skill-sets\/([A-Z0-9._]+|approve))?$/.test(back) ? back : "/"}?approved=${approved.length}`);
 }
 
 /** A person says which grade teaches each level of a skill — one grade each (Nimish, 2026-09-24). Kept in its own

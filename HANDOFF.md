@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI2 live; UI3: Curriculum (built, proved on copies)
+
+- **UI2** merged (#184) and live on Vercel; done report 4/4, 3/3 (STATE.md "UI2 merged and live").
+- **Slice:** UI3 (BUILD-ORDER "UI1 to UI4"): a skill's page in five parts, its worksheets one level at a time and no
+  mistake code on it; a skill approved on its own from a page grouped by grade; a topic switched on from inside a fold
+  that says what it does; the engine's questions one line each until opened; the Question bank finds a question by
+  its words; every page says the tab it is under; a class's papers approved under Assessments at `/papers/approve`,
+  Worksheets the library alone (STATE.md "UI3 — Curriculum, built").
+- **Next:** UI4 (Children; the staff list off the public repository; Achal's and Neha's emails asked for then, never
+  their passwords).
+
 ## 2026-10-11 — UI1 live; UI2: Assessments (built, proved on copies)
 
 - **UI1** merged (#183) and live on Vercel; done report 5/5, 3/3 (STATE.md "UI1 merged and live").

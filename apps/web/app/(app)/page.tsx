@@ -28,7 +28,11 @@ export default async function CurriculumPage({ searchParams }: Props) {
         sub="Every grade's skills, by subject and topic, each written as what a child can do, with its questions, worksheets and levels, how many children have been assessed on it, and whether it is taught. Open a grade, then a topic; a skill opens its page."
       />
       <Body>
-        {q.approved ? <Notice tone="neem">Approved {q.approved} as written, in your name.</Notice> : null}
+        {q.approved === "0" ? (
+          <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
+        ) : q.approved ? (
+          <Notice tone="neem">Approved {q.approved} as written, in your name.</Notice>
+        ) : null}
         {switched ? (
           <Notice tone="neem">
             {switched.name} is {q.on ? "taught now: its skills are on every page and can go on a child's paper" : "not taught now: its skills are out of sight"}, in your name.
