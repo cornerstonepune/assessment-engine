@@ -208,7 +208,7 @@ teacher reaches, and it is why the five Grade 3 reports become the `gold` set fo
 pipeline rather than only for digit reading.
 
 Not covered: Aseem's second finding, `56 × 3 = 1518` (partial products written side by side), is
-multiplication. Off the ladder, no predictor — the `M_MULT_CONCAT` the Kabir POC proposed.
+multiplication. Off the ladder, no predictor — the `M_MULT_CONCAT` the Child A POC proposed.
 
 ## Prompt-driven item generation — first measurement (2026-09-17)
 
@@ -1367,7 +1367,7 @@ Nothing of the reader is built: the bar's numbers are proposed and wait on Nimis
 - **Two reading regimes, not one.** 80 pages are flat scans of a printed paper answered in pen
   (regime A); 38 are phone photos — angled, page curved, answers in pencil, with the teacher's own
   tick and cross in pen beside the child's answer (regime B). Confirmed by eye on
-  `G3/1. Kabir/Assessment 0/WhatsApp Image 2026-08-16 at 18.02.42.jpeg`.
+  `G3/<child folder>/Assessment 0/WhatsApp Image 2026-08-16 at 18.02.42.jpeg`.
 
 - **What has actually been read so far: 10 captures, all regime A, 138 responses.** Check:
   `psql -Atc "select c.status, count(*) from capture c where c.superseded_by is null group by 1"`
@@ -2097,7 +2097,7 @@ has listed as W3's human gate since the plan was written.
   comparison symbol, "find the mistake" — are the only ones that ask a person for right or wrong.
 
 - **A correction is a new row, and the engine's own reading survives it.** Proved on the real page,
-  through the screen, by hand: Kabir's question 6, where Textract read `363` at 79.8% and the child
+  through the screen, by hand: Child A's question 6, where Textract read `363` at 79.8% and the child
   wrote `763`. Check:
   ```
   select model_read, human_read, by from read_correction  →  363 | 763 | dev@local
@@ -2116,7 +2116,7 @@ has listed as W3's human gate since the plan was written.
 
 - **Coverage becomes 100% the moment a paper is signed off**, which is the screen's real argument:
   every answer is either read confidently or confirmed by a person, and the ones in between are
-  counted on the screen rather than averaged away. Kabir's paper opens at `12 read and marked · 6
+  counted on the screen rather than averaged away. Child A's paper opens at `12 read and marked · 6
   the reader could not settle · 0 signed off`, and the sign-off button says what it will and will
   not cover.
 
@@ -2129,7 +2129,7 @@ has listed as W3's human gate since the plan was written.
 
 - **Grade 3 goes through the real ingest path, not just the eval.** Check:
   `bin/engine legacy import "…/WhatsApp Image 2026-08-16 at 18.02.42.jpeg" --paper G3-BASE16
-  --child Kabir --section G3 --pages 1` → `16 answers read, 7 for a person`, and `--pages 2` on the
+  --child Child A --section G3 --pages 1` → `16 answers read, 7 for a person`, and `--pages 2` on the
   second photograph → `2 answers read, 0 for a person`. Question 11 came back
   `read '238' wrong M_SMALL_FROM_LARGE` — Aseem's own diagnosis of this child, reached from a row
   with no model involved. A photograph is its own page: `--pages 2` on a one-image file used to
@@ -2207,7 +2207,7 @@ and every in-scope scan has been read once, by the reader in service.
   photographs is page 1 and which of a Grade 3 child's four photographs belongs to which paper were
   all read off the page — the printed level band, the header set, the section headings. Check:
   `classify.py` / `classify3.py` (kept outside the repository: they name children, rule 6) →
-  38 photographs placed, and **Kabir's four are in a different order from every other child's**, so
+  38 photographs placed, and **Child A's four are in a different order from every other child's**, so
   a file-name guess would have put two of his pages in the wrong paper.
 
 - **The corpus as read.** `ingest.py`, 71 files, every one with `again=True` so an earlier reading is
@@ -2320,7 +2320,7 @@ paper row marks so they always reach a person.
     when, the pieces match the slot count exactly
   - **a number the question prints is an echo, never an answer** — unless the child declared it
     with a label or a sentence, because 52 − 26 really is 26
-  - **red ink is the educator's and is inpainted out before the page is read.** Kabir's 5147 under
+  - **red ink is the educator's and is inpainted out before the page is read.** Child A's 5147 under
     a red circle came back `147` at 95%, his 533 as `53`. Inpainted rather than whited out: a white
     gap through a 7 leaves a 1. Measured both ways on the gold — same 78.0% exact, and silently
     wrong 3 → 1. It is a row (`ocr.red_pen_mask`), so it can be turned off for a school that marks
@@ -2329,7 +2329,7 @@ paper row marks so they always reach a person.
     large digits a line of their own, and 5147 sat a hair above the region's top edge
 
 - **`engine read eval --reader ocr --runs 2` → 78.0% exact (64/82), 100% given a row, 1.2%
-  silently wrong (1), spread 78.0–78.0%.** The gold grew from 63 to 82 with Kabir's Grade 3–4 quiz,
+  silently wrong (1), spread 78.0–78.0%.** The gold grew from 63 to 82 with Child A's Grade 3–4 quiz,
   the worst page in the corpus: a phone photograph under heavy red marking.
 
 - **A sixteenth paper was hiding.** The Grade 4 child's baseline is not the Grade 3 baseline — same
@@ -2400,28 +2400,28 @@ He was right, and the cause was mine, from earlier the same session.
   distinct from the printed `15+` at x=0.324 and the printed `30` at x=0.435. The engine read it
   and then deleted it.
 
-- **Why.** Kabir's quiz prints "24,568 + 37,845 =" and Textract returned the printed `37,845` a
+- **Why.** Child A's quiz prints "24,568 + 37,845 =" and Textract returned the printed `37,845` a
   second time, tagged as handwriting, on top of where it is printed — and the engine stood behind
   it as his answer at 94%. The rule added to stop that dropped **any** number the question
   mentions. But the answer to "15 + ___ = 30" IS 15, and the answer to "52 birds, 26 flew away"
   IS 26. The rule threw away correct answers, at 97% confidence, across two whole papers.
 
 - **The fix is position, not value.** A number is the paper's only where a printed word of the same
-  value **overlaps it on the page** — the same mark found twice. Kabir's duplicate overlaps its
+  value **overlaps it on the page** — the same mark found twice. Child A's duplicate overlaps its
   printed original and is dropped; a child's answer written in a blank, or below their working,
   overlaps nothing and is kept. The "unless the child declared it with a label or a sentence"
   escape hatch is gone: it was a patch over the wrong test, and it only saved the children who
   happened to write `ans=`.
 
 - **Measured.** `bin/engine read eval --reader ocr --runs 2` → **79.3% exact (65/82)**, 100% given
-  a row, **1.2% silently wrong (1)**, spread 79.3–79.3%. Kabir's quiz sheet is unharmed at 15/19
+  a row, **1.2% silently wrong (1)**, spread 79.3–79.3%. Child A's quiz sheet is unharmed at 15/19
   with 0 silent errors, which is what the rule was written to protect.
 
 - **Across the corpus**, re-read in full: **242 waiting for a person, down from 261**, and the
   engine now settles **625 of 867 (72%)** — Grade 2 **79%**, Grade 3 **64%**.
 
 - **The lesson worth keeping.** Both defects were in the same rule, one day apart, and the gold set
-  caught neither: Kabir's duplicate because his quiz was not yet in the gold, and this one because
+  caught neither: Child A's duplicate because his quiz was not yet in the gold, and this one because
   `G2-DIAG-B` still is not. **A person looking at four crops found in a minute what 82 hand-verified
   responses did not.** The approval screen is not only how the gold set grows — it is the only
   place a rule that is wrong in a way the gold cannot see will show itself.
@@ -2492,7 +2492,7 @@ carries into the graph half; the reader is not worked again until the graph has 
 ## The approval screen, first used for real: what it showed Nimish, and what that found (2026-09-21)
 
 Nimish opened `/capture` (local, `web` + `engine api` in `.claude/launch.json`, dev sign-in) and
-corrected and signed off Kabir's Grade 3–4 quiz. **16 corrections, every `POST /capture/correct`
+corrected and signed off Child A's Grade 3–4 quiz. **16 corrections, every `POST /capture/correct`
 → 200.** Then: *"I am seeing a lot of entries with ~80% confidence … extremely easy to make out."*
 
 - **Most of what he was checking was never in his queue.** Of 225 waiting, 11 read at 70%+; the
@@ -2560,7 +2560,7 @@ this kind of problem needs to be solved."* Stopped. What is true now:
   13→3) — the extra ink it found made the "last number is the answer" rule pick working. The corpus
   was re-read with it off: **0 settled answers differ from before it** (`diff.py before-stencil
   after-restore`), `read eval` → 81.9% (68/83), 1 silently wrong.
-- **A re-read had taken six of Nimish's corrections** (Kabir's quiz p2, q11–16) and one from
+- **A re-read had taken six of Nimish's corrections** (Child A's quiz p2, q11–16) and one from
   2026-09-20, because the guard protected signed-off papers only. `legacy.worked_on` now protects any
   capture a person has signed off OR corrected (test pins both). The seven were re-applied under
   their original corrector; `read_correction` rows on live readings: 18 of 18.
@@ -2912,7 +2912,7 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   "transcription not yet confirmed". `engine read coverage`: 49 papers · 1 signed off · 13 scored · 196 waiting.
   `deploy/go-live.sh` at 6da4519 (exit 0); the twelve pictures, cold, 12 × 200 in ≤ 0.99 s.
 - **Aseem's 24 findings confirmed by Nimish** ("correct", in chat, 2026-09-21) → `engine gold confirm --by "Nimish, in
-  chat, 2026-09-21"`: 24 confirmed. `engine gold check` on live: **2 in the graph** (Kabir's M_SMALL_FROM_LARGE, a
+  chat, 2026-09-21"`: 24 confirmed. `engine gold check` on live: **2 in the graph** (Child A's M_SMALL_FROM_LARGE, a
   pattern in the graph; his strong addition) · 18 not yet signed off · 3 waiting for a person (a 34 × 2, a comparison
   sign, a 62,413 copied out) · 1 read differently (the "3 boxes of 6 pencils" read as 3 from the teacher's red pen;
   the child wrote 9).
@@ -2944,7 +2944,7 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   → correct 332 (7 printed) · wrong 185 (15 printed, 8 another) · blank 95 · 0 signed off
   ```
 - **The gold check passes a strength the graph does not show.** `gold.outcome` calls a `strong` finding "in the
-  graph" once any confirmed evidence exists and no mistake repeats; it never reads the state. Kabir's "strong in
+  graph" once any confirmed evidence exists and no mistake repeats; it never reads the state. Child A's "strong in
   addition" is one of today's 2 "in the graph" while `child_skill_state` has NUM.OPS.01 `not_enough_yet` on R9
   and R12 (2 of 4 confirmed answers right). Only the M_SMALL_FROM_LARGE pattern is a real match.
 - **Open for Nimish:** send a reading that is a number printed on the page to a person instead of marking it
@@ -3100,7 +3100,7 @@ Placed here rather than at the end so it merges cleanly beside step 7's notes; i
   unused since day one), digit confusions, eight confirmed samples. A sign-off without a change joins the gold set:
   `engine read eval --gold-only` → **284 gold responses on 33 sheets · 152 typed · 90 signed off** (was 82 + 103).
   On the copy, 9 notebooks: Agastya 46 checked, right 24 of 37, floor 95, routes sums + word problems; Dhanvi 49,
-  35 of 41, floor 95, routes word problems; Kabir 25, 18 of 20, floor 80, confuses 3>7.
+  35 of 41, floor 95, routes word problems; Child A 25, 18 of 20, floor 80, confuses 3>7.
 - **L2 — the next read.** `engine/reading.py` is the one reader for the import, the re-read and the replay: the
   child's floor replaces 70; a routed kind or a confused digit is flagged with the reading as the one-click guess
   (`profiles.apply`, never overwriting a doubt or a blank). `test_the_childs_notebook_changes_the_next_import_of_

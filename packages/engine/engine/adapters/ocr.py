@@ -64,7 +64,7 @@ def mask_red_pen(image_bytes, cfg=None):
     """Paint out red ink before the page is read.
 
     The educator marks in red — a circle round a wrong answer, digits and comments in the margin —
-    and Textract reads the composite: Kabir's 5147 under a red circle came back 147, his 533 came
+    and Textract reads the composite: Child A's 5147 under a red circle came back 147, his 533 came
     back 53, both above the confidence floor and both stood behind. The child writes in pencil or
     blue. By the school's own convention red is the educator's, and it is not the child's answer
     under any reading — so it is removed, the way exam digitisation has removed marking ink for
@@ -531,7 +531,7 @@ def _number(slot):
 def _echoes(questions):
     """The numbers the paper prints in these questions. A "handwritten" word carrying one of them is
     the child copying an operand into their working — or, beside large handwriting, the printed
-    operand itself mis-tagged as handwriting. Kabir's 24,568 + 37,845 came back as 37845 and his
+    operand itself mis-tagged as handwriting. Child A's 24,568 + 37,845 came back as 37845 and his
     8 × ___ = 72 as 72, both at 94%+, both the paper's own digits: an echo is never an answer."""
     return frozenset(value_of(tok) for q in questions for tok in re.findall(r"\d[\d,]*", q))
 
@@ -539,7 +539,7 @@ def _echoes(questions):
 def _on_line(word, anchor):
     """Does this word sit on the anchor's printed line — by geometry, not by Textract's grouping,
     which on a photograph gives a child's large digits, and a mis-tagged printed operand, lines of
-    their own. Kabir's 5147 and his echoed 37,845 were both invisible to a rule that trusted it."""
+    their own. Child A's 5147 and his echoed 37,845 were both invisible to a rule that trusted it."""
     cy = word["y"] + word.get("h", 0) / 2
     return anchor["y"] - anchor["h"] * 0.5 <= cy <= anchor["y"] + anchor["h"] * 1.5
 
@@ -557,7 +557,7 @@ def _overlaps(a, b):
 def _not_echo(hand, echoes, printed=()):
     """Drop a number the paper prints ONLY where the paper is demonstrably the one that printed it —
     a printed word of the same value in the same place, found a second time and tagged as
-    handwriting. Kabir's "24,568 + 37,845 =" came back with a handwritten 37,845 sitting on top of
+    handwriting. Child A's "24,568 + 37,845 =" came back with a handwritten 37,845 sitting on top of
     the printed one, at 94%, and it was stood behind as his answer.
 
     Position is the whole test, and the reason is a lesson this rule had to learn twice: for
@@ -817,7 +817,7 @@ def answers_for(page, slots, cfg=None, symbolic=(), boxes=(), reread=None):
             "right": max(a["x"] + max(a["w"], cfg["answer_column"]) for a in mine) + cfg["answer_column"],
         }
         # A word on the question's own printed line is the question's, wherever its corner falls.
-        # Kabir's "5147" — the finding Aseem's report is written around — sits a hair above the
+        # Child A's "5147" — the finding Aseem's report is written around — sits a hair above the
         # baseline of "8,500 − 3,647 =", its top-left corner fell above the region's top, and the
         # answer the whole project exists to catch was reported as blank.
         own_lines = {a["text"] for a in mine}

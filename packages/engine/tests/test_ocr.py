@@ -465,7 +465,7 @@ def test_a_compound_token_in_a_one_slot_region_is_still_working():
 
 
 def test_an_answer_written_on_the_questions_own_line_is_never_above_the_region():
-    """Kabir's 5147 for 8,500 − 3,647, the finding Aseem's report is written around: a large
+    """Child A's 5147 for 8,500 − 3,647, the finding Aseem's report is written around: a large
     handwritten answer on the printed line starts a little above the printed text, its top-left
     corner fell above the region's top, and the answer came back blank."""
     anchor = w("5. 8,500 - 3,647 =", 0.06, 0.490, hand=False, width=0.28, h=0.02)
@@ -475,7 +475,7 @@ def test_an_answer_written_on_the_questions_own_line_is_never_above_the_region()
 
 
 def test_a_printed_operand_read_back_as_handwriting_is_never_the_answer():
-    """Kabir's quiz: beside his large digits Textract tagged the printed 37,845 as handwriting at
+    """Child A's quiz: beside his large digits Textract tagged the printed 37,845 as handwriting at
     94%, and "8 x ___ = 72" gave back the printed 72 at 86%. Both were stood behind, both wrong.
     A number the question prints is an echo — working at best — and when nothing else was read,
     the answer goes to a person rather than to the graph."""
@@ -514,7 +514,7 @@ def test_an_operand_copied_into_the_working_still_leaves_the_answer():
 
 
 def test_a_word_on_the_printed_line_belongs_to_it_whatever_textract_grouped():
-    """Kabir's 5147 again, the way the photograph actually came back: Textract gave the child's
+    """Child A's 5147 again, the way the photograph actually came back: Textract gave the child's
     digits a line of their own, so a rule that trusted its grouping still reported a blank."""
     anchor = w("5. 8,500 - 3,647 =", 0.06, 0.490, hand=False, width=0.28, h=0.02)
     answer = w("5147", 0.36, 0.476, h=0.03, line="5147", mixed=False)
