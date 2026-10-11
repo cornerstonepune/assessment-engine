@@ -1,0 +1,89 @@
+name: md4d1-times-stories
+goal: >
+  MD.WORD (Grades 2 to 4) asks for the stories of × and ÷. Easy, Grade 2: equal groups, how many in all; sharing, how
+  many in each; grouping, how many groups; the cost of many. Medium, Grade 2: an array, how many in all and how many in a
+  row; the cost of one; twice as many; and half as many (Meera read 30 pages, Aman half as many). Hard, Grade 3: times
+  as many, the larger, the smaller (Dev has 12, 3 times as many as Riya) and how many times (Dev has 12, Riya 4); a
+  remainder dropped, rounded up, asked, or both. Advance, Grade 4: combinations and area in squares; the two-step
+  stories, × then + (3 boxes of 12 pencils and 5 loose), × then − (₹100, 4 pens at ₹15), ÷ then × (12 pencils cost
+  ₹36: what do 5 cost?), two products added (4 packets of 6 and 3 of 8), + then ÷ (18 red and 14 blue balloons shared
+  by 4) and a bar model (Ria and Sam have 32 marbles, Sam 3 times as many as Ria); a story with a number it does not
+  need (8 boxes of 9 mangoes and 3 drivers) and a price list read (pen ₹15, eraser ₹5: what do 3 pens cost?). Each new
+  story says the range its numbers may take, so its numbers make sense. Every question names a mistake its wrong answer
+  shows: one step only, the other operation, and six new, drafted for Achal: multiplying because the story says
+  "times" when it asks for the smaller, doubling for half as many, how many more answered for how many times, the
+  number the story does not need used, the other item's price read, and a bar model divided by the times with the
+  smaller one's own part left out. The scenario works out every story's answer
+  from its own numbers. Every level fills and every scenario is 100%. None of it is taught until an educator says so.
+# Written 2026-10-11, before the code: slice M4d1 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M4d — measured before the build"): of MD.WORD's 26 cases, sixteen draw; B09, B10, B27 have no
+# template; B18–B23 fail (no size in their rule, and the two-step maker works its first step with + or − only); B25 and
+# B26 have no × template. The school's objective "Solve multi-step word problems using bar models" is at Grades 2, 3 and
+# 4 (LO-G2-0530, LO-G3-0959, LO-G4-1356), on NUM.OPS.03 and NUM.OPS.04.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_word.py::test_times_as_many_the_smaller_and_how_many_times
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_word.py::test_half_as_many
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_word.py::test_the_two_step_stories_work_out_both_steps
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_word.py::test_a_number_the_story_does_not_need_and_a_price_list
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_word.py::test_each_level_holds_its_cases_at_the_grade_the_document_gives
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_word.py::test_every_new_story_says_the_range_its_numbers_take
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_word.py::test_every_question_names_a_mistake_its_wrong_answer_shows
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_word.py::test_the_six_new_mistakes_are_rows_drafted_for_achal
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_md_word.py::test_a_right_answer_counts_for_multiplying_and_dividing
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_word.py::test_a_scenario_works_out_every_story_from_its_own_numbers
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_word.py::test_every_answer_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_word.py::test_every_level_fills_each_case_as_often_as_it_asks
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s40-stories.spec.ts::once taught, every × and ÷ story is on the Question bank as the child meets it"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.WORD into a topic of its own,
+    Stories with × and ÷, and fills its levels. No screen or paper shows it until an educator switches it on from
+    Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
+scenarios:
+  - name: MD.WORD, Easy — equal groups, sharing, grouping, the cost of many
+    skill_set: MD.WORD
+    difficulty: Easy
+    n: 48
+    cases: [B01, B02, B03, B06]
+  - name: MD.WORD, Medium — arrays, the cost of one, twice and half as many
+    skill_set: MD.WORD
+    difficulty: Medium
+    n: 60
+    cases: [B04, B05, B07, B11, B27]
+  - name: MD.WORD, Hard — times as many, and a remainder used as the story needs
+    skill_set: MD.WORD
+    difficulty: Hard
+    n: 84
+    cases: [B08, B09, B10, B14, B15, B16, B17]
+  - name: MD.WORD, Advance — two steps, a number not needed, a price list
+    skill_set: MD.WORD
+    difficulty: Advance
+    n: 120
+    cases: [B12, B13, B18, B19, B20, B21, B22, B23, B25, B26]
+criteria:
+  - name: × and ÷ stories drawn, printed and marked; the drawer, the stories and the checks they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_word.py tests/test_divide_stories.py tests/test_mul_advance.py tests/test_mul_models.py tests/test_div_models.py tests/test_story_keys.py tests/test_story_shape.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_every_skill.py tests/test_mistake_rows.py tests/test_items.py tests/test_render.py tests/test_question.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_asks.py tests/test_audit.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank shows every × and ÷ story as the child meets it
+    run: cd apps/web && npx playwright test tests/s40-stories.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
