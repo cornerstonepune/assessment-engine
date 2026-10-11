@@ -6597,7 +6597,8 @@ On main `1062d83`. MD.WORD holds 26 cases, drafted G2 G2 G3 G4. Each drawn alone
   - B18 to B23, the two-step stories with × and ÷: `word_2step` raises `KeyError: 'digits_max'` (a case's rule gives no
     size), and `words.word_2step` works a story's first step with + or − only; its 13 templates are all + and −.
   - B25 (a number the story does not need) and B26 (a price list): "no one-step story for shape … and operation '×'".
-- **A9:** none of the 76 templates says the range its numbers may take.
+- **A9:** 2 of the 76 templates say the range their numbers may take (`numbers`: twice as many, a 3 to 20); the rest
+  take their sizes from the level.
 - **The eval rule 7 asks for** (`story_shape`): 65 gold stories, 18 shapes, all + and −; Jev reachable here.
 - **Halving:** `skills.operations` reads a two-step story's `op`, never its `divide`.
 - **A11:** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is empty.
