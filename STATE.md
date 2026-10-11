@@ -6987,6 +6987,25 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** u22 written first, each of its two tests seen failing alone on the old code (no view choice;
   no topic choice). The goal's browser criteria on a database built fresh: 46 of 46. Types and lint clean.
 
+## C1 merged and live (2026-10-11)
+
+- Merged as `c7731d9` (#188) at the head CI passed on (`480a89e`: the first head's engine run caught the spine's
+  stale unit table, STATE "C1 — the whole curriculum, built"). Vercel's production deploy at 22:05 UTC; `migrate live`
+  applied `20261107090000` at 22:34:55 after CI on main passed; the engine server redeployed at 22:36.
+- **The known gap happened:** from 22:05 to 22:35 the website on live read `skill_set.level_band_by` before live had
+  the column (STATE "Phase 0, PR 1", known gap: Vercel publishes on the merge itself). Put to Nimish.
+- `bin/engine done c1-whole-curriculum` on main's code against a database built fresh: 3 of 3 of Nimish's sentences
+  PROVED, 4 of 4 criteria PASSED (48 browser tests, 20 engine tests, types and lint clean, `bin/check` 28 passed).
+  Its live line: the live database does not answer from this container.
+
+## UI4b and UI5 merged and live (2026-10-11)
+
+- Merged as `39dd9ca` (#189) at the head CI passed on (`f76a9cb`), all four checks green. Vercel's production deploy
+  at 22:35:49 UTC. Website only.
+- `bin/engine done` on main's code, each against a database built fresh: ui4b1 3 of 3 PROVED, 3 of 3 criteria PASSED
+  (59 browser tests); ui4b2 2 of 2 PROVED, 3 of 3 PASSED (47); ui5 2 of 2 PROVED, 3 of 3 PASSED (46). Types and lint
+  clean, `bin/check` 28 passed each. Their live line: the live database does not answer from this container.
+
 ## M4d2 — measured before the build (2026-10-11)
 
 - **A9:** 98 story templates; 22 (M4d1's) say their own numbers; of the 76 older ones, 2 say a range and 74 take their

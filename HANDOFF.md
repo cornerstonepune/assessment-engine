@@ -8,6 +8,7 @@ is verified. This file only says where the last session stopped.
 - **Slice:** M4d2a (BUILD-ORDER; M4d2 split). Each older story template says its range; the level's numbers are held
   inside it; four-digit stories for Grade 4; a stored story outside its range retired by the refill (STATE.md "M4d2a",
   ADR 0070). Achal corrects any range in `word_templates.json`.
+- **Merged and live today:** C1 (#188), UI4b and UI5 (#189); done reports in STATE.md.
 - **For Nimish, once merged:** `~/cornerstone/assessment-engine/bin/update-live` refills the bank, retiring the stories
   drawn before.
 - **Next:** M4d2b (`story_shape` for × and ÷ with its eval, halving on Division, the A11 table), then M5.
