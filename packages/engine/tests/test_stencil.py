@@ -69,7 +69,7 @@ def test_a_page_too_bare_to_line_up_is_read_as_it_was_not_forced_onto_a_blank():
 
 
 def test_a_printed_question_number_is_never_given_to_the_child(monkeypatch):
-    """Kabir left "9 x 6 =" blank. "10." printed beside it landed on white in a photograph that lines
+    """Child A left "9 x 6 =" blank. "10." printed beside it landed on white in a photograph that lines
     up with its blank to a percent or two, was given to the child, and he was recorded as answering
     10. Question numbers are print, whatever the blank says."""
     white = np.full((1000, 1000), 255, np.uint8)

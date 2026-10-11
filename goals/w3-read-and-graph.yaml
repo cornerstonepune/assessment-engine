@@ -188,7 +188,7 @@ goal: >
 #
 #   # --- the graph half: does the reading become the right diagnosis ---
 #   - kind: read
-#     name: Kabir's 8500 - 3647 reaches the mistake Aseem named by hand
+#     name: Child A's 8500 - 3647 reaches the mistake Aseem named by hand
 #     must: reproduces_the_gold_diagnosis       # 5147 -> M_SMALL_FROM_LARGE, manifest.md
 #   - kind: read
 #     name: all five Grade 3 reports' named errors come back out of the graph

@@ -271,7 +271,7 @@ Rung and difficulty are different axes and both survive:
 - **Rung** — which concept stage. `R5`, two-digit addition with one regrouping.
 - **Difficulty** — how hard within that stage. E/M/H/A, set by operand rules the teachers write.
 
-A prescription therefore reads *"Kabir: R5 at Hard this week"*. The earlier `L− / L0 / L+` labels
+A prescription therefore reads *"Child A: R5 at Hard this week"*. The earlier `L− / L0 / L+` labels
 were a third vocabulary for the same idea and are retired; September's *Level A / Level B* was
 the same shorthand and retires with them. One name per concept.
 
@@ -302,7 +302,7 @@ disagree, the workflow wins.
 | Fri 7am | prescribe again, now knowing Thursday → assessment pack → approve → print | N5 N6 N7 |
 | Fri | assessment · photograph | N8 N9 N10 |
 | **Fri evening** | class card + **home sheet**, built from what Thursday and Friday showed; teacher confirms, which releases the home sheets *and* seeds next week | N11 |
-| Monthly | parent reports in the Kabir format; revisit sets; regrouping; "not ready" flags | N12 |
+| Monthly | parent reports in the Child A format; revisit sets; regrouping; "not ready" flags | N12 |
 
 Two packs a week, different blueprints: Thursday is practice, Friday is assessment. The home
 sheet is built **after** both, never alongside them — it exists to repair what the week exposed.
