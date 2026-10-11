@@ -63,12 +63,14 @@ manual:
   - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.MULTIPLES into a topic of its own,
     Multiples and factors, and fills its levels. No screen or paper shows it until an educator switches it on from
     Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
-  - "Achal: drafted for you to correct. MD.MULTIPLES is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as the
-    document drafted it; \"Tables, multiples and factors\" is the school's objective at both grades, and divisibility by
-    3 from the sum of the digits, which no objective names, is Advance. A list (the factors of 12) is written in any
-    order, in groups of boxes with two more than the list needs and the words \"You may not need every space\", so the
-    number of boxes does not tell the child how many there are. Twelve new mistakes, their names and what to do about
-    them drafted for you."
+  - "Achal: drafted for you to correct. MD.MULTIPLES is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as
+    the document drafted it; \"Tables, multiples and factors\" is the school's objective at both grades, and
+    divisibility by 3 from the sum of the digits, which no objective names, is Advance. A list (the factors of 12) is
+    written in any order, in groups of boxes with two more than the list needs and the words \"You may not need every
+    space\", so the number of boxes does not tell the child how many there are; it is marked as one answer, so one
+    factor left out is one mistake. All the factors are asked of numbers up to 60 with a factor pair from the tables
+    (28, never 57), and factor pairs of numbers up to 100. Twelve new mistakes, their names and what to do about them
+    drafted for you."
 scenarios:
   - name: MD.MULTIPLES, Easy — the multiples up to a limit, a multiple or not, divisible by 2, 5 and 10
     skill_set: MD.MULTIPLES

@@ -41,4 +41,5 @@ WORKING_LINES = {
     "lattice": 0,
     "chunking": 0,  # division's (ADR 0063)
     "long_division": 0,
+    "multiples": 1,  # a list's groups, a yes-or-no, a digit sum (goals/md4c-multiples-and-factors.yaml)
 }

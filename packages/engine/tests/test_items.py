@@ -17,6 +17,7 @@ from engine.assess import equality as EQ
 from engine.assess import estimate as E
 from engine.assess import items as I
 from engine.assess import missing_digits as MD
+from engine.assess import multiples as MU
 from engine.assess import number_line as NL
 from engine.assess import reasoning as RS
 from engine.assess import tags
@@ -314,10 +315,17 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
         DMOD.jumps_back(rng, "R46", "Conceptual", {}),
         # division's written methods (goals/md3d-division-methods.yaml), printed by a level's `methods`
         *(DVM.make(m, 72 if m == "PARTITION_DIVIDEND" else 516, 4, "R45") for m in DVM.KINDS),
+        # multiples and factors (goals/md4c-multiples-and-factors.yaml), reached through their cases
+        *(_first(lambda r, s=s: MU.make(r, "R50", "Conceptual", s)) for s in MU.SHAPES),
     ]
     assert {it.fmt for it in made} == set(WORKING_LINES), (
         "every kind the generators make has a row, and no row is orphaned"
     )
+    # every kind a level can draw through its cases has room too: MD.MULTIPLES's levels are cases, no `format`, so the
+    # seed loop above never reached its kind, and a paper made from its stored questions could not be printed
+    rows = json.loads((db.REPO_ROOT / "supabase/seed/taxonomy_cases.json").read_text())["taxonomy_cases"]
+    named = [c["match"]["fmt"] for c in rows if "fmt" in c["match"]]  # one kind, or any of several
+    assert {f for x in named for f in (x if isinstance(x, list) else [x])} <= set(WORKING_LINES)
     for it in made:
         assert it.working_lines == WORKING_LINES[it.fmt], it.fmt
     for fmt, (_, lines, _) in verify.FORMATS.items():

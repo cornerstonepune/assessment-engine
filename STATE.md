@@ -6560,6 +6560,12 @@ Goal `goals/md4c-multiples-and-factors.yaml`, ADR 0067.
   factors", untaught; Achal's question `md4c-multiples`; the kind's skill (`skills.by_kind`). No migration. The website
   calls `multiples` "multiples and factors".
 - **The scenarios' check works out every list and tick from the question's words** (`checks/multiples.py`).
+- **Found while proving, fixed at the cause:** a paper made from MD.MULTIPLES's stored questions could not be printed
+  (`inventory.item_from_row`: `KeyError: 'multiples'`, no row in `layout.WORKING_LINES`), found by the criteria's
+  sample-sheet test on the fresh database. The test that holds the table to the generators drove only levels named by
+  one `format` and a hand list; a level made of cases never reached it. It now holds every kind a case can draw to a
+  row too, and fails without the new one. Achal's question and the goal's line to him are one text again (the row had
+  grown past the goal's line).
 - **Ratchets fell:** `render_item` 19 to 18 (C901) and 56 to 54 statements, the kinds drawn whole now one table
   (`straight_pages.PAGES`); untyped findings `render.py` 301 to 295. `boxes.py` 392 to 394 lines (two lines that hand a
   list's groups to `lists.py`).
