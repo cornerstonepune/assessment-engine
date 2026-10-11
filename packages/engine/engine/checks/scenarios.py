@@ -19,6 +19,7 @@ from engine.assess import bands, tags, taxonomy, verify
 from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
+from engine.checks import multiples as ML
 from engine.checks import scenarios_week
 from engine.checks import sentences as SN
 from engine.core import db
@@ -85,6 +86,9 @@ def _answer_is_right(item):
     checks += SN.ticks(
         s, item.responses, stated
     )  # a sign, a comparison, true or false: from its own sentence
+    checks += ML.checks(
+        item.fmt, item.stem, item.responses, stated
+    )  # a list, a multiple or not, from its words
     return all(checks) if checks else None
 
 

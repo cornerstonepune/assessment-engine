@@ -38,6 +38,7 @@ export const KIND: Record<string, string> = {
   lattice: "lattice",
   chunking: "chunking",
   long_division: "long division",
+  multiples: "multiples and factors", // a list in any order, a multiple or not, divisible by 2, 3, 5 and 10
 };
 
 // The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.

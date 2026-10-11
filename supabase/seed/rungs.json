@@ -379,6 +379,16 @@
         "NUM.OPS.05",
         "NUM.PRB.03"
       ]
+    },
+    {
+      "code": "R50",
+      "band": "G3",
+      "ladder_order": null,
+      "descriptor": "Multiples, factors and divisibility: the multiples of a number up to a limit, whether a number is a multiple of another, divisibility by 2, 5 and 10 and by 3, all the factors and the factor pairs of a number, and the common multiples of two numbers below a limit",
+      "skill_codes": [
+        "NUM.CNT.08",
+        "NUM.OPS.03"
+      ]
     }
   ]
 }

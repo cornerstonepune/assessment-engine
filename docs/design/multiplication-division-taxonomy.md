@@ -423,6 +423,18 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | M_DIV_START_COUNTED (new) | ÷ | Counts the number it starts from as one more jump | from 20 back to 0 in jumps of 4 | 5 | 6 | answer | the skill |
 | M_REMAINDER_NOT_ROUNDED_UP (new) | ÷ | Drops the remainder when the story needs one more | 26 children, 4 to a rickshaw | 7 | 6 | answer | word problems |
 | M_TIMES_AS_MORE (new) | × | Reads "3 times as many" as "3 more" | 4 stickers, 3 times as many | 12 | 7 | answer | word problems |
+| M_OUT_OF_RANGE (new) | × | Writes a multiple outside the range asked | the multiples of 6 up to 60 | 6, 12, 18, 24, 30, 36, 42, 48, 54, 60 | 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66 | answer | the skill |
+| M_NOT_A_MULTIPLE (new) | × | Writes a number that is not a multiple | the multiples of 5 up to 50 | 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 | 5, 10, 15, 20, 26, 30, 35, 40, 45, 50 | answer | the skill |
+| M_MULTIPLE_MISSED (new) | × | Leaves a multiple out | the multiples of 5 up to 30 | 5, 10, 15, 20, 25, 30 | 5, 10, 15, 25, 30 | answer | the skill |
+| M_MULTIPLE_FOR_FACTOR (new) | × | Writes a multiple for a factor | the factors of 12 | 1, 2, 3, 4, 6, 12 | 1, 2, 3, 4, 6, 12, 24 | answer | the skill |
+| M_NOT_A_FACTOR (new) | × | Writes a number that does not divide | the factors of 12 | 1, 2, 3, 4, 6, 12 | 1, 2, 3, 4, 5, 6, 12 | answer | the skill |
+| M_FACTOR_MISSED (new) | × | Leaves a factor out, most often the number itself or 1 | the factors of 12 | 1, 2, 3, 4, 6, 12 | 1, 2, 3, 4, 6 | answer | the skill |
+| M_FACTOR_PAIR_TWICE (new) | × | Writes a factor pair twice, turned round | the factor pairs of 24 | 1 × 24, 2 × 12, 3 × 8, 4 × 6 | 1 × 24, 2 × 12, 3 × 8, 4 × 6, 8 × 3 | answer | the skill |
+| M_MULTIPLE_OF_ONE_ONLY (new) | × | Takes a multiple of one number for a common multiple | the common multiples of 3 and 4 below 30 | 12, 24 | 8, 12, 24 | answer | the skill |
+| M_COMMON_MULTIPLE_MISSED (new) | × | Leaves a common multiple out | the common multiples of 3 and 4 below 30 | 12, 24 | 12 | answer | the skill |
+| M_LAST_DIGIT_RULE_MISAPPLIED (new) | × | Judges by the last digit where that does not work | is 34 a multiple of 4? | no | yes | answer | the skill |
+| M_FIRST_DIGIT_FOR_LAST (new) | × | Reads the first digit for the last | is 805 divisible by 2? | no | yes | answer | the skill |
+| M_FIVE_AS_TEN (new) | × | Takes divisible by 5 to mean divisible by 10 | is 345 divisible by 10? | no | yes | answer | the skill |
 | M_KEYWORD_OVERGENERALISED (existing) | ÷ | Multiplies because the story says "each" | 30 stickers, 5 for each child | 6 | 150 | answer | word problems |
 
 | ID | Case | Example | Answer |

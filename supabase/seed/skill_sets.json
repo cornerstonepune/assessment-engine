@@ -4287,6 +4287,83 @@
         "Hard": "G4",
         "Advance": "G4"
       }
+    },
+    {
+      "code": "MD.MULTIPLES",
+      "rung_code": "R50",
+      "name": "Multiples and factors",
+      "learning_objective": "Finds the multiples of a number up to a limit and the common multiples of two, all the factors and the factor pairs of a number, and tells whether a number divides by 2, 5 and 10 from its last digit and by 3 from the sum of its digits.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "multiples",
+        "odd_even"
+      ],
+      "misconception_codes": [
+        "M_COMMON_MULTIPLE_MISSED",
+        "M_FACTOR_MISSED",
+        "M_FACTOR_PAIR_TWICE",
+        "M_FACT_PM1",
+        "M_FIRST_DIGIT_FOR_LAST",
+        "M_FIVE_AS_TEN",
+        "M_LAST_DIGIT_RULE_MISAPPLIED",
+        "M_MULTIPLE_FOR_FACTOR",
+        "M_MULTIPLE_MISSED",
+        "M_MULTIPLE_OF_ONE_ONLY",
+        "M_NOT_A_FACTOR",
+        "M_NOT_A_MULTIPLE",
+        "M_OUT_OF_RANGE",
+        "M_PARITY_RULE",
+        "M_REVERSES_CLAIM_TRUTH"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "The multiples of a number up to a limit, whether a number is a multiple of another, and divisible by 2, 5 and 10 from the last digit: the multiples of 6 up to 60; is 45 a multiple of 5?; is 340 divisible by 2, by 5 and by 10?",
+          "check": {
+            "cases": [
+              "F01",
+              "F02",
+              "F06"
+            ]
+          },
+          "min_items": 36
+        },
+        "Medium": {
+          "words": "All the factors of a number, its factor pairs, and whether a product is odd or even: the factors of 12; the factor pairs of 24; is 6 × 7 even or odd?",
+          "check": {
+            "cases": [
+              "F03",
+              "F04",
+              "F08"
+            ]
+          },
+          "min_items": 36
+        },
+        "Hard": {
+          "words": "The common multiples of two numbers below a limit: the common multiples of 3 and 4 below 30.",
+          "check": {
+            "cases": [
+              "F05"
+            ]
+          },
+          "min_items": 24
+        },
+        "Advance": {
+          "words": "Divisible by 3, from the sum of the digits: is 117 divisible by 3? 1 + 1 + 7 = 9.",
+          "check": {
+            "cases": [
+              "F07"
+            ]
+          },
+          "min_items": 24
+        }
+      },
+      "level_band": {
+        "Easy": "G3",
+        "Medium": "G3",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
     }
   ]
 }

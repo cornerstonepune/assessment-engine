@@ -64,8 +64,10 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         body = SP.estimate(sid, iid, sp, R, functools.partial(_cells, sid, iid))
     elif f == "missing_digit":
         body = SP.missing_digit(sid, iid, it, R, big, functools.partial(_cells, sid, iid))
-    elif f == "equation":
-        stem, body = SP.equation(sid, iid, it, functools.partial(_cells, sid, iid), big)
+    elif (
+        f in SP.PAGES
+    ):  # an equation, a claim to explain, multiples and factors: question and boxes drawn whole
+        stem, body = SP.PAGES[f](sid, iid, it, R, functools.partial(_cells, sid, iid), big)
     elif f in ("fact_family", "break_apart") or (f == "inverse_check" and "right" not in R):
         # each sentence a row and its box (the table backwards: the division, then its fact)
         body = "".join(
@@ -94,8 +96,6 @@ def render_item(sheet, it, n, layout: dict[str, Any] | None = None):
         body = f"""<div class="row" style="margin-bottom:2mm"><span class="eq">{a} = {sp["p1"]} +</span>{_cells(sid, iid, R["p2"])}<span class="eq">+</span>{_cells(sid, iid, R["p3"])}</div>
 <div class="row" style="margin-bottom:2mm"><span class="eq">&minus; {b} = {bp[0]} + {bp[1]} + {bp[2]}</span></div>
 <div class="row"><span class="eq">{a} &minus; {b} =</span>{_cells(sid, iid, R["ans"])}</div>"""
-    elif f == "explain_claim":
-        body = SP.claim(sid, iid, R, functools.partial(_cells, sid, iid))
     elif f == "find_mistake":
         where = (
             f'<div class="row"><span class="lab">{html.escape(R["where"].label or "The mistake is in the")}</span>{ticks(sid, iid, R["where"])}</div>'

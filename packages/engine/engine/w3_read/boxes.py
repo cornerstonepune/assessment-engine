@@ -28,6 +28,7 @@ import pymupdf
 
 from engine.adapters import digits
 from engine.assess.geometry import cells_of
+from engine.w3_read import lists
 from engine.w3_read.lineup import NEAR, PPM, PRINTED, H, W, blank, line_up, settle
 
 EDGE = 0.8  # mm each printed pixel is grown by before it is removed: the line, its blur and its JPEG halo
@@ -346,6 +347,7 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
     grey = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
     is_dark = dark(canon)
     runs, works = cells_of(geometry, page_no)
+    wanted, keep, joined = lists.expand(wanted, runs, keep)  # a list's groups, each read as a number is
     out = {}
     for slot, (item_key, rid) in wanted.items():
         if slot in for_a_person:
@@ -389,4 +391,4 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
             "guess": said if doubt else "",
             "confidence": confidence,
         }
-    return out
+    return lists.join(out, joined)

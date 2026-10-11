@@ -19,6 +19,7 @@ from engine.assess import items as I
 from engine.assess import mental as MN
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
+from engine.assess import multiples as MU
 from engine.assess import number_line as NL
 from engine.assess import operations as O
 from engine.assess import reasoning as RS
@@ -209,6 +210,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "grid_method": WM.grid,
     "expanded_columns": WM.expanded,
     "lattice": WM.lattice,
+    "multiples": MU.from_rule,
 }
 
 # The rule keys each generator reads — and so the only keys a level of that kind may set (`engine audit`,
@@ -246,6 +248,7 @@ READS = {
     "grid_method": {"digits"},
     "expanded_columns": {"digits"},
     "lattice": {"digits"},
+    "multiples": {"shape"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
 # `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)
