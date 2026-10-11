@@ -68,7 +68,7 @@ def story(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) ->
         raise RuntimeError(
             "the story's division leaves something over where it should not, or nothing: draw again"
         )
-    tpl = rng.choice(pool)
+    tpl = W.fitting(rng, rng.choice(pool), pool, a=a, b=b)
     n, n2 = rng.sample(W.NAMES, 2)
     rs = [
         dataclasses.replace(r, misconceptions=W.wrong_op_as(tpl, r.misconceptions or {}))

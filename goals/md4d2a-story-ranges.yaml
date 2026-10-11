@@ -1,0 +1,27 @@
+name: md4d2a-story-ranges
+goal: >
+  Every story's numbers fit its story. Each story template says the range each of its numbers may take — a bus's seats,
+  a box of pencils, a library's books, money spent at a mela — and every level that draws stories draws them inside
+  those ranges, a story whose range cannot hold the level's sizes not drawn at that level; every case every level lists
+  still draws, Grade 4's four-digit additions and subtractions on stories that hold four-digit numbers.
+# Written 2026-10-11, before the code: M4d2's first half (BUILD-ORDER "M4d2a"), assumption A9 of
+# docs/design/multiplication-division-taxonomy.md: "Each story template carries the range its numbers may take, so no
+# box holds 933 pencils." Measured first (STATE.md "M4d2 — measured before the build"): 74 of the 76 older templates say
+# no range and take their sizes from the level alone; the bank holds "has 9685 marbles", 93 × 96 combinations of
+# stickers and backgrounds, and rows of 98 chairs.
+says:
+  - words: "Each story template carries the range its numbers may take, so no box holds 933 pencils."
+    proved_by: "packages/engine/tests/test_story_ranges.py::test_every_story_template_says_the_range_of_each_number_it_holds"
+  - words: "Today's multiplication bank prints \"Each box has 933 pencils\"."
+    proved_by: "packages/engine/tests/test_story_ranges.py::test_every_story_a_level_draws_holds_numbers_its_template_allows"
+manual:
+  - "The bank's stories drawn before this keep their numbers until `bin/update-live` refills the bank."
+  - "`story_shape` shows each shape with every one of the engine's + and − stories, the twelve new ones too: once deployed, its eval runs again on the server (engine-eval.yml, story_shape), held to its bar (63 of 65 shapes, no wrong answer) and recorded in DECISIONS-LOG."
+scenarios: []
+criteria:
+  - name: every story in range, every case still drawn, the story makers' own tests
+    run: cd packages/engine && uv run pytest -q tests/test_story_ranges.py tests/test_every_listed_case.py tests/test_md_word.py tests/test_divide_stories.py tests/test_story_keys.py tests/test_story_shape.py tests/test_rehome.py tests/test_bank.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

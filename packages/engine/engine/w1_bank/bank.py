@@ -64,8 +64,11 @@ def _sampled(check, formats, n, seed):
                     f"no word-problem story written for {op!r}; add one to engine/assess/word_templates.json"
                     f" or drop word_1step from this skill set's formats"
                 )
+            held = [t for t in op_ctx if W.holds(t, a=a, b=b)]
+            if not held:
+                continue  # no story's world holds these numbers (goals/md4d2a-story-ranges.yaml): not drawn as one
             n1, n2 = rng.sample(W.NAMES, 2)
-            tpl = rng.choice(op_ctx)
+            tpl = rng.choice(held)
             c["stem"] = tpl["text"].format(a=a, b=b, n=n1, n2=n2)
             c["structure"] = tpl["structure"]
         out.append(c)

@@ -6987,3 +6987,62 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** u22 written first, each of its two tests seen failing alone on the old code (no view choice;
   no topic choice). The goal's browser criteria on a database built fresh: 46 of 46. Types and lint clean.
 
+## C1 merged and live (2026-10-11)
+
+- Merged as `c7731d9` (#188) at the head CI passed on (`480a89e`: the first head's engine run caught the spine's
+  stale unit table, STATE "C1 — the whole curriculum, built"). Vercel's production deploy at 22:05 UTC; `migrate live`
+  applied `20261107090000` at 22:34:55 after CI on main passed; the engine server redeployed at 22:36.
+- **The known gap happened:** from 22:05 to 22:35 the website on live read `skill_set.level_band_by` before live had
+  the column (STATE "Phase 0, PR 1", known gap: Vercel publishes on the merge itself). Put to Nimish.
+- `bin/engine done c1-whole-curriculum` on main's code against a database built fresh: 3 of 3 of Nimish's sentences
+  PROVED, 4 of 4 criteria PASSED (48 browser tests, 20 engine tests, types and lint clean, `bin/check` 28 passed).
+  Its live line: the live database does not answer from this container.
+
+## UI4b and UI5 merged and live (2026-10-11)
+
+- Merged as `39dd9ca` (#189) at the head CI passed on (`f76a9cb`), all four checks green. Vercel's production deploy
+  at 22:35:49 UTC. Website only.
+- `bin/engine done` on main's code, each against a database built fresh: ui4b1 3 of 3 PROVED, 3 of 3 criteria PASSED
+  (59 browser tests); ui4b2 2 of 2 PROVED, 3 of 3 PASSED (47); ui5 2 of 2 PROVED, 3 of 3 PASSED (46). Types and lint
+  clean, `bin/check` 28 passed each. Their live line: the live database does not answer from this container.
+
+## M4d2 — measured before the build (2026-10-11)
+
+- **A9:** 98 story templates; 22 (M4d1's) say their own numbers; of the 76 older ones, 2 say a range and 74 take their
+  sizes from the level alone. The bank on the copy holds "has 9685 marbles" (JOIN_RESULT to 9685), 93 × 96
+  combinations of stickers and backgrounds, rows of 98 chairs, 3442 mangoes put in a basket. Every one of the eleven
+  shapes Grade 4's additions and subtractions draw reaches four digits; none of the older stories' worlds holds them.
+- **The rest of M4d2** (`story_shape` for × and ÷ with its eval, halving on Division, the A11 table) is unchanged
+  since "M4d — measured before the build". Split: M4d2a the ranges, M4d2b the rest.
+
+## M4d2a — every story's numbers fit its story, built (2026-10-11)
+
+- **Each older template says its range** (`range` in `assess/word_templates.json`): a child's marbles to 300, a bus's
+  seats to 60, a box of pencils to 24, a rickshaw holds six, a library's books to 9999. A question of numbers alone
+  (`bare_sum`) has none to say.
+- **The level sizes the numbers and the story must hold them** (`words.fitting`, ADR 0070): where the drawn template's
+  world does not hold the level's numbers, another of its shape and operation that does is drawn; where none does,
+  the numbers are drawn again. The + and −, ×, two-step, ÷ and equal-groups stories all draw this way.
+- **Twelve stories whose numbers run to four digits** (a library, a mela's visitors, a stadium, a school's fund, a
+  day's steps, a fair, a toy factory, a shop's notebooks, a train's passengers, a park's flowers), so every case
+  Grade 4's additions and subtractions list still draws. The park was added when SUB.3D1D and SUB.3D2D's part-whole
+  case (W08) drew nothing: none of its stories held a 3-digit whole with a 1- or 2-digit part.
+- **A stored story outside its range is outside its level** (`cases.outside_their_level`), so `bin/update-live`'s
+  refill retires it and `library build` replaces the worksheets that held it.
+- **Tests that called a maker directly now draw as the bank does** (`tests/rows.drawn`, shared): `test_story_keys` and
+  `test_rehome` retry a story whose numbers no template of its shape holds, as `draw._paired` and `bank.fill` always
+  have.
+- **CI caught a fifth path the local run did not reach:** the bank's offline sampler (`bank._sampled`, `engine bank
+  fill --offline`) chose any story of its operation for its numbers; it now chooses among those that hold them, and a
+  pair none holds is not drawn as a story. Seen failing three runs in three on the old `bank.py` (`test_bank`'s recheck
+  named the story it had just made), passing on the new. Locally the copy's bank was drawn before ranges: `engine bank
+  refill` retired 745 stories outside their ranges and drew 744 in their place, as `bin/update-live` will on live.
+- **Proved:** `test_story_ranges.py` written first: the template test seen failing (159 numbers with no range); the
+  every-level test seen failing with the ranges in place and the old makers ("Anaya has 601 marbles", "407 mangoes in
+  a basket … 3442 more", "A shelf holds 61 books"); the bank test seen failing on the old `cases.py` (the story named
+  for another reason, never its range). The goal's criteria with a database: 137 passed.
+- **Not proven here:** `story_shape` shows each shape with every one of the engine's + and − stories as its examples,
+  so the twelve new stories change what the active prompt is shown. Its eval needs the model, which this container
+  cannot reach; it runs again on the server once deployed (engine-eval.yml), held to its bar (63 of 65, no wrong
+  answer).
+
