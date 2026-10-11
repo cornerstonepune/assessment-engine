@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4c: multiples and factors (built, proved on copies; PR #180)
+
+- **Slice:** M4c, W1 gate 3. `MD.MULTIPLES`, Grades 3 and 4 (STATE.md "M4c — multiples and factors, built", ADR
+  0067): seven shapes; a list is one answer, printed as groups with two to spare, read group by group
+  (`w3_read/lists.py`) and marked as a whole, so one factor left out is one mistake; every yes-or-no right one way as
+  often as the other; twelve new mistakes for Achal; the scenarios' check works out every list and tick from the
+  question's words.
+- **Proved on copies:** 17 unit tests; the four scenarios met completely; s39 and s38 in the browser; a printed copy
+  scanned, read and marked; the update-live rehearsal (120 added, 0 retired, 0 problems).
+- **Next:** CI on #180, merge, the done report on main; then M4d (`MD.WORD`).
+- **For Nimish:** after the merge, `~/cornerstone/assessment-engine/bin/update-live` (M2a to M4c). Still open: did
+  update-live finish after the OpenCV repair; Achal's role on the live staff list (educator); is skill approval
+  Achal's too, or the coordinator's as the workflow's N1 has it.
+
 ## 2026-10-11 — M4b2 merged and live; M4c measured
 
 - **M4b2:** merged as `a66d16d` (#179) after CI and the rehearsal passed on `cae1954`; migrated and deployed; its done
