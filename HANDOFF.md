@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4c merged and live; M4d measured and split
+
+- **M4c:** merged as `1062d83` (#180) after CI and the rehearsal passed on `a55461c`; migrated and deployed; its done
+  report on main's code in STATE.md "M4c merged and live" (19 of 19 proved, 4 of 4 scenarios met, 4 of 4 criteria).
+  Found while proving: a paper of multiples could not be printed from the bank (no working space for its kind), fixed
+  with the test that should have caught it.
+- **Vercel:** refused to deploy from 07:35 (a private organization repository on the Hobby plan); Nimish made the
+  repository public and main deployed.
+- **Slice now:** M4d1, W1 gate 3 (STATE.md "M4d — measured before the build"): ten of MD.WORD's 26 stories draw
+  nothing. BUILD-ORDER splits M4d into M4d1 (those ten) and M4d2 (the older templates' ranges, `story_shape` for × and
+  ÷, halving on Division, the A11 table).
+- **Next:** M4d1's goal and failing tests, then the build.
+- **For Nimish:** `~/cornerstone/assessment-engine/bin/update-live` (M2a to M4c). Still open: did update-live finish
+  after the OpenCV repair; Achal's role on the live staff list (educator); is skill approval Achal's too.
+
 ## 2026-10-11 — M4c: multiples and factors (built, proved on copies; PR #180)
 
 - **Slice:** M4c, W1 gate 3. `MD.MULTIPLES`, Grades 3 and 4 (STATE.md "M4c — multiples and factors, built", ADR

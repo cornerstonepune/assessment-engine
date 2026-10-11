@@ -6586,6 +6586,25 @@ Proved on copies:
   164 skill-levels ready, 0 problems. MD.MULTIPLES is a draft until approved; Achal's question waits, an educator's.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 56 mistakes, 0 faults. `bin/check` 27 passed.
 
+## M4c merged and live (2026-10-11)
+
+- Merged as `1062d83` (#180), at the head CI had passed (`a55461c`: ci 38123027773) and the rehearsal had passed on
+  (38123036281). CI's failures on `de2a9fb` were the goal's tests committed before the build, as intended; those on
+  `b8546f9`, `1ac41c9` and `e044900` were the three the fix in `a55461c` answers (a kind with no working space, two
+  tests; Achal's question and the goal's line to him).
+- Main: `ci` green (38124737098), then `migrate live` (38126061390) and `deploy engine` (38126061368) succeeded. The
+  website deployed on Vercel once the repository was public again: from 07:35 to the switch Vercel refused this
+  private organization's repository on its Hobby plan, so nothing deployed in that window.
+- `bin/engine done md4c-multiples-and-factors` on main's code (the worktree at `1062d83`), against a copy of the
+  rehearsed database:
+  - 19 of 19 of Nimish's sentences PROVED, s39 among them in the browser;
+  - 4 of 4 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,093 tests, the drafted document 0 faults (252 cases, 56 mistakes), s39 1 passed,
+    `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as before; M4c has no
+    migration.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a.
+
 ## M4d — measured before the build (2026-10-11)
 
 On main `1062d83`. MD.WORD holds 26 cases, drafted G2 G2 G3 G4. Each drawn alone (`draw.level`, 12, rows as seeded):
