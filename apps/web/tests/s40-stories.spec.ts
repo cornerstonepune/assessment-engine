@@ -25,7 +25,8 @@ const SHOWS: { level: string; fmt: string; kind: string; shows: RegExp[] }[] = [
     kind: "two-step word problem",
     shows: [/times as many/, /\d+ [a-z]+ (of|with) \d+/],
   },
-  { level: "Advance", fmt: "word_1step", kind: "one-step word problem", shows: [/₹\d+/] },
+  // the price list as a table beside the story: each item's label and its price
+  { level: "Advance", fmt: "word_1step", kind: "one-step word problem", shows: [/Use the price list\./, /\(₹\)\s+\d+/] },
 ];
 const CODE = /\bM_[A-Z_]+\b|\b[A-Z]{2,}\.[A-Z0-9_.]+\b/;
 
