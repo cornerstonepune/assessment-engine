@@ -6346,3 +6346,62 @@ and on its other home.
   F08 the table facts (MD.MULTIPLES, Grade 3), V06 the products past them (Grade 4), its example 6 × 13.
 - **So M4b is two slices** (BUILD-ORDER): M4b1 MD.ESTIMATE, the cases' sizes in their rows, the judging kinds for ×
   with a named mistake on every question; M4b2 MD.EQUALITY, its shapes in a module of their own.
+
+## M4b1 — estimating products and quotients, built (2026-10-11)
+
+Goal `goals/md4b1-estimates.yaml`, ADR 0065.
+- **Every estimate on its example's sizes.** V01 to V10's rows say their numbers' sizes, as their examples do
+  (`research/md_rows.py`): on MD.ESTIMATE's levels, which name no shape, each draws them (four had failed, three drawn
+  past Grade 4). Their other homes draw the very questions they drew before, tested both ways; the rehearsal's relabel
+  changed no question's case.
+- **A product judged as a sum is** (`assess/reasoning.py`, built on the case's own numbers through `reasoning.builder`):
+  odd or even (V06), the closest estimate (V08: the larger number rounded to three tens in a row, each times the
+  other), whether it can be right (V05: the product, or a named slip of another length, 812 for 23 × 4).
+- **Every judging question names a mistake, + and − too:** rounding up always (`M_ROUNDS_AWAY_ZERO`, a row for any
+  operation now), down always (`M_ROUNDS_TOWARD_ZERO`, new), one number only; a right claim judged wrong
+  (`M_REVERSES_CLAIM_TRUTH`); a claim accepted without its size. The right option sits first, in the middle or last a
+  third of the time each (300 draws each way within 0.42).
+- **A scenario works out odd or even and the closest estimate** from the two numbers (`scenarios._without_working`).
+- **V06 and F08 told apart by their numbers** (F08 a table fact, V06 past the tables); V08's options are what rounding
+  gives (52 × 9: 360, 450, 540), corrected at the source.
+- **Rows:** MD.ESTIMATE on R48 (NUM.PV.03, NUM.PRB.03), Grade 4, topic MDESTIMATE untaught; two rounding rows;
+  Achal's question. `reasoning.py` typed throughout (123 untyped findings to none); `bands.py` 272 to 268.
+- **Found while building, fixed at the cause:**
+  - The closest hundred drawn numbers first and a place they showed a slip in put a subtraction's right option in the
+    middle 51% of the time (its slips sit next to the right answer); needing a slip in all three places asked no
+    subtraction at all. The place is drawn first, then numbers that show a slip there: 0.33, 0.34, 0.33 for each.
+  - Odd and even balanced by a coin kept three products in four even (34 of 48); an even product is kept one time in
+    three.
+
+## Achal is a teacher (2026-10-11)
+
+Nimish: *"Achal is a teacher, so he's the one who will be responsible for doing all of this."* The rows NY1 drafted
+took Achal for a specialist. Corrected to the workflow agreed with the school ("everything approved by the teacher"):
+`people.decides` gives an educator the answers to confirm, what was read to sign off (N9), the class papers (N7), the
+home papers (N11, "Achal confirms") and what is taught; all 27 questions drafted for Achal are an educator's
+(`asks.json`). The skills stay with the coordinator: the same workflow has Aseem ratify them (N1). ADR 0059 corrected;
+`test_asks.test_achal_is_a_teacher_so_what_waits_on_him_is_an_educators`. On live, Achal's entry on the staff list
+(`app.staff`, which the app owns) must say educator.
+
+## update-live stopped on an empty OpenCV (2026-10-11)
+
+Nimish's run of `bin/update-live` stopped at its seed rows: `module 'cv2' has no attribute 'SIFT'`. Reproduced on a
+copy: OpenCV's builds share one `cv2` folder; when `uv sync` removes one it deletes the files the other installed,
+still counts that one installed, and a plain sync never repairs it (cv2 had no version and no SIFT before and after).
+`uv sync --reinstall-package opencv-contrib-python` put it back. Step 1 of `bin/update-live` now checks the engine's
+OpenCV after its sync, reinstalls it when it is empty, and stops in a sentence if it still is.
+
+Proved on copies (M4b1 and the two corrections):
+- **Tests:** `test_estimates.py` and `test_reasoning.py` 19 passed. The goal's criteria files without a database:
+  1,003 passed, 11 skipped (their database tests). With a database built fresh as CI builds it (`bin/testdb fresh`):
+  180 of 181 passed, the last the loader's counts of rungs and skill sets (fixed: `test_loaders.py` and `test_asks.py`
+  17 passed). `bin/check` 27 passed.
+- **The goal's six scenarios** on the fresh database: 24, 36, 36, 24, 24 and 24 asked; every one produced, every answer
+  worked out again (odd or even and the closest estimate among them; none left with nothing to work), on its rule,
+  diagnosed and distinct; every listed case held.
+- **Browser:** s36, s37 and u13 (4), 6 passed, u13 once the copy held the corrected rows.
+- **The update-live rehearsal** on a copy of the post-M4a database (`engine load`, `bank levels --apply`, `rekey`,
+  `relabel`, `rehome`, `refill`, `library build`, `library check`, `bank taxonomy`, `asks`): rungs 40, skill sets 40,
+  mistakes 116; nothing re-keyed, relabelled or re-homed; the refill added 120 (24, 36, 36, 24) and retired none;
+  `library build` made 40; `library check`: 2,558 worksheets, 156 of 156 skill-levels ready, 0 problems; every
+  question for Achal an educator's.

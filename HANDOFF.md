@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4b1: estimating products and quotients (built); Achal is a teacher; update-live's OpenCV
+
+- **Slice:** M4b1, W1 gate 3. `MD.ESTIMATE`, Grade 4 (STATE.md "M4b1 — … built", ADR 0065): every estimate on its
+  example's sizes; odd or even, the closest estimate and whether an answer can be right for ×; a mistake named on
+  every judging question, + and − too; V06 and F08 told apart by their numbers.
+- **Nimish's correction, done:** Achal is a teacher. What waits on him is an educator's (ADR 0059 corrected); skill
+  approval stays the coordinator's, as the workflow has Aseem ratify skills (N1) — ask Nimish if that is Achal's too.
+- **Nimish's update-live stopped** on an empty OpenCV; reproduced and guarded in `bin/update-live` (STATE.md).
+- **Proved on copies:** 19 unit tests; criteria files (1,003 without a database; 181 with one, the last fixed); six
+  scenarios met completely; s36, s37, u13 in the browser; the update-live rehearsal (120 added, 0 retired, 0 problems).
+- **Next:** CI and the rehearsal on the PR, merge, `engine done md4b1-estimates` on main's code. Then M4b2.
+- **For Nimish:** `uv sync --directory ~/cornerstone/assessment-engine/packages/engine --reinstall-package
+  opencv-contrib-python`, then `~/cornerstone/assessment-engine/bin/update-live --no-server`; after this PR merges,
+  `bin/update-live` again. Achal's role on the staff list (`app.staff`) must say educator.
+
 ## 2026-10-11 — M4b: measured and split; M4b1, MD.ESTIMATE, next
 
 - **Slice:** M4b, W1 gate 3, measured before any code (STATE.md "M4b — measured before the build").
