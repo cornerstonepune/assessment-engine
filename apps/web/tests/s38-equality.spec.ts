@@ -73,7 +73,7 @@ const SHOWS: { level: string; fmt: string; kind: string; shows: RegExp[] }[] = [
   {
     level: "Advance",
     fmt: "explain_claim",
-    kind: "true or not? explain",
+    kind: "explain a claim",
     shows: [/says \d+ ÷ \d+ = \d+\. Multiply back/, /\d+ × \d+ = □/],
   },
 ];

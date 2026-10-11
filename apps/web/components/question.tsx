@@ -14,7 +14,7 @@ export const KIND: Record<string, string> = {
   word_2step: "two-step word problem",
   estimate_then_calc: "estimate, then work out",
   efficient_method: "quickest method",
-  explain_claim: "true or not? explain",
+  explain_claim: "explain a claim", // judged true or not, or shown wrong by multiplying back (C08)
   find_mistake: "find the mistake",
   number_wall: "number wall",
   balance_scale: "balance the scales",

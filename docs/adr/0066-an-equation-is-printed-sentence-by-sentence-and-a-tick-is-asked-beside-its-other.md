@@ -82,5 +82,5 @@ live held two.
   educator to switch it on.
 - **Stored questions keep their keys:** a stored equal-sums comparison names fewer mistakes, a stored division check
   without its remainder's name, never wrongly (ADR 0064).
-- **Ratchet:** `render_item` fell to 56 statements and `render.py`'s untyped findings from 314 to 301; the two new
-  modules are typed throughout.
+- **Ratchet:** `render_item` fell to 56 statements; untyped findings fell in `render.py` from 314 to 301 and in
+  `equality.py` from 164 to 127 (the missing sign typed); the two new modules are typed throughout.

@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4b2: equations with × and ÷ (built, proved on copies; PR #179)
+
+- **Slice:** M4b2, W1 gate 3. `MD.EQUALITY`, Grades 3 and 4 (STATE.md "M4b2 — equations with × and ÷, built", ADR
+  0066): thirteen × and ÷ shapes, each sentence with its own box or tick; each true-or-false beside its other; a
+  remainder checked and a wrong ÷ answer explained by multiplying back; three new mistakes for Achal; the scenarios'
+  check works out every equation from its sentence, + and − too.
+- **Found and fixed at its cause:** + and −'s missing sign printed negative answers (7 □ 9 = -2); the two on live
+  leave on `bank refill`.
+- **Proved on copies:** 19 unit tests; 1,113 criteria tests on a fresh database; seven scenarios met completely; s38
+  and s37 in the browser; the update-live rehearsal (218 added, 2 retired, 0 problems).
+- **Next:** CI and the rehearsal on #179, merge, the done report on main; then M4c (`MD.MULTIPLES`).
+- **For Nimish:** after the merge, `~/cornerstone/assessment-engine/bin/update-live`. Still open from before: did
+  update-live finish after the OpenCV repair; Achal's role on the live staff list (educator); is skill approval
+  Achal's too, or the coordinator's as the workflow's N1 has it.
+
 ## 2026-10-11 — M4b2: measured; MD.EQUALITY next
 
 - **Slice:** M4b2, W1 gate 3, measured before any code (STATE.md "M4b2 — measured before the build"): eleven shapes

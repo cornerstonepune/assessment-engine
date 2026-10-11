@@ -6453,3 +6453,49 @@ three draw, past their examples' sizes, and fifteen draw nothing. Their causes:
 - **A true-or-false whose answer is always false** (9 ÷ 0 = 0, 12 ÷ 3 = 3 ÷ 12) is answered by ticking one place: each
   needs true sentences beside it, as often.
 - `assess/equality.py` is 283 lines: the shapes go in a module of their own.
+
+## M4b2 — equations with × and ÷, built (2026-10-11)
+
+Goal `goals/md4b2-equality.yaml`, ADR 0066.
+- **Thirteen × and ÷ equation shapes** (`assess/times_equality.py`), each sentence a response of its own, printed on its
+  own row: its box where its □ stands, or its ticks after it (`straight_pages.equation`). `equality.from_rule` hands a
+  multiplication case there (`taxonomy`, a drawer hint that draws nothing), so the missing sign and the comparison are
+  × and ÷'s own there and + and −'s on their cases.
+- **No tick answered by guessing:** each true-or-false beside its other (9 ÷ 0 = 0 beside 0 ÷ 9 = 0; 12 ÷ 3 = 3 ÷ 12
+  beside 12 × 3 = 3 × 12; 7 × 6 = 6 × 7 beside 9 − 4 = 4 − 9), the missing sign and the comparison a × sentence beside
+  a ÷ one, in either order: in every place, each answer at most 0.7 of 60 draws.
+- **A remainder checked by multiplying back** (DR09), the product written alone named (`M_DIV_REMAINDER_LEFT_OUT`, on
+  DIV.2D1D's checks too, its list by migration); yes to a remainder too big names that mistake. **A wrong ÷ answer
+  explained by multiplying back** (C08): the claim a named slip of the layout (804 ÷ 4 = 21), its product a box, the
+  reason read by a person.
+- **Every question names a mistake;** three new rows drafted for Achal (÷ 0 read as 0, a remainder left out of its
+  check, a bigger divisor taken to give a bigger answer), in the draft's table too (41 to 44 mistakes); two equal sums
+  compared name the first number's change seen and its partner's missed (`M_APPLIES_COMPENSATION_ONE`).
+- **Sizes:** Y04, Y09, Y10, DR09 and C08 say their examples' sizes; MUL.FACTS and DIV.2D1D draw what they drew before,
+  tested both ways.
+- **The scenarios' check works out every equation from its own sentence** (`checks/sentences.py`): exact, + − × ÷ and
+  brackets, a balance's pans read as one sentence, a sentence with no single answer failed. EQUALITY.INVERSE's Medium,
+  Hard and Advance went from 0, 12 and 0 of 24 worked out to 24 of 24 each.
+- **Found while building, fixed at the cause:** + and −'s missing sign printed a difference below zero (7 □ 9 = -2,
+  about one draw in 35, a Grade 2 skill), found when the new check could not work it out. The larger number comes
+  first now, and a stored one is retired on refill (`stale.key_problems`).
+- **Rows:** MD.EQUALITY on R49 (NUM.OPS.05, NUM.PRB.03), Grade 3 at Easy and Medium and Grade 4 at Hard and Advance,
+  topic MDEQUALITY "Equations with × and ÷", untaught; 33 mistakes on its list; Achal's question. The website calls
+  `explain_claim` "explain a claim" (a C08 claim is shown wrong, not judged true or not). Ratchets fell: `render_item`
+  57 to 56 statements; untyped findings `render.py` 314 to 301, `equality.py` 164 to 127.
+
+Proved on copies:
+- **Tests:** `test_md_equality.py` 19 passed. The goal's criteria files on a database built fresh as CI builds it
+  (`bin/testdb fresh`: 27,538 questions, 2,556 worksheets): 1,113 passed. An earlier run, started on an older copy
+  before the build was complete, failed 9: three the build changed by design, updated with it (the slice map's
+  MD.EQUALITY line, DIV.2D1D's list, the division check's expected key); the loader's two (its counts, and a copy
+  without R49); four that pass on the final code.
+- **The goal's seven scenarios** on the fresh database: every question produced, every answer worked out again (none
+  with nothing to work), on its rule, diagnosed and distinct; every listed case held.
+- **Browser:** s38 and s37, 2 passed, on the rehearsed copy.
+- **The update-live rehearsal** on a copy of the post-M4b1 rehearsed database: the migration; `engine load` (rungs 41,
+  skill sets 41, mistakes 119); nothing re-keyed, relabelled or re-homed; the refill retired 2 — the two sign
+  questions below zero it held (7 □ 9 = -2, 7 □ 8 = -1) — and added 218 (MD.EQUALITY's 60, 48, 60 and 48, and the two
+  retired ones' places); `library build` made 42 and retired 2; `library check`: 2,598 worksheets, 160 of 160
+  skill-levels ready, 0 problems. MD.EQUALITY is a draft until approved; Achal's question waits, an educator's.
+- **The draft:** `md_taxonomy.py --check` 252 cases, 44 mistakes, 0 faults. `bin/check` 27 passed.
