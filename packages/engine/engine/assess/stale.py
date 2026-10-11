@@ -2,6 +2,7 @@
 the bank rather than being changed in place, so a paper already printed with it still reads as it did. Each kind's own
 rule is made again from the question's numbers and compared with what was stored. Pure: no I/O."""
 
+import re
 from typing import Any, cast
 
 from . import diagnosis as D
@@ -22,7 +23,8 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     a worked answer that asks the column its mistake always shows in (`diagnosis.asks_where`), a long multiplication
     keyed before its rows added without a carry had a name (`_stale_rows`), a written method whose boxes its rules
     now key otherwise (`_stale_method`), and a division in its layout printed before its exchanges had boxes
-    (`_unread_exchanges`). Empty when it is current."""
+    (`_unread_exchanges`), and the missing sign printed with a difference below zero (7 □ 9 = -2). Empty when it is
+    current."""
     stale = (
         _stale_mistakes(fmt, spec, responses)
         + _stale_story(fmt, spec, responses)
@@ -39,6 +41,8 @@ def key_problems(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
         ]
     if fmt == "choose_estimate" and "right" not in spec:
         return ["made when the closest hundred was always the middle option"]
+    if fmt == "equation" and re.search(r"(^|[=\s])-\d", str(spec.get("text") or "")):
+        return [f"printed a difference below zero, which no grade here has: {spec['text']}"]
     if (
         fmt == "find_mistake"
         and any(r.get("rid") == "where" for r in responses or [])

@@ -1,10 +1,11 @@
 """The column skills' Advance kinds, ÷ (goals/md3b2-divide-advance.yaml): a digit missing in the number divided or in the
 quotient, the remainder missing, how many digits a quotient has, the number divided rounded, whether an answer could
-be right, a division checked by multiplying, and ÷ 5 as ÷ 10 then doubled. Each is built on the two numbers its case
-draws (`draw_pair.pair`, ADR 0057), and each box is keyed by the act that finds it (ADR 0058): a digit in the number divided
-by the multiplication that finds it, a remainder by the taking away, a digit in the quotient by the division's own
-mistakes whose quotient fits the printed boxes. Measured over every question a level can hold (STATE.md "M3b2 —
-measured before the build"). Deterministic given an RNG; pure: no I/O.
+be right, a division checked by multiplying (its remainder too, goals/md4b2-equality.yaml) or a wrong one explained by
+it, and ÷ 5 as ÷ 10 then doubled. Each is built on the two numbers its case draws (`draw_pair.pair`, ADR 0057), and
+each box is keyed by the act that finds it (ADR 0058): a digit in the number divided by the multiplication that finds
+it, a remainder by the taking away, a digit in the quotient by the division's own mistakes whose quotient fits the
+printed boxes. Measured over every question a level can hold (STATE.md "M3b2 — measured before the build").
+Deterministic given an RNG; pure: no I/O.
 
 A box worked in another operation from its question's names no "wrong operation" (M_WRONG_OP), whose name is the
 question's (`core/mistake_names.py`, ADR 0057)."""
@@ -183,19 +184,26 @@ def _layout_slips(a: int, b: int) -> list[tuple[int, int]]:
 
 
 def checked(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) -> Item:
-    """96 ÷ 4 = 24? Check it by multiplying: 24 × 4 = □ (Y10). The claim is right, or what a named mistake of the
-    division layout writes, its remainder with it (96 ÷ 4 = 21 r 2), one as often as the other. The check multiplies
-    the claim back and adds its remainder, its box keyed by the multiplication's mistakes (ADR 0057)."""
-    if not b or a % b:
-        raise RuntimeError("a claimed answer is checked here against an exact division: draw again")
-    slips = _layout_slips(a, b)
+    """96 ÷ 4 = 24? Check it by multiplying: 24 × 4 = □ (Y10); and, where the case asks for a remainder, 85 ÷ 4 = 21 r 1?
+    21 × 4 + 1 = □ (DR09). The claim is right, or what a named mistake of the division layout writes, its remainder with
+    it (96 ÷ 4 = 21 r 2), one as often as the other; a remainder's claim has one too. The check multiplies the claim
+    back and adds its remainder, its box keyed by the multiplication's mistakes (ADR 0057) and by the remainder left out
+    (goals/md4b2-equality.yaml). Yes to a remainder too big accepts that mistake."""
+    q, r = divmod(a, b) if b else (0, 0)
+    if not b or (r and alt.get("remainder") in (None, "NONE")):
+        raise RuntimeError(
+            "a claimed answer is checked here against an exact division unless its case asks for a remainder"
+        )
+    slips = [(cq, cr) for cq, cr in _layout_slips(a, b) if (cq, cr) != (q, r) and (cr or not r)]
     right = rng.random() < 0.5
     if not right and not slips:
         raise RuntimeError("no slip of the layout to claim: draw again")
-    cq, cr = (a // b, 0) if right else rng.choice(slips)
+    cq, cr = (q, r) if right else rng.choice(slips)
     claimed = f"{cq} r {cr}" if cr else str(cq)
     check = f"{cq} × {b} + {cr} = □" if cr else f"{cq} × {b} = □"
     value = cq * b + cr
+    times = {c: p + cr for c, p in _other_op(M.predict("×", cq, b)).items() if p != cq * b}
+    left_out = {"M_DIV_REMAINDER_LEFT_OUT": cq * b} if cr else {}
     rs = [
         Response(
             "check",
@@ -203,7 +211,7 @@ def checked(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) 
             str(value),
             cells=cells(max(value, a)),
             label=check,
-            misconceptions={c: p + cr for c, p in _other_op(M.predict("×", cq, b)).items() if p != cq * b},
+            misconceptions=left_out | {c: v for c, v in times.items() if v not in left_out.values()},
         ),
         Response(
             "right",
@@ -211,7 +219,9 @@ def checked(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) 
             "yes" if right else "no",
             options=["yes", "no"],
             label="Is the answer right?",
-            misconceptions={"M_REVERSES_CLAIM_TRUTH": "no" if right else "yes"},
+            misconceptions={"M_REVERSES_CLAIM_TRUTH": "no"}
+            if right
+            else {"M_DIV_REMAINDER_TOO_BIG" if cr >= b else "M_REVERSES_CLAIM_TRUTH": "yes"},
         ),
     ]
     shown = f"{a} ÷ {b} = {claimed}"
@@ -226,6 +236,39 @@ def checked(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) 
         rs,
         working_lines=2,
     )
+
+
+def explained(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) -> Item:
+    """Riya says 804 ÷ 4 = 21: multiply back, 21 × 4 = □, and say why she cannot be right (C08). The claim is what a named
+    mistake of the division layout writes with nothing left over (the zero left out of the quotient), the division
+    exact; the product is a box keyed by the multiplication's mistakes, and the reason is read by a person. Nothing to
+    tick: the product written is the check (goals/md4b2-equality.yaml)."""
+    q, r = divmod(a, b)
+    claims = [cq for cq, cr in _layout_slips(a, b) if not cr and cq not in (0, q)]
+    if r or not claims:
+        raise RuntimeError(
+            "an exact division with a slip of the layout to claim is explained here: draw again"
+        )
+    cq = rng.choice(claims)
+    check = f"{cq} × {b} = □"
+    times = {c: p for c, p in _other_op(M.predict("×", cq, b)).items() if p != cq * b}
+    if not times:
+        raise RuntimeError("a product with no named slip to key its box: draw again")
+    name = rng.choice(W.NAMES)
+    rs = [
+        Response(
+            "check", "digits", str(cq * b), cells=cells(max(cq * b, a)), label=check, misconceptions=times
+        ),
+        Response(
+            "why",
+            "text",
+            None,
+            rubric=f"Accept: multiplying back, {cq} × {b} is {cq * b}, not {a}, so {a} ÷ {b} cannot be {cq}.",
+        ),
+    ]
+    stem = f"{name} says {a} ÷ {b} = {cq}. Multiply back to check, then say why {name} cannot be right."
+    spec = dict(a=a, b=b, op="÷", claimed=str(cq), name=name, check=check, ops=["÷", "×"])
+    return item("CLAIM", rung, "Conceptual", "explain_claim", stem, spec, rs, working_lines=2)
 
 
 def ten_then_doubled(rng: random.Random, a: int, b: int, rung: str, alt: dict[str, Any]) -> Item:
@@ -254,6 +297,7 @@ BUILT: dict[tuple[str, str, str | None], Build] = {
     ("estimate_then_calc", "DIV", "ROUND_ONE"): estimate,
     ("possible_answer", "DIV", None): could_be,
     ("inverse_check", "DIV", None): checked,
+    ("explain_claim", "DIV", None): explained,  # a wrong answer explained by multiplying back (goals/md4b2-…)
     ("efficient_method", "DIV", "DIVIDE_BY_TEN_THEN_DOUBLE"): ten_then_doubled,
     ("find_mistake", "DIV", None): DF.found,  # the mistake found (goals/md3b3-…)
     ("word_1step", "DIV", None): DS.story,  # a story that divides, exactly or with something left over

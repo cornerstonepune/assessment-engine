@@ -369,6 +369,16 @@
         "NUM.PV.03",
         "NUM.PRB.03"
       ]
+    },
+    {
+      "code": "R49",
+      "band": "G3",
+      "ladder_order": null,
+      "descriptor": "Equations with × and ÷: a product turned round, × 0, × 1 and ÷ 1, a number ÷ itself and 0 ÷ a number, true or false beside its other, three numbers grouped either way, a factor doubled or partitioned, a balance against − or ÷, the missing sign, comparing without working, and a division checked by multiplying back",
+      "skill_codes": [
+        "NUM.OPS.05",
+        "NUM.PRB.03"
+      ]
     }
   ]
 }

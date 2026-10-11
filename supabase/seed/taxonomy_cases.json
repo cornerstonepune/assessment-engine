@@ -12709,7 +12709,9 @@
         "remainder": [
           "SOME",
           "LARGEST"
-        ]
+        ],
+        "operand_1_digits": 2,
+        "operand_2_digits": 1
       }
     },
     {
@@ -13841,7 +13843,9 @@
           "FIRST",
           "SECOND"
         ],
-        "fact": "NO"
+        "fact": "NO",
+        "digits_max": 3,
+        "digits_min": 1
       }
     },
     {
@@ -13896,8 +13900,8 @@
       "taxonomy": "MUL_DIV",
       "section": "10",
       "section_name": "Equality, inverse and properties; multiples and factors",
-      "label": "True or false: 9 ÷ 0 = 0",
-      "example_text": "9 ÷ 0 = 0",
+      "label": "True or false: 9 ÷ 0 = 0, beside 0 ÷ 9 = 0",
+      "example_text": "9 ÷ 0 = 0 and 0 ÷ 9 = 0",
       "example": {
         "fmt": "equation",
         "spec": {
@@ -13905,7 +13909,7 @@
           "ops": [
             "÷"
           ],
-          "text": "9 ÷ 0 = 0"
+          "text": "9 ÷ 0 = 0 and 0 ÷ 9 = 0"
         }
       },
       "match": {
@@ -13919,16 +13923,17 @@
       "taxonomy": "MUL_DIV",
       "section": "10",
       "section_name": "Equality, inverse and properties; multiples and factors",
-      "label": "True or false: 12 ÷ 3 = 3 ÷ 12",
-      "example_text": "12 ÷ 3 = 3 ÷ 12",
+      "label": "True or false: 12 ÷ 3 = 3 ÷ 12, beside 12 × 3 = 3 × 12",
+      "example_text": "12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12",
       "example": {
         "fmt": "equation",
         "spec": {
           "shape": "TRUE_FALSE_DIVISION_ORDER",
           "ops": [
-            "÷"
+            "÷",
+            "×"
           ],
-          "text": "12 ÷ 3 = 3 ÷ 12"
+          "text": "12 ÷ 3 = 3 ÷ 12 and 12 × 3 = 3 × 12"
         }
       },
       "match": {
@@ -13957,7 +13962,8 @@
         "taxonomy": "MUL_DIV",
         "fmt": "fact_family",
         "operation": "MUL",
-        "shape": "FROM_MULTIPLICATION"
+        "shape": "FROM_MULTIPLICATION",
+        "fact": "YES"
       }
     },
     {
@@ -13981,7 +13987,9 @@
         "operation": "DIV",
         "reasoning_type": "INVERSE",
         "fact": "NO",
-        "remainder": "NONE"
+        "remainder": "NONE",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1
       }
     },
     {
@@ -14108,16 +14116,17 @@
       "taxonomy": "MUL_DIV",
       "section": "10",
       "section_name": "Equality, inverse and properties; multiples and factors",
-      "label": "True or false: 7 × 6 = 6 × 7",
-      "example_text": "7 × 6 = 6 × 7",
+      "label": "True or false: 7 × 6 = 6 × 7, beside 9 − 4 = 4 − 9",
+      "example_text": "7 × 6 = 6 × 7 and 9 − 4 = 4 − 9",
       "example": {
         "fmt": "equation",
         "spec": {
           "shape": "TRUE_FALSE_ORDER",
           "ops": [
-            "×"
+            "×",
+            "-"
           ],
-          "text": "7 × 6 = 6 × 7"
+          "text": "7 × 6 = 6 × 7 and 9 − 4 = 4 − 9"
         }
       },
       "match": {
@@ -15654,14 +15663,18 @@
           "op": "÷",
           "claimed": 21,
           "ops": [
-            "÷"
+            "÷",
+            "×"
           ]
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "explain_claim",
-        "operation": "DIV"
+        "operation": "DIV",
+        "remainder": "NONE",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1
       }
     },
     {

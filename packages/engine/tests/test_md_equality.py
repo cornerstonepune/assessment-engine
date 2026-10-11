@@ -14,7 +14,7 @@ import sys
 from collections import Counter
 from fractions import Fraction
 
-from engine.assess import draw, render, skills, tags, taxonomy
+from engine.assess import draw, render, skills, stale, tags, taxonomy
 from engine.assess import equality as EQ
 from engine.assess import misconceptions as M
 from engine.assess.pick import Sheet
@@ -88,9 +88,11 @@ def _holds(sentence):
 
 
 def _box(r):
-    """The number a response's box stands for, worked out from its own sentence (`label`) here."""
+    """The number a response's box stands for, worked out from its own sentence (`label`) here: every whole number from
+    0 to past what its sides make with 1 in the box, tried."""
     clause = next(c for c in re.split(r", so | and ", r.label) if "□" in c)
-    fits = [x for x in range(0, 10000) if _holds(clause.replace("□", str(x)))]
+    top = max(abs(v) for v in (_value(side.replace("□", "1")) for side in clause.split("=")) if v is not None)
+    fits = [x for x in range(0, 2 * int(top) + 10) if _holds(clause.replace("□", str(x)))]
     assert len(fits) == 1, (r.label, fits[:5])
     return fits[0]
 
@@ -406,10 +408,26 @@ def _every_level():
     return [it for level, cs in LEVELS.items() for _, it in _level(level, 4 * len(cs))]
 
 
+def _inverse(level, n, seed=5):
+    """`n` questions of one EQUALITY.INVERSE level (+ and −), drawn as the bank draws it."""
+    check = SETS["EQUALITY.INVERSE"]["difficulty"][level]["check"]
+    matches = cases.on_level(check, {c: row["match"] for c, row in CASES.items()})
+    return [it for _, it in draw.level(random.Random(seed), check, matches, "R16", n)]
+
+
 def test_a_scenario_works_out_every_equation_from_its_sentence():
     """The scenarios' own check works out every box and tick from the sentence printed: MD.EQUALITY's, and + and −
-    equations' and missing numbers among three numbers, where it worked out none. One changed answer is found wrong."""
+    equations', a balance's and missing numbers among three numbers, where it worked out none. One changed answer is
+    found wrong. A sign question once printed a difference below zero (7 □ 9 = -2), which no grade here has and the
+    check could not work out: none is made now, and a stored one leaves the bank."""
     made = list(_every_level())
+    made += [
+        it
+        for level in ("Medium", "Hard", "Advance")
+        for it in _inverse(level, 48)
+        if it.fmt != "explain_claim"
+    ]
+    assert {"balance_scale", "missing_number", "equation"} <= {it.fmt for it in made}
     rng = random.Random(7)
     for shape in (
         "MISSING_SIGN",
@@ -420,11 +438,12 @@ def test_a_scenario_works_out_every_equation_from_its_sentence():
         "TRUE_FALSE",
         "COMPARE",
     ):
-        for _ in range(6):
+        for _ in range(60):
             try:
                 made.append(EQ.equation(rng, "R16", "Conceptual", shape))
             except RuntimeError:
                 continue
+    assert stale.key_problems("equation", {"text": "7 □ 9 = -2", "shape": "MISSING_SIGN", "ops": ["-"]}, [])
     for it in made:
         assert scenarios._answer_is_right(it) is True, (
             it.fmt,

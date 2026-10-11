@@ -7,7 +7,8 @@ Three kinds of question, each deterministic given an RNG:
 - `inverse_check` — an answer checked with the other operation.
 The wrong answers each one predicts are the equality mistakes the vocabulary names: reading = as "the
 answer comes next", adding every number in sight, turning a subtraction round. A level's rule reaches an
-equation through `from_rule`, which also makes multiplication's swap to a known table (9 × 2 = 2 × 9 = □).
+equation through `from_rule`, which also makes multiplication's swap to a known table (9 × 2 = 2 × 9 = □) and hands
+a × or ÷ case's shape to `times_equality` (goals/md4b2-equality.yaml).
 """
 
 from random import Random
@@ -15,6 +16,7 @@ from typing import Any
 
 from . import misconceptions as M
 from . import operations as O
+from . import times_equality as TE
 from .counting import one_of
 from .items import Item, Response, cells, item
 
@@ -22,14 +24,17 @@ MINUS = "−"
 UNFIT = "these numbers do not make this question; draw again"
 
 
-def _sign(op):
+def _sign(op: str) -> str:
     return MINUS if op == "-" else "+"
 
 
-def _missing_sign(rng, rung, n_signs):
+def _missing_sign(rng: Random, rung: str, n_signs: int) -> tuple[str, list[Response], list[str]]:
+    """7 □ 3 = 10 (one sign) or 12 □ 5 □ 3 = 10 (two): the sentence, a tick for each sign, the operations."""
     if n_signs == 1:
         a, b = rng.randint(6, 18), rng.randint(2, 9)
         op = rng.choice("+-")
+        if op == "-" and b > a:
+            a, b = b, a  # the larger first: 7 □ 9 = -2 asked a difference below zero, which no grade here has
         c = a + b if op == "+" else a - b
         text = f"{a} □ {b} = {c}"
         rs = [
@@ -144,7 +149,10 @@ def equation(rng, rung, signal, shape, hi=50):
                 sign,
                 options=["<", "=", ">"],
                 label="<, = or >",
-                misconceptions={"M_COMPARE_REVERSED": flipped} if sign != "=" else {},
+                # two equal sums: the first number's change seen and its partner's missed (goals/md4b2-equality.yaml)
+                misconceptions={"M_COMPARE_REVERSED": flipped}
+                if sign != "="
+                else {"M_APPLIES_COMPENSATION_ONE": "<"},
             )
         ]
         ops, stem = ["+"], "Write <, = or > without working out both sums."
@@ -156,10 +164,13 @@ def equation(rng, rung, signal, shape, hi=50):
 
 def from_rule(rng: Random, rung: str, signal: str, rule: dict[str, Any]) -> Item:
     """An equation drawn from a level's rule: one of its shapes, its numbers within `hi`. The swap to a known table
-    reads the tables the level counts as known (`known`) and the range of the table turned round (`size`)."""
+    reads the tables the level counts as known (`known`) and the range of the table turned round (`size`); a × or ÷
+    case (`taxonomy`, the drawer's hint) is `times_equality`'s, whose missing sign and comparison are × and ÷'s own."""
     shape = one_of(rule["shape"], rng)
     if shape == "SWAP_TO_A_KNOWN_TABLE":
         return swap(rng, rung, signal, rule.get("known") or [], rule.get("size") or [2, 10])
+    if rule.get("taxonomy") == "MUL_DIV":
+        return TE.equation(rng, rung, signal, shape)
     return equation(rng, rung, signal, shape, rule.get("hi", 50))
 
 
