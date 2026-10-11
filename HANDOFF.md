@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI4b2: Children by topic, a class and the list (built, proved on copies)
+
+- **Slice:** UI4b2. The Children list for every topic or one; a class opening on its children against its topics, a
+  topic opening its skills alone (STATE.md "UI4b2"). Ships with UI4b1 in one pull request, after C1.
+- **C1** (#188): CI's engine run caught the spine's unit table still holding the registry's broken text; repaired
+  and pushed (STATE.md "C1 — the whole curriculum, built").
+- **Next:** UI5 (Assessments by topic, with filters), then M4d2.
+
 ## 2026-10-11 — UI4b1: a child's profile by topic (built, proved on copies)
 
 - **Slice:** UI4b1 (BUILD-ORDER; UI4b split: a child first, then a class). A child's page opens on their profile by

@@ -6942,3 +6942,25 @@ waits on a person there. The screenshots hold children's names and stayed on the
   (the Children list's report column), on a database built fresh: 59 of 59; u20 twice on one copy, 3 of 3 each.
   Types and lint clean.
 
+## UI4b2 — measured before the build (2026-10-11)
+
+- **The Children list** counts every taught topic together: "Needs help on", Secure and Practising are a child's
+  across all of them, with no way to ask about one topic.
+- **A class** (`/growth/class/[section]`) is one grid of every skill anyone in it has answered, topic headings over
+  the columns: a column for every skill of every topic switched on. The tree has fifteen topics, twelve of them
+  multiplication and division, not yet switched on; once they are, a Grade 3 class's grid runs to dozens of columns.
+
+## UI4b2 — Children by topic, a class and the list, built (2026-10-11)
+
+- **The Children list reads one topic at a time:** "All topics" or any taught topic, chosen at the top; with one
+  chosen, "Needs help on", Secure and Practising are that topic's alone (`childTable(actor, topic)`), a sort keeps
+  the topic, and only a taught topic narrows the table.
+- **A class opens on its children against its topics** (`class/[section]/topics.tsx`): each cell counts the child's
+  skills in the topic that need help, are practising, are secure and have too few answers, each count in words
+  beside its mark, the cell the colour of what needs help first. A topic's name opens the skill grid for that topic
+  alone, its unanswered skills and checks with it; "Every topic's skills" shows them all again.
+- **One test changed with the page:** screens' "a child's page is in words" clicked the first link in a class's
+  first table, a child's name until the topic grid came first; it now clicks the first child's name.
+- **Proved on copies:** u21 written first, each of its two tests seen failing alone on the old code (no topic choice;
+  no topic grid). The goal's browser criteria on a database built fresh: 47 of 47. Types and lint clean.
+

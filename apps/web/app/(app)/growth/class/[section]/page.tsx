@@ -10,17 +10,24 @@ import { STATE_WORDS } from "@/lib/queries";
 import { rag } from "@/lib/rag";
 import { deadline } from "@/lib/deadline";
 import { ChecksPanel, type Check } from "../../checks";
+import { TopicGrid } from "./topics";
 
-type Props = { params: Promise<{ section: string }> };
+type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
-// A class: its children down the side, across the top every skill someone in the class has been assessed on, topic by
-// topic; each cell the child's score in the colour of the graph's own state (goals/v2-what-answers-show.yaml). A skill
-// no one has answered yet is named once below, not drawn as a column of grey. The colour is lib/rag.ts's.
-export default async function ClassPage({ params }: Props) {
+// A class: first its children against its topics (goals/ui4b2-class-by-topic.yaml), then against every skill someone in
+// the class has been assessed on, topic by topic — or one topic's skills alone, opened from its name; each cell the
+// child's score in the colour of the graph's own state (goals/v2-what-answers-show.yaml). A skill no one has answered
+// yet is named once below, not drawn as a column of grey. The colour is lib/rag.ts's.
+export default async function ClassPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
-  const [{ steps, children, notYet, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
+  const [{ steps: every, children, notYet: unanswered, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
   if (!children.length) notFound();
+  // a topic of the class's own opens its skills alone; any other word is every topic's
+  const asked = (await searchParams).topic;
+  const open = every.find((s) => s.topic_code === asked) ?? null;
+  const steps = open ? every.filter((s) => s.topic_code === open.topic_code) : every;
+  const notYet = open ? unanswered.filter((u) => u.topic_code === open.topic_code) : unanswered;
   // the check that would place each child too few answers say anything about: one a skill, for every child grey on
   // any of its columns (a rung that tests two skills is two columns, and was two checks of the one skill), then every
   // skill of the grade no child has answered, for the whole class — it had no check at all (code review, 2026-09-30)
@@ -48,7 +55,7 @@ export default async function ClassPage({ params }: Props) {
       <PageHeader
         stage="Children · class"
         title={section}
-        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against every skill the class has been assessed on, topic by topic — each child's score from checked papers only. A name opens the child.`}
+        sub={`${children.length} ${children.length === 1 ? "child" : "children"} against each topic the class has answers in, then against its skills — each child's standing from checked papers only. A topic opens its skills; a name opens the child.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">
@@ -57,7 +64,14 @@ export default async function ClassPage({ params }: Props) {
           </Link>
         </p>
         {steps.length ? null : <p className="note mb-3">No checked answers in this class yet.</p>}
-        <div className="panel overflow-x-auto">
+        <TopicGrid section={section} steps={every} kids={children} open={open?.topic_code ?? null} />
+        {open ? (
+          <p className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+            <span className="font-heading text-[15px]">{open.topic_name}: each skill</span>
+            <Link href={`/growth/class/${encodeURIComponent(section)}#steps`}>Every topic&rsquo;s skills</Link>
+          </p>
+        ) : null}
+        <div id="steps" className="panel scroll-mt-6 overflow-x-auto">
           <table className="grid" aria-label={`${section}: each child on each step`}>
             <thead>
               <tr>
