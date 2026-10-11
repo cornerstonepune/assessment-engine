@@ -7,7 +7,7 @@ questions — one worksheet's worth — thin below that, missing at none.
 
 from collections import Counter, defaultdict
 
-from engine.assess import stale, taxonomy, verify
+from engine.assess import stale, taxonomy, verify, words
 
 
 def matches(conn, codes=None):
@@ -101,7 +101,8 @@ def propose_levels(conn, codes=None):
 def outside_their_level(conn):
     """Every active generated question the rule of its own level no longer holds — re-measured against
     that level's region, not only its own arithmetic (BUILD-ORDER gate 4, amended; step 8h) — or keyed by
-    a rule its kind has since corrected (`stale.key_problems`)."""
+    a rule its kind has since corrected (`stale.key_problems`), or a story holding a number its world does not
+    (`words.range_problems`: "Each box has 933 pencils", goals/md4d2a-story-ranges.yaml)."""
     regions = {
         (s["code"], band): spec.get("check", {})
         for s in conn.execute("select code, difficulty from skill_set").fetchall()
@@ -110,12 +111,14 @@ def outside_their_level(conn):
     case_matches = matches(conn)
     out = []
     for r in conn.execute(
-        "select id, tenant_id, item_key, fmt, tags, spec, responses, skill_set_code, difficulty from item"
+        "select id, tenant_id, item_key, fmt, stem, tags, spec, responses, skill_set_code, difficulty from item"
         " where status = 'active' and source = 'generated' and skill_set_code is not null"
     ).fetchall():
         region = regions.get((r["skill_set_code"], r["difficulty"]))
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
-        if why := why + stale.key_problems(r["fmt"], r["spec"], r["responses"]):
+        why += stale.key_problems(r["fmt"], r["spec"], r["responses"])
+        why += words.range_problems(r["stem"], r["spec"])
+        if why:
             out.append(dict(r, why=why))
     return out
 

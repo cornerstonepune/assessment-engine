@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4d2a: every story's numbers fit its story (built, proved on copies)
+
+- **Slice:** M4d2a (BUILD-ORDER; M4d2 split). Each older story template says its range; the level's numbers are held
+  inside it; four-digit stories for Grade 4; a stored story outside its range retired by the refill (STATE.md "M4d2a",
+  ADR 0070). Achal corrects any range in `word_templates.json`.
+- **For Nimish, once merged:** `~/cornerstone/assessment-engine/bin/update-live` refills the bank, retiring the stories
+  drawn before.
+- **Next:** M4d2b (`story_shape` for × and ÷ with its eval, halving on Division, the A11 table), then M5.
+
 ## 2026-10-11 — UI5: Assessments by assessment (built, proved on copies)
 
 - **Slice:** UI5. Assessments opens on one row for each assessment, its copies counted by stage; a topic chosen at

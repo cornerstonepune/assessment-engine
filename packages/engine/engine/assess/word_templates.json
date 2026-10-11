@@ -4,133 +4,353 @@
       "fmt": "word_1step",
       "structure": "JOIN_RESULT",
       "op": "+",
-      "text": "{n} has {a} marbles. {n2} gives {n} {b} more. How many marbles does {n} have now?"
+      "text": "{n} has {a} marbles. {n2} gives {n} {b} more. How many marbles does {n} have now?",
+      "range": {
+        "a": [
+          1,
+          300
+        ],
+        "b": [
+          1,
+          200
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "PPW_WHOLE",
       "op": "+",
-      "text": "A shop sells {a} laddoos in the morning and {b} in the evening. How many laddoos does it sell in the whole day?"
+      "text": "A shop sells {a} laddoos in the morning and {b} in the evening. How many laddoos does it sell in the whole day?",
+      "range": {
+        "a": [
+          5,
+          999
+        ],
+        "b": [
+          5,
+          999
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "PPW_WHOLE",
       "op": "+",
-      "text": "There are {a} children in the ground and {b} children in the hall. How many children are there altogether?"
+      "text": "There are {a} children in the ground and {b} children in the hall. How many children are there altogether?",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "PPW_PART",
       "op": "-",
-      "text": "A bus has {a} seats. {b} of them are taken. How many seats are empty?"
+      "text": "A bus has {a} seats. {b} of them are taken. How many seats are empty?",
+      "range": {
+        "a": [
+          5,
+          60
+        ],
+        "b": [
+          1,
+          60
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_RESULT",
       "op": "-",
-      "text": "{n} had ₹{a}. {n} bought a book for ₹{b}. How much money does {n} have left?"
+      "text": "{n} had ₹{a}. {n} bought a book for ₹{b}. How much money does {n} have left?",
+      "range": {
+        "a": [
+          5,
+          2000
+        ],
+        "b": [
+          5,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_DIFFERENCE",
       "op": "-",
-      "text": "{n} collected {a} shells. {n2} collected {b}. How many more shells did {n} collect than {n2}?"
+      "text": "{n} collected {a} shells. {n2} collected {b}. How many more shells did {n} collect than {n2}?",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "JOIN_RESULT",
       "op": "+",
-      "text": "There are {a} mangoes in a basket. Amma puts in {b} more. How many mangoes are in the basket now?"
+      "text": "There are {a} mangoes in a basket. Amma puts in {b} more. How many mangoes are in the basket now?",
+      "range": {
+        "a": [
+          1,
+          100
+        ],
+        "b": [
+          1,
+          100
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "JOIN_CHANGE",
       "op": "-",
-      "text": "{n} had {b} stickers. {n2} gave {n} some more, and now {n} has {a}. How many stickers did {n2} give?"
+      "text": "{n} had {b} stickers. {n2} gave {n} some more, and now {n} has {a}. How many stickers did {n2} give?",
+      "range": {
+        "a": [
+          1,
+          999
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "JOIN_CHANGE",
       "op": "-",
-      "text": "A school garden had {b} plants. The class planted some more. Now it has {a}. How many plants did the class plant?"
+      "text": "A school garden had {b} plants. The class planted some more. Now it has {a}. How many plants did the class plant?",
+      "range": {
+        "a": [
+          5,
+          999
+        ],
+        "b": [
+          5,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "JOIN_START",
       "op": "-",
-      "text": "{n} had some mangoes. {n2} gave {n} {b} more. Now {n} has {a}. How many mangoes did {n} have at the start?"
+      "text": "{n} had some mangoes. {n2} gave {n} {b} more. Now {n} has {a}. How many mangoes did {n} have at the start?",
+      "range": {
+        "a": [
+          1,
+          200
+        ],
+        "b": [
+          1,
+          100
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "JOIN_START",
       "op": "-",
-      "text": "Some children were on the bus. At the next stop {b} more got on. Now there are {a}. How many were on the bus at the start?"
+      "text": "Some children were on the bus. At the next stop {b} more got on. Now there are {a}. How many were on the bus at the start?",
+      "range": {
+        "a": [
+          1,
+          60
+        ],
+        "b": [
+          1,
+          40
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_RESULT",
       "op": "-",
-      "text": "There were {a} birds on a tree. {b} flew away. How many birds are still on the tree?"
+      "text": "There were {a} birds on a tree. {b} flew away. How many birds are still on the tree?",
+      "range": {
+        "a": [
+          1,
+          100
+        ],
+        "b": [
+          1,
+          100
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_CHANGE",
       "op": "-",
-      "text": "{n} had {a} cards. After giving some to {n2}, {n} has {b} left. How many cards did {n} give away?"
+      "text": "{n} had {a} cards. After giving some to {n2}, {n} has {b} left. How many cards did {n} give away?",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_CHANGE",
       "op": "-",
-      "text": "The canteen made {a} samosas. At the end of the day {b} were left. How many samosas were sold?"
+      "text": "The canteen made {a} samosas. At the end of the day {b} were left. How many samosas were sold?",
+      "range": {
+        "a": [
+          10,
+          999
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_START",
       "op": "+",
-      "text": "{n} had some money. {n} spent ₹{b} at the mela and has ₹{a} left. How much money did {n} have at the start?"
+      "text": "{n} had some money. {n} spent ₹{b} at the mela and has ₹{a} left. How much money did {n} have at the start?",
+      "range": {
+        "a": [
+          1,
+          2000
+        ],
+        "b": [
+          5,
+          2000
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SEPARATE_START",
       "op": "+",
-      "text": "Some cricket balls were in a box. {b} were lost in a match and {a} are left. How many balls were in the box at first?"
+      "text": "Some cricket balls were in a box. {b} were lost in a match and {a} are left. How many balls were in the box at first?",
+      "range": {
+        "a": [
+          1,
+          50
+        ],
+        "b": [
+          1,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "PPW_PART",
       "op": "-",
-      "text": "There are {a} children in a class. {b} of them are boys. How many are girls?"
+      "text": "There are {a} children in a class. {b} of them are boys. How many are girls?",
+      "range": {
+        "a": [
+          5,
+          50
+        ],
+        "b": [
+          1,
+          45
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_DIFFERENCE",
       "op": "-",
-      "text": "{n} scored {a} runs and {n2} scored {b} runs. How many more runs did {n} score than {n2}?"
+      "text": "{n} scored {a} runs and {n2} scored {b} runs. How many more runs did {n} score than {n2}?",
+      "range": {
+        "a": [
+          1,
+          300
+        ],
+        "b": [
+          1,
+          300
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_LARGER",
       "op": "+",
-      "text": "{n2} has {a} stamps. {n} has {b} more stamps than {n2}. How many stamps does {n} have?"
+      "text": "{n2} has {a} stamps. {n} has {b} more stamps than {n2}. How many stamps does {n} have?",
+      "range": {
+        "a": [
+          1,
+          2000
+        ],
+        "b": [
+          1,
+          1000
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_LARGER",
       "op": "+",
-      "text": "The red rope is {a} cm long. The blue rope is {b} cm longer. How long is the blue rope?"
+      "text": "The red rope is {a} cm long. The blue rope is {b} cm longer. How long is the blue rope?",
+      "range": {
+        "a": [
+          5,
+          999
+        ],
+        "b": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_SMALLER",
       "op": "-",
-      "text": "{n} has {a} beads. {n2} has {b} fewer beads than {n}. How many beads does {n2} have?"
+      "text": "{n} has {a} beads. {n2} has {b} fewer beads than {n}. How many beads does {n2} have?",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          300
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMPARE_SMALLER",
       "op": "-",
-      "text": "Class 3A collected {a} bottles for recycling. Class 3B collected {b} fewer. How many did Class 3B collect?"
+      "text": "Class 3A collected {a} bottles for recycling. Class 3B collected {b} fewer. How many did Class 3B collect?",
+      "range": {
+        "a": [
+          5,
+          2000
+        ],
+        "b": [
+          1,
+          1000
+        ]
+      }
     },
     {
       "fmt": "word_1step",
@@ -140,7 +360,17 @@
       "table": [
         "Monday",
         "Tuesday"
-      ]
+      ],
+      "range": {
+        "a": [
+          1,
+          200
+        ],
+        "b": [
+          1,
+          200
+        ]
+      }
     },
     {
       "fmt": "word_1step",
@@ -150,199 +380,701 @@
       "table": [
         "Saturday",
         "Friday"
-      ]
+      ],
+      "range": {
+        "a": [
+          5,
+          999
+        ],
+        "b": [
+          5,
+          999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_RESULT",
+      "op": "+",
+      "text": "A library has {a} books. It buys {b} more. How many books does the library have now?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          10,
+          5000
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_WHOLE",
+      "op": "+",
+      "text": "{a} people visited the mela on Saturday and {b} on Sunday. How many people visited the mela on the two days?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          100,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_PART",
+      "op": "-",
+      "text": "A stadium has {a} seats. {b} of them are filled. How many seats are empty?",
+      "range": {
+        "a": [
+          500,
+          9999
+        ],
+        "b": [
+          100,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "PPW_PART",
+      "op": "-",
+      "text": "A park has {a} flowers. {b} of them are red. How many flowers are not red?",
+      "range": {
+        "a": [
+          10,
+          9999
+        ],
+        "b": [
+          1,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_RESULT",
+      "op": "-",
+      "text": "The school fund had ₹{a}. It spent ₹{b} on new benches. How much money is left in the fund?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          50,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_DIFFERENCE",
+      "op": "-",
+      "text": "{n} walked {a} steps on Monday and {b} steps on Tuesday. How many more steps did {n} walk on Monday?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          100,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_CHANGE",
+      "op": "-",
+      "text": "A library had {b} books. After it bought some more, it has {a}. How many books did it buy?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          100,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "JOIN_START",
+      "op": "-",
+      "text": "Some people were at the fair in the morning. {b} more came in the afternoon, and now there are {a}. How many people were at the fair in the morning?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          50,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_CHANGE",
+      "op": "-",
+      "text": "A toy factory made {a} toys this month. {b} toys are still in the store. How many toys were sold?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          10,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "SEPARATE_START",
+      "op": "+",
+      "text": "A shop sold {b} notebooks this term and has {a} left. How many notebooks did the shop have at the start of the term?",
+      "range": {
+        "a": [
+          10,
+          9999
+        ],
+        "b": [
+          50,
+          9999
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_LARGER",
+      "op": "+",
+      "text": "A train carried {a} passengers on Monday. On Tuesday it carried {b} more. How many passengers did it carry on Tuesday?",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          10,
+          5000
+        ]
+      }
+    },
+    {
+      "fmt": "word_1step",
+      "structure": "COMPARE_SMALLER",
+      "op": "-",
+      "text": "The town library has {a} books. The school library has {b} fewer books. How many books does the school library have?",
+      "range": {
+        "a": [
+          500,
+          9999
+        ],
+        "b": [
+          10,
+          9999
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "Each box has {a} pencils. There are {b} boxes. How many pencils are there altogether?"
+      "text": "Each box has {a} pencils. There are {b} boxes. How many pencils are there altogether?",
+      "range": {
+        "a": [
+          2,
+          24
+        ],
+        "b": [
+          2,
+          50
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "One ticket to the mela costs ₹{a}. {n} buys {b} tickets. How much does {n} pay?"
+      "text": "One ticket to the mela costs ₹{a}. {n} buys {b} tickets. How much does {n} pay?",
+      "range": {
+        "a": [
+          5,
+          200
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "A shelf holds {a} books. How many books are there on {b} shelves?"
+      "text": "A shelf holds {a} books. How many books are there on {b} shelves?",
+      "range": {
+        "a": [
+          10,
+          60
+        ],
+        "b": [
+          2,
+          30
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "{n} walks {a} steps to school every day. How many steps is that in {b} days?"
+      "text": "{n} walks {a} steps to school every day. How many steps is that in {b} days?",
+      "range": {
+        "a": [
+          50,
+          3000
+        ],
+        "b": [
+          2,
+          30
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "RATE_TOTAL",
       "op": "×",
-      "text": "One box of crayons costs ₹{a}. {n} buys {b} boxes. How much does {n} pay?"
+      "text": "One box of crayons costs ₹{a}. {n} buys {b} boxes. How much does {n} pay?",
+      "range": {
+        "a": [
+          10,
+          150
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "RATE_TOTAL",
       "op": "×",
-      "text": "A bus ticket to the fort costs ₹{a}. How much do {b} tickets cost?"
+      "text": "A bus ticket to the fort costs ₹{a}. How much do {b} tickets cost?",
+      "range": {
+        "a": [
+          5,
+          500
+        ],
+        "b": [
+          2,
+          60
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "RATE_UNIT",
       "op": "÷",
-      "text": "{b} pencils cost ₹{a}. What does one pencil cost?"
+      "text": "{b} pencils cost ₹{a}. What does one pencil cost?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "RATE_UNIT",
       "op": "÷",
-      "text": "{n} pays ₹{a} for {b} bus tickets to the fort. What does one ticket cost?"
+      "text": "{n} pays ₹{a} for {b} bus tickets to the fort. What does one ticket cost?",
+      "range": {
+        "a": [
+          20,
+          2000
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "ROUND_DOWN",
-      "text": "{a} laddoos are packed into boxes, {b} in each box. How many boxes are full?"
+      "text": "{a} laddoos are packed into boxes, {b} in each box. How many boxes are full?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          25
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "ROUND_DOWN",
-      "text": "{n} has {a} marbles and puts {b} in each bag. How many bags are full?"
+      "text": "{n} has {a} marbles and puts {b} in each bag. How many bags are full?",
+      "range": {
+        "a": [
+          10,
+          300
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "ROUND_UP",
-      "text": "{a} children go to the fort, {b} in each rickshaw. How many rickshaws are needed?"
+      "text": "{a} children go to the fort, {b} in each rickshaw. How many rickshaws are needed?",
+      "range": {
+        "a": [
+          6,
+          200
+        ],
+        "b": [
+          2,
+          6
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "ROUND_UP",
-      "text": "{a} books are put on shelves, {b} on each shelf. How many shelves are needed for all the books?"
+      "text": "{a} books are put on shelves, {b} on each shelf. How many shelves are needed for all the books?",
+      "range": {
+        "a": [
+          20,
+          2000
+        ],
+        "b": [
+          5,
+          50
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "REMAINDER_ASKED",
-      "text": "{a} laddoos are packed into boxes, {b} in each box. How many laddoos are left over?"
+      "text": "{a} laddoos are packed into boxes, {b} in each box. How many laddoos are left over?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          25
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "REMAINDER_ASKED",
-      "text": "{n} has {a} stickers and sticks {b} on each page. How many stickers are left over?"
+      "text": "{n} has {a} stickers and sticks {b} on each page. How many stickers are left over?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "BOTH_ASKED",
-      "text": "{a} laddoos are packed into boxes of {b}. How many boxes are full, and how many laddoos are left over?"
+      "text": "{a} laddoos are packed into boxes of {b}. How many boxes are full, and how many laddoos are left over?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          25
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
       "remainder_use": "BOTH_ASKED",
-      "text": "{a} children stand in rows of {b}. How many full rows are there, and how many children are left over?"
+      "text": "{a} children stand in rows of {b}. How many full rows are there, and how many children are left over?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SHARING",
       "op": "÷",
-      "text": "{a} laddoos are shared equally on {b} plates. How many laddoos are on each plate?"
+      "text": "{a} laddoos are shared equally on {b} plates. How many laddoos are on each plate?",
+      "range": {
+        "a": [
+          4,
+          200
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "SHARING",
       "op": "÷",
-      "text": "{n} shares {a} pencils equally among {b} friends. How many pencils does each friend get?"
+      "text": "{n} shares {a} pencils equally among {b} friends. How many pencils does each friend get?",
+      "range": {
+        "a": [
+          4,
+          200
+        ],
+        "b": [
+          2,
+          10
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
-      "text": "{a} laddoos are put on plates, {b} to a plate. How many plates are used?"
+      "text": "{a} laddoos are put on plates, {b} to a plate. How many plates are used?",
+      "range": {
+        "a": [
+          4,
+          200
+        ],
+        "b": [
+          2,
+          12
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING",
       "op": "÷",
-      "text": "{a} children make teams of {b}. How many teams are there?"
+      "text": "{a} children make teams of {b}. How many teams are there?",
+      "range": {
+        "a": [
+          4,
+          200
+        ],
+        "b": [
+          2,
+          12
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "ARRAY",
       "op": "÷",
-      "text": "{a} chairs are set out in {b} equal rows. How many chairs are in each row?"
+      "text": "{a} chairs are set out in {b} equal rows. How many chairs are in each row?",
+      "range": {
+        "a": [
+          4,
+          500
+        ],
+        "b": [
+          2,
+          25
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "ARRAY",
       "op": "÷",
-      "text": "{n} plants {a} seeds in {b} equal rows. How many seeds are in each row?"
+      "text": "{n} plants {a} seeds in {b} equal rows. How many seeds are in each row?",
+      "range": {
+        "a": [
+          4,
+          500
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING_BY_EACH",
       "op": "÷",
       "wrong_op_as": "M_KEYWORD_OVERGENERALISED",
-      "text": "{a} stickers are given out, {b} for each child. How many children get stickers?"
+      "text": "{a} stickers are given out, {b} for each child. How many children get stickers?",
+      "range": {
+        "a": [
+          4,
+          500
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "GROUPING_BY_EACH",
       "op": "÷",
       "wrong_op_as": "M_KEYWORD_OVERGENERALISED",
-      "text": "{n} has {a} beads and puts {b} on each bracelet. How many bracelets does {n} make?"
+      "text": "{n} has {a} beads and puts {b} on each bracelet. How many bracelets does {n} make?",
+      "range": {
+        "a": [
+          10,
+          500
+        ],
+        "b": [
+          5,
+          30
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "{n} has {a} stamps. {n2} has {b} times as many stamps as {n}. How many stamps does {n2} have?",
-      "wrong_op_as": "M_TIMES_AS_MORE"
+      "wrong_op_as": "M_TIMES_AS_MORE",
+      "range": {
+        "a": [
+          2,
+          500
+        ],
+        "b": [
+          2,
+          10
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "TIMES_AS_MANY_LARGER",
       "op": "×",
       "text": "A small jar holds {a} beads. A big jar holds {b} times as many beads. How many beads does the big jar hold?",
-      "wrong_op_as": "M_TIMES_AS_MORE"
+      "wrong_op_as": "M_TIMES_AS_MORE",
+      "range": {
+        "a": [
+          5,
+          200
+        ],
+        "b": [
+          2,
+          10
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMBINATIONS",
       "op": "×",
-      "text": "A sticker book has {a} animal stickers and {b} backgrounds. {n} puts one animal on one background. How many different pictures can {n} make?"
+      "text": "A sticker book has {a} animal stickers and {b} backgrounds. {n} puts one animal on one background. How many different pictures can {n} make?",
+      "range": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          2,
+          12
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "COMBINATIONS",
       "op": "×",
-      "text": "A racing game has {a} cars and {b} tracks. Each race is one car on one track. How many different races are there?"
+      "text": "A racing game has {a} cars and {b} tracks. Each race is one car on one track. How many different races are there?",
+      "range": {
+        "a": [
+          2,
+          20
+        ],
+        "b": [
+          2,
+          15
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "ARRAY",
       "op": "×",
-      "text": "There are {a} rows of chairs in the hall. Each row has {b} chairs. How many chairs are there?"
+      "text": "There are {a} rows of chairs in the hall. Each row has {b} chairs. How many chairs are there?",
+      "range": {
+        "a": [
+          2,
+          40
+        ],
+        "b": [
+          2,
+          40
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "ARRAY",
       "op": "×",
-      "text": "{n} plants {a} rows of saplings, with {b} saplings in each row. How many saplings does {n} plant?"
+      "text": "{n} plants {a} rows of saplings, with {b} saplings in each row. How many saplings does {n} plant?",
+      "range": {
+        "a": [
+          2,
+          30
+        ],
+        "b": [
+          2,
+          30
+        ]
+      }
     },
     {
       "fmt": "word_1step",
@@ -376,97 +1108,285 @@
       "fmt": "word_1step",
       "structure": "AREA",
       "op": "×",
-      "text": "A rectangle is {a} squares long and {b} squares wide. How many squares cover it?"
+      "text": "A rectangle is {a} squares long and {b} squares wide. How many squares cover it?",
+      "range": {
+        "a": [
+          2,
+          20
+        ],
+        "b": [
+          2,
+          20
+        ]
+      }
     },
     {
       "fmt": "word_1step",
       "structure": "AREA",
       "op": "×",
-      "text": "{n} tiles a floor {a} tiles long and {b} tiles wide. How many tiles does {n} use?"
+      "text": "{n} tiles a floor {a} tiles long and {b} tiles wide. How many tiles does {n} use?",
+      "range": {
+        "a": [
+          2,
+          40
+        ],
+        "b": [
+          2,
+          40
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "SUB_SUB",
       "op": "-",
       "text": "{a} people are at a mela. {b} of them are adults and {c} are teachers. How many children are at the mela?",
-      "answer": "a-b-c"
+      "answer": "a-b-c",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          10,
+          5000
+        ],
+        "c": [
+          1,
+          200
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "SUB_SUB",
       "op": "-",
       "text": "{n} has ₹{a}. {n} buys a kite for ₹{b} and a ball for ₹{c}. How much money is left?",
-      "answer": "a-b-c"
+      "answer": "a-b-c",
+      "range": {
+        "a": [
+          20,
+          2000
+        ],
+        "b": [
+          5,
+          500
+        ],
+        "c": [
+          5,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "SUB_ADD",
       "op": "-+",
       "text": "A train has {a} passengers. At the first station {b} get off and {c} get on. How many passengers are on the train now?",
-      "answer": "a-b+c"
+      "answer": "a-b+c",
+      "range": {
+        "a": [
+          20,
+          2000
+        ],
+        "b": [
+          1,
+          500
+        ],
+        "c": [
+          1,
+          500
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "ADD_ADD",
       "op": "++",
       "text": "{n} had {a} stickers. {n} got {b} more on Monday and {c} more on Tuesday. How many stickers does {n} have now?",
-      "answer": "a+b+c"
+      "answer": "a+b+c",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          200
+        ],
+        "c": [
+          1,
+          200
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "ADD_ADD",
       "op": "++",
       "text": "A farmer picked {a} mangoes in the morning, {b} at noon and {c} in the evening. How many mangoes did the farmer pick?",
-      "answer": "a+b+c"
+      "answer": "a+b+c",
+      "range": {
+        "a": [
+          10,
+          2000
+        ],
+        "b": [
+          10,
+          2000
+        ],
+        "c": [
+          10,
+          2000
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "ADD_SUB",
       "op": "+-",
       "text": "A library had {a} books. It bought {b} new books and then gave {c} old ones to a school. How many books does it have now?",
-      "answer": "a+b-c"
+      "answer": "a+b-c",
+      "range": {
+        "a": [
+          100,
+          9999
+        ],
+        "b": [
+          1,
+          2000
+        ],
+        "c": [
+          1,
+          2000
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "ADD_SUB",
       "op": "+-",
       "text": "{n} had ₹{a}. Nani gave {n} ₹{b}, and then {n} spent ₹{c} on a book. How much money does {n} have now?",
-      "answer": "a+b-c"
+      "answer": "a+b-c",
+      "range": {
+        "a": [
+          10,
+          2000
+        ],
+        "b": [
+          10,
+          2000
+        ],
+        "c": [
+          10,
+          2000
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "UNKNOWN_FIRST",
       "op": "-+",
       "text": "{n} had some marbles. {n} won {b} more and then lost {c}. Now {n} has {a}. How many marbles did {n} have at the start?",
-      "answer": "a-b+c"
+      "answer": "a-b+c",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          200
+        ],
+        "c": [
+          1,
+          200
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "UNKNOWN_FIRST",
       "op": "+-",
       "text": "Some children were in the hall. {b} went out and then {c} came in. Now there are {a}. How many children were in the hall at first?",
-      "answer": "a+b-c"
+      "answer": "a+b-c",
+      "range": {
+        "a": [
+          1,
+          500
+        ],
+        "b": [
+          1,
+          300
+        ],
+        "c": [
+          1,
+          300
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "EXTRA_INFORMATION",
       "op": "-",
       "text": "A school has {a} students and {c} teachers. {b} students are away today. How many students are in school?",
-      "answer": "a-b"
+      "answer": "a-b",
+      "range": {
+        "a": [
+          100,
+          3000
+        ],
+        "b": [
+          1,
+          500
+        ],
+        "c": [
+          5,
+          150
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "EXTRA_INFORMATION",
       "op": "+",
       "text": "{n} is {c} years old. {n} read {a} pages on Saturday and {b} pages on Sunday. How many pages did {n} read?",
-      "answer": "a+b"
+      "answer": "a+b",
+      "range": {
+        "a": [
+          1,
+          300
+        ],
+        "b": [
+          1,
+          300
+        ],
+        "c": [
+          5,
+          14
+        ]
+      }
     },
     {
       "fmt": "word_2step",
       "structure": "CONSTRAINT",
       "op": "+-",
       "text": "I think of a number. I add {b}, then take away {c}, and I get {a}. What was my number?",
-      "answer": "a-b+c"
+      "answer": "a-b+c",
+      "range": {
+        "a": [
+          1,
+          9999
+        ],
+        "b": [
+          1,
+          9999
+        ],
+        "c": [
+          1,
+          9999
+        ]
+      }
     },
     {
       "fmt": "word_2step",
@@ -474,31 +1394,81 @@
       "op": "-",
       "text": "Two numbers add up to {a}. One of them is {b} more than the other. What is the smaller number?",
       "answer": "a-b",
-      "divide": 2
+      "divide": 2,
+      "range": {
+        "a": [
+          1,
+          9999
+        ],
+        "b": [
+          1,
+          9999
+        ]
+      }
     },
     {
       "fmt": "equal_groups",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "There are {a} plates. Each plate has {b} laddoos. How many laddoos are there in all?"
+      "text": "There are {a} plates. Each plate has {b} laddoos. How many laddoos are there in all?",
+      "range": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          2,
+          12
+        ]
+      }
     },
     {
       "fmt": "equal_groups",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "{n} has {a} bags. There are {b} marbles in each bag. How many marbles does {n} have in all?"
+      "text": "{n} has {a} bags. There are {b} marbles in each bag. How many marbles does {n} have in all?",
+      "range": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          2,
+          25
+        ]
+      }
     },
     {
       "fmt": "equal_groups",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "{a} children each have {b} pencils. How many pencils do they have in all?"
+      "text": "{a} children each have {b} pencils. How many pencils do they have in all?",
+      "range": {
+        "a": [
+          2,
+          40
+        ],
+        "b": [
+          2,
+          10
+        ]
+      }
     },
     {
       "fmt": "equal_groups",
       "structure": "EQUAL_GROUPS",
       "op": "×",
-      "text": "There are {a} vases with {b} flowers in each. How many flowers are there in all?"
+      "text": "There are {a} vases with {b} flowers in each. How many flowers are there in all?",
+      "range": {
+        "a": [
+          2,
+          12
+        ],
+        "b": [
+          2,
+          12
+        ]
+      }
     },
     {
       "fmt": "bare_sum",

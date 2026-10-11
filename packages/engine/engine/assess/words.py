@@ -55,6 +55,46 @@ def older(
     return [t for t in templates(fmt, op, structure) if not owns(t)]
 
 
+def _span(v: Any) -> tuple[int, int]:
+    return (int(v[0]), int(v[-1])) if isinstance(v, list) else (int(v), int(v))
+
+
+def holds(tpl: dict[str, Any], **numbers: int) -> bool:
+    """Whether a story's world holds these numbers (assumption A9, goals/md4d2a-story-ranges.yaml): each inside the
+    range its template says it may take (`range`) — a bus's seats, a box of pencils, a library's books. A number the
+    template says nothing of is any the level gives."""
+    said: dict[str, Any] = tpl.get("range") or {}
+    return all(lo <= numbers[k] <= hi for k, v in said.items() if k in numbers for lo, hi in [_span(v)])
+
+
+def fitting(
+    rng: random.Random, tpl: dict[str, Any], pool: list[dict[str, Any]], **numbers: int
+) -> dict[str, Any]:
+    """The template drawn if its world holds the numbers its level drew; else another of its shape and operations
+    that does; else none can, and the numbers are drawn again. Drawn first and kept when it fits, so a level whose
+    stories all hold its numbers draws as it always did."""
+    if holds(tpl, **numbers):
+        return tpl
+    same = [
+        t for t in pool if t["structure"] == tpl["structure"] and t["op"] == tpl["op"] and holds(t, **numbers)
+    ]
+    if not same:
+        raise RuntimeError("no story of this shape holds these numbers: draw again")
+    return rng.choice(same)
+
+
+def range_problems(stem: str | None, spec: dict[str, Any]) -> list[str]:
+    """Why a stored story's numbers do not fit the story that holds them: each outside its template's range."""
+    said: dict[str, Any] = (template_of(stem) or {}).get("range") or {}
+    return [
+        f"a story holds {k} = {spec[k]}, outside {lo}–{hi}"
+        for k, v in said.items()
+        if isinstance(spec.get(k), int)
+        for lo, hi in [_span(v)]
+        if not lo <= spec[k] <= hi
+    ]
+
+
 NAMES = _seed()["names"]
 THINGS = _seed()["tally_things"]  # what a tally counts (`counting.tally`)
 
@@ -135,11 +175,12 @@ def word_1step(
         digits = rng.choice(digits)  # a level that allows several shapes, 2 + 1 digits or 1 + 2
     da, db = digits or (digits_max, digits_max)
     if tpl["op"] == "×":
-        return _times(rng, rung, tpl, (da, db))
+        return _times(rng, rung, tpl, (da, db), pool)
     if tpl["op"] == "+":
         a, b = sample_add(rng, da, db, set(regroups), max_total=max_total)
     else:
         a, b = sample_sub(rng, da, db, set(regroups), max_a=max_total)
+    tpl = fitting(rng, tpl, pool, a=int(a), b=int(b))
     n, n2 = rng.sample(NAMES, 2)
     stem = tpl["text"].format(a=a, b=b, n=n, n2=n2)
     ans = a + b if tpl["op"] == "+" else a - b
@@ -175,12 +216,15 @@ def _own(rng: random.Random, v: Any) -> int:
     return int(v)
 
 
-def _times(rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int]) -> Item:
+def _times(
+    rng: random.Random, rung: str, tpl: dict[str, Any], sizes: tuple[int, int], pool: list[dict[str, Any]]
+) -> Item:
     """A story that multiplies: its numbers no table fact and not round, as its level's are, but a number the story
     itself sets (`numbers`): one it fixes ("twice as many" is × 2), or the range it takes (twice as many as a number to
     20: doubling, not a 2-digit multiplication)."""
     own: dict[str, Any] = tpl.get("numbers") or {}
     a, b = (_own(rng, own[k]) if k in own else number(rng, d) for k, d in (("a", sizes[0]), ("b", sizes[1])))
+    tpl = fitting(rng, tpl, pool, a=a, b=b)
     if tpl.get("wrong_op_as") and a + b == a * b:
         # twice as many as 2 read as two more is 4, and right: the question could not tell the misreading
         raise RuntimeError("the numbers added would be the answer: draw again")
@@ -223,6 +267,7 @@ def word_2step(rng, rung, signal, digits_max, structure=None):
         raise ValueError(f"no two-step story for shape {structure!r}")
     tpl = rng.choice(pool)
     a, b, c = _two_step_numbers(rng, tpl["structure"], digits_max)
+    tpl = fitting(rng, tpl, pool, a=a, b=b, c=c)
     nums, divide = {"a": a, "b": b, "c": c}, tpl.get("divide", 1)
     ans = evaluate(tpl["answer"], nums, divide=divide)
     if ans != int(ans) or ans <= 0 or (tpl["structure"] == "CONSTRAINT" and b >= a):

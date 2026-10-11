@@ -81,7 +81,9 @@ def equal_groups(rng: Random, rung: str, signal: str, check: dict[str, Any]) -> 
         mis = named(k * n, [("M_WRONG_OP", k + n), ("M_ONE_GROUP", n), ("M_GROUP_MISSED", (k - 1) * n)])
         stem = "How many dots are there in all?"
         if shape == "STORY":
-            stem = rng.choice(W.templates("equal_groups"))["text"].format(a=k, b=n, n=rng.choice(W.NAMES))
+            pool = W.templates("equal_groups")
+            tpl = W.fitting(rng, rng.choice(pool), pool, a=k, b=n)
+            stem = tpl["text"].format(a=k, b=n, n=rng.choice(W.NAMES))
     spec = {"shape": shape, "a": k, "b": n, "op": "×"}
     r = Response("ans", "digits", str(k * n), cells=cells(k * n), misconceptions=mis)
     if shape == "ARRAY":
