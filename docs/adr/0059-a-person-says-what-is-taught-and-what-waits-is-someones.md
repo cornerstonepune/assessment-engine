@@ -1,6 +1,7 @@
 # ADR 0059 — A person says what is taught, and what waits on a person is someone's
 
-**Status:** accepted (2026-10-10, slice NY1 of BUILD-ORDER "NY1 and NY2").
+**Status:** accepted (2026-10-10, slice NY1 of BUILD-ORDER "NY1 and NY2"); decision 3 corrected 2026-10-11 by
+Nimish (below).
 Goal: goals/ny1-needs-you.yaml
 
 ## What happened
@@ -35,11 +36,15 @@ the build"):
      saying it is not taught yet.
    - Today, Curriculum and the approval page count the same waiting skills, taught or not.
 3. **Each kind of thing waiting on a person is someone's, by a row.**
-   - `people.decides` maps each kind to roles on the staff list (`app.staff`). It is drafted from ARCHITECTURE.md's
-     steps for Nimish to correct:
-     - the specialist confirms the doubtful answers, signs off what was read and confirms home papers (N9, N11);
-     - an educator approves the class papers that print (N7) and says what is taught;
-     - the coordinator approves the skills.
+   - `people.decides` maps each kind to roles on the staff list (`app.staff`). It was drafted from ARCHITECTURE.md's
+     steps for Nimish to correct, and he did (2026-10-11): *"Achal is a teacher, so he's the one who will be
+     responsible for doing all of this."* The draft took Achal for a specialist. As the workflow agreed with the school
+     already has it ("everything approved by the teacher"):
+     - an educator confirms the doubtful answers and signs off what was read (N9), approves the class papers that print
+       (N7), confirms the home papers (N11, "Achal confirms") and says what is taught; every question drafted for Achal
+       is an educator's;
+     - the coordinator approves the skills, as the same workflow has Aseem ratify them (N1). Left as it is: Nimish's
+       words could reach this one too, and the workflow names someone else.
    - Today shows the signed-in person's first ("For you"). The rest say whose they are by name, or that no one on the
      staff list has that role yet — a gap a person closes by adding someone.
    - A role says whose a thing is, not who may do it: anyone signed in still acts on anything.

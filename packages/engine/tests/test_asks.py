@@ -58,7 +58,7 @@ def test_every_question_drafted_for_achal_is_a_row():
     for code, assumed, means, why in table:
         ask = by_code[f"MD.{code}"]
         assert (ask["question"], ask["drafted"], ask["why"]) == (f"{code}: {assumed}", means, why), code
-        assert ask["for_role"] == "specialist"
+        assert ask["for_role"] == "educator"
     drafted = _to_achal()
     assert len(drafted) >= 8, "the slices that drafted a decision for Achal"
     for source, lines in drafted.items():
@@ -74,6 +74,22 @@ def test_every_kind_of_waiting_names_who_decides_it():
     assert not row.get("seed_once"), "a deploy carries a change to who decides what"
     assert set(row["value"]) == WAITING
     assert all(row["value"][k] and set(row["value"][k]) <= _roles() for k in WAITING), row["value"]
+
+
+def test_achal_is_a_teacher_so_what_waits_on_him_is_an_educators():
+    """Nimish, 2026-10-11: "Achal is a teacher, so he's the one who will be responsible for doing all of this." The rows
+    took him for a specialist. Every question drafted for him is an educator's, and so is all the workflow agreed with
+    the school gives the teacher ("everything approved by the teacher"): the answers to confirm and what was read to
+    sign off (N9), the class papers (N7), the home papers (N11, "Achal confirms") and what is taught. The skills stay
+    with the coordinator, whom the same workflow has ratify them (N1, "Aseem ratifies")."""
+    assert {a["for_role"] for a in _asks()} == {"educator"}
+    decides = _config("people.decides")["value"]
+    assert decides == {**dict.fromkeys(WAITING - {"skills"}, ["educator"]), "skills": ["coordinator"]}, (
+        decides
+    )
+    workflow = (ROOT / "docs" / "sources" / "assessment-workflow-v1.md").read_text()
+    for said in ("everything approved by the teacher", "Achal confirms", "Aseem ratifies"):
+        assert said in workflow, said
 
 
 @needs_db
