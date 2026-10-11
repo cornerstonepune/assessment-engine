@@ -3,6 +3,12 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI5: Assessments by assessment (built, proved on copies)
+
+- **Slice:** UI5. Assessments opens on one row for each assessment, its copies counted by stage; a topic chosen at
+  the top; an assessment opens its copies (STATE.md "UI5"). Ships with UI4b1 and UI4b2 once C1 (#188) is merged.
+- **Next:** M4d2 (the older story templates' ranges, `story_shape` for × and ÷), then M5.
+
 ## 2026-10-11 — UI4b2: Children by topic, a class and the list (built, proved on copies)
 
 - **Slice:** UI4b2. The Children list for every topic or one; a class opening on its children against its topics, a

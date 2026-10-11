@@ -97,7 +97,7 @@ test("a class and a topic make the class's default assessment, every child's pap
 });
 
 test("every assessment's stage, class and week are said in words", async ({ page }) => {
-  await page.goto(`/papers?class=${SECTION}`);
+  await page.goto(`/papers?view=papers&class=${SECTION}`);
   const stages = page.getByRole("navigation", { name: "Papers by stage" });
   await expect(stages.getByRole("link")).toHaveText([/^Every stage/, /^To approve/, /^With the children/, /^To check/, /^To sign off/, /^Done/]);
   const table = page.getByRole("table", { name: "Every paper" });

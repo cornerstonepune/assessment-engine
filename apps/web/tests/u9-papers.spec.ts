@@ -95,7 +95,7 @@ const setName = async (code: string) =>
   (await sql<{ name: string }[]>`select name from skill_set where code = ${code} limit 1`)[0].name;
 
 test("every paper is one row, what it is, whose, and where it stands, filtered by class, kind and stage", async ({ page }) => {
-  await page.goto(`/papers?class=${SECTION}`);
+  await page.goto(`/papers?view=papers&class=${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
   const table = page.getByRole("table", { name: "Every paper" });
   await expect(table.locator("thead th")).toHaveText([/Paper/, /Kind/, /Class/, /Child/, /Week/, /Stage/, /Waiting/, /Score/]);
@@ -120,7 +120,7 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await expect(row(page, papers.scanned)).toBeVisible();
 
   // the filters are a form any of them can narrow
-  await page.goto(`/papers?class=${SECTION}`);
+  await page.goto(`/papers?view=papers&class=${SECTION}`);
   await page.getByLabel("Kind").selectOption({ label: "Home assessment" });
   await page.getByRole("button", { name: "Show" }).click();
   await expect(table.locator("tbody tr")).toHaveCount(1);
@@ -148,7 +148,7 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   }
 
   // a scanned paper opens to check its answers; one not yet scanned opens as printed; a click anywhere on the row
-  await page.goto(`/papers?class=${SECTION}`);
+  await page.goto(`/papers?view=papers&class=${SECTION}`);
   const click = async (p: Paper) => {
     // the page streams in behind its skeleton: the row first, on screen, then where it sits
     const cell = row(page, p).locator("td").nth(1);
@@ -159,7 +159,7 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   };
   await click(papers.scanned);
   await expect(page).toHaveURL(`/capture/${papers.scanned.id}`);
-  await page.goto(`/papers?class=${SECTION}`);
+  await page.goto(`/papers?view=papers&class=${SECTION}`);
   await click(papers.printed);
   await expect(page).toHaveURL(`/worksheets/${papers.printed.qr}`);
 });

@@ -6964,3 +6964,26 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** u21 written first, each of its two tests seen failing alone on the old code (no topic choice;
   no topic grid). The goal's browser criteria on a database built fresh: 47 of 47. Types and lint clean.
 
+## UI5 — measured before the build (2026-10-11)
+
+- **Assessments** (`/papers`) is one table of every child's copy, newest first, up to 300 rows, filtered by class,
+  child, kind, week and stage: a class assessment for 30 children is 30 rows, and there is no topic.
+- **What one assessment is:** a class's papers are each child's own worksheet of the same skill set and level
+  (`w2_print/assemble.py` hands each child a different library worksheet), so a copy's template does not name its
+  assessment; a kind of paper given to a class in a week on one skill set does. A school's own earlier papers share one
+  worksheet and carry no skill set (their questions name none), so they have no topic.
+
+## UI5 — Assessments by assessment, built (2026-10-11)
+
+- **Assessments opens on one row for each assessment** (`assessmentList`): its kind, class, week, how many copies, how
+  many stand at each stage in words, the answers waiting for a person, and its score across the copies that are
+  checked. A class's home assessments or chosen papers for a week are one row. A row opens its copies, one row each
+  ("Each paper", the list as it was), under the same filters.
+- **A topic chosen at the top** keeps the assessments on that topic's skills: a paper's topics are its skill set's,
+  or each of its questions' own. Only a taught topic narrows the list.
+- **The stage, class, child, kind and week filters** narrow both views; a stage keeps the copies at that stage.
+- **Moved with the page:** the maker's "See them in Assessments" opens each paper just made; u9's and u16's
+  paper-by-paper checks open "Each paper" (`view=papers`), where that list now is. Each table is a file of its own.
+- **Proved on copies:** u22 written first, each of its two tests seen failing alone on the old code (no view choice;
+  no topic choice). The goal's browser criteria on a database built fresh: 46 of 46. Types and lint clean.
+
