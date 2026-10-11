@@ -1,9 +1,6 @@
 """engine — the operator's command line."""
 
-import getpass
-import hashlib
 import json
-import secrets
 
 import typer
 
@@ -12,6 +9,7 @@ from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
 from engine.core import asks, db, loaders, references
+from engine.core.cli_staff import register as register_staff
 from engine.w1_bank import bank, mistake_guess, review, spec, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
@@ -45,6 +43,7 @@ app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
 app.add_typer(card_app, name="card")
 app.add_typer(report_app, name="report")
+register_staff(app)
 register_checks(app)
 
 
@@ -66,41 +65,6 @@ def ratify(
     for r in rows:
         typer.echo(f"  ratified  {r['code']:<22}v{r['version']:<3}{by}")
     typer.echo(f"  {len(rows)} ratified, {left} still draft")
-
-
-def staff_hash(password: str, salt: str) -> str:
-    """`scrypt$salt$hash` exactly as `apps/web/lib/auth.ts` checks it: node's `scryptSync` defaults
-    (N=16384, r=8, p=1), 64 bytes, and the hex salt used as TEXT, not decoded — node takes a string
-    salt as its UTF-8 bytes, and decoding it here would make every password look wrong."""
-    digest = hashlib.scrypt(password.encode(), salt=salt.encode(), n=16384, r=8, p=1, dklen=64)
-    return f"scrypt${salt}${digest.hex()}"
-
-
-@app.command("set-password")
-def set_password(email: str) -> None:
-    """Set a staff member's sign-in password for the web app. Typed here, hidden, never stored in clear.
-
-    The approval screen is behind a staff sign-in, and the only staff row had no password, so no
-    one could get in to approve a paper. The password is asked for twice in the terminal and never
-    echoed, logged or passed on a command line — it cannot end up in shell history or in anyone's
-    chat. This only sets a password for someone already on the list; who is on the list is not a
-    thing a command decides.
-    """
-    first = getpass.getpass("  New password (10+ characters, not shown): ")
-    if len(first) < 10:
-        raise typer.BadParameter("at least 10 characters")
-    if getpass.getpass("  Once more: ") != first:
-        raise typer.BadParameter("the two did not match — nothing changed")
-    with db.connect() as conn:
-        row = conn.execute("select value from config where key = 'app.staff'").fetchone()
-        staff = row["value"] if row else []
-        me = next((s for s in staff if s["email"].lower() == email.strip().lower()), None)
-        if me is None:
-            raise typer.BadParameter(f"{email} is not on the staff list — nothing changed")
-        me["password"] = staff_hash(first, secrets.token_hex(16))
-        conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
-        conn.commit()
-    typer.echo(f"  password set for {me['name']} ({me['role']}) — sign in with {me['email']}")
 
 
 @app.command("asks")

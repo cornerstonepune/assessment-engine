@@ -13,14 +13,8 @@
     },
     {
       "key": "app.staff",
-      "description": "Who may sign in to the app, by school email. Roles: coordinator, educator, specialist.",
-      "value": [
-        {
-          "email": "nimish.shah1989@gmail.com",
-          "name": "Nimish",
-          "role": "coordinator"
-        }
-      ],
+      "description": "Who may sign in to the app: email, name, role and password hash, held in the database alone and put there by `engine staff add` (goals/ui4a-staff-and-search.yaml). Empty here, so no one's email is in the public repository. Roles: coordinator, educator, specialist.",
+      "value": [],
       "seed_once": true
     },
     {

@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI4a: the staff list and the search (built, proved on copies)
+
+- **Slice:** UI4a (BUILD-ORDER "UI1 to UI4"; UI4 split so the sign-in ships first). `engine staff add` puts an
+  educator on the staff list from Nimish's machine; the seed's list is empty (ADR 0069); Children finds a child as it
+  is typed (STATE.md "UI4a — the staff list and the search, built").
+- **For Nimish, once merged:** `~/cornerstone/assessment-engine/bin/update-live`, then
+  `~/cornerstone/assessment-engine/bin/engine staff add <email> --name <name>` once for Achal and once for Neha; he
+  tells each their password himself.
+- **Next:** UI4b (a child's page in the order help, practising, secure, papers, parent report; parent reports as one
+  list), then M4d2.
+
 ## 2026-10-11 — UI3 live; the done report asks live, not the copy
 
 - **UI3** merged (#185) and live on Vercel; done report 7/7, 3/3 (STATE.md "UI3 merged and live").

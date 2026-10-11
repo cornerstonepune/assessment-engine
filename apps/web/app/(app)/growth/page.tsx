@@ -6,6 +6,7 @@ import { gradeWords } from "@/lib/queries";
 import { deadline } from "@/lib/deadline";
 import { ColourKey } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
+import { ChildFinder } from "./finder";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -71,8 +72,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
         sub="Every child, grade by grade: the skill they most need help on, what is secure, and where their parent report stands. Click a child to open them; click a heading to sort."
       />
       <Body>
-        {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : null}
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
+        {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : <ChildFinder within="children" />}
+        <div id="children" className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
           {grades.map((band) => {
             const children = rows.filter((r) => r.band === band);
             const shown = by ? [...children].sort(by) : children;
@@ -95,7 +96,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
                   })}
                 </p>
                 <div className="overflow-x-auto">
-                  <table className="grid" aria-label={`${gradeWords(band)}: every child`}>
+                  <table className="grid" aria-label={`${gradeWords(band)}: every child`} data-children>
                     <thead>
                       <tr>
                         {COLUMNS.map((c) => (
@@ -125,6 +126,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
                           key={r.id}
                           data-child={r.id}
                           data-section={r.section}
+                          data-name={r.first_name.toLowerCase()}
+                          data-roll={r.roll_no}
                           className="relative cursor-pointer hover:bg-basalt/3"
                         >
                           <td className="fact">{r.roll_no}</td>
