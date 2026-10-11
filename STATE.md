@@ -6804,7 +6804,9 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** u17 was written first and each of its seven tests seen failing on the old pages for its own
   reason (no parts menu; no grade heading; the switch visible; the answer buttons visible; no search box; no tab
   above a title; the week still under Worksheets). s3's level filter raced the page (every level has as many
-  worksheets, so the count passed before the click landed); it now waits for the address. Three faults in u17 itself
+  worksheets, so the count passed before the click landed); it now waits for the address. CI caught the same race in
+  u17's approval, which waited for an address the page already had and read the database before the approval landed;
+  it now waits for `?approved=1` and the notice (21 of 21 over three runs). Three faults in u17 itself
   were fixed on the way: a heading match that took panel titles too (the panels no longer repeat the grade their
   heading gives), a restore that left `taught_at` set against `topic_taught_by_a_person`, and a count of folded
   buttons that read the accessibility tree, where a closed fold's buttons are absent and "hidden" would have passed

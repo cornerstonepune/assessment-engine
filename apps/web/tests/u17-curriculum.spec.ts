@@ -46,7 +46,9 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
     await expect(page.getByRole("heading", { level: 2, name: "Grade 2", exact: true })).toBeVisible();
     const add = before.find((s) => s.code === "ADD.2D2D")!;
     await page.getByRole("region", { name: add.name, exact: true }).getByRole("button", { name: `Approve this skill, as ${TEST_STAFF.name}` }).click();
-    await expect(page).toHaveURL(/\/skill-sets\/approve/);
+    // the page was at this address before the click: wait for what the approval itself brings back
+    await expect(page).toHaveURL(/\/skill-sets\/approve\?approved=1$/);
+    await expect(page.getByRole("status").filter({ hasText: "Approved, in your name." })).toBeVisible();
     const after = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
       select code, status, ratified_by from skill_set where code = any(${codes}) order by code`;
     expect(after).toEqual([
