@@ -334,9 +334,9 @@ Is it about right, and can it be right at all?
 | V03 | How many digits will the product have? | 67 × 75 and 31 × 22 | 4 and 3 |
 | V04 | How many digits will the quotient have? | 156 ÷ 4 and 456 ÷ 4 | 2 and 3 |
 | V05 | Is this answer possible? | 23 × 4 = 812 | no: 23 × 4 is less than 25 × 4 = 100 |
-| V06 | Odd or even, without working | 7 × 9 and 6 × 13 | odd and even |
+| V06 | Odd or even, without working | 6 × 13 and 7 × 15 | even and odd |
 | V07 | The last digit, without working | 47 × 3 ends in □ | 1 |
-| V08 | The closest estimate | 52 × 9 is closest to 400, 450 or 500? | 450 |
+| V08 | The closest estimate | 52 × 9 is closest to 360, 450 or 540? | 450 |
 | V09 | A remainder bigger than the divisor is wrong | 47 ÷ 6 = 6 r 11: possible? | no: 11 is more than 6 |
 | V10 | Estimate a quotient | 412 ÷ 8 ≈ 400 ÷ 8 = □ (exact 51 r 4) | 50 |
 
@@ -487,7 +487,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | remainder_use | NONE / ROUND_DOWN / ROUND_UP / REMAINDER_ASKED / BOTH_ASKED | What a story does with a remainder: drops it, rounds up, asks for it, or asks for both. |
 | row_regrouping | NONE / SOME / ALL | Whether a long multiplication's rows carry: none, some or all of them. |
 | scaled_fact | YES / NO | A round number's sum that is a table fact once its zeros are off (30 × 4 is 3 × 4). |
-| shape | SAME_LETTER / INEQUALITY / MISSING_SIGN / MISSING_SIGNS / FROM_ADDITION / FROM_SUBTRACTION / BALANCE_SAME_OP / BALANCE_TWO_OPS / SAME_BOTH_SIDES / TRUE_FALSE / COMPARE / FRIENDLY_PAIRS / JUDGED / HOW_MANY_GROUPS / SWAP_TO_A_KNOWN_TABLE / MISSING_ROW / ORDER / GROUPED_EITHER_WAY / PARTITION_A_FACTOR / BY_ONE / BY_ITSELF_AND_OF_ZERO / TRUE_FALSE_DIVIDE_BY_ZERO / TRUE_FALSE_DIVISION_ORDER / FROM_MULTIPLICATION / TABLE_BACKWARDS / BALANCE_TIMES_AND_MINUS / BALANCE_TIMES_AND_DIVIDE / DOUBLE_A_FACTOR / TRUE_FALSE_ORDER / MULTIPLES / IS_A_MULTIPLE / FACTORS / FACTOR_PAIRS / COMMON_MULTIPLES / DIVISIBLE_BY_2_5_10 / DIVISIBLE_BY_3 / PARITY_OF_A_PRODUCT / ROUND_ONE / ROUND_BOTH / ANSWER_DIGITS / LAST_DIGIT / PICTURE / SUM / STORY / ARRAY | The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's, equal groups as a picture, a sum or a story. |
+| shape | SAME_LETTER / INEQUALITY / MISSING_SIGN / MISSING_SIGNS / FROM_ADDITION / FROM_SUBTRACTION / BALANCE_SAME_OP / BALANCE_TWO_OPS / SAME_BOTH_SIDES / TRUE_FALSE / COMPARE / FRIENDLY_PAIRS / JUDGED / HOW_MANY_GROUPS / SWAP_TO_A_KNOWN_TABLE / MISSING_ROW / ORDER / GROUPED_EITHER_WAY / PARTITION_A_FACTOR / BY_ONE / BY_ITSELF_AND_OF_ZERO / TRUE_FALSE_DIVIDE_BY_ZERO / TRUE_FALSE_DIVISION_ORDER / FROM_MULTIPLICATION / TABLE_BACKWARDS / BALANCE_TIMES_AND_MINUS / BALANCE_TIMES_AND_DIVIDE / DOUBLE_A_FACTOR / TRUE_FALSE_ORDER / MULTIPLES / IS_A_MULTIPLE / FACTORS / FACTOR_PAIRS / COMMON_MULTIPLES / DIVISIBLE_BY_2_5_10 / DIVISIBLE_BY_3 / ROUND_ONE / ROUND_BOTH / ANSWER_DIGITS / LAST_DIGIT / PICTURE / SUM / STORY / ARRAY | The shape a kind of question states it printed: an equation's, an estimate's, a fact family's, a multiples question's, equal groups as a picture, a sum or a story. |
 | structure | JOIN_RESULT / JOIN_CHANGE / JOIN_START / SEPARATE_RESULT / SEPARATE_CHANGE / SEPARATE_START / PPW_WHOLE / PPW_PART / COMPARE_DIFFERENCE / COMPARE_LARGER / COMPARE_SMALLER / EXTRA_INFORMATION / ADD_ADD / SUB_SUB / SUB_ADD / ADD_SUB / UNKNOWN_FIRST / CONSTRAINT / EQUAL_GROUPS / SHARING / GROUPING / ARRAY / RATE_TOTAL / RATE_UNIT / TIMES_AS_MANY_LARGER / TIMES_AS_MANY_SMALLER / HOW_MANY_TIMES / TWICE_AS_MANY / COMBINATIONS / AREA / MULTIPLY_THEN_ADD / MULTIPLY_THEN_SUBTRACT / DIVIDE_THEN_MULTIPLY / TWO_PRODUCTS_ADDED / ADD_THEN_DIVIDE / BAR_MODEL_TIMES_AS_MANY / GROUPING_BY_EACH / HALF_AS_MANY | A story's shape, as its template declares it: who joins, shares, groups or compares, and in how many steps. |
 | zero_operand | NONE / FIRST / SECOND / BOTH | A 0 among the numbers. |
 

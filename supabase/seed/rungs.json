@@ -359,6 +359,16 @@
       "skill_codes": [
         "NUM.OPS.05"
       ]
+    },
+    {
+      "code": "R48",
+      "band": "G4",
+      "ladder_order": null,
+      "descriptor": "Estimating products and quotients: odd or even and the last digit without working, an estimate rounded to the ten or the hundred, how many digits an answer has, the closest of three estimates, and whether an answer can be right",
+      "skill_codes": [
+        "NUM.PV.03",
+        "NUM.PRB.03"
+      ]
     }
   ]
 }

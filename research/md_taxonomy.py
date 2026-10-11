@@ -624,10 +624,11 @@ case("V03", "How many digits will the product have?", "67 × 75 and 31 × 22", "
 case("V04", "How many digits will the quotient have?", "156 ÷ 4 and 456 ÷ 4", "2 and 3",
      [("digits", nd(156 // 4) == 2 and nd(456 // 4) == 3)], op="÷")
 case("V05", "Is this answer possible?", "23 × 4 = 812", "no: 23 × 4 is less than 25 × 4 = 100")
-case("V06", "Odd or even, without working", "7 × 9 and 6 × 13", "odd and even")
+case("V06", "Odd or even, without working", "6 × 13 and 7 × 15", "even and odd")
 case("V07", "The last digit, without working", "47 × 3 ends in □", 1, [("ends", 47 * 3 % 10 == 1)])
-case("V08", "The closest estimate", "52 × 9 is closest to 400, 450 or 500?", 450,
-     [("closest", min((400, 450, 500), key=lambda x: abs(x - 52 * 9)) == 450)])
+case("V08", "The closest estimate", "52 × 9 is closest to 360, 450 or 540?", 450,
+     [("closest", min((360, 450, 540), key=lambda x: abs(x - 52 * 9)) == 450),
+      ("rounded", [t * 9 for t in (40, 50, 60)] == [360, 450, 540])])
 case("V09", "A remainder bigger than the divisor is wrong", "47 ÷ 6 = 6 r 11: possible?", "no: 11 is more than 6",
      op="÷")
 case("V10", "Estimate a quotient", "412 ÷ 8 ≈ 400 ÷ 8 = □ (exact 51 r 4)", 50, [("exact", qr(412, 8) == "51 r 4")], op="÷")

@@ -34,6 +34,7 @@ from . import facts_kinds as FK
 from . import items as I
 from . import misconceptions as M
 from . import operations as O
+from . import reasoning as RS
 from . import times_kinds as TK
 from . import written as WR
 
@@ -180,8 +181,9 @@ def _missing(
 
 
 def _paired(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung: str, build: FK.Build):
-    """A kind built on its case's own two numbers (`facts_kinds`), drawn as a straight question's are: a table fact on a
-    tables level, a round number on the tens level."""
+    """A kind built on its case's own two numbers (`facts_kinds`, `divide_kinds`, a product judged in `reasoning`), drawn
+    as a straight question's are: a table fact on a tables level, a round number on the tens level, 2 digits by 1 where
+    the case's example is (48 × 6)."""
     op = K.op(rng, alt, check)
     got = op and P.pair(rng, alt, check, op, taxonomy.keys(alt))
     if not got:
@@ -207,7 +209,9 @@ def one(rng: random.Random, match: Any, check: dict[str, Any], rung: str, k: int
         it = (_many if many else _plain)(rng, alt, check, rung, k)
     elif fmts == {"missing_number"}:
         it = _missing(rng, alt, check, rung, k)
-    elif len(fmts) == 1 and (build := FK.builder(alt, f := next(iter(fmts))) or DK.builder(alt, f)):
+    elif len(fmts) == 1 and (
+        build := FK.builder(alt, f := next(iter(fmts))) or DK.builder(alt, f) or RS.builder(alt, f)
+    ):
         it = _paired(rng, alt, check, rung, build)
     else:
         it = N.native(rng, alt, check, rung, k)

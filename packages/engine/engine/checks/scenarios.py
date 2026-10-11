@@ -77,6 +77,8 @@ def _answer_is_right(item):
     checks += [_same(stated.get(rid), want) for rid, want in _division_steps(item.fmt, s).items()]
     if (tick := _ticks(item.fmt, s, stated)) is not None:
         checks.append(tick)
+    if (judged := _without_working(item.fmt, s, stated)) is not None:
+        checks.append(judged)
     return all(checks) if checks else None
 
 
@@ -225,6 +227,24 @@ def _ticks(fmt, s, stated):
         return stated["could"] == ("yes" if right else "no")
     if fmt == "inverse_check" and "right" in stated:
         return stated["right"] == ("yes" if right else "no")
+    return None
+
+
+def _without_working(fmt, s, stated):
+    """An answer judged without working it out, worked out here from the question's two numbers: odd or even, and the
+    closest estimate as the one option nearest the exact answer (two as near is a question with two answers, and
+    fails). None for any other question (goals/md4b1-estimates.yaml: both were counted as nothing to work out)."""
+    a, b, op = s.get("a"), s.get("b"), O.sign(s.get("op"))
+    if not (isinstance(a, int) and isinstance(b, int) and op in ("+", "-", "×")):
+        return None
+    exact = M.compute(op, a, b)
+    if fmt == "odd_even" and "parity" in stated:
+        return stated["parity"] == ("even" if exact % 2 == 0 else "odd")
+    if fmt == "choose_estimate" and "pick" in stated:
+        near = sorted(s.get("options") or [], key=lambda o: abs(o - exact))
+        return (
+            len(near) > 1 and abs(near[0] - exact) < abs(near[1] - exact) and stated["pick"] == str(near[0])
+        )
     return None
 
 

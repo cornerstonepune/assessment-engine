@@ -264,7 +264,7 @@
       "reportUnknownVariableType"
     ],
     "frozen": {
-      "engine/assess/bands.py": 272,
+      "engine/assess/bands.py": 268,
       "engine/assess/diagnosis.py": 42,
       "engine/assess/draw.py": 40,
       "engine/assess/equality.py": 164,
@@ -281,7 +281,6 @@
       "engine/assess/page_css.py": 7,
       "engine/assess/pick.py": 13,
       "engine/assess/placing.py": 1,
-      "engine/assess/reasoning.py": 123,
       "engine/assess/render.py": 314,
       "engine/assess/skills.py": 1,
       "engine/assess/tags.py": 240,

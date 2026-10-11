@@ -363,7 +363,7 @@ def test_the_document_gives_the_closest_estimate_and_odd_or_even_their_numbers()
     """The drafted document is corrected at its source: the closest estimate's options are what rounding to a ten gives
     (52 × 9: 360, 450 or 540, where 400 and 500 were what no rounding gives), and V06 is asked past the tables
     (6 × 13 and 7 × 15), 7 × 9 being F08's table fact."""
-    assert DOC["V08"]["example"] == "52 × 9 is closest to 360, 450 or 540?" and DOC["V08"]["answer"] == 450
+    assert DOC["V08"]["example"] == "52 × 9 is closest to 360, 450 or 540?" and DOC["V08"]["answer"] == "450"
     assert DOC["V06"]["example"] == "6 × 13 and 7 × 15" and DOC["V06"]["answer"] == "even and odd"
     assert DOC["F08"]["example"] == "Is 6 × 7 even or odd?"
 

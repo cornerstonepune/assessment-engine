@@ -126,6 +126,15 @@
       "skill_sets": [
         "MD.MENTAL"
       ]
+    },
+    {
+      "code": "MDESTIMATE",
+      "subject": "NUM",
+      "name": "Estimating products and quotients",
+      "taught": false,
+      "skill_sets": [
+        "MD.ESTIMATE"
+      ]
     }
   ]
 }

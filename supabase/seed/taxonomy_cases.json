@@ -14305,15 +14305,14 @@
         "spec": {
           "a": 6,
           "b": 7,
-          "op": "×",
-          "shape": "PARITY_OF_A_PRODUCT"
+          "op": "×"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "odd_even",
         "operation": "MUL",
-        "shape": "PARITY_OF_A_PRODUCT"
+        "fact": "YES"
       }
     },
     {
@@ -14566,7 +14565,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "MUL",
-        "shape": "ROUND_ONE"
+        "shape": "ROUND_ONE",
+        "digits_max": 2,
+        "digits_min": 1
       }
     },
     {
@@ -14589,7 +14590,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "MUL",
-        "shape": "ROUND_BOTH"
+        "shape": "ROUND_BOTH",
+        "digits_max": 2,
+        "digits_min": 2
       }
     },
     {
@@ -14612,7 +14615,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "MUL",
-        "shape": "ANSWER_DIGITS"
+        "shape": "ANSWER_DIGITS",
+        "digits_max": 2,
+        "digits_min": 2
       }
     },
     {
@@ -14635,7 +14640,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "DIV",
-        "shape": "ANSWER_DIGITS"
+        "shape": "ANSWER_DIGITS",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1
       }
     },
     {
@@ -14657,7 +14664,9 @@
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "possible_answer",
-        "operation": "MUL"
+        "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 1
       }
     },
     {
@@ -14666,19 +14675,22 @@
       "section": "12",
       "section_name": "Estimating and judging an answer",
       "label": "Odd or even, without working",
-      "example_text": "7 × 9 and 6 × 13",
+      "example_text": "6 × 13 and 7 × 15",
       "example": {
         "fmt": "odd_even",
         "spec": {
-          "a": 7,
-          "b": 9,
+          "a": 6,
+          "b": 13,
           "op": "×"
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "odd_even",
-        "operation": "MUL"
+        "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 1,
+        "fact": "NO"
       }
     },
     {
@@ -14701,7 +14713,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "MUL",
-        "shape": "LAST_DIGIT"
+        "shape": "LAST_DIGIT",
+        "digits_max": 2,
+        "digits_min": 1
       }
     },
     {
@@ -14710,7 +14724,7 @@
       "section": "12",
       "section_name": "Estimating and judging an answer",
       "label": "The closest estimate",
-      "example_text": "52 × 9 is closest to 400, 450 or 500?",
+      "example_text": "52 × 9 is closest to 360, 450 or 540?",
       "example": {
         "fmt": "choose_estimate",
         "spec": {
@@ -14718,16 +14732,18 @@
           "b": 9,
           "op": "×",
           "options": [
-            400,
+            360,
             450,
-            500
+            540
           ]
         }
       },
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "choose_estimate",
-        "operation": "MUL"
+        "operation": "MUL",
+        "digits_max": 2,
+        "digits_min": 1
       }
     },
     {
@@ -14749,7 +14765,9 @@
       "match": {
         "taxonomy": "MUL_DIV",
         "fmt": "possible_answer",
-        "operation": "DIV"
+        "operation": "DIV",
+        "operand_1_digits": 2,
+        "operand_2_digits": 1
       }
     },
     {
@@ -14772,7 +14790,9 @@
         "taxonomy": "MUL_DIV",
         "fmt": "estimate_then_calc",
         "operation": "DIV",
-        "shape": "ROUND_ONE"
+        "shape": "ROUND_ONE",
+        "operand_1_digits": 3,
+        "operand_2_digits": 1
       }
     },
     {
