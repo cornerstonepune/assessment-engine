@@ -6585,3 +6585,21 @@ Proved on copies:
   (MD.MULTIPLES's 36, 36, 24 and 24); `library build` made 40 and retired 0; `library check`: 2,638 worksheets, 164 of
   164 skill-levels ready, 0 problems. MD.MULTIPLES is a draft until approved; Achal's question waits, an educator's.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 56 mistakes, 0 faults. `bin/check` 27 passed.
+
+## M4d — measured before the build (2026-10-11)
+
+On main `1062d83`. MD.WORD holds 26 cases, drafted G2 G2 G3 G4. Each drawn alone (`draw.level`, 12, rows as seeded):
+- **Sixteen draw:** B01, B02, B03, B06 (Easy); B04, B05, B07, B11 (Medium); B08, B14, B15, B16, B17 (Hard); B12, B13
+  (Advance). Fifteen of them sit on another skill's level too; B01 is MD.WORD's alone.
+- **Ten draw nothing:**
+  - B09 (times as many: the smaller), B10 (how many times), B27 (half as many): "no one-step story divides for shape
+    …" — no template.
+  - B18 to B23, the two-step stories with × and ÷: `word_2step` raises `KeyError: 'digits_max'` (a case's rule gives no
+    size), and `words.word_2step` works a story's first step with + or − only; its 13 templates are all + and −.
+  - B25 (a number the story does not need) and B26 (a price list): "no one-step story for shape … and operation '×'".
+- **A9:** none of the 76 templates says the range its numbers may take.
+- **The eval rule 7 asks for** (`story_shape`): 65 gold stories, 18 shapes, all + and −; Jev reachable here.
+- **Halving:** `skills.operations` reads a two-step story's `op`, never its `divide`.
+- **A11:** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is empty.
+- **Split** (BUILD-ORDER): M4d1 the ten stories on MD.WORD's own rows, each new template with its range; M4d2 the older
+  templates' ranges, `story_shape` for × and ÷ with its eval, halving on Division, the A11 table.
