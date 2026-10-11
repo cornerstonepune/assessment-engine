@@ -6857,4 +6857,8 @@ waits on a person there. The screenshots hold children's names and stayed on the
   the words go nowhere, so a name never enters an address or a log.
 - **Proved on copies:** `test_staff.py` written first and seen failing (no command); u18's search seen failing (no
   search box); its sign-in test passed before the build, as sign-in already worked for anyone on the list. Engine:
-  41 passed (staff, cli, loaders). Browser: u18 4 of 4 over two runs; the goal's browser criteria below.
+  41 passed (staff, cli, loaders). Browser: u18 4 of 4 over two runs.
+- **CI caught what the local run missed:** `test_asks.py` reads the staff roles from the staff list's description
+  ("Roles: coordinator, educator, specialist."), which the new description had dropped. Restored; every engine test
+  that reads the seed's config, 17 files, run again on a fresh copy: 322 passed. The local run had covered only the
+  files the change touched, not every reader of the row it changed.

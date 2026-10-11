@@ -24,7 +24,8 @@ manual:
   - "Nimish runs ~/cornerstone/assessment-engine/bin/update-live (it brings his checkout to main), then
     ~/cornerstone/assessment-engine/bin/engine staff add <email> --name <name> on his own machine, once for each
     educator, and tells each their password himself. Their emails never pass through Claude or the repository."
-  - "Website and engine command: Vercel deploys the website on merge. No migration and no update-live."
+  - "Vercel deploys the website on merge. No migration; the update-live above is only how the new command reaches
+    Nimish's machine."
 scenarios: []
 criteria:
   - name: the staff command, the seed and the sign-in
