@@ -144,6 +144,15 @@
       "skill_sets": [
         "MD.EQUALITY"
       ]
+    },
+    {
+      "code": "MDMULTIPLES",
+      "subject": "NUM",
+      "name": "Multiples and factors",
+      "taught": false,
+      "skill_sets": [
+        "MD.MULTIPLES"
+      ]
     }
   ]
 }

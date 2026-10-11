@@ -10,6 +10,7 @@ import re
 from engine.assess import equation
 from engine.assess import learned_rules as L
 from engine.assess import misconceptions as M
+from engine.assess import multiples as MU
 from engine.w1_bank import learned as learned_mistakes
 from engine.w3_read import naming, profiles
 
@@ -70,17 +71,7 @@ def mark(spec, response, read, learned=()):
         return "needs_teacher", [], working
     want = response.get("answer")
     if want is not None and not re.fullmatch(r"-?\d+", str(want)):
-        # The paper asks for something that is not one number — an order, a sign, a word. The
-        # reader never reads these (`ocr.answers_for` hands them to a person without a guess), so
-        # the reading here is a person's, and it is marked by the key's own form — and so is a
-        # predicted wrong answer, the other comparison sign.
-        wrote = read.get("child_answer", "")
-        status = _against_the_key(str(want), wrote)
-        predicted = response.get("misconceptions", {}).items()
-        codes = [
-            c for c, v in predicted if status == "wrong" and _against_the_key(str(v), wrote) == "correct"
-        ]
-        return status, sorted(codes), working
+        return (*_not_one_number(spec, response, read.get("child_answer", "")), working)
     if not re.fullmatch(r"-?\d+", answer):
         return "unreadable", [], working
     n = int(answer)
@@ -93,6 +84,22 @@ def mark(spec, response, read, learned=()):
         # a mistake learned from children's answers and adopted by a person (goals/s22-learned-mistakes.yaml)
         codes = learned_mistakes.recognise(learned, spec.get("op"), int(spec["a"]), int(spec["b"]), n)
     return "wrong", codes, working
+
+
+def _not_one_number(spec, response, wrote):
+    """→ (status, codes) for an answer that is not one number. A list (the factors of 12) is one answer in any order,
+    its numbers read group by group (`lists`), and `multiples.judge` names what it shows: one factor left out is one
+    mistake. Anything else — an order, a sign, a word — the reader never reads (`ocr.answers_for` hands it to a person
+    without a guess), so the reading is a person's, marked by the key's own form, and so is a predicted wrong answer,
+    the other comparison sign."""
+    key = str(response["answer"])
+    if response.get("kind") == "list":
+        right, codes = MU.judge(spec, key, wrote)
+        return ("correct" if right else "wrong"), codes
+    status = _against_the_key(key, wrote)
+    predicted = response.get("misconceptions", {}).items()
+    codes = [c for c, v in predicted if status == "wrong" and _against_the_key(str(v), wrote) == "correct"]
+    return status, sorted(codes)
 
 
 def _right_number(n, response):

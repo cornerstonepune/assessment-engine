@@ -6499,3 +6499,89 @@ Proved on copies:
   retired ones' places); `library build` made 42 and retired 2; `library check`: 2,598 worksheets, 160 of 160
   skill-levels ready, 0 problems. MD.EQUALITY is a draft until approved; Achal's question waits, an educator's.
 - **The draft:** `md_taxonomy.py --check` 252 cases, 44 mistakes, 0 faults. `bin/check` 27 passed.
+
+## M4b2 merged and live (2026-10-11)
+
+- Merged as `a66d16d` (#179), at the head CI had passed (`cae1954`: ci 38116856364); the rehearsal on a copy of live ran
+  on the same head (38116872773). The CI failure on `73b06cd` was the goal's tests committed before the build, as
+  intended.
+- Main: `ci` green (38118495794), then `migrate live` (38120153585) and `deploy engine` (38120153580) succeeded.
+- `bin/engine done md4b2-equality` on main's code (the worktree at `a66d16d`), against a copy of the rehearsed database:
+  - 21 of 21 of Nimish's sentences PROVED, s38 among them in the browser;
+  - 7 of 7 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,113 tests, the drafted document 0 faults (252 cases, 44 mistakes), s38 1 passed,
+    `bin/check` 27 passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as before; the `migrate
+    live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a; it also retires live's two
+  sign questions below zero.
+
+## M4c — measured before the build (2026-10-11)
+
+On main `a66d16d`. MD.MULTIPLES holds 8 cases, placed G3 G3 G4 G4: Easy F01 (the multiples of 6 up to 60), F02 (is 45
+a multiple of 5?), F06 (is 340 divisible by 2, 5 and 10?); Medium F03 (the factors of 12), F04 (the factor pairs of 24),
+F08 (is 6 × 7 even or odd?); Hard F05 (common multiples of 3 and 4 below 30); Advance F07 (is 117 divisible by 3, from
+the sum of its digits?).
+- **Seven draw nothing:** F01 to F07 name the kind `multiples`, which no generator makes ("no native generator for
+  format 'multiples'"). F08 draws (odd or even of a table fact, M4b1).
+- **Grades:** "Tables, multiples and factors" is the school's objective at Grade 3 (LO-G3-0942) and Grade 4
+  (LO-G4-1339): the draft's grades stand. Divisibility by 3 from the sum of the digits names no school objective; it
+  is Advance.
+- **Four answers are lists** (F01, F03, F04, F05). The reader reads one strip of boxes per answer, a blank box no
+  position in it (`boxes.read_page`); marking marks each answer by itself (`marking.mark`), and is reached from four
+  places (the reading, marked again, a person's reading, a key changed). A list keyed box by box would mark every box
+  after one missed factor wrong; marking compares a key of several numbers by its numbers in order already, for what a
+  person types (`marking._against_the_key`). A list answer today would go to a person unread (`reading.py`: every
+  answer not `digits`).
+- **Mistakes:** no rows yet for a multiple written for a factor, a number past the limit, a multiple of one number only
+  taken as common, divisibility by 3 judged from the last digit, or a factor pair counted twice.
+
+## M4c — multiples and factors, built (2026-10-11)
+
+Goal `goals/md4c-multiples-and-factors.yaml`, ADR 0067.
+- **Seven shapes** (`assess/multiples.py`): the multiples of a number up to a limit (F01), a multiple or not (F02),
+  divisible by 2, by 5 and by 10 (F06), all the factors (F03), the factor pairs (F04), the common multiples below a
+  limit (F05), divisible by 3 from the sum of the digits (F07); F08 draws as before. Factors are asked of numbers up to
+  60 with four to eight of them and a factor pair from the tables (28, never 57); factor pairs of numbers up to 100,
+  since up to 60 only 17 numbers have three to five pairs, too few for 24 different questions.
+- **A list is one answer** (kind `list`): printed as groups of boxes, two more than it holds, each as wide as its widest
+  number, beside "You may not need every space" (`straight_pages.multiples`); read group by group as any number is and
+  joined in the order written (`w3_read/lists.py`), a doubted group making the whole list a person's; marked as a whole
+  (`multiples.judge`, from `marking._not_one_number`), so the factors of 12 with 4 left out are one wrong answer naming
+  a factor left out, and 24 added names a multiple written for a factor.
+- **No yes-or-no answered by guessing:** in every place a tick is asked (a multiple or not, by 2, by 5, by 10, by 3,
+  and F08's odd or even), each answer at most 0.7 of 60 draws. A wrong tick names the last-digit rule used where it
+  does not work (34 a multiple of 4; 117 judged by its 7), the first digit read for the last (805), or divisible by 5
+  taken for 10 (345), where the question's numbers say so; otherwise the claim reversed.
+- **Twelve new mistakes** drafted for Achal, each counting against multiples and factors (NUM.CNT.08), in the draft's
+  table too (44 to 56 mistakes). MD.MULTIPLES names 15 on its list, computed from what its levels draw.
+- **Rows:** MD.MULTIPLES on R50 (NUM.CNT.08, NUM.OPS.03: "Tables, multiples and factors", the school's objective at
+  Grades 3 and 4), Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, topic MDMULTIPLES "Multiples and
+  factors", untaught; Achal's question `md4c-multiples`; the kind's skill (`skills.by_kind`). No migration. The website
+  calls `multiples` "multiples and factors".
+- **The scenarios' check works out every list and tick from the question's words** (`checks/multiples.py`).
+- **Found while proving, fixed at the cause:** a paper made from MD.MULTIPLES's stored questions could not be printed
+  (`inventory.item_from_row`: `KeyError: 'multiples'`, no row in `layout.WORKING_LINES`), found by the criteria's
+  sample-sheet test on the fresh database. The test that holds the table to the generators drove only levels named by
+  one `format` and a hand list; a level made of cases never reached it. It now holds every kind a case can draw to a
+  row too, and fails without the new one. Achal's question and the goal's line to him are one text again (the row had
+  grown past the goal's line).
+- **Ratchets fell:** `render_item` 19 to 18 (C901) and 56 to 54 statements, the kinds drawn whole now one table
+  (`straight_pages.PAGES`); untyped findings `render.py` 301 to 295. `boxes.py` 392 to 394 lines (two lines that hand a
+  list's groups to `lists.py`).
+
+Proved on copies:
+- **Tests:** `test_md_multiples.py` 17 passed. The criteria's test files without a database: 994 passed, 7 skipped
+  (the 7 need one).
+- **The goal's four scenarios** on a database built fresh as CI builds it (`bin/testdb fresh`): 120 of 120 produced,
+  every answer worked out again from its words (none with nothing to work), on its rule, diagnosed and distinct, every
+  listed case held.
+- **Browser:** s39 and s38, 2 passed, on the rehearsed copy.
+- **The printed paper,** one of each shape, looked at: groups with two to spare, a pair's two either side of ×, each
+  yes-or-no on its own row, the digit sum's box after its sentence. A filled copy, scanned as a phone hands it over, read
+  and marked right; one group left empty, one wrong answer naming the multiple left out.
+- **The update-live rehearsal** on a copy of the post-M4b2 rehearsed database: no migration; `engine load` (rungs 42,
+  skill sets 42, mistakes 131); nothing re-keyed, relabelled or re-homed; the refill retired 0 and added 120
+  (MD.MULTIPLES's 36, 36, 24 and 24); `library build` made 40 and retired 0; `library check`: 2,638 worksheets, 164 of
+  164 skill-levels ready, 0 problems. MD.MULTIPLES is a draft until approved; Achal's question waits, an educator's.
+- **The draft:** `md_taxonomy.py --check` 252 cases, 56 mistakes, 0 faults. `bin/check` 27 passed.

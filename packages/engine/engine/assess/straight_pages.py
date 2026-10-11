@@ -140,7 +140,9 @@ def _sentence(sid: str, iid: str, r: Response, cells: Callable[..., str], big: b
     return f'<div class="row" style="margin-bottom:2mm"><span class="eq">{html.escape(before)}</span>{cells(r, big)}{tail}</div>'
 
 
-def equation(sid: str, iid: str, it: Any, cells: Callable[..., str], big: bool) -> tuple[str, str]:
+def equation(
+    sid: str, iid: str, it: Any, R: dict[str, Response], cells: Callable[..., str], big: bool
+) -> tuple[str, str]:
     """An equation's question and its answers. A × or ÷ one prints each sentence on its own row, its box where its □
     stands or its ticks after it (goals/md4b2-equality.yaml); any other its one sentence under the instruction, then its
     box after "□ =" or its ticks."""
@@ -154,7 +156,9 @@ def equation(sid: str, iid: str, it: Any, cells: Callable[..., str], big: bool) 
     )
 
 
-def claim(sid: str, iid: str, R: dict[str, Response], cells: Callable[..., str]) -> str:
+def claim(
+    sid: str, iid: str, it: Any, R: dict[str, Response], cells: Callable[..., str], big: bool
+) -> tuple[str, str]:
     """A claim to explain: judged yes or no, then why (addition's); or a division multiplied back, its product in a box,
     then why it cannot be right (goals/md4b2-equality.yaml)."""
     first = (
@@ -162,4 +166,35 @@ def claim(sid: str, iid: str, R: dict[str, Response], cells: Callable[..., str])
         if "check" in R
         else ticks(sid, iid, R["tick"], {"yes": "Yes, correct", "no": "No, not correct"})
     )
-    return first + textbox(sid, iid, R["why"], 15)
+    return html.escape(it.stem), first + textbox(sid, iid, R["why"], 15)
+
+
+TIMES = '<span class="eq">&times;</span>'
+
+
+def multiples(
+    sid: str, iid: str, it: Any, R: dict[str, Response], cells: Callable[..., str], big: bool
+) -> tuple[str, str]:
+    """Multiples and factors (goals/md4c-multiples-and-factors.yaml): a list as groups of boxes, two more than it holds,
+    each with room for its widest number — one number a group (`list#3`), or a pair's two either side of × (`list#3.1`,
+    `list#3.2`) — so the boxes do not tell the child how many there are; or each yes-or-no and box on its own row."""
+    work = working(it.working_lines)
+    if "list" not in R:
+        return html.escape(it.stem), "".join(_sentence(sid, iid, r, cells, big) for r in it.responses) + work
+    sp, r = it.spec, R["list"]
+    parts = [""] if sp["per"] == 1 else [f".{j}" for j in range(1, sp["per"] + 1)]
+
+    def group(i: int) -> str:
+        boxes = [cells(dataclasses.replace(r, rid=f"list#{i}{p}", cells=sp["width"]), big) for p in parts]
+        return f'<span class="row" style="gap:1.5mm">{TIMES.join(boxes)}</span>'
+
+    groups = "".join(group(i) for i in range(1, sp["spaces"] + 1))
+    return html.escape(it.stem), f'<div class="row" style="gap:3mm 7mm">{groups}</div>' + work
+
+
+# The kinds whose question and boxes are drawn here whole, each from the same hand: its question, then its boxes.
+PAGES: dict[str, Callable[..., tuple[str, str]]] = {
+    "equation": equation,
+    "explain_claim": claim,
+    "multiples": multiples,
+}

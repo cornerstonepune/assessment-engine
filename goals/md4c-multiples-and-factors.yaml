@@ -1,0 +1,107 @@
+name: md4c-multiples-and-factors
+goal: >
+  MD.MULTIPLES (Grades 3 and 4) asks for multiples, factors and divisibility. Easy, Grade 3: the multiples of a number up
+  to a limit (the multiples of 6 up to 60), whether a number is a multiple of another (is 45 a multiple of 5?), and
+  whether a number is divisible by 2, by 5 and by 10, from its last digit (340). Medium, Grade 3: all the factors of a
+  number (12), its factor pairs (24), and whether a product is odd or even (6 × 7). Hard, Grade 4: the common multiples
+  of two numbers below a limit (3 and 4, below 30). Advance, Grade 4: whether a number is divisible by 3, from the sum of
+  its digits (117: 1 + 1 + 7 = □). A list is one answer: the child writes its numbers in any order, in groups of boxes
+  with room for two more than it holds, so the count is not given away; the paper is read group by group and the list
+  marked as a whole, so one factor left out is one mistake, not a row of wrong boxes. A yes-or-no is right one way as
+  often as the other in every place it is asked. Every question names a mistake its wrong answer shows, twelve of them
+  new and drafted for Achal: a number outside the range asked, a number that is not a multiple, a multiple left out, a
+  multiple written for a factor, a number that does not divide, a factor left out, a factor pair written twice, a
+  multiple of one number taken as common, a common multiple left out, the last-digit rule used for a number it does not
+  work for, the first digit read for the last, and divisible by 5 taken as divisible by 10. The scenario works out
+  every list, every yes-or-no and every digit sum from the question's own numbers. Every level fills and every scenario
+  is 100%. None of it is taught until an educator says so.
+# Written 2026-10-11, before the code: slice M4c of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M4c — measured before the build"): F01 to F07 name the kind `multiples`, which no generator
+# makes; F08 draws. Four answers are lists, and the reader and marking take one number at a time: a list keyed box by
+# box marks every box after one missed factor wrong. Marking already compares a key of several numbers in order, for
+# what a person types (`marking._against_the_key`); a list answer today would go to a person unread.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_the_multiples_of_a_number_up_to_a_limit
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_whether_a_number_is_a_multiple_of_another
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_divisible_by_two_five_and_ten_from_the_last_digit
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_all_the_factors_and_the_factor_pairs_of_a_number
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_the_common_multiples_of_two_numbers_below_a_limit
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_divisible_by_three_from_the_sum_of_the_digits
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_each_level_holds_its_cases_at_the_grade_the_document_gives
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_no_yes_or_no_is_answered_by_guessing
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_every_question_names_a_mistake_its_wrong_answer_shows
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_the_twelve_new_mistakes_are_rows_drafted_for_achal
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_a_list_is_printed_with_room_for_more_than_it_holds
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_a_right_answer_counts_for_multiples_and_the_tables
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_a_list_is_marked_as_a_whole_in_any_order
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_a_printed_list_is_read_group_by_group_and_marked
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_a_scenario_works_out_every_list_yes_or_no_and_digit_sum
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_every_answer_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_md_multiples.py::test_every_level_fills_each_case_as_often_as_it_asks
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s39-multiples.spec.ts::once taught, every multiple and factor is on the Question bank as the child meets it"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.MULTIPLES into a topic of its own,
+    Multiples and factors, and fills its levels. No screen or paper shows it until an educator switches it on from
+    Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
+  - "Achal: drafted for you to correct. MD.MULTIPLES is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as
+    the document drafted it; \"Tables, multiples and factors\" is the school's objective at both grades, and
+    divisibility by 3 from the sum of the digits, which no objective names, is Advance. A list (the factors of 12) is
+    written in any order, in groups of boxes with two more than the list needs and the words \"You may not need every
+    space\", so the number of boxes does not tell the child how many there are; it is marked as one answer, so one
+    factor left out is one mistake. All the factors are asked of numbers up to 60 with a factor pair from the tables
+    (28, never 57), and factor pairs of numbers up to 100. Twelve new mistakes, their names and what to do about them
+    drafted for you."
+scenarios:
+  - name: MD.MULTIPLES, Easy — the multiples up to a limit, a multiple or not, divisible by 2, 5 and 10
+    skill_set: MD.MULTIPLES
+    difficulty: Easy
+    n: 36
+    cases: [F01, F02, F06]
+  - name: MD.MULTIPLES, Medium — all the factors, the factor pairs, a product odd or even
+    skill_set: MD.MULTIPLES
+    difficulty: Medium
+    n: 36
+    cases: [F03, F04, F08]
+  - name: MD.MULTIPLES, Hard — the common multiples below a limit
+    skill_set: MD.MULTIPLES
+    difficulty: Hard
+    n: 24
+    cases: [F05]
+  - name: MD.MULTIPLES, Advance — divisible by 3, from the sum of the digits
+    skill_set: MD.MULTIPLES
+    difficulty: Advance
+    n: 24
+    cases: [F07]
+criteria:
+  - name: multiples and factors drawn, printed, read and marked; the drawer, the reader, marking and the checks they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_md_multiples.py tests/test_facts_advance.py tests/test_estimates.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_every_skill.py tests/test_mistake_rows.py tests/test_items.py tests/test_render.py tests/test_each_answer.py tests/test_boxes.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_asks.py tests/test_audit.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank shows every multiple and factor as the child meets it
+    run: cd apps/web && npx playwright test tests/s39-multiples.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

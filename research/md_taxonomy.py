@@ -887,6 +887,51 @@ mistake("M_REMAINDER_NOT_ROUNDED_UP (new)", "÷", "Drops the remainder when the 
         "26 children, 4 to a rickshaw", -(-26 // 4), 26 // 4, charges="word problems")
 mistake("M_TIMES_AS_MORE (new)", "×", "Reads \"3 times as many\" as \"3 more\"", "4 stickers, 3 times as many",
         4 * 3, 4 + 3, charges="word problems")
+# multiples and factors (M4c): each list worked out from its own numbers, each wrong list one mistake's
+def listed(xs):
+    return ", ".join(" × ".join(map(str, x)) if isinstance(x, tuple) else str(x) for x in xs)
+
+
+def mult(n, upto):
+    return [k for k in range(n, upto + 1, n)]
+
+
+def divs(n):
+    return [d for d in range(1, n + 1) if n % d == 0]
+
+
+def pairs(n):
+    return [(d, n // d) for d in divs(n) if d * d <= n]
+
+
+def common(a, b, below):
+    return [k for k in range(1, below) if k % a == 0 and k % b == 0]
+
+
+mistake("M_OUT_OF_RANGE (new)", "×", "Writes a multiple outside the range asked", "the multiples of 6 up to 60",
+        listed(mult(6, 60)), listed(mult(6, 66)))
+mistake("M_NOT_A_MULTIPLE (new)", "×", "Writes a number that is not a multiple", "the multiples of 5 up to 50",
+        listed(mult(5, 50)), listed([x + (x == 25) for x in mult(5, 50)]))
+mistake("M_MULTIPLE_MISSED (new)", "×", "Leaves a multiple out", "the multiples of 5 up to 30", listed(mult(5, 30)),
+        listed([x for x in mult(5, 30) if x != 20]))
+mistake("M_MULTIPLE_FOR_FACTOR (new)", "×", "Writes a multiple for a factor", "the factors of 12", listed(divs(12)),
+        listed(divs(12) + [24]))
+mistake("M_NOT_A_FACTOR (new)", "×", "Writes a number that does not divide", "the factors of 12", listed(divs(12)),
+        listed(sorted(divs(12) + [5])))
+mistake("M_FACTOR_MISSED (new)", "×", "Leaves a factor out, most often the number itself or 1", "the factors of 12",
+        listed(divs(12)), listed(divs(12)[:-1]))
+mistake("M_FACTOR_PAIR_TWICE (new)", "×", "Writes a factor pair twice, turned round", "the factor pairs of 24",
+        listed(pairs(24)), listed(pairs(24) + [(8, 3)]))
+mistake("M_MULTIPLE_OF_ONE_ONLY (new)", "×", "Takes a multiple of one number for a common multiple",
+        "the common multiples of 3 and 4 below 30", listed(common(3, 4, 30)), listed(sorted(common(3, 4, 30) + [8])))
+mistake("M_COMMON_MULTIPLE_MISSED (new)", "×", "Leaves a common multiple out", "the common multiples of 3 and 4 below 30",
+        listed(common(3, 4, 30)), listed(common(3, 4, 30)[:1]))
+mistake("M_LAST_DIGIT_RULE_MISAPPLIED (new)", "×", "Judges by the last digit where that does not work",
+        "is 34 a multiple of 4?", "yes" if 34 % 4 == 0 else "no", "yes" if 4 % 4 == 0 else "no")
+mistake("M_FIRST_DIGIT_FOR_LAST (new)", "×", "Reads the first digit for the last", "is 805 divisible by 2?",
+        "yes" if 805 % 2 == 0 else "no", "yes" if 8 % 2 == 0 else "no")
+mistake("M_FIVE_AS_TEN (new)", "×", "Takes divisible by 5 to mean divisible by 10", "is 345 divisible by 10?",
+        "yes" if 345 % 10 == 0 else "no", "yes" if 345 % 5 == 0 else "no")
 mistake("M_KEYWORD_OVERGENERALISED (existing)", "÷", "Multiplies because the story says \"each\"",
         "30 stickers, 5 for each child", 30 // 5, 30 * 5, charges="word problems")
 
