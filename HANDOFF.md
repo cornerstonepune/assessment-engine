@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI1 live; UI2: Assessments (built, proved on copies)
+
+- **UI1** merged (#183) and live on Vercel; done report 5/5, 3/3 (STATE.md "UI1 merged and live").
+- **Slice:** UI2 (BUILD-ORDER "UI1 to UI4"): Assessments opens on four ways to make one; a class and a topic make its
+  default assessment; stages, classes and weeks in words; check and sign off, one word each (STATE.md "UI2 —
+  Assessments, built").
+- **Put to Nimish, not built:** choosing single questions from the bank into a paper. The engine makes papers from
+  skills and levels or hands out a ready-made worksheet; a paper of chosen questions is W2 engine work.
+- **Next:** UI3 (Curriculum), then UI4 (Children; the staff list off the public repository; Achal's and Neha's
+  emails asked for then, never their passwords).
+
 ## 2026-10-11 — UI1: the menu and Today (built, proved on copies)
 
 - **Slice:** UI1, Nimish's exception to W1 gate 3 (BUILD-ORDER "UI1 to UI4"). The plan he approved:

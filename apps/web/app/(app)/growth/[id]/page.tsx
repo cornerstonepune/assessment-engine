@@ -2,7 +2,7 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
-import { childEvidence, childHeader, childPapers, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
+import { childEvidence, childHeader, childPapers, gradeWords, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
 import { childSheets, childSkills, repeatedMistakes, summary } from "@/lib/queries-children";
 import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
 import { ColourKey } from "@/components/colour-key";
@@ -69,7 +69,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
       <PageHeader
         stage={`Children · ${child.section}`}
         title={child.first_name}
-        sub={`Roll ${child.roll_no} · ${child.band} · ${child.n_events} confirmed answers over ${read.length} paper${read.length === 1 ? "" : "s"}.`}
+        sub={`Roll ${child.roll_no} · ${gradeWords(child.band)} · ${child.n_events} answers signed off over ${read.length} paper${read.length === 1 ? "" : "s"}.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2">
@@ -89,12 +89,12 @@ export default async function ChildPage({ params, searchParams }: Props) {
         <p data-testid="summary" className="mb-4 max-w-[760px] text-[16px] leading-snug">
           {summary(child.first_name, shown, notYet)}
         </p>
-        {q.confirmed ? <Notice tone="neem">Confirmed {q.confirmed} answers. What their answers show is rebuilt from them.</Notice> : null}
-        {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader&rsquo;s trust now settles leave the queue at the next check.</Notice> : null}
+        {q.confirmed ? <Notice tone="neem">Signed off {q.confirmed} answers. What their answers show is rebuilt from them.</Notice> : null}
+        {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader is now trusted on leave the queue at the next check.</Notice> : null}
         {q.paper && /^CS[0-9A-F]{6}$/.test(q.paper) ? (
           <Notice tone="neem">Approved in your name: paper {q.paper}. Print it from its page.</Notice>
         ) : null}
-        {q.resolved ? <Notice tone="neem">Settled. What their answers show is rebuilt.</Notice> : null}
+        {q.resolved ? <Notice tone="neem">Checked. What their answers show is rebuilt.</Notice> : null}
         {q.error === "resolve" ? <Notice tone="terracotta">Pick right, wrong or blank. Nothing was changed.</Notice> : null}
 
         <div className="mb-[18px] grid grid-cols-2 gap-[10px] md:grid-cols-5">
@@ -104,7 +104,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           <a href="#needs-you" className="panel flex flex-col justify-between border-l-4 border-l-basalt p-3 no-underline">
             <span className="font-heading text-[26px] leading-none text-basalt">{person.length + machine.length}</span>
             <span className="mt-2 text-[12.5px] text-terracotta">
-              {[person.length && `${person.length} to settle`, machine.length && `${machine.length} to confirm`].filter(Boolean).join(" · ") || "nothing waiting"}
+              {[person.length && `${person.length} to check`, machine.length && `${machine.length} to sign off`].filter(Boolean).join(" · ") || "nothing waiting"}
             </span>
           </a>
         </div>
@@ -121,11 +121,11 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
             <div id="needs-you" className="grid gap-[18px]">
               {person.length > 0 ? (
-                <Panel title="Needs you to settle" aside={`${person.length} answer${person.length === 1 ? "" : "s"} the marker could not check`}>
+                <Panel title="Answers to check" label="Answers to check" aside={`${person.length} answer${person.length === 1 ? "" : "s"} the marker could not check`}>
                   <ul className="grid gap-3">
                     {person.map((p) => (
                       <li key={p.id} className="grid gap-3 border border-basalt/12 p-4 md:grid-cols-[240px_minmax(0,1fr)_auto]">
-                        {/* What the child wrote, as the photograph shows it: a person settles an answer by looking at it. */}
+                        {/* What the child wrote, as the photograph shows it: a person checks an answer by looking at it. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`/api/scan/${p.capture_id}/${p.file_page}${p.box?.length === 4 ? `?box=${p.box.join(",")}` : ""}`}
@@ -163,15 +163,15 @@ export default async function ChildPage({ params, searchParams }: Props) {
               ) : null}
 
               {machine.length > 0 ? (
-                <Panel title="Marked, waiting for your confirm" aside={`${machine.length} answers`}>
+                <Panel title="Marked, waiting to be signed off" label="Answers to sign off" aside={`${machine.length} answers`}>
                   <AnswerTable rows={machine} names={names} />
                   <form action={confirmChild} className="mt-4">
                     <input type="hidden" name="child_id" value={id} />
                     <button className="btn" type="submit">
-                      Confirm these {machine.length} answers as {me.name}
+                      Sign off {machine.length} {machine.length === 1 ? "answer" : "answers"} as {me.name}
                     </button>
                     <p className="note mt-2">
-                      Confirming records each answer as evidence in your name and rebuilds the ladder. Evidence is never
+                      Signing off records each answer as evidence in your name and rebuilds the ladder. Evidence is never
                       edited afterwards; a correction is a new row.
                     </p>
                   </form>

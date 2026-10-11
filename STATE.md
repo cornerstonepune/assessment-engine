@@ -6716,3 +6716,43 @@ waits on a person there. The screenshots hold children's names and stayed on the
   race in the test (it counted Today's lines before they streamed in), fixed and passed; u15 and u1 twice running on
   one copy (a second run found the test child's report not made again; fixed). `tsc`, `eslint` clean. `bin/check` 27
   passed. Looked at Today on the rehearsed copy at a laptop's width.
+
+## UI1 merged and live (2026-10-11)
+
+- Merged as `0aadd04` (#183) at the head CI had passed on (`b0e142f`: engine, web and browser green). Vercel's
+  production deploy of `0aadd04` succeeded at 14:26 UTC; the website is the whole of UI1, so nothing waits on
+  update-live.
+- `bin/engine done ui1-menu-and-today` on main's code against a database built fresh: 5 of 5 of Nimish's sentences
+  PROVED, 3 of 3 criteria PASSED (63 browser tests, types and lint clean, `bin/check` 27 passed). Its live line cannot
+  read the live database's migrations from here (`UndefinedTable`; no local copy records them), as for M4c; UI1 has
+  no migration.
+
+## UI2 — measured before the build (2026-10-11)
+
+- **The maker already makes what Nimish described:** class practice, class assessments and home assessments, for any
+  children of a class, one paper for all, the same skill with different questions, or each child's own next step
+  (goals/m3-the-maker.yaml); every child's paper is seen before anything is made. Nothing opened it ready for a use:
+  Assessments had one "Make a paper" button, and a choice made before the class was chosen was lost.
+- **A topic made nothing:** a class assessment took one to three skill-and-level lines chosen one by one.
+- **Words:** the stages read made / printed / scanned / checked / signed off; the class column read the class's code
+  and the week column the ISO week; a child's page said "settle" and "confirm" where the queue says check and a paper
+  is signed off.
+- **Not there at all:** choosing single questions from the bank into a paper. The engine makes papers from skills and
+  levels, or hands out a ready-made worksheet (`/worksheet/{code}/for.pdf`); a paper of chosen questions is engine
+  work (W2), put to Nimish rather than built under UI2.
+
+## UI2 — Assessments, built (2026-10-11)
+
+- **Assessments opens on four ways to make one**, each opening its place ready for that use: for a class (the maker,
+  class assessment, one paper for all), for each child (this week's home assessments, one per child from their record),
+  for one child (the maker, the engine's next step, no child ticked until one is), a ready-made worksheet (the library).
+  The maker keeps a starting point's kind and way until the class is chosen.
+- **A class and a topic make its default assessment** (`topicLines`, lib/maker.ts): the topic's skills at the class's
+  grade in the ladder's order, as many as a paper has lines, each at Medium where it has one, the home paper's length
+  shared between them; the educator sees every child's paper and can change any line before anything is made.
+- **Words:** stages are to approve, with the children, to check, to sign off, done (the filter's values stay the stored
+  stages); classes Grade 2 · 2B; weeks "week of 5 Oct". A child's page checks an answer and signs answers off: settle and
+  confirm are gone from it, and its grade is a word.
+- **Proved on copies:** the goal's browser criteria on a database built fresh, 58 of 58 (u16 written first and seen
+  failing for the absent "Make an assessment"; m4's opening and u16's own waits fixed on the way). `tsc`, `eslint`
+  clean. The Assessments page looked at on the rehearsed copy.

@@ -3,7 +3,7 @@ import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
-import { forChildren, KINDS, planBatch, readBatch, UUID, WAYS } from "@/lib/maker";
+import { forChildren, KINDS, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
 import { gradeWords, skillSets } from "@/lib/queries";
 import { classRoll } from "@/lib/queries-children";
 import { homeByClass, homeLength } from "@/lib/queries-make";
@@ -39,14 +39,19 @@ export default async function Maker({ searchParams }: Props) {
   const week = isoWeek();
   const [classes, sets, homeN] = await deadline(Promise.all([homeByClass(week), skillSets(), homeLength()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
+  // a starting point's kind and way hold until the class is chosen; "for one child" ticks no one until they are chosen
+  const one = get("one")[0] === "1";
+  const topic = get("topic")[0] ?? "";
+  const fromTopic = cls && topic && !get("s").some(Boolean) && !get("a").length ? topicLines(sets, topic, cls.band, homeN, LINES) : [];
+  const topics = cls ? [...new Map(sets.filter((x) => x.band === cls.band && x.topic_code).map((x) => [x.topic_code!, x.topic_name ?? x.topic_code!])).entries()] : [];
   const roll = cls ? await deadline(classRoll(cls.section, me.email)) : [];
   // every child is ticked until the form for this class has been sent
   const sent = get("picked").length > 0 && get("of")[0] === cls?.section;
-  const read = cls ? readBatch(get, week) : null;
-  const batch = read && forChildren(read, roll.filter((c) => (sent ? read.children.includes(c.id) : true)).map((c) => c.id));
-  const ticked = new Set(batch ? batch.children : roll.map((c) => c.id));
-  const kind = batch?.kind ?? "practice";
-  const way = batch?.way ?? "each";
+  const read = cls ? readBatch((k) => (k === "a" && fromTopic.length ? fromTopic : get(k)), week) : null;
+  const batch = read && forChildren(read, roll.filter((c) => (sent ? read.children.includes(c.id) : !one)).map((c) => c.id));
+  const ticked = new Set(batch ? batch.children : one ? [] : roll.map((c) => c.id));
+  const kind = batch?.kind ?? get("kind")[0] ?? "practice";
+  const way = batch?.way ?? get("way")[0] ?? "each";
   const ready = batch && batch.children.length > 0 && (batch.way === "own" || batch.areas.length > 0) ? batch : null;
   const planned = ready ? await planBatch(ready) : null;
   // a form the engine did not answer on comes back with its own `once`, so sending it again makes its papers once
@@ -82,6 +87,13 @@ export default async function Maker({ searchParams }: Props) {
                   ))}
                 </select>
               </label>
+              {cls ? null : (
+                <>
+                  <input type="hidden" name="kind" value={kind} />
+                  <input type="hidden" name="way" value={way} />
+                  {one ? <input type="hidden" name="one" value="1" /> : null}
+                </>
+              )}
               {cls ? (
                 <>
                   <input type="hidden" name="picked" value="1" />
@@ -112,6 +124,16 @@ export default async function Maker({ searchParams }: Props) {
                   {/* the skill and level are the educator's for one paper for all and for the same skill for each */}
                   <fieldset className="grid gap-2 group-has-[input[value=own]:checked]:hidden">
                     <legend className="label mb-2">Skill, level and how many questions</legend>
+                    <label className="field">
+                      <span className="label">Topic</span>
+                      <select className="select" name="topic" defaultValue={topic}>
+                        <option value="">Choose the skills yourself</option>
+                        {topics.map(([code, name]) => (
+                          <option key={code} value={code}>{name}</option>
+                        ))}
+                      </select>
+                      <span className="note">A topic fills its skills at this class&rsquo;s grade; change any line before you see the papers.</span>
+                    </label>
                     {lines.map((a, i) => (
                       <div key={i} className="grid grid-cols-[minmax(0,1fr)_72px] gap-2">
                         <SkillLevelSelect name="s" label={`Skill and level ${i + 1}`} value={a ? `${a.skill_set}~${a.level}` : ""} sets={sets} band={cls.band} />

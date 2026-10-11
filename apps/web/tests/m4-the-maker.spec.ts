@@ -76,9 +76,10 @@ test.afterAll(async () => {
 const CODES = /\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/;
 
 test("an educator picks the kind, the children and the way, sees every paper, makes them, and prints them as one", async ({ page }) => {
+  // the maker opens from Assessments' first way to make one (goals/ui2-assessments.yaml), for a class
   await page.goto("/papers");
-  await page.getByRole("link", { name: "Make a paper" }).click();
-  await expect(page).toHaveURL(/\/papers\/make$/);
+  await page.getByRole("region", { name: "Make an assessment" }).getByRole("link", { name: /^For a class/ }).click();
+  await expect(page).toHaveURL(/\/papers\/make\?/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
   const form = page.getByRole("form", { name: "Choose the papers" });
   await form.getByLabel("Class").selectOption(SECTION);
@@ -130,12 +131,12 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
   expect(pdf.headers()["content-type"]).toContain("application/pdf");
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
 
-  // and in Papers, ready to hand out
-  await page.getByRole("link", { name: "See them in Papers" }).click();
+  // and in Assessments, ready to hand out
+  await page.getByRole("link", { name: "See them in Assessments" }).click();
   const list = page.getByRole("table", { name: "Every paper" });
   await expect(list.locator("tbody tr")).toHaveCount(2);
   await expect(list.locator("tbody tr").first()).toContainText("Class assessment");
-  await expect(list.locator("tbody tr").first()).toContainText("printed");
+  await expect(list.locator("tbody tr").first()).toContainText("with the children");
 });
 
 test("each child's own next step is shown child by child, and a child with nothing to go on can be given a skill", async ({ page }) => {

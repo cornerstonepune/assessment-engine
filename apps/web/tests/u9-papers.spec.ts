@@ -102,17 +102,18 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await expect(table.locator("tbody tr")).toHaveCount(4);
 
   const cells = (p: Paper) => row(page, p).locator("td");
-  await expect(cells(papers.made)).toHaveText([`${await setName("ADD.2D2D")} · Easy`, "Class practice", SECTION, "Bina", WEEK, "made", "—", "—"]);
-  await expect(cells(papers.printed)).toHaveText([`${await setName("SUB.2D2D")} · Medium`, "Home assessment", SECTION, "Asha", WEEK, "printed", "—", "—"]);
-  await expect(cells(papers.scanned)).toHaveText(["U9 September paper", "Earlier paper", SECTION, "Asha", WEEK, "scanned", "1", "—"]);
-  await expect(cells(papers.signed)).toHaveText([`${await setName("SUB.2D2D")} · Hard`, "Class assessment", SECTION, "Bina", WEEK, "signed off", "—", "1 of 2"]);
+  await expect(cells(papers.made)).toHaveText([`${await setName("ADD.2D2D")} · Easy`, "Class practice", `Grade 2 · ${SECTION}`, "Bina", WEEK, "to approve", "—", "—"]);
+  await expect(cells(papers.printed)).toHaveText([`${await setName("SUB.2D2D")} · Medium`, "Home assessment", `Grade 2 · ${SECTION}`, "Asha", WEEK, "with the children", "—", "—"]);
+  await expect(cells(papers.scanned)).toHaveText(["U9 September paper", "Earlier paper", `Grade 2 · ${SECTION}`, "Asha", WEEK, "to check", "1", "—"]);
+  await expect(cells(papers.signed)).toHaveText([`${await setName("SUB.2D2D")} · Hard`, "Class assessment", `Grade 2 · ${SECTION}`, "Bina", WEEK, "done", "—", "1 of 2"]);
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(table).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
 
   // each stage is counted, and a count is the filter
   const stages = page.getByRole("navigation", { name: "Papers by stage" });
-  await expect(stages.getByRole("link", { name: /scanned/ })).toContainText("1");
-  await stages.getByRole("link", { name: /scanned/ }).click();
+  // each stage said as the work it waits for (goals/ui2-assessments.yaml); its filter value stays the stored stage
+  await expect(stages.getByRole("link", { name: /^To check/ })).toContainText("1");
+  await stages.getByRole("link", { name: /^To check/ }).click();
   await expect(page).toHaveURL(/stage=scanned/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(table.locator("tbody tr")).toHaveCount(1);
@@ -137,7 +138,7 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   await expect(menu.getByRole("link", { name: "Marking" })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Make papers" })).toHaveCount(0);
   // making, reading a scan and the queue of answers to check are all here
-  await expect(page.getByRole("link", { name: "Make a paper" })).toHaveAttribute("href", "/papers/make");
+  await expect(page.getByRole("region", { name: "Make an assessment" }).getByRole("link", { name: /^For a class/ })).toHaveAttribute("href", /^\/papers\/make\?/);
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
   // the pages it merged are still Assessments
