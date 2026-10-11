@@ -77,6 +77,22 @@ def test_the_done_report_names_each_sentence_its_test_and_what_is_not_live(tmp_p
     assert ok and lines[-1] == "DONE" and "nothing: all of it is live" in "\n".join(lines)
 
 
+def test_the_done_report_asks_the_live_database_and_never_the_copy(monkeypatch):
+    """The report's "Not live yet" is about live. It once read the copy the tests ran on, found no migration record
+    there, and blamed live ("could not read the live database's migrations: UndefinedTable") on every report: it asks
+    live's read-only address, says so when none is set, and names a live database that does not answer."""
+    monkeypatch.setenv("DATABASE_URL", "postgresql://nobody@127.0.0.1:1/the_copy")
+    monkeypatch.delenv("LIVE_READONLY_DATABASE_URL", raising=False)
+    said = done.not_live()
+    assert said[-1] == "the live database was not asked: LIVE_READONLY_DATABASE_URL is not set where this ran"
+    monkeypatch.setenv("LIVE_READONLY_DATABASE_URL", "postgresql://nobody@127.0.0.1:1/live")
+    said = done.not_live()
+    assert (
+        said[-1]
+        == "the live database did not answer from here (OperationalError): its migrations are unchecked"
+    )
+
+
 def test_the_done_report_runs_the_goals_own_scenarios_and_criteria(tmp_path, monkeypatch):
     """A goal's sentences proved while its own scenarios and criteria are red is not done: the report runs those too,
     now, and says which (goals/p1-done-means-every-check.yaml)."""

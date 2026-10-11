@@ -10,8 +10,13 @@ not a summary.
 import os
 import subprocess
 
+from psycopg.conninfo import make_conninfo
+
 from engine.checks import goal as goals
 from engine.core import db
+
+LIVE = "LIVE_READONLY_DATABASE_URL"
+"""Live's read-only address, the one `engine live data` reads by: never the copy the tests ran on."""
 
 ENGINE = db.REPO_ROOT / "packages" / "engine"
 WEB = db.REPO_ROOT / "apps" / "web"
@@ -61,9 +66,18 @@ def evidence(out, expect):
     return (proof or said or ["no output"])[-1][:100]
 
 
+def _applied(conn) -> set[str]:
+    """The migrations a database has recorded as applied."""
+    return {
+        r["version"]
+        for r in conn.execute("select version from supabase_migrations.schema_migrations").fetchall()
+    }
+
+
 def not_live(conn=None):
     """What this checkout holds that the live system does not: the branch not merged to main, and
-    migrations the live database has not had."""
+    migrations the live database has not had, asked of live by its read-only address. It once asked the copy the
+    tests ran on and blamed live for that copy's missing migration record."""
     out = []
     head = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=db.REPO_ROOT, capture_output=True, text=True
@@ -78,13 +92,19 @@ def not_live(conn=None):
         out.append("this work is not on main yet, so the live website and engine do not have it")
     files = sorted(p.stem.split("_", 1)[0] for p in (db.REPO_ROOT / "supabase" / "migrations").glob("*.sql"))
     try:
-        with conn or db.connect() as c:
-            applied = {
-                r["version"]
-                for r in c.execute("select version from supabase_migrations.schema_migrations").fetchall()
-            }
+        if conn is not None:
+            applied = _applied(conn)
+        else:
+            url = os.getenv(LIVE)
+            if not url:
+                return [*out, f"the live database was not asked: {LIVE} is not set where this ran"]
+            with db.connect(make_conninfo(url, connect_timeout=10)) as c:
+                applied = _applied(c)
     except Exception as e:  # noqa: BLE001 — a report says what it could not check, it does not crash
-        return [*out, f"could not read the live database's migrations: {type(e).__name__}"]
+        return [
+            *out,
+            f"the live database did not answer from here ({type(e).__name__}): its migrations are unchecked",
+        ]
     missing = [v for v in files if v not in applied]
     if missing:
         out.append(f"{len(missing)} migration(s) not on the live database: {', '.join(missing)}")

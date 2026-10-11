@@ -6811,3 +6811,23 @@ waits on a person there. The screenshots hold children's names and stayed on the
   heading gives), a restore that left `taught_at` set against `topic_taught_by_a_person`, and a count of folded
   buttons that read the accessibility tree, where a closed fold's buttons are absent and "hidden" would have passed
   with none. `tsc`, `eslint` clean.
+
+## UI3 merged and live (2026-10-11)
+
+- Merged as `3b6806a` (#185) at the head CI had passed on (`349049c`: engine, web and browser green; the first head's
+  browser run caught u17's approval race, fixed in `349049c`). Vercel's production deploy of `3b6806a` succeeded at
+  17:15 UTC; the website is the whole of UI3, so nothing waits on update-live.
+- `bin/engine done ui3-curriculum` on main's code against a database built fresh: 7 of 7 of Nimish's sentences
+  PROVED, 3 of 3 criteria PASSED (77 browser tests, types and lint clean, `bin/check` 27 passed).
+
+## The done report asks live, not the copy (2026-10-11)
+
+- **Found:** every done report since M4c ended "could not read the live database's migrations: UndefinedTable" and so
+  NOT DONE. It never asked live: `not_live` read the database the tests had just run on (`DATABASE_URL`, a copy with no
+  migration record) and blamed live for it.
+- **Fixed** (`engine/checks/done.py`, test `test_the_done_report_asks_the_live_database_and_never_the_copy`): it asks
+  live by its read-only address (`LIVE_READONLY_DATABASE_URL`, the one `engine live data` reads by) with a ten-second
+  limit; says so when no address is set; and names a live database that does not answer.
+- **What that shows from this container:** the address is set, but live does not answer here (outbound is an HTTPS
+  proxy; Postgres does not pass). So a report written here says live's migrations are unchecked, and NOT DONE stands
+  for that line alone, as it should. Whether the website is live is read from Vercel's production deploy of the merge.
