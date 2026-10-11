@@ -6213,3 +6213,51 @@ Rehearsed on the copy `m3d` (`m3c`, then the migration, `engine load`, `bank lev
   ready, 0 problems; MUL_DIV 252 cases, 200 covered, 49 missing (M4's and the unplaced), 3 thin;
 - the goal's six scenarios met the bar completely: 16, 24, 24, 16, 24 and 40 asked, each produced, recomputed step by
   step, on its rule, diagnosed and distinct, every listed case held.
+
+## M3d merged and live (2026-10-11)
+
+- Merged as `d75767c` (#176), at the head CI had passed (`4e5148d`: ci 38097090416). The rehearsal on a copy of live
+  ran on the same head (38097095667). CI's first run (`733c0ae`) failed 3 of 2,195 tests M3d had not carried: the
+  taxonomy test's count of 251 cases (now 252) and the rehome tests' own list of straight kinds (now with chunking and
+  long division). Each was reproduced on a copy and fixed in the PR.
+- Main: `ci` green (38098163028), then `migrate live` (38099162995) and `deploy engine` (38099162961) succeeded.
+- `bin/engine done md3d-division-methods` on main's code (the worktree at `d75767c`), against a copy of `m3d`:
+  - 21 of 21 of Nimish's sentences PROVED, s35 among them in the browser;
+  - 6 of 6 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,196 tests, the drafted document 0 faults (252 cases), s35 1 passed, `bin/check` 27
+    passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as for M3a to M3c; the
+    `migrate live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a.
+
+## M4 — measured before the build (2026-10-11)
+
+On main `d75767c` and the rehearsed copy `m3d`. M4 places 74 cases on five skills (`research/md_taxonomy.py` SKILLS).
+
+- **29 of the 74 are also on another skill**, all of MD.WORD's Easy and MD.ESTIMATE's Medium among them: B01, B02,
+  B03, B05, B04, B11, B13, B06, B08, B07, B12, B14–B17 (MD.WORD); H10, H01, H07, H08, H09 (MD.MENTAL); Y09, Y10
+  (MD.EQUALITY); V07, V01, V03, V02, V04, V10, V09 (MD.ESTIMATE). This is addition's own practice, not a defect:
+  31 addition and subtraction cases already sit on two skill sets (M01–M25, W01–W11, X01–X09). A case is a pattern;
+  the item key keeps each question in one level. Two levels drawing the same numbers for one case share one pool of
+  questions, measured when each slice fills its levels.
+- **Of the 45 cases only an M4 skill holds, 1 draws** (Y04, anything × 0), each drawn alone on every calculation
+  skill's Advance as `test_every_listed_case` draws. No generator makes `multiples` (F01–F07); no word_2step template
+  carries × or ÷ (B18–B23); none of the seven new mental methods, eleven new equation shapes, C08, DR09's remainder,
+  V05, V06 or V08 for × draws.
+- **MD.MENTAL against the school's objectives (A6):** LO-G2-0498 "Apply doubling and halving strategies" puts both at
+  Grade 2, where the draft has halving (G25) at Hard, Grade 3. H10 (6 × 7 = 42, so 60 × 7) sits at Easy, Grade 2;
+  a multiple of ten times a digit is MUL.TENS's, from Grade 3. H09 (240 ÷ 5 as 24 × 2) sits at Hard, Grade 3;
+  dividing by 10 is DIV.TENS's, every level Grade 4. G06's label lists × 8, which is H05's own case.
+- **The five shortcuts M2b and M3b1 built** draw on a level with no digit shape (H01, H07, H08, H09: 4 of 4), except
+  H10, which reads MUL.TENS's shape (0 of 4).
+- **One kind under two codes:** V06 (MD.ESTIMATE, "7 × 9 and 6 × 13: odd or even") and F08 (MD.MULTIPLES, "Is 6 × 7
+  even or odd?"); F08's match is V06's narrowed, so every F08 question would count as V06 too.
+- **Stories:** 76 templates in `assess/word_templates.json`; two carry a range of numbers (A9 asks it of all). The
+  largest number in a stored × or ÷ story is 121; what A9 has left to fix is sense ("A racing game has 84 cars and 78
+  tracks", MUL.2D2D). The one template that halves counts on subtraction alone: `skills.operations` reads a two-step
+  story's `op` and not its `divide`.
+- **The eval rule 7 asks for** is `story_shape`'s: its 65 gold stories are 18 shapes, all + or −. Jev is reachable
+  from this machine (`TYPESAFE_API_KEY` set).
+- **The mistake table (A11):** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is
+  empty, addition's table included.
+- **Split** (BUILD-ORDER): M4a MD.MENTAL, M4b MD.EQUALITY and MD.ESTIMATE, M4c MD.MULTIPLES, M4d MD.WORD.

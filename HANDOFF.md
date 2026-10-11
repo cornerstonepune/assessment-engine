@@ -3,7 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-10 — M3d: division's written methods (built)
+## 2026-10-11 — M4: measured and split; M4a, MD.MENTAL, next
+
+- **Slice:** M4, W1 gate 3, measured before any code (STATE.md "M4 — measured before the build").
+- **Split in four** (BUILD-ORDER): M4a `MD.MENTAL`, M4b `MD.EQUALITY` and `MD.ESTIMATE`, M4c `MD.MULTIPLES`, M4d
+  `MD.WORD` with the story ranges (A9), the `story_shape` eval and the mistake table (A11). Of the 45 cases only an M4
+  skill holds, one drew.
+- **Not a defect:** 29 of M4's 74 cases are also on another skill; addition already shares 31 this way.
+- **To settle in its slice:** V06 and F08 are one kind of question under two codes (M4b). The draft's MD.MENTAL grades
+  disagree with the school's objectives three times (M4a: halving is Grade 2's, a fact scaled by ten Grade 3's, ÷ 5 as
+  ÷ 10 then doubled Grade 4's).
+- **Jev is reachable here** (`TYPESAFE_API_KEY` set), so M4d's eval can run on real Jev, as `story_shape` v1's did.
+- **Next:** M4a's goal and failing tests, then the build.
+
+## 2026-10-10 — M3d: division's written methods (merged, #176)
 
 - **Slice:** M3d, W1 gate 3. DIV.2D1D and DIV.3D1D print each calculation of Easy to Hard in every written method their
   levels list, in fair shares, as ADR 0055 did for multiplication.
@@ -24,7 +37,8 @@ is verified. This file only says where the last session stopped.
     its numbers out of the bank for good.
 - **Split along a responsibility:** `assess/straight_pages.py` out of `render.py`, `assess/draw_pair.py` out of
   `draw.py`.
-- **Next:** CI and the rehearsal on the PR, merge, `engine done md3d-division-methods`. Then M4.
+- **Merged** as `d75767c` (#176) after CI and the update-live rehearsal passed on `4e5148d`; its done report on main's
+  code is in STATE.md "M3d merged and live". CI's first run caught three tests M3d had not carried (fixed in the PR).
 - **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live`. `bank levels --apply` leaves
   DIV.2D1D and DIV.3D1D waiting for one approval each on the Skill Map. Achal's question is on the site.
 
