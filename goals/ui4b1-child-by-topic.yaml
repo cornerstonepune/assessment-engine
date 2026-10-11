@@ -1,0 +1,35 @@
+name: ui4b1-child-by-topic
+goal: >
+  A child's page opens on their profile topic by topic: for every topic they are taught, how many of its skills need
+  help, are practising, are secure, have too few answers to say, and are not assessed yet, each topic opening to its
+  skills, the ones that need help first. Their papers come next and their parent report last, its state said in words.
+  Every parent report that waits on a person — out of date, written and not approved, not yet written though answers
+  of the child's are signed off — is one list, what needs a person first, each opening the report; a child none of
+  whose answers is signed off has nothing to report, and is asked of no one.
+# Written 2026-10-11, before the code: UI4b's first half (BUILD-ORDER "UI1 to UI4"). Nimish, the same day: "in the
+# Children tab, I think we need to now expand our thought process as more and more topics start coming in … It should
+# be by topic or something. When we click on it, we need to think about how multiple topics will then have a view of
+# what the entire profile of the child will look like." Measured first (STATE.md "UI4 — measured before the build"): a
+# child's page lists every assessed skill under its topic in the shared tree's order, a topic with no answers is not
+# there at all, and the parent report is a link at the top; parent reports are listed only one by one on Today. The
+# second half, UI4b2, is the Children list and a class's grid by topic.
+says:
+  - words: "It should be by topic or something."
+    proved_by: "apps/web/tests/u20-child-by-topic.spec.ts::a child's page opens on their profile topic by topic"
+  - words: "When we click on it, we need to think about how multiple topics will then have a view of what the entire profile of the child will look like"
+    proved_by: "apps/web/tests/u20-child-by-topic.spec.ts::a topic opens to its skills, the ones that need help first"
+  - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
+    proved_by: "apps/web/tests/u20-child-by-topic.spec.ts::every parent report waiting on a person is one list, and a child's page ends on theirs"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration."
+scenarios: []
+criteria:
+  - name: a child's page, the reports list, and the pages whose steps changed
+    run: cd apps/web && npx playwright test tests/u20-child-by-topic.spec.ts tests/u2-children.spec.ts tests/u6-report-card.spec.ts tests/u7-parent-report.spec.ts tests/u15-menu-and-today.spec.ts tests/u13-needs-you.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

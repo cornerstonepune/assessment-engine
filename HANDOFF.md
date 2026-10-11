@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — UI4b1: a child's profile by topic (built, proved on copies)
+
+- **Slice:** UI4b1 (BUILD-ORDER; UI4b split: a child first, then a class). A child's page opens on their profile by
+  topic, each topic opening its skills, those needing help first; papers next, the parent report last; parent reports
+  waiting on a person as one list, `/growth/reports`, never a child with nothing signed off (STATE.md "UI4b1").
+- **C1** (#188) waits on its engine run in CI; merged once green.
+- **Next:** UI4b2 (the Children list and a class's grid by topic), then UI5 (Assessments by topic, with filters), then
+  M4d2.
+
 ## 2026-10-11 — UI4a live; C1: the whole curriculum (built, proved on copies)
 
 - **UI4a** merged (#187) and live on Vercel; done report 4/4, 4/4 (STATE.md "UI4a merged and live").

@@ -6918,3 +6918,23 @@ waits on a person there. The screenshots hold children's names and stayed on the
 - **Proved on copies:** `test_registry_text.py` and u19 written first and seen failing (a broken objective; no
   multiplication facts in Grade 2; no grades panel to name). C1's browser criteria on a database built fresh: 48 of 48.
   Engine: registry, loaders, topics, papers, approvals 39 passed.
+
+## UI4b1 — a child's profile by topic, built (2026-10-11)
+
+- **A child's page opens on their profile by topic** ("By topic", `growth/[id]/profile.tsx`): one row per taught topic
+  they have answers in, its skills counted as needing help, practising, secure, too few answers, and not assessed yet
+  (the rest of their grade's skills in that topic), counted by `lib/profile.ts` `byTopic` from the graph's states.
+  A topic's name opens its skills further down, each topic a section of its own, those needing help first, then
+  practising, then secure; the skills not yet assessed are one line under them, not a wall of grey.
+- **Their papers come next and the parent report last**, its state in words: out of date, written and waiting for a
+  person to approve it, not written yet, or nothing to report yet (`report-panel.tsx`).
+- **Parent reports waiting on a person are one list** (`/growth/reports`): out of date first, then written and
+  waiting for approval, then not written; each name opens the report. Today's "Parent reports to approve" opens it.
+- **A child none of whose answers is signed off is on no one's list:** the engine writes no report from nothing
+  (`parent_facts.SIGNED`), and the first draft of the list asked for one for every such child — 34 on the test copy,
+  most of the school on live, burying the two waiting for approval. The list reads signed-off answers as the engine
+  does (`lib/queries-reports.ts` `signed`); such a child's page says "Nothing to report yet" with no link.
+- **Proved on copies:** u20 written first and each of its three tests seen failing alone on the old code (no "By
+  topic" table; no topic link to open; the page ended on "Their papers"). The goal's browser criteria on a database
+  built fresh: 55 of 55; u20 twice on one copy, 3 of 3 each. Types and lint clean.
+

@@ -124,6 +124,7 @@ export type ChildSkill = {
   code: string;
   name: string;
   topic: string;
+  topic_code: string;
   rung_code: string;
   skill_code: string | null;
   /** The skill's own name: a rung that tests two skills gives its skill set a line for each (`Money`, `Word problems`). */
@@ -141,7 +142,7 @@ export type ChildSkill = {
  *  graph's state and score, in the shared tree's order. A skill with no answers has no state. */
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
-    select ss.code, ss.name, t.name as topic, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
+    select ss.code, ss.name, t.name as topic, t.code as topic_code, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
            array(select jsonb_object_keys(ss.difficulty)) as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
