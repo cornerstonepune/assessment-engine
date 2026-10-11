@@ -132,7 +132,11 @@ export default async function SkillPage({ params, searchParams }: Props) {
         </nav>
 
         <div className="grid gap-[18px]">
-          <Panel title="Which grade each level belongs to" aside="each level to one grade; a child is given a level of their grade or below">
+          <Panel
+            title="Which grade each level belongs to"
+            label="Which grade each level belongs to"
+            aside="each level to one grade; a child is given a level of their grade or below"
+          >
             {q.grades ? <Notice tone="neem">Saved: each level is now taught in the grade shown.</Notice> : null}
             <form action={saveGrades} className="flex flex-wrap items-end gap-4">
               <input type="hidden" name="code" value={s.code} />
@@ -155,6 +159,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
             <p className="note mt-2">
               A level in another grade shows under that grade on the Curriculum too. Moving a level does not change its
               words, so the skill keeps its approval.
+              {s.level_band_by && s.level_band_at
+                ? ` Last moved by ${s.level_band_by}, ${new Date(s.level_band_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}.`
+                : null}
             </p>
           </Panel>
           <Panel

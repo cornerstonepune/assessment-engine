@@ -48,7 +48,12 @@ def school_syllabus(design):
     """Grades 1-4: {grade: {slot: [[unit id, unit, objectives], ...]}} in the map's order, and the unmapped subjects."""
     reg = json.loads((R / "supabase/seed/registry.json").read_text())
     units = json.loads((R / "docs/spine/sources/school_units.json").read_text())
-    unit_id = {(u["subject"], u["unit"]): u["id"] for u in units}
+    # a unit the registry's broken text once split in two ("PVisual arts 2" beside "Part 2") is one unit again since
+    # the text was repaired (STATE.md "C1"); both ids stay, as the seats' records cite both, and its objectives go
+    # under the first
+    unit_id = {}
+    for u in units:
+        unit_id.setdefault((u["subject"], u["unit"]), u["id"])
     fixes = json.loads(
         (R / "research/spine_council/unit_subject_corrections.json").read_text()
     )  # the seats' relabels

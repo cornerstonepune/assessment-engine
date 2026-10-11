@@ -6862,3 +6862,59 @@ waits on a person there. The screenshots hold children's names and stayed on the
   ("Roles: coordinator, educator, specialist."), which the new description had dropped. Restored; every engine test
   that reads the seed's config, 17 files, run again on a fresh copy: 322 passed. The local run had covered only the
   files the change touched, not every reader of the row it changed.
+
+## UI4a merged and live (2026-10-11)
+
+- Merged as `7a9c0c9` (#187) at the head CI had passed on (`66becf2`; the first head's engine run caught the dropped
+  roles sentence, STATE "UI4a — the staff list and the search, built"). Vercel's production deploy of `7a9c0c9`
+  succeeded at 19:03 UTC. `engine staff add` reaches Nimish's machine with his next `bin/update-live`.
+- `bin/engine done ui4a-staff-and-search` on main's code against a database built fresh: 4 of 4 of Nimish's sentences
+  PROVED, 4 of 4 criteria PASSED (41 engine tests, 50 browser tests, types and lint clean, `bin/check` 28 passed). Its
+  live line: the live database does not answer from this container.
+
+## C1 — the whole curriculum, measured (2026-10-11)
+
+- **What Nimish saw** (Grade 2 no multiplication, Grade 3 starting at 2- and 3-digit × 1-digit, Grade 4 none) is live
+  as it stands: `MUL.1D`, made on 2026-09-19 to prove a new topic could be added (Grade 3, rung M1: 2- or 3-digit × 1
+  digit, 2-digit × 2-digit at Advance), and `MUL.GROUPS` (Grade 1). M2a–M4d1 replaced `MUL.1D` with ADR 0047's 17
+  skills across Grades 1 to 4 on main; live has not had `bin/update-live` since.
+- **On main the mapping was there and hidden:** the Curriculum tree read `skillSets()` without `untaught`, so every
+  topic not switched on — every multiplication and division topic — was dropped. The tree already listed a skill under
+  every grade its levels belong to (`level_band`; 2-digit × 1-digit is Grade 2 at Easy and Medium, Grade 3 at Hard and
+  Advance).
+- **Where the grades come from** (ADR 0047, A6): the school's own objectives in the registry (LO-G1-0046 to 0055,
+  LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356) and the July papers.
+  Grades 2, 3 and 4 repeat near-identical objectives (facts to 10 × 10; 2-digit × 1-digit by partitioning, grid and
+  expanded layouts); none names 3-digit × 1-digit or 2-digit × 2-digit, so Grade 4 for those is the engine's
+  assumption. Achal reviews the progression on the Curriculum (Nimish, 2026-10-11).
+- **A level moved to another grade carried no name**: `saveGrades` wrote `level_band` alone.
+- **The registry's text was broken in 40 places**: an "Art" → "Visual arts" rename run over substrings
+  ("pVisual artsitioning", "chVisual artss", "EVisual artsh", "Visual Visual artss"), in 12 Grade 4 maths objectives
+  and in art, geography and history units. The engine spec (`docs/sources/assessment-engine-spec-v0.1.md`) had named
+  two of them as known.
+
+## C1 — the whole curriculum, built (2026-10-11)
+
+- **The Curriculum shows the whole mapping**, taught or not: every grade lists each skill with a level in it, with that
+  grade's levels only, and a topic or skill not switched on says "not taught yet" on its row. Showing is not switching
+  on: nothing reaches a child's paper or results until an educator switches the topic on (v1's goal sentence says so
+  now).
+- **A level moved to another grade carries who moved it and when** (`skill_set.level_band_by`, `level_band_at`,
+  migration `20261107090000`); the skill's page says "Last moved by …".
+- **The registry reads as the school wrote it:** the 40 broken strings repaired (three titles' capitals restored by
+  hand: "Artist Study" twice, "Final Artwork Project"), the crosswalk's two tables and its design key with them;
+  `test_registry_text.py` fails if a regenerated registry brings them back. The Skill Map Review artifact it is
+  generated from carries the same breakage.
+- **The spine reads the repaired registry too.** CI's engine run on #188 failed where the local run had not looked:
+  `test_spine_page.py` holds `docs/spine/plan.json` to what `research/plan_build.py` builds, and the plan finds each
+  objective's unit by its words in `docs/spine/sources/school_units.json`, still broken (`unit.370`, "Geometry –
+  PVisual arts 2"). That table is repaired in place, every id kept, as the seats' records cite them; 12 of its 16
+  broken units were halves of a unit the broken text had split in two (`unit.188` and `unit.370`; `unit.359` and
+  `unit.427` — the seats had already named `unit.438` "the G4 copy of unit.303 … split off by the garbling"), and the
+  plan puts such a unit's objectives under its first id. `spine.json` and the plan rebuilt by their own commands;
+  the six broken words left in `spine.json` are the seats' notes quoting the breakage. `test_registry_text.py` holds
+  the unit table and the plan to the registry. Every engine test that reads the registry, 11 files, on a fresh copy:
+  157 passed — the local run had covered only the files the change touched.
+- **Proved on copies:** `test_registry_text.py` and u19 written first and seen failing (a broken objective; no
+  multiplication facts in Grade 2; no grades panel to name). C1's browser criteria on a database built fresh: 48 of 48.
+  Engine: registry, loaders, topics, papers, approvals 39 passed.

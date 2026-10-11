@@ -1,0 +1,41 @@
+name: c1-whole-curriculum
+goal: >
+  The Curriculum shows the whole mapping: every grade lists each skill that has a level in it, taught or not, with
+  that grade's levels only — 2-digit × 1-digit under Grade 2 at Easy and Medium and under Grade 3 at Hard and
+  Advance — and a skill or topic not switched on says "not taught yet" on its row. A level moved to another grade
+  moves on the Curriculum, and the move carries the name of who made it. The school's own objectives read as the
+  school wrote them: no word is broken by a replacement.
+# Written 2026-10-11, before the code. Nimish asked why Grade 2 showed no multiplication and Grade 3 started at 2- and
+# 3-digit × 1-digit: live still holds MUL.1D, made on 2026-09-19 to prove a new topic could be added, because
+# M2a–M4d1 have not reached it; on main the 17 skills of ADR 0047 sit in Grades 1 to 4, but the Curriculum tree drops
+# every topic not switched on, so none of them shows. Nimish, the same day: "Achal will review the progression. Get
+# the version live. If they have any changes, Achal will make the changes later on the curriculum page or move
+# certain stuff by grades." Showing a topic is not switching it on: what goes on a child's paper is still an
+# educator's switch (goals/v1-only-what-is-taught.yaml, ADR 0047 A7). Twelve Grade 4 objectives were found broken by
+# a replacement of "art" with "Visual arts" inside words ("pVisual artsitioning").
+says:
+  - words: "how is it the case that grade 2 does not have any multiplication or such, but grade 3 directly starts with multiplication, and that too directly with two- or three-digit by one-digit?"
+    proved_by: "apps/web/tests/u19-whole-curriculum.spec.ts::every grade shows each skill with a level in it, taught or not, and says which are not taught yet"
+  - words: "If they have any changes, Achal will make the changes later on the curriculum page or move certain stuff by grades if he has to do something."
+    proved_by: "apps/web/tests/u19-whole-curriculum.spec.ts::a level moved to another grade moves on the Curriculum, in the name of who moved it"
+  - words: "How has this curriculum been done? How have you mapped it? From where have you mapped it?"
+    proved_by: "packages/engine/tests/test_registry_text.py::test_the_schools_objectives_read_as_the_school_wrote_them"
+manual:
+  - "Nimish runs ~/cornerstone/assessment-engine/bin/update-live: it brings the 17 multiplication and division skills,
+    the repaired objectives and the new column to live. Switching a topic on stays an educator's click on Curriculum."
+  - "The Skill Map Review artifact registry.json is generated from carries the same twelve broken objectives; a
+    regeneration must repair them there too, or test_registry_text fails."
+scenarios: []
+criteria:
+  - name: the curriculum, the skill page's grades, and the pages whose rows changed
+    run: cd apps/web && npx playwright test tests/u19-whole-curriculum.spec.ts tests/u5-curriculum.spec.ts tests/u12-curriculum-table.spec.ts tests/u17-curriculum.spec.ts tests/s2-skill-map.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the school's objectives, the loader and the topics
+    run: cd packages/engine && uv run pytest -q tests/test_registry_text.py tests/test_loaders.py tests/test_topics.py
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
