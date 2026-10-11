@@ -6298,3 +6298,51 @@ Proved on copies:
   `relabel`, `rehome`, `refill`, `library build`, `library check`, `bank taxonomy`): the migration updated 2 skill
   sets; MD.MENTAL loaded as a draft in an untaught topic; the refill added 144 (24, 48, 48, 24) and retired none;
   `library build` made 40; `library check`: 2,518 worksheets, 152 of 152 skill-levels ready, 0 problems.
+
+## M4a merged and live (2026-10-11)
+
+- Merged as `578c44e` (#177), at the head CI had passed (`a52b2fb`: ci 38102530018). The rehearsal on a copy of live
+  ran on the same head (38102534317).
+- Main: `ci` green (38104022733), then `migrate live` (38104987614) and `deploy engine` (38104987615) succeeded.
+- `bin/engine done md4a-mental-methods` on main's code (the worktree at `578c44e`), against a copy of the rehearsed
+  database:
+  - 21 of 21 of Nimish's sentences PROVED, s36 among them in the browser;
+  - 4 of 4 scenarios MET;
+  - 4 of 4 criteria PASSED: 1,178 tests, the drafted document 0 faults (252 cases), s36 1 passed, `bin/check` 27
+    passed.
+  - Its live line cannot read the live database's migrations from here (`UndefinedTable`), as for M3a to M3d; the
+    `migrate live` run above is the proof they are there.
+- Its rows, questions and worksheets wait for `bin/update-live`, with everything since M2a.
+
+## M4b — measured before the build (2026-10-11)
+
+On main `578c44e`. MD.ESTIMATE holds 10 cases (Easy V06, V07; Medium V01, V03, V04; Hard V02, V08, V10; Advance V05,
+V09), MD.EQUALITY 18 (Easy Y01, Y04, Y05, Y06, Y16; Medium Y02, Y09, Y10, Y15; Hard Y03, Y11, Y12, Y13, Y14; Advance
+Y07, Y08, DR09, C08). Each case drawn alone, 12 asked, on a level of cases with no shape of its own, as theirs will be,
+and on its other home.
+
+- **MD.ESTIMATE draws none of its ten as its example is.**
+  - V01, V02, V03, V07 fail aloud (`KeyError: 'digits'`); V04, V09, V10 draw numbers past Grade 4 (1180 ÷ 6,
+    4199 ÷ 4, 8686 ÷ 3). On their other homes (MUL.2D1D, MUL.2D2D, DIV.2D1D, DIV.3D1D Advance) each draws 12 of its
+    example's sizes, from that level's shape. One cause: a row says what its case is about and not its numbers' sizes,
+    though every example does (48 × 6, 67 × 75, 156 ÷ 4). Each shared case's example has the sizes of its other home, so
+    the row can say them without changing what that home draws.
+  - V05, V06, V08 refuse (`CannotMake`): possible answer, odd or even and the closest estimate make + and − only.
+- **The three judging kinds name no mistake on many + and − questions.** A closest estimate named one on 50 of 313 draws;
+  a right claim judged possible names none, half of what that kind asks. R04 and R05 (ESTIMATE.HUNDRED) are those
+  questions; no goal's scenario holds those levels, so it never failed. A scenario does not recompute an odd or even
+  answer or a closest estimate either: it counts them as nothing to work out.
+- **MD.EQUALITY draws 3 of its 18, past their examples' sizes.**
+  - Eleven are shapes the equation kind has none of (`no equation shape`): Y01, Y02, Y03, Y05, Y06, Y07, Y08, Y11,
+    Y12, Y15, Y16. Y13 and Y14 draw nothing: the missing sign and the comparison make + and − only. DR09 (a remainder
+    checked) and C08 (a claim explained) draw nothing, on their examples' sizes too.
+  - Y04, Y09, Y10 draw past their examples: 8644 × 0, the fact families of 1296 × 9 and 167 × 417, 4424 ÷ 7 checked.
+  - `assess/equality.py` is 283 lines: eleven shapes need a module of their own.
+- **Grades (A6):** the school's objectives name rounding (Grades 2 to 4), odd and even (Grade 2, generalised at 3 and
+  4) and comparing with <, > and = (Grade 2), and none for estimating a product or × and ÷ as inverses. The draft's
+  grades stand as assumed; no case needs an operation taught after its level's grade.
+- **V06 and F08 are one kind of question,** a product odd or even. F08's example is a table fact (6 × 7); V06's are a
+  table fact and a product past the tables (7 × 9 and 6 × 13), answered "without working". Settled by their numbers:
+  F08 the table facts (MD.MULTIPLES, Grade 3), V06 the products past them (Grade 4), its example 6 × 13.
+- **So M4b is two slices** (BUILD-ORDER): M4b1 MD.ESTIMATE, the cases' sizes in their rows, the judging kinds for ×
+  with a named mistake on every question; M4b2 MD.EQUALITY, its shapes in a module of their own.

@@ -3,7 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-11 — M4a: mental multiplication and division (built)
+## 2026-10-11 — M4b: measured and split; M4b1, MD.ESTIMATE, next
+
+- **Slice:** M4b, W1 gate 3, measured before any code (STATE.md "M4b — measured before the build").
+- **Split in two** (BUILD-ORDER): M4b1 `MD.ESTIMATE`, M4b2 `MD.EQUALITY`. MD.ESTIMATE draws none of its ten cases as
+  its examples are; MD.EQUALITY draws 3 of 18, past their sizes, and eleven of its shapes exist nowhere.
+- **One cause behind seven estimates:** a case row says what its case is about and not its numbers' sizes, so on a
+  level with no shape of its own it fails (`KeyError: 'digits'`) or draws past Grade 4. The examples already say them.
+- **Found in kinds M4b1 extends:** the closest estimate and a right claim judged possible name no mistake on most +
+  and − questions (R04, R05); a scenario never works out an odd or even answer or a closest estimate. Fixed in M4b1.
+- **V06 and F08 settled by their numbers:** F08 the table facts, V06 the products past them, its example 6 × 13.
+- **Next:** M4b1's goal and failing tests, then the build.
+
+## 2026-10-11 — M4a: mental multiplication and division (merged, live, done)
 
 - **Slice:** M4a, W1 gate 3. `MD.MENTAL`, Grades 2 to 4: every mental method asked as the sums it works out.
 - **Goal** `goals/md4a-mental-methods.yaml`; **built** (STATE.md "M4a — … built", ADR 0064): `assess/mental.py`, seven
@@ -11,7 +23,8 @@ is verified. This file only says where the last session stopped.
   mistakes first; `named` moved to `misconceptions.py`.
 - **Proved on copies:** 19 unit tests; the criteria list on a fresh database (1,178); four scenarios met completely;
   s36 in the browser; the update-live rehearsal (144 added, 0 retired, 0 problems).
-- **Next:** CI and the rehearsal on the PR, merge, `engine done md4a-mental-methods` on main's code. Then M4b.
+- **Merged** as `578c44e` (#177) after CI and the update-live rehearsal passed on `a52b2fb`; migrated and deployed;
+  its done report on main's code is in STATE.md "M4a merged and live" (21 of 21 proved, 4 of 4 scenarios met).
 - **For Nimish after the merge:** `~/cornerstone/assessment-engine/bin/update-live`. MD.MENTAL then waits for one
   approval on the Skill Map, and for an educator to switch "Mental multiplication and division" on. Achal's question
   is on the site.
