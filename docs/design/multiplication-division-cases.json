@@ -1474,7 +1474,7 @@
  {
   "code": "G06",
   "section": 8,
-  "label": "Doubling (×2, ×4 = double double, ×8)",
+  "label": "Doubling (×2, ×4 = double double)",
   "example": "14 × 4: double 14 = 28, double 28 = □",
   "answer": "56",
   "op": "×",
@@ -1692,7 +1692,7 @@
   "answer": "24",
   "op": "÷",
   "placed_in": [
-   "MD.MENTAL:Hard"
+   "MD.MENTAL:Easy"
   ]
  },
  {
@@ -2237,7 +2237,7 @@
   "op": "÷",
   "placed_in": [
    "DIV.3D1D:Advance",
-   "MD.MENTAL:Hard"
+   "MD.MENTAL:Advance"
   ]
  },
  {
@@ -2249,7 +2249,7 @@
   "op": "×",
   "placed_in": [
    "MUL.TENS:Advance",
-   "MD.MENTAL:Easy"
+   "MD.MENTAL:Medium"
   ]
  },
  {

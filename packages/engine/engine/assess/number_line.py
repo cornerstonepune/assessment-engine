@@ -10,8 +10,9 @@ from typing import Any
 from . import divide_models as DMOD
 from . import misconceptions as M
 from . import operations as O
-from .counting import named, one_of
+from .counting import one_of
 from .items import Item, Response, cells, item
+from .misconceptions import named
 
 
 def number_line(rng: Random, rung: str, signal: str, rule: dict[str, Any]) -> Item:

@@ -472,7 +472,10 @@
         "expanded_columns"
       ],
       "misconception_codes": [
+        "M_COMPENSATION_SIGN",
         "M_GRID_CELL_DROPPED",
+        "M_MENTAL_ONE_NOT_GROUP",
+        "M_MENTAL_STOPS_SHORT",
         "M_MISSING_DIGIT_LOCAL",
         "M_MUL_CARRY_FIRST",
         "M_MUL_CONCAT",
@@ -3874,6 +3877,7 @@
         "M_DIV_TENS_ZERO_LEFT",
         "M_FACT_PM1",
         "M_FACT_PM10",
+        "M_MENTAL_STOPS_SHORT",
         "M_MUL_NO_CARRY",
         "M_MUL_ROW_OUT",
         "M_NO_DECREMENT",
@@ -3989,6 +3993,95 @@
         "Easy": "G4",
         "Medium": "G4",
         "Hard": "G4",
+        "Advance": "G4"
+      }
+    },
+    {
+      "code": "MD.MENTAL",
+      "rung_code": "R47",
+      "name": "Mental multiplication and division",
+      "learning_objective": "Multiplies and divides in the head by the method a question names, each step written as the sum it works out: doubling and halving; × 5 as × 10 then halved, double one and halve the other, a fact from a known fact or scaled by ten; × 9 and × 11 from ten groups, × 8 by doubling three times, a number near a round one; × 25 as a hundred groups divided by 4, and ÷ 5 as ÷ 10 then doubled.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "efficient_method"
+      ],
+      "misconception_codes": [
+        "M_COMPENSATION_SIGN",
+        "M_CONFUSES_COMPENSATION",
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_TENS_ZERO_LEFT",
+        "M_MENTAL_ONE_NOT_GROUP",
+        "M_MENTAL_STOPS_SHORT",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CARRY_ONTO_ZERO_LOST",
+        "M_MUL_COLUMNWISE",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_STALE_CARRY",
+        "M_MUL_UNITS_REVERSED",
+        "M_TENS_ZERO_DROPPED",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Doubling and halving a 2-digit number, Grade 2's (LO-G2-0498), each step written as the sum it works out: 14 × 4 as 14 × 2, then 14 × 4, double and double again; 96 ÷ 4 as 96 ÷ 2, then 96 ÷ 4, halve and halve again.",
+          "check": {
+            "cases": [
+              "G06",
+              "G25"
+            ]
+          },
+          "min_items": 24
+        },
+        "Medium": {
+          "words": "A fact scaled by ten, × 5 as × 10 then halved, double one and halve the other, and a fact from a known fact: 6 × 7 = 42, so 60 × 7; 46 × 5 from 46 × 10; 16 × 5 as 8 × 10; 7 × 8 = 56, so 7 × 9.",
+          "check": {
+            "cases": [
+              "H10",
+              "H01",
+              "H04",
+              "H08"
+            ]
+          },
+          "min_items": 48
+        },
+        "Hard": {
+          "words": "× 9 as ten groups less one, × 11 as ten groups and one more, × 8 as double three times, and a number near a round one: 23 × 9 from 23 × 10; 14 × 11 from 14 × 10; 13 × 8 as 13 × 2, 13 × 4, 13 × 8; 19 × 6 from 20 × 6.",
+          "check": {
+            "cases": [
+              "H02",
+              "H03",
+              "H05",
+              "H07"
+            ]
+          },
+          "min_items": 48
+        },
+        "Advance": {
+          "words": "× 25 as a hundred groups divided by 4, and ÷ 5 as ÷ 10 then doubled, Grade 4's: 24 × 25 from 24 × 100; 240 ÷ 5 from 240 ÷ 10.",
+          "check": {
+            "cases": [
+              "H06",
+              "H09"
+            ]
+          },
+          "min_items": 24
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G3",
+        "Hard": "G3",
         "Advance": "G4"
       }
     }

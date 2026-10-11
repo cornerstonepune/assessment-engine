@@ -194,6 +194,22 @@ export function Question({ it }: { it: ItemRow }) {
           <span className="fact">{s.a} × {s.b} = ___</span>
         </Stem>
       );
+    case "efficient_method":
+      // a mental method: each step and the answer the sum it works out, a blank beside it (goals/md4a-mental-methods.yaml);
+      // addition's quickest way names no step, so it is its sentence alone
+      return (
+        <Stem text={it.stem}>
+          <span className="grid gap-[3px]">
+            {it.responses
+              .filter((r) => r.label)
+              .map((r) => (
+                <span key={r.rid} className="fact">
+                  {r.label} ___
+                </span>
+              ))}
+          </span>
+        </Stem>
+      );
     case "balance_scale":
       return (
         <Stem text={it.stem}>

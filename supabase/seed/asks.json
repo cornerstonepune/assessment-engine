@@ -187,6 +187,13 @@
       "question": "Division's written methods: every one printed, three changes to the draft, and what a slip inside one counts against",
       "drafted": "drafted for you to correct. Every written method is printed at Easy to Hard (A1): DIV.2D1D in a line, partitioning, chunking and short division; DIV.3D1D in a line, chunking, short division and long division. Three changes to the draft: a 3-digit division prints in a line too; chunking takes the lots of each place at once (96 ÷ 4: 20 lots, then 4), since ten lots at a time would print nineteen take-aways for 588 ÷ 3; halving is MD.MENTAL's alone, as doubling is. A slip taking away inside a division counts against subtraction, and one multiplying against multiplication, as a slip adding the parts counts against addition (A11). A grade that teaches fewer methods takes them out of its level's row.",
       "source": "goals/md3d-division-methods.yaml"
+    },
+    {
+      "code": "md4a-mental-methods",
+      "for_role": "specialist",
+      "question": "Mental multiplication and division: its levels by the school's objectives, every step a sum, and its mistakes",
+      "drafted": "drafted for you to correct. MD.MENTAL's levels follow the school's objectives: doubling and halving at Grade 2 (LO-G2-0498), the other mental methods at Grades 3 and 4 (LO-G3-0943, LO-G4-1340); a fact scaled by ten waits for Grade 3, where multiplying by a multiple of ten is taught, and ÷ 5 as ÷ 10 then doubled for Grade 4, where dividing by 10 is. Each step is printed as the sum it works out (13 × 2, 13 × 4, 13 × 8), so a child who doubles in their head still writes each double. Two new mistakes, their names and what to do about them drafted for you: stopping a step short (13 × 8 answered 52) and one for a whole group (23 × 9 as 230 − 1). Two that compensation already names now have a row for multiplication: putting the answer right the wrong way (the compensation sign, 23 × 9 as 230 + 23) and doubling both numbers (16 × 5 as 32 × 10, both changed the same way). Each counts against mental maths, not multiplication. Halving each digit and losing the ten left over (74 ÷ 2 as 32) is the exchange lost, the row short division already names.",
+      "source": "goals/md4a-mental-methods.yaml"
     }
   ]
 }

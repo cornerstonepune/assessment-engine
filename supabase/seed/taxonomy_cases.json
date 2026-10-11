@@ -12876,7 +12876,7 @@
       "taxonomy": "MUL_DIV",
       "section": "8",
       "section_name": "Methods and pictures",
-      "label": "Doubling (×2, ×4 = double double, ×8)",
+      "label": "Doubling (×2, ×4 = double double)",
       "example_text": "14 × 4: double 14 = 28, double 28 = □",
       "example": {
         "fmt": "efficient_method",

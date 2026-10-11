@@ -13,6 +13,7 @@ from typing import Any, cast
 from engine.assess import md_tags as MD
 from engine.assess import words as W
 from engine.assess.items import Item, Response, cells, item
+from engine.assess.misconceptions import named
 
 # the shape a case asks for by its method: the one table that says what each shape is measured as, read backwards
 SHAPE_OF = {v["method"]: shape for shape, v in MD.SHAPES.items() if "method" in v}
@@ -21,16 +22,6 @@ SHAPE_OF = {v["method"]: shape for shape, v in MD.SHAPES.items() if "method" in 
 def one_of(value: Any, rng: Random) -> Any:
     """A rule value that may name one choice or several."""
     return rng.choice(cast(list[Any], value)) if isinstance(value, list) else value
-
-
-def named(right: int, predicted: list[tuple[str, int]]) -> dict[str, Any]:
-    """{mistake: the answer it gives}, in the order given, leaving out one whose answer is the right one or another's:
-    a wrong answer two mistakes give names neither for certain."""
-    out: dict[str, Any] = {}
-    for code, wrong in predicted:
-        if wrong != right and wrong not in out.values():
-            out[code] = wrong
-    return out
 
 
 def tally(rng: Random, rung: str, signal: str, check: dict[str, Any]) -> Item:

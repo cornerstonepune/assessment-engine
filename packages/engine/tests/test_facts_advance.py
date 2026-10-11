@@ -45,8 +45,11 @@ FMT = {
 SIGN = {"MUL.FACTS": "×", "MUL.TENS": "×", "DIV.FACTS": "÷"}
 # The document's placements no level holds yet, each with the slice of BUILD-ORDER that will hold them. A slice's line
 # goes when it is built: a placement it leaves unheld fails here, and so does a line nothing waits for.
-SLICE_OF = {
-    **dict.fromkeys(["MD.WORD", "MD.MENTAL", "MD.MULTIPLES", "MD.EQUALITY", "MD.ESTIMATE"], "M4"),
+SLICE_OF = {  # M4 in four slices (BUILD-ORDER); MD.MENTAL is M4a's, built
+    "MD.EQUALITY": "M4b",
+    "MD.ESTIMATE": "M4b",
+    "MD.MULTIPLES": "M4c",
+    "MD.WORD": "M4d",
 }
 POWERS = (10, 100, 1000)
 
@@ -366,7 +369,8 @@ def test_the_documents_slips_are_corrected_where_they_were_drafted():
     box first and the cost of one are exact, as the number divided and the divisor missing are; a missing place-value
     factor is of a number to 2 digits, as × 1000's own case is; the table backwards is printed as its example."""
     assert DOC["Y10"]["placed_in"] == ["DIV.2D1D:Advance", "MD.EQUALITY:Medium"]
-    assert DOC["H09"]["placed_in"] == ["DIV.3D1D:Advance", "MD.MENTAL:Hard"]
+    # and on MD.MENTAL at Advance, Grade 4's, where dividing by 10 is taught (goals/md4a-mental-methods.yaml)
+    assert DOC["H09"]["placed_in"] == ["DIV.3D1D:Advance", "MD.MENTAL:Advance"]
     assert CASES["Q05"]["match"]["remainder"] == "NONE" and CASES["B07"]["match"]["remainder"] == "NONE"
     assert CASES["Q14"]["match"]["operand_1_digits"] == {"lte": 2}
     assert CASES["G20"]["match"]["shape"] == "TABLE_BACKWARDS" and "shape" not in CASES["Y10"]["match"]

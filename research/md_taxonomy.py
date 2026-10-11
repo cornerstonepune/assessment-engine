@@ -473,7 +473,7 @@ case("G02", "Repeated addition", "4 + 4 + 4 = 3 × □ = □", "4 and 12", [("su
 case("G03", "Skip counting", "5, 10, 15, 20, □", 25)
 case("G04", "Jumps on a number line", "4 jumps of 3 from 0 land on □", 12)
 case("G05", "An array", "3 rows of 5 stars: □ × □ = □", "3 × 5 = 15 (5 × 3 = 15 is right too)")
-case("G06", "Doubling (×2, ×4 = double double, ×8)", "14 × 4: double 14 = 28, double 28 = □", 56,
+case("G06", "Doubling (×2, ×4 = double double)", "14 × 4: double 14 = 28, double 28 = □", 56,
      [("×4", 14 * 4 == 56)])
 case("G07", "Partitioning, in a line", f"{a} × {d} = 20 × {d} + 3 × {d} = {20 * d} + {3 * d} = □", a * d,
      [("parts", 20 * d + 3 * d == a * d)])
@@ -953,8 +953,8 @@ SKILLS = [
                                     "Advance": ["B12", "B13", "B18", "B19", "B20", "B21", "B22", "B23", "B25", "B26"]},
      []),
     ("MD.MENTAL", "Multiplies and divides in the head by doubling, halving, tens and known facts",
-     "G2 G3 G3 G4", {"Easy": ["G06", "H10"], "Medium": ["H01", "H04", "H08"],
-                     "Hard": ["H02", "H03", "H05", "H07", "H09", "G25"], "Advance": ["H06"]}, []),
+     "G2 G3 G3 G4", {"Easy": ["G06", "G25"], "Medium": ["H10", "H01", "H04", "H08"],
+                     "Hard": ["H02", "H03", "H05", "H07"], "Advance": ["H06", "H09"]}, []),
     ("MD.MULTIPLES", "Finds multiples and factors and tells divisibility by 2, 3, 5 and 10",
      "G3 G3 G4 G4", {"Easy": ["F01", "F02", "F06"], "Medium": ["F03", "F04", "F08"], "Hard": ["F05"],
                      "Advance": ["F07"]}, []),

@@ -66,7 +66,7 @@ def pair(
     fix: tuple[int, int] | None = None,
 ) -> tuple[int, int] | None:
     """Two numbers for this case, or None. `fix` pins one number's digit count (a missing number)."""
-    built = S.built(rng, alt)
+    built = S.built(rng, alt) or T.built(rng, alt)  # numbers some cases construct (`draw_sums`, `draw_times`)
     if built:
         return built
     pairs = [p for p in K.pairs(alt, check, op) if not fix or p[fix[0]] == fix[1]]
