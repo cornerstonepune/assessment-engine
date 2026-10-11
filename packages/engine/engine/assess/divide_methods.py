@@ -21,8 +21,8 @@ from typing import Any
 from . import div_mistakes as DM
 from . import misconceptions as M
 from . import operations as O
-from .counting import named
 from .items import Item, Response, cells, item
+from .misconceptions import named
 from .times_kinds import number
 
 # the method, as printed: the kind of question that prints it

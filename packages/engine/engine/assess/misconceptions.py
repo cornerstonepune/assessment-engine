@@ -9,6 +9,7 @@ the arithmetic itself. Codes are the shared vocabulary for the `misconceptions` 
 """
 
 from collections.abc import Callable
+from typing import Any
 
 from engine.assess import div_mistakes as DM  # division's own, a quotient and a remainder (goals/md3a-…)
 from engine.assess.mul_mistakes import PREDICTORS as MUL_PREDICTORS  # multiplication's own (goals/md2a-…)
@@ -332,6 +333,16 @@ def predict_sign(answer):
         v = fn(str(answer).strip())
         if v:
             out[code] = v
+    return out
+
+
+def named(right: int, predicted: list[tuple[str, int]]) -> dict[str, Any]:
+    """{mistake: the answer it gives}, in the order given (the likelier first), leaving out one whose answer is the right one or another's:
+    a wrong answer two mistakes give names neither for certain."""
+    out: dict[str, Any] = {}
+    for code, wrong in predicted:
+        if wrong != right and wrong not in out.values():
+            out[code] = wrong
     return out
 
 

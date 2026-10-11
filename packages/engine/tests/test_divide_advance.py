@@ -383,7 +383,12 @@ def test_five_is_ten_then_doubled_on_a_number_with_no_fact_under_its_zero():
         assert (step.label, step.answer) == (f"{a} ÷ 10 =", str(a // 10))
         assert step.misconceptions == DM.in_box(a, 10, 0) and "M_DIV_TENS_ZERO_LEFT" in step.misconceptions
         assert (ans.label, ans.answer) == (f"{a} ÷ 5 =", str(a // 5))
-        assert ans.misconceptions == _resp(_same(a, 5), "ans").misconceptions
+        # the method's own first: the step stopped short, 24 for 240 ÷ 5 (goals/md4a-mental-methods.yaml)
+        plain = _resp(_same(a, 5), "ans").misconceptions
+        assert ans.misconceptions == {
+            "M_MENTAL_STOPS_SHORT": a // 10,
+            **{c: v for c, v in plain.items() if v != a // 10},
+        }
 
 
 def test_a_scenario_recomputes_every_new_box():

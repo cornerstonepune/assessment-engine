@@ -16,6 +16,7 @@ from engine.assess import divide_models as DMOD
 from engine.assess import equality as EQ
 from engine.assess import estimate as E
 from engine.assess import items as I
+from engine.assess import mental as MN
 from engine.assess import misconceptions as M
 from engine.assess import missing_digits as MD
 from engine.assess import number_line as NL
@@ -149,6 +150,16 @@ def _partitioning(rng: random.Random, rung: str, signal: str, c: dict[str, Any])
 # fmt -> (rng, rung, signal, check) -> Item. One entry per chunk-B generator (ADR 0010); no model
 # call and no verify.problems detour either — these generators are trusted code, not untrusted
 # model output, the same guarantee the arithmetic sampler gets from its round trip through check.
+def _shortcut(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> I.Item:
+    """A method the case names: a mental method of MD.MENTAL's (`mental`), × 5 as × 10 then halved or a number near a
+    round one (`times_kinds.shortcut`), or addition's quickest way when it names none."""
+    if c.get("method") in MN.METHODS or c.get("strategy") in MN.STRATEGIES:
+        return MN.drawn(rng, rung, signal, c)
+    if c.get("strategy"):
+        return TK.shortcut(rng, rung, signal, c["strategy"], TK.digits(c) or (2, 1))
+    return I.efficient_method(rng, rung, signal, kind=one_of(c.get("kind"), rng))
+
+
 # fmt: off
 NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "missing_number": lambda rng, rung, signal, c: I.missing_number(rng, rung, signal, c["kind"], c["hi"]),
@@ -158,8 +169,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "estimate_then_calc": lambda rng, rung, signal, c: _estimate(rng, rung, signal, c),
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
         rng, rung, signal, c.get("n_addends", 3), c.get("digits_each", 4)),
-    "efficient_method": lambda rng, rung, signal, c: TK.shortcut(rng, rung, signal, c["strategy"], TK.digits(c) or (2, 1))
-        if c.get("strategy") else I.efficient_method(rng, rung, signal, kind=one_of(c.get("kind"), rng)),
+    "efficient_method": lambda rng, rung, signal, c: _shortcut(rng, rung, signal, c),
     "word_1step": lambda rng, rung, signal, c: W.word_1step(
         rng, rung, signal, c.get("digits_max", 2), tuple(c.get("regroups", (0, 1))), structure=c.get("structure"),
         op=one_of(c.get("op"), rng), table=c.get("table", False), digits=TK.digits(c) or c.get("digits"),
@@ -211,7 +221,7 @@ READS = {
     "number_line_jumps": {"op", "hi", "groups", "size"},
     "estimate_then_calc": {"op", "digits", "regroups", "round_to", "shape", "tolerance"},
     "multi_add": {"n_addends", "digits_each"},
-    "efficient_method": {"kind", "strategy"},
+    "efficient_method": {"kind", "strategy", "method"},
     "word_1step": {"digits_max", "regroups", "structure", "op", "table", "digits", "max_total"},
     "word_2step": {"digits_max", "structure"},
     "word_budget": {"n_costs", "budget_range", "one_cost_is_a_product"},

@@ -231,7 +231,7 @@ Every way the school's objectives name, and the standard ones, each worked throu
 | G03 | Skip counting | 5, 10, 15, 20, □ | 25 |
 | G04 | Jumps on a number line | 4 jumps of 3 from 0 land on □ | 12 |
 | G05 | An array | 3 rows of 5 stars: □ × □ = □ | 3 × 5 = 15 (5 × 3 = 15 is right too) |
-| G06 | Doubling (×2, ×4 = double double, ×8) | 14 × 4: double 14 = 28, double 28 = □ | 56 |
+| G06 | Doubling (×2, ×4 = double double) | 14 × 4: double 14 = 28, double 28 = □ | 56 |
 | G07 | Partitioning, in a line | 23 × 4 = 20 × 4 + 3 × 4 = 80 + 12 = □ | 92 |
 | G08 | Grid (area) method, 2 × 1 digits | 23 × 4: cells 20 × 4 = 80 and 3 × 4 = 12 | 92 |
 | G09 | Grid (area) method, 2 × 2 digits | 34 × 26: cells 600, 180, 80, 24 | 884 |
@@ -510,7 +510,7 @@ Every tag a multiplication or division case reads, as its `case_dimension` row s
 | DIV.2D1D | Divides a 2-digit number by a 1-digit number, exchanging a remainder into the next digit | E:G2 M:G2 H:G3 A:G3 | D01 | D03, D04 | DR04, DR05, DZ07 | Q09, Q12, Q13, C05, V09, B14, B15, B16, B17, Y10 | D02, G21, G22, G23 |
 | DIV.3D1D | Divides a 3-digit number by a 1-digit number, with zeros and remainders in the quotient | E:G4 M:G4 H:G4 A:G4 | D05 | D06, D07 | D08, D09, D10, DZ01, DZ02, DZ03, DZ04, DR06, DR07, DR08 | Q10, C04, C07, V04, V10, H09 | D15, G22, G23, G24 |
 | MD.WORD | Solves one- and two-step stories with × and ÷, choosing the operation and using a remainder as the story needs | E:G2 M:G2 H:G3 A:G4 | B01, B02, B03, B06 | B04, B05, B07, B11, B27 | B08, B09, B10, B14, B15, B16, B17 | B12, B13, B18, B19, B20, B21, B22, B23, B25, B26 | – |
-| MD.MENTAL | Multiplies and divides in the head by doubling, halving, tens and known facts | E:G2 M:G3 H:G3 A:G4 | G06, H10 | H01, H04, H08 | H02, H03, H05, H07, H09, G25 | H06 | – |
+| MD.MENTAL | Multiplies and divides in the head by doubling, halving, tens and known facts | E:G2 M:G3 H:G3 A:G4 | G06, G25 | H10, H01, H04, H08 | H02, H03, H05, H07 | H06, H09 | – |
 | MD.MULTIPLES | Finds multiples and factors and tells divisibility by 2, 3, 5 and 10 | E:G3 M:G3 H:G4 A:G4 | F01, F02, F06 | F03, F04, F08 | F05 | F07 | – |
 | MD.EQUALITY | Uses × and ÷ as inverses, keeps a balance true and knows the rules of 0 and 1 | E:G3 M:G3 H:G4 A:G4 | Y01, Y04, Y05, Y06, Y16 | Y02, Y09, Y10, Y15 | Y03, Y11, Y12, Y13, Y14 | Y07, Y08, DR09, C08 | – |
 | MD.ESTIMATE | Estimates products and quotients and judges whether an answer can be right | E:G4 M:G4 H:G4 A:G4 | V06, V07 | V01, V03, V04 | V02, V08, V10 | V05, V09 | – |

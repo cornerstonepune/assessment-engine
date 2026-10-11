@@ -117,6 +117,15 @@
         "DIV.2D1D",
         "DIV.3D1D"
       ]
+    },
+    {
+      "code": "MDMENTAL",
+      "subject": "NUM",
+      "name": "Mental multiplication and division",
+      "taught": false,
+      "skill_sets": [
+        "MD.MENTAL"
+      ]
     }
   ]
 }

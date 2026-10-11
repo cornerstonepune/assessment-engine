@@ -215,12 +215,12 @@ def test_stopping_a_step_short_is_named():
 
 def test_putting_the_answer_right_the_wrong_way_is_named():
     """23 × 9 as 230 + 23 = 253; 14 × 11 as 140 − 14 = 126; 19 × 6 from 20 × 6 as 120 + 6 = 126."""
-    assert _named(MN.make("TIMES_TEN_LESS_A_GROUP", 23, 9, R), "M_MENTAL_WRONG_WAY") == 253
-    assert _named(MN.make("TIMES_TEN_AND_A_GROUP", 14, 11, R), "M_MENTAL_WRONG_WAY") == 126
+    assert _named(MN.make("TIMES_TEN_LESS_A_GROUP", 23, 9, R), "M_COMPENSATION_SIGN") == 253
+    assert _named(MN.make("TIMES_TEN_AND_A_GROUP", 14, 11, R), "M_COMPENSATION_SIGN") == 126
     for _, it in _drawn("Hard", 6, cases=["H07"]):
         a, b = it.spec["a"], it.spec["b"]
         r = (a + 5) // 10 * 10
-        assert _named(it, "M_MENTAL_WRONG_WAY") == 2 * r * b - a * b, it.spec
+        assert _named(it, "M_COMPENSATION_SIGN") == 2 * r * b - a * b, it.spec
 
 
 def test_one_taken_away_or_added_for_a_group_is_named():
@@ -245,8 +245,8 @@ def test_halving_each_digit_is_the_exchange_lost_already_a_row():
 
 def test_doubling_both_numbers_is_named():
     """16 × 5 worked as 32 × 10 = 320, and 35 × 4 as 70 × 8 = 560: both numbers doubled, four times the answer."""
-    assert _named(MN.make("DOUBLE_ONE_HALVE_THE_OTHER", 16, 5, R), "M_MENTAL_DOUBLED_BOTH") == 320
-    assert _named(MN.make("DOUBLE_ONE_HALVE_THE_OTHER", 35, 4, R), "M_MENTAL_DOUBLED_BOTH") == 560
+    assert _named(MN.make("DOUBLE_ONE_HALVE_THE_OTHER", 16, 5, R), "M_CONFUSES_COMPENSATION") == 320
+    assert _named(MN.make("DOUBLE_ONE_HALVE_THE_OTHER", 35, 4, R), "M_CONFUSES_COMPENSATION") == 560
 
 
 # ------------------------------------------------------------------------------- the document, the skills
@@ -280,10 +280,10 @@ def test_a_right_answer_counts_for_mental_maths_and_the_operation_and_a_method_m
         "NUM.OPS.04",
         "NUM.PRB.03",
     }
-    codes = ["M_MENTAL_STOPS_SHORT", "M_MENTAL_WRONG_WAY", "M_MENTAL_ONE_NOT_GROUP", "M_MUL_ROW_OUT"]
+    codes = ["M_MENTAL_STOPS_SHORT", "M_COMPENSATION_SIGN", "M_MENTAL_ONE_NOT_GROUP", "M_MUL_ROW_OUT"]
     assert skills.charges(nine.fmt, nine.spec, nine.stem, used, codes, VOCAB, RULES) == {
         "M_MENTAL_STOPS_SHORT": "NUM.OPS.05",
-        "M_MENTAL_WRONG_WAY": "NUM.OPS.05",
+        "M_COMPENSATION_SIGN": "NUM.OPS.05",
         "M_MENTAL_ONE_NOT_GROUP": "NUM.OPS.05",
         "M_MUL_ROW_OUT": "NUM.OPS.03",
     }
@@ -345,9 +345,9 @@ def test_every_mistake_the_methods_name_is_a_row_and_on_md_mentals_list():
     assert named <= set(_mental()["misconception_codes"]), named - set(_mental()["misconception_codes"])
     for code in (
         "M_MENTAL_STOPS_SHORT",
-        "M_MENTAL_WRONG_WAY",
+        "M_COMPENSATION_SIGN",
         "M_MENTAL_ONE_NOT_GROUP",
-        "M_MENTAL_DOUBLED_BOTH",
+        "M_CONFUSES_COMPENSATION",
     ):
         assert code in named, code
         assert {VOCAB[k] for k in VOCAB if k[0] == code} == {("row", "NUM.OPS.05")}, code

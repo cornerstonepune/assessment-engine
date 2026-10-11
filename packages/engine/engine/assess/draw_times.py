@@ -16,6 +16,15 @@ LISTED = 20000  # pairs: 3 digits by 2 is 81 hundred
 ROUND = ("X10", "X100", "X1000", "MULTIPLE_OF_TEN_ONE", "MULTIPLE_OF_HUNDRED_ONE", "MULTIPLE_OF_TEN_BOTH")
 
 
+def built(rng: random.Random, alt: dict[str, Any]) -> tuple[int, int] | None:
+    """A fact scaled by ten (H10) on a level that names no round number of its own (MD.MENTAL): a table number made ten
+    times bigger beside another table number, 6 × 7 so 60 × 7, the facts to 10 × 10 of Grade 3 (LO-G3-0956). A level
+    whose numbers are round already (MUL.TENS) draws them itself; None for every other case."""
+    if alt.get("strategy") != "SCALED_FACT" or "place_value_factor" in alt:
+        return None
+    return rng.randint(2, 9) * 10, rng.randint(2, 9)
+
+
 def round_ok(alt: dict[str, Any]) -> bool:
     """Whether a case lets the numbers be round: it allows a place-value factor."""
     return "place_value_factor" in alt and any(taxonomy.holds(alt["place_value_factor"], v) for v in ROUND)

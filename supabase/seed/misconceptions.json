@@ -1195,6 +1195,66 @@
       "external_ref": null,
       "skill_from": "row",
       "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_MENTAL_STOPS_SHORT",
+      "op": "×",
+      "name": "Stops a step short",
+      "description": "Writes a step's answer as the answer: 13 × 8 doubled twice, 52; 23 × 9 as 230, never put right; 46 × 5 as 460, never halved.",
+      "repair_hint": "Say the method's steps aloud and tick each one as it is done: after 13 × 4, what is still to do to reach 13 × 8?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4a-mental-methods.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 11; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_MENTAL_STOPS_SHORT",
+      "op": "÷",
+      "name": "Stops a step short",
+      "description": "Writes a step's answer as the answer: 96 ÷ 4 halved once, 48; 240 ÷ 5 as 24, never doubled.",
+      "repair_hint": "Say the method's steps aloud and tick each one as it is done: after halving 96 once, is that ÷ 2 or ÷ 4?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4a-mental-methods.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 11; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_MENTAL_ONE_NOT_GROUP",
+      "op": "×",
+      "name": "Takes away or adds one, not a whole group",
+      "description": "Puts ten groups right by one instead of by one group: 23 × 9 as 230 − 1 = 229; 14 × 11 as 140 + 1 = 141; 19 × 6 from 20 × 6 as 119.",
+      "repair_hint": "Ask how many 23s are in 23 × 10, and how many 23 × 9 needs: one whole 23 comes off, not 1.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4a-mental-methods.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 11; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_COMPENSATION_SIGN",
+      "op": "×",
+      "name": "Puts the answer right the wrong way",
+      "description": "Starts from the round number, then adds where it should take away or takes away where it should add: 23 × 9 as 230 + 23 = 253; 19 × 6 from 20 × 6 as 120 + 6 = 126.",
+      "repair_hint": "Ask: is 20 sixes more or less than 19 sixes? So is 19 × 6 more or less than 120?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4a-mental-methods.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 11; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
+    },
+    {
+      "code": "M_CONFUSES_COMPENSATION",
+      "op": "×",
+      "name": "Doubles both numbers",
+      "description": "Doubles both numbers as if the product stayed the same: 16 × 5 worked as 32 × 10 = 320, four times the answer.",
+      "repair_hint": "Lay out 16 rows of 5 counters; halve the rows and double each row, and count: the same. Double both and count again.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4a-mental-methods.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 11; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.OPS.05"
     }
   ]
 }

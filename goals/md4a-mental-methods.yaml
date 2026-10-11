@@ -10,10 +10,11 @@ goal: >
   times (13 × 2 = □, 13 × 4 = □, 13 × 8 = □), and a number near a round one (19 × 6 from 20 × 6). Advance, Grade 4:
   × 25 as a hundred groups then divided by 4 (24 × 100 = □, 24 × 25 = □), and ÷ 5 as ÷ 10 then doubled (240 ÷ 10 = □,
   240 ÷ 5 = □). Every step is a box with its own key, printed where the reader finds it and marked by itself, and
-  every wrong step or answer the bank predicts is a named mistake: the method's own — stopping a step short, putting
-  the answer right the wrong way, taking away or adding one for a whole group, doubling both numbers — named before
-  any other on the same wrong answer, and the slips of the sum each step works out, halving 74 as 32 among them (the
-  ten exchanged lost, a row already). A method's own mistake counts against mental maths, a slip against the step's
+  every wrong step or answer the bank predicts is a named mistake: the method's own — stopping a step short, taking
+  away or adding one for a whole group, and the two compensation already names, now on a product too: putting the
+  answer right the wrong way, and doubling both numbers as if that kept it — named before any other on the same wrong
+  answer, and the slips of the sum each step works out, halving 74 as 32 among them (the ten exchanged lost, a row
+  already). A method's own mistake counts against mental maths, a slip against the step's
   operation, and a right answer for mental maths and the operation.
   Three corrections are made to the drafted document at its source, from the school's own objectives (A6): halving
   is Grade 2's, with doubling; a fact scaled by ten is Grade 3's, as multiplying by a multiple of ten is; ÷ 5 as ÷ 10
@@ -76,11 +77,12 @@ manual:
     Grade 2 (LO-G2-0498), the other mental methods at Grades 3 and 4 (LO-G3-0943, LO-G4-1340); a fact scaled by ten
     waits for Grade 3, where multiplying by a multiple of ten is taught, and ÷ 5 as ÷ 10 then doubled for Grade 4, where
     dividing by 10 is. Each step is printed as the sum it works out (13 × 2, 13 × 4, 13 × 8), so a child who doubles
-    in their head still writes each double. Four new mistakes, their names and what to do about them drafted for you:
-    stopping a step short (13 × 8 answered 52), putting the answer right the wrong way (23 × 9 as 230 + 23), one for
-    a whole group (23 × 9 as 230 − 1), doubling both numbers (16 × 5 as 32 × 10). Each counts against mental maths,
-    not multiplication. Halving each digit and losing the ten left over (74 ÷ 2 as 32) is the exchange lost, the row
-    short division already names."
+    in their head still writes each double. Two new mistakes, their names and what to do about them drafted for you:
+    stopping a step short (13 × 8 answered 52) and one for a whole group (23 × 9 as 230 − 1). Two that compensation
+    already names now have a row for multiplication: putting the answer right the wrong way (the compensation sign,
+    23 × 9 as 230 + 23) and doubling both numbers (16 × 5 as 32 × 10, both changed the same way). Each counts against
+    mental maths, not multiplication. Halving each digit and losing the ten left over (74 ÷ 2 as 32) is the exchange
+    lost, the row short division already names."
 scenarios:
   - name: MD.MENTAL, Easy — doubling and halving, Grade 2
     skill_set: MD.MENTAL

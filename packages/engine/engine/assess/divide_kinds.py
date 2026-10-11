@@ -19,6 +19,7 @@ from . import divide_found as DF
 from . import divide_stories as DS
 from . import division as D
 from . import estimate as E
+from . import mental as MN
 from . import misconceptions as M
 from . import operations as O
 from . import words as W
@@ -239,7 +240,9 @@ def ten_then_doubled(rng: random.Random, a: int, b: int, rung: str, alt: dict[st
     step = Response(
         "step", "digits", str(t), cells=cells(n), label=f"{n} ÷ 10 =", misconceptions=DM.in_box(n, 10, 0)
     )
-    ans = dataclasses.replace(D.boxes(n, 5)[0], label=f"{n} ÷ 5 =")
+    ans = MN.answer_box(
+        "DIVIDE_BY_TEN_THEN_DOUBLE", n, 5, dataclasses.replace(D.boxes(n, 5)[0], label=f"{n} ÷ 5 =")
+    )
     spec = {"a": n, "b": 5, "op": "÷", "strategy": "DIVIDE_BY_TEN_THEN_DOUBLE"}
     stem = f"Work out {n} ÷ 5. First work out {n} ÷ 10, then double it."
     return item("EFFICIENT", rung, "Conceptual", "efficient_method", stem, spec, [step, ans], working_lines=2)

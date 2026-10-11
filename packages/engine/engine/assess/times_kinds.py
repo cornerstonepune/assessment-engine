@@ -8,6 +8,7 @@ table fact and not round, so every question stays inside its level's shape (`fac
 import random
 from typing import Any
 
+from . import mental as MN
 from . import misconceptions as M
 from . import operations as O
 from .items import Item, Response, cells, item
@@ -71,13 +72,18 @@ def shortcut(rng: random.Random, rung: str, signal: str, strategy: str, sizes: t
         raise ValueError(f"{strategy} is no multiplication shortcut: {', '.join(STRATEGIES)}")
     rs = [
         Response("step", "digits", str(step), cells=cells(step), label=f"{said} ="),
-        Response(
-            "ans",
-            "digits",
-            str(a * b),
-            cells=cells(step),
-            label=f"{a} × {b} =",
-            misconceptions=M.predict("×", a, b),
+        MN.answer_box(  # the method's own mistakes first (stopped at the step, put right the wrong way, by one)
+            strategy,
+            a,
+            b,
+            Response(
+                "ans",
+                "digits",
+                str(a * b),
+                cells=cells(step),
+                label=f"{a} × {b} =",
+                misconceptions=M.predict("×", a, b),
+            ),
         ),
     ]
     spec = {"a": a, "b": b, "op": "×", "strategy": strategy}

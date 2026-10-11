@@ -350,6 +350,15 @@
       "skill_codes": [
         "NUM.OPS.04"
       ]
+    },
+    {
+      "code": "R47",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Mental multiplication and division: doubling and halving, then × 5, × 8, × 9, × 11 and × 25 by a known way, facts from facts and ÷ 5 as ÷ 10 then doubled",
+      "skill_codes": [
+        "NUM.OPS.05"
+      ]
     }
   ]
 }
