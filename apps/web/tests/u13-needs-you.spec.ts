@@ -58,7 +58,7 @@ test("Today lists what waits on a person, yours first, each saying who it is for
   // the topics no one has switched on yet, as Curriculum lists them, and one click to it
   const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic where not taught`;
   expect(await count(page, "Topics not taught yet")).toBe(off);
-  // each person's questions to answer, in their own card: the specialist's are Achal's
+  // each person's questions to answer, in their own card: an educator's are Achal's, a teacher's
   const open = await sql<{ for_role: string; n: number }[]>`
     select for_role, count(*)::int as n from ask where answer is null group by for_role order by for_role`;
   expect(open.length, "the engine has drafted questions to answer").toBeGreaterThan(0);
@@ -126,7 +126,7 @@ test("a question drafted for Achal is agreed or corrected on the site, in the na
   const asked = await sql<{ code: string; question: string }[]>`
     select code, question from ask where code in ('MD.A2', 'MD.A3') and answer is null order by code`;
   expect(asked.map((a) => a.code)).toEqual(["MD.A2", "MD.A3"]);
-  const [{ n: before }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and for_role = 'specialist'`;
+  const [{ n: before }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and for_role = 'educator'`;
   try {
     await page.goto("/asks");
     const a2 = page.getByRole("region", { name: asked[0].question, exact: true });
@@ -144,7 +144,7 @@ test("a question drafted for Achal is agreed or corrected on the site, in the na
       { code: "MD.A3", answer: "corrected", correction: "A remainder is written in words first, then with r from Grade 3", answered_by: TEST_STAFF.name },
     ]);
     await page.goto("/today");
-    expect(await count(page, "Questions for a specialist")).toBe(before - 2);
+    expect(await count(page, "Questions for an educator")).toBe(before - 2);
   } finally {
     await sql`update ask set answer = null, correction = null, answered_by = null, answered_at = null where code in ('MD.A2', 'MD.A3')`;
   }

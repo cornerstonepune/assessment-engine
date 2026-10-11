@@ -26,6 +26,8 @@ says:
     proved_by: packages/engine/tests/test_asks.py::test_every_question_drafted_for_achal_is_a_row
   - words: "for Achal to validate"
     proved_by: "apps/web/tests/u13-needs-you.spec.ts::a question drafted for Achal is agreed or corrected on the site, in the name of who answers"
+  - words: "Achal is a teacher, so he's the one who will be responsible for doing all of this."
+    proved_by: packages/engine/tests/test_asks.py::test_achal_is_a_teacher_so_what_waits_on_him_is_an_educators
   - words: "We had aligned on this, right?"
     proved_by: packages/engine/tests/test_asks.py::test_an_answered_question_is_never_changed_by_a_reload
   - words: "We had aligned on this, right?"
@@ -39,8 +41,9 @@ says:
 manual:
   - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live`. Then, on Curriculum, switch on the topics
     the school teaches now; their skills reach Curriculum, the Question bank and children's papers from that moment."
-  - "Nimish: Achal answers his questions only once he can sign in. If he is not on the staff list as the specialist,
-    add him (config row `app.staff`) and he sets his password with `bin/engine set-password`."
+  - "Nimish: Achal answers his questions only once he can sign in. He is a teacher: if he is not on the staff list as
+    an educator, add him or change his role (config row `app.staff`), and he sets his password with
+    `bin/engine set-password`."
   - "Nimish: who decides what is drafted from ARCHITECTURE.md (`people.decides`); it is the first question on the site
     for you."
 scenarios: []

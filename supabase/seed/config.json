@@ -25,16 +25,16 @@
     },
     {
       "key": "people.decides",
-      "description": "Who decides each kind of thing that waits on a person, by the staff list's roles (app.staff). Drafted from ARCHITECTURE.md for Nimish to correct: the specialist confirms the answers the engine was unsure of and signs off what was read (N9), and confirms the home papers (N11); an educator approves the class papers that print (N7) and says what is taught; the coordinator approves the skills. Today shows each kind to the people whose role is here first.",
+      "description": "Who decides each kind of thing that waits on a person, by the staff list's roles (app.staff), as the workflow agreed with the school gives it (docs/sources/assessment-workflow-v1.md): the teacher confirms the answers the engine was unsure of and signs off what was read (N9), approves the class papers that print (N7), confirms the home papers (N11) and says what is taught — \"everything approved by the teacher\"; Aseem ratifies the skills (N1), the coordinator. Nimish, 2026-10-11: \"Achal is a teacher, so he's the one who will be responsible for doing all of this.\" Today shows each kind to the people whose role is here first.",
       "value": {
         "answers": [
-          "specialist"
+          "educator"
         ],
         "papers": [
-          "specialist"
+          "educator"
         ],
         "home_papers": [
-          "specialist"
+          "educator"
         ],
         "class_papers": [
           "educator"

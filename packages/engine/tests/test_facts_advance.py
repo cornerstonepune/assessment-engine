@@ -45,9 +45,8 @@ FMT = {
 SIGN = {"MUL.FACTS": "×", "MUL.TENS": "×", "DIV.FACTS": "÷"}
 # The document's placements no level holds yet, each with the slice of BUILD-ORDER that will hold them. A slice's line
 # goes when it is built: a placement it leaves unheld fails here, and so does a line nothing waits for.
-SLICE_OF = {  # M4 in four slices (BUILD-ORDER); MD.MENTAL is M4a's, built
-    "MD.EQUALITY": "M4b",
-    "MD.ESTIMATE": "M4b",
+SLICE_OF = {  # M4 in five slices (BUILD-ORDER); MD.MENTAL is M4a's and MD.ESTIMATE M4b1's, built
+    "MD.EQUALITY": "M4b2",
     "MD.MULTIPLES": "M4c",
     "MD.WORD": "M4d",
 }

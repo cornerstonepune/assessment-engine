@@ -810,7 +810,6 @@
         "COMMON_MULTIPLES",
         "DIVISIBLE_BY_2_5_10",
         "DIVISIBLE_BY_3",
-        "PARITY_OF_A_PRODUCT",
         "ROUND_ONE",
         "ROUND_BOTH",
         "ANSWER_DIGITS",

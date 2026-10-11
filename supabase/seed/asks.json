@@ -2,7 +2,7 @@
   "asks": [
     {
       "code": "MD.TAXONOMY",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "The multiplication and division taxonomy the engine drafted: is it how the school teaches?",
       "drafted": "Every case, named mistake and skill the engine drafted, each case placed in a level or listed as unplaced. Correct it in the shared document; each correction is carried into the rows.",
       "source": "docs/design/multiplication-division-taxonomy.md",
@@ -10,7 +10,7 @@
     },
     {
       "code": "MD.A1",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A1: Every method is a case.",
       "drafted": "Straight levels (Easy to Hard) print each calculation in every written method this document lists for its shape, in fair shares: in a line, in columns, expanded, partitioning, grid, and lattice for 2-digit × 2-digit; for division, in a line, short division, long division, partitioning the number and chunking. Pictures (groups, arrays, number lines) belong to the concept skills.",
       "why": "Nimish, 2026-10-09: \"consider all of the methods for now\". A level's methods are a row, so a grade that teaches one method narrows it without code.",
@@ -18,7 +18,7 @@
     },
     {
       "code": "MD.A2",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A2: Division prints in a line by default.",
       "drafted": "\"85 ÷ 4 = □ r □\"; short division (bus stop), long division (quotient on top) and chunking are presentations of the same numbers.",
       "why": "The school's July papers write \"144 ÷ 12 =\". If the school writes the older \"4 ) 85 ( 21\" layout, it is one more presentation.",
@@ -26,7 +26,7 @@
     },
     {
       "code": "MD.A3",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A3: A remainder is written \"r\" and is its own answer.",
       "drafted": "The quotient and the remainder each get their own boxes and are marked separately.",
       "why": "One box holding \"21 r 1\" cannot be read digit by digit, and a wrong remainder with a right quotient is a different mistake from the reverse.",
@@ -34,7 +34,7 @@
     },
     {
       "code": "MD.A4",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A4: Tables run from 0 to 12.",
       "drafted": "×11 and ×12 appear only at Advance: a fact that needs the 11 or 12 tables, either way round (3 × 12, 12 × 7), is no Easy, Medium or Hard question, and the tables' Advance holds every table. 12 × 0 and 11 × 1 are the facts of 0 and 1.",
       "why": "The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 paper asks 144 ÷ 12.",
@@ -42,7 +42,7 @@
     },
     {
       "code": "MD.A5",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A5: The school's words.",
       "drafted": "\"Regroup\" for a multiplication carry, \"exchange\" when a remainder moves to the next digit, never \"borrow\". \"Product, factor, dividend, divisor, quotient, remainder\" from Grade 3; \"times, groups of, shared equally, left over\" before it.",
       "why": "CLAUDE.md: \"exchange / regroup\", never \"borrow\".",
@@ -50,7 +50,7 @@
     },
     {
       "code": "MD.A6",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A6: Grades come from the school's own objectives.",
       "drafted": "Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. Where the lists disagree (one \"Extended & Application\" unit is repeated in G2, G3 and G4), a level goes to the earliest grade whose objective names it, except Grade 1, which is exactly what its educator taught to the end of September (2026-10-06): equal groups by adding again. A level the objectives put in Grade 1 sits in Grade 2 until the Grade 1 educator says it is taught.",
       "why": "A level's grade is a row (`skill_set.level_band`); Achal moves it.",
@@ -58,7 +58,7 @@
     },
     {
       "code": "MD.A7",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A7: Taught stays the educator's word.",
       "drafted": "Every case is built and checked; nothing reaches a child's paper until the grade declares it taught.",
       "why": "The Grade 1 rule of 2026-10-06.",
@@ -66,7 +66,7 @@
     },
     {
       "code": "MD.A8",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A8: Out of scope.",
       "drafted": "Remainders as fractions or decimals. Division by zero appears only as a true-or-false statement, never as a sum.",
       "why": "No G1 to G4 objective names them.",
@@ -74,7 +74,7 @@
     },
     {
       "code": "MD.A9",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A9: Stories fit their numbers.",
       "drafted": "Each story template carries the range its numbers may take, so no box holds 933 pencils.",
       "why": "Today's multiplication bank prints \"Each box has 933 pencils\".",
@@ -82,7 +82,7 @@
     },
     {
       "code": "MD.A10",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A10: Both orders.",
       "drafted": "\"4 × 36\" and \"36 × 4\" are both asked, as addition prints the shorter number first.",
       "why": "A child who knows 3 × 8 from the 3 table may not know 8 × 3.",
@@ -90,7 +90,7 @@
     },
     {
       "code": "MD.A11",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A11: What a mistake charges.",
       "drafted": "A slip adding the partial products counts against addition, not multiplication; the table of what each mistake charges waits for one approval, as addition's did.",
       "why": "ADR 0023.",
@@ -98,7 +98,7 @@
     },
     {
       "code": "MD.A12",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A12: Lattice is included.",
       "drafted": "Because every method is; it leaves by taking its cases out of the levels.",
       "why": "Not named in the school's objectives.",
@@ -106,94 +106,101 @@
     },
     {
       "code": "as1-every-listed-case-draws",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Subtraction from 1000 (SZ6, SZ9): Grade 4's, not Grade 3's?",
       "drafted": "SZ6 (1000 − 476) and SZ9 (1000 − 999) start at 1000, a 4-digit number, so they are SUB.4D's (Grade 4), not SUB.3D3D's (Grade 3), whose numbers are 3 digits. Say if the school teaches subtraction from 1000 in Grade 3.",
       "source": "goals/as1-every-listed-case-draws.yaml"
     },
     {
       "code": "md2a-straight-multiplication",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "The five multiplication skills: their levels and grades",
       "drafted": "the five skills' levels and grades are the drafted document's (assumption A6), except that nothing of the tables is Grade 1's until its educator says so. TZ01 and TZ07 moved to MUL.TENS Advance; TZ09 and TP11 are new; say if any of it belongs elsewhere.",
       "source": "goals/md2a-straight-multiplication.yaml"
     },
     {
       "code": "md2b-times-advance",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Multiplication's Advance levels: the drafted cases, two of them moved",
       "drafted": "each Advance is the drafted document's cases, except T13 (6 × 125 in a line), which is a question the skill's Easy to Hard already hold and is now among the ways they are printed; and C06 (partitioning, tens taken as ones), which joins with the methods in M2d. Say if any of it belongs elsewhere.",
       "source": "goals/md2b-times-advance.yaml"
     },
     {
       "code": "md2d2-multiplication-methods",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Every written method of multiplication printed at Easy to Hard (A1, A11)",
       "drafted": "A1 (every method printed at Easy to Hard) and A11 (a slip adding the steps counts against addition) are the drafted assumptions this slice builds; a grade that teaches fewer methods takes them out of its level's row.",
       "source": "goals/md2d2-multiplication-methods.yaml"
     },
     {
       "code": "md3a-straight-division",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "The four division skills: their levels, grades and five corrected cases",
       "drafted": "the four skills' levels and grades are the drafted document's (assumption A6). Five cases are corrected where they were drafted (DR01, DF16, DZ03, DP02 and DP03 with DR10), and a remainder's box shows only where there is one (ADR 0056); say if any of it is not how the school teaches it.",
       "source": "goals/md3a-straight-division.yaml"
     },
     {
       "code": "md3b1-facts-advance",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "The tables' and the tens' Advance: cases corrected, and a missing factor's mistakes",
       "drafted": "each Advance holds the drafted document's cases, corrected where they could hold nothing: Y10 (a check by multiplying, 96 ÷ 4) moves to DIV.2D1D and H09 (÷ 5 as ÷ 10 then doubled, 240 ÷ 5) to DIV.3D1D; the box first and the cost of one are exact; a missing place-value factor is of a number to 2 digits. A missing factor's mistakes are drafted here: × read as + (8 × □ = 72 answered 64), ÷ read as − (□ ÷ 4 = 7 answered 11), the table one row out, a zero too few. Say if any of it is not how the school teaches it.",
       "source": "goals/md3b1-facts-advance.yaml"
     },
     {
       "code": "md3b2-divide-advance",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Division's Advance: each box names the mistakes of the act that finds it",
       "drafted": "each box is keyed by the act that finds it, drafted here for you to correct. A digit missing in the number divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the carry left out gives 42, so 4 in a tens box); a remainder missing names the taking away's (38 ÷ 5 = 7 r □: 38 − 35); a digit missing in the quotient names only a wrong quotient as long as the one printed. An estimate rounds the number divided to the nearest hundred, and is asked only where that hundred divides exactly (412 ÷ 8 ≈ 400 ÷ 8 = 50). Not added, for you to decide: a digit that gives the quotient shown with something over (73 ÷ 4 = 18 r 1, answered 3 in 7□ ÷ 4 = 18) is no named mistake.",
       "source": "goals/md3b2-divide-advance.yaml"
     },
     {
       "code": "md3b3-divide-mistakes-and-stories",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Division's mistake found, and the stories that use what is left over",
       "drafted": "drafted for you to correct. A worked division shows one named mistake on the level's own numbers; the child writes the right answer in the division's boxes and says why. For the last digit not brought down, the child says which step went wrong in the why: no box is ticked for it. The stories' words are drafted as template rows (laddoos in boxes, children in rickshaws). Both asked is printed as the division writes it, 6 r 2. The remainder not rounded up (26 children, 4 to a rickshaw, answered 6) is a new mistake, its name and what to do about it drafted for you.",
       "source": "goals/md3b3-divide-mistakes-and-stories.yaml"
     },
     {
       "code": "md3c-division-models",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Division's first models: the pictures, repeated subtraction, the array's sentence, three new mistakes and “each” in a story",
       "drafted": "drafted for you to correct. The pictures are dots and rings, as multiplication's are. Repeated subtraction is printed whole (15 − 3 − 3 − 3 − 3 − 3 = 0) and the child counts the 3s; you may want the child to write the subtractions. An array divided is read as in all ÷ rows = in each row. Three new mistakes, their names and what to do about them drafted for you: counts them all (12 dots into 3 rings, answered 12); gives the number the question gives for the one it asks (answered 3, the rings); counts the start as a jump (20 back to 0 in 4s, answered 6). Multiplying a story because it says 'each' is named on the 'each' stories (B24) and the wrong operation on the others; you may want it on every story that says 'each'.",
       "source": "goals/md3c-division-models.yaml"
     },
     {
       "code": "s24-a-split-that-holds-is-right",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Question 5 of the 24 September paper: does any split that adds up count on Addition?",
       "drafted": "question 5's boxes count on Addition (NUM.OPS.01, rung R27), which any split that adds up shows; the key prints the place-value split (600 + 30 + 8) the third line adds column by column. If the school wants only that split, the three papers' `holds` lines come out and each box goes back to its own key.",
       "source": "goals/s24-a-split-that-holds-is-right.yaml"
     },
     {
       "code": "NY.TAUGHT_WHOLE_SCHOOL",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "A topic is switched on for the whole school, not grade by grade: is that how the school decides what is taught?",
       "drafted": "One switch a topic, on Curriculum, in the educator's name. Switched on, its skills reach every grade's children at the levels their grades hold, and every paper is still approved by a person before it prints. If a grade must say it for itself, the switch becomes one a grade.",
       "source": "docs/adr/0059-a-person-says-what-is-taught-and-what-waits-is-someones.md"
     },
     {
       "code": "md3d-division-methods",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Division's written methods: every one printed, three changes to the draft, and what a slip inside one counts against",
       "drafted": "drafted for you to correct. Every written method is printed at Easy to Hard (A1): DIV.2D1D in a line, partitioning, chunking and short division; DIV.3D1D in a line, chunking, short division and long division. Three changes to the draft: a 3-digit division prints in a line too; chunking takes the lots of each place at once (96 ÷ 4: 20 lots, then 4), since ten lots at a time would print nineteen take-aways for 588 ÷ 3; halving is MD.MENTAL's alone, as doubling is. A slip taking away inside a division counts against subtraction, and one multiplying against multiplication, as a slip adding the parts counts against addition (A11). A grade that teaches fewer methods takes them out of its level's row.",
       "source": "goals/md3d-division-methods.yaml"
     },
     {
       "code": "md4a-mental-methods",
-      "for_role": "specialist",
+      "for_role": "educator",
       "question": "Mental multiplication and division: its levels by the school's objectives, every step a sum, and its mistakes",
       "drafted": "drafted for you to correct. MD.MENTAL's levels follow the school's objectives: doubling and halving at Grade 2 (LO-G2-0498), the other mental methods at Grades 3 and 4 (LO-G3-0943, LO-G4-1340); a fact scaled by ten waits for Grade 3, where multiplying by a multiple of ten is taught, and ÷ 5 as ÷ 10 then doubled for Grade 4, where dividing by 10 is. Each step is printed as the sum it works out (13 × 2, 13 × 4, 13 × 8), so a child who doubles in their head still writes each double. Two new mistakes, their names and what to do about them drafted for you: stopping a step short (13 × 8 answered 52) and one for a whole group (23 × 9 as 230 − 1). Two that compensation already names now have a row for multiplication: putting the answer right the wrong way (the compensation sign, 23 × 9 as 230 + 23) and doubling both numbers (16 × 5 as 32 × 10, both changed the same way). Each counts against mental maths, not multiplication. Halving each digit and losing the ten left over (74 ÷ 2 as 32) is the exchange lost, the row short division already names.",
       "source": "goals/md4a-mental-methods.yaml"
+    },
+    {
+      "code": "md4b1-estimates",
+      "for_role": "educator",
+      "question": "Estimating products and quotients: its grade, each estimate on its example's numbers, the closest estimate's options, and a new rounding mistake",
+      "drafted": "drafted for you to correct. MD.ESTIMATE's levels are Grade 4's, as the document drafted them: no school objective names estimating a product, so the draft's grade stands. Each estimate is asked on its example's numbers (48 × 6, 67 × 75, 156 ÷ 4). The closest estimate's options are what rounding to a ten gives (52 × 9: 360, 450 or 540), so a wrong choice shows how the child rounded: up always, or down always, a new mistake drafted for you with what to do about it. Odd or even of a product is asked past the tables here (6 × 13), and on a table fact in multiples and factors (6 × 7). A right answer judged wrong is now named on addition's and subtraction's questions too.",
+      "source": "goals/md4b1-estimates.yaml"
     }
   ]
 }

@@ -4084,6 +4084,98 @@
         "Hard": "G3",
         "Advance": "G4"
       }
+    },
+    {
+      "code": "MD.ESTIMATE",
+      "rung_code": "R48",
+      "name": "Estimating products and quotients",
+      "learning_objective": "Estimates a product or a quotient and judges an answer without working it out: odd or even and the last digit; the larger number or both rounded to the ten, the number divided to the hundred; how many digits an answer has; the closest of three estimates; and whether a claimed answer can be right, by its size or by its remainder.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "odd_even",
+        "estimate_then_calc",
+        "choose_estimate",
+        "possible_answer"
+      ],
+      "misconception_codes": [
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_IGNORES_SIZE",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_COLUMNWISE",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ONE_ROW",
+        "M_MUL_PLACEHOLDER",
+        "M_MUL_ROW_OUT",
+        "M_MUL_STALE_CARRY",
+        "M_MUL_UNITS_REVERSED",
+        "M_PARITY_RULE",
+        "M_REVERSES_CLAIM_TRUTH",
+        "M_ROUNDS_AWAY_ZERO",
+        "M_ROUNDS_TOWARD_ZERO",
+        "M_WRONG_OP"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Odd or even of a product past the tables, and the digit a product ends in, without working it out: 6 × 13; 47 × 3 ends in □.",
+          "check": {
+            "cases": [
+              "V06",
+              "V07"
+            ]
+          },
+          "min_items": 24
+        },
+        "Medium": {
+          "words": "The larger number rounded to the ten, and how many digits a product or a quotient has, before it is worked out: 48 × 6 ≈ 50 × 6; 67 × 75; 156 ÷ 4.",
+          "check": {
+            "cases": [
+              "V01",
+              "V03",
+              "V04"
+            ]
+          },
+          "min_items": 36
+        },
+        "Hard": {
+          "words": "Both numbers rounded to the ten, the closest of three estimates, and a quotient from the number divided rounded to the hundred: 38 × 21 ≈ 40 × 20; 52 × 9 is closest to 360, 450 or 540; 412 ÷ 8 ≈ 400 ÷ 8.",
+          "check": {
+            "cases": [
+              "V02",
+              "V08",
+              "V10"
+            ]
+          },
+          "min_items": 36
+        },
+        "Advance": {
+          "words": "Whether a claimed answer can be right, judged by its size or by its remainder: 23 × 4 = 812; 47 ÷ 6 = 6 r 11.",
+          "check": {
+            "cases": [
+              "V05",
+              "V09"
+            ]
+          },
+          "min_items": 24
+        }
+      },
+      "level_band": {
+        "Easy": "G4",
+        "Medium": "G4",
+        "Hard": "G4",
+        "Advance": "G4"
+      }
     }
   ]
 }

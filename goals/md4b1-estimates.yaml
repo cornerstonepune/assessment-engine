@@ -1,0 +1,119 @@
+name: md4b1-estimates
+goal: >
+  MD.ESTIMATE (Grade 4) asks a child to judge a product or a quotient without working it out, and then, where the
+  question says so, to work it out. Easy: whether a product past the tables is odd or even (6 × 13), and the digit a
+  product ends in (47 × 3 ends in □). Medium: the larger number rounded to the ten (48 × 6 ≈ 50 × 6 = □), how many
+  digits a product has (67 × 75) and a quotient has (156 ÷ 4). Hard: both numbers rounded to the ten (38 × 21 ≈
+  40 × 20 = □), the closest of three estimates (52 × 9 is closest to 360, 450 or 540?), and a quotient from the number
+  divided rounded to the hundred (412 ÷ 8 ≈ 400 ÷ 8 = □). Advance: whether a claimed answer can be right, judged by its
+  size (23 × 4 = 812) or by its remainder (47 ÷ 6 = 6 r 11). Each case is drawn on the sizes of its example, here as on
+  the skill it shares (48 × 6 is 2 digits by 1 on MUL.2D1D and here alike), so nothing is past Grade 4, and the skills
+  it shares draw what they drew before. Every question names a mistake a wrong answer shows: odd and even the wrong way
+  round; an estimate rounded up always (52 × 9 as 60 × 9) or down always (58 × 9 as 50 × 9, a new mistake drafted for
+  Achal); an answer accepted without checking its size; a right answer judged wrong; and the exact answer's slips, as
+  multiplication and division name them. The closest estimate's options are what rounding to a ten gives, the right one
+  first, in the middle or last as often as each. The three judging kinds name a mistake on every + and − question too,
+  where the closest hundred named one in 16 draws of 100 and a right claim none. A scenario works out every answer again
+  from the question as printed, an odd or even answer and a closest estimate among them. V06 and F08 are one kind of
+  question, told apart by their numbers: F08 a table fact (6 × 7), V06 a product past the tables (6 × 13). Every level
+  fills and every scenario is 100%. None of it is taught until an educator says so.
+# Written 2026-10-11, before the code: slice M4b1 of BUILD-ORDER "Inserted now: multiplication and division".
+# Measured first (STATE.md "M4b — measured before the build"): drawn alone on a level with no shape of its own, V01,
+# V02, V03 and V07 fail (`KeyError: 'digits'`) and V04, V09 and V10 draw past Grade 4 (8686 ÷ 3); each draws its
+# example's sizes on its other home, from that level's shape. V05, V06 and V08 refuse ×. The closest hundred names a
+# mistake on 50 of 313 draws, and a right claim judged possible names none; no scenario held those levels, and none
+# works out an odd or even answer or a closest estimate.
+says:
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_estimates.py::test_every_estimate_draws_the_sizes_of_its_example_on_a_level_with_no_shape_of_its_own
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_estimates.py::test_a_shared_estimate_draws_on_its_other_home_what_it_drew_before
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_estimates.py::test_odd_or_even_of_a_product_past_the_tables
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_estimates.py::test_the_closest_estimate_of_a_product_is_what_rounding_to_a_ten_gives
+  - words: "consider all of the methods for now"
+    proved_by: packages/engine/tests/test_estimates.py::test_whether_a_product_can_be_right_is_judged_by_its_size
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_estimates.py::test_each_level_holds_its_cases_at_grade_4
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_estimates.py::test_the_right_option_is_first_in_the_middle_or_last_as_often_as_each
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_estimates.py::test_rounding_up_always_and_down_always_are_named
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_estimates.py::test_an_answer_accepted_without_its_size_and_a_right_answer_judged_wrong_are_named
+  - words: "create assessments of different levels of difficulty"
+    proved_by: packages/engine/tests/test_estimates.py::test_every_judging_question_names_a_mistake_plus_and_minus_too
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_estimates.py::test_v06_and_f08_are_told_apart_by_their_numbers
+  - words: "make all the required assumptions"
+    proved_by: packages/engine/tests/test_estimates.py::test_the_document_gives_the_closest_estimate_and_odd_or_even_their_numbers
+  - words: "break it down into LOs"
+    proved_by: packages/engine/tests/test_estimates.py::test_a_right_answer_counts_for_estimating_and_a_rounding_mistake_against_it
+  - words: "same process"
+    proved_by: packages/engine/tests/test_estimates.py::test_a_scenario_works_out_odd_or_even_and_the_closest_estimate
+  - words: "same process"
+    proved_by: packages/engine/tests/test_estimates.py::test_every_tick_is_marked_against_its_own_key
+  - words: "same process"
+    proved_by: packages/engine/tests/test_estimates.py::test_every_mistake_the_estimates_name_is_a_row_and_on_md_estimates_list
+  - words: "same process"
+    proved_by: packages/engine/tests/test_estimates.py::test_every_level_fills_each_case_as_often_as_it_asks
+  - words: "create the whole loop that we have"
+    proved_by: "apps/web/tests/s37-estimates.spec.ts::once taught, every estimate is on the Question bank as the child meets it"
+  - words: "same process"
+    proved_by: packages/engine/tests/test_goal.py::test_every_invariant_holds
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.ESTIMATE into a topic of its own,
+    Estimating products and quotients, and fills its levels. No screen or paper shows it until an educator switches it
+    on from Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
+  - "Achal: drafted for you to correct. MD.ESTIMATE's levels are Grade 4's, as the document drafted them: no school
+    objective names estimating a product, so the draft's grade stands. Each estimate is asked on its example's numbers
+    (48 × 6, 67 × 75, 156 ÷ 4). The closest estimate's options are what rounding to a ten gives (52 × 9: 360, 450 or
+    540), so a wrong choice shows how the child rounded: up always, or down always, a new mistake drafted for you with
+    what to do about it. Odd or even of a product is asked past the tables here (6 × 13), and on a table fact in
+    multiples and factors (6 × 7). A right answer judged wrong is now named on addition's and subtraction's questions
+    too."
+scenarios:
+  - name: MD.ESTIMATE, Easy — odd or even of a product past the tables, the last digit
+    skill_set: MD.ESTIMATE
+    difficulty: Easy
+    n: 24
+    cases: [V06, V07]
+  - name: MD.ESTIMATE, Medium — the larger number rounded, how many digits a product and a quotient have
+    skill_set: MD.ESTIMATE
+    difficulty: Medium
+    n: 36
+    cases: [V01, V03, V04]
+  - name: MD.ESTIMATE, Hard — both numbers rounded, the closest estimate, a quotient from the hundred
+    skill_set: MD.ESTIMATE
+    difficulty: Hard
+    n: 36
+    cases: [V02, V08, V10]
+  - name: MD.ESTIMATE, Advance — whether a product or a quotient can be right
+    skill_set: MD.ESTIMATE
+    difficulty: Advance
+    n: 24
+    cases: [V05, V09]
+  - name: ESTIMATE.HUNDRED, Medium — the closest hundred, a mistake named on every question
+    skill_set: ESTIMATE.HUNDRED
+    difficulty: Medium
+    n: 24
+    cases: [R04]
+  - name: ESTIMATE.HUNDRED, Hard — could it be right, odd or even, a mistake named on every question
+    skill_set: ESTIMATE.HUNDRED
+    difficulty: Hard
+    n: 24
+    cases: [R05, R06]
+criteria:
+  - name: the estimates drawn, judged, printed and named; the drawer, the rows, the judging kinds and the scenario check they touch
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_estimates.py tests/test_reasoning.py tests/test_mul_advance.py tests/test_divide_advance.py tests/test_every_listed_case.py tests/test_md_cases.py tests/test_taxonomy.py tests/test_new_kinds.py tests/test_every_skill.py tests/test_mistake_rows.py tests/test_items.py tests/test_verify.py tests/test_render.py tests/test_loaders.py tests/test_bank.py tests/test_library.py tests/test_each_answer.py tests/test_audit.py tests/test_division_is_an_operation.py tests/test_goal.py
+    expect: "passed"
+  - name: the drafted document recomputed and checked
+    run: packages/engine/.venv/bin/python research/md_taxonomy.py --check
+    expect: "0 faults"
+  - name: the Question bank shows every estimate as the child meets it
+    run: cd apps/web && npx playwright test tests/s37-estimates.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

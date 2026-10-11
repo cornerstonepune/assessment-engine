@@ -2315,8 +2315,8 @@
   "code": "V06",
   "section": 12,
   "label": "Odd or even, without working",
-  "example": "7 × 9 and 6 × 13",
-  "answer": "odd and even",
+  "example": "6 × 13 and 7 × 15",
+  "answer": "even and odd",
   "op": "×",
   "placed_in": [
    "MD.ESTIMATE:Easy"
@@ -2338,7 +2338,7 @@
   "code": "V08",
   "section": 12,
   "label": "The closest estimate",
-  "example": "52 × 9 is closest to 400, 450 or 500?",
+  "example": "52 × 9 is closest to 360, 450 or 540?",
   "answer": "450",
   "op": "×",
   "placed_in": [

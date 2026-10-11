@@ -83,8 +83,8 @@ EXPECTED = {
     "report_item": 885,
     "trait": 56,
     # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a), R41 (M2d1), R42–R45
-    # (M3a), R46 (M3c), R47 (M4a)
-    "rung": 39,
+    # (M3a), R46 (M3c), R47 (M4a), R48 (M4b1)
+    "rung": 40,
     "level_rule": 12,
     "misconception": 39,
     # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml); `from_table` (M3a)
@@ -97,8 +97,9 @@ EXPECTED = {
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill_set": 39,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
-    # multiplication's models (M2d1), four ÷ (M3a), division's models (M3c), mental multiplication and division (M4a)
+    "skill_set": 40,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
+    # multiplication's models (M2d1), four ÷ (M3a), division's models (M3c), mental multiplication and division (M4a),
+    # estimating products and quotients (M4b1)
     "subject": 1,
 }
 

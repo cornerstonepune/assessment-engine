@@ -269,7 +269,8 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "F05": _shape("multiples", "COMMON_MULTIPLES", ["×"], of=[3, 4], below=30),
     "F06": _shape("multiples", "DIVISIBLE_BY_2_5_10", ["÷"], n=340),
     "F07": _shape("multiples", "DIVISIBLE_BY_3", ["÷"], n=117),
-    "F08": ("odd_even", _x(6, 7, shape="PARITY_OF_A_PRODUCT"), ["shape"]),
+    # a product odd or even, as V06 is: F08 asks it of a table fact, V06 of a product past the tables (M4b1)
+    "F08": ("odd_even", _x(6, 7), [("fmt", "odd_even"), "fact"]),
     # efficient and mental
     "H01": _strategy(46, 5, "×", "TIMES_TEN_THEN_HALVE"),
     "H02": _strategy(23, 9, "×", "TIMES_TEN_LESS_A_GROUP"),
@@ -281,17 +282,19 @@ OTHER: dict[str, tuple[str, dict[str, Any], list[Any]]] = {
     "H08": _strategy(7, 9, "×", "FACT_DERIVED"),
     "H09": _strategy(240, 5, "÷", "DIVIDE_BY_TEN_THEN_DOUBLE"),
     "H10": _strategy(60, 7, "×", "SCALED_FACT"),
-    # estimating and judging
-    "V01": ("estimate_then_calc", _x(48, 6, shape="ROUND_ONE"), ["shape"]),
-    "V02": ("estimate_then_calc", _x(38, 21, shape="ROUND_BOTH"), ["shape"]),
-    "V03": ("estimate_then_calc", _x(67, 75, shape="ANSWER_DIGITS"), ["shape"]),
-    "V04": ("estimate_then_calc", _x(156, 4, "÷", shape="ANSWER_DIGITS"), ["shape"]),
-    "V05": ("possible_answer", _x(23, 4, claimed=812), [("fmt", "possible_answer")]),
-    "V06": ("odd_even", _x(7, 9), [("fmt", "odd_even")]),
-    "V07": ("estimate_then_calc", _x(47, 3, shape="LAST_DIGIT"), ["shape"]),
-    "V08": ("choose_estimate", _x(52, 9, options=[400, 450, 500]), [("fmt", "choose_estimate")]),
-    "V09": ("possible_answer", _x(47, 6, "÷", claimed="6 r 11"), [("fmt", "possible_answer")]),
-    "V10": ("estimate_then_calc", _x(412, 8, "÷", shape="ROUND_ONE"), ["shape"]),
+    # estimating and judging: each on its example's sizes, which say what it is as much as its shape does (M4b1). On a
+    # level of cases with no shape of its own (MD.ESTIMATE) they are its only sizes; on the skill a case shares
+    # (MUL.2D1D for 48 × 6) they are that skill's own
+    "V01": ("estimate_then_calc", _x(48, 6, shape="ROUND_ONE"), ["shape", *DM]),
+    "V02": ("estimate_then_calc", _x(38, 21, shape="ROUND_BOTH"), ["shape", *DM]),
+    "V03": ("estimate_then_calc", _x(67, 75, shape="ANSWER_DIGITS"), ["shape", *DM]),
+    "V04": ("estimate_then_calc", _x(156, 4, "÷", shape="ANSWER_DIGITS"), ["shape", *D]),
+    "V05": ("possible_answer", _x(23, 4, claimed=812), [("fmt", "possible_answer"), *DM]),
+    "V06": ("odd_even", _x(6, 13), [("fmt", "odd_even"), *DM, "fact"]),
+    "V07": ("estimate_then_calc", _x(47, 3, shape="LAST_DIGIT"), ["shape", *DM]),
+    "V08": ("choose_estimate", _x(52, 9, options=[360, 450, 540]), [("fmt", "choose_estimate"), *DM]),
+    "V09": ("possible_answer", _x(47, 6, "÷", claimed="6 r 11"), [("fmt", "possible_answer"), *D]),
+    "V10": ("estimate_then_calc", _x(412, 8, "÷", shape="ROUND_ONE"), ["shape", *D]),
     # word problems
     "B01": _story(4, 6, "×", "EQUAL_GROUPS"),
     # a story that shares or groups divides a table to 10 read backwards, as every one of its examples does (ADR 0062)
