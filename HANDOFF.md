@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-11 — M4d1: stories with × and ÷ (built, proved on copies; PR #182)
+
+- **Slice:** M4d1, W1 gate 3. `MD.WORD`, Grades 2 to 4 (STATE.md "M4d1 — stories with × and ÷, built", ADR 0068): ten
+  new stories, each template saying its own numbers, answer and mistakes; MD.WORD's levels saying their sizes so its
+  older stories stay in their grade; six mistakes for Achal; the scenario works out every two-step story.
+- **Found and fixed at the cause:** Grade 2 stories drawn at 2 digits by 2 (75 books on 72 shelves); a story asking
+  what it gave; s2's words saved as new followed by old (a page filled before it was live).
+- **Proved on copies:** 12 unit tests; four scenarios met completely (312 of 312); s40, s39, s2 in the browser; the
+  update-live rehearsal (312 added, 0 retired, 0 problems).
+- **Next:** CI on #182, merge, the done report on main; then M4d2 (the older stories' ranges, `story_shape` for × and
+  ÷ with its eval, halving on Division, the A11 table).
+- **For Nimish:** after the merge, `~/cornerstone/assessment-engine/bin/update-live` (M2a to M4d1). Still open: did
+  update-live finish after the OpenCV repair; Achal's role on the live staff list (educator); is skill approval
+  Achal's too.
+
 ## 2026-10-11 — M4c merged and live; M4d measured and split
 
 - **M4c:** merged as `1062d83` (#180) after CI and the rehearsal passed on `a55461c`; migrated and deployed; its done

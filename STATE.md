@@ -6623,3 +6623,50 @@ On main `1062d83`. MD.WORD holds 26 cases, drafted G2 G2 G3 G4. Each drawn alone
 - **A11:** 8 of the 40 × and ÷ mistake rows name a skill; `skills.charges_by_kind.approved` is empty.
 - **Split** (BUILD-ORDER): M4d1 the ten stories on MD.WORD's own rows, each new template with its range; M4d2 the older
   templates' ranges, `story_shape` for × and ÷ with its eval, halving on Division, the A11 table.
+
+## M4d1 — stories with × and ÷, built (2026-10-11)
+
+Goal `goals/md4d1-times-stories.yaml`, ADR 0068.
+- **Ten stories that drew nothing now draw:** times as many, the smaller (B09) and how many times (B10); half as many
+  (B27); × then + (B18), × then − (B19), ÷ then × (B20), two products added (B21), + then ÷ (B22) and a bar model
+  (B23); a number the story does not need (B25); a price list (B26).
+- **A template that says its own numbers** (`assess/own_stories.py`): 22 new template rows, each with the range of each
+  number, its answer as a formula worked exactly (a division that leaves something over draws again), the wrong
+  answer behind each mistake, the smallest answer that asks something and the numbers it must tell apart. The older
+  makers never draw one (`words.owns`, `words.older`). A price list is a template's table with its numbers named.
+- **Found while looking at what MD.WORD drew, fixed at the cause:** its older stories, on a level that gave no size,
+  drew 2 digits by 2 at Grade 2 ("A shelf holds 75 books. How many books are there on 72 shelves?"; "₹9459 for 3 bus
+  tickets"; 4-digit remainders). Each MD.WORD level now says its sizes as a row: 1 or 2 digits by 1 at Grades 2 and 3,
+  as MUL.2D1D's Grade 2 levels place 2 digits by 1. Two of the new stories asked for what they gave ("2 pencils cost
+  ₹50. What do 2 pencils cost?"): their two counts must differ.
+- **Every question names a mistake;** six drafted for Achal (multiplying because the story says "times", doubling for
+  half as many, how many more answered for how many times, the unneeded number used, the other price read, a bar
+  model divided by the times alone), each counting against NUM.PRB.02; in the draft's table too (56 to 62). MD.WORD
+  names 26 on its list.
+- **Rows:** MD.WORD on R51 (NUM.OPS.03, NUM.OPS.04: "Solve multi-step word problems using bar models", the school's
+  objective at Grades 2, 3 and 4), Grade 2 at Easy and Medium, 3 at Hard, 4 at Advance; topic MDWORD "Stories with ×
+  and ÷", untaught; Achal's question `md4d1-stories`. No migration.
+- **The scenarios' check works out every two-step story** from its numbers and shape (`checks/stories.py`), a second
+  time and apart from its template's formula.
+- **Found while proving, fixed at the cause:** two more readers took every template, the new ones included. The story
+  reader for + and − (`story_shape`) shares one shape's name with × (a number the story does not need): its examples
+  failed on `{extra}` and its counts would have changed + and −'s. The bank's own candidates for a one-step story
+  (`bank`) picked a story by operation alone and filled its words with two numbers: a story that says its own
+  numbers (half as many is ÷ 2) is never one of them now (`words.older`). Eight `story_shape` tests that run only with
+  a database caught the first.
+- **Found in CI, fixed:** s2's edit of a skill's words, on a commit of documents alone, saved the new words followed by
+  the old — the box was filled before the page's script took over. The spec reaches the page live (networkidle) and
+  checks the box before Save. Ratchet fell: `bands.py` untyped 268 to 253.
+
+Proved on copies:
+- **Tests:** `test_md_word.py` 12 passed; the story and kind tests without a database, 413 passed.
+- **The goal's four scenarios** on a database built fresh as CI builds it: 312 of 312 produced, every answer worked
+  out again (the two-step stories too), on its rule, diagnosed and distinct, every listed case held.
+- **Browser:** s40 and s39, 2 passed; s2, 6 passed; on the rehearsed copy.
+- **The printed paper,** one of each new story, looked at: each sentence whole, the price list a table beside its
+  question, an answer box for each.
+- **The update-live rehearsal** on a copy of the post-M4c rehearsed database: no migration; `engine load` (rungs 43,
+  skill sets 43, mistakes 137); nothing re-keyed, relabelled or re-homed; the refill retired 0 and added 312 (MD.WORD's
+  48, 60, 84 and 120); `library build` made 40 and retired 0; `library check`: 2,678 worksheets, 168 of 168
+  skill-levels ready, 0 problems.
+- **The draft:** `md_taxonomy.py --check` 252 cases, 62 mistakes, 0 faults. `bin/check` 27 passed.
