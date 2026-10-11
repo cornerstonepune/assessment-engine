@@ -4364,6 +4364,147 @@
         "Hard": "G4",
         "Advance": "G4"
       }
+    },
+    {
+      "code": "MD.WORD",
+      "rung_code": "R51",
+      "name": "Stories with × and ÷",
+      "learning_objective": "Solves one- and two-step stories with × and ÷, choosing the operation, reading times and half as many, using a remainder as the story needs and leaving out a number it does not need.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "word_1step",
+        "word_2step",
+        "equal_groups"
+      ],
+      "misconception_codes": [
+        "M_BAR_PART_MISSED",
+        "M_DIV_BRING_DOWN_MISSED",
+        "M_DIV_EXCHANGE_LOST",
+        "M_DIV_LEAD_DROPPED",
+        "M_DIV_QUOTIENT_ZERO_DROPPED",
+        "M_DIV_REMAINDER_ADDED",
+        "M_DIV_REMAINDER_AS_DIGIT",
+        "M_DIV_REMAINDER_TOO_BIG",
+        "M_DIV_SUBTRACTED",
+        "M_DIV_SWAPPED",
+        "M_DIV_TENS_ZERO_EXTRA",
+        "M_EXTRA_NUMBER_USED",
+        "M_HALF_AS_DOUBLE",
+        "M_MUL_CARRY_FIRST",
+        "M_MUL_CONCAT",
+        "M_MUL_NO_CARRY",
+        "M_MUL_ONES_ONLY",
+        "M_MUL_ROW_OUT",
+        "M_MUL_UNITS_REVERSED",
+        "M_ONE_STEP_ONLY",
+        "M_REMAINDER_NOT_ROUNDED_UP",
+        "M_TENS_ZERO_DROPPED",
+        "M_TIMES_AS_MORE",
+        "M_TIMES_WORD_MULTIPLIED",
+        "M_WRONG_OP",
+        "M_WRONG_PRICE_READ"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Equal groups, how many in all; sharing, how many in each; grouping, how many groups; the cost of many.",
+          "check": {
+            "cases": [
+              "B01",
+              "B02",
+              "B03",
+              "B06"
+            ],
+            "digits": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          },
+          "min_items": 48
+        },
+        "Medium": {
+          "words": "An array, how many in all and how many in a row; the cost of one; twice as many and half as many.",
+          "check": {
+            "cases": [
+              "B04",
+              "B05",
+              "B07",
+              "B11",
+              "B27"
+            ],
+            "digits": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          },
+          "min_items": 60
+        },
+        "Hard": {
+          "words": "Times as many, the larger, the smaller and how many times; a remainder dropped, rounded up, asked, or both.",
+          "check": {
+            "cases": [
+              "B08",
+              "B09",
+              "B10",
+              "B14",
+              "B15",
+              "B16",
+              "B17"
+            ],
+            "digits": [
+              2,
+              1
+            ]
+          },
+          "min_items": 84
+        },
+        "Advance": {
+          "words": "Combinations and area in squares; two-step stories with × and ÷ and a bar model; a number the story does not need; a price list.",
+          "check": {
+            "cases": [
+              "B12",
+              "B13",
+              "B18",
+              "B19",
+              "B20",
+              "B21",
+              "B22",
+              "B23",
+              "B25",
+              "B26"
+            ],
+            "digits": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          },
+          "min_items": 120
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G3",
+        "Advance": "G4"
+      }
     }
   ]
 }

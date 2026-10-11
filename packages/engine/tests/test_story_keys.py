@@ -91,7 +91,7 @@ def test_no_two_templates_share_a_key_and_compute_differently():
     must give it one answer. UNKNOWN_FIRST, EXTRA_INFORMATION and CONSTRAINT each hold two arithmetics; their
     operations tell them apart. A template added later that breaks this fails here, before it can lose a question."""
     nums, answers = {"a": 90, "b": 30, "c": 12}, defaultdict(set)
-    for t in W.templates("word_1step") + W.templates("word_2step"):
+    for t in W.older("word_1step") + W.older("word_2step"):
         if t["fmt"] == "word_1step":
             spec, code, answer = W.story_spec(t, a=nums["a"], b=nums["b"]), "WP1", M.compute(t["op"], 90, 30)
         else:
@@ -99,8 +99,14 @@ def test_no_two_templates_share_a_key_and_compute_differently():
             answer = W.evaluate(t["answer"], nums, divide=t.get("divide", 1))
         answers[_key(code, spec)].add(answer)
     assert all(len(v) == 1 for v in answers.values()), {k: v for k, v in answers.items() if len(v) > 1}
-    two_step = {_key("WP2", W.story_spec(t, **nums)) for t in W.templates("word_2step")}
-    assert len(two_step) == len({(t["structure"], t["op"]) for t in W.templates("word_2step")})
+    two_step = {_key("WP2", W.story_spec(t, **nums)) for t in W.older("word_2step")}
+    assert len(two_step) == len({(t["structure"], t["op"]) for t in W.older("word_2step")})
+    # a story that says its own numbers and answer (goals/md4d1-times-stories.yaml) is keyed by its shape and its
+    # operations too: two of them keyed alike work one formula, so one set of numbers gets one answer
+    own: dict[tuple[str, str, str, bool], set[str]] = defaultdict(set)
+    for t in [t for t in W.templates() if W.owns(t)]:
+        own[(t["fmt"], t["structure"], t["op"], bool(t.get("table")))].add(t["answer"])
+    assert own and all(len(v) == 1 for v in own.values()), {k: v for k, v in own.items() if len(v) > 1}
 
 
 def test_both_ways_into_the_bank_key_a_story_alike():

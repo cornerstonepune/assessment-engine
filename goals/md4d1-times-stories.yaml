@@ -53,6 +53,12 @@ manual:
   - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` loads MD.WORD into a topic of its own,
     Stories with × and ÷, and fills its levels. No screen or paper shows it until an educator switches it on from
     Curriculum for a grade, and its skill set waits for one approval on the Skill Map."
+  - "Achal: drafted for you to correct. MD.WORD is Grade 2 at Easy and Medium, Grade 3 at Hard and Grade 4 at Advance,
+    as the document drafted it; \"Solve multi-step word problems using bar models\" is the school's objective at Grades
+    2, 3 and 4. Each new story says the range its numbers take: times as many and how many times, numbers to 96; half
+    as many, an even number to 98; the two-step stories, numbers a Grade 4 child works in the head or on paper (₹60 to
+    ₹200, packets of 4 to 12). A story that needs one more step names stopping after the first. Six new mistakes, their
+    names and what to do about them drafted for you."
 scenarios:
   - name: MD.WORD, Easy — equal groups, sharing, grouping, the cost of many
     skill_set: MD.WORD

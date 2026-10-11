@@ -22,6 +22,7 @@ from engine.assess import missing_digits as MD
 from engine.assess import multiples as MU
 from engine.assess import number_line as NL
 from engine.assess import operations as O
+from engine.assess import own_stories as OS
 from engine.assess import reasoning as RS
 from engine.assess import times_kinds as TK
 from engine.assess import times_models as TM
@@ -161,6 +162,31 @@ def _shortcut(rng: random.Random, rung: str, signal: str, c: dict[str, Any]) -> 
     return I.efficient_method(rng, rung, signal, kind=one_of(c.get("kind"), rng))
 
 
+def _story(rng: random.Random, rung: str, signal: str, c: dict[str, Any], fmt: str) -> I.Item:
+    """A story for its case: one whose template says its own numbers and answer where the case's shape has one
+    (`own_stories`, goals/md4d1-times-stories.yaml); otherwise the older stories, sized by the level's rule. A case read
+    from a table asks for a story with one (`context`)."""
+    table = c.get("table", c.get("context") == "TABLE_OR_CHART")
+    op = one_of(c.get("op"), rng)
+    own = OS.pool(fmt, c.get("structure"), op, table)
+    if own:
+        return OS.make(rng, rung, rng.choice(own))
+    if fmt == "word_2step":
+        return W.word_2step(rng, rung, signal, c["digits_max"], structure=c.get("structure"))
+    return W.word_1step(
+        rng,
+        rung,
+        signal,
+        c.get("digits_max", 2),
+        tuple(c.get("regroups", (0, 1))),
+        structure=c.get("structure"),
+        op=op,
+        table=table,
+        digits=TK.digits(c) or c.get("digits"),
+        max_total=c.get("max_total"),
+    )
+
+
 # fmt: off
 NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "missing_number": lambda rng, rung, signal, c: I.missing_number(rng, rung, signal, c["kind"], c["hi"]),
@@ -171,11 +197,8 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "multi_add": lambda rng, rung, signal, c: I.multi_add(
         rng, rung, signal, c.get("n_addends", 3), c.get("digits_each", 4)),
     "efficient_method": lambda rng, rung, signal, c: _shortcut(rng, rung, signal, c),
-    "word_1step": lambda rng, rung, signal, c: W.word_1step(
-        rng, rung, signal, c.get("digits_max", 2), tuple(c.get("regroups", (0, 1))), structure=c.get("structure"),
-        op=one_of(c.get("op"), rng), table=c.get("table", False), digits=TK.digits(c) or c.get("digits"),
-        max_total=c.get("max_total")),
-    "word_2step": lambda rng, rung, signal, c: W.word_2step(rng, rung, signal, c["digits_max"], structure=c.get("structure")),
+    "word_1step": lambda rng, rung, signal, c: _story(rng, rung, signal, c, "word_1step"),
+    "word_2step": lambda rng, rung, signal, c: _story(rng, rung, signal, c, "word_2step"),
     "word_budget": lambda rng, rung, signal, c: W.word_budget(
         rng, rung, signal, c.get("n_costs", 3), tuple(c.get("budget_range", (5000, 12000))),
         c.get("one_cost_is_a_product", False)),

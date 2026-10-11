@@ -153,6 +153,15 @@
       "skill_sets": [
         "MD.MULTIPLES"
       ]
+    },
+    {
+      "code": "MDWORD",
+      "subject": "NUM",
+      "name": "Stories with × and ÷",
+      "taught": false,
+      "skill_sets": [
+        "MD.WORD"
+      ]
     }
   ]
 }

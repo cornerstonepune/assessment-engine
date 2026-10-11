@@ -389,6 +389,16 @@
         "NUM.CNT.08",
         "NUM.OPS.03"
       ]
+    },
+    {
+      "code": "R51",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Stories with × and ÷: equal groups, sharing and grouping, arrays, prices, twice, half and times as many, a remainder used as the story needs, combinations and area, the two-step stories and a bar model, a number the story does not need, and a price list",
+      "skill_codes": [
+        "NUM.OPS.03",
+        "NUM.OPS.04"
+      ]
     }
   ]
 }

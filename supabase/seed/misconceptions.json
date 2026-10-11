@@ -1453,6 +1453,78 @@
       "external_ref": null,
       "skill_from": "row",
       "skill_code": "NUM.CNT.08"
+    },
+    {
+      "code": "M_TIMES_WORD_MULTIPLIED",
+      "op": "÷",
+      "name": "Multiplies because the story says 'times'",
+      "description": "Multiplies when the story gives the larger number and asks for the smaller: Dev has 12, 3 times as many as Riya, answered 36.",
+      "repair_hint": "Draw the bar: the larger is made of 3 of the smaller, so the smaller is one of 3 equal parts of 12.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_HALF_AS_DOUBLE",
+      "op": "÷",
+      "name": "Doubles for 'half as many'",
+      "description": "Reads 'half as many' as twice as many: Meera read 30 pages, Aman half as many, answered 60.",
+      "repair_hint": "Ask: does Aman have more or fewer? Half as many is fewer: share 30 into 2 equal parts.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_TIMES_AS_MORE",
+      "op": "÷",
+      "name": "Answers how many more for how many times",
+      "description": "Takes the smaller from the larger when the story asks how many times as many: 12 and 4 answered 8.",
+      "repair_hint": "Ask how many 4s make 12: 'how many times' is how many groups, not how many more.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_EXTRA_NUMBER_USED",
+      "op": "×",
+      "name": "Uses a number the story does not need",
+      "description": "Uses every number in the story: 8 boxes of 9 mangoes and 3 drivers, answered 8 × 9 × 3.",
+      "repair_hint": "Read the question last: which numbers tell us about mangoes? The drivers carry none.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_WRONG_PRICE_READ",
+      "op": "×",
+      "name": "Reads the other item's price",
+      "description": "Reads the wrong row of a price list: 3 pens worked with the eraser's price.",
+      "repair_hint": "Put a finger on the item the question names, then read across its row for its price.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_BAR_PART_MISSED",
+      "op": "÷",
+      "name": "Leaves the smaller one's own part out of a bar model",
+      "description": "Divides the total by the times alone: Ria and Sam have 32, Sam 3 times as many as Ria, answered 32 ÷ 3.",
+      "repair_hint": "Draw both bars: Ria's is one part, Sam's three, so 32 is shared into 4 equal parts.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/md4d1-times-stories.yaml (the multiplication & division taxonomy drafted 2026-10-09, section 12; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PRB.02"
     }
   ]
 }

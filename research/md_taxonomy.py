@@ -932,6 +932,19 @@ mistake("M_FIRST_DIGIT_FOR_LAST (new)", "×", "Reads the first digit for the las
         "yes" if 805 % 2 == 0 else "no", "yes" if 8 % 2 == 0 else "no")
 mistake("M_FIVE_AS_TEN (new)", "×", "Takes divisible by 5 to mean divisible by 10", "is 345 divisible by 10?",
         "yes" if 345 % 10 == 0 else "no", "yes" if 345 % 5 == 0 else "no")
+# stories with × and ÷ (M4d1): each wrong answer worked from the example's own numbers
+mistake("M_TIMES_WORD_MULTIPLIED (new)", "÷", "Multiplies because the story says 'times', when it asks for the smaller",
+        "Dev has 12 stickers, 3 times as many as Riya", 12 // 3, 12 * 3, charges="word problems")
+mistake("M_HALF_AS_DOUBLE (new)", "÷", "Doubles for 'half as many'", "Meera read 30 pages, Aman half as many",
+        30 // 2, 30 * 2, charges="word problems")
+mistake("M_TIMES_AS_MORE (new, ÷)", "÷", "Answers how many more when the story asks how many times",
+        "Dev has 12 stickers and Riya has 4: how many times as many?", 12 // 4, 12 - 4, charges="word problems")
+mistake("M_EXTRA_NUMBER_USED (new)", "×", "Uses a number the story does not need",
+        "8 boxes of 9 mangoes and 3 drivers", 8 * 9, 8 * 9 * 3, charges="word problems")
+mistake("M_WRONG_PRICE_READ (new)", "×", "Reads the other item's price from a price list",
+        "Price list: pen ₹15, eraser ₹5. What do 3 pens cost?", 3 * 15, 3 * 5, charges="word problems")
+mistake("M_BAR_PART_MISSED (new)", "÷", "Divides by the times alone, leaving the smaller one's own part out of the bar",
+        "Ria and Sam have 32 marbles, Sam 3 times as many as Ria", 32 // (3 + 1), 32 // 3, charges="word problems")
 mistake("M_KEYWORD_OVERGENERALISED (existing)", "÷", "Multiplies because the story says \"each\"",
         "30 stickers, 5 for each child", 30 // 5, 30 * 5, charges="word problems")
 
