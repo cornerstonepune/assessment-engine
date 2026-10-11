@@ -206,7 +206,12 @@ export function Drawn({ it }: { it: ItemRow }) {
       );
     case "equal_groups":
       if (s.op === "÷") return <Divided it={it} />;
-      if (s.shape === "SUM") return <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>;
+      if (s.shape === "SUM")
+        return (
+          <Stem text={it.stem}>
+            <span className="fact">{Array(Number(s.a)).fill(s.b).join(" + ")} = ___</span>
+          </Stem>
+        );
       if (s.shape === "ARRAY")
         return (
           <Stem text={it.stem}>

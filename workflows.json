@@ -64,7 +64,7 @@
       "gives": ["prescription", "sheet_instance"],
       "files": ["engine/w2_print/prescribe.py", "engine/w2_print/focus_paper.py", "engine/w2_print/shelf.py", "engine/w2_print/maker.py"],
       "commands": ["engine week prescribe", "engine week focus"],
-      "screens": ["/papers/make", "/make", "/make/[section]", "/make/custom", "/worksheets", "/growth/[id]", "/api/see/[child]", "/api/papers/print"],
+      "screens": ["/papers/make", "/make", "/make/[section]", "/make/custom", "/papers/approve", "/growth/[id]", "/api/see/[child]", "/api/papers/print"],
       "subject": {"any": true, "note": "Any subject: the rule reads states and levels, not maths."}
     },
     {
@@ -88,7 +88,7 @@
       "gives": ["papers marked printed"],
       "files": ["engine/w2_print/pack.py"],
       "commands": ["engine week approve", "engine week pack"],
-      "screens": ["/worksheets", "/papers", "/today", "/growth/[id]"],
+      "screens": ["/papers/approve", "/papers", "/today", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject. The WhatsApp tap to approve (n8n) is not built; approval is on the website."}
     },
     {

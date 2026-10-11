@@ -9,7 +9,7 @@ export default async function HomePage() {
   return (
     <>
       <PageHeader
-        stage="Stage 5 · Home"
+        stage="Assessments · home"
         title="Home Assignments"
         sub="Friday evening: the home sheet aimed at each child's recurring pattern, and the note a parent reads."
       />

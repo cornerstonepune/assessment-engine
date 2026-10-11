@@ -59,7 +59,7 @@ export default async function ReportCard({ params }: Props) {
   return (
     <>
       <PageHeader
-        stage={`Report card · ${child.section}`}
+        stage={`Children · report card · ${child.section}`}
         title={name}
         sub={`Roll ${child.roll_no} · Grade ${child.band.slice(1)} · Maths · ${when}`}
       />

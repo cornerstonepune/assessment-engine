@@ -11,6 +11,7 @@ const ROUTES: [string, string][] = [
   ["/worksheets", "Worksheets"],
   ["/papers", "Assessments"],
   ["/papers/make", "Make papers"],
+  ["/papers/approve", "Class papers to approve"],
   ["/capture", "Marking"],
   ["/growth", "Children"],
   ["/home", "Home Assignments"],

@@ -4,7 +4,8 @@ import { switchTopic } from "./topic-actions";
 
 // Which topics are taught, and who said so (goals/ny1-needs-you.yaml). An educator switches one on or off here, in
 // their own name; the rows decide a topic only until a person has. A topic not taught yet lists its skills, so a person
-// knows what switching it on brings; one taught is switched off from inside a fold, never by a stray click.
+// knows what switching it on brings; it is switched on, and one taught switched off, from inside a fold, never by a
+// stray click.
 export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
   const off = topics.filter((t) => !t.taught);
   const on = topics.filter((t) => t.taught);
@@ -20,7 +21,18 @@ export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
                   <span className="block text-[13px] text-basalt/70">{t.skills.join(" · ")}</span>
                   {t.taught_by ? <span className="block text-[12px] text-basalt/55">Switched off by {t.taught_by}</span> : null}
                 </span>
-                <Switch code={t.code} on label={`Switch on, as ${me}`} />
+                {/* switching on is for the whole school: the person reads what it does before they confirm it
+                    (goals/ui3-curriculum.yaml), as a topic taught is switched off from inside a fold */}
+                <details className="text-right">
+                  <summary className="btn cursor-pointer list-none">Switch on</summary>
+                  <div className="mt-2 grid max-w-[360px] justify-items-end gap-2 text-left text-[13px]">
+                    <p>
+                      Switch {t.name} on for the whole school: its skills appear on Curriculum and the Question bank, and can
+                      go on a child&rsquo;s paper.
+                    </p>
+                    <Switch code={t.code} on label={`Switch on, as ${me}`} />
+                  </div>
+                </details>
               </li>
             ))}
           </ul>

@@ -9,6 +9,7 @@ import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/
 import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
+import { weekWords } from "@/lib/week";
 
 type Props = { params: Promise<{ qr: string }> };
 
@@ -29,18 +30,18 @@ export default async function PaperPage({ params }: Props) {
   }
   const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));
   if (!p) notFound();
-  const back = p.section ? `/worksheets?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/worksheets";
+  const back = p.section && p.week ? `/papers/approve?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/papers";
 
   return (
     <>
       <PageHeader
-        stage="Stage 2 · Print"
+        stage="Assessments · a printed paper"
         title={`Paper ${p.qr_code}`}
         sub="The printed page, how it was made, and its answer key."
       />
       <Body>
         <Link href={back} className="mb-4 inline-block text-[13px]">
-          ← All papers for {p.section ?? "this week"} · {p.week}
+          ← {p.section && p.week ? `${p.section}'s papers, ${weekWords(p.week)}` : "Every paper"}
         </Link>
         <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_400px]">
           <Panel title="The page as printed" aside={`${p.pages} ${p.pages === 1 ? "page" : "pages"}`}>

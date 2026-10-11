@@ -97,7 +97,7 @@ test("today lists everything waiting on a teacher, each with its count and one c
   const pack = papers.getByRole("link", { name: new RegExp(`${SECTION} · class practice · ${WEEK}`) });
   await expect(pack).toBeVisible();
   await pack.click();
-  await expect(page).toHaveURL(new RegExp(`/worksheets\\?section=${SECTION}&week=${WEEK}&kind=practice`));
+  await expect(page).toHaveURL(new RegExp(`/papers/approve\\?section=${SECTION}&week=${WEEK}&kind=practice`));
 
   // a child whose checked work gives the engine a home paper to propose — red, amber or green on any skill —
   // with no home paper approved this week

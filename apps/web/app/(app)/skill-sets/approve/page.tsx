@@ -3,17 +3,22 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { KIND } from "@/components/question";
-import { chargesTable, gradeWords, levelsOf, skillSets } from "@/lib/queries";
+import { chargesTable, GRADE_GROUPS, levelsOf, skillSets } from "@/lib/queries";
 import { approveSkills } from "../[code]/actions";
 
 // Every skill waiting for approval on one page, in full — what the child can do and each level in
-// a sentence — so a person reads them once and approves them with one press, in their own name.
+// a sentence — grouped by grade, each approved on its own or all with one press, in the person's own name
+// (goals/ui3-curriculum.yaml).
 // The engine prepared the words; the person approves or opens one to change it first. A skill whose topic is not
 // taught yet is here too, said so: it is approved before it is switched on (goals/ny1-needs-you.yaml).
-export default async function ApproveSkills() {
+export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
+  const q = await searchParams;
   const [sets, charges] = await deadline(Promise.all([skillSets({ untaught: true }), chargesTable()]));
   const waiting = sets.filter((s) => s.status !== "ratified");
+  // the school's grades in order, and any grade a skill holds that the list does not name, under its own name: a
+  // skill waiting is never left off the page
+  const grades: [string, string][] = [...GRADE_GROUPS, ...[...new Set(waiting.map((x) => x.band))].filter((b) => !GRADE_GROUPS.some(([g]) => g === b)).map((b): [string, string] => [b, b])];
 
   return (
     <>
@@ -26,6 +31,13 @@ export default async function ApproveSkills() {
         <Link href="/" className="chip mb-[18px] inline-block">
           ← Curriculum
         </Link>
+        {q.approved === "0" ? (
+          <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
+        ) : q.approved ? (
+          <Notice tone="neem">
+            Approved, in your name. {waiting.length} still {waiting.length === 1 ? "waits" : "wait"}.
+          </Notice>
+        ) : null}
         {waiting.length === 0 && !charges.waiting ? (
           <Notice tone="neem">Every skill is approved.</Notice>
         ) : (
@@ -47,23 +59,34 @@ export default async function ApproveSkills() {
                 </ul>
               </Panel>
             ) : null}
-            {waiting.map((s) => (
-              <Panel key={s.code} title={`${gradeWords(s.band)} · ${s.name}`} label={s.name} aside={s.taught ? undefined : <Pill tone="monsoon">Not taught yet</Pill>}>
-                <input type="hidden" name="code" value={s.code} />
-                <input type="hidden" name="version" value={s.version} />
-                <p className="text-[15px] leading-snug">{s.learning_objective}</p>
-                <dl className="mt-3 grid gap-1 text-[13px] md:grid-cols-[90px_1fr]">
-                  {levelsOf(s).map((d) => (
-                    <div key={d} className="contents">
-                      <dt className="label pt-[2px]">{d}</dt>
-                      <dd className="text-basalt/80">{s.difficulty[d]?.words}</dd>
+            {grades.filter(([band]) => waiting.some((x) => x.band === band)).map(([band, words]) => (
+              <section key={band} className="grid gap-[14px]">
+                <h2 className="label">{words}</h2>
+                {waiting.filter((x) => x.band === band).map((x) => (
+                  <Panel key={x.code} title={x.name} label={x.name} aside={x.taught ? undefined : <Pill tone="monsoon">Not taught yet</Pill>}>
+                    <input type="hidden" name="code" value={x.code} />
+                    <input type="hidden" name="version" value={x.version} />
+                    <p className="text-[15px] leading-snug">{x.learning_objective}</p>
+                    <dl className="mt-3 grid gap-1 text-[13px] md:grid-cols-[90px_1fr]">
+                      {levelsOf(x).map((d) => (
+                        <div key={d} className="contents">
+                          <dt className="label pt-[2px]">{d}</dt>
+                          <dd className="text-basalt/80">{x.difficulty[d]?.words}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      {/* this skill alone: the same form, naming the one skill (the action approves only it) */}
+                      <button className="btn secondary" type="submit" name="only" value={x.code}>
+                        Approve this skill, as {me.name}
+                      </button>
+                      <Link href={`/skill-sets/${x.code}/edit`} className="text-[13px]">
+                        Change these words first
+                      </Link>
                     </div>
-                  ))}
-                </dl>
-                <Link href={`/skill-sets/${s.code}/edit`} className="mt-3 inline-block text-[13px]">
-                  Change these words first
-                </Link>
-              </Panel>
+                  </Panel>
+                ))}
+              </section>
             ))}
             <div className="flex flex-wrap items-center gap-3">
               <button className="btn" type="submit">

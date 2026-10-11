@@ -1,0 +1,246 @@
+import Link from "@/components/link";
+import { LIBRARY_CODE } from "../../worksheets/[qr]/library-sheet";
+import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
+import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } from "@/lib/queries";
+import { approvePack, overrideChild } from "./actions";
+import { deadline } from "@/lib/deadline";
+import { requireStaff } from "@/lib/auth";
+import { weekWords } from "@/lib/week";
+
+type Props = { searchParams: Promise<Record<string, string | undefined>> };
+
+// Class papers to approve (goals/ui3-curriculum.yaml): a class's week, each child's paper with the level it is set at
+// and why, a level changed with its reason, the pack approved and printed in one tap. It is Assessments' work; it sat
+// under the worksheet library until 2026-10-11, where Today's "Class papers to approve" opened the Curriculum tab.
+export default async function ApprovePage({ searchParams }: Props) {
+  await requireStaff();
+  const q = await searchParams;
+  const all = await deadline(weeks());
+
+  if (all.length === 0) {
+    const c = await deadline(tableCounts());
+    return (
+      <>
+        <Header />
+        <Body>
+          <NotYet
+            what={[
+              "One row per child: the level they are set, and the reason it was chosen.",
+              "The pack in handout order: a named paper for each child, spares, one teacher key.",
+              "Change one child's level, or approve the whole pack with one tap.",
+            ]}
+            when="Nothing has been planned for a week yet. A coordinator runs the week from the engine, then it appears here."
+            facts={[
+              ["children on roll", c.child],
+              ["papers made", c.sheet_instance],
+              ["weeks planned", 0],
+            ]}
+          />
+        </Body>
+      </>
+    );
+  }
+
+  const current = all.find((w) => w.section === q.section && w.week === q.week && w.kind === q.kind) ?? all[0];
+  const [plan, spares] = await deadline(Promise.all([
+    weekPlan(current.section, current.week, current.kind),
+    spareSheets(current.section, current.week),
+  ]));
+  const here = `/papers/approve?section=${current.section}&week=${current.week}&kind=${current.kind}`;
+  const printed = plan.filter((r) => r.print_status === "printed").length;
+  const counts = plan.reduce<Record<string, number>>(
+    (a, r) => ({ ...a, [r.difficulty]: (a[r.difficulty] ?? 0) + 1 }),
+    {},
+  );
+
+  return (
+    <>
+      <Header />
+      <Body>
+        {q.approved ? <Notice tone="neem">Approved. The pack is marked printed.</Notice> : null}
+        {q.changed ? <Notice tone="neem">Changed. That child keeps this level until you change it again.</Notice> : null}
+        {q.error === "override" ? (
+          <Notice tone="terracotta">A change needs a level and a reason. Nothing was changed.</Notice>
+        ) : null}
+
+        {all.length > 1 ? (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {all.map((w) => (
+              <Link
+                key={`${w.section}-${w.week}-${w.kind}`}
+                href={`/papers/approve?section=${w.section}&week=${w.week}&kind=${w.kind}`}
+                className={`chip ${w === current ? "on" : ""}`}
+              >
+                {w.section} · {weekWords(w.week)} · {w.kind}
+              </Link>
+            ))}
+          </div>
+        ) : null}
+
+        <Panel
+          title={`${current.section} · ${weekWords(current.week)} · ${current.kind}`}
+          aside={Object.entries(counts).map(([d, n]) => `${n} at ${d}`).join(" · ")}
+        >
+          <p className="note mb-4">
+            {plan[0]?.skill_set_name
+              ? `Everyone is working on ${plan[0].skill_set_name.toLowerCase()}. What changes per child is how hard their paper is.`
+              : "What changes per child is how hard their paper is."}
+          </p>
+          <div className="overflow-x-auto">
+            <table className="grid" aria-label="Each child's paper this week">
+              <thead>
+                <tr>
+                  <th>Roll</th>
+                  <th className="num">Level</th>
+                  <th>Why this level</th>
+                  <th>Paper</th>
+                  <th className="num">Questions</th>
+                  <th className="num">Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {plan.map((r) => (
+                  <tr key={r.prescription_id}>
+                    <td className="fact">{r.roll_no}</td>
+                    <td className="num">
+                      <Pill tone={r.rule_fired === "override" ? "bamboo" : "monsoon"}>{r.difficulty}</Pill>
+                    </td>
+                    <td className="max-w-[340px] text-[12.5px]">
+                      {RULE_WORDS[r.rule_fired] ?? r.rule_fired}
+                      {r.override_reason ? (
+                        <span className="note block">
+                          {r.override_by}: {r.override_reason}
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="fact">
+                      {r.qr_code ? (
+                        <>
+                          <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+                          {r.worksheet ? (
+                            <>
+                              {" · "}
+                              {/* only a library worksheet has a page of its own; an old paper's name is just its name */}
+                              {LIBRARY_CODE.test(r.worksheet) ? (
+                                <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link>
+                              ) : (
+                                r.worksheet
+                              )}
+                            </>
+                          ) : null}
+                        </>
+                      ) : (
+                        <span className="text-basalt/40">not made yet</span>
+                      )}
+                    </td>
+                    <td className="num">{r.questions ?? 0}</td>
+                    <td className="num">
+                      {r.print_status === "printed" ? (
+                        <Pill tone="neem">printed</Pill>
+                      ) : r.qr_code ? (
+                        <Pill tone="monsoon">ready</Pill>
+                      ) : (
+                        <Pill tone="bamboo">waiting</Pill>
+                      )}
+                    </td>
+                    <td>
+                      <details>
+                        <summary className="cursor-pointer whitespace-nowrap text-[12.5px] text-terracotta">
+                          Change level
+                        </summary>
+                        <form action={overrideChild} className="mt-2 grid w-[230px] gap-2">
+                          <input type="hidden" name="prescription_id" value={r.prescription_id} />
+                          <input type="hidden" name="back" value={here} />
+                          <label className="field">
+                            <span className="label">New level</span>
+                            <select className="select" name="difficulty" defaultValue={r.difficulty}>
+                              {DIFFICULTIES.map((d) => (
+                                <option key={d} value={d}>
+                                  {d}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="field">
+                            <span className="label">Why</span>
+                            <input className="input" name="reason" maxLength={300} required />
+                          </label>
+                          <button className="btn" type="submit">
+                            Change this child
+                          </button>
+                        </form>
+                      </details>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+
+        <div className="mt-[18px] grid gap-[18px] md:grid-cols-[1fr_300px]">
+          <Panel title="Spare copies" aside={`${spares.length} unnamed`}>
+            {spares.length ? (
+              <>
+                <p className="note mb-3">
+                  Extra papers with no name on them, for a spoilt page or a child who arrives late.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {spares.map((s) => (
+                    <Link key={s.qr_code} href={`/worksheets/${s.qr_code}`} className="chip">
+                      <span className="fact">{s.qr_code}</span> · {s.difficulty}
+                      {s.worksheet ? ` · ${s.worksheet}` : ""}
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="note">No spares were made for this week.</p>
+            )}
+          </Panel>
+
+          <Panel title="The pack">
+            <p className="note mb-3">
+              {printed === plan.length && plan.length > 0
+                ? "This pack is approved and marked printed."
+                : "One tap approves the whole class. Change any child above first."}
+            </p>
+            <form action={approvePack}>
+              <input type="hidden" name="section" value={current.section} />
+              <input type="hidden" name="week" value={current.week} />
+              <input type="hidden" name="kind" value={current.kind} />
+              <input type="hidden" name="back" value={here} />
+              <button className="btn" type="submit" disabled={plan.length === 0}>
+                Approve and print
+              </button>
+            </form>
+          </Panel>
+        </div>
+      </Body>
+    </>
+  );
+}
+
+function Header() {
+  return (
+    <PageHeader
+      stage="Assessments · approve and print"
+      title="Class papers to approve"
+      sub="A class's week: each child's paper, the level it is set at and why. Change any child, then approve the pack to print it."
+    />
+  );
+}
+
+function Notice({ tone, children }: { tone: "neem" | "terracotta"; children: React.ReactNode }) {
+  return (
+    <div
+      className={`mb-[18px] border p-3 text-[13.5px] ${
+        tone === "neem" ? "border-neem/30 bg-neem/10" : "border-terracotta/30 bg-terracotta/10"
+      }`}
+      role="status"
+    >
+      {children}
+    </div>
+  );
+}

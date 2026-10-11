@@ -27,7 +27,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
   return (
     <>
       <PageHeader
-        stage={`Stage 2 · Print · ${gradeWords(w.band)} · ${w.skill} · ${w.difficulty}`}
+        stage={`Curriculum · Worksheets · ${gradeWords(w.band)} · ${w.skill} · ${w.difficulty}`}
         title={`Worksheet ${w.code}`}
         sub={w.outcome}
       />

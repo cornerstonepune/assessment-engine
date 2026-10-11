@@ -55,7 +55,10 @@ export type ItemRow = {
   difficulty: string | null;
 };
 
-export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string };
+export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string; find?: string };
+
+// What a person typed, looked for as it is: LIKE's own % and _ (and its escape, \) are escaped, never wildcards.
+const containing = (words: string) => `%${words.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
 // The columns every question is read with, the skill set's name included — a fragment, so the bank
 // and a printed paper can never read a question two different ways.
@@ -69,7 +72,8 @@ const inBank = (f: ItemFilter) => sql`
   and exists (select 1 from skill_set ts join topic tt on tt.tenant_id = ts.tenant_id and tt.code = ts.topic_code and tt.taught where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code)
   ${f.set ? sql`and i.skill_set_code = ${f.set}` : sql``}
   ${f.difficulty ? sql`and i.difficulty = ${f.difficulty}` : sql``}
-  ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}`;
+  ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}
+  ${f.find ? sql`and (i.stem ilike ${containing(f.find)} or i.spec ->> 'text' ilike ${containing(f.find)})` : sql``}`;
 
 // Each with the library worksheets it is on, in use (ADR 0026) — the bank's list shows the tie.
 export async function items(f: ItemFilter, limit: number, offset: number): Promise<(ItemRow & { worksheets: string[] })[]> {

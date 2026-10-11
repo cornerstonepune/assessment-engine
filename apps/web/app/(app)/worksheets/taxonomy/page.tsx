@@ -41,7 +41,7 @@ export default async function WorksheetsByTaxonomy({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Stage 2 · Print · by taxonomy"
+        stage="Curriculum · Worksheets by taxonomy"
         title="Worksheets by taxonomy"
         sub="The team's Addition & Subtraction taxonomy, case by case: the level the rules set each case at, and the worksheets that hold its questions."
       />
