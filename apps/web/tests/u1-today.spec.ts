@@ -1,8 +1,8 @@
 /**
  * U1 — Today and the menu (goals/u1-today.yaml).
  *
- * Today is the teacher's inbox: everything waiting on a person, each with the count the page it opens shows and one
- * click to act. The class papers and the child whose work suggests a next paper are the test's own, made on the copy
+ * Today is the educators' inbox: everything waiting on a person, each with the count the page it opens shows and one
+ * click to act, listed under the tab where it is done (goals/ui1-menu-and-today.yaml). The class papers and the child whose work suggests a next paper are the test's own, made on the copy
  * and cleared afterwards; the rest is compared with whatever the copy holds.
  */
 import { expect, type Page, test } from "@playwright/test";
@@ -52,11 +52,11 @@ async function clearUp() {
   await sql`delete from sheet_instance where week = ${WEEK}`;
 }
 
-/** The number a Today card shows, or 0 when it says nothing is waiting. */
-async function count(page: Page, card: string): Promise<number> {
-  const c = page.getByRole("region", { name: card });
-  await expect(c).toBeVisible();
-  if (await c.getByText("Nothing waiting").isVisible()) return 0;
+/** The number a Today line shows, or 0 when nothing of its kind waits and the line is left out (goals/ui1-menu-and-today.yaml). */
+async function count(page: Page, line: string): Promise<number> {
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
+  const c = page.getByRole("region", { name: line, exact: true });
+  if (!(await c.count())) return 0;
   return Number((await c.getByTestId("count").innerText()).replace(/\D/g, ""));
 }
 
@@ -74,16 +74,12 @@ test.afterAll(async () => {
 test("the menu is the teacher's week, and says where they are", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
-  await expect(menu.getByRole("link")).toHaveText([
-    "Today",
-    "Children",
-    "Papers",
-    "Curriculum",
-  ]);
+  // the school's order of work (goals/ui1-menu-and-today.yaml); a tab's count of what waits follows its name
+  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Curriculum/, /^Assessments/, /^Children/]);
   for (const [label, heading] of [
-    ["Children", "Children"],
-    ["Papers", "Papers"],
     ["Curriculum", "Curriculum"],
+    ["Assessments", "Assessments"],
+    ["Children", "Children"],
     ["Today", "Today"],
   ]) {
     await menu.getByRole("link", { name: label, exact: true }).click();
@@ -98,7 +94,7 @@ test("today lists everything waiting on a teacher, each with its count and one c
 
   // the class papers the engine proposed for the test's class wait for a teacher before they print
   const papers = page.getByRole("region", { name: "Class papers to approve" });
-  const pack = papers.getByRole("link", { name: new RegExp(`${SECTION} · ${WEEK}`) });
+  const pack = papers.getByRole("link", { name: new RegExp(`${SECTION} · class practice · ${WEEK}`) });
   await expect(pack).toBeVisible();
   await pack.click();
   await expect(page).toHaveURL(new RegExp(`/worksheets\\?section=${SECTION}&week=${WEEK}&kind=practice`));
@@ -137,13 +133,12 @@ test("what has nothing waiting says so, and each count is the page's own", async
   await page.goto("/capture");
   await expect(page.getByText("papers to sign off").locator("..")).toContainText(String(toSign));
 
-  // on a card with nothing waiting there is no number and no button, only the words
+  // what has nothing waiting is not listed; a tab with nothing waiting in it says so
   await page.goto("/today");
-  for (const card of ["Answers to check", "Papers to sign off", "Skills to approve"]) {
-    const c = page.getByRole("region", { name: card });
-    if ((await count(page, card)) === 0) {
-      await expect(c.getByText("Nothing waiting")).toBeVisible();
-      await expect(c.getByTestId("count")).toHaveCount(0);
-    }
+  for (const tab of ["Assessments", "Curriculum", "Children"]) {
+    const group = page.getByRole("region", { name: tab, exact: true });
+    await expect(group).toBeVisible(); // Today streams in: count its lines once they are there
+    if (!(await group.getByTestId("line").count())) await expect(group.getByText("Nothing waits here.")).toBeVisible();
+    for (const n of await group.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
   }
 });

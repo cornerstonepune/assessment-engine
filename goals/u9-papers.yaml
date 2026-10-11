@@ -15,7 +15,7 @@ goal: >
 # kinds, any set of children, the same paper or each child's own) is its own goal.
 says:
   - words: "I really don't think marking and marking papers as two different types are essential. We can merge them into one"
-    proved_by: apps/web/tests/u9-papers.spec.ts::one Papers in the menu for marking and making, and a row opens the paper where its work is
+    proved_by: apps/web/tests/u9-papers.spec.ts::one Assessments in the menu for marking and making, and a row opens the paper where its work is
   - words: "one list of papers with the right filtration"
     proved_by: apps/web/tests/u9-papers.spec.ts::every paper is one row, what it is, whose, and where it stands, filtered by class, kind and stage
 manual:

@@ -1,84 +1,66 @@
-import type { ReactNode } from "react";
 import Link from "@/components/link";
 import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
-import { staffList } from "@/lib/queries";
-import { decides, ROLE_WORDS } from "@/lib/queries-people";
 import { kindWords } from "@/components/question";
-import { queueByWeek, type Trust, trustNow, type Week, waiting } from "@/lib/queries-today";
+import { type Line, needsYou, TODAY_ORDER } from "@/lib/needs-you";
+import { queueByWeek, type Trust, trustNow, type Week } from "@/lib/queries-today";
+import { weekWords } from "@/lib/week";
 
-// Today — everything waiting on a person, and who it is for (goals/u1-today.yaml, goals/ny1-needs-you.yaml): each with
-// its count and one click to act, the signed-in person's first. Whose each kind is, is a row (`people.decides`, by the
-// staff list's roles), so a school moves a decision to another person without code. The engine proposes; a person
-// approves.
+// Today — everything that waits on a person, in one list under the tab where it is done (goals/ui1-menu-and-today.yaml,
+// goals/u1-today.yaml), each line opening that place. The menu's counts are this list's (lib/needs-you.ts). Every line
+// is shown to everyone signed in: the school's two educators are its only layer. The engine proposes; a person approves.
 export default async function Today() {
   const me = await requireStaff();
-  const [w, rows, staff, weeks, trust] = await deadline(Promise.all([waiting(me.email), decides(), staffList(), queueByWeek(), trustNow()]));
-  const packs = w.packs.reduce((n, p) => n + p.n, 0);
-  const who = (roles: string[]) => {
-    if (roles.includes(me.role)) return "For you";
-    const names = staff.filter((s) => roles.includes(s.role)).map((s) => s.name);
-    return names.length ? `For ${names.join(", ")}` : `No one on the staff list is ${roles.map((r) => ROLE_WORDS[r] ?? r).join(" or ")} yet`;
-  };
-
-  const cards: { roles: string[]; card: ReactNode }[] = [
-    {
-      roles: rows.answers ?? [],
-      card: <Card key="answers" title="Answers to check" n={w.answers} who={who(rows.answers ?? [])} words="answers the engine was not sure of, each shown with the child's own writing" href="/capture/check" action="Check them" />,
-    },
-    {
-      roles: rows.papers ?? [],
-      card: <Card key="papers" title="Papers to sign off" n={w.papers} who={who(rows.papers ?? [])} words="papers read with answers no one has signed off; a child's graph grows once they are" href="/capture" action="Sign them off" />,
-    },
-    {
-      roles: rows.home_papers ?? [],
-      card: (
-        <Card key="home" title="Home assessments to approve" n={w.nextPapers} who={who(rows.home_papers ?? [])} words="children whose checked work gives the engine a home assessment to propose, not yet approved this week" href="/make" action="Approve them" />
-      ),
-    },
-    {
-      roles: rows.class_papers ?? [],
-      card: (
-        <Card key="class" title="Class papers to approve" n={packs} who={who(rows.class_papers ?? [])} words="papers the engine proposed for a class, waiting for a person before they print">
-          <ul className="grid gap-1 text-[13.5px]">
-            {w.packs.map((p) => (
-              <li key={`${p.section}|${p.week}|${p.kind}`}>
-                <Link href={`/worksheets?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
-                  {p.section} · {p.week} · {p.kind}
-                </Link>{" "}
-                <span className="text-basalt/62">— {p.n} {p.n === 1 ? "paper" : "papers"}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ),
-    },
-    {
-      roles: rows.skills ?? [],
-      card: <Card key="skills" title="Skills to approve" n={w.skills} who={who(rows.skills ?? [])} words="skills whose words or levels the engine wrote or changed, each waiting for one approval — taught or not yet" href="/skill-sets/approve" action="Review and approve" />,
-    },
-    {
-      roles: rows.topics ?? [],
-      card: <Card key="topics" title="Topics not taught yet" n={w.topics} who={who(rows.topics ?? [])} words="topics whose skills are on no page and no child's paper until a person switches them on" href="/#not-taught" action="Switch them on" />,
-    },
-    ...w.asks.map((a) => ({
-      roles: [a.for_role],
-      card: <Card key={`asks-${a.for_role}`} title={`Questions for ${ROLE_WORDS[a.for_role] ?? a.for_role}`} n={a.n} who={who([a.for_role])} words="what the engine drafted and wants a person to agree with or correct: the taxonomy, its assumptions, each slice's decisions" href="/asks" action="Answer them" />,
-    })),
-  ];
-  const mine = cards.filter((c) => c.roles.includes(me.role));
-  const others = cards.filter((c) => !c.roles.includes(me.role));
-
+  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me.email), queueByWeek(), trustNow()]));
   return (
     <>
-      <PageHeader stage="Today" title="Today" sub="What waits on a person, and who it is for, yours first. Each opens where it is done." />
+      <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
       <Body>
-        <Part title="For you">{mine.map((c) => c.card)}</Part>
-        <Part title="For others">{others.map((c) => c.card)}</Part>
+        {TODAY_ORDER.map((tab) => (
+          <section key={tab} aria-label={tab} className="mb-6">
+            <h2 className="label mb-2">{tab}</h2>
+            {lines[tab].length ? (
+              <div className="panel divide-y divide-basalt/12">{lines[tab].map((l) => <Row key={l.title} line={l} />)}</div>
+            ) : (
+              <p className="note">Nothing waits here.</p>
+            )}
+          </section>
+        ))}
         <Shrinking weeks={weeks} trust={trust} />
       </Body>
     </>
+  );
+}
+
+/** One kind of thing that waits: how many, what it is, and where it is done — or, for class packs and parent reports,
+ *  each one of them as its own link. */
+function Row({ line }: { line: Line }) {
+  return (
+    <section data-testid="line" data-waits={line.waits ? "yes" : "no"} aria-label={line.title} className="grid gap-x-4 gap-y-1 p-4 md:grid-cols-[64px_minmax(0,1fr)_auto] md:items-start">
+      <span data-testid="count" className={`font-heading text-[26px] leading-none tabular-nums ${line.waits ? "" : "text-basalt/55"}`}>
+        {line.n.toLocaleString("en-IN")}
+      </span>
+      <div className="min-w-0">
+        <h3 className="font-heading text-[16.5px]">{line.title}</h3>
+        <p className="text-[13px] text-basalt/70">{line.words}</p>
+        {line.items?.length ? (
+          <ul className="mt-2 grid gap-1 text-[13.5px]">
+            {line.items.map((it) => (
+              <li key={it.href}>
+                <Link href={it.href}>{it.label}</Link>
+                {it.n ? <span className="text-basalt/62"> — {it.n} {it.n === 1 ? "paper" : "papers"}</span> : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+      {line.href && line.action ? (
+        <Link href={line.href} className={`btn self-start ${line.waits ? "" : "secondary"}`}>
+          {line.action}
+        </Link>
+      ) : null}
+    </section>
   );
 }
 
@@ -110,7 +92,7 @@ function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
             <tbody>
               {weeks.map((k) => (
                 <tr key={k.week}>
-                  <td className="fact whitespace-nowrap">{k.week}</td>
+                  <td className="fact whitespace-nowrap">{weekWords(k.week)}</td>
                   <td className="num">{k.read}</td>
                   <td className="num">{k.alone}</td>
                   <td className="num">{k.person}</td>
@@ -123,41 +105,6 @@ function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
         </div>
       ) : (
         <p className="note mt-2">No papers read yet.</p>
-      )}
-    </section>
-  );
-}
-
-function Part({ title, children }: { title: string; children: ReactNode[] }) {
-  return (
-    <section aria-label={title} className="mb-6">
-      <h2 className="label mb-2">{title}</h2>
-      {children.length ? <div className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-3">{children}</div> : <p className="note">Nothing here.</p>}
-    </section>
-  );
-}
-
-function Card(props: { title: string; n: number; who: string; words: string; href?: string; action?: string; children?: ReactNode }) {
-  const { title, n, who, words, href, action, children } = props;
-  return (
-    <section aria-label={title} className="panel flex flex-col gap-2 p-4">
-      <h3 className="font-heading text-[17px]">{title}</h3>
-      <p className="label">{who}</p>
-      {n === 0 ? (
-        <p className="note">Nothing waiting</p>
-      ) : (
-        <>
-          <span data-testid="count" className="font-heading text-[30px] leading-none">
-            {n.toLocaleString("en-IN")}
-          </span>
-          <p className="text-[13px] text-basalt/70">{words}</p>
-          {children}
-          {href && action ? (
-            <Link href={href} className="btn mt-1 self-start">
-              {action}
-            </Link>
-          ) : null}
-        </>
       )}
     </section>
   );

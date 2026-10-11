@@ -67,9 +67,9 @@ test("a teacher can reach every section from the menu, and the menu says where t
   await page.goto("/");
   const sections = [
     ["Today", "Today"],
-    ["Children", "Children"],
-    ["Papers", "Papers"],
     ["Curriculum", "Curriculum"],
+    ["Assessments", "Assessments"],
+    ["Children", "Children"],
   ];
   for (const [label, heading] of sections) {
     await page.getByRole("navigation").getByRole("link", { name: label, exact: true }).click();

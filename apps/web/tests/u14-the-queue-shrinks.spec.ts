@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
-import { isoWeek } from "../lib/week";
+import { isoWeek, weekWords } from "../lib/week";
 import { aClass, aReadPaper, aWorksheet } from "./rows";
 
 test.describe.configure({ mode: "serial" });
@@ -46,8 +46,9 @@ test("Today shows, week by week, how many answers needed a person", async ({ pag
   await page.goto("/today");
   const queue = page.getByRole("region", { name: "Is the queue shrinking?", exact: true });
   const needed = Math.round((100 * (want.person + want.waiting)) / want.read);
-  await expect(queue.getByRole("row").filter({ hasText: week }).getByRole("cell")).toHaveText([
-    week,
+  // the week as a person says it (goals/ui1-menu-and-today.yaml): "week of 5 Oct", not "2026-W41"
+  await expect(queue.getByRole("row").filter({ hasText: weekWords(week) }).getByRole("cell")).toHaveText([
+    weekWords(week),
     String(want.read),
     String(want.alone),
     String(want.person),

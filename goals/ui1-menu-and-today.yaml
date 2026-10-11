@@ -1,0 +1,38 @@
+name: ui1-menu-and-today
+goal: >
+  Whoever signs in sees, from the menu alone, where work waits for them. The menu is the school's order of work —
+  Today, Curriculum, Assessments, Children — and each tab carries the count of what waits in it. Today lists every
+  one of those things in one list, under the tab where it is done, each line opening the place where it is done; the
+  menu's counts are that list's, from one query. Nothing hides behind a role: the two educators, Achal and Neha, see
+  every line. Weeks and classes are said in words (Grade 2 · 2B · week of 6 Oct), not codes. How it works, the
+  engineering map, is the coordinator's and leaves the educators' menu.
+# Written 2026-10-11, before the code: Step 1 of the navigation plan Nimish approved ("Apart from that, the design looks
+# okay now"; "go-ahead and start the build"), published as https://claude.ai/artifact/Ubn4TrkEh5DrBNmhhjcFSD. Nimish's
+# exception to BUILD-ORDER (W1, gate 3 open), as NY1 and NY2 were. Measured first on a copy of the data (STATE.md
+# "UI1 — measured before the build"): 16 kinds of thing wait on a person; the page holding the answers to check is not
+# in the menu; Today files 6 of its 7 queues under "For others" because no one on the copy's staff list is an
+# educator; weeks read "2026-W41" and class packs "U9-TEST · U9-W · practice".
+says:
+  - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::Today lists everything that waits, under the tab where it is done, and each line opens that place"
+  - words: "At any tab that requires validation"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is Today, Curriculum, Assessments, Children, each with the count of what waits in it"
+  - words: "better UI, better navigation, and better linking"
+    proved_by: "apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are"
+  - words: "They are the educators, the teachers, so we don't have any more layers in there."
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::an educator sees every line a coordinator sees, and no engineering map"
+  - words: "I think it's still very confusing."
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::weeks and classes on Today are said in words, not codes"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+scenarios: []
+criteria:
+  - name: the menu, Today, and the pages whose menu or Today line changed
+    run: cd apps/web && npx playwright test tests/u15-menu-and-today.spec.ts tests/u1-today.spec.ts tests/u13-needs-you.spec.ts tests/u14-the-queue-shrinks.spec.ts tests/u3-marking.spec.ts tests/u9-papers.spec.ts tests/s4-validation-queue.spec.ts tests/workflows.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

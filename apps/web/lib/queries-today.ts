@@ -6,29 +6,44 @@ import { proposedHomePapers } from "./queries-make";
 // Today — everything waiting on a teacher (goals/u1-today.yaml). Each count is the one the page it opens shows:
 // the answers queue and the papers to sign off are read through that page's own query, not a second copy of it.
 
-export type Pack = { section: string; week: string; kind: string; n: number };
+export type Pack = { section: string; band: string; week: string; kind: string; n: number };
+/** A child whose parent report is written and waits for a person to approve it. */
+export type Report = { child_id: string; band: string; section: string; roll_no: string };
 export type Waiting = {
   answers: number; // answers left in the checking queue (spot-checks apart), as /capture/check counts them
   papers: number; // papers read with an answer not yet signed off, as /capture counts them
+  emptyReads: number; // papers read that gave back no answers at all, as /capture lists them
   packs: Pack[]; // class papers the engine proposed that no teacher has approved for print
   nextPapers: number; // children the engine proposes a home paper for this week, as Make papers counts them
   skills: number; // skill sets awaiting approval, taught or not: one is approved before its topic is on
   topics: number; // topics not taught yet, as Curriculum lists them to switch on
   asks: { for_role: string; n: number }[]; // the questions drafted for a person, still waiting, by whose they are
+  reports: Report[]; // parent reports written and not yet approved, the newest of each child's
 };
 
 /** Class papers the engine made that no teacher has approved for print, pack by pack. */
 export async function classPacksWaiting(): Promise<Pack[]> {
   return sql<Pack[]>`
-      select c.section, si.week, si.kind, count(*)::int as n
+      select c.section, min(c.band) as band, si.week, si.kind, count(*)::int as n
       from sheet_instance si join child c on c.id = si.child_id
       where si.print_status = 'new' and si.kind in ('practice', 'assessment')
       group by c.section, si.week, si.kind
       order by si.week desc, c.section, si.kind`;
 }
 
+/** Each active child's newest parent report, where it is written and no one has approved it yet. */
+export async function reportsWaiting(): Promise<Report[]> {
+  return sql<Report[]>`
+    select c.id as child_id, c.band, c.section, c.roll_no
+    from child c
+    join lateral (select n.approved_by from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
+                  order by n.created_at desc limit 1) n on true
+    where c.active and n.approved_by is null
+    order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
+}
+
 export async function waiting(actor: string): Promise<Waiting> {
-  const [queue, read, packs, next, skills, topics, asks] = await Promise.all([
+  const [queue, read, packs, next, skills, topics, asks, reports] = await Promise.all([
     checkQueue(),
     papersToApprove(actor),
     classPacksWaiting(),
@@ -36,15 +51,18 @@ export async function waiting(actor: string): Promise<Waiting> {
     skillsWaiting(),
     topicsOff(),
     asksWaiting(),
+    reportsWaiting(),
   ]);
   return {
     answers: queue.filter((e) => !e.spot).length,
     papers: read.filter((p) => p.n_results > 0 && p.n_candidate > 0).length,
+    emptyReads: read.filter((p) => p.n_results === 0).length,
     packs,
     nextPapers: next,
     skills,
     topics,
     asks,
+    reports,
   };
 }
 

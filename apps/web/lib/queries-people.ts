@@ -6,12 +6,6 @@ import { sql } from "./db";
 
 export const ROLE_WORDS: Record<string, string> = { coordinator: "a coordinator", educator: "an educator", specialist: "a specialist" };
 
-/** {kind of waiting: the roles whose it is}, as the row says. */
-export async function decides(): Promise<Record<string, string[]>> {
-  const [row] = await sql<{ value: Record<string, string[]> }[]>`select value from config where key = 'people.decides'`;
-  return row?.value ?? {};
-}
-
 export type Topic = { code: string; name: string; taught: boolean; taught_by: string | null; taught_at: string | null; skills: string[] };
 
 /** Every topic in the tree's order, whether it is taught and who said so, with its skills' names. */

@@ -134,7 +134,7 @@ export function WorksheetPapers({ papers, worksheet }: { papers: PaperRow[]; wor
   return (
     <>
       <PageHeader
-        stage="Papers · marking by worksheet"
+        stage="Assessments · marking by worksheet"
         title={rows[0].title ?? worksheet}
         sub={`${s.papers} children's copies read: ${s.engine} answers settled by the engine, ${s.person} checked by a person, ${s.waiting} still waiting.`}
       />
@@ -199,7 +199,7 @@ export function NothingRead({ papers }: { papers: PaperRow[] }) {
   const broken = papers.filter((p) => p.n_results === 0);
   if (!broken.length) return null;
   return (
-    <Panel title="Read, but nothing came back" aside={<Pill tone="terracotta">{broken.length}</Pill>}>
+    <Panel id="nothing-came-back" title="Read, but nothing came back" aside={<Pill tone="terracotta">{broken.length}</Pill>}>
       <p className="note mb-3">
         These papers were opened and produced no answers at all. A paper entered with the wrong questions, or a read
         that failed part way — either way nothing here counts for anything yet.
