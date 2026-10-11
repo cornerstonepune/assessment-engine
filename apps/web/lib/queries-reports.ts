@@ -26,9 +26,12 @@ const signed = (child: ReturnType<typeof sql>) => sql`
           left join capture k on k.id = ir.capture_id
           where a.child_id = ${child} and a.confirmed_by is not null and (k.id is null or k.superseded_by is null))`;
 
+/** A child's report state, `ReportState`, as one json value: the one way every page reads it. */
+export const reportState = (child: ReturnType<typeof sql>) => sql`jsonb_build_object('note', ${newest(child)}, 'signed', ${signed(child)})`;
+
 export async function reportOf(id: string): Promise<ReportState> {
-  const [row] = await sql<ReportState[]>`select ${newest(sql`${id}::uuid`)} as note, ${signed(sql`${id}::uuid`)} as signed`;
-  return row ?? { note: null, signed: false };
+  const [row] = await sql<{ report: ReportState }[]>`select ${reportState(sql`${id}::uuid`)} as report`;
+  return row?.report ?? { note: null, signed: false };
 }
 
 export type ReportRow = { child_id: string; first_name: string; band: string; section: string; roll_no: string; report: ReportState };
@@ -37,14 +40,16 @@ export type ReportRow = { child_id: string; first_name: string; band: string; se
  *  though there are answers to write it from. */
 export async function reportsWaiting(actor: string): Promise<ReportRow[]> {
   const rows = await sql<ReportRow[]>`
-    select c.id as child_id, p.first_name, c.band, c.section, c.roll_no,
-           jsonb_build_object('note', ${newest(sql`c.id`)}, 'signed', ${signed(sql`c.id`)}) as report
+    select c.id as child_id, p.first_name, c.band, c.section, c.roll_no, ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
-  const rank = ({ note, signed }: ReportState) => (!note ? (signed ? 2 : 3) : note.out_of_date ? 0 : note.approved ? 3 : 1);
-  return rows.filter((r) => rank(r.report) < 3).sort((a, b) => rank(a.report) - rank(b.report));
+  return rows.filter((r) => reportRank(r.report) < 3).sort((a, b) => reportRank(a.report) - reportRank(b.report));
 }
+
+/** What needs a person first: out of date, then written and not approved, then not written though it could be; an
+ *  approved report and a child with nothing to report need no one. */
+export const reportRank = ({ note, signed }: ReportState) => (!note ? (signed ? 2 : 3) : note.out_of_date ? 0 : note.approved ? 3 : 1);
 
 /** A report's state in the school's words. */
 export function reportWords({ note: r, signed }: ReportState): { words: string; tone: "terracotta" | "bamboo" | "neem" | "monsoon"; short: string } {

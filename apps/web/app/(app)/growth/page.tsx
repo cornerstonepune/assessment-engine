@@ -7,14 +7,13 @@ import { deadline } from "@/lib/deadline";
 import { ColourKey } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
 import { ChildFinder } from "./finder";
+import { reportRank, reportWords } from "@/lib/queries-reports";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 const fmtDay = (d: string) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }).replace(/ /g, "-");
 
-// What needs doing first: a report out of date, then a draft, then none, then approved.
-const reportRank = (r: ChildRow["report"]) => (!r ? 2 : r.out_of_date ? 0 : r.approved ? 3 : 1);
 const helpRank = (h: ChildRow["help"]) => (!h ? 2 : h.rag === "red" ? 0 : 1);
 
 // Each column, in order: its heading, how it sorts (none: the roll order, as the class list has it), and which way,
@@ -37,17 +36,14 @@ const COLUMNS: { key: string; label: string; num?: boolean; dir?: Dir; by?: (a: 
   { key: "report", label: "Parent report", num: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
 
+// A parent report's state in the words every page uses (`reportWords`); a child with nothing to report is a dash.
 function Report({ r }: { r: ChildRow["report"] }) {
-  if (!r) return <span className="text-basalt/45">—</span>;
-  const [tone, words] = r.out_of_date
-    ? (["terracotta", "out of date"] as const)
-    : r.approved
-      ? (["neem", "approved"] as const)
-      : (["bamboo", "draft"] as const);
+  if (!r.note && !r.signed) return <span className="text-basalt/45">—</span>;
+  const { tone, short } = reportWords(r);
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <Pill tone={tone}>{words}</Pill>
-      <span className="text-[11.5px] text-basalt/55">{fmtDay(r.written)}</span>
+      <Pill tone={tone}>{short}</Pill>
+      {r.note ? <span className="text-[11.5px] text-basalt/55">{fmtDay(r.note.written)}</span> : null}
     </span>
   );
 }

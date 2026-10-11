@@ -1,5 +1,6 @@
 import { sql } from "./db";
 import { rag, type Rag } from "./rag";
+import { reportState, type ReportState } from "./queries-reports";
 
 // Children (goals/u2-children.yaml): a grade's classes, a class as its children against every step, and what a
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
@@ -18,8 +19,8 @@ export type ChildRow = {
   practising: number;
   /** The last day a paper of theirs was read. */
   last_read: string | null;
-  /** Their newest parent report: approved, or a draft; out of date once answers were signed off after it was written. */
-  report: { approved: boolean; out_of_date: boolean; written: string } | null;
+  /** Their newest parent report and whether there are answers to write one from (`queries-reports`). */
+  report: ReportState;
 };
 
 /** Every child on roll, grade by grade, with their standing on each taught skill as the graph's own states give it
@@ -45,13 +46,7 @@ export async function childTable(actor: string): Promise<ChildRow[]> {
            (select count(*)::int from st where st.child_id = c.id and st.sev = 3) as practising,
            (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null) as last_read,
-           (select jsonb_build_object(
-                     'approved', n.approved_by is not null,
-                     'written', n.created_at::date::text,
-                     'out_of_date', exists (select 1 from evidence_event e where e.child_id = c.id
-                                             and e.confirmed_by is not null and e.created_at > n.created_at))
-              from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
-             order by n.created_at desc limit 1) as report
+           ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;

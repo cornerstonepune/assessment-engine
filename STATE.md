@@ -6934,7 +6934,11 @@ waits on a person there. The screenshots hold children's names and stayed on the
   (`parent_facts.SIGNED`), and the first draft of the list asked for one for every such child — 34 on the test copy,
   most of the school on live, burying the two waiting for approval. The list reads signed-off answers as the engine
   does (`lib/queries-reports.ts` `signed`); such a child's page says "Nothing to report yet" with no link.
+- **One owner for a report's state:** the Children list had its own copy of the "out of date" query and its own words
+  ("draft"). Both now come from `lib/queries-reports.ts` (`reportState`, `reportRank`, `reportWords`), so the Children
+  list, a child's page and the reports list say "to approve", "to write" and "out of date" alike.
 - **Proved on copies:** u20 written first and each of its three tests seen failing alone on the old code (no "By
-  topic" table; no topic link to open; the page ended on "Their papers"). The goal's browser criteria on a database
-  built fresh: 55 of 55; u20 twice on one copy, 3 of 3 each. Types and lint clean.
+  topic" table; no topic link to open; the page ended on "Their papers"). The goal's browser criteria, with u8 and u18
+  (the Children list's report column), on a database built fresh: 59 of 59; u20 twice on one copy, 3 of 3 each.
+  Types and lint clean.
 

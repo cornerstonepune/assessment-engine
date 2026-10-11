@@ -24,8 +24,8 @@ manual:
   - "Website only: Vercel deploys it on merge. No migration."
 scenarios: []
 criteria:
-  - name: a child's page, the reports list, and the pages whose steps changed
-    run: cd apps/web && npx playwright test tests/u20-child-by-topic.spec.ts tests/u2-children.spec.ts tests/u6-report-card.spec.ts tests/u7-parent-report.spec.ts tests/u15-menu-and-today.spec.ts tests/u13-needs-you.spec.ts tests/screens.spec.ts
+  - name: a child's page, the reports list, the Children list's report column, and the pages whose steps changed
+    run: cd apps/web && npx playwright test tests/u20-child-by-topic.spec.ts tests/u8-children-table.spec.ts tests/u18-staff-and-search.spec.ts tests/u2-children.spec.ts tests/u6-report-card.spec.ts tests/u7-parent-report.spec.ts tests/u15-menu-and-today.spec.ts tests/u13-needs-you.spec.ts tests/screens.spec.ts
     expect: "passed"
   - name: the website's types and lint
     run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
