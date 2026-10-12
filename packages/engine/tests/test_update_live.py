@@ -15,8 +15,6 @@ from engine.core import db
 ROOT = db.REPO_ROOT
 # an engine command and its words, up to its first argument: `bank levels --apply`, `legacy paper`, `live data`
 COMMAND = re.compile(r'(?:"\$E"|bin/engine) ((?:[a-z][a-z-]*|--apply)(?: (?:[a-z][a-z-]*|--apply))*)')
-# read only, and not rehearsed: what waits on a person, printed on live and never failed on (`|| true`)
-NOT_REHEARSED = {"audit"}
 
 
 def _commands(text):
@@ -29,7 +27,9 @@ def _commands(text):
 
 
 def test_the_rehearsal_runs_what_update_live_runs_in_its_order():
-    live = [c for c in _commands((ROOT / "bin/update-live").read_text()) if c not in NOT_REHEARSED]
+    # the audit too, though it fails nothing (`|| true`): it was left out as only "what waits on a person", and 33
+    # stories a relabel retired were first read in Nimish's terminal (2026-10-12)
+    live = _commands((ROOT / "bin/update-live").read_text())
     workflow = yaml.safe_load((ROOT / ".github/workflows/rehearse-update-live.yml").read_text())
     runs = "\n".join(s.get("run", "") for job in workflow["jobs"].values() for s in job["steps"])
     rehearsed = _commands(runs)

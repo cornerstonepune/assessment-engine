@@ -298,8 +298,9 @@ def derive(item) -> dict:
         "strategy": sp.get("strategy") or RUNG_STRATEGY.get(item.rung, "STANDARD"),
     }
     # the taxonomy a question is a case of is its own operations' (goals/md1-taxonomy-rows.yaml): a × odd-or-even
-    # question is multiplication's, never one of the addition document's cases that names no operation
-    ops: list[str] = S.operations(fmt, sp, item.stem)
+    # question is multiplication's, never one of the addition document's cases that names no operation; a story's halving
+    # is carried out, not what the story is about (W29)
+    ops: list[str] = S.operations(fmt, sp, item.stem, halving=False)
     t["taxonomy"] = "MUL_DIV" if {"×", "÷"} & set(ops) else "ADD_SUB"
     t["unknown_type"], t["unknown_position"] = FORMAT_UNKNOWN.get(fmt, ("NONE", "RESULT"))
     if fmt == "missing_number":

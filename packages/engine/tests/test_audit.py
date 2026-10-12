@@ -21,3 +21,20 @@ def test_answers_spread_fairly_or_too_few_to_judge_are_not():
         ("MISSING.DIGIT", "Easy", "equation", "s1"): Counter({0: 12}),
     }
     assert lopsided(places, RULE) == []
+
+
+def test_the_audit_says_each_check_as_it_finishes(monkeypatch):
+    """Found 2026-10-12: `bin/update-live` sat silent for many minutes on `engine audit`, which printed nothing until all
+    nineteen checks were done, and looked stuck. Each check is said as it finishes: the next is not run before."""
+    from engine.checks import audit
+
+    ran = []
+    monkeypatch.setattr(
+        audit,
+        "INVARIANTS",
+        [("first", lambda c: ran.append(1) or []), ("second", lambda c: ran.append(2) or ["x"])],
+    )
+    checks = audit.each(object())
+    assert next(checks) == ("first", []) and ran == [1]
+    assert next(checks) == ("second", ["x"]) and ran == [1, 2]
+    assert audit.run(object()) == [("first", []), ("second", ["x"])]

@@ -18,13 +18,19 @@ says:
     proved_by: "packages/engine/tests/test_md_charges.py::test_a_division_slip_in_a_fact_family_counts_against_division"
   - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
     proved_by: "packages/engine/tests/test_md_charges.py::test_a_story_that_halves_counts_on_division"
+  # found after the merge, on a copy and in live's audit (2026-10-12): counting the halving re-tagged the 33 stories × and
+  # ÷, so they fell outside WORD.1_2STEP Advance and the bank retired them; the rehearsal had not run the audit
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: "packages/engine/tests/test_md_charges.py::test_a_story_that_halves_is_still_the_case_the_addition_document_names"
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: "packages/engine/tests/test_update_live.py::test_the_rehearsal_runs_what_update_live_runs_in_its_order"
 manual:
   - "The table of what a mistake charges (`skills.charges_by_kind`) is approved once, by Nimish or Aseem, on Curriculum → skills to approve; until then `engine audit` says it waits (A11)."
   - "`bin/update-live`'s `bank relabel` writes the new charges onto live's stored questions."
 scenarios: []
 criteria:
   - name: what a slip charges, and every test that pins a charge or a label
-    run: cd packages/engine && uv run pytest -q tests/test_md_charges.py tests/test_mul_methods.py tests/test_div_methods.py tests/test_md_cases.py tests/test_every_skill.py tests/test_md_equality.py tests/test_estimates.py tests/test_mental.py tests/test_md_multiples.py tests/test_division_is_an_operation.py
+    run: cd packages/engine && uv run pytest -q tests/test_md_charges.py tests/test_mul_methods.py tests/test_div_methods.py tests/test_md_cases.py tests/test_every_skill.py tests/test_md_equality.py tests/test_estimates.py tests/test_mental.py tests/test_md_multiples.py tests/test_division_is_an_operation.py tests/test_update_live.py tests/test_audit.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

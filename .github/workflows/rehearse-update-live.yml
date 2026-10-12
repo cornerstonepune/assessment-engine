@@ -116,5 +116,8 @@ jobs:
       - name: the copy after — must be clean
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |
+          # the audit `bin/update-live` prints, so what it will say on live is read here first (2026-10-12: 33 stories
+          # retired by a relabel were first seen in Nimish's terminal)
+          bin/engine audit || true
           bin/engine live data --url "$COPY"
           bin/engine live homes --url "$COPY"
