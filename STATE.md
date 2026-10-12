@@ -7466,3 +7466,18 @@ What each stage of the loop already is, and what nothing yet proves:
     can show it.
 - **Not proved here:** reading the child's own handwriting. The scan is not in the repository (rule 6), so the reader
   is stood in; reading is scored by `engine eval`.
+
+## M5d — the website draws every × ÷ kind (2026-10-12)
+
+- **Proof:** `cd apps/web && npx playwright test tests/m5-every-kind-draws.spec.ts` → 1 passed, 57 s, on the local copy.
+  No website change was needed.
+- **What it checks:** all 80 pairs of a × ÷ skill set and a kind of question the bank holds, with their topics
+  switched on. Each must:
+  - be one of the kinds an educator can pick, which only a kind with a name in the school's words is;
+  - list its questions;
+  - show its numbers in each question, written or in a picture's label ("5 rows of 3");
+  - never show "undefined", "NaN", "null" or a code.
+- **Shown able to fail:** with lattice's name taken out of `KIND`, it failed on `MUL.2D2D lattice`. Two earlier
+  versions of the check passed with the name missing, and were rewritten:
+  - The first looked for "_" in the Kind column, but a kind with no name shows the bank's own, and "lattice" has none.
+  - The second read the kind from the filtered page's links, but its level chips carry the kind too.

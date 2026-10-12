@@ -78,7 +78,7 @@ workflow, recorded in STATE.md at M5.
 | M5a | `goals/md5a-the-loop.yaml` | every multiplication and division skill set, at every level, round the whole loop on a copy: its topic switched on → a worksheet printed → its boxes filled with known answers, a named mistake planted wherever its questions can show it → read, marked, each planted answer named → held answers confirmed by a person → signed off → evidence on the skill set's rung → repeating in the child's graph → the child's next paper aims at it → named on the class card and in the parent report's facts in the school's words |
 | M5b | `goals/md5b-read-back.yaml` | a paper the site prints for a child — a home paper, or any the paper maker prints — read back from its scan by the code on it, as a library worksheet is; a spare read by the name said for it and then that child's copy; every other copy in a scan named with why it was not read (found by M5a, STATE.md "M5a") |
 | M5c | `goals/md5c-aseem-1518.yaml` | Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`, read from his own paper (G3-QUIZ20, question 18), and their next paper aims at it once the graph has enough of their answers there |
-| M5d | — | the website draws every new kind of question |
+| M5d | `goals/md5d-every-kind-draws.yaml` | the website draws every new kind of question: every × ÷ skill set's every kind on the Question bank with its numbers, never "undefined" or a code, each kind with a name in the school's words to pick it by |
 | M5e | — | the files-per-workflow score recorded, from the git history of M0a–M5d |
 
 **Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is

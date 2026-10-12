@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M5d: the website draws every × ÷ kind (proved on the copy)
+
+- **Slice:** M5d, on the same branch and PR as M5a–c.
+  - One browser spec covers all 80 pairs of a × ÷ skill set and a kind of question. Each is drawn with its numbers and
+    named in the school's words.
+  - No website change was needed.
+  - See STATE.md "M5d".
+- **Next:** M5e, the files-per-workflow score from the git history of M0a–M5d.
+
 ## 2026-10-12 — M5c: Aseem's 56 × 3 = 1518 (proved on the copy)
 
 - **Slice:** M5c, on the same branch and PR as M5a and M5b.
@@ -10,7 +19,7 @@ is verified. This file only says where the last session stopped.
   - The third time, it is the child's pattern and their next paper aims at it. The graph's own minimum is 3 answers on
     a rung.
   - See STATE.md "M5c".
-- **Next:** M5d, the website draws every new kind of question.
+- **Next:** M5d (below).
 
 ## 2026-10-12 — M5b: a paper printed for a child comes back (built, proved on the copy)
 
