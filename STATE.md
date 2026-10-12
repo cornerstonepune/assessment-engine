@@ -7259,3 +7259,12 @@ Goal `goals/l2-live-audit-clean.yaml`.
     "'TEST.ORPHAN' in []").
 - **Proved:** refill, audit, update-live, taxonomy, bank, paper, rehome, story-range and layout tests on the copy:
   **786 passed**.
+- **Rehearsed again** (run 38231324999, a copy of live), `19 invariants checked, 33 violations`:
+  - "1026 answered in one place, drawn again · added 1034": the 7 came back, and every unit meets its target.
+  - Left: 31 skills, the mistake table, and R9.
+  - `legacy/G2-CAM-A/5` was retired, not removed: something points at it (its old answers or the page's hand-read
+    gold), so it stayed on R9.
+- **Fixed:** a paper question that has to stay moves to the rung its number has in the file, as an old paper's sum
+  moves to its skill. G2-CAM-A's 5 goes to R31, the rung of 5a–5c, and R9, held by nothing, leaves with the rehome.
+  `test_a_question_something_still_points_at_is_retired_not_removed` now asks for the move; it was seen failing
+  first (`'X1' == 'X2'`).

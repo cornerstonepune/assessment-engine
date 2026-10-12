@@ -1596,8 +1596,8 @@ SPLIT = dict(
     PAPER,
     items=PAPER["items"][:4]
     + [
-        {"n": 5, "part": "a", "page": 1, "kind": "text", "rung": "X1", "question": "Explain, first."},
-        {"n": 5, "part": "b", "page": 1, "kind": "text", "rung": "X1", "question": "Explain, then."},
+        {"n": 5, "part": "a", "page": 1, "kind": "text", "rung": "X2", "question": "Explain, first."},
+        {"n": 5, "part": "b", "page": 1, "kind": "text", "rung": "X2", "question": "Explain, then."},
     ],
 )
 
@@ -1627,7 +1627,9 @@ def test_a_question_its_corrected_file_no_longer_has_leaves_the_paper(conn, tmp_
 
 @pytestmark_db
 def test_a_question_something_still_points_at_is_retired_not_removed(conn, tmp_path):
-    """One an answer or a correction points at stays, retired: what points at it keeps what it pointed at."""
+    """One an answer or a correction points at stays, retired: what points at it keeps what it pointed at. It moves to
+    the rung its number has in the file, as an old paper's sum moves to its skill, so no rung is kept alive by it: on
+    live, G2-CAM-A's question 5 kept the old ladder's R9 when the file has it on R31 (2026-10-12)."""
     path = tmp_path / "paper.json"
     path.write_text(json.dumps(PAPER))
     legacy.load_paper(conn, path)
@@ -1641,3 +1643,5 @@ def test_a_question_something_still_points_at_is_retired_not_removed(conn, tmp_p
     path.write_text(json.dumps(SPLIT))
     legacy.load_paper(conn, path)
     assert _paper_keys(conn)["legacy/TEST-PAPER/5"] == "retired"
+    moved = conn.execute("select rung_code from item where item_key = 'legacy/TEST-PAPER/5'").fetchone()
+    assert moved["rung_code"] == "X2"

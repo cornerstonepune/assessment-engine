@@ -120,7 +120,7 @@ def load_paper(conn, path):
     ids, keys, where = [], [], where_they_go(conn)
     for it in paper["items"]:
         t = _template_item(paper, it, where)
-        keys.append(t["item_key"])
+        keys.append((t["item_key"], str(it["n"]), t["rung"]))
         row = conn.execute(
             "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem,"
             " spec, responses, source, status)"
