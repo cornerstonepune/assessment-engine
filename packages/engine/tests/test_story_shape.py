@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from engine.adapters import jev
+from engine.adapters import jev, llm
 from engine.w1_bank import story_shape as S
 
 DB = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -73,7 +73,8 @@ def test_a_story_in_an_educators_words_is_named_by_jev_and_the_rest_is_code(conn
     )
     purpose, state, options = asked[0]
     assert purpose == "story_shape" and "Leela" in state["story"]
-    assert {"JOIN_RESULT", "SUB_SUB", "CONSTRAINT"} <= options and len(options) == len(S.shapes(conn))
+    active = S.taxonomies(llm.active_prompt(conn, S.PURPOSE))  # the version that answers names what it reads
+    assert {"JOIN_RESULT", "SUB_SUB", "CONSTRAINT"} <= options and len(options) == len(S.shapes(conn, active))
     assert (got["shape"], got["case"], got["how"], got["answer"]) == ("COMPARE_SMALLER", "W11", "jev", 75)
     assert got["placed"], "a case some level names sits on that skill set and level"
 

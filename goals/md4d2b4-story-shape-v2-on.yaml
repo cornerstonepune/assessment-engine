@@ -1,0 +1,21 @@
+name: md4d2b4-story-shape-v2-on
+goal: >
+  A story typed by an educator, + and − or × and ÷, is read by `story_shape` v2, the version that offers every story
+  case of both taxonomies, scored on live before it answers; its score there is the bar every later version is held to.
+# Written 2026-10-12, before the switch: M4d2b4 (BUILD-ORDER). Measured on live on the corrected gold (M4d2b3): v2 144
+# of 148 cases right, no one-step answer wrong, 2 left for a person (run 38251975489); v1 66 of 66 on the + and −
+# stories (run 38251971707). Nimish chose to switch v2 on now rather than after the fix of its remaining misses, which
+# is M4d2b5.
+says:
+  - words: "switch v2 today and finish this module"
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_the_new_version_answers_once_scored_on_live_and_its_score_is_the_bar"
+manual:
+  - "Once deployed (deploy-engine.yml loads the settings), live answers with v2; `engine eval story_shape` (engine-eval.yml, version 2) scores it against 0.9729."
+scenarios: []
+criteria:
+  - name: v2 answers, its live score the bar; the eval holds a version to it; each version offers what it reads
+    run: cd packages/engine && uv run pytest -q tests/test_story_shape_times.py tests/test_story_shape.py tests/test_bars.py tests/api/test_bank_routes.py tests/test_divide_stories.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
