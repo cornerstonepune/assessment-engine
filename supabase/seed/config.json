@@ -308,9 +308,15 @@
         },
         "word_2step": {
           "M_WRONG_OP": "NUM.PRB.02"
+        },
+        "equation": {
+          "M_WRONG_OP": "NUM.OPS.05"
+        },
+        "fact_family": {
+          "M_WRONG_OP": "NUM.OPS.05"
         }
       },
-      "description": "Where a mistake charges a different skill on this kind of question than its own row says: choosing the wrong operation in a story is a word-problem slip, not an arithmetic one (ADR 0023, step 8b). Drafted by the engine; approved once by Nimish or Aseem."
+      "description": "Where a mistake charges a different skill on this kind of question than its own row says: choosing the wrong operation in a story is a word-problem slip, not an arithmetic one (ADR 0023, step 8b); in a missing-number equation or a fact family it is a slip reading the equation, the kind's own skill (A11, ADR 0072). Every other mistake counts against the operation it happens in. Drafted by the engine; approved once by Nimish or Aseem."
     },
     {
       "key": "skills.by_method",

@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b2: a slip counts against the operation it happens in (built, proved on copies)
+
+- **Slice:** M4d2b2 (BUILD-ORDER; M4d2b split again: M4d2b3 switches `story_shape` v2 on with its live score). The
+  charging rule for questions of two operations, halving on Division, the A11 table's last choice (STATE.md "M4d2b2").
+- **Live:** L1 (#192) merged and deployed 06:24 UTC; `story_shape` v1 holds its bar on live (63/65, 0 wrong; run
+  38212446549; DECISIONS-LOG), M4d2a's last manual step.
+- **For Nimish:** `~/cornerstone/assessment-engine/bin/update-live` (brings live everything from M2a, the × and ÷ cases
+  v2 reads among them); then approve the table of what a mistake charges on Curriculum → skills to approve.
+- **Next:** `story_shape` v2 scored on live once update-live has run, then M4d2b3; then M5.
+
 ## 2026-10-12 — L1: Jev stays on live (found and fixed)
 
 - **Found:** live's engine had no Jev key: `deploy/go-live.sh` (run by every `bin/update-live`) wrote the server's .env

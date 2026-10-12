@@ -7112,3 +7112,29 @@ Goal `goals/l1-jev-stays-on-live.yaml`.
   `story_shape` v2's code read it there. It reads each row's own column now. `bin/update-live` brings live M1's rows and
   the × and ÷ cases with them: live has none of multiplication and division until it runs (STATE.md "NY — measured").
 - **Proved:** the three tests written first, each seen failing on main `df851fc` for its own reason; `bin/check` 28 passed.
+
+## M4d2b2 — measured before the build (2026-10-12)
+
+On main `0af28cd`, the local copy's bank (28,483 generated questions, labels recomputed: none stale):
+- **A question of two operations charged a mistake to its first skill.** `skills.charges` looked a mistake up by the
+  question's operation only when it had one; with two, a mistake with a row for one of them fell through. "Check 42 ÷ 3
+  = 11 by multiplying" (`inverse_check`, ÷ and ×) charged times-table slips to Division; a fact family's division slips
+  went to Multiplication or the fact family's own skill; the bar model's "leaves the smaller one's part out", whose row
+  names Word problems, went to Division.
+- **Halving never counted on Division:** `skills.operations` read a stored two-step story's copy of its operations
+  before its template, and the template's `divide: 2` was never read.
+- **What is left to a choice:** with those put right, the only × and ÷ mistake still landing on a question's own skill
+  by default is choosing the wrong operation in an equation or a fact family (Mental maths & missing-number equations).
+
+## M4d2b2 — a slip counts against the operation it happens in, built (2026-10-12)
+
+Goal `goals/md4d2b2-what-a-slip-charges.yaml`, ADR 0072.
+- **The rule:** in a question of several operations, a mistake with a row for exactly one of them is charged as that row
+  says. A two-step story's operations are its template's, its halving among them.
+- **The table** (`skills.charges_by_kind`) names the choice left: choosing the wrong operation in an equation or a fact
+  family counts against the equation's skill, as a story's counts against Word problems. The approval page says the rule
+  in one sentence above the table. It waits for one approval (A11), as it did.
+- **On the bank:** 469 charges move, every one on a × or ÷ question and every one to the operation the slip happens in or
+  the skill its row names; no + or − charge moves; 33 halving stories gain Division. `bin/update-live`'s `bank relabel`
+  writes them on live.
+- **Proved:** `test_md_charges.py` written first, seen failing on main `0af28cd` (5 of 6, each on the measured fault).
