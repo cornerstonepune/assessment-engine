@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — UI6b: no other page a laundry list (built, proved on the copy)
+
+- **Slice:** UI6b (BUILD-ORDER).
+  - A child's newest papers.
+  - Today's first five under each line.
+  - The questions already answered, folded.
+  - Approve papers' latest two weeks.
+  - Parent reports by class.
+  - See STATE.md "UI6b".
+- **#196 merged** as `ba46f26`; main's CI was running on it when this started.
+- **For Nimish, once main's checks are green:** `~/cornerstone/assessment-engine/bin/update-live` (the L2 fixes).
+- **Next:** M4d2b3 (story_shape v2's gold, and the bar it moves), then M5.
+
 ## 2026-10-12 — L2: live's audit down to what waits on people (built, rehearsed on a copy of live)
 
 - **Slice:** L2 (BUILD-ORDER). Each cause of live's 41 violations was measured on a copy of live and fixed where it

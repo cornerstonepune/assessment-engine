@@ -8,9 +8,14 @@ import { reportsWaiting, reportWords } from "@/lib/queries-reports";
 // Parent reports (goals/ui4b1-child-by-topic.yaml): every child whose report waits on a person, in one list — out of
 // date first, then written and waiting to be approved, then not yet written — each name opening the report, where it
 // is written, read and approved.
-export default async function ReportsPage() {
+// A class chosen at the top keeps its children alone (goals/ui6b-no-long-lists.yaml): every child of the school waiting
+// at once was one long table.
+export default async function ReportsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  const rows = await deadline(reportsWaiting(me.email));
+  const [every, q] = await Promise.all([deadline(reportsWaiting(me.email)), searchParams]);
+  const sections = [...new Map(every.map((r) => [r.section, r])).values()];
+  const chosen = sections.some((r) => r.section === q.class) ? q.class : undefined;
+  const rows = chosen ? every.filter((r) => r.section === chosen) : every;
   const n = (short: string) => rows.filter((r) => reportWords(r.report).short === short).length;
   return (
     <>
@@ -23,6 +28,23 @@ export default async function ReportsPage() {
         <Link href="/growth" className="chip mb-[18px] inline-block">
           ← Children
         </Link>
+        {sections.length ? (
+          <nav aria-label="Class" className="mb-3 flex flex-wrap gap-2">
+            <Link href="/growth/reports" className={`chip ${!chosen ? "on" : ""}`} aria-current={!chosen ? "page" : undefined}>
+              Every class <span className="fact ml-1 opacity-70">{every.length}</span>
+            </Link>
+            {sections.map((r) => (
+              <Link
+                key={r.section}
+                href={`/growth/reports?class=${encodeURIComponent(r.section)}`}
+                className={`chip ${chosen === r.section ? "on" : ""}`}
+                aria-current={chosen === r.section ? "page" : undefined}
+              >
+                {classWords(r.band, r.section)} <span className="fact ml-1 opacity-70">{every.filter((x) => x.section === r.section).length}</span>
+              </Link>
+            ))}
+          </nav>
+        ) : null}
         {rows.length === 0 ? (
           <Notice tone="neem">Every child&rsquo;s report is written, approved and up to date.</Notice>
         ) : (

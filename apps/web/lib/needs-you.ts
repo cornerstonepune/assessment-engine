@@ -22,6 +22,8 @@ export type Line = {
   href?: string;
   action?: string;
   items?: Item[];
+  /** Where the items past the first few are all listed (goals/ui6b-no-long-lists.yaml). */
+  more?: string;
   /** Whether it is work waiting on a person, counted on the menu. A topic not taught yet is the school's choice. */
   waits: boolean;
 };
@@ -48,6 +50,7 @@ export function linesOf(w: Waiting): NeedsYou {
           href: `/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`,
           n: p.n,
         })),
+        more: "/papers/approve",
         waits: true,
       },
       { title: "Home assessments to approve", n: w.nextPapers, words: "one for each child, made from their own record, not yet approved this week", href: "/make", action: "Approve them", waits: true },
@@ -67,6 +70,7 @@ export function linesOf(w: Waiting): NeedsYou {
         // every report waiting on a person, in one list (goals/ui4b1-child-by-topic.yaml)
         href: "/growth/reports",
         action: "Open the list",
+        more: "/growth/reports",
         waits: true,
       },
     ],
