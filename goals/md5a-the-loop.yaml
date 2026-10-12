@@ -6,8 +6,8 @@ goal: >
   read and marked, each planted answer named; what the reader held confirmed by a person as the child wrote it; the paper
   signed off; the mistake counted as evidence on the skill set's rung, repeating in the child's graph, the subject of the
   child's next paper, and named on the class card and in the parent report's facts in the school's words.
-# Written 2026-10-12, before any code: M5a (BUILD-ORDER; M5 split in four: the loop M5a, 56 × 3 = 1518 M5b, the website
-# M5c, the files-per-workflow score M5d). Measured first (STATE.md "M5 — measured before the build"): no test or
+# Written 2026-10-12, before any code: M5a (BUILD-ORDER; M5 split in four: the loop M5a, 56 × 3 = 1518, the website, the
+# files-per-workflow score; a fifth, M5b, added once this found papers printed for a child are not read back). Measured first (STATE.md "M5 — measured before the build"): no test or
 # scenario runs the whole loop for any operation; the pieces exist — printing, the reader, marking, confirm_results, the
 # graph, the focus paper, the class card, the parent facts — and the closest pattern reads a library worksheet with the
 # handwriting reader stood in (`test_every_answer.py`). The handwriting reader is scored on its own (`engine eval`).

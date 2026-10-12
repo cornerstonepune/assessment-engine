@@ -3,6 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M5a: every × and ÷ skill at every level round the loop (built, proved on the copy)
+
+- **Slice:** M5a. 17 skill sets × 4 levels, a planted mistake back at every stage: 67 passed, 1 skipped (MUL.GROUPS has
+  no Hard). See STATE.md "M5a".
+- **Fixed at the cause on the way:**
+  - The test for 3 is charged to + then ×.
+  - The next paper's level is one whose questions of the child's own skill can show the mistake, looking down as well
+    as up.
+  - The parent check lets "the multiplication question" and "the division question" pass.
+- **Once merged and deployed:** `bin/update-live` runs `bank relabel`, which corrects the test for 3's stored charges on
+  live.
+- **Next:** M5b. A paper the site prints for a child that is not a library worksheet (paper maker, home paper) is
+  dropped when its scan is read (`copies.read`), and nothing says so.
+
 ## 2026-10-12 — M4d2b5: the story reader settles by code what code can read (built, proved on the copy)
 
 - **Slice:** M4d2b5.

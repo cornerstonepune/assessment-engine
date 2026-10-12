@@ -7391,4 +7391,37 @@ What each stage of the loop already is, and what nothing yet proves:
 - **56 × 3 = 1518:** the predictor (`mul_mistakes.concat`) is tested. The sum on Aseem's own paper (G3-QUIZ20, question
   18) has never been put through reading, marking and the graph.
 - **The files-per-workflow score:** defined in BUILD-ORDER and ADR 0047. Nothing computes it yet.
-- **Split:** M5a, the loop for every new skill at every level; M5b, 1518; M5c, the website; M5d, the score.
+- **Split:** M5a, the loop for every new skill at every level; M5b, a paper printed for a child read back (found by M5a,
+  below); M5c, 1518; M5d, the website; M5e, the score.
+
+## M5a — every × and ÷ skill at every level round the loop (2026-10-12)
+
+- **What runs:** `tests/test_the_loop.py`, one case per skill set and level, 17 skill sets × 4 levels.
+  - Each worksheet is printed for one child as an educator does on the site (Make papers, `handout`).
+  - A mistake is planted wherever the worksheet's questions can show it, the key everywhere else.
+  - The scan is read by the code on the copy, the handwriting reader stood in.
+  - Then: held answers confirmed, signed off, evidence, graph, the child's next paper, the class card, the parent facts.
+- **Proof:** `cd packages/engine && uv run pytest -q tests/test_the_loop.py` → 67 passed, 1 skipped in 151 s
+  (MUL.GROUPS has no Hard level).
+- **What it found, each fixed at its cause:**
+  - **The test for 3 charged the wrong skill.** A slip adding the digits counted against multiplication.
+    `multiples.ops` now says the test for 3 adds, then multiplies, and `skills.operations` reads it first, so a stored
+    question is charged rightly too (`test_md_charges.py`). On live, `bank relabel` corrects the stored charges.
+  - **The next paper could not show the mistake it was for, at two levels.**
+    - Dividing a number by itself and writing 0 shows only on MD.EQUALITY's Easy questions. A child mostly right is
+      given Medium, and the paper looked only upward. It now moves down to the nearest level that can show it.
+    - Reversing an equation's claim shows at Medium only in another skill's division check. The paper draws the child's
+      own skill first, so it never showed. The level is now chosen where the child's own skill can show the mistake.
+    - Both are in `focus_paper._where_it_shows`, and `test_focus_paper.py` has a test for each.
+  - **The parent check refused "the multiplication question".** It names no single question, as "the subtraction
+    question" does not. "multiplication" and "division" were added to `parent_check.NAMES_NOTHING`
+    (`test_parent_report.py`).
+  - **A paper printed for a child is not read back when it is not a library worksheet.** Every paper the paper maker
+    prints, and every home paper, is `source='focus'`. `copies.read` keeps library worksheets only, and that is the site's
+    only door (`inbox.read`). Such a copy is dropped without a word. This is M5b.
+- **Not a break:** a class pack's `misconception_targets` are stored by `prescribe` and read by nothing. The agreed
+  workflow aims a repeated mistake in the home paper (N11), which this proves; a class pack is a skill set at a level
+  (N5, N6).
+- **Its cost in CI:** about 2½ minutes. The first version printed the worksheet bare and named the child, so every copy
+  was first matched against each layout the worksheet has printed in (`boxes.as_printed`, 8 of 17 s a level). A copy
+  printed for a child carries its own PDF, and that is the copy this proves.

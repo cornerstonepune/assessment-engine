@@ -705,6 +705,8 @@ def test_a_question_the_words_name_is_the_childs_own_and_an_improving_skill_read
         said(e10, at_home=["Try the train question beside this together, and act it out with coins."]) == []
     )
     assert said(e10, at_home=["Try the subtraction question beside this together."]) == []
+    for op in ("multiplication", "division"):  # M5a: an operation's name names no one question, as + and − do
+        assert said(e10, at_home=[f"Try the {op} question beside this together."]) == [], op
     assert any("balloon" in p for p in said(e10, at_home=["Try the balloon story beside this together."]))
 
     right = ok4["draft"]["summary"].replace(ok4["bad"][0], "").strip()

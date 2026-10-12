@@ -76,9 +76,10 @@ workflow, recorded in STATE.md at M5.
 | M4d2b4 | `goals/md4d2b4-story-shape-v2-on.yaml` | `story_shape` v2 switched on with its score on live as its bar (144 of 148, Nimish: "switch v2 today") |
 | M4d2b5 | `goals/md4d2b5-story-told-apart.yaml` | the cause of each story v2 still misses or leaves, found from Jev's ranking, fixed where it starts: code tells "each" that means ÷ from grouping and a price list from a price, by the words and layout that define them; a story whose operation is sure is keyed though its case waits on a person ("it's 84"); every gold story held to the same rules |
 | M5a | `goals/md5a-the-loop.yaml` | every multiplication and division skill set, at every level, round the whole loop on a copy: its topic switched on → a worksheet printed → its boxes filled with known answers, a named mistake planted wherever its questions can show it → read, marked, each planted answer named → held answers confirmed by a person → signed off → evidence on the skill set's rung → repeating in the child's graph → the child's next paper aims at it → named on the class card and in the parent report's facts in the school's words |
-| M5b | — | Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`, read from his own paper |
-| M5c | — | the website draws every new kind of question |
-| M5d | — | the files-per-workflow score recorded, from the git history of M0a–M5c |
+| M5b | — | a paper the site prints for a child — a home paper, or any the paper maker prints — read back from its scan by the code on it, as a library worksheet is; none dropped without a word (found by M5a, STATE.md "M5a") |
+| M5c | — | Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`, read from his own paper |
+| M5d | — | the website draws every new kind of question |
+| M5e | — | the files-per-workflow score recorded, from the git history of M0a–M5d |
 
 **Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is
 its cases. M2 is three slices (measured 2026-10-09, STATE.md "M2 — measured before the build" and "M2b — measured before the

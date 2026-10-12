@@ -17,13 +17,12 @@ import json
 import uuid
 from collections import Counter
 
-import pymupdf
 import pytest
 
 from engine.adapters import ocr
 from engine.assess import graph
 from engine.core import db, mistake_names
-from engine.w2_print import focus_paper, library
+from engine.w2_print import focus_paper, handout
 from engine.w3_read import boxes, copies, marking, second_reader
 from engine.w4_close import card, parent_facts
 from tests.test_each_answer import _wrote
@@ -55,7 +54,8 @@ def _sheet(conn, code, level):
     return conn.execute(
         "select t.code, t.band, t.item_ids, s.rung_code, s.topic_code, s.level_band ->> t.difficulty as grade"
         " from sheet_template t join skill_set s"
-        " on s.code = t.skill_set_code where t.source = 'library' and t.skill_set_code = %s and t.difficulty = %s"
+        " on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
+        " and t.skill_set_code = %s and t.difficulty = %s"
         " order by t.code limit 1",
         (code, level),
     ).fetchone()
@@ -95,15 +95,15 @@ def _a_child(conn, section, band):
     return child
 
 
-def _read(conn, sheet, section, wrote, tmp_path, monkeypatch):
-    """The sheet read for the child, the reader stood in to read what `wrote` says each box holds; a tick or a reason
-    comes back for a person, as the box reader returns them."""
-    monkeypatch.setattr(library, "PDF_DIR", tmp_path / "worksheets")
+def _read(conn, sheet, child, wrote, tmp_path, monkeypatch):
+    """The sheet printed for the child, as an educator does on the site (Make papers: the copy carries the child's own
+    code, `handout`), and its scan read by that code; the reader stood in to read what `wrote` says each box holds. A
+    tick or a reason comes back for a person, as the box reader returns them."""
     monkeypatch.setattr(copies, "CUT", tmp_path / "scans")
     monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
     monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
     monkeypatch.setattr(second_reader, "propose", lambda conn, r, *a, **k: (r, ""))
-    pdf = library.pdf(conn, sheet["code"])
+    pdf = handout.for_children(conn, sheet["code"], [child], WEEK, PERSON, tmp_path / "print")
     by_key = {
         r["item_key"]: r["id"]
         for r in conn.execute("select id, item_key from item where id = any(%s)", (sheet["item_ids"],))
@@ -121,7 +121,8 @@ def _read(conn, sheet, section, wrote, tmp_path, monkeypatch):
 
     monkeypatch.setattr(boxes, "read_page", read_page)
     scan = _scanned_file([pdf], tmp_path / "class.pdf")
-    copies.read(conn, scan, section, ["Mira"], PERSON, pages_of=lambda c: len(pymupdf.open(pdf)))
+    (got,) = copies.read(conn, scan, "", [], PERSON)
+    assert got["child_id"] == child and got["by_code"], got
 
 
 def _results(conn, child):
@@ -159,7 +160,7 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
 
     section = f"L{uuid.uuid4().hex[:5]}"
     child = _a_child(conn, section, sheet["grade"] or sheet["band"])
-    _read(conn, sheet, section, wrote, tmp_path, monkeypatch)
+    _read(conn, sheet, child, wrote, tmp_path, monkeypatch)
     for r in _results(conn, child):  # a person confirms each held answer as the child wrote it
         if r["status"] != "needs_teacher":
             continue
