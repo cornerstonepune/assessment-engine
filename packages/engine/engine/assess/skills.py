@@ -24,8 +24,10 @@ def _sign(op: str) -> str:
     return O.sign(op) or op
 
 
-def operations(fmt: str, spec: dict[str, Any], stem: str | None = "") -> list[str]:
-    """The operations a child carries out on this question, in the order the question asks for them."""
+def operations(fmt: str, spec: dict[str, Any], stem: str | None = "", halving: bool = True) -> list[str]:
+    """The operations a child carries out on this question, in the order the question asks for them; without `halving`,
+    the ones the story itself is about, which say its taxonomy: "two numbers add up to 90, one is 20 more" is halved,
+    but it is the + and − document's W29, not a division story."""
     if "budget" in spec:
         return ["+", "-"]  # the costs are added up, and the total is taken from the budget
     tpl = W.template_of(stem) if fmt == "word_2step" else None
@@ -33,7 +35,7 @@ def operations(fmt: str, spec: dict[str, Any], stem: str | None = "") -> list[st
         # the story template's own operations (`word_templates.json`), a halving it does among them: "two numbers add up
         # to 90, one is 20 more" is a take-away, then a division by 2 (`divide`); a stored spec's copy of the
         # operations predates it, so the template is read first
-        return list(dict.fromkeys(tpl["op"] + ("÷" if tpl.get("divide") else "")))
+        return list(dict.fromkeys(tpl["op"] + ("÷" if halving and tpl.get("divide") else "")))
     if spec.get("ops"):
         return [_sign(o) for o in spec["ops"]]
     if fmt == "word_2step":

@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b2 follow-up: the halving retired 33 stories (found after the merge, fixed)
+
+- **Found:** #193 counted "two numbers add up to …" on Division and also re-tagged those 33 W29 stories × and ÷; they fell
+  outside WORD.1_2STEP Advance and the refill retired them. Fixed at the cause; the rehearsal now runs the audit, so it
+  would have seen it; `engine audit` says each check as it finishes (STATE.md "M4d2b2 — the halving retired 33 stories").
+- **For Nimish, once merged:** `~/cornerstone/assessment-engine/bin/update-live` (the refill makes WORD.1_2STEP Advance
+  whole again). The audit's tick lines (REASON.EXPLAIN, ESTIMATE.HUNDRED Advance) close when those skills' new levels are
+  approved on Curriculum → skills to approve: live still holds their old levels, which fix the answer (DECISIONS-LOG
+  2026-09-29).
+- **story_shape v2:** 140/146 on live, not switched on (DECISIONS-LOG). The gold correction and the bar it moves are
+  parked in the scratchpad as `m4d2b3-gold.patch`; M4d2b3 decides them with v2's next score.
+- **Next:** UI6 (Nimish: filters on the approve page; no page a laundry list), then M4d2b3, then M5.
+
 ## 2026-10-12 — M4d2b2: a slip counts against the operation it happens in (built, proved on copies)
 
 - **Slice:** M4d2b2 (BUILD-ORDER; M4d2b split again: M4d2b3 switches `story_shape` v2 on with its live score). The

@@ -7140,3 +7140,29 @@ Goal `goals/md4d2b2-what-a-slip-charges.yaml`, ADR 0072.
   `bin/update-live`'s `bank relabel` writes them on live. First reported as "no + or − charge moves": measured before the
   table's rows were added; `engine audit` on the copy showed the equations, measured again.
 - **Proved:** `test_md_charges.py` written first, seen failing on main `0af28cd` (5 of 6, each on the measured fault).
+
+## M4d2b2 — the halving retired 33 stories, found after the merge and fixed (2026-10-12)
+
+Goal `goals/md4d2b2-what-a-slip-charges.yaml` (two promises added).
+- **Found** on the local copy (`test_goal::test_every_invariant_holds`), then in the audit Nimish's `bin/update-live`
+  printed: counting the halving in "Two numbers add up to 605. One of them is 71 more …" on Division (M4d2b2) also made
+  `tags.derive` read the story as × and ÷, since a question's taxonomy was "MUL_DIV when its operations hold × or ÷". The
+  33 such stories, W29 of the + and − document (its row names ADD_SUB), then fell outside WORD.1_2STEP Advance, the level
+  that holds W29: `engine bank relabel` → tags 33 changed; `outside_their_level` → 33; the refill retires them and cannot
+  make new ones.
+- **The cause and the fix:** the halving is an operation the child carries out (it counts on Division, A11), not what the
+  story is about. `skills.operations(..., halving=False)` gives the story's own operations, and the taxonomy is read from
+  them. On the copy: `engine bank relabel` → "tags: 33 changed · cases: 33 changed"; `outside_their_level` → 0.
+- **Why the rehearsal did not see it:** `rehearse-update-live.yml` left out the audit `bin/update-live` prints
+  (`NOT_REHEARSED = {"audit"}`, read as only "what waits on a person"). It runs it now, and
+  `test_the_rehearsal_runs_what_update_live_runs_in_its_order` holds it to that (seen failing without it: "update-live
+  runs ['audit', 'live data'] where its rehearsal does not").
+- **`engine audit` says each check as it finishes** (`audit.each`): on live, from a Mac, the sweep takes minutes and
+  printed nothing until the end, and looked stuck. `test_the_audit_says_each_check_as_it_finishes`.
+- **On live:** stories retired by the update-live run after #193 come back with the refill of the next `bin/update-live`,
+  once this is merged.
+- **story_shape v2's live score** (run 38215303003): named 144/146, the shape right on 140, one-step answers computed 99,
+  wrong 0, 2 left for a person — 0.9589, below its bar 0.9692; not switched on. Of the six, v1 missed the same two + and −
+  stories on live (run 38212446549): "305 tickets … 187 were sold" (gold W04, both read W08) and "I am thinking of a
+  number. If I take away 25 and then add 40, I get 100" (gold W29, both read W28, "the unknown in the first step — work
+  backwards", which is what the case row says it is). Correcting the gold changes v1's score and so the bar: M4d2b3.

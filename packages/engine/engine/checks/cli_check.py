@@ -46,19 +46,21 @@ def outcomes() -> None:
 
 def audit() -> None:
     """Every invariant the rows must satisfy, in one sweep. Exits 1 on any violation."""
+    bad = checked = 0
     with db.connect() as conn:
-        results = audit_module.run(conn)
-    bad = 0
-    for name, violations in results:
-        _say(
-            f"  {'FAIL' if violations else 'ok  '}  {name}" + (f"  → {len(violations)}" if violations else "")
-        )
-        for v in violations[:10]:
-            _say(f"          {v}", err=True)
-        if len(violations) > 10:
-            _say(f"          … and {len(violations) - 10} more", err=True)
-        bad += len(violations)
-    _say(f"  {len(results)} invariants checked, {bad} violations")
+        # each said as it finishes: the sweep takes minutes on live
+        for name, violations in audit_module.each(conn):
+            _say(
+                f"  {'FAIL' if violations else 'ok  '}  {name}"
+                + (f"  → {len(violations)}" if violations else "")
+            )
+            for v in violations[:10]:
+                _say(f"          {v}", err=True)
+            if len(violations) > 10:
+                _say(f"          … and {len(violations) - 10} more", err=True)
+            bad += len(violations)
+            checked += 1
+    _say(f"  {checked} invariants checked, {bad} violations")
     if bad:
         raise typer.Exit(1)
 

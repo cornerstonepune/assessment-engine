@@ -293,9 +293,16 @@ INVARIANTS = [
 ]
 
 
+def each(conn):
+    """(invariant, [violations]) one at a time, each check run only when the one before is said: on live, from a Mac,
+    the whole sweep takes minutes, and printed all at once at the end it looked stuck (2026-10-12)."""
+    for name, fn in INVARIANTS:
+        yield name, fn(conn)
+
+
 def run(conn=None):
     """[(invariant, [violations])] in order. A caller with no connection gets its own."""
     if conn is not None:
-        return [(name, fn(conn)) for name, fn in INVARIANTS]
+        return list(each(conn))
     with db.connect() as own:
-        return [(name, fn(own)) for name, fn in INVARIANTS]
+        return list(each(own))

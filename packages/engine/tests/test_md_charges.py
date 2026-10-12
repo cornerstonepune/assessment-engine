@@ -90,3 +90,24 @@ def test_the_table_moves_addition_and_subtractions_equations_too():
     equation, and the approval of the table covers it."""
     spec = {"op": "+", "ops": ["+", "-"], "text": "□ + 17 = 42"}
     assert _charged("equation", spec, "□ + 17 = 42", ["NUM.OPS.01"], "M_WRONG_OP") == "NUM.OPS.05"
+
+
+def test_a_story_that_halves_is_still_the_case_the_addition_document_names():
+    """The halving counts on Division, but the story is still W29, the + and − document's "two numbers add up to …"
+    (its row names ADD_SUB). Measured 2026-10-12, after the halving was counted: `engine bank relabel` tagged the 33
+    such stories × and ÷, they fell outside WORD.1_2STEP Advance, the level that holds W29, and the bank retired them."""
+    from types import SimpleNamespace
+
+    from engine.assess import tags, taxonomy
+
+    stem = "Two numbers add up to 605. One of them is 71 more than the other. What is the smaller number?"
+    spec = {"a": 605, "b": 71, "c": 128, "ops": ["-"], "structure": "CONSTRAINT"}
+    t = tags.derive(SimpleNamespace(fmt="word_2step", spec=spec, stem=stem, rung="X1"))
+    w29 = next(
+        c
+        for c in json.loads((SEED / "taxonomy_cases.json").read_text())["taxonomy_cases"]
+        if c["code"] == "W29"
+    )
+    assert t["taxonomy"] == "ADD_SUB"
+    assert taxonomy.matches(w29["match"], "word_2step", t)
+    assert skills.operations("word_2step", spec, stem) == ["-", "÷"]
