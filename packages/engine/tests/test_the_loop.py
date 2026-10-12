@@ -53,7 +53,8 @@ def conn():
 
 def _sheet(conn, code, level):
     return conn.execute(
-        "select t.code, t.item_ids, s.rung_code, s.topic_code from sheet_template t join skill_set s"
+        "select t.code, t.band, t.item_ids, s.rung_code, s.topic_code, s.level_band ->> t.difficulty as grade"
+        " from sheet_template t join skill_set s"
         " on s.code = t.skill_set_code where t.source = 'library' and t.skill_set_code = %s and t.difficulty = %s"
         " order by t.code limit 1",
         (code, level),
@@ -71,11 +72,9 @@ def _slots(conn, ids):
 
 
 def _planted(slots):
-    """The mistake the sheet can show on the most answers, its wrong answer a number the key is not, and the slots it
+    """The mistake the sheet can show on the most answers — a number, or a tick, the key is not — and the slots it
     goes on. Every mistake that ties for most is a fair choice; the first by name is taken, so a run is repeatable."""
-    can = Counter(
-        m for _, _, key, wrong in slots for m, v in wrong.items() if v.lstrip("-").isdigit() and v != key
-    )
+    can = Counter(m for _, _, key, wrong in slots for m, v in wrong.items() if v and v != key)
     if not can:
         return None, []
     most = max(can.values())
@@ -83,11 +82,12 @@ def _planted(slots):
     return m, [(i, rid) for i, rid, key, wrong in slots if wrong.get(m, key) != key]
 
 
-def _a_child(conn, section):
+def _a_child(conn, section, band):
+    """A child of the grade the level is for: a child's next paper is drawn from the levels of their own grade."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     child = conn.execute(
-        "insert into child (tenant_id, roll_no, band, section) values (%s, '7', 'G3', %s) returning id",
-        (tenant, section),
+        "insert into child (tenant_id, roll_no, band, section) values (%s, '7', %s, %s) returning id",
+        (tenant, band, section),
     ).fetchone()["id"]
     conn.execute(
         "insert into pii.child (tenant_id, child_id, first_name) values (%s,%s,'Mira')", (tenant, child)
@@ -158,19 +158,26 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
     wrote = {(i, rid): (wrong.get(mistake) if (i, rid) in on else key) for i, rid, key, wrong in slots}
 
     section = f"L{uuid.uuid4().hex[:5]}"
-    child = _a_child(conn, section)
+    child = _a_child(conn, section, sheet["grade"] or sheet["band"])
     _read(conn, sheet, section, wrote, tmp_path, monkeypatch)
     for r in _results(conn, child):  # a person confirms each held answer as the child wrote it
-        if r["status"] == "needs_teacher":
+        if r["status"] != "needs_teacher":
+            continue
+        if (
+            wrote[(r["item_id"], r["rid"])] == "None"
+        ):  # a reason, which only a person marks: Right, on the site
+            conn.execute("select resolve_result(%s, 'correct', '{}'::text[], %s)", (r["id"], PERSON))
+        else:
             marking.correct(conn, r["id"], wrote[(r["item_id"], r["rid"])], PERSON)
 
     marked = {(r["item_id"], r["rid"]): r for r in _results(conn, child)}
     assert set(marked) == set(wrote), f"{code} {level}: every answer box is read once"
     missed = [k for k in on if mistake not in (marked[k]["misconception_codes"] or [])]
     assert not missed, f"{code} {level}: {len(missed)} of {len(on)} planted answers not named {mistake}"
-    assert all(marked[k]["status"] == "correct" for k in set(wrote) - set(on)), (
-        f"{code} {level}: a key marked wrong"
-    )
+    wrong_key = [
+        (k, wrote[k], marked[k]["status"]) for k in set(wrote) - set(on) if marked[k]["status"] != "correct"
+    ]
+    assert not wrong_key, f"{code} {level}: the key marked wrong {wrong_key}"
 
     marking.confirm(conn, child, PERSON)
     seen = conn.execute(
