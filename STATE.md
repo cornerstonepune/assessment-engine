@@ -7360,3 +7360,34 @@ Goal `goals/md4d2b5-story-told-apart.yaml`. On live (run 38251975489), v2's four
 - **Split:** reading a story and scoring the reader are two jobs. The gold and the eval moved to
   `w1_bank/story_eval.py` when this work brought `story_shape.py` to 401 lines, over its 400 ceiling.
 - **Not yet known:** v2's score on live with this. It is taken once deployed (engine-eval.yml, story_shape, 2).
+
+## M5 — measured before the build (2026-10-12)
+
+What each stage of the loop already is, and what nothing yet proves:
+- **No test or scenario runs the whole loop, for any operation.** `engine goal` runs two kinds of scenario, `bank` and
+  `week` (`checks/scenarios.py`); there is none that reads, marks or rebuilds a graph. `goals/w4-close-the-loop.yaml`
+  names `tests/test_close_the_loop.py`, which does not exist.
+- **Printing:**
+  - Class packs (`prescribe` → `assemble`), library worksheets (`library`), and a child's own paper (`focus_paper`).
+  - A child's own paper and the paper maker draw only from taught topics (`shelf.py`), and every × and ÷ topic starts
+    switched off (`topics.json`).
+- **Reading:**
+  - The closest pattern reads a library worksheet with the handwriting reader stood in (`test_every_answer.py`).
+  - `copies.read` reads library worksheets only. A child's own paper (`source='focus'`) is skipped when a class scan
+    is read, and nothing says it was.
+- **Marking and naming:**
+  - `marking.mark` names a mistake from the question's own stored wrong answers, which exist for + − × ÷.
+  - The engine's own wrong reading waits for a person (`mark_read`).
+  - `confirm_results` writes the evidence, and `graph.rebuild` the child's graph.
+- **The next paper:**
+  - `focus_paper.plan` aims a child's home paper at their repeating mistake.
+  - A class pack's `misconception_targets` are stored by `prescribe` but not read by `assemble`.
+- **What a person reads:**
+  - The class card names a mistake by its operation's name (`mistake_names`). The parent facts carry its name and
+    what the school does.
+  - The parent check's list of words that name nothing has "addition" and "subtraction" but not "multiplication"
+    or "division" (`parent_check.NAMES_NOTHING`).
+- **56 × 3 = 1518:** the predictor (`mul_mistakes.concat`) is tested. The sum on Aseem's own paper (G3-QUIZ20, question
+  18) has never been put through reading, marking and the graph.
+- **The files-per-workflow score:** defined in BUILD-ORDER and ADR 0047. Nothing computes it yet.
+- **Split:** M5a, the loop for every new skill at every level; M5b, 1518; M5c, the website; M5d, the score.
