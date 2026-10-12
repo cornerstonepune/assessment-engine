@@ -7,6 +7,8 @@ names and page patterns only: never a run's error text (it can carry a child's n
 limits are threshold rows.
 """
 
+import os
+
 from engine.core import db
 
 
@@ -45,4 +47,6 @@ def problems(conn: db.Conn, free_bytes: int) -> list[str]:
     ]
     if free_bytes < floor * 10**9:
         out.append(f"the server's disk has {free_bytes / 10**9:.1f} GB free, less than {floor:g} GB")
+    if not os.environ.get("TYPESAFE_API_KEY"):  # the engine's own environment: the watch runs inside it
+        out.append("Jev's key is missing on the engine: every judgement Jev makes goes to a person")
     return out

@@ -275,3 +275,21 @@ class _no_database:
 
     def commit(self):
         pass
+
+
+@DB
+def test_a_case_row_whose_match_does_not_repeat_its_taxonomy_is_read_by_its_own(conn):
+    """Found 2026-10-12 on live: its case rows were loaded before M1 wrote each one's taxonomy into its match as well,
+    and reading the match's crashed both versions (KeyError 'taxonomy'). The row's own column says it."""
+    conn.execute("update taxonomy_case set match = match - 'taxonomy' where jsonb_typeof(match) = 'object'")
+    v1 = S.name(
+        conn, "Kiran had 23 shells and found 17 more. How many shells now?", _saying("JOIN_RESULT")[0]
+    )
+    assert (v1["case"], v1["answer"]) == ("W01", 40)
+    v2 = S.name(
+        conn,
+        "A baker puts 6 buns on each tray. She fills 8 trays. How many buns has she baked?",
+        _saying("EQUAL_GROUPS")[0],
+        version=2,
+    )
+    assert (v2["case"], v2["answer"]) == ("B01", 48)

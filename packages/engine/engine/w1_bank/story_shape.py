@@ -53,12 +53,16 @@ def taxonomies(row):
 
 
 def _known(conn, reads=("ADD_SUB",)):
-    """{option: case row} for every story case of these taxonomies, each under a name of its own (`_keys`)."""
-    rows = conn.execute(
-        "select code, label, match from taxonomy_case where taxonomy = any(%s) and match ? 'structure'"
-        " order by taxonomy, code",
-        (list(reads),),
-    ).fetchall()
+    """{option: case row} for every story case of these taxonomies, each under a name of its own (`_keys`). A row's
+    taxonomy is its own column's: a row loaded before M1 does not repeat it in its match (live, 2026-10-12)."""
+    rows = [
+        {**r, "match": {**r["match"], "taxonomy": r["taxonomy"]}}
+        for r in conn.execute(
+            "select code, label, taxonomy, match from taxonomy_case where taxonomy = any(%s) and match ? 'structure'"
+            " order by taxonomy, code",
+            (list(reads),),
+        )
+    ]
     return dict(zip(_keys([r["match"] for r in rows]), rows))
 
 
