@@ -7221,3 +7221,19 @@ Goal `goals/l2-live-audit-clean.yaml`.
   - `engine bank refill` says "N answered in one place, drawn again".
 - **Not yet explained:** the two short levels and R9. The rehearsal now lists each short level's retired questions with
   why, and what still points at a rung no skill holds, so the next run names the cause.
+- **Rehearsed with the redraw** (run 38227555987, a copy of live):
+  - `bank refill` → "retired 0 questions outside their level · 972 answered in one place, drawn again · added 972"
+    (REASON.EXPLAIN's 4 × 216, ESTIMATE.HUNDRED Advance's 108).
+  - Audit: `19 invariants checked, 36 violations`; the tick lines went from 6 to 1.
+- **REASON.FIND_MISTAKE Hard (where), 45 of 54, was left:** the level asks "where" on about one question in four, so
+  a single draw of 120 held fewer than 40 to judge it by. Today's spread is fair (300 drawn on the copy: 43 at option
+  2, 32 at option 3). Now the level is drawn until it has enough (`refill._places_now`;
+  `test_a_kind_the_level_asks_now_and_then_is_drawn_until_it_can_be_judged`).
+- **The two short levels:** each level's non-active questions number exactly its shortfall:
+  - ADD.1D1D Easy: 2, keys `ADD.1D1D.REG0-…`;
+  - SUB.2D1D Hard: 5, keys `SUB.2D1D.REG1-…`.
+  None has a retirement note. They carry the template today's draws use, so they hold the very keys the level would
+  draw, and a level whose whole region is its target (`min_items` 108, 72) cannot be refilled.
+  The rehearsal now shows each one's status, source, generator and dates, so the cause is known before the fix.
+- **R9:** one active question still points at it (`questions 1 · active 1 · answers 0`). That is why rehome could not
+  remove the rung. The rehearsal now names that question.

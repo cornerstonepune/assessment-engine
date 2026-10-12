@@ -67,3 +67,12 @@ def test_a_level_whose_own_design_fixes_the_answer_waits_for_a_person(conn):
     _all_yes(conn)
     assert refill.redraw_unfair(conn)[LEVEL] == 0
     assert LEVEL in _unfair(conn)
+
+
+def test_a_kind_the_level_asks_now_and_then_is_drawn_until_it_can_be_judged(conn):
+    """REASON.FIND_MISTAKE Hard asks "where the mistake is" on about one question in four. On a copy of live its 54
+    were 45 in one column, and one draw of 120 questions held too few "where"s to judge the level by, so the group was
+    left (the rehearsal, 2026-10-12): the level is drawn until it has enough of them."""
+    places = refill._places_now(conn, "REASON.FIND_MISTAKE", "Hard", "find_mistake", "where", 40)
+    assert sum(places.values()) >= 40
+    assert not inventory.unfair({"now": places}, refill.fairness_rule(conn))

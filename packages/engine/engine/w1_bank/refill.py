@@ -98,6 +98,24 @@ def _drawn_now(conn, code, difficulty, n):
     return []
 
 
+def _places_now(conn, code, difficulty, fmt, rid, enough, rounds=10):
+    """Where the level, drawing today, puts the right answer of this kind's `rid` tick, drawn until `enough` of them are
+    seen or `rounds` draws: REASON.FIND_MISTAKE Hard asks "where" on about one question in four, so one draw of 120
+    held too few to tell (2026-10-12)."""
+    places = Counter()
+    for _ in range(rounds):
+        places.update(
+            r.options.index(r.answer)
+            for it in _drawn_now(conn, code, difficulty, enough)
+            if it.fmt == fmt
+            for r in it.responses
+            if r.rid == rid and r.kind == "tick" and r.options and r.answer in r.options
+        )
+        if sum(places.values()) >= enough:
+            break
+    return places
+
+
 def redraw_unfair(conn, actor=ACTOR):
     """Retire a group of questions answered by ticking whose right answers sit in one place, so the top-up draws it
     again — when the level, as it draws today, places them fairly: the group was made by a rule since corrected
@@ -107,13 +125,7 @@ def redraw_unfair(conn, actor=ACTOR):
     out = Counter()
     for (code, difficulty, fmt, rid), _, _, _ in inventory.unfair(inventory.tick_places(conn), rule):
         out[(code, difficulty)] += 0
-        now = Counter(
-            r.options.index(r.answer)
-            for it in _drawn_now(conn, code, difficulty, 3 * rule["min_questions"])
-            if it.fmt == fmt
-            for r in it.responses
-            if r.rid == rid and r.kind == "tick" and r.options and r.answer in r.options
-        )
+        now = _places_now(conn, code, difficulty, fmt, rid, 3 * rule["min_questions"])
         if sum(now.values()) < rule["min_questions"] or inventory.unfair({"now": now}, rule):
             continue  # too few drawn to tell, or the level itself places them unfairly
         rows = conn.execute(
