@@ -2,6 +2,7 @@
 `w1_bank/story_shape.py`). Jev is stood in for; the database is the local copy, rolled back."""
 
 import json
+import math
 import os
 import re
 
@@ -92,13 +93,19 @@ def test_every_times_story_case_has_three_gold_stories_in_words_no_template_uses
     assert len({g["text"] for g in gold}) == len(gold), "no story twice"
 
 
-def test_the_new_version_waits_for_its_eval_and_reads_both_taxonomies():
-    """Rule 7: a new prompt version is scored before it is made active."""
+def test_the_new_version_answers_once_scored_on_live_and_its_score_is_the_bar():
+    """Rule 7: v2 was scored on live before it answers — 144 of 148 cases right, no one-step answer wrong (run
+    38251975489, DECISIONS-LOG 2026-10-12) — and that score is the bar every later version is held to. Nimish,
+    2026-10-12: "switch v2 today"."""
     rows = [
         r for r in json.loads((SEED / "prompts.json").read_text())["prompts"] if r["purpose"] == S.PURPOSE
     ]
     by = {r["version"]: r for r in rows}
-    assert by[1]["active"] and not by[2]["active"]
+    assert by[2]["active"] and not by[1]["active"]
+    bars = {t["key"]: t["value"] for t in json.loads((SEED / "thresholds.json").read_text())["thresholds"]}
+    assert bars["eval.story_shape.shape_right"] == math.floor(144 / 148 * 10_000) / 10_000 <= 144 / 148
+    assert bars["eval.story_shape.wrong_answers_at_most"] == 0
+    assert "38251975489" in (SEED.parents[1] / "DECISIONS-LOG.md").read_text(encoding="utf-8")
     assert by[2]["json_schema"] == {"type": "choice", "taxonomies": ["ADD_SUB", "MUL_DIV"]}
     assert "taxonomies" not in by[1]["json_schema"], "v1 reads + and − alone, as it was scored"
 
@@ -138,7 +145,7 @@ def test_the_new_version_offers_every_story_case_each_with_the_engines_own_stori
     assert all(". Stories of this shape: " in m for m in options.values())
 
     ask, asked = _saying("JOIN_RESULT")
-    S.name(conn, "Kiran had 23 shells and found 17 more. How many shells now?", ask)
+    S.name(conn, "Kiran had 23 shells and found 17 more. How many shells now?", ask, version=1)
     v1 = asked[0][2]
     assert set(v1) == {CASES[c]["match"]["structure"] for c in _story_cases("ADD_SUB")}, (
         "v1 offers what it did"

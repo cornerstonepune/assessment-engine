@@ -238,15 +238,15 @@
   },
   {
    "key": "eval.story_shape.shape_right",
-   "value": 0.9692,
+   "value": 0.9729,
    "unit": "proportion",
-   "description": "Stories placed in the right shape: 63 of 65, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+   "description": "Stories placed in the right case: 144 of 148 (0.97297…, rounded down so that score meets it), v2's score on live when made active (run 38251975489, DECISIONS-LOG 2026-10-12); v1's was 63 of 65 (2026-09-28), 66 of 66 on the corrected gold"
   },
   {
    "key": "eval.story_shape.wrong_answers_at_most",
    "value": 0,
    "unit": "count",
-   "description": "One-step answers computed wrong: none, v1's score when made active (DECISIONS-LOG 2026-09-28)"
+   "description": "One-step answers computed wrong: none, v1's score when made active (DECISIONS-LOG 2026-09-28) and v2's (2026-10-12)"
   },
   {
    "key": "eval.mistake_guess.first",

@@ -46,19 +46,27 @@ def test_every_eval_holds_its_score_to_a_bar_on_record():
 
 def test_a_score_below_its_bar_fails_and_says_by_how_much(monkeypatch):
     held = _seeded(None, "story_shape")
-    assert bars.short({"shape_right": 63 / 65, "wrong_answers": 0}, held) == []
-    assert bars.short({"shape_right": 60 / 65, "wrong_answers": 0}, held) == [
-        "shape_right 0.9231, below its bar of 0.9692"
+    assert bars.short({"shape_right": 144 / 148, "wrong_answers": 0}, held) == []
+    assert bars.short({"shape_right": 140 / 148, "wrong_answers": 0}, held) == [
+        "shape_right 0.9459, below its bar of 0.9729"
     ]
     assert bars.short({"shape_right": 1.0, "wrong_answers": 1}, held) == [
         "wrong_answers 1, above its bar of 0"
     ]
     assert bars.short({"wrong_answers": 0}, held) == ["shape_right: not measured by this eval"]
-    result = {"misses": [], "named": 65, "n": 65, "keyed": 44, "wrong_answer": 0, "left": 0, "unanswered": 0}
-    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 60})
+    result = {
+        "misses": [],
+        "named": 148,
+        "n": 148,
+        "keyed": 99,
+        "wrong_answer": 0,
+        "left": 0,
+        "unanswered": 0,
+    }
+    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 140})
     r = _eval(monkeypatch, "story_shape")
-    assert r.exit_code == 1 and "below its bar of 0.9692" in r.output, r.output
-    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 63})
+    assert r.exit_code == 1 and "below its bar of 0.9729" in r.output, r.output
+    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 144})
     r = _eval(monkeypatch, "story_shape")
     assert r.exit_code == 0 and "every bar met" in r.output, r.output
     monkeypatch.setattr(cli.review, "evaluate", lambda conn, purpose, gold: {

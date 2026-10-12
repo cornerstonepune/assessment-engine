@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b4: `story_shape` v2 switched on
+
+- **Slice:** M4d2b4. On live, v2 144/148 and v1 66/66 on the corrected gold. Nimish: "switch v2 today". The bar is
+  0.9729. See STATE.md "M4d2b4".
+- **Logins:** one role, educator, for Aseem, Achal and Neha for now (Nimish, 2026-10-12: "for a couple of days more,
+  and then we'll tighten this"). Nimish runs `engine staff add` on his Mac; the password is typed there and never
+  reaches the repo or a chat.
+- **Next:** M4d2b5 (code tells "each" and a price list apart; a sure operation is keyed; the gold held to the same
+  rules), then M5.
+
 ## 2026-10-12 — M4d2b3: the story reader's gold corrected (built, proved on the copy)
 
 - **Slice:** M4d2b3 (BUILD-ORDER; M4d2b split once more, the switch-on is now M4d2b4).

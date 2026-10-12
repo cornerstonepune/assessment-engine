@@ -7317,3 +7317,25 @@ the gold's, each held to its case row's own words rather than to the reader:
 - **Not yet known:** v1's and v2's scores on the corrected gold. They are taken on live once this is deployed
   (engine-eval.yml). The bar (0.9692) is unchanged until then. Expected, not measured: v2's three remaining misses on
   the old run (two left for a person, the canteen) would score about 145 of 148.
+
+## M4d2b4 — `story_shape` v2 switched on (2026-10-12)
+
+Goal `goals/md4d2b4-story-shape-v2-on.yaml`. Nimish, 2026-10-12: "switch v2 today and finish this module".
+- **Scored on live on the corrected gold (M4d2b3), before the switch:**
+  - v2: named 146 of 148, the case right on 144, one-step answers computed 99, wrong 0, left for a person 2
+    (run 38251975489).
+  - v1: 66 of 66 on the + and − stories it reads (run 38251971707).
+- **The switch:** `prompts.json` makes v2 the active version and keeps v1 as the record. Every deploy loads the
+  settings, so live answers with v2 once this is deployed.
+- **The bar:** 0.9729, v2's 144/148 rounded down. 144/148 is 0.97297…, so a bar rounded to 0.973 would have failed
+  v2 on its own score; `test_bars.py` caught it.
+- **What v2 still misses or leaves (Jev's first choices, now printed by the eval):**
+  - Kabir's runs (W01): Jev 0.54 two parts of a whole, 0.44 joined. Left for a person, though the answer is 84 either
+    way.
+  - The plant (B24): Jev 0.54 grouping, 0.46 "each" that means ÷.
+  - The canteen's and the fruit stall's price lists (B26): Jev 0.71 and 0.82 one price, then code read the second
+    price as a number not needed (B25).
+  - The cause of the last three: the prompt tells Jev to read "not the words it uses", and those two pairs of cases
+    are told apart by their words and their layout. Fixed at that cause in M4d2b5.
+- **Proved:** `test_story_shape.py`, `test_story_shape_times.py`, `test_bars.py`, `test_bank_routes.py`,
+  `test_divide_stories.py`, `test_layout.py`: 55 passed. The switch's own test failed before the switch.
