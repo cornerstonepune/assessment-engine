@@ -47,8 +47,9 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
               <Panel title="What a wrong answer counts against">
                 <input type="hidden" name="charges_table" value={JSON.stringify(charges.table)} />
                 <p className="text-[15px] leading-snug">
-                  A wrong answer counts against the part of the skill that broke. Most mistakes belong to the sum they happen in.
-                  These are the ones that belong to something else on these kinds of question:
+                  A wrong answer counts against the part of the skill that broke. Most mistakes belong to the sum they happen in;
+                  in a question with two operations, to the one they happen in (a times-table slip while checking a division by
+                  multiplying is multiplication&apos;s). These are the ones that belong to something else on these kinds of question:
                 </p>
                 <ul className="mt-3 grid gap-1 text-[13px]">
                   {charges.rows.map((r) => (

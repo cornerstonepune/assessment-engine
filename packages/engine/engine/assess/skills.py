@@ -28,11 +28,16 @@ def operations(fmt: str, spec: dict[str, Any], stem: str | None = "") -> list[st
     """The operations a child carries out on this question, in the order the question asks for them."""
     if "budget" in spec:
         return ["+", "-"]  # the costs are added up, and the total is taken from the budget
+    tpl = W.template_of(stem) if fmt == "word_2step" else None
+    if tpl:
+        # the story template's own operations (`word_templates.json`), a halving it does among them: "two numbers add up
+        # to 90, one is 20 more" is a take-away, then a division by 2 (`divide`); a stored spec's copy of the
+        # operations predates it, so the template is read first
+        return list(dict.fromkeys(tpl["op"] + ("÷" if tpl.get("divide") else "")))
     if spec.get("ops"):
         return [_sign(o) for o in spec["ops"]]
     if fmt == "word_2step":
-        tpl = W.template_of(stem)  # the operations are the story template's own (`word_templates.json`)
-        return [o for o in dict.fromkeys(tpl["op"])] if tpl else ["-"]
+        return ["-"]
     if spec.get("addends") or fmt == "number_wall":
         return ["+"]
     if fmt == "balance_scale":
@@ -109,10 +114,13 @@ def charges(
                 if c == code and op in rules["by_operation"] and rules["by_operation"][op] in skills_used
             ]
             # a mistake of another operation the question carries out inside its own: a multiplication's steps added
-            # without a carry are addition's (A11), a long division's take-away slips subtraction's; every other
-            # mistake reads as it always has
+            # without a carry are addition's (A11), a long division's take-away slips subtraction's
             inside = len(ops) == 1 and (code, ops[0]) not in vocab and len(theirs) == 1
-            at = theirs if inside else ops
+            # a question of several operations: the one of them the mistake has a row for (a times-table slip checking
+            # a division by multiplying is multiplication's; a slip in a fact family's ÷ facts division's); every
+            # other mistake reads as it always has
+            mine = [op for op in ops if (code, op) in vocab]
+            at = theirs if inside else mine if len(ops) > 1 and len(mine) == 1 else ops
             skill_from, row_skill = (
                 (vocab.get((code, at[0])) if len(at) == 1 else None)
                 or vocab.get((code, "any"))
