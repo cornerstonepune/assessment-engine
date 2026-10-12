@@ -1,0 +1,28 @@
+name: l2-live-audit-clean
+goal: >
+  Live's audit says nothing but what waits on a person's approval. A group of questions answered by ticking whose
+  right answers sit in one place, made by a rule since corrected, is drawn again by the refill; a level whose own
+  design fixes the answer is left for a person. A level short of its target, and a rung no skill holds, are named
+  with their cause by the rehearsal on a copy of live, so each is fixed where it starts.
+# Written 2026-10-12, before the code: L2 (BUILD-ORDER, inserted). Nimish, the same day: "when will we be able to get a
+# clean version live ?" Measured first on a copy of live with #195's code (the rehearsal, run 38223287194; STATE.md
+# "L2 — live's audit, measured on a copy"): 41 violations — 31 skills and the mistake table waiting on a person; six
+# groups answered in one place (REASON.EXPLAIN's four levels, ESTIMATE.HUNDRED Advance, REASON.FIND_MISTAKE Hard),
+# their levels already corrected but their questions made before; ADD.1D1D Easy 106 of 108 and SUB.2D1D Hard 67 of
+# 72; rung R9 with no skill.
+says:
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_refill_fair.py::test_a_group_made_by_a_rule_since_corrected_is_drawn_again"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_refill_fair.py::test_a_level_whose_own_design_fixes_the_answer_waits_for_a_person"
+manual:
+  - "`~/cornerstone/assessment-engine/bin/update-live`, run by Nimish once this is merged: its refill draws the six groups again."
+  - "The skills and the mistake table are approved on Curriculum → skills to approve, by Aseem (the coordinator)."
+scenarios: []
+criteria:
+  - name: the refill draws again what a corrected rule left in one place; the audit and the rehearsal
+    run: cd packages/engine && uv run pytest -q tests/test_refill_fair.py tests/test_audit.py tests/test_update_live.py tests/test_taxonomy.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

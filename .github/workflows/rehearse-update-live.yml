@@ -113,6 +113,11 @@ jobs:
         if: always()
         run: |
           psql "$COPY" -c "select e.placed_rung, i.item_key, i.source, i.fmt, left(coalesce(i.spec ->> 'question', i.stem, i.spec::text), 90) as question, count(*) as answers from evidence_placed e left join item_result r on r.id = e.item_result_id left join item i on i.id = r.item_id where e.confirmed_by is not null and not exists (select 1 from skill_set ss where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung) group by 1, 2, 3, 4, 5 order by 1, 2"
+      - name: levels short of their target, what they retired and why; rungs no skill holds (codes and numbers, no names)
+        if: always()
+        run: |
+          psql "$COPY" -c "with short as (select s.code, d.key as level, (d.value ->> 'min_items')::int as target, (select count(*) from item i where i.status = 'active' and i.skill_set_code = s.code and i.difficulty = d.key) as n from skill_set s, jsonb_each(s.difficulty) d where d.value ? 'min_items') select sh.code, sh.level, sh.n, sh.target, i.item_key, left(i.stem, 50) as stem, f.actor, left(f.note, 110) as why from short sh join item i on i.skill_set_code = sh.code and i.difficulty = sh.level and i.status <> 'active' left join item_feedback f on f.item_id = i.id where sh.n < sh.target order by 1, 2, 5"
+          psql "$COPY" -c "select r.code, r.band, (select count(*) from item i where i.rung_code = r.code) as questions, (select count(*) from item i where i.rung_code = r.code and i.status = 'active') as active, (select count(*) from evidence_placed e where e.placed_rung = r.code) as answers from rung r where not exists (select 1 from skill_set s where s.rung_code = r.code)"
       - name: the copy after — must be clean
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |

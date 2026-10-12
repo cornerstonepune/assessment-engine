@@ -7196,3 +7196,28 @@ Goal `goals/ui6a-approve-filtered.yaml`.
 - **Proved:** `u23-approve-filtered.spec.ts` seen failing on the old page ("Expected [ADD.1D1D, ADD.2D2D, DIV.3D1D,
   SUB.2D2D], Received []"); with the page, it and the specs that approve a skill or the table (u17, u13, s2) and every
   screen: 46 passed. `tsc` and `eslint` clean.
+
+## L2 — live's audit, measured on a copy, and the guessable ticks drawn again (2026-10-12)
+
+Goal `goals/l2-live-audit-clean.yaml`.
+- **Measured** on a copy of live with #195's code (the rehearsal, run 38223287194, which now prints the audit):
+  `19 invariants checked, 41 violations`.
+  - 31 skills not approved; the mistake table not approved. Both are a person's.
+  - **Six groups answered by ticking one place:**
+    - REASON.EXPLAIN's four levels: 216 of 216 each "yes" or each "no";
+    - ESTIMATE.HUNDRED Advance (sense): 108 of 108;
+    - REASON.FIND_MISTAKE Hard (where): 45 of 54.
+    `bank levels --apply` changed nothing: live already holds the corrected levels (DECISIONS-LOG 2026-09-29). The
+    questions were made before the correction. Each is a fair question on its own, so no per-question rule retired it,
+    and approving a level retires none either. HANDOFF had said they close by approval; they do not.
+  - ADD.1D1D Easy 106 of 108 and SUB.2D1D Hard 67 of 72. Both are full on a copy built from the repository (108, 72).
+  - Rung R9: no skill holds it.
+- **Fixed, the ticks:** `refill.redraw_unfair` retires a group the audit names when its level, drawing today
+  (`fill_cases` or `fill_native`, dry run, 3 × `min_questions`), places the answers fairly; the top-up draws it again.
+  A level whose own design fixes the answer draws no fairer and is left for a person. One reading of the group, shared
+  by the audit and the refill: `inventory.tick_places` and `inventory.unfair`.
+  - Tests: `test_refill_fair.py`, both seen failing first (`refill` had no `redraw_unfair`). Then 2 passed, with
+    `test_audit.py`: 5 passed.
+  - `engine bank refill` says "N answered in one place, drawn again".
+- **Not yet explained:** the two short levels and R9. The rehearsal now lists each short level's retired questions with
+  why, and what still points at a rung no skill holds, so the next run names the cause.
