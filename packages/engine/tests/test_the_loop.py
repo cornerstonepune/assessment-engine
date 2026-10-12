@@ -5,7 +5,8 @@ library worksheet of it printed for a child; its boxes filled with known answers
 questions can show it and the key everywhere else; the copy read and marked; what the reader held, confirmed by a person
 as the child wrote it; the paper signed off. Then, stage by stage, the planted mistake must come back: named on every
 answer it was planted on, counted as evidence on the skill set's rung, repeating in the child's graph, the subject of the
-child's next paper, and said by its own name on the class card and in the parent report's facts.
+child's next paper, and said by its own name on the class card and in the parent report's facts. Then round again
+(M5b): that next paper printed for the child, the mistake made on it again, read back by its code, named and counted.
 
 The handwriting reader is stood in (as `test_every_answer.py` does): what it reads is the answer written. Reading
 handwriting is scored on its own (`engine eval`); this is about everything after it. The planted answers are each
@@ -95,18 +96,17 @@ def _a_child(conn, section, band):
     return child
 
 
-def _read(conn, sheet, child, wrote, tmp_path, monkeypatch):
-    """The sheet printed for the child, as an educator does on the site (Make papers: the copy carries the child's own
-    code, `handout`), and its scan read by that code; the reader stood in to read what `wrote` says each box holds. A
-    tick or a reason comes back for a person, as the box reader returns them."""
-    monkeypatch.setattr(copies, "CUT", tmp_path / "scans")
+def _read(conn, pdf, ids, wrote, scan_at, monkeypatch):
+    """A copy printed for its child (`pdf`, the child's own code on it), scanned and read by that code; the reader
+    stood in to read what `wrote` says each box holds. A tick or a reason comes back for a person, as the box reader
+    returns them. → what the reading says of the copy."""
+    monkeypatch.setattr(copies, "CUT", scan_at.parent / "scans")
     monkeypatch.setattr(ocr, "client", lambda *a, **k: None)
     monkeypatch.setattr(ocr, "read", lambda image, cli=None: {"lines": [], "words": []})
     monkeypatch.setattr(second_reader, "propose", lambda conn, r, *a, **k: (r, ""))
-    pdf = handout.for_children(conn, sheet["code"], [child], WEEK, PERSON, tmp_path / "print")
     by_key = {
         r["item_key"]: r["id"]
-        for r in conn.execute("select id, item_key from item where id = any(%s)", (sheet["item_ids"],))
+        for r in conn.execute("select id, item_key from item where id = any(%s)", (ids,))
     }
 
     def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=None, keep=None, for_a_person=()):
@@ -120,18 +120,55 @@ def _read(conn, sheet, child, wrote, tmp_path, monkeypatch):
         return out
 
     monkeypatch.setattr(boxes, "read_page", read_page)
-    scan = _scanned_file([pdf], tmp_path / "class.pdf")
-    (got,) = copies.read(conn, scan, "", [], PERSON)
-    assert got["child_id"] == child and got["by_code"], got
+    (got,) = copies.read(conn, _scanned_file([pdf], scan_at), "", [], PERSON)
+    return got
 
 
-def _results(conn, child):
+def _results(conn, child, qr):
     return conn.execute(
         "select r.id, r.item_id, r.rid, r.status, r.misconception_codes from item_result r"
         " join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
-        " where si.child_id = %s and c.superseded_by is null",
-        (child,),
+        " where si.qr_code = %s and si.child_id = %s and c.superseded_by is null",
+        (qr, child),
     ).fetchall()
+
+
+def _round(conn, child, qr, pdf, ids, mistake, scan_at, monkeypatch, what):
+    """One turn of the loop on one printed copy: `mistake` planted wherever its questions can show it, the key
+    everywhere else; read by its code onto that copy; each held answer confirmed by a person as the child wrote it;
+    each planted answer named, and the key marked right; then signed off. → how many answers were planted."""
+    slots = _slots(conn, ids)
+    on = [(i, rid) for i, rid, key, wrong in slots if wrong.get(mistake, key) != key]
+    wrote = {(i, rid): (wrong[mistake] if (i, rid) in on else key) for i, rid, key, wrong in slots}
+    got = _read(conn, pdf, ids, wrote, scan_at, monkeypatch)
+    assert got["child_id"] == child and got["by_code"] and not got.get("skipped"), f"{what}: read as {got}"
+    for r in _results(conn, child, qr):  # a person confirms each held answer as the child wrote it
+        if r["status"] != "needs_teacher":
+            continue
+        if (
+            wrote[(r["item_id"], r["rid"])] == "None"
+        ):  # a reason, which only a person marks: Right, on the site
+            conn.execute("select resolve_result(%s, 'correct', '{}'::text[], %s)", (r["id"], PERSON))
+        else:
+            marking.correct(conn, r["id"], wrote[(r["item_id"], r["rid"])], PERSON)
+    marked = {(r["item_id"], r["rid"]): r for r in _results(conn, child, qr)}
+    assert set(marked) == set(wrote), f"{what}: every answer box is read once"
+    missed = [k for k in on if mistake not in (marked[k]["misconception_codes"] or [])]
+    assert not missed, f"{what}: {len(missed)} of {len(on)} planted answers not named {mistake}"
+    wrong_key = [
+        (k, wrote[k], marked[k]["status"]) for k in set(wrote) - set(on) if marked[k]["status"] != "correct"
+    ]
+    assert not wrong_key, f"{what}: the key marked wrong {wrong_key}"
+    marking.confirm(conn, child, PERSON)
+    return len(on)
+
+
+def _counted(conn, child, mistake, rung=None):
+    return conn.execute(
+        "select count(*) as n from evidence_event where child_id = %s and %s = any(misconception_codes)"
+        " and (%s::text is null or rung_code = %s)",
+        (child, mistake, rung, rung),
+    ).fetchone()["n"]
 
 
 @pytest.mark.parametrize("code,level", [(c, lv) for c in NEW for lv in LEVELS])
@@ -151,43 +188,32 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
         "update topic set taught = true, taught_by = %s, taught_at = now() where code = %s",
         (PERSON, sheet["topic_code"]),
     )
-    slots = _slots(conn, sheet["item_ids"])
-    mistake, on = _planted(slots)
+    mistake, on = _planted(_slots(conn, sheet["item_ids"]))
     assert mistake and len(on) >= 2, (
         f"{code} {level}: no mistake its questions can show twice — {len(on)} places"
     )
-    wrote = {(i, rid): (wrong.get(mistake) if (i, rid) in on else key) for i, rid, key, wrong in slots}
 
+    # the first turn: the worksheet, printed for the child as an educator does on the site (Make papers, `handout`)
     section = f"L{uuid.uuid4().hex[:5]}"
     child = _a_child(conn, section, sheet["grade"] or sheet["band"])
-    _read(conn, sheet, child, wrote, tmp_path, monkeypatch)
-    for r in _results(conn, child):  # a person confirms each held answer as the child wrote it
-        if r["status"] != "needs_teacher":
-            continue
-        if (
-            wrote[(r["item_id"], r["rid"])] == "None"
-        ):  # a reason, which only a person marks: Right, on the site
-            conn.execute("select resolve_result(%s, 'correct', '{}'::text[], %s)", (r["id"], PERSON))
-        else:
-            marking.correct(conn, r["id"], wrote[(r["item_id"], r["rid"])], PERSON)
-
-    marked = {(r["item_id"], r["rid"]): r for r in _results(conn, child)}
-    assert set(marked) == set(wrote), f"{code} {level}: every answer box is read once"
-    missed = [k for k in on if mistake not in (marked[k]["misconception_codes"] or [])]
-    assert not missed, f"{code} {level}: {len(missed)} of {len(on)} planted answers not named {mistake}"
-    wrong_key = [
-        (k, wrote[k], marked[k]["status"]) for k in set(wrote) - set(on) if marked[k]["status"] != "correct"
+    pdf = handout.for_children(conn, sheet["code"], [child], WEEK, PERSON, tmp_path / "print")
+    qr = conn.execute("select qr_code from sheet_instance where child_id = %s", (child,)).fetchone()[
+        "qr_code"
     ]
-    assert not wrong_key, f"{code} {level}: the key marked wrong {wrong_key}"
-
-    marking.confirm(conn, child, PERSON)
-    seen = conn.execute(
-        "select count(*) as n from evidence_event where child_id = %s and %s = any(misconception_codes)"
-        " and rung_code = %s",
-        (child, mistake, sheet["rung_code"]),
-    ).fetchone()["n"]
-    assert seen == len(on), (
-        f"{code} {level}: {seen} of {len(on)} planted answers counted on {sheet['rung_code']}"
+    planted = _round(
+        conn,
+        child,
+        qr,
+        pdf,
+        sheet["item_ids"],
+        mistake,
+        tmp_path / "first.pdf",
+        monkeypatch,
+        f"{code} {level}",
+    )
+    seen = _counted(conn, child, mistake, sheet["rung_code"])
+    assert seen == planted, (
+        f"{code} {level}: {seen} of {planted} planted answers counted on {sheet['rung_code']}"
     )
 
     graph.rebuild(conn, child)
@@ -217,4 +243,28 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
     )
     assert "borrow" not in (name + line["home"]["mistake_name"] + said[0]["mistake"]).lower(), (
         "the school's words"
+    )
+
+    # the second turn (M5b): that next paper, approved and printed for the child, comes back from its scan by its code,
+    # the mistake made again named on it, and counted once signed off
+    made = focus_paper.make(conn, child, WEEK, PERSON)
+    ids = conn.execute(
+        "select t.item_ids from sheet_instance si join sheet_template t on t.id = si.sheet_template_id"
+        " where si.qr_code = %s",
+        (made["qr"],),
+    ).fetchone()["item_ids"]
+    again = _round(
+        conn,
+        child,
+        made["qr"],
+        made["pdf_path"],
+        ids,
+        mistake,
+        tmp_path / "next.pdf",
+        monkeypatch,
+        f"{code} {level}, its next paper",
+    )
+    assert again >= 1, f"{code} {level}: the next paper's questions could not show {mistake}"
+    assert _counted(conn, child, mistake) == planted + again, (
+        f"{code} {level}: the next paper's mistakes counted"
     )

@@ -30,6 +30,7 @@ from engine.w3_read import (
     keys,
     marking,
     naming,
+    printed_paper,
     profiles,
     second_reader,
 )
@@ -159,7 +160,7 @@ def _read_copy(conn, worksheet, tmp_path, monkeypatch):
 
 def test_a_library_worksheet_gives_every_answer_its_own_slot(conn, worksheet):
     code, ids, pdf, _ = worksheet
-    _, by_key, unread = copies.paper(conn, code, pdf)
+    _, by_key, unread = printed_paper.paper(conn, code, pdf)
     assert unread == [], "no question is left for nobody"
     assert len(by_key) == 24, "two answers on each of twelve questions"
     for it in by_key.values():

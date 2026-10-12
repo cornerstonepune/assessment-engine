@@ -108,7 +108,7 @@ def _right_number(n, response):
 
 
 def response_of(it):
-    """The answer a slot is for: the one it names (`copies.paper` makes a slot per answer), else its question's first —
+    """The answer a slot is for: the one it names (`printed_paper.paper` makes a slot per answer), else its question's first —
     a paper entered by hand asks for one answer a question. What a stored result is for is its own `rid`, read by
     `result_response` (migration 20261025090000) as every query that marks or shows one selects it."""
     return it.get("response") or it["responses"][0]
