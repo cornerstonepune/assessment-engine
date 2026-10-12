@@ -98,3 +98,14 @@ def test_no_problem_names_a_child_an_id_or_an_address(conn):
     assert "Zoya" not in text
     assert not re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-", text)
     assert not re.search(r"\b\d{1,3}(\.\d{1,3}){3}\b", text)
+
+
+def test_jevs_key_missing_on_the_engine_is_a_problem(conn, monkeypatch):
+    """Found 2026-10-12: live's engine had no Jev key, so every judgement Jev makes went to a person, and nothing said so
+    until an eval asked Jev and could not."""
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    assert _mine(watch.problems(conn, PLENTY), "Jev") == [
+        "Jev's key is missing on the engine: every judgement Jev makes goes to a person"
+    ]
+    monkeypatch.setenv("TYPESAFE_API_KEY", "set")
+    assert _mine(watch.problems(conn, PLENTY), "Jev") == []

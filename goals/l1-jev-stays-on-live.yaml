@@ -1,0 +1,28 @@
+name: l1-jev-stays-on-live
+goal: >
+  Jev keeps answering on live. Updating live never takes Jev's key away: `bin/update-live`'s server step keeps every
+  line of the server's own settings and writes the Mac's three over them. When the key is missing anyway, the live
+  watch says so, in words a public issue can carry, before anyone has to ask Jev and fail. And the story reader reads
+  live's case rows as they are, its taxonomy from each row's own column.
+# Written 2026-10-12, before the code. Found that morning: the server eval of `story_shape` asked Jev nothing on live
+# ("no TYPESAFE_API_KEY in the engine's environment"), the engine logs said the same, and `deploy/go-live.sh`, which every
+# `bin/update-live` runs, replaced the server's folder and wrote its .env afresh from three settings. Nimish put the key
+# back by hand that day. Once restarted, both versions of `story_shape` crashed on live (KeyError 'taxonomy'): live's
+# case rows predate M1, whose rows also name their taxonomy inside their match.
+says:
+  - words: "I really want to integrate Jev as much as possible in all the use cases to make it efficient, cost-light"
+    proved_by: "packages/engine/tests/test_update_live.py::test_going_live_keeps_the_servers_own_settings"
+  - words: "go ahead with phase 2"
+    proved_by: "packages/engine/tests/test_watch.py::test_jevs_key_missing_on_the_engine_is_a_problem"
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_a_case_row_whose_match_does_not_repeat_its_taxonomy_is_read_by_its_own"
+manual:
+  - "Once deployed, `story_shape` v1 is scored on the server (engine-eval.yml, version 1), held to its bar (63 of 65, no answer wrong): M4d2a's manual step. v2's score waits for `bin/update-live`, which loads the × and ÷ case rows live does not yet have."
+scenarios: []
+criteria:
+  - name: the settings kept, the watch, the reader on live's rows
+    run: cd packages/engine && uv run pytest -q tests/test_update_live.py tests/test_watch.py tests/test_story_shape_times.py tests/test_story_shape.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

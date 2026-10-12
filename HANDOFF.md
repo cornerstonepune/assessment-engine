@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — L1: Jev stays on live (found and fixed)
+
+- **Found:** live's engine had no Jev key: `deploy/go-live.sh` (run by every `bin/update-live`) wrote the server's .env
+  afresh. Nimish put the key back; the engine logs say it is set. Fixed so update-live keeps it; the live watch says
+  when it is missing (STATE.md "L1").
+- **#191 (M4d2b1) merged** as `df851fc` by Nimish; deployed. Its reader crashed on live's pre-M1 case rows; fixed here.
+- **For Nimish, once this is merged and deployed:** `~/cornerstone/assessment-engine/bin/update-live`. Live has none of
+  the multiplication and division (skills, questions, worksheets, the × and ÷ cases) until it runs; Assessments by
+  Multiplication shows nothing for that reason.
+- **Then:** `story_shape` v1 and v2 scored on the server (engine-eval.yml); M4d2b2.
+
 ## 2026-10-12 — M4d2b1: the story reader reads × and ÷ (built switched off, proved on copies)
 
 - **Slice:** M4d2b1 (BUILD-ORDER; M4d2b split). `story_shape` v2 chooses among all 45 story cases and code works each

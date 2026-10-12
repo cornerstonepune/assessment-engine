@@ -4,8 +4,8 @@
 #
 # Safe to run again: every step checks what already exists. What it moves, and nothing more:
 #   the committed code (git archive of HEAD — never the working folder, never .env as a whole);
-#   two settings, DATABASE_URL and ENGINE_KEY — no AWS keys, no Supabase admin token, no model keys:
-#     the server only shows scans and marks corrections; reading new papers stays on this Mac;
+#   three settings, DATABASE_URL, ENGINE_KEY and TENANT_SLUG, written over the server's own .env, whose other
+#     lines stay (Jev's key, ADR 0036, is the server's alone) — no AWS keys, no Supabase admin token from this Mac;
 #   the scans the engine has actually read, by their capture paths — not the roster, not the reports;
 #   and the printed packs that sheet rows point at, for the question-bank screens.
 #
@@ -71,14 +71,18 @@ say "3/7 docker"
 say "4/7 the code, exactly as committed ($(git -C "$REPO" rev-parse --short HEAD))"
 "${SSH[@]}" 'rm -rf ~/assessment-engine.new && mkdir -p ~/assessment-engine.new'
 git -C "$REPO" archive --format=tar HEAD | "${SSH[@]}" 'tar -x -C ~/assessment-engine.new'
-"${SSH[@]}" 'rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
+# the server's own settings go across to the new copy, as deploy-engine.yml carries them: Jev's key is kept there alone
+"${SSH[@]}" '[ ! -f ~/assessment-engine/.env ] || cp ~/assessment-engine/.env ~/assessment-engine.new/.env; rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
 
 say "5/7 the two settings, and the scans the engine has read"
 # scp and tar, never rsync: macOS ships openrsync, which refuses --chmod and more besides. And tar
 # without Apple's extras: macOS tar otherwise sends a "._" companion per file for its quarantine and
 # download tags — the first run landed 142 files for 71 scans, and a warning for each on the server.
 grep -E '^(DATABASE_URL|ENGINE_KEY|TENANT_SLUG)=' "$REPO/.env" > "$WORK/env"
-"${SSH[@]}" 'umask 077 && cat > ~/assessment-engine/.env' < "$WORK/env"
+# written over the server's .env, every other line of it kept: it once wrote these three alone, and Jev's key, which
+# only the server holds, went with every update-live (2026-10-12)
+KEYS=$(cut -d= -f1 "$WORK/env" | paste -sd'|' -)
+"${SSH[@]}" "umask 077 && touch ~/assessment-engine/.env && { grep -vE '^($KEYS)=' ~/assessment-engine/.env; cat; } > ~/assessment-engine/.env.new && mv ~/assessment-engine/.env.new ~/assessment-engine/.env" < "$WORK/env"
 "$REPO/packages/engine/.venv/bin/python" - > "$WORK/scans" <<'PY'
 import os, sys
 from engine.core import db

@@ -7091,3 +7091,24 @@ Goal `goals/md4d2b1-times-story-shape.yaml`, ADR 0071.
 - **Not proven here:** v2's score. It needs Jev, which this container cannot reach; it runs on the server once
   deployed (engine-eval.yml, story_shape, version 2), held to v1's bar (0.9692 right, no answer wrong), before it is
   switched on (M4d2b2).
+
+## L1 — Jev stays on live, found and fixed (2026-10-12)
+
+Goal `goals/l1-jev-stays-on-live.yaml`.
+- **Found:** the server eval of `story_shape` (run 38187513234) asked Jev nothing: "no TYPESAFE_API_KEY in the engine's
+  environment"; the engine logs (run 38187566481) said the same. Every judgement Jev makes on live (a story's shape, a
+  mistake guessed, the week's skills, the parent-report checks Jev reads first) had gone to a person since the key
+  went, and the watch said nothing.
+- **Cause:** `deploy/go-live.sh`, which every `bin/update-live` runs, swapped the server's folder for the new code (the
+  old .env with it) and wrote a .env of the Mac's three settings alone. Jev's key is the server's alone.
+- **Fixed:** the swap carries the server's .env across, as `deploy-engine.yml` always has, and the Mac's settings are
+  written over it, every other line kept (`test_going_live_keeps_the_servers_own_settings` runs go-live's own command).
+  The live watch says "Jev's key is missing on the engine" when it is.
+- **Nimish put the key back by hand** (2026-10-12, the server's .env, then deploy engine by hand): the engine logs (run
+  for 05:40 UTC) say `TYPESAFE_API_KEY is set`. A re-run of a merge's deploy does not restart the engine: it finds
+  nothing changed in the code and stops; only Run workflow does.
+- **Found next, fixed:** with the key back, both versions of `story_shape` crashed on live (runs 38209061747,
+  38209096119: KeyError 'taxonomy'). Live's case rows predate M1, which also names each row's taxonomy inside its match;
+  `story_shape` v2's code read it there. It reads each row's own column now. `bin/update-live` brings live M1's rows and
+  the × and ÷ cases with them: live has none of multiplication and division until it runs (STATE.md "NY — measured").
+- **Proved:** the three tests written first, each seen failing on main `df851fc` for its own reason; `bin/check` 28 passed.

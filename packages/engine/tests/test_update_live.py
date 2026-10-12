@@ -4,7 +4,9 @@
 They are two hand-kept lists of one sequence, and they drifted: AS2 put `bank rekey` first in update-live's step 5, and
 its rehearsal on a copy of live passed without running it (CI on 2cd814c)."""
 
+import os
 import re
+import subprocess
 
 import yaml
 
@@ -35,3 +37,26 @@ def test_the_rehearsal_runs_what_update_live_runs_in_its_order():
     left = iter(rehearsed)
     missing = [c for c in live if c not in left]  # a subsequence: every one, in update-live's order
     assert not missing, f"update-live runs {missing} where its rehearsal does not: {rehearsed}"
+
+
+def test_going_live_keeps_the_servers_own_settings(tmp_path):
+    """Found 2026-10-12: every `bin/update-live` runs `deploy/go-live.sh`, which swapped the server's folder for the new
+    code and wrote its .env afresh from the Mac's three settings, so Jev's key, kept on the server alone, went with every
+    update and Jev answered nothing on live. The swap carries the server's .env across, as `deploy-engine.yml` does, and
+    the Mac's settings are written over it, every other line kept."""
+    text = (ROOT / "deploy/go-live.sh").read_text()
+    swap = next(ln for ln in text.splitlines() if "mv ~/assessment-engine.new ~/assessment-engine" in ln)
+    assert "cp ~/assessment-engine/.env ~/assessment-engine.new/.env" in swap.split("rm -rf")[0], swap
+    write = re.search(r'"\$\{SSH\[@\]\}" "(umask 077[^"]*)" < "\$WORK/env"', text)
+    assert write, "go-live writes the settings in one command over ssh, the Mac's settings on its input"
+    (tmp_path / "assessment-engine").mkdir()
+    (tmp_path / "assessment-engine" / ".env").write_text("DATABASE_URL=old\nTYPESAFE_API_KEY=kept\n")
+    subprocess.run(
+        ["bash", "-c", write[1].replace("$KEYS", "DATABASE_URL|ENGINE_KEY")],
+        input="DATABASE_URL=new\nENGINE_KEY=k\n",
+        text=True,
+        env={"HOME": str(tmp_path), "PATH": os.environ["PATH"]},
+        check=True,
+    )
+    lines = (tmp_path / "assessment-engine" / ".env").read_text().splitlines()
+    assert sorted(lines) == ["DATABASE_URL=new", "ENGINE_KEY=k", "TYPESAFE_API_KEY=kept"]
