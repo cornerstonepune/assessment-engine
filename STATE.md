@@ -7359,7 +7359,8 @@ Goal `goals/md4d2b5-story-told-apart.yaml`. On live (run 38251975489), v2's four
     `test_bank_routes.py`, `test_divide_stories.py`, `test_layout.py`: 62 passed.
 - **Split:** reading a story and scoring the reader are two jobs. The gold and the eval moved to
   `w1_bank/story_eval.py` when this work brought `story_shape.py` to 401 lines, over its 400 ceiling.
-- **Not yet known:** v2's score on live with this. It is taken once deployed (engine-eval.yml, story_shape, 2).
+- **On live once deployed** (run 38307557335): 148 of 149 in the right case, 102 answers computed, none wrong, one
+  left for a person — Kabir's runs, answered 84. The plant and both price lists are right.
 
 ## M5 — measured before the build (2026-10-12)
 
