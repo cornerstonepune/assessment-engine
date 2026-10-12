@@ -7166,3 +7166,33 @@ Goal `goals/md4d2b2-what-a-slip-charges.yaml` (two promises added).
   stories on live (run 38212446549): "305 tickets … 187 were sold" (gold W04, both read W08) and "I am thinking of a
   number. If I take away 25 and then add 40, I get 100" (gold W29, both read W28, "the unknown in the first step — work
   backwards", which is what the case row says it is). Correcting the gold changes v1's score and so the bar: M4d2b3.
+
+## UI6 — measured before the build (2026-10-12)
+
+Nimish, with a screenshot of Curriculum → skills to approve: "also ths page needs to have proper filters and all; no page
+should have such laundary lists like stuff". Every page under `apps/web/app/(app)` read for lists that grow with the data,
+each item in full, nothing to narrow them (counts for about 170 children in 8 classes, 60 skills):
+- **`/skill-sets/approve`:** a Panel of about seven lines per waiting skill (up to 61 on live), grouped by grade and
+  nothing else; one button approves every skill and the mistake table together. UI6a.
+- **`/growth/[id]`:** every paper ever made for the child, 3–4 lines each, growing weekly; the answers to check as full
+  cards with their scans; repeated mistakes, nothing to narrow any of them. UI6b.
+- **`/today`:** "Parent reports to approve" can name up to 170 children as links; class packs uncapped. UI6b.
+- **`/asks`:** the answered questions, 2–3 lines each, growing for ever (the open ones are already one line). UI6b.
+- **`/papers/approve`:** one chip per class, week and kind ever planned, about 16 more a week. UI6b.
+- **`/growth/reports`** (up to 170 rows, no filter) and **`/library`**'s proposals (forms of several lines, as many as
+  the engine returns). UI6b.
+- Already narrow: Assessments, the Question bank, Worksheets, Children, a skill's page, the check queue.
+
+## UI6a — approving the skills as a table to work through, built (2026-10-12)
+
+Goal `goals/ui6a-approve-filtered.yaml`.
+- **One row a skill:** its name, grade, topic ("Not taught yet" where it is not), what a child can do, its levels folded
+  under "Read the levels", its own "Approve, as …" and "Change the words first". A row is about a third of a card's height.
+- **Choices at the top, each with how many wait under the others:** grade (chips), topic and taught (selects). "Approve
+  these N skills" approves exactly the rows shown, and the page comes back under the same choices
+  (`APPROVE_PAGE` in the action: the approval page and its three choices, nothing else, is a return address).
+- **The mistake table is approved by a press of its own** ("Approve this table as written"); a press meant for some
+  skills never approves it. Its rows are folded under "Read the N".
+- **Proved:** `u23-approve-filtered.spec.ts` seen failing on the old page ("Expected [ADD.1D1D, ADD.2D2D, DIV.3D1D,
+  SUB.2D2D], Received []"); with the page, it and the specs that approve a skill or the table (u17, u13, s2) and every
+  screen: 46 passed. `tsc` and `eslint` clean.

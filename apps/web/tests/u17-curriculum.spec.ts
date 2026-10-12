@@ -43,9 +43,9 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
   try {
     await sql`update skill_set set status = 'draft', ratified_by = null where code = any(${codes})`;
     await page.goto("/skill-sets/approve");
-    await expect(page.getByRole("heading", { level: 2, name: "Grade 2", exact: true })).toBeVisible();
-    const add = before.find((s) => s.code === "ADD.2D2D")!;
-    await page.getByRole("region", { name: add.name, exact: true }).getByRole("button", { name: `Approve this skill, as ${TEST_STAFF.name}` }).click();
+    // the grades are a choice at the top, each skill a row of the table (goals/ui6a-approve-filtered.yaml)
+    await expect(page.getByRole("navigation", { name: "Grade" }).getByRole("link", { name: /^Grade 2/ })).toBeVisible();
+    await page.locator('tr[data-row="ADD.2D2D"]').getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` }).click();
     // the page was at this address before the click: wait for what the approval itself brings back
     await expect(page).toHaveURL(/\/skill-sets\/approve\?approved=1$/);
     await expect(page.getByRole("status").filter({ hasText: "Approved, in your name." })).toBeVisible();
@@ -57,9 +57,8 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
     ]);
 
     // a skill changed by someone else after the page was opened is not approved, and the page says so
-    const sub = before.find((s) => s.code === "SUB.2D2D")!;
     await sql`update skill_set set version = version + 1 where code = 'SUB.2D2D'`;
-    await page.getByRole("region", { name: sub.name, exact: true }).getByRole("button", { name: `Approve this skill, as ${TEST_STAFF.name}` }).click();
+    await page.locator('tr[data-row="SUB.2D2D"]').getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` }).click();
     await expect(page.getByRole("status").filter({ hasText: "Nothing was approved" })).toBeVisible();
     const [still] = await sql<{ status: string }[]>`select status from skill_set where code = 'SUB.2D2D'`;
     expect(still.status).toBe("draft");

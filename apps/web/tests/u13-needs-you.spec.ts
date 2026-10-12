@@ -91,8 +91,7 @@ test("a skill is approved before its topic is switched on", async ({ page }) => 
   try {
     await sql`update skill_set set status = 'draft', ratified_by = null where code = 'DIV.2D1D'`;
     await page.goto("/skill-sets/approve");
-    const panel = page.getByRole("region", { name: "2-digit ÷ 1-digit", exact: true });
-    await expect(panel).toContainText("Not taught yet");
+    await expect(page.locator('tr[data-row="DIV.2D1D"]')).toContainText("Not taught yet");
     const waiting = await page.locator('input[name="code"]').count();
     await page.goto("/today");
     expect(await count(page, "Skills to approve")).toBe(waiting);

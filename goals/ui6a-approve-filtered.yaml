@@ -1,0 +1,29 @@
+name: ui6a-approve-filtered
+goal: >
+  Approving the skills is a table to work through, not a wall of cards. Each waiting skill is one row: its name, its
+  grade, its topic (said when it is not taught yet), what a child can do, its four levels folded until opened, and its
+  own approve button. Grade, topic, and taught or not narrow the rows, each with how many wait; "Approve these" approves
+  exactly the rows shown, in the approver's name, and the page comes back with the same choices. The table of what a
+  wrong answer counts against is approved on its own, never by a press meant for some skills.
+# Written 2026-10-12, before the code: UI6a (BUILD-ORDER). Nimish, the same day, with a screenshot of the page: "also ths
+# page needs to have proper filters and all; no page should have such laundary lists like stuff". Measured first
+# (STATE.md "UI6 — measured before the build"): the page is one Panel of about seven lines per waiting skill, up to 61 on
+# live, grouped by grade and nothing else; the button below them approves every one and the mistake table together.
+says:
+  - words: "also ths page needs to have proper filters and all; no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u23-approve-filtered.spec.ts::each waiting skill is one row, its levels folded until opened"
+  - words: "also ths page needs to have proper filters and all; no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u23-approve-filtered.spec.ts::a grade and a topic narrow the rows, and approving these approves only the rows shown"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration."
+scenarios: []
+criteria:
+  - name: the approval page, and every test that approves a skill or the mistake table
+    run: cd apps/web && npx playwright test tests/u23-approve-filtered.spec.ts tests/u17-curriculum.spec.ts tests/u13-needs-you.spec.ts tests/s2-skill-map.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
