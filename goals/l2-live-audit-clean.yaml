@@ -15,13 +15,25 @@ says:
     proved_by: "packages/engine/tests/test_refill_fair.py::test_a_group_made_by_a_rule_since_corrected_is_drawn_again"
   - words: "when will we be able to get a clean version live ?"
     proved_by: "packages/engine/tests/test_refill_fair.py::test_a_level_whose_own_design_fixes_the_answer_waits_for_a_person"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_refill_fair.py::test_a_kind_the_level_asks_now_and_then_is_drawn_until_it_can_be_judged"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_refill_fair.py::test_a_question_retired_with_no_reason_comes_back_to_a_level_short_of_it"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_refill_fair.py::test_a_question_retired_for_a_reason_stays_retired"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_legacy.py::test_a_question_its_corrected_file_no_longer_has_leaves_the_paper"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_legacy.py::test_a_question_something_still_points_at_is_retired_not_removed"
+  - words: "when will we be able to get a clean version live ?"
+    proved_by: "packages/engine/tests/test_rehome.py::test_a_rung_no_skill_and_no_question_holds_is_removed"
 manual:
   - "`~/cornerstone/assessment-engine/bin/update-live`, run by Nimish once this is merged: its refill draws the six groups again."
   - "The skills and the mistake table are approved on Curriculum → skills to approve, by Aseem (the coordinator)."
 scenarios: []
 criteria:
   - name: the refill draws again what a corrected rule left in one place; the audit and the rehearsal
-    run: cd packages/engine && uv run pytest -q tests/test_refill_fair.py tests/test_audit.py tests/test_update_live.py tests/test_taxonomy.py
+    run: cd packages/engine && uv run pytest -q tests/test_refill_fair.py tests/test_audit.py tests/test_update_live.py tests/test_taxonomy.py tests/test_legacy.py tests/test_rehome.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

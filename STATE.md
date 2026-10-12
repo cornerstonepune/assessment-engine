@@ -7237,3 +7237,25 @@ Goal `goals/l2-live-audit-clean.yaml`.
   The rehearsal now shows each one's status, source, generator and dates, so the cause is known before the fix.
 - **R9:** one active question still points at it (`questions 1 · active 1 · answers 0`). That is why rehome could not
   remove the rung. The rehearsal now names that question.
+- **Rehearsed again** (run 38228886028, a copy of live):
+  - "1026 answered in one place, drawn again" (FIND_MISTAKE Hard's 54 with the rest).
+  - Audit: `19 invariants checked, 35 violations`. No tick line is left: 31 skills, the mistake table, R9, and the two
+    short levels.
+  - What the rehearsal named:
+    - the 7 questions holding the short levels' keys are `generated · retired · pre-provenance · made 2026-09-18`,
+      each with no `item_feedback` row, so no reason was recorded;
+    - the one question on R9 is `legacy/G2-CAM-A/5`: active, no skill, on the old ladder's R9, an "Emyr did not
+      finish his calculation" item. The paper's file now has 5a–5c on R31 instead.
+- **Fixed, the short levels:** `refill.top_up` first takes back the level's retired questions that carry no recorded
+  reason and that its rules as they stand still hold (`refill.reinstate`, `cases.holds`, shared with
+  `outside_their_level`). One retired by a person or a rule, its reason recorded, stays retired. Both tests seen;
+  the first failed without the change (`['retired', 'retired'] == ['active', 'active']`).
+- **Fixed, R9:**
+  - `legacy.load_paper` makes a paper's rows follow its file (`w3_read/paper_file.py`). A question the file no longer
+    has is removed when nothing points at it, and retired when an answer or a correction does. `legacy.py` is 639
+    lines, its frozen ceiling lowered from 652.
+  - `rehome` removes any rung that no skill, question or placed answer holds, not only the replaced sets' rungs.
+  - Three tests, each seen failing on its fault ("'legacy/TEST-PAPER/5' not in …", "'active' == 'retired'",
+    "'TEST.ORPHAN' in []").
+- **Proved:** refill, audit, update-live, taxonomy, bank, paper, rehome, story-range and layout tests on the copy:
+  **786 passed**.

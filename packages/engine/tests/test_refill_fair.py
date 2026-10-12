@@ -76,3 +76,54 @@ def test_a_kind_the_level_asks_now_and_then_is_drawn_until_it_can_be_judged(conn
     places = refill._places_now(conn, "REASON.FIND_MISTAKE", "Hard", "find_mistake", "where", 40)
     assert sum(places.values()) >= 40
     assert not inventory.unfair({"now": places}, refill.fairness_rule(conn))
+
+
+SMALL = ("ADD.1D1D", "Easy")  # its whole region is its target, 108 questions
+
+
+def _two(conn):
+    return [
+        r["id"]
+        for r in conn.execute(
+            "select id from item where status = 'active' and source = 'generated' and skill_set_code = %s"
+            " and difficulty = %s order by item_key limit 2",
+            SMALL,
+        )
+    ]
+
+
+def _status(conn, ids):
+    return [
+        r["status"] for r in conn.execute("select status from item where id = any(%s) order by id", (ids,))
+    ]
+
+
+def test_a_question_retired_with_no_reason_comes_back_to_a_level_short_of_it(conn):
+    """Found 2026-10-12 on a copy of live: ADD.1D1D Easy held 106 of 108 and SUB.2D1D Hard 67 of 72, short by exactly
+    the questions made on 18 Sep and retired with no reason recorded; they held the very keys the level draws, so it
+    could never be filled. A level short of its target takes back such a question when its rules hold it."""
+    ids = _two(conn)
+    conn.execute("update item set status = 'retired' where id = any(%s)", (ids,))
+    held = conn.execute(
+        "select count(*) as n from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+        SMALL,
+    ).fetchone()["n"]
+    refill.top_up(conn, *SMALL, held + 2)
+    assert _status(conn, ids) == ["active", "active"]
+
+
+def test_a_question_retired_for_a_reason_stays_retired(conn):
+    """One a person or a rule retired, its reason recorded, is not brought back to fill a level."""
+    ids = _two(conn)
+    for i in ids:
+        conn.execute(
+            "insert into item_feedback (tenant_id, item_id, actor, verdict, note)"
+            " select tenant_id, id, 'a person', 'retire', 'not a question for this level' from item where id = %s",
+            (i,),
+        )
+    held = conn.execute(
+        "select count(*) as n from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+        SMALL,
+    ).fetchone()["n"]
+    refill.top_up(conn, *SMALL, held + 2)
+    assert _status(conn, ids) == ["retired", "retired"]

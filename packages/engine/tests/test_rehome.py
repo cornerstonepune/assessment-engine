@@ -269,3 +269,18 @@ def test_an_old_story_whose_shape_is_unnamed_goes_to_its_skill_retired_and_only_
     assert not moves
     assert [(r["item_key"], s["code"]) for r, s in unlevelled] == [("story", "SUB.3D2D")]
     assert [r["item_key"] for r, _ in homeless] == ["sum"]
+
+
+def test_a_rung_no_skill_and_no_question_holds_is_removed(conn):
+    """Found 2026-10-12 on a copy of live: rung R9 of the old ladder stayed because one stale paper question pointed at
+    it; once nothing holds a rung, it goes, whatever ladder it was on (`engine audit`: every rung has a spec)."""
+    conn.execute(
+        "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes, milestone_id)"
+        " select tenant_id, 'TEST.ORPHAN', band, null, descriptor, skill_codes, milestone_id from rung"
+        " where code = (select rung_code from skill_set where code = 'SUB.3D2D')"
+    )
+    held = conn.execute("select rung_code from skill_set where code = 'SUB.3D2D'").fetchone()["rung_code"]
+    out = rehome.rehome(conn)
+    assert "TEST.ORPHAN" in out["removed_rungs"]
+    left = {r["code"] for r in conn.execute("select code from rung")}
+    assert "TEST.ORPHAN" not in left and held in left

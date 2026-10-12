@@ -100,21 +100,20 @@ def rehome(conn):
         " where source = 'library' and skill_set_code = any(%s)",
         (old,),
     )
-    rungs = [
-        r["rung_code"] for r in conn.execute("select rung_code from skill_set where code = any(%s)", (old,))
-    ]
     conn.execute("delete from skill_set_version where code = any(%s)", (old,))
     removed_sets = [
         r["code"] for r in conn.execute("delete from skill_set where code = any(%s) returning code", (old,))
     ]
+    # the replaced sets' rungs, and any other rung nothing holds any more — no skill, no question, no answer placed on
+    # it: R9 of the old ladder outlived it because one stale paper question pointed at it (goals/l2-live-audit-clean.yaml)
     removed_rungs = [
         r["code"]
         for r in conn.execute(
-            "delete from rung r where r.code = any(%s)"
-            " and not exists (select 1 from item i where i.tenant_id = r.tenant_id and i.rung_code = r.code)"
+            "delete from rung r where"
+            " not exists (select 1 from item i where i.tenant_id = r.tenant_id and i.rung_code = r.code)"
             " and not exists (select 1 from skill_set s where s.tenant_id = r.tenant_id and s.rung_code = r.code)"
-            " returning code",
-            (sorted(set(rungs)),),
+            " and not exists (select 1 from evidence_placed e where e.tenant_id = r.tenant_id and e.placed_rung = r.code)"
+            " returning code"
         )
     ]
     return {

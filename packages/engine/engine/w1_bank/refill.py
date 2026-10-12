@@ -164,9 +164,38 @@ def _held_per_way(conn, code, difficulty, check, matches):
     return have, len(rows)
 
 
+def reinstate(conn, code, difficulty, n):
+    """Up to `n` of the level's retired questions brought back when nothing says why they left and its rules as they
+    stand hold them. Found 2026-10-12 on a copy of live: questions made on 18 Sep and retired with no reason recorded
+    held the very keys ADD.1D1D Easy and SUB.2D1D Hard draw, and a level whose whole region is its target (108, 72)
+    could never be filled. One a person or a rule retired, its reason recorded, stays retired. Returns how many."""
+    if n <= 0:
+        return 0
+    held, back = cases.holds(conn), 0
+    for r in conn.execute(
+        "select i.id, i.fmt, i.stem, i.tags, i.spec, i.responses, i.skill_set_code, i.difficulty from item i"
+        " where i.status = 'retired' and i.source = 'generated' and i.skill_set_code = %s and i.difficulty = %s"
+        " and not exists (select 1 from item_feedback f where f.item_id = i.id) order by i.created_at, i.item_key",
+        (code, difficulty),
+    ).fetchall():
+        if back < n and not held(r):
+            conn.execute("update item set status = 'active', updated_at = now() where id = %s", (r["id"],))
+            back += 1
+    return back
+
+
 def top_up(conn, code, difficulty, target, rng=None):
-    """Fill one level to `target`, each case to its share in every way the level prints it. Returns how many questions
-    it added."""
+    """Fill one level to `target`: first with its own retired questions nothing says why it left (`reinstate`), then
+    each case to its share in every way the level prints it. Returns how many questions it added."""
+    held = conn.execute(
+        "select count(*) as n from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+        (code, difficulty),
+    ).fetchone()["n"]
+    return reinstate(conn, code, difficulty, target - held) + _drawn_up(conn, code, difficulty, target, rng)
+
+
+def _drawn_up(conn, code, difficulty, target, rng=None):
+    """Draw one level up to `target`, each case to its share in every way the level prints it. Returns how many."""
     _, _, check = spec(conn, code, difficulty)
     if check.get("cases"):
         matches = cases.for_level(conn, check)
