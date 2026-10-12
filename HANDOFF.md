@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b5: the story reader settles by code what code can read (built, proved on the copy)
+
+- **Slice:** M4d2b5.
+  - "each" that means ÷ and a price list are told from their twins by the story's own words and layout.
+  - A story whose case is unsure but whose answer is not gets its answer.
+  - The gold held to the same rules: the gardener story moved to B24.
+  - See STATE.md "M4d2b5".
+- **Once merged and deployed:** score v2 on live (engine-eval.yml, story_shape, 2); record it in DECISIONS-LOG.
+- **Next:** M5.
+
 ## 2026-10-12 — M4d2b4: `story_shape` v2 switched on
 
 - **Slice:** M4d2b4. On live, v2 144/148 and v1 66/66 on the corrected gold. Nimish: "switch v2 today". The bar is

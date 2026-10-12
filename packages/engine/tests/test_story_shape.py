@@ -6,6 +6,7 @@ import os
 import pytest
 
 from engine.adapters import jev, llm
+from engine.w1_bank import story_eval as E
 from engine.w1_bank import story_shape as S
 
 DB = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -38,7 +39,7 @@ def _adding(shape):
 def test_every_one_step_story_in_the_gold_has_the_answer_its_shapes_operation_gives():
     """The gold checks itself before any model is held to it: a story filed under a shape of the wrong operation, or
     with a number code cannot read, fails here. The × and ÷ stories are `test_story_shape_times.py`'s."""
-    for g in S.gold():
+    for g in E.gold():
         if not g["case"].startswith("W"):
             continue
         if "answer" in g:
@@ -112,7 +113,7 @@ def test_the_eval_counts_shapes_keys_and_what_is_left(conn):
         {"shape": "SUB_SUB", "text": "₹600; spent ₹240 and ₹175. How much is left?"},
     ]
     ask, _ = _saying("JOIN_RESULT")
-    got = S.evaluate(conn, stories, ask)
+    got = E.evaluate(conn, stories, ask)
     assert (got["n"], got["named"], got["right"], got["keyed"], got["wrong_answer"]) == (3, 3, 1, 2, 0)
     assert [m["want"] for m in got["misses"]] == ["PPW_WHOLE", "SUB_SUB"]
     assert got["misses"][0]["ranked"][0] == ("JOIN_RESULT", 0.9), (
@@ -124,7 +125,7 @@ def test_a_one_step_question_asking_for_the_part_that_is_not_is_the_other_part_o
     """ "305 tickets, 187 were sold. How many were not sold?" asks for the other part by its name, as "250 students,
     138 playing football. How many are not playing?" does: W08, the whole and one part (DECISIONS-LOG 2026-10-12: the
     gold had filed the tickets under W04, take away, and both readers on live named it W08)."""
-    adding = [g for g in S.gold() if g["case"].startswith("W")]  # the + and − story cases are W01–W29
+    adding = [g for g in E.gold() if g["case"].startswith("W")]  # the + and − story cases are W01–W29
     asks_not = [g for g in adding if " not " in g["text"].rsplit(". ", 1)[-1]]
     assert len(asks_not) >= 2 and {g["case"] for g in asks_not} == {"W08"}, asks_not
 
@@ -134,9 +135,9 @@ def test_a_number_found_by_undoing_two_known_steps_is_worked_backwards_not_a_puz
     conditions". "I am thinking of a number. If I take away 25 and then add 40, I get 100" is the first: its two steps
     and its result are given, and the start is undone from them (DECISIONS-LOG 2026-10-12: the gold had filed it under
     W29, and both readers on live named it W28)."""
-    thinking = [g for g in S.gold() if g["text"].startswith("I am thinking of a number. If I take away")]
+    thinking = [g for g in E.gold() if g["text"].startswith("I am thinking of a number. If I take away")]
     assert [g["case"] for g in thinking] == ["W28"]
-    assert all("thinking of a number. If" not in g["text"] for g in S.gold() if g["case"] == "W29")
+    assert all("thinking of a number. If" not in g["text"] for g in E.gold() if g["case"] == "W29")
 
 
 @DB
@@ -162,7 +163,7 @@ def test_a_key_computed_for_a_story_that_is_not_one_step_is_counted_wrong(conn):
         }
     ]
     ask, _ = _saying("COMPARE_SMALLER")
-    got = S.evaluate(conn, stories, ask)
+    got = E.evaluate(conn, stories, ask)
     assert (got["keyed"], got["wrong_answer"]) == (1, 1)
 
 
@@ -181,7 +182,7 @@ def test_an_eval_jev_cannot_answer_says_so_and_is_not_a_story_left_for_a_person(
         raise jev.JevError("no TYPESAFE_API_KEY in the engine's environment: Jev cannot be asked")
 
     stories = [{"shape": "JOIN_CHANGE", "text": "Zoya had 28 bangles and now has 45. How many did she get?"}]
-    got = S.evaluate(conn, stories, down)
+    got = E.evaluate(conn, stories, down)
     assert (got["n"], got["unanswered"], got["left"], got["named"]) == (1, 1, 0, 0)
     assert "TYPESAFE_API_KEY" in got["error"]
 

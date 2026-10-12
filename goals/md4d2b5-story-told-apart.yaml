@@ -1,0 +1,28 @@
+name: md4d2b5-story-told-apart
+goal: >
+  The story reader settles by code what code can read. Of two cases the taxonomy tells apart by what a story prints —
+  "each" that means ÷ and grouping, by the word; a price list and a price, by how the prices are set out — the story's
+  own print decides, and Jev's certainty is its certainty over the pair. A story whose case Jev is unsure of, but whose
+  answer is the same in every case it leans to, is answered, and only its case waits on a person. Every gold story of
+  such a pair is filed by the same rule.
+# Written 2026-10-12, before the code: M4d2b5 (BUILD-ORDER). Measured on live (run 38251975489, Jev's ranking printed
+# by M4d2b3's eval): of v2's four misses, the plant split 0.54 grouping / 0.46 "each"; both price lists were read as
+# one price (0.71, 0.82), then code took the second price for a number not needed; Kabir's runs split 0.54 two parts /
+# 0.44 joining, 84 either way. The prompt tells Jev to read "not the words it uses", and those pairs differ by words
+# and layout. Held to the same rule, the gold had one more story filed against it: "A gardener plants 54 saplings, 6 in
+# each row" under B03.
+says:
+  - words: "whats so complez about that qn; it's 84."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_a_story_whose_case_is_unsure_but_whose_sum_is_not_is_answered"
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_each_that_means_divide_is_told_from_grouping_by_the_storys_own_words"
+manual:
+  - "Once deployed, `story_shape` v2 is scored again on live (engine-eval.yml, story_shape, version 2) on the 149 gold stories; the score is recorded in DECISIONS-LOG."
+scenarios: []
+criteria:
+  - name: each pair settled by the story's print; a sure answer given though the case waits; the gold obeys the rules; the reader's eval and routes
+    run: cd packages/engine && uv run pytest -q tests/test_story_cases.py tests/test_story_shape_times.py tests/test_story_shape.py tests/test_bars.py tests/api/test_bank_routes.py tests/test_divide_stories.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

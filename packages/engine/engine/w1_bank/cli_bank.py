@@ -156,6 +156,8 @@ def bank_shape(story: str) -> None:
         conn.commit()
     if got["shape"] is None:
         typer.echo(f"  a person names it: {got['why']}")
+        if got["answer"] is not None:
+            typer.echo(f"  answer {got['answer']}, the same in each case Jev leans to")
     else:
         where = ", ".join(f"{s} {lv}" for s, lv in got["placed"]) or "no level names this case yet"
         typer.echo(f"  {got['shape']} ({got['case']}) · {got['how']} {got['sure']} · {where}")

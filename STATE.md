@@ -7339,3 +7339,24 @@ Goal `goals/md4d2b4-story-shape-v2-on.yaml`. Nimish, 2026-10-12: "switch v2 toda
     are told apart by their words and their layout. Fixed at that cause in M4d2b5.
 - **Proved:** `test_story_shape.py`, `test_story_shape_times.py`, `test_bars.py`, `test_bank_routes.py`,
   `test_divide_stories.py`, `test_layout.py`: 55 passed. The switch's own test failed before the switch.
+
+## M4d2b5 — the story reader settles by code what code can read (2026-10-12)
+
+Goal `goals/md4d2b5-story-told-apart.yaml`. On live (run 38251975489), v2's four misses, with Jev's ranking:
+- **Two pairs differ only in print, and the prompt tells Jev to read "not the words it uses":**
+  - The plant: 0.54 grouping (B03), 0.46 "each" that means ÷ (B24).
+  - Both price lists: 0.71 and 0.82 one price (B06). Code then took the second price for a number not needed (B25).
+  - These are now code's (`w1_bank/story_cases.py`). "each" or "every" makes grouping B24, a config row
+    (`story_shape.told_by_words`). A colon then two numbers or more makes a price a price list, B26. Jev's certainty is
+    the sum over the pair.
+- **Kabir's runs:** 0.54 two parts of a whole, 0.44 joined. Which case it is stays a person's. But both work
+  46 + 38 = 84, so the answer is given ("it's 84", Nimish).
+- **The gold held to the same rule, every story, not just the misses:** "A gardener plants 54 saplings, 6 in each row"
+  was B03, though it says "each". Moved to B24, and a B03 story added: 149 stories.
+- **Proved:**
+  - Before the code, the four new tests failed on exactly the live misses.
+  - After it: `test_story_cases.py`, `test_story_shape.py`, `test_story_shape_times.py`, `test_bars.py`,
+    `test_bank_routes.py`, `test_divide_stories.py`, `test_layout.py`: 62 passed.
+- **Split:** reading a story and scoring the reader are two jobs. The gold and the eval moved to
+  `w1_bank/story_eval.py` when this work brought `story_shape.py` to 401 lines, over its 400 ceiling.
+- **Not yet known:** v2's score on live with this. It is taken once deployed (engine-eval.yml, story_shape, 2).
