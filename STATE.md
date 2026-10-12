@@ -7268,3 +7268,10 @@ Goal `goals/l2-live-audit-clean.yaml`.
   moves to its skill. G2-CAM-A's 5 goes to R31, the rung of 5a–5c, and R9, held by nothing, leaves with the rehome.
   `test_a_question_something_still_points_at_is_retired_not_removed` now asks for the move; it was seen failing
   first (`'X1' == 'X2'`).
+- **Rehearsed with every fix** (run 38232539519, a copy of live with #196's code):
+  - rehome "removed 0 skill sets and 1 rungs" (R9);
+  - refill "1026 answered in one place, drawn again · added 1033";
+  - audit `19 invariants checked, 32 violations`: only "every spec is ratified → 31" and "what a mistake charges is
+    approved → 1". Every rung has a spec, every unit meets its target, and no choice is answered by ticking one place.
+  - What is left is the coordinator's approval of the 31 skills and the mistake table, on Curriculum → skills to
+    approve.
