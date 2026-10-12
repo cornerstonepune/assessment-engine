@@ -171,6 +171,7 @@ class StoryShapeResponse(BaseModel):
     sure: float | None
     how: str | None
     answer: int | None
+    remainder: int | None
     placed: list[tuple[str, str]]
     ranked: list[tuple[str, float]]
     why: str

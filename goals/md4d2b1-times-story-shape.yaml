@@ -1,0 +1,28 @@
+name: md4d2b1-times-story-shape
+goal: >
+  A story with × or ÷ in an educator's own words is placed like the engine's own. Jev chooses its case among the
+  taxonomy's story cases, + and − and × and ÷, each shown with every one of the engine's own stories of it; code
+  reads its numbers, works a one-step answer (a remainder dropped, rounded up, asked for, or both), places it at the
+  skill set and level that name the case, and holds Jev's choice to the numbers. The new reading is a new version of
+  `story_shape`, scored on the server against gold stories of every × and ÷ case before it is switched on; until
+  then the + and − reading answers exactly as it did.
+# Written 2026-10-12, before the code: M4d2b's first half (BUILD-ORDER "M4d2b1"). Measured first (STATE.md "M4d2b —
+# measured before the build"): `story_shape` v1 offers the 18 + and − shapes alone; the taxonomy holds 27 × and ÷
+# story cases, four of them one shape told apart by what the story does with what is left over, three shapes shared by
+# two cases each (an array that multiplies and one that divides; a price and a price list; a number the story does
+# not need, + and − or ×); the gold holds 65 stories, all + and −.
+says:
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_a_times_story_in_an_educators_words_is_placed_and_its_answer_is_codes"
+  - words: "You should really deep dive into Jev and potentially figure out all the use cases that we can integrate and start doing that."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_the_new_version_offers_every_story_case_each_with_the_engines_own_stories"
+manual:
+  - "`story_shape` v2 is scored on the server once deployed (engine-eval.yml, story_shape, version 2) against all 146 gold stories, held to the bar v1 holds (0.9692 of the cases right, no one-step answer wrong); only then is it switched on and its score recorded in DECISIONS-LOG and as the bar (rule 7). Until then v1 answers."
+scenarios: []
+criteria:
+  - name: the gold works out every answer itself; the new version reads × and ÷; v1 reads as it did; the eval scores a version
+    run: cd packages/engine && uv run pytest -q tests/test_story_shape_times.py tests/test_story_shape.py tests/test_bars.py tests/api/test_bank_routes.py tests/test_divide_stories.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

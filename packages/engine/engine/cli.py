@@ -170,7 +170,7 @@ def eval_(
     n: int = typer.Option(10, "--n", help="Items asked per skill set × difficulty"),
     only: str = typer.Option("", "--only", help="One skill set code, else all"),
     version: int = typer.Option(
-        0, "--version", help="parent_report: the prompt version to score, active or not"
+        0, "--version", help="parent_report, story_shape: the prompt version to score, active or not"
     ),
     review_version: int = typer.Option(
         0, "--review-version", help="parent_report: the parent_review version that reads each draft"
@@ -254,7 +254,7 @@ def eval_(
 
     if purpose == story_shape.PURPOSE:
         with db.connect() as conn:
-            r = story_shape.evaluate(conn)
+            r = story_shape.evaluate(conn, version=version or None)
             conn.commit()
         for m in r["misses"]:
             typer.echo(

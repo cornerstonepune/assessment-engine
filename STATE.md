@@ -7046,3 +7046,48 @@ waits on a person there. The screenshots hold children's names and stayed on the
   cannot reach; it runs again on the server once deployed (engine-eval.yml), held to its bar (63 of 65, no wrong
   answer).
 
+
+## M4d2b — measured before the build (2026-10-12)
+
+On main `2468dd2`. Three parts, each measured:
+- **`story_shape` reads + and − alone.** v1 offers the 18 shapes of the + and − story cases; the taxonomy holds 27 × and
+  ÷ story cases (B01–B27). Four of them are one shape (GROUPING) told apart by what the story does with what is left
+  over (B14–B17), beside exact grouping (B03); three shapes are shared by two cases each: an array that multiplies and
+  one that divides (B04, B05), a price and a price list (B06, B26), and a number the story does not need, + and − or ×
+  (W25, B25). A choice keyed by shape cannot name them. The gold: 65 stories, all + and −. `engine eval story_shape`
+  always scores the active version.
+- **Halving:** `skills.operations` reads a two-step story's `op`, never its `divide`: "Two numbers add up to {a}. One
+  of them is {b} more than the other. What is the smaller number?" (`divide: 2`) counts on subtraction alone.
+- **A11:** 35 of the × and ÷ mistake rows charge the question's operation and name no skill; `skills.charges_by_kind`
+  says what M_WRONG_OP charges on a story and nothing else; `skills.charges_by_kind.approved` is empty.
+- **Split** (BUILD-ORDER): M4d2b1 the reader of × and ÷ stories, a new version built switched off with its gold, scored
+  on the server before it answers; M4d2b2 switches it on with its score, halving on Division, the A11 table.
+
+## M4d2b1 — the story reader reads × and ÷, built switched off (2026-10-12)
+
+Goal `goals/md4d2b1-times-story-shape.yaml`, ADR 0071.
+- **`story_shape` v2** (`supabase/seed/prompts/story_shape.v2.txt`, inactive) chooses among all 45 story cases, + and −
+  and × and ÷, each shown with every one of the engine's own stories of it. A case sharing its shape with another is
+  offered under a name of its own, the first of what sets them apart (`_keys`): GROUPING and GROUPING_ROUND_UP,
+  ARRAY_MUL and ARRAY_DIV, RATE_TOTAL and RATE_TOTAL_TABLE_OR_CHART (shown with its price list), EXTRA_INFORMATION and
+  EXTRA_INFORMATION_MUL. Which taxonomies a version reads is its row's (`json_schema.taxonomies`); v1's row says none
+  and reads + and − alone.
+- **Code works the answer:** × the two numbers; ÷ the larger by the smaller, what is left over used as the case says
+  (`divide_stories.answered`, which the story maker's boxes now use too: the full boxes, one more rickshaw, the
+  remainder, or both, the remainder returned beside the answer); twice and half as many × and ÷ the 2 their stories fix.
+- **Code holds Jev to the numbers:** a case that says nothing is left over, read for numbers that leave some, is a
+  person's ("47 ÷ 5 leaves 2 over"); a remainder dropped or rounded up, read for numbers that leave nothing, is exact
+  grouping (B03); a one-step × question over three numbers is B25, as a + and − one is W25.
+- **The gold:** 81 new stories, three for each × and ÷ case, in words no template uses; every one-step answer worked by
+  the test apart from the engine, and by the engine, and the two agree. A reader naming every case right scores 146 of
+  146 with no answer wrong, so the gold and code's checks of the numbers agree too.
+- **The eval scores a named version** (`engine eval story_shape --version 2`) on the gold of the taxonomies it reads:
+  v1 on its 65, as its bar was set; v2 on all 146.
+- **v1 answers as it did:** its 18 options and every word it is shown are the same, compared before and after. Found
+  and fixed: its two table stories ("The table shows the runs Asha scored") counted as printing no number, so a story
+  with none written as digits passed for those shapes; a table's numbers are counted now.
+- **Proved:** `test_story_shape_times.py` written first, seen failing on the old module (8 of 9; the gold's own test
+  passed, the gold written first); the goal's criteria with a database: 198 passed.
+- **Not proven here:** v2's score. It needs Jev, which this container cannot reach; it runs on the server once
+  deployed (engine-eval.yml, story_shape, version 2), held to v1's bar (0.9692 right, no answer wrong), before it is
+  switched on (M4d2b2).

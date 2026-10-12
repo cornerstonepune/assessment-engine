@@ -2701,6 +2701,20 @@
       "json_schema": {
         "type": "choice"
       }
+    },
+    {
+      "purpose": "story_shape",
+      "version": 2,
+      "model": "jev-latest",
+      "active": false,
+      "text_file": "prompts/story_shape.v2.txt",
+      "json_schema": {
+        "type": "choice",
+        "taxonomies": [
+          "ADD_SUB",
+          "MUL_DIV"
+        ]
+      }
     }
   ]
 }

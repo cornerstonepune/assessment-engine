@@ -31,14 +31,20 @@ def _saying(best, p=0.9):
     return ask, asked
 
 
+def _adding(shape):
+    return {"taxonomy": "ADD_SUB", "fmt": "word_1step", "structure": shape}
+
+
 def test_every_one_step_story_in_the_gold_has_the_answer_its_shapes_operation_gives():
     """The gold checks itself before any model is held to it: a story filed under a shape of the wrong operation, or
-    with a number code cannot read, fails here."""
+    with a number code cannot read, fails here. The × and ÷ stories are `test_story_shape_times.py`'s."""
     for g in S.gold():
+        if not g["case"].startswith("W"):
+            continue
         if "answer" in g:
-            assert S.answer(g["shape"], g["text"]) == g["answer"], g["text"]
+            assert S.answer(_adding(g["shape"]), g["text"]) == g["answer"], g["text"]
         else:
-            assert S.one_step_op(g["shape"]) is None, (
+            assert S.one_step_op(_adding(g["shape"])) is None, (
                 f"{g['shape']} is one step and needs its answer: {g['text']}"
             )
 
@@ -46,9 +52,14 @@ def test_every_one_step_story_in_the_gold_has_the_answer_its_shapes_operation_gi
 def test_numbers_are_read_from_the_words_and_a_class_name_is_not_one():
     assert S.numbers("A cycle costs ₹2,350. Class 2A has 34 children; 5400 g.") == [2350, 34, 5400]
     assert (
-        S.answer("COMPARE_SMALLER", "Class 3A made 63 kites; 3B made 18 fewer. How many did 3B make?") == 45
+        S.answer(
+            _adding("COMPARE_SMALLER"), "Class 3A made 63 kites; 3B made 18 fewer. How many did 3B make?"
+        )
+        == 45
     )
-    assert S.answer("JOIN_RESULT", "Five birds sat; 3 more came.") is None, "a number in words is a person's"
+    assert S.answer(_adding("JOIN_RESULT"), "Five birds sat; 3 more came.") is None, (
+        "a number in words is a person's"
+    )
 
 
 @DB
@@ -150,3 +161,9 @@ def test_an_eval_jev_cannot_answer_says_so_and_is_not_a_story_left_for_a_person(
     got = S.evaluate(conn, stories, down)
     assert (got["n"], got["unanswered"], got["left"], got["named"]) == (1, 1, 0, 0)
     assert "TYPESAFE_API_KEY" in got["error"]
+
+
+def test_a_tables_numbers_are_counted_so_a_story_with_none_is_not_taken_for_one():
+    """Found 2026-10-12: the two stories whose numbers stand in a table ("The table shows the runs Asha scored") were
+    counted as printing none, so a story with no number written as digits passed for those two shapes."""
+    assert S.counts(_adding("PPW_WHOLE")) == {2} and S.counts(_adding("COMPARE_DIFFERENCE")) == {2}

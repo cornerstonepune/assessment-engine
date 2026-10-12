@@ -33,23 +33,33 @@ def _rounded_up(a: int, b: int) -> dict[str, int]:
     return _kept({NOT_UP: a // b} | slips, a // b + 1)
 
 
-def boxes(use: str | None, a: int, b: int) -> list[Response]:
-    """The answer a story asks, as it uses what is left over: the quotient's box alone (exact, or the remainder
-    dropped), one more group for those left, the remainder alone in the answer's box, or both, as a division writes
-    them (6 r 2)."""
+def answered(use: str | None, a: int, b: int) -> tuple[int, int | None]:
+    """What a story asks of a ÷ b, as it uses what is left over: the quotient (exact, or the remainder dropped), one more
+    group for those left, the remainder alone, or both (the quotient, and the remainder beside it)."""
     q, r = divmod(a, b)
+    if use == "BOTH_ASKED":
+        return q, r
+    if use == "REMAINDER_ASKED":
+        return r, None
+    return (q + 1 if use == "ROUND_UP" and r else q), None
+
+
+def boxes(use: str | None, a: int, b: int) -> list[Response]:
+    """The answer a story asks (`answered`) in its boxes: the quotient's box alone, one more group for those left, the
+    remainder alone in the answer's box, or both, as a division writes them (6 r 2)."""
+    ans, _ = answered(use, a, b)
     if use == "BOTH_ASKED":
         return DV.boxes(a, b)
     if use == "REMAINDER_ASKED":
-        return [Response("ans", "digits", str(r), cells=cells(b), misconceptions=DM.in_box(a, b, 1))]
+        return [Response("ans", "digits", str(ans), cells=cells(b), misconceptions=DM.in_box(a, b, 1))]
     if use == "ROUND_UP":
         return [
-            Response(
-                "ans", "digits", str(q + 1), cells=cells(max(q + 1, a)), misconceptions=_rounded_up(a, b)
-            )
+            Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=_rounded_up(a, b))
         ]
     return [
-        Response("ans", "digits", str(q), cells=cells(max(q, a)), misconceptions=_kept(DM.in_box(a, b, 0), q))
+        Response(
+            "ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=_kept(DM.in_box(a, b, 0), ans)
+        )
     ]
 
 

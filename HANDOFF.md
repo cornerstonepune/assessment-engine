@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b1: the story reader reads × and ÷ (built switched off, proved on copies)
+
+- **Slice:** M4d2b1 (BUILD-ORDER; M4d2b split). `story_shape` v2 chooses among all 45 story cases and code works each
+  one-step answer and what is left over; 81 × and ÷ gold stories; built switched off (STATE.md "M4d2b1", ADR 0071).
+- **M4d2a** (#190) merged as `2468dd2`; its CI and deploy were running when this started.
+- **Once deployed:** run engine-eval.yml twice: story_shape version 1 (M4d2a's manual step, bar 63 of 65, no answer
+  wrong) and story_shape version 2 (all 146, held to the same bar). Record both in DECISIONS-LOG.
+- **Next:** M4d2b2 (v2 switched on with its score as its bar, halving on Division, the A11 table), then M5.
+
 ## 2026-10-11 — M4d2a: every story's numbers fit its story (built, proved on copies)
 
 - **Slice:** M4d2a (BUILD-ORDER; M4d2 split). Each older story template says its range; the level's numbers are held
