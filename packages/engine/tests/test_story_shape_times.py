@@ -226,8 +226,8 @@ def test_the_engines_own_times_story_is_named_by_its_template_and_jev_is_not_ask
 
 @DB
 def test_the_eval_scores_the_version_it_names_on_the_stories_that_version_reads(conn):
-    """A reader that names every gold story's case scores all 146 under v2 with every one-step answer right; under
-    v1 the eval reads the 65 + and − stories alone, which is what v1's bar was set on."""
+    """A reader that names every gold story's case scores all 148 under v2 with every one-step answer right; under
+    v1 the eval reads the 66 + and − stories alone, the 65 v1's bar was set on and a W29 added when one moved to W28."""
     gold = {g["text"]: g["case"] for g in S.gold()}
 
     def perfect(conn, purpose, state, options, version=None):
@@ -236,10 +236,10 @@ def test_the_eval_scores_the_version_it_names_on_the_stories_that_version_reads(
         return {"choice": best, "ranked": [(best, 0.99)]}
 
     v2 = S.evaluate(conn, ask=perfect, version=2)
-    assert (v2["n"], v2["right"], v2["left"], v2["wrong_answer"]) == (146, 146, 0, 0), v2["misses"]
+    assert (v2["n"], v2["right"], v2["left"], v2["wrong_answer"]) == (148, 148, 0, 0), v2["misses"]
     assert v2["keyed"] == sum(1 for g in S.gold() if "answer" in g)
     v1 = S.evaluate(conn, ask=perfect, version=1)
-    assert (v1["n"], v1["right"]) == (65, 65)
+    assert (v1["n"], v1["right"]) == (66, 66)
 
 
 def test_engine_eval_scores_the_story_reader_version_it_is_given(monkeypatch):
@@ -293,3 +293,14 @@ def test_a_case_row_whose_match_does_not_repeat_its_taxonomy_is_read_by_its_own(
         version=2,
     )
     assert (v2["case"], v2["answer"]) == ("B01", 48)
+
+
+def test_a_price_list_sets_its_prices_out_as_a_list_and_two_prices_in_a_sentence_are_a_number_not_needed():
+    """B26 reads its price from a list (`context: TABLE_OR_CHART`, "Price list: pen ₹15, eraser ₹5"); two prices told in
+    a sentence ("a ruler costs ₹12 and a sharpener ₹8") are a number the question does not need, B25 (DECISIONS-LOG
+    2026-10-12: the gold had filed one under B26, and the reader on live named it B25)."""
+    priced = [g for g in S.gold() if g["case"] in ("B25", "B26") and g["text"].count("₹") >= 2]
+    assert {g["case"] for g in priced} == {"B25", "B26"}
+    for g in priced:
+        listed = ":" in g["text"].split("₹")[0]
+        assert (g["case"] == "B26") == listed, g["text"]

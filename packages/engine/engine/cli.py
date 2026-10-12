@@ -259,6 +259,7 @@ def eval_(
         for m in r["misses"]:
             typer.echo(
                 f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
+                + "".join(f"\n          Jev: {o} {p:.2f}" for o, p in m.get("ranked") or [])
             )
         typer.echo(
             f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"

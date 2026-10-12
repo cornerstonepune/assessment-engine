@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M4d2b3: the story reader's gold corrected (built, proved on the copy)
+
+- **Slice:** M4d2b3 (BUILD-ORDER; M4d2b split once more, the switch-on is now M4d2b4).
+  - Three gold stories moved to the case their row's words give them: W29 → W28, W04 → W08, B26 → B25.
+  - The canteen's price list stays B26.
+  - A W29 and a B26 story added.
+  - Every miss the eval prints says what Jev leaned to. See STATE.md "M4d2b3".
+- **Once merged and deployed:** score v1 and v2 on live on the corrected gold (engine-eval.yml, story_shape, 1 and 2).
+- **Next:** M4d2b4 (switch v2 on, from those scores and Jev's ranking on what it still misses), then M5.
+
 ## 2026-10-12 — UI6b: no other page a laundry list (built, proved on the copy)
 
 - **Slice:** UI6b (BUILD-ORDER).
