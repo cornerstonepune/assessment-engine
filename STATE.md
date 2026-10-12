@@ -7425,3 +7425,44 @@ What each stage of the loop already is, and what nothing yet proves:
 - **Its cost in CI:** about 2½ minutes. The first version printed the worksheet bare and named the child, so every copy
   was first matched against each layout the worksheet has printed in (`boxes.as_printed`, 8 of 17 s a level). A copy
   printed for a child carries its own PDF, and that is the copy this proves.
+
+## M5b — a paper printed for a child comes back (2026-10-12)
+
+- **Read now, by the code on it:** every copy of a paper drawn for a child (`source='focus'`: the paper maker's three
+  kinds and a home paper), against its own template and the PDF printed for that child.
+- **A spare** (a class pack's copy with a code and no child) is read by the name said for it, as a bare worksheet is.
+  It then becomes that child's copy, and its questions count as seen by them (`copies._given`). Before, a spare was in
+  no line of what the reading returned.
+- **Every copy in a scan has a line.** One not read says why:
+  - no code read;
+  - a kind of paper not read from a scan;
+  - a code this school did not print;
+  - no child said;
+  - the PDF printed for the child is not kept.
+- **Split:** `copies.py` reached 407 lines. What a copy is read against (the paper as printed, its boxes, which PDF)
+  moved to `w3_read/printed_paper.py`; whose a copy is and reading it stay in `copies.py` (275 lines). `copies.read`
+  is now within the complexity limit, and its frozen exception is gone from `workflows.json`.
+- **Proof:**
+  - `tests/test_the_loop.py`: every level now goes round twice. The child's next paper is printed, the mistake made
+    again on it, read back by its code, named and counted.
+  - `tests/test_read_back.py`:
+    - the maker's three kinds, each read onto each child's own copy;
+    - a copy whose PDF is gone, named with why, while the rest of the pile is read;
+    - a spare read for the child named, and without a name reported.
+
+## M5c — Aseem's 56 × 3 = 1518 (2026-10-12)
+
+- **Proof:** `cd packages/engine && uv run pytest -q tests/test_aseem_1518.py` → 1 passed. No engine change was needed.
+- **The path:**
+  1. G3-QUIZ20 is entered from its file in `supabase/seed/papers`. Question 18, "56 x 3", is filed on R38 (MUL.2D1D's
+     rung) by its shape. Its key is 168, and 1518 is its stored `M_MUL_CONCAT`.
+  2. Read as 1518, a person confirms it as written, and the paper is signed off. It is then marked wrong, named
+     `M_MUL_CONCAT`, and counted on R38 for NUM.OPS.03.
+- **What the graph says, and when:**
+  - After one paper: one wrong answer on R38, not yet repeating.
+  - After two: `M_MUL_CONCAT` is named as repeating, but the rung is still "not enough yet". The graph judges a rung only
+    from `state.min_events` answers, which is 3, and G3-QUIZ20 asks one 2-digit × 1-digit sum.
+  - After three: `patterned_error`, and the child's next paper is MUL.2D1D, aimed at `M_MUL_CONCAT` with questions that
+    can show it.
+- **Not proved here:** reading the child's own handwriting. The scan is not in the repository (rule 6), so the reader
+  is stood in; reading is scored by `engine eval`.

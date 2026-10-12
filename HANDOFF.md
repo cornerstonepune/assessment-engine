@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M5c: Aseem's 56 × 3 = 1518 (proved on the copy)
+
+- **Slice:** M5c, on the same branch and PR as M5a and M5b.
+  - Question 18 of G3-QUIZ20, read as 1518, is named `M_MUL_CONCAT` on MUL.2D1D's rung.
+  - The third time, it is the child's pattern and their next paper aims at it. The graph's own minimum is 3 answers on
+    a rung.
+  - See STATE.md "M5c".
+- **Next:** M5d, the website draws every new kind of question.
+
+## 2026-10-12 — M5b: a paper printed for a child comes back (built, proved on the copy)
+
+- **Slice:** M5b, on the same branch and PR as M5a.
+  - The paper maker's copies and home papers are read from a scan by their code.
+  - A spare is read by the name said for it and becomes that child's copy.
+  - Every copy in a scan has a line, read or why not.
+  - `copies.py` was split: `printed_paper.py` holds what a copy is read against. See STATE.md "M5b".
+- **Next:** M5c (below).
+
 ## 2026-10-12 — M5a: every × and ÷ skill at every level round the loop (built, proved on the copy)
 
 - **Slice:** M5a. 17 skill sets × 4 levels, a planted mistake back at every stage: 67 passed, 1 skipped (MUL.GROUPS has
