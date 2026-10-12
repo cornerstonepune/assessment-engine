@@ -33,4 +33,5 @@ stored copy of its operations first, so the template's halving (`divide: 2`) nev
 
 - `bin/update-live`'s `bank relabel` rewrites the stored charges; evidence already recorded keeps what it charged
   (append-only), and live has no × and ÷ answers yet.
-- No + or − charge moved on the bank.
+- On the bank, 530 × and ÷ charges move and 54 + and − ones: choosing the wrong operation in a + or − equation counted
+  against Addition or Subtraction and now counts against the equation's skill, as the table says for every equation.

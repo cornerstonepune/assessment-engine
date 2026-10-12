@@ -82,3 +82,11 @@ def test_choosing_the_wrong_operation_in_an_equation_is_the_equations_and_the_ta
     spec = {"a": 3, "b": 11, "op": "×", "ops": ["×", "÷"]}
     stem = "3 × 11 = 33. Use it to finish these facts."
     assert _charged("fact_family", spec, stem, ["NUM.OPS.05"], "M_WRONG_OP") == "NUM.OPS.05"
+
+
+def test_the_table_moves_addition_and_subtractions_equations_too():
+    """Measured 2026-10-12: the table's equation row moves 54 + and − charges as well (choosing + for − in a missing
+    number equation counted against Addition or Subtraction, the rung's first skill). It is the same slip, reading the
+    equation, and the approval of the table covers it."""
+    spec = {"op": "+", "ops": ["+", "-"], "text": "□ + 17 = 42"}
+    assert _charged("equation", spec, "□ + 17 = 42", ["NUM.OPS.01"], "M_WRONG_OP") == "NUM.OPS.05"
