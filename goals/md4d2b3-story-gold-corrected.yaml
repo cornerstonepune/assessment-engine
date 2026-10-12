@@ -1,0 +1,30 @@
+name: md4d2b3-story-gold-corrected
+goal: >
+  The gold that scores the story reader files each story in the case the taxonomy's own words give it, and every
+  story the reader misses on the server says what Jev leaned to and how sure, so the next decision on the reader is
+  taken from what it did, not guessed. A number worked back from two known steps is W28; a question naming the part
+  that is not is the other part of a whole, W08; two prices told in a sentence are a number the question does not
+  need, B25, and a price list sets its prices out as a list, B26. v1 and v2 are scored again on live on the corrected
+  gold before v2 is switched on (M4d2b4).
+# Written 2026-10-12, before the code: M4d2b3 (BUILD-ORDER). Found on live (DECISIONS-LOG 2026-10-12, run
+# 38215303003): of v2's six misses, three were stories the gold had filed against its own case rows — "I am thinking
+# of a number. If I take away 25 and then add 40, I get 100" under W29 though the W28 row says "the unknown in the
+# first step — work backwards"; "305 tickets … How many were not sold?" under W04 though the football story of the
+# same form is W08; "a ruler costs ₹12 and a sharpener ₹8" under B26, the price list, though no list is printed.
+# The canteen's list ("Canteen prices: idli ₹10 a plate, dosa ₹30 a plate") is a list and stays B26: there the reader
+# is wrong, not the gold. The two stories left for a person (Jev 0.54 and 0.53 sure) printed only Jev's first choice.
+says:
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: "packages/engine/tests/test_story_shape_times.py::test_a_price_list_sets_its_prices_out_as_a_list_and_two_prices_in_a_sentence_are_a_number_not_needed"
+  - words: "the system should keep on working towards it till 100% accuracy is achieved."
+    proved_by: "packages/engine/tests/test_story_shape.py::test_the_eval_counts_shapes_keys_and_what_is_left"
+manual:
+  - "Once deployed, `story_shape` v1 and v2 are scored on live on the corrected gold (engine-eval.yml, story_shape, versions 1 and 2), each miss printed with Jev's first three choices; both scores recorded in DECISIONS-LOG. Switching v2 on, against the bar, is M4d2b4."
+scenarios: []
+criteria:
+  - name: each correction holds by its rule; the eval scores 148 stories under v2 and 66 under v1; a miss carries Jev's ranking
+    run: cd packages/engine && uv run pytest -q tests/test_story_shape.py tests/test_story_shape_times.py tests/test_bars.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

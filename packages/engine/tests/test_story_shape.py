@@ -114,6 +114,28 @@ def test_the_eval_counts_shapes_keys_and_what_is_left(conn):
     got = S.evaluate(conn, stories, ask)
     assert (got["n"], got["named"], got["right"], got["keyed"], got["wrong_answer"]) == (3, 3, 1, 2, 0)
     assert [m["want"] for m in got["misses"]] == ["PPW_WHOLE", "SUB_SUB"]
+    assert got["misses"][0]["ranked"][0] == ("JOIN_RESULT", 0.9), (
+        "a miss says what Jev leaned to, and how sure"
+    )
+
+
+def test_a_one_step_question_asking_for_the_part_that_is_not_is_the_other_part_of_a_whole():
+    """ "305 tickets, 187 were sold. How many were not sold?" asks for the other part by its name, as "250 students,
+    138 playing football. How many are not playing?" does: W08, the whole and one part (DECISIONS-LOG 2026-10-12: the
+    gold had filed the tickets under W04, take away, and both readers on live named it W08)."""
+    adding = [g for g in S.gold() if g["case"].startswith("W")]  # the + and − story cases are W01–W29
+    asks_not = [g for g in adding if " not " in g["text"].rsplit(". ", 1)[-1]]
+    assert len(asks_not) >= 2 and {g["case"] for g in asks_not} == {"W08"}, asks_not
+
+
+def test_a_number_found_by_undoing_two_known_steps_is_worked_backwards_not_a_puzzle_of_conditions():
+    """W28 is "the unknown in the first step — work backwards"; W29 is "an Olympiad-style story with several
+    conditions". "I am thinking of a number. If I take away 25 and then add 40, I get 100" is the first: its two steps
+    and its result are given, and the start is undone from them (DECISIONS-LOG 2026-10-12: the gold had filed it under
+    W29, and both readers on live named it W28)."""
+    thinking = [g for g in S.gold() if g["text"].startswith("I am thinking of a number. If I take away")]
+    assert [g["case"] for g in thinking] == ["W28"]
+    assert all("thinking of a number. If" not in g["text"] for g in S.gold() if g["case"] == "W29")
 
 
 @DB

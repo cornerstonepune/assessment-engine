@@ -7296,3 +7296,24 @@ first; the rest is one click away, or narrowed by a choice:
 - **Not changed, not yet measured:** the library's proposals (`library/proposals.tsx`). Every proposal the engine
   returns is shown as a form of several lines, neither folded nor capped. How many wait on live is not known; the
   next rehearsal counts them before any change.
+
+## M4d2b3 — the story reader's gold corrected, each miss read with Jev's ranking (2026-10-12)
+
+Goal `goals/md4d2b3-story-gold-corrected.yaml`. Of `story_shape` v2's six misses on live (run 38215303003), three were
+the gold's, each held to its case row's own words rather than to the reader:
+- "I am thinking of a number. If I take away 25 and then add 40, I get 100": W29 → W28 ("the unknown in the first step
+  — work backwards").
+- "305 tickets … How many tickets were not sold?": W04 → W08, the form of the football story already W08.
+- "a ruler costs ₹12 and a sharpener ₹8": B26 → B25. No list is printed; B26 is `context: TABLE_OR_CHART`.
+- **Not moved:** the canteen's list ("Canteen prices: idli ₹10 a plate, dosa ₹30 a plate") stays B26. It is a list,
+  so the reader's B25 there stays a miss.
+- **Added:** a W29 story with several conditions and a B26 list ("Fruit stall: orange ₹12 each, guava ₹8 each"),
+  keeping three in each case. The gold now holds 148 stories; v1 reads 66 of them.
+- **Each miss says what Jev leaned to:** `engine eval story_shape` prints Jev's first three choices and how sure under
+  every LEFT and MISS. Before, the two stories left for a person (Jev 0.54 and 0.53 sure) printed only the first.
+- **Proved:**
+  - `test_story_shape.py`, `test_story_shape_times.py`, `test_bars.py`, `test_layout.py`: 36 passed.
+  - Before the change, five of them failed on the old gold and the old eval, each on its own fault.
+- **Not yet known:** v1's and v2's scores on the corrected gold. They are taken on live once this is deployed
+  (engine-eval.yml). The bar (0.9692) is unchanged until then. Expected, not measured: v2's three remaining misses on
+  the old run (two left for a person, the canteen) would score about 145 of 148.

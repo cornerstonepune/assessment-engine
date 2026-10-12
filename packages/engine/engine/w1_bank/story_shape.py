@@ -338,7 +338,9 @@ def evaluate(conn, stories=None, ask=None, version=None):
         by = "case" if "case" in g else "shape"  # a story given with its shape alone is held to its shape
         if got[by] is None:
             left += 1
-            misses.append({"text": g["text"], "want": g[by], "got": None, "why": got["why"]})
+            misses.append(
+                {"text": g["text"], "want": g[by], "got": None, "why": got["why"], "ranked": got["ranked"]}
+            )
             continue
         named += 1
         right += got[by] == g[by]
@@ -346,7 +348,9 @@ def evaluate(conn, stories=None, ask=None, version=None):
             keyed += 1
             wrong_answer += (got["answer"], got["remainder"]) != (g.get("answer"), g.get("remainder"))
         if got[by] != g[by]:
-            misses.append({"text": g["text"], "want": g[by], "got": got[by], "why": ""})
+            misses.append(
+                {"text": g["text"], "want": g[by], "got": got[by], "why": "", "ranked": got["ranked"]}
+            )
     return {
         "n": len(stories),
         "named": named,
