@@ -24,6 +24,7 @@ def register(app: typer.Typer) -> None:
     app.command()(done)
     app.command()(promises)
     app.command()(ratchet)
+    app.command()(slices)
     spec_app = typer.Typer(help="The skill-set specs, as a person reads them", no_args_is_help=True)
     spec_app.command("outcomes")(outcomes)
     app.add_typer(spec_app, name="spec")
@@ -152,3 +153,14 @@ def promises() -> None:
     _say(f"  {len(found)} broken promise(s)" if found else "  every promise has its command")
     if found:
         raise typer.Exit(1)
+
+
+def slices(ref: str = typer.Option("HEAD", help="The history whose × ÷ slices are scored")) -> None:
+    """The files each multiplication and division slice changed, per part of the map (BUILD-ORDER, M5e)."""
+    from engine.checks import slices as score
+
+    rows = score.of(ref)
+    parts = [p for p in score.PARTS if any(p in r["parts"] for r in rows)]
+    _say("  " + f"{'slice':<8}{'files':>6}" + "".join(f"{p:>9}" for p in parts))
+    for r in rows:
+        _say("  " + f"{r['slice']:<8}{r['files']:>6}" + "".join(f"{r['parts'].get(p, ''):>9}" for p in parts))

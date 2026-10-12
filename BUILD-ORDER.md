@@ -31,7 +31,9 @@ Achal is a change of rows run through M1's command, not a new plan.
 so a new *operation* costs code once: its question makers, its mistake predictors, its tag measurement, its layouts.
 After that, every multiplication or division skill and level is rows, and printing, the graph and the reports need no
 × or ÷ branch — where they break today, the fix is made general. The score is the files each slice changed, per
-workflow, recorded in STATE.md at M5.
+workflow, recorded in STATE.md at M5. **Measured at M5e** (`bin/engine slices`, STATE.md "M5e"): printing and the
+reports held, each changed in two slices of thirty; reading changed only where an answer took a new shape; but every new
+kind of question was code in the maths library (22 of 30 slices), so the cost was per kind, not once per operation.
 
 | Slice | Goal file | Green means |
 |---|---|---|
@@ -79,7 +81,7 @@ workflow, recorded in STATE.md at M5.
 | M5b | `goals/md5b-read-back.yaml` | a paper the site prints for a child — a home paper, or any the paper maker prints — read back from its scan by the code on it, as a library worksheet is; a spare read by the name said for it and then that child's copy; every other copy in a scan named with why it was not read (found by M5a, STATE.md "M5a") |
 | M5c | `goals/md5c-aseem-1518.yaml` | Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`, read from his own paper (G3-QUIZ20, question 18), and their next paper aims at it once the graph has enough of their answers there |
 | M5d | `goals/md5d-every-kind-draws.yaml` | the website draws every new kind of question: every × ÷ skill set's every kind on the Question bank with its numbers, never "undefined" or a code, each kind with a name in the school's words to pick it by |
-| M5e | — | the files-per-workflow score recorded, from the git history of M0a–M5d |
+| M5e | `goals/md5e-the-score.yaml` | the files-per-workflow score recorded, from the git history of M0a–M5d, by a command (`engine slices`) |
 
 **Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is
 its cases. M2 is three slices (measured 2026-10-09, STATE.md "M2 — measured before the build" and "M2b — measured before the

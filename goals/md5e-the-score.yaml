@@ -1,0 +1,26 @@
+name: md5e-the-score
+goal: >
+  The score the multiplication and division build plan set itself is computed, not estimated: the files each slice from
+  M0a to M5d changed, counted per part of the map (each workflow, the maths library and the base, the doors, the
+  website, the rows, the schema, the tests and the docs), from the repository's own history by a command anyone can run,
+  and recorded in STATE.md with what it says about "rows only".
+# Written 2026-10-12, before any code: M5e (BUILD-ORDER: "The score is the files each slice changed, per workflow,
+# recorded in STATE.md at M5"; ADR 0047, 5). Measured first: nothing computes it (STATE.md "M5 — measured before the
+# build"). Every commit of the × ÷ build is titled with its slice (`M3b2: …`, `M4c's record …`), and `workflows.json`
+# places every engine file in a workflow or a shared part; `test_layout.part_of` does so for engine files only, inside a
+# test, so the score needs a placer of its own that covers the website, rows, schema, tests and docs too.
+says:
+  - words: "Make all the required assumptions on other questions and create a build plan around this."
+    proved_by: "packages/engine/tests/test_slices.py::test_the_score_is_a_count_per_part_for_each_slice_in_the_order_built"
+manual: []
+scenarios: []
+criteria:
+  - name: a file is placed in its part of the map; each slice counts each file once; only × ÷ slices count
+    run: cd packages/engine && uv run pytest -q tests/test_slices.py
+    expect: "passed"
+  - name: the score prints for every slice from the history
+    run: bin/engine slices
+    expect: "M5d"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

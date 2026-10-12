@@ -7481,3 +7481,66 @@ What each stage of the loop already is, and what nothing yet proves:
   versions of the check passed with the name missing, and were rewritten:
   - The first looked for "_" in the Kind column, but a kind with no name shows the bank's own, and "lattice" has none.
   - The second read the kind from the filtered page's links, but its level chips carry the kind too.
+
+## M5e — the score: files each × ÷ slice changed, per part of the map (2026-10-12)
+
+`bin/engine slices` reads the repository's history (`engine/checks/slices.py`; `tests/test_slices.py`, 3 passed).
+- A slice is the name a commit's title starts with, and its record counts as its own.
+- Each file it changed is placed by `workflows.json`, and counted once per slice.
+- M2c has no row of its own: its re-homing shipped inside M2a (see "Why this order").
+
+Output on this branch, 2026-10-12, with M5a–M5d on PR #201:
+
+```
+  slice    files       W1       W2       W3       W4   assess     core   checks    doors  website     rows   schema      map    tests research       ci     docs
+  M0a         31        1                14        1        1                 1                 4                 1                 4                          4
+  M0b         34        3                 1                17        1                                   3        1        1        3                          4
+  M0c         23                 2                                   1                          8        1        1                 5                          5
+  M1          24        3                                   3        1                          1        2        1        1        4        2                 6
+  M2a         53        2                 1                13                                           10                 1       12        2                12
+  M2b         25                                           10                                            2                 1        3        2                 7
+  M2d1        40                                           16                                   3        7        1        1        5        1                 6
+  M2d2        44        3                                  13                 1                 2        4        1        1       10        2                 7
+  M3a         52        2                 1                17                 1                 1        6                 1       14        2                 7
+  M3b1        26                                            6                 1                 1        3                 1        5        2                 7
+  M3b2        21                                            8                 1                 1        1                 1        4                          5
+  M3b3        38        2                 2                12                 1                 1        3                 1        9                          7
+  M3c         37                                           11                                   3        7                          9        2                 5
+  M3d         49        2                                  19                 1                 2        4        1        1        9        2                 8
+  M4a         36                                           13                                   1        6        1        1        6        1                 7
+  M4b1        22                                            2                 1                          6                 1        4        2                 6
+  M4b2        32                                            7                 2                 1        6        1        1        5        2                 7
+  M4c         31                          4                 5                 2                 1        6                 1        5        1                 6
+  M4d          2                                                                                                                                               2
+  M4d1        27        2                                   5                 2                          5                 1        5        1                 6
+  M4d2a       16        2                                   4                                                              1        4                          5
+  M4d2b1      15        1                                   1                          2                 3                          3                          5
+  M4d2b2      16                                            2                 2                 1        1                          3                 1        6
+  M4d2b3      10        1                                                              1                 1                          2                          5
+  M4d2b4      10                                                                                         2                          3                          5
+  M4d2b5      17        4                                                              1                 2                 1        4                          5
+  M5a         13                 1                 1        2                                                                       4                          5
+  M5b         12                          5                                                                                1        4                          2
+  M5c          5                                                                                                                    1                          4
+  M5d          5                                                                                                                    1                          4
+```
+
+**What it says about "rows only"** (BUILD-ORDER: after a new operation's code, "printing, the graph and the reports need
+no × or ÷ branch"):
+
+- **Printing (W2) and the reports (W4): held.**
+  - W2 changed in two slices of thirty: M0c (2 files), when a skill set came to be read as itself, and M5a (1), where
+    the next paper is set.
+  - W4 changed in two: M0a (1) and M5a (1).
+- **Reading, marking and the graph (W3): held after its first general fix, with four exceptions.**
+  - M0a changed 14 files so that every answer of a several-answer question counts.
+  - After that W3 changed only where an answer took a shape it had not read before:
+    - a list read group by group (M4c, 4 files);
+    - a remainder story (M3b3, 2);
+    - a paper printed for a child read back (M5b, 5);
+    - one file each in M0b, M2a and M3a.
+- **Rows grew in 23 of the 30 slices.** Skill sets, levels, cases, mistakes and prompts went in as rows.
+- **"Rows only" did not hold for kinds of question.** The maths library changed in 22 of the 30 slices: 17 files in M0b,
+  16–19 in M2d1, M3a and M3d. A new kind of question is code by design (ADR 0010: the bank's questions are made by
+  code), so each new method or picture was a maker, a predictor and a layout in `assess/`. The cost was per kind of
+  question, as ADR 0047 said, not once per operation, as BUILD-ORDER's sentence reads.

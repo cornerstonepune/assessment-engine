@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — M5e: the score (computed)
+
+- **Slice:** M5e, on the same branch and PR as M5a–d.
+  - `bin/engine slices` scores every × ÷ slice from the history.
+  - Printing and the reports needed no × ÷ branch.
+  - Reading needed code only where an answer took a new shape.
+  - Every new kind of question was code in `assess/`.
+  - See STATE.md "M5e".
+- **Next:** M5 is done once #201 is merged and deployed, with `engine done` run for md5a–md5e. Then back to
+  BUILD-ORDER for the next step.
+
 ## 2026-10-12 — M5d: the website draws every × ÷ kind (proved on the copy)
 
 - **Slice:** M5d, on the same branch and PR as M5a–c.
@@ -10,7 +21,7 @@ is verified. This file only says where the last session stopped.
     named in the school's words.
   - No website change was needed.
   - See STATE.md "M5d".
-- **Next:** M5e, the files-per-workflow score from the git history of M0a–M5d.
+- **Next:** M5e (below).
 
 ## 2026-10-12 — M5c: Aseem's 56 × 3 = 1518 (proved on the copy)
 
