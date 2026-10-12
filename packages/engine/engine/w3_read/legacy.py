@@ -19,7 +19,7 @@ from engine.assess import equation, placing, tags
 from engine.assess import misconceptions as M
 from engine.assess.items import Item
 from engine.core import db
-from engine.w3_read import checked, reading, render_pdf
+from engine.w3_read import checked, paper_file, reading, render_pdf
 from engine.w3_read.marking import _MINUS, normalise_answer, response_of, verdicts
 
 PAPERS = db.REPO_ROOT / "supabase" / "seed" / "papers"
@@ -113,12 +113,14 @@ def _template_item(paper, it, where):
 
 def load_paper(conn, path):
     """Upsert a paper definition: one sheet_template(source=legacy) and one item per printed
-    question. Re-running with a corrected file updates the rows. Returns the template id."""
+    question. Re-running with a corrected file updates the rows, and a question it no longer has
+    leaves the paper (`paper_file`). Returns the template id."""
     paper = json.loads(Path(path).read_text())
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    ids, where = [], where_they_go(conn)
+    ids, keys, where = [], [], where_they_go(conn)
     for it in paper["items"]:
         t = _template_item(paper, it, where)
+        keys.append((t["item_key"], str(it["n"]), t["rung"]))
         row = conn.execute(
             "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, stem,"
             " spec, responses, source, status)"
@@ -140,22 +142,7 @@ def load_paper(conn, path):
             ),
         ).fetchone()
         ids.append(row["id"])
-    existing = conn.execute(
-        "select id from sheet_template where tenant_id = %s and source = 'legacy' and batch_id = %s",
-        (tenant, paper["code"]),
-    ).fetchone()
-    if existing:
-        conn.execute(
-            "update sheet_template set band = %s, week = %s, item_ids = %s, key = %s, updated_at = now()"
-            " where id = %s",
-            (paper["band"], paper["week"], ids, json.dumps(paper), existing["id"]),
-        )
-        return existing["id"]
-    return conn.execute(
-        "insert into sheet_template (tenant_id, band, week, variant, batch_id, item_ids, key, source)"
-        " values (%s,%s,%s,1,%s,%s,%s,'legacy') returning id",
-        (tenant, paper["band"], paper["week"], paper["code"], ids, json.dumps(paper)),
-    ).fetchone()["id"]
+    return paper_file.follow(conn, tenant, paper, ids, keys)
 
 
 def paper_rows(conn, code):

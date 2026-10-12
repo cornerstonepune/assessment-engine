@@ -1590,3 +1590,58 @@ def test_a_deploy_marks_every_answer_a_person_read_by_the_rule_as_it_now_stands(
     again = [i for i, r in enumerate(runs) if "engine legacy mark-again --by" in r]
     assert len(again) == 1
     assert again[0] > next(i for i, r in enumerate(runs) if "engine legacy paper" in r), "after the papers"
+
+
+SPLIT = dict(
+    PAPER,
+    items=PAPER["items"][:4]
+    + [
+        {"n": 5, "part": "a", "page": 1, "kind": "text", "rung": "X2", "question": "Explain, first."},
+        {"n": 5, "part": "b", "page": 1, "kind": "text", "rung": "X2", "question": "Explain, then."},
+    ],
+)
+
+
+def _paper_keys(conn):
+    return {
+        r["item_key"]: r["status"]
+        for r in conn.execute("select item_key, status from item where item_key like 'legacy/TEST-PAPER/%%'")
+    }
+
+
+@pytestmark_db
+def test_a_question_its_corrected_file_no_longer_has_leaves_the_paper(conn, tmp_path):
+    """Found 2026-10-12 on a copy of live: G2-CAM-A's question 5 was stored whole, on the old ladder's R9, before its
+    file split it into 5a–5c on R31. Loading the corrected file updated 5a–5c and left 5 as it was, so R9 could never
+    be removed (`engine audit`: every rung has a spec). The file is what was printed: a question it no longer has
+    leaves with it."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    path.write_text(json.dumps(SPLIT))
+    legacy.load_paper(conn, path)
+    keys = _paper_keys(conn)
+    assert "legacy/TEST-PAPER/5" not in keys
+    assert keys["legacy/TEST-PAPER/5a"] == keys["legacy/TEST-PAPER/5b"] == "active"
+
+
+@pytestmark_db
+def test_a_question_something_still_points_at_is_retired_not_removed(conn, tmp_path):
+    """One an answer or a correction points at stays, retired: what points at it keeps what it pointed at. It moves to
+    the rung its number has in the file, as an old paper's sum moves to its skill, so no rung is kept alive by it: on
+    live, G2-CAM-A's question 5 kept the old ladder's R9 when the file has it on R31 (2026-10-12)."""
+    path = tmp_path / "paper.json"
+    path.write_text(json.dumps(PAPER))
+    legacy.load_paper(conn, path)
+    old = conn.execute("select id, tenant_id from item where item_key = 'legacy/TEST-PAPER/5'").fetchone()
+    conn.execute(
+        "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses,"
+        " source, status, corrected_from) select tenant_id, 'legacy/TEST-PAPER/5-corrected', template, rung_code,"
+        " skill_codes, signal, fmt, spec, responses, source, 'retired', id from item where id = %s",
+        (old["id"],),
+    )
+    path.write_text(json.dumps(SPLIT))
+    legacy.load_paper(conn, path)
+    assert _paper_keys(conn)["legacy/TEST-PAPER/5"] == "retired"
+    moved = conn.execute("select rung_code from item where item_key = 'legacy/TEST-PAPER/5'").fetchone()
+    assert moved["rung_code"] == "X2"

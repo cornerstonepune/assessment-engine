@@ -103,24 +103,37 @@ def outside_their_level(conn):
     that level's region, not only its own arithmetic (BUILD-ORDER gate 4, amended; step 8h) — or keyed by
     a rule its kind has since corrected (`stale.key_problems`), or a story holding a number its world does not
     (`words.range_problems`: "Each box has 933 pencils", goals/md4d2a-story-ranges.yaml)."""
+    held = holds(conn)
+    out = []
+    for r in conn.execute(
+        "select id, tenant_id, item_key, fmt, stem, tags, spec, responses, skill_set_code, difficulty from item"
+        " where status = 'active' and source = 'generated' and skill_set_code is not null"
+    ).fetchall():
+        if why := held(r):
+            out.append(dict(r, why=why))
+    return out
+
+
+def holds(conn):
+    """A reading of each level's rule, case and range as they stand: `held(row)` is why the row's own level no longer
+    holds it, empty when it does (`outside_their_level`, and `refill.reinstate` for a retired one)."""
     regions = {
         (s["code"], band): spec.get("check", {})
         for s in conn.execute("select code, difficulty from skill_set").fetchall()
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
-    out = []
-    for r in conn.execute(
-        "select id, tenant_id, item_key, fmt, stem, tags, spec, responses, skill_set_code, difficulty from item"
-        " where status = 'active' and source = 'generated' and skill_set_code is not null"
-    ).fetchall():
+
+    def held(r):
         region = regions.get((r["skill_set_code"], r["difficulty"]))
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
-        why += stale.key_problems(r["fmt"], r["spec"], r["responses"])
-        why += words.range_problems(r["stem"], r["spec"])
-        if why:
-            out.append(dict(r, why=why))
-    return out
+        return (
+            why
+            + stale.key_problems(r["fmt"], r["spec"], r["responses"])
+            + words.range_problems(r["stem"], r["spec"])
+        )
+
+    return held
 
 
 def placed(conn):

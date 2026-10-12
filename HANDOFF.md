@@ -3,6 +3,31 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-12 — L2: live's audit down to what waits on people (built, rehearsed on a copy of live)
+
+- **Slice:** L2 (BUILD-ORDER). Each cause of live's 41 violations was measured on a copy of live and fixed where it
+  starts (STATE.md "L2"):
+  - tick groups that a corrected rule left answered in one place are redrawn;
+  - questions retired for no recorded reason come back to a level that is short of them;
+  - a paper's rows follow its file;
+  - a rung that nothing holds is removed.
+- **Rehearsal 38232539519:** 32 violations, all approvals: 31 skills and the mistake table.
+- **For Nimish, once #196 is merged:** `~/cornerstone/assessment-engine/bin/update-live`. Then Aseem approves on
+  Curriculum → skills to approve, a grade or a topic at a time.
+- **Next:** UI6b (the other long lists), then M4d2b3 (story_shape v2's gold and its bar), then M5.
+
+## 2026-10-12 — UI6a: approving the skills as a table to work through (built, proved on the copy)
+
+- **Slice:** UI6a (BUILD-ORDER). Nimish's screenshot of 61 skill cards: one row a skill, grade and topic and taught to
+  narrow them, "Approve these" for the rows shown, the mistake table approved on its own (STATE.md "UI6a").
+- **#195 merged** as `da50d0a` (before its CI finished; main's CI on it was running when this was pushed).
+- **Live's audit after #195, read on a copy (the rehearsal, run 38223287194):** 41 violations — 31 skills and the
+  mistake table wait on a person; 6 guessable ticks are old questions made under REASON.EXPLAIN's and ESTIMATE.HUNDRED's
+  old rules, which approval does not retire (code: the refill must retire the surplus and draw again); ADD.1D1D Easy
+  106/108 and SUB.2D1D Hard 67/72 short; rung R9 with no skill. Each is next, before UI6b.
+- **For Nimish:** the email to Aseem, Achal and Neha is a draft in his Gmail; the three are put on the staff list by
+  `bin/engine staff add` on his Mac (ADR 0069), never through Claude.
+
 ## 2026-10-12 — M4d2b2 follow-up: the halving retired 33 stories (found after the merge, fixed)
 
 - **Found:** #193 counted "two numbers add up to …" on Division and also re-tagged those 33 W29 stories × and ÷; they fell

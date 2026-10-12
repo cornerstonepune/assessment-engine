@@ -3,6 +3,7 @@ every stored question, the wrong answers no named mistake explains, a staff memb
 sample sheet a person can hold. `bank.py` makes questions; this looks at the ones already made."""
 
 import random
+from collections import Counter, defaultdict
 
 from engine.assess import misconceptions as M
 from engine.assess import verify
@@ -197,3 +198,32 @@ def sheet(conn, code, difficulty, n, outdir, seed=1, pw=None):
         title=name,
     )
     return render_sheet(sh, outdir, week_label=f"{code} · {difficulty}", pw=pw)
+
+
+def tick_places(conn):
+    """{(skill set, level, kind, response): Counter(place of the right option)} over the active generated questions
+    answered by ticking: what `engine audit` judges and the refill draws again (goals/l2-live-audit-clean.yaml)."""
+    places = defaultdict(Counter)
+    for r in conn.execute(
+        "select i.skill_set_code, i.difficulty, i.fmt, x->>'rid' as rid, x->'options' as options,"
+        " x->>'answer' as answer from item i, jsonb_array_elements(i.responses) x"
+        " where i.status = 'active' and i.source = 'generated' and x->>'kind' = 'tick'"
+        " and jsonb_array_length(coalesce(x->'options', '[]'::jsonb)) > 1"
+    ):
+        if r["answer"] in r["options"]:
+            places[(r["skill_set_code"], r["difficulty"], r["fmt"], r["rid"])][
+                r["options"].index(r["answer"])
+            ] += 1
+    return places
+
+
+def unfair(places, rule):
+    """Pure: the groups with more than `share` of their right answers in one place, once they hold `min_questions`:
+    [(key, place, how many there, how many in all)], in key order."""
+    out = []
+    for key, seen in sorted(places.items()):
+        n = sum(seen.values())
+        place, most = seen.most_common(1)[0]
+        if n >= rule["min_questions"] and most / n > rule["share"]:
+            out.append((key, place, most, n))
+    return out

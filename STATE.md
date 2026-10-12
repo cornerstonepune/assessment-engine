@@ -7166,3 +7166,112 @@ Goal `goals/md4d2b2-what-a-slip-charges.yaml` (two promises added).
   stories on live (run 38212446549): "305 tickets … 187 were sold" (gold W04, both read W08) and "I am thinking of a
   number. If I take away 25 and then add 40, I get 100" (gold W29, both read W28, "the unknown in the first step — work
   backwards", which is what the case row says it is). Correcting the gold changes v1's score and so the bar: M4d2b3.
+
+## UI6 — measured before the build (2026-10-12)
+
+Nimish, with a screenshot of Curriculum → skills to approve: "also ths page needs to have proper filters and all; no page
+should have such laundary lists like stuff". Every page under `apps/web/app/(app)` read for lists that grow with the data,
+each item in full, nothing to narrow them (counts for about 170 children in 8 classes, 60 skills):
+- **`/skill-sets/approve`:** a Panel of about seven lines per waiting skill (up to 61 on live), grouped by grade and
+  nothing else; one button approves every skill and the mistake table together. UI6a.
+- **`/growth/[id]`:** every paper ever made for the child, 3–4 lines each, growing weekly; the answers to check as full
+  cards with their scans; repeated mistakes, nothing to narrow any of them. UI6b.
+- **`/today`:** "Parent reports to approve" can name up to 170 children as links; class packs uncapped. UI6b.
+- **`/asks`:** the answered questions, 2–3 lines each, growing for ever (the open ones are already one line). UI6b.
+- **`/papers/approve`:** one chip per class, week and kind ever planned, about 16 more a week. UI6b.
+- **`/growth/reports`** (up to 170 rows, no filter) and **`/library`**'s proposals (forms of several lines, as many as
+  the engine returns). UI6b.
+- Already narrow: Assessments, the Question bank, Worksheets, Children, a skill's page, the check queue.
+
+## UI6a — approving the skills as a table to work through, built (2026-10-12)
+
+Goal `goals/ui6a-approve-filtered.yaml`.
+- **One row a skill:** its name, grade, topic ("Not taught yet" where it is not), what a child can do, its levels folded
+  under "Read the levels", its own "Approve, as …" and "Change the words first". A row is about a third of a card's height.
+- **Choices at the top, each with how many wait under the others:** grade (chips), topic and taught (selects). "Approve
+  these N skills" approves exactly the rows shown, and the page comes back under the same choices
+  (`APPROVE_PAGE` in the action: the approval page and its three choices, nothing else, is a return address).
+- **The mistake table is approved by a press of its own** ("Approve this table as written"); a press meant for some
+  skills never approves it. Its rows are folded under "Read the N".
+- **Proved:** `u23-approve-filtered.spec.ts` seen failing on the old page ("Expected [ADD.1D1D, ADD.2D2D, DIV.3D1D,
+  SUB.2D2D], Received []"); with the page, it and the specs that approve a skill or the table (u17, u13, s2) and every
+  screen: 46 passed. `tsc` and `eslint` clean.
+
+## L2 — live's audit, measured on a copy, and the guessable ticks drawn again (2026-10-12)
+
+Goal `goals/l2-live-audit-clean.yaml`.
+- **Measured** on a copy of live with #195's code (the rehearsal, run 38223287194, which now prints the audit):
+  `19 invariants checked, 41 violations`.
+  - 31 skills not approved; the mistake table not approved. Both are a person's.
+  - **Six groups answered by ticking one place:**
+    - REASON.EXPLAIN's four levels: 216 of 216 each "yes" or each "no";
+    - ESTIMATE.HUNDRED Advance (sense): 108 of 108;
+    - REASON.FIND_MISTAKE Hard (where): 45 of 54.
+    `bank levels --apply` changed nothing: live already holds the corrected levels (DECISIONS-LOG 2026-09-29). The
+    questions were made before the correction. Each is a fair question on its own, so no per-question rule retired it,
+    and approving a level retires none either. HANDOFF had said they close by approval; they do not.
+  - ADD.1D1D Easy 106 of 108 and SUB.2D1D Hard 67 of 72. Both are full on a copy built from the repository (108, 72).
+  - Rung R9: no skill holds it.
+- **Fixed, the ticks:** `refill.redraw_unfair` retires a group the audit names when its level, drawing today
+  (`fill_cases` or `fill_native`, dry run, 3 × `min_questions`), places the answers fairly; the top-up draws it again.
+  A level whose own design fixes the answer draws no fairer and is left for a person. One reading of the group, shared
+  by the audit and the refill: `inventory.tick_places` and `inventory.unfair`.
+  - Tests: `test_refill_fair.py`, both seen failing first (`refill` had no `redraw_unfair`). Then 2 passed, with
+    `test_audit.py`: 5 passed.
+  - `engine bank refill` says "N answered in one place, drawn again".
+- **Not yet explained:** the two short levels and R9. The rehearsal now lists each short level's retired questions with
+  why, and what still points at a rung no skill holds, so the next run names the cause.
+- **Rehearsed with the redraw** (run 38227555987, a copy of live):
+  - `bank refill` → "retired 0 questions outside their level · 972 answered in one place, drawn again · added 972"
+    (REASON.EXPLAIN's 4 × 216, ESTIMATE.HUNDRED Advance's 108).
+  - Audit: `19 invariants checked, 36 violations`; the tick lines went from 6 to 1.
+- **REASON.FIND_MISTAKE Hard (where), 45 of 54, was left:** the level asks "where" on about one question in four, so
+  a single draw of 120 held fewer than 40 to judge it by. Today's spread is fair (300 drawn on the copy: 43 at option
+  2, 32 at option 3). Now the level is drawn until it has enough (`refill._places_now`;
+  `test_a_kind_the_level_asks_now_and_then_is_drawn_until_it_can_be_judged`).
+- **The two short levels:** each level's non-active questions number exactly its shortfall:
+  - ADD.1D1D Easy: 2, keys `ADD.1D1D.REG0-…`;
+  - SUB.2D1D Hard: 5, keys `SUB.2D1D.REG1-…`.
+  None has a retirement note. They carry the template today's draws use, so they hold the very keys the level would
+  draw, and a level whose whole region is its target (`min_items` 108, 72) cannot be refilled.
+  The rehearsal now shows each one's status, source, generator and dates, so the cause is known before the fix.
+- **R9:** one active question still points at it (`questions 1 · active 1 · answers 0`). That is why rehome could not
+  remove the rung. The rehearsal now names that question.
+- **Rehearsed again** (run 38228886028, a copy of live):
+  - "1026 answered in one place, drawn again" (FIND_MISTAKE Hard's 54 with the rest).
+  - Audit: `19 invariants checked, 35 violations`. No tick line is left: 31 skills, the mistake table, R9, and the two
+    short levels.
+  - What the rehearsal named:
+    - the 7 questions holding the short levels' keys are `generated · retired · pre-provenance · made 2026-09-18`,
+      each with no `item_feedback` row, so no reason was recorded;
+    - the one question on R9 is `legacy/G2-CAM-A/5`: active, no skill, on the old ladder's R9, an "Emyr did not
+      finish his calculation" item. The paper's file now has 5a–5c on R31 instead.
+- **Fixed, the short levels:** `refill.top_up` first takes back the level's retired questions that carry no recorded
+  reason and that its rules as they stand still hold (`refill.reinstate`, `cases.holds`, shared with
+  `outside_their_level`). One retired by a person or a rule, its reason recorded, stays retired. Both tests seen;
+  the first failed without the change (`['retired', 'retired'] == ['active', 'active']`).
+- **Fixed, R9:**
+  - `legacy.load_paper` makes a paper's rows follow its file (`w3_read/paper_file.py`). A question the file no longer
+    has is removed when nothing points at it, and retired when an answer or a correction does. `legacy.py` is 639
+    lines, its frozen ceiling lowered from 652.
+  - `rehome` removes any rung that no skill, question or placed answer holds, not only the replaced sets' rungs.
+  - Three tests, each seen failing on its fault ("'legacy/TEST-PAPER/5' not in …", "'active' == 'retired'",
+    "'TEST.ORPHAN' in []").
+- **Proved:** refill, audit, update-live, taxonomy, bank, paper, rehome, story-range and layout tests on the copy:
+  **786 passed**.
+- **Rehearsed again** (run 38231324999, a copy of live), `19 invariants checked, 33 violations`:
+  - "1026 answered in one place, drawn again · added 1034": the 7 came back, and every unit meets its target.
+  - Left: 31 skills, the mistake table, and R9.
+  - `legacy/G2-CAM-A/5` was retired, not removed: something points at it (its old answers or the page's hand-read
+    gold), so it stayed on R9.
+- **Fixed:** a paper question that has to stay moves to the rung its number has in the file, as an old paper's sum
+  moves to its skill. G2-CAM-A's 5 goes to R31, the rung of 5a–5c, and R9, held by nothing, leaves with the rehome.
+  `test_a_question_something_still_points_at_is_retired_not_removed` now asks for the move; it was seen failing
+  first (`'X1' == 'X2'`).
+- **Rehearsed with every fix** (run 38232539519, a copy of live with #196's code):
+  - rehome "removed 0 skill sets and 1 rungs" (R9);
+  - refill "1026 answered in one place, drawn again · added 1033";
+  - audit `19 invariants checked, 32 violations`: only "every spec is ratified → 31" and "what a mistake charges is
+    approved → 1". Every rung has a spec, every unit meets its target, and no choice is answered by ticking one place.
+  - What is left is the coordinator's approval of the 31 skills and the mistake table, on Curriculum → skills to
+    approve.

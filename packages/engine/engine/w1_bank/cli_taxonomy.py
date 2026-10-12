@@ -85,10 +85,11 @@ def register(bank_app: typer.Typer) -> None:
                 if n:
                     typer.echo(f"  {code:<20} {difficulty:<8} +{n}")
 
-            retired, added = refill.refill(conn, after_level=said)
+            retired, redrawn, added = refill.refill(conn, after_level=said)
             conn.commit()
         typer.echo(
-            f"  retired {sum(retired.values())} questions outside their level · added {sum(added.values())}"
+            f"  retired {sum(retired.values())} questions outside their level · {sum(redrawn.values())} answered in"
+            f" one place, drawn again · added {sum(added.values())}"
         )
 
 

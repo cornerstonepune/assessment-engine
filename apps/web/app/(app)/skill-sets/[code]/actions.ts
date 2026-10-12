@@ -7,6 +7,8 @@ import { sql } from "@/lib/db";
 import { type Band, type Difficulty, levelsOf } from "@/lib/queries";
 
 const CODE = /^[A-Z0-9._]+$/;
+// the approval page under its own choices (goals/ui6a-approve-filtered.yaml), and nothing else
+const APPROVE_PAGE = /^\/skill-sets\/approve(\?(grade|topic|taught)=[\w.-]+(&(grade|topic|taught)=[\w.-]+)*)?$/;
 
 /** A person changes a skill's words — its name, what the child can do, and each level in a
  *  sentence. The rule each question is checked against is not a teacher's field and is not on this
@@ -48,12 +50,13 @@ export async function approveSkills(formData: FormData): Promise<void> {
   let versions = formData.getAll("version").map(Number);
   let back = String(formData.get("back") ?? "/");
   // one skill of the page, approved on its own (goals/ui3-curriculum.yaml): its own code and version, and back to the
-  // page to approve the next; the table of what a mistake charges waits for its own approval
+  // page, under the choices it was opened with, to approve the next; the table of what a mistake charges waits for its
+  // own approval
   const only = String(formData.get("only") ?? "");
   if (CODE.test(only)) {
     const i = shown.indexOf(only);
     if (i < 0) redirect("/");
-    [shown, versions, back] = [[only], [versions[i]], "/skill-sets/approve"];
+    [shown, versions, back] = [[only], [versions[i]], APPROVE_PAGE.test(back) ? back : "/skill-sets/approve"];
   }
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
@@ -66,16 +69,22 @@ export async function approveSkills(formData: FormData): Promise<void> {
   // the update matches nothing and it keeps waiting. `::text` first: postgres.js sends a string it
   // sees bound for jsonb as a JSON string, which would never equal the table.
   const table = CODE.test(only) ? null : formData.get("charges_table");
+  const done = new URLSearchParams();
+  if (shown.length) done.set("approved", String(approved.length));
   if (typeof table === "string" && table) {
-    await sql`
+    const rows = await sql`
       update config set value = jsonb_build_object('by', ${me.name}::text, 'table', t.value), updated_at = now()
       from (select value from config where key = 'skills.charges_by_kind') t
-      where config.key = 'skills.charges_by_kind.approved' and t.value = ${table}::text::jsonb`;
+      where config.key = 'skills.charges_by_kind.approved' and t.value = ${table}::text::jsonb
+      returning 1`;
+    done.set("table", String(rows.length));
   }
   revalidatePath("/");
   for (const c of approved) revalidatePath(`/skill-sets/${c.code}`);
-  // Only back to the map, a skill page or the approval page: a return address from a form never leaves the site.
-  redirect(`${/^\/(skill-sets\/([A-Z0-9._]+|approve))?$/.test(back) ? back : "/"}?approved=${approved.length}`);
+  // Only back to the map, a skill page or the approval page under its choices: a return address from a form never
+  // leaves the site.
+  const to = /^\/(skill-sets\/[A-Z0-9._]+)?$/.test(back) || APPROVE_PAGE.test(back) ? back : "/";
+  redirect(`${to}${to.includes("?") ? "&" : "?"}${done}`);
 }
 
 /** A person says which grade teaches each level of a skill — one grade each (Nimish, 2026-09-24). Kept in its own

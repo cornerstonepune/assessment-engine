@@ -105,8 +105,12 @@ test("a topic keeps the assessments on its skills, and an assessment opens its c
   await expect(ours(page)).toContainText(await setName("DATA.TALLY"));
   // a topic stays chosen when the class changes, and the class when the topic does
   await page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "Addition & subtraction", exact: true }).click();
+  // the new topic's own row, waited for: the class was in the address before the click, so waiting on it alone let a
+  // slow run click Data handling's row, whose one copy then failed the count (CI, 2026-10-12)
+  await expect(page).toHaveURL(/topic=ADDSUB\b/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(ours(page)).toHaveCount(1);
+  await expect(ours(page)).toContainText(await setName("ADD.2D2D"));
 
   // the assessment opens its copies, one row each, under the same filters
   await ours(page).getByRole("link").first().click();

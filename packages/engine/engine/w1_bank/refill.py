@@ -8,6 +8,7 @@ other level through the generator it always used. Papers already printed point a
 and never change; `engine library build` then replaces the worksheets that held a retired question.
 """
 
+import json
 import math
 import random
 from collections import Counter
@@ -76,6 +77,72 @@ def retire_outside(conn, actor=ACTOR):
     return out
 
 
+def fairness_rule(conn):
+    """The row that says when a choice is answered by ticking one place (`bank.choice_answer_max_share`)."""
+    row = conn.execute("select value from config where key = 'bank.choice_answer_max_share'").fetchone()
+    if not row:
+        raise ValueError("the config row bank.choice_answer_max_share is missing (engine load)")
+    return row["value"]
+
+
+def _drawn_now(conn, code, difficulty, n):
+    """`n` questions as the level draws them today, stored nowhere: a level of cases through its cases, any other
+    through its own generator. A level the model writes is not drawn: none of those is answered by ticking."""
+    _, _, check = spec(conn, code, difficulty)
+    if check.get("cases"):
+        return fill_cases(conn, code, difficulty, n, dry_run=True)[2]
+    from engine.assess import bands
+
+    if check.get("format") in bands.NATIVE_GENERATORS:
+        return bank.fill_native(conn, code, difficulty, n, dry_run=True)[1]
+    return []
+
+
+def _places_now(conn, code, difficulty, fmt, rid, enough, rounds=10):
+    """Where the level, drawing today, puts the right answer of this kind's `rid` tick, drawn until `enough` of them are
+    seen or `rounds` draws: REASON.FIND_MISTAKE Hard asks "where" on about one question in four, so one draw of 120
+    held too few to tell (2026-10-12)."""
+    places = Counter()
+    for _ in range(rounds):
+        places.update(
+            r.options.index(r.answer)
+            for it in _drawn_now(conn, code, difficulty, enough)
+            if it.fmt == fmt
+            for r in it.responses
+            if r.rid == rid and r.kind == "tick" and r.options and r.answer in r.options
+        )
+        if sum(places.values()) >= enough:
+            break
+    return places
+
+
+def redraw_unfair(conn, actor=ACTOR):
+    """Retire a group of questions answered by ticking whose right answers sit in one place, so the top-up draws it
+    again — when the level, as it draws today, places them fairly: the group was made by a rule since corrected
+    (REASON.EXPLAIN's claims, all true at one level and all false at another until 2026-09-29). A level whose own
+    design fixes the answer draws no fairer, and waits for a person (`engine audit`). Returns how many, by level."""
+    rule = fairness_rule(conn)
+    out = Counter()
+    for (code, difficulty, fmt, rid), _, _, _ in inventory.unfair(inventory.tick_places(conn), rule):
+        out[(code, difficulty)] += 0
+        now = _places_now(conn, code, difficulty, fmt, rid, 3 * rule["min_questions"])
+        if sum(now.values()) < rule["min_questions"] or inventory.unfair({"now": now}, rule):
+            continue  # too few drawn to tell, or the level itself places them unfairly
+        rows = conn.execute(
+            "select id, tenant_id from item where status = 'active' and source = 'generated' and skill_set_code = %s"
+            " and difficulty = %s and fmt = %s and responses @> %s",
+            (code, difficulty, fmt, json.dumps([{"rid": rid, "kind": "tick"}])),
+        ).fetchall()
+        for r in rows:
+            conn.execute(
+                "insert into item_feedback (tenant_id, item_id, actor, verdict, note)"
+                " values (%s,%s,%s,'retire',%s)",
+                (r["tenant_id"], r["id"], actor, f"its right answers sat in one place ({rid}): drawn again"),
+            )
+        out[(code, difficulty)] += len(rows)
+    return out
+
+
 def _held_per_way(conn, code, difficulty, check, matches):
     """{case: what the level holds of it in each way it is printed in} and how many questions it holds. A level that
     lists written methods holds each case's share in every one of them (ADR 0055), so a level full of an older way's
@@ -97,9 +164,38 @@ def _held_per_way(conn, code, difficulty, check, matches):
     return have, len(rows)
 
 
+def reinstate(conn, code, difficulty, n):
+    """Up to `n` of the level's retired questions brought back when nothing says why they left and its rules as they
+    stand hold them. Found 2026-10-12 on a copy of live: questions made on 18 Sep and retired with no reason recorded
+    held the very keys ADD.1D1D Easy and SUB.2D1D Hard draw, and a level whose whole region is its target (108, 72)
+    could never be filled. One a person or a rule retired, its reason recorded, stays retired. Returns how many."""
+    if n <= 0:
+        return 0
+    held, back = cases.holds(conn), 0
+    for r in conn.execute(
+        "select i.id, i.fmt, i.stem, i.tags, i.spec, i.responses, i.skill_set_code, i.difficulty from item i"
+        " where i.status = 'retired' and i.source = 'generated' and i.skill_set_code = %s and i.difficulty = %s"
+        " and not exists (select 1 from item_feedback f where f.item_id = i.id) order by i.created_at, i.item_key",
+        (code, difficulty),
+    ).fetchall():
+        if back < n and not held(r):
+            conn.execute("update item set status = 'active', updated_at = now() where id = %s", (r["id"],))
+            back += 1
+    return back
+
+
 def top_up(conn, code, difficulty, target, rng=None):
-    """Fill one level to `target`, each case to its share in every way the level prints it. Returns how many questions
-    it added."""
+    """Fill one level to `target`: first with its own retired questions nothing says why it left (`reinstate`), then
+    each case to its share in every way the level prints it. Returns how many questions it added."""
+    held = conn.execute(
+        "select count(*) as n from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+        (code, difficulty),
+    ).fetchone()["n"]
+    return reinstate(conn, code, difficulty, target - held) + _drawn_up(conn, code, difficulty, target, rng)
+
+
+def _drawn_up(conn, code, difficulty, target, rng=None):
+    """Draw one level up to `target`, each case to its share in every way the level prints it. Returns how many."""
     _, _, check = spec(conn, code, difficulty)
     if check.get("cases"):
         matches = cases.for_level(conn, check)
@@ -130,15 +226,17 @@ def top_up(conn, code, difficulty, target, rng=None):
 
 
 def refill(conn, rng=None, after_level=None):
-    """Relabel, retire what no longer fits, then top every level up to its target. The caller commits.
+    """Relabel, retire what no longer fits and the groups a corrected rule left answered in one place, then top every
+    level up to its target. The caller commits.
 
     Relabelling comes first: whether a question still fits its level is read from its tags, and tags
     stored before the measurements improved would retire a question for a reading it no longer has."""
     labels.relabel(conn)
     retired = retire_outside(conn)
+    redrawn = redraw_unfair(conn)
     added = Counter()
     for r in inventory.coverage(conn):
         added[(r["code"], r["difficulty"])] = top_up(conn, r["code"], r["difficulty"], r["target"], rng)
         if after_level:
             after_level(r["code"], r["difficulty"], added[(r["code"], r["difficulty"])])
-    return retired, added
+    return retired, redrawn, added

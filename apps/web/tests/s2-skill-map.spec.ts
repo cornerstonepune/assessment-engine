@@ -134,12 +134,13 @@ test("every waiting skill is approved from one page, in the approver's name", as
     await page.goto("/");
     await page.getByRole("link", { name: "Read and approve →" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Approve the skills");
-    // the table of what a mistake charges waits beside them (step 8b) and is approved with the same press
+    // the table of what a mistake charges waits beside them (step 8b), approved by a press of its own: a press meant
+    // for some skills never approves it (goals/ui6a-approve-filtered.yaml)
     await expect(page.getByRole("heading", { name: "What a wrong answer counts against" })).toBeVisible();
-    await page
-      .getByRole("button", { name: "Approve all 2 skills and what a wrong answer counts against as written, as End-to-end test" })
-      .click();
-    await expect(page.getByRole("status")).toContainText("Approved 2 as written");
+    await page.getByRole("button", { name: "Approve this table as written, as End-to-end test" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "What a wrong answer counts against is approved" })).toBeVisible();
+    await page.getByRole("button", { name: "Approve all 2 skills as written, as End-to-end test" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Approved, in your name. Every skill is approved." })).toBeVisible();
     const [approved] = await sql<{ by: string; same: boolean }[]>`
       select a.value ->> 'by' as by, (a.value -> 'table') = t.value as same
       from config a, config t where a.key = 'skills.charges_by_kind.approved' and t.key = 'skills.charges_by_kind'`;
