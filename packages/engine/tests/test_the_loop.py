@@ -202,7 +202,8 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
         f"{code} {level}: next {nxt[:1]}"
     )
     assert any(q["shows_mistake"] for q in nxt[0]["questions"]), (
-        f"{code} {level}: no next question can show it"
+        f"{code} {level}: no next question can show {mistake} — {nxt[0]['level']}, skill {nxt[0]['skill']},"
+        f" {[(q['fmt'], q['text'][:40]) for q in nxt[0]['questions']]}"
     )
 
     name = mistake_names.names(conn)(mistake)

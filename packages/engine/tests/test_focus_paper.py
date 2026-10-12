@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from engine.assess import graph, verify
+from engine.assess import focus, graph, verify
 from engine.assess import tags as T
 from engine.assess.items import Item
 from engine.core import db
@@ -335,3 +335,40 @@ def test_45_plus_8_needs_an_exchange_so_grade_1_waits_for_the_educator():
     held = _levels_holding(45, "+", 8)
     assert held.get(("ADD.2D1D", "Medium")) == "G2"
     assert "G1" not in held.values()
+
+
+def test_a_mistake_that_only_an_easier_level_can_show_is_worked_on_there(conn):
+    """A repeated mistake is worked on where it can happen: up from the level a child's share calls for, and, when no
+    level from there up can show it, down to the nearest that can. Found by the loop (M5a, goals/md5a-the-loop.yaml): a
+    Grade 3 child dividing a number by itself and writing 0 (M_DIV_SELF_AS_ZERO), on MD.EQUALITY Easy, mostly right,
+    was given a Medium paper — and no Medium, Hard or Advance question of MD.EQUALITY can show that mistake."""
+    shows = {
+        r["difficulty"]
+        for r in conn.execute(
+            "select distinct difficulty from item where status = 'active' and skill_set_code = 'MD.EQUALITY' and"
+            " exists (select 1 from jsonb_array_elements(responses) x where x->'misconceptions' ? 'M_DIV_SELF_AS_ZERO')"
+        )
+    }
+    assert shows == {"Easy"}, shows
+    area = focus.Area("MD.EQUALITY", "NUM.OPS.04", "Medium", 10, 14, "M_DIV_SELF_AS_ZERO", "patterned_error")
+    levels = {"MD.EQUALITY": ("Easy", "Medium")}
+    assert focus_paper._where_it_shows(conn, area, levels).level == "Easy"
+
+
+def test_the_level_a_mistake_is_worked_on_is_one_whose_questions_of_the_childs_skill_can_show_it(conn):
+    """The paper draws the child's own skill first; so the level it sits at is one where questions of that skill can show
+    the mistake. Found by the loop (M5a): reversing whether an equation's claim is true (M_REVERSES_CLAIM_TRUTH, charged
+    to equations, NUM.OPS.05) was put at Medium, where only a division check of another skill can show it — and the
+    paper's twelve questions of equations showed it nowhere. Equations show it at Easy and at Advance; up first."""
+    rows = conn.execute(
+        "select difficulty, 'NUM.OPS.05' = any(skill_codes) as own from item where status = 'active'"
+        " and skill_set_code = 'MD.EQUALITY' and exists (select 1 from jsonb_array_elements(responses) x"
+        " where x->'misconceptions' ? 'M_REVERSES_CLAIM_TRUTH')"
+    ).fetchall()
+    assert {r["difficulty"] for r in rows if r["own"]} == {"Easy", "Advance"}
+    assert {r["difficulty"] for r in rows if not r["own"]} >= {"Medium"}
+    area = focus.Area(
+        "MD.EQUALITY", "NUM.OPS.05", "Medium", 30, 40, "M_REVERSES_CLAIM_TRUTH", "patterned_error"
+    )
+    levels = {"MD.EQUALITY": ("Easy", "Medium", "Hard", "Advance")}
+    assert focus_paper._where_it_shows(conn, area, levels).level == "Advance"

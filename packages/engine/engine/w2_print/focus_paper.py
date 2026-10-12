@@ -109,17 +109,35 @@ def _states(conn, child_id):
 def _where_it_shows(conn, area, levels) -> focus.Area:
     """A repeated mistake is worked on where it can happen: the home paper moves up from its level to the first
     the skill set defines whose questions can show the mistake. Taking the smaller digit from the larger needs an
-    exchange, which Easy never asks for — an Easy paper could not show the child the mistake it is for."""
+    exchange, which Easy never asks for — an Easy paper could not show the child the mistake it is for. When no level
+    from there up can show it, it moves down to the nearest that can: dividing a number by itself and writing 0 is a
+    mistake only MD.EQUALITY's Easy questions can show, made by a child mostly right, whose share calls for Medium.
+
+    The paper draws the child's own skill first (`_draw`), so a level is taken where questions of that skill can show
+    the mistake, and only failing that one where any of its questions can: reversing an equation's claim (equations'
+    mistake) shows at Medium only in a division check of another skill, and a Medium paper of equations never showed
+    it."""
     if not area.mistake:
         return area
     defined = levels.get(area.skill_set, ())
-    for level in [d for d in focus.LEVELS[focus.LEVELS.index(area.level) :] if d in defined]:
-        rows = conn.execute(
-            "select responses from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+    at = focus.LEVELS.index(area.level)
+    up, down = focus.LEVELS[at:], focus.LEVELS[:at][::-1]
+    order = [d for d in (*up, *down) if d in defined]
+    rows = {
+        level: conn.execute(
+            "select responses, skill_codes from item where status = 'active' and skill_set_code = %s"
+            " and difficulty = %s",
             (area.skill_set, level),
         ).fetchall()
-        if any(_can_show(r, area.mistake) for r in rows):
-            return replace(area, level=level)
+        for level in order
+    }
+    for own in (True, False):
+        for level in order:
+            if any(
+                _can_show(r, area.mistake) and (not own or area.skill_code in r["skill_codes"])
+                for r in rows[level]
+            ):
+                return replace(area, level=level)
     return area
 
 

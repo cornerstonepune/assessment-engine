@@ -111,3 +111,18 @@ def test_a_story_that_halves_is_still_the_case_the_addition_document_names():
     assert t["taxonomy"] == "ADD_SUB"
     assert taxonomy.matches(w29["match"], "word_2step", t)
     assert skills.operations("word_2step", spec, stem) == ["-", "÷"]
+
+
+def test_a_slip_adding_the_digits_in_the_test_for_3_counts_against_addition():
+    """ "Is 565 divisible by 3? Add its digits first.": the child adds 5 + 6 + 5 in a box, then says yes or no from the
+    3 times table. Its spec said only "×", so a fact one out in that addition (M_FACT_PM1, which has + and − rows and no ×
+    row) counted against Multiplication, and the report found neither its name for the operation nor what the school does
+    about it (M5a, goals/md5a-the-loop.yaml). The shape's own operations are read before a stored copy that predates them."""
+    stored = {"ops": ["×"], "shape": "DIVISIBLE_BY_3", "number": 565}
+    stem = "Is 565 divisible by 3? Add its digits first."
+    assert skills.operations("multiples", stored, stem) == ["+", "×"]
+    assert _charged("multiples", stored, stem, ["NUM.CNT.08"], "M_FACT_PM1") == ADD
+    other = {"ops": ["×"], "shape": "IS_A_MULTIPLE", "a": 48, "b": 6}
+    assert skills.operations("multiples", other, "Is 48 a multiple of 6?") == ["×"], (
+        "the other shapes only multiply"
+    )

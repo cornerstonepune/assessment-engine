@@ -16,6 +16,7 @@ import re
 from typing import Any
 
 from . import md_tags as MD
+from . import multiples as MP
 from . import operations as O
 from . import words as W
 
@@ -36,6 +37,10 @@ def operations(fmt: str, spec: dict[str, Any], stem: str | None = "", halving: b
         # to 90, one is 20 more" is a take-away, then a division by 2 (`divide`); a stored spec's copy of the
         # operations predates it, so the template is read first
         return list(dict.fromkeys(tpl["op"] + ("÷" if halving and tpl.get("divide") else "")))
+    if fmt == "multiples" and spec.get("shape"):
+        # the shape's own operations (`multiples.OPS`), read first like a story's template: a stored copy predates the
+        # test for 3's addition, and said "×" alone
+        return MP.ops(spec["shape"])
     if spec.get("ops"):
         return [_sign(o) for o in spec["ops"]]
     if fmt == "word_2step":
