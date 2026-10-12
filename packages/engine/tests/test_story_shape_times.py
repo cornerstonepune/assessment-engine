@@ -12,6 +12,7 @@ from typer.testing import CliRunner
 from engine import cli
 from engine.assess import words as W
 from engine.core import db
+from engine.w1_bank import story_eval as E
 from engine.w1_bank import story_shape as S
 
 DB = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -75,7 +76,7 @@ def _worked_here(case, text):
 def test_every_times_story_in_the_gold_has_the_answer_worked_here_apart_from_the_engine():
     """The gold checks itself before any model is held to it, and the engine's own working agrees with it: a story
     filed under a case of the wrong operation, or of the wrong use of what is left over, fails here."""
-    times = [g for g in S.gold() if CASES[g["case"]]["taxonomy"] == "MUL_DIV"]
+    times = [g for g in E.gold() if CASES[g["case"]]["taxonomy"] == "MUL_DIV"]
     assert times, "the gold holds × and ÷ stories"
     for g in times:
         assert g["shape"] == CASES[g["case"]]["match"]["structure"], g["text"]
@@ -85,7 +86,7 @@ def test_every_times_story_in_the_gold_has_the_answer_worked_here_apart_from_the
 
 
 def test_every_times_story_case_has_three_gold_stories_in_words_no_template_uses():
-    gold = S.gold()
+    gold = E.gold()
     held = {c: sum(g["case"] == c for g in gold) for c in _story_cases("MUL_DIV")}
     assert all(n >= 3 for n in held.values()), {c: n for c, n in held.items() if n < 3}
     assert {g["case"] for g in gold} <= _story_cases("ADD_SUB") | _story_cases("MUL_DIV")
@@ -233,19 +234,19 @@ def test_the_engines_own_times_story_is_named_by_its_template_and_jev_is_not_ask
 
 @DB
 def test_the_eval_scores_the_version_it_names_on_the_stories_that_version_reads(conn):
-    """A reader that names every gold story's case scores all 148 under v2 with every one-step answer right; under
+    """A reader that names every gold story's case scores all 149 under v2 with every one-step answer right; under
     v1 the eval reads the 66 + and − stories alone, the 65 v1's bar was set on and a W29 added when one moved to W28."""
-    gold = {g["text"]: g["case"] for g in S.gold()}
+    gold = {g["text"]: g["case"] for g in E.gold()}
 
     def perfect(conn, purpose, state, options, version=None):
         label = CASES[gold[state["story"]]]["label"]
         best = next(k for k, v in options.items() if v.startswith(label + ". "))
         return {"choice": best, "ranked": [(best, 0.99)]}
 
-    v2 = S.evaluate(conn, ask=perfect, version=2)
-    assert (v2["n"], v2["right"], v2["left"], v2["wrong_answer"]) == (148, 148, 0, 0), v2["misses"]
-    assert v2["keyed"] == sum(1 for g in S.gold() if "answer" in g)
-    v1 = S.evaluate(conn, ask=perfect, version=1)
+    v2 = E.evaluate(conn, ask=perfect, version=2)
+    assert (v2["n"], v2["right"], v2["left"], v2["wrong_answer"]) == (149, 149, 0, 0), v2["misses"]
+    assert v2["keyed"] == sum(1 for g in E.gold() if "answer" in g)
+    v1 = E.evaluate(conn, ask=perfect, version=1)
     assert (v1["n"], v1["right"]) == (66, 66)
 
 
@@ -266,7 +267,7 @@ def test_engine_eval_scores_the_story_reader_version_it_is_given(monkeypatch):
         seen.update(kw)
         return result
 
-    monkeypatch.setattr(cli.story_shape, "evaluate", scored)
+    monkeypatch.setattr(cli.story_eval, "evaluate", scored)
     monkeypatch.setattr(cli.db, "connect", _no_database)
     monkeypatch.setattr(cli, "_held", lambda purpose, score: None)
     CliRunner().invoke(cli.app, ["eval", "story_shape", "--version", "2"])
@@ -306,8 +307,72 @@ def test_a_price_list_sets_its_prices_out_as_a_list_and_two_prices_in_a_sentence
     """B26 reads its price from a list (`context: TABLE_OR_CHART`, "Price list: pen ₹15, eraser ₹5"); two prices told in
     a sentence ("a ruler costs ₹12 and a sharpener ₹8") are a number the question does not need, B25 (DECISIONS-LOG
     2026-10-12: the gold had filed one under B26, and the reader on live named it B25)."""
-    priced = [g for g in S.gold() if g["case"] in ("B25", "B26") and g["text"].count("₹") >= 2]
+    priced = [g for g in E.gold() if g["case"] in ("B25", "B26") and g["text"].count("₹") >= 2]
     assert {g["case"] for g in priced} == {"B25", "B26"}
     for g in priced:
         listed = ":" in g["text"].split("₹")[0]
         assert (g["case"] == "B26") == listed, g["text"]
+
+
+def _leaning(*ranked):
+    """A stand-in Jev that leans as Jev did on live (run 38251975489), each option with its probability."""
+
+    def ask(conn, purpose, state, options, version=None):
+        assert all(o in options for o, _ in ranked), "only options it was offered"
+        return {"choice": ranked[0][0], "ranked": list(ranked)}
+
+    return ask
+
+
+@DB
+def test_each_that_means_divide_is_told_from_grouping_by_the_storys_own_words(conn):
+    """B24 is grouping a story tells with "each" or "every" — the word that has a child multiply
+    (M_KEYWORD_OVERGENERALISED); B03 is the same grouping without it. Jev is asked to read "not the words it uses", so
+    on live it split 0.54 / 0.46 between them; the word is code's to read, and Jev is sure of grouping."""
+    plants = (
+        "Every plant needs 5 litres of water. The gardener uses 40 litres. How many plants does he water?"
+    )
+    got = S.name(conn, plants, _leaning(("GROUPING", 0.54), ("GROUPING_BY_EACH", 0.46)), version=2)
+    assert (got["case"], got["answer"], got["sure"], got["how"]) == ("B24", 8, 1.0, "jev+code"), got
+    sticks = "Papa ties 45 sticks into bundles of 5. How many bundles does he make?"
+    got = S.name(conn, sticks, _leaning(("GROUPING_BY_EACH", 0.54), ("GROUPING", 0.46)), version=2)
+    assert (got["case"], got["answer"], got["sure"]) == ("B03", 9, 1.0), got
+
+
+@DB
+def test_a_price_list_is_told_from_one_price_by_how_the_story_sets_out_its_prices(conn):
+    """B26 reads a price from a list (`context: TABLE_OR_CHART`); B06 is the same price told in a sentence. On live
+    Jev read both list stories as one price (0.71, 0.82), and code then took the second price for a number not needed."""
+    canteen = "Canteen prices: idli ₹10 a plate, dosa ₹30 a plate. What do 3 plates of dosa cost?"
+    ask = _leaning(("RATE_TOTAL", 0.71), ("RATE_TOTAL_TABLE_OR_CHART", 0.23), ("EXTRA_INFORMATION_MUL", 0.04))
+    got = S.name(conn, canteen, ask, version=2)
+    assert (got["case"], got["sure"]) == ("B26", 0.94), got
+    ruler = "At the stationery shop a ruler costs ₹12 and a sharpener ₹8. What do 4 sharpeners cost?"
+    got = S.name(conn, ruler, _leaning(("RATE_TOTAL_TABLE_OR_CHART", 0.8), ("RATE_TOTAL", 0.15)), version=2)
+    assert got["case"] == "B25", "two prices in a sentence are a price and a number not needed, not a list"
+
+
+@DB
+def test_a_story_whose_case_is_unsure_but_whose_sum_is_not_is_answered(conn):
+    """Nimish, 2026-10-12: "whats so complez about that qn; it's 84." Jev split 0.54 / 0.44 between two parts of a whole
+    and joining; both are 46 + 38. Which case it is waits on a person; the answer does not. Where the cases Jev leans to
+    work different answers, none is given."""
+    kabir = "Kabir's cricket team made 46 runs before lunch. After lunch they made 38 more. What was their total score?"
+    ask = _leaning(("PPW_WHOLE", 0.54), ("JOIN_RESULT", 0.44), ("ADD_ADD", 0.02))
+    got = S.name(conn, kabir, ask, version=2)
+    assert (got["case"], got["answer"]) == (None, 84) and "a person names" in got["why"], got
+    left = E.evaluate(conn, [{"case": "W01", "text": kabir, "answer": 84}], ask, version=2)
+    assert (left["left"], left["keyed"], left["wrong_answer"]) == (1, 1, 0)
+    split = S.name(conn, kabir, _leaning(("JOIN_RESULT", 0.5), ("COMPARE_DIFFERENCE", 0.5)), version=2)
+    assert split["answer"] is None, "46 + 38 and 46 − 38 are not one answer"
+
+
+def test_every_gold_story_of_a_pair_told_apart_by_its_print_is_filed_by_it():
+    """Held apart from the engine's code: a gold grouping story is B24 exactly when it says "each" or "every", and a
+    gold price story is B26 exactly when it sets its prices out after a colon — the gold the reader is scored on obeys
+    the rules the reader is held to (found 2026-10-12: "A gardener plants 54 saplings, 6 in each row" filed B03)."""
+    for g in E.gold():
+        if g["case"] in ("B03", "B24"):
+            assert (g["case"] == "B24") == bool(re.search(r"\b(each|every)\b", g["text"], re.I)), g["text"]
+        if g["case"] in ("B06", "B26"):
+            assert (g["case"] == "B26") == (":" in g["text"].split("₹")[0]), g["text"]

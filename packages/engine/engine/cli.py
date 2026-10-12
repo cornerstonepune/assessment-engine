@@ -10,7 +10,7 @@ from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
 from engine.core import asks, db, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, mistake_guess, review, spec, story_shape
+from engine.w1_bank import bank, mistake_guess, review, spec, story_eval, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
@@ -254,7 +254,7 @@ def eval_(
 
     if purpose == story_shape.PURPOSE:
         with db.connect() as conn:
-            r = story_shape.evaluate(conn, version=version or None)
+            r = story_eval.evaluate(conn, version=version or None)
             conn.commit()
         for m in r["misses"]:
             typer.echo(

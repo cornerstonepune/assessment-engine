@@ -362,6 +362,19 @@
         ]
       },
       "description": "Taxonomy sections whose cases are patterns read across levels — how carries and exchanges fall (§5) — rather than cases one level holds. `engine bank taxonomy` counts them as placed by being the rule the levels climb, and says so."
+    },
+    {
+      "key": "story_shape.told_by_words",
+      "description": "Story cases the taxonomy tells apart by a word, which the story reader settles by reading it (goals/md4d2b5-story-told-apart.yaml): a grouping story told with \"each\" or \"every\" is B24, \"each\" that means ÷ — the word that has a child multiply (M_KEYWORD_OVERGENERALISED); the same story without it is grouping, B03. The engine's own stories of each case are worded so (word_templates.json).",
+      "value": {
+        "GROUPING_BY_EACH": {
+          "instead_of": "GROUPING",
+          "words": [
+            "each",
+            "every"
+          ]
+        }
+      }
     }
   ]
 }

@@ -16,16 +16,14 @@ Jev is not `story.shape_sure_above` sure of is left for a person; a number writt
 person. Which taxonomies a version chooses among is its prompt row's (`json_schema.taxonomies`): v1 + and − alone.
 """
 
-import json
 import re
 
 from engine.adapters import jev, llm
 from engine.assess import divide_stories as DS
 from engine.assess import words as W
-from engine.core import db
+from engine.w1_bank import story_cases as SC
 
 PURPOSE = "story_shape"
-GOLD = db.REPO_ROOT / "supabase" / "seed" / "story_shape_gold.json"
 BAR = ("story.shape_sure_above", 0.6)
 EXTRA = "EXTRA_INFORMATION"
 NUMBER = re.compile(r"(?<![\w.])\d[\d,]*(?!\w)")  # "Class 2A" is a name, not a number
@@ -211,13 +209,44 @@ def name(conn, text, ask=None, version=None):
         )
     except jev.JevError as e:
         return _unnamed(str(e))
-    ranked = [(s, round(p, 3)) for s, p in got["ranked"][:3]]
-    best, p = got["ranked"][0] if got["ranked"] else (got["choice"], 0.0)
+    jevs = got["ranked"] or [(got["choice"], 0.0)]
+    order = SC.merged(SC.words(conn), known, jevs, text)  # a pair told apart by its print is code's to settle
+    ranked = [(s, round(p, 3)) for s, p in order[:3]]
+    best, p = order[0]
     if p < _bar(conn):
-        return _unnamed(
-            f"Jev is {p:.2f} sure it is {best}; below {_bar(conn)} a person names the shape", ranked
-        )
-    return _held(conn, known, best, text, round(p, 3), ranked)
+        return _unsure(conn, known, order, text, ranked)
+    out = _held(conn, known, best, text, round(p, 3), ranked)
+    if best != jevs[0][0] and out["how"] == "jev":
+        out |= {
+            "how": "jev+code",
+            "why": f"Jev read {jevs[0][0]}; the story's own words and layout make it {best}",
+        }
+    return out
+
+
+def _unsure(conn, known, order, text, ranked):
+    """Left for a person, with the answer when every case Jev leans to — enough of them to pass the bar — works the
+    same one. Nimish, 2026-10-12, of a story Jev split between joining and two parts of a whole: "it's 84"."""
+    bar, (best, p) = _bar(conn), order[0]
+    out = _unnamed(f"Jev is {p:.2f} sure it is {best}; below {bar} a person names the shape", ranked)
+    lean, mass = [], 0.0
+    for key, q in order:
+        lean.append(key)
+        mass += q
+        if mass >= bar:
+            break
+    n = len(numbers(text))
+    keys = {
+        worked(known[k]["match"], text) if k in known and n in counts(known[k]["match"]) else None
+        for k in lean
+    }
+    if mass >= bar and len(keys) == 1 and (one := keys.pop()) and one[0] is not None:
+        out |= {
+            "answer": one[0],
+            "remainder": one[1],
+            "why": out["why"] + f"; the answer is {one[0]} in each it leans to",
+        }
+    return out
 
 
 def _meanings(known):
@@ -311,54 +340,4 @@ def _unnamed(why, ranked=()):
         "placed": [],
         "ranked": list(ranked),
         "why": why,
-    }
-
-
-def gold():
-    return json.loads(GOLD.read_text(encoding="utf-8"))["stories"]
-
-
-def evaluate(conn, stories=None, ask=None, version=None):
-    """Jev against the gold, read by the active prompt row or `version`: of the stories it names, how many cases are
-    right and how many one-step answers are right of those it computes (the number that matters — a wrong case of the
-    same operation still gives the right key); how many it leaves for a person. With no stories given, the gold's
-    stories of the taxonomies the version reads: v1 is held to the + and − stories it was scored on."""
-    if stories is None:
-        reads = taxonomies(llm.active_prompt(conn, PURPOSE, version=version))
-        of = {r["code"]: r["taxonomy"] for r in conn.execute("select code, taxonomy from taxonomy_case")}
-        stories = [g for g in gold() if of.get(g["case"]) in reads]
-    named = right = keyed = wrong_answer = left = 0
-    misses, failed = [], []
-    asking = jev.counting(ask or jev.decide, failed)
-    for g in stories:
-        before = len(failed)
-        got = name(conn, g["text"], asking, version)
-        if len(failed) > before:  # Jev not answering is not Jev unsure: nobody was asked
-            continue
-        by = "case" if "case" in g else "shape"  # a story given with its shape alone is held to its shape
-        if got[by] is None:
-            left += 1
-            misses.append(
-                {"text": g["text"], "want": g[by], "got": None, "why": got["why"], "ranked": got["ranked"]}
-            )
-            continue
-        named += 1
-        right += got[by] == g[by]
-        if got["answer"] is not None:  # a key computed for a story that is not one step is a wrong key too
-            keyed += 1
-            wrong_answer += (got["answer"], got["remainder"]) != (g.get("answer"), g.get("remainder"))
-        if got[by] != g[by]:
-            misses.append(
-                {"text": g["text"], "want": g[by], "got": got[by], "why": "", "ranked": got["ranked"]}
-            )
-    return {
-        "n": len(stories),
-        "named": named,
-        "right": right,
-        "left": left,
-        "keyed": keyed,
-        "wrong_answer": wrong_answer,
-        "misses": misses,
-        "unanswered": len(failed),
-        "error": failed[0] if failed else "",
     }
