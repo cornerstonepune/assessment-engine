@@ -1,22 +1,26 @@
-"""A story question in anyone's words → its shape, its taxonomy case, where it sits, and — for one step — its answer
-(goals/j3-story-shape.yaml).
+"""A story question in anyone's words → its case, its shape, where it sits, and — for one step — its answer
+(goals/j3-story-shape.yaml, goals/md4d2b1-times-story-shape.yaml).
 
 A story's shape (taxonomy §10: join or take away with the result, the change or the start unknown; two parts and a
-whole; compare, and which side is unknown; the two-step shapes) is what decides the operation, so it decides the
-answer. The engine's own stories carry it by construction (`words.structure_of`, exact); a story written by an educator
+whole; compare, and which side is unknown; the two-step shapes; §13: equal groups, sharing and grouping, arrays, a
+price, times as many, and what a division does with what is left over) is what decides the operation, so it decides the
+answer. The engine's own stories carry it by construction (`words.template_of`, exact); a story written by an educator
 or printed on an outside paper does not. Reading a shape from words is judgement, so Jev chooses it from the
-taxonomy's own shape cases (ADR 0036) — and everything after is code: the numbers are read from the text, a one-step
-answer is the shape's operation on them (the operation is the engine's own templates'), and the skill set and level are
-the ones whose level names the case. Code also holds Jev's choice to the story's numbers: a shape whose own stories
-print two numbers is not taken for a story that prints four; a one-step question over three numbers is extra
-information by definition. A choice Jev is not `story.shape_sure_above` sure of is left for a person, and so is one the
-numbers contradict; a number written in words leaves the answer to a person.
+taxonomy's own story cases (ADR 0036, ADR 0071) — and everything after is code: the numbers are read from the text, a
+one-step answer is the case's operation on them (the operation is the engine's own templates'), and the skill set and
+level are the ones whose level names the case. Code also holds Jev's choice to the story's numbers: a case whose own
+stories print two numbers is not taken for a story that prints four; a one-step question over one number more is
+extra information by definition; a division the case says comes out exact, on numbers that leave some over, is a
+person's, and one that drops or rounds up what is left over, on numbers that leave nothing, is exact grouping. A choice
+Jev is not `story.shape_sure_above` sure of is left for a person; a number written in words leaves the answer to a
+person. Which taxonomies a version chooses among is its prompt row's (`json_schema.taxonomies`): v1 + and − alone.
 """
 
 import json
 import re
 
-from engine.adapters import jev
+from engine.adapters import jev, llm
+from engine.assess import divide_stories as DS
 from engine.assess import words as W
 from engine.core import db
 
@@ -25,6 +29,16 @@ GOLD = db.REPO_ROOT / "supabase" / "seed" / "story_shape_gold.json"
 BAR = ("story.shape_sure_above", 0.6)
 EXTRA = "EXTRA_INFORMATION"
 NUMBER = re.compile(r"(?<![\w.])\d[\d,]*(?!\w)")  # "Class 2A" is a name, not a number
+# the numbers each taxonomy's stories are shown with: + and −'s as v1 was scored on; × and ÷'s, a division that comes
+# out exact (48 ÷ 6), and 50 where the case is about what is left over
+EXAMPLE = {"ADD_SUB": {"a": 45, "b": 12, "c": 8}, "MUL_DIV": {"a": 48, "b": 6, "c": 4, "d": 3, "extra": 2}}
+APART = (
+    "remainder_use",
+    "operation",
+    "context",
+    "taxonomy",
+)  # what tells two cases of one shape apart, in order
+PRINTED = re.compile(r"\{(a|b|c|d|extra)\}")
 
 
 def _bar(conn):
@@ -32,55 +46,138 @@ def _bar(conn):
     return float(row["value"]) if row else BAR[1]
 
 
-def shapes(conn):
-    """{shape: (case code, what it is — the case's label and one of the engine's own stories of that shape)} for every
-    addition and subtraction case that is a story's shape. The case rows alone say "work backwards" or "several
-    conditions" with no story to show; a story beside each is what a reader of shapes needs. Multiplication and
-    division's shapes are offered once their story templates and their eval exist (M4, rule 7), never before."""
+def taxonomies(row):
+    """The taxonomies whose story cases a prompt row chooses among (`json_schema.taxonomies`): v1 says none, and reads
+    + and − alone, as it was scored."""
+    return (row.get("json_schema") or {}).get("taxonomies") or ["ADD_SUB"]
+
+
+def _known(conn, reads=("ADD_SUB",)):
+    """{option: case row} for every story case of these taxonomies, each under a name of its own (`_keys`)."""
     rows = conn.execute(
-        "select code, label, match->>'structure' as shape from taxonomy_case"
-        " where taxonomy = 'ADD_SUB' and match ? 'structure' order by code"
+        "select code, label, match from taxonomy_case where taxonomy = any(%s) and match ? 'structure'"
+        " order by taxonomy, code",
+        (list(reads),),
     ).fetchall()
-    return {
-        r["shape"]: (r["code"], f"{r['label']}. Stories of this shape: {_example(r['shape'])}") for r in rows
-    }
+    return dict(zip(_keys([r["match"] for r in rows]), rows))
 
 
-def _templates(shape, fmt=None):
-    """The engine's own + and − stories of a shape: the shapes read here are addition and subtraction's, and a shape
-    × and ÷ share by name (a number the story does not need) is read by its + and − stories alone until M4d2."""
-    return [t for t in W.templates(fmt, structure=shape) if set(t["op"]) <= set("+-")]
+def _keys(matches):
+    """A name for each case: its shape, and where cases share a shape, what sets each apart, the first of `APART` they
+    differ on (an array that multiplies and one that divides: ARRAY_MUL, ARRAY_DIV; a remainder rounded up:
+    GROUPING_ROUND_UP); a case with nothing of its own there keeps the shape's name."""
+    out = []
+    for m in matches:
+        same = [o for o in matches if o["structure"] == m["structure"]]
+        apart = next((k for k in APART if len({str(o.get(k)) for o in same}) > 1), None)
+        out.append(m["structure"] + (f"_{m[apart]}" if apart and m.get(apart) else ""))
+    if len(set(out)) != len(out):
+        raise ValueError(f"two story cases share a name: {sorted(k for k in out if out.count(k) > 1)}")
+    return out
 
 
-def _example(shape):
-    """Every one of the engine's own stories of the shape, not the first: CONSTRAINT's first reads like working
+def shapes(conn, reads=("ADD_SUB",)):
+    """{option: (case code, what it is — the case's label and the engine's own stories of it)} for every story case of
+    these taxonomies. The case rows alone say "work backwards" or "several conditions" with no story to show; a story
+    beside each is what a reader of shapes needs."""
+    return _meanings(_known(conn, reads))
+
+
+def _fits(t, m):
+    """Whether a story template is one of this case's: its shape, its taxonomy's operations, and what the case says of
+    the operation, what is left over and a price list."""
+    if t["structure"] != m["structure"]:
+        return False
+    plus = set(t["op"]) <= set("+-")
+    if m["taxonomy"] == "ADD_SUB" or plus:
+        return plus and m["taxonomy"] == "ADD_SUB"
+    sign = {"MUL": "×", "DIV": "÷"}.get(m.get("operation"))
+    return (
+        (sign is None or t["op"] == sign)
+        and t.get("remainder_use") == m.get("remainder_use")
+        and bool(t.get("table")) == (m.get("context") == "TABLE_OR_CHART")
+    )
+
+
+def _templates(m, fmt=None):
+    """The engine's own stories of a case: a shape × and ÷ share by name with + and − (a number the story does not
+    need) is each taxonomy's own."""
+    return [t for t in W.templates(fmt, structure=m["structure"]) if _fits(t, m)]
+
+
+def _example(m):
+    """Every one of the engine's own stories of the case, not the first: CONSTRAINT's first reads like working
     backwards, and a reader shown only that one took "two numbers, their total and their difference" for a compare."""
-    stories = [t["text"].format(a=45, b=12, c=8, n="Asha", n2="Ravi") for t in _templates(shape)]
-    return " / ".join(stories)
+    nums = EXAMPLE[m["taxonomy"]] | ({"a": 50} if m.get("remainder_use") else {})
+    return " / ".join(_told(t, nums) for t in _templates(m))
 
 
-def counts(shape):
-    """How many numbers the engine's own stories of this shape print ({2} for a one-step shape, {3} for most of two)."""
-    return {len(set(re.findall(r"\{([abc])\}", t["text"]))) for t in _templates(shape)}
+def _cells(t):
+    """[(label, number's name)] of a story's table, as `words.story_spec` pairs them: each label beside a and b, or each
+    beside the number it names (a price list: "b", "c")."""
+    return [(c[0], c[1]) if isinstance(c, list) else (c, k) for c, k in zip(t.get("table") or [], "ab")]
 
 
-def one_step_op(shape):
-    """'+' or '-' for a one-step shape, as the engine's own stories of that shape carry it; None for any other."""
-    ops = {t["op"] for t in _templates(shape, "word_1step")}
-    return ops.pop() if len(ops) == 1 and ops <= {"+", "-"} else None
+def _told(t, nums):
+    """A story as its reader sees it, a price list's prices before its question; a table of a and b beside two labels
+    reads as its words say ("The table shows"), as v1 was scored on."""
+    text = t["text"].format(**nums, n="Asha", n2="Ravi")
+    priced = [c for c in t.get("table") or [] if isinstance(c, list)]
+    return f"Price list: {', '.join(f'{label} {nums[k]}' for label, k in priced)}. {text}" if priced else text
+
+
+def counts(m):
+    """How many numbers the engine's own stories of this case print ({2} for most one-step cases, {1} for twice and
+    half as many, {3} for most of two steps), a table's among them."""
+    return {len(set(PRINTED.findall(t["text"])) | {k for _, k in _cells(t)}) for t in _templates(m)}
+
+
+def one_step_op(m):
+    """'+', '-', '×' or '÷' for a one-step case, as the engine's own stories of it carry it; None for any other."""
+    ops = {t["op"] for t in _templates(m, "word_1step")}
+    return ops.pop() if len(ops) == 1 and ops <= {"+", "-", "×", "÷"} else None
+
+
+def _fixed(m):
+    """The number a case's own stories fix and never print: twice as many and half as many are × 2 and ÷ 2."""
+    got = {
+        v
+        for t in _templates(m, "word_1step")
+        for v in (t.get("numbers") or {}).values()
+        if isinstance(v, int)
+    }
+    return got.pop() if len(got) == 1 else None
 
 
 def numbers(text):
     return [int(n.replace(",", "")) for n in NUMBER.findall(text)]
 
 
-def answer(shape, text):
-    """The one-step answer, computed: the shape's operation on the story's two numbers (a take-away of the smaller
-    from the larger, whichever is written first). None when code cannot be sure of it."""
-    op, ns = one_step_op(shape), numbers(text)
+def _operands(m, text):
+    ns, fixed = numbers(text), _fixed(m)
+    return ns + [fixed] if len(ns) == 1 and fixed else ns
+
+
+def worked(m, text):
+    """(the answer, the remainder where the story asks for both) of a one-step story, computed: the case's operation on
+    the story's two numbers — a take-away or a division of the larger by the smaller, whichever is written first, and
+    what is left over used as the case says (`divide_stories.answered`). (None, None) when code cannot be sure of it,
+    and for a division the case says comes out exact on numbers that leave some over."""
+    op, ns = one_step_op(m), _operands(m, text)
     if op is None or len(ns) != 2:
-        return None
-    return sum(ns) if op == "+" else max(ns) - min(ns)
+        return None, None
+    big, small = max(ns), min(ns)
+    if op in "+×":
+        return (sum(ns) if op == "+" else ns[0] * ns[1]), None
+    if op == "-":
+        return big - small, None
+    if small == 0 or bool(big % small) != bool(m.get("remainder_use")):
+        return None, None
+    return DS.answered(m.get("remainder_use"), big, small)
+
+
+def answer(m, text):
+    return worked(m, text)[0]
 
 
 def placed(conn, case):
@@ -95,15 +192,19 @@ def placed(conn, case):
     ]
 
 
-def name(conn, text, ask=None):
-    """→ {shape, case, sure, how ('template' | 'jev' | 'jev+code' | None), answer, placed, ranked, why}."""
-    known = shapes(conn)
-    own = W.structure_of(text)
-    if own in known:
+def name(conn, text, ask=None, version=None):
+    """→ {shape, case, sure, how ('template' | 'jev' | 'jev+code' | None), answer, remainder, placed, ranked, why}, read
+    by the purpose's active prompt row, or `version` (only an eval names one)."""
+    known = _known(conn, taxonomies(llm.active_prompt(conn, PURPOSE, version=version)))
+    tpl = W.template_of(text)
+    own = next((k for k, r in known.items() if tpl and _fits(tpl, r["match"])), None)
+    if own:
         return _named(conn, known, own, text, 1.0, "template", [], "")
-    about = {s: meaning for s, (_, meaning) in known.items()}
+    about = {k: meaning for k, (_, meaning) in _meanings(known).items()}
     try:
-        got = (ask or jev.decide)(conn, PURPOSE, {"story": text.strip()}, about)
+        got = (ask or jev.decide)(
+            conn, PURPOSE, {"story": text.strip()}, about, **({"version": version} if version else {})
+        )
     except jev.JevError as e:
         return _unnamed(str(e))
     ranked = [(s, round(p, 3)) for s, p in got["ranked"][:3]]
@@ -112,27 +213,84 @@ def name(conn, text, ask=None):
         return _unnamed(
             f"Jev is {p:.2f} sure it is {best}; below {_bar(conn)} a person names the shape", ranked
         )
-    n, want = len(numbers(text)), counts(best)
+    return _held(conn, known, best, text, round(p, 3), ranked)
+
+
+def _meanings(known):
+    return {
+        k: (r["code"], f"{r['label']}. Stories of this shape: {_example(r['match'])}")
+        for k, r in known.items()
+    }
+
+
+def _held(conn, known, best, text, sure, ranked):
+    """Jev's choice held to the story's numbers: a case whose stories print two numbers is not taken for a story that
+    prints four; a one-step question over one number more than its case prints has a number it does not need, which is
+    what its taxonomy's EXTRA_INFORMATION case is, of the same operation."""
+    m = known[best]["match"]
+    n, want = len(numbers(text)), counts(m)
     if n in want:
-        return _named(conn, known, best, text, round(p, 3), "jev", ranked, "")
-    if one_step_op(best) and n == 3 and EXTRA in known:
-        # a one-step question over three numbers: one of them is not needed — which is what the shape is
-        why = f"Jev read {best}; the story prints 3 numbers, so one is not needed"
-        return _named(conn, known, EXTRA, text, round(p, 3), "jev+code", ranked, why)
+        return _divided(conn, known, best, text, sure, ranked)
+    extra = next(
+        (
+            k
+            for k, r in known.items()
+            if r["match"]["structure"] == EXTRA
+            and r["match"]["taxonomy"] == m["taxonomy"]
+            and r["match"].get("operation") in (None, m.get("operation"))
+        ),
+        None,
+    )
+    if one_step_op(m) and want and n == max(want) + 1 and extra:
+        why = f"Jev read {best}; the story prints {n} numbers, so one is not needed"
+        return _named(conn, known, extra, text, sure, "jev+code", ranked, why)
     return _unnamed(
         f"Jev read {best}, whose stories print {sorted(want)} numbers; this one prints {n}", ranked
     )
 
 
-def _named(conn, known, shape, text, sure, how, ranked, why):
-    case = known[shape][0]
+def _divided(conn, known, best, text, sure, ranked):
+    """A one-step division held to what its numbers leave over. A case that says nothing is left over, read for numbers
+    that leave some, is a person's: what the story does with them is not code's to guess. A case that drops what is
+    left over or rounds it up, read for numbers that leave nothing, is the story of exact grouping: nothing is over."""
+    m = known[best]["match"]
+    ns = _operands(m, text)
+    if one_step_op(m) != "÷" or len(ns) != 2:
+        return _named(conn, known, best, text, sure, "jev", ranked, "")
+    big, small = max(ns), min(ns)
+    if small == 0:
+        return _unnamed(f"Jev read {best}; a division by 0 is a person's", ranked)
+    over, use = big % small, m.get("remainder_use")
+    if over and not use:
+        why = f"Jev read {best}; {big} ÷ {small} leaves {over} over, which a story of this case never does"
+        return _unnamed(f"{why}: what the story does with them is a person's", ranked)
+    exact = next(
+        (
+            k
+            for k, r in known.items()
+            if r["match"]["structure"] == m["structure"]
+            and r["match"]["taxonomy"] == m["taxonomy"]
+            and not r["match"].get("remainder_use")
+        ),
+        None,
+    )
+    if not over and use in ("ROUND_DOWN", "ROUND_UP") and exact:
+        why = f"Jev read {best}; {big} ÷ {small} leaves nothing over, so nothing is dropped or rounded up"
+        return _named(conn, known, exact, text, sure, "jev+code", ranked, why)
+    return _named(conn, known, best, text, sure, "jev", ranked, "")
+
+
+def _named(conn, known, key, text, sure, how, ranked, why):
+    r = known[key]
+    ans, rem = worked(r["match"], text)
     return {
-        "shape": shape,
-        "case": case,
+        "shape": r["match"]["structure"],
+        "case": r["code"],
         "sure": sure,
         "how": how,
-        "answer": answer(shape, text),
-        "placed": placed(conn, case),
+        "answer": ans,
+        "remainder": rem,
+        "placed": placed(conn, r["code"]),
         "ranked": ranked,
         "why": why,
     }
@@ -145,6 +303,7 @@ def _unnamed(why, ranked=()):
         "sure": None,
         "how": None,
         "answer": None,
+        "remainder": None,
         "placed": [],
         "ranked": list(ranked),
         "why": why,
@@ -155,30 +314,35 @@ def gold():
     return json.loads(GOLD.read_text(encoding="utf-8"))["stories"]
 
 
-def evaluate(conn, stories=None, ask=None):
-    """Jev against the gold: of the stories it names, how many shapes are right and how many one-step answers are
-    right of those it computes (the number that matters — a wrong shape of the same operation still gives the right
-    key); how many it leaves for a person."""
-    stories = stories if stories is not None else gold()
+def evaluate(conn, stories=None, ask=None, version=None):
+    """Jev against the gold, read by the active prompt row or `version`: of the stories it names, how many cases are
+    right and how many one-step answers are right of those it computes (the number that matters — a wrong case of the
+    same operation still gives the right key); how many it leaves for a person. With no stories given, the gold's
+    stories of the taxonomies the version reads: v1 is held to the + and − stories it was scored on."""
+    if stories is None:
+        reads = taxonomies(llm.active_prompt(conn, PURPOSE, version=version))
+        of = {r["code"]: r["taxonomy"] for r in conn.execute("select code, taxonomy from taxonomy_case")}
+        stories = [g for g in gold() if of.get(g["case"]) in reads]
     named = right = keyed = wrong_answer = left = 0
     misses, failed = [], []
     asking = jev.counting(ask or jev.decide, failed)
     for g in stories:
         before = len(failed)
-        got = name(conn, g["text"], asking)
+        got = name(conn, g["text"], asking, version)
         if len(failed) > before:  # Jev not answering is not Jev unsure: nobody was asked
             continue
-        if got["shape"] is None:
+        by = "case" if "case" in g else "shape"  # a story given with its shape alone is held to its shape
+        if got[by] is None:
             left += 1
-            misses.append({"text": g["text"], "want": g["shape"], "got": None, "why": got["why"]})
+            misses.append({"text": g["text"], "want": g[by], "got": None, "why": got["why"]})
             continue
         named += 1
-        right += got["shape"] == g["shape"]
+        right += got[by] == g[by]
         if got["answer"] is not None:  # a key computed for a story that is not one step is a wrong key too
             keyed += 1
-            wrong_answer += got["answer"] != g.get("answer")
-        if got["shape"] != g["shape"]:
-            misses.append({"text": g["text"], "want": g["shape"], "got": got["shape"], "why": ""})
+            wrong_answer += (got["answer"], got["remainder"]) != (g.get("answer"), g.get("remainder"))
+        if got[by] != g[by]:
+            misses.append({"text": g["text"], "want": g[by], "got": got[by], "why": ""})
     return {
         "n": len(stories),
         "named": named,

@@ -55,10 +55,10 @@ def test_a_score_below_its_bar_fails_and_says_by_how_much(monkeypatch):
     ]
     assert bars.short({"wrong_answers": 0}, held) == ["shape_right: not measured by this eval"]
     result = {"misses": [], "named": 65, "n": 65, "keyed": 44, "wrong_answer": 0, "left": 0, "unanswered": 0}
-    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn: {**result, "right": 60})
+    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 60})
     r = _eval(monkeypatch, "story_shape")
     assert r.exit_code == 1 and "below its bar of 0.9692" in r.output, r.output
-    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn: {**result, "right": 63})
+    monkeypatch.setattr(cli.story_shape, "evaluate", lambda conn, **_: {**result, "right": 63})
     r = _eval(monkeypatch, "story_shape")
     assert r.exit_code == 0 and "every bar met" in r.output, r.output
     monkeypatch.setattr(cli.review, "evaluate", lambda conn, purpose, gold: {
