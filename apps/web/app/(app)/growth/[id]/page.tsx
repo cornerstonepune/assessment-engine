@@ -190,7 +190,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           <div className="grid content-start gap-[18px] self-start xl:sticky xl:top-6">
             <FocusPanel childId={id} name={child.first_name} staff={staffNames} />
 
-            <TheirPapers sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
+            <TheirPapers childId={id} sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
 
             <ParentReportPanel childId={id} report={report} approver={report.note?.approved_by ? (staffNames[report.note.approved_by] ?? report.note.approved_by) : null} />
           </div>

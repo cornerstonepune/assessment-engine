@@ -42,6 +42,18 @@ export default async function ApprovePage({ searchParams }: Props) {
   }
 
   const current = all.find((w) => w.section === q.section && w.week === q.week && w.kind === q.kind) ?? all[0];
+  // the two latest weeks planned (`weeks` is newest first), and how many chips they name
+  const latest = new Set([...new Set(all.map((w) => w.week))].slice(0, 2));
+  const recent = all.filter((w) => latest.has(w.week)).length;
+  const chip = (w: (typeof all)[number]) => (
+    <Link
+      key={`${w.section}-${w.week}-${w.kind}`}
+      href={`/papers/approve?section=${w.section}&week=${w.week}&kind=${w.kind}`}
+      className={`chip ${w === current ? "on" : ""}`}
+    >
+      {w.section} · {weekWords(w.week)} · {w.kind}
+    </Link>
+  );
   const [plan, spares] = await deadline(Promise.all([
     weekPlan(current.section, current.week, current.kind),
     spareSheets(current.section, current.week),
@@ -64,17 +76,17 @@ export default async function ApprovePage({ searchParams }: Props) {
         ) : null}
 
         {all.length > 1 ? (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {all.map((w) => (
-              <Link
-                key={`${w.section}-${w.week}-${w.kind}`}
-                href={`/papers/approve?section=${w.section}&week=${w.week}&kind=${w.kind}`}
-                className={`chip ${w === current ? "on" : ""}`}
-              >
-                {w.section} · {weekWords(w.week)} · {w.kind}
-              </Link>
-            ))}
-          </div>
+          // the latest two weeks' classes by name, the weeks before them folded (goals/ui6b-no-long-lists.yaml): one chip
+          // for each class, week and kind ever planned grew by about sixteen a week
+          <nav aria-label="Classes and weeks" className="mb-4 flex flex-wrap gap-2">
+            {all.filter((w) => latest.has(w.week)).map(chip)}
+            {all.length > recent ? (
+              <details className="basis-full" open={!latest.has(current.week)}>
+                <summary className="cursor-pointer text-[13px]">Earlier weeks ({all.length - recent})</summary>
+                <div className="mt-2 flex flex-wrap gap-2">{all.filter((w) => !latest.has(w.week)).map(chip)}</div>
+              </details>
+            ) : null}
+          </nav>
         ) : null}
 
         <Panel

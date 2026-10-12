@@ -33,12 +33,18 @@ export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set
   );
 }
 
+// a child's newest papers on their page; every one of them, filtered to the child, on Assessments
+// (goals/ui6b-no-long-lists.yaml): every paper ever made, grown each week, made the page a list of papers
+const NEWEST = 5;
+
 export function TheirPapers({
+  childId,
   sheets,
   read,
   failed,
   staff,
 }: {
+  childId: string;
   sheets: ChildSheet[];
   read: Paper[];
   failed: number;
@@ -50,7 +56,7 @@ export function TheirPapers({
           <p className="note">No paper has been made for this child or read from them yet.</p>
         ) : (
           <ul className="grid gap-3">
-            {sheets.map((s) => {
+            {sheets.slice(0, NEWEST).map((s) => {
               const narrative = read.find((p) => p.sheet === s.id)?.narrative;
               return (
                 <li key={s.id} className="text-[13px]">
@@ -76,6 +82,11 @@ export function TheirPapers({
             })}
           </ul>
         )}
+        {sheets.length > NEWEST ? (
+          <Link href={`/papers?view=papers&child=${childId}`} className="mt-3 block text-[13px]">
+            Every paper of this child, {sheets.length} in all →
+          </Link>
+        ) : null}
         {failed > 0 ? <p className="note mt-3">{failed} read{failed === 1 ? "" : "s"} failed and count for nothing.</p> : null}
         <p className="note mt-3">The scans stay on the school&rsquo;s drive; what the child wrote is shown under each step.</p>
     </Panel>

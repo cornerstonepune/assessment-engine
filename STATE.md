@@ -7275,3 +7275,24 @@ Goal `goals/l2-live-audit-clean.yaml`.
     approved → 1". Every rung has a spec, every unit meets its target, and no choice is answered by ticking one place.
   - What is left is the coordinator's approval of the 31 skills and the mistake table, on Curriculum → skills to
     approve.
+
+## UI6b — no other page a laundry list, built (2026-10-12)
+
+Goal `goals/ui6b-no-long-lists.yaml`. Each list measured in "UI6 — measured before the build" now shows what is needed
+first; the rest is one click away, or narrowed by a choice:
+- **A child's page:** their five newest papers, then "Every paper of this child, N in all →", which opens Assessments
+  filtered to the child.
+- **Today:** the first five classes or children under a line, then "and N more →" to the page that lists them all
+  (Approve papers, Parent reports). The menu's counts are unchanged.
+- **Questions to answer:** the answered ones folded under "Read the N answered".
+- **Approve papers:** the latest two weeks' classes by name; the weeks before them under "Earlier weeks (N)", open
+  when the pack shown is one of them.
+- **Parent reports:** "Every class" and one chip a class, each with how many wait.
+- **Proved:**
+  - `u24-no-long-lists.spec.ts`: each of its five tests was seen failing on the old pages, alone, on its own fault.
+  - With the pages: those five, and the specs of every page they touch (u20, u1, u15, u13, u17, s7, u22, u2,
+    screens), 72 passed.
+  - `tsc` and `eslint` clean.
+- **Not changed, not yet measured:** the library's proposals (`library/proposals.tsx`). Every proposal the engine
+  returns is shown as a form of several lines, neither folded nor capped. How many wait on live is not known; the
+  next rehearsal counts them before any change.

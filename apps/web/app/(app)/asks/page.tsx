@@ -36,17 +36,21 @@ export default async function Asks({ searchParams }: Props) {
           ))}
           {answered.length ? (
             <Panel title="Answered" label="Answered" aside={`${answered.length}`}>
-              <ul className="grid gap-3 text-[13.5px]">
-                {answered.map((a) => (
-                  <li key={a.code}>
-                    <b>{a.question}</b>
-                    <span className="block text-basalt/70">
-                      {a.answer === "agreed" ? "Agreed as drafted" : "Corrected"} by {a.answered_by}, {a.answered_at?.slice(0, 10)}
-                    </span>
-                    {a.correction ? <span className="block">It should say: {a.correction}</span> : null}
-                  </li>
-                ))}
-              </ul>
+              {/* folded until opened (goals/ui6b-no-long-lists.yaml): every question ever answered grows for ever */}
+              <details>
+                <summary className="cursor-pointer text-[13px]">Read the {answered.length} answered</summary>
+                <ul className="mt-3 grid gap-3 text-[13.5px]">
+                  {answered.map((a) => (
+                    <li key={a.code}>
+                      <b>{a.question}</b>
+                      <span className="block text-basalt/70">
+                        {a.answer === "agreed" ? "Agreed as drafted" : "Corrected"} by {a.answered_by}, {a.answered_at?.slice(0, 10)}
+                      </span>
+                      {a.correction ? <span className="block">It should say: {a.correction}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </Panel>
           ) : null}
         </div>

@@ -1,0 +1,34 @@
+name: ui6b-no-long-lists
+goal: >
+  No page is a laundry list. A child's page shows their five newest papers and opens every one of them on
+  Assessments; Today names the first five classes or children waiting under a line and opens the rest where they are
+  all listed; the questions already answered are folded under one line until opened; Approve papers names the latest
+  two weeks' classes and folds the weeks before them; Parent reports is narrowed by class.
+# Written 2026-10-12, before the code: UI6b (BUILD-ORDER). Nimish, the same day: "no page should have such laundary
+# lists like stuff". Measured first (STATE.md "UI6 — measured before the build"): every paper a child ever had, every
+# class pack and parent report waiting on Today, every question ever answered, every week ever planned and every parent
+# report waiting, each in full, one after another.
+says:
+  - words: "no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u24-no-long-lists.spec.ts::a child's page shows their newest papers and opens every one of them on Assessments"
+  - words: "no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u24-no-long-lists.spec.ts::Today names the first five classes waiting and opens the rest"
+  - words: "no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u24-no-long-lists.spec.ts::the questions answered are folded under one line until opened"
+  - words: "no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u24-no-long-lists.spec.ts::Approve papers names the latest two weeks and folds the weeks before them"
+  - words: "no page should have such laundary lists like stuff"
+    proved_by: "apps/web/tests/u24-no-long-lists.spec.ts::the parent reports waiting are narrowed by class"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration."
+scenarios: []
+criteria:
+  - name: the five lists, and the specs of the pages they are on
+    run: cd apps/web && npx playwright test tests/u20-child-by-topic.spec.ts tests/u24-no-long-lists.spec.ts tests/u1-today.spec.ts tests/u15-menu-and-today.spec.ts tests/u13-needs-you.spec.ts tests/u17-curriculum.spec.ts tests/s7-paper-from-library.spec.ts tests/u22-assessments-readable.spec.ts tests/u2-children.spec.ts tests/screens.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

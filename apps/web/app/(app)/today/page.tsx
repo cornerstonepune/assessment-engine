@@ -33,6 +33,10 @@ export default async function Today() {
   );
 }
 
+// the first few of a line's items, each its own link; the rest are where the line's `more` lists them all
+// (goals/ui6b-no-long-lists.yaml): a parent report waiting for each of 170 children was 170 links on Today
+const FIRST = 5;
+
 /** One kind of thing that waits: how many, what it is, and where it is done — or, for class packs and parent reports,
  *  each one of them as its own link. */
 function Row({ line }: { line: Line }) {
@@ -46,12 +50,17 @@ function Row({ line }: { line: Line }) {
         <p className="text-[13px] text-basalt/70">{line.words}</p>
         {line.items?.length ? (
           <ul className="mt-2 grid gap-1 text-[13.5px]">
-            {line.items.map((it) => (
+            {line.items.slice(0, FIRST).map((it) => (
               <li key={it.href}>
                 <Link href={it.href}>{it.label}</Link>
                 {it.n ? <span className="text-basalt/62"> — {it.n} {it.n === 1 ? "paper" : "papers"}</span> : null}
               </li>
             ))}
+            {line.items.length > FIRST && line.more ? (
+              <li>
+                <Link href={line.more}>and {line.items.length - FIRST} more →</Link>
+              </li>
+            ) : null}
           </ul>
         ) : null}
       </div>
