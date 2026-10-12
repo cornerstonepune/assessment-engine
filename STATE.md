@@ -7134,7 +7134,9 @@ Goal `goals/md4d2b2-what-a-slip-charges.yaml`, ADR 0072.
 - **The table** (`skills.charges_by_kind`) names the choice left: choosing the wrong operation in an equation or a fact
   family counts against the equation's skill, as a story's counts against Word problems. The approval page says the rule
   in one sentence above the table. It waits for one approval (A11), as it did.
-- **On the bank:** 469 charges move, every one on a × or ÷ question and every one to the operation the slip happens in or
-  the skill its row names; no + or − charge moves; 33 halving stories gain Division. `bin/update-live`'s `bank relabel`
-  writes them on live.
+- **On the bank:** 584 charges move. 530 are on × and ÷ questions, each to the operation the slip happens in, the skill
+  its row names, or the table's row; 54 are + and − equations, choosing the wrong operation now counting against the
+  equation's skill instead of Addition or Subtraction (the table's row, the same slip). 33 halving stories gain Division.
+  `bin/update-live`'s `bank relabel` writes them on live. First reported as "no + or − charge moves": measured before the
+  table's rows were added; `engine audit` on the copy showed the equations, measured again.
 - **Proved:** `test_md_charges.py` written first, seen failing on main `0af28cd` (5 of 6, each on the measured fault).

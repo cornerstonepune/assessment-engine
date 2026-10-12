@@ -5,7 +5,8 @@ goal: >
   facts is division's; a mistake whose row names its skill (the bar model's part left out: word problems) is charged
   there in a two-step story too; and a story that halves ("two numbers add up to 90, one is 20 more") counts on
   Division. What is left to a choice — choosing the wrong operation in a story, an equation or a fact family — is a
-  row of the table of what a mistake charges, which waits for one person's approval (A11).
+  row of the table of what a mistake charges, which waits for one person's approval (A11); the equation's row covers + and
+  − equations as well.
 # Written 2026-10-12, before the code: M4d2b's second half (BUILD-ORDER "M4d2b2"). Measured first, on the bank as
 # stored and again with the labels recomputed (STATE.md "M4d2b2 — measured before the build"): a question carrying two
 # operations never read the row of the one a mistake belongs to and charged its first skill; `skills.operations` read a
