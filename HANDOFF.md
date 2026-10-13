@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-13 — M5 merged and live; multiplication and division through the whole loop done
+
+- **#201 merged** as `35f38a7`. Main's CI, `migrate live` and `deploy engine` are green. `engine done` md5a–md5e all
+  proved on a fresh database; see STATE.md "M5 — merged and live".
+- **For Nimish to run:** `bin/update-live`. Its `bank relabel` corrects the test for 3's stored charges.
+- **Worth checking on live:** paper-maker copies, home papers and spares uploaded before M5b were dropped without a
+  word. Uploading those scans again reads them now.
+- **Next:** the insert "multiplication and division, through the whole loop" is complete (M0a–M5e). BUILD-ORDER goes
+  back to "Now: finish the engine, then its structure, then the screens" (2026-09-27), unless Nimish names another.
+
 ## 2026-10-12 — M5e: the score (computed)
 
 - **Slice:** M5e, on the same branch and PR as M5a–d.

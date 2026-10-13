@@ -7544,3 +7544,19 @@ no × or ÷ branch"):
   16–19 in M2d1, M3a and M3d. A new kind of question is code by design (ADR 0010: the bank's questions are made by
   code), so each new method or picture was a maker, a predictor and a layout in `assess/`. The cost was per kind of
   question, as ADR 0047 said, not once per operation, as BUILD-ORDER's sentence reads.
+
+## M5 — merged and live (2026-10-13)
+
+- **Merged:** #201 as `35f38a7`, by Nimish, 05:36 UTC.
+- **Main's runs on `35f38a7`, all success:** `ci` (engine, browser, web), `migrate live`, `deploy engine`, and the
+  website's deploy.
+- **`bin/engine done`** for each goal, on main's code against a database built fresh (`bin/testdb fresh`). Every one of
+  Nimish's sentences PROVED and every criterion PASSED:
+  - md5a: 2/2 proved, 2/2 criteria (the loop 67 passed, 1 skipped)
+  - md5b: 2/2 proved, 3/3 criteria (`test_read_back.py` 5 passed)
+  - md5c: 1/1 proved, 2/2 criteria
+  - md5d: 1/1 proved, 2/2 criteria (the browser spec, 1 passed)
+  - md5e: 1/1 proved, 3/3 criteria
+- **"Not live yet", in each report:** the live database did not answer from this container (ConnectionTimeout), so the
+  report could not check live's migrations itself. M5 adds no migration, and `migrate live` on `35f38a7` succeeded.
+- **Still to run on live:** `bin/update-live`. Its `bank relabel` charges the test for 3's stored questions to + then ×.

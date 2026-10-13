@@ -83,6 +83,9 @@ kind of question was code in the maths library (22 of 30 slices), so the cost wa
 | M5d | `goals/md5d-every-kind-draws.yaml` | the website draws every new kind of question: every × ÷ skill set's every kind on the Question bank with its numbers, never "undefined" or a code, each kind with a name in the school's words to pick it by |
 | M5e | `goals/md5e-the-score.yaml` | the files-per-workflow score recorded, from the git history of M0a–M5d, by a command (`engine slices`) |
 
+**Done 2026-10-13:** M0a–M5e merged and live (#201, `35f38a7`), each goal's `engine done` proved on a fresh database
+(STATE.md "M5 — merged and live").
+
 **Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is
 its cases. M2 is three slices (measured 2026-10-09, STATE.md "M2 — measured before the build" and "M2b — measured before the
 build"): the drawer and the five skills with `MUL.1D` re-homed onto them (M2a; the re-homing, once M2c, could not ship
