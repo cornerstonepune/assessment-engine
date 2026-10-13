@@ -202,6 +202,15 @@ def divisible_by_3(rng: Random) -> Shape:
     return stem, {"number": number}, [box, _tick("by3", "divisible by 3?", right, code)]
 
 
+# The operations a child carries out on each shape, in the order it asks for them (`skills.operations`): the test for 3
+# adds the digits, then says yes or no from the 3 times table; every other shape multiplies only.
+OPS = {"DIVISIBLE_BY_3": ["+", "×"]}
+
+
+def ops(shape: str) -> list[str]:
+    return OPS.get(shape, ["×"])
+
+
 SHAPES: dict[str, Callable[[Random], Shape]] = {
     "MULTIPLES": multiples,
     "IS_A_MULTIPLE": is_a_multiple,
@@ -218,7 +227,7 @@ def make(rng: Random, rung: str, signal: str, shape: str) -> Item:
     if shape not in SHAPES:
         raise ValueError(f"no multiples shape {shape!r}")
     stem, numbers, rs = SHAPES[shape](rng)
-    spec = {"shape": shape, "ops": ["×"], **numbers}
+    spec = {"shape": shape, "ops": ops(shape), **numbers}
     return item(f"MULT.{shape}", rung, signal, "multiples", stem, spec, rs, working_lines=1)
 
 

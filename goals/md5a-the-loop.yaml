@@ -1,0 +1,27 @@
+name: md5a-the-loop
+goal: >
+  Every multiplication and division skill set, at every level, goes round the whole loop and a mistake a child makes on
+  it comes back out at every stage. Its topic switched on as an educator does; a library worksheet of it printed for a
+  child; its boxes filled with known answers, one named mistake planted wherever its questions can show it; the copy
+  read and marked, each planted answer named; what the reader held confirmed by a person as the child wrote it; the paper
+  signed off; the mistake counted as evidence on the skill set's rung, repeating in the child's graph, the subject of the
+  child's next paper, and named on the class card and in the parent report's facts in the school's words.
+# Written 2026-10-12, before any code: M5a (BUILD-ORDER; M5 split in four: the loop M5a, 56 × 3 = 1518, the website, the
+# files-per-workflow score; a fifth, M5b, added once this found papers printed for a child are not read back). Measured first (STATE.md "M5 — measured before the build"): no test or
+# scenario runs the whole loop for any operation; the pieces exist — printing, the reader, marking, confirm_results, the
+# graph, the focus paper, the class card, the parent facts — and the closest pattern reads a library worksheet with the
+# handwriting reader stood in (`test_every_answer.py`). The handwriting reader is scored on its own (`engine eval`).
+says:
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "packages/engine/tests/test_the_loop.py::test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage"
+  - words: "the system should keep on working towards it till 100% accuracy is achieved."
+    proved_by: "packages/engine/tests/test_the_loop.py::test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage"
+manual: []
+scenarios: []
+criteria:
+  - name: every new skill set at every level round the loop, the planted mistake back at every stage — 100%, no level failing
+    run: cd packages/engine && uv run pytest -q tests/test_the_loop.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

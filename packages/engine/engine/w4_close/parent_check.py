@@ -56,7 +56,7 @@ COINS_SIZE = re.compile(r"\b(one|two|three|four)-digit number\b", re.IGNORECASE)
 # no fact holds a kite; Haiku 4.5, Sonnet 5.5 and Opus 5.5 each let it pass (2026-09-29). Which questions the facts
 # hold is code's: a question, story or example the words name by what it is about is one the facts hold
 NAMED = re.compile(r"\bthe ([a-z]+(?:-[a-z]+)?) (question|story|example)\b", re.IGNORECASE)
-NAMES_NOTHING = {"subtraction", "addition", "sum", "full", "whole", "same", "first", "second", "third", "next", "last",
+NAMES_NOTHING = {"subtraction", "addition", "multiplication", "division", "sum", "full", "whole", "same", "first", "second", "third", "next", "last",
                  "other", "word", "maths", "two-step", "one-step", "harder", "easier", "similar", "new"}  # fmt: skip
 # Nimish, 2026-09-29: a skill only improving reads as improving. e7, v12 on live: "[child] can add two 2-digit numbers
 # in columns and in a line, carrying exactly when a column needs it." of a skill 11 of 18 right — and the summary,

@@ -433,7 +433,7 @@ def import_scan(
     existing capture rather than a second one — the September batch's double count (HANDOFF.md)
     was two `legacy import` runs over the same file, each making its own candidates. A prior
     attempt that errored retries into that same row instead of leaving a third."""
-    template, by_key = rows or paper_rows(conn, paper_code)  # `rows`: a library worksheet (`copies.paper`)
+    template, by_key = rows or paper_rows(conn, paper_code)  # `rows`: a copy's paper (`printed_paper.paper`)
     paper = template["key"]
     tenant = template["tenant_id"]
     page_specs = {p["n"]: p for p in paper.get("pages", [{"n": 1}])}

@@ -1,0 +1,28 @@
+name: md5b-read-back
+goal: >
+  A paper the site prints for a child comes back. The next paper the loop gives a child, and every paper the paper maker
+  prints (a class practice, a class assessment, a home assessment), is read from its scan by the code on it onto that
+  child's own copy, as a library worksheet is: each answer read once, each mistake named, and once signed off counted in
+  the child's graph. A copy in a scan that cannot be read is named in what the reading reports, with why; none is
+  dropped without a word.
+# Written 2026-10-12, before any code: M5b (BUILD-ORDER), found by M5a (STATE.md "M5a"). Every paper the paper maker
+# prints, and every home paper, is a template with source 'focus' (`focus_paper.print_paper`). `copies.read`, the site's
+# only door for a scan (`inbox.read`), keeps copies of library worksheets only, so such a copy is in no line of what it
+# returns. The loop M5a proves ends at the next paper printed; this takes it round a second time.
+says:
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "packages/engine/tests/test_the_loop.py::test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage"
+  - words: "all three types of assessments should have the ability to select multiple children with different skill sets"
+    proved_by: "packages/engine/tests/test_read_back.py::test_every_kind_the_maker_prints_is_read_back_onto_each_childs_own_copy"
+manual: []
+scenarios: []
+criteria:
+  - name: every new skill set at every level round the loop twice — the next paper read back, the mistake named again
+    run: cd packages/engine && uv run pytest -q tests/test_the_loop.py
+    expect: "passed"
+  - name: the maker's papers read back onto each child; a copy that cannot be read named with why
+    run: cd packages/engine && uv run pytest -q tests/test_read_back.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -16,7 +16,7 @@ import pytest
 from engine.adapters import ocr
 from engine.core import db
 from engine.w2_print import library
-from engine.w3_read import boxes, copies, copy_scores, second_reader
+from engine.w3_read import boxes, copies, copy_scores, printed_paper, second_reader
 from tests.test_sorting import _scanned
 
 
@@ -94,7 +94,7 @@ def test_each_question_is_found_on_its_page_in_its_printed_words_and_the_name_ba
     conn, worksheet
 ):
     _, _, ids, pdf = worksheet
-    words, band = copies.printed(pdf)
+    words, band = printed_paper.printed(pdf)
     stems = {r["id"]: r["stem"] for r in conn.execute("select id, stem from item where id = any(%s)", (ids,))}
     assert sorted(words) == list(range(1, 13))
     for n, iid in enumerate(ids, 1):
@@ -126,7 +126,7 @@ def test_a_copy_whose_file_starts_at_its_second_page_is_read_against_the_questio
 
     got = copies.read(conn, scan, SECTION, ["Chitra"], "test", pages_of=lambda c: n)
     assert [(c["code"], c["child_id"]) for c in got] == [(code, child)]
-    words, _ = copies.printed(pdf)
+    words, _ = printed_paper.printed(pdf)
     on_later = {ids[q - 1] for q, (page, _) in words.items() if page >= 2}
     rows = conn.execute(
         "select r.item_id, r.raw_read::jsonb as raw from item_result r where r.capture_id = %s",
@@ -155,7 +155,7 @@ def test_a_reading_that_put_answers_on_questions_its_pages_do_not_hold_is_replac
     stand_in_reader(conn, ids, monkeypatch)
     scan = _scanned([tmp_path / "later.pdf"], tmp_path / "second-file.pdf")
     first = copies.read(conn, scan, SECTION, ["Devika"], "test", pages_of=lambda c: n)[0]["capture_id"]
-    words, _ = copies.printed(pdf)
+    words, _ = printed_paper.printed(pdf)
     on_page_1 = next(ids[q - 1] for q, (page, _) in words.items() if page == 1)
     conn.execute(  # what the old reading did: an answer on a question of a page this file does not hold, signed off
         "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state, confirmed_by)"
@@ -240,16 +240,18 @@ def test_a_question_whose_number_is_not_found_on_the_page_takes_its_page_from_th
     """`nothing read: 8` on 2026-09-24: question 8's number was not found on the printed page. The page each
     question prints on is in the key written beside the PDF; the question's words are its own."""
     _, code, ids, pdf = worksheet
-    words, band = copies.printed(pdf)
-    drawn = copies._pages_in_key(pdf)
+    words, band = printed_paper.printed(pdf)
+    drawn = printed_paper.pages_in_key(pdf)
     keys = {
         r["id"]: r["item_key"]
         for r in conn.execute("select id, item_key from item where id = any(%s)", (ids,))
     }
     assert {n: drawn[keys[i]] for n, i in enumerate(ids, 1)} == {n: p for n, (p, _) in words.items()}
 
-    monkeypatch.setattr(copies, "printed", lambda path: ({n: w for n, w in words.items() if n != 8}, band))
-    _, by_key, unread = copies.paper(conn, code)
+    monkeypatch.setattr(
+        printed_paper, "printed", lambda path: ({n: w for n, w in words.items() if n != 8}, band)
+    )
+    _, by_key, unread = printed_paper.paper(conn, code)
     assert "8" in by_key and 8 not in unread
     assert by_key["8"]["spec"]["page"] == words[8][0]
     assert by_key["8"]["spec"]["question"].split()[:4] == words[8][1].split()[:4]
@@ -271,13 +273,13 @@ def test_a_copy_printed_before_a_story_was_keyed_again_reads_its_boxes_by_the_ke
         "insert into item_key_change (tenant_id, item_id, old_key, new_key, why) values (%s, %s, %s, %s, 'a test')",
         (tenant, ids[0], was, now),
     )
-    paper, by_key, unread = copies.paper(conn, code, pdf)
+    paper, by_key, unread = printed_paper.paper(conn, code, pdf)
     keys = {r["item_key"] for r in conn.execute("select item_key from item where id = any(%s)", (ids,))}
     assert {
         cell["item"] for cell in paper["key"]["geometry"]
     } == keys  # every box named by its question's key now
     assert unread == [] and "1" in by_key
-    assert copies._pages_in_key(pdf, paper["key"]["geometry"])[now] == by_key["1"]["spec"]["page"]
+    assert printed_paper.pages_in_key(pdf, paper["key"]["geometry"])[now] == by_key["1"]["spec"]["page"]
 
 
 def test_a_copy_cut_where_the_server_cannot_see_it_moves_to_where_the_scans_live(tmp_path, monkeypatch):
@@ -309,7 +311,7 @@ def test_a_copy_with_no_kept_pdf_is_read_in_the_layout_its_page_was_printed_in(
     pdf = drawn[layout] if layout in drawn else drawn[next(iter(drawn))]
     scan = _scanned([pdf], tmp_path / "class.pdf")
 
-    assert copies._as_printed(conn, code, copies._cut(scan, [1], "copy01.pdf")) == pdf
+    assert printed_paper._as_printed(conn, code, copies._cut(scan, [1], "copy01.pdf")) == pdf
 
 
 def test_a_childs_kept_pdf_that_records_no_boxes_gives_way_to_the_layout_the_page_matches(
@@ -322,9 +324,10 @@ def test_a_childs_kept_pdf_that_records_no_boxes_gives_way_to_the_layout_the_pag
     bare = tmp_path / "printed-for-child.pdf"
     bare.write_bytes(b"%PDF")
     bare.with_suffix(".key.json").write_text(json.dumps({"items": []}))
-    monkeypatch.setattr(copies, "_as_printed", lambda conn, code, cut: "the layout the page matches")
+    monkeypatch.setattr(printed_paper, "_as_printed", lambda conn, code, cut: "the layout the page matches")
     assert (
-        copies._read_from(None, "R8-H01", {"pdf_path": str(bare)}, "cut.pdf") == "the layout the page matches"
+        printed_paper.read_from(None, "R8-H01", {"pdf_path": str(bare), "source": "library"}, "cut.pdf")
+        == "the layout the page matches"
     )
 
     boxed = tmp_path / "printed-with-boxes.pdf"
@@ -332,9 +335,20 @@ def test_a_childs_kept_pdf_that_records_no_boxes_gives_way_to_the_layout_the_pag
     boxed.with_suffix(".key.json").write_text(
         json.dumps({"geometry": [{"page": 1, "item": "x", "kind": "digit"}]})
     )
-    assert copies._read_from(None, "R8-H01", {"pdf_path": str(boxed)}, "cut.pdf") == str(boxed)
-    assert copies._read_from(None, "R8-H01", None, "cut.pdf") == "the layout the page matches"
+    assert printed_paper.read_from(
+        None, "R8-H01", {"pdf_path": str(boxed), "source": "library"}, "cut.pdf"
+    ) == str(boxed)
+    assert printed_paper.read_from(None, "R8-H01", None, "cut.pdf") == "the layout the page matches"
     assert (
-        copies._read_from(None, "R8-H01", {"pdf_path": str(tmp_path / "gone.pdf")}, "c")
+        printed_paper.read_from(
+            None, "R8-H01", {"pdf_path": str(tmp_path / "gone.pdf"), "source": "library"}, "c"
+        )
         == "the layout the page matches"
+    )
+    gone = {
+        "pdf_path": str(tmp_path / "gone.pdf"),
+        "source": "focus",
+    }  # M5b: a paper drawn for children has no layout
+    assert printed_paper.read_from(None, None, gone, "c") is None, (
+        "but its own: not read, and said why (`copies`)"
     )

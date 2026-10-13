@@ -31,7 +31,9 @@ Achal is a change of rows run through M1's command, not a new plan.
 so a new *operation* costs code once: its question makers, its mistake predictors, its tag measurement, its layouts.
 After that, every multiplication or division skill and level is rows, and printing, the graph and the reports need no
 × or ÷ branch — where they break today, the fix is made general. The score is the files each slice changed, per
-workflow, recorded in STATE.md at M5.
+workflow, recorded in STATE.md at M5. **Measured at M5e** (`bin/engine slices`, STATE.md "M5e"): printing and the
+reports held, each changed in two slices of thirty; reading changed only where an answer took a new shape; but every new
+kind of question was code in the maths library (22 of 30 slices), so the cost was per kind, not once per operation.
 
 | Slice | Goal file | Green means |
 |---|---|---|
@@ -75,7 +77,11 @@ workflow, recorded in STATE.md at M5.
 | M4d2b3 | `goals/md4d2b3-story-gold-corrected.yaml` | the reader's gold files each story in the case its row's own words give it (three moved, found where the reader on live disagreed: W29 → W28, W04 → W08, B26 → B25; a W29 and a B26 added), and every miss the eval prints says what Jev leaned to and how sure; v1 and v2 scored again on live |
 | M4d2b4 | `goals/md4d2b4-story-shape-v2-on.yaml` | `story_shape` v2 switched on with its score on live as its bar (144 of 148, Nimish: "switch v2 today") |
 | M4d2b5 | `goals/md4d2b5-story-told-apart.yaml` | the cause of each story v2 still misses or leaves, found from Jev's ranking, fixed where it starts: code tells "each" that means ÷ from grouping and a price list from a price, by the words and layout that define them; a story whose operation is sure is keyed though its case waits on a person ("it's 84"); every gold story held to the same rules |
-| M5 | `goals/md5-the-loop.yaml` | on a fresh database, for every new skill: a paper prints → its boxes are filled with known answers, planted mistakes among them → read, marked, each mistake named → evidence → the child's graph → the next paper aims at the repeat → the class card and the parent report say it in the school's words; Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`; the website draws every new kind; the files-per-workflow score recorded |
+| M5a | `goals/md5a-the-loop.yaml` | every multiplication and division skill set, at every level, round the whole loop on a copy: its topic switched on → a worksheet printed → its boxes filled with known answers, a named mistake planted wherever its questions can show it → read, marked, each planted answer named → held answers confirmed by a person → signed off → evidence on the skill set's rung → repeating in the child's graph → the child's next paper aims at it → named on the class card and in the parent report's facts in the school's words |
+| M5b | `goals/md5b-read-back.yaml` | a paper the site prints for a child — a home paper, or any the paper maker prints — read back from its scan by the code on it, as a library worksheet is; a spare read by the name said for it and then that child's copy; every other copy in a scan named with why it was not read (found by M5a, STATE.md "M5a") |
+| M5c | `goals/md5c-aseem-1518.yaml` | Aseem's 56 × 3 = 1518 comes out of that child's graph as `M_MUL_CONCAT` on `MUL.2D1D`, read from his own paper (G3-QUIZ20, question 18), and their next paper aims at it once the graph has enough of their answers there |
+| M5d | `goals/md5d-every-kind-draws.yaml` | the website draws every new kind of question: every × ÷ skill set's every kind on the Question bank with its numbers, never "undefined" or a code, each kind with a name in the school's words to pick it by |
+| M5e | `goals/md5e-the-score.yaml` | the files-per-workflow score recorded, from the git history of M0a–M5d, by a command (`engine slices`) |
 
 **Why this order.** M0 first: a remainder needs two answers and ÷ crashes the engine. M1 before M2 and M3: a level is
 its cases. M2 is three slices (measured 2026-10-09, STATE.md "M2 — measured before the build" and "M2b — measured before the

@@ -7359,4 +7359,188 @@ Goal `goals/md4d2b5-story-told-apart.yaml`. On live (run 38251975489), v2's four
     `test_bank_routes.py`, `test_divide_stories.py`, `test_layout.py`: 62 passed.
 - **Split:** reading a story and scoring the reader are two jobs. The gold and the eval moved to
   `w1_bank/story_eval.py` when this work brought `story_shape.py` to 401 lines, over its 400 ceiling.
-- **Not yet known:** v2's score on live with this. It is taken once deployed (engine-eval.yml, story_shape, 2).
+- **On live once deployed** (run 38307557335): 148 of 149 in the right case, 102 answers computed, none wrong, one
+  left for a person — Kabir's runs, answered 84. The plant and both price lists are right.
+
+## M5 — measured before the build (2026-10-12)
+
+What each stage of the loop already is, and what nothing yet proves:
+- **No test or scenario runs the whole loop, for any operation.** `engine goal` runs two kinds of scenario, `bank` and
+  `week` (`checks/scenarios.py`); there is none that reads, marks or rebuilds a graph. `goals/w4-close-the-loop.yaml`
+  names `tests/test_close_the_loop.py`, which does not exist.
+- **Printing:**
+  - Class packs (`prescribe` → `assemble`), library worksheets (`library`), and a child's own paper (`focus_paper`).
+  - A child's own paper and the paper maker draw only from taught topics (`shelf.py`), and every × and ÷ topic starts
+    switched off (`topics.json`).
+- **Reading:**
+  - The closest pattern reads a library worksheet with the handwriting reader stood in (`test_every_answer.py`).
+  - `copies.read` reads library worksheets only. A child's own paper (`source='focus'`) is skipped when a class scan
+    is read, and nothing says it was.
+- **Marking and naming:**
+  - `marking.mark` names a mistake from the question's own stored wrong answers, which exist for + − × ÷.
+  - The engine's own wrong reading waits for a person (`mark_read`).
+  - `confirm_results` writes the evidence, and `graph.rebuild` the child's graph.
+- **The next paper:**
+  - `focus_paper.plan` aims a child's home paper at their repeating mistake.
+  - A class pack's `misconception_targets` are stored by `prescribe` but not read by `assemble`.
+- **What a person reads:**
+  - The class card names a mistake by its operation's name (`mistake_names`). The parent facts carry its name and
+    what the school does.
+  - The parent check's list of words that name nothing has "addition" and "subtraction" but not "multiplication"
+    or "division" (`parent_check.NAMES_NOTHING`).
+- **56 × 3 = 1518:** the predictor (`mul_mistakes.concat`) is tested. The sum on Aseem's own paper (G3-QUIZ20, question
+  18) has never been put through reading, marking and the graph.
+- **The files-per-workflow score:** defined in BUILD-ORDER and ADR 0047. Nothing computes it yet.
+- **Split:** M5a, the loop for every new skill at every level; M5b, a paper printed for a child read back (found by M5a,
+  below); M5c, 1518; M5d, the website; M5e, the score.
+
+## M5a — every × and ÷ skill at every level round the loop (2026-10-12)
+
+- **What runs:** `tests/test_the_loop.py`, one case per skill set and level, 17 skill sets × 4 levels.
+  - Each worksheet is printed for one child as an educator does on the site (Make papers, `handout`).
+  - A mistake is planted wherever the worksheet's questions can show it, the key everywhere else.
+  - The scan is read by the code on the copy, the handwriting reader stood in.
+  - Then: held answers confirmed, signed off, evidence, graph, the child's next paper, the class card, the parent facts.
+- **Proof:** `cd packages/engine && uv run pytest -q tests/test_the_loop.py` → 67 passed, 1 skipped in 151 s
+  (MUL.GROUPS has no Hard level).
+- **What it found, each fixed at its cause:**
+  - **The test for 3 charged the wrong skill.** A slip adding the digits counted against multiplication.
+    `multiples.ops` now says the test for 3 adds, then multiplies, and `skills.operations` reads it first, so a stored
+    question is charged rightly too (`test_md_charges.py`). On live, `bank relabel` corrects the stored charges.
+  - **The next paper could not show the mistake it was for, at two levels.**
+    - Dividing a number by itself and writing 0 shows only on MD.EQUALITY's Easy questions. A child mostly right is
+      given Medium, and the paper looked only upward. It now moves down to the nearest level that can show it.
+    - Reversing an equation's claim shows at Medium only in another skill's division check. The paper draws the child's
+      own skill first, so it never showed. The level is now chosen where the child's own skill can show the mistake.
+    - Both are in `focus_paper._where_it_shows`, and `test_focus_paper.py` has a test for each.
+  - **The parent check refused "the multiplication question".** It names no single question, as "the subtraction
+    question" does not. "multiplication" and "division" were added to `parent_check.NAMES_NOTHING`
+    (`test_parent_report.py`).
+  - **A paper printed for a child is not read back when it is not a library worksheet.** Every paper the paper maker
+    prints, and every home paper, is `source='focus'`. `copies.read` keeps library worksheets only, and that is the site's
+    only door (`inbox.read`). Such a copy is dropped without a word. This is M5b.
+- **Not a break:** a class pack's `misconception_targets` are stored by `prescribe` and read by nothing. The agreed
+  workflow aims a repeated mistake in the home paper (N11), which this proves; a class pack is a skill set at a level
+  (N5, N6).
+- **Its cost in CI:** about 2½ minutes. The first version printed the worksheet bare and named the child, so every copy
+  was first matched against each layout the worksheet has printed in (`boxes.as_printed`, 8 of 17 s a level). A copy
+  printed for a child carries its own PDF, and that is the copy this proves.
+
+## M5b — a paper printed for a child comes back (2026-10-12)
+
+- **Read now, by the code on it:** every copy of a paper drawn for a child (`source='focus'`: the paper maker's three
+  kinds and a home paper), against its own template and the PDF printed for that child.
+- **A spare** (a class pack's copy with a code and no child) is read by the name said for it, as a bare worksheet is.
+  It then becomes that child's copy, and its questions count as seen by them (`copies._given`). Before, a spare was in
+  no line of what the reading returned.
+- **Every copy in a scan has a line.** One not read says why:
+  - no code read;
+  - a kind of paper not read from a scan;
+  - a code this school did not print;
+  - no child said;
+  - the PDF printed for the child is not kept.
+- **Split:** `copies.py` reached 407 lines. What a copy is read against (the paper as printed, its boxes, which PDF)
+  moved to `w3_read/printed_paper.py`; whose a copy is and reading it stay in `copies.py` (275 lines). `copies.read`
+  is now within the complexity limit, and its frozen exception is gone from `workflows.json`.
+- **Proof:**
+  - `tests/test_the_loop.py`: every level now goes round twice. The child's next paper is printed, the mistake made
+    again on it, read back by its code, named and counted.
+  - `tests/test_read_back.py`:
+    - the maker's three kinds, each read onto each child's own copy;
+    - a copy whose PDF is gone, named with why, while the rest of the pile is read;
+    - a spare read for the child named, and without a name reported.
+
+## M5c — Aseem's 56 × 3 = 1518 (2026-10-12)
+
+- **Proof:** `cd packages/engine && uv run pytest -q tests/test_aseem_1518.py` → 1 passed. No engine change was needed.
+- **The path:**
+  1. G3-QUIZ20 is entered from its file in `supabase/seed/papers`. Question 18, "56 x 3", is filed on R38 (MUL.2D1D's
+     rung) by its shape. Its key is 168, and 1518 is its stored `M_MUL_CONCAT`.
+  2. Read as 1518, a person confirms it as written, and the paper is signed off. It is then marked wrong, named
+     `M_MUL_CONCAT`, and counted on R38 for NUM.OPS.03.
+- **What the graph says, and when:**
+  - After one paper: one wrong answer on R38, not yet repeating.
+  - After two: `M_MUL_CONCAT` is named as repeating, but the rung is still "not enough yet". The graph judges a rung only
+    from `state.min_events` answers, which is 3, and G3-QUIZ20 asks one 2-digit × 1-digit sum.
+  - After three: `patterned_error`, and the child's next paper is MUL.2D1D, aimed at `M_MUL_CONCAT` with questions that
+    can show it.
+- **Not proved here:** reading the child's own handwriting. The scan is not in the repository (rule 6), so the reader
+  is stood in; reading is scored by `engine eval`.
+
+## M5d — the website draws every × ÷ kind (2026-10-12)
+
+- **Proof:** `cd apps/web && npx playwright test tests/m5-every-kind-draws.spec.ts` → 1 passed, 57 s, on the local copy.
+  No website change was needed.
+- **What it checks:** all 80 pairs of a × ÷ skill set and a kind of question the bank holds, with their topics
+  switched on. Each must:
+  - be one of the kinds an educator can pick, which only a kind with a name in the school's words is;
+  - list its questions;
+  - show its numbers in each question, written or in a picture's label ("5 rows of 3");
+  - never show "undefined", "NaN", "null" or a code.
+- **Shown able to fail:** with lattice's name taken out of `KIND`, it failed on `MUL.2D2D lattice`. Two earlier
+  versions of the check passed with the name missing, and were rewritten:
+  - The first looked for "_" in the Kind column, but a kind with no name shows the bank's own, and "lattice" has none.
+  - The second read the kind from the filtered page's links, but its level chips carry the kind too.
+
+## M5e — the score: files each × ÷ slice changed, per part of the map (2026-10-12)
+
+`bin/engine slices` reads the repository's history (`engine/checks/slices.py`; `tests/test_slices.py`, 3 passed).
+- A slice is the name a commit's title starts with, and its record counts as its own.
+- Each file it changed is placed by `workflows.json`, and counted once per slice.
+- M2c has no row of its own: its re-homing shipped inside M2a (see "Why this order").
+
+Output on this branch, 2026-10-12, with M5a–M5d on PR #201:
+
+```
+  slice    files       W1       W2       W3       W4   assess     core   checks    doors  website     rows   schema      map    tests research       ci     docs
+  M0a         31        1                14        1        1                 1                 4                 1                 4                          4
+  M0b         34        3                 1                17        1                                   3        1        1        3                          4
+  M0c         23                 2                                   1                          8        1        1                 5                          5
+  M1          24        3                                   3        1                          1        2        1        1        4        2                 6
+  M2a         53        2                 1                13                                           10                 1       12        2                12
+  M2b         25                                           10                                            2                 1        3        2                 7
+  M2d1        40                                           16                                   3        7        1        1        5        1                 6
+  M2d2        44        3                                  13                 1                 2        4        1        1       10        2                 7
+  M3a         52        2                 1                17                 1                 1        6                 1       14        2                 7
+  M3b1        26                                            6                 1                 1        3                 1        5        2                 7
+  M3b2        21                                            8                 1                 1        1                 1        4                          5
+  M3b3        38        2                 2                12                 1                 1        3                 1        9                          7
+  M3c         37                                           11                                   3        7                          9        2                 5
+  M3d         49        2                                  19                 1                 2        4        1        1        9        2                 8
+  M4a         36                                           13                                   1        6        1        1        6        1                 7
+  M4b1        22                                            2                 1                          6                 1        4        2                 6
+  M4b2        32                                            7                 2                 1        6        1        1        5        2                 7
+  M4c         31                          4                 5                 2                 1        6                 1        5        1                 6
+  M4d          2                                                                                                                                               2
+  M4d1        27        2                                   5                 2                          5                 1        5        1                 6
+  M4d2a       16        2                                   4                                                              1        4                          5
+  M4d2b1      15        1                                   1                          2                 3                          3                          5
+  M4d2b2      16                                            2                 2                 1        1                          3                 1        6
+  M4d2b3      10        1                                                              1                 1                          2                          5
+  M4d2b4      10                                                                                         2                          3                          5
+  M4d2b5      17        4                                                              1                 2                 1        4                          5
+  M5a         13                 1                 1        2                                                                       4                          5
+  M5b         12                          5                                                                                1        4                          2
+  M5c          5                                                                                                                    1                          4
+  M5d          5                                                                                                                    1                          4
+```
+
+**What it says about "rows only"** (BUILD-ORDER: after a new operation's code, "printing, the graph and the reports need
+no × or ÷ branch"):
+
+- **Printing (W2) and the reports (W4): held.**
+  - W2 changed in two slices of thirty: M0c (2 files), when a skill set came to be read as itself, and M5a (1), where
+    the next paper is set.
+  - W4 changed in two: M0a (1) and M5a (1).
+- **Reading, marking and the graph (W3): held after its first general fix, with four exceptions.**
+  - M0a changed 14 files so that every answer of a several-answer question counts.
+  - After that W3 changed only where an answer took a shape it had not read before:
+    - a list read group by group (M4c, 4 files);
+    - a remainder story (M3b3, 2);
+    - a paper printed for a child read back (M5b, 5);
+    - one file each in M0b, M2a and M3a.
+- **Rows grew in 23 of the 30 slices.** Skill sets, levels, cases, mistakes and prompts went in as rows.
+- **"Rows only" did not hold for kinds of question.** The maths library changed in 22 of the 30 slices: 17 files in M0b,
+  16–19 in M2d1, M3a and M3d. A new kind of question is code by design (ADR 0010: the bank's questions are made by
+  code), so each new method or picture was a maker, a predictor and a layout in `assess/`. The cost was per kind of
+  question, as ADR 0047 said, not once per operation, as BUILD-ORDER's sentence reads.

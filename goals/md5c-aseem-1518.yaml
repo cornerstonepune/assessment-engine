@@ -1,0 +1,27 @@
+name: md5c-aseem-1518
+goal: >
+  The mistake Aseem brought, 56 × 3 written as 1518, comes out of the child's graph by its name. Question 18 of his
+  G3-QUIZ20 paper, read as 1518, is marked wrong and named M_MUL_CONCAT (each digit's product written side by side);
+  once a person confirms it and the paper is signed off, it counts on multiplication of a 2-digit number by a 1-digit
+  number (MUL.2D1D's rung) for multiplication. Made again, it is named as repeating; and once the graph holds as many of
+  the child's answers there as the school's row asks before it judges (state.min_events, 3), it is the child's pattern
+  on MUL.2D1D and the subject of their next paper.
+# Written 2026-10-12, before any code: M5c (BUILD-ORDER). Measured first (STATE.md "M5 — measured before the build"): the
+# predictor (`mul_mistakes.concat`) is tested, and the sum on Aseem's paper has never been put through reading, marking
+# and the graph. On the copy, `legacy.rung_for("×", 56, 3)` files it on R38 and `M.predict` names 1518 M_MUL_CONCAT. A
+# scan of the child's paper is not in the repository (rule 6: scans never enter git), so the reader is stood in, to read
+# 1518 where the child wrote it; reading handwriting is scored on its own (`engine eval`). The graph calls a mistake
+# repeating when it is made more than once, and judges a rung only from state.min_events answers (3): G3-QUIZ20 asks one
+# 2-digit × 1-digit sum, so it takes three papers for the graph to call the pattern.
+says:
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "packages/engine/tests/test_aseem_1518.py::test_56_times_3_written_1518_on_aseems_paper_is_named_counted_and_aimed_at"
+manual: []
+scenarios: []
+criteria:
+  - name: 1518 on G3-QUIZ20 question 18 named M_MUL_CONCAT, counted on MUL.2D1D's rung, the child's pattern and next paper once the graph has enough answers
+    run: cd packages/engine && uv run pytest -q tests/test_aseem_1518.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

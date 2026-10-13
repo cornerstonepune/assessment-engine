@@ -1,0 +1,23 @@
+name: md5d-every-kind-draws
+goal: >
+  The website draws every kind of multiplication and division question the bank holds as the child meets it. For every
+  skill set of ×, ÷ and both, and every kind of question it has, the Question bank lists its questions once its topic is
+  switched on, each one showing its numbers — written, or drawn in a picture that says them — never "undefined", "NaN",
+  "null" or a code, and each kind named in the school's words.
+# Written 2026-10-12, before any code: M5d (BUILD-ORDER). Measured first: the bank holds 80 pairs of a × ÷ skill set and a
+# kind of question (the local copy, 2026-10-12); the website has a drawing for 27 kinds (`components/question.tsx`,
+# `components/pictures.tsx`, `components/methods.tsx`) and prints the sentence for the rest. Each slice M2–M4 checked the
+# kinds it added, at the levels it named (`s29`–`s40`); nothing checks every pair at once, so a kind a later slice moves
+# to another skill set, or a skill set a later slice gives a new kind, is drawn by nothing that was checked.
+says:
+  - words: "Have the mapping that you've created now and build the whole platform accordingly for multiplication."
+    proved_by: "apps/web/tests/m5-every-kind-draws.spec.ts::every kind of × and ÷ question the bank holds is drawn with its numbers, in the school's words"
+manual: []
+scenarios: []
+criteria:
+  - name: every × ÷ skill set's every kind of question drawn with its numbers on the Question bank
+    run: cd apps/web && npx playwright test tests/m5-every-kind-draws.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
