@@ -316,7 +316,7 @@ def test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_ch
     conn.execute("alter table sheet_template drop constraint sheet_template_source_check")
     conn.execute(
         "alter table sheet_template add constraint sheet_template_source_check"
-        " check (source in ('generated', 'legacy', 'library'))"
+        " check (source in ('generated', 'legacy', 'library')) not valid"  # refuses what comes, whatever is there
     )
     grade_1 = [_child(conn, str(roll), section="G1MAKER", band="G1") for roll in (1, 2, 3)]
     ask = [{"skill_set": "MUL.GROUPS", "level": "Easy", "n": 6}]
@@ -338,3 +338,20 @@ def test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_ch
         "select count(*) as n from pg_constraint where conname = 'sheet_template_focus_is_for_a_child'"
     ).fetchone()["n"]
     assert names_its_child == 1, "a paper made for one child still names its child"
+
+
+def test_a_class_is_given_only_its_grades_levels_and_those_below(conn):
+    """F1e (goals/f1e-the-grade-plan.yaml). Nimish, 2026-10-14: "whenever a grade two teacher is creating the assessments
+    for that topic, it's only easy and medium that should come." Each level has a grade; a class uses its own grade's
+    levels and those below. 2-digit + 1-digit is Grade 2's, its Easy Grade 1's: a Grade 1 class is given Easy and
+    refused Medium, whichever way the paper is made, and told why."""
+    grade_1 = [_child(conn, str(roll), section="G1PLAN", band="G1") for roll in (1, 2)]
+    medium = [{"skill_set": "ADD.2D1D", "level": "Medium", "n": 4}]
+    with pytest.raises(ValueError, match=r"ADD\.2D1D at Medium is Grade 2's.*Grade 1 has Easy"):
+        maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "same", medium)
+    each = maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "each", medium)
+    assert not each["papers"] and all("Grade 2's" in r["why"] for r in each["refused"]), each["refused"]
+
+    easy = [{"skill_set": "ADD.2D1D", "level": "Easy", "n": 4}]
+    made = maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "same", easy)
+    assert not made["refused"] and len(made["papers"]) == 2, "its own grade's level is given"

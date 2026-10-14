@@ -7700,3 +7700,33 @@ grade level today, I'm not able to do that."
   - The first trigger left a status set by hand overridden by the levels. u23's set-up, which sets every skill's status,
     broke on it, and two local skills stayed approved by earlier runs. That is fixed at the cause: a status set whole
     approves or withdraws every level.
+
+## F1e — a grade uses its own levels and those below, on every paper (2026-10-14)
+
+Goal `goals/f1e-the-grade-plan.yaml`. Nimish: "whenever a grade two teacher is creating the assessments for that topic,
+it's only easy and medium that should come."
+
+- **Measured while building.** Each level already has a grade (`skill_set.level_band`, else the skill's own), set on the
+  skill's page by moving a level (goal c1). The home paper already kept a child to their grade or below
+  (`shelf._read_levels`).
+  - Make papers ignored the grades: its picker listed every level of every taught skill, and `focus_paper._asked`
+    checked only that the level existed.
+  - A separate grade × skill × level table, the list's first draft, would have been a second source of truth beside the
+    level grades, so it was not built. BUILD-ORDER's F1e row and ADR 0073 say so.
+- **The engine refuses a level above the grade**, in words: "ADD.2D1D at Medium is Grade 2's; Grade 1 has Easy". That
+  holds for one paper for all (the class's grade, `roster.class_band`), the same skill for each child, a chosen paper and
+  a changed child (the child's own grade).
+- **The site offers only those levels:**
+  - Make papers' and a chosen paper's picker (`usesLevel`, the engine's rule);
+  - the topic's default lines (Medium where the grade uses it, else its first usable level);
+  - the "Make this check" links on a child's and a class's page (`levelsUsedBy`, the same rule in SQL).
+- **Check:**
+  - `tests/test_maker.py::test_a_class_is_given_only_its_grades_levels_and_those_below`: it failed first, a Grade 1
+    class being given Medium. With the maker, focus-paper and week-note tests → 36 passed.
+  - `apps/web/tests/u29-a-grade-uses-its-levels.spec.ts`: it failed first, Grade 1 offered three levels too many. With
+    the maker specs → 15 passed.
+  - L3's test now adds live's old rule `not valid`, so it no longer depends on the database holding no paper made for
+    one child.
+  - The whole browser suite: the first run failed 11 specs on a child's and a class's page. The cause was `levelsUsedBy`
+    writing `'\D'` inside a JavaScript template, which Postgres received as `'D'` ("invalid input syntax for type
+    integer: G1"); it is now `'\\D'`. The 11, with u29 → 57 passed; the other 184 had passed in the same run.

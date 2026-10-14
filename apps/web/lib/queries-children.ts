@@ -81,6 +81,14 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
     order by roll_order(c.roll_no), c.roll_no`;
 }
 
+
+/** The levels of skill set `ss` (on its rung `r`) that a grade uses: its own grade's and those below
+ *  (goals/f1e-the-grade-plan.yaml) — the engine's rule, so a check is never offered at a level a paper would refuse. */
+const levelsUsedBy = (band: ReturnType<typeof sql>) => sql`array(
+  select k from jsonb_object_keys(ss.difficulty) k
+  where coalesce(nullif(regexp_replace(coalesce(ss.level_band ->> k, r.band), '\\D', '', 'g'), '')::int, 0)
+     <= coalesce(nullif(regexp_replace(${band}, '\\D', '', 'g'), '')::int, 0))`;
+
 /** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill
  *  any child in the class has a checked answer on, in the shared tree's order — topic by topic, easy to hard — and
  *  each child's state and score on each. A skill no child has answered is not a column of grey: it is named once,
@@ -92,7 +100,7 @@ export async function classGrid(
   const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
       select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
-             ss.code as skill_set, array(select jsonb_object_keys(ss.difficulty)) as levels, t.ord, r.ladder_order
+             ss.code as skill_set, ${levelsUsedBy(sql`(select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1)`)} as levels, t.ord, r.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
       join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
       join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
@@ -104,7 +112,7 @@ export async function classGrid(
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
     sql<Unanswered[]>`
-      select ss.code, ss.name, array(select jsonb_object_keys(ss.difficulty)) as levels, t.code as topic_code from skill_set ss
+      select ss.code, ss.name, ${levelsUsedBy(sql`(select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1)`)} as levels, t.code as topic_code from skill_set ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
       join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
       where r.band in (select band from child where section = ${section} and active)
@@ -149,7 +157,7 @@ export type ChildSkill = {
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
     select ss.code, ss.name, t.name as topic, t.code as topic_code, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
-           array(select jsonb_object_keys(ss.difficulty)) as levels,
+           ${levelsUsedBy(sql`(select band from child where id = ${id}::uuid)`)} as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
     from skill_set ss

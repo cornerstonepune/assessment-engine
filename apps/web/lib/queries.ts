@@ -14,6 +14,14 @@ export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) =
 export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
   s.level_band?.[d] ?? s.band;
 
+/** A grade's place among the grades: G1 → 1, reasoning's "G2+" → 2 — the engine's own rule (`shelf._grade`). */
+export const gradeNo = (band: string) => Number(band.replace(/\D/g, "")) || 0;
+
+/** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
+ *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them. */
+export const usesLevel = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
+  gradeNo(gradeOf(s, d)) <= gradeNo(band);
+
 export type SkillSet = {
   code: string;
   rung_code: string;

@@ -16,8 +16,10 @@ is verified. This file only says where the last session stopped.
 - **L3 is live:** `migrate live` applied 20261108090000 at 08:54 UTC (run 38538494920). Nimish retries Grade 1's papers.
 - **F1d, same PR:** each level's questions are approved on their own (`level_approved`, migration 20261109090000).
   Rewording withdraws nothing; a skill approved before keeps every level. See STATE.md "F1d".
-- **Next:** F1e, the grade plan (grade × skill × level). Then F1f, F1g. L3b (constraint drift, durable failed runs) is
-  still owed from L3.
+- **F1e, same PR:** a grade uses its own levels and those below, on every paper; Make papers no longer offers or
+  accepts a higher grade's level. The plan is the level grades already on each skill's page (no new table, ADR 0073).
+- **Next, a PR of their own once #204 merges:** F1f (taught per class) and F1g (approval controls which papers can be
+  made; measured on a copy of live first). L3b (constraint drift, durable failed runs) is still owed from L3.
 
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 

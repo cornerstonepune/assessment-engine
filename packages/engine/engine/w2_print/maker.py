@@ -22,6 +22,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
+from engine.core import roster
 from engine.w2_print import focus_paper, pack, shelf
 
 KINDS = {"practice": "class practice", "assessment": "class assessment", "focus": "home assessment"}
@@ -56,7 +57,9 @@ def _for_all(conn, kids, week: str, ask: list) -> dict:
     whole when the bank cannot fill it."""
     whose = [str(k["id"]) for k in kids]
     rng = random.Random("|".join([week, *sorted(whose)]))
-    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask), rng)
+    # the class's grade decides the levels it is given, as a class's week is its own grade's (`roster.class_band`)
+    band = roster.class_band(conn, kids[0]["section"])
+    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask, band), rng)
 
 
 def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> dict:

@@ -41,7 +41,8 @@ Nimish took each recommendation of the coherence list ("go with your recommendat
    - *These questions are right*: per skill × level, once, by the coordinator. A correct Easy question is correct for
      every grade, so it is not approved per grade. Changing a level's rule withdraws that level's approval only; changing
      its words withdraws none, since the questions did not change.
-   - *This grade uses these levels*: the grade plan, a row per grade × skill × level.
+   - *This grade uses these levels*: the grade plan. It is each level's grade (`skill_set.level_band`, else the
+     skill's own): a grade uses its own levels and those of the grades below, on every paper (F1e).
    - *My class has been taught it*: **D5**, per class × topic, with who and when.
 5. **A level whose questions are not approved goes on no paper.** This ships last and only after it is measured on a
    copy of live, so the levels it would close are named to Nimish before any educator meets a refusal.
@@ -54,4 +55,7 @@ Nimish took each recommendation of the coherence list ("go with your recommendat
   of the list ADR 0069 made the database's: one source, no row that can outlive its person.
 - **Approving questions per grade**, as first asked. The same questions would be approved up to four times, and a grade's
   real decision — which levels it uses — would still have nowhere to live.
+- **A grade × skill × level table for the plan** (the list's first draft, F1e). Each level already has a grade, set on
+  the skill's page, and "this grade or below" lets every higher grade use it; a table would have been a second
+  source of truth beside it. What was missing was Make papers reading it, so that is what F1e changes.
 - **Scoping only by hiding.** A page that hides another class's papers but whose action accepts them is not scoped.
