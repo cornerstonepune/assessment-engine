@@ -11,6 +11,7 @@ All of it is tested against the real database: the partial unique index this lea
 
 import os
 
+import psycopg
 import pytest
 
 from engine.api.idempotency import InProgress, derive_key, run_idempotent
@@ -82,6 +83,25 @@ def test_an_exception_marks_the_row_error_and_is_reraised(conn, tenant):
     ).fetchone()
     assert row["status"] == "error"
     assert "model is down" in row["error"]
+
+
+def test_a_database_refusal_inside_the_call_is_raised_as_itself_and_recorded(conn, tenant):
+    """Live, 2026-10-14 (goals/l3-a-class-paper-prints-on-live.yaml): the database refused Make papers' insert, and
+    recording the failure on the transaction that refusal had aborted raised InFailedSqlTransaction over it, so the
+    log's last word was not why. The call's own refusal is what is raised, and the failure is recorded after it."""
+
+    def refused():
+        conn.execute("select 1 / 0")
+
+    with pytest.raises(psycopg.errors.DivisionByZero):
+        run_idempotent(conn, tenant, "test_flow", "k4db", {}, refused)
+
+    row = conn.execute(
+        "select status, error from flow_run where tenant_id = %s and flow = 'test_flow'"
+        " and idempotency_key = 'k4db'",
+        (tenant,),
+    ).fetchone()
+    assert row["status"] == "error" and "division by zero" in row["error"]
 
 
 def test_a_failed_call_can_be_retried_with_the_same_key(conn, tenant):

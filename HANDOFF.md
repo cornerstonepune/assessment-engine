@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-14 — L3: Make papers refused every paper made for a child on live
+
+- **W2 (print), a live defect; no gate moves.** Goal `l3-a-class-paper-prints-on-live`; see STATE.md "L3".
+- **Cause:** live's `sheet_template_source_check` lacks `'focus'`, though live records the migration that adds it.
+- **Fix:**
+  - migration `20261108090000` says the rule again;
+  - `run_idempotent` runs its call in a savepoint, so the database's own refusal is what is raised.
+- **After merge:** `migrate live` applies it. Then Make papers for Grade 1 must print. Nimish checks that.
+- **Next, same day (PR 2):**
+  - the watcher compares live's constraints with the migrations';
+  - a failed run's record survives the request's rollback.
+
+  A failed `/papers/make` today left no `flow_run` row, so the watcher could not see it. `inbox.py` learned the
+  same lesson on 2026-09-25.
+
 ## 2026-10-13 — M5 merged and live; multiplication and division through the whole loop done
 
 - **#201 merged** as `35f38a7`. Main's CI, `migrate live` and `deploy engine` are green. `engine done` md5a–md5e all

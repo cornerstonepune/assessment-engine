@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 
+import psycopg
 import pymupdf
 import pytest
 
@@ -21,6 +22,13 @@ WEEK = "T3W1-maker-test"
 SECTION = "MAKERTEST"
 BY = "educator@school.test"
 EASY = [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 4}]
+# says again on live the rule for which papers a sheet may be (goals/l3-a-class-paper-prints-on-live.yaml)
+RULE_SAID_AGAIN = (
+    db.REPO_ROOT
+    / "supabase"
+    / "migrations"
+    / "20261108090000_a_paper_made_for_one_child_is_a_sheet_on_live.sql"
+)
 
 
 @pytest.fixture
@@ -32,11 +40,11 @@ def conn():
         c.rollback()
 
 
-def _child(conn, roll, section=SECTION, answers=()):
+def _child(conn, roll, section=SECTION, answers=(), band="G3"):
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     cid = conn.execute(
-        "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,'G3') returning id",
-        (tenant, roll, section),
+        "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,%s) returning id",
+        (tenant, roll, section, band),
     ).fetchone()["id"]
     for skill, rung, right, mistakes in answers:
         conn.execute(
@@ -290,3 +298,43 @@ def test_a_made_paper_keeps_how_it_was_chosen_and_what_it_works_on_for_its_own_p
     name = conn.execute("select name from skill_set where code = 'SUB.3D3D'").fetchone()["name"]
     assert key["how"] == "chosen by their educator"
     assert key["areas"] == [{"name": name, "level": "Easy"}]
+
+
+def test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_child(conn):
+    """Live, 2026-10-14: Make papers for Grade 1 — a class assessment, one paper for all, equal groups at Easy — was
+    refused, because live's rule for which papers a sheet may be had lost the one made for one child (the rule as
+    20260926090000 wrote it, before 20260929090000 added it). Here the database is put as live had it, the paper is
+    refused as it was there, the migration says the rule again, and every child's copy prints; said a second time, on
+    a database that already holds it, it changes nothing."""
+
+    def rule():
+        return conn.execute(
+            "select pg_get_constraintdef(oid) as d from pg_constraint where conname = 'sheet_template_source_check'"
+        ).fetchone()["d"]
+
+    held = rule()
+    conn.execute("alter table sheet_template drop constraint sheet_template_source_check")
+    conn.execute(
+        "alter table sheet_template add constraint sheet_template_source_check"
+        " check (source in ('generated', 'legacy', 'library'))"
+    )
+    grade_1 = [_child(conn, str(roll), section="G1MAKER", band="G1") for roll in (1, 2, 3)]
+    ask = [{"skill_set": "MUL.GROUPS", "level": "Easy", "n": 6}]
+    with (
+        pytest.raises(psycopg.errors.CheckViolation, match="sheet_template_source_check"),
+        conn.transaction(),
+    ):
+        maker.make(conn, "G1MAKER", grade_1, WEEK, "assessment", "same", BY, ask)
+
+    conn.execute(RULE_SAID_AGAIN.read_text())
+    assert rule() == held, "live holds the rule the migrations hold"
+    made = maker.make(conn, "G1MAKER", grade_1, WEEK, "assessment", "same", BY, ask)
+    assert made["papers"] == 3 and len(set(made["qrs"])) == 3, (
+        "a copy for every child picked, each its own code"
+    )
+    conn.execute(RULE_SAID_AGAIN.read_text())
+    assert rule() == held
+    names_its_child = conn.execute(
+        "select count(*) as n from pg_constraint where conname = 'sheet_template_focus_is_for_a_child'"
+    ).fetchone()["n"]
+    assert names_its_child == 1, "a paper made for one child still names its child"

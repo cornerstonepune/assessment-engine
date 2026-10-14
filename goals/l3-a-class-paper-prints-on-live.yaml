@@ -1,0 +1,32 @@
+name: l3-a-class-paper-prints-on-live
+goal: >
+  Make papers prints a paper made for each child on live, as it does on a database built from the migrations: Grade 1's
+  class assessment on equal groups, one paper for all, prints a copy for every child picked. Live's rule for which
+  papers a sheet may be had lost the paper made for one child; a migration says the rule again, so live holds what the
+  migrations hold, and it changes nothing on a database that already does. When a paper cannot be saved, the engine
+  says why — the database's own refusal — never that its transaction was aborted.
+# Written 2026-10-14, before the code. Nimish, the same day, on Make papers for Grade 1 (class assessment, one paper
+# for all, "Equal groups (repeated addition) · Easy"): "The engine refused (500); nothing was printed." — "there is an
+# error coming here while generating the worksheet for grade 1; debug and solve". The live engine's log (engine-logs
+# run 38527588877): `/papers/plan` 200, then `/papers/make` 500 — `focus_paper.print_paper` inserting the paper's
+# sheet_template with source 'focus' broke `sheet_template_source_check`, and `run_idempotent`, recording the failure on
+# the aborted transaction, raised InFailedSqlTransaction over it. Migration 20260929090000 allows 'focus' and live
+# records it applied (migrate live, run 35863211781, 2026-09-23: "Remote database is up to date"), so live's rule
+# differs from the migrations' — the one place it is written without 'focus' is 20260926090000, which a database
+# built from the migrations runs before it. Nimish, later: "I think the paper is getting generated, but the issue is
+# happening while it is trying to print" — the log says the paper is refused before any PDF is drawn.
+says:
+  - words: "there is an error coming here while generating the worksheet for grade 1; debug and solve"
+    proved_by: "packages/engine/tests/test_maker.py::test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_child"
+  - words: "there is an error coming here while generating the worksheet for grade 1; debug and solve"
+    proved_by: "packages/engine/tests/api/test_idempotency.py::test_a_database_refusal_inside_the_call_is_raised_as_itself_and_recorded"
+manual:
+  - "After this merges and `migrate live` applies it: Make papers → Grade 1 → Class assessment → one paper for all → Equal groups · Easy prints a copy for every child picked."
+scenarios: []
+criteria:
+  - name: the class paper prints once live's rule is said again; a refusal is raised as itself
+    run: cd packages/engine && uv run pytest -q tests/test_maker.py tests/api/test_idempotency.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

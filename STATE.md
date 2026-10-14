@@ -7560,3 +7560,37 @@ no × or ÷ branch"):
 - **"Not live yet", in each report:** the live database did not answer from this container (ConnectionTimeout), so the
   report could not check live's migrations itself. M5 adds no migration, and `migrate live` on `35f38a7` succeeded.
 - **Still to run on live:** `bin/update-live`. Its `bank relabel` charges the test for 3's stored questions to + then ×.
+
+## L3 — a class paper prints on live (2026-10-14)
+
+Nimish, on Make papers for Grade 1 (class assessment, one paper for all, Equal groups · Easy): "The engine refused
+(500); nothing was printed." Goal `goals/l3-a-class-paper-prints-on-live.yaml`.
+
+- **The cause, from the live engine's own log** (engine-logs run 38527588877):
+  - `/papers/plan` answered 200.
+  - `/papers/make` answered 500 at `focus_paper.print_paper` inserting the paper's `sheet_template` with
+    source `'focus'`: `CheckViolation … sheet_template_source_check`.
+  - It failed before any PDF was drawn. In the same minute a library worksheet's PDF printed (200).
+- **Live's rule differs from the migrations'.**
+  - `20260929090000` adds `'focus'`, and live records it as applied: `migrate live` run 35863211781 said "Remote database is up to date" on 2026-09-23.
+  - The rule without `'focus'` is the one `20260926090000` wrote.
+  - How live came to hold it again is not known from here. Live has been changed by hand before (`item_placement`, the
+    rehearsal's rule-9 note), and this container cannot read live's catalogue.
+- **The fix is a migration, not a hand edit (rule 9).**
+  - `20261108090000_a_paper_made_for_one_child_is_a_sheet_on_live` says both rules again: the four sources, and a
+    `'focus'` paper names its child.
+  - On a database that already holds them it changes nothing.
+  - Check: `tests/test_maker.py::test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_child`. It:
+    - puts the rule as live had it;
+    - sees Grade 1's class paper refused as live refused it;
+    - runs the migration;
+    - sees every child's copy print;
+    - runs the migration again and finds nothing changed.
+- **The refusal is raised as itself.**
+  - `run_idempotent` ran `fn()` on the request's transaction, so the database's refusal aborted it.
+  - Recording the failure then raised `InFailedSqlTransaction` over the real error.
+  - `fn()` now runs inside a savepoint. Check: `tests/api/test_idempotency.py::test_a_database_refusal_inside_the_call_is_raised_as_itself_and_recorded`.
+  - No call `run_idempotent` wraps commits on its own: the readers that commit run in the background on their own connections.
+- Check: `cd packages/engine && uv run pytest -q tests/test_maker.py tests/api/test_idempotency.py` → `18 passed`;
+  `bin/check` → `28 passed`.
+- **Not live until** this merges and `migrate live` applies the migration.
