@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { forChildren, KINDS, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
 import { gradeWords, skillSets } from "@/lib/queries";
@@ -37,7 +38,7 @@ export default async function Maker({ searchParams }: Props) {
   const q = await searchParams;
   const get = (k: string) => all(q[k]);
   const week = isoWeek();
-  const [classes, sets, homeN] = await deadline(Promise.all([homeByClass(week), skillSets(), homeLength()]));
+  const [classes, sets, homeN] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), skillSets(), homeLength()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
   // a starting point's kind and way hold until the class is chosen; "for one child" ticks no one until they are chosen
   const one = get("one")[0] === "1";

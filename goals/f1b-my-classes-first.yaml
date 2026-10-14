@@ -1,0 +1,25 @@
+name: f1b-my-classes-first
+goal: >
+  Each person sees their own classes. An educator linked to classes sees only those classes' children, papers, answers
+  and reports, and the counts on Today and the menu are theirs alone. That holds on every list: Today, Children, Home
+  assessments, Make papers, Assessments, Marking and the reports. A page for another class or another class's child or
+  paper, reached by typing its address, says it is not one of their classes and shows nothing of it. The coordinator
+  sees every class. An educator linked to no class yet sees every class and is told why.
+# Written 2026-10-14, before the code: slice F1b of BUILD-ORDER "One flow for the educator" (ADR 0073). Nimish, the same
+# day: "Then the teachers only see, when Achal logs in, things that are relevant to his grades." Measured first: no
+# page or query reads who is signed in to choose what to show; `lib/needs-you.ts` says "Every line is shown to
+# everyone". F1a put each person's classes on the staff list.
+says:
+  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator sees their own classes and no other"
+  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::the coordinator sees every class"
+  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator linked to no class sees every class and is told why"
+manual:
+  - "After merge, Nimish links each educator to their classes (`~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …`); until then they see every class, with the line saying why."
+scenarios: []
+criteria:
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -5,6 +5,8 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, Notice, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { childHeader, staffList } from "@/lib/queries";
@@ -57,6 +59,7 @@ export default async function ParentReport({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
   const [child, got, staff, run] = await deadline(
     Promise.all([

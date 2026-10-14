@@ -7616,3 +7616,33 @@ linked to classes, and the grade follows from the class. Goal `goals/f1a-each-ed
   - u15 (menu and Today) and u18 (sign-in) still pass: `8 passed`.
 - **Not live until** merged, and then until Nimish runs `bin/engine staff classes` for each educator. Until then every
   educator reads "No class yet". F1b is what narrows the pages.
+
+## F1b — each person sees their own classes (2026-10-14)
+
+Goal `goals/f1b-my-classes-first.yaml`. Nimish: "Then the teachers only see, when Achal logs in, things that are relevant
+to his grades."
+
+- **One scope, from who is signed in** (`apps/web/lib/scope.ts`):
+  - an educator sees the classes on their staff entry (F1a);
+  - the coordinator sees every class;
+  - an educator linked to no class sees every class, and Today says why.
+- **Every list is narrowed to it:** Today and the menu's counts, Children, the parent reports, Home assessments, Make
+  papers' classes, Assessments (both views, and its filters' classes and children), Marking and its queue of answers,
+  and Approve's packs. Each query takes the scope as one where-clause piece. The curriculum's lines on Today stay the
+  school's (a skill is every grade's); phase 2 narrows Curriculum to a person's grades.
+- **Single-item pages are guarded.** A page for another class, child or paper says "not one of your classes" and shows
+  nothing of it: a class, its home assessments and its week, a child and their parent report, a chosen paper, a paper
+  read, a printed paper. The check reads only the class, before any name is read through the logged accessor.
+  - A printed page, a preview and a print of another class's paper answer 403.
+  - A scan not yet sorted onto a paper has no class, and stays open to whoever reads the pile.
+- **Check:**
+  - `apps/web/tests/u26-my-classes-first.spec.ts` → 3 passed. Before the change it failed: the other class's pack was on
+    the educator's Today.
+  - The specs of every page touched (15 files):
+    - First run: 49 of 50 passed. u20's "every parent report … a child's page ends on theirs" failed once
+      (`regions.at(-1)`).
+    - Second run: u20 passed. Only u26's own new assertion failed: its test paper's code `CSU26A` is no code (not hex),
+      so the route answered 400 before the class check. Corrected to `CSF1B026`.
+    - Then u26 with u20 → 6 passed.
+    - u20's one failure is not explained. It does not touch a page this slice changed for the coordinator, who runs it.
+- **Not live until** merged and the educators are linked to their classes (F1a).

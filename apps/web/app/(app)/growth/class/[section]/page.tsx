@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { Body, PageHeader } from "@/components/shell";
 import { ColourKey, Swatch } from "@/components/colour-key";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { isMine, scopeOf } from "@/lib/scope";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
 import { classGrid, stepKey, type GridChild, type Step } from "@/lib/queries-children";
 import { STATE_WORDS } from "@/lib/queries";
@@ -21,6 +23,7 @@ type Props = { params: Promise<{ section: string }>; searchParams: Promise<Recor
 export default async function ClassPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
+  if (!isMine(scopeOf(me), section)) return <NotYours what={section} />;
   const [{ steps: every, children, notYet: unanswered, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
   if (!children.length) notFound();
   // a topic of the class's own opens its skills alone; any other word is every topic's

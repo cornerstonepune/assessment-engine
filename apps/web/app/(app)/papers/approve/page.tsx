@@ -5,6 +5,7 @@ import { DIFFICULTIES, RULE_WORDS, spareSheets, tableCounts, weekPlan, weeks } f
 import { approvePack, overrideChild } from "./actions";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -13,9 +14,9 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 // and why, a level changed with its reason, the pack approved and printed in one tap. It is Assessments' work; it sat
 // under the worksheet library until 2026-10-11, where Today's "Class papers to approve" opened the Curriculum tab.
 export default async function ApprovePage({ searchParams }: Props) {
-  await requireStaff();
+  const scope = scopeOf(await requireStaff());
   const q = await searchParams;
-  const all = await deadline(weeks());
+  const all = await deadline(weeks(scope));
 
   if (all.length === 0) {
     const c = await deadline(tableCounts());

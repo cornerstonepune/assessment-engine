@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { asksWaiting, skillsWaiting, topicsOff } from "./queries-people";
 import { checkQueue, papersToApprove } from "./queries-read";
 import { proposedHomePapers } from "./queries-make";
@@ -22,36 +23,37 @@ export type Waiting = {
 };
 
 /** Class papers the engine made that no teacher has approved for print, pack by pack. */
-export async function classPacksWaiting(): Promise<Pack[]> {
+export async function classPacksWaiting(scope: Scope = EVERY_CLASS): Promise<Pack[]> {
   return sql<Pack[]>`
       select c.section, min(c.band) as band, si.week, si.kind, count(*)::int as n
       from sheet_instance si join child c on c.id = si.child_id
-      where si.print_status = 'new' and si.kind in ('practice', 'assessment')
+      where si.print_status = 'new' and si.kind in ('practice', 'assessment') and ${inScope(scope, sql`c.section`)}
       group by c.section, si.week, si.kind
       order by si.week desc, c.section, si.kind`;
 }
 
 /** Each active child's newest parent report, where it is written and no one has approved it yet. */
-export async function reportsWaiting(): Promise<Report[]> {
+export async function reportsWaiting(scope: Scope = EVERY_CLASS): Promise<Report[]> {
   return sql<Report[]>`
     select c.id as child_id, c.band, c.section, c.roll_no
     from child c
     join lateral (select n.approved_by from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
                   order by n.created_at desc limit 1) n on true
-    where c.active and n.approved_by is null
+    where c.active and n.approved_by is null and ${inScope(scope, sql`c.section`)}
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
-export async function waiting(actor: string): Promise<Waiting> {
+/** What waits in the classes a person sees; the curriculum's lines are the school's (a skill is every grade's). */
+export async function waiting(actor: string, scope: Scope = EVERY_CLASS): Promise<Waiting> {
   const [queue, read, packs, next, skills, topics, asks, reports] = await Promise.all([
-    checkQueue(),
-    papersToApprove(actor),
-    classPacksWaiting(),
-    proposedHomePapers(),
+    checkQueue(scope),
+    papersToApprove(actor, scope),
+    classPacksWaiting(scope),
+    proposedHomePapers(undefined, scope),
     skillsWaiting(),
     topicsOff(),
     asksWaiting(),
-    reportsWaiting(),
+    reportsWaiting(scope),
   ]);
   return {
     answers: queue.filter((e) => !e.spot).length,

@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { rag, type Rag } from "./rag";
 import { reportState, type ReportState } from "./queries-reports";
 
@@ -27,7 +28,7 @@ export type ChildRow = {
  *  (goals/ui4b2-class-by-topic.yaml) — as the graph's own states give it (one skill set counted once, in the worst
  *  state of its skills), the last paper read, and their newest parent report. Names through pii.read_child, which
  *  logs who asked. */
-export async function childTable(actor: string, topic: string | null = null): Promise<ChildRow[]> {
+export async function childTable(actor: string, topic: string | null = null, scope: Scope = EVERY_CLASS): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     with st as (
       select s.child_id, s.rung_code, ss.name,
@@ -49,7 +50,7 @@ export async function childTable(actor: string, topic: string | null = null): Pr
              where si.child_id = c.id and k.superseded_by is null) as last_read,
            ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
-    where c.active
+    where c.active and ${inScope(scope, sql`c.section`)}
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
 }
 

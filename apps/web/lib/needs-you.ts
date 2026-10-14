@@ -1,11 +1,12 @@
 import { gradeWords } from "./queries";
 import { type Waiting, waiting } from "./queries-today";
+import { EVERY_CLASS, type Scope } from "./scope";
 import { weekWords } from "./week";
 
 // What waits on a person, under the tab where it is done (goals/ui1-menu-and-today.yaml). Today lists these lines and
 // the menu carries each tab's count, from this one list, so the two never disagree. Nimish, 2026-10-11: "I can't seem
 // to actually find where I go and check the papers or questions for which human validation is required." Every line
-// is shown to everyone: the school's two educators are its only layer ("we don't have any more layers in there").
+// is counted in the classes the signed-in person sees (goals/f1b-my-classes-first.yaml, ADR 0073).
 
 export const TABS = ["Curriculum", "Assessments", "Children"] as const;
 export type Tab = (typeof TABS)[number];
@@ -79,8 +80,8 @@ export function linesOf(w: Waiting): NeedsYou {
   return Object.fromEntries(TABS.map((t) => [t, all[t].filter((l) => l.n > 0)])) as NeedsYou;
 }
 
-export async function needsYou(actor: string): Promise<NeedsYou> {
-  return linesOf(await waiting(actor));
+export async function needsYou(actor: string, scope: Scope = EVERY_CLASS): Promise<NeedsYou> {
+  return linesOf(await waiting(actor, scope));
 }
 
 /** {tab: what waits in it} for the menu, and Today's: every tab's together. */

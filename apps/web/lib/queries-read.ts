@@ -7,6 +7,7 @@
  * off the paper either way.
  */
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 
 // ---- the approval queue. One row per paper a child sat, and every answer on it.
 //
@@ -76,9 +77,10 @@ const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow
 
 // Every paper that has been read. Names come through pii.read_child, which logs who asked
 // (rule 6) — a queue of papers is still a list of children.
-export async function papersToApprove(actor: string): Promise<PaperRow[]> {
+export async function papersToApprove(actor: string, scope: Scope = EVERY_CLASS): Promise<PaperRow[]> {
   return paperRows(
-    sql`exists (select 1 from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)`,
+    sql`exists (select 1 from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)
+        and ${inScope(scope, sql`ch.section`)}`,
     actor,
   );
 }
@@ -261,7 +263,7 @@ export async function readerReport(): Promise<ReaderReport> {
   };
 }
 
-export async function checkQueue(): Promise<QueueEntry[]> {
+export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (
       select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id
@@ -285,6 +287,7 @@ export async function checkQueue(): Promise<QueueEntry[]> {
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
+    where ${inScope(scope, sql`ch.section`)}
     order by t.key ->> 'date' desc nulls last, roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
              nullif(regexp_replace(result_slot(i.item_key, l.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int, i.item_key,
              result_order(i.responses, l.rid)`;

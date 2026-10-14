@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
@@ -186,10 +187,11 @@ export const RULE_WORDS: Record<string, string> = {
   override: "A teacher set this by hand.",
 };
 
-export async function weeks(): Promise<{ section: string; week: string; kind: string; n: number }[]> {
+export async function weeks(scope: Scope = EVERY_CLASS): Promise<{ section: string; week: string; kind: string; n: number }[]> {
   return sql`
     select c.section, p.week, p.kind, count(*)::int as n
     from prescription p join child c on c.id = p.child_id
+    where ${inScope(scope, sql`c.section`)}
     group by c.section, p.week, p.kind
     order by p.week desc, c.section, p.kind`;
 }

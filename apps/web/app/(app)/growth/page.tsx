@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { childTable, type ChildRow } from "@/lib/queries-children";
 import { gradeWords } from "@/lib/queries";
 import { deadline } from "@/lib/deadline";
@@ -61,7 +62,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
   const taught = (await deadline(topics())).filter((t) => t.taught);
   // only a topic that is taught narrows the table; any other word is every topic
   const topic = taught.find((t) => t.code === q.topic) ?? null;
-  const [rows, rules] = await deadline(Promise.all([childTable(me.email, topic?.code ?? null), colourRules()]));
+  const [rows, rules] = await deadline(Promise.all([childTable(me.email, topic?.code ?? null, scopeOf(me)), colourRules()]));
   const href = (to: { sort?: string; topic?: string | null }) => {
     const p = new URLSearchParams();
     const t = to.topic === undefined ? topic?.code : to.topic;

@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 
 // Parent reports by where they stand (goals/ui4b1-child-by-topic.yaml): a child's newest report written for a parent,
 // approved or a draft, out of date once answers were signed off after it was written; and every child whose report
@@ -38,11 +39,11 @@ export type ReportRow = { child_id: string; first_name: string; band: string; se
 
 /** Every child whose report waits on a person: out of date first, then written and not approved, then not written
  *  though there are answers to write it from. */
-export async function reportsWaiting(actor: string): Promise<ReportRow[]> {
+export async function reportsWaiting(actor: string, scope: Scope = EVERY_CLASS): Promise<ReportRow[]> {
   const rows = await sql<ReportRow[]>`
     select c.id as child_id, p.first_name, c.band, c.section, c.roll_no, ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
-    where c.active
+    where c.active and ${inScope(scope, sql`c.section`)}
     order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
   return rows.filter((r) => reportRank(r.report) < 3).sort((a, b) => reportRank(a.report) - reportRank(b.report));
 }

@@ -9,8 +9,10 @@ is verified. This file only says where the last session stopped.
   the reasons. See STATE.md "F1a".
 - **Nimish, after merge:** `~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …` for each
   educator, then `~/cornerstone/assessment-engine/bin/engine staff list` to see them.
-- **Next:** F1b, every page opens on the signed-in educator's classes. Then F1c–F1g as BUILD-ORDER lists them. L3b
-  (constraint drift, durable failed runs) is still owed from L3.
+- **F1b, same PR:** every list, count and single page is narrowed to the signed-in person's classes
+  (`apps/web/lib/scope.ts`). See STATE.md "F1b".
+- **Next:** F1c, who decides what, checked on the server, including another class's papers and answers. Then F1d–F1g.
+  L3b (constraint drift, durable failed runs) is still owed from L3.
 
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 

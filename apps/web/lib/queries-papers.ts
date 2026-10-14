@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 
 // Papers (goals/u9-papers.yaml): every paper, made to signed off, in one list. Nimish, 2026-09-30: "one list of papers
 // with the right filtration and all, and a good view". Where each answer stands is the engine's (item_result, and the
@@ -101,9 +102,10 @@ const papersCte = () => sql`
     where si.print_status <> 'void'
   )`;
 
-/** Every filter but the stage: the stage counts are counted across stages. */
-const narrowed = (f: PaperFilter) => sql`
-  (${f.class ?? null}::text is null or section = ${f.class ?? null})
+/** Every filter but the stage: the stage counts are counted across stages. Only the classes a person sees. */
+const narrowed = (f: PaperFilter, scope: Scope) => sql`
+  ${inScope(scope, sql`section`)}
+  and (${f.class ?? null}::text is null or section = ${f.class ?? null})
   and (${f.child ?? null}::uuid is null or child_id = ${f.child ?? null}::uuid)
   and (${f.kind ?? null}::text is null or kind = ${f.kind ?? null})
   and (${f.week ?? null}::text is null or week = ${f.week ?? null})
@@ -112,12 +114,12 @@ const narrowed = (f: PaperFilter) => sql`
 
 /** The papers a filter leaves, newest first (at most 300), with each child's name read once, through pii.read_child,
  *  which logs who asked. */
-export async function paperList(f: PaperFilter, actor: string): Promise<{ rows: PaperListRow[]; more: boolean }> {
+export async function paperList(f: PaperFilter, actor: string, scope: Scope = EVERY_CLASS): Promise<{ rows: PaperListRow[]; more: boolean }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
   const rows = await sql<(PaperListRow & { name: string | null })[]>`
     with ${papersCte()},
     shown as (
-      select * from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
+      select * from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
       order by day desc nulls last, created_at desc, section, qr
       limit ${LIMIT + 1}
     ),
@@ -137,14 +139,16 @@ export async function paperList(f: PaperFilter, actor: string): Promise<{ rows: 
 export async function paperFilters(
   f: PaperFilter,
   actor: string,
+  scope: Scope = EVERY_CLASS,
 ): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
   const [counts, classes, weeks, children] = await Promise.all([
     sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f)} group by stage`,
+      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} group by stage`,
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
-      where si.print_status <> 'void' and coalesce(si.section, c.section) is not null order by 1`,
+      where si.print_status <> 'void' and coalesce(si.section, c.section) is not null
+        and ${inScope(scope, sql`coalesce(si.section, c.section)`)} order by 1`,
     sql<{ week: string }[]>`
       select week from (select distinct coalesce(si.week, t.week) as week from sheet_instance si
                         join sheet_template t on t.id = si.sheet_template_id where si.print_status <> 'void') w
@@ -152,7 +156,8 @@ export async function paperFilters(
     sql<{ id: string; label: string }[]>`
       select c.id, n.first_name || ' · ' || c.section || ' roll ' || c.roll_no as label
       from child c, lateral pii.read_child(c.id, ${actor}) n
-      where c.active and exists (select 1 from sheet_instance si where si.child_id = c.id and si.print_status <> 'void')
+      where c.active and ${inScope(scope, sql`c.section`)}
+        and exists (select 1 from sheet_instance si where si.child_id = c.id and si.print_status <> 'void')
       order by c.section, roll_order(c.roll_no), c.roll_no`,
   ]);
   const stages = Object.fromEntries(STAGES.map((s) => [s, 0])) as Record<Stage, number>;
@@ -181,7 +186,7 @@ export type AssessmentRow = {
  *  paper given to a class in a week on one skill set or worksheet, or a class's home assessments for a week, with its
  *  copies counted by stage — a stage chosen keeps the copies at that stage — the answers waiting for a person, and its
  *  score across the copies that are checked. */
-export async function assessmentList(f: PaperFilter): Promise<{ rows: AssessmentRow[]; more: boolean }> {
+export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS): Promise<{ rows: AssessmentRow[]; more: boolean }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
   const rows = await sql<AssessmentRow[]>`
     with ${papersCte()}
@@ -194,7 +199,7 @@ export async function assessmentList(f: PaperFilter): Promise<{ rows: Assessment
            sum(waiting)::int as waiting,
            coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
            coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored
-    from papers where ${narrowed(f)} and (${stage}::text is null or stage = ${stage})
+    from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
     group by kind, section, week, set_key
     order by max(day) desc nulls last, max(created_at) desc, section, min(set_name)
     limit ${LIMIT + 1}`;
