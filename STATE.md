@@ -7788,3 +7788,9 @@ that's relevant for their class and their students."
     - Make papers did not offer a class what it was taught;
     - there was no "Assessed" column.
   - u12, u13, u17 and u18 follow the switch's new words and the Assessed column.
+  - The whole browser suite here: 185 passed, 3 failed, 14 did not run because they follow a failed test in their file.
+    - The three failures were e2e "every kind of question in the bank", s2 "every kind of link on the Curriculum" and
+      s3 "every skill shows its worksheets". Each one loops over 20 or more pages inside one 30 s test.
+    - Pages on this copy take 1.3–1.6 s each, and the same on main's site code: nine pages were timed on both builds.
+      So F1f did not slow them. This copy has collected test rows from many runs.
+    - CI's browser job on a fresh database passed all of it (6b644c3).

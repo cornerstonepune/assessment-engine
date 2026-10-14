@@ -5,7 +5,8 @@ is verified. This file only says where the last session stopped.
 
 ## 2026-10-14 — F1f: taught is said for each class (#204 merged)
 
-- **#204 (F1a–F1e) merged** as `f5787f8`. Main's CI then `migrate live` apply 20261109090000 (level approval).
+- **#204 (F1a–F1e) merged** as `f5787f8`. Main's CI was green, and `migrate live` applied 20261109090000 (level approval)
+  at 10:56 UTC (run 38553083579).
 - **F1f, its own PR.** "Taught" is said per class (`class_topic`, migration 20261110090000). A class no one has spoken
   for follows the school's switch, so nothing changes on the day. The engine and every page read the class's own. The
   Curriculum's answers column is "Assessed". See STATE.md "F1f".
