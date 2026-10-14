@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
 import { readArea, seeHref, type Area } from "@/lib/next-paper";
@@ -25,6 +27,7 @@ export default async function CustomPaper({ searchParams }: Props) {
   const q = await searchParams;
   const id = all(q.child)[0] ?? "";
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const [child, sets] = await deadline(Promise.all([oneChild(id, me.email), skillSets()]));
   if (!child) notFound();
 

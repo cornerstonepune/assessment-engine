@@ -1,0 +1,26 @@
+name: f1e-the-grade-plan
+goal: >
+  Which levels a grade uses is each level's grade, set on the skill's page: a grade uses its own levels and those of
+  the grades below. Make papers offers a class only those levels, grouped by grade with the class's own first, and the
+  engine refuses any other, saying which grade the level is and what the class's grade has — for one paper for all, the
+  same skill for each child, a chosen paper and a changed child alike. The home paper keeps the rule it already had.
+# Written 2026-10-14, before the code: slice F1e of BUILD-ORDER "One flow for the educator" (ADR 0073, D2). Nimish, the
+# same day: "for grade two, let's just say for a certain topic, it's only easy and medium that have been marked. So
+# whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
+# Measured first: each level already has a grade (`skill_set.level_band`, else the skill's own) and the home paper
+# keeps a child to their grade or below (`shelf._read_levels`); Make papers ignores it — the picker lists every level of
+# every taught skill and `focus_paper._asked` checks only that the level exists.
+says:
+  - words: "So whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
+    proved_by: "packages/engine/tests/test_maker.py::test_a_class_is_given_only_its_grades_levels_and_those_below"
+  - words: "So whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
+    proved_by: "apps/web/tests/u29-a-grade-uses-its-levels.spec.ts::make papers offers a class only its grade's levels and those below"
+manual: []
+scenarios: []
+criteria:
+  - name: a class is offered and given only its grade's levels and those below
+    run: cd packages/engine && uv run pytest -q tests/test_maker.py tests/test_focus_paper.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -2,6 +2,8 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { childEvidence, childHeader, childPapers, gradeWords, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
 import { childSheets, childSkills, repeatedMistakes, summary } from "@/lib/queries-children";
 import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
@@ -26,6 +28,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
   const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report] = await deadline(Promise.all([
     childHeader(id, me.email),

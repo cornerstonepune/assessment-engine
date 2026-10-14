@@ -141,11 +141,19 @@ def _where_it_shows(conn, area, levels) -> focus.Area:
     return area
 
 
-def _asked(conn, states, ask) -> list:
-    """The areas a teacher asked for, each checked against the bank's own skill sets and levels, with the child's
-    repeated mistake in that skill, if any, so the questions that can show it come first."""
+def _grade_words(band) -> str:
+    digits = "".join(ch for ch in str(band or "") if ch.isdigit())
+    return f"Grade {digits}" if digits else str(band)
+
+
+def _asked(conn, states, ask, band=None) -> list:
+    """The areas a teacher asked for, each checked against the bank's own skill sets and levels — and, with `band`,
+    against the grade: a class or child uses its own grade's levels and those below (goals/f1e-the-grade-plan.yaml),
+    the rule the home paper keeps — with the child's repeated mistake in that skill, if any, so the questions that can
+    show it come first."""
     cat = {c["code"]: c for c in catalog(conn)}
     levels = _levels(conn)
+    usable = _levels(conn, band) if band else levels
     out = []
     for a in ask:
         code, level, n = a.get("skill_set"), a.get("level"), a.get("n")
@@ -154,6 +162,16 @@ def _asked(conn, states, ask) -> list:
         if level not in levels.get(code, ()):
             raise ValueError(
                 f"{code} has no level {level!r}: it has {', '.join(levels.get(code, ())) or 'none'}"
+            )
+        if level not in usable.get(code, ()):
+            own = conn.execute(
+                "select coalesce(s.level_band ->> %s, r.band) as band from skill_set s"
+                " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.code = %s",
+                (level, code),
+            ).fetchone()["band"]
+            raise ValueError(
+                f"{code} at {level} is {_grade_words(own)}'s; {_grade_words(band)} has"
+                f" {', '.join(usable.get(code, ())) or 'none of its levels'}"
             )
         if not isinstance(n, int) or not 1 <= n <= MOST_ASKED:
             raise ValueError(f"ask for 1 to {MOST_ASKED} questions in an area, not {n!r}")
@@ -183,7 +201,8 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
     few questions the child has not seen. `taken`: questions already on another child's paper of the same batch."""
     states = _states(conn, child_id)
     if ask:
-        chosen = _asked(conn, states, ask)
+        band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
+        chosen = _asked(conn, states, ask, band)
     else:
         n = home_length(conn)
         chosen = [(a, n) for a in home_area(conn, child_id, states)]

@@ -1,6 +1,8 @@
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { staffList } from "@/lib/queries";
 import { seeHref } from "@/lib/next-paper";
@@ -16,6 +18,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
   const me = await requireStaff();
   const [{ section: raw }, q] = await Promise.all([params, searchParams]);
   const section = decodeURIComponent(raw);
+  if (!isMine(scopeOf(me), section)) return <NotYours what={section} />;
   const week = isoWeek();
   const [children, staff] = await deadline(Promise.all([classHome(section, me.email, week), staffList()]));
   const name = Object.fromEntries(staff.map((s) => [s.email, s.name]));

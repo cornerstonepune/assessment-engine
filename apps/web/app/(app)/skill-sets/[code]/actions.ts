@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
+import { deciding } from "@/lib/decides";
 import { sql } from "@/lib/db";
-import { type Band, type Difficulty, levelsOf } from "@/lib/queries";
+import { type Band, DIFFICULTIES, type Difficulty, levelsOf } from "@/lib/queries";
 
 const CODE = /^[A-Z0-9._]+$/;
 // the approval page under its own choices (goals/ui6a-approve-filtered.yaml), and nothing else
@@ -15,7 +15,7 @@ const APPROVE_PAGE = /^\/skill-sets\/approve(\?(grade|topic|taught)=[\w.-]+(&(gr
  *  form; it is kept exactly as it was. Any change withdraws the approval (trigger
  *  `skill_set_version_on_change`), so whoever approves next has read these words. */
 export async function saveWords(formData: FormData): Promise<void> {
-  await requireStaff();
+  await deciding("skill_drafts");
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const name = String(formData.get("name") ?? "").trim().slice(0, 80);
@@ -45,7 +45,7 @@ export async function saveWords(formData: FormData): Promise<void> {
  *  lands on words changed since the page was opened, because a change sets the skill back to
  *  waiting and bumps its version, and the form carries the version it showed. */
 export async function approveSkills(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("skills");
   let shown = formData.getAll("code").map(String).filter((c) => CODE.test(c));
   let versions = formData.getAll("version").map(Number);
   let back = String(formData.get("back") ?? "/");
@@ -61,7 +61,10 @@ export async function approveSkills(formData: FormData): Promise<void> {
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
   const approved = await sql<{ code: string }[]>`
-    update skill_set s set status = 'ratified', ratified_by = ${me.name}, updated_at = now()
+    update skill_set s
+    set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', ${me.name}::text, 'at', now()))
+                          from jsonb_object_keys(s.difficulty) k),
+        updated_at = now()
     from unnest(${shown}::text[], ${versions}::int[]) as v(code, version)
     where s.code = v.code and s.version = v.version and s.status = 'draft'
     returning s.code`;
@@ -91,7 +94,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
  *  column, not in the level's words: it moves where the level is taught, not what it asks, so the approval stays.
  *  A level in the skill's own grade is not written down; only one moved elsewhere is. */
 export async function saveGrades(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("skill_drafts");
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const [row] = await sql<{ difficulty: Record<Difficulty, Band>; band: string }[]>`
@@ -110,4 +113,23 @@ export async function saveGrades(formData: FormData): Promise<void> {
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);
   redirect(`/skill-sets/${code}?grades=1`);
+}
+
+/** The coordinator approves one level's questions (goals/f1d-questions-approved-per-level.yaml): that level, at the
+ *  version of the skill the page showed — a level changed since keeps waiting. The skill is approved once every level
+ *  it has is (trigger `skill_set_version_on_change`). */
+export async function approveLevel(formData: FormData): Promise<void> {
+  const me = await deciding("skills");
+  const code = String(formData.get("code") ?? "");
+  const version = Number(formData.get("version"));
+  const level = String(formData.get("level") ?? "");
+  if (!CODE.test(code) || !Number.isInteger(version) || !DIFFICULTIES.includes(level as Difficulty)) redirect("/");
+  await sql`
+    update skill_set set level_approved = level_approved || jsonb_build_object(${level}::text,
+                           jsonb_build_object('by', ${me.name}::text, 'at', now())),
+                         updated_at = now()
+    where code = ${code} and version = ${version} and difficulty ? ${level}`;
+  revalidatePath("/");
+  revalidatePath(`/skill-sets/${code}`);
+  redirect(`/skill-sets/${code}?level_approved=${level}#levels`);
 }

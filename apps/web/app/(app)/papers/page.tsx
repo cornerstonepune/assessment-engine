@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { checkQueue } from "@/lib/queries-read";
 import { topics } from "@/lib/queries-people";
 import {
@@ -77,10 +78,10 @@ export default async function PapersPage({ searchParams }: Props) {
   };
   const [papers, groups, { stages, options }, queue] = await deadline(
     Promise.all([
-      view === "papers" ? paperList(f, me.email) : null,
-      view === "assessments" ? assessmentList(f) : null,
-      paperFilters(f, me.email),
-      checkQueue(),
+      view === "papers" ? paperList(f, me.email, scopeOf(me)) : null,
+      view === "assessments" ? assessmentList(f, scopeOf(me)) : null,
+      paperFilters(f, me.email, scopeOf(me)),
+      checkQueue(scopeOf(me)),
     ]),
   );
   const shown = groups ?? papers;

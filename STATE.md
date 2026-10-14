@@ -7594,3 +7594,153 @@ Nimish, on Make papers for Grade 1 (class assessment, one paper for all, Equal g
 - Check: `cd packages/engine && uv run pytest -q tests/test_maker.py tests/api/test_idempotency.py` → `18 passed`;
   `bin/check` → `28 passed`.
 - **Not live until** this merges and `migrate live` applies the migration.
+
+## F1a — each educator has classes (2026-10-14)
+
+Phase 1 of BUILD-ORDER "One flow for the educator" (ADR 0073). Nimish: "Let's create a mapping of the teacher to the
+grade … Then the teachers only see, when Achal logs in, things that are relevant to his grades." D1: an educator is
+linked to classes, and the grade follows from the class. Goal `goals/f1a-each-educator-has-classes.yaml`.
+
+- **A person's classes live on their entry in the staff list.** That list is `config.app.staff` (ADR 0069), so sign-in
+  is untouched. The rejected staff table is recorded in ADR 0073.
+  - `engine staff add --class G2 --class G3` puts a person on the list with their classes.
+  - `engine staff classes <email> G2 G3` replaces them, and `--none` clears them; leaving the classes out is refused.
+  - A class is a section a child still in school is in, so a typed class that is no class refuses the whole command
+    and nothing changes.
+  - `engine staff list` says each person's classes; the coordinator's read "every class".
+  - Check: `tests/test_staff.py` (three new tests) → with `test_cli.py` and `test_loaders.py`, `44 passed`.
+- **Signing in carries the classes, and the menu says them** beside the name: "Teaches G2, G3", "Every class" for the
+  coordinator, "No class yet" for someone linked to none.
+  - Check: `apps/web/tests/u25-each-educator-has-classes.spec.ts` → 2 passed. Run against the old menu, it failed
+    ("Signed in" not found).
+  - u15 (menu and Today) and u18 (sign-in) still pass: `8 passed`.
+- **Not live until** merged, and then until Nimish runs `bin/engine staff classes` for each educator. Until then every
+  educator reads "No class yet". F1b is what narrows the pages.
+
+## F1b — each person sees their own classes (2026-10-14)
+
+Goal `goals/f1b-my-classes-first.yaml`. Nimish: "Then the teachers only see, when Achal logs in, things that are relevant
+to his grades."
+
+- **One scope, from who is signed in** (`apps/web/lib/scope.ts`):
+  - an educator sees the classes on their staff entry (F1a);
+  - the coordinator sees every class;
+  - an educator linked to no class sees every class, and Today says why.
+- **Every list is narrowed to it:** Today and the menu's counts, Children, the parent reports, Home assessments, Make
+  papers' classes, Assessments (both views, and its filters' classes and children), Marking and its queue of answers,
+  and Approve's packs. Each query takes the scope as one where-clause piece. The curriculum's lines on Today stay the
+  school's (a skill is every grade's); phase 2 narrows Curriculum to a person's grades.
+- **Single-item pages are guarded.** A page for another class, child or paper says "not one of your classes" and shows
+  nothing of it: a class, its home assessments and its week, a child and their parent report, a chosen paper, a paper
+  read, a printed paper. The check reads only the class, before any name is read through the logged accessor.
+  - A printed page, a preview and a print of another class's paper answer 403.
+  - A scan not yet sorted onto a paper has no class, and stays open to whoever reads the pile.
+- **Check:**
+  - `apps/web/tests/u26-my-classes-first.spec.ts` → 3 passed. Before the change it failed: the other class's pack was on
+    the educator's Today.
+  - The specs of every page touched (15 files):
+    - First run: 49 of 50 passed. u20's "every parent report … a child's page ends on theirs" failed once
+      (`regions.at(-1)`).
+    - Second run: u20 passed. Only u26's own new assertion failed: its test paper's code `CSU26A` is no code (not hex),
+      so the route answered 400 before the class check. Corrected to `CSF1B026`.
+    - Then u26 with u20 → 6 passed.
+    - u20's one failure is not explained. It does not touch a page this slice changed for the coordinator, who runs it.
+- **Not live until** merged and the educators are linked to their classes (F1a).
+
+## F1c — who decides what, checked on the server (2026-10-14)
+
+Goal `goals/f1c-who-decides-what.yaml`; ADR 0073 decision 3; D3 (educators draft skills, the coordinator approves).
+
+- **Every server action checks before it writes.** That is all 27 actions and the route that prints a worksheet for children.
+  - **Its role** (`apps/web/lib/decides.ts`): the signer's role must be one `people.decides` names for that kind of
+    decision. The coordinator may take any decision.
+  - **Its classes:** every class it touches must be the signer's. That covers the child, the paper, the answer, the
+    planned paper and the class's pack, each looked up from the id the form sent, not from the page that showed it.
+  - **Refusal:** a refused decision changes nothing. It lands on `/refused`, which says whose decision it is, or that
+    the class is not the signer's.
+- **`people.decides` names four more kinds**, all the educator's:
+  - `skill_drafts` (changing a skill's words or level grades);
+  - `reports` (parent reports; workflow N12 names the coordinator, Nimish on 2026-10-11 named the teacher, so the row
+    says educator and can be changed);
+  - `questions` (correcting a question, changing a key);
+  - `week` (the week's declaration).
+
+  An ask is decided by its own `for_role`. A kind the row does not name yet is refused to no one, as before: the row
+  reaches live with the engine's settings, a little after the website.
+- **Check:**
+  - `apps/web/tests/u27-who-decides-what.spec.ts` → 3 passed, with u23 → 5 passed.
+    - Before the change, the educator's approval of a skill went through.
+    - The tamper test changes the pack form's class by hand, and is refused.
+  - The whole browser suite (steps, e2e, gate) → 194 passed. The one failure was u27's own locator (the pack panel has
+    no accessible name), since corrected.
+  - `tests/test_asks.py` names the ten kinds.
+
+## F1d — questions approved level by level (2026-10-14)
+
+Goal `goals/f1d-questions-approved-per-level.yaml`; ADR 0073 D2. Nimish: "If I just want to approve something for a
+grade level today, I'm not able to do that."
+
+- **Each level is approved on its own.** Migration `20261109090000`:
+  - `skill_set.level_approved` holds {level: {by, at}}.
+  - A skill is approved (`status` 'ratified', which every reader already asks) exactly when every level it has is.
+  - Every skill approved whole before keeps its approval at every level, in its approver's name.
+- **What withdraws an approval** (trigger `skill_set_version_on_change`):
+  - a change to a level's rule — anything of the level but its words — withdraws that level alone;
+  - a change to the skill's kinds of question withdraws every level;
+  - its name, what a child can do and a level's words withdraw nothing: the questions did not change. That replaces
+    the rule of 2026-10-06 (`test_approval.py` now pins the new one);
+  - a status set whole, approved or withdrawn, approves or withdraws every level with it. That covers
+    `engine ratify`, approving every level at once, and the tests and scripts that set it.
+- **On the site:** each level's card on the skill's page approves that level alone for the coordinator. An educator
+  reads "Waiting for the coordinator", with no button. "Approve as written" approves every level.
+- **Check:**
+  - `tests/test_level_approval.py` → 4 passed (one level, a rule, words, a skill approved before). With
+    `test_provenance.py`, `test_approval.py` and `test_spec.py` → 24 passed.
+  - `apps/web/tests/u28-approved-per-level.spec.ts` → 2 passed.
+  - The first trigger left a status set by hand overridden by the levels. u23's set-up, which sets every skill's status,
+    broke on it, and two local skills stayed approved by earlier runs. That is fixed at the cause: a status set whole
+    approves or withdraws every level.
+
+## F1e — a grade uses its own levels and those below, on every paper (2026-10-14)
+
+Goal `goals/f1e-the-grade-plan.yaml`. Nimish: "whenever a grade two teacher is creating the assessments for that topic,
+it's only easy and medium that should come."
+
+- **Measured while building.** Each level already has a grade (`skill_set.level_band`, else the skill's own), set on the
+  skill's page by moving a level (goal c1). The home paper already kept a child to their grade or below
+  (`shelf._read_levels`).
+  - Make papers ignored the grades: its picker listed every level of every taught skill, and `focus_paper._asked`
+    checked only that the level existed.
+  - A separate grade × skill × level table, the list's first draft, would have been a second source of truth beside the
+    level grades, so it was not built. BUILD-ORDER's F1e row and ADR 0073 say so.
+- **The engine refuses a level above the grade**, in words: "ADD.2D1D at Medium is Grade 2's; Grade 1 has Easy". That
+  holds for one paper for all (the class's grade, `roster.class_band`), the same skill for each child, a chosen paper and
+  a changed child (the child's own grade).
+- **The site offers only those levels:**
+  - Make papers' and a chosen paper's picker (`usesLevel`, the engine's rule);
+  - the topic's default lines (Medium where the grade uses it, else its first usable level);
+  - the "Make this check" links on a child's and a class's page (`levelsUsedBy`, the same rule in SQL).
+- **Check:**
+  - `tests/test_maker.py::test_a_class_is_given_only_its_grades_levels_and_those_below`: it failed first, a Grade 1
+    class being given Medium. With the maker, focus-paper and week-note tests → 36 passed.
+  - `apps/web/tests/u29-a-grade-uses-its-levels.spec.ts`: it failed first, Grade 1 offered three levels too many. With
+    the maker specs → 15 passed.
+  - L3's test now adds live's old rule `not valid`, so it no longer depends on the database holding no paper made for
+    one child.
+  - The whole browser suite: the first run failed 11 specs on a child's and a class's page. The cause was `levelsUsedBy`
+    writing `'\D'` inside a JavaScript template, which Postgres received as `'D'` ("invalid input syntax for type
+    integer: G1"); it is now `'\\D'`. The 11, with u29 → 57 passed; the other 184 had passed in the same run.
+
+## F1a–F1e in CI — two engine tests that passed here and failed in GitHub (2026-10-14)
+
+- **What failed.** The `engine` job was red on every F1 commit; the browser and web jobs were green.
+  - `test_web_gate.py::test_every_server_action_checks_who_is_asking` failed because the 27 actions now open with
+    `deciding(kind)`, and the gate looked only for `requireStaff(` or `currentStaff(`. `deciding` calls `requireStaff()`
+    first, so the gate now counts it. A new test, `test_deciding_checks_who_is_asking_before_anything_else`, holds
+    `deciding` to that.
+  - `test_staff.py::test_an_educators_classes_are_changed_by_one_command` failed because, under `GITHUB_ACTIONS`, typer
+    styles each dash of `--none` on its own. A person reads `--none`, but the test read the escape codes. It now reads
+    the plain words through `test_cli.run`, the helper written for the same trap.
+- **Why it was not seen before the push.** Only the changed modules' tests were run, not the whole engine suite.
+- **Check.** Both reproduced with `GITHUB_ACTIONS=true`, then passed with it and without it (37 and 11 passed). The
+  change is to these two test files alone; the whole engine suite is CI's run on this push.

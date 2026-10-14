@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
+import { deciding } from "@/lib/decides";
 import { EngineDown, engineSend } from "@/lib/engine";
 
 // Any staff member, any question, one line of reason. The engine retires it and, in the same
 // transaction, the worksheets it was on — dealing new ones — so no worksheet ever holds a question
 // that has left the bank (ADR 0026). If the engine cannot be reached, nothing has changed.
 export async function flagItem(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("questions");
   const itemKey = String(formData.get("item_key") ?? "");
   const note = String(formData.get("note") ?? "").trim().slice(0, 300);
   const back = String(formData.get("back") ?? "/library");
@@ -31,7 +31,7 @@ export async function flagItem(formData: FormData): Promise<void> {
 // change — saves the new wording as a new question and retires the old one. A refusal comes back
 // in the engine's own words and is shown on the question's page; nothing has changed.
 export async function correctItem(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("questions");
   const key = String(formData.get("item_key") ?? "");
   if (!/^[A-Za-z0-9._-]+$/.test(key)) redirect("/library");
   let next = `/library/${key}`;
@@ -57,7 +57,7 @@ const VERDICTS = ["remove", "keep", "adopt", "reject"] as const;
 // A person decides one of the bank's proposals, once (goals/s21-real-difficulty.yaml): remove the question — the
 // engine rebuilds its worksheets in the same transaction — or keep it. A refusal comes back in the engine's words.
 export async function decideProposal(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("questions");
   const id = String(formData.get("id") ?? "");
   const verdict = VERDICTS.find((v) => v === formData.get("verdict"));
   if (!/^[0-9a-f-]{36}$/.test(id) || !verdict) redirect("/library");

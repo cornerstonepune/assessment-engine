@@ -1,6 +1,8 @@
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { isMine, scopeOf } from "@/lib/scope";
 import { engineGet, engineSend } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
 import { confirmWeek } from "./actions";
@@ -32,9 +34,10 @@ async function proposal(section: string, note: string): Promise<{ skill_sets: Ro
 }
 
 export default async function WeekDeclaration({ params, searchParams }: Props) {
-  await requireStaff();
+  const me = await requireStaff();
   const [{ section: raw }, q] = await Promise.all([params, searchParams]);
   const section = decodeURIComponent(raw);
+  if (!isMine(scopeOf(me), section)) return <NotYours what={section} />;
   const week = isoWeek();
   const note = (q.note ?? "").slice(0, 2000);
   const [now, proposed] = await Promise.all([declared(section, week), note ? proposal(section, note) : null]);

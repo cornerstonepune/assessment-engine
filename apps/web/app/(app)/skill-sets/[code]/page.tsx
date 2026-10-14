@@ -18,6 +18,8 @@ import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills, saveGrades } from "./actions";
 import { requireStaff } from "@/lib/auth";
+import { mayDecide } from "@/lib/decides";
+import { LevelApproval } from "./level-approval";
 
 type Props = {
   params: Promise<{ code: string }>;
@@ -37,7 +39,8 @@ const fmtDate = (d: string) =>
 // real question from the bank, the kinds of question that test it, the mistakes it watches for, and
 // its worksheets. Codes are provenance at the foot of the page, never the lead.
 export default async function SkillPage({ params, searchParams }: Props) {
-  await requireStaff();
+  const me = await requireStaff();
+  const mayApprove = await deadline(mayDecide(me, "skills"));
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = DIFFICULTIES.find((d) => d === q.level);
   const everyLevel = q.level === "all";
@@ -179,6 +182,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                     className="grid content-start gap-2 border border-basalt/12 p-3"
                   >
                     <h3 className="text-[15px]">{d}</h3>
+                    <LevelApproval s={s} d={d} mayApprove={mayApprove} />
                     <p className="text-[13.5px] leading-snug">
                       {s.difficulty[d]?.words}
                     </p>

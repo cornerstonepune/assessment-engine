@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { kindWords } from "@/components/question";
 import { type Line, needsYou, TODAY_ORDER } from "@/lib/needs-you";
@@ -12,11 +13,17 @@ import { weekWords } from "@/lib/week";
 // is shown to everyone signed in: the school's two educators are its only layer. The engine proposes; a person approves.
 export default async function Today() {
   const me = await requireStaff();
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me.email), queueByWeek(), trustNow()]));
+  const scope = scopeOf(me);
+  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me.email, scope), queueByWeek(), trustNow()]));
   return (
     <>
       <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
       <Body>
+        {scope.note ? (
+          <p role="status" className="note mb-5">
+            {scope.note}
+          </p>
+        ) : null}
         {TODAY_ORDER.map((tab) => (
           <section key={tab} aria-label={tab} className="mb-6">
             <h2 className="label mb-2">{tab}</h2>

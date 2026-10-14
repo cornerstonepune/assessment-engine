@@ -9,6 +9,8 @@ import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/
 import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
+import { NotYours } from "@/components/not-yours";
+import { isMine, paperSection, scopeOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { params: Promise<{ qr: string }> };
@@ -16,7 +18,7 @@ type Props = { params: Promise<{ qr: string }> };
 // One paper, end to end: the page as it was printed, how the engine drew it from the bank, and the
 // key it is marked against. Every sentence is filled from the paper's own rows.
 export default async function PaperPage({ params }: Props) {
-  await requireStaff();
+  const me = await requireStaff();
   const { qr } = await params;
   // A library worksheet (R22-H07) or a child's printed paper (CS + six hex): one address for both.
   if (LIBRARY_CODE.test(qr)) return <LibraryWorksheetPage code={qr} />;
@@ -28,6 +30,7 @@ export default async function PaperPage({ params }: Props) {
     if (found) redirect(`/capture/${found.id}`);
     notFound();
   }
+  if (!isMine(scopeOf(me), await deadline(paperSection({ qr })))) return <NotYours what="This paper's class" />;
   const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));
   if (!p) notFound();
   const back = p.section && p.week ? `/papers/approve?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/papers";

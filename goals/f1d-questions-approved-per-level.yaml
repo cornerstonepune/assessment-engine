@@ -1,0 +1,34 @@
+name: f1d-questions-approved-per-level
+goal: >
+  A skill's questions are approved level by level, by the coordinator: each level says who approved it and when. A
+  skill is approved when every level it has is. Changing a level's rule — what makes its questions — withdraws that
+  level's approval and no other; changing the kinds of question a skill uses withdraws every level's; changing its
+  words, its name or what a child can do withdraws none, because the questions did not change. Every skill approved
+  before keeps its approval at every level it has. The skill's page approves one level at a time; an educator sees
+  who it waits for instead of the button.
+# Written 2026-10-14, before the code: slice F1d of BUILD-ORDER "One flow for the educator" (ADR 0073, D2). Nimish, the
+# same day: "When I approve a skill, it gets approved throughout all the grades. If I just want to approve something
+# for a grade level today, I'm not able to do that." On D2 — questions approved once per skill and level, a grade's
+# levels in its own plan (F1e): "go with your recommendations". Measured first: approval is one flag per skill set
+# (`skill_set.status`), and the trigger `skill_set_version_on_change` sends the whole skill back to draft on a change
+# to any of seven columns, a word of its name included.
+says:
+  - words: "If I just want to approve something for a grade level today, I'm not able to do that."
+    proved_by: "packages/engine/tests/test_level_approval.py::test_a_skill_is_approved_when_every_level_it_has_is"
+  - words: "If I just want to approve something for a grade level today, I'm not able to do that."
+    proved_by: "packages/engine/tests/test_level_approval.py::test_a_changed_rule_withdraws_its_own_level_and_no_other"
+  - words: "If I just want to approve something for a grade level today, I'm not able to do that."
+    proved_by: "packages/engine/tests/test_level_approval.py::test_changed_words_withdraw_nothing"
+  - words: "If I just want to approve something for a grade level today, I'm not able to do that."
+    proved_by: "packages/engine/tests/test_level_approval.py::test_a_skill_approved_before_is_approved_at_every_level"
+  - words: "If I just want to approve something for a grade level today, I'm not able to do that."
+    proved_by: "apps/web/tests/u28-approved-per-level.spec.ts::the coordinator approves one level and the others still wait"
+manual: []
+scenarios: []
+criteria:
+  - name: a level's approval is its own; the skill is approved when every level is
+    run: cd packages/engine && uv run pytest -q tests/test_level_approval.py tests/test_spec.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

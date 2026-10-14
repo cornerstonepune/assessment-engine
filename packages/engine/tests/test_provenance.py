@@ -45,17 +45,31 @@ def test_editing_a_rule_files_the_old_one_and_bumps_the_version(conn):
     assert filed["difficulty"]["Hard"]["words"] != "edited by a test", "the OLD rule is what is filed"
 
 
+def _approve_every_level(conn, code):
+    conn.execute(
+        "update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', 'aseem', 'at', now()))"
+        " from jsonb_object_keys(difficulty) k) where code = %s",
+        (code,),
+    )
+
+
 def test_editing_a_rule_withdraws_its_ratification(conn):
-    """Aseem approved the rule he read. A changed rule has not been approved by anyone."""
-    conn.execute("update skill_set set status = 'ratified', ratified_by = 'aseem' where code = %s", (SET,))
-    _edit_rule(conn, SET, "changed after ratification")
-    row = conn.execute("select status, ratified_by from skill_set where code = %s", (SET,)).fetchone()
+    """Aseem approved the rule he read. A changed rule has not been approved by anyone — the level whose rule changed
+    (goals/f1d-questions-approved-per-level.yaml): its words alone are not its rule."""
+    _approve_every_level(conn, SET)
+    d = conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+    d["Hard"] = {**d["Hard"], "check": {**d["Hard"]["check"], "changed_after_ratification": True}}
+    conn.execute("update skill_set set difficulty = %s where code = %s", (json.dumps(d), SET))
+    row = conn.execute(
+        "select status, ratified_by, level_approved from skill_set where code = %s", (SET,)
+    ).fetchone()
     assert (row["status"], row["ratified_by"]) == ("draft", None)
+    assert "Hard" not in row["level_approved"]
 
 
 def test_ratifying_is_not_an_edit_and_does_not_bump_the_version(conn):
     before = conn.execute("select version from skill_set where code = %s", (SET,)).fetchone()["version"]
-    conn.execute("update skill_set set status = 'ratified', ratified_by = 'aseem' where code = %s", (SET,))
+    _approve_every_level(conn, SET)
     after = conn.execute("select version from skill_set where code = %s", (SET,)).fetchone()["version"]
     assert after == before, "approving a rule is not writing a new one"
 

@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { checkQueue, papersToApprove, readerReport } from "@/lib/queries-read";
 import { deadline } from "@/lib/deadline";
 import { ReadScan } from "./read-scan";
@@ -21,7 +22,7 @@ const VIEWS = [
 export default async function MarkingPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [papers, reader, queue] = await deadline(Promise.all([papersToApprove(me.email), readerReport(), checkQueue()]));
+  const [papers, reader, queue] = await deadline(Promise.all([papersToApprove(me.email, scopeOf(me)), readerReport(), checkQueue(scopeOf(me))]));
   if (q.child) return <ChildPapers papers={papers} id={q.child} />;
   if (q.worksheet) return <WorksheetPapers papers={papers} worksheet={q.worksheet} />;
 

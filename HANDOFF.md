@@ -3,6 +3,24 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-14 — F1a: each educator has classes (phase 1 of "One flow for the educator")
+
+- **Step 5 (Teacher flow), slice F1a.** BUILD-ORDER's new insert records Nimish's decisions D1–D6, and ADR 0073 gives
+  the reasons. See STATE.md "F1a".
+- **Nimish, after merge:** `~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …` for each
+  educator, then `~/cornerstone/assessment-engine/bin/engine staff list` to see them.
+- **F1b, same PR:** every list, count and single page is narrowed to the signed-in person's classes
+  (`apps/web/lib/scope.ts`). See STATE.md "F1b".
+- **F1c, same PR:** every server action checks the signer's role (`people.decides`) and classes before it writes;
+  a refusal lands on `/refused`. See STATE.md "F1c".
+- **L3 is live:** `migrate live` applied 20261108090000 at 08:54 UTC (run 38538494920). Nimish retries Grade 1's papers.
+- **F1d, same PR:** each level's questions are approved on their own (`level_approved`, migration 20261109090000).
+  Rewording withdraws nothing; a skill approved before keeps every level. See STATE.md "F1d".
+- **F1e, same PR:** a grade uses its own levels and those below, on every paper; Make papers no longer offers or
+  accepts a higher grade's level. The plan is the level grades already on each skill's page (no new table, ADR 0073).
+- **Next, a PR of their own once #204 merges:** F1f (taught per class) and F1g (approval controls which papers can be
+  made; measured on a copy of live first). L3b (constraint drift, durable failed runs) is still owed from L3.
+
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 
 - **W2 (print), a live defect; no gate moves.** Goal `l3-a-class-paper-prints-on-live`; see STATE.md "L3".

@@ -31,17 +31,21 @@ export function Shell({ me, waiting, children }: { me: Session; waiting: Partial
             </a>
           ) : null}
           <div className="label !text-bamboo opacity-75">Grade 1–4 · Maths</div>
-          <div className="mt-3 flex items-center justify-between gap-2 text-[12.5px] text-bamboo">
-            <span className="truncate" title={me.email}>{me.name}</span>
-            {me.devBypass ? (
-              <span className="pill pill-terracotta">dev bypass</span>
-            ) : (
-              <form action={signOut}>
-                <button className="cursor-pointer text-bamboo underline-offset-2 hover:underline" type="submit">
-                  Sign out
-                </button>
-              </form>
-            )}
+          <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate" title={me.email}>{me.name}</span>
+              {me.devBypass ? (
+                <span className="pill pill-terracotta">dev bypass</span>
+              ) : (
+                <form action={signOut}>
+                  <button className="cursor-pointer text-bamboo underline-offset-2 hover:underline" type="submit">
+                    Sign out
+                  </button>
+                </form>
+              )}
+            </div>
+            {/* what the site opens on for this person (ADR 0073): never a guess */}
+            <div className="mt-1 opacity-75">{classesSaid(me)}</div>
           </div>
         </div>
       </aside>
@@ -167,4 +171,10 @@ export function NotYet({ what, when, facts }: { what: string[]; when: string; fa
       </Panel>
     </div>
   );
+}
+
+/** The classes a person teaches, as the menu says them: the coordinator's are every class. */
+export function classesSaid(me: Pick<Session, "role" | "classes">): string {
+  if (me.role === "coordinator") return "Every class";
+  return me.classes?.length ? `Teaches ${me.classes.join(", ")}` : "No class yet";
 }

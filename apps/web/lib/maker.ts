@@ -1,7 +1,7 @@
 import { DatabaseSlow, deadline, PAGE_WAIT_MS } from "./deadline";
 import { EngineDown, engineSend } from "./engine";
 import { readArea, type Area } from "./next-paper";
-import { levelsOf, type SkillSet } from "./queries";
+import { levelsOf, type SkillSet, usesLevel } from "./queries";
 
 // The maker (goals/m3-the-maker.yaml): papers for any children of one class at once. The engine draws, checks and
 // prints them (`w2_print/maker.py`); this reads the educator's choices from the form or the address and asks it.
@@ -140,5 +140,9 @@ export function topicLines(sets: SkillSet[], topic: string, band: string, length
   const here = sets.filter((x) => x.topic_code === topic && x.band === band).slice(0, lines);
   if (!here.length || !length) return [];
   const each = Math.max(1, Math.round(length / here.length));
-  return here.map((x) => `${x.code}~${levelsOf(x).includes("Medium") ? "Medium" : levelsOf(x)[0]}~${each}`);
+  // Medium where the class's grade uses it, else the first level it uses (goals/f1e-the-grade-plan.yaml)
+  return here.flatMap((x) => {
+    const usable = levelsOf(x).filter((d) => usesLevel(x, d, band));
+    return usable.length ? [`${x.code}~${usable.includes("Medium") ? "Medium" : usable[0]}~${each}`] : [];
+  });
 }

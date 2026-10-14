@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
 import { reportsWaiting, reportWords } from "@/lib/queries-reports";
@@ -12,7 +13,7 @@ import { reportsWaiting, reportWords } from "@/lib/queries-reports";
 // at once was one long table.
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  const [every, q] = await Promise.all([deadline(reportsWaiting(me.email)), searchParams]);
+  const [every, q] = await Promise.all([deadline(reportsWaiting(me.email, scopeOf(me))), searchParams]);
   const sections = [...new Map(every.map((r) => [r.section, r])).values()];
   const chosen = sections.some((r) => r.section === q.class) ? q.class : undefined;
   const rows = chosen ? every.filter((r) => r.section === chosen) : every;

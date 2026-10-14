@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
@@ -13,6 +14,14 @@ export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) =
 export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
   s.level_band?.[d] ?? s.band;
 
+/** A grade's place among the grades: G1 → 1, reasoning's "G2+" → 2 — the engine's own rule (`shelf._grade`). */
+export const gradeNo = (band: string) => Number(band.replace(/\D/g, "")) || 0;
+
+/** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
+ *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them. */
+export const usesLevel = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
+  gradeNo(gradeOf(s, d)) <= gradeNo(band);
+
 export type SkillSet = {
   code: string;
   rung_code: string;
@@ -24,6 +33,8 @@ export type SkillSet = {
   difficulty: Record<Difficulty, Band>;
   status: "draft" | "ratified";
   ratified_by: string | null;
+  /** Each level whose questions a person approved, with who and when (goals/f1d-questions-approved-per-level.yaml). */
+  level_approved: Partial<Record<Difficulty, { by: string; at: string }>>;
   updated_at: string;
   band: string;
   /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
@@ -86,7 +97,7 @@ export async function chargesTable(): Promise<ChargesTable> {
 export async function skillSets({ untaught = false }: { untaught?: boolean } = {}): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
+           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
            r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, coalesce(t.taught, false) as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
@@ -186,10 +197,11 @@ export const RULE_WORDS: Record<string, string> = {
   override: "A teacher set this by hand.",
 };
 
-export async function weeks(): Promise<{ section: string; week: string; kind: string; n: number }[]> {
+export async function weeks(scope: Scope = EVERY_CLASS): Promise<{ section: string; week: string; kind: string; n: number }[]> {
   return sql`
     select c.section, p.week, p.kind, count(*)::int as n
     from prescription p join child c on c.id = p.child_id
+    where ${inScope(scope, sql`c.section`)}
     group by c.section, p.week, p.kind
     order by p.week desc, c.section, p.kind`;
 }
@@ -223,7 +235,8 @@ export async function spareSheets(
     order by st.difficulty, si.qr_code`;
 }
 
-export type Staff = { email: string; name: string; role: string; password?: string };
+// `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.
+export type Staff = { email: string; name: string; role: string; password?: string; classes?: string[] };
 
 export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;

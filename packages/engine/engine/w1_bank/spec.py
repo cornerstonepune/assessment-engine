@@ -69,11 +69,12 @@ def read(conn, code, difficulty):
 
 
 def ratify(conn, actor, code=None):
-    """N1's human gate, recorded: a named person has read these specs and stands behind them.
-    Editing a spec afterwards withdraws its ratification (trigger skill_set_version_on_change),
-    so a ratification always refers to the exact words that were read."""
+    """N1's human gate, recorded: a named person has read these specs and stands behind them, every level of each.
+    A level's approval is its own (goals/f1d-questions-approved-per-level.yaml): changing that level's rule withdraws
+    it (trigger skill_set_version_on_change), and the skill is approved while every level it has is."""
     return conn.execute(
-        "update skill_set set status = 'ratified', ratified_by = %s, updated_at = now()"
+        "update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text, 'at', now()))"
+        " from jsonb_object_keys(difficulty) k), updated_at = now()"
         " where status = 'draft' and (%s::text is null or code = %s)"
         " returning code, version",
         (actor, code, code),

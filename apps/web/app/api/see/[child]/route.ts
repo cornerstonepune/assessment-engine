@@ -1,6 +1,7 @@
 // A child's paper exactly as it will print, before anyone approves it: the home paper the engine proposes, or,
 // with `a` (skill~level~n, repeated), the paper a teacher is choosing. The engine renders it and saves nothing.
 import { currentStaff } from "@/lib/auth";
+import { childSection, isMine, notYoursResponse, scopeOf } from "@/lib/scope";
 import { EngineDown, engineGet, engineSend } from "@/lib/engine";
 import { readArea } from "@/lib/next-paper";
 
@@ -13,6 +14,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chil
   const q = new URL(request.url).searchParams;
   const week = q.get("week") ?? "";
   if (!ID.test(child) || !week) return new Response("no such paper", { status: 404 });
+  if (!isMine(scopeOf(me), await childSection(child))) return notYoursResponse();
   const areas = q.getAll("a").map(readArea).filter((a) => a !== null);
   try {
     const res = areas.length

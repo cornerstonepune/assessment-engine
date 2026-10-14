@@ -1,0 +1,25 @@
+name: f1c-who-decides-what
+goal: >
+  Every decision taken on the site is checked on the server before it writes: the signer's role must be one the school
+  names for that kind of decision (`people.decides`), and anything it touches — a child, a paper, an answer, a class's
+  pack — must be in one of the signer's classes. The coordinator may take any decision. Educators draft skills and the
+  coordinator approves them (D3). A refused decision changes nothing and lands on a page that says whose decision it is,
+  or that the class is not theirs. A kind the row does not name yet is refused to no one, as before.
+# Written 2026-10-14, before the code: slice F1c of BUILD-ORDER "One flow for the educator" (ADR 0073, decision 3).
+# Nimish, the same day: "This is done by the relevance of mapping. So people who are there for one thing like educator
+# only see something that's relevant for their class and their students." On the list's D3: "go with your
+# recommendations". Measured first: the 27 server actions call `requireStaff()` and nothing else; the role is read in two
+# places, neither of them a decision; `people.decides` is read by the engine's staff list alone.
+says:
+  - words: "So people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "apps/web/tests/u27-who-decides-what.spec.ts::an educator's approval of a skill is refused and changes nothing"
+  - words: "So people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "apps/web/tests/u27-who-decides-what.spec.ts::an educator cannot approve another class's pack by changing the form"
+  - words: "So people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "apps/web/tests/u27-who-decides-what.spec.ts::the coordinator takes any decision"
+manual: []
+scenarios: []
+criteria:
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

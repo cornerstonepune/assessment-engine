@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { engineGet } from "./engine";
 import { isoWeek } from "./week";
 
@@ -18,7 +19,7 @@ export async function homeLength(): Promise<number | null> {
 
 export type ClassHome = { section: string; band: string; children: number; proposed: number; approved: number };
 
-export async function homeByClass(week = isoWeek()): Promise<ClassHome[]> {
+export async function homeByClass(week = isoWeek(), scope: Scope = EVERY_CLASS): Promise<ClassHome[]> {
   return sql<ClassHome[]>`
     select c.section, min(c.band) as band, count(*)::int as children,
            count(*) filter (where h.qr_code is null and exists (
@@ -27,14 +28,15 @@ export async function homeByClass(week = isoWeek()): Promise<ClassHome[]> {
     from child c
     left join lateral (select qr_code from sheet_instance si
                        where si.child_id = c.id and si.kind = 'focus' and si.week = ${week} limit 1) h on true
-    where c.active
+    where c.active and ${inScope(scope, sql`c.section`)}
     group by c.section
     order by min(c.band), c.section`;
 }
 
-/** How many children the engine proposes a home paper for this week, across the school — as Today counts them. */
-export async function proposedHomePapers(week = isoWeek()): Promise<number> {
-  return (await homeByClass(week)).reduce((n, c) => n + c.proposed, 0);
+/** How many children the engine proposes a home paper for this week, in the classes a person sees — as Today counts
+ *  them. */
+export async function proposedHomePapers(week = isoWeek(), scope: Scope = EVERY_CLASS): Promise<number> {
+  return (await homeByClass(week, scope)).reduce((n, c) => n + c.proposed, 0);
 }
 
 export type Proposal = {

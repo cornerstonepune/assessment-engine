@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Bar, Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
 import { EngineDown, engineGet } from "@/lib/engine";
@@ -55,7 +56,7 @@ async function keyOf(paper: string, id: string): Promise<Key | undefined> {
 export default async function CheckAnswers({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
-  const queue = await deadline(checkQueue());
+  const queue = await deadline(checkQueue(scopeOf(me)));
   // ?id= opens one answer where it stands in the queue; ?from= keeps the place after an answer is settled.
   const at = q.id ? queue.findIndex((e) => e.id === q.id) : -1;
   const from = at >= 0 ? at : Math.min(Math.max(0, Number(q.from) || 0), Math.max(0, queue.length - 1));

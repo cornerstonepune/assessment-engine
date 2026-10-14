@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
+import { deciding } from "@/lib/decides";
 import { sql } from "@/lib/db";
 
 const CODE = /^[A-Z0-9_]+$/;
@@ -11,7 +11,7 @@ const CODE = /^[A-Z0-9_]+$/;
  *  never switch it back (`engine/core/topics.py`): switched on, its skills are on Curriculum, the Question bank and
  *  children's papers; switched off, they keep their questions out of sight. */
 export async function switchTopic(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("topics");
   const code = String(formData.get("code") ?? "");
   const on = formData.get("taught") === "on";
   if (!CODE.test(code)) redirect("/");
