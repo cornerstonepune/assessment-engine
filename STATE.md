@@ -7744,3 +7744,47 @@ it's only easy and medium that should come."
 - **Why it was not seen before the push.** Only the changed modules' tests were run, not the whole engine suite.
 - **Check.** Both reproduced with `GITHUB_ACTIONS=true`, then passed with it and without it (37 and 11 passed). The
   change is to these two test files alone; the whole engine suite is CI's run on this push.
+
+## F1f — taught is said for each class (2026-10-14)
+
+Goal `goals/f1f-taught-per-class.yaml`. Nimish: "people who are there for one thing like educator only see something
+that's relevant for their class and their students."
+
+- **Measured first** (every read of `taught`, by an agent's map):
+  - Taught was one switch for the school (`topic.taught`).
+  - The engine's only gate was `shelf._catalog`. It is read once for a whole batch, with no class.
+  - About twenty reads on the site.
+  - No database function, view or policy read it.
+  - The Curriculum table's "Taught" column counted children with a checked answer, which is "Assessed".
+- **Built:**
+  - `class_topic` is one row per class and topic a person has spoken for, with who and when (migration `20261110090000`,
+    run twice here).
+  - `taught_in(tenant, topic, class)` is the one rule. It returns the class's own word, else the school's switch.
+  - The engine's catalogue is read per class. A class paper, a chosen paper, the home paper and the hidden-answers
+    check all read the child's class.
+  - A skill asked for whose topic the class has not been taught is refused, naming the class: "MUL.MODELS is not taught
+    in F1F-NO yet: an educator of the class says so on Curriculum".
+  - On the site (`apps/web/lib/taught.ts`):
+    - a page about a class or a child reads that class;
+    - Make papers and a chosen paper offer only what the class was taught;
+    - lists for the school or an educator's classes count a topic taught where any of them was.
+  - The switch on Curriculum says it of one class, in the signer's name. An educator may say it only of their own
+    classes; a form changed by hand is refused.
+  - The Curriculum table's answers column is now "Assessed".
+- **Not built:** copying today's switch into every class (BUILD-ORDER's first plan). A fresh database's children arrive
+  after its migrations, so the copy would have found no class and left nothing taught. Following the school's switch
+  until a person speaks changes nothing on the day either (ADR 0073).
+- **Moved while building:** `chargesTable` went from `lib/queries.ts` to `lib/queries-charges.ts`. `queries.ts` had
+  reached 402 lines, past the 400 ceiling. The charges table has its own types and its own approval.
+- **Check:**
+  - `tests/test_taught_per_class.py`, 4 tests. Each failed first on the old engine for its own reason:
+    - the class taught it was refused, as "no skill set";
+    - the refusal did not name the class;
+    - a chosen paper was refused;
+    - both classes' answers were hidden (2, not 1).
+  - With the focus-paper, maker, topics, live-data, class-card, web-gate, layout and report tests → 68 passed.
+  - `apps/web/tests/u30-taught-per-class.spec.ts`, 3 tests. Each failed first on the old site:
+    - no "Say it is taught" for a class;
+    - Make papers did not offer a class what it was taught;
+    - there was no "Assessed" column.
+  - u12, u13, u17 and u18 follow the switch's new words and the Assessed column.

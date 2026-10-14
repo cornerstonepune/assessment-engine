@@ -9,9 +9,11 @@
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
+import { aClass } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+const CLASS = "U13-CLASS";
 
 test.afterAll(async () => {
   await sql.end();
@@ -57,31 +59,38 @@ test("Today lists what waits on a person, under the tab where it is done, hidden
 });
 
 test("an educator switches a topic on, in their name, and its skills are on Curriculum and the Question bank", async ({ page }) => {
+  // switched on for one class, as a topic is now (goals/f1f-taught-per-class.yaml): the test's own class
+  await aClass(sql, CLASS, "G3", ["Mehr", "Neel"]);
   const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught from topic where code = 'DIVCOL'`;
   expect(topic.taught, "division by a 1-digit number waits for an educator's word").toBe(false);
+  const said = () => sql`select taught, taught_by from class_topic where section = ${CLASS} and topic_code = 'DIVCOL'`;
   try {
     await page.goto("/");
     const off = page.getByRole("region", { name: "Not taught yet", exact: true });
     const row = off.getByRole("listitem").filter({ hasText: topic.name });
     await expect(row).toContainText("2-digit ÷ 1-digit");
     await expect(row).toContainText("3-digit ÷ 1-digit");
-    // switching on is confirmed from inside its fold, once the person has read what it does (goals/ui3-curriculum.yaml)
-    await row.getByText("Switch on", { exact: true }).click();
-    await row.getByRole("button", { name: `Switch on, as ${TEST_STAFF.name}` }).click();
-    await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).not.toContainText(topic.name);
-    const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`select taught, taught_by from topic where code = 'DIVCOL'`;
-    expect(now).toEqual({ taught: true, taught_by: TEST_STAFF.name });
-    // its skills are taught now: on the Question bank, with their questions
+    // said from inside its fold, once the person has read what it does (goals/ui3-curriculum.yaml)
+    await row.getByText("Say it is taught", { exact: true }).click();
+    await row.getByRole("button", { name: `Taught in ${CLASS}, as ${TEST_STAFF.name}` }).click();
+    await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
+    expect(await said()).toEqual([{ taught: true, taught_by: TEST_STAFF.name }]);
+    // its skills are taught in a class now: on the Question bank, with their questions
     await page.goto("/library?set=DIV.2D1D");
     await expect(page.getByRole("main")).toContainText("2-digit ÷ 1-digit");
-    // and switched off again, in a person's name, it is off
+    // and said not taught again, in a person's name, it is not
     await page.goto("/");
-    const on = page.getByRole("region", { name: "Taught in this school", exact: true });
-    await on.locator("summary").click(); // switching a taught topic off is folded away from a stray click
-    await on.getByRole("listitem").filter({ hasText: topic.name }).getByRole("button", { name: `Switch off, as ${TEST_STAFF.name}` }).click();
-    await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).toContainText(topic.name);
+    const on = page.getByRole("region", { name: "Taught", exact: true });
+    await on.locator("summary").click(); // saying a class was not taught is folded away from a stray click
+    await on
+      .getByRole("listitem")
+      .filter({ hasText: topic.name })
+      .getByRole("button", { name: `Not taught in ${CLASS}, as ${TEST_STAFF.name}` })
+      .click();
+    await expect(page.getByRole("main")).toContainText(`${topic.name} is not taught in ${CLASS} now`);
+    expect(await said()).toEqual([{ taught: false, taught_by: TEST_STAFF.name }]);
   } finally {
-    await sql`update topic set taught = false, taught_by = null, taught_at = null where code = 'DIVCOL'`;
+    await sql`delete from class_topic where section = ${CLASS}`;
   }
 });
 

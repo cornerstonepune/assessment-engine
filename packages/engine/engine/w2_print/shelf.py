@@ -56,13 +56,15 @@ def _rule(conn) -> dict:
     return r
 
 
-def catalog(conn) -> list[dict]:
-    """The bank's taught skill sets: rung, place on the ladder, the skill each is for, every skill it uses. A skill
-    the school does not teach yet is never on a child's paper, whatever the child's map shows."""
-    return _once("catalog", lambda: _catalog(conn))
+def catalog(conn, section: str | None = None) -> list[dict]:
+    """The bank's skill sets taught in a class: rung, place on the ladder, the skill each is for, every skill it uses.
+    A skill whose topic the child's class has not been taught is never on their paper, whatever their map shows
+    (`taught_in`: the class's own word, else the school's switch — goals/f1f-taught-per-class.yaml). Without a class,
+    the school's switch."""
+    return _once(("catalog", section), lambda: _catalog(conn, section))
 
 
-def _catalog(conn) -> list[dict]:
+def _catalog(conn, section) -> list[dict]:
     rows = conn.execute(
         "select s.code, s.rung_code, r.ladder_order,"
         # its own skill is the one its rung declares first (`rung.skill_codes`): a count of its questions' skills made
@@ -73,7 +75,8 @@ def _catalog(conn) -> list[dict]:
         " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
         "   where i.skill_set_code = s.code and i.status = 'active') as skills"
         " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
-        " where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)"
+        " where taught_in(s.tenant_id, s.topic_code, %s)",
+        (section,),
     ).fetchall()
     return [
         {

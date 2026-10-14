@@ -60,7 +60,7 @@ export function linesOf(w: Waiting): NeedsYou {
     Curriculum: [
       { title: "Skills to approve", n: w.skills, words: "skills whose words or levels the engine wrote or changed, each waiting for one approval", href: "/skill-sets/approve", action: "Review and approve", waits: true },
       { title: "Questions the engine drafted for you", n: asks, words: "the engine's drafts of the taxonomy and its decisions, to agree with or correct", href: "/asks", action: "Answer them", waits: true },
-      { title: "Topics not taught yet", n: w.topics, words: "switch a topic on once its class has been taught it; until then its skills are on no paper", href: "/#not-taught", action: "Switch one on", waits: false },
+      { title: "Topics not taught yet", n: w.topics, words: "say a class has been taught a topic once it has; until then its skills are on none of that class's papers", href: "/#not-taught", action: "Say what is taught", waits: false },
     ],
     Children: [
       {

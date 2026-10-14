@@ -1,9 +1,11 @@
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { KIND } from "@/components/question";
-import { chargesTable, GRADE_GROUPS, gradeWords, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
+import { GRADE_GROUPS, gradeWords, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
+import { chargesTable } from "@/lib/queries-charges";
 import { approveSkills } from "../[code]/actions";
 
 // Every skill waiting for approval as one table to work through (goals/ui6a-approve-filtered.yaml; Nimish, 2026-10-12:
@@ -35,7 +37,7 @@ function keeps(x: SkillSet, f: Filter, except?: keyof Filter) {
 export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [sets, charges] = await deadline(Promise.all([skillSets({ untaught: true }), chargesTable()]));
+  const [sets, charges] = await deadline(Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable()]));
   const waiting = sets.filter((s) => s.status !== "ratified");
   // the school's grades in order, then any grade a waiting skill holds that the list does not name: none is left off
   const grades: [string, string][] = [

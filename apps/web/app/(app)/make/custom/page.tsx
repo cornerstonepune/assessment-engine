@@ -27,8 +27,10 @@ export default async function CustomPaper({ searchParams }: Props) {
   const q = await searchParams;
   const id = all(q.child)[0] ?? "";
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
-  const [child, sets] = await deadline(Promise.all([oneChild(id, me.email), skillSets()]));
+  const section = await deadline(childSection(id));
+  if (!isMine(scopeOf(me), section)) return <NotYours what="This child's class" />;
+  // only what the child's class has been taught (goals/f1f-taught-per-class.yaml)
+  const [child, sets] = await deadline(Promise.all([oneChild(id, me.email), skillSets({ section: section ?? "" })]));
   if (!child) notFound();
 
   // The form sends each line as `s` (skill~level) and `n` (how many); a link may carry whole areas as `a`.

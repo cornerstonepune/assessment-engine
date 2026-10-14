@@ -6,18 +6,20 @@ import { skillsWaiting, topics } from "@/lib/queries-people";
 import { CurriculumTable } from "./curriculum-table";
 import { Topics } from "./topics";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 // Curriculum — the shared tree as one table (goals/t1-topics.yaml, u5-curriculum.yaml, u12-curriculum-table.yaml):
 // grade → subject → topic → skill, each row with its questions, worksheets, questions at each level, children assessed
-// and whether it is taught. A skill opens its page, where its levels, questions and worksheets are read, edited and
-// approved; a skill waiting for approval says so on its row.
+// and whether the person's classes have been taught it (goals/f1f-taught-per-class.yaml). A skill opens its page, where
+// its levels, questions and worksheets are read, edited and approved; a skill waiting for approval says so on its row.
 export default async function CurriculumPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
   // every skill waiting counts, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
-  const [{ rows }, waiting, all] = await deadline(Promise.all([curriculumRows(), skillsWaiting(), topics()]));
+  const scope = scopeOf(me);
+  const [{ rows }, waiting, all] = await deadline(Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope)]));
   const switched = all.find((t) => t.code === (q.on ?? q.off));
 
   return (
@@ -25,7 +27,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
       <PageHeader
         stage="Curriculum"
         title="Curriculum"
-        sub="Every grade's skills, by subject and topic, each written as what a child can do, with its questions, worksheets and levels, how many children have been assessed on it, and whether it is taught. Open a grade, then a topic; a skill opens its page."
+        sub="Every grade's skills, by subject and topic, each written as what a child can do, with its questions, worksheets and levels, how many children have been assessed on it, and whether your classes have been taught it. Open a grade, then a topic; a skill opens its page."
       />
       <Body>
         {q.approved === "0" ? (
@@ -35,7 +37,10 @@ export default async function CurriculumPage({ searchParams }: Props) {
         ) : null}
         {switched ? (
           <Notice tone="neem">
-            {switched.name} is {q.on ? "taught now: its skills are on every page and can go on a child's paper" : "not taught now: its skills are out of sight"}, in your name.
+            {q.on
+              ? `${switched.name} is taught in ${q.class} now: its skills are on the class's pages and can go on its children's papers`
+              : `${switched.name} is not taught in ${q.class} now: its skills are out of the class's sight`}
+            , in your name. No other class changed.
           </Notice>
         ) : null}
         {waiting ? (

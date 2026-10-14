@@ -273,7 +273,7 @@ def test_a_class_is_planned_on_one_read_of_the_catalogue_not_one_a_child(conn, k
     """Planning read the bank's catalogue, levels, rule and names again for every child, inside a page that must
     answer in 8 s (code review, 2026-09-30)."""
     reads, real = [], shelf._catalog
-    monkeypatch.setattr(shelf, "_catalog", lambda c: reads.append(1) or real(c))
+    monkeypatch.setattr(shelf, "_catalog", lambda c, section: reads.append(1) or real(c, section))
     maker.plan(conn, SECTION, [kids["weak"], kids["strong"]], WEEK, "focus", "own")
     assert len(reads) == 1
 

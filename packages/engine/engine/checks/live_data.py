@@ -50,14 +50,16 @@ def _off_the_map(conn):
 
 
 def hidden(conn):
-    """{skill set: signed-off answers} on skills whose topic the school does not teach yet — kept, not shown."""
+    """{skill set: signed-off answers} on skills whose topic the child's class has not been taught yet — kept, not
+    shown (goals/f1f-taught-per-class.yaml)."""
     return {
         r["code"]: r["n"]
         for r in conn.execute(
             "select ss.code, count(*) as n from evidence_placed e"
+            " join child c on c.id = e.child_id"
             " join skill_set ss on ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung"
-            " join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code"
-            " where e.confirmed_by is not null and not t.taught group by 1 order by 1"
+            " where e.confirmed_by is not null and not taught_in(ss.tenant_id, ss.topic_code, c.section)"
+            " group by 1 order by 1"
         )
     }
 

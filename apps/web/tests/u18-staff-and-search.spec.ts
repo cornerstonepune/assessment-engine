@@ -15,7 +15,7 @@ import { aClass } from "./rows";
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U18-TEST";
-const EDUCATOR = { email: "u18-educator@cornerstone.test", name: "U18 Educator", role: "educator" };
+const EDUCATOR = { email: "u18-educator@cornerstone.test", name: "U18 Educator", role: "educator", classes: [SECTION] };
 const PASSWORD = "u18-a-long-test-password";
 const SALT = "00112233445566778899aabbccddeeff";
 
@@ -34,8 +34,7 @@ test("an educator put on the staff list signs in, and a decision carries their n
   // on the list as `engine staff add` puts them: the hash is the one the sign-in checks (packages/engine/tests/test_cli.py)
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`update config set value = value || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
-  const [topic] = await sql<{ name: string; taught: boolean; taught_by: string | null; taught_at: Date | null }[]>`
-    select name, taught, taught_by, taught_at from topic where code = 'DIVCOL'`;
+  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught from topic where code = 'DIVCOL'`;
   expect(topic.taught, "division by a 1-digit number waits for an educator's word").toBe(false);
 
   // no session of the test's own: the educator signs in at the door like anyone
@@ -51,14 +50,15 @@ test("an educator put on the staff list signs in, and a decision carries their n
     // what they decide carries their name
     await page.goto("/");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
-    await row.getByText("Switch on", { exact: true }).click();
-    await row.getByRole("button", { name: `Switch on, as ${EDUCATOR.name}` }).click();
-    await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).not.toContainText(topic.name);
-    const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`select taught, taught_by from topic where code = 'DIVCOL'`;
+    await row.getByText("Say it is taught", { exact: true }).click();
+    await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();
+    await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${SECTION} now`);
+    const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`
+      select taught, taught_by from class_topic where section = ${SECTION} and topic_code = 'DIVCOL'`;
     expect(now).toEqual({ taught: true, taught_by: EDUCATOR.name });
   } finally {
     await context.close();
-    await sql`update topic set taught = ${topic.taught}, taught_by = ${topic.taught_by}, taught_at = ${topic.taught_at} where code = 'DIVCOL'`;
+    await sql`delete from class_topic where section = ${SECTION}`;
   }
 });
 

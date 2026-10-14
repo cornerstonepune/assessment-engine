@@ -1,0 +1,39 @@
+name: f1f-taught-per-class
+goal: >
+  Whether a topic has been taught is said for each class, with who said it and when: by an educator for their own
+  classes, by the coordinator for any. A class no one has spoken for follows the school's switch, so nothing changes on
+  the day. A child's paper — a class paper, a chosen paper, the home paper — draws only on topics taught in the child's
+  class, and a skill whose topic the class has not been taught is refused in words that name the class. A page about a
+  class or a child reads that class's own; a list for the school, or for an educator's classes, counts a topic taught
+  where any of those classes has been taught it. On Curriculum, "Taught" is what a person said of a class and
+  "Assessed" is how many children have a checked answer on it: two words, never one.
+# Written 2026-10-14, before the code: slice F1f of BUILD-ORDER "One flow for the educator" (ADR 0073, D5). Nimish, the
+# same day: "It's not very clear that here you switch on a certain thing, or you go to the skills and you approve" and
+# "people who are there for one thing like educator only see something that's relevant for their class and their
+# students." On D5 — taught said per class × topic, with who and when: "go with your recommendations".
+# Measured first (every read of `taught`, 2026-10-14): one flag for the school, `topic.taught`. The engine's only gate
+# is `shelf._catalog`, read once for a whole batch and with no class. About twenty reads on the site, most for the
+# school. No database function, view or policy reads it. The Curriculum table's "Taught" column counts children with a
+# checked answer, which is "Assessed".
+says:
+  - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "packages/engine/tests/test_taught_per_class.py::test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another"
+  - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "packages/engine/tests/test_taught_per_class.py::test_a_class_no_one_has_spoken_for_follows_the_schools_switch"
+  - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "packages/engine/tests/test_taught_per_class.py::test_answers_kept_out_of_sight_are_those_on_topics_their_own_class_was_not_taught"
+  - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
+    proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::an educator says a topic is taught in their class, in their name, and no other class changes"
+  - words: "It's not very clear that here you switch on a certain thing, or you go to the skills and you approve"
+    proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::make papers offers a class only the topics it has been taught"
+  - words: "It's not very clear that here you switch on a certain thing, or you go to the skills and you approve"
+    proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::curriculum says taught and assessed as two words"
+manual: []
+scenarios: []
+criteria:
+  - name: a paper draws only on topics taught in the child's class
+    run: cd packages/engine && uv run pytest -q tests/test_taught_per_class.py tests/test_focus_paper.py tests/test_maker.py tests/test_topics.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

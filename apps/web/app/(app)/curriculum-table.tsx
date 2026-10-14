@@ -65,7 +65,7 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                 </th>
               ))}
               <th className="num">Children assessed</th>
-              <th className="num">Taught</th>
+              <th className="num">Assessed</th>
             </tr>
           </thead>
           <tbody>
@@ -125,9 +125,9 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                 <td className="num">{r.children ? r.children : <span className="text-basalt/35">—</span>}</td>
                 <td className="num whitespace-nowrap">
                   {r.skills === 1 && r.depth === 3 ? (
-                    r.taught ? <Pill tone="neem">yes</Pill> : <Pill tone="monsoon">not yet</Pill>
+                    r.assessed ? <Pill tone="neem">yes</Pill> : <Pill tone="monsoon">not yet</Pill>
                   ) : (
-                    `${r.taught} of ${r.skills}`
+                    `${r.assessed} of ${r.skills}`
                   )}
                 </td>
               </tr>
@@ -136,9 +136,10 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
         </table>
       </div>
       <p className="note px-[18px] py-3">
-        Questions and worksheets are the bank&rsquo;s, at this grade&rsquo;s levels; a level another grade holds is a dash. Taught is read from
-        the answers: a skill is taught once any child has a checked answer on it; a topic or grade counts its skills taught. Hover a
-        level&rsquo;s count for what the level asks.
+        Questions and worksheets are the bank&rsquo;s, at this grade&rsquo;s levels; a level another grade holds is a dash. Assessed is read
+        from the answers: a skill is assessed once any child has a checked answer on it; a topic or grade counts its skills assessed.
+        Taught is what an educator said of their class: &ldquo;not taught yet&rdquo; marks a topic no class of the grade has been taught.
+        Hover a level&rsquo;s count for what the level asks.
       </p>
     </section>
   );

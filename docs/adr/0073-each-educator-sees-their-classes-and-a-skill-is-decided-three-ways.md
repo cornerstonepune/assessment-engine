@@ -43,7 +43,11 @@ Nimish took each recommendation of the coherence list ("go with your recommendat
      its words withdraws none, since the questions did not change.
    - *This grade uses these levels*: the grade plan. It is each level's grade (`skill_set.level_band`, else the
      skill's own): a grade uses its own levels and those of the grades below, on every paper (F1e).
-   - *My class has been taught it*: **D5**, per class × topic, with who and when.
+   - *My class has been taught it*: **D5**, per class × topic, with who and when (F1f): a row of `class_topic` for a
+     class a person has spoken for; a class no one has spoken for follows the school's switch (`topic.taught`, the
+     rows' until a person switched it). `taught_in(tenant, topic, class)` is the one rule, in the database, read by the
+     engine's catalogue and every page. A page about a class or a child reads that class; a list for the school or an
+     educator's classes counts a topic taught where any of them has been.
 5. **A level whose questions are not approved goes on no paper.** This ships last and only after it is measured on a
    copy of live, so the levels it would close are named to Nimish before any educator meets a refusal.
 6. **D6.** Marking gets its own menu item (phase 5).
@@ -58,4 +62,9 @@ Nimish took each recommendation of the coherence list ("go with your recommendat
 - **A grade × skill × level table for the plan** (the list's first draft, F1e). Each level already has a grade, set on
   the skill's page, and "this grade or below" lets every higher grade use it; a table would have been a second
   source of truth beside it. What was missing was Make papers reading it, so that is what F1e changes.
+- **Copying the school's switch into every class on the day** (F1f's first plan). A database's children arrive after
+  its migrations — every fresh one, the test database in CI among them — so the copy would find no class and leave
+  nothing taught; a class the roll brings later would start with nothing too. Following the school's switch until a
+  person speaks for the class changes nothing on the day either, and keeps the rows' word for a class no one has
+  spoken for.
 - **Scoping only by hiding.** A page that hides another class's papers but whose action accepts them is not scoped.

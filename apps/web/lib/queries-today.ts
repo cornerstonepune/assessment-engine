@@ -51,7 +51,7 @@ export async function waiting(actor: string, scope: Scope = EVERY_CLASS): Promis
     classPacksWaiting(scope),
     proposedHomePapers(undefined, scope),
     skillsWaiting(),
-    topicsOff(),
+    topicsOff(scope),
     asksWaiting(),
     reportsWaiting(scope),
   ]);

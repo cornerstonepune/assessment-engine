@@ -1,63 +1,72 @@
 import { Panel } from "@/components/shell";
-import type { Topic } from "@/lib/queries-people";
+import type { ClassTaught, Topic } from "@/lib/queries-people";
 import { switchTopic } from "./topic-actions";
 
-// Which topics are taught, and who said so (goals/ny1-needs-you.yaml). An educator switches one on or off here, in
-// their own name; the rows decide a topic only until a person has. A topic not taught yet lists its skills, so a person
-// knows what switching it on brings; it is switched on, and one taught switched off, from inside a fold, never by a
-// stray click.
+// Which topics each class has been taught, and who said so (goals/f1f-taught-per-class.yaml): an educator says it of
+// their own classes, the coordinator of any, in their own name; a class no one has spoken for follows the school's
+// switch. A topic not taught yet lists its skills, so a person knows what saying it brings; it is said from inside a
+// fold, as one taught is unsaid, never by a stray click.
 export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
-  const off = topics.filter((t) => !t.taught);
-  const on = topics.filter((t) => t.taught);
+  const off = topics.filter((t) => t.classes.some((c) => !c.taught));
+  const on = topics.filter((t) => t.classes.some((c) => c.taught));
   return (
     <div className="mb-[18px] grid gap-[14px]">
       <Panel title="Not taught yet" label="Not taught yet" id="not-taught" aside={`${off.length} ${off.length === 1 ? "topic" : "topics"}`}>
         {off.length ? (
           <ul className="grid gap-3">
-            {off.map((t) => (
-              <li key={t.code} className="flex flex-wrap items-center justify-between gap-3">
-                <span>
-                  <b>{t.name}</b>
-                  <span className="block text-[13px] text-basalt/70">{t.skills.join(" · ")}</span>
-                  {t.taught_by ? <span className="block text-[12px] text-basalt/55">Switched off by {t.taught_by}</span> : null}
-                </span>
-                {/* switching on is for the whole school: the person reads what it does before they confirm it
-                    (goals/ui3-curriculum.yaml), as a topic taught is switched off from inside a fold */}
-                <details className="text-right">
-                  <summary className="btn cursor-pointer list-none">Switch on</summary>
-                  <div className="mt-2 grid max-w-[360px] justify-items-end gap-2 text-left text-[13px]">
-                    <p>
-                      Switch {t.name} on for the whole school: its skills appear on Curriculum and the Question bank, and can
-                      go on a child&rsquo;s paper.
-                    </p>
-                    <Switch code={t.code} on label={`Switch on, as ${me}`} />
-                  </div>
-                </details>
-              </li>
-            ))}
+            {off.map((t) => {
+              const waiting = t.classes.filter((c) => !c.taught);
+              return (
+                <li key={t.code} className="flex flex-wrap items-center justify-between gap-3">
+                  <span>
+                    <b>{t.name}</b>
+                    <span className="block text-[13px] text-basalt/70">{t.skills.join(" · ")}</span>
+                    <span className="block text-[12px] text-basalt/55">Not taught yet in {waiting.map((c) => c.section).join(", ")}</span>
+                  </span>
+                  <details className="text-right">
+                    <summary className="btn cursor-pointer list-none">Say it is taught</summary>
+                    <div className="mt-2 grid max-w-[360px] justify-items-end gap-2 text-left text-[13px]">
+                      <p>
+                        Say a class has been taught {t.name}: its skills appear on that class&rsquo;s pages and can go on its
+                        children&rsquo;s papers. No other class changes.
+                      </p>
+                      {waiting.map((c) => (
+                        <Switch key={c.section} code={t.code} section={c.section} on label={`Taught in ${c.section}, as ${me}`} />
+                      ))}
+                    </div>
+                  </details>
+                </li>
+              );
+            })}
           </ul>
         ) : (
-          <p className="note">Every topic is taught.</p>
+          <p className="note">
+            {topics.some((t) => t.classes.length) ? "Every class has been taught every topic." : "No class has a child on the roll yet."}
+          </p>
         )}
       </Panel>
-      <section aria-label="Taught in this school" id="taught" className="panel">
+      <section aria-label="Taught" id="taught" className="panel">
         <details>
           <summary className="panel-head cursor-pointer">
-            <h2 className="text-[16px]">Taught in this school</h2>
+            <h2 className="text-[16px]">Taught</h2>
             <span className="fact text-[11px] text-basalt/55">
-              {on.length} {on.length === 1 ? "topic" : "topics"} · open to switch one off
+              {on.length} {on.length === 1 ? "topic" : "topics"} · open to say a class has not been taught one
             </span>
           </summary>
           <ul className="panel-body grid gap-3">
             {on.map((t) => (
-              <li key={t.code} className="flex flex-wrap items-center justify-between gap-3">
-                <span>
-                  <b>{t.name}</b>
-                  <span className="block text-[12px] text-basalt/55">
-                    {t.taught_by ? `Switched on by ${t.taught_by}` : "Taught, as the school's rows say"}
-                  </span>
-                </span>
-                <Switch code={t.code} on={false} label={`Switch off, as ${me}`} />
+              <li key={t.code} className="grid gap-1">
+                <b>{t.name}</b>
+                {t.classes
+                  .filter((c) => c.taught)
+                  .map((c) => (
+                    <span key={c.section} className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
+                      <span>
+                        {c.section}: <span className="text-basalt/55">{said(c)}</span>
+                      </span>
+                      <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
+                    </span>
+                  ))}
               </li>
             ))}
           </ul>
@@ -67,10 +76,17 @@ export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
   );
 }
 
-function Switch({ code, on, label }: { code: string; on: boolean; label: string }) {
+/** Who said a class was taught: its own word, or the school's switch while no one has spoken for the class. */
+function said(c: ClassTaught): string {
+  if (c.own) return `said by ${c.by}${c.at ? `, ${c.at.slice(0, 10)}` : ""}`;
+  return c.by ? `as the school's switch, by ${c.by}` : "as the school's rows say";
+}
+
+function Switch({ code, section, on, label }: { code: string; section: string; on: boolean; label: string }) {
   return (
     <form action={switchTopic}>
       <input type="hidden" name="code" value={code} />
+      <input type="hidden" name="class" value={section} />
       <input type="hidden" name="taught" value={on ? "on" : "off"} />
       <button className={on ? "btn" : "chip"} type="submit">
         {label}

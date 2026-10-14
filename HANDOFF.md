@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-14 — F1f: taught is said for each class (#204 merged)
+
+- **#204 (F1a–F1e) merged** as `f5787f8`. Main's CI then `migrate live` apply 20261109090000 (level approval).
+- **F1f, its own PR.** "Taught" is said per class (`class_topic`, migration 20261110090000). A class no one has spoken
+  for follows the school's switch, so nothing changes on the day. The engine and every page read the class's own. The
+  Curriculum's answers column is "Assessed". See STATE.md "F1f".
+- **After merge:** educators say on Curriculum which topics their classes have been taught. Until they do, each class
+  follows today's school-wide switch.
+- **Next:** F1g (an unapproved level goes on no paper). Measure it on a copy of live first, and name to Nimish the
+  levels it would close before it ships. L3b (constraint drift, durable failed runs) is still owed.
+
 ## 2026-10-14 — F1a: each educator has classes (phase 1 of "One flow for the educator")
 
 - **Step 5 (Teacher flow), slice F1a.** BUILD-ORDER's new insert records Nimish's decisions D1–D6, and ADR 0073 gives

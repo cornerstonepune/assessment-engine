@@ -58,8 +58,10 @@ def _for_all(conn, kids, week: str, ask: list) -> dict:
     whose = [str(k["id"]) for k in kids]
     rng = random.Random("|".join([week, *sorted(whose)]))
     # the class's grade decides the levels it is given, as a class's week is its own grade's (`roster.class_band`)
-    band = roster.class_band(conn, kids[0]["section"])
-    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask, band), rng)
+    # and what it has been taught, its own (goals/f1f-taught-per-class.yaml)
+    section = kids[0]["section"]
+    band = roster.class_band(conn, section)
+    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask, band, section), rng)
 
 
 def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> dict:
