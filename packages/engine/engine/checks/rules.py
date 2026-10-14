@@ -14,13 +14,16 @@ FILE = Path(__file__).with_name("rules.json")
 
 
 def rules(conn) -> dict[str, str]:
-    """{"table.rule": the rule as the database prints it} for every rule on the school's own tables."""
+    """{"table.rule": the rule as the database prints it} for every check, key and reference on the school's own
+    tables. Only those kinds: a later Postgres may list other things as rules too (a not-null, say), which no
+    migration names as one."""
     return {
         f"{r['tbl']}.{r['name']}": " ".join(r["rule"].split())
         for r in conn.execute(
             "select c.conrelid::regclass::text as tbl, c.conname as name, pg_get_constraintdef(c.oid) as rule"
             " from pg_constraint c join pg_class t on t.oid = c.conrelid"
-            " where t.relnamespace = 'public'::regnamespace order by 1, 2"
+            " where t.relnamespace = 'public'::regnamespace and c.contype in ('c', 'f', 'p', 'u', 'x')"
+            " order by 1, 2"
         )
     }
 

@@ -92,9 +92,12 @@ export async function aReadPaper(
       why: r.why ?? "",
       ...(r.guess ? { guess: r.guess } : {}),
     });
+    // the answer is to the question's own response (its first): a result naming one the question does not ask for is
+    // marked against another's key, and `engine audit` refuses it (goals/md0a-every-answer-counts.yaml)
     const [{ id }] = await sql<{ id: string }[]>`
       insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status)
-      values (${t}, ${capture}, ${p.items[i]}, 'a', ${raw}, ${r.status}) returning id`;
+      select ${t}, ${capture}, id, responses -> 0 ->> 'rid', ${raw}, ${r.status} from item where id = ${p.items[i]}
+      returning id`;
     if (r.checkedBy) {
       await sql`
         insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read, by)

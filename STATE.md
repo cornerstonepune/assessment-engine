@@ -7859,5 +7859,23 @@ one child on live.
     - The test database's rules are the file's.
     - Live's state on 2026-10-14, made again (the rule without a paper for one child), is named by the watcher.
   - With the API, watch, CLI, layout and maker tests → 137 passed.
-- **Not yet known:** the rules were printed by Postgres 16 here. CI runs 17, and live's version is not read from here.
-  If a version prints a rule differently, CI's rules test or the watcher's first run says so.
+  - The whole engine suite, rebased on #205's head (6953601), on the local copy: 2475 passed, 1 skipped, 1 failed. The
+    failure was `test_goal.py::test_every_invariant_holds`, from rows the browser tests left there (below). Once they were
+    repaired: it, and `tests/test_rules.py`, pass.
+- **Browser tests wrote answers to a response their question does not have** (found by that run):
+  - `apps/web/tests/rows.ts::aReadPaper` wrote every answer as response `'a'`. Since M0a a question names its own
+    responses (a bank question's is `ans`), so its answers were shown against another's key.
+  - That broke the invariant "every answer names a response of its question" on any database that both suites ran on:
+    12 rows on the local copy, written by browser runs at 08:44–10:49 today. CI never saw it, because each suite there
+    builds its own database.
+  - Fix: the answer takes its question's first response (`responses -> 0 ->> 'rid'`). A question with none fails the
+    insert, because `rid` is not null.
+  - The local copy's 12 rows were given their question's response.
+  - Check: the five browser files that use the helper (s4, screens, u14, u16, u22) → 50 passed. The run wrote 28
+    answers, and none names a response its question lacks.
+- **Postgres 17, CI's version, prints them alike:** the 71 migrations applied to a database on Postgres 17.11 (PGDG
+  binaries, `rules17`) give the same 246 rules as the file, `rules.drift` → 0.
+  - Only checks, keys and references are read (`contype` c, f, p, u, x). A later Postgres may list other things as
+    rules too (I believe 18 lists each not-null; worth verifying), and no migration names those as rules.
+- **Not known from here:** live's own Postgres version (`supabase/config.toml` says 17; live is not read from here).
+  If it prints a rule differently, `engine live rules --url <live>` names it, and so does the watcher's first run.
