@@ -15,7 +15,9 @@ from engine.core import db
 
 WEB = db.REPO_ROOT / "apps" / "web"
 APP = WEB / "app"
-CHECKS = re.compile(r"\b(?:requireStaff|currentStaff)\(")
+# `deciding(kind)` (lib/decides.ts, goals/f1c-who-decides-what.yaml) is a check because its first line is
+# `requireStaff()`; the last test below holds it to that
+CHECKS = re.compile(r"\b(?:requireStaff|currentStaff|deciding)\(")
 OPEN_PAGES = {"app/login/page.tsx"}  # the one page anyone may open
 OPEN_ACTIONS = {"lib/auth-actions.ts::signIn", "lib/auth-actions.ts::signOut"}
 
@@ -54,6 +56,14 @@ def test_every_server_action_checks_who_is_asking():
                 unchecked.append(f"{_rel(p)}::{name}")
     assert seen > 20, "found too few server actions; the search reads nothing"
     assert unchecked == []
+
+
+def test_deciding_checks_who_is_asking_before_anything_else():
+    src = (WEB / "lib" / "decides.ts").read_text()
+    (body,) = re.findall(r"^export async function deciding\(.*?\{\n(.*?)^\}", src, re.M | re.S)
+    assert body.lstrip().startswith("const me = await requireStaff();"), (
+        "deciding no longer checks the session first"
+    )
 
 
 def test_a_proxy_turns_away_a_request_without_a_good_session_before_it_renders():

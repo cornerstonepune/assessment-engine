@@ -11,11 +11,10 @@ import os
 import pathlib
 
 import pytest
-from typer.testing import CliRunner
 
-from engine.cli import app
 from engine.core import db
 from engine.core.staff import staff_hash
+from tests.test_cli import run
 
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed" / "config.json"
 EMAIL = "new-educator@cornerstone.test"
@@ -31,7 +30,7 @@ def _staff():
 def _add(monkeypatch, *args, typed=(PASSWORD, PASSWORD)):
     said = iter(typed)
     monkeypatch.setattr("getpass.getpass", lambda prompt="": next(said))
-    return CliRunner().invoke(app, ["staff", "add", *args], env={"NO_COLOR": "1", "COLUMNS": "200"})
+    return run("staff", "add", *args)
 
 
 @pytest.fixture
@@ -51,8 +50,8 @@ def clean():
 def test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts(monkeypatch, clean):
     before = _staff()
     r = _add(monkeypatch, EMAIL.upper(), "--name", "Test Educator")
-    assert r.exit_code == 0, r.output
-    assert "Test Educator (educator)" in r.output and PASSWORD not in r.output
+    assert r.exit_code == 0, r.output_plain
+    assert "Test Educator (educator)" in r.output_plain and PASSWORD not in r.output_plain
     after = _staff()
     assert after[: len(before)] == before, "no one already on the list is changed"
     [me] = [s for s in after if s["email"] == EMAIL]
@@ -65,14 +64,14 @@ def test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts(m
 def test_a_person_already_on_the_list_a_role_no_one_holds_or_a_short_password_is_refused(monkeypatch, clean):
     assert _add(monkeypatch, EMAIL, "--name", "Test Educator").exit_code == 0
     again = _add(monkeypatch, EMAIL, "--name", "Someone Else")
-    assert again.exit_code != 0 and "already on the staff list" in again.output
+    assert again.exit_code != 0 and "already on the staff list" in again.output_plain
     assert [s["name"] for s in _staff() if s["email"] == EMAIL] == ["Test Educator"]
 
     # a role is one the school's decisions name (people.decides) or one someone on the list already holds
     odd = _add(monkeypatch, "odd@cornerstone.test", "--name", "Odd", "--role", "headmaster")
-    assert odd.exit_code != 0 and "headmaster" in odd.output
+    assert odd.exit_code != 0 and "headmaster" in odd.output_plain
     short = _add(monkeypatch, "short@cornerstone.test", "--name", "Short", typed=("short", "short"))
-    assert short.exit_code != 0 and "10" in short.output
+    assert short.exit_code != 0 and "10" in short.output_plain
     differ = _add(
         monkeypatch, "differ@cornerstone.test", "--name", "Differ", typed=(PASSWORD, PASSWORD + "x")
     )
@@ -114,25 +113,25 @@ def two_classes():
 
 
 def _staff_cli(*args):
-    return CliRunner().invoke(app, ["staff", *args], env={"NO_COLOR": "1", "COLUMNS": "200"})
+    return run("staff", *args)
 
 
 @needs_db
 def test_a_person_is_put_on_the_list_with_the_classes_they_teach(monkeypatch, clean, two_classes):
     r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-TWO", "--class", "F1A-ONE")
-    assert r.exit_code == 0, r.output
-    assert "F1A-ONE, F1A-TWO" in r.output, "the command says the classes it put them on"
+    assert r.exit_code == 0, r.output_plain
+    assert "F1A-ONE, F1A-TWO" in r.output_plain, "the command says the classes it put them on"
     [me] = [s for s in _staff() if s["email"] == EMAIL]
     assert me["classes"] == ["F1A-ONE", "F1A-TWO"], "in class order, each once"
     listed = _staff_cli("list")
-    assert listed.exit_code == 0 and "F1A-ONE, F1A-TWO" in listed.output
+    assert listed.exit_code == 0 and "F1A-ONE, F1A-TWO" in listed.output_plain
 
 
 @needs_db
 def test_a_class_with_no_child_in_it_is_refused_and_nothing_changes(monkeypatch, clean, two_classes):
     before = _staff()
     r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-ONE", "--class", "F1A-NOBODY")
-    assert r.exit_code != 0 and "F1A-NOBODY" in r.output and "no child" in r.output
+    assert r.exit_code != 0 and "F1A-NOBODY" in r.output_plain and "no child" in r.output_plain
     assert _staff() == before, "a typed class that is no class puts no one on the list"
 
 
@@ -142,17 +141,17 @@ def test_an_educators_classes_are_changed_by_one_command(monkeypatch, clean, two
     others = [s for s in _staff() if s["email"] != EMAIL]
 
     moved = _staff_cli("classes", EMAIL.upper(), "F1A-TWO")
-    assert moved.exit_code == 0, moved.output
-    assert "F1A-TWO" in moved.output
+    assert moved.exit_code == 0, moved.output_plain
+    assert "F1A-TWO" in moved.output_plain
     assert [s["classes"] for s in _staff() if s["email"] == EMAIL] == [["F1A-TWO"]]
     assert [s for s in _staff() if s["email"] != EMAIL] == others, "no one else on the list is changed"
 
     # no classes at all is said on purpose, never by leaving the classes out
     bare = _staff_cli("classes", EMAIL)
-    assert bare.exit_code != 0 and "--none" in bare.output
+    assert bare.exit_code != 0 and "--none" in bare.output_plain
     assert _staff_cli("classes", EMAIL, "--none").exit_code == 0
     assert [s["classes"] for s in _staff() if s["email"] == EMAIL] == [[]]
 
     assert _staff_cli("classes", EMAIL, "F1A-NOBODY").exit_code != 0
     nobody = _staff_cli("classes", "nobody@cornerstone.test", "F1A-ONE")
-    assert nobody.exit_code != 0 and "not on the staff list" in nobody.output
+    assert nobody.exit_code != 0 and "not on the staff list" in nobody.output_plain

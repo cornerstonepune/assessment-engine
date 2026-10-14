@@ -7730,3 +7730,17 @@ it's only easy and medium that should come."
   - The whole browser suite: the first run failed 11 specs on a child's and a class's page. The cause was `levelsUsedBy`
     writing `'\D'` inside a JavaScript template, which Postgres received as `'D'` ("invalid input syntax for type
     integer: G1"); it is now `'\\D'`. The 11, with u29 → 57 passed; the other 184 had passed in the same run.
+
+## F1a–F1e in CI — two engine tests that passed here and failed in GitHub (2026-10-14)
+
+- **What failed.** The `engine` job was red on every F1 commit; the browser and web jobs were green.
+  - `test_web_gate.py::test_every_server_action_checks_who_is_asking` failed because the 27 actions now open with
+    `deciding(kind)`, and the gate looked only for `requireStaff(` or `currentStaff(`. `deciding` calls `requireStaff()`
+    first, so the gate now counts it. A new test, `test_deciding_checks_who_is_asking_before_anything_else`, holds
+    `deciding` to that.
+  - `test_staff.py::test_an_educators_classes_are_changed_by_one_command` failed because, under `GITHUB_ACTIONS`, typer
+    styles each dash of `--none` on its own. A person reads `--none`, but the test read the escape codes. It now reads
+    the plain words through `test_cli.run`, the helper written for the same trap.
+- **Why it was not seen before the push.** Only the changed modules' tests were run, not the whole engine suite.
+- **Check.** Both reproduced with `GITHUB_ACTIONS=true`, then passed with it and without it (37 and 11 passed). The
+  change is to these two test files alone; the whole engine suite is CI's run on this push.
