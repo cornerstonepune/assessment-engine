@@ -7794,3 +7794,25 @@ that's relevant for their class and their students."
     - Pages on this copy take 1.3–1.6 s each, and the same on main's site code: nine pages were timed on both builds.
       So F1f did not slow them. This copy has collected test rows from many runs.
     - CI's browser job on a fresh database passed all of it (6b644c3).
+
+## F1g, first step — what approval would close, measured before it ships (2026-10-14)
+
+Goal `goals/f1g0-what-approval-would-close.yaml`. BUILD-ORDER's F1g row: "measured first on a copy of live: the levels
+it would close are named to Nimish before it ships".
+
+- **Measured while planning:** on the test database every skill is a draft with no level approved. The gate as written
+  (an unapproved level goes on no paper) would close every paper there, and every skill on live still waiting for the
+  coordinator. Live's rows are not read from here, so the list comes from a command Nimish runs.
+- **Built:**
+  - `shelf.approved_levels` is the one rule the gate will use: the levels in `skill_set.level_approved`.
+  - `shelf.closing` covers every class on the roll. It lists each level the class's papers draw on today (taught in the
+    class, its grade's or below) whose questions are not approved, with the questions it holds. It reads only.
+  - `engine week unapproved` prints one line per level, with the classes it would close for, and a total.
+- **Check:** `tests/test_levels_closing.py`, 2 tests. Both failed first: there was no `closing` and no command.
+  - A Grade 2 class with 2-digit + 1-digit's Easy approved is told Medium, not Easy.
+  - A skill the class was not taught is not named.
+  - Only its grade's levels are named, with the bank's own question count.
+  - The command writes nothing.
+- **Here:** 100 levels in 26 skills would close, for 46 classes. Every level is unapproved on the test database.
+- **Next:** Nimish runs `~/cornerstone/assessment-engine/bin/engine week unapproved` against live. With that list read,
+  the gate itself is F1g (`goals/f1g-approval-gates-papers.yaml`).

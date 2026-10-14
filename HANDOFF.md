@@ -12,8 +12,11 @@ is verified. This file only says where the last session stopped.
   Curriculum's answers column is "Assessed". See STATE.md "F1f".
 - **After merge:** educators say on Curriculum which topics their classes have been taught. Until they do, each class
   follows today's school-wide switch.
-- **Next:** F1g (an unapproved level goes on no paper). Measure it on a copy of live first, and name to Nimish the
-  levels it would close before it ships. L3b (constraint drift, durable failed runs) is still owed.
+- **F1g, first step (same PR):** `engine week unapproved` lists the levels the gate would close, class by class. It
+  reads only. Nimish runs `~/cornerstone/assessment-engine/bin/engine week unapproved` against live after merge. On
+  the test database every level is unapproved, so the gate would close every paper. See STATE.md "F1g, first step".
+- **Next:** with live's list read with Nimish, the gate itself (`goals/f1g-approval-gates-papers.yaml`). L3b
+  (constraint drift, durable failed runs) is still owed.
 
 ## 2026-10-14 — F1a: each educator has classes (phase 1 of "One flow for the educator")
 

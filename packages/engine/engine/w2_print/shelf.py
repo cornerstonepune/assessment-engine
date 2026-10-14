@@ -8,7 +8,7 @@ import contextvars
 from contextlib import contextmanager
 from typing import Any
 
-from engine.core import settings
+from engine.core import roster, settings
 
 _BATCH: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
     "focus_paper_batch", default=None
@@ -115,4 +115,46 @@ def _read_levels(conn, band) -> dict:
                 d for d in defined if _grade((r["level_band"] or {}).get(d) or r["band"]) <= _grade(band)
             )
         out[r["code"]] = defined
+    return out
+
+
+def approved_levels(conn) -> dict:
+    """{skill set: the levels whose questions the coordinator has approved} (`skill_set.level_approved`,
+    goals/f1d-questions-approved-per-level.yaml): the levels a paper may draw on once F1g ships
+    (goals/f1g-approval-gates-papers.yaml)."""
+    return {
+        r["code"]: set(r["level_approved"] or {})
+        for r in conn.execute("select code, level_approved from skill_set")
+    }
+
+
+def closing(conn) -> list[dict]:
+    """What F1g would take off papers, measured before it ships: for every class on the roll, each level its papers
+    may draw on today — taught in the class, its grade's or below — whose questions are not approved yet, with how
+    many questions it holds. Nothing is written."""
+    approved = approved_levels(conn)
+    held = {
+        (r["code"], r["level"]): r["n"]
+        for r in conn.execute(
+            "select skill_set_code as code, difficulty as level, count(*)::int as n from item"
+            " where status = 'active' group by 1, 2"
+        )
+    }
+    out = []
+    for c in conn.execute("select distinct section from child where active order by section").fetchall():
+        band = roster.class_band(conn, c["section"])
+        usable = _levels(conn, band)
+        for s in catalog(conn, c["section"]):
+            for level in usable.get(s["code"], ()):
+                if level not in approved.get(s["code"], set()):
+                    q = held.get((s["code"], level), 0)
+                    out.append(
+                        {
+                            "class": c["section"],
+                            "grade": band,
+                            "skill": s["code"],
+                            "level": level,
+                            "questions": q,
+                        }
+                    )
     return out
