@@ -7816,3 +7816,18 @@ it would close are named to Nimish before it ships".
 - **Here:** 100 levels in 26 skills would close, for 46 classes. Every level is unapproved on the test database.
 - **Next:** Nimish runs `~/cornerstone/assessment-engine/bin/engine week unapproved` against live. With that list read,
   the gate itself is F1g (`goals/f1g-approval-gates-papers.yaml`).
+
+## F1f in CI — two engine tests the neighbouring suites did not reach (2026-10-14)
+
+- **What failed** (CI on 6b644c3; 2468 passed):
+  - `test_a_skill_set_is_read_as_itself` called `shelf._catalog(conn)` without the class it now takes. It now passes
+    `None`, the school's switch.
+  - `test_roles::test_the_website_writes_only_what_a_person_changes_on_it` pins every write the website's role may
+    make and every function it may call. It now names `class_topic` INSERT, a person's word on Curriculum, and
+    `taught_in`.
+- **Why it was not seen before the push:** the same reason as F1a–F1e's this morning. Only the changed modules'
+  neighbours were run, not the whole engine suite.
+- **Check:**
+  - CI's whole-suite run on d207b99, the PR's whole code, failed these two and only these (2471 passed).
+  - Both now pass here (8 passed with the rest of their files).
+  - The push changes those two test files and nothing else.

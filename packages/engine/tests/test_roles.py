@@ -30,6 +30,8 @@ WEB_WRITES = {
     "public.web_error": {"INSERT"},
     # a wrong password for an email, so too many make it wait (goals/p2-live-recovers.yaml)
     "public.sign_in_failure": {"INSERT"},
+    # a class's word on a topic, said by a person on Curriculum (goals/f1f-taught-per-class.yaml)
+    "public.class_topic": {"INSERT"},
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name, a
 # question by a key it had before it was keyed again (`current_item_key`, the question page, ADR 0053), and the right
@@ -46,6 +48,7 @@ WEB_CALLS = {
     "mistake_name",
     "operation_sign",
     "current_item_key",
+    "taught_in",  # whether a class has been taught a topic: the one rule (goals/f1f-taught-per-class.yaml)
     "checks_to_trust",
 }
 
