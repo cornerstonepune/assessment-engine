@@ -11,8 +11,11 @@ is verified. This file only says where the last session stopped.
   educator, then `~/cornerstone/assessment-engine/bin/engine staff list` to see them.
 - **F1b, same PR:** every list, count and single page is narrowed to the signed-in person's classes
   (`apps/web/lib/scope.ts`). See STATE.md "F1b".
-- **Next:** F1c, who decides what, checked on the server, including another class's papers and answers. Then F1d–F1g.
-  L3b (constraint drift, durable failed runs) is still owed from L3.
+- **F1c, same PR:** every server action checks the signer's role (`people.decides`) and classes before it writes;
+  a refusal lands on `/refused`. See STATE.md "F1c".
+- **L3 is live:** `migrate live` applied 20261108090000 at 08:54 UTC (run 38538494920). Nimish retries Grade 1's papers.
+- **Next:** F1d, approval per skill × level. Then F1e–F1g. L3b (constraint drift, durable failed runs) is still owed
+  from L3.
 
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 

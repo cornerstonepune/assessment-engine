@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
+import { deciding, mustBeMine } from "@/lib/decides";
+import { childSection, paperSection, resultSection } from "@/lib/scope";
 import { sql } from "@/lib/db";
 import { EngineDown, enginePost, engineSend, markWhatTrustSettles } from "@/lib/engine";
 
@@ -22,7 +23,7 @@ const back = (formData: FormData) => {
  * the papers appear on this page as they are read. The engine says in words why it will not take a
  * link, and that is what the person sees. */
 export async function readScan(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("papers");
   // back to the page it was read from: Papers, or the scans and the reader's accuracy (goals/u9-papers.yaml)
   const page = formData.get("from") === "/papers" ? "/papers" : "/capture";
   const url = String(formData.get("url") ?? "")
@@ -52,11 +53,12 @@ export async function readScan(formData: FormData): Promise<void> {
  * correction itself is a new row in `read_correction`; the engine's own reading is left exactly as
  * it was (rule 4), which is what keeps the reader measurable against the page afterwards. */
 export async function correctRead(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("answers");
   const id = String(formData.get("result_id") ?? "");
   const paper = String(formData.get("paper_id") ?? "");
   const wrote = String(formData.get("human_read") ?? "").trim().slice(0, 40);
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
+  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
   try {
     await enginePost("/capture/correct", { result_id: id, human_read: wrote, by: me.email });
   } catch (e) {
@@ -73,12 +75,13 @@ export async function correctRead(formData: FormData): Promise<void> {
  *  child's answer to the question is marked again with it, and the page says how many were, and how many keep the
  *  mark a person gave them though the new right answer disagrees. */
 export async function changeKey(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("questions");
   const id = String(formData.get("result_id") ?? "");
   const paper = String(formData.get("paper_id") ?? "");
   const slot = String(formData.get("slot") ?? "").slice(0, 12);
   const answer = String(formData.get("answer") ?? "").trim().slice(0, 40);
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
+  mustBeMine(me, "questions", [await resultSection(id), await paperSection({ id: paper })]);
   let to: string;
   try {
     const res = await engineSend("/paper/key", { result_id: id, answer, by: me.email });
@@ -107,10 +110,11 @@ export async function changeKey(formData: FormData): Promise<void> {
  *  child's ladder is rebuilt from it. Scoped to this capture — a signature means the person read
  *  the thing they signed, not everything that child has ever sat. */
 export async function confirmPaper(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("papers");
   const paper = String(formData.get("paper_id") ?? "");
   const child = String(formData.get("child_id") ?? "");
   if (!UUID.test(paper) || !UUID.test(child)) redirect("/capture");
+  mustBeMine(me, "papers", [await paperSection({ id: paper }), await childSection(child)]);
   // One statement, one confirm per file of this sitting: a Grade 3 paper arrives as one
   // photograph per page, and signing off the paper means signing off all of it.
   const [{ n }] = await sql<{ n: number }[]>`
@@ -127,11 +131,12 @@ export async function confirmPaper(formData: FormData): Promise<void> {
  *  person can say whether the child was right. The reading is theirs already; this is the
  *  judgement, and it is asked for nowhere else on the screen. */
 export async function judgeRead(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("answers");
   const id = String(formData.get("result_id") ?? "");
   const paper = String(formData.get("paper_id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
+  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
   if (!["correct", "wrong", "blank"].includes(status)) redirect(`/capture/${paper}?error=judge`);
   await sql`select resolve_result(${id}::uuid, ${status}, '{}'::text[], ${me.email})`;
   revalidatePath(`/capture/${paper}`);
@@ -144,11 +149,12 @@ export async function judgeRead(formData: FormData): Promise<void> {
  *  screen, where the person has the page in front of them; in the queue they have seen one answer.
  *  Who judged it is kept as a `read_correction` row whose reading is the engine's own, unchanged. */
 export async function judgeOne(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("answers");
   const id = String(formData.get("result_id") ?? "");
   const status = String(formData.get("status") ?? "");
   const next = back(formData) ?? "/capture/check";
   if (!UUID.test(id) || !["correct", "wrong", "blank"].includes(status)) redirect(next);
+  mustBeMine(me, "answers", [await resultSection(id)]);
   // One statement, so the judgement and the record of who made it land together or not at all.
   await sql`
     with judged as (
@@ -167,11 +173,12 @@ export async function judgeOne(formData: FormData): Promise<void> {
  *  one press on Jev's shortlist, any other named mistake, or none of them. The engine keeps it against this reading
  *  and it reaches the child's evidence when the paper is signed off. A refusal comes back in the engine's words. */
 export async function nameMistake(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("answers");
   const id = String(formData.get("result_id") ?? "");
   const paper = String(formData.get("paper_id") ?? "");
   const code = String(formData.get("code") ?? "").slice(0, 80);
   if (!UUID.test(id) || !UUID.test(paper) || !code) redirect("/capture");
+  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
   // Jev's shortlist as the person saw it, [[code, chance], …], as the engine takes it; anything else is not kept
   let proposed: unknown[][] = [];
   try {

@@ -7646,3 +7646,31 @@ to his grades."
     - Then u26 with u20 → 6 passed.
     - u20's one failure is not explained. It does not touch a page this slice changed for the coordinator, who runs it.
 - **Not live until** merged and the educators are linked to their classes (F1a).
+
+## F1c — who decides what, checked on the server (2026-10-14)
+
+Goal `goals/f1c-who-decides-what.yaml`; ADR 0073 decision 3; D3 (educators draft skills, the coordinator approves).
+
+- **Every server action checks before it writes.** That is all 27 actions and the route that prints a worksheet for children.
+  - **Its role** (`apps/web/lib/decides.ts`): the signer's role must be one `people.decides` names for that kind of
+    decision. The coordinator may take any decision.
+  - **Its classes:** every class it touches must be the signer's. That covers the child, the paper, the answer, the
+    planned paper and the class's pack, each looked up from the id the form sent, not from the page that showed it.
+  - **Refusal:** a refused decision changes nothing. It lands on `/refused`, which says whose decision it is, or that
+    the class is not the signer's.
+- **`people.decides` names four more kinds**, all the educator's:
+  - `skill_drafts` (changing a skill's words or level grades);
+  - `reports` (parent reports; workflow N12 names the coordinator, Nimish on 2026-10-11 named the teacher, so the row
+    says educator and can be changed);
+  - `questions` (correcting a question, changing a key);
+  - `week` (the week's declaration).
+
+  An ask is decided by its own `for_role`. A kind the row does not name yet is refused to no one, as before: the row
+  reaches live with the engine's settings, a little after the website.
+- **Check:**
+  - `apps/web/tests/u27-who-decides-what.spec.ts` → 3 passed, with u23 → 5 passed.
+    - Before the change, the educator's approval of a skill went through.
+    - The tamper test changes the pack form's class by hand, and is refused.
+  - The whole browser suite (steps, e2e, gate) → 194 passed. The one failure was u27's own locator (the pack panel has
+    no accessible name), since corrected.
+  - `tests/test_asks.py` names the ten kinds.

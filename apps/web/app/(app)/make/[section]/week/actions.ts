@@ -1,14 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
+import { deciding, mustBeMine } from "@/lib/decides";
 import { EngineDown, engineSend } from "@/lib/engine";
 
 // The educator confirms their week (N4): the ticked skill sets, their note and what the engine had proposed are kept
 // in their name; the latest declaration for a week stands. A refusal comes back in the engine's words.
 export async function confirmWeek(formData: FormData): Promise<void> {
-  const me = await requireStaff();
+  const me = await deciding("week");
   const section = String(formData.get("section") ?? "");
+  mustBeMine(me, "week", [section]);
   const week = String(formData.get("week") ?? "");
   const note = String(formData.get("note") ?? "").slice(0, 2000);
   const skillSets = formData.getAll("skill_set").map(String);

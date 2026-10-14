@@ -14,7 +14,20 @@ ROOT = Path(__file__).resolve().parents[3]
 SEED = ROOT / "supabase" / "seed"
 TAXONOMY = ROOT / "docs" / "design" / "multiplication-division-taxonomy.md"
 # the kinds of thing Today shows waiting on a person, each a card of its own (apps/web/app/(app)/today/page.tsx)
-WAITING = {"answers", "papers", "home_papers", "class_papers", "skills", "topics"}
+# every kind of decision the site checks before it writes (goals/f1c-who-decides-what.yaml): the six that wait on a person,
+# and drafting a skill, a parent report, correcting a question and declaring the week
+WAITING = {
+    "answers",
+    "papers",
+    "home_papers",
+    "class_papers",
+    "skills",
+    "topics",
+    "skill_drafts",
+    "reports",
+    "questions",
+    "week",
+}
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 

@@ -1,6 +1,8 @@
 // A library worksheet printed for the children an educator ticks: one copy each, each with its own code, so a
 // scan of them sorts itself onto each child. The engine records every copy in the educator's name.
 import { currentStaff } from "@/lib/auth";
+import { mayDecide } from "@/lib/decides";
+import { childrenSections, notYoursResponse } from "@/lib/scope";
 import { EngineDown, engineSend } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
 
@@ -14,6 +16,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
   if (!CODE.test(code)) return new Response("no such worksheet", { status: 404 });
   const children = (await request.formData()).getAll("child").map(String).filter((c) => ID.test(c));
   if (!children.length) return new Response("Tick at least one child to print for.", { status: 400 });
+  // a worksheet printed for named children is a paper made for them: their classes must be the educator's
+  if (!(await mayDecide(me, "class_papers", await childrenSections(children)))) return notYoursResponse();
   try {
     const res = await engineSend(`/worksheet/${code}/for.pdf`, { children, week: isoWeek(), by: me.email });
     if (!res.ok) {
