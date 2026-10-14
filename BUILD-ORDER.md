@@ -5,6 +5,34 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: one flow for the educator — Nimish, 2026-10-14
+
+Nimish, after using the site with the educators: *"We need to improve the sophistication of these modules now. The flow
+is still not very coherent. While the teachers are now starting to use it, the flow does not feel coherent."* On the
+list that followed (claude.ai/artifact/B8kEMSmobq3pbWiJCVEDF8, 38 items, each with its evidence): *"go with your
+recommendations, start phase 1"*.
+
+**Step 5 of "Now: ten steps" (Teacher flow) reopened.** The multiplication and division insert below is done (M5). The
+list's five phases, in order:
+
+1. who sees what, and a skill decided three ways (this table);
+2. the curriculum page;
+3. the skill editor, with samples, then questions, then worksheets;
+4. one list and one maker for papers;
+5. marking and words.
+
+The decisions behind phase 1 are ADR 0073.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| F1a | `goals/f1a-each-educator-has-classes.yaml` | each person on the staff list names the classes they teach. `engine staff add --class` and `engine staff classes` set them, and refuse a class with no child in it. The coordinator's classes are every class. Signing in carries them; nothing else about signing in changes |
+| F1b | `goals/f1b-my-classes-first.yaml` | every page that lists classes, children, papers, answers or counts opens on the signed-in educator's classes, and the menu's counts are theirs. The coordinator sees the school and can narrow it to a class. An educator linked to no class sees the school, with a line saying so |
+| F1c | `goals/f1c-who-decides-what.yaml` | every action checks `people.decides` for the signer's role on the server before it writes. An educator approving a skill is refused, told who can. The coordinator may take any decision |
+| F1d | `goals/f1d-questions-approved-per-level.yaml` | a skill's questions are approved level by level, by the coordinator. Changing a level's rule withdraws that level's approval and no other; changing its words withdraws none. A skill approved today keeps its approval at every level |
+| F1e | `goals/f1e-the-grade-plan.yaml` | which levels each grade uses is a row per grade, skill and level, seeded from today's level grades so no grade's papers change. Make papers, the week and the home paper offer a grade only its plan's levels |
+| F1f | `goals/f1f-taught-per-class.yaml` | taught is said per class, with who and when. Today's switch is copied to every class, so nothing changes on the day. Every page and the engine read the class's own. "Taught" and "Assessed" are two words |
+| F1g | `goals/f1g-approval-gates-papers.yaml` | a level whose questions are not approved goes on no paper, and the maker says which level and who approves it. Measured first on a copy of live: the levels it would close are named to Nimish before it ships |
+
 ## Inserted now: multiplication and division, through the whole loop — Nimish, 2026-10-09
 
 Nimish: *"we need to integrate multiplication and division now - same process, break it down into LOs (look at how

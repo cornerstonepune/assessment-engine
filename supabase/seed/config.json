@@ -13,7 +13,7 @@
     },
     {
       "key": "app.staff",
-      "description": "Who may sign in to the app: email, name, role and password hash, held in the database alone and put there by `engine staff add` (goals/ui4a-staff-and-search.yaml). Empty here, so no one's email is in the public repository. Roles: coordinator, educator, specialist.",
+      "description": "Who may sign in to the app: email, name, role, password hash and the classes they teach, held in the database alone and put there by `engine staff add` (goals/ui4a-staff-and-search.yaml); `engine staff classes` changes the classes (ADR 0073). Empty here, so no one's email is in the public repository. Roles: coordinator, educator, specialist.",
       "value": [],
       "seed_once": true
     },

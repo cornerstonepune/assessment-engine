@@ -87,3 +87,72 @@ def test_the_staff_list_is_not_in_the_public_repository():
     rows = {r["key"]: r for r in json.loads(SEED.read_text())["config"]}
     assert rows["app.staff"]["value"] == []
     assert rows["app.staff"]["seed_once"] is True, "a list the app owns is seeded once and then left alone"
+
+
+# ---- F1a: each educator names the classes they teach (goals/f1a-each-educator-has-classes.yaml, ADR 0073 D1)
+
+CLASSES = ("F1A-ONE", "F1A-TWO")
+
+
+@pytest.fixture
+def two_classes():
+    """Two classes with a child in each, as a class exists on the site: a section a child still in school is in. A child
+    is never deleted (their answers are append-only), so the classes' children leave school after, as a child does."""
+    with db.connect() as conn:
+        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        for section in CLASSES:
+            conn.execute(
+                "insert into child (tenant_id, roll_no, section, band) values (%s, '1', %s, 'G2')"
+                " on conflict (tenant_id, section, roll_no) do update set active = true",
+                (tenant, section),
+            )
+        conn.commit()
+    yield CLASSES
+    with db.connect() as conn:
+        conn.execute("update child set active = false where section = any(%s)", (list(CLASSES),))
+        conn.commit()
+
+
+def _staff_cli(*args):
+    return CliRunner().invoke(app, ["staff", *args], env={"NO_COLOR": "1", "COLUMNS": "200"})
+
+
+@needs_db
+def test_a_person_is_put_on_the_list_with_the_classes_they_teach(monkeypatch, clean, two_classes):
+    r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-TWO", "--class", "F1A-ONE")
+    assert r.exit_code == 0, r.output
+    assert "F1A-ONE, F1A-TWO" in r.output, "the command says the classes it put them on"
+    [me] = [s for s in _staff() if s["email"] == EMAIL]
+    assert me["classes"] == ["F1A-ONE", "F1A-TWO"], "in class order, each once"
+    listed = _staff_cli("list")
+    assert listed.exit_code == 0 and "F1A-ONE, F1A-TWO" in listed.output
+
+
+@needs_db
+def test_a_class_with_no_child_in_it_is_refused_and_nothing_changes(monkeypatch, clean, two_classes):
+    before = _staff()
+    r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-ONE", "--class", "F1A-NOBODY")
+    assert r.exit_code != 0 and "F1A-NOBODY" in r.output and "no child" in r.output
+    assert _staff() == before, "a typed class that is no class puts no one on the list"
+
+
+@needs_db
+def test_an_educators_classes_are_changed_by_one_command(monkeypatch, clean, two_classes):
+    assert _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-ONE").exit_code == 0
+    others = [s for s in _staff() if s["email"] != EMAIL]
+
+    moved = _staff_cli("classes", EMAIL.upper(), "F1A-TWO")
+    assert moved.exit_code == 0, moved.output
+    assert "F1A-TWO" in moved.output
+    assert [s["classes"] for s in _staff() if s["email"] == EMAIL] == [["F1A-TWO"]]
+    assert [s for s in _staff() if s["email"] != EMAIL] == others, "no one else on the list is changed"
+
+    # no classes at all is said on purpose, never by leaving the classes out
+    bare = _staff_cli("classes", EMAIL)
+    assert bare.exit_code != 0 and "--none" in bare.output
+    assert _staff_cli("classes", EMAIL, "--none").exit_code == 0
+    assert [s["classes"] for s in _staff() if s["email"] == EMAIL] == [[]]
+
+    assert _staff_cli("classes", EMAIL, "F1A-NOBODY").exit_code != 0
+    nobody = _staff_cli("classes", "nobody@cornerstone.test", "F1A-ONE")
+    assert nobody.exit_code != 0 and "not on the staff list" in nobody.output

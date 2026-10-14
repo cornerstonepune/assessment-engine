@@ -11,7 +11,7 @@ import secrets
 import typer
 
 from engine.core import db
-from engine.core.staff import add, save, staff, staff_hash
+from engine.core.staff import add, classes, save, set_classes, staff, staff_hash
 
 staff_app = typer.Typer(help="Who signs in to the website", no_args_is_help=True)
 
@@ -25,33 +25,68 @@ def _password() -> str:
     return staff_hash(first, secrets.token_hex(16))
 
 
+def _said(teaches: list[str], role: str) -> str:
+    if role == "coordinator":
+        return "every class"
+    return ", ".join(teaches) if teaches else "no class yet"
+
+
 @staff_app.command("add")
 def add_(
     email: str,
     name: str = typer.Option(..., "--name", help="As the website says it beside every decision they take"),
     role: str = typer.Option("educator", "--role", help="One the school's decisions name (people.decides)"),
+    teaches: list[str] = typer.Option(
+        [], "--class", help="A class they teach (as on the site: G2); once per class"
+    ),
 ) -> None:
-    """Put a person on the staff list, with a password they sign in with."""
+    """Put a person on the staff list, with the classes they teach and a password they sign in with."""
+    with db.connect() as conn:
+        try:  # a class no child is in is refused before anyone types a password
+            classes(conn, teaches)
+        except ValueError as e:
+            raise typer.BadParameter(str(e)) from e
     password = _password()
     with db.connect() as conn:
         try:
-            person = add(conn, email, name, role, password)
+            person = add(conn, email, name, role, password, teaches)
         except ValueError as e:
             raise typer.BadParameter(str(e)) from e
         conn.commit()
     typer.echo(
-        f"  {person['name']} ({person['role']}) can sign in with {person['email']} and the password typed"
+        f"  {person['name']} ({person['role']}) can sign in with {person['email']} and the password typed;"
+        f" their classes: {_said(person['classes'], person['role'])}"
     )
+
+
+@staff_app.command("classes")
+def classes_(
+    email: str,
+    teaches: list[str] = typer.Argument(None, help="Every class they teach now (as on the site: G2 G3)"),
+    none: bool = typer.Option(False, "--none", help="They teach no class (they see the whole school)"),
+) -> None:
+    """Say which classes a person teaches: what the site opens on for them. Replaces the classes they had."""
+    teaches = teaches or []
+    if not teaches and not none:
+        raise typer.BadParameter("name the classes they teach, or --none for no class")
+    with db.connect() as conn:
+        try:
+            me = set_classes(conn, email, teaches)
+        except ValueError as e:
+            raise typer.BadParameter(str(e)) from e
+        conn.commit()
+    typer.echo(f"  {me['name']} ({me['role']}) teaches {_said(me['classes'], me['role'])}")
 
 
 @staff_app.command("list")
 def list_() -> None:
-    """Everyone who may sign in: name, role, email, and whether they have a password yet."""
+    """Everyone who may sign in: name, role, email, the classes they teach, and whether they have a password yet."""
     with db.connect() as conn:
         people = staff(conn)
     for s in people:
         typer.echo(
-            f"  {s['name']:<20}{s['role']:<13}{s['email']:<36}{'password set' if s.get('password') else 'no password'}"
+            f"  {s['name']:<20}{s['role']:<13}{s['email']:<36}{'password set' if s.get('password') else 'no password':<14}"
+            f"{_said(s.get('classes', []), s['role'])}"
         )
     typer.echo(f"  {len(people)} on the staff list")
 

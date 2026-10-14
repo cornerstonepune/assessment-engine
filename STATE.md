@@ -7594,3 +7594,25 @@ Nimish, on Make papers for Grade 1 (class assessment, one paper for all, Equal g
 - Check: `cd packages/engine && uv run pytest -q tests/test_maker.py tests/api/test_idempotency.py` → `18 passed`;
   `bin/check` → `28 passed`.
 - **Not live until** this merges and `migrate live` applies the migration.
+
+## F1a — each educator has classes (2026-10-14)
+
+Phase 1 of BUILD-ORDER "One flow for the educator" (ADR 0073). Nimish: "Let's create a mapping of the teacher to the
+grade … Then the teachers only see, when Achal logs in, things that are relevant to his grades." D1: an educator is
+linked to classes, and the grade follows from the class. Goal `goals/f1a-each-educator-has-classes.yaml`.
+
+- **A person's classes live on their entry in the staff list.** That list is `config.app.staff` (ADR 0069), so sign-in
+  is untouched. The rejected staff table is recorded in ADR 0073.
+  - `engine staff add --class G2 --class G3` puts a person on the list with their classes.
+  - `engine staff classes <email> G2 G3` replaces them, and `--none` clears them; leaving the classes out is refused.
+  - A class is a section a child still in school is in, so a typed class that is no class refuses the whole command
+    and nothing changes.
+  - `engine staff list` says each person's classes; the coordinator's read "every class".
+  - Check: `tests/test_staff.py` (three new tests) → with `test_cli.py` and `test_loaders.py`, `44 passed`.
+- **Signing in carries the classes, and the menu says them** beside the name: "Teaches G2, G3", "Every class" for the
+  coordinator, "No class yet" for someone linked to none.
+  - Check: `apps/web/tests/u25-each-educator-has-classes.spec.ts` → 2 passed. Run against the old menu, it failed
+    ("Signed in" not found).
+  - u15 (menu and Today) and u18 (sign-in) still pass: `8 passed`.
+- **Not live until** merged, and then until Nimish runs `bin/engine staff classes` for each educator. Until then every
+  educator reads "No class yet". F1b is what narrows the pages.

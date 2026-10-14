@@ -1,0 +1,30 @@
+name: f1a-each-educator-has-classes
+goal: >
+  Each person on the staff list names the classes they teach. `engine staff add --class` puts a person on the list with
+  their classes, and `engine staff classes` changes them. Both refuse a class with no child in it and change nothing.
+  The coordinator's classes are every class. Signing in carries a person's classes, and the menu says them beside the
+  name, so an educator sees what the site is narrowed to. Nothing else about signing in changes.
+# Written 2026-10-14, before the code: slice F1a of BUILD-ORDER "One flow for the educator" (ADR 0073, D1). Nimish, the
+# same day: "Let's create a mapping of the teacher to the grade, and we have student to grade. Then the teachers only
+# see, when Achal logs in, things that are relevant to his grades." On the recommendations, the grade following from
+# the class: "go with your recommendations, start phase 1". Measured first: the staff list (`config.app.staff`, ADR
+# 0069) holds an email, a name, a role and a password hash, and no class, grade or child.
+says:
+  - words: "Let's create a mapping of the teacher to the grade, and we have student to grade."
+    proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_list_with_the_classes_they_teach"
+  - words: "Let's create a mapping of the teacher to the grade, and we have student to grade."
+    proved_by: "packages/engine/tests/test_staff.py::test_a_class_with_no_child_in_it_is_refused_and_nothing_changes"
+  - words: "Let's create a mapping of the teacher to the grade, and we have student to grade."
+    proved_by: "packages/engine/tests/test_staff.py::test_an_educators_classes_are_changed_by_one_command"
+  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
+    proved_by: "apps/web/tests/u25-each-educator-has-classes.spec.ts::an educator signs in and the menu says the classes they teach"
+manual:
+  - "Nimish, once merged: `~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …` for each educator, then `~/cornerstone/assessment-engine/bin/engine staff list` to see them."
+scenarios: []
+criteria:
+  - name: a person's classes are put on the list, changed and refused as the goal says; the menu says them
+    run: cd packages/engine && uv run pytest -q tests/test_staff.py tests/test_cli.py tests/test_loaders.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

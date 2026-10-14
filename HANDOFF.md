@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-14 — F1a: each educator has classes (phase 1 of "One flow for the educator")
+
+- **Step 5 (Teacher flow), slice F1a.** BUILD-ORDER's new insert records Nimish's decisions D1–D6, and ADR 0073 gives
+  the reasons. See STATE.md "F1a".
+- **Nimish, after merge:** `~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …` for each
+  educator, then `~/cornerstone/assessment-engine/bin/engine staff list` to see them.
+- **Next:** F1b, every page opens on the signed-in educator's classes. Then F1c–F1g as BUILD-ORDER lists them. L3b
+  (constraint drift, durable failed runs) is still owed from L3.
+
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 
 - **W2 (print), a live defect; no gate moves.** Goal `l3-a-class-paper-prints-on-live`; see STATE.md "L3".

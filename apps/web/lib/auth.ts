@@ -66,12 +66,14 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", devBypass: true };
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true };
   const email = sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
   // named fields, never the record: the password hash stays on the server
-  return staff ? { email: staff.email, name: staff.name, role: staff.role, devBypass: false } : null;
+  return staff
+    ? { email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], devBypass: false }
+    : null;
 });
 
 // For every page, route and server action: the signed-in staff member, or a redirect to /login. Each calls it
