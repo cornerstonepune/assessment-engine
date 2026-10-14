@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-14 — L3b: live says what went wrong (its own PR, after #205)
+
+- **A failed run is now on record** after its request unwinds, so the watcher counts it. Live's failed Make papers left
+  no row before.
+- **The watcher names any database rule** live holds otherwise than the migrations make it (`engine/checks/rules.json`,
+  written by `engine live rules --write` from a database built from the migrations alone). See STATE.md "L3b".
+- **After deploy:** the watcher's next run should name no rule. If it names many, live's Postgres prints rules
+  differently: compare with `engine live rules` and fix the comparison, not the rules.
+
 ## 2026-10-14 — F1f: taught is said for each class (#204 merged)
 
 - **#204 (F1a–F1e) merged** as `f5787f8`. Main's CI was green, and `migrate live` applied 20261109090000 (level approval)

@@ -5,7 +5,7 @@ import shutil
 
 import typer
 
-from engine.checks import live, watch
+from engine.checks import live, rules, watch
 from engine.checks import live_data as live_data_module
 from engine.core import db
 
@@ -69,4 +69,30 @@ def live_watch() -> None:
     for line in lines:
         typer.echo(line)
     if lines:
+        raise typer.Exit(1)
+
+
+@live_app.command("rules")
+def live_rules(
+    write: bool = typer.Option(
+        False,
+        "--write",
+        help="write this database's rules as the migrations' (a database built from them alone)",
+    ),
+    url: str = typer.Option(
+        "", "--url", help="a database address; default LIVE_READONLY_DATABASE_URL, else .env"
+    ),
+) -> None:
+    """Does a database hold the rules the migrations make? One line a rule it holds otherwise; exits 1 on any.
+    With --write, records this database's rules as the migrations' (engine/checks/rules.json)."""
+    with db.connect(url or live_data_module.url()) as conn:
+        if write:
+            typer.echo(f"  {rules.write(conn)} rules written to {rules.FILE.name}")
+            return
+        conn.read_only = True
+        drifted = rules.drift(conn)
+    for d in drifted:
+        typer.echo(f"  {d}")
+    typer.echo(f"  {len(drifted)} rules held otherwise than the migrations make them")
+    if drifted:
         raise typer.Exit(1)
