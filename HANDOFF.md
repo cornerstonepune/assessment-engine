@@ -14,8 +14,10 @@ is verified. This file only says where the last session stopped.
 - **F1c, same PR:** every server action checks the signer's role (`people.decides`) and classes before it writes;
   a refusal lands on `/refused`. See STATE.md "F1c".
 - **L3 is live:** `migrate live` applied 20261108090000 at 08:54 UTC (run 38538494920). Nimish retries Grade 1's papers.
-- **Next:** F1d, approval per skill × level. Then F1e–F1g. L3b (constraint drift, durable failed runs) is still owed
-  from L3.
+- **F1d, same PR:** each level's questions are approved on their own (`level_approved`, migration 20261109090000).
+  Rewording withdraws nothing; a skill approved before keeps every level. See STATE.md "F1d".
+- **Next:** F1e, the grade plan (grade × skill × level). Then F1f, F1g. L3b (constraint drift, durable failed runs) is
+  still owed from L3.
 
 ## 2026-10-14 — L3: Make papers refused every paper made for a child on live
 

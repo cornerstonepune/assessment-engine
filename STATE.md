@@ -7674,3 +7674,29 @@ Goal `goals/f1c-who-decides-what.yaml`; ADR 0073 decision 3; D3 (educators draft
   - The whole browser suite (steps, e2e, gate) → 194 passed. The one failure was u27's own locator (the pack panel has
     no accessible name), since corrected.
   - `tests/test_asks.py` names the ten kinds.
+
+## F1d — questions approved level by level (2026-10-14)
+
+Goal `goals/f1d-questions-approved-per-level.yaml`; ADR 0073 D2. Nimish: "If I just want to approve something for a
+grade level today, I'm not able to do that."
+
+- **Each level is approved on its own.** Migration `20261109090000`:
+  - `skill_set.level_approved` holds {level: {by, at}}.
+  - A skill is approved (`status` 'ratified', which every reader already asks) exactly when every level it has is.
+  - Every skill approved whole before keeps its approval at every level, in its approver's name.
+- **What withdraws an approval** (trigger `skill_set_version_on_change`):
+  - a change to a level's rule — anything of the level but its words — withdraws that level alone;
+  - a change to the skill's kinds of question withdraws every level;
+  - its name, what a child can do and a level's words withdraw nothing: the questions did not change. That replaces
+    the rule of 2026-10-06 (`test_approval.py` now pins the new one);
+  - a status set whole, approved or withdrawn, approves or withdraws every level with it. That covers
+    `engine ratify`, approving every level at once, and the tests and scripts that set it.
+- **On the site:** each level's card on the skill's page approves that level alone for the coordinator. An educator
+  reads "Waiting for the coordinator", with no button. "Approve as written" approves every level.
+- **Check:**
+  - `tests/test_level_approval.py` → 4 passed (one level, a rule, words, a skill approved before). With
+    `test_provenance.py`, `test_approval.py` and `test_spec.py` → 24 passed.
+  - `apps/web/tests/u28-approved-per-level.spec.ts` → 2 passed.
+  - The first trigger left a status set by hand overridden by the levels. u23's set-up, which sets every skill's status,
+    broke on it, and two local skills stayed approved by earlier runs. That is fixed at the cause: a status set whole
+    approves or withdraws every level.

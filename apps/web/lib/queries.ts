@@ -25,6 +25,8 @@ export type SkillSet = {
   difficulty: Record<Difficulty, Band>;
   status: "draft" | "ratified";
   ratified_by: string | null;
+  /** Each level whose questions a person approved, with who and when (goals/f1d-questions-approved-per-level.yaml). */
+  level_approved: Partial<Record<Difficulty, { by: string; at: string }>>;
   updated_at: string;
   band: string;
   /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
@@ -87,7 +89,7 @@ export async function chargesTable(): Promise<ChargesTable> {
 export async function skillSets({ untaught = false }: { untaught?: boolean } = {}): Promise<SkillSet[]> {
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.updated_at, s.version,
+           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
            r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, coalesce(t.taught, false) as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
