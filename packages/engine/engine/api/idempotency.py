@@ -47,7 +47,10 @@ def run_idempotent(conn, tenant_id, flow: str, key: str, request: dict, fn):
         run_id = claimed["id"]
 
     try:
-        result = fn()
+        # inside a savepoint: a refusal by the database aborts only fn's own work, so the failure can still be recorded
+        # and the refusal itself is what is raised (live, 2026-10-14: InFailedSqlTransaction was raised over it)
+        with conn.transaction():
+            result = fn()
     except Exception as e:
         conn.execute(
             "update flow_run set status = 'error', error = %s, finished_at = clock_timestamp() where id = %s",
