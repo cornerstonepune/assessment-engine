@@ -200,11 +200,56 @@ export function summary(name: string, assessed: (string | null)[], notYet: numbe
   )
     .filter(([c]) => n[c])
     .map(([c, words], i) => `${words} ${i ? n[c] : skills(n[c])}`);
-  const joined = said.length > 1 ? `${said.slice(0, -1).join(", ")} and ${said.at(-1)}` : said[0];
+  const joined = said.length ? inWords(said) : "";
   const few = n.grey ? `${skills(n.grey)} ${n.grey === 1 ? "has" : "have"} too few answers to say` : "";
   const lead = joined ? `${name} ${joined}` : `${name} has answers on ${skills(n.grey)}, too few to say yet`;
   const rest = [joined && few, notYet ? `${skills(notYet)} of the grade not assessed yet` : ""].filter(Boolean);
   return `${lead}${rest.length ? `; ${rest.join("; ")}` : ""}.`;
+}
+
+/** A list as a sentence says it: "a", "a and b", "a, b and c". */
+export const inWords = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : (xs[0] ?? ""));
+
+/** What a child with no checked answer and nothing waiting on a person is told, and the one thing to do
+ *  (goals/ux4-class-and-child.yaml): the papers already made for them that wait to be approved or read — the one, or
+ *  every one of them on Assessments; a check besides would be a paper too many — else the first check that would place
+ *  them. None when their class is taught nothing of their grade yet: there is no check to make. */
+export function firstStep(
+  name: string,
+  waits: ChildSheet[],
+  allPapers: string,
+  check: { skills: string[]; n: number; href: string },
+): { said: string; action: { words: string; href: string } | null } {
+  if (waits.length > 1) {
+    return {
+      said: `${name} has no checked answers yet: ${waits.length} papers made for ${name} wait to be approved or read.`,
+      action: { words: `See ${name}’s ${waits.length} papers →`, href: allPapers },
+    };
+  }
+  if (waits.length) {
+    const [w] = waits;
+    const what = `${(w.kind && PURPOSE[w.kind]) || "paper"} ${w.qr_code}`;
+    return {
+      said: `${name} has no checked answers yet: ${what} waits to be ${w.print_status === "new" ? "approved" : "read"}.`,
+      action: { words: `Open paper ${w.qr_code} →`, href: `/worksheets/${w.qr_code}` },
+    };
+  }
+  if (!check.skills.length) return { said: `${name} has no checked answers yet, and their class is taught no skill of their grade yet.`, action: null };
+  return {
+    said: `${name} has no checked answers yet: a first check of ${check.n} questions on each of ${inWords(check.skills)} shows where ${name} stands.`,
+    action: { words: `Make ${name}’s first check →`, href: check.href },
+  };
+}
+
+/** The skills a class has checked answers on, the latest first: what a child new to its work is checked on first. */
+export async function classLatest(section: string): Promise<string[]> {
+  const rows = await sql<{ code: string }[]>`
+    select ss.code from child_skill_state s
+    join child c on c.id = s.child_id and c.section = ${section}
+    join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+    where s.n_events > 0
+    group by ss.code order by max(s.last_seen) desc, ss.code`;
+  return rows.map((r) => r.code);
 }
 
 export type Repeated = { code: string; name: string; skill_name: string; descriptor: string; rung_code: string; skill_code: string; times: number };

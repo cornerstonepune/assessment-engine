@@ -1,13 +1,12 @@
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
-import { Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
+import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { childEvidence, childHeader, childPapers, gradeWords, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
-import { childSheets, childSkills, repeatedMistakes, summary } from "@/lib/queries-children";
-import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
-import { ColourKey } from "@/components/colour-key";
+import { childSheets, childSkills, classLatest, firstStep, repeatedMistakes, summary } from "@/lib/queries-children";
+import { ColourKeyLine } from "@/components/colour-key";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
 import { ChecksPanel, type Check } from "../checks";
 import { confirmChild, resolveOne } from "../actions";
@@ -16,13 +15,12 @@ import { FocusPanel } from "./focus-panel";
 import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
 import { SkillsPanel } from "./skills-panel";
-import { TopicProfile } from "./profile";
 import { ParentReportPanel } from "./report-panel";
-import { byTopic } from "@/lib/profile";
 import { reportOf } from "@/lib/queries-reports";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 const MACHINE = ["correct", "wrong", "blank"];
+const FIRST = 3; // a child's first check: as many skills as one paper holds (the maker's lines)
 
 export default async function ChildPage({ params, searchParams }: Props) {
   const me = await requireStaff();
@@ -52,7 +50,6 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const shown = skills.filter((s) => s.n_events > 0).map((s) => s.state);
   const notYet = skills.filter((s) => s.n_events === 0).length;
   const staffNames = Object.fromEntries(staff.map((x) => [x.email, x.name]));
-  const count = (c: string) => shown.filter((s) => rag(s) === c).length;
   // the skills the colours cannot say yet — too few answers, then none at all — each with the check that would place
   // the child (goals/u11-colours-said.yaml); one check a skill, where a rung that tests two skills gave it two lines
   // (code review, 2026-09-30)
@@ -68,10 +65,55 @@ export default async function ChildPage({ params, searchParams }: Props) {
       who: s.n_events ? `${s.n_events} answer${s.n_events === 1 ? "" : "s"} so far` : "none yet",
       level,
       n: rules.checkSize,
-      href: checkHref(child.section, [id], s.code, level, rules.checkSize),
+      href: checkHref(child.section, [id], [{ skill: s.code, level, n: rules.checkSize }]),
+      none: s.n_events === 0,
     };
   });
+  const back = (
+    <>
+      <Link href={`/growth/class/${encodeURIComponent(child.section)}`} className="chip">
+        ← {child.section}
+      </Link>
+      <Link href="/growth" className="chip">
+        All classes
+      </Link>
+    </>
+  );
 
+  // nothing checked and nothing waiting on a person: one sentence and one action, and nothing else — a page of noughts
+  // said nothing (goals/ux4-class-and-child.yaml). The first check is on what the class has answered latest, then the
+  // grade's skills in order: where a child new to the class's work stands on it.
+  if (!shown.length && !child.n_events && !pending.length) {
+    const waits = sheets.filter((s) => s.n_results === 0);
+    const latest = waits.length ? [] : await deadline(classLatest(child.section));
+    const order = (code: string) => (latest.includes(code) ? latest.indexOf(code) : latest.length);
+    const first = [...checks].sort((a, b) => order(a.key) - order(b.key)).slice(0, FIRST);
+    const step = firstStep(child.first_name, waits, `/papers?view=papers&child=${id}`, {
+      skills: first.map((c) => c.skill),
+      n: rules.checkSize,
+      href: checkHref(child.section, [id], first.map((c) => ({ skill: c.key, level: c.level, n: c.n }))),
+    });
+    return (
+      <>
+        <PageHeader stage={`Children · ${child.section}`} title={child.first_name} sub={`Roll ${child.roll_no} · ${gradeWords(child.band)}`} />
+        <Body>
+          <nav aria-label="Back" className="mb-4 flex flex-wrap gap-2">
+            {back}
+          </nav>
+          <p data-testid="summary" className="mb-4 max-w-[760px] text-[16px] leading-snug">
+            {step.said}
+          </p>
+          {step.action ? (
+            <Link href={step.action.href} className="btn">
+              {step.action.words}
+            </Link>
+          ) : null}
+        </Body>
+      </>
+    );
+  }
+
+  const waiting = person.length + machine.length;
   return (
     <>
       <PageHeader
@@ -80,23 +122,27 @@ export default async function ChildPage({ params, searchParams }: Props) {
         sub={`Roll ${child.roll_no} · ${gradeWords(child.band)} · ${child.n_events} answers signed off over ${read.length} paper${read.length === 1 ? "" : "s"}.`}
       />
       <Body>
-        <p className="mb-4 flex flex-wrap gap-2">
-          <Link href={`/growth/class/${encodeURIComponent(child.section)}`} className="chip">
-            ← {child.section}
-          </Link>
-          <Link href="/growth" className="chip">
-            All classes
-          </Link>
+        <nav aria-label="Back" className="mb-4 flex flex-wrap gap-2">
+          {back}
           <Link href={`/growth/${id}/report`} className="chip">
             Report card →
           </Link>
           <Link href={`/growth/${id}/parent`} className="chip">
             Parent report →
           </Link>
-        </p>
-        <p data-testid="summary" className="mb-4 max-w-[760px] text-[16px] leading-snug">
+        </nav>
+        <p data-testid="summary" className="mb-2 max-w-[760px] text-[16px] leading-snug">
           {summary(child.first_name, shown, notYet)}
         </p>
+        {waiting ? (
+          <p className="mb-4 text-[13.5px]">
+            <a href="#needs-you" className="text-terracotta">
+              {[person.length && `${person.length} to check`, machine.length && `${machine.length} to sign off`].filter(Boolean).join(" · ")} ↓
+            </a>
+          </p>
+        ) : (
+          <div className="mb-4" />
+        )}
         {q.confirmed ? <Notice tone="neem">Signed off {q.confirmed} answers. What their answers show is rebuilt from them.</Notice> : null}
         {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader is now trusted on leave the queue at the next check.</Notice> : null}
         {q.paper && /^CS[0-9A-F]{6}$/.test(q.paper) ? (
@@ -105,27 +151,13 @@ export default async function ChildPage({ params, searchParams }: Props) {
         {q.resolved ? <Notice tone="neem">Checked. What their answers show is rebuilt.</Notice> : null}
         {q.error === "resolve" ? <Notice tone="terracotta">Pick right, wrong or blank. Nothing was changed.</Notice> : null}
 
-        <div className="mb-[18px] grid grid-cols-2 gap-[10px] md:grid-cols-5">
-          {(["red", "amber", "green", "grey"] as const).map((c) => (
-            <Tile key={c} tone={RAG_TONE[c]} n={count(c)} words={c === "grey" ? "too few answers yet" : RAG_WORDS[c]} />
-          ))}
-          <a href="#needs-you" className="panel flex flex-col justify-between border-l-4 border-l-basalt p-3 no-underline">
-            <span className="font-heading text-[26px] leading-none text-basalt">{person.length + machine.length}</span>
-            <span className="mt-2 text-[12.5px] text-terracotta">
-              {[person.length && `${person.length} to check`, machine.length && `${machine.length} to sign off`].filter(Boolean).join(" · ") || "nothing waiting"}
-            </span>
-          </a>
-        </div>
-
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
-            <TopicProfile topics={byTopic(skills)} />
-
             <SkillsPanel skills={skills} answers={evidence} names={names} />
 
-            <ChecksPanel title={`Checks that would place ${child.first_name}`} whoHeading="Answers" checks={checks} />
+            <ChecksPanel title={`Checks that would place ${child.first_name}`} unanswered="not assessed yet" checks={checks} />
 
-            <ColourKey rules={rules} />
+            <ColourKeyLine rules={rules} />
 
             <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 

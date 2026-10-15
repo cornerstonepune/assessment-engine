@@ -52,11 +52,11 @@ export async function reportsWaiting(actor: string, scope: Scope = EVERY_CLASS):
  *  approved report and a child with nothing to report need no one. */
 export const reportRank = ({ note, signed }: ReportState) => (!note ? (signed ? 2 : 3) : note.out_of_date ? 0 : note.approved ? 3 : 1);
 
-/** A report's state in the school's words. */
 /** Whether a report waits on someone: written, and out of date or not yet approved. Nothing written is no one's work
  *  until there are answers to write it from, and then the Parent reports page lists it. */
 export const reportWaits = ({ note }: ReportState) => !!note && (note.out_of_date || !note.approved);
 
+/** A report's state in the school's words: a sentence (`words`), and a pill's word for a list (`short`). */
 export function reportWords({ note: r, signed }: ReportState): { words: string; tone: "terracotta" | "bamboo" | "neem" | "monsoon"; short: string } {
   if (!r && !signed) return { words: "Nothing to report yet: none of their answers is signed off", tone: "monsoon", short: "nothing yet" };
   if (!r) return { words: "Not written yet", tone: "monsoon", short: "to write" };

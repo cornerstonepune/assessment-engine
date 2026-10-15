@@ -7,28 +7,23 @@ import { rag, type Rag } from "@/lib/rag";
 // A class against its topics (goals/ui4b2-class-by-topic.yaml): its children down the side, across the top each topic
 // someone in the class has answers in, each cell counting that child's skills in it by where the graph's states put
 // them — every count in words beside its mark, the cell the colour of what needs help first. A topic's name opens the
-// class against that topic's skills alone. Counted here from the class's own grid, never decided here.
+// class against that topic's skills alone, in this table's place (goals/ux4-class-and-child.yaml). Counted here from the
+// class's own grid, never decided here.
 const WORDS: Record<Rag, string> = { red: "needs help", amber: "practising", green: "secure", grey: "too few answers" };
 const ORDER: Rag[] = ["red", "amber", "green", "grey"];
 
-export function TopicGrid({ section, steps, kids, open }: { section: string; steps: Step[]; kids: GridChild[]; open: string | null }) {
+export function TopicGrid({ section, steps, kids }: { section: string; steps: Step[]; kids: GridChild[] }) {
   const topics = [...new Map(steps.map((s) => [s.topic_code, s.topic_name])).entries()];
   if (!topics.length) return null;
   return (
-    <div className="panel mb-[18px] overflow-x-auto">
+    <div className="panel overflow-x-auto">
       <table className="grid" aria-label={`${section}: each child on each topic`}>
         <thead>
           <tr>
             <th className="pin">Child</th>
             {topics.map(([code, name]) => (
               <th key={code} data-topic={code} className="border-l border-basalt/12">
-                <Link
-                  href={`/growth/class/${encodeURIComponent(section)}?topic=${code}#steps`}
-                  aria-current={open === code ? "page" : undefined}
-                  className={open === code ? "text-basalt" : undefined}
-                >
-                  {name}
-                </Link>
+                <Link href={`/growth/class/${encodeURIComponent(section)}?topic=${code}`}>{name}</Link>
               </th>
             ))}
           </tr>

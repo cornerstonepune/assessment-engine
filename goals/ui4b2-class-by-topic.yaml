@@ -5,7 +5,8 @@ goal: >
   practising are that topic's alone, and a sort keeps the topic. A class opens on its children against the topics it
   has answers in, each cell counting that child's skills in the topic that need help, are practising, are secure and
   have too few answers, each count in words beside its mark; a topic's name opens the class's children against that
-  topic's skills alone, and one click shows every topic's skills again.
+  topic's skills alone, in that table's place, and one click returns to every topic (since 2026-10-15,
+  goals/ux4-class-and-child.yaml: every skill of every topic at once said the standing twice).
 # Written 2026-10-11, before the code: UI4b's second half (BUILD-ORDER "UI4b2"). Nimish, the same day: "in the Children
 # tab, I think we need to now expand our thought process as more and more topics start coming in and need help. It
 # should be by topic or something." Measured first (STATE.md "UI4b2 — measured before the build"): the Children list
