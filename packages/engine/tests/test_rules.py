@@ -45,3 +45,32 @@ def test_the_watcher_names_a_rule_live_holds_otherwise(conn):
     said = [p for p in watch.problems(conn, PLENTY) if "rule" in p]
     assert said and all("sheet_template_source_check" in p for p in said), said
     assert "migrations" in said[0]
+
+
+ATTIC = db.REPO_ROOT / "supabase" / "migrations" / "20261111090000_a_table_made_by_hand_goes_to_the_attic.sql"
+
+
+def test_a_table_made_on_live_by_hand_goes_to_the_attic_with_its_rows(conn):
+    """Live, 2026-10-15: the watcher's first look named five rules of `item_placement`, a table made on live by hand
+    that nothing reads (rule 9; 20261007090000 let go of its hold on skill_set). Nimish: "move item_placement to attic
+    too". Where it is absent — every database built from the migrations — nothing happens. Made here as live holds
+    it, it moves out of the school's tables with its row, and the watcher names no rule."""
+    conn.execute(ATTIC.read_text())
+    assert conn.execute("select to_regclass('attic.item_placement') is null as absent").fetchone()["absent"]
+    conn.execute(
+        "create table public.item_placement (id uuid primary key default gen_random_uuid(),"
+        " tenant_id uuid not null references tenant (id), item_id uuid not null references item (id),"
+        " skill_set_code text not null, difficulty text not null"
+        " check (difficulty in ('Easy', 'Medium', 'Hard', 'Advance')), unique (item_id, skill_set_code, difficulty))"
+    )
+    conn.execute(
+        "insert into item_placement (tenant_id, item_id, skill_set_code, difficulty)"
+        " select tenant_id, id, skill_set_code, 'Easy' from item where skill_set_code is not null limit 1"
+    )
+    assert [p for p in watch.problems(conn, PLENTY) if "item_placement" in p], "live's state, made again"
+    conn.execute(ATTIC.read_text())
+    assert conn.execute("select to_regclass('public.item_placement') is null as moved").fetchone()["moved"]
+    assert conn.execute("select count(*) as n from attic.item_placement").fetchone()["n"] == 1, (
+        "its rows are kept"
+    )
+    assert not [p for p in watch.problems(conn, PLENTY) if "rule" in p]

@@ -7913,3 +7913,21 @@ one child on live.
     prints them when it fails ("the database's slow statements").
   - Check: the script, run again as a non-root runner user, logs a 1.2 s statement and not a fast one. The step's
     `grep` finds it. The PR's next CI run gives test 1's time on the settled database.
+
+## The watcher's first look at live's rules — `item_placement` to the attic (2026-10-15)
+
+- **What the watcher found** (first run after L3b deployed, 05:46 UTC, issue #208): five rules of `item_placement`,
+  "a rule no migration makes". Every other rule on live (246) is the migrations', so there is no false alarm from a
+  Postgres version.
+- `item_placement` was made on live by hand (rule 9). Nothing in the engine, the website or n8n reads or writes it.
+  20261007090000 had let go of its hold on skill_set and rung, and kept its rows for whoever made it to say what they
+  are. No one has.
+- **Nimish, 2026-10-15:** "move item_placement to attic too".
+- Migration 20261111090000 moves it, rows and all, into schema `attic`. Nothing reads `attic`, and no role but the
+  owner may open it. Where the table does not exist (every database built from the migrations), nothing happens.
+- **Check:** `tests/test_rules.py::test_a_table_made_on_live_by_hand_goes_to_the_attic_with_its_rows`.
+  - It failed first, because the migration did not exist.
+  - It makes live's table again with a row: the watcher names it, the migration moves it with its row, and the watcher
+    names no rule.
+  - The privileges, roles, rules and watch tests: 17 passed. `bin/check` exits 0.
+- **After `migrate live`:** the watcher's next run should find nothing and close #208 itself ("All well again").
