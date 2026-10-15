@@ -49,14 +49,15 @@ export default async function LibraryPage({ searchParams }: Props) {
       <PageHeader
         stage="Curriculum · Question bank"
         title="Question bank"
-        sub={`${n(totals.active)} questions ready to print, every one of them on a numbered worksheet.`}
+        sub={`${n(totals.active)} questions ready to print for the skills taught, of the bank's ${n(totals.bank)}; every one is on a numbered worksheet.`}
       />
       <Body>
         <Panel title="What the bank is">
           <div className="grid max-w-[820px] gap-2 text-[14px] leading-relaxed">
             <p>
-              The question bank is every question the engine can put in front of a child: {n(totals.active)} today, for the{" "}
-              {grid.length} skills in the Curriculum, at Easy, Medium, Hard and Advance.
+              The question bank is every question the engine has made and checked: {n(totals.bank)} today, at Easy, Medium,
+              Hard and Advance. {n(totals.active)} of them are of the {grid.length} skills taught in a class, the ones a
+              child can be given now; they are the ones below.
             </p>
             <p>
               The engine makes each question from its skill&rsquo;s own rule for that level, and a computer checks every

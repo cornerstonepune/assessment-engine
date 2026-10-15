@@ -3,6 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — UX2: one count for one thing; #212 merged
+
+- **#212 (T1b + UX1) merged as `3d07f66`.** Main's browser job failed on the first load of `/growth` ("This page
+  could not load"), the same as once on T1's PR: re-run once; being reproduced on a fresh copy. Until main is green,
+  `migrate live` has not run and neither is live.
+- **UX2 (this branch):** a class has one grade (`class_band`), spares are counted apart, "the bank" and "the library"
+  are one number each. See STATE.md "UX2".
+- **Next: SF2** (BUILD-ORDER: T1 → UX1 → UX2 → SF2).
+
 ## 2026-10-15 — T1 merged (#211, `271ce9e`); T1b drops the old switch
 
 - **T1 on live:** main's CI → `migrate live` (20261113090000) → Vercel. Only then Nimish runs

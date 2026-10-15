@@ -94,3 +94,23 @@ def test_loading_the_class_list_names_each_child_whose_grade_it_changes(conn, tm
     assert load("G3") == {"added": 2, "already known": 0, "grade changed": []}
     assert load("G4") == {"added": 0, "already known": 2, "grade changed": [f"{section} roll 5: G3 → G4"]}
     assert load("G4")["grade changed"] == [], "only a change is named"
+
+
+def test_a_class_has_one_grade_and_the_database_says_it(conn):
+    """goals/ux2-one-count-one-thing.yaml: the website took a class's grade three ways — most of its children's, the
+    lowest of them, a paper's own — so a Grade 2 class's papers said "Grade 1". The rule is the database's
+    (`class_band`), the engine asks it, and the two never differ: most children's grade, the lower on a tie, none for a
+    class with no child."""
+    section = f"CLASS-{uuid.uuid4().hex[:8]}"
+    tenant = _class(conn, section, ["G4", "G3", "G3", "G2"])
+
+    def said():
+        return conn.execute("select class_band(%s, %s) as b", (tenant, section)).fetchone()["b"]
+
+    assert said() == roster.class_band(conn, section) == "G3"
+    conn.execute("update child set band = 'G2' where tenant_id = %s and roll_no = '2'", (tenant,))
+    assert said() == roster.class_band(conn, section) == "G2", "two in G2, one each in G3 and G4"
+    conn.execute("update child set band = 'G4' where tenant_id = %s and roll_no = '3'", (tenant,))
+    assert said() == roster.class_band(conn, section) == "G2", "a tie, G2 and G4: the lower"
+    conn.execute("update child set active = false where tenant_id = %s", (tenant,))
+    assert said() is None and roster.class_band(conn, section) is None, "a class with no child has no grade"

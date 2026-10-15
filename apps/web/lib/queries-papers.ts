@@ -36,10 +36,12 @@ export type PaperListRow = {
   /** Its skill and level, or a whole paper's title. */
   title: string;
   section: string | null;
-  /** The grade the paper is for: its child's, or its worksheet's. */
+  /** The grade the paper is for: its child's; a spare's, its class's; a paper given to no class, its worksheet's. */
   band: string | null;
   child_id: string | null;
   child: string | null;
+  /** A class's spare copy, not yet written on: it goes with its class's pack and waits for no one of its own. */
+  spare: boolean;
   week: string | null;
   stage: Stage;
   /** Answers the reader could not settle, waiting for a person. */
@@ -55,7 +57,11 @@ const LIMIT = 300;
 const papersCte = () => sql`
   papers as (
     select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id,
-           coalesce(si.section, ch.section) as section, coalesce(ch.band, t.band) as band, coalesce(si.week, t.week) as week,
+           -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
+           -- given to no class at its worksheet's (goals/ux2-one-count-one-thing.yaml)
+           coalesce(si.section, ch.section) as section, coalesce(ch.band, cls.band, t.band) as band, cls.band as class_band,
+           coalesce(si.week, t.week) as week,
+           si.child_id is null and si.section is not null and not a.read as spare,
            coalesce(t.key ->> 'date', si.created_at::date::text) as day, si.created_at,
            coalesce(ss.name || coalesce(' · ' || t.difficulty, ''), t.key ->> 'title', drawn.title, t.code, t.batch_id,
                     si.qr_code) as title,
@@ -78,6 +84,9 @@ const papersCte = () => sql`
     from sheet_instance si
     join sheet_template t on t.id = si.sheet_template_id
     left join child ch on ch.id = si.child_id
+    left join (select k.tenant_id, k.section, class_band(k.tenant_id, k.section) as band
+               from (select distinct tenant_id, section from child where active) k) cls
+      on cls.tenant_id = si.tenant_id and cls.section = coalesce(si.section, ch.section)
     left join skill_set ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
     -- a paper drawn for one child (a home assessment, a paper an educator chose) names no skill set of its own: its
     -- title is its questions' skill sets and levels, in the order they stand on the page
@@ -127,7 +136,7 @@ export async function paperList(f: PaperFilter, actor: string, scope: Scope = EV
       select c.id, n.first_name from child c, lateral pii.read_child(c.id, ${actor}) n
       where c.id in (select child_id from shown where child_id is not null)
     )
-    select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.week, s.stage,
+    select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.spare, s.week, s.stage,
            s.waiting, s.right, s.scored
     from shown s left join names on names.id = s.child_id
     order by s.day desc nulls last, s.created_at desc, s.section, s.qr`;
@@ -143,7 +152,7 @@ export async function paperFilters(
 ): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
   const [counts, classes, weeks, children] = await Promise.all([
     sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} group by stage`,
+      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} and not spare group by stage`,
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
@@ -174,7 +183,9 @@ export type AssessmentRow = {
    *  kind already name. */
   set: string | null;
   title: string;
+  /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
+  spares: number;
   /** Its copies at each stage. */
   by: Record<Stage, number>;
   waiting: number;
@@ -190,9 +201,10 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
   const rows = await sql<AssessmentRow[]>`
     with ${papersCte()}
-    select kind, section, min(band) as band, week, set_key as set, min(set_name) as title, count(*)::int as copies,
-           jsonb_build_object('made', count(*) filter (where stage = 'made'),
-                              'printed', count(*) filter (where stage = 'printed'),
+    select kind, section, coalesce(min(class_band), min(band)) as band, week, set_key as set, min(set_name) as title,
+           count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
+           jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
+                              'printed', count(*) filter (where stage = 'printed' and not spare),
                               'scanned', count(*) filter (where stage = 'scanned'),
                               'checked', count(*) filter (where stage = 'checked'),
                               'signed off', count(*) filter (where stage = 'signed off')) as by,

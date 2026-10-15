@@ -49,7 +49,8 @@ export function PapersTable({ rows }: { rows: PaperListRow[] }) {
             <td className="whitespace-nowrap">{p.child ?? <span className="text-basalt/45">spare copy</span>}</td>
             <td className="num fact whitespace-nowrap">{p.week ? weekWords(p.week) : <span className="text-basalt/45">—</span>}</td>
             <td className="num">
-              <Pill tone={STAGE_TONE[p.stage]}>{STAGE_WORDS[p.stage]}</Pill>
+              {/* a spare not yet written on goes with its class's pack: nothing waits on it of its own */}
+              {p.spare ? <Pill tone="monsoon">with the pack</Pill> : <Pill tone={STAGE_TONE[p.stage]}>{STAGE_WORDS[p.stage]}</Pill>}
             </td>
             <td className="num">{p.waiting ? p.waiting : <span className="text-basalt/45">—</span>}</td>
             <td className="num whitespace-nowrap">

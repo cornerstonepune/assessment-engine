@@ -25,10 +25,10 @@ export type Waiting = {
 /** Class papers the engine made that no teacher has approved for print, pack by pack. */
 export async function classPacksWaiting(scope: Scope = EVERY_CLASS): Promise<Pack[]> {
   return sql<Pack[]>`
-      select c.section, min(c.band) as band, si.week, si.kind, count(*)::int as n
+      select c.section, class_band(c.tenant_id, c.section) as band, si.week, si.kind, count(*)::int as n
       from sheet_instance si join child c on c.id = si.child_id
       where si.print_status = 'new' and si.kind in ('practice', 'assessment') and ${inScope(scope, sql`c.section`)}
-      group by c.section, si.week, si.kind
+      group by c.tenant_id, c.section, si.week, si.kind
       order by si.week desc, c.section, si.kind`;
 }
 

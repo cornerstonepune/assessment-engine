@@ -126,11 +126,18 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
     order by r.ladder_order nulls last, s.code`;
 }
 
-export async function bankTotals(scope: Scope = EVERY_CLASS): Promise<{ active: number; retired: number }> {
-  const [t] = await sql<{ active: number; retired: number }[]>`
-    select count(*) filter (where status = 'active')::int as active,
-           count(*) filter (where status = 'retired')::int as retired
-    from item i where i.source = 'generated' and ${ofTaughtSkill(scope)}`;
+/** The bank: the questions the engine can draw — made by it, active, of a skill at one of that skill's levels — the one
+ *  count every page names "the bank" (goals/ux2-one-count-one-thing.yaml); `active`, the part of it of skills taught in
+ *  a class of the scope, which this page shows; `retired`, that part's removed questions. */
+export async function bankTotals(scope: Scope = EVERY_CLASS): Promise<{ active: number; bank: number; retired: number }> {
+  const [t] = await sql<{ active: number; bank: number; retired: number }[]>`
+    select count(*) filter (where i.status = 'active' and ${ofTaughtSkill(scope)})::int as active,
+           count(*) filter (where i.status = 'active')::int as bank,
+           count(*) filter (where i.status = 'retired' and ${ofTaughtSkill(scope)})::int as retired
+    from item i
+    where i.source = 'generated'
+      and exists (select 1 from skill_set bs where bs.tenant_id = i.tenant_id and bs.code = i.skill_set_code
+                  and bs.difficulty ? i.difficulty)`;
   return t;
 }
 

@@ -1,0 +1,43 @@
+name: ux2-one-count-one-thing
+goal: >
+  A number on the site means one thing wherever it stands. A class's grade is the grade most of its children are in:
+  one rule, in the database, for the engine and every page, and every paper of the class carries it, a spare copy too.
+  A spare copy rides with its class's pack: it is shown as a spare and never counted as a paper to approve, so the
+  class papers Today counts are the copies Assessments and the approve page show waiting. The question bank is the
+  questions the engine can draw: made by it, active, of a skill at one of that skill's levels. Curriculum, a skill's
+  page and the workflow map count those, and a page that shows only part of them (the skills taught in a person's
+  classes) says which part and the bank's whole. The worksheet library's total, its pager and its list count the same
+  worksheets.
+# Written 2026-10-15, before the code: slice UX2 of BUILD-ORDER "topics are operations, and every page is the
+# educator's own". Measured first. On live (the audit's 172 screenshots): Assessments said "Grade 1 · G2-C"; class
+# papers to approve were 12 on Today and 18 on Assessments; the bank was 21,250, 28,705 and 28,717 on three pages; the
+# worksheet library said 1,872 above its list and 2,738 in its pager. On a fresh copy: the bank is 19,638 (made by the
+# engine, of taught skills), 28,696 (every source, of a skill at its levels) and 28,746 (every active question); the
+# library 1,710 above its list and 2,736 in its pager. The causes: a spare copy has no child, so it took its
+# worksheet's grade and the class's group the lowest of them; three rules for a class's grade (most children's in
+# `roster.class_band`, the lowest on Today, Make and Curriculum's topics); Assessments counting spares as papers to
+# approve; Curriculum and the map counting the old papers' questions, which no paper draws; the pager counting the
+# worksheets of untaught skills and of skills since replaced, which its list never shows.
+says:
+  - words: "You really need to run a thorough UI/UX skill here."
+    proved_by: "apps/web/tests/u33-one-count.spec.ts::a class paper carries its class's grade, a spare copy too"
+  - words: "You really need to run a thorough UI/UX skill here."
+    proved_by: "apps/web/tests/u33-one-count.spec.ts::the class papers Today counts are the copies the pages it opens show waiting"
+  - words: "You really need to run a thorough UI/UX skill here."
+    proved_by: "apps/web/tests/u33-one-count.spec.ts::the question bank is one number wherever it is named"
+  - words: "You really need to run a thorough UI/UX skill here."
+    proved_by: "apps/web/tests/u33-one-count.spec.ts::the worksheet library's total, pager and list are the same worksheets"
+  - words: "You really need to run a thorough UI/UX skill here."
+    proved_by: packages/engine/tests/test_roster.py::test_a_class_has_one_grade_and_the_database_says_it
+manual: []
+scenarios: []
+criteria:
+  - name: the pages that show these numbers still hold
+    run: cd apps/web && npx playwright test tests/u33-one-count.spec.ts tests/e2e.spec.ts tests/s3-worksheets.spec.ts tests/workflows.spec.ts tests/u15-menu-and-today.spec.ts tests/u21-papers-by-topic.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the engine's roster and week
+    run: cd packages/engine && uv run pytest -q tests/test_roster.py tests/test_week.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
