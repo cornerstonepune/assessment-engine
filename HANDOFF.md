@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — #213 merged; UX3–UX5 moved ahead of SF2
+
+- **#213 merged as `84cc0fd` (18:20 UTC):** UX2, the two JIT fixes, the copy-layout fix. Main's CI, then `migrate live`
+  (20261115090000, 20261116090000, 20261117090000), then Vercel.
+- **Nimish, 18:50 UTC:** he saw no change on the website. True: UX1 changes only what an educator sees, UX2 only numbers,
+  and the visible restructure is UX3–UX7. He chose UX3–UX5 next, then SF2 (BUILD-ORDER order line).
+- **SF2a is parked, not dropped:** its design is ADR 0077 "Settled in SF2's goal"; its goal and failing tests are in
+  `docs/drafts/sf2a/` (README there says how to restore them).
+- **Next: UX3** (`goals/ux3-children-grouped.yaml`).
+
 ## 2026-10-15 — UX2: one count for one thing; #212 merged
 
 - **#212 (T1b + UX1) merged as `3d07f66`, live at 16:08 UTC.** Main's browser job first failed on the first load of

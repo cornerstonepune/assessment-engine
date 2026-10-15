@@ -1,0 +1,45 @@
+name: sf2-a-format-is-approved-once
+goal: >
+  A question's format is the way it is asked: its printed format where its template is only the level's numbers
+  written as a name, else its template. One rule, in the database, for the engine and every page. One approval covers a
+  format across every skill and level that uses it. Only the coordinator gives it, on a page that shows one question
+  from each skill and level using the format. Every path that puts a question on a paper draws only questions of
+  approved formats — a home paper, a made paper, the library's worksheets, a week's pack, a worksheet handed out — and
+  a paper that cannot be made says which format waits. A change to a kind's row withdraws its format's approval. A
+  format starts approved where every level that uses it was approved; a new one waits.
+# Written 2026-10-15, before the code: slice SF2a of BUILD-ORDER (ADR 0077 and its "Settled in SF2's goal"). Measured
+# first on a copy of live (rehearsal 38770003055, .github/measure/sf2_formats.py): 46 skills and 178 levels, every level
+# approved that day; 74 formats in 212 skill × format pairs, every one starting approved under either starting rule, so
+# no paper changes on the day. Mapped first: questions are chosen in focus_paper._draw and library._plan_level; whole
+# worksheets in assemble._worksheets, handout.for_children and library.pdf; _where_it_shows and shelf._catalog count
+# questions before a draw. No rule says what a paper may draw: each repeats `status = 'active'`, and a worksheet handed
+# out by its code checks nothing about its questions.
+says:
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_a_questions_format_is_its_printed_format_or_its_template
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_one_approval_covers_a_format_in_every_skill_and_level_that_uses_it
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_a_format_starts_approved_where_every_level_using_it_was
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_every_path_that_puts_a_question_on_a_paper_draws_only_approved_formats
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_a_paper_that_cannot_be_made_says_which_format_waits
+  - words: "all unique formats of questions"
+    proved_by: packages/engine/tests/test_formats.py::test_a_changed_kind_withdraws_its_formats_approval
+  - words: "all unique formats of questions"
+    proved_by: "apps/web/tests/u34-formats.spec.ts::the coordinator approves a format once, on one question from each skill and level that uses it"
+  - words: "all unique formats of questions"
+    proved_by: "apps/web/tests/u34-formats.spec.ts::an educator sees a format waiting and is offered no approval"
+manual: []
+scenarios: []
+criteria:
+  - name: every path that makes a paper still makes one
+    run: cd packages/engine && uv run pytest -q tests/test_formats.py tests/test_focus_paper.py tests/test_focus.py tests/test_maker.py tests/test_library.py tests/test_handout.py tests/test_paper_from_library.py tests/test_week.py tests/test_card_bank.py
+    expect: "passed"
+  - name: the pages that make, approve and show papers still hold
+    run: cd apps/web && npx playwright test tests/u34-formats.spec.ts tests/m2-make-papers.spec.ts tests/m4-the-maker.spec.ts tests/u28-approved-per-level.spec.ts tests/u32-who-sees-what.spec.ts tests/u15-menu-and-today.spec.ts tests/e2e.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

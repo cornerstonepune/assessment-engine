@@ -35,3 +35,25 @@ level's numbers written as a name (`ADD.1D2D.REG1`), so counting by template is 
    - Where the template is only the level's numbers, the format is the printed format: bare sum, column, word story.
    - Where the template names a different question, it is that template: an equation of balance, the nth multiple,
      each card kind.
+
+## Settled in SF2's goal (2026-10-15)
+
+Measured on a copy of live (rehearsal 38770003055, `.github/measure/sf2_formats.py`), after the coordinator had
+approved every level that day (46 skills, 178 levels):
+
+- **What a format is.** A question's format is its printed format (`item.fmt`) where its template is only the level's
+  numbers written as a name: `ADD.2D2D.REG1`, `MUL.3D1D`, `DIV.4D2D`, `ADD.MULTI3`. Otherwise it is the template:
+  `EQ.TRUE_FALSE`, `MULT.NTH`, each card kind. One rule, in the database (`format_of`), for the engine and the website.
+  The bank holds 74 formats in 212 skill × format pairs.
+- **Where approval starts.** A format starts approved where every level that uses it was approved. On live today that
+  is all 74 under either rule (every level, or any level), so no paper changes on the day SF2 ships. A format no level
+  approved, or a new one, waits.
+- **The gate is one rule.** "A question a paper may draw" is written once, in the database: active, and of an approved
+  format. Every draw reads it — a home paper, a made paper, the library's build, a week's pack, a worksheet handed out —
+  and so do the counts that choose a skill and a level before drawing, so the engine never chooses what it then cannot
+  fill. Until now each draw repeated its own `status = 'active'`, and a worksheet handed out by its code checked
+  nothing about its questions.
+- **What withdraws an approval.** A kind that is a row is changed by changing its row; that withdraws its format at once
+  (SF2a). A format made in code changes only with the code; it is withdrawn when the questions it was approved on print
+  differently, checked on every deploy (SF2b). A level's numbers stay the coordinator's own rows: writing them is
+  approving them (decision 2), and F1d's level approvals gate nothing.

@@ -15,7 +15,7 @@ They should have the right set of columns which are important. It should be teac
 Topics: six, by operation, with the taught switch per skill (ADR 0076). Pages: the audit of every page as an educator
 and as the coordinator, 172 screenshots (STATE.md "UI audit, 2026-10-15"), cut into slices UX1–UX7.
 
-**Order, until Nimish says otherwise:** T1 → UX1 → UX2 → SF2 → UX3 → UX4 → UX5 → UX6 → UX7 → SF3 → SF4.
+**Order, until Nimish says otherwise:** T1 → UX1 → UX2 → UX3 → UX4 → UX5 → SF2a → SF2b → UX6 → UX7 → SF3 → SF4.
 
 | Slice | Goal file | Green means |
 |---|---|---|
@@ -44,7 +44,8 @@ F1g is superseded by SF2. F1d's level approvals stay recorded, and gate nothing 
 | Slice | Goal file | Green means |
 |---|---|---|
 | SF1 | `goals/sf1-a-kind-of-question-is-a-row.yaml` | a kind of question is a row (`question_format`): its words with named numbers, its answer and each mistake as formulas, its examples. A level's rule gives each number's range and the answer's bounds. Achal's three new Grade 2 skills are rows only: three numbers multiplied, sequences counted on and back, the nth and the first five multiples. Each level is drawn to its target or to every different question it can make, and says which. Every question re-reads into its kind from its own words, printed, read and marked. Every example Achal gave belongs to its level, and "100, 81, 72, 63" belongs to none |
-| SF2 | `goals/sf2-a-format-is-approved-once.yaml` | one approval covers a format across every skill and level that uses it (ADR 0077), given on samples drawn from each; a change to the format withdraws it; papers draw only approved formats. Measured on a copy of live (2026-10-15): 38 unapproved levels on class papers, 18 format approvals open them |
+| SF2a | `goals/sf2-a-format-is-approved-once.yaml` | a question's format is one rule in the database (ADR 0077, settled in SF2): the printed format where the template is only the level's numbers, else the template. One approval, the coordinator's, covers a format across every skill and level using it, given on one question from each; every path that puts a question on a paper (a home paper, a made paper, the library, a week's pack, a worksheet handed out) draws only approved formats, and says which format waits when it cannot; a change to a kind's row withdraws its approval. Measured on a copy of live (2026-10-15, after the coordinator approved every level): 74 formats, every one starting approved, so no paper changes on the day |
+| SF2b | `goals/sf2b-a-changed-format-waits-again.yaml` | a format made in code (a bare sum, a column) is withdrawn when the questions it was approved on print differently, checked on every deploy |
 | SF3 | `goals/sf3-a-kind-from-examples.yaml` | an educator's examples (typed, a PDF or a photo) drafted into a kind and its levels' numbers by a prompt row with its eval (Achal's asks the first gold); code checks every example belongs before anything is drawn |
 | SF4 | `goals/sf4-a-skill-from-the-website.yaml` | a new skill made on the website: its name, its levels' grades and targets, its kinds from SF3, approved per kind (SF2), on papers once its topic is taught |
 
