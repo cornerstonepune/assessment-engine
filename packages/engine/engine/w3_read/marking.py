@@ -95,6 +95,12 @@ def _not_one_number(spec, response, wrote):
     key = str(response["answer"])
     if response.get("kind") == "list":
         right, codes = MU.judge(spec, key, wrote)
+        if not right and not codes:
+            # a wrong list its key predicted, member for member: "0, 5, 10, 15, 20" starts the multiples at 0 (ADR 0075)
+            per = int(spec.get("per", 1))
+            got = MU.members(wrote, per)
+            predicted = response.get("misconceptions", {}).items()
+            codes = sorted(c for c, v in predicted if MU.members(str(v), per) == got)
         return ("correct" if right else "wrong"), codes
     status = _against_the_key(key, wrote)
     predicted = response.get("misconceptions", {}).items()

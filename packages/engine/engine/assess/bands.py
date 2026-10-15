@@ -9,6 +9,7 @@ import random
 from collections.abc import Callable, Iterable
 from typing import Any, cast
 
+from engine.assess import cards as CD
 from engine.assess import counting as C
 from engine.assess import diagnosis as D
 from engine.assess import divide_methods as DVM
@@ -234,6 +235,7 @@ NATIVE_GENERATORS: dict[str, Callable[..., I.Item]] = {
     "expanded_columns": WM.expanded,
     "lattice": WM.lattice,
     "multiples": MU.from_rule,
+    "card": CD.level,
 }
 
 # The rule keys each generator reads — and so the only keys a level of that kind may set (`engine audit`,
@@ -272,6 +274,7 @@ READS = {
     "expanded_columns": {"digits"},
     "lattice": {"digits"},
     "multiples": {"shape"},
+    "card": {"cards", "numbers", "answer_within"},
 }
 SAMPLER_READS = {"op", "digits", "regroups", "max_total", "no_zero_top", "across_zero", "min_answer"}
 # `within` — a skill's operation and digit shape — is read with every case: drawn inside it (`cases.for_level`)

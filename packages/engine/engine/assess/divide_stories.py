@@ -25,12 +25,15 @@ def _kept(mis: dict[str, int], right: int) -> dict[str, int]:
     return {k: v for k, v in mis.items() if v != right and v >= 0}
 
 
-def _rounded_up(a: int, b: int) -> dict[str, int]:
+def rounded_up(a: int, b: int) -> dict[str, int]:
     """What a child writes for the groups everyone needs (26 children, 4 to a rickshaw: 7): the full groups alone, the
     remainder not rounded up; and each division slip rounded up as the child would round it, one more where the slip
-    leaves its own remainder."""
-    slips = {c: g[0] + (1 if g[1] else 0) for c, g in DM.predict(a, b).items()}
-    return _kept({NOT_UP: a // b} | slips, a // b + 1)
+    leaves its own remainder. A slip that rounds to the full groups alone (one group short, 5 r 6, rounded to 6) writes
+    what the remainder not rounded up writes on every such story, with no other box to tell them apart, so the 6 names
+    the one act alone."""
+    q = a // b
+    slips = {c: v for c, g in DM.predict(a, b).items() if (v := g[0] + (1 if g[1] else 0)) != q}
+    return _kept({NOT_UP: q} | slips, q + 1)
 
 
 def answered(use: str | None, a: int, b: int) -> tuple[int, int | None]:
@@ -54,7 +57,7 @@ def boxes(use: str | None, a: int, b: int) -> list[Response]:
         return [Response("ans", "digits", str(ans), cells=cells(b), misconceptions=DM.in_box(a, b, 1))]
     if use == "ROUND_UP":
         return [
-            Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=_rounded_up(a, b))
+            Response("ans", "digits", str(ans), cells=cells(max(ans, a)), misconceptions=rounded_up(a, b))
         ]
     return [
         Response(

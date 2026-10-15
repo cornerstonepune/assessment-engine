@@ -5,6 +5,23 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: a skill from its examples — Nimish, 2026-10-15
+
+Nimish, on approving questions level by level: approval belongs to "all unique formats of questions", with an engine that
+"simply checks whether a certain question belongs to a certain format"; educators add a skill by giving examples of a
+format (text, a PDF or an image) and the system makes the questions; "it should be skills * format and 100/200/500 is
+for a skill and difficulty level combo". Achal's Grade 2 multiplication asks are the first examples. ADR 0075.
+
+**W1, gate 3 reopened** ("any topic, by rows only"): a kind of question becomes a row, so a topic needs no new code.
+F1g is superseded by SF2. F1d's level approvals stay recorded, and gate nothing once SF2 ships.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| SF1 | `goals/sf1-a-kind-of-question-is-a-row.yaml` | a kind of question is a row (`question_format`): its words with named numbers, its answer and each mistake as formulas, its examples. A level's rule gives each number's range and the answer's bounds. Achal's three new Grade 2 skills are rows only: three numbers multiplied, sequences counted on and back, the nth and the first five multiples. Each level is drawn to its target or to every different question it can make, and says which. Every question re-reads into its kind from its own words, printed, read and marked. Every example Achal gave belongs to its level, and "100, 81, 72, 63" belongs to none |
+| SF2 | `goals/sf2-approved-per-kind.yaml` | approval is per skill × kind, given on samples from each level that uses it; a changed kind or level rule withdraws it; papers draw only approved kinds; the bank's 313 pairs start approved. Measured first on a copy of live: what it would close is named to Nimish before it ships |
+| SF3 | `goals/sf3-a-kind-from-examples.yaml` | an educator's examples (typed, a PDF or a photo) drafted into a kind and its levels' numbers by a prompt row with its eval (Achal's asks the first gold); code checks every example belongs before anything is drawn |
+| SF4 | `goals/sf4-a-skill-from-the-website.yaml` | a new skill made on the website: its name, its levels' grades and targets, its kinds from SF3, approved per kind (SF2), on papers once its topic is taught |
+
 ## Inserted now: one flow for the educator — Nimish, 2026-10-14
 
 Nimish, after using the site with the educators: *"We need to improve the sophistication of these modules now. The flow
@@ -31,7 +48,7 @@ The decisions behind phase 1 are ADR 0073.
 | F1d | `goals/f1d-questions-approved-per-level.yaml` | a skill's questions are approved level by level, by the coordinator. Changing a level's rule withdraws that level's approval and no other; changing its words withdraws none. A skill approved today keeps its approval at every level |
 | F1e | `goals/f1e-the-grade-plan.yaml` | which levels a grade uses is each level's grade (`skill_set.level_band`, set on the skill's page): a grade uses its own levels and those of the grades below. Make papers now offers and accepts only those, as the home paper already did. Measured while building: a separate grade × skill × level table would have been a second source of truth beside the level grades; "this grade or below" needs no second grade per level (ADR 0073) |
 | F1f | `goals/f1f-taught-per-class.yaml` | taught is said per class, with who and when (`class_topic`). A class no one has spoken for follows the school's switch, so nothing changes on the day; one rule in the database, `taught_in`, read by the engine and the site. Every page and the engine read the class's own. "Taught" and "Assessed" are two words. Measured while building: copying today's switch into every class would leave a database whose children arrive after the migration — every fresh one — with nothing taught, and a class the roll brings later the same (ADR 0073) |
-| F1g | `goals/f1g-approval-gates-papers.yaml` | a level whose questions are not approved goes on no paper, and the maker says which level and who approves it. Measured first on a copy of live: the levels it would close are named to Nimish before it ships |
+| ~~F1g~~ | superseded by SF2 (ADR 0075) | a level whose questions are not approved goes on no paper, and the maker says which level and who approves it. Measured first on a copy of live: the levels it would close are named to Nimish before it ships |
 
 ## Inserted now: multiplication and division, through the whole loop — Nimish, 2026-10-09
 

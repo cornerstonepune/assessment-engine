@@ -197,4 +197,5 @@ PAGES: dict[str, Callable[..., tuple[str, str]]] = {
     "equation": equation,
     "explain_claim": claim,
     "multiples": multiples,
+    "card": multiples,  # a kind that is a row prints as a sentence and its box, or a list (ADR 0075)
 }

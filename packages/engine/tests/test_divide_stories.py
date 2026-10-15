@@ -11,7 +11,7 @@ import random
 import re
 
 from engine.assess import div_mistakes as DM
-from engine.assess import draw, render, tags, taxonomy
+from engine.assess import draw, render, stale, tags, taxonomy
 from engine.assess import words as W
 from engine.assess.pick import Sheet
 from engine.checks import scenarios
@@ -120,7 +120,7 @@ def test_the_remainder_not_rounded_up_is_a_mistake_of_its_own():
                 want = DM.in_box(a, b, 0)
             elif use == "ROUND_UP":
                 slips = {c: g[0] + (1 if g[1] else 0) for c, g in DM.predict(a, b).items()}
-                want = {NOT_UP: q} | {c: v for c, v in slips.items() if v != q + 1}
+                want = {NOT_UP: q} | {c: v for c, v in slips.items() if v not in (q, q + 1)}
             elif use == "REMAINDER_ASKED":
                 want = DM.in_box(a, b, 1)
             else:
@@ -130,6 +130,24 @@ def test_the_remainder_not_rounded_up_is_a_mistake_of_its_own():
             for x in it.responses:
                 assert set(x.misconceptions or {}) <= named, (case, set(x.misconceptions) - named)
                 assert all(str(v) != x.answer for v in (x.misconceptions or {}).values()), (case, x)
+
+
+def test_the_groups_everyone_needs_written_as_the_full_groups_alone_is_the_remainder_not_rounded_up_alone():
+    """26 children, 4 to a rickshaw, answered 6: the full groups alone. One group short and then rounded up (5 r 6, so 6)
+    writes the same 6 on every such story, and no other box tells the two apart; the one act that writes it is the
+    remainder not rounded up, so a child who forgot the children left over is not charged a division slip as well
+    (DIV.2D1D Advance's loop, 2026-10-15: every 6 named both). A story stored keyed the old way leaves the bank."""
+    for it in _drawn("B15"):
+        a, b = it.spec["a"], it.spec["b"]
+        named = _boxes(it)["ans"].misconceptions
+        assert [c for c, v in named.items() if v == a // b] == [NOT_UP], (it.spec, named)
+    it = _drawn("B15")[0]
+    a, b = it.spec["a"], it.spec["b"]
+    old = {**_boxes(it)["ans"].misconceptions, "M_DIV_REMAINDER_TOO_BIG": a // b}
+    stored = [{"rid": "ans", "answer": str(a // b + 1), "misconceptions": old}]
+    assert stale.key_problems("word_1step", it.spec, stored), (it.spec, old)
+    now = [{"rid": "ans", "answer": str(a // b + 1), "misconceptions": _boxes(it)["ans"].misconceptions}]
+    assert not stale.key_problems("word_1step", it.spec, now), it.spec
 
 
 def test_a_scenario_recomputes_a_storys_answer_by_what_it_does_with_the_remainder():

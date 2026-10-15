@@ -76,7 +76,11 @@ def kind_skills(rules: dict[str, Any], fmt: str, ops: list[str]) -> list[str]:
 def used(
     fmt: str, spec: dict[str, Any], stem: str | None, rung_skills: list[str], rules: dict[str, Any]
 ) -> list[str]:
-    """Every registry skill the question uses, the rung's own first."""
+    """Every registry skill the question uses, the rung's own first. A kind that is a row (ADR 0075) uses its rung's
+    skills, in the rung's order: "What is the 9th multiple of 3?" names no operation, and the rung a skill of such kinds
+    sits on is chosen to carry the registry skills its questions use."""
+    if fmt == "card":
+        return list(rung_skills)
     ops = operations(fmt, spec, stem)
     found = kind_skills(rules, fmt, ops)
     found += [skill for symbol, skill in rules["by_symbol"].items() if symbol in (stem or "")]

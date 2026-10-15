@@ -15,7 +15,7 @@ from engine.assess import misconceptions as M
 from engine.assess import operations as O
 from engine.assess import words as W
 from engine.core import db
-from engine.w1_bank import cases, labels
+from engine.w1_bank import cases, kinds, labels
 from engine.w1_bank.spec import read as spec
 
 BATCH = 20  # the free tier timed out on 40 (STATE.md)
@@ -226,6 +226,7 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     pipeline (mental strategies, word problems, budgets, estimation, efficient method) filled
     straight from its own generator in `assess/items.py`, keyed by `check['format']`."""
     prompt_input, s, check = spec(conn, code, difficulty)
+    check = kinds.resolve(conn, check)
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     fmt = check.get("format") or s["formats"][0]
     counts = Counter(asked=0, accepted=0, already_in_bank=0, duplicate=0, unnamed_distractor_dropped=0)
@@ -243,11 +244,22 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     # second call meant to top up an already-filled unit would just rediscover what the first
     # call already inserted, never reaching new content.
     rng = random.Random()
-    while counts["accepted"] < n and tries < n * 8:
+    listed, limit = None, n * 8
+    if fmt == "card":
+        # A kind that is a row lists every question its level can make (ADR 0075): the level is filled from that list
+        # in a random order, to `n` or to the whole of it, and says how many it can make — never drawn again and again
+        # until repeats stop it short of a number the level cannot reach.
+        listed = kinds.listed(check, rng, s["rung_code"])
+        counts["can_make"] = limit = len(listed)
+    while counts["accepted"] < n and tries < limit:
         tries += 1
         counts["asked"] += 1
         try:
-            it = bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+            it = (
+                listed[tries - 1]
+                if listed is not None
+                else bands.native_item(fmt, check, rng, s["rung_code"], "Conceptual")
+            )
         except RuntimeError:
             continue  # this draw's numbers could not make the question; the loop draws again
         if it.item_id in seen:

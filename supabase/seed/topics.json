@@ -56,7 +56,8 @@
       "name": "Multiplication models",
       "taught": false,
       "skill_sets": [
-        "MUL.MODELS"
+        "MUL.MODELS",
+        "MUL.NTH"
       ]
     },
     {
@@ -66,7 +67,8 @@
       "taught": false,
       "skill_sets": [
         "MUL.FACTS",
-        "MUL.TENS"
+        "MUL.TENS",
+        "MUL.THREE"
       ]
     },
     {
@@ -161,6 +163,15 @@
       "taught": false,
       "skill_sets": [
         "MD.WORD"
+      ]
+    },
+    {
+      "code": "SEQUENCE",
+      "subject": "NUM",
+      "name": "Number sequences",
+      "taught": false,
+      "skill_sets": [
+        "NUM.SEQUENCE"
       ]
     }
   ]

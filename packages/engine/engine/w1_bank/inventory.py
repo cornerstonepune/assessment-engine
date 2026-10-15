@@ -11,7 +11,7 @@ from engine.assess.items import Item, Response
 from engine.assess.layout import WORKING_LINES
 from engine.assess.pick import Sheet, sheet_id
 from engine.assess.render import render_sheet
-from engine.w1_bank import cases
+from engine.w1_bank import cases, kinds
 
 
 def _class_need(conn):
@@ -38,7 +38,7 @@ def coverage(conn):
     different class register moves it by changing one number."""
     need = _class_need(conn)
     # every level a skill in use defines — a skill may have fewer than four (1-digit − 1-digit has no Hard)
-    return conn.execute(
+    rows = conn.execute(
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
         " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, " + str(need) + ") as target"
         " from skill_set s"
@@ -50,6 +50,23 @@ def coverage(conn):
         " where s.difficulty ? d.difficulty"
         " order by s.code, d.ord"
     ).fetchall()
+    return _within_what_it_can_make(conn, rows)
+
+
+def _within_what_it_can_make(conn, rows):
+    """A level whose kinds are rows (ADR 0075) counts the different questions it can make; its target is the smaller of
+    its own and that, so it is filled to all it can make and never asked for repeats ("three numbers of 2 to 5 with a
+    product up to 30" make 26). Every row says `can_make`: None where the level does not count."""
+    rules = {
+        r["code"]: r["difficulty"] for r in conn.execute("select code, difficulty from skill_set").fetchall()
+    }
+    held = kinds.of(conn)
+    out = []
+    for r in rows:
+        check = rules[r["code"]][r["difficulty"]].get("check", {})
+        made = kinds.can_make(kinds.resolve(conn, check, held)) if check.get("format") == "card" else None
+        out.append({**r, "can_make": made, "target": r["target"] if made is None else min(r["target"], made)})
+    return out
 
 
 def recheck(conn):
