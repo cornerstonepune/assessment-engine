@@ -81,6 +81,8 @@ test("a topic opens to its skills, the ones that need help first", async ({ page
 test("every parent report waiting on a person is one list, and a child's page ends on theirs", async ({ page }) => {
   // a child's page ends on the parent report, its state in words
   await page.goto(`/growth/${kids.Ishaan}`);
+  // the page streams in after its frame (each part read on its own), so the order is read once it is all there
+  await expect(page.getByRole("region", { name: "Parent report" })).toBeVisible();
   const regions = await page.getByRole("main").getByRole("region").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
   expect(regions.at(-1)).toBe("Parent report");
   await expect(page.getByRole("region", { name: "Parent report" })).toContainText("Written, waiting for a person to approve it");

@@ -8085,3 +8085,13 @@ one child on live.
     and tell anyone else the approval is the coordinator's. Changing a skill's words stays the educator's (N1).
 - **u27** still proves the server's refusal: the form the coordinator is offered is sent by hand from the educator's
   page.
+- **A child's page is twice as fast,** since it reads one name, not the roll's: 0.47–0.69 s against 1.1–1.4 s on main
+  (three loads each, same copy). It now paints its frame first and streams in about 200 ms later, so u20, which read
+  the page's parts the instant it loaded, waits for the page first; m5 reads the library the same way and got the same
+  guard.
+- **Checks:**
+  - UX1's spec failed first on main's pages, for its reasons: Today showed the educator "46 Skills to approve" and 31
+    questions; a skill page offered "Approve as written"; the print list named every class's children.
+  - Then u32, u27, u15 and u26: 16 passed. The whole website suite on the migrated copy: 236 of 237, the one u20
+    above, then u20 and m5: 4 passed. tsc and eslint clean; `bin/check` passed.
+  - The whole engine suite on the migrated copy: 2531 passed, 2 skipped.
