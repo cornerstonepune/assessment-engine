@@ -1,7 +1,7 @@
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
-import { taughtFor, taughtIn } from "./taught";
+import { skillTaughtFor, skillTaughtIn } from "./taught";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
@@ -65,7 +65,7 @@ export async function skillSets({
   scope = EVERY_CLASS,
   section,
 }: { untaught?: boolean; scope?: Scope; section?: string } = {}): Promise<SkillSet[]> {
-  const taught = section ? taughtIn(sql`s.tenant_id`, sql`s.topic_code`, section) : taughtFor(scope, sql`s.tenant_id`, sql`s.topic_code`);
+  const taught = section ? skillTaughtIn(sql`s.tenant_id`, sql`s.code`, section) : skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`);
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
@@ -265,7 +265,7 @@ export async function childNext(id: string): Promise<NextStep[]> {
   return sql<NextStep[]>`
     select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
     from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
-    where ${taughtIn(sql`s.tenant_id`, sql`s.topic_code`, sql`(select section from child where id = ${id}::uuid)`)}
+    where ${skillTaughtIn(sql`s.tenant_id`, sql`s.code`, sql`(select section from child where id = ${id}::uuid)`)}
     order by s.code`;
 }
 

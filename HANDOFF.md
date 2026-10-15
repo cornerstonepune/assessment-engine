@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — T1: topics are operations (ADR 0076); SF2 measured (ADR 0077); UI audit cut into UX1–UX7
+
+- **Order now (BUILD-ORDER "topics are operations"):** T1 → UX1 → UX2 → SF2 → UX3 … UX7 → SF3 → SF4.
+- **T1 is on branch `claude/sleepy-keller-j2ybm5`.** PR #211 also carries SF2's measurement step.
+  - On merge: `migrate live` writes every class's word onto its skills.
+  - Nimish's `bin/update-live` then regroups the topics and removes the dead ones.
+  - The next migration drops `class_topic` and `topic.taught`.
+- **SF2:** one approval per format, across skills (ADR 0077). Its goal settles what a format is: the printed format
+  where the template is only numbers, the template where it names a different question.
+- **UX1 next:** the print list's other-class names (an educator sees children of 6 classes) and educators' approve
+  buttons. The UI audit's report and screenshots are in the session scratchpad (`ui-audit/`). They are not in git:
+  the screenshots show seeded fictitious names.
+
 ## 2026-10-15 — SF1: a kind of question is a row (ADR 0075, BUILD-ORDER "a skill from its examples")
 
 - **Built:**

@@ -20,7 +20,7 @@ const CODE = /\b([A-Z]{2,}\.[A-Z0-9_.]+|R\d{1,2}|X[12]|M_[A-Z0-9_]+)\b/;
 const skills = () => sql<Skill[]>`
   select s.code, s.learning_objective as outcome, s.name, r.band, s.difficulty as words
   from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-  where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)
+  where s.taught
   order by r.ladder_order nulls last, s.code`;
 
 async function noSidewaysScroll(page: Page) {

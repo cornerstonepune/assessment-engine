@@ -4,8 +4,34 @@
       "code": "ADDSUB",
       "subject": "NUM",
       "name": "Addition & subtraction",
-      "taught": true,
       "skill_sets": [
+        "ADD.1D1D",
+        "SUB.1D1D",
+        "ADD.2D1D",
+        "ADD.2D2D",
+        "SUB.2D1D",
+        "SUB.2D2D",
+        "ADD.3D1D",
+        "ADD.3D2D",
+        "ADD.3D3D",
+        "ADD.MANY",
+        "SUB.3D1D",
+        "SUB.3D2D",
+        "SUB.3D3D",
+        "ADD.4D",
+        "SUB.4D",
+        "MENTAL.BRIDGE_EQ",
+        "EQUALITY.INVERSE",
+        "MISSING.DIGIT",
+        "STRATEGY.EFFICIENT",
+        "ESTIMATE.ROUND10",
+        "ESTIMATE.HUNDRED",
+        "WORD.1_2STEP",
+        "WORD.BUDGET",
+        "REASON.FIND_MISTAKE",
+        "REASON.EXPLAIN"
+      ],
+      "taught": [
         "ADD.1D1D",
         "SUB.1D1D",
         "ADD.2D1D",
@@ -33,145 +59,68 @@
       ]
     },
     {
-      "code": "REASON",
-      "subject": "NUM",
-      "name": "Reasoning",
-      "taught": false,
-      "skill_sets": [
-        "REASON.EXPLAIN"
-      ]
-    },
-    {
       "code": "MUL",
       "subject": "NUM",
       "name": "Multiplication",
-      "taught": true,
       "skill_sets": [
+        "MUL.GROUPS",
+        "MUL.MODELS",
+        "MUL.FACTS",
+        "MUL.TENS",
+        "MUL.THREE",
+        "MUL.2D1D",
+        "MUL.3D1D",
+        "MUL.2D2D"
+      ],
+      "taught": [
         "MUL.GROUPS"
       ]
     },
     {
-      "code": "MULMODEL",
+      "code": "DIV",
       "subject": "NUM",
-      "name": "Multiplication models",
-      "taught": false,
+      "name": "Division",
       "skill_sets": [
-        "MUL.MODELS",
+        "DIV.GROUPS",
+        "DIV.FACTS",
+        "DIV.TENS",
+        "DIV.2D1D",
+        "DIV.3D1D",
+        "MD.MENTAL",
+        "MD.ESTIMATE",
+        "MD.EQUALITY",
+        "MD.WORD"
+      ],
+      "taught": []
+    },
+    {
+      "code": "FACTORS",
+      "subject": "NUM",
+      "name": "Multiples & factors",
+      "skill_sets": [
+        "MD.MULTIPLES",
         "MUL.NTH"
-      ]
+      ],
+      "taught": []
     },
     {
-      "code": "MULFACT",
+      "code": "NUMSENSE",
       "subject": "NUM",
-      "name": "Multiplication facts and place value",
-      "taught": false,
+      "name": "Number sense",
       "skill_sets": [
-        "MUL.FACTS",
-        "MUL.TENS",
-        "MUL.THREE"
-      ]
-    },
-    {
-      "code": "MULCOL",
-      "subject": "NUM",
-      "name": "Multiplication in columns",
-      "taught": false,
-      "skill_sets": [
-        "MUL.2D1D",
-        "MUL.3D1D",
-        "MUL.2D2D"
-      ]
+        "NUM.SEQUENCE"
+      ],
+      "taught": []
     },
     {
       "code": "DATA",
       "subject": "NUM",
       "name": "Data handling",
-      "taught": true,
       "skill_sets": [
         "DATA.TALLY"
-      ]
-    },
-    {
-      "code": "DIVMODEL",
-      "subject": "NUM",
-      "name": "Division models",
-      "taught": false,
-      "skill_sets": [
-        "DIV.GROUPS"
-      ]
-    },
-    {
-      "code": "DIVFACT",
-      "subject": "NUM",
-      "name": "Division facts and place value",
-      "taught": false,
-      "skill_sets": [
-        "DIV.FACTS",
-        "DIV.TENS"
-      ]
-    },
-    {
-      "code": "DIVCOL",
-      "subject": "NUM",
-      "name": "Division by a 1-digit number",
-      "taught": false,
-      "skill_sets": [
-        "DIV.2D1D",
-        "DIV.3D1D"
-      ]
-    },
-    {
-      "code": "MDMENTAL",
-      "subject": "NUM",
-      "name": "Mental multiplication and division",
-      "taught": false,
-      "skill_sets": [
-        "MD.MENTAL"
-      ]
-    },
-    {
-      "code": "MDESTIMATE",
-      "subject": "NUM",
-      "name": "Estimating products and quotients",
-      "taught": false,
-      "skill_sets": [
-        "MD.ESTIMATE"
-      ]
-    },
-    {
-      "code": "MDEQUALITY",
-      "subject": "NUM",
-      "name": "Equations with × and ÷",
-      "taught": false,
-      "skill_sets": [
-        "MD.EQUALITY"
-      ]
-    },
-    {
-      "code": "MDMULTIPLES",
-      "subject": "NUM",
-      "name": "Multiples and factors",
-      "taught": false,
-      "skill_sets": [
-        "MD.MULTIPLES"
-      ]
-    },
-    {
-      "code": "MDWORD",
-      "subject": "NUM",
-      "name": "Stories with × and ÷",
-      "taught": false,
-      "skill_sets": [
-        "MD.WORD"
-      ]
-    },
-    {
-      "code": "SEQUENCE",
-      "subject": "NUM",
-      "name": "Number sequences",
-      "taught": false,
-      "skill_sets": [
-        "NUM.SEQUENCE"
+      ],
+      "taught": [
+        "DATA.TALLY"
       ]
     }
   ]

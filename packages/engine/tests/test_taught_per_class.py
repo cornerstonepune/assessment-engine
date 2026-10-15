@@ -1,12 +1,13 @@
-"""Taught is said for each class (goals/f1f-taught-per-class.yaml, ADR 0073 D5).
+"""Taught is said for each class (goals/f1f-taught-per-class.yaml, ADR 0073 D5), skill by skill
+(goals/t1-topics-are-operations.yaml, ADR 0076).
 
 Nimish, 2026-10-14: "people who are there for one thing like educator only see something that's relevant for their
-class and their students." Whether a topic has been taught was one switch for the school (`topic.taught`): switching
-multiplication on for Grade 3 switched it on for Grade 1. Now each class has its own word, with who said it and when
-(`class_topic`); a class no one has spoken for follows the school's switch. One rule in the database,
-`taught_in(tenant, topic, class)`, read by the engine and the site alike.
+class and their students." Each class has its own word on each skill, with who said it and when (`class_skill`); a
+class no one has spoken for follows the school's word on the skill (`skill_set.taught`). Switching a topic for a class
+says it of every skill in the topic (`say_taught`). One rule in the database, `skill_taught_in(tenant, skill, class)`,
+read by the engine and the site alike; a topic is taught in a class when any of its skills is (`taught_in`).
 
-MUL.MODELS (topic MULMODEL, not taught in the school's rows) is Grade 2's at Easy, with questions in the bank.
+MUL.MODELS (in Multiplication, not taught in the school's rows) is Grade 2's at Easy, with questions in the bank.
 """
 
 import os
@@ -14,7 +15,7 @@ import os
 import pytest
 
 from engine.checks import live_data
-from engine.core import db
+from engine.core import db, settings, topics
 from engine.w2_print import focus_paper, maker, shelf
 
 WEEK = "T3W1-taught-test"
@@ -45,14 +46,18 @@ def _child(conn, roll, section, band="G2"):
     )
 
 
-def _say(conn, section, topic, taught):
-    """What an educator's switch on Curriculum writes: this class has (or has not) been taught this topic."""
+def _say(conn, section, topic, taught, skill=None):
+    """What an educator's switch on Curriculum writes: this class has (or has not) been taught this topic — every
+    skill in it — or, with `skill`, this one skill of it."""
     conn.execute(
-        "insert into class_topic (tenant_id, section, topic_code, taught, taught_by, taught_at)"
-        " values (%s,%s,%s,%s,%s,now()) on conflict (tenant_id, section, topic_code)"
-        " do update set taught = excluded.taught, taught_by = excluded.taught_by, taught_at = excluded.taught_at",
-        (_tenant(conn), section, topic, taught, BY),
+        "select say_taught(%s, %s, %s, %s, %s, %s)", (_tenant(conn), section, topic, skill, taught, BY)
     )
+
+
+def _rule(conn, skill, section):
+    return conn.execute(
+        "select skill_taught_in(%s, %s, %s) as t", (_tenant(conn), skill, section)
+    ).fetchone()["t"]
 
 
 def test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another(conn):
@@ -60,7 +65,7 @@ def test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another(con
     refused in words that name the class — whichever way the paper is made — and the school's switch is unchanged."""
     yes = [_child(conn, str(r), "F1F-YES") for r in (1, 2)]
     no = [_child(conn, str(r), "F1F-NO") for r in (1, 2)]
-    _say(conn, "F1F-YES", "MULMODEL", True)
+    _say(conn, "F1F-YES", "MUL", True)
 
     made = maker.plan(conn, "F1F-YES", yes, WEEK, "assessment", "same", MODELS)
     assert not made["refused"] and len(made["papers"]) == 2, "the class taught it is given it"
@@ -74,7 +79,7 @@ def test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another(con
 
     assert {c["code"] for c in shelf.catalog(conn, "F1F-YES")} >= {"MUL.MODELS"}
     assert "MUL.MODELS" not in {c["code"] for c in shelf.catalog(conn, "F1F-NO")}
-    taught = conn.execute("select taught from topic where code = 'MULMODEL'").fetchone()["taught"]
+    taught = conn.execute("select taught from skill_set where code = 'MUL.MODELS'").fetchone()["taught"]
     assert taught is False, "one class's word is not the school's switch"
 
 
@@ -96,7 +101,7 @@ def test_a_class_no_one_has_spoken_for_follows_the_schools_switch(conn):
 
     rule = conn.execute(
         "select taught_in(%s, 'ADDSUB', 'F1F-NEW') as new, taught_in(%s, 'ADDSUB', 'F1F-OTHER') as other,"
-        " taught_in(%s, 'MULMODEL', 'F1F-OTHER') as models",
+        " skill_taught_in(%s, 'MUL.MODELS', 'F1F-OTHER') as models",
         (_tenant(conn),) * 3,
     ).fetchone()
     assert (rule["new"], rule["other"], rule["models"]) == (False, True, False), (
@@ -107,7 +112,7 @@ def test_a_class_no_one_has_spoken_for_follows_the_schools_switch(conn):
 def test_a_childs_own_paper_reads_their_own_class(conn):
     """A paper chosen for one child, like a class paper, is drawn from what their own class was taught."""
     yes, no = _child(conn, "1", "F1F-YES"), _child(conn, "1", "F1F-NO")
-    _say(conn, "F1F-YES", "MULMODEL", True)
+    _say(conn, "F1F-YES", "MUL", True)
     assert focus_paper.plan(conn, yes, WEEK, MODELS)["areas"], "taught in their class"
     with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NO yet"):
         focus_paper.plan(conn, no, WEEK, MODELS)
@@ -124,5 +129,98 @@ def test_answers_kept_out_of_sight_are_those_on_topics_their_own_class_was_not_t
             " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.03','R41',true,'{}','item',now(),'test')",
             (tenant, _child(conn, "1", section)),
         )
-    _say(conn, "F1F-YES", "MULMODEL", True)
+    _say(conn, "F1F-YES", "MUL", True)
     assert live_data.hidden(conn).get("MUL.MODELS", 0) == before + 1
+
+
+def test_a_class_is_taught_skill_by_skill(conn):
+    """ADR 0076: switching Multiplication on for a class switches on every skill in it; an educator can then leave one
+    off — column multiplication, until next term — and that skill alone is refused on the class's papers, in words that
+    name the class. The topic still shows as taught there; switching the topic on again switches the skill back on."""
+    kids = [_child(conn, str(r), "T1-SKILL", "G3") for r in (1, 2)]
+    _say(conn, "T1-SKILL", "MUL", True)
+    _say(conn, "T1-SKILL", "MUL", False, skill="MUL.2D1D")
+
+    codes = {c["code"] for c in shelf.catalog(conn, "T1-SKILL")}
+    assert {"MUL.MODELS", "MUL.FACTS"} <= codes and "MUL.2D1D" not in codes, codes
+    with pytest.raises(ValueError, match=r"MUL\.2D1D is not taught in T1-SKILL yet"):
+        maker.plan(
+            conn,
+            "T1-SKILL",
+            kids,
+            WEEK,
+            "assessment",
+            "same",
+            [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 4}],
+        )
+    tenant = _tenant(conn)
+    topic = conn.execute("select taught_in(%s, 'MUL', 'T1-SKILL') as t", (tenant,)).fetchone()["t"]
+    assert (topic, _rule(conn, "MUL.MODELS", "T1-SKILL"), _rule(conn, "MUL.2D1D", "T1-SKILL")) == (
+        True,
+        True,
+        False,
+    )
+
+    _say(conn, "T1-SKILL", "MUL", True)
+    assert _rule(conn, "MUL.2D1D", "T1-SKILL") is True, "the topic's switch says it of every skill again"
+
+
+def test_regrouping_the_topics_changes_no_classs_paper(conn):
+    """ADR 0076, decision 3: before the topics were regrouped, each class's word was on a topic (`class_topic`) and the
+    school's was the topic's (`topic.taught`). `internal.topic_words_to_skills`, which the migration runs before any
+    skill moves topic, writes every word onto each skill the topic then held; the load then regroups the topics and
+    drops the old ones. Every class — and a class no one has spoken for — keeps exactly the skills it had.
+
+    Live as it was, in small: Multiplication begun (MUL.GROUPS; taught, by the rows), Multiplication models
+    (MUL.MODELS; not taught, by the rows), Multiplication in columns (MUL.2D1D; switched on for the school by the
+    coordinator). One class said columns not taught; another said begun not taught and models taught."""
+    tenant = _tenant(conn)
+    old = [("T1.BEGUN", True, None, "MUL.GROUPS"), ("T1.MODELS", False, None, "MUL.MODELS"),
+           ("T1.COLS", True, "The coordinator", "MUL.2D1D")]  # fmt: skip
+    for i, (code, taught, by, skill) in enumerate(old):
+        conn.execute(
+            "insert into topic (tenant_id, code, subject_code, name, ord, taught, taught_by, taught_at) values"
+            " (%s, %s, 'NUM', %s, %s, %s, %s, case when %s::text is null then null else now() end)",
+            (tenant, code, code, 90 + i, taught, by, by),
+        )
+        conn.execute(
+            "update skill_set set topic_code = %s, taught = false, taught_by = null where code = %s",
+            (code, skill),
+        )
+    conn.execute("delete from class_skill where section in ('T1-A', 'T1-B', 'T1-NEW')")
+    for section, topic, taught in (
+        ("T1-A", "T1.COLS", False),
+        ("T1-B", "T1.BEGUN", False),
+        ("T1-B", "T1.MODELS", True),
+    ):
+        conn.execute(
+            "insert into class_topic (tenant_id, section, topic_code, taught, taught_by) values (%s,%s,%s,%s,%s)",
+            (tenant, section, topic, taught, BY),
+        )
+    skills = [s for *_, s in old]
+    sections = ("T1-A", "T1-B", "T1-NEW")
+
+    def before(skill, section):
+        """The rule as migration 20261110090000 wrote it: the class's word on the skill's topic, else the topic's."""
+        return conn.execute(
+            "select coalesce((select ct.taught from class_topic ct where ct.tenant_id = s.tenant_id"
+            "   and ct.section = %s and ct.topic_code = s.topic_code),"
+            " (select t.taught from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code), false) as t"
+            " from skill_set s where s.code = %s",
+            (section, skill),
+        ).fetchone()["t"]
+
+    was = {(k, c): before(k, c) for k in skills for c in sections}
+    assert was == {
+        ("MUL.GROUPS", "T1-A"): True, ("MUL.GROUPS", "T1-B"): False, ("MUL.GROUPS", "T1-NEW"): True,
+        ("MUL.MODELS", "T1-A"): False, ("MUL.MODELS", "T1-B"): True, ("MUL.MODELS", "T1-NEW"): False,
+        ("MUL.2D1D", "T1-A"): False, ("MUL.2D1D", "T1-B"): True, ("MUL.2D1D", "T1-NEW"): True,
+    }  # fmt: skip
+
+    conn.execute("select internal.topic_words_to_skills()")
+    topics.load(conn, tenant, settings.seed)
+
+    now = {(k, c): _rule(conn, k, c) for k in skills for c in sections}
+    assert now == was, {k: (was[k], now[k]) for k in was if was[k] != now[k]}
+    gone = conn.execute("select count(*) as n from topic where code like 'T1.%%'").fetchone()["n"]
+    assert gone == 0, "the old topics are gone; their words live on in each skill"

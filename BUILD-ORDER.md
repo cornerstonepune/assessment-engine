@@ -5,6 +5,32 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: topics are operations, and every page is the educator's own — Nimish, 2026-10-15
+
+Nimish, on live's Children page: "You are putting estimation word problems as a potential topic. How can that be a
+topic? These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+And: "Most of the pages just have a long list for no reason. All these things should be expandable and collapsible.
+They should have the right set of columns which are important. It should be teacher-specific."
+
+Topics: six, by operation, with the taught switch per skill (ADR 0076). Pages: the audit of every page as an educator
+and as the coordinator, 172 screenshots (STATE.md "UI audit, 2026-10-15"), cut into slices UX1–UX7.
+
+**Order, until Nimish says otherwise:** T1 → UX1 → UX2 → SF2 → UX3 → UX4 → UX5 → UX6 → UX7 → SF3 → SF4.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| T1 | `goals/t1-topics-are-operations.yaml` | six topics (Addition & subtraction, Multiplication, Division, Multiples & factors, Number sense, Data handling); a topic the seed drops is gone after a load; a class is taught skill by skill, a topic's switch turning all its skills on or off; no class's paper changes on the day; no chip on any page names a topic with no taught skill its classes' children can be given |
+| UX1 | `goals/ux1-who-sees-what.yaml` | an educator sees no decision that is not theirs (no approve button, no "skills to approve" on Today); a worksheet's print list shows only their own children; Today counts only their own classes |
+| UX2 | `goals/ux2-one-count-one-thing.yaml` | a class paper carries its class's grade; Today's counts equal the counts on the pages they open; the bank's totals agree on every page |
+| UX3 | `goals/ux3-children-grouped.yaml` | Children: an educator sees their class as one open table; the coordinator, each class a collapsed row with its summary; columns Roll · Child · Needs help on · Needs help · Practising · Secure · Waiting on you · Parent report; no constant column; one-line colour key; no sideways scroll at 400 px |
+| UX4 | `goals/ux4-class-and-child.yaml` | the class page shows its standing once and every action without a sideways scroll; a child with no answers gets one sentence and one action |
+| UX5 | `goals/ux5-papers-grouped.yaml` | Assessments grouped by week → assessment → copies in roll order, spares on one line; Approve names the children; Make and Marking open on the educator's class with a next step per child |
+| UX6 | `goals/ux6-curriculum-for-the-educator.yaml` | Curriculum, the question bank and worksheets open on the person's grade with their class's counts; the bank's stock columns are the coordinator's |
+| UX7 | `goals/ux7-phone-and-words.yaml` | on a phone the heading is in the top 120 px and no action is off-screen; one word and one format for dates, weeks, grades and states |
+
+SF2 changes with the measurement on a copy of live (ADR 0077): one approval covers a format across skills, 18
+approvals where level by level needs 38 and skill × format 48.
+
 ## Inserted now: a skill from its examples — Nimish, 2026-10-15
 
 Nimish, on approving questions level by level: approval belongs to "all unique formats of questions", with an engine that
@@ -18,7 +44,7 @@ F1g is superseded by SF2. F1d's level approvals stay recorded, and gate nothing 
 | Slice | Goal file | Green means |
 |---|---|---|
 | SF1 | `goals/sf1-a-kind-of-question-is-a-row.yaml` | a kind of question is a row (`question_format`): its words with named numbers, its answer and each mistake as formulas, its examples. A level's rule gives each number's range and the answer's bounds. Achal's three new Grade 2 skills are rows only: three numbers multiplied, sequences counted on and back, the nth and the first five multiples. Each level is drawn to its target or to every different question it can make, and says which. Every question re-reads into its kind from its own words, printed, read and marked. Every example Achal gave belongs to its level, and "100, 81, 72, 63" belongs to none |
-| SF2 | `goals/sf2-approved-per-kind.yaml` | approval is per skill × kind, given on samples from each level that uses it; a changed kind or level rule withdraws it; papers draw only approved kinds; the bank's 313 pairs start approved. Measured first on a copy of live: what it would close is named to Nimish before it ships |
+| SF2 | `goals/sf2-a-format-is-approved-once.yaml` | one approval covers a format across every skill and level that uses it (ADR 0077), given on samples drawn from each; a change to the format withdraws it; papers draw only approved formats. Measured on a copy of live (2026-10-15): 38 unapproved levels on class papers, 18 format approvals open them |
 | SF3 | `goals/sf3-a-kind-from-examples.yaml` | an educator's examples (typed, a PDF or a photo) drafted into a kind and its levels' numbers by a prompt row with its eval (Achal's asks the first gold); code checks every example belongs before anything is drawn |
 | SF4 | `goals/sf4-a-skill-from-the-website.yaml` | a new skill made on the website: its name, its levels' grades and targets, its kinds from SF3, approved per kind (SF2), on papers once its topic is taught |
 

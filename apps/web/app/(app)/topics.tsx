@@ -1,16 +1,42 @@
+import Link from "@/components/link";
 import { Panel } from "@/components/shell";
 import type { ClassTaught, Topic } from "@/lib/queries-people";
 import { switchTopic } from "./topic-actions";
 
 // Which topics each class has been taught, and who said so (goals/f1f-taught-per-class.yaml): an educator says it of
 // their own classes, the coordinator of any, in their own name; a class no one has spoken for follows the school's
-// switch. A topic not taught yet lists its skills, so a person knows what saying it brings; it is said from inside a
-// fold, as one taught is unsaid, never by a stray click.
-export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
+// word. A topic not taught yet lists its skills, so a person knows what saying it brings; it is said from inside a
+// fold, as one taught is unsaid, never by a stray click. Said of a topic, it is said of every skill in it. One class's
+// skills of one topic open on their own (`?skills=TOPIC&in=CLASS`), each with its own switch, so a class can be taught
+// Multiplication and not yet its columns (goals/t1-topics-are-operations.yaml) — never every class's every skill at
+// once, a page of thousands of switches.
+export function Topics({ topics, me, open }: { topics: Topic[]; me: string; open: { topic: string; section: string } | null }) {
   const off = topics.filter((t) => t.classes.some((c) => !c.taught));
   const on = topics.filter((t) => t.classes.some((c) => c.taught));
+  const opened = open ? topics.find((t) => t.code === open.topic) : undefined;
+  const skills = opened?.classes.find((c) => c.section === open?.section);
   return (
     <div className="mb-[18px] grid gap-[14px]">
+      {opened && skills ? (
+        <Panel title={`${opened.name} in ${skills.section}`} label="Skills of a topic in a class" id="skills" aside={`${skills.skills.filter((k) => k.taught).length} of ${skills.skills.length} skills taught`}>
+          <ul className="grid gap-1 text-[13px]">
+            {skills.skills.map((k) => (
+              <li key={k.code} className="flex flex-wrap items-center justify-between gap-3" data-skill={k.code}>
+                <span>
+                  {k.name} <span className="text-basalt/55">· {k.taught ? "taught" : "not taught yet"}</span>
+                </span>
+                <Switch
+                  code={opened.code}
+                  skill={k.code}
+                  section={skills.section}
+                  on={!k.taught}
+                  label={k.taught ? `Not taught in ${skills.section} yet` : `Taught in ${skills.section}`}
+                />
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
       <Panel title="Not taught yet" label="Not taught yet" id="not-taught" aside={`${off.length} ${off.length === 1 ? "topic" : "topics"}`}>
         {off.length ? (
           <ul className="grid gap-3">
@@ -60,12 +86,17 @@ export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
                 {t.classes
                   .filter((c) => c.taught)
                   .map((c) => (
-                    <span key={c.section} className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
-                      <span>
-                        {c.section}: <span className="text-basalt/55">{said(c)}</span>
+                    <div key={c.section} className="grid gap-1 text-[13px]" data-class={c.section}>
+                      <span className="flex flex-wrap items-center justify-between gap-3">
+                        <span>
+                          {c.section}: <span className="text-basalt/55">{said(c)}</span>
+                        </span>
+                        <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
                       </span>
-                      <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
-                    </span>
+                      <Link className="text-basalt/70 underline" href={`/?skills=${t.code}&in=${c.section}#skills`}>
+                        {c.skills.filter((k) => k.taught).length} of {c.skills.length} skills taught in {c.section} · say which →
+                      </Link>
+                    </div>
                   ))}
               </li>
             ))}
@@ -82,10 +113,11 @@ function said(c: ClassTaught): string {
   return c.by ? `as the school's switch, by ${c.by}` : "as the school's rows say";
 }
 
-function Switch({ code, section, on, label }: { code: string; section: string; on: boolean; label: string }) {
+function Switch({ code, skill, section, on, label }: { code: string; skill?: string; section: string; on: boolean; label: string }) {
   return (
     <form action={switchTopic}>
       <input type="hidden" name="code" value={code} />
+      {skill ? <input type="hidden" name="skill" value={skill} /> : null}
       <input type="hidden" name="class" value={section} />
       <input type="hidden" name="taught" value={on ? "on" : "off"} />
       <button className={on ? "btn" : "chip"} type="submit">

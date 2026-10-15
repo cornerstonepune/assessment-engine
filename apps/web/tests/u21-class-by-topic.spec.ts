@@ -52,10 +52,14 @@ test("the Children list reads one topic at a time", async ({ page }) => {
   await page.goto("/growth");
   const topics = page.getByRole("navigation", { name: "Topic" });
   await expect(topics.getByRole("link", { name: "All topics" })).toHaveAttribute("aria-current", "page");
-  // every topic switched on, and none that is not
-  const taught = (await sql<{ name: string }[]>`select name from topic where taught order by name`).map((t) => t.name);
+  // every topic with a skill switched on, and none with none (taught skill by skill: goals/t1-topics-are-operations.yaml)
+  const taught = (
+    await sql<{ name: string }[]>`
+      select distinct t.name from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+      where s.taught order by 1`
+  ).map((t) => t.name);
   for (const t of taught) await expect(topics.getByRole("link", { name: t, exact: true })).toBeVisible();
-  await expect(topics).not.toContainText("Multiplication in columns");
+  await expect(topics).not.toContainText("Multiples & factors");
   expect(await standing(page, "Asha")).toEqual([await nameOf("R24"), "2", "0"]);
 
   await topics.getByRole("link", { name: "Data handling", exact: true }).click();

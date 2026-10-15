@@ -71,16 +71,16 @@ test("Assessments opens on four ways to make one, each opening the maker ready f
 });
 
 test("a class and a topic make the class's default assessment, every child's paper seen first", async ({ page }) => {
-  // a taught topic with skills at Grade 2, and the class's default: its Grade 2 skills in the ladder's order, each at
-  // Medium where it has one, else its first level
+  // a topic with taught skills at Grade 2, and the class's default: its taught Grade 2 skills in the ladder's order,
+  // each at Medium where it has one, else its first level (taught skill by skill: goals/t1-topics-are-operations.yaml)
   const [topic] = await sql<{ code: string; name: string }[]>`
-    select t.code, t.name from topic t where t.taught and exists (
+    select t.code, t.name from topic t where exists (
       select 1 from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-      where s.topic_code = t.code and r.band = 'G2') order by t.ord limit 1`;
+      where s.topic_code = t.code and r.band = 'G2' and s.taught) order by t.ord limit 1`;
   expect(topic, "a taught topic with Grade 2 skills").toBeTruthy();
   const sets = await sql<{ code: string; difficulty: Record<string, string> }[]>`
     select s.code, s.difficulty from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where s.topic_code = ${topic.code} and r.band = 'G2' order by r.ladder_order nulls last, s.code limit 3`;
+    where s.topic_code = ${topic.code} and r.band = 'G2' and s.taught order by r.ladder_order nulls last, s.code limit 3`;
   const levels = ["Easy", "Medium", "Hard", "Advance"];
   const want = sets.map((s) => `${s.code}~${s.difficulty.Medium ? "Medium" : levels.find((d) => s.difficulty[d])}`);
 

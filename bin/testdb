@@ -33,7 +33,9 @@ fresh() {
   # Settled as live is: the tests start seconds after some 28,000 rows were written, before autovacuum has read them
   # (no statistics, no hint bits). On CI's own Postgres the first page then took 3.8 s, and once more than its 8 s,
   # where it took 1.1 s on the old image (2026-10-15). About 2 s here.
-  psql "$url" -q -v ON_ERROR_STOP=1 -c "vacuum analyze"
+  # and every row the build wrote flushed now, not by the checkpoint that otherwise starts minutes later, mid-test: on
+  # 2026-10-15 one ran 270 s during CI's browser job and a one-line query took 38 s to parse, so /growth missed its 8 s
+  psql "$url" -q -v ON_ERROR_STOP=1 -c "vacuum analyze" -c "checkpoint"
 }
 
 main() {

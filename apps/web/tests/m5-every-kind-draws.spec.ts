@@ -22,10 +22,10 @@ test("every kind of × and ÷ question the bank holds is drawn with its numbers,
     select distinct skill_set_code as set, fmt from item
     where status = 'active' and split_part(skill_set_code, '.', 1) in ('MUL', 'DIV', 'MD') order by 1, 2`;
   expect(pairs.length, "the bank holds × and ÷ questions").toBeGreaterThan(0);
-  const topics = await sql<{ code: string; taught: boolean }[]>`
-    select distinct t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const skills = await sql<{ code: string; taught: boolean }[]>`
+    select distinct s.code, s.taught from skill_set s
     where split_part(s.code, '.', 1) in ('MUL', 'DIV', 'MD')`;
-  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
   const wrong: string[] = [];
   try {
     const pickable = new Map<string, (string | null)[]>();
@@ -53,7 +53,7 @@ test("every kind of × and ÷ question the bank holds is drawn with its numbers,
       }
     }
   } finally {
-    for (const t of topics) await sql`update topic set taught = ${t.taught} where code = ${t.code}`;
+    for (const t of skills) await sql`update skill_set set taught = ${t.taught} where code = ${t.code}`;
   }
   expect([...new Set(wrong)], "every × ÷ question drawn with its numbers").toEqual([]);
 });

@@ -33,7 +33,7 @@ says:
   - words: "We had aligned on this, right?"
     proved_by: packages/engine/tests/test_asks.py::test_engine_asks_prints_every_answer
   - words: "I'm not seeing any of the multiplication, division"
-    proved_by: packages/engine/tests/test_topics.py::test_a_topic_a_person_switched_stays_as_they_left_it
+    proved_by: packages/engine/tests/test_topics.py::test_a_skill_a_person_switched_stays_as_they_left_it
   - words: "I'm not seeing any of the multiplication, division, or any of the things embedded or on the assessment page"
     proved_by: "apps/web/tests/u13-needs-you.spec.ts::an educator switches a topic on, in their name, and its skills are on Curriculum and the Question bank"
   - words: "I'm not seeing any of the multiplication, division"

@@ -142,7 +142,7 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
 
   const [{ code, name }] = await sql<{ code: string; name: string }[]>`
     select ss.code, ss.name from skill_set ss
-    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ss.taught
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     where r.band = 'G2' and r.code not in ('R8', 'R22', 'R24')
     order by t.ord, r.ladder_order nulls last limit 1`;

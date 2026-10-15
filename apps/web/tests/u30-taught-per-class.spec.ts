@@ -19,7 +19,7 @@ test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U30-MINE";
 const OTHER = "U30-OTHER";
-const TOPIC = "MULMODEL"; // multiplication's models: not taught in the school's rows, Grade 2's at Easy
+const TOPIC = "FACTORS"; // multiples and factors: not taught in the school's rows; the nth multiple is Grade 2's
 const EDUCATOR = { email: "u30-educator@cornerstone.test", name: "U30 Educator", role: "educator", classes: [MINE] };
 const PASSWORD = "u30-a-long-test-password";
 const SALT = "00112233445566778899aabbccddeeff";
@@ -36,7 +36,7 @@ test.beforeAll(async () => {
   [{ name: topicName }] = await sql<{ name: string }[]>`select name from topic where code = ${TOPIC}`;
 });
 test.afterAll(async () => {
-  await sql`delete from class_topic where section in (${MINE}, ${OTHER})`;
+  await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email})
@@ -55,9 +55,12 @@ async function signedIn(browser: Browser): Promise<Page> {
   return page;
 }
 
+// a class's word on the topic: said of every one of its skills alike (goals/t1-topics-are-operations.yaml)
 const said = (section: string) =>
   sql<{ taught: boolean; taught_by: string }[]>`
-    select taught, taught_by from class_topic where section = ${section} and topic_code = ${TOPIC}`;
+    select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill
+    where section = ${section} and skill_set_code in (select code from skill_set where topic_code = ${TOPIC})
+    having count(*) > 0`;
 
 test("an educator says a topic is taught in their class, in their name, and no other class changes", async ({ browser }) => {
   const page = await signedIn(browser);
@@ -71,7 +74,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
     await expect(page.getByRole("main")).toContainText(`${topicName} is taught in ${MINE} now`);
     expect(await said(MINE)).toEqual([{ taught: true, taught_by: EDUCATOR.name }]);
     expect(await said(OTHER), "no other class changes").toEqual([]);
-    const [school] = await sql<{ taught: boolean }[]>`select taught from topic where code = ${TOPIC}`;
+    const [school] = await sql<{ taught: boolean }[]>`select bool_or(taught) as taught from skill_set where topic_code = ${TOPIC}`;
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
 
     // the form changed by hand to a class that is not theirs: refused, and nothing is said of that class
@@ -89,7 +92,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
     expect(await said(OTHER)).toEqual([]);
   } finally {
     await page.context().close();
-    await sql`delete from class_topic where section in (${MINE}, ${OTHER})`;
+    await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;
   }
 });
 
@@ -97,8 +100,8 @@ test("make papers offers a class only the topics it has been taught", async ({ p
   try {
     const [{ id: tenant }] = await sql<{ id: string }[]>`select id from tenant limit 1`;
     await sql`
-      insert into class_topic (tenant_id, section, topic_code, taught, taught_by)
-      values (${tenant}, ${MINE}, ${TOPIC}, true, 'U30 test')`;
+      insert into class_skill (tenant_id, section, skill_set_code, taught, taught_by)
+      values (${tenant}, ${MINE}, 'MUL.MODELS', true, 'U30 test')`;
     const models = 'select[name="s"] option[value^="MUL.MODELS~"]';
     await page.goto(`/papers/make?class=${MINE}&kind=assessment&way=same`);
     await expect(page.locator(models).first()).toBeAttached();
@@ -106,7 +109,7 @@ test("make papers offers a class only the topics it has been taught", async ({ p
     await expect(page.locator('select[name="s"]').first()).toBeAttached();
     await expect(page.locator(models), "a class not taught it is not offered it").toHaveCount(0);
   } finally {
-    await sql`delete from class_topic where section in (${MINE}, ${OTHER})`;
+    await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;
   }
 });
 

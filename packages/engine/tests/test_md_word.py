@@ -210,8 +210,8 @@ def test_a_number_the_story_does_not_need_and_a_price_list():
 
 def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
     """MD.WORD is Grade 2 at Easy and Medium, Grade 3 at Hard, Grade 4 at Advance, as drafted; "Solve multi-step word
-    problems using bar models" is the school's objective at Grades 2, 3 and 4, on the skills its rung holds. A topic of
-    its own, untaught."""
+    problems using bar models" is the school's objective at Grades 2, 3 and 4, on the skills its rung holds. Under
+    Division (ADR 0076), untaught."""
     s = _set()
     assert (
         s["level_band"] == GRADES and {lv: d["check"]["cases"] for lv, d in s["difficulty"].items()} == LEVELS
@@ -229,7 +229,7 @@ def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
     topic = next(
         t for t in json.loads((SEED / "topics.json").read_text())["topics"] if "MD.WORD" in t["skill_sets"]
     )
-    assert topic["skill_sets"] == ["MD.WORD"] and topic["taught"] is False, topic
+    assert topic["code"] == "DIV" and "MD.WORD" not in topic["taught"], topic
     drafted = importlib.import_module("md_taxonomy")
     _, _, grades, levels, _ = next(x for x in drafted.SKILLS if x[0] == "MD.WORD")
     assert grades == "G2 G2 G3 G4" and levels == LEVELS, (grades, levels)

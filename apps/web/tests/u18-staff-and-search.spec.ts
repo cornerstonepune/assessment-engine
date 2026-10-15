@@ -34,8 +34,8 @@ test("an educator put on the staff list signs in, and a decision carries their n
   // on the list as `engine staff add` puts them: the hash is the one the sign-in checks (packages/engine/tests/test_cli.py)
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`update config set value = value || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
-  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught from topic where code = 'DIVCOL'`;
-  expect(topic.taught, "division by a 1-digit number waits for an educator's word").toBe(false);
+  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
+  expect(topic.taught, "division waits for an educator's word").toBe(false);
 
   // no session of the test's own: the educator signs in at the door like anyone
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
@@ -54,11 +54,11 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${SECTION} now`);
     const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`
-      select taught, taught_by from class_topic where section = ${SECTION} and topic_code = 'DIVCOL'`;
+      select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${SECTION} and skill_set_code in (select code from skill_set where topic_code = 'DIV')`;
     expect(now).toEqual({ taught: true, taught_by: EDUCATOR.name });
   } finally {
     await context.close();
-    await sql`delete from class_topic where section = ${SECTION}`;
+    await sql`delete from class_skill where section = ${SECTION}`;
   }
 });
 

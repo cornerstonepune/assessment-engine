@@ -22,7 +22,7 @@ test.afterAll(async () => {
 });
 
 test("every grade shows each skill with a level in it, taught or not, and says which are not taught yet", async ({ page }) => {
-  const [mulcol] = await sql<{ taught: boolean }[]>`select taught from topic where code = 'MULCOL'`;
+  const [mulcol] = await sql<{ taught: boolean }[]>`select taught from skill_set where code = 'MUL.2D1D'`;
   expect(mulcol.taught, "column multiplication waits for an educator's word").toBe(false);
   await page.goto("/");
   await page.getByRole("button", { name: "Open everything" }).click();
@@ -38,9 +38,10 @@ test("every grade shows each skill with a level in it, taught or not, and says w
   expect(await levels(g2)).toEqual({ Easy: true, Medium: true, Hard: false, Advance: false });
   expect(await levels(g3)).toEqual({ Easy: false, Medium: false, Hard: true, Advance: true });
 
-  // not switched on says so, on the skill and on its topic; a taught one does not
+  // not switched on says so, on the skill and on its topic when none of the topic's skills in the grade is: multiples
+  // and factors, taught in no class (goals/t1-topics-are-operations.yaml); a taught one does not
   await expect(g2).toContainText("not taught yet");
-  await expect(t.locator('tr[data-row="G2/MULCOL"]')).toContainText("not taught yet");
+  await expect(t.locator('tr[data-row="G2/FACTORS"]')).toContainText("not taught yet");
   await expect(t.locator('tr[data-row="G2/ADD.2D2D"]')).not.toContainText("not taught yet");
 });
 

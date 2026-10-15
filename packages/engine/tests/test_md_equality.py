@@ -278,7 +278,7 @@ def test_a_wrong_answer_explained_by_multiplying_back():
 
 def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
     """MD.EQUALITY is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as drafted; "Missing numbers in
-    equations" is the school's objective at both grades. A rung of its own, a topic of its own, untaught."""
+    equations" is the school's objective at both grades. A rung of its own, under Division (ADR 0076), untaught."""
     s = _equality()
     assert s["rung_code"] == R and s["level_band"] == GRADES, s["level_band"]
     assert {lv: d["check"]["cases"] for lv, d in s["difficulty"].items()} == LEVELS
@@ -289,7 +289,7 @@ def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
         for t in json.loads((SEED / "topics.json").read_text())["topics"]
         if "MD.EQUALITY" in t["skill_sets"]
     )
-    assert topic["skill_sets"] == ["MD.EQUALITY"] and topic["taught"] is False, topic
+    assert topic["code"] == "DIV" and "MD.EQUALITY" not in topic["taught"], topic
     drafted = importlib.import_module("md_taxonomy")
     _, _, grades, levels, _ = next(x for x in drafted.SKILLS if x[0] == "MD.EQUALITY")
     assert grades == "G3 G3 G4 G4" and levels == LEVELS, (grades, levels)

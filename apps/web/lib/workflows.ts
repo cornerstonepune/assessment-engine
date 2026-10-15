@@ -1,7 +1,7 @@
 import map from "../../../workflows.json";
 import { sql } from "@/lib/db";
 import { EVERY_CLASS } from "@/lib/scope";
-import { taughtFor } from "@/lib/taught";
+import { skillTaughtFor } from "@/lib/taught";
 
 // The map of the engine (`workflows.json` at the top of the repository), read as it is committed — the
 // same file `packages/engine/tests/test_layout.py` holds the code to, so this page cannot draw a step,
@@ -43,8 +43,8 @@ export async function measures(): Promise<Record<string, Measure>> {
     }[]
   >`
     select
-      (select count(*) from skill_set s where ${taughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.topic_code`)})::int as sets,
-      (select count(*) from skill_set s where s.status = 'ratified' and ${taughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.topic_code`)})::int as approved,
+      (select count(*) from skill_set s where ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as sets,
+      (select count(*) from skill_set s where s.status = 'ratified' and ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as approved,
       (select count(*) from item where status = 'active')::int as items,
       (select count(distinct skill_set_code) from item where status = 'active')::int as item_sets,
       (select count(*) from capture c join sheet_instance si on si.id = c.sheet_instance_id

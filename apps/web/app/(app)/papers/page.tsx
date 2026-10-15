@@ -65,7 +65,7 @@ export default async function PapersPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
   const view: View = q.view === "papers" ? "papers" : "assessments";
-  const taught = (await deadline(topics(scopeOf(me)))).filter((t) => t.taught);
+  const taught = (await deadline(topics(scopeOf(me)))).filter((t) => t.shown);
   const f: PaperFilter = {
     class: q.class || undefined,
     child: q.child && UUID.test(q.child) ? q.child : undefined,

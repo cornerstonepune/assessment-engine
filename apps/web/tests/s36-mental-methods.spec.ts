@@ -26,15 +26,15 @@ test.afterAll(async () => {
 test("once taught, every mental method is on the Question bank, a blank for each step", async ({
   page,
 }) => {
-  const [topic] = await sql<{ code: string; taught: boolean }[]>`
-    select t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const [skill] = await sql<{ code: string; taught: boolean }[]>`
+    select s.code, s.taught from skill_set s
     where s.code = 'MD.MENTAL'`;
-  expect(topic, "MD.MENTAL has a topic of its own").toBeTruthy();
+  expect(skill, "MD.MENTAL is a skill").toBeTruthy();
   expect(
-    topic.taught,
+    skill.taught,
     "mental multiplication and division waits for an educator's word",
   ).toBe(false);
-  await sql`update topic set taught = true where code = ${topic.code}`;
+  await sql`update skill_set set taught = true where code = ${skill.code}`;
   try {
     for (const k of SHOWS) {
       await page.goto(
@@ -49,6 +49,6 @@ test("once taught, every mental method is on the Question bank, a blank for each
       expect(text, `${k.level}: a code on the page`).not.toMatch(CODE);
     }
   } finally {
-    await sql`update topic set taught = false where code = ${topic.code}`;
+    await sql`update skill_set set taught = false where code = ${skill.code}`;
   }
 });

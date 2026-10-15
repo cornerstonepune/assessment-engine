@@ -8,30 +8,75 @@ import { classesOf, taughtFor } from "./taught";
 
 export const ROLE_WORDS: Record<string, string> = { coordinator: "a coordinator", educator: "an educator", specialist: "a specialist" };
 
-/** A class's word on a topic (goals/f1f-taught-per-class.yaml): its own (`own`), or the school's switch while no one
- *  has spoken for the class — with who said it, if a person did, and when. */
-export type ClassTaught = { section: string; taught: boolean; by: string | null; at: string | null; own: boolean };
+/** A class's word on one skill (goals/t1-topics-are-operations.yaml): its own (`own`), or the school's while no one has
+ *  spoken for the class — with who said it, if a person did, and when. `reaches`: one of its levels is the class's
+ *  grade or below, so the class's children can be given it (a child never meets a grade above their own; "G2+" is
+ *  Grade 2 and up). */
+export type SkillTaught = {
+  code: string;
+  name: string;
+  taught: boolean;
+  own: boolean;
+  by: string | null;
+  at: string | null;
+  reaches: boolean;
+};
 
-/** `taught`: in any of the classes shown. */
-export type Topic = { code: string; name: string; taught: boolean; classes: ClassTaught[]; skills: string[] };
+/** A class's word on a topic: taught when any of its skills is (`taught_in`), each skill's own word beside it. `own`, `by`
+ *  and `at` are the latest word said of one of its skills for the class, else the school's. */
+export type ClassTaught = { section: string; taught: boolean; by: string | null; at: string | null; own: boolean; skills: SkillTaught[] };
 
-/** Every topic in the tree's order, with its skills' names and each class's word on it: the classes of the scope. */
+/** `taught`: in any of the classes shown. `shown`: one of its skills is taught in one of them and reaches that class's
+ *  grade, so a page about those classes can show it (goals/t1-topics-are-operations.yaml). */
+export type Topic = { code: string; name: string; taught: boolean; shown: boolean; classes: ClassTaught[]; skills: string[] };
+
+/** Every topic in the tree's order, with its skills' names and each class's word on each of its skills: the classes
+ *  of the scope. */
 export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
   const classes = await classesOf(scope);
-  const rows = await sql<Omit<Topic, "taught">[]>`
+  const rows = await sql<{ code: string; name: string; skills: string[]; classes: { section: string; skills: SkillTaught[] }[] }[]>`
     select t.code, t.name,
-           coalesce(array_agg(s.name order by s.code) filter (where s.code is not null), '{}') as skills,
-           (select coalesce(json_agg(json_build_object(
-                      'section', k.section, 'taught', taught_in(t.tenant_id, t.code, k.section),
-                      'by', coalesce(ct.taught_by, t.taught_by), 'at', coalesce(ct.taught_at, t.taught_at)::text,
-                      'own', ct.section is not null) order by k.section), '[]')
-            from unnest(${classes}::text[]) as k(section)
-            left join class_topic ct on ct.tenant_id = t.tenant_id and ct.topic_code = t.code and ct.section = k.section)
-             as classes
-    from topic t left join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
-    group by t.tenant_id, t.code, t.name, t.taught_by, t.taught_at, t.ord
+           coalesce((select array_agg(s.name order by s.code) from skill_set s
+                     where s.tenant_id = t.tenant_id and s.topic_code = t.code), '{}') as skills,
+           (select coalesce(json_agg(json_build_object('section', k.section, 'skills', (
+                      select coalesce(json_agg(json_build_object(
+                               'code', s.code, 'name', s.name, 'taught', skill_taught_in(s.tenant_id, s.code, k.section),
+                               'own', cs.section is not null, 'by', coalesce(cs.taught_by, s.taught_by),
+                               'at', coalesce(cs.taught_at, s.taught_at)::text,
+                               'reaches', exists (select 1 from jsonb_object_keys(s.difficulty) lvl
+                                                  where left(coalesce(s.level_band ->> lvl, r.band), 2) <= left(k.band, 2))
+                             ) order by s.code), '[]')
+                      from skill_set s
+                      left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+                      left join class_skill cs on cs.tenant_id = s.tenant_id and cs.skill_set_code = s.code
+                                              and cs.section = k.section
+                      where s.tenant_id = t.tenant_id and s.topic_code = t.code)) order by k.section), '[]')
+            from (select c.section, (select min(ch.band) from child ch where ch.section = c.section and ch.active) as band
+                  from unnest(${classes}::text[]) as c(section)) k) as classes
+    from topic t
     order by t.ord`;
-  return rows.map((t) => ({ ...t, taught: t.classes.some((c) => c.taught) }));
+  return rows.map((t) => {
+    const each: ClassTaught[] = t.classes.map((c) => {
+      const said = c.skills.filter((s) => s.own).sort((a, b) => String(b.at).localeCompare(String(a.at)))[0];
+      const school = c.skills.find((s) => s.by);
+      return {
+        section: c.section,
+        taught: c.skills.some((s) => s.taught),
+        own: Boolean(said),
+        by: (said ?? school)?.by ?? null,
+        at: (said ?? school)?.at ?? null,
+        skills: c.skills,
+      };
+    });
+    return {
+      code: t.code,
+      name: t.name,
+      skills: t.skills,
+      classes: each,
+      taught: each.some((c) => c.taught),
+      shown: each.some((c) => c.skills.some((s) => s.taught && s.reaches)),
+    };
+  });
 }
 
 export type Ask = {

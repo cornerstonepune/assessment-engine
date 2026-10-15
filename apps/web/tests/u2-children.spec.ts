@@ -126,7 +126,7 @@ test("each grade opens on its classes, and a class is its children against every
   const steps = await sql<{ col: string }[]>`
     select distinct s.skill_code || '|' || s.rung_code as col
     from child_skill_state s join child c on c.id = s.child_id
-    join skill_set ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and t.taught
+    join skill_set ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and ss.taught
     where c.section = ${SECTION} and s.n_events > 0`;
   const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
   const shown = await grid.locator("thead th[data-col]").evaluateAll((ths) => ths.map((t) => t.getAttribute("data-col")));
@@ -163,7 +163,7 @@ test("a child's page opens on one plain sentence that counts what their answers 
   // not yet: the taught skills of the grade no checked answer of hers has reached
   const [{ notYet }] = await sql<{ notYet: number }[]>`
     select count(*)::int as "notYet" from skill_set ss
-    join topic t on t.code = ss.topic_code and t.taught join rung r on r.code = ss.rung_code
+    join topic t on t.code = ss.topic_code and ss.taught join rung r on r.code = ss.rung_code
     where r.band = 'G2' and not exists (select 1 from child_skill_state s
       where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);

@@ -1,0 +1,39 @@
+name: t1-topics-are-operations
+goal: >
+  The site's topics are the operations a child learns: Addition & subtraction, Multiplication, Division, Multiples &
+  factors, Number sense, and Data handling. A kind of question (estimating, a story, an equation, mental methods) is
+  never a topic; the skill that asks it sits under its operation. A topic the rows no longer have is gone from the
+  database after a load, with every class's word on it, so no page shows an empty topic. A class is taught skill by
+  skill: switching a topic on or off for a class switches all its skills, and an educator can leave one skill off. A
+  topic is taught in a class when any of its skills is. The school's switch is per skill too, for a class no one has
+  spoken for. Regrouping changes no class's paper on the day: every skill keeps the word it had, whichever topic it now
+  sits in. No chip on any page names a topic none of whose taught skills its classes' children can be given (a level
+  of their grade or below).
+# Written 2026-10-15, before the code (BUILD-ORDER "topics are operations", ADR 0076). Measured first: live's chips
+# include "Number sense & strategies", "Estimation" and "Word problems", rows the seed dropped on 2026-09-23 (#44) and
+# `engine load` never removed; the seed's own 16 topics hold nine slices of × and ÷; the topic is also the taught
+# switch (`class_topic`, `taught_in`), and on live Multiplication is on for G2 and G3. Nimish chose six topics by
+# operation and the switch per skill from the options put to him the same day.
+says:
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: packages/engine/tests/test_topics.py::test_the_topics_are_the_operations_and_a_kind_of_question_is_never_one
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: packages/engine/tests/test_topics.py::test_a_topic_the_rows_drop_is_gone_after_a_load_with_every_classs_word
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: packages/engine/tests/test_taught_per_class.py::test_a_class_is_taught_skill_by_skill
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: packages/engine/tests/test_taught_per_class.py::test_regrouping_the_topics_changes_no_classs_paper
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: "apps/web/tests/u31-topics-are-operations.spec.ts::curriculum lists the six topics, and a class's skills each with its own switch"
+  - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
+    proved_by: "apps/web/tests/u31-topics-are-operations.spec.ts::no chip names a kind of question, or a topic with nothing taught at the class's grade"
+manual:
+  - "On live, once merged: `~/cornerstone/assessment-engine/bin/update-live` regroups the topics; every class keeps the skills it had."
+scenarios: []
+criteria:
+  - name: six topics, taught skill by skill, nothing changed on the day
+    run: cd packages/engine && uv run pytest -q tests/test_topics.py tests/test_taught_per_class.py tests/test_loaders.py tests/test_focus_paper.py tests/test_maker.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

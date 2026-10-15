@@ -122,8 +122,7 @@ def test_56_times_3_written_1518_on_aseems_paper_is_named_counted_and_aimed_at(
         assert now["repeating_misconception"] == "M_MUL_CONCAT", (n, now)
     assert now["state"] == "patterned_error", now
     conn.execute(
-        "update topic set taught = true, taught_by = %s, taught_at = now()"
-        " where code = (select topic_code from skill_set where code = 'MUL.2D1D')",
+        "update skill_set set taught = true, taught_by = %s, taught_at = now() where code = 'MUL.2D1D'",
         (PERSON,),
     )
     nxt = focus_paper.plan(conn, child, WEEK)["areas"]

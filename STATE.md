@@ -8001,3 +8001,53 @@ one child on live.
   - Checks: `tests/test_divide_stories.py`, 6 passed. The new test failed first on the doubled 6.
   - Charged on live? None on the copy (live's rows to 2026-10-14): no answer to a rounded-up story, and DIVCOL is not
     switched on. Live after that cannot be read from here.
+
+## SF1 on live; SF2 measured; the UI audit (2026-10-15)
+
+- **SF1 merged as #210 (`1721046`): the first deploy Vercel held.** Vercel built it at 09:31 UTC and waited ("Waiting
+  for checks"). `migrate live` set `live database` green at 10:05:39, and Vercel promoted at 10:05:40.
+- **SF2 measured on a copy of live** (rehearsal run 38714442140, `.github/measure/sf2_kinds.py`, before update-live):
+  - 43 skills (20 approved whole); 168 levels (76 approved); 314 skill × template pairs, 182 skill × format.
+  - 38 unapproved levels reach a class's paper (G2, G3): 10 skills, 10,486 questions.
+  - Approvals to open them: by level 38, by template 75, by skill × format 48, by format alone 18.
+  - Nimish chose a format approved once across skills (ADR 0077).
+  - Multiplication is switched on for G2 and G3 on live, so MUL.THREE and MUL.NTH reach those papers once
+    update-live runs.
+- **UI audit:** every page, as an educator and as the coordinator, at laptop and phone width, on a seeded fresh copy:
+  43 views, 172 screenshots, all loaded with no console error. The report is in the session scratchpad (`ui-audit/`),
+  cut into slices UX1–UX7 in BUILD-ORDER. Highest:
+  - an educator offered approve buttons that are not theirs;
+  - a worksheet's print list showing other classes' children by name;
+  - class papers labelled "Grade 1 · G2-C";
+  - Children one flat table per grade.
+
+## T1 — topics are operations; a class is taught skill by skill (2026-10-15, ADR 0076)
+
+- **Found:**
+  - live's chips "Number sense & strategies", "Estimation" and "Word problems" are dead rows: the seed dropped them
+    on 2026-09-23, and `engine load` never removed a topic;
+  - the seed's 16 topics held nine slices of × and ÷;
+  - the topic was also the taught switch.
+- **Built:**
+  - Six topics: Addition & subtraction, Multiplication, Division, Multiples & factors, Number sense, Data handling.
+    `topics.json` lists each topic's skills and the ones the school has taught.
+  - The load removes a topic the rows dropped, with every class's word on it.
+  - Migration 20261113090000:
+    - the school's word per skill (`skill_set.taught`) and each class's (`class_skill`);
+    - `skill_taught_in`, the one rule; `taught_in` (a topic: any of its skills); `say_taught`, a topic's switch or
+      one skill's;
+    - `internal.topic_words_to_skills`, run before any skill moves topic, writes every old word onto each skill;
+    - the website's write to `class_topic` revoked.
+  - Engine readers: `shelf.catalog` and `live_data.hidden` read per skill.
+  - Website:
+    - every skill-level read goes through `skillTaughtIn` / `skillTaughtFor`;
+    - Curriculum has a switch per skill inside each taught class;
+    - chips name only topics with a taught skill a class's children can be given (a level of their grade or below).
+- **Checks:**
+  - `test_topics.py` and `test_taught_per_class.py` (11 new or changed tests, failing first): 56 passed with
+    `test_loaders`, `test_focus_paper` and `test_maker`.
+  - `test_regrouping_the_topics_changes_no_classs_paper` compares every class's word before and after the regroup.
+  - `test_roles`, `test_live_data`, `test_card_bank`, `test_read_back`, `test_aseem_1518`: 21 passed.
+  - `rules.json`: the four new rules. tsc and eslint clean.
+- **Left in place on purpose:** `class_topic` and `topic.taught` are read by nothing. They stay so that the old
+  website still serving during the deploy finds them; the next migration drops them.

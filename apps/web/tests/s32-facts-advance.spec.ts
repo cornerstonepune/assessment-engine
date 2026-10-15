@@ -26,12 +26,12 @@ async function shows(page: Page, set: string, fmt: string, says: RegExp, what: s
 }
 
 test("once taught, the tables' kinds are on the Question bank with their numbers", async ({ page }) => {
-  const topics = await sql<{ code: string; taught: boolean }[]>`
-    select distinct t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const skills = await sql<{ code: string; taught: boolean }[]>`
+    select distinct s.code, s.taught from skill_set s
     where s.code in ('MUL.FACTS', 'DIV.FACTS')`;
-  expect(topics.length, "the tables in topics of their own").toBeGreaterThan(0);
-  expect(topics.every((t) => !t.taught), "the tables wait for an educator's word").toBe(true);
-  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  expect(skills.length, "the tables in topics of their own").toBeGreaterThan(0);
+  expect(skills.every((t) => !t.taught), "the tables wait for an educator's word").toBe(true);
+  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
   try {
     await shows(page, "MUL.FACTS", "missing_number", /(\d+|□) × (\d+|□) = \d+/, "a missing factor's sentence");
     await shows(page, "MUL.FACTS", "fact_family", /\d+ ÷ \d+ = □/, "a fact family's divisions");
@@ -43,6 +43,6 @@ test("once taught, the tables' kinds are on the Question bank with their numbers
       "the table backwards: the division and its fact",
     );
   } finally {
-    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+    await sql`update skill_set set taught = false where code = any(${skills.map((t) => t.code)})`;
   }
 });

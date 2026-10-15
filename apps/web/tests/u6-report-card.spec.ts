@@ -146,7 +146,7 @@ test("the skill map places the grade's skill sets and one step either side, colo
   const sets = await sql<{ code: string }[]>`
     with taught as (
       select ss.code, left(r.band, 2) as band, r.skill_codes[1] as lane, r.ladder_order, r.code as rung
-      from skill_set ss join topic t on t.code = ss.topic_code and t.taught join rung r on r.code = ss.rung_code
+      from skill_set ss join topic t on t.code = ss.topic_code and ss.taught join rung r on r.code = ss.rung_code
       where ss.status is distinct from 'retired'),
     ends as (
       select code, band, row_number() over (partition by lane, band order by ladder_order desc) as from_top,

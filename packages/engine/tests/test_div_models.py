@@ -81,7 +81,7 @@ def _exact(it):
 
 def test_every_case_div_groups_lists_draws_on_its_level():
     """Easy holds sharing and grouping, Medium repeated subtraction and the array, Hard the jumps back, Advance the
-    four stories; all Grade 2, as the drafted document sets them. Its own rung and its own topic, untaught; no level
+    four stories; all Grade 2, as the drafted document sets them. Its own rung, under Division (ADR 0076), untaught; no level
     says `within`, so placing never holds one of its questions in a calculation skill too (ADR 0054)."""
     assert {lv: d["check"]["cases"] for lv, d in MODELS["difficulty"].items()} == {
         "Easy": ["G15", "G16"],
@@ -94,7 +94,7 @@ def test_every_case_div_groups_lists_draws_on_its_level():
     rung = RUNGS[MODELS["rung_code"]]
     assert rung["band"] == "G2" and rung["skill_codes"] == ["NUM.OPS.04"]
     homes = [t for t in TOPICS.values() if "DIV.GROUPS" in t["skill_sets"]]
-    assert len(homes) == 1 and homes[0]["skill_sets"] == ["DIV.GROUPS"] and homes[0]["taught"] is False
+    assert [t["code"] for t in homes] == ["DIV"] and "DIV.GROUPS" not in homes[0]["taught"]
     for case in LEVEL_OF:
         _drawn(case, n=4)
 
