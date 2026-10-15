@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — CI's database with no container image (its own PR, beside #206)
+
+- **Nimish said yes** to the apt Postgres fix: no CI job pulls a database image now (`bin/ci-postgres`). The trigger
+  was AWS's copy of `postgres:17` refusing #206's browser job ("Data limit exceeded"), after Docker Hub's refusal on
+  2026-10-09. See STATE.md "CI's database with no container image".
+- **#205 merged** as `7238e20`. `engine week unapproved` can be run against live once `migrate live` has applied
+  20261110090000.
+
 ## 2026-10-14 — F1f: taught is said for each class (#204 merged)
 
 - **#204 (F1a–F1e) merged** as `f5787f8`. Main's CI was green, and `migrate live` applied 20261109090000 (level approval)

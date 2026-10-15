@@ -7831,3 +7831,23 @@ it would close are named to Nimish before it ships".
   - CI's whole-suite run on d207b99, the PR's whole code, failed these two and only these (2471 passed).
   - Both now pass here (8 passed with the rest of their files).
   - The push changes those two test files and nothing else.
+
+## CI's database with no container image (2026-10-15)
+
+- **What failed:** #206's `browser` job died before its first step. The Postgres 17 service container's pull from
+  `public.ecr.aws/docker/library/postgres:17` was refused three times with `toomanyrequests: Data limit exceeded`.
+  This is the second registry to refuse CI's anonymous pulls: Docker Hub did the same on 2026-10-09, and that is why CI
+  moved to AWS's copy. Runners share addresses, so any registry's anonymous limit can stop every job.
+- **Fix at the cause:** no job pulls a database image any more.
+  - `bin/ci-postgres` installs Postgres 17 from the PostgreSQL apt repository (apt.postgresql.org) and starts it on
+    127.0.0.1:5432 as postgres/postgres, as the image did.
+  - It uses the image's own locale, en_US.UTF-8, and checks passwords over TCP (scram-sha-256).
+  - The package's own cluster and any older Postgres on the runner are stopped first.
+  - CI's `engine` and `browser` jobs and `rehearse update-live` call it as their first step after checkout. The
+    rehearsal's separate client install is folded into it.
+  - It refuses to run anywhere but a CI runner (`GITHUB_ACTIONS`).
+- **Check (here, as a non-root `runner` user with passwordless sudo, as on GitHub's runners):**
+  - The script installs and starts it: "PostgreSQL 17.11 … en_US.UTF-8". It puts `/usr/lib/postgresql/17/bin` on the
+    job's PATH.
+  - A wrong password is refused over TCP. Off a runner, the script refuses with exit 1.
+  - `bin/testdb fresh` on it: see below. The PR's own CI is the proof on a real runner.
