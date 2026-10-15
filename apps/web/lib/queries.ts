@@ -73,7 +73,7 @@ export async function skillSets({
            t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
-                           where item.skill_set_code = s.code and item.status = 'active'
+                           where item.skill_set_code = s.code and item.status = 'active' and item.source = 'generated'
                            group by difficulty) d), '{}'::json) as counts,
            coalesce((select json_object_agg(w.difficulty, w.n)
                      from (select difficulty, count(*)::int as n from sheet_template t

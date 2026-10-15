@@ -48,6 +48,7 @@ WEB_CALLS = {
     "operation_sign",
     "current_item_key",
     "taught_in",  # whether a class has been taught a topic: any of its skills (goals/f1f-taught-per-class.yaml)
+    "class_band",  # a class's grade, the one rule every page asks (goals/ux2-one-count-one-thing.yaml)
     "skill_taught_in",  # whether a class has been taught a skill: the one rule (goals/t1-topics-are-operations.yaml)
     "say_taught",  # a person's word that a class has (or has not) been taught a topic or one skill of it
     "checks_to_trust",

@@ -103,7 +103,7 @@ export async function classGrid(
   const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
       select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
-             ss.code as skill_set, ${levelsUsedBy(sql`(select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1)`)} as levels, t.ord, r.ladder_order
+             ss.code as skill_set, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.ord, r.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
       join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
       join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
@@ -115,16 +115,16 @@ export async function classGrid(
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
     sql<Unanswered[]>`
-      select ss.code, ss.name, ${levelsUsedBy(sql`(select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1)`)} as levels, t.code as topic_code from skill_set ss
+      select ss.code, ss.name, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.code as topic_code from skill_set ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, section)}
       join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
       where r.band in (select band from child where section = ${section} and active)
         and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
                         where c.section = ${section} and c.active and s.rung_code = r.code and s.n_events > 0)
       order by t.ord, r.ladder_order nulls last`,
-    // the class's grade is most of its children's (as `roster.class_band` has it)
+    // the class's grade: the database's one rule, which the engine asks too (goals/ux2-one-count-one-thing.yaml)
     sql<{ band: string }[]>`
-      select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1`,
+      select class_band(tenant_id, section) as band from child where section = ${section} and active limit 1`,
   ]);
   return {
     steps,

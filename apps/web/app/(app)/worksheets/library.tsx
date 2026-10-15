@@ -3,7 +3,7 @@ import { KIND } from "@/components/question";
 import { Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { DIFFICULTIES, skillSets } from "@/lib/queries";
-import { worksheetCount, worksheets } from "@/lib/queries-worksheets";
+import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-worksheets";
 
 const PER_PAGE = 50;
 
@@ -21,8 +21,8 @@ type Q = Record<string, string | undefined>;
 export async function Library({ q }: { q: Q }) {
   const filter = { set: q.set, level: DIFFICULTIES.find((d) => d === q.level) };
   const page = Math.max(1, Number(q.page) || 1);
-  const [sets, rows, total] = await deadline(
-    Promise.all([skillSets(), worksheets(filter, PER_PAGE, (page - 1) * PER_PAGE), worksheetCount(filter)]),
+  const [sets, rows, total, library] = await deadline(
+    Promise.all([skillSets(), worksheets(filter, PER_PAGE, (page - 1) * PER_PAGE), worksheetCount(filter), libraryTotal()]),
   );
   const all = sets.reduce((n, s) => n + Object.values(s.worksheets).reduce((a, b) => a + (b ?? 0), 0), 0);
   const link = (p: Q) => {
@@ -37,7 +37,7 @@ export async function Library({ q }: { q: Q }) {
     <section id="library" className="scroll-mt-6">
       <Panel
         title="Worksheet library"
-        aside={`${all.toLocaleString("en-IN")} worksheets · every question in the bank is on one`}
+        aside={`${all.toLocaleString("en-IN")} worksheets of the skills taught, of the library's ${library.toLocaleString("en-IN")} · every question in the bank is on one`}
       >
         <p className="mb-3">
           <Link href="/worksheets/taxonomy" className="chip">
@@ -135,7 +135,7 @@ export async function Library({ q }: { q: Q }) {
         <p className="note mt-3 flex flex-wrap gap-4">
           <span>
             {total
-              ? `${(page - 1) * PER_PAGE + 1}–${Math.min(page * PER_PAGE, total)} of ${total}`
+              ? `${(page - 1) * PER_PAGE + 1}–${Math.min(page * PER_PAGE, total)} of ${total.toLocaleString("en-IN")}`
               : "No worksheets here yet."}
           </span>
           {page > 1 ? <Link href={link({ page: String(page - 1) })}>← Previous {PER_PAGE}</Link> : null}

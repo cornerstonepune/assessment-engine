@@ -11,13 +11,18 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 test.afterAll(async () => sql.end());
 
 test("the bank says in plain words what it is, with the database's own numbers", async ({ page }) => {
-  const [{ active, skills }] = await sql<{ active: number; skills: number }[]>`
-    select (select count(*)::int from item i join skill_set s on s.code = i.skill_set_code where i.status = 'active' and i.source = 'generated'
+  // the bank, and its part of skills taught in a class (goals/ux2-one-count-one-thing.yaml)
+  const [{ bank, active, skills }] = await sql<{ bank: number; active: number; skills: number }[]>`
+    select (select count(*)::int from item i join skill_set s on s.code = i.skill_set_code
+             where i.status = 'active' and i.source = 'generated' and s.difficulty ? i.difficulty) as bank,
+           (select count(*)::int from item i join skill_set s on s.code = i.skill_set_code where i.status = 'active' and i.source = 'generated'
+              and s.difficulty ? i.difficulty
               and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))) as active,
            (select count(*)::int from skill_set s where exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))) as skills`;
   await page.goto("/library");
   const about = page.getByRole("region", { name: "What the bank is" }).or(page.locator("section.panel", { hasText: "What the bank is" }));
-  await expect(about.first()).toContainText(`${active.toLocaleString("en-IN")} today, for the ${skills} skills`);
+  await expect(about.first()).toContainText(`${bank.toLocaleString("en-IN")} today`);
+  await expect(about.first()).toContainText(`${active.toLocaleString("en-IN")} of them are of the ${skills} skills taught in a class`);
   await expect(about.first()).toContainText("a computer checks every answer");
   await expect(about.first()).toContainText("sits on at least one numbered worksheet");
 });

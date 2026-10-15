@@ -45,9 +45,12 @@ test("every step of the map is drawn in its workflow, with what it is doing now 
 });
 
 test("a step's number is the database's own, read now", async ({ page }) => {
+  // the bank and the library as every page counts them (goals/ux2-one-count-one-thing.yaml)
   const [n] = await sql<{ items: number; worksheets: number }[]>`
-    select (select count(*) from item where status = 'active')::int as items,
-           (select count(*) from sheet_template where source = 'library' and retired_at is null)::int as worksheets`;
+    select (select count(*) from item i join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+             where i.source = 'generated' and i.status = 'active' and s.difficulty ? i.difficulty)::int as items,
+           (select count(*) from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+             where t.source = 'library' and t.retired_at is null)::int as worksheets`;
   await page.goto("/workflows");
   await expect(page.locator('[data-measure="N2"]')).toContainText(n.items.toLocaleString("en-IN"));
   await expect(page.locator('[data-measure="N6"]')).toContainText(n.worksheets.toLocaleString("en-IN"));

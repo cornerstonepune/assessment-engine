@@ -8095,3 +8095,66 @@ one child on live.
   - Then u32, u27, u15 and u26: 16 passed. The whole website suite on the migrated copy: 236 of 237, the one u20
     above, then u20 and m5: 4 passed. tsc and eslint clean; `bin/check` passed.
   - The whole engine suite on the migrated copy: 2531 passed, 2 skipped.
+
+## UX2 — one count for one thing (2026-10-15, goals/ux2-one-count-one-thing.yaml)
+
+- **Measured first.** On live (the audit): "Grade 1 · G2-C"; class papers to approve 12 on Today and 18 on
+  Assessments; the bank 21,250, 28,705 and 28,717 on three pages; worksheets 1,872 above the list and 2,738 in the pager.
+  On a fresh copy: the bank 19,638 / 28,696 / 28,746; worksheets 1,710 / 2,736.
+- **Causes, each fixed where it is:**
+  - A class's grade was taken three ways. It is one database function now, `class_band(tenant, section)` (migration
+    20261115090000): the grade most of its active children are in, the lower on a tie. `roster.class_band` asks it;
+    so do Today, Make, the topics, the class page and Assessments.
+  - A spare copy has no child, so it took its worksheet's grade, and its class's group took the lowest. It takes its
+    class's now. A spare not yet written on is counted apart ("and 1 spare"), never as a paper to approve; once read,
+    it counts like any paper.
+  - "The bank" is the questions the engine can draw: made by it, active, of a skill at one of its levels. Curriculum,
+    a skill's page and the workflow map counted the old papers' questions too, which no paper draws. The Question bank
+    page shows the taught part and says the whole: "N questions ready to print for the skills taught, of the bank's M".
+  - The worksheet pager counted worksheets of untaught skills and of replaced skills, which its list never shows. The
+    pager and the list count what the header counts, and the header names the library's whole.
+- **Checks:** UX2's four tests failed first on main's pages, each for its reason ("Grade 1 · U33-CLASS"; "3 to
+  approve" for two children's copies; the map's 28,746; "of 2736" under 1,710), then passed. `class_band` and
+  `roster.class_band` agree in every case (`test_a_class_has_one_grade_and_the_database_says_it`); roster and week
+  tests: 17 passed.
+
+## A copy photographed from its second page was read in the wrong layout (2026-10-15)
+
+- **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy
+  holding its paper's pages 2–4 had answers on questions 1 to 8. The same code passed on three other heads.
+- **Why only sometimes:** `bank refill` draws unseeded, so each CI database holds different word problems. The test
+  worksheet is the bank's first twelve. When their stems are short, the layout before L3 (2026-09-21, smaller working
+  boxes) draws them in 3 pages, where today's draws 4.
+- **Cause:** `boxes.as_printed` chose a layout by keeping only those with as many pages as the copy's photographs,
+  and took the only one left unmeasured. A copy split across two files holds fewer pages than its paper, so a
+  3-photograph copy of a 4-page paper matched the 3-page old layout. Placement then took its pages as 1–3 without
+  measuring, and the answers were read against the wrong questions and keys. Reproduced on the copy with the twelve
+  shortest word problems ({'2026-10-10': 4, …, '2026-09-21': 3}).
+- **Fix:** every layout long enough to hold the photographs is measured alike (`boxes._runs`: the best run of its
+  pages the photographs fit), and the page count no longer chooses. `agreement` and `_agreeing` went with it.
+  `test_a_copy_holding_its_later_pages_is_read_in_its_own_layout_whatever_another_layout_draws` builds the case from
+  36 fixed sums (today's layout 3 pages, the old one 2); it failed before the fix, picking the old layout.
+
+## `/growth` "could not load" on CI: a function's row guess made Postgres compile the query (2026-10-15)
+
+- **Seen:** main's browser job on `3d07f66`, and once on T1's PR: the first load of `/growth` hit the page's 8 s limit.
+  The query ran 3.97 s planning and 4.17 s executing on CI; 25 ms of work.
+- **Cause, reproduced on a copy built as CI builds it:** `pii.read_child` returns one row but was declared with
+  Postgres's default guess of 1,000, so the Children page's query (one name per child) was planned at 24,000 rows for
+  24 children, cost 653,786: above `jit_above_cost`, and above the inlining and optimisation thresholds. Postgres
+  compiled it before running it: 2,057 ms of compiling for 25 ms of work here, past 8 s on CI's slower runner.
+  Earlier I put this down to a checkpoint (the `checkpoint` in `bin/testdb`, T1); that was not it.
+- **Fix:** migration 20261116090000 declares `pii.read_child` and `next_difficulty` one row each. The same query: cost
+  671, no compiling, 4.5 ms (was 2,081 ms). `tests/test_db_plans.py` holds both the declaration and the plan.
+- **The same cause, a second time, where no declaration can reach it:** PR #213's browser job on `3135c85`. A skill's
+  page (`e2e.spec.ts` "a skill on the map opens its own page") missed its heading's 5 s. Its query counting the
+  mistakes reads `jsonb_array_elements` and `jsonb_object_keys`, Postgres's own functions, each guessed at 100 rows:
+  8,730,000 guessed for 3,530 read, cost 1,723,004. On the CI-built copy it compiled for 366 ms of 406 ms; CI's log
+  shows 4,061 ms. Our functions can say how many rows they return; Postgres's own cannot be told.
+- **Fix at the cause:** migration 20261117090000 turns compiling off for the website's role, `app_web`. Every page
+  query takes milliseconds, so compiling never pays for one. The engine's batch work keeps Postgres's choice. As
+  `app_web` on the copy: `show jit` → off; the same query 8.8 ms (was 406 ms).
+  `test_the_websites_role_never_compiles_a_query` failed before the migration and passes after it.
+- **On live this holds only once the website connects as `app_web`.** That switch is Nimish's (the roles section
+  above: "Live switches by Nimish's hand"). I do not know whether it has been made. Until it is, live's pages run as
+  the owner and may still compile.

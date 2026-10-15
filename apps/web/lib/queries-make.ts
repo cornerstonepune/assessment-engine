@@ -21,7 +21,8 @@ export type ClassHome = { section: string; band: string; children: number; propo
 
 export async function homeByClass(week = isoWeek(), scope: Scope = EVERY_CLASS): Promise<ClassHome[]> {
   return sql<ClassHome[]>`
-    select c.section, min(c.band) as band, count(*)::int as children,
+    -- a class's grade is the database's one rule (class_band), as on every page (goals/ux2-one-count-one-thing.yaml)
+    select c.section, class_band(c.tenant_id, c.section) as band, count(*)::int as children,
            count(*) filter (where h.qr_code is null and exists (
              select 1 from child_skill_state s where s.child_id = c.id and s.state = any(${PROPOSABLE})))::int as proposed,
            count(h.qr_code)::int as approved
@@ -29,8 +30,8 @@ export async function homeByClass(week = isoWeek(), scope: Scope = EVERY_CLASS):
     left join lateral (select qr_code from sheet_instance si
                        where si.child_id = c.id and si.kind = 'focus' and si.week = ${week} limit 1) h on true
     where c.active and ${inScope(scope, sql`c.section`)}
-    group by c.section
-    order by min(c.band), c.section`;
+    group by c.tenant_id, c.section
+    order by class_band(c.tenant_id, c.section), c.section`;
 }
 
 /** How many children the engine proposes a home paper for this week, in the classes a person sees — as Today counts

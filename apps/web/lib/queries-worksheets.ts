@@ -2,6 +2,8 @@
 // A worksheet is a `sheet_template` row with source 'library'; which worksheets hold a question is
 // read from their question ids, never copied onto the question.
 import { sql } from "./db";
+import { EVERY_CLASS } from "./scope";
+import { skillTaughtFor } from "./taught";
 import { itemColumns, type ItemRow } from "./queries-bank";
 import type { Difficulty } from "./queries";
 
@@ -15,8 +17,12 @@ export type WorksheetRow = {
 
 export type WorksheetFilter = { set?: string; level?: string };
 
+// A library worksheet of a skill taught in some class: what the page's total counts, so its pager and its list count
+// the same worksheets (goals/ux2-one-count-one-thing.yaml) — never one of a skill since replaced, which no list shows.
 const live = (f: WorksheetFilter) => sql`
   t.source = 'library' and t.retired_at is null
+  and exists (select 1 from skill_set ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
+              and ${skillTaughtFor(EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
   ${f.set ? sql`and t.skill_set_code = ${f.set}` : sql``}
   ${f.level ? sql`and t.difficulty = ${f.level}` : sql``}`;
 
@@ -37,6 +43,14 @@ export async function worksheets(f: WorksheetFilter, limit: number, offset: numb
 
 export async function worksheetCount(f: WorksheetFilter): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from sheet_template t where ${live(f)}`;
+  return n;
+}
+
+/** The library: every live worksheet of a skill, taught or not — the number the workflow map names too. */
+export async function libraryTotal(): Promise<number> {
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+    where t.source = 'library' and t.retired_at is null`;
   return n;
 }
 

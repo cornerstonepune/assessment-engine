@@ -51,7 +51,7 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
                       left join class_skill cs on cs.tenant_id = s.tenant_id and cs.skill_set_code = s.code
                                               and cs.section = k.section
                       where s.tenant_id = t.tenant_id and s.topic_code = t.code)) order by k.section), '[]')
-            from (select c.section, (select min(ch.band) from child ch where ch.section = c.section and ch.active) as band
+            from (select c.section, class_band(t.tenant_id, c.section) as band
                   from unnest(${classes}::text[]) as c(section)) k) as classes
     from topic t
     order by t.ord`;

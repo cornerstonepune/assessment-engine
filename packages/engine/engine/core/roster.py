@@ -64,7 +64,8 @@ def class_band(conn: db.Conn, section: str) -> str | None:
     week is its own grade's. `limit 1` over the class took whichever child came first, so one child entered in the
     wrong grade could move the whole class's week (G3 roll 5 as G4, 2026-09-30). None for a class with no child."""
     row = conn.execute(
-        "select band from child where section = %s and active group by band order by count(*) desc, band limit 1",
+        # the rule is the database's (`class_band`), so the engine and every page say one grade for a class
+        "select class_band(tenant_id, section) as band from child where section = %s and active limit 1",
         (section,),
     ).fetchone()
     return row["band"] if row else None

@@ -40,7 +40,10 @@ export function AssessmentsTable({ rows, opens }: { rows: AssessmentRow[]; opens
               {a.section ? (a.band ? classWords(a.band, a.section) : a.section) : <span className="text-basalt/45">—</span>}
             </td>
             <td className="num fact whitespace-nowrap">{a.week ? weekWords(a.week) : <span className="text-basalt/45">—</span>}</td>
-            <td className="num fact">{a.copies}</td>
+            <td className="num fact whitespace-nowrap">
+              {a.copies}
+              {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
+            </td>
             <td>
               <span className="flex flex-wrap gap-1">
                 {STAGES.filter((s) => a.by[s]).map((s) => (
