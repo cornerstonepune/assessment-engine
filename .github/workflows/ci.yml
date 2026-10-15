@@ -116,4 +116,8 @@ jobs:
         run: >-
           node -e "const s = require('./results.json').stats; console.log(s);
           if (s.skipped || s.unexpected || s.flaky) process.exit(1)"
+      # every statement over a second (bin/ci-postgres), so a page the database was too slow for names the statement
+      - name: the database's slow statements
+        if: failure()
+        run: grep -A2 "duration:" "$RUNNER_TEMP/postgres/log" || echo "no statement took over a second"
 

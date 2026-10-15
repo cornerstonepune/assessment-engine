@@ -7852,3 +7852,16 @@ it would close are named to Nimish before it ships".
   - A wrong password is refused over TCP. Off a runner, the script refuses with exit 1.
   - `bin/testdb fresh` on it, CI's whole database build (71 migrations, the seed, the question bank, the worksheet
     library): exit 0 in 6 min 31 s. The PR's own CI is the proof on a real runner.
+- **The first page was slower on it, and that is fixed in the same PR.** #207's first run failed one browser test of
+  231: `laptop /today`, the first page the run opens, said "The database did not answer within 8 seconds". The second
+  run passed.
+  - Test 1's time, read from the logs: 1.0–1.2 s on the last four runs with the image, 3.8 s and over 8 s on the two
+    runs with `bin/ci-postgres`. From test 2 on, both setups take the same time.
+  - Not reproduced here. CI's database built with autovacuum off (so no statistics) and a cold restart still served
+    `/today` in 1.5 s, and no statement took over 105 ms. So which runner-side cost it is, I am not certain.
+  - Fix: `bin/testdb fresh` ends with `vacuum analyze` (about 2 s on its 71 MB). The tests then start on a settled
+    database, as live always is, not seconds after some 28,000 rows were written.
+  - So the next slow page names its own cause: CI's Postgres logs every statement over a second, and the browser job
+    prints them when it fails ("the database's slow statements").
+  - Check: the script, run again as a non-root runner user, logs a 1.2 s statement and not a fast one. The step's
+    `grep` finds it. The PR's next CI run gives test 1's time on the settled database.

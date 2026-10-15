@@ -29,7 +29,10 @@ mkdir -p "$dir"
 printf postgres >"$dir/password"
 "$bin/initdb" -D "$dir/data" -U postgres --pwfile="$dir/password" --locale=en_US.UTF-8 -E UTF8 \
   --auth-local=trust --auth-host=scram-sha-256 >/dev/null
-"$bin/pg_ctl" -D "$dir/data" -l "$dir/log" -w start -o "-p 5432 -k $dir -c listen_addresses=127.0.0.1" >/dev/null
+# A statement slower than a second is written to $dir/log, which the browser job prints when it fails: a page that
+# says "the database did not answer" then names the statement that did not.
+"$bin/pg_ctl" -D "$dir/data" -l "$dir/log" -w start \
+  -o "-p 5432 -k $dir -c listen_addresses=127.0.0.1 -c log_min_duration_statement=1000" >/dev/null
 echo "$bin" >>"$GITHUB_PATH"
 "$bin/psql" postgresql://postgres:postgres@127.0.0.1:5432/postgres -tAc \
   "select 'ci-postgres: ' || version() || ', ' || datcollate from pg_database where datname = 'postgres'"
