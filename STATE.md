@@ -7850,4 +7850,5 @@ it would close are named to Nimish before it ships".
   - The script installs and starts it: "PostgreSQL 17.11 … en_US.UTF-8". It puts `/usr/lib/postgresql/17/bin` on the
     job's PATH.
   - A wrong password is refused over TCP. Off a runner, the script refuses with exit 1.
-  - `bin/testdb fresh` on it: see below. The PR's own CI is the proof on a real runner.
+  - `bin/testdb fresh` on it, CI's whole database build (71 migrations, the seed, the question bank, the worksheet
+    library): exit 0 in 6 min 31 s. The PR's own CI is the proof on a real runner.
