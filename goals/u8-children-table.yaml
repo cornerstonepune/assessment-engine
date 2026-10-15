@@ -14,7 +14,7 @@ goal: >
 # the dot cards.
 says:
   - words: "a proper tabular view here that outlines children with their grades"
-    proved_by: apps/web/tests/u8-children-table.spec.ts::each grade is a table of its children, each row their standing and next step in the school's words
+    proved_by: apps/web/tests/u8-children-table.spec.ts::each class is a table of its children, each row their standing and next step in the school's words
   - words: "and then that is clickable"
     proved_by: apps/web/tests/u8-children-table.spec.ts::a click anywhere on a child's row opens the child, and any column sorts the table
 manual:

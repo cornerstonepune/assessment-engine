@@ -8118,6 +8118,30 @@ one child on live.
   `roster.class_band` agree in every case (`test_a_class_has_one_grade_and_the_database_says_it`); roster and week
   tests: 17 passed.
 
+## UX3: Children grouped by class (2026-10-15)
+
+- **Asked:** Nimish, on live's Children page: "Most of the pages just have a long list for no reason. All these things
+  should be expandable and collapsible. They should have the right set of columns which are important. It should be
+  teacher-specific." The same evening he saw no change from UX1 and UX2, and moved UX3–UX5 ahead of SF2.
+- **Before (the audit's screenshots):** the coordinator's Grade 2 was one table of 27 children from 4 classes, roll
+  numbers 1–12 repeating; Grade and Class were columns inside a "Grade 2" panel; "To write" filled the Parent report
+  column; nothing collapsed; the full colour legend sat under every grade; at 400 px "Needs help on" began at x = 312.
+- **Now (`goals/ux3-children-grouped.yaml`, `tests/u35-children-grouped.spec.ts`):**
+  - one group per class under its grade. An educator's own classes are open; the coordinator's are closed, each one
+    line saying only what waits ("3 children · 1 needs help · 2 answers waiting · 1 parent report waiting", or
+    "nothing waiting"), opened in place. A class sorted stays open (`?open=`).
+  - columns: Roll · Child · Needs help on (the skill, and the mistake repeated there, `mistake_name`) · Needs help ·
+    Practising · Secure · Waiting on you (the papers pages' rule: unreadable or needs a person, on papers not replaced
+    or voided) · Parent report (only "to approve" or "out of date", `reportWaits`). Grade, Class and Last paper read
+    are gone. Children who need help come first.
+  - the colour key is one line (`ColourKeyLine`) that opens to the whole key.
+  - on a phone the counts fold away; the child and what they need help on stay on screen, and no page scrolls sideways.
+  - the search opens the classes holding a match and puts the rest away; clearing puts every class back as it was.
+- **Checks:** u35 failed first on the old page (no class groups), then 4 passed. The specs that pinned the old table were
+  moved to the new one, each keeping its promise: u8 (the table, now per class; its goal names the new test), u2, u10,
+  u11 (the key opened first), u18 (the search), u21, u26. The goal's criteria, 12 specs: 74 passed. `tsc`, eslint and
+  `bin/check` clean.
+
 ## A copy photographed from its second page was read in the wrong layout (2026-10-15)
 
 - **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy

@@ -79,6 +79,8 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
   const pc = (x: number) => `${Math.round(x * 100)}%`;
   for (const path of [`/growth/class/${SECTION}`, "/growth", `/growth/${ids.Bina}`]) {
     await page.goto(path);
+    // Children folds the key to one line (goals/ux3-children-grouped.yaml): opened, it is the whole key
+    if (path === "/growth") await page.locator("details[data-colour-key] summary").click();
     const key = page.getByRole("region", { name: "What the colours mean" });
     await expect(key.locator("tbody tr")).toHaveCount(4);
     await expect(key.locator('tr[data-rag="red"]')).toContainText(`The same mistake twice or more, or under ${pc(r.demote)} right.`);

@@ -41,11 +41,15 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-// a child's row on the Children list: needs help on, secure, practising
+// a child's row on the Children list, their class opened (goals/ux3-children-grouped.yaml): needs help on, secure,
+// practising
 const standing = async (page: Page, who: string) => {
-  const row = page.getByRole("table", { name: "Grade 2: every child" }).locator(`tr[data-child="${kids[who]}"]`);
+  const group = page.locator(`details[data-class="${SECTION}"]`);
+  if ((await group.getAttribute("open")) === null) await group.locator("summary").click();
+  const row = page.getByRole("table", { name: `${SECTION}: its children` }).locator(`tr[data-child="${kids[who]}"]`);
   await expect(row).toBeVisible();
-  return (await row.locator("td").allInnerTexts()).slice(4, 7).map((t) => t.trim());
+  const cells = (await row.locator("td").allInnerTexts()).map((t) => t.trim());
+  return [cells[2], cells[5], cells[4]];
 };
 
 test("the Children list reads one topic at a time", async ({ page }) => {
@@ -76,7 +80,7 @@ test("the Children list reads one topic at a time", async ({ page }) => {
   expect(await standing(page, "Asha")).toEqual([await nameOf("R24"), "1", "0"]);
   expect(await standing(page, "Bina")).toEqual([await nameOf("R21"), "0", "1"]);
   // a sort keeps the topic
-  await expect(page.getByRole("table", { name: "Grade 2: every child" }).getByRole("link", { name: "Secure" })).toHaveAttribute(
+  await expect(page.getByRole("table", { name: `${SECTION}: its children` }).getByRole("link", { name: "Secure" })).toHaveAttribute(
     "href",
     /topic=ADDSUB/,
   );

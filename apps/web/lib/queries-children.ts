@@ -15,19 +15,22 @@ export type ChildRow = {
   section: string;
   roll_no: string;
   first_name: string;
-  /** The skill they most need help on: red before amber, the least often right first. None when nothing is red or amber. */
-  help: { name: string; rag: "red" | "amber" } | null;
+  /** The skill they most need help on: red before amber, the least often right first, and the mistake they repeat on
+   *  it, named for its skill. None when nothing is red or amber. */
+  help: { name: string; rag: "red" | "amber"; mistake: string | null } | null;
+  /** How many skills are red. */
+  needs_help: number;
   secure: number;
   practising: number;
-  /** The last day a paper of theirs was read. */
-  last_read: string | null;
+  /** Their answers waiting for a person, on papers not replaced or voided: the papers pages' rule (`queries-papers`). */
+  waiting: number;
   /** Their newest parent report and whether there are answers to write one from (`queries-reports`). */
   report: ReportState;
 };
 
 /** Every child on roll, grade by grade, with their standing on each taught skill — or one taught topic's skills
  *  (goals/ui4b2-class-by-topic.yaml) — as the graph's own states give it (one skill set counted once, in the worst
- *  state of its skills), the last paper read, and their newest parent report. Names through pii.read_child, which
+ *  state of its skills), their answers waiting for a person, and their newest parent report. Names through pii.read_child, which
  *  logs who asked. */
 export async function childTable(actor: string, topic: string | null = null, scope: Scope = EVERY_CLASS): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
@@ -35,7 +38,9 @@ export async function childTable(actor: string, topic: string | null = null, sco
       select s.child_id, s.rung_code, ss.name,
              min(case s.state when 'patterned_error' then 1 when 'emerging' then 2 when 'practising' then 3
                               when 'secure' then 5 when 'stretch_ready' then 5 else 4 end) as sev,
-             sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share
+             sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share,
+             (array_agg(mistake_name(s.repeating_misconception, s.skill_code))
+                filter (where s.repeating_misconception is not null))[1] as mistake
       from child_skill_state s
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       join child sc on sc.id = s.child_id
@@ -44,13 +49,17 @@ export async function childTable(actor: string, topic: string | null = null, sco
       group by s.child_id, s.rung_code, ss.name
     )
     select c.id, c.band, c.section, c.roll_no, p.first_name,
-           (select jsonb_build_object('name', st.name, 'rag', case when st.sev <= 2 then 'red' else 'amber' end)
+           (select jsonb_build_object('name', st.name, 'rag', case when st.sev <= 2 then 'red' else 'amber' end,
+                                      'mistake', st.mistake)
               from st where st.child_id = c.id and st.sev <= 3
              order by st.sev, st.right_share nulls last, st.name limit 1) as help,
+           (select count(*)::int from st where st.child_id = c.id and st.sev <= 2) as needs_help,
            (select count(*)::int from st where st.child_id = c.id and st.sev = 5) as secure,
            (select count(*)::int from st where st.child_id = c.id and st.sev = 3) as practising,
-           (select max(k.created_at)::date::text from capture k join sheet_instance si on si.id = k.sheet_instance_id
-             where si.child_id = c.id and k.superseded_by is null) as last_read,
+           (select count(*)::int from item_result r join capture k on k.id = r.capture_id
+              join sheet_instance si on si.id = k.sheet_instance_id
+             where si.child_id = c.id and k.superseded_by is null and si.print_status <> 'void'
+               and r.status in ('unreadable', 'needs_teacher')) as waiting,
            ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and ${inScope(scope, sql`c.section`)}

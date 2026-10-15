@@ -11,7 +11,8 @@ is verified. This file only says where the last session stopped.
   and the visible restructure is UX3–UX7. He chose UX3–UX5 next, then SF2 (BUILD-ORDER order line).
 - **SF2a is parked, not dropped:** its design is ADR 0077 "Settled in SF2's goal"; its goal and failing tests are in
   `docs/drafts/sf2a/` (README there says how to restore them).
-- **Next: UX3** (`goals/ux3-children-grouped.yaml`).
+- **UX3 built on this branch (PR #214):** Children grouped by class, collapsible, with the columns that matter; see STATE.md "UX3".
+- **Next: UX4** (`goals/ux4-class-and-child.yaml`): the class page shows its standing once and every action without a sideways scroll; a child with no answers gets one sentence and one action.
 
 ## 2026-10-15 — UX2: one count for one thing; #212 merged
 
