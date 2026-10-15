@@ -1,0 +1,25 @@
+name: l4-the-website-waits-for-the-database
+goal: >
+  The website goes live with a merge only once the live database has that merge's migrations. Vercel builds every
+  merge as it does now, and holds the build until the merge's `live database` status is green; only `migrate live`
+  sets that status, on the commit it migrated, after the migration succeeded. A red CI, a failed migration or a merge
+  main has moved on from leaves the website as it was.
+# Written 2026-10-15, before the code. #205 went live on Vercel at 03:00 UTC while `migrate live` waited for CI, and the
+# site failed every page that read the new rule until the migration landed at 03:26. Nimish, the same day: "yes move
+# website deploy after migrate live".
+says:
+  - words: "yes move website deploy after migrate live"
+    proved_by: packages/engine/tests/test_deploy.py::test_the_website_goes_live_only_once_live_has_the_commits_migrations
+  - words: "yes move website deploy after migrate live"
+    proved_by: packages/engine/tests/test_deploy.py::test_only_mains_newest_commit_changes_live
+manual:
+  - "Nimish, once, in Vercel: project cornerstone-assessment → Settings → Build and Deployment → Deployment Checks → Add Checks → GitHub → `live database`. Until then Vercel promotes every build as before."
+  - "After the next merge: its Vercel deployment says it waits on checks until `migrate live` finishes, then goes live."
+scenarios: []
+criteria:
+  - name: the website waits for the live database; the engine and the database wait for CI
+    run: cd packages/engine && uv run pytest -q tests/test_deploy.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

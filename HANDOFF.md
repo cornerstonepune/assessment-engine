@@ -3,6 +3,25 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — `item_placement` to the attic; next: a skill from its examples
+
+- **The website waits for the live database** (ADR 0074, same PR): `migrate live` sets a `live database` status on the
+  commit it migrated, and Vercel's Deployment Checks hold the build until it is green. Nimish adds the check in Vercel
+  once, after this merges (the status must exist on a commit before Vercel can list it). Not live until he does.
+
+- **The watcher's first rule check** named `item_placement` on live, a table made there by hand that nothing reads
+  (issue #208). Nimish said to move it to the attic: migration 20261111090000. Once live has it, the watcher's next run
+  closes #208.
+- **Next, decided by Nimish this morning (ADR and BUILD-ORDER insert to follow):**
+  - Approval is per skill × format, not per level or per question. An engine checks that each question belongs to an
+    approved format.
+  - A new skill or format is made from an educator's examples.
+  - The bank holds 100/200/500 questions per skill × level.
+  - Each level keeps its own grade (`level_band`), as today.
+  - Achal's five Grade 2 asks are the first test: three numbers multiplied, sequences, the nth multiple and the first
+    n multiples, zeroes (G3's MUL.TENS already has them), and × and ÷ stories apart.
+  - F1g's level gate is superseded.
+
 ## 2026-10-15 — CI's database with no container image (its own PR, beside #206)
 
 - **Nimish said yes** to the apt Postgres fix: no CI job pulls a database image now (`bin/ci-postgres`). The trigger
