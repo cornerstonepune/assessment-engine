@@ -96,7 +96,7 @@ test("each grade is a table of its children, each row their standing and next st
 
   // the skill roll 1 most needs help on is the red one, by its name; read from the tree, not from the page's code
   const [{ name: red }] = await sql<{ name: string }[]>`
-    select ss.name from skill_set ss join topic t on t.code = ss.topic_code and t.taught where ss.rung_code = 'R24' limit 1`;
+    select ss.name from skill_set ss join topic t on t.code = ss.topic_code and ss.taught where ss.rung_code = 'R24' limit 1`;
   const cells = (name: string) => row(page, name).locator("td");
   await expect(cells("Asha")).toHaveText(["1", "Asha", "Grade 2", SECTION, red, "1", "1", /21/, /out of date/]);
   await expect(cells("Bina")).toHaveText(["2", "Bina", "Grade 2", SECTION, "—", "0", "0", "—", "—"]);

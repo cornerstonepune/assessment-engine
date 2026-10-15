@@ -16,12 +16,12 @@ test.afterAll(async () => {
 });
 
 test("once taught, a division is on the Question bank in its layout, a box for its remainder", async ({ page }) => {
-  const topics = await sql<{ code: string; taught: boolean }[]>`
-    select distinct t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const skills = await sql<{ code: string; taught: boolean }[]>`
+    select distinct s.code, s.taught from skill_set s
     where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
-  expect(topics.length, "division in a topic of its own").toBeGreaterThan(0);
-  expect(topics.every((t) => !t.taught), "division waits for an educator's word").toBe(true);
-  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  expect(skills.length, "division in a topic of its own").toBeGreaterThan(0);
+  expect(skills.every((t) => !t.taught), "division waits for an educator's word").toBe(true);
+  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
   try {
     // A page arrives after its skeleton (app/(app)/loading.tsx), some 200ms after `goto` returns: each read waits for
     // what it is about. Read at once, the main area held the skeleton and no table (19 runs in 30, from the twelfth).
@@ -40,6 +40,6 @@ test("once taught, a division is on the Question bank in its layout, a box for i
     });
     expect(await listed.innerText(), "a code on the page").not.toMatch(CODE);
   } finally {
-    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+    await sql`update skill_set set taught = false where code = any(${skills.map((t) => t.code)})`;
   }
 });

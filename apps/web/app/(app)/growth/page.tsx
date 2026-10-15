@@ -59,7 +59,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
   const q = await searchParams;
   // a heading that does not sort (Grade), or no heading at all, is the roll order
   const sort = COLUMNS.find((c) => c.key === q.sort && c.dir)?.key ?? "roll";
-  const taught = (await deadline(topics(scopeOf(me)))).filter((t) => t.taught);
+  const taught = (await deadline(topics(scopeOf(me)))).filter((t) => t.shown);
   // only a topic that is taught narrows the table; any other word is every topic
   const topic = taught.find((t) => t.code === q.topic) ?? null;
   const [rows, rules] = await deadline(Promise.all([childTable(me.email, topic?.code ?? null, scopeOf(me)), colourRules()]));

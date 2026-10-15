@@ -3,7 +3,7 @@
 import { sql } from "./db";
 import type { Difficulty } from "./queries";
 import { EVERY_CLASS, type Scope } from "./scope";
-import { taughtFor } from "./taught";
+import { skillTaughtFor } from "./taught";
 
 // A question's own numbers, by kind: `a op b` for most, `addends` for a long column, `base` for a
 // number wall, `left`/`right` for a balance (null is the box the child fills), `planted` for the
@@ -63,7 +63,7 @@ export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; stat
 // A question of a skill taught in any class of the scope.
 const ofTaughtSkill = (scope: Scope = EVERY_CLASS) => sql`
   exists (select 1 from skill_set ts where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code
-          and ${taughtFor(scope, sql`ts.tenant_id`, sql`ts.topic_code`)})`;
+          and ${skillTaughtFor(scope, sql`ts.tenant_id`, sql`ts.code`)})`;
 
 // What a person typed, looked for as it is: LIKE's own % and _ (and its escape, \) are escaped, never wildcards.
 const containing = (words: string) => `%${words.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
@@ -122,7 +122,7 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
                            group by b.difficulty) d), '{}'::json) as counts
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where ${taughtFor(scope, sql`s.tenant_id`, sql`s.topic_code`)}
+    where ${skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`)}
     order by r.ladder_order nulls last, s.code`;
 }
 

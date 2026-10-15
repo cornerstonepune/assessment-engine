@@ -30,12 +30,12 @@ async function shows(page: Page, set: string, fmt: string, says: RegExp, what: s
 }
 
 test("once taught, the column skills' Advance kinds are on the Question bank with their numbers", async ({ page }) => {
-  const topics = await sql<{ code: string; taught: boolean }[]>`
-    select distinct t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const skills = await sql<{ code: string; taught: boolean }[]>`
+    select distinct s.code, s.taught from skill_set s
     where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
-  expect(topics.length, "division in a topic of its own").toBeGreaterThan(0);
-  expect(topics.every((t) => !t.taught), "division waits for an educator's word").toBe(true);
-  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  expect(skills.length, "division in a topic of its own").toBeGreaterThan(0);
+  expect(skills.every((t) => !t.taught), "division waits for an educator's word").toBe(true);
+  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
   try {
     await shows(page, "DIV.2D1D", "missing_digit", /\d*□\d* ÷ \d+ = \d+/, "a digit missing in the number divided");
     await shows(page, "DIV.2D1D", "missing_number", /\d+ ÷ (\d+|□) = \d+ r (\d+|□)/, "the remainder or divisor missing");
@@ -44,12 +44,12 @@ test("once taught, the column skills' Advance kinds are on the Question bank wit
     await shows(page, "DIV.3D1D", "estimate_then_calc", /how many digits \d+ ÷ \d+|nearest hundred/, "an estimate");
     await shows(page, "DIV.3D1D", "efficient_method", /\d+ ÷ 10/, "÷ 5 as ÷ 10 then doubled");
   } finally {
-    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+    await sql`update skill_set set taught = false where code = any(${skills.map((t) => t.code)})`;
   }
 });
 
 test("a worked division's mistake is named on the Question bank by its row", async ({ page }) => {
-  const topics = await sql<{ code: string }[]>`
+  const skills = await sql<{ code: string }[]>`
     select distinct t.code from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
     where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
   // each mistake a worked division shows, by its row: what the Question bank must call it
@@ -58,7 +58,7 @@ test("a worked division's mistake is named on the Question bank by its row", asy
     where op = '÷' and code in ('M_DIV_REMAINDER_TOO_BIG', 'M_DIV_QUOTIENT_ZERO_DROPPED', 'M_DIV_BRING_DOWN_MISSED')`;
   expect(rows.length, "each mistake a worked division shows has its row").toBe(3);
   const name = Object.fromEntries(rows.map((r) => [r.code, r.name]));
-  await sql`update topic set taught = true where code = any(${topics.map((t) => t.code)})`;
+  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
   try {
     const worked = /\d+ ÷ \d+ and wrote \d+( r \d+)?/;
     for (const [set, planted] of [
@@ -79,6 +79,6 @@ test("a worked division's mistake is named on the Question bank by its row", asy
     }
     await shows(page, "DIV.2D1D", "word_1step", /left over|full|needed/, "a story that uses what is left over");
   } finally {
-    await sql`update topic set taught = false where code = any(${topics.map((t) => t.code)})`;
+    await sql`update skill_set set taught = false where code = any(${skills.map((t) => t.code)})`;
   }
 });

@@ -18,7 +18,7 @@ const levels = () => sql<Level[]>`
          array(select t.code from sheet_template t where t.skill_set_code = s.code and t.difficulty = d.key
                and t.source = 'library' and t.retired_at is null order by t.code) as worksheets
   from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code, jsonb_each(s.difficulty) d
-  where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)
+  where s.taught
   order by r.ladder_order nulls last, s.code`;
 
 const n = (x: number) => x.toLocaleString("en-IN");
@@ -60,7 +60,7 @@ test("the tree reads grade, subject, skill, level, worksheets, and every count i
 test("a skill waiting for approval says so in the tree and opens where it is edited and approved", async ({ page }) => {
   const [s] = await sql<{ code: string; outcome: string; status: string; band: string }[]>`
     select s.code, s.learning_objective as outcome, s.status, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)
+    where s.taught
     order by s.status = 'draft' desc, s.code limit 1`;
   await page.goto("/");
   await openAll(page);
@@ -86,7 +86,7 @@ test("each grade's skills sit under their topics, in the topics' order, each top
   const rows = await sql<{ band: string; topic: string; code: string; ord: number }[]>`
     select r.band, t.code as topic, s.code, t.ord
     from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught
+    join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
     where r.band = 'G3' and coalesce(s.level_band, '{}'::jsonb) = '{}'::jsonb order by t.ord`;
   expect(rows.length).toBeGreaterThan(0);
   await page.goto("/");

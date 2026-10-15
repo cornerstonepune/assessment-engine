@@ -185,8 +185,8 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
         pytest.skip(f"{code} has no {level} level")
     assert sheet, f"{code} {level}: no library worksheet to print"
     conn.execute(
-        "update topic set taught = true, taught_by = %s, taught_at = now() where code = %s",
-        (PERSON, sheet["topic_code"]),
+        "update skill_set set taught = true, taught_by = %s, taught_at = now() where code = %s",
+        (PERSON, code),
     )
     mistake, on = _planted(_slots(conn, sheet["item_ids"]))
     assert mistake and len(on) >= 2, (

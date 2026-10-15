@@ -76,9 +76,9 @@ test("a grade and a topic narrow the rows, and approving these approves only the
     // a topic, under every grade: only its skills
     await grades.getByRole("link", { name: /^Every grade/ }).click();
     await expectRows(page, DRAFTS);
-    await page.getByLabel("Topic").selectOption({ label: "Division by a 1-digit number (1)" });
+    await page.getByLabel("Topic").selectOption({ label: "Division (1)" });
     await page.getByRole("button", { name: "Show" }).click();
-    await expect(page).toHaveURL(/[?&]topic=DIVCOL(&|$)/);
+    await expect(page).toHaveURL(/[?&]topic=DIV(&|$)/);
     await expectRows(page, ["DIV.3D1D"]);
     await page.getByLabel("Topic").selectOption({ value: "" });
     await page.getByLabel("Taught").selectOption({ label: "Not taught yet (1)" });

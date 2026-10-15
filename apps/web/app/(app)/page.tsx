@@ -20,7 +20,11 @@ export default async function CurriculumPage({ searchParams }: Props) {
   // every skill waiting counts, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
   const scope = scopeOf(me);
   const [{ rows }, waiting, all] = await deadline(Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope)]));
-  const switched = all.find((t) => t.code === (q.on ?? q.off));
+  // said of a topic (every skill in it) or of one skill of it (goals/t1-topics-are-operations.yaml)
+  const said = q.on ?? q.off;
+  const whole = all.find((t) => t.code === said);
+  const switched = whole?.name ?? all.flatMap((t) => t.classes.flatMap((c) => c.skills)).find((k) => k.code === said)?.name;
+  const its = whole ? "its skills are" : "it is";
 
   return (
     <>
@@ -38,8 +42,8 @@ export default async function CurriculumPage({ searchParams }: Props) {
         {switched ? (
           <Notice tone="neem">
             {q.on
-              ? `${switched.name} is taught in ${q.class} now: its skills are on the class's pages and can go on its children's papers`
-              : `${switched.name} is not taught in ${q.class} now: its skills are out of the class's sight`}
+              ? `${switched} is taught in ${q.class} now: ${its} on the class's pages and can go on its children's papers`
+              : `${switched} is not taught in ${q.class} now: ${its} out of the class's sight`}
             , in your name. No other class changed.
           </Notice>
         ) : null}

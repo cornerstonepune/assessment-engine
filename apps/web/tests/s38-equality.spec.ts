@@ -84,12 +84,12 @@ test.afterAll(async () => {
 });
 
 test("once taught, every equation is on the Question bank as the child meets it", async ({ page }) => {
-  const [topic] = await sql<{ code: string; taught: boolean }[]>`
-    select t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const [skill] = await sql<{ code: string; taught: boolean }[]>`
+    select s.code, s.taught from skill_set s
     where s.code = 'MD.EQUALITY'`;
-  expect(topic, "MD.EQUALITY has a topic of its own").toBeTruthy();
-  expect(topic.taught, "equations with × and ÷ wait for an educator's word").toBe(false);
-  await sql`update topic set taught = true where code = ${topic.code}`;
+  expect(skill, "MD.EQUALITY is a skill").toBeTruthy();
+  expect(skill.taught, "equations with × and ÷ wait for an educator's word").toBe(false);
+  await sql`update skill_set set taught = true where code = ${skill.code}`;
   try {
     for (const k of SHOWS) {
       let text = "";
@@ -104,6 +104,6 @@ test("once taught, every equation is on the Question bank as the child meets it"
       expect(text, `${k.level} ${k.fmt}: a code on the page`).not.toMatch(CODE);
     }
   } finally {
-    await sql`update topic set taught = false where code = ${topic.code}`;
+    await sql`update skill_set set taught = false where code = ${skill.code}`;
   }
 });

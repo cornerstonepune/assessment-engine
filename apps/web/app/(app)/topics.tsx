@@ -4,8 +4,10 @@ import { switchTopic } from "./topic-actions";
 
 // Which topics each class has been taught, and who said so (goals/f1f-taught-per-class.yaml): an educator says it of
 // their own classes, the coordinator of any, in their own name; a class no one has spoken for follows the school's
-// switch. A topic not taught yet lists its skills, so a person knows what saying it brings; it is said from inside a
-// fold, as one taught is unsaid, never by a stray click.
+// word. A topic not taught yet lists its skills, so a person knows what saying it brings; it is said from inside a
+// fold, as one taught is unsaid, never by a stray click. Said of a topic, it is said of every skill in it; inside a
+// taught class's fold each skill has its own switch, so a class can be taught Multiplication and not yet its columns
+// (goals/t1-topics-are-operations.yaml).
 export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
   const off = topics.filter((t) => t.classes.some((c) => !c.taught));
   const on = topics.filter((t) => t.classes.some((c) => c.taught));
@@ -60,12 +62,36 @@ export function Topics({ topics, me }: { topics: Topic[]; me: string }) {
                 {t.classes
                   .filter((c) => c.taught)
                   .map((c) => (
-                    <span key={c.section} className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
-                      <span>
-                        {c.section}: <span className="text-basalt/55">{said(c)}</span>
+                    <div key={c.section} className="grid gap-1 text-[13px]" data-class={c.section}>
+                      <span className="flex flex-wrap items-center justify-between gap-3">
+                        <span>
+                          {c.section}: <span className="text-basalt/55">{said(c)}</span>
+                        </span>
+                        <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
                       </span>
-                      <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
-                    </span>
+                      <details>
+                        <summary className="cursor-pointer text-basalt/70">
+                          {c.skills.filter((k) => k.taught).length} of {c.skills.length} skills taught in {c.section} · open to
+                          say one skill
+                        </summary>
+                        <ul className="mt-1 grid gap-1 pl-3">
+                          {c.skills.map((k) => (
+                            <li key={k.code} className="flex flex-wrap items-center justify-between gap-3" data-skill={k.code}>
+                              <span>
+                                {k.name} <span className="text-basalt/55">· {k.taught ? "taught" : "not taught yet"}</span>
+                              </span>
+                              <Switch
+                                code={t.code}
+                                skill={k.code}
+                                section={c.section}
+                                on={!k.taught}
+                                label={k.taught ? `Not taught in ${c.section} yet` : `Taught in ${c.section}`}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    </div>
                   ))}
               </li>
             ))}
@@ -82,10 +108,11 @@ function said(c: ClassTaught): string {
   return c.by ? `as the school's switch, by ${c.by}` : "as the school's rows say";
 }
 
-function Switch({ code, section, on, label }: { code: string; section: string; on: boolean; label: string }) {
+function Switch({ code, skill, section, on, label }: { code: string; skill?: string; section: string; on: boolean; label: string }) {
   return (
     <form action={switchTopic}>
       <input type="hidden" name="code" value={code} />
+      {skill ? <input type="hidden" name="skill" value={skill} /> : null}
       <input type="hidden" name="class" value={section} />
       <input type="hidden" name="taught" value={on ? "on" : "off"} />
       <button className={on ? "btn" : "chip"} type="submit">

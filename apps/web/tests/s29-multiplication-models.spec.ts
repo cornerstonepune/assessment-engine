@@ -24,11 +24,11 @@ test.afterAll(async () => {
 });
 
 test("once taught, multiplication's models are on the Question bank, drawn as the child meets them", async ({ page }) => {
-  const [topic] = await sql<{ code: string; taught: boolean }[]>`
-    select t.code, t.taught from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
+  const [skill] = await sql<{ code: string; taught: boolean }[]>`
+    select s.code, s.taught from skill_set s
     where s.code = 'MUL.MODELS'`;
-  expect(topic.taught, "multiplication's models wait for an educator's word").toBe(false);
-  await sql`update topic set taught = true where code = ${topic.code}`;
+  expect(skill.taught, "multiplication's models wait for an educator's word").toBe(false);
+  await sql`update skill_set set taught = true where code = ${skill.code}`;
   try {
     for (const k of KINDS) {
       await page.goto(`/library?set=MUL.MODELS&fmt=${k.fmt}#questions`);
@@ -46,6 +46,6 @@ test("once taught, multiplication's models are on the Question bank, drawn as th
       }
     }
   } finally {
-    await sql`update topic set taught = false where code = ${topic.code}`;
+    await sql`update skill_set set taught = false where code = ${skill.code}`;
   }
 });

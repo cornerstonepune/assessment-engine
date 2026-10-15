@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import { taughtIn } from "./taught";
+import { skillTaughtIn } from "./taught";
 
 // A child's report card (goals/u6-report-card.yaml): their skill map and the facts it rests on. Every number here is
 // read from signed-off answers on readings nobody has superseded; nothing is estimated.
@@ -61,7 +61,7 @@ export async function skillMap(id: string): Promise<MapNode[]> {
            coalesce(sig.wrong_working, 0) as wrong_working, coalesce(sig.blank, 0) as blank
     from skill_set ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
-      and ${taughtIn(sql`t.tenant_id`, sql`t.code`, sql`(select section from child where id = ${id}::uuid)`)}
+      and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`(select section from child where id = ${id}::uuid)`)}
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     left join st on st.rung_code = r.code
     left join sig on sig.rung_code = r.code

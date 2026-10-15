@@ -74,8 +74,8 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
 test("a topic is switched on only after the person has read what it does", async ({ page }) => {
   // said of one class, the test's own (goals/f1f-taught-per-class.yaml)
   await aClass(sql, CLASS, "G3", ["Ojas", "Pari"]);
-  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught from topic where code = 'DIVCOL'`;
-  expect(topic.taught, "division by a 1-digit number waits for an educator's word").toBe(false);
+  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
+  expect(topic.taught, "division waits for an educator's word").toBe(false);
   try {
     await page.goto("/");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
@@ -86,10 +86,10 @@ test("a topic is switched on only after the person has read what it does", async
     await expect(row).toContainText("No other class changes");
     await confirm.click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
-    const [now] = await sql<{ taught: boolean }[]>`select taught from class_topic where section = ${CLASS} and topic_code = 'DIVCOL'`;
+    const [now] = await sql<{ taught: boolean }[]>`select bool_and(taught) as taught from class_skill where section = ${CLASS} and skill_set_code in (select code from skill_set where topic_code = 'DIV')`;
     expect(now.taught).toBe(true);
   } finally {
-    await sql`delete from class_topic where section = ${CLASS}`;
+    await sql`delete from class_skill where section = ${CLASS}`;
   }
 });
 
@@ -109,7 +109,7 @@ test("each question the engine drafted is one line until it is opened", async ({
 test("the question bank finds a question by its words, within the choices made", async ({ page }) => {
   // the bank's questions: generated, live, of a taught skill — the same rule the page's own query keeps
   const bank = sql`i.source = 'generated' and i.status = 'active' and exists (
-    select 1 from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught
+    select 1 from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
     where s.tenant_id = i.tenant_id and s.code = i.skill_set_code)`;
   const [{ stem }] = await sql<{ stem: string }[]>`
     select i.stem from item i where ${bank} and i.stem ~ '[A-Za-z]{6,}' order by i.item_key limit 1`;
