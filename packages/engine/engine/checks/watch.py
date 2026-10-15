@@ -9,6 +9,7 @@ limits are threshold rows.
 
 import os
 
+from engine.checks import rules
 from engine.core import db
 
 
@@ -45,6 +46,12 @@ def problems(conn: db.Conn, free_bytes: int) -> list[str]:
             (window,),
         )
     ]
+    # a rule live holds otherwise than the migrations make it (goals/l3b-live-says-what-went-wrong.yaml): the first
+    # few by name, and how many in all
+    drifted = rules.drift(conn)
+    out += [f"a database rule is not the migrations': {d}" for d in drifted[:5]]
+    if len(drifted) > 5:
+        out.append(f"and {len(drifted) - 5} more database rules are not the migrations'")
     if free_bytes < floor * 10**9:
         out.append(f"the server's disk has {free_bytes / 10**9:.1f} GB free, less than {floor:g} GB")
     if not os.environ.get("TYPESAFE_API_KEY"):  # the engine's own environment: the watch runs inside it

@@ -1,0 +1,28 @@
+name: l3b-live-says-what-went-wrong
+goal: >
+  When live goes wrong the way it did for Grade 1's papers, the system says so before an educator does. A request that
+  fails leaves its failure on record after the request unwinds, so the watcher counts it within ten minutes; and the
+  watcher names any rule live's database holds otherwise than the migrations make it — a recorded migration is no
+  proof its rule is there.
+# Written 2026-10-14, before the code: the second half of L3 (HANDOFF "L3: Make papers refused every paper made for a
+# child on live"). Nimish, the same day: "there is an error coming here while generating the worksheet for grade 1;
+# debug and solve". Measured first: a failed Make papers left no `flow_run` row — the failure was written on the
+# request's own transaction, which the route rolls back — so `engine live watch`, which counts failed runs, saw
+# nothing; and live had recorded migration 20260929090000 while its rule still refused a paper for one child.
+says:
+  - words: "there is an error coming here while generating the worksheet for grade 1; debug and solve"
+    proved_by: "packages/engine/tests/api/test_idempotency.py::test_a_failed_call_is_on_record_after_the_request_unwinds"
+  - words: "there is an error coming here while generating the worksheet for grade 1; debug and solve"
+    proved_by: "packages/engine/tests/test_rules.py::test_the_watcher_names_a_rule_live_holds_otherwise"
+  - words: "there is an error coming here while generating the worksheet for grade 1; debug and solve"
+    proved_by: "packages/engine/tests/test_rules.py::test_the_rules_kept_beside_the_engine_are_the_ones_the_migrations_make"
+manual:
+  - "after deploy, the watcher's next run names no database rule: live's rules print as the migrations' do"
+scenarios: []
+criteria:
+  - name: a failed run is on record and a drifted rule is named
+    run: cd packages/engine && uv run pytest -q tests/test_rules.py tests/api/test_idempotency.py tests/test_watch.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

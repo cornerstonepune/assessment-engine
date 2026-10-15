@@ -8,8 +8,18 @@ is verified. This file only says where the last session stopped.
 - **Nimish said yes** to the apt Postgres fix: no CI job pulls a database image now (`bin/ci-postgres`). The trigger
   was AWS's copy of `postgres:17` refusing #206's browser job ("Data limit exceeded"), after Docker Hub's refusal on
   2026-10-09. See STATE.md "CI's database with no container image".
-- **#205 merged** as `7238e20`. `engine week unapproved` can be run against live once `migrate live` has applied
-  20261110090000.
+- **#205 merged** as `7238e20`; `migrate live` applied 20261110090000 at 03:26 UTC. The website went live at 03:00, before
+  it, and the pages that read a class's taught topics failed until then (the deploy-order decision is Nimish's).
+  `engine week unapproved` can run against live. **#206 (L3b) merged** as `e6b24e2`.
+
+## 2026-10-14 — L3b: live says what went wrong (its own PR, after #205)
+
+- **A failed run is now on record** after its request unwinds, so the watcher counts it. Live's failed Make papers left
+  no row before.
+- **The watcher names any database rule** live holds otherwise than the migrations make it (`engine/checks/rules.json`,
+  written by `engine live rules --write` from a database built from the migrations alone). See STATE.md "L3b".
+- **After deploy:** the watcher's next run should name no rule. If it names many, live's Postgres prints rules
+  differently: compare with `engine live rules` and fix the comparison, not the rules.
 
 ## 2026-10-14 — F1f: taught is said for each class (#204 merged)
 
