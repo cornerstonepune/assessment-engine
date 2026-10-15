@@ -14,14 +14,6 @@ jobs:
   engine:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: packages/engine } }
-    services:
-      postgres:
-        # Docker Hub's official image from AWS's copy of it: Docker Hub refuses anonymous pulls past a
-        # limit per address, and runners share addresses (2026-10-09: every job died before its first step, twice)
-        image: public.ecr.aws/docker/library/postgres:17
-        env: { POSTGRES_PASSWORD: postgres }
-        ports: ["5432:5432"]
-        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
     env:
       # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
@@ -30,6 +22,9 @@ jobs:
       # the whole history, for the ratchet below to read the baselines of the commit this change starts from
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      # Postgres 17 from the PostgreSQL apt repository, no container image: two registries' anonymous-pull limits
+      # stopped every job before its first step (Docker Hub 2026-10-09, AWS's copy 2026-10-15). See bin/ci-postgres.
+      - run: ../../bin/ci-postgres
       - uses: astral-sh/setup-uv@v5
       # The server builds with `uv sync --frozen`, which installs the lockfile and nothing else. A
       # lock missing boto3 passed every check here (a fresh resolve found it) and the deployed
@@ -85,19 +80,13 @@ jobs:
   # (tests/rows.ts); one that skips itself fails this job (goals/p1-browser-tests-in-ci.yaml).
   browser:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        # Docker Hub's official image from AWS's copy of it: Docker Hub refuses anonymous pulls past a
-        # limit per address, and runners share addresses (2026-10-09: every job died before its first step, twice)
-        image: public.ecr.aws/docker/library/postgres:17
-        env: { POSTGRES_PASSWORD: postgres }
-        ports: ["5432:5432"]
-        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-timeout 5s --health-retries 30
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
       TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v4
+      # Postgres 17 with no container image, as the engine job's (bin/ci-postgres)
+      - run: bin/ci-postgres
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
         working-directory: packages/engine
@@ -127,4 +116,8 @@ jobs:
         run: >-
           node -e "const s = require('./results.json').stats; console.log(s);
           if (s.skipped || s.unexpected || s.flaky) process.exit(1)"
+      # every statement over a second (bin/ci-postgres), so a page the database was too slow for names the statement
+      - name: the database's slow statements
+        if: failure()
+        run: grep -A2 "duration:" "$RUNNER_TEMP/postgres/log" || echo "no statement took over a second"
 

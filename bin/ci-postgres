@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Postgres 17 for a CI job, with no container image: installed from the PostgreSQL apt repository and started on
+# 127.0.0.1:5432, user postgres, password postgres. Every job that needs a database calls it as its first step:
+#   bin/ci-postgres
+# Why: a job's service container is pulled anonymously, and runners share addresses, so a registry's limit stops
+# every job before its first step — Docker Hub on 2026-10-09 ("toomanyrequests"), then AWS's copy of the same image on
+# 2026-10-15 ("toomanyrequests: Data limit exceeded"). The apt repository has no such limit.
+# As the image was: Postgres 17, the en_US.UTF-8 locale (the image's own), passwords checked over TCP.
+# For a CI runner only (passwordless sudo, systemd); it refuses to run anywhere else.
+set -euo pipefail
+[ "${GITHUB_ACTIONS:-}" = true ] || { echo "bin/ci-postgres starts CI's database; it runs on a CI runner only" >&2; exit 1; }
+
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" |
+  sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+sudo apt-get update -qq
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql-17 >/dev/null
+sudo locale-gen en_US.UTF-8 >/dev/null
+
+# The package starts a cluster of its own, and the runner may carry an older Postgres: neither is the one used here,
+# and either may hold port 5432.
+sudo pg_dropcluster --stop 17 main 2>/dev/null || true
+sudo systemctl stop postgresql 2>/dev/null || true
+
+bin=/usr/lib/postgresql/17/bin
+dir="$RUNNER_TEMP/postgres"
+mkdir -p "$dir"
+printf postgres >"$dir/password"
+"$bin/initdb" -D "$dir/data" -U postgres --pwfile="$dir/password" --locale=en_US.UTF-8 -E UTF8 \
+  --auth-local=trust --auth-host=scram-sha-256 >/dev/null
+# A statement slower than a second is written to $dir/log, which the browser job prints when it fails: a page that
+# says "the database did not answer" then names the statement that did not.
+"$bin/pg_ctl" -D "$dir/data" -l "$dir/log" -w start \
+  -o "-p 5432 -k $dir -c listen_addresses=127.0.0.1 -c log_min_duration_statement=1000" >/dev/null
+echo "$bin" >>"$GITHUB_PATH"
+"$bin/psql" postgresql://postgres:postgres@127.0.0.1:5432/postgres -tAc \
+  "select 'ci-postgres: ' || version() || ', ' || datcollate from pg_database where datname = 'postgres'"

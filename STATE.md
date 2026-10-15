@@ -7879,3 +7879,37 @@ one child on live.
     rules too (I believe 18 lists each not-null; worth verifying), and no migration names those as rules.
 - **Not known from here:** live's own Postgres version (`supabase/config.toml` says 17; live is not read from here).
   If it prints a rule differently, `engine live rules --url <live>` names it, and so does the watcher's first run.
+
+## CI's database with no container image (2026-10-15)
+
+- **What failed:** #206's `browser` job died before its first step. The Postgres 17 service container's pull from
+  `public.ecr.aws/docker/library/postgres:17` was refused three times with `toomanyrequests: Data limit exceeded`.
+  This is the second registry to refuse CI's anonymous pulls: Docker Hub did the same on 2026-10-09, and that is why CI
+  moved to AWS's copy. Runners share addresses, so any registry's anonymous limit can stop every job.
+- **Fix at the cause:** no job pulls a database image any more.
+  - `bin/ci-postgres` installs Postgres 17 from the PostgreSQL apt repository (apt.postgresql.org) and starts it on
+    127.0.0.1:5432 as postgres/postgres, as the image did.
+  - It uses the image's own locale, en_US.UTF-8, and checks passwords over TCP (scram-sha-256).
+  - The package's own cluster and any older Postgres on the runner are stopped first.
+  - CI's `engine` and `browser` jobs and `rehearse update-live` call it as their first step after checkout. The
+    rehearsal's separate client install is folded into it.
+  - It refuses to run anywhere but a CI runner (`GITHUB_ACTIONS`).
+- **Check (here, as a non-root `runner` user with passwordless sudo, as on GitHub's runners):**
+  - The script installs and starts it: "PostgreSQL 17.11 … en_US.UTF-8". It puts `/usr/lib/postgresql/17/bin` on the
+    job's PATH.
+  - A wrong password is refused over TCP. Off a runner, the script refuses with exit 1.
+  - `bin/testdb fresh` on it, CI's whole database build (71 migrations, the seed, the question bank, the worksheet
+    library): exit 0 in 6 min 31 s. The PR's own CI is the proof on a real runner.
+- **The first page was slower on it, and that is fixed in the same PR.** #207's first run failed one browser test of
+  231: `laptop /today`, the first page the run opens, said "The database did not answer within 8 seconds". The second
+  run passed.
+  - Test 1's time, read from the logs: 1.0–1.2 s on the last four runs with the image, 3.8 s and over 8 s on the two
+    runs with `bin/ci-postgres`. From test 2 on, both setups take the same time.
+  - Not reproduced here. CI's database built with autovacuum off (so no statistics) and a cold restart still served
+    `/today` in 1.5 s, and no statement took over 105 ms. So which runner-side cost it is, I am not certain.
+  - Fix: `bin/testdb fresh` ends with `vacuum analyze` (about 2 s on its 71 MB). The tests then start on a settled
+    database, as live always is, not seconds after some 28,000 rows were written.
+  - So the next slow page names its own cause: CI's Postgres logs every statement over a second, and the browser job
+    prints them when it fails ("the database's slow statements").
+  - Check: the script, run again as a non-root runner user, logs a 1.2 s statement and not a fast one. The step's
+    `grep` finds it. The PR's next CI run gives test 1's time on the settled database.
