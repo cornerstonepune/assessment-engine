@@ -48,7 +48,7 @@ test("Today lists what waits on a person, under the tab where it is done, hidden
     if (await it.count()) await expect(page.getByRole("region", { name: tab, exact: true }).getByRole("region", { name: line, exact: true }), line).toBeVisible();
   }
   // the topics no one has switched on yet, as Curriculum lists them, and one click to it
-  const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic where not taught`;
+  const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic t where not exists (select 1 from child k where k.tenant_id = t.tenant_id and k.active and taught_in(t.tenant_id, t.code, k.section))`;
   expect(await count(page, "Topics not taught yet")).toBe(off);
   // every question the engine drafted, still waiting, whoever it was drafted for
   const [{ open }] = await sql<{ open: number }[]>`select count(*)::int as open from ask where answer is null`;

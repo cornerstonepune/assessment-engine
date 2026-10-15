@@ -61,7 +61,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
             Every question in the bank
           </Link>
         </p>
-        <Topics topics={all} me={me.name} />
+        <Topics topics={all} me={me.name} open={q.skills && q.in ? { topic: q.skills, section: q.in } : null} />
         <CurriculumTable rows={rows} />
       </Body>
     </>

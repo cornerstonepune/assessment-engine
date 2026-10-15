@@ -49,9 +49,7 @@ test("once taught, the column skills' Advance kinds are on the Question bank wit
 });
 
 test("a worked division's mistake is named on the Question bank by its row", async ({ page }) => {
-  const skills = await sql<{ code: string }[]>`
-    select distinct t.code from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
-    where s.code in ('DIV.2D1D', 'DIV.3D1D')`;
+  const skills = await sql<{ code: string }[]>`select code from skill_set where code in ('DIV.2D1D', 'DIV.3D1D')`;
   // each mistake a worked division shows, by its row: what the Question bank must call it
   const rows = await sql<{ code: string; name: string }[]>`
     select code, name from misconception

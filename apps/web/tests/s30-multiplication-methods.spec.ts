@@ -25,11 +25,13 @@ test.afterAll(async () => {
 });
 
 test("once taught, every written method is on the Question bank, a blank for each step", async ({ page }) => {
-  const [skill] = await sql<{ code: string; taught: boolean }[]>`
-    select s.code, s.taught from skill_set s
-    where s.code = 'MUL.2D1D'`;
+  // every skill the kinds below are read on, switched on for the school (taught skill by skill: goals/t1-topics-are-operations.yaml)
+  const sets = [...new Set(KINDS.map((k) => k.set))];
+  const skills = await sql<{ code: string; taught: boolean }[]>`select code, taught from skill_set where code = any(${sets})`;
+  const [skill] = skills;
   expect(skill.taught, "multiplication in columns waits for an educator's word").toBe(false);
-  await sql`update skill_set set taught = true where code = ${skill.code}`;
+  expect(skills.every((k) => !k.taught), "they wait for an educator's word").toBe(true);
+  await sql`update skill_set set taught = true where code = any(${sets})`;
   try {
     for (const k of KINDS) {
       await page.goto(`/library?set=${k.set}&fmt=${k.fmt}#questions`);
@@ -47,6 +49,6 @@ test("once taught, every written method is on the Question bank, a blank for eac
       }
     }
   } finally {
-    await sql`update skill_set set taught = false where code = ${skill.code}`;
+    await sql`update skill_set set taught = false where code = any(${sets})`;
   }
 });

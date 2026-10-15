@@ -27,6 +27,7 @@ export async function switchTopic(formData: FormData): Promise<void> {
   const n = rows[0]?.n ?? 0;
   // every page reads what is taught: Curriculum, Today, the Question bank, the papers
   revalidatePath("/", "layout");
-  const said = new URLSearchParams({ [on ? "on" : "off"]: skill ?? code, class: section });
-  redirect(n ? `/?${said}#${on ? "taught" : "not-taught"}` : "/");
+  // one skill said: back to that class's skills of the topic, where it was said
+  const said = new URLSearchParams({ [on ? "on" : "off"]: skill ?? code, class: section, ...(skill ? { skills: code, in: section } : {}) });
+  redirect(n ? `/?${said}#${skill ? "skills" : on ? "taught" : "not-taught"}` : "/");
 }
