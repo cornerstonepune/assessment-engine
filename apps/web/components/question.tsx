@@ -39,6 +39,7 @@ export const KIND: Record<string, string> = {
   chunking: "chunking",
   long_division: "long division",
   multiples: "multiples and factors", // a list in any order, a multiple or not, divisible by 2, 3, 5 and 10
+  card: "from the school's examples", // a kind of question that is a row (`question_format`, ADR 0075)
 };
 
 // The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.
