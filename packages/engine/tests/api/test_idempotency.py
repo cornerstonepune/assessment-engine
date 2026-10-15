@@ -25,6 +25,9 @@ def conn():
     with db.connect() as c:
         yield c
         c.rollback()
+        # a failed call's record is committed on its own, to survive the request's rollback: taken away again
+        c.execute("delete from flow_run where flow = 'test_flow'")
+        c.commit()
 
 
 @pytest.fixture
@@ -148,3 +151,26 @@ def test_no_header_key_is_derived_deterministically_from_the_request_body(conn, 
     run_idempotent(conn, tenant, "test_flow", key_a, {}, fn)
     run_idempotent(conn, tenant, "test_flow", key_b, {}, fn)  # same derived key: same effect
     assert len(calls) == 1
+
+
+def test_a_failed_call_is_on_record_after_the_request_unwinds(tenant):
+    """L3b (goals/l3b-live-says-what-went-wrong.yaml). Live, 2026-10-14: Make papers failed for Grade 1 and left no
+    `flow_run` row — its failure was written on the request's own transaction, which the route rolls back on the way
+    out of a failure — so the watcher, which counts failed runs, never saw it. The failure is on record afterwards."""
+
+    def refused():
+        raise ValueError("the database refused the paper")
+
+    with pytest.raises(ValueError), db.connect() as request:  # a route's connection: unwound on a failure
+        run_idempotent(request, tenant, "test_flow", "k-unwound", {"for": "a class"}, refused)
+
+    with db.connect() as c:
+        row = c.execute(
+            "select status, error, finished_at from flow_run where tenant_id = %s and flow = 'test_flow'"
+            " and idempotency_key = 'k-unwound'",
+            (tenant,),
+        ).fetchone()
+        c.execute("delete from flow_run where flow = 'test_flow' and idempotency_key = 'k-unwound'")
+        c.commit()
+    assert row is not None, "the failure left no record"
+    assert row["status"] == "error" and "refused the paper" in row["error"] and row["finished_at"]

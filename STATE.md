@@ -7831,3 +7831,51 @@ it would close are named to Nimish before it ships".
   - CI's whole-suite run on d207b99, the PR's whole code, failed these two and only these (2471 passed).
   - Both now pass here (8 passed with the rest of their files).
   - The push changes those two test files and nothing else.
+
+## L3b — live says what went wrong, before an educator does (2026-10-14)
+
+Goal `goals/l3b-live-says-what-went-wrong.yaml`. This is the second half of L3: Make papers refused every paper made for
+one child on live.
+
+- **Measured first:**
+  - A failed Make papers left no `flow_run` row. Its failure was written on the request's own transaction, which the
+    route rolls back on the way out, so `engine live watch`, which counts failed runs, saw nothing.
+  - Live had recorded migration 20260929090000 while its rule still refused a paper for one child.
+- **A failed run's record survives:** `run_idempotent` rolls the request's own work back on a failure (the route would
+  unwind it anyway), then writes and commits the failure alone. `inbox.py` did the same on 2026-09-25.
+- **A drifted rule is named:**
+  - `engine/checks/rules.json` keeps every rule the migrations leave on the school's tables: 246 checks, keys and
+    references, as the database prints them.
+  - It is written by `engine live rules --write` from a database built from the migrations alone (here `rules_fresh`,
+    71 migrations).
+  - The watcher compares live's rules with it and names up to five that differ, with the count of the rest. It gives
+    names only, because its lines go to a public issue.
+  - `engine live rules` runs the same check on any database and exits 1 on drift.
+  - The usual test copy (m5done) holds the same 246 rules as `rules_fresh`.
+- **Check:**
+  - `tests/api/test_idempotency.py::test_a_failed_call_is_on_record_after_the_request_unwinds` failed first with "the
+    failure left no record".
+  - `tests/test_rules.py`: 2 tests.
+    - The test database's rules are the file's.
+    - Live's state on 2026-10-14, made again (the rule without a paper for one child), is named by the watcher.
+  - With the API, watch, CLI, layout and maker tests → 137 passed.
+  - The whole engine suite, rebased on #205's head (6953601), on the local copy: 2475 passed, 1 skipped, 1 failed. The
+    failure was `test_goal.py::test_every_invariant_holds`, from rows the browser tests left there (below). Once they were
+    repaired: it, and `tests/test_rules.py`, pass.
+- **Browser tests wrote answers to a response their question does not have** (found by that run):
+  - `apps/web/tests/rows.ts::aReadPaper` wrote every answer as response `'a'`. Since M0a a question names its own
+    responses (a bank question's is `ans`), so its answers were shown against another's key.
+  - That broke the invariant "every answer names a response of its question" on any database that both suites ran on:
+    12 rows on the local copy, written by browser runs at 08:44–10:49 today. CI never saw it, because each suite there
+    builds its own database.
+  - Fix: the answer takes its question's first response (`responses -> 0 ->> 'rid'`). A question with none fails the
+    insert, because `rid` is not null.
+  - The local copy's 12 rows were given their question's response.
+  - Check: the five browser files that use the helper (s4, screens, u14, u16, u22) → 50 passed. The run wrote 28
+    answers, and none names a response its question lacks.
+- **Postgres 17, CI's version, prints them alike:** the 71 migrations applied to a database on Postgres 17.11 (PGDG
+  binaries, `rules17`) give the same 246 rules as the file, `rules.drift` → 0.
+  - Only checks, keys and references are read (`contype` c, f, p, u, x). A later Postgres may list other things as
+    rules too (I believe 18 lists each not-null; worth verifying), and no migration names those as rules.
+- **Not known from here:** live's own Postgres version (`supabase/config.toml` says 17; live is not read from here).
+  If it prints a rule differently, `engine live rules --url <live>` names it, and so does the watcher's first run.

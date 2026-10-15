@@ -52,16 +52,29 @@ def run_idempotent(conn, tenant_id, flow: str, key: str, request: dict, fn):
         with conn.transaction():
             result = fn()
     except Exception as e:
-        conn.execute(
-            "update flow_run set status = 'error', error = %s, finished_at = clock_timestamp() where id = %s",
-            (str(e), run_id),
-        )
+        _failed(conn, tenant_id, flow, key, request, e)
         raise
     conn.execute(
         "update flow_run set status = 'ok', result = %s, finished_at = clock_timestamp() where id = %s",
         (json.dumps(result), run_id),
     )
     return result, False
+
+
+def _failed(conn, tenant_id, flow, key, request, error):
+    """The failure, on record whatever becomes of the request (goals/l3b-live-says-what-went-wrong.yaml). The route
+    rolls its transaction back on the way out of a failure, and took this record with it: live's failed Make papers
+    left no row for the watcher to count (2026-10-14), as an import's had (inbox.py, 2026-09-25). So the request's own
+    work is rolled back here — the route would unwind it anyway — and the failure is written and committed alone."""
+    conn.rollback()
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, idempotency_key, request, status, error, finished_at)"
+        " values (%s,%s,'http',%s,%s,'error',%s,clock_timestamp())"
+        " on conflict (tenant_id, flow, idempotency_key) where (idempotency_key is not null)"
+        " do update set status = 'error', error = excluded.error, finished_at = excluded.finished_at",
+        (tenant_id, flow, key, json.dumps(request), str(error)),
+    )
+    conn.commit()
 
 
 def _reclaim_or_return(conn, tenant_id, flow, key, request):
