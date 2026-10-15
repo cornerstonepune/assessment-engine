@@ -5,6 +5,10 @@ is verified. This file only says where the last session stopped.
 
 ## 2026-10-15 — `item_placement` to the attic; next: a skill from its examples
 
+- **The website waits for the live database** (ADR 0074, same PR): `migrate live` sets a `live database` status on the
+  commit it migrated, and Vercel's Deployment Checks hold the build until it is green. Nimish adds the check in Vercel
+  once, after this merges (the status must exist on a commit before Vercel can list it). Not live until he does.
+
 - **The watcher's first rule check** named `item_placement` on live, a table made there by hand that nothing reads
   (issue #208). Nimish said to move it to the attic: migration 20261111090000. Once live has it, the watcher's next run
   closes #208.

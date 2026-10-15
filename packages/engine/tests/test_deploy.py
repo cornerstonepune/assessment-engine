@@ -1,4 +1,5 @@
-"""What reaches live, and when (goals/p0-live-changes-wait-for-ci.yaml, goals/p0-papers-survive-a-deploy.yaml).
+"""What reaches live, and when (goals/p0-live-changes-wait-for-ci.yaml, goals/p0-papers-survive-a-deploy.yaml,
+goals/l4-the-website-waits-for-the-database.yaml).
 
 Both read the files that deploy, not a live run: the code review of 2026-09-30 found the engine rebuilt and the live
 database migrated on every push to main while CI was still running, and every paper the engine had rendered gone
@@ -50,8 +51,26 @@ def test_only_mains_newest_commit_changes_live():
         assert "git ls-remote origin refs/heads/main" in steps[at]["run"], (
             f"{name} never asks what main holds"
         )
-        after = [s.get("name") or s.get("uses") for s in steps[at + 1 :] if s.get("if") != GATED]
+        after = [s.get("name") or s.get("uses") for s in steps[at + 1 :] if GATED not in s.get("if", "")]
         assert after == [], f"{name} runs {after} even when a newer merge is on main"
+
+
+def test_the_website_goes_live_only_once_live_has_the_commits_migrations():
+    """Vercel holds each production deployment until the commit's `live database` status is green (Deployment Checks,
+    ADR 0074); only migrate live sets it, on the commit it migrated, after `db push` — so a page never reaches a
+    database that lacks its tables (2026-10-15: the site down 03:00–03:26 UTC while migrate live waited on CI)."""
+    spec = _load(WORKFLOWS / "migrate.yml")
+    (job,) = spec["jobs"].values()
+    assert job["permissions"]["statuses"] == "write", "migrate live cannot set a commit's status"
+    *_, push, said = job["steps"]
+    assert "supabase db push" in push["run"], "the status is not set after the migration"
+    assert said["if"] == f"!cancelled() && {GATED}", "the status is set for a commit main has moved on from"
+    assert said["env"]["STATE"] == "${{ job.status == 'success' && 'success' || 'failure' }}"
+    for needed in ("statuses/$SHA", 'context="live database"', 'state="$STATE"'):
+        assert needed in said["run"], needed
+    assert "live database" in (WORKFLOWS / "ci.yml").read_text(), (
+        "ci.yml still says Vercel deploys on every merge"
+    )
 
 
 def test_the_engines_data_folder_is_on_the_servers_disk():

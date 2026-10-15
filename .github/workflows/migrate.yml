@@ -1,6 +1,8 @@
-# The live database takes a merge's migrations as the website takes its code. Vercel deploys main on
-# every merge; before this, the database changed only when someone ran `bin/update-live`, so a page
-# reading a new table broke on live until then (2026-09-23: Marking, `answer_standing`).
+# The live database takes a merge's migrations before the website takes its code. Before this file, the database
+# changed only when someone ran `bin/update-live`, so a page reading a new table broke on live until then (2026-09-23:
+# Marking, `answer_standing`). Vercel builds every merge at once; its Deployment Checks hold the build back from the
+# live address until this run says the commit's `live database` is ready (ADR 0074) — on 2026-10-15 the website
+# went live at 03:00 UTC and failed every page reading a new rule until this run applied it at 03:26.
 #
 # Needs one repository secret, LIVE_DATABASE_URL — the same DATABASE_URL `bin/update-live` reads from
 # .env (Supabase: Project Settings → Database → connection string). Without it the run says so and
@@ -26,6 +28,7 @@ jobs:
   push:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    permissions: { contents: read, statuses: write }
     env:
       # the commit CI passed on; `github.sha` is whatever main holds when this starts, which can be a later merge
       SHA: "${{ github.event.workflow_run.head_sha || github.sha }}"
@@ -59,3 +62,17 @@ jobs:
         if: steps.plan.outputs.go == 'yes'
         env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
         run: supabase db push --db-url "$LIVE" --yes
+      - name: the website may go live with this commit, or may not
+        if: "!cancelled() && steps.plan.outputs.go == 'yes'"
+        # The status Vercel's Deployment Checks wait on, set on the commit just migrated: green once live has its
+        # migrations, red when they failed, so its build is never put live. A commit main has moved on from gets none —
+        # its build waits, and the newer merge's run releases the newer build, which carries this one's code.
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          STATE: "${{ job.status == 'success' && 'success' || 'failure' }}"
+        run: |
+          if [ "$STATE" = success ]; then said="live has this commit's migrations; the website may go live"
+          else said="live's migration failed; the website stays as it was"; fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state="$STATE" -f context="live database" \
+            -f description="$said" -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+          echo "live database: $STATE on ${SHA::7}"

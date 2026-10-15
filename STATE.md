@@ -7931,3 +7931,20 @@ one child on live.
     names no rule.
   - The privileges, roles, rules and watch tests: 17 passed. `bin/check` exits 0.
 - **After `migrate live`:** the watcher's next run should find nothing and close #208 itself ("All well again").
+
+## The website goes live after the live database (2026-10-15, ADR 0074)
+
+- **What happened:** #205 went live on Vercel at 03:00 UTC; `migrate live` applied its migration at 03:26, after CI.
+  Every page reading the new rule failed in between. The engine already waits for live's migrations
+  (`deploy-engine.yml`, "live has every migration this commit carries"); only the website raced.
+- **Nimish, 2026-10-15:** "yes move website deploy after migrate live".
+- `migrate live`'s last step sets the commit's `live database` status: green after `db push`, red if the run failed,
+  none for a commit main has moved on from. Vercel's Deployment Checks hold each production build until it is green.
+- **Check:** `tests/test_deploy.py::test_the_website_goes_live_only_once_live_has_the_commits_migrations`.
+  - It failed first: migrate.yml had no permission to set a status (`KeyError: 'permissions'`).
+  - It pins the permission, the step coming after `db push`, its gate on main's newest, the state from the job, and the
+    context name Vercel waits on. `test_deploy.py`: 7 passed. actionlint is clean on migrate.yml and ci.yml.
+- **Not live until Nimish sets it in Vercel** (Settings → Build and Deployment → Deployment Checks → Add Checks →
+  GitHub → `live database`). The status first exists on the commit this merges as; Vercel lists only checks it has
+  seen. Until then Vercel promotes every build as before.
+- **Not known:** whether this Vercel plan offers Deployment Checks. The connector here cannot read the team.
