@@ -20,10 +20,15 @@ export function ChildFinder({ within }: { within: string }) {
       row.hidden = !hit;
       if (hit) n += 1;
     }
-    // a grade with no child found is put away until the search is cleared
-    for (const table of root.querySelectorAll<HTMLTableElement>("table[data-children]")) {
-      const panel = table.closest("section");
-      if (panel) panel.hidden = !!q && !table.querySelector("tbody tr:not([hidden])");
+    // a class with a child found is opened, one with none put away, and a grade with none at all; all as they were once
+    // the search is cleared (goals/ux3-children-grouped.yaml)
+    for (const group of root.querySelectorAll<HTMLDetailsElement>("details[data-class]")) {
+      const any = !!group.querySelector("tbody tr:not([hidden])");
+      group.hidden = !!q && !any;
+      group.open = q ? any : group.dataset.open !== undefined;
+    }
+    for (const grade of root.querySelectorAll<HTMLElement>("section")) {
+      grade.hidden = !!q && !grade.querySelector("details[data-class]:not([hidden])");
     }
     setFound(q ? n : null);
   };

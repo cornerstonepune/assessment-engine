@@ -81,6 +81,8 @@ test("every heading sits over its own column, on every page with a table", async
     select c.section from child_skill_state s join child c on c.id = s.child_id where c.active and s.n_events > 0 limit 1`;
   for (const path of ["/", "/papers", "/capture", "/growth", "/make", "/library", "/worksheets", `/growth/class/${grid.section}`]) {
     await page.goto(path);
+    // Children opens on every class closed for the coordinator (goals/ux3-children-grouped.yaml): one is opened to read
+    if (path === "/growth") await page.locator("details[data-class] summary").first().click();
     expect(await offColumn(page), path).toEqual([]);
   }
   // the reader's table, in each of its views

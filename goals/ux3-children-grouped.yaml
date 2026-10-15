@@ -1,0 +1,33 @@
+name: ux3-children-grouped
+goal: >
+  Children opens on the person's own classes, one group per class. An educator sees each of their classes open; the
+  coordinator sees every class closed, under its grade, each saying in one line how many children it has, how many
+  need help, how many answers wait for a person and how many parent reports wait on someone, and a click opens it in
+  place. A class's table has the columns that matter and none that is the same on every row: Roll, Child, Needs help
+  on (the skill, and the mistake the child repeats there), Needs help, Practising, Secure, Waiting on you, Parent report
+  — which shows a report only when it waits to be approved or is out of date. Children who need help come first. The
+  colour key is one line that opens to the whole key. At 400 px wide nothing scrolls sideways, and the child and what
+  they need help on are on screen.
+# Written 2026-10-15, before the code: slice UX3 of BUILD-ORDER, moved ahead of SF2 by Nimish the same evening ("I don't
+# see any changes"). Measured first on the audit's screenshots (scratchpad ui-audit, 172 shots): the coordinator's
+# Grade 2 was one table of 27 children from 4 classes, roll numbers 1–12 repeating; Grade and Class were columns inside a
+# "Grade 2" panel; "To write" filled the Parent report column; nothing collapsed; the full colour legend sat under every
+# grade; at 400 px "Needs help on" began at x = 312 of 400.
+says:
+  - words: "It should be teacher-specific and all of those things."
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::an educator sees each of their classes open, and no other"
+  - words: "All these things should be expandable and collapsible."
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::the coordinator sees every class closed under its grade, says what waits in each, and opens it in place"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::a class's table has the columns that matter, children who need help first"
+  - words: "Most of the pages just have a long list for no reason."
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::the colour key is one line, and at 400 px nothing scrolls sideways"
+manual: []
+scenarios: []
+criteria:
+  - name: the pages that show children still hold
+    run: cd apps/web && npx playwright test tests/u35-children-grouped.spec.ts tests/u8-children-table.spec.ts tests/u2-children.spec.ts tests/u10-tables-read-straight.spec.ts tests/u11-colours-said.spec.ts tests/u18-staff-and-search.spec.ts tests/u21-class-by-topic.spec.ts tests/u24-no-long-lists.spec.ts tests/u26-my-classes-first.spec.ts tests/u31-topics-are-operations.spec.ts tests/screens.spec.ts tests/e2e.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

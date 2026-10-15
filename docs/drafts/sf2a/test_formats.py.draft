@@ -1,0 +1,233 @@
+"""SF2a: a question's format is one rule, approved once, and every paper draws only approved formats
+(goals/sf2-a-format-is-approved-once.yaml, ADR 0077 "Settled in SF2's goal").
+
+The copy is built with every format approved, as live has them (`bin/testdb`), so each test withdraws what it needs
+withdrawn, inside a transaction rolled back after it. The bank differs on every build, so nothing here names a level
+that may not hold what the test needs: each finds one, and says so when none is there."""
+
+import os
+import random
+
+import pytest
+
+from engine.assess import focus
+from engine.core import db
+from engine.w1_bank import formats
+from engine.w2_print import assemble, focus_paper, handout, library, shelf
+
+
+@pytest.fixture
+def conn():
+    if not os.getenv("DATABASE_URL"):
+        pytest.skip("needs the local copy (bin/testdb)")
+    with db.connect() as c:
+        yield c
+        c.rollback()
+
+
+def _of(conn, fmt, template):
+    return conn.execute("select format_of(%s, %s) as f", (fmt, template)).fetchone()["f"]
+
+
+def _levels(conn, code):
+    return {
+        (r["s"], r["l"])
+        for r in conn.execute(
+            "select distinct skill_set_code as s, difficulty as l from item"
+            " where status = 'active' and source = 'generated' and format_of(fmt, template) = %s",
+            (code,),
+        )
+    }
+
+
+def _drawable(conn, code):
+    return conn.execute(
+        "select count(*)::int as n, count(distinct (skill_set_code, difficulty))::int as levels from drawable_item"
+        " where format_of(fmt, template) = %s",
+        (code,),
+    ).fetchone()
+
+
+def test_a_questions_format_is_its_printed_format_or_its_template(conn):
+    # a template that is only the level's numbers written as a name: the format is how the sum is printed
+    for fmt, template in [
+        ("bare_sum", "ADD.2D2D.REG1"),
+        ("bare_sum", "SUB.3D2D.REGZ"),
+        ("column_grid", "SUB.3D3D.REG12"),
+        ("column_grid", "MUL.3D1D"),
+        ("bare_sum", "DIV.4D2D"),
+        ("column_grid", "ADD.MULTI3"),
+        ("bare_sum", "ADD.MULTI"),
+    ]:
+        assert _of(conn, fmt, template) == fmt, template
+    # a template that names a question of its own: the format is that template
+    for fmt, template in [
+        ("equation", "EQ.TRUE_FALSE"),
+        ("card", "MULT.NTH"),
+        ("multiples", "MULT.FACTORS"),
+        ("word_1step", "WP1"),
+        ("equal_groups", "ARRAY.DIV"),
+    ]:
+        assert _of(conn, fmt, template) == template
+    # every format the bank holds has a name in the school's words, as a row
+    nameless = conn.execute(
+        "select distinct format_of(i.fmt, i.template) as f from item i where i.status = 'active'"
+        " and i.source = 'generated' and not exists (select 1 from format f where f.tenant_id = i.tenant_id"
+        " and f.code = format_of(i.fmt, i.template))"
+    ).fetchall()
+    assert not nameless, [r["f"] for r in nameless]
+
+
+def test_one_approval_covers_a_format_in_every_skill_and_level_that_uses_it(conn):
+    code = "FTM"  # find the mistake, in every operation's skills
+    used = _levels(conn, code)
+    assert len({s for s, _ in used}) >= 2, (
+        "find the mistake must be in two skills or more for this to mean anything"
+    )
+    n = conn.execute(
+        "select count(*)::int as n from item where status = 'active' and format_of(fmt, template) = %s",
+        (code,),
+    ).fetchone()["n"]
+    formats.withdraw(conn, code, "a test", "withdrawn to be approved again")
+    assert _drawable(conn, code)["n"] == 0
+    assert not formats.state(conn, code)["approved"]
+
+    formats.approve(conn, code, "Test Coordinator")
+    got = _drawable(conn, code)
+    assert (got["n"], got["levels"]) == (n, len(used)), "one approval, every skill and level"
+    assert formats.state(conn, code)["approved"] and formats.state(conn, code)["by"] == "Test Coordinator"
+
+
+def test_a_format_starts_approved_where_every_level_using_it_was(conn):
+    # two formats, and a level that uses the second but not the first: left unapproved, it holds the second back
+    whole, part = _levels(conn, "FTM"), _levels(conn, "WP1")
+    left = sorted(part - whole)
+    assert left, (
+        "a level with one-step word problems and no find-the-mistake must exist for this to mean anything"
+    )
+    conn.execute("delete from format_approval")
+    conn.execute("update skill_set set level_approved = '{}'::jsonb")
+    for s, lv in (whole | part) - {left[0]}:
+        conn.execute(
+            "update skill_set set level_approved = level_approved"
+            " || jsonb_build_object(%s::text, jsonb_build_object('by', 'Earlier Approver', 'at', now()))"
+            " where code = %s",
+            (lv, s),
+        )
+    conn.execute("select internal.formats_from_levels()")
+    assert formats.state(conn, "FTM")["approved"] and formats.state(conn, "FTM")["by"] == "Earlier Approver"
+    assert not formats.state(conn, "WP1")["approved"], f"{left[0]} was never approved"
+
+
+def _child(conn):
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    return conn.execute(
+        "insert into child (tenant_id, roll_no, section, band) values (%s, '1', 'FORMATTEST', 'G4') returning id",
+        (tenant,),
+    ).fetchone()["id"]
+
+
+def _sheet_formats(conn, ids):
+    return {
+        r["f"]
+        for r in conn.execute("select format_of(fmt, template) as f from item where id = any(%s)", (ids,))
+    }
+
+
+def test_every_path_that_puts_a_question_on_a_paper_draws_only_approved_formats(conn, tmp_path):
+    code = "FTM"
+    # a level of a skill the school teaches, holding find-the-mistake beside other formats, with library worksheets
+    # that hold it
+    s, lv = next(
+        (r["s"], r["l"])
+        for r in conn.execute(
+            "select t.skill_set_code as s, t.difficulty as l from sheet_template t, unnest(t.item_ids) x(id)"
+            " join item i on i.id = x.id where t.source = 'library' and t.retired_at is null"
+            " and format_of(i.fmt, i.template) = %s and skill_taught_in(t.tenant_id, t.skill_set_code, null)"
+            " group by 1, 2 order by 1, 2",
+            (code,),
+        )
+    )
+    assert next(c for c in shelf._catalog(conn, None) if c["code"] == s)["own"], "offered before"
+    holding = [
+        r["code"]
+        for r in conn.execute(
+            "select distinct t.code from sheet_template t, unnest(t.item_ids) x(id) join item i on i.id = x.id"
+            " where t.source = 'library' and t.retired_at is null and t.skill_set_code = %s and t.difficulty = %s"
+            " and format_of(i.fmt, i.template) = %s",
+            (s, lv, code),
+        )
+    ]
+    formats.withdraw(conn, code, "a test", "withdrawn")
+
+    # a home paper, and a paper an educator makes (the maker draws through the same `_draw`)
+    skill = conn.execute("select rung_code from skill_set where code = %s", (s,)).fetchone()
+    area = focus.Area(s, skill["rung_code"], lv, 0, 0, None, "practising")
+    drawn = focus_paper._draw(conn, [], area, 200, random.Random(1))
+    assert drawn and code not in _sheet_formats(conn, [r["id"] for r in drawn])
+    # the library's worksheets: those holding it are retired, and no new one holds it
+    level = library._levels(conn, (s, lv))[0]
+    retire, new = library._plan_level(conn, level, library.per_sheet(conn))
+    assert set(holding) <= {r["code"] for r in retire}
+    assert all(code not in _sheet_formats(conn, [q["id"] for q in sheet]) for sheet in new)
+    # a week's pack, a spare included: no worksheet holding it is handed out
+    given = assemble._worksheets(conn, s, lv, None, 21)
+    assert all(code not in _sheet_formats(conn, w["item_ids"]) for w in given)
+    # a worksheet handed out by its code
+    with pytest.raises(ValueError, match="find the mistake"):
+        handout.for_children(conn, holding[0], [_child(conn)], "2026-W50", "a test", tmp_path)
+    # the counts that choose a skill before a draw: a skill whose every format waits is not offered
+    for f in {r["f"] for r in conn.execute(
+        "select distinct format_of(fmt, template) as f from item where status = 'active' and skill_set_code = %s",
+        (s,),
+    )}:  # fmt: skip
+        formats.withdraw(conn, f, "a test", "withdrawn")
+    assert next(c for c in shelf._catalog(conn, None) if c["code"] == s)["own"] is None, "not offered after"
+
+
+def test_a_paper_that_cannot_be_made_says_which_format_waits(conn, tmp_path):
+    s, lv = "ADD.2D2D", "Medium"
+    waiting = [
+        r["f"]
+        for r in conn.execute(
+            "select distinct format_of(fmt, template) as f from item where status = 'active'"
+            " and skill_set_code = %s and difficulty = %s order by 1",
+            (s, lv),
+        )
+    ]
+    for f in waiting:
+        formats.withdraw(conn, f, "a test", "withdrawn")
+    names = [formats.name(conn, f) for f in waiting]
+
+    # a home paper or a made one
+    skill = conn.execute("select rung_code from skill_set where code = %s", (s,)).fetchone()
+    area = focus.Area(s, skill["rung_code"], lv, 0, 0, None, "asked")
+    with pytest.raises(ValueError) as said:
+        focus_paper.drawn(conn, [], [(area, 5)], random.Random(1))
+    assert all(n in str(said.value) for n in names), str(said.value)
+    # a worksheet handed out by its code
+    code = conn.execute(
+        "select code from sheet_template where source = 'library' and retired_at is null"
+        " and skill_set_code = %s and difficulty = %s limit 1",
+        (s, lv),
+    ).fetchone()["code"]
+    with pytest.raises(ValueError) as said:
+        handout.for_children(conn, code, [_child(conn)], "2026-W50", "a test", tmp_path)
+    assert "waits for the coordinator" in str(said.value), str(said.value)
+    # a week's pack: the child is named with the reason, never given a short paper
+    why = assemble._why_short(conn, {"child_id": _child(conn), "skill_set_code": s, "difficulty": lv}, 21)
+    assert "waits for the coordinator" in why and names[0] in why, why
+
+
+def test_a_changed_kind_withdraws_its_formats_approval(conn):
+    code = "MUL3.SUM"  # three numbers multiplied: a kind that is a row (`question_format`, SF1)
+    formats.approve(conn, code, "Test Coordinator")
+    assert formats.state(conn, code)["approved"]
+    conn.execute(
+        "update question_format set kind = jsonb_set(kind, '{ask}', '\"Multiply the three numbers.\"')"
+        " where code = %s",
+        (code,),
+    )
+    after = formats.state(conn, code)
+    assert not after["approved"] and "changed" in after["why"], after
+    assert _drawable(conn, code)["n"] == 0

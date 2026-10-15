@@ -84,23 +84,28 @@ test.afterAll(async () => sql.end());
 
 const row = (page: Page, name: string) => page.locator(`tbody tr[data-child="${ids[name]}"]`);
 
-test("each grade is a table of its children, each row their standing and next step in the school's words", async ({ page }) => {
+test("each class is a table of its children, each row their standing and next step in the school's words", async ({ page }) => {
   const [{ n: before }] = await sql<{ n: number }[]>`
     select count(*)::int as n from access_log where child_id = ${ids.Asha} and actor = ${TEST_STAFF.email}`;
   await page.goto("/growth");
   const grade = page.getByRole("region", { name: "Grade 2" });
-  const table = grade.getByRole("table", { name: "Grade 2: every child" });
+  // the coordinator's classes are each a line under their grade, opened in place (goals/ux3-children-grouped.yaml)
+  await grade.locator(`details[data-class="${SECTION}"] summary`).click();
+  const table = grade.getByRole("table", { name: `${SECTION}: its children` });
   await expect(table.locator("thead th")).toHaveText([
-    /Roll/, /Name/, /Grade/, /Class/, /Needs help on/, /Secure/, /Practising/, /Last paper read/, /Parent report/,
+    /Roll/, /Child/, /Needs help on/, /Needs help/, /Practising/, /Secure/, /Waiting on you/, /Parent report/,
   ]);
 
-  // the skill roll 1 most needs help on is the red one, by its name; read from the tree, not from the page's code
+  // the skill roll 1 most needs help on is the red one, by its name, with the mistake she repeats there; read from the
+  // tree, not from the page's code
   const [{ name: red }] = await sql<{ name: string }[]>`
     select ss.name from skill_set ss join topic t on t.code = ss.topic_code and ss.taught where ss.rung_code = 'R24' limit 1`;
+  const [{ name: mistake }] = await sql<{ name: string }[]>`select mistake_name('M_SMALL_FROM_LARGE', 'NUM.OPS.02') as name`;
   const cells = (name: string) => row(page, name).locator("td");
-  await expect(cells("Asha")).toHaveText(["1", "Asha", "Grade 2", SECTION, red, "1", "1", /21/, /out of date/]);
-  await expect(cells("Bina")).toHaveText(["2", "Bina", "Grade 2", SECTION, "—", "0", "0", "—", "—"]);
-  await expect(cells("Chetan")).toHaveText(["10", "Chetan", "Grade 2", SECTION, "—", "1", "0", "—", /approved/]);
+  await expect(cells("Asha")).toHaveText(["1", "Asha", new RegExp(`${red}.*${mistake.slice(0, 20)}`), "1", "1", "1", "0", /out of date/]);
+  // nothing to report and an approved report are no one's work: the cell is empty
+  await expect(cells("Bina")).toHaveText(["2", "Bina", "—", "0", "0", "0", "0", ""]);
+  await expect(cells("Chetan")).toHaveText(["10", "Chetan", "—", "0", "0", "1", "0", ""]);
 
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(table).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
@@ -119,22 +124,25 @@ test("a click anywhere on a child's row opens the child, and any column sorts th
   await page.goto("/growth");
   const mine = async () =>
     (await page.locator(`tbody tr[data-section="${SECTION}"]`).evaluateAll((trs) => trs.map((t) => t.getAttribute("data-child"))));
-  expect(await mine()).toEqual([ids.Asha, ids.Bina, ids.Chetan]); // by roll, 2 before 10
+  expect(await mine()).toEqual([ids.Asha, ids.Bina, ids.Chetan]); // who needs help first, then by roll, 2 before 10
 
-  // a sort is a new page, streamed in behind a skeleton: its column says it sorts before the rows are read
-  const sorted = (label: string) => page.getByRole("table", { name: "Grade 2: every child" }).locator("th", { hasText: label });
-  await page.getByRole("table", { name: "Grade 2: every child" }).getByRole("link", { name: "Secure" }).click();
+  // a sort is a new page, streamed in behind a skeleton: its column says it sorts before the rows are read; the class
+  // sorted stays open
+  const table = page.getByRole("table", { name: `${SECTION}: its children` });
+  const sorted = (label: string) => table.locator("th", { hasText: label });
+  await page.locator(`details[data-class="${SECTION}"] summary`).click();
+  await table.getByRole("link", { name: "Secure", exact: true }).click();
   await expect(page).toHaveURL(/sort=secure/);
   await expect(sorted("Secure")).toHaveAttribute("aria-sort", "descending");
   expect((await mine()).slice(0, 2).sort()).toEqual([ids.Asha, ids.Chetan].sort()); // one secure skill each, then none
   expect((await mine())[2]).toBe(ids.Bina);
 
-  await page.getByRole("table", { name: "Grade 2: every child" }).getByRole("link", { name: "Parent report" }).click();
+  await table.getByRole("link", { name: "Parent report" }).click();
   await expect(page).toHaveURL(/sort=report/);
   await expect(sorted("Parent report")).toHaveAttribute("aria-sort", "other"); // what needs doing first
 
   // a click where a person would click it: in the middle of the Practising cell, nowhere near the name, on screen
-  const cell = row(page, "Bina").locator("td").nth(6);
+  const cell = row(page, "Bina").locator("td").nth(4);
   await cell.scrollIntoViewIfNeeded();
   const box = (await cell.boundingBox())!;
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);

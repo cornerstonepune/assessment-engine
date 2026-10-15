@@ -70,7 +70,7 @@ test("an educator sees their own classes and no other", async ({ browser }) => {
 
     // Children: their class's children, and no one else's
     await page.goto("/growth");
-    const children = page.getByRole("table", { name: /: every child$/ });
+    const children = page.getByRole("table", { name: /: its children$/ });
     await expect(children.first()).toBeVisible();
     await expect(page.getByRole("main")).toContainText("Aarav");
     await expect(page.getByRole("main")).not.toContainText("Chirag");
