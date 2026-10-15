@@ -59,3 +59,10 @@ Measured the same day:
   papers at once.
 - **Hiding empty topics on the site only.** That would treat the symptom. The dead rows would still be switched on and
   still be counted.
+
+## After
+
+The words moved to the skills in migration 20261113090000; the old places stayed only for the website still serving
+during that deploy. Migration 20261114090000 drops them once that website is gone: `class_topic`, `topic.taught`,
+`taught_by` and `taught_at`, and the one-time move (`internal.topic_words_to_skills`). A topic dropped on load now
+takes no word with it; every word is a skill's, and stays on the skill wherever it sits.

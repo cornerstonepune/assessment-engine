@@ -7,12 +7,15 @@ import { KIND } from "@/components/question";
 import { GRADE_GROUPS, gradeWords, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
 import { chargesTable } from "@/lib/queries-charges";
 import { approveSkills } from "../[code]/actions";
+import { mayDecide } from "@/lib/decides";
 
 // Every skill waiting for approval as one table to work through (goals/ui6a-approve-filtered.yaml; Nimish, 2026-10-12:
 // "this page needs to have proper filters and all; no page should have such laundary lists like stuff"): one row a
 // skill, its levels folded until opened, approved on its own or with the rows shown, in the person's own name.
 // The engine prepared the words; the person approves or opens one to change it first (goals/ui3-curriculum.yaml). A
 // skill whose topic is not taught yet is here too, said so: it is approved before it is switched on (goals/ny1-needs-you.yaml).
+// Approving is the coordinator's (people.decides): anyone else reads the same page with no approval offered, and may
+// open a skill to change its words (goals/ux1-who-sees-what.yaml).
 
 type Filter = { grade?: string; topic?: string; taught?: string };
 const TAUGHT: [string, string][] = [["yes", "Taught"], ["no", "Not taught yet"]];
@@ -37,7 +40,9 @@ function keeps(x: SkillSet, f: Filter, except?: keyof Filter) {
 export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [sets, charges] = await deadline(Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable()]));
+  const [sets, charges, mayApprove] = await deadline(
+    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills")]),
+  );
   const waiting = sets.filter((s) => s.status !== "ratified");
   // the school's grades in order, then any grade a waiting skill holds that the list does not name: none is left off
   const grades: [string, string][] = [
@@ -70,6 +75,12 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
         <Link href="/" className="chip mb-[18px] inline-block">
           ← Curriculum
         </Link>
+        {mayApprove ? null : (
+          <p role="status" className="note mb-[18px]">
+            The coordinator approves the skills. Read them here; open one to change its words, and the change waits for the
+            coordinator&rsquo;s approval.
+          </p>
+        )}
         {q.approved === "0" ? (
           <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
         ) : q.approved ? (
@@ -105,9 +116,11 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                   ))}
                 </ul>
               </details>
-              <button className="btn secondary mt-3" type="submit">
-                Approve this table as written, as {me.name}
-              </button>
+              {mayApprove ? (
+                <button className="btn secondary mt-3" type="submit">
+                  Approve this table as written, as {me.name}
+                </button>
+              ) : null}
             </Panel>
           </form>
         ) : null}
@@ -163,7 +176,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                         <th>Grade</th>
                         <th>Topic</th>
                         <th>What a child can do</th>
-                        <th>Approve</th>
+                        <th>{mayApprove ? "Approve" : "Change"}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -193,11 +206,13 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                             <input type="hidden" name="code" value={x.code} />
                             <input type="hidden" name="version" value={x.version} />
                             {/* this skill alone: the same form, naming the one skill (the action approves only it) */}
-                            <button className="btn secondary" type="submit" name="only" value={x.code}>
-                              Approve, as {me.name}
-                            </button>
+                            {mayApprove ? (
+                              <button className="btn secondary" type="submit" name="only" value={x.code}>
+                                Approve, as {me.name}
+                              </button>
+                            ) : null}
                             <Link href={`/skill-sets/${x.code}/edit`} className="mt-1 block text-[13px]">
-                              Change the words first
+                              {mayApprove ? "Change the words first" : "Change the words"}
                             </Link>
                           </td>
                         </tr>
@@ -207,7 +222,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                 </div>
                 {shown.length === 0 ? <p className="note p-4">Nothing waits under these choices.</p> : null}
               </section>
-              {shown.length ? (
+              {shown.length && mayApprove ? (
                 <div className="flex flex-wrap items-center gap-3">
                   <button className="btn" type="submit">
                     Approve {narrowed ? "these" : "all"} {shown.length} {shown.length === 1 ? "skill" : "skills"} as written, as {me.name}

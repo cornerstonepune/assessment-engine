@@ -34,11 +34,15 @@ test("every kind of × and ÷ question the bank holds is drawn with its numbers,
         // the kinds an educator can pick, on the skill set's page with none picked: only their chips carry a kind, and
         // only a kind with a name in the school's words (`KIND`) has one
         await page.goto(`/library?set=${set}#questions`);
+        // read once the page has streamed in, not at its frame
+        await expect(page.locator("#questions")).toBeVisible();
         const hrefs = await page.locator("#questions a[href]").evaluateAll((els) => els.map((e) => e.getAttribute("href") ?? ""));
         pickable.set(set, hrefs.map((h) => new URL(h, "http://x").searchParams.get("fmt")));
       }
       if (!pickable.get(set)!.includes(fmt)) wrong.push(`${set} ${fmt}: no name in the school's words, so no kind to pick`);
       await page.goto(`/library?set=${set}&fmt=${fmt}#questions`);
+      // read once the page has streamed in, not at its frame
+      await expect(page.locator("#questions")).toBeVisible();
       const rows = page.locator("#questions table tbody tr");
       const n = await rows.count();
       if (!n) wrong.push(`${set} ${fmt}: no question listed`);

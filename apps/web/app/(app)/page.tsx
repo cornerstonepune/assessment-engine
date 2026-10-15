@@ -7,6 +7,7 @@ import { CurriculumTable } from "./curriculum-table";
 import { Topics } from "./topics";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
+import { mayDecide } from "@/lib/decides";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -19,7 +20,9 @@ export default async function CurriculumPage({ searchParams }: Props) {
   const q = await searchParams;
   // every skill waiting counts, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
   const scope = scopeOf(me);
-  const [{ rows }, waiting, all] = await deadline(Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope)]));
+  const [{ rows }, waiting, all, mayApprove] = await deadline(
+    Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope), mayDecide(me, "skills")]),
+  );
   // said of a topic (every skill in it) or of one skill of it (goals/t1-topics-are-operations.yaml)
   const said = q.on ?? q.off;
   const whole = all.find((t) => t.code === said);
@@ -49,8 +52,9 @@ export default async function CurriculumPage({ searchParams }: Props) {
         ) : null}
         {waiting ? (
           <Notice tone="terracotta">
-            {waiting} {waiting === 1 ? "skill waits" : "skills wait"} for approval.{" "}
-            <Link href="/skill-sets/approve">Read and approve →</Link>
+            {/* approving is the coordinator's; anyone else is told whose it is (goals/ux1-who-sees-what.yaml) */}
+            {waiting} {waiting === 1 ? "skill waits" : "skills wait"} for {mayApprove ? "approval" : "the coordinator’s approval"}.{" "}
+            <Link href="/skill-sets/approve">{mayApprove ? "Read and approve →" : "Read them →"}</Link>
           </Notice>
         ) : null}
         <p className="mb-4 flex flex-wrap gap-2">

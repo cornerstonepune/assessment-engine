@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — T1 merged (#211, `271ce9e`); T1b drops the old switch
+
+- **T1 on live:** main's CI → `migrate live` (20261113090000) → Vercel. Only then Nimish runs
+  `~/cornerstone/assessment-engine/bin/update-live`, which regroups the topics. Running it earlier leaves the old
+  website reading a switch nothing writes.
+- **T1b (this branch):** migration 20261114090000 drops `class_topic`, `topic.taught` and the one-time move. See
+  STATE.md "T1 merged; T1b".
+- **UX1 (this branch too):** an educator is shown only their own decisions, questions and children; see STATE.md
+  "UX1". Next is UX2 (one count for one thing: a class paper's grade, Today's counts equal their pages').
+
 ## 2026-10-15 — T1: topics are operations (ADR 0076); SF2 measured (ADR 0077); UI audit cut into UX1–UX7
 
 - **Order now (BUILD-ORDER "topics are operations"):** T1 → UX1 → UX2 → SF2 → UX3 … UX7 → SF3 → SF4.

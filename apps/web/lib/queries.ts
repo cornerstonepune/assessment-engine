@@ -237,8 +237,10 @@ export type ChildRow = {
   n_papers: number;
 };
 
-// Every name read goes through pii.read_child, which logs who asked (rule 6).
-export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
+// Every name read goes through pii.read_child, which logs who asked (rule 6); so a name is read only for a child the page
+// shows — the classes the person sees, or the one child it is about (goals/ux1-who-sees-what.yaml). The rows are chosen
+// before any name is read: `where` names `c` alone, and is applied as `child` is scanned, ahead of the logged accessor.
+async function childRows(actor: string, where: ReturnType<typeof inScope>): Promise<ChildRow[]> {
   return sql<ChildRow[]>`
     select c.id, c.roll_no, c.section, c.band, p.first_name,
            (select count(*)::int from answer_placed e
@@ -249,14 +251,19 @@ export async function childrenOnRoll(actor: string): Promise<ChildRow[]> {
              where si.child_id = c.id and r.state = 'candidate' and k.superseded_by is null) as n_pending,
            (select count(*)::int from capture k join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null) as n_papers
-    from child c, lateral pii.read_child(c.id, ${actor}) p
-    where c.active
+    from (select * from child c where c.active and ${where}) c, lateral pii.read_child(c.id, ${actor}) p
     order by c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
+/** The children on the roll of the classes a person sees, each name read in their name. */
+export async function childrenOnRoll(actor: string, scope: Scope): Promise<ChildRow[]> {
+  return childRows(actor, inScope(scope, sql`c.section`));
+}
+
+/** One child on the roll, the only name read. */
 export async function childHeader(id: string, actor: string): Promise<ChildRow | undefined> {
-  const rows = await childrenOnRoll(actor);
-  return rows.find((c) => c.id === id);
+  const [row] = await childRows(actor, sql`c.id = ${id}::uuid`);
+  return row;
 }
 
 export type NextStep = { code: string; name: string; rung_code: string; difficulty: string | null; rule: string; targets: string[] };

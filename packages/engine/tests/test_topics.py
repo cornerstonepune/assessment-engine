@@ -148,31 +148,54 @@ def test_a_skill_a_person_switched_stays_as_they_left_it():
 
 
 @pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
-def test_a_topic_the_rows_drop_is_gone_after_a_load_with_every_classs_word():
+def test_a_topic_the_rows_drop_is_gone_after_a_load():
     """Live on 2026-10-15 still had "Number sense & strategies", "Estimation" and "Word problems": topics the rows
     dropped on 2026-09-23, which a load updated nothing in and never removed, so they stayed switched on and on every
-    page's chips. A load now removes a topic the rows no longer have, with every class's word on it."""
+    page's chips. A load now removes a topic the rows no longer have; every word said of a skill stays on the skill."""
     from engine.core import db, settings
 
     with db.connect() as conn:
         tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
         conn.execute(
-            "insert into topic (tenant_id, code, subject_code, name, ord, taught) values (%s, 'ESTIMATE', 'NUM',"
-            " 'Estimation', 99, true) on conflict (tenant_id, code) do nothing",
+            "insert into topic (tenant_id, code, subject_code, name, ord) values (%s, 'ESTIMATE', 'NUM',"
+            " 'Estimation', 99) on conflict (tenant_id, code) do nothing",
             (tenant,),
         )
+        conn.execute("update skill_set set topic_code = 'ESTIMATE' where code = 'MD.ESTIMATE'")
         conn.execute(
-            "insert into class_topic (tenant_id, section, topic_code, taught, taught_by) values"
-            " (%s, 'T1-OLD', 'ESTIMATE', true, 'An educator') on conflict do nothing",
+            "insert into class_skill (tenant_id, section, skill_set_code, taught, taught_by) values"
+            " (%s, 'T1-OLD', 'MD.ESTIMATE', true, 'An educator') on conflict do nothing",
             (tenant,),
         )
         topics.load(conn, tenant, settings.seed)
         left = conn.execute(
             "select (select count(*) from topic where code = 'ESTIMATE') as topic,"
-            " (select count(*) from class_topic where topic_code = 'ESTIMATE') as words,"
-            " (select array_agg(code order by ord) from topic) as codes"
+            " (select topic_code from skill_set where code = 'MD.ESTIMATE') as home,"
+            " skill_taught_in(%s, 'MD.ESTIMATE', 'T1-OLD') as said,"
+            " (select array_agg(code order by ord) from topic) as codes",
+            (tenant,),
         ).fetchone()
         seeded = [t["code"] for t in settings.seed("topics.json", "topics")]
         conn.rollback()
-    assert (left["topic"], left["words"]) == (0, 0)
+    assert (left["topic"], left["home"]) == (0, "DIV"), (
+        "the old topic is gone; its skill sits under its operation"
+    )
+    assert left["said"] is True, "the class's word on the skill outlives the topic it sat in"
     assert left["codes"] == seeded, "exactly the rows' topics, in their order"
+
+
+@pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+def test_the_topic_is_no_longer_the_switch():
+    """ADR 0076: the word "taught" is a skill's. The topic's own switch (`topic.taught`), each class's word on a topic
+    (`class_topic`) and the one-time move of both onto the skills (`internal.topic_words_to_skills`) went with the
+    migration after the one that moved them, so no code can read a word nothing writes any more."""
+    from engine.core import db
+
+    with db.connect() as conn:
+        left = conn.execute(
+            "select to_regclass('public.class_topic') is not null as words,"
+            " exists (select 1 from information_schema.columns where table_schema = 'public'"
+            "   and table_name = 'topic' and column_name like 'taught%%') as switch,"
+            " to_regprocedure('internal.topic_words_to_skills()') is not null as move"
+        ).fetchone()
+    assert dict(left) == {"words": False, "switch": False, "move": False}

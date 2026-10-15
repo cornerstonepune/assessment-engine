@@ -166,61 +166,49 @@ def test_a_class_is_taught_skill_by_skill(conn):
 
 
 def test_regrouping_the_topics_changes_no_classs_paper(conn):
-    """ADR 0076, decision 3: before the topics were regrouped, each class's word was on a topic (`class_topic`) and the
-    school's was the topic's (`topic.taught`). `internal.topic_words_to_skills`, which the migration runs before any
-    skill moves topic, writes every word onto each skill the topic then held; the load then regroups the topics and
-    drops the old ones. Every class — and a class no one has spoken for — keeps exactly the skills it had.
+    """ADR 0076, decision 3: every word "taught" is said of a skill — the school's on the skill set, each class's in
+    `class_skill` — so a load that moves a skill to another topic, or drops the topic it sat in, changes no class's
+    paper. (On the day the topics were regrouped, migration 20261113090000 wrote each word said of a topic onto the
+    skills it held; this is what keeps it true at every load after.)
 
-    Live as it was, in small: Multiplication begun (MUL.GROUPS; taught, by the rows), Multiplication models
-    (MUL.MODELS; not taught, by the rows), Multiplication in columns (MUL.2D1D; switched on for the school by the
-    coordinator). One class said columns not taught; another said begun not taught and models taught."""
+    In small: three skills of what is now Multiplication, each in an old topic of its own — equal groups taught by
+    the rows, models not taught, columns switched on for the school by the coordinator. One class said columns not
+    taught; another said equal groups not taught and models taught; a third no one has spoken for."""
     tenant = _tenant(conn)
-    old = [("T1.BEGUN", True, None, "MUL.GROUPS"), ("T1.MODELS", False, None, "MUL.MODELS"),
-           ("T1.COLS", True, "The coordinator", "MUL.2D1D")]  # fmt: skip
-    for i, (code, taught, by, skill) in enumerate(old):
+    old = [("T1.BEGUN", "MUL.GROUPS"), ("T1.MODELS", "MUL.MODELS"), ("T1.COLS", "MUL.2D1D")]
+    for i, (code, skill) in enumerate(old):
         conn.execute(
-            "insert into topic (tenant_id, code, subject_code, name, ord, taught, taught_by, taught_at) values"
-            " (%s, %s, 'NUM', %s, %s, %s, %s, case when %s::text is null then null else now() end)",
-            (tenant, code, code, 90 + i, taught, by, by),
+            "insert into topic (tenant_id, code, subject_code, name, ord) values (%s, %s, 'NUM', %s, %s)",
+            (tenant, code, code, 90 + i),
         )
-        conn.execute(
-            "update skill_set set topic_code = %s, taught = false, taught_by = null where code = %s",
-            (code, skill),
-        )
+        conn.execute("update skill_set set topic_code = %s where code = %s", (code, skill))
+    conn.execute(
+        "update skill_set set taught = true, taught_by = 'The coordinator', taught_at = now() where code = 'MUL.2D1D'"
+    )
     conn.execute("delete from class_skill where section in ('T1-A', 'T1-B', 'T1-NEW')")
-    for section, topic, taught in (
-        ("T1-A", "T1.COLS", False),
-        ("T1-B", "T1.BEGUN", False),
-        ("T1-B", "T1.MODELS", True),
-    ):
-        conn.execute(
-            "insert into class_topic (tenant_id, section, topic_code, taught, taught_by) values (%s,%s,%s,%s,%s)",
-            (tenant, section, topic, taught, BY),
-        )
-    skills = [s for *_, s in old]
+    _child(conn, "T1-A-1", "T1-A")
+    _child(conn, "T1-B-1", "T1-B")
+    _say(conn, "T1-A", "T1.COLS", False)
+    _say(conn, "T1-B", "T1.BEGUN", False)
+    _say(conn, "T1-B", "T1.MODELS", True)
+    skills = [s for _, s in old]
     sections = ("T1-A", "T1-B", "T1-NEW")
 
-    def before(skill, section):
-        """The rule as migration 20261110090000 wrote it: the class's word on the skill's topic, else the topic's."""
-        return conn.execute(
-            "select coalesce((select ct.taught from class_topic ct where ct.tenant_id = s.tenant_id"
-            "   and ct.section = %s and ct.topic_code = s.topic_code),"
-            " (select t.taught from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code), false) as t"
-            " from skill_set s where s.code = %s",
-            (section, skill),
-        ).fetchone()["t"]
-
-    was = {(k, c): before(k, c) for k in skills for c in sections}
+    was = {(k, c): _rule(conn, k, c) for k in skills for c in sections}
     assert was == {
         ("MUL.GROUPS", "T1-A"): True, ("MUL.GROUPS", "T1-B"): False, ("MUL.GROUPS", "T1-NEW"): True,
         ("MUL.MODELS", "T1-A"): False, ("MUL.MODELS", "T1-B"): True, ("MUL.MODELS", "T1-NEW"): False,
         ("MUL.2D1D", "T1-A"): False, ("MUL.2D1D", "T1-B"): True, ("MUL.2D1D", "T1-NEW"): True,
     }  # fmt: skip
 
-    conn.execute("select internal.topic_words_to_skills()")
     topics.load(conn, tenant, settings.seed)
 
     now = {(k, c): _rule(conn, k, c) for k in skills for c in sections}
     assert now == was, {k: (was[k], now[k]) for k in was if was[k] != now[k]}
+    homes = conn.execute(
+        "select array_agg(distinct topic_code) as t from skill_set where code = any(%s)", (skills,)
+    ).fetchone()["t"]
     gone = conn.execute("select count(*) as n from topic where code like 'T1.%%'").fetchone()["n"]
-    assert gone == 0, "the old topics are gone; their words live on in each skill"
+    assert (homes, gone) == (["MUL"], 0), (
+        "the old topics are gone; each skill sits under Multiplication, its words on it"
+    )

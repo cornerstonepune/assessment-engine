@@ -62,11 +62,20 @@ async function signedIn(browser: Browser): Promise<Page> {
   return page;
 }
 
-test("an educator's approval of a skill is refused and changes nothing", async ({ browser }) => {
+test("an educator's approval of a skill is refused and changes nothing", async ({ browser, page: coordinator }) => {
+  // an educator is offered no approval of a skill (goals/ux1-who-sees-what.yaml); the form the coordinator is offered,
+  // sent by hand from the educator's own page, is what is refused
+  await coordinator.goto(`/skill-sets/${draft}`);
+  const approve = coordinator.getByRole("button", { name: "Approve as written" });
+  const form = await coordinator.locator("form").filter({ has: approve }).evaluate((f) => f.outerHTML);
   const page = await signedIn(browser);
   try {
     await page.goto(`/skill-sets/${draft}`);
-    await page.getByRole("button", { name: "Approve as written" }).click();
+    await expect(page.getByRole("button", { name: "Approve as written" }), "not offered").toHaveCount(0);
+    await page.evaluate((html) => {
+      document.body.insertAdjacentHTML("beforeend", html);
+      (document.body.lastElementChild as HTMLFormElement).submit();
+    }, form);
     await expect(page).toHaveURL(/\/refused/);
     await expect(page.getByRole("main")).toContainText("Approving a skill");
     await expect(page.getByRole("main")).toContainText("a coordinator");
