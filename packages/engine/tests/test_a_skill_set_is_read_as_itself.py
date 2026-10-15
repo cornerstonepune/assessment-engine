@@ -53,7 +53,7 @@ def test_a_skill_sets_own_skill_is_the_one_its_rung_declares(conn):
             " join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
         )
     }
-    catalog = {c["code"]: c["own"] for c in shelf._catalog(conn)}
+    catalog = {c["code"]: c["own"] for c in shelf._catalog(conn, None)}
     assert catalog, "the catalogue holds the taught skill sets"
     assert {c: declared[c] for c in catalog} == catalog
     assert catalog["MUL.GROUPS"] == "NUM.OPS.03", "equal groups is Multiplication"

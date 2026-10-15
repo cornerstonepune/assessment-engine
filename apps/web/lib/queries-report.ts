@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { taughtIn } from "./taught";
 
 // A child's report card (goals/u6-report-card.yaml): their skill map and the facts it rests on. Every number here is
 // read from signed-off answers on readings nobody has superseded; nothing is estimated.
@@ -28,10 +29,11 @@ const WEAKEST_FIRST = [
   "not_enough_yet",
 ];
 
-/** The taught skill sets of the child's grade and the grades either side, and any other a signed-off answer of theirs
- *  landed on — each with the graph's state (the weakest of its skills, as the class card places a child) and the
- *  child's answers on it in the three signals: right, wrong (with or without working), blank. A skill set's lane is the
- *  registry skill it practises; its place in the lane is the school's ladder. */
+/** The skill sets taught in the child's class (goals/f1f-taught-per-class.yaml), of the child's grade and the grades
+ *  either side, and any other a signed-off answer of theirs landed on — each with the graph's state (the weakest of its
+ *  skills, as the class card places a child) and the child's answers on it in the three signals: right, wrong (with or
+ *  without working), blank. A skill set's lane is the registry skill it practises; its place in the lane is the school's
+ *  ladder. */
 export async function skillMap(id: string): Promise<MapNode[]> {
   return sql<MapNode[]>`
     with me as (select band from child where id = ${id}::uuid),
@@ -58,7 +60,8 @@ export async function skillMap(id: string): Promise<MapNode[]> {
            st.state, coalesce(sig.right, 0) as right, coalesce(sig.wrong, 0) as wrong,
            coalesce(sig.wrong_working, 0) as wrong_working, coalesce(sig.blank, 0) as blank
     from skill_set ss
-    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+      and ${taughtIn(sql`t.tenant_id`, sql`t.code`, sql`(select section from child where id = ${id}::uuid)`)}
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     left join st on st.rung_code = r.code
     left join sig on sig.rung_code = r.code

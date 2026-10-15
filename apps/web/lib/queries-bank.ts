@@ -2,6 +2,8 @@
 // screen reads it, and a printed paper with the facts of how it was made.
 import { sql } from "./db";
 import type { Difficulty } from "./queries";
+import { EVERY_CLASS, type Scope } from "./scope";
+import { taughtFor } from "./taught";
 
 // A question's own numbers, by kind: `a op b` for most, `addends` for a long column, `base` for a
 // number wall, `left`/`right` for a balance (null is the box the child fills), `planted` for the
@@ -55,7 +57,13 @@ export type ItemRow = {
   difficulty: string | null;
 };
 
-export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string; find?: string };
+/** `scope`: the classes whose taught topics the bank shows (goals/f1f-taught-per-class.yaml); every class unless said. */
+export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string; find?: string; scope?: Scope };
+
+// A question of a skill taught in any class of the scope.
+const ofTaughtSkill = (scope: Scope = EVERY_CLASS) => sql`
+  exists (select 1 from skill_set ts where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code
+          and ${taughtFor(scope, sql`ts.tenant_id`, sql`ts.topic_code`)})`;
 
 // What a person typed, looked for as it is: LIKE's own % and _ (and its escape, \) are escaped, never wildcards.
 const containing = (words: string) => `%${words.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
@@ -69,7 +77,7 @@ export const itemColumns = () => sql`
 // What the bank may print: generated questions of a taught skill, the live ones unless the removed ones are asked for.
 const inBank = (f: ItemFilter) => sql`
   i.source = 'generated' and i.status = ${f.status === "retired" ? "retired" : "active"}
-  and exists (select 1 from skill_set ts join topic tt on tt.tenant_id = ts.tenant_id and tt.code = ts.topic_code and tt.taught where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code)
+  and ${ofTaughtSkill(f.scope)}
   ${f.set ? sql`and i.skill_set_code = ${f.set}` : sql``}
   ${f.difficulty ? sql`and i.difficulty = ${f.difficulty}` : sql``}
   ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}
@@ -101,7 +109,7 @@ export type BankRow = {
 
 // The whole bank at a glance: every skill set in ladder order, the kinds of question it holds, and
 // how many are ready to print at each level — exactly the pools a paper is drawn from.
-export async function bankGrid(): Promise<BankRow[]> {
+export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
   return sql<BankRow[]>`
     with b as (
       select skill_set_code, difficulty, fmt, count(*)::int as n from item
@@ -114,15 +122,15 @@ export async function bankGrid(): Promise<BankRow[]> {
                            group by b.difficulty) d), '{}'::json) as counts
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
+    where ${taughtFor(scope, sql`s.tenant_id`, sql`s.topic_code`)}
     order by r.ladder_order nulls last, s.code`;
 }
 
-export async function bankTotals(): Promise<{ active: number; retired: number }> {
+export async function bankTotals(scope: Scope = EVERY_CLASS): Promise<{ active: number; retired: number }> {
   const [t] = await sql<{ active: number; retired: number }[]>`
     select count(*) filter (where status = 'active')::int as active,
            count(*) filter (where status = 'retired')::int as retired
-    from item i where i.source = 'generated' and exists (select 1 from skill_set ts join topic tt on tt.tenant_id = ts.tenant_id and tt.code = ts.topic_code and tt.taught where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code)`;
+    from item i where i.source = 'generated' and ${ofTaughtSkill(scope)}`;
   return t;
 }
 

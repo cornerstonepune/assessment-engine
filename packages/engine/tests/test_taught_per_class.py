@@ -1,0 +1,128 @@
+"""Taught is said for each class (goals/f1f-taught-per-class.yaml, ADR 0073 D5).
+
+Nimish, 2026-10-14: "people who are there for one thing like educator only see something that's relevant for their
+class and their students." Whether a topic has been taught was one switch for the school (`topic.taught`): switching
+multiplication on for Grade 3 switched it on for Grade 1. Now each class has its own word, with who said it and when
+(`class_topic`); a class no one has spoken for follows the school's switch. One rule in the database,
+`taught_in(tenant, topic, class)`, read by the engine and the site alike.
+
+MUL.MODELS (topic MULMODEL, not taught in the school's rows) is Grade 2's at Easy, with questions in the bank.
+"""
+
+import os
+
+import pytest
+
+from engine.checks import live_data
+from engine.core import db
+from engine.w2_print import focus_paper, maker, shelf
+
+WEEK = "T3W1-taught-test"
+MODELS = [{"skill_set": "MUL.MODELS", "level": "Easy", "n": 4}]
+ADDING = [{"skill_set": "ADD.2D1D", "level": "Easy", "n": 4}]
+BY = "F1F Educator"
+
+
+@pytest.fixture
+def conn():
+    if not os.getenv("DATABASE_URL"):
+        pytest.skip("needs DATABASE_URL (see .env.example)")
+    with db.connect() as c:
+        yield c
+        c.rollback()
+
+
+def _tenant(conn):
+    return conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+
+
+def _child(conn, roll, section, band="G2"):
+    return str(
+        conn.execute(
+            "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,%s) returning id",
+            (_tenant(conn), roll, section, band),
+        ).fetchone()["id"]
+    )
+
+
+def _say(conn, section, topic, taught):
+    """What an educator's switch on Curriculum writes: this class has (or has not) been taught this topic."""
+    conn.execute(
+        "insert into class_topic (tenant_id, section, topic_code, taught, taught_by, taught_at)"
+        " values (%s,%s,%s,%s,%s,now()) on conflict (tenant_id, section, topic_code)"
+        " do update set taught = excluded.taught, taught_by = excluded.taught_by, taught_at = excluded.taught_at",
+        (_tenant(conn), section, topic, taught, BY),
+    )
+
+
+def test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another(conn):
+    """Two Grade 2 classes; one has been taught multiplication's models. Its papers draw on them; the other's are
+    refused in words that name the class — whichever way the paper is made — and the school's switch is unchanged."""
+    yes = [_child(conn, str(r), "F1F-YES") for r in (1, 2)]
+    no = [_child(conn, str(r), "F1F-NO") for r in (1, 2)]
+    _say(conn, "F1F-YES", "MULMODEL", True)
+
+    made = maker.plan(conn, "F1F-YES", yes, WEEK, "assessment", "same", MODELS)
+    assert not made["refused"] and len(made["papers"]) == 2, "the class taught it is given it"
+
+    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NO yet"):
+        maker.plan(conn, "F1F-NO", no, WEEK, "assessment", "same", MODELS)
+    each = maker.plan(conn, "F1F-NO", no, WEEK, "assessment", "each", MODELS)
+    assert not each["papers"] and all("not taught in F1F-NO" in r["why"] for r in each["refused"]), each[
+        "refused"
+    ]
+
+    assert {c["code"] for c in shelf.catalog(conn, "F1F-YES")} >= {"MUL.MODELS"}
+    assert "MUL.MODELS" not in {c["code"] for c in shelf.catalog(conn, "F1F-NO")}
+    taught = conn.execute("select taught from topic where code = 'MULMODEL'").fetchone()["taught"]
+    assert taught is False, "one class's word is not the school's switch"
+
+
+def test_a_class_no_one_has_spoken_for_follows_the_schools_switch(conn):
+    """Nothing changes on the day: a class with no word of its own is taught what the school's switch says. Its own
+    word, once said, is what counts for it — and for no other class."""
+    fresh = [_child(conn, str(r), "F1F-NEW") for r in (1, 2)]
+    other = [_child(conn, str(r), "F1F-OTHER") for r in (1, 2)]
+    assert not maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", ADDING)["refused"], (
+        "addition is taught in the school, so in a class no one has spoken for"
+    )
+    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NEW yet"):
+        maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", MODELS)
+
+    _say(conn, "F1F-NEW", "ADDSUB", False)
+    with pytest.raises(ValueError, match=r"ADD\.2D1D is not taught in F1F-NEW yet"):
+        maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", ADDING)
+    assert not maker.plan(conn, "F1F-OTHER", other, WEEK, "assessment", "same", ADDING)["refused"]
+
+    rule = conn.execute(
+        "select taught_in(%s, 'ADDSUB', 'F1F-NEW') as new, taught_in(%s, 'ADDSUB', 'F1F-OTHER') as other,"
+        " taught_in(%s, 'MULMODEL', 'F1F-OTHER') as models",
+        (_tenant(conn),) * 3,
+    ).fetchone()
+    assert (rule["new"], rule["other"], rule["models"]) == (False, True, False), (
+        "the one rule, in the database"
+    )
+
+
+def test_a_childs_own_paper_reads_their_own_class(conn):
+    """A paper chosen for one child, like a class paper, is drawn from what their own class was taught."""
+    yes, no = _child(conn, "1", "F1F-YES"), _child(conn, "1", "F1F-NO")
+    _say(conn, "F1F-YES", "MULMODEL", True)
+    assert focus_paper.plan(conn, yes, WEEK, MODELS)["areas"], "taught in their class"
+    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NO yet"):
+        focus_paper.plan(conn, no, WEEK, MODELS)
+
+
+def test_answers_kept_out_of_sight_are_those_on_topics_their_own_class_was_not_taught(conn):
+    """`live_data.hidden`: a signed-off answer on a skill whose topic a child's class has not been taught is kept and
+    noted, not shown. One class taught it, the other not: only the other's answer is out of sight."""
+    before = live_data.hidden(conn).get("MUL.MODELS", 0)
+    tenant = _tenant(conn)
+    for section in ("F1F-YES", "F1F-NO"):
+        conn.execute(
+            "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
+            " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.03','R41',true,'{}','item',now(),'test')",
+            (tenant, _child(conn, "1", section)),
+        )
+    _say(conn, "F1F-YES", "MULMODEL", True)
+    assert live_data.hidden(conn).get("MUL.MODELS", 0) == before + 1

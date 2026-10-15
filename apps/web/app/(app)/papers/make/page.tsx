@@ -38,8 +38,10 @@ export default async function Maker({ searchParams }: Props) {
   const q = await searchParams;
   const get = (k: string) => all(q[k]);
   const week = isoWeek();
-  const [classes, sets, homeN] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), skillSets(), homeLength()]));
+  const [classes, homeN] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), homeLength()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
+  // only what this class has been taught (goals/f1f-taught-per-class.yaml)
+  const sets = cls ? await deadline(skillSets({ section: cls.section })) : [];
   // a starting point's kind and way hold until the class is chosen; "for one child" ticks no one until they are chosen
   const one = get("one")[0] === "1";
   const topic = get("topic")[0] ?? "";

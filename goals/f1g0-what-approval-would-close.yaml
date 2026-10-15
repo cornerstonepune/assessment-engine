@@ -1,0 +1,26 @@
+name: f1g0-what-approval-would-close
+goal: >
+  Before a level whose questions are not approved is taken off papers (F1g), the levels it would close are named, read
+  from live: one command, reading only, lists each level a class's papers draw on today — taught in the class, its
+  grade's or below — whose questions the coordinator has not approved, with how many questions it holds and the
+  classes it would close for.
+# Written 2026-10-14, before the code: the measurement BUILD-ORDER's F1g row puts first ("measured first on a copy of
+# live: the levels it would close are named to Nimish before it ships"; ADR 0073 decision 5). Measured while planning:
+# on the test database every skill is a draft with no level approved, so the gate as written would close every paper
+# there; live has approved skills and 32 waiting (L2). Live's rows are read by Nimish, from his own machine:
+# ~/cornerstone/assessment-engine/bin/engine week unapproved
+says:
+  - words: "This page should just include the difficulty level, what it means, and some sample questions, and that should be subject to approval."
+    proved_by: "packages/engine/tests/test_levels_closing.py::test_each_class_is_told_the_levels_its_papers_would_lose"
+  - words: "This page should just include the difficulty level, what it means, and some sample questions, and that should be subject to approval."
+    proved_by: "packages/engine/tests/test_levels_closing.py::test_the_command_lists_them_and_writes_nothing"
+manual:
+  - "Nimish runs ~/cornerstone/assessment-engine/bin/engine week unapproved against live and the list is read with him before F1g ships"
+scenarios: []
+criteria:
+  - name: the levels F1g would close are named, and nothing is written
+    run: cd packages/engine && uv run pytest -q tests/test_levels_closing.py tests/test_cli.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

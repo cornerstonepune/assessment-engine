@@ -6,6 +6,7 @@ import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { Proposals } from "./proposals";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -13,14 +14,16 @@ const PER_PAGE = 50;
 const n = (x: number) => x.toLocaleString("en-IN");
 
 export default async function LibraryPage({ searchParams }: Props) {
-  await requireStaff();
+  const me = await requireStaff();
   const q = await searchParams;
   const find = q.find?.trim().slice(0, 80) || undefined;
-  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find };
+  // the questions of what the person's classes have been taught (goals/f1f-taught-per-class.yaml)
+  const scope = scopeOf(me);
+  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
   const [grid, totals, total, rows] = await deadline(Promise.all([
-    bankGrid(),
-    bankTotals(),
+    bankGrid(scope),
+    bankTotals(scope),
     itemCount(filter),
     items(filter, PER_PAGE, (page - 1) * PER_PAGE),
   ]));

@@ -146,19 +146,19 @@ def _grade_words(band) -> str:
     return f"Grade {digits}" if digits else str(band)
 
 
-def _asked(conn, states, ask, band=None) -> list:
-    """The areas a teacher asked for, each checked against the bank's own skill sets and levels — and, with `band`,
-    against the grade: a class or child uses its own grade's levels and those below (goals/f1e-the-grade-plan.yaml),
-    the rule the home paper keeps — with the child's repeated mistake in that skill, if any, so the questions that can
-    show it come first."""
-    cat = {c["code"]: c for c in catalog(conn)}
+def _asked(conn, states, ask, band=None, section=None) -> list:
+    """The areas a teacher asked for, each checked against the bank's own skill sets and levels — with `section`,
+    against what that class has been taught (goals/f1f-taught-per-class.yaml); with `band`, against the grade: a class
+    or child uses its own grade's levels and those below (goals/f1e-the-grade-plan.yaml), the rule the home paper keeps
+    — with the child's repeated mistake in that skill, if any, so the questions that can show it come first."""
+    cat = {c["code"]: c for c in catalog(conn, section)}
     levels = _levels(conn)
     usable = _levels(conn, band) if band else levels
     out = []
     for a in ask:
         code, level, n = a.get("skill_set"), a.get("level"), a.get("n")
         if code not in cat:
-            raise ValueError(f"no skill set {code!r}")
+            raise ValueError(_not_on_paper(conn, code, section))
         if level not in levels.get(code, ()):
             raise ValueError(
                 f"{code} has no level {level!r}: it has {', '.join(levels.get(code, ())) or 'none'}"
@@ -185,14 +185,23 @@ def _asked(conn, states, ask, band=None) -> list:
     return out
 
 
+def _not_on_paper(conn, code, section) -> str:
+    """Why a skill set asked for is not one a paper may draw on: there is none, or its topic is not taught here."""
+    if not conn.execute("select 1 from skill_set where code = %s", (code,)).fetchone():
+        return f"no skill set {code!r}"
+    where = f" in {section}" if section else ""
+    return f"{code} is not taught{where} yet: an educator of the class says so on Curriculum"
+
+
 def home_area(conn, child_id: str, states: list | None = None) -> list:
     """[the one Area a child's home paper works on], at the level where its mistake shows — or [] when the graph shows
     none. What `plan` draws a home paper from, and what Friday's class card names for each child."""
     if states is None:
         states = _states(conn, child_id)
-    band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
-    levels = _levels(conn, band)
-    return [_where_it_shows(conn, a, levels) for a in focus.home(states, catalog(conn), rule(conn), levels)]
+    child = conn.execute("select band, section from child where id = %s", (child_id,)).fetchone()
+    levels = _levels(conn, child["band"])
+    taught = catalog(conn, child["section"])
+    return [_where_it_shows(conn, a, levels) for a in focus.home(states, taught, rule(conn), levels)]
 
 
 def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> dict:
@@ -201,8 +210,8 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
     few questions the child has not seen. `taken`: questions already on another child's paper of the same batch."""
     states = _states(conn, child_id)
     if ask:
-        band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
-        chosen = _asked(conn, states, ask, band)
+        child = conn.execute("select band, section from child where id = %s", (child_id,)).fetchone()
+        chosen = _asked(conn, states, ask, child["band"], child["section"])
     else:
         n = home_length(conn)
         chosen = [(a, n) for a in home_area(conn, child_id, states)]

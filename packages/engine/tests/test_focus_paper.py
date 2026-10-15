@@ -226,8 +226,11 @@ def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper(conn, child):
     """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication"."""
     conn.execute("update topic set taught = false where code = 'ADDSUB'")
     assert focus_paper.plan(conn, child, WEEK)["areas"] == []
-    with pytest.raises(ValueError, match="no skill set"):
+    # refused in words that name the child's class, as a skill no class is taught yet (goals/f1f-taught-per-class.yaml)
+    with pytest.raises(ValueError, match=r"MUL\.2D1D is not taught in \S+ yet"):
         focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 3}])
+    with pytest.raises(ValueError, match="no skill set"):
+        focus_paper.plan(conn, child, WEEK, [{"skill_set": "NO.SUCH", "level": "Easy", "n": 3}])
 
 
 def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_or_below(conn):

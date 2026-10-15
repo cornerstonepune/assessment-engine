@@ -45,6 +45,7 @@ COMMANDS = [
     ("legacy", "import", "--help"),
     ("legacy", "paper", "--help"),
     ("report", "parents", "--help"),  # the write-reports workflow runs it on the server
+    ("week", "unapproved", "--help"),  # Nimish runs it against live before F1g ships
 ]
 
 

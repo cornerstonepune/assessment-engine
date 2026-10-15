@@ -2,6 +2,7 @@ import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { rag, type Rag } from "./rag";
 import { reportState, type ReportState } from "./queries-reports";
+import { taughtIn } from "./taught";
 
 // Children (goals/u2-children.yaml): a grade's classes, a class as its children against every step, and what a
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
@@ -37,7 +38,9 @@ export async function childTable(actor: string, topic: string | null = null, sco
              sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share
       from child_skill_state s
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
-      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught ${topic ? sql`and t.code = ${topic}` : sql``}
+      join child sc on sc.id = s.child_id
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+        and ${taughtIn(sql`t.tenant_id`, sql`t.code`, sql`sc.section`)} ${topic ? sql`and t.code = ${topic}` : sql``}
       group by s.child_id, s.rung_code, ss.name
     )
     select c.id, c.band, c.section, c.roll_no, p.first_name,
@@ -104,7 +107,7 @@ export async function classGrid(
       from child_skill_state s join child c on c.id = s.child_id
       join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
       join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
-      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${taughtIn(sql`t.tenant_id`, sql`t.code`, section)}
       where c.section = ${section} and c.active and s.n_events > 0
       order by t.ord, r.ladder_order nulls last, r.code`,
     classRoll(section, actor),
@@ -113,7 +116,7 @@ export async function classGrid(
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
     sql<Unanswered[]>`
       select ss.code, ss.name, ${levelsUsedBy(sql`(select band from child where section = ${section} and active group by band order by count(*) desc, band limit 1)`)} as levels, t.code as topic_code from skill_set ss
-      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+      join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${taughtIn(sql`t.tenant_id`, sql`t.code`, section)}
       join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
       where r.band in (select band from child where section = ${section} and active)
         and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
@@ -152,8 +155,9 @@ export type ChildSkill = {
   levels: string[];
 };
 
-/** A child's taught skills: those of their grade, and any other a checked answer of theirs landed on — each with the
- *  graph's state and score, in the shared tree's order. A skill with no answers has no state. */
+/** A child's skills taught in their class (goals/f1f-taught-per-class.yaml): those of their grade, and any other a
+ *  checked answer of theirs landed on — each with the graph's state and score, in the shared tree's order. A skill with
+ *  no answers has no state. */
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
     select ss.code, ss.name, t.name as topic, t.code as topic_code, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
@@ -161,7 +165,8 @@ export async function childSkills(id: string): Promise<ChildSkill[]> {
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
     from skill_set ss
-    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and t.taught
+    join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+      and ${taughtIn(sql`t.tenant_id`, sql`t.code`, sql`(select section from child where id = ${id}::uuid)`)}
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code and s.skill_code = any(r.skill_codes)
     left join skill sk on sk.tenant_id = ss.tenant_id and sk.code = s.skill_code

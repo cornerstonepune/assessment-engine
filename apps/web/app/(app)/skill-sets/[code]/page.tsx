@@ -18,6 +18,7 @@ import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills, saveGrades } from "./actions";
 import { requireStaff } from "@/lib/auth";
+import { scopeOf } from "@/lib/scope";
 import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 
@@ -46,7 +47,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const everyLevel = q.level === "all";
   const [all, examples, kinds, caught, book, sheets] = await deadline(
     Promise.all([
-      skillSets({ untaught: true }),
+      skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
       skillKinds(code),
       skillMistakes(code),
@@ -92,9 +93,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
         ) : null}
         {s.taught ? null : (
           <Notice tone="terracotta">
-            Not taught yet: {s.topic_name ?? "its topic"} is switched off, so this skill is on no other page and no
-            child&rsquo;s paper. Read and approve it now; <Link href="/#not-taught">switch its topic on</Link> when the
-            school teaches it.
+            Not taught yet: no class you see has been taught {s.topic_name ?? "its topic"}, so this skill is on none of
+            their pages or papers. Read and approve it now; <Link href="/#not-taught">say a class has been taught it</Link>{" "}
+            when one has.
           </Notice>
         )}
 

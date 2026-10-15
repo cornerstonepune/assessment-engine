@@ -8,9 +8,11 @@
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
+import { aClass } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+const CLASS = "U17-CLASS";
 const CODE = /\bM_[A-Z0-9_]+\b/;
 
 test.afterAll(async () => {
@@ -70,23 +72,24 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
 });
 
 test("a topic is switched on only after the person has read what it does", async ({ page }) => {
-  const [topic] = await sql<{ name: string; taught: boolean; taught_by: string | null; taught_at: Date | null }[]>`
-    select name, taught, taught_by, taught_at from topic where code = 'DIVCOL'`;
+  // said of one class, the test's own (goals/f1f-taught-per-class.yaml)
+  await aClass(sql, CLASS, "G3", ["Ojas", "Pari"]);
+  const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught from topic where code = 'DIVCOL'`;
   expect(topic.taught, "division by a 1-digit number waits for an educator's word").toBe(false);
   try {
     await page.goto("/");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
-    const confirm = row.getByRole("button", { name: `Switch on, as ${TEST_STAFF.name}`, includeHidden: true });
+    const confirm = row.getByRole("button", { name: `Taught in ${CLASS}, as ${TEST_STAFF.name}`, includeHidden: true });
     await expect(confirm).toHaveCount(1);
     await expect(confirm).toBeHidden();
-    await row.getByText("Switch on", { exact: true }).click();
-    await expect(row).toContainText("for the whole school");
+    await row.getByText("Say it is taught", { exact: true }).click();
+    await expect(row).toContainText("No other class changes");
     await confirm.click();
-    await expect(page.getByRole("region", { name: "Not taught yet", exact: true })).not.toContainText(topic.name);
-    const [now] = await sql<{ taught: boolean }[]>`select taught from topic where code = 'DIVCOL'`;
+    await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
+    const [now] = await sql<{ taught: boolean }[]>`select taught from class_topic where section = ${CLASS} and topic_code = 'DIVCOL'`;
     expect(now.taught).toBe(true);
   } finally {
-    await sql`update topic set taught = ${topic.taught}, taught_by = ${topic.taught_by}, taught_at = ${topic.taught_at} where code = 'DIVCOL'`;
+    await sql`delete from class_topic where section = ${CLASS}`;
   }
 });
 

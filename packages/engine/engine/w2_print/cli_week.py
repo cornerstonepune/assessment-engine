@@ -6,7 +6,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db, roster
-from engine.w2_print import assemble, focus_paper, pack, prescribe
+from engine.w2_print import assemble, focus_paper, pack, prescribe, shelf
 
 week_app = typer.Typer(help="W2 — the week's papers", no_args_is_help=True)
 
@@ -122,3 +122,24 @@ def week_focus(
         typer.echo(f"  {a['name']} — {a['level']} · {len(a['questions'])} questions · {a['why']}")
     if make:
         typer.echo(f"  printed {p['questions']} questions · QR {p['qr']} · {p['pdf_path']}")
+
+
+@week_app.command("unapproved")
+def week_unapproved() -> None:
+    """The levels classes' papers draw on today whose questions are not approved yet: what F1g would take off their
+    papers (goals/f1g-approval-gates-papers.yaml), one line a level with the classes it would close for. Reads only;
+    run it against live before F1g ships."""
+    with db.connect() as conn:
+        rows = shelf.closing(conn)
+    levels: dict[tuple, list[str]] = {}
+    held: dict[tuple, int] = {}
+    for r in rows:
+        levels.setdefault((r["skill"], r["level"]), []).append(r["class"])
+        held[(r["skill"], r["level"])] = r["questions"]
+    for (skill, level), classes in sorted(levels.items()):
+        typer.echo(f"  {skill:<14}{level:<9}{held[(skill, level)]:>5} questions · {', '.join(classes)}")
+    typer.echo(
+        f"  {len(levels)} levels in {len({k[0] for k in levels})} skills would close, for"
+        f" {len({r['class'] for r in rows})} classes; each opens again once the coordinator approves it on its"
+        " skill's page"
+    )

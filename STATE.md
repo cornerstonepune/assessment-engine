@@ -7744,3 +7744,90 @@ it's only easy and medium that should come."
 - **Why it was not seen before the push.** Only the changed modules' tests were run, not the whole engine suite.
 - **Check.** Both reproduced with `GITHUB_ACTIONS=true`, then passed with it and without it (37 and 11 passed). The
   change is to these two test files alone; the whole engine suite is CI's run on this push.
+
+## F1f — taught is said for each class (2026-10-14)
+
+Goal `goals/f1f-taught-per-class.yaml`. Nimish: "people who are there for one thing like educator only see something
+that's relevant for their class and their students."
+
+- **Measured first** (every read of `taught`, by an agent's map):
+  - Taught was one switch for the school (`topic.taught`).
+  - The engine's only gate was `shelf._catalog`. It is read once for a whole batch, with no class.
+  - About twenty reads on the site.
+  - No database function, view or policy read it.
+  - The Curriculum table's "Taught" column counted children with a checked answer, which is "Assessed".
+- **Built:**
+  - `class_topic` is one row per class and topic a person has spoken for, with who and when (migration `20261110090000`,
+    run twice here).
+  - `taught_in(tenant, topic, class)` is the one rule. It returns the class's own word, else the school's switch.
+  - The engine's catalogue is read per class. A class paper, a chosen paper, the home paper and the hidden-answers
+    check all read the child's class.
+  - A skill asked for whose topic the class has not been taught is refused, naming the class: "MUL.MODELS is not taught
+    in F1F-NO yet: an educator of the class says so on Curriculum".
+  - On the site (`apps/web/lib/taught.ts`):
+    - a page about a class or a child reads that class;
+    - Make papers and a chosen paper offer only what the class was taught;
+    - lists for the school or an educator's classes count a topic taught where any of them was.
+  - The switch on Curriculum says it of one class, in the signer's name. An educator may say it only of their own
+    classes; a form changed by hand is refused.
+  - The Curriculum table's answers column is now "Assessed".
+- **Not built:** copying today's switch into every class (BUILD-ORDER's first plan). A fresh database's children arrive
+  after its migrations, so the copy would have found no class and left nothing taught. Following the school's switch
+  until a person speaks changes nothing on the day either (ADR 0073).
+- **Moved while building:** `chargesTable` went from `lib/queries.ts` to `lib/queries-charges.ts`. `queries.ts` had
+  reached 402 lines, past the 400 ceiling. The charges table has its own types and its own approval.
+- **Check:**
+  - `tests/test_taught_per_class.py`, 4 tests. Each failed first on the old engine for its own reason:
+    - the class taught it was refused, as "no skill set";
+    - the refusal did not name the class;
+    - a chosen paper was refused;
+    - both classes' answers were hidden (2, not 1).
+  - With the focus-paper, maker, topics, live-data, class-card, web-gate, layout and report tests → 68 passed.
+  - `apps/web/tests/u30-taught-per-class.spec.ts`, 3 tests. Each failed first on the old site:
+    - no "Say it is taught" for a class;
+    - Make papers did not offer a class what it was taught;
+    - there was no "Assessed" column.
+  - u12, u13, u17 and u18 follow the switch's new words and the Assessed column.
+  - The whole browser suite here: 185 passed, 3 failed, 14 did not run because they follow a failed test in their file.
+    - The three failures were e2e "every kind of question in the bank", s2 "every kind of link on the Curriculum" and
+      s3 "every skill shows its worksheets". Each one loops over 20 or more pages inside one 30 s test.
+    - Pages on this copy take 1.3–1.6 s each, and the same on main's site code: nine pages were timed on both builds.
+      So F1f did not slow them. This copy has collected test rows from many runs.
+    - CI's browser job on a fresh database passed all of it (6b644c3).
+
+## F1g, first step — what approval would close, measured before it ships (2026-10-14)
+
+Goal `goals/f1g0-what-approval-would-close.yaml`. BUILD-ORDER's F1g row: "measured first on a copy of live: the levels
+it would close are named to Nimish before it ships".
+
+- **Measured while planning:** on the test database every skill is a draft with no level approved. The gate as written
+  (an unapproved level goes on no paper) would close every paper there, and every skill on live still waiting for the
+  coordinator. Live's rows are not read from here, so the list comes from a command Nimish runs.
+- **Built:**
+  - `shelf.approved_levels` is the one rule the gate will use: the levels in `skill_set.level_approved`.
+  - `shelf.closing` covers every class on the roll. It lists each level the class's papers draw on today (taught in the
+    class, its grade's or below) whose questions are not approved, with the questions it holds. It reads only.
+  - `engine week unapproved` prints one line per level, with the classes it would close for, and a total.
+- **Check:** `tests/test_levels_closing.py`, 2 tests. Both failed first: there was no `closing` and no command.
+  - A Grade 2 class with 2-digit + 1-digit's Easy approved is told Medium, not Easy.
+  - A skill the class was not taught is not named.
+  - Only its grade's levels are named, with the bank's own question count.
+  - The command writes nothing.
+- **Here:** 100 levels in 26 skills would close, for 46 classes. Every level is unapproved on the test database.
+- **Next:** Nimish runs `~/cornerstone/assessment-engine/bin/engine week unapproved` against live. With that list read,
+  the gate itself is F1g (`goals/f1g-approval-gates-papers.yaml`).
+
+## F1f in CI — two engine tests the neighbouring suites did not reach (2026-10-14)
+
+- **What failed** (CI on 6b644c3; 2468 passed):
+  - `test_a_skill_set_is_read_as_itself` called `shelf._catalog(conn)` without the class it now takes. It now passes
+    `None`, the school's switch.
+  - `test_roles::test_the_website_writes_only_what_a_person_changes_on_it` pins every write the website's role may
+    make and every function it may call. It now names `class_topic` INSERT, a person's word on Curriculum, and
+    `taught_in`.
+- **Why it was not seen before the push:** the same reason as F1a–F1e's this morning. Only the changed modules'
+  neighbours were run, not the whole engine suite.
+- **Check:**
+  - CI's whole-suite run on d207b99, the PR's whole code, failed these two and only these (2471 passed).
+  - Both now pass here (8 passed with the rest of their files).
+  - The push changes those two test files and nothing else.

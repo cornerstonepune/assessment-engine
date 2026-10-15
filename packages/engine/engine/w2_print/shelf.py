@@ -8,7 +8,7 @@ import contextvars
 from contextlib import contextmanager
 from typing import Any
 
-from engine.core import settings
+from engine.core import roster, settings
 
 _BATCH: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
     "focus_paper_batch", default=None
@@ -56,13 +56,15 @@ def _rule(conn) -> dict:
     return r
 
 
-def catalog(conn) -> list[dict]:
-    """The bank's taught skill sets: rung, place on the ladder, the skill each is for, every skill it uses. A skill
-    the school does not teach yet is never on a child's paper, whatever the child's map shows."""
-    return _once("catalog", lambda: _catalog(conn))
+def catalog(conn, section: str | None = None) -> list[dict]:
+    """The bank's skill sets taught in a class: rung, place on the ladder, the skill each is for, every skill it uses.
+    A skill whose topic the child's class has not been taught is never on their paper, whatever their map shows
+    (`taught_in`: the class's own word, else the school's switch — goals/f1f-taught-per-class.yaml). Without a class,
+    the school's switch."""
+    return _once(("catalog", section), lambda: _catalog(conn, section))
 
 
-def _catalog(conn) -> list[dict]:
+def _catalog(conn, section) -> list[dict]:
     rows = conn.execute(
         "select s.code, s.rung_code, r.ladder_order,"
         # its own skill is the one its rung declares first (`rung.skill_codes`): a count of its questions' skills made
@@ -73,7 +75,8 @@ def _catalog(conn) -> list[dict]:
         " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
         "   where i.skill_set_code = s.code and i.status = 'active') as skills"
         " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
-        " where exists (select 1 from topic t where t.tenant_id = s.tenant_id and t.code = s.topic_code and t.taught)"
+        " where taught_in(s.tenant_id, s.topic_code, %s)",
+        (section,),
     ).fetchall()
     return [
         {
@@ -112,4 +115,46 @@ def _read_levels(conn, band) -> dict:
                 d for d in defined if _grade((r["level_band"] or {}).get(d) or r["band"]) <= _grade(band)
             )
         out[r["code"]] = defined
+    return out
+
+
+def approved_levels(conn) -> dict:
+    """{skill set: the levels whose questions the coordinator has approved} (`skill_set.level_approved`,
+    goals/f1d-questions-approved-per-level.yaml): the levels a paper may draw on once F1g ships
+    (goals/f1g-approval-gates-papers.yaml)."""
+    return {
+        r["code"]: set(r["level_approved"] or {})
+        for r in conn.execute("select code, level_approved from skill_set")
+    }
+
+
+def closing(conn) -> list[dict]:
+    """What F1g would take off papers, measured before it ships: for every class on the roll, each level its papers
+    may draw on today — taught in the class, its grade's or below — whose questions are not approved yet, with how
+    many questions it holds. Nothing is written."""
+    approved = approved_levels(conn)
+    held = {
+        (r["code"], r["level"]): r["n"]
+        for r in conn.execute(
+            "select skill_set_code as code, difficulty as level, count(*)::int as n from item"
+            " where status = 'active' group by 1, 2"
+        )
+    }
+    out = []
+    for c in conn.execute("select distinct section from child where active order by section").fetchall():
+        band = roster.class_band(conn, c["section"])
+        usable = _levels(conn, band)
+        for s in catalog(conn, c["section"]):
+            for level in usable.get(s["code"], ()):
+                if level not in approved.get(s["code"], set()):
+                    q = held.get((s["code"], level), 0)
+                    out.append(
+                        {
+                            "class": c["section"],
+                            "grade": band,
+                            "skill": s["code"],
+                            "level": level,
+                            "questions": q,
+                        }
+                    )
     return out

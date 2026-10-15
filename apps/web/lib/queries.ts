@@ -1,6 +1,7 @@
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
+import { taughtFor, taughtIn } from "./taught";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
@@ -52,54 +53,24 @@ export type SkillSet = {
   topic_code: string | null;
   topic_name: string | null;
   topic_ord: number | null;
-  /** Whether its topic is taught: switched on by a person, or by the rows until one has (goals/ny1-needs-you.yaml). */
+  /** Whether its topic is taught in the class asked about, or in any class of the scope (goals/f1f-taught-per-class.yaml). */
   taught: boolean;
 };
 
-/** The one table a person approves beside the skills (step 8b): on these kinds of question, this named
- *  mistake counts against this skill instead of the one its operation would name. `waiting` is true
- *  until someone approves this exact table — a changed table waits again. */
-export type ChargeRow = { kind: string; code: string; mistake: string; skill: string };
-export type ChargesTable = { table: Record<string, Record<string, string>>; rows: ChargeRow[]; approvedBy: string | null; waiting: boolean };
-
-export async function chargesTable(): Promise<ChargesTable> {
-  const rows = await sql<{ key: string; value: unknown }[]>`
-    select key, value from config where key in ('skills.charges_by_kind', 'skills.charges_by_kind.approved')`;
-  const table = (rows.find((r) => r.key === "skills.charges_by_kind")?.value ?? {}) as Record<string, Record<string, string>>;
-  const approved = (rows.find((r) => r.key === "skills.charges_by_kind.approved")?.value ?? {}) as {
-    by?: string;
-    table?: unknown;
-  };
-  const pairs = Object.entries(table).flatMap(([kind, m]) => Object.entries(m).map(([code, skill]) => ({ kind, code, skill })));
-  const names = pairs.length
-    ? await sql<{ code: string; mistake: string; skill: string; skill_name: string }[]>`
-        select p.code, p.skill, mistake_name(p.code, p.skill) as mistake,
-               (select k.name from skill k where k.code = p.skill limit 1) as skill_name
-        from jsonb_to_recordset(${sql.json(pairs as never)}::jsonb) as p(kind text, code text, skill text)`
-    : [];
-  const named = new Map(names.map((n) => [`${n.code}|${n.skill}`, n]));
-  return {
-    table,
-    rows: pairs.map((p) => ({
-      kind: p.kind,
-      code: p.code,
-      mistake: named.get(`${p.code}|${p.skill}`)?.mistake ?? p.code,
-      skill: named.get(`${p.code}|${p.skill}`)?.skill_name ?? p.skill,
-    })),
-    approvedBy: approved.by ?? null,
-    waiting: !approved.by || JSON.stringify(approved.table) !== JSON.stringify(table),
-  };
-}
-
-/** The skills the school teaches — a topic not taught yet is not on any screen (goals/v1-only-what-is-taught.yaml) —
- *  or, with `untaught`, every skill: one is read and approved before its topic is switched on, on its own page and the
- *  approval page (goals/ny1-needs-you.yaml). */
-export async function skillSets({ untaught = false }: { untaught?: boolean } = {}): Promise<SkillSet[]> {
+/** The skills taught in a class (`section`), or in any class of the scope — a topic not taught there is not on the screen
+ *  (goals/v1-only-what-is-taught.yaml, goals/f1f-taught-per-class.yaml) — or, with `untaught`, every skill: one is read
+ *  and approved before its topic is taught, on its own page and the approval page (goals/ny1-needs-you.yaml). */
+export async function skillSets({
+  untaught = false,
+  scope = EVERY_CLASS,
+  section,
+}: { untaught?: boolean; scope?: Scope; section?: string } = {}): Promise<SkillSet[]> {
+  const taught = section ? taughtIn(sql`s.tenant_id`, sql`s.topic_code`, section) : taughtFor(scope, sql`s.tenant_id`, sql`s.topic_code`);
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
            s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
            r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
-           t.name as topic_name, t.ord as topic_ord, coalesce(t.taught, false) as taught,
+           t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active'
@@ -111,7 +82,7 @@ export async function skillSets({ untaught = false }: { untaught?: boolean } = {
     from skill_set s
     join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
-    where ${untaught} or exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
+    where ${untaught} or ${taught}
     order by r.ladder_order nulls last, s.code`;
 }
 
@@ -126,8 +97,8 @@ export const GRADE_GROUPS: [string, string][] = [
 ];
 export const gradeWords = (band: string) => GRADE_GROUPS.find(([b]) => b === band)?.[1] ?? band;
 
-export async function skillSet(code: string): Promise<SkillSet | undefined> {
-  const rows = await skillSets({ untaught: true });
+export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promise<SkillSet | undefined> {
+  const rows = await skillSets({ untaught: true, scope });
   return rows.find((s) => s.code === code);
 }
 
@@ -294,7 +265,7 @@ export async function childNext(id: string): Promise<NextStep[]> {
   return sql<NextStep[]>`
     select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
     from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
-    where exists (select 1 from topic tt where tt.tenant_id = s.tenant_id and tt.code = s.topic_code and tt.taught)
+    where ${taughtIn(sql`s.tenant_id`, sql`s.topic_code`, sql`(select section from child where id = ${id}::uuid)`)}
     order by s.code`;
 }
 
