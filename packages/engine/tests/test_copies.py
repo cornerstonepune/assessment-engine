@@ -8,15 +8,19 @@ so the test is about which child each copy lands on and how it is marked, not ab
 
 import json
 import os
+import random
 import uuid
 
 import pymupdf
 import pytest
 
 from engine.adapters import ocr
+from engine.assess import items
+from engine.assess.pick import Sheet
+from engine.assess.render import render_sheet
 from engine.core import db
 from engine.w2_print import library
-from engine.w3_read import boxes, copies, copy_scores, printed_paper, second_reader
+from engine.w3_read import boxes, copies, copy_scores, printed_paper, render_pdf, second_reader
 from tests.test_sorting import _scanned
 
 
@@ -138,6 +142,36 @@ def test_a_copy_whose_file_starts_at_its_second_page_is_read_against_the_questio
     for r in rows:
         page = next(pg for q, (pg, _) in words.items() if ids[q - 1] == r["item_id"])
         assert (r["raw"]["page"], r["raw"]["file_page"]) == (page, page - 1)
+
+
+def test_a_copy_holding_its_later_pages_is_read_in_its_own_layout_whatever_another_layout_draws(tmp_path):
+    """PR #213's engine job on 2cbd41d, 2026-10-15: a copy photographed from its second page on held as many pages as
+    the layout before L3 draws its worksheet in. It was read in that layout, unmeasured, and its answers landed on
+    questions 1 to 8. A copy holding part of its paper has fewer pages than the paper, so its page count cannot tell
+    which layout printed it: every layout long enough to hold it is measured by how its pages fit."""
+    rows = json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text(encoding="utf-8"))[
+        "config"
+    ]
+    layouts = next(r["value"] for r in rows if r["key"] == "render.layouts")
+    rng = random.Random(7)
+    made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(200)]
+    sums = [q for q in made if len(q.responses[0].answer) == 2][:36]
+    drawn = []
+    for layout in (layouts[-1], layouts[0]):  # today's first, as `library.printed` gives them
+        render_sheet(Sheet("CS00LATE", "G2", "Focus", 1, "W1", sums, title="Practice"), tmp_path / layout["name"],
+                     "Practice", layout=layout)  # fmt: skip
+        drawn.append(tmp_path / layout["name"] / "CS00LATE.pdf")
+    today, before = drawn
+    n = len(pymupdf.open(today))
+    assert len(pymupdf.open(before)) == n - 1, "the layout before L3 must draw the sums in a page fewer"
+    with pymupdf.open(today) as doc:
+        later = pymupdf.open()
+        later.insert_pdf(doc, from_page=1, to_page=n - 1)
+        later.save(tmp_path / "later.pdf")
+    photos = list(render_pdf.photos(_scanned([tmp_path / "later.pdf"], tmp_path / "second-file.pdf")))
+
+    assert boxes.as_printed(photos, drawn) == today
+    assert boxes.placed(photos, today, 1.25) == list(range(2, n + 1))
 
 
 def test_a_reading_that_put_answers_on_questions_its_pages_do_not_hold_is_replaced_checks_and_all(

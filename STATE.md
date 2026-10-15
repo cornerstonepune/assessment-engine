@@ -8118,6 +8118,23 @@ one child on live.
   `roster.class_band` agree in every case (`test_a_class_has_one_grade_and_the_database_says_it`); roster and week
   tests: 17 passed.
 
+## A copy photographed from its second page was read in the wrong layout (2026-10-15)
+
+- **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy
+  holding its paper's pages 2–4 had answers on questions 1 to 8. The same code passed on three other heads.
+- **Why only sometimes:** `bank refill` draws unseeded, so each CI database holds different word problems. The test
+  worksheet is the bank's first twelve. When their stems are short, the layout before L3 (2026-09-21, smaller working
+  boxes) draws them in 3 pages, where today's draws 4.
+- **Cause:** `boxes.as_printed` chose a layout by keeping only those with as many pages as the copy's photographs,
+  and took the only one left unmeasured. A copy split across two files holds fewer pages than its paper, so a
+  3-photograph copy of a 4-page paper matched the 3-page old layout. Placement then took its pages as 1–3 without
+  measuring, and the answers were read against the wrong questions and keys. Reproduced on the copy with the twelve
+  shortest word problems ({'2026-10-10': 4, …, '2026-09-21': 3}).
+- **Fix:** every layout long enough to hold the photographs is measured alike (`boxes._runs`: the best run of its
+  pages the photographs fit), and the page count no longer chooses. `agreement` and `_agreeing` went with it.
+  `test_a_copy_holding_its_later_pages_is_read_in_its_own_layout_whatever_another_layout_draws` builds the case from
+  36 fixed sums (today's layout 3 pages, the old one 2); it failed before the fix, picking the old layout.
+
 ## `/growth` "could not load" on CI: a function's row guess made Postgres compile the query (2026-10-15)
 
 - **Seen:** main's browser job on `3d07f66`, and once on T1's PR: the first load of `/growth` hit the page's 8 s limit.

@@ -11,6 +11,15 @@ is verified. This file only says where the last session stopped.
   query (STATE.md "`/growth` could not load on CI"); fixed on this branch.
 - **UX2 (this branch):** a class has one grade (`class_band`), spares are counted apart, "the bank" and "the library"
   are one number each. See STATE.md "UX2".
+- **Also on this branch, both found by its own CI:**
+  - The website's role no longer JIT-compiles (migration 20261117090000; STATE.md, the `/growth` section). On live
+    it applies only once Vercel connects as `app_web`; I do not know whether Nimish has switched it.
+  - A copy photographed from its second page is read in its own layout (STATE.md "A copy photographed from its
+    second page").
+- **SF2 measured on a copy of live** (rehearsal 38770003055): all 46 skills and 178 levels are approved now. By ADR
+  0077's rule there are 74 formats, and every one starts approved under either starting rule, so nothing comes off a
+  paper on the day SF2 ships. Still open for SF2's goal: how a change to a format defined in code (bare sum, column)
+  withdraws its approval. The kinds that are rows withdraw on a change to their row.
 - **Next: SF2** (BUILD-ORDER: T1 → UX1 → UX2 → SF2).
 
 ## 2026-10-15 — T1 merged (#211, `271ce9e`); T1b drops the old switch
