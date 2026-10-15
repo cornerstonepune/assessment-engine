@@ -48,11 +48,15 @@ export function checkLevel(rules: ColourRules, band: string, defined: string[]):
   return start && defined.includes(start) ? start : (DIFFICULTIES.find((l) => defined.includes(l)) ?? start ?? DIFFICULTIES[0]);
 }
 
-/** Where the maker opens with a check already chosen: a class assessment, the same skill and level for each child,
- *  different questions each (goals/m3-the-maker.yaml). */
-export function checkHref(section: string, children: string[], skillSet: string, level: string, n: number): string {
+/** One line of a check: a skill, its level, how many questions. */
+export type Area = { skill: string; level: string; n: number };
+
+/** Where the maker opens with a check already chosen: a class assessment, the same skills and levels for each child,
+ *  different questions each (goals/m3-the-maker.yaml) — one skill, or a child's first check of up to three
+ *  (goals/ux4-class-and-child.yaml). */
+export function checkHref(section: string, children: string[], areas: Area[]): string {
   const q = new URLSearchParams({ class: section, picked: "1", of: section, kind: "assessment", way: "each" });
   for (const c of children) q.append("c", c);
-  q.append("a", `${skillSet}~${level}~${n}`);
+  for (const a of areas) q.append("a", `${a.skill}~${a.level}~${a.n}`);
   return `/papers/make?${q}`;
 }

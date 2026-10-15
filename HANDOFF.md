@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-15 — #213 merged; UX3–UX5 moved ahead of SF2
+## 2026-10-15 — #213 merged; UX3–UX5 moved ahead of SF2; UX3 and UX4 built
 
 - **#213 merged as `84cc0fd` (18:20 UTC):** UX2, the two JIT fixes, the copy-layout fix. Main's CI, then `migrate live`
   (20261115090000, 20261116090000, 20261117090000), then Vercel.
@@ -12,7 +12,12 @@ is verified. This file only says where the last session stopped.
 - **SF2a is parked, not dropped:** its design is ADR 0077 "Settled in SF2's goal"; its goal and failing tests are in
   `docs/drafts/sf2a/` (README there says how to restore them).
 - **UX3 built on this branch (PR #214):** Children grouped by class, collapsible, with the columns that matter; see STATE.md "UX3".
-- **Next: UX4** (`goals/ux4-class-and-child.yaml`): the class page shows its standing once and every action without a sideways scroll; a child with no answers gets one sentence and one action.
+- **UX4 built on this branch (PR #214):** a class says where each child stands once (by topic, or one topic's skills
+  in its place); checks one line each, names folded; a child's topics as groups; a child with nothing gets one sentence
+  and one action. See STATE.md "UX4".
+- **Next: UX5** (`goals/ux5-papers-grouped.yaml`): Assessments grouped by week → assessment → copies in roll order,
+  spares on one line; Approve names the children; Make and Marking open on the educator's class with a next step per
+  child.
 
 ## 2026-10-15 — UX2: one count for one thing; #212 merged
 

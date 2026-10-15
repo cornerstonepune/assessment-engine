@@ -8142,6 +8142,35 @@ one child on live.
   u11 (the key opened first), u18 (the search), u21, u26. The goal's criteria, 12 specs: 74 passed. `tsc`, eslint and
   `bin/check` clean.
 
+## UX4: a class and a child, said once (2026-10-15)
+
+- **Before (the audit's screenshots `12-growth-class-section`, `09-growth-id`):** a class showed where each child stands
+  twice, by topic and then every skill of every topic; "Make this check" sat past a sideways scroll at 1440 px, behind a
+  column of names; the full colour legend under it. A child's standing was said three times (four tiles, a by-topic
+  table, the skills by topic); a child with no answers got tiles of zeros, a table of dashes, nine check rows, the
+  legend, an empty mistakes panel and a parent report with nothing to report.
+- **Now (`goals/ux4-class-and-child.yaml`, `tests/u36-class-and-child.spec.ts`):**
+  - a class: one table of standing — by topic, or a topic opened (its name, or the topic line above) to its skills in
+    the same place. No view of every skill of every topic. The heading says the grade.
+  - checks, on a class and a child: one line each — skill · how many children (names folded) · size and level · Make
+    this check. The skills no one has answered are folded under one line that counts them.
+  - a child: the one sentence, a line to what waits on you when something does, then each topic a group whose line
+    counts its skills (`byTopic`), open where a skill needs help. Tiles and the by-topic table are gone.
+  - a child with nothing signed off, no graph and nothing waiting: one sentence and one action. The paper made for them
+    that waits to be approved or read (`Open paper CS… →`); several, all of them on Assessments (`See <name>’s n
+    papers →`); else their first check (`Make <name>’s first check →`): up to three skills, the class's latest answered
+    first (`classLatest`), then the grade's order, at the check's level and size, for them alone.
+  - the colour key is one line on both pages.
+  - the parent report's state is a sentence edged in its colour. It was a pill, which does not wrap, and the longest
+    ("Nothing to report yet: none of their answers is signed off") ran past the panel; u36 checks that no panel's
+    content is wider than the panel, and failed on the pill.
+- **Checks:** u36 failed first on the old pages (4 of 4, each for its reason), then passed. The specs that pinned the
+  old layout keep their promises on the new one: u2 (the grid read a topic at a time; Bina's first step), u11 (the key
+  opened; a topic opened for its cells; the folded checks), u20 (the topic groups; Mira has a waiting answer, so her
+  page still says "Nothing to report yet"), u21 (back to every topic from the topic line), u24 (Esha has one signed-off
+  answer, so her page lists her papers), screens. `ui4b2`'s goal sentence now says a topic opens in place. The goal's
+  17 specs: 108 passed; `bin/check` 28 passed. tsc and eslint clean.
+
 ## A copy photographed from its second page was read in the wrong layout (2026-10-15)
 
 - **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy

@@ -79,8 +79,9 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
   const pc = (x: number) => `${Math.round(x * 100)}%`;
   for (const path of [`/growth/class/${SECTION}`, "/growth", `/growth/${ids.Bina}`]) {
     await page.goto(path);
-    // Children folds the key to one line (goals/ux3-children-grouped.yaml): opened, it is the whole key
-    if (path === "/growth") await page.locator("details[data-colour-key] summary").click();
+    // each page folds the key to one line (goals/ux3-children-grouped.yaml, ux4-class-and-child.yaml): opened, it is
+    // the whole key
+    await page.locator("details[data-colour-key] summary").click();
     const key = page.getByRole("region", { name: "What the colours mean" });
     await expect(key.locator("tbody tr")).toHaveCount(4);
     await expect(key.locator('tr[data-rag="red"]')).toContainText(`The same mistake twice or more, or under ${pc(r.demote)} right.`);
@@ -90,8 +91,9 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`Fewer than ${r.min_events} checked answers`);
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`A ${r.check}-question check places the child.`);
   }
-  // and the grid's own colours are the ones the key says: Asha green, Bina grey, Chetan red
-  await page.goto(`/growth/class/${SECTION}`);
+  // and the grid's own colours are the ones the key says, the class's addition and subtraction opened: Asha green, Bina
+  // grey, Chetan red
+  await page.goto(`/growth/class/${SECTION}?topic=ADDSUB`);
   const cell = (who: string, col: string) => page.locator(`tr[data-child="${ids[who]}"] td[data-col="${col}"]`);
   await expect(cell("Asha", "NUM.OPS.01|R22")).toHaveAttribute("data-rag", "green");
   await expect(cell("Bina", "NUM.OPS.01|R22")).toHaveAttribute("data-rag", "grey");
@@ -103,13 +105,13 @@ test("a grey or empty skill has the check that would place the child, and one cl
   await page.goto(`/growth/class/${SECTION}`);
   const checks = page.getByRole("region", { name: "Checks that would place them" });
   // 2-digit + 2-digit: Bina has one answer, Chetan none; Asha is green and is not in it
-  const add = checks.locator('tr[data-check="ADD.2D2D"]');
+  const add = checks.locator('[data-check="ADD.2D2D"]');
   await expect(add).toContainText("Bina (1 answer)");
   await expect(add).toContainText("Chetan (none)");
   await expect(add).not.toContainText("Asha");
   await expect(add).toContainText(`${r.check} questions · ${r.g2}`);
   // 2-digit − 2-digit: Chetan is red on it, placed; Asha and Bina have no answers
-  const sub = checks.locator('tr[data-check="SUB.2D2D"]');
+  const sub = checks.locator('[data-check="SUB.2D2D"]');
   await expect(sub).toContainText("Asha (none)");
   await expect(sub).not.toContainText("Chetan");
 
@@ -125,8 +127,8 @@ test("a grey or empty skill has the check that would place the child, and one cl
   // a child's own page: the same check, for them alone
   await page.goto(`/growth/${ids.Bina}`);
   const hers = page.getByRole("region", { name: "Checks that would place Bina" });
-  await expect(hers.locator('tr[data-check="ADD.2D2D"]')).toContainText("1 answer so far");
-  const href = await hers.locator('tr[data-check="ADD.2D2D"]').getByRole("link").getAttribute("href");
+  await expect(hers.locator('[data-check="ADD.2D2D"]')).toContainText("1 answer so far");
+  const href = await hers.locator('[data-check="ADD.2D2D"]').getByRole("link").getAttribute("href");
   const q = new URL(href!, "http://x").searchParams;
   expect([q.getAll("c"), q.get("a"), q.get("kind"), q.get("way")]).toEqual([[ids.Bina], `ADD.2D2D~${r.g2}~${r.check}`, "assessment", "each"]);
 });
@@ -137,7 +139,7 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
   const r = await rules();
   await page.goto(`/growth/class/${SECTION}`);
   const checks = page.getByRole("region", { name: "Checks that would place them" });
-  const word = checks.locator('tr[data-check="WORD.1_2STEP"]');
+  const word = checks.locator('[data-check="WORD.1_2STEP"]');
   await expect(word).toHaveCount(1);
   await expect(word).toContainText("Dev (1 answer)");
   await expect(word).toContainText("Asha (none)");
@@ -148,7 +150,9 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     where r.band = 'G2' and r.code not in ('R8', 'R22', 'R24')
     order by t.ord, r.ladder_order nulls last limit 1`;
-  const none = checks.locator(`tr[data-check="${code}"]`);
+  // a skill no child has answered is folded with the others like it (goals/ux4-class-and-child.yaml)
+  await checks.locator("details[data-unanswered] > summary").click();
+  const none = checks.locator(`[data-check="${code}"]`);
   await expect(none).toContainText(name);
   await expect(none).toContainText(`All ${CHILDREN.length}: none has answered it yet`);
   await expect(none).toContainText(`${r.check} questions`);
@@ -158,7 +162,7 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
   // the child's own page: one check, and a line for each skill, saying which
   await page.goto(`/growth/${ids.Dev}`);
   const his = page.getByRole("region", { name: "Checks that would place Dev" });
-  await expect(his.locator('tr[data-check="WORD.1_2STEP"]')).toHaveCount(1);
+  await expect(his.locator('[data-check="WORD.1_2STEP"]')).toHaveCount(1);
   const lines = page.getByRole("region", { name: "What their answers show" }).locator('li[data-skill="WORD.1_2STEP"]');
   await expect(lines).toHaveCount(2);
   await expect(lines.filter({ hasText: "· Money" })).toHaveCount(1);
@@ -167,7 +171,7 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
 
 test("no colour is the only sign: each swatch carries its mark", async ({ page }) => {
   // goals/p2-less-code.yaml: an eye that cannot tell red from green reads the mark inside
-  await page.goto(`/growth/class/${SECTION}`);
+  await page.goto(`/growth/class/${SECTION}?topic=ADDSUB`);
   const swatch = (who: string, col: string) =>
     page.locator(`tr[data-child="${ids[who]}"] td[data-col="${col}"] [role="img"]`);
   await expect(swatch("Asha", "NUM.OPS.01|R22")).toHaveText("✓");

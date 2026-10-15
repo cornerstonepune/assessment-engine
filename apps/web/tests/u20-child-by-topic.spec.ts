@@ -1,17 +1,17 @@
 /**
  * U20 — a child's profile by topic (goals/ui4b1-child-by-topic.yaml). Nimish, 2026-10-11: "It should be by topic or
  * something. When we click on it, we need to think about how multiple topics will then have a view of what the entire
- * profile of the child will look like." A child's page opens on every taught topic with its skills counted by where
- * they stand; a topic opens to its skills, those that need help first; papers next, the parent report last; and every
- * parent report waiting on a person is one list — never a child with nothing signed off, whom no report can be written
- * for.
+ * profile of the child will look like." A child's page opens on every taught topic, a group whose line counts its
+ * skills by where they stand; a topic opens to its skills, those that need help first; papers next, the parent report
+ * last; and every parent report waiting on a person is one list — never a child with nothing signed off, whom no report
+ * can be written for.
  *
  * The class is the test's own (tests/rows.ts). Its children's skill states are set here directly — the graph's own
  * rules are proved by the engine's tests; this is how the page lays them out — and taken away after.
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
-import { aClass } from "./rows";
+import { aClass, aReadPaper } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -46,6 +46,11 @@ test.beforeAll(async () => {
     draft: { summary: "[child] has worked on addition and subtraction.", can_do: [], working_on: [], at_home: [] },
   };
   await sql`insert into parent_note (tenant_id, child_id, week, body) values (${tenant_id}, ${kids.Ishaan}, '2026-W41', ${JSON.stringify(body)})`;
+  // Mira's one answer waits for a person: her page is a page (goals/ux4-class-and-child.yaml), with nothing signed off
+  const [w] = await sql<{ id: string; item_ids: string[] }[]>`
+    select id, item_ids from sheet_template where source = 'library' and retired_at is null and band = 'G2'
+    order by code limit 1`;
+  await aReadPaper(sql, { qr: "U20-MIRA", child: kids.Mira, template: w.id, items: w.item_ids.slice(0, 1), reads: [{ status: "unreadable" }] });
 });
 test.afterAll(async () => {
   await sql`delete from child_skill_state where child_id = ${kids.Ishaan}`;
@@ -55,26 +60,28 @@ test.afterAll(async () => {
 
 test("a child's page opens on their profile topic by topic", async ({ page }) => {
   await page.goto(`/growth/${kids.Ishaan}`);
-  const profile = page.getByRole("table", { name: "By topic" });
-  await expect(profile.locator("thead th")).toHaveText(["Topic", "Needs help", "Practising", "Secure", "Too few answers", "Not assessed yet"]);
-  const row = (topic: string) => profile.locator("tbody tr").filter({ has: page.getByRole("link", { name: topic, exact: true }) });
-  const cells = async (topic: string) => (await row(topic).locator("td").allInnerTexts()).slice(1, 5);
-  expect(await cells("Addition & subtraction")).toEqual(["1", "1", "1", "—"]);
-  expect(await cells("Data handling")).toEqual(["1", "—", "—", "—"]);
+  // each topic is a group whose line counts its skills by where they stand: the profile, said once
+  // (goals/ux4-class-and-child.yaml)
+  const shown = page.getByRole("region", { name: "What their answers show" });
+  const line = (code: string) => shown.locator(`details[data-topic="${code}"] > summary`);
   // the rest of the grade's addition and subtraction is counted as not assessed yet, not drawn as a wall of grey
   const [{ notYet }] = await sql<{ notYet: number }[]>`
     select count(*)::int - 3 as "notYet" from skill_set s join rung r on r.code = s.rung_code
     where s.topic_code = 'ADDSUB' and r.band = 'G2'`;
-  await expect(row("Addition & subtraction").locator("td").last()).toHaveText(String(notYet));
+  await expect(line("ADDSUB")).toContainText(`Addition & subtraction`);
+  await expect(line("ADDSUB")).toContainText(`1 needs help · 1 practising · 1 secure · ${notYet} not assessed yet`);
+  await expect(line("DATA")).toContainText(/^\W*Data handling\s*1 needs help\b/);
   // a topic not switched on is no part of a child's profile
-  await expect(profile).not.toContainText("Multiplication in columns");
+  await expect(shown).not.toContainText("Multiplication in columns");
 });
 
 test("a topic opens to its skills, the ones that need help first", async ({ page }) => {
   await page.goto(`/growth/${kids.Ishaan}`);
-  await page.getByRole("table", { name: "By topic" }).getByRole("link", { name: "Addition & subtraction", exact: true }).click();
-  await expect(page).toHaveURL(/#topic-ADDSUB$/);
-  const skills = page.getByRole("list", { name: "Addition & subtraction" }).locator(":scope > li");
+  // a topic with a skill that needs help is open already: its skills show (the page streams in hidden, then is shown)
+  await expect(page.locator('details[data-topic="ADDSUB"]')).toHaveAttribute("open", "");
+  const list = page.getByRole("list", { name: "Addition & subtraction" });
+  await expect(list).toBeVisible();
+  const skills = list.locator(":scope > li");
   expect(await skills.evaluateAll((els) => els.map((e) => e.getAttribute("data-rag")))).toEqual(["red", "amber", "green"]);
 });
 

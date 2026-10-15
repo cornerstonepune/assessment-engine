@@ -124,30 +124,37 @@ test("each grade opens on its classes, and a class is its children against every
   await expect(page).toHaveURL(`/growth/class/${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(SECTION);
 
-  // the columns are the taught skills someone in the class has a checked answer on — never a column nobody answered
-  const steps = await sql<{ col: string }[]>`
-    select distinct s.skill_code || '|' || s.rung_code as col
+  // the columns, a topic opened at a time (goals/ux4-class-and-child.yaml), are the taught skills someone in the class
+  // has a checked answer on — never a column nobody answered
+  const steps = await sql<{ col: string; topic: string }[]>`
+    select distinct s.skill_code || '|' || s.rung_code as col, t.code as topic
     from child_skill_state s join child c on c.id = s.child_id
     join skill_set ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and ss.taught
     where c.section = ${SECTION} and s.n_events > 0`;
   const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
-  const shown = await grid.locator("thead th[data-col]").evaluateAll((ths) => ths.map((t) => t.getAttribute("data-col")));
-  expect(shown.sort()).toEqual(steps.map((s) => s.col).sort());
-  // in the school's words: no rung, skill or mistake code reaches a teacher
-  await expect(grid).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
-
   // every cell is the colour of the graph's own state for that child and skill, and its score; grey where there is none
   const states = await sql<{ child_id: string; col: string; state: string }[]>`
     select s.child_id, s.skill_code || '|' || s.rung_code as col, s.state
     from child_skill_state s join child c on c.id = s.child_id where c.section = ${SECTION}`;
-  for (const c of CHILDREN) {
-    const row = grid.locator(`tbody tr[data-child="${ids[c.name]}"]`);
-    await expect(row.getByRole("link", { name: c.name })).toHaveAttribute("href", `/growth/${ids[c.name]}`);
-    for (const col of shown) {
-      const state = states.find((s) => s.child_id === ids[c.name] && s.col === col)?.state ?? "not_enough_yet";
-      await expect(row.locator(`td[data-col="${col}"]`)).toHaveAttribute("data-rag", COLOUR[state]);
+  const shown: string[] = [];
+  for (const topic of new Set(steps.map((s) => s.topic))) {
+    await page.goto(`/growth/class/${SECTION}?topic=${topic}`);
+    await expect(grid).toBeVisible();
+    const cols = await grid.locator("thead th[data-col]").evaluateAll((ths) => ths.map((t) => t.getAttribute("data-col")!));
+    shown.push(...cols);
+    // in the school's words: no rung, skill or mistake code reaches a teacher
+    await expect(grid).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
+    for (const c of CHILDREN) {
+      const row = grid.locator(`tbody tr[data-child="${ids[c.name]}"]`);
+      await expect(row.getByRole("link", { name: c.name })).toHaveAttribute("href", `/growth/${ids[c.name]}`);
+      for (const col of cols) {
+        const state = states.find((s) => s.child_id === ids[c.name] && s.col === col)?.state ?? "not_enough_yet";
+        await expect(row.locator(`td[data-col="${col}"]`)).toHaveAttribute("data-rag", COLOUR[state]);
+      }
     }
   }
+  expect(shown.sort()).toEqual(steps.map((s) => s.col).sort());
+  await page.goto(`/growth/class/${SECTION}?topic=ADDSUB`);
   // the four colours are there, as the test's answers made them
   const asha = grid.locator(`tbody tr[data-child="${ids.Asha}"]`);
   for (const [col, rag] of [
@@ -183,10 +190,9 @@ test("a child's page opens on one plain sentence that counts what their answers 
     await expect(shown.locator(`li[data-rag="${rag}"]`)).toHaveCount(n);
   }
 
+  // a child with none: the sentence says so, and what places them (goals/ux4-class-and-child.yaml)
   await page.goto(`/growth/${ids.Bina}`);
-  await expect(page.getByTestId("summary")).toHaveText(
-    "Bina has no checked answers yet; this fills in once a paper is read and checked.",
-  );
+  await expect(page.getByTestId("summary")).toHaveText(/^Bina has no checked answers yet: /);
 });
 
 test("a child's page never draws a wall of grey, only skills with answers get a line, the rest are named once", async ({
@@ -244,12 +250,14 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
   await expect(next.getByRole("link", { name: qr })).toHaveAttribute("href", `/worksheets/${qr}`);
   await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 
-  // a child with nothing to work on — Bina has no checked answer yet — is told so, with nothing to approve. The page
-  // streams in: its words first, so that no button is a fact about the page and not about a skeleton. (Chetan, secure
-  // on every answer, is stretched a level up; the count of 0 passed only while his page had not loaded.)
+  // a child with nothing to work on — Bina has no checked answer yet — is offered no home assessment to approve: her
+  // page is one sentence and her first check (goals/ux4-class-and-child.yaml). The page streams in: its words first, so
+  // that no button is a fact about the page and not about a skeleton. (Chetan, secure on every answer, is stretched a
+  // level up; the count of 0 passed only while his page had not loaded.)
   await page.goto(`/growth/${ids.Bina}`);
-  await expect(next).toContainText("Nothing to work on yet");
-  await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
+  await expect(page.getByTestId("summary")).toHaveText(/^Bina has no checked answers yet: /);
+  await expect(next).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 });
 
 test("a child's page lists every paper made for them or read from them, with its purpose and who approved it", async ({
@@ -286,14 +294,16 @@ test("a class reads the shared tree, topic by topic, each skill by its name, in 
       select 1 from skill_set s join level_rule l on s.rung_code = any(l.rung_codes)
       where s.topic_code = t.code and l.band = 'G2') order by t.ord`;
   await page.goto(`/growth/class/${SECTION}`);
-  const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
+  const byTopic = page.getByRole("table", { name: `${SECTION}: each child on each topic` });
   // the page streams in behind its skeleton, and reading texts does not wait: the heading row first
-  await expect(grid.locator("thead tr").first()).toBeVisible();
-  const heads = await grid.locator("thead tr").first().locator("th").allInnerTexts();
+  await expect(byTopic.locator("thead tr")).toBeVisible();
+  const heads = await byTopic.locator("thead th").allInnerTexts();
   // after the "Child" column, the topics in their order (a topic shows only if the class has a step in it)
   const shown = heads.slice(1).map((h) => h.trim().toLowerCase());
   expect(shown).toEqual(topics.map((t) => t.name.toLowerCase()).filter((t) => shown.includes(t)));
   expect(shown.length).toBeGreaterThan(0);
+  // a topic opened, its skills by their names
+  await byTopic.getByRole("link", { name: "Addition & subtraction", exact: true }).click();
   const [{ name }] = await sql<{ name: string }[]>`select name from skill_set where code = 'ADD.2D2D'`;
-  await expect(grid.locator("thead tr").nth(1)).toContainText(name);
+  await expect(page.getByRole("table", { name: `${SECTION}: each child on each step` }).locator("thead")).toContainText(name);
 });

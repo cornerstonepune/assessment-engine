@@ -2,7 +2,7 @@
  * U21 — Children by topic, a class and the list (goals/ui4b2-class-by-topic.yaml). Nimish, 2026-10-11: "in the
  * Children tab, I think we need to now expand our thought process as more and more topics start coming in and need
  * help. It should be by topic or something." The Children list reads one topic at a time, chosen at the top; a class
- * opens on its children against its topics, each topic opening the class against its skills alone.
+ * opens on its children against its topics, each topic opening the class against its skills alone, in their place.
  *
  * The class is the test's own (tests/rows.ts). Its children's skill states are set here directly — the graph's own
  * rules are proved by the engine's tests; this is how the pages lay them out — and taken away after.
@@ -106,8 +106,9 @@ test("a class opens on its children against its topics, and a topic opens its sk
   const steps = page.getByRole("table", { name: `${SECTION}: each child on each step` });
   await expect(steps.locator("thead th[data-col]")).toHaveCount(1);
   expect(await steps.locator("thead th[data-col]").getAttribute("data-col")).toBe("NUM.DATA.01|R34");
-  // and one click shows every topic's skills again
-  await page.getByRole("link", { name: "Every topic’s skills" }).click();
+  // and one click, from the topics above it, shows every topic again, in the skills' place (goals/ux4-class-and-child.yaml)
+  await page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "All topics" }).click();
   await expect(page).not.toHaveURL(/topic=/);
-  await expect(steps.locator("thead th[data-col]")).toHaveCount(4); // R21, R22, R24 and R34
+  await expect(byTopic).toBeVisible();
+  await expect(steps).toHaveCount(0);
 });

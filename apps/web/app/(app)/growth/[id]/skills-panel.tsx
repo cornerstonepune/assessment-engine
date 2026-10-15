@@ -3,26 +3,47 @@ import { Panel, Pill } from "@/components/shell";
 import type { Evidence } from "@/lib/queries";
 import { STATE_WORDS } from "@/lib/queries";
 import type { ChildSkill } from "@/lib/queries-children";
-import { rag } from "@/lib/rag";
-import { NEED } from "@/lib/profile";
+import { rag, type Rag } from "@/lib/rag";
+import { byTopic, NEED, type TopicStanding } from "@/lib/profile";
 import { AnswerTable, fmtDate } from "./answers";
 
-// What a child's checked answers show (goals/v2-what-answers-show.yaml), topic by topic (goals/ui4b1-child-by-topic.yaml):
-// each topic they are taught, its skills one line each, those that need help first — its score, what it means, the
-// mistake that repeats — opening to the answers behind it. A topic's skills no paper has reached are named once, in a
-// line under it, not drawn as a wall of grey.
+// What a child's checked answers show (goals/v2-what-answers-show.yaml), topic by topic (goals/ui4b1-child-by-topic.yaml),
+// and the only place their page says it beyond its one sentence (goals/ux4-class-and-child.yaml): each topic they are
+// taught a group whose line counts its skills by where they stand, open where a skill needs help; inside, its skills one
+// line each, those that need help first — its score, what it means, the mistake that repeats — opening to the answers
+// behind it. A topic's skills no paper has reached are named once, in a line under it, not drawn as a wall of grey.
+const COUNTS: [Rag | "notYet", string][] = [
+  ["red", "needs help"],
+  ["amber", "practising"],
+  ["green", "secure"],
+  ["grey", "too few answers"],
+  ["notYet", "not assessed yet"],
+];
+
 export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; answers: Evidence[]; names: Record<string, string> }) {
-  const topics = [...new Map(skills.map((s) => [s.topic_code, s.topic])).entries()];
   const assessed = skills.filter((s) => s.n_events > 0);
   return (
     <Panel id="skills" label="What their answers show" title="What their answers show" aside="from checked answers only">
       {assessed.length ? null : <p className="note mb-4">No checked answers yet. This fills in once a paper is read and checked.</p>}
-      {topics.map(([code, name]) => {
+      {byTopic(skills).map((t) => {
+        const { code, name } = t;
         const here = assessed.filter((s) => s.topic_code === code).sort((a, b) => NEED[rag(a.state)] - NEED[rag(b.state)]);
         const notYet = skills.filter((s) => s.topic_code === code && s.n_events === 0);
         return (
-          <section key={code} id={`topic-${code}`} className="mb-5 scroll-mt-6 last:mb-0">
-            <h3 className="mb-2 font-heading text-[15px]">{name}</h3>
+          <details
+            key={code}
+            id={`topic-${code}`}
+            data-topic={code}
+            open={t.red > 0}
+            className="group mb-3 scroll-mt-6 border-t border-basalt/10 pt-3 first:border-t-0 first:pt-0 last:mb-0"
+          >
+            <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-2 gap-y-1 pb-2 [&::-webkit-details-marker]:hidden">
+              <span aria-hidden="true" className="inline-block w-3 text-basalt/50 transition-transform group-open:rotate-90">
+                ▸
+              </span>
+              <h3 className="font-heading text-[15px]">{name}</h3>
+              <Counts t={t} />
+            </summary>
             {here.length ? (
               <ul aria-label={name} className="grid gap-2">
                 {here.map((s) => (
@@ -42,10 +63,21 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
                 Not assessed yet: {notYet.map((s) => s.name).join(" · ")}
               </p>
             ) : null}
-          </section>
+          </details>
         );
       })}
     </Panel>
+  );
+}
+
+/** A topic's line: its skills counted by where they stand, only the counts that are not nought. */
+function Counts({ t }: { t: TopicStanding }) {
+  return (
+    <span className="text-[12.5px] text-basalt/70">
+      {COUNTS.filter(([k]) => t[k])
+        .map(([k, words]) => `${t[k]} ${words}`)
+        .join(" · ")}
+    </span>
   );
 }
 

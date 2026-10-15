@@ -18,6 +18,12 @@ const mine = (q: string) => q.startsWith("U24T-");
 
 test.beforeAll(async () => {
   kids = await aClass(sql, SECTION, "G2", ["Esha", "Farid"]);
+  // one answer of Esha's is signed off, so her page is the whole page, not her first step
+  // (goals/ux4-class-and-child.yaml). Made once: evidence is append-only.
+  await sql`
+    insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel, observed_at, confirmed_by)
+    select tenant_id, id, 'NUM.OPS.01', 'R21', true, '{}', 'item', now(), 'u24' from child
+    where id = ${kids.Esha} and not exists (select 1 from evidence_event where child_id = ${kids.Esha})`;
   const [{ id: template }] = await sql<{ id: string }[]>`
     insert into sheet_template (tenant_id, band, week, item_ids, key)
     select id, 'G2', '2026-W01', '{}'::uuid[], '{"test": "u24"}' from tenant limit 1 returning id`;

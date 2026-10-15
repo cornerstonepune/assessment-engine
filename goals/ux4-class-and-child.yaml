@@ -1,0 +1,36 @@
+name: ux4-class-and-child
+goal: >
+  A class's page shows each child's standing once: against the topics the class has answers in, or — a topic opened
+  from its name — against that topic's skills alone, in the same place; never both at once, and never every skill of
+  every topic. Its heading says the class's grade. Every action on it is on screen without a sideways scroll at a
+  laptop's width: each check that would place children is one line — the skill, how many children (their names folded
+  under it), the check's size and level, and "Make this check" — the skills no child has answered folded under one
+  line; the colour key is one line. A child's page says their standing once: one sentence, then each topic a group whose
+  line counts its skills, the topics with a skill that needs help open — no tiles, no second table. A child with no
+  checked answer and nothing waiting on a person gets one sentence and one action and nothing else: the paper already
+  made for them, if one waits to be approved or read (every one of them, on Assessments, if several do), else the first
+  check that would place them. Nothing on either page runs past its panel's edge.
+# Written 2026-10-15, before the code: slice UX4 of BUILD-ORDER. Measured first on the audit's screenshots (scratchpad
+# ui-audit, 12-growth-class-section and 09-growth-id): the class showed its standing twice, by topic and then every
+# skill; "Make this check" sat past a sideways scroll at 1440 px behind a column of names; the full colour legend under
+# it. A child's standing was said three times — four tiles, a by-topic table, the skills by topic — and a child with no
+# answers got tiles of zeros, a table of dashes, nine check rows, the legend, an empty mistakes panel and a parent report
+# with nothing to report.
+says:
+  - words: "Most of the pages just have a long list for no reason."
+    proved_by: "apps/web/tests/u36-class-and-child.spec.ts::a class shows its standing once: by topic, or one topic's skills in its place"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u36-class-and-child.spec.ts::every check is one line, its names folded, and every action is on screen"
+  - words: "All these things should be expandable and collapsible."
+    proved_by: "apps/web/tests/u36-class-and-child.spec.ts::a child's page says their standing once, topic by topic, the ones that need help open"
+  - words: "we should have a clear recommendation around the next set of assessments"
+    proved_by: "apps/web/tests/u36-class-and-child.spec.ts::a child with no answers gets one sentence and one action"
+manual: []
+scenarios: []
+criteria:
+  - name: the pages that show a class or a child still hold
+    run: cd apps/web && npx playwright test tests/u36-class-and-child.spec.ts tests/u2-children.spec.ts tests/u6-report-card.spec.ts tests/u7-parent-report.spec.ts tests/u8-children-table.spec.ts tests/u10-tables-read-straight.spec.ts tests/u11-colours-said.spec.ts tests/u16-assessments.spec.ts tests/u20-child-by-topic.spec.ts tests/u21-class-by-topic.spec.ts tests/u24-no-long-lists.spec.ts tests/u26-my-classes-first.spec.ts tests/u35-children-grouped.spec.ts tests/s4-validation-queue.spec.ts tests/s11-focus-paper.spec.ts tests/screens.spec.ts tests/e2e.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
