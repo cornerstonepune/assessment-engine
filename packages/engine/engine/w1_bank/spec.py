@@ -22,7 +22,7 @@ from engine.assess import bands, draw
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
 from engine.core import db
-from engine.w1_bank import cases
+from engine.w1_bank import cases, kinds
 
 MISCONCEPTION_PROMPT = "misconception_list"
 FACT_SLIPS = ("M_FACT_PM1", "M_FACT_PM10")
@@ -138,7 +138,8 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
     s = row(conn, code)
     out = {}
     for d, b in s["difficulty"].items():
-        check = b.get("check") or {}
+        # a level of kinds that are rows draws from their rows (ADR 0075)
+        check = kinds.resolve(conn, b.get("check") or {})
         if check.get("cases"):
             # A level made of taxonomy cases: the mistakes its own drawn questions can show (step 8f), each case on
             # the level's own numbers as the bank draws it. Read raw, K02 on ADD.1D1D named no operation, its draws
@@ -146,6 +147,8 @@ def known_misconceptions(conn, code, n=SAMPLE_PAIRS):
             each = max(n, SAMPLE_PER_CASE * len(check["cases"]))
             drawn = draw.level(random.Random(1), check, cases.for_level(conn, check), s["rung_code"], each)
             out[d] = sorted({c for _, it in drawn for r in it.responses for c in (r.misconceptions or {})})
+        elif check.get("format") == "card":
+            out[d] = kinds.mistakes(check)
         else:
             out[d] = bands.codes(check, n, rung=s["rung_code"])
     return out

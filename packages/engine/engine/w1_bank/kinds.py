@@ -35,3 +35,9 @@ def listed(check: dict[str, Any], rng: random.Random, rung: str) -> list[Any]:
     out = [it for k in check["kinds"] for it in cards.every(k, check, rung, "Conceptual")]
     rng.shuffle(out)
     return out
+
+
+def mistakes(check: dict[str, Any]) -> list[str]:
+    """Every mistake a resolved card level's questions can name: each of its kinds' (`also`), read from the rows, not
+    sampled — a kind is drawn only where each of its mistakes writes a wrong answer at the level (`cards.problems`)."""
+    return sorted({m for k in check["kinds"] for m in k.get("also", {})})
