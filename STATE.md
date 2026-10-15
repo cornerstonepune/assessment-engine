@@ -8171,11 +8171,13 @@ one child on live.
   answer, so her page lists her papers), screens. `ui4b2`'s goal sentence now says a topic opens in place. The goal's
   17 specs: 108 passed; `bin/check` 28 passed. tsc and eslint clean.
 
-## UX3 live; UX5a: Assessments by week, and the class's papers child by child (2026-10-15)
+## UX3 and UX4 live; UX5a: Assessments by week, and the class's papers child by child (2026-10-15)
 
 - **UX3 live:** #214 merged as `d3a948d`; main's CI passed, `migrate live` and `live database` 20:10 UTC, Vercel
   20:10:19. `bin/engine done ux3-children-grouped` on main's code, on the copy: 4/4 promises proved, 2/2 criteria.
-- **UX4** went in as #215 (`1617165`, 20:11 UTC): pushed to #214 a minute after it merged, so a new PR carried it.
+- **UX4 live:** #215 merged as `1617165` (20:11 UTC); it was pushed to #214 a minute after that merged, so a new PR
+  carried it. Main's CI passed, `migrate live` and `live database` 20:32:54 UTC, Vercel 20:32:55.
+  `bin/engine done ux4-class-and-child` on main's code, on the copy: 4/4 promises proved, 2/2 criteria.
 - **UX5 cut in two** (BUILD-ORDER): UX5a, Assessments and the class's papers to approve; UX5b, Make and Marking.
 - **Before (the audit's 03-papers and 23-papers-approve):** Assessments stacked three rows of chips over four selects; "Each
   paper" was 27 rows in no roll order; spares sat among the papers. A class assessment made in the maker was one row a

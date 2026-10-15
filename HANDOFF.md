@@ -3,9 +3,9 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-15 — UX3 live, UX4 merged (#215); UX5 cut in two, UX5a built
+## 2026-10-15 — UX3 and UX4 live; UX5 cut in two, UX5a built
 
-- **UX3 live** (STATE.md "UX3 live; UX5a"); **UX4 merged** as `1617165` (#215) at 20:11 UTC.
+- **UX3 and UX4 live** (STATE.md "UX3 and UX4 live; UX5a"): their done reports on main's code, 4/4 + 2/2 each.
 - **UX5 cut in two** in BUILD-ORDER: UX5a (Assessments, class papers to approve) built on this branch; see STATE.md.
   It carries one migration, 20261118090000 (`prescription.no_paper`), and an engine change in `assemble.for_week`.
 - **Next: UX5b** (`goals/ux5b-make-and-marking.yaml`, not written yet): Make and Marking open on the educator's class with
