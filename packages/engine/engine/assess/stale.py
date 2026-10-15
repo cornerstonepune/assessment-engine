@@ -6,6 +6,7 @@ import re
 from typing import Any, cast
 
 from . import diagnosis as D
+from . import divide_stories as DS
 from . import division as DV
 from . import estimate as E
 from . import misconceptions as M
@@ -121,8 +122,9 @@ def _changed(now: dict[str, dict[str, Any]], responses: list[dict[str, Any]]) ->
 
 def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]] | None) -> list[str]:
     """A story keyed when its other operation was named the wrong operation, before its shape's mistake had a name of
-    its own (`words.wrong_op_by_shape`, ADR 0054); or a "times as many" story whose numbers added are its answer (2
-    times as many as 2), which could never show that mistake."""
+    its own (`words.wrong_op_by_shape`, ADR 0054); a "times as many" story whose numbers added are its answer (2
+    times as many as 2), which could never show that mistake; or the groups everyone needs keyed when a slip that
+    rounds to the full groups alone was named beside the remainder not rounded up (`divide_stories.rounded_up`)."""
     named = W.wrong_op_by_shape().get(spec.get("structure") or "") if fmt == "word_1step" else None
     ans = [r for r in responses or [] if r.get("rid") == "ans"]
     stored: dict[str, Any] = (ans[0].get("misconceptions") or {}) if ans else {}
@@ -130,4 +132,12 @@ def _stale_story(fmt: str, spec: dict[str, Any], responses: list[dict[str, Any]]
     same = spec.get("op") == "×" and isinstance(a, int) and isinstance(b, int) and a + b == a * b
     if named and ("M_WRONG_OP" in stored or same):
         return ["M_WRONG_OP"]
+    if (
+        fmt == "word_1step"
+        and spec.get("remainder_use") == "ROUND_UP"
+        and isinstance(a, int)
+        and isinstance(b, int)
+    ):
+        now = DS.rounded_up(a, b)
+        return sorted(c for c, v in stored.items() if c not in now or now[c] != v)
     return []

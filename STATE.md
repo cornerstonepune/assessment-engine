@@ -7990,3 +7990,14 @@ one child on live.
   - pyright strict on `cards.py` and `question_formats.py`: 0 errors.
 - **Not live:** `migrate live` makes the table, but the skills, kinds and questions arrive only with `bin/update-live`
   (load, refill). They appear on a paper only once a Grade 2 class's topic is switched on.
+- **Found while proving it, fixed at its cause:** the groups everyone needs (26 children, 4 to a rickshaw) named
+  "one group short" beside "remainder not rounded up" on every 6. One group short and then rounded up (5 r 6, so 6)
+  always writes what forgetting to round up writes, and the story has no second box to tell them apart. So a child who
+  forgot the children left over was charged a division slip too.
+  - It surfaced as `test_the_loop[DIV.2D1D-Advance]` on a fresh build: the next paper went to the other mistake. The
+    bank's fill is unseeded, so it depends on which stories a worksheet draws, and main could fail the same way.
+  - `divide_stories.rounded_up` now names the not-rounded-up answer by that act alone. `stale.key_problems` retires a
+    rounded-up story keyed the old way; on the fresh copy, refill retired 34 and drew 34.
+  - Checks: `tests/test_divide_stories.py`, 6 passed. The new test failed first on the doubled 6.
+  - Charged on live? None on the copy (live's rows to 2026-10-14): no answer to a rounded-up story, and DIVCOL is not
+    switched on. Live after that cannot be read from here.
