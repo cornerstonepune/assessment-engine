@@ -5,9 +5,10 @@ is verified. This file only says where the last session stopped.
 
 ## 2026-10-15 — UX2: one count for one thing; #212 merged
 
-- **#212 (T1b + UX1) merged as `3d07f66`.** Main's browser job failed on the first load of `/growth` ("This page
-  could not load"), the same as once on T1's PR: re-run once; being reproduced on a fresh copy. Until main is green,
-  `migrate live` has not run and neither is live.
+- **#212 (T1b + UX1) merged as `3d07f66`, live at 16:08 UTC.** Main's browser job first failed on the first load of
+  `/growth` ("This page could not load"); its one re-run passed, and `migrate live` applied 20261114090000. The cause,
+  found on a copy built as CI builds it: `pii.read_child`'s default row guess made Postgres JIT-compile the Children
+  query (STATE.md "`/growth` could not load on CI"); fixed on this branch.
 - **UX2 (this branch):** a class has one grade (`class_band`), spares are counted apart, "the bank" and "the library"
   are one number each. See STATE.md "UX2".
 - **Next: SF2** (BUILD-ORDER: T1 → UX1 → UX2 → SF2).

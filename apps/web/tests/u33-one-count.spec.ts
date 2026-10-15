@@ -103,6 +103,7 @@ test("the question bank is one number wherever it is named", async ({ page }) =>
   // Curriculum: its grades' questions are the bank's, each level counted at the grade that holds it
   await page.goto("/");
   const grades = page.getByRole("table", { name: "The curriculum, grade by grade" }).locator('tbody tr[data-depth="0"]');
+  await expect(grades.first()).toBeVisible();
   const counts = await grades.locator("td:nth-child(2)").allInnerTexts();
   expect(counts.reduce((n, c) => n + number(c), 0), "Curriculum's grades add up to the bank").toBe(bank);
 });
@@ -115,8 +116,10 @@ test("the worksheet library's total, pager and list are the same worksheets", as
   expect(total).toBeGreaterThan(0);
   const pager = library.getByText(/\d[\d,]* of [\d,]+/).first();
   await expect(pager, "the pager counts what the total counts").toContainText(`of ${total.toLocaleString("en-IN")}`);
-  // the last page lists what is left: nothing is counted that the list never shows
-  const per = await library.getByRole("table", { name: "Worksheets", exact: true }).locator("tbody tr").count();
+  // the last page lists what is left: nothing is counted that the list never shows (read once the list has streamed in)
+  const list = library.getByRole("table", { name: "Worksheets", exact: true }).locator("tbody tr");
+  await expect(list.first()).toBeVisible();
+  const per = await list.count();
   const last = Math.ceil(total / per);
   await page.goto(`/worksheets?page=${last}#library`);
   await expect(page.locator("#library").getByRole("table", { name: "Worksheets", exact: true }).locator("tbody tr")).toHaveCount(
