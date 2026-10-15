@@ -8171,6 +8171,36 @@ one child on live.
   answer, so her page lists her papers), screens. `ui4b2`'s goal sentence now says a topic opens in place. The goal's
   17 specs: 108 passed; `bin/check` 28 passed. tsc and eslint clean.
 
+## UX3 live; UX5a: Assessments by week, and the class's papers child by child (2026-10-15)
+
+- **UX3 live:** #214 merged as `d3a948d`; main's CI passed, `migrate live` and `live database` 20:10 UTC, Vercel
+  20:10:19. `bin/engine done ux3-children-grouped` on main's code, on the copy: 4/4 promises proved, 2/2 criteria.
+- **UX4** went in as #215 (`1617165`, 20:11 UTC): pushed to #214 a minute after it merged, so a new PR carried it.
+- **UX5 cut in two** (BUILD-ORDER): UX5a, Assessments and the class's papers to approve; UX5b, Make and Marking.
+- **Before (the audit's 03-papers and 23-papers-approve):** Assessments stacked three rows of chips over four selects; "Each
+  paper" was 27 rows in no roll order; spares sat among the papers. A class assessment made in the maker was one row a
+  child, titled by a QR code: each child's copy is drawn on a worksheet of its own, with no skill set to group on. The
+  class's papers to approve showed roll numbers and no names, two columns the same on every row, and a child the week's
+  assembly could not dress appeared nowhere: `assemble.for_week` returned the reason and nothing kept it.
+- **Now (`goals/ux5-papers-grouped.yaml`, `tests/u37-papers-grouped.spec.ts`):**
+  - Assessments: weeks newest first, the newest open, each one line ("1 assessment · 1 to approve · 1 to check", or
+    "nothing waiting"). An assessment is a line that opens in place (`?open=`) to its copies in roll order — Roll, Child,
+    Level, Stage, Waiting, Score — the child opening the paper where its work is; the spares one line under them. One
+    assessment left by the filters opens by itself (`open=none` closes it). Topic and stage stay at the top; class, child,
+    kind and week fold under one line, open when one is chosen; a filter opens every week it leaves; a child chosen
+    shows their copy under each assessment. The "By assessment / Each paper" switch is gone.
+  - A maker's class paper is one assessment by the skills and levels every child's copy names (`si.key -> 'areas'`),
+    titled by them.
+  - Class papers to approve: Roll · Child · Level and why · Paper · Change level; under the table, every child of the class
+    with no paper and why — the assembly's reason, now kept on their plan (migration 20261118090000,
+    `prescription.no_paper`, written by `assemble.for_week`, cleared when a paper is handed out), or "joined the class
+    after this week was planned". The button says what one tap approves: "Approve 2 papers and 1 spare", the children's
+    papers counted as Today counts them. Its queries moved to `lib/queries-approve.ts` (queries.ts 374 → 318 lines).
+- **Checks:** u37 failed first, 4 of 4, then passed; `test_the_reason_a_child_has_no_paper_is_kept_on_their_plan` failed
+  on the missing column, then passed (with test_week, 21 passed). The specs that pinned the old layout keep their
+  promises on the new one: u9, u16, u22, u24, u26, u33, u36, m4 (it found the maker split), s7 and u27 (the counted
+  button; u27's classes now have papers to approve, so the refused approval is a real one).
+
 ## A copy photographed from its second page was read in the wrong layout (2026-10-15)
 
 - **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy

@@ -1,0 +1,36 @@
+name: ux5-papers-grouped
+goal: >
+  Assessments opens on its weeks, newest first, the newest open and the rest closed, each week one line saying how many
+  assessments it holds and what waits in them. Each assessment is one line — what it is, its class, its copies by
+  stage, the answers waiting and its score — that opens in place to its copies in roll order: Roll, Child, Level, Stage,
+  Waiting, Score, each opening the paper where its work is; its spares are one line under them. The topic and stage
+  rows stay; the class, child, kind and week fold under one line, open when one is chosen, and a filter chosen opens
+  every week it leaves. Class papers to approve names each child — Roll, Child, Level and why, Paper, Change level —
+  names every child of the class who has no paper and why, the reason the week's assembly found kept on their plan, and
+  its button says how many papers it approves.
+# Written 2026-10-15, before the code: slice UX5a of BUILD-ORDER (UX5 cut in two). Measured first on the audit's
+# screenshots (scratchpad ui-audit, 03-papers and 23-papers-approve): Assessments stacked three rows of chips over a
+# form of four selects; "Each paper" was 27 rows in no roll order; spares sat among the papers. Class papers to approve
+# showed roll numbers and no names, two columns the same on every row, and a child the assembly could not dress
+# appeared nowhere: `assemble.for_week` returned the reason and nothing kept it.
+says:
+  - words: "This cannot be just such a freaking long list of stuff. Need to make it more readable."
+    proved_by: "apps/web/tests/u37-papers-grouped.spec.ts::Assessments opens on its weeks, the newest open and the rest closed, each saying what waits in it"
+  - words: "All these things should be expandable and collapsible."
+    proved_by: "apps/web/tests/u37-papers-grouped.spec.ts::an assessment opens in place to its copies in roll order, its spares on one line"
+  - words: "the assessment page needs to have the filter and the view by topic and all"
+    proved_by: "apps/web/tests/u37-papers-grouped.spec.ts::the topic and stage rows stay, the other filters fold, and a filter opens every week it leaves"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u37-papers-grouped.spec.ts::class papers to approve names each child, says why a child has no paper, and counts what it approves"
+manual: []
+scenarios: []
+criteria:
+  - name: the pages that show papers still hold
+    run: cd apps/web && npx playwright test tests/u37-papers-grouped.spec.ts tests/u9-papers.spec.ts tests/u16-assessments.spec.ts tests/u22-assessments-readable.spec.ts tests/u24-no-long-lists.spec.ts tests/u26-my-classes-first.spec.ts tests/u33-one-count.spec.ts tests/u36-class-and-child.spec.ts tests/m4-the-maker.spec.ts tests/s7-paper-from-library.spec.ts tests/u27-who-decides-what.spec.ts tests/screens.spec.ts tests/e2e.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: a week's assembly keeps why a child has no paper
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_paper_from_library.py tests/test_week.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -209,5 +209,5 @@ test("a child with no answers gets one sentence and one action", async ({ page }
   await expect(sentence).toHaveText(`Ela has no checked answers yet: 2 papers made for Ela wait to be approved or read.`);
   await expect(main.getByRole("region")).toHaveCount(0);
   await expect(actions).toHaveCount(1);
-  await expect(main.getByRole("link", { name: "See Ela’s 2 papers →" })).toHaveAttribute("href", `/papers?view=papers&child=${kids.Ela}`);
+  await expect(main.getByRole("link", { name: "See Ela’s 2 papers →" })).toHaveAttribute("href", `/papers?child=${kids.Ela}`);
 });

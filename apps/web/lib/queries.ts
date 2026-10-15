@@ -144,67 +144,11 @@ export async function tableCounts(): Promise<Record<string, number>> {
   return Object.fromEntries(rows.map((r) => [r.t, r.n]));
 }
 
-export type WeekRow = {
-  prescription_id: string;
-  child_id: string;
-  roll_no: string;
-  band: string;
-  section: string;
-  skill_set_code: string;
-  skill_set_name: string;
-  difficulty: Difficulty;
-  rule_fired: string;
-  override_by: string | null;
-  override_reason: string | null;
-  qr_code: string | null;
-  print_status: string | null;
-  questions: number | null;
-  worksheet: string | null; // the library worksheet it is, when it came from the library
-};
-
 export const RULE_WORDS: Record<string, string> = {
   band_default: "Not enough of their own work yet, so this is the starting level for their grade.",
   from_state: "From what this child's last papers showed.",
   override: "A teacher set this by hand.",
 };
-
-export async function weeks(scope: Scope = EVERY_CLASS): Promise<{ section: string; week: string; kind: string; n: number }[]> {
-  return sql`
-    select c.section, p.week, p.kind, count(*)::int as n
-    from prescription p join child c on c.id = p.child_id
-    where ${inScope(scope, sql`c.section`)}
-    group by c.section, p.week, p.kind
-    order by p.week desc, c.section, p.kind`;
-}
-
-export async function weekPlan(section: string, week: string, kind: string): Promise<WeekRow[]> {
-  return sql<WeekRow[]>`
-    select p.id as prescription_id, p.child_id, c.roll_no, c.band, c.section,
-           p.skill_set_code, s.name as skill_set_name, p.difficulty, p.rule_fired,
-           p.override_by, p.override_reason,
-           si.qr_code, si.print_status, array_length(st.item_ids, 1) as questions, st.code as worksheet
-    from prescription p
-    join child c on c.id = p.child_id
-    left join skill_set s on s.tenant_id = p.tenant_id and s.code = p.skill_set_code
-    left join sheet_instance si on si.id = p.sheet_instance_id
-    left join sheet_template st on st.id = si.sheet_template_id
-    where c.section = ${section} and p.week = ${week} and p.kind = ${kind}
-    order by roll_order(c.roll_no), c.roll_no`;
-}
-
-export async function spareSheets(
-  section: string,
-  week: string,
-): Promise<{ qr_code: string; difficulty: string; worksheet: string | null }[]> {
-  return sql`
-    select si.qr_code, st.difficulty, st.code as worksheet from sheet_instance si
-    join sheet_template st on st.id = si.sheet_template_id
-    where si.child_id is null
-      and (si.section = ${section} and si.week = ${week}
-           or si.section is null and st.week = ${week}
-              and st.band in (select distinct band from child where section = ${section}))
-    order by st.difficulty, si.qr_code`;
-}
 
 // `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.
 export type Staff = { email: string; name: string; role: string; password?: string; classes?: string[] };

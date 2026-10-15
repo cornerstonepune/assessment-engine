@@ -59,9 +59,10 @@ test("a class paper carries its class's grade, a spare copy too", async ({ page 
   await page.goto(`/papers?class=${CLASS}`);
   await expect(ours(page)).toHaveCount(1);
   await expect(ours(page)).toContainText(`Grade 2 · ${CLASS}`);
-  await page.goto(`/papers?view=papers&class=${CLASS}`);
-  await expect(ours(page)).toHaveCount(3);
-  for (const row of await ours(page).all()) await expect(row, "a spare copy is the class's too").toContainText(`Grade 2 · ${CLASS}`);
+  // the class's one assessment, opened by itself: its two children's copies, and the spare with them, the class's too
+  // (goals/ux5-papers-grouped.yaml)
+  await expect(page.getByRole("table", { name: /: each copy$/ }).locator("tbody tr")).toHaveCount(2);
+  await expect(page.locator("[data-spares]"), "a spare copy is the class's too").toContainText("1 spare copy, with the pack");
 });
 
 test("the class papers Today counts are the copies the pages it opens show waiting", async ({ page }) => {
@@ -76,11 +77,13 @@ test("the class papers Today counts are the copies the pages it opens show waiti
   const stage = page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ });
   await expect(stage, "the class's papers to approve: its children's copies").toHaveText(/To approve\s*2$/);
 
-  // the approve page Today's line opens: two copies ready, the spare among the spare copies
+  // the approve page Today's line opens: two copies to approve, the spare among the spare copies, the button counting
+  // them as Today does (goals/ux5-papers-grouped.yaml)
   await page.goto("/today");
   await page.getByRole("listitem").filter({ hasText: `${CLASS} · class practice` }).getByRole("link").click();
-  await expect(page.getByRole("main").locator("tbody").getByText("ready", { exact: true })).toHaveCount(2);
+  await expect(page.getByRole("main").locator("tbody").getByText("to approve", { exact: true })).toHaveCount(2);
   await expect(page.getByRole("main")).toContainText("1 unnamed");
+  await expect(page.getByRole("button", { name: "Approve 2 papers and 1 spare" })).toBeEnabled();
 });
 
 test("the question bank is one number wherever it is named", async ({ page }) => {

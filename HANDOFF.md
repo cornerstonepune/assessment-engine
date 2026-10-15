@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — UX3 live, UX4 merged (#215); UX5 cut in two, UX5a built
+
+- **UX3 live** (STATE.md "UX3 live; UX5a"); **UX4 merged** as `1617165` (#215) at 20:11 UTC.
+- **UX5 cut in two** in BUILD-ORDER: UX5a (Assessments, class papers to approve) built on this branch; see STATE.md.
+  It carries one migration, 20261118090000 (`prescription.no_paper`), and an engine change in `assemble.for_week`.
+- **Next: UX5b** (`goals/ux5b-make-and-marking.yaml`, not written yet): Make and Marking open on the educator's class with
+  a next step per child (the audit's "Make papers / Home assessments" and "Marking" sections).
+
 ## 2026-10-15 — #213 and #214 merged; UX3–UX5 moved ahead of SF2; UX4 built
 
 - **#213 merged as `84cc0fd` (18:20 UTC):** UX2, the two JIT fixes, the copy-layout fix. Main's CI, then `migrate live`

@@ -97,16 +97,24 @@ test("a class and a topic make the class's default assessment, every child's pap
 });
 
 test("every assessment's stage, class and week are said in words", async ({ page }) => {
-  await page.goto(`/papers?view=papers&class=${SECTION}`);
+  await page.goto(`/papers?class=${SECTION}`);
   const stages = page.getByRole("navigation", { name: "Papers by stage" });
   await expect(stages.getByRole("link")).toHaveText([/^Every stage/, /^To approve/, /^With the children/, /^To check/, /^To sign off/, /^Done/]);
-  const table = page.getByRole("table", { name: "Every paper" });
-  const row = table.locator("tbody tr").filter({ hasText: "U16 paper" });
-  await expect(row.locator("td")).toHaveText(["U16 paper", "Earlier paper", `Grade 2 · ${SECTION}`, "Asha", weekWords(WEEK), "to check", "1", "—"]);
-  expect(await table.innerText(), "an ISO week code in the list").not.toMatch(/\b\d{4}-W\d{2}\b/);
+  // its week said in words, a line for the assessment, its copy under it (goals/ux5-papers-grouped.yaml)
+  const week = page.locator(`details[data-week="${WEEK}"]`);
+  await expect(week.locator("> summary")).toContainText(weekWords(WEEK));
+  const line = week.locator("tr[data-assessment]").filter({ hasText: "U16 paper" });
+  await expect(line.locator("td").nth(1)).toHaveText("Earlier paper");
+  await expect(line.locator("td").nth(2)).toHaveText(`Grade 2 · ${SECTION}`);
+  await page.goto(`/papers?class=${SECTION}&child=${kids.Asha}`);
+  const copy = page.getByRole("table", { name: "U16 paper: each copy" }).locator("tbody tr");
+  await expect(copy.locator("td").nth(1)).toHaveText("Asha");
+  await expect(copy.locator("td").nth(3)).toHaveText("to check");
+  await expect(copy.locator("td").nth(4)).toHaveText("1");
+  expect(await page.getByRole("region", { name: "Papers" }).innerText(), "an ISO week code in the list").not.toMatch(/\b\d{4}-W\d{2}\b/);
   await stages.getByRole("link", { name: /^To check/ }).click();
   await expect(page).toHaveURL(/stage=scanned/);
-  await expect(table.locator("tbody tr").filter({ hasText: "U16 paper" })).toHaveCount(1);
+  await expect(page.locator("tr[data-assessment]").filter({ hasText: "U16 paper" })).toHaveCount(1);
 });
 
 test("an answer is checked and a paper signed off, one word for each", async ({ page }) => {

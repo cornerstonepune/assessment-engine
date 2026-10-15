@@ -121,6 +121,32 @@ def test_a_child_who_has_sat_every_worksheet_at_a_level_is_named_not_handed_a_re
     assert "every worksheet" in named["why"] and {"had", "needed"} <= named.keys()
 
 
+def test_the_reason_a_child_has_no_paper_is_kept_on_their_plan(conn, children):
+    # the class's papers to approve name the child and why (goals/ux5-papers-grouped.yaml): the reason the assembly
+    # found is kept on their plan, where the page reads it, not only returned to whoever ran it
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    kid = children[0]
+    for t in conn.execute(
+        "select id from sheet_template where source = 'library' and skill_set_code = %s and difficulty = 'Hard'",
+        (SET,),
+    ).fetchall():
+        conn.execute(
+            "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id) values (%s,%s,%s,%s)",
+            (tenant, assemble._qr(t["id"], kid, "an earlier term", "practice"), t["id"], kid),
+        )
+    built = _week(conn, "S7-W1")
+    (named,) = [x for x in built["short"] if x["child_id"] == kid]
+    kept = {
+        r["child_id"]: r["no_paper"]
+        for r in conn.execute(
+            "select child_id, no_paper from prescription where week = 'S7-W1' and child_id = any(%s)",
+            (children,),
+        ).fetchall()
+    }
+    # a child handed a paper has no reason against them
+    assert kept == {kid: named["why"], children[1]: None, children[2]: None}
+
+
 def test_the_printed_paper_names_its_worksheet(conn, children):
     s = _week(conn, "S7-W1")["sheets"][0]
     assert s["code"] in assemble.label("Aarav", s, "practice")

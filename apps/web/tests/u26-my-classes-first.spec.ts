@@ -83,8 +83,11 @@ test("an educator sees their own classes and no other", async ({ browser }) => {
     const classes = await page.getByLabel("Choose a class").locator("option").allTextContents();
     expect(classes.join(" ")).toContain(MINE);
     expect(classes.join(" ")).not.toContain(OTHER);
-    await page.goto("/papers?view=papers");
+    // the other class asked for by name: none of its papers, its copies or its name
+    await page.goto(`/papers?class=${OTHER}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
     await expect(page.getByRole("main")).not.toContainText("CSF1B026");
+    await expect(page.getByRole("main")).not.toContainText("Chirag");
 
     // another class's page, typed in, says it is not theirs and shows nothing of it
     for (const href of [`/growth/class/${OTHER}`, `/make/${OTHER}`, `/growth/${other.Chirag}`, "/worksheets/CSF1B026"]) {

@@ -66,13 +66,22 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-const assessments = (page: Page) => page.getByRole("table", { name: "Every assessment" });
-const ours = (page: Page) => assessments(page).locator("tbody tr").filter({ hasText: SECTION });
+// each week's assessments are a table of their own (goals/ux5-papers-grouped.yaml); a line for each
+const assessments = (page: Page) => page.getByRole("region", { name: "Papers" });
+const ours = (page: Page) => assessments(page).locator("tr[data-assessment]").filter({ hasText: SECTION });
 
 test("Assessments opens on one row for each assessment, its copies counted by stage", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  await expect(page.getByRole("navigation", { name: "View" }).getByRole("link", { name: "By assessment" })).toHaveAttribute("aria-current", "page");
-  await expect(assessments(page).locator("thead th")).toHaveText(["Assessment", "Kind", "Class", "Week", "Copies", "Where they stand", "Waiting", "Score"]);
+  // the week is the group the assessments sit in, said once on its line
+  await expect(page.getByRole("table", { name: `${weekWords(WEEK)}: its assessments` }).locator("thead th")).toHaveText([
+    "Assessment",
+    "Kind",
+    "Class",
+    "Copies",
+    "Where they stand",
+    "Waiting",
+    "Score",
+  ]);
   // three copies of one class assessment are one row, the tally practice another
   await expect(ours(page)).toHaveCount(2);
   const add = ours(page).filter({ hasText: await setName("ADD.2D2D") });
@@ -80,7 +89,6 @@ test("Assessments opens on one row for each assessment, its copies counted by st
     await setName("ADD.2D2D"),
     "Class assessment",
     `Grade 2 · ${SECTION}`,
-    weekWords(WEEK),
     "3",
     /1 to approve[^]*1 with the children[^]*1 to check/,
     "1",
@@ -90,7 +98,7 @@ test("Assessments opens on one row for each assessment, its copies counted by st
   await page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ }).click();
   await expect(page).toHaveURL(/stage=made/);
   await expect(ours(page)).toHaveCount(2);
-  await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(4)).toHaveText("1");
+  await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(3)).toHaveText("1");
   // in the school's words: no skill code, no ISO week
   expect(await assessments(page).innerText()).not.toMatch(/\b(\d{4}-W\d{2}|[A-Z]{3,}\.[A-Z0-9]+)\b/);
 });
@@ -112,10 +120,15 @@ test("a topic keeps the assessments on its skills, and an assessment opens its c
   await expect(ours(page)).toHaveCount(1);
   await expect(ours(page)).toContainText(await setName("ADD.2D2D"));
 
-  // the assessment opens its copies, one row each, under the same filters
-  await ours(page).getByRole("link").first().click();
-  await expect(page.getByRole("navigation", { name: "View" }).getByRole("link", { name: "Each paper" })).toHaveAttribute("aria-current", "page");
-  const papers = page.getByRole("table", { name: "Every paper" });
+  // the assessment, alone under these filters, is open on its copies, one row each, in roll order
+  // (goals/ux5-papers-grouped.yaml)
+  const papers = page.getByRole("table", { name: `${await setName("ADD.2D2D")}: each copy` });
   await expect(papers.locator("tbody tr")).toHaveCount(3);
-  expect((await papers.locator("tbody tr td:nth-child(4)").allInnerTexts()).sort()).toEqual(["Asha", "Bina", "Chetan"]);
+  expect(await papers.locator("tbody tr td:nth-child(2)").allInnerTexts()).toEqual(["Asha", "Bina", "Chetan"]);
+  // and it closes, and opens again, in place
+  await ours(page).getByRole("link").first().click();
+  await expect(page).toHaveURL(/[?&]open=none\b/);
+  await expect(papers).toHaveCount(0);
+  await ours(page).getByRole("link").first().click();
+  await expect(papers.locator("tbody tr")).toHaveCount(3);
 });

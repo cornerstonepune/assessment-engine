@@ -31,14 +31,22 @@ test.beforeAll(async () => {
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
     where key = 'app.staff'`;
-  // a week of class practice planned for each class, as `engine week prescribe` plans one
+  // a week of class practice planned for each class, as `engine week prescribe` plans one, and assembled: each child's
+  // paper made and waiting to be approved, so the pack's button has papers to approve
   const [{ id: tenant }] = await sql<{ id: string }[]>`select id from tenant limit 1`;
-  for (const id of [...Object.values(mine), ...Object.values(other)]) {
-    const [had] = await sql`select 1 from prescription where child_id = ${id} and week = ${WEEK}`;
-    if (!had) {
+  const [w] = await sql<{ id: string }[]>`
+    select id from sheet_template where source = 'library' and retired_at is null order by code limit 1`;
+  for (const [section, kids] of [[MINE, mine], [OTHER, other]] as const) {
+    for (const id of Object.values(kids)) {
+      const [had] = await sql`select 1 from prescription where child_id = ${id} and week = ${WEEK}`;
+      if (had) continue;
+      const [{ id: paper }] = await sql<{ id: string }[]>`
+        insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status)
+        values (${tenant}, ${`U27-${id.slice(0, 8)}`}, ${w.id}, ${id}, ${WEEK}, ${section}, 'practice', 'new')
+        returning id`;
       await sql`
-        insert into prescription (tenant_id, child_id, week, rule_fired, skill_set_code, difficulty, kind)
-        values (${tenant}, ${id}, ${WEEK}, 'band_default', 'ADD.2D1D', 'Easy', 'practice')`;
+        insert into prescription (tenant_id, child_id, week, rule_fired, skill_set_code, difficulty, kind, sheet_instance_id)
+        values (${tenant}, ${id}, ${WEEK}, 'band_default', 'ADD.2D1D', 'Easy', 'practice', ${paper})`;
     }
   }
   [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set where status = 'draft' order by code limit 1`;
@@ -91,7 +99,7 @@ test("an educator cannot approve another class's pack by changing the form", asy
   const page = await signedIn(browser);
   try {
     await page.goto(`/papers/approve?section=${MINE}&week=${WEEK}&kind=practice`);
-    const approve = page.getByRole("button", { name: "Approve and print" });
+    const approve = page.getByRole("button", { name: /^Approve \d+ papers?\b/ });
     await expect(approve).toBeEnabled();
     // the class in the form, changed by hand to a class that is not theirs
     const form = page.locator("form").filter({ has: approve });
