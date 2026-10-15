@@ -3,7 +3,7 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-15 — #213 merged; UX3–UX5 moved ahead of SF2; UX3 and UX4 built
+## 2026-10-15 — #213 and #214 merged; UX3–UX5 moved ahead of SF2; UX4 built
 
 - **#213 merged as `84cc0fd` (18:20 UTC):** UX2, the two JIT fixes, the copy-layout fix. Main's CI, then `migrate live`
   (20261115090000, 20261116090000, 20261117090000), then Vercel.
@@ -11,8 +11,9 @@ is verified. This file only says where the last session stopped.
   and the visible restructure is UX3–UX7. He chose UX3–UX5 next, then SF2 (BUILD-ORDER order line).
 - **SF2a is parked, not dropped:** its design is ADR 0077 "Settled in SF2's goal"; its goal and failing tests are in
   `docs/drafts/sf2a/` (README there says how to restore them).
-- **UX3 built on this branch (PR #214):** Children grouped by class, collapsible, with the columns that matter; see STATE.md "UX3".
-- **UX4 built on this branch (PR #214):** a class says where each child stands once (by topic, or one topic's skills
+- **UX3 merged with #214 as `d3a948d` (19:36 UTC):** Children grouped by class, collapsible, with the columns that
+  matter; see STATE.md "UX3".
+- **UX4 built on this branch, replayed onto `d3a948d`** (it was pushed a minute after #214 merged, so a new PR carries it): a class says where each child stands once (by topic, or one topic's skills
   in its place); checks one line each, names folded; a child's topics as groups; a child with nothing gets one sentence
   and one action. See STATE.md "UX4".
 - **Next: UX5** (`goals/ux5-papers-grouped.yaml`): Assessments grouped by week → assessment → copies in roll order,
